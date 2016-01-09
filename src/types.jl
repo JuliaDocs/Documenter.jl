@@ -31,7 +31,7 @@ immutable Document
     docs    :: ObjectIdDict    # Stores references to all docstrings in document.
 
     function Document(src, build, format, clean, passes)
-        isdir(src) || error("cannot find `src` directory `$src` in the docs directory.")
+        isdir(src) || error("cannot find `src` directory named `$(abspath(src))`.")
         doc = new(src, build, clean, passes, Dict(), [], ObjectIdDict())
         for (root, dirs, files) in walkdir(src)
             for file in files
