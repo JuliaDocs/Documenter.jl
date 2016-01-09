@@ -7,7 +7,7 @@ end
 
 parsefile(file) = Markdown.parse(readall(file)).content
 
-# Normalise docstring query expression to a cannonical object.
+# Normalise docstring query expression to a canonical object.
 macro object(x)
     haskey(Docs.keywords, x) ? quot(x) :
     isexpr(x, :call)         ? findmethod(x) :
