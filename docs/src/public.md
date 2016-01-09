@@ -1,0 +1,4 @@
+# Public Documentation
+
+    {docs}
+    makedocs

@@ -1,6 +1,15 @@
 
 # handlers
 
+"""
+    process!(doc::Document)
+
+Process a `Document` object by calling each `pass` from `doc.passes` on it in turn.
+
+A `pass` consistens of a sequence of [`AbstractAction`]({ref})s each of which apply a single
+transformation to the `doc` object such as autolinking cross-references found in the pages
+of the `Document` or running doctests on all the code blocks.
+"""
 function process!(doc::Document)
     for pass in doc.passes
         process!(doc, pass)
@@ -31,10 +40,45 @@ end
 
 # basics
 
+"""
+    AbstractAction
+
+Represents a single transformation to be applied to a `Document`. Custom transformation
+types must subtype from this type, i.e.
+
+```julia
+immutable CustomAction <: AbstractAction end
+```
+
+For each custom `AbstractAction` type defined one or more 4-arg [`process!`]({ref}) methods
+must be defined with the signature
+
+```julia
+process!(::CustomAction, page::page, content::Vector, block::Any) = ...
+```
+
+where
+
+- `block` is the current part of the document being processed. This could be a header,
+  paragraph, code block, metadata, table of contents, etc.
+- `content` is the vector into which the results of the transformation should be pushed if
+  there are any. So when, for example, doctesting a code block (the `block`) it should then
+  be pushed onto the end of `content` to save it for the next pass.
+- `page` is the current `Page` object in which the `block` is located. This object has
+  access to the rest of the document structure via `page.root`. `page.root` in turn contains
+  a vector of all `Page` objects.
+"""
 abstract AbstractAction
 
 process!(::AbstractAction, ::Page, content, block) = false
 
+"""
+    DefaultAction
+
+Handles any case not explicitly handled by a custom `AbstractAction`. When called on a block
+it will simply add it to the output `content` vector thus not "losing" any blocks for
+subsequent passes.
+"""
 immutable DefaultAction <: AbstractAction end
 
 process!(::DefaultAction, ::Page, content, block) = (push!(content, block); true)
@@ -47,6 +91,13 @@ immutable MetadataBlock       <: AbstractAction end
 immutable DocstringBlock      <: AbstractAction end
 immutable SlugifyHeader       <: AbstractAction end
 
+"""
+    PassOne
+
+"Pre-processing" steps such as cleaning the build directory, parsing metadata, docs, and
+generating header anchors. Actions in this pass generally collect information needed for
+later passes.
+"""
 const PassOne = (
     CleanBuildDirectory(),
     MetadataBlock(),
@@ -64,6 +115,13 @@ immutable DocstringIndexBlock  <: AbstractAction end
 immutable UpdateLinkURLs       <: AbstractAction end
 immutable DocChecks            <: AbstractAction end
 
+"""
+    PassTwo
+
+The "main" pass where information gathered in the previous stage is used to link together
+different pages and blocks. Actions such as cross-referencing and generating tables of
+contents are applied during this pass.
+"""
 const PassTwo = (
     MetadataNode(),
     TableOfContentsBlock(),
@@ -77,8 +135,14 @@ const PassTwo = (
 ## pass 3, builddir setup, rendering docs.
 
 immutable SetupBuildDirectory <: AbstractAction end
-immutable Render             <: AbstractAction end
+immutable Render              <: AbstractAction end
 
+"""
+    PassThree
+
+The "finalisation" pass where the output directory is setup and all pages and there content
+are rendered to actual files.
+"""
 const PassThree = (
     SetupBuildDirectory(),
     Render(),
@@ -233,7 +297,7 @@ end
 
 ## rendering
 ##
-## TODO: (this is only a mock up and the moment)
+## TODO: (this is only a mock up at the moment)
 ##  - handle different formats. Currently only a basic markdown output. Should add HTML and
 ##    LaTeX as well.
 ##  - user-defined templates to apply to each page?

@@ -107,10 +107,10 @@ function print_response(buf, result, backtrace, show_result)
     end
 end
 
-doccategory(x::Docs.Binding) = doccategory(getfield(x.mod, x.var))
-doccategory(x::Tuple)        = "Method"
-doccategory(x::Function)     = "Function"
-doccategory(x::DataType)     = "Type"
-doccategory(other)           = "Constant"
+doccategory(x::Docs.Binding)           = doccategory(getfield(x.mod, x.var))
+doccategory(x::Tuple{Function, Tuple}) = "Method"
+doccategory(x::Function)               = "Function"
+doccategory(x::DataType)               = "Type"
+doccategory(other)                     = "Constant"
 
 header_level{N}(::Markdown.Header{N}) = N
