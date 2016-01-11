@@ -12,7 +12,7 @@ process!(doc::Document)
 
 Process a `Document` object by calling each `pass` from `doc.passes` on it in turn.
 
-A `pass` consistens of a sequence of [`AbstractAction`](internals.md#Lapidary.AbstractAction-1)s each of which apply a single transformation to the `doc` object such as autolinking cross-references found in the pages of the `Document` or running doctests on all the code blocks.
+A `pass` consists of a sequence of [`AbstractAction`](internals.md#Lapidary.AbstractAction-1)s each of which apply a single transformation to the `doc` object such as autolinking cross-references found in the pages of the `Document` or running doctests on all the code blocks.
 <hr></hr>
 <a id='Lapidary.AbstractAction-1'></a>
 

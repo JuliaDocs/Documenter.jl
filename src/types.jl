@@ -41,6 +41,13 @@ immutable Document
                 doc.pagemap[obj] = page
             end
         end
+        assetdir = normpath(joinpath(dirname(@__FILE__), "..", "assets"))
+        for asset in readdir(assetdir)
+            obj, out = paths(assetdir, asset, assetdir, build)
+            page = Page(doc, obj, out, format)
+            push!(doc.pages, page)
+            doc.pagemap[obj] = page
+        end
         doc
     end
 end
