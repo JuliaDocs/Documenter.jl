@@ -12,7 +12,7 @@ A documentation generator for Julia.
 Any code block with `.language` set to `"julia"` containing either REPL prompts, `julia>`, or
 an `# output:` comment. For example:
 
-```
+
     ```julia
     julia> a = 1
     1
@@ -22,11 +22,9 @@ an `# output:` comment. For example:
     julia> a + b
     3
     ```
-```
 
 or
 
-```
     ```julia
     a = 1
     b = 2
@@ -36,18 +34,15 @@ or
 
     3
     ```
-```
 
 Errors can be checked for using the `{throws ErrorName}` syntax, i.e.
 
-```
     ```julia
     julia> div(1, 0)
 
         {throws DivideError}
 
     ```
-```
 
 **Docstring Splicing**
 
