@@ -14,55 +14,55 @@ A documentation generator for Julia.
 
 Any code block with `.language` set to `"julia"` containing either REPL prompts, `julia>`, or an `# output:` comment. For example:
 
-```
-    ```julia
-    julia> a = 1
-    1
+````
+```julia
+julia> a = 1
+1
 
-    julia> b = 2;
+julia> b = 2;
 
-    julia> a + b
-    3
-    ```
+julia> a + b
+3
 ```
+````
 
 or
 
-```
-    ```julia
-    a = 1
-    b = 2
-    a + b
+````
+```julia
+a = 1
+b = 2
+a + b
 
-    # output:
+# output:
 
-    3
-    ```
+3
 ```
+````
 
 Errors can be checked for using the `{throws ErrorName}` syntax, i.e.
 
-```
-    ```julia
-    julia> div(1, 0)
+````
+```julia
+julia> div(1, 0)
 
-        {throws DivideError}
+    {throws DivideError}
 
-    ```
 ```
+````
 
 **Docstring Splicing**
 
 Docstrings for objects documented using Julia's docsystem can be spliced into the markdown files using code blocks containing `{docs}` as their first line:
 
-```
+````
 ```
 {docs}
 foo
 bar
 baz
 ```
-```
+````
 
 Operators must be enclosed, i.e. `(+)`.
 
@@ -70,12 +70,12 @@ Operators must be enclosed, i.e. `(+)`.
 
 Metadata, such as the current module, can be set for a page using the `{meta}` code block:
 
-```
+````
 ```
 {meta}
 CurrentModule = Base
 ```
-```
+````
 
 Changing the module allows one to avoid having to fully qualify every object spliced into a `{docs}` block.
 
@@ -83,37 +83,37 @@ Changing the module allows one to avoid having to fully qualify every object spl
 
 Table of contents and docstring indexes can be automatically generated using either `{contents}` or `{index}` code blocks. These code blocks shouldn't contain any other text.
 
-```
+````
 ```
 {contents}
 ```
-```
+````
 
 expands to a nested list of all headers in all files found in the `src` directory. The depth of headers to be displayed can be set with
 
-```
+````
 ```
 {meta}
 ContentsDepth = 2
 ```
-```
+````
 
 prior to the `{contents}` block.
 
-```
+````
 ```
 {index}
 ```
-```
+````
 
 expands into a list of all documented objects spliced into the files found in the `src` directory. The module's to be included can be limited using
 
-```
+````
 ```
 {meta}
 IndexModules = [Foo, Bar]
 ```
-```
+````
 
 prior to the `{index}` block.
 
