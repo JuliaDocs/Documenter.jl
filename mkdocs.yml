@@ -5,7 +5,7 @@ site_author:         Michael Hatherly
 
 theme:               readthedocs
 extra_css:
-  - Lapidary.css
+  - assets/Lapidary.css
 
 markdown_extensions:
   - extra
@@ -13,10 +13,15 @@ markdown_extensions:
   - fenced_code
 extra_javascript:
   - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
-  - mathjaxhelper.js
+  - assets/mathjaxhelper.js
 
 docs_dir: 'docs/build'
+
 pages:
-  - 'About': index.md
-  - 'Public': public.md
-  - 'Internals': internals.md
+- Home: index.md
+- Manual:
+  - Guide: man/guide.md
+  - Internals: man/internals.md
+- Library:
+  - Public: lib/public.md
+  - Internals: lib/internals.md

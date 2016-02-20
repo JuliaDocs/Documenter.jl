@@ -1,10 +1,10 @@
-<a id='Public%20Documentation-1'></a>
 
+<a id='public-documentation'></a>
 # Public Documentation
 
-<a id='Lapidary.makedocs-1'></a>
 
-<a href='#Lapidary.makedocs-1'> # </a>**Function**
+<a id='lapidarymakedocs' href='#lapidarymakedocs'>#</a>
+**Function**
 
 ```
 makedocs(
@@ -23,18 +23,18 @@ Converts markdown formatted template files found in `src` into `format`-formatte
 docs/
     build/
     src/
-    build.jl
+    make.jl
 ```
 
-where `build.jl` contains
+where `make.jl` contains
 
-```julia
+```
 using Lapidary
-
 makedocs(
     # options...
 )
 ```
 
 Any non-markdown files found in the `src` directory are copied over to the `build` directory without change. Markdown files are those with the extension `.md` only.
-<hr></hr>
+
+---
