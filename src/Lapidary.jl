@@ -14,6 +14,13 @@ using Base.Meta
 
 typealias Str UTF8String
 
+"""
+    State
+
+Used to store the current state of the markdown template expansion. This simplifies the
+[`expand`]({ref}) methods by avoiding having to thread all the state between each call
+manually.
+"""
 immutable State
     src    :: Str
     dst    :: Str
@@ -23,17 +30,33 @@ end
 State(src, dst) = State(src, dst, [], Dict())
 State()         = State("",  "",  [], Dict())
 
+"""
+    Path
+
+Represents a file mapping from source file `.src` to destination file `.dst`.
+"""
 immutable Path
     src :: Str
     dst :: Str
 end
 
+"""
+    ParsedPath
+
+Same as [`Path`]({ref}), but also includes the parsed content of the markdown file.
+"""
 immutable ParsedPath
     src :: Str
     dst :: Str
     ast :: Markdown.MD
 end
 
+"""
+    HeaderPath
+
+Represents a file mapping from `.src` to `.dst` of a markdown header element. The `.nth`
+field tracks the ordering of the headers within the file.
+"""
 immutable HeaderPath
     src :: Str
     dst :: Str
@@ -41,6 +64,12 @@ immutable HeaderPath
     ast :: Markdown.Header
 end
 
+"""
+    Env
+
+Stores all the state associated with a document. An instance of this type is threaded
+through the sequence of transformations used to build the document.
+"""
 type Env{MIMETYPE}
     # paths
     root   :: Str
@@ -60,6 +89,12 @@ type Env{MIMETYPE}
     docsmap            :: ObjectIdDict
 end
 
+"""
+    Env(kwargs...)
+
+Helper method used to simplidy the construction of [`Env`]({ref}) objects. Takes any number
+of keyword arguments. Note that unknown keyword arguments are discarded by this method.
+"""
 function Env(;
         root   = currentdir(),
         source = "src",
@@ -137,6 +172,12 @@ end
 ## setup build directory
 ## =====================
 
+"""
+    SetupBuildDirectory
+
+Cleans out previous `build` directory and rebuilds the folder structure to match that of the
+`src` directory. Copies all non-markdown files from `src` to `build`.
+"""
 immutable SetupBuildDirectory end
 
 function (::SetupBuildDirectory)(env)
@@ -167,6 +208,13 @@ log(io, ::SetupBuildDirectory) = log(io, "setting up build directory.")
 ## copy asset directory
 ## ====================
 
+"""
+    CopyAssetsDirectory
+
+Copies the contents of the Lapidary `assets` folder to `build/assets`.
+
+Will throw an error if the directory already exists.
+"""
 immutable CopyAssetsDirectory end
 
 function (::CopyAssetsDirectory)(env)
@@ -186,6 +234,12 @@ log(io, ::CopyAssetsDirectory) = log(io, "copying assets to build directory.")
 ## parse templates
 ## ===============
 
+"""
+    ParseTemplates
+
+Reads the contents of each markdown file found in `src` and them into `Markdown.MD` objects
+using `Markdown.parse`.
+"""
 immutable ParseTemplates end
 
 function (::ParseTemplates)(env)
@@ -199,6 +253,11 @@ log(io, ::ParseTemplates) = log(io, "parsing markdown templates.")
 ## expand templates
 ## ================
 
+"""
+    ExpandTemplates
+
+Runs all the expanders stored in `.expanders` on each element of the parsed markdown files.
+"""
 immutable ExpandTemplates{E}
     expanders :: E
     (::Type{ExpandTemplates})(x...) = new{Tuple{map(typeof, x)...}}(x)
@@ -222,11 +281,21 @@ log(io, ::ExpandTemplates) = log(io, "expanding parsed template files.")
 
 abstract AbstractExpander
 
+"""
+    expand
+
+Expand a single element, `block`, of a markdown file.
+"""
 expand(::AbstractExpander, block, env) = false
 
 # default expander
 # ----------------
 
+"""
+    DefaultExpander
+
+By default block expansion just pushes the block onto the end of the vector of expanded blocks.
+"""
 immutable DefaultExpander <: AbstractExpander end
 
 function expand(::DefaultExpander, block, env)
@@ -238,6 +307,12 @@ end
 # header tracking
 # ---------------
 
+"""
+    FindHeaders
+
+An expander that tracks all header elements in a document. The data gathered by this expander
+is used in later stages to build cross-reference links and tables of contents.
+"""
 immutable FindHeaders <: AbstractExpander end
 
 const HEADER_ID_REGEX = r"^{#(.+)}$"
@@ -278,8 +353,24 @@ end
 # {meta} block
 # ------------
 
+"""
+    MetaBlock
+
+Expands markdown code blocks where the first line contains `{meta}`. The expander parses
+the contents of the block expecting key/value pairs such as
+
+    {meta}
+    CurrentModule = Lapidary
+
+Note that all syntax used in the block must be valid Julia syntax.
+"""
 immutable MetaBlock <: AbstractExpander end
 
+"""
+    MetaNode
+
+Stores the parsed and evaluated key/value pairs found in a `{meta}` block.
+"""
 immutable MetaNode
     dict :: Dict{Symbol, Any}
 end
@@ -297,8 +388,29 @@ end
 # {docs} block
 # ------------
 
+"""
+    DocsBlock
+
+Expands code blocks where the first line contains `{docs}`. Subsequent lines should be names
+of objects whose documentation should be retrieved from the Julia docsystem.
+
+    {docs}
+    foo
+    bar(x, y)
+    Baz.@baz
+
+Each object is evaluated in the `current_module()` or `CurrentModule` if that has been set
+in a `{meta}` block of the current page prior to the `{docs}` block.
+"""
 immutable DocsBlock <: AbstractExpander end
 
+"""
+    DocsNode
+
+Stores the object and related docstring for a single object found in a `{docs}` block. When
+a `{docs}` block contains multiple entries then each one is expanded into a separate
+[`DocsNode`]({DocsNode}).
+"""
 immutable DocsNode
     object :: Any
     docs   :: Markdown.MD
@@ -331,8 +443,24 @@ end
 # {index} block
 # -------------
 
+"""
+    IndexBlock
+
+Expands code blocks where the first line contains `{index}`. Subsequent lines can contain
+key/value pairs relevant to the index. Currently `Pages = ["...", ..., "..."]` is supported
+for filtering the contents of the index based on source page.
+
+Indexes are used to display links to all the docstrings, generated with `{docs}` blocks, on
+any number of pages.
+"""
 immutable IndexBlock <: AbstractExpander end
 
+"""
+    IndexNode
+
+`{index}` code blocks are expanded into this object which is used to store the key/value
+pairs needed to build the actual index during the later rendering state.
+"""
 immutable IndexNode
     dict :: Dict{Symbol, Any}
 end
@@ -356,8 +484,28 @@ end
 # {contents} block
 # ----------------
 
+"""
+    ContentsBlock
+
+Expands code blocks where the first line contains `{contents}`. Subsequent lines can, like
+the `{index}` block, contains key/value pairs. Supported pairs are
+
+    Pages = ["...", ..., "..."]
+    Depth = 2
+
+where `Pages` acts the same as for `{index}` and `Depth` limits the header level displayed
+in the generated contents.
+
+Contents blocks are used to a display nested list of the headers found in one or more pages.
+"""
 immutable ContentsBlock <: AbstractExpander end
 
+"""
+    ContentsNode
+
+`{contents}` blocks are expanded into these objects, which, like with [`IndexNode`]({ref}),
+store the key/value pairs needed to render the contents during the later rendering stage.
+"""
 immutable ContentsNode
     dict :: Dict{Symbol, Any}
 end
@@ -381,6 +529,12 @@ end
 ## walk templates
 ## ==============
 
+"""
+    RunDocTests
+
+Finds all code blocks in an expanded document where the language is set to `julia` and tries
+to run them. Any failure will currently just terminate the entire document generation.
+"""
 immutable RunDocTests end
 
 function (::RunDocTests)(env)
@@ -394,6 +548,13 @@ function (::RunDocTests)(env)
 end
 log(io, ::RunDocTests) = log(io, "running doctests.")
 
+"""
+    CrossReferenceLinks
+
+Finds all `Markdown.Link` elements in an expanded document and tries to find where the link
+should point to. Will terminate the entire document generation process when a link cannot
+successfully be found.
+"""
 immutable CrossReferenceLinks end
 
 function (::CrossReferenceLinks)(env)
@@ -430,6 +591,13 @@ function (::CrossReferenceLinks)(env)
     end
 end
 log(io, ::CrossReferenceLinks) = log(io, "generating cross-reference links.")
+
+"""
+    walk(f, meta, element)
+
+Scan a document tree and run function `f` on each `element` that is encountered.
+"""
+function walk end
 
 # Change to the docstring's defining module if it has one. Change back afterwards.
 function walk(f, meta, block::Markdown.MD)
@@ -476,6 +644,11 @@ walk(f, meta, block) = (f(block); nothing)
 ## render document
 ## ===============
 
+"""
+    RenderDocument
+
+Write the contents of the expanded document tree to file. Currently only supports markdown output.
+"""
 immutable RenderDocument end
 
 function (::RenderDocument)(env)
@@ -551,9 +724,22 @@ render(io, mime, meta::MetaNode, env) = nothing
 # utilities
 # =========
 
+"""
+    log
+
+Print a formatted message to `STDOUT`. Each document "stage" type must provide an implementation
+of this function.
+"""
+function log end
+
 log(T) = log(STDOUT, T)
 log(io, msg::AbstractString) = print_with_color(:magenta, io, string("LAPIDARY: ", msg, "\n"))
 
+"""
+    process(env, stages...)
+
+For each stage in `stages` execute stage with the given `env` as it's argument.
+"""
 process(env::Env, stages...)  = process(stages, env)
 process(stages::Tuple,   env) = (car(stages)(env); log(car(stages)); process(cdr(stages), env))
 process(stages::Tuple{}, env) = nothing
@@ -596,6 +782,12 @@ Directory containing Lapidary asset files.
 """
 assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "assets"))
 
+"""
+    parseblock(code; skip = 0)
+
+Returns an array of (expression, string) tuples for each complete toplevel expression from
+`code`. The `skip` keyword argument will drop the provided number of leading lines.
+"""
 function parseblock(code; skip = 0)
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
@@ -610,6 +802,12 @@ end
 
 isassign(x) = isexpr(x, :(=), 2) && isa(x.args[1], Symbol)
 
+"""
+    @object(x)
+
+Returns a normalised object that can be used to track which objects from the Julia docsystem
+have been spliced into the current document tree.
+"""
 macro object(x)
     haskey(Docs.keywords, x) ? quot(x) :
     isexpr(x, :call)         ? findmethod(x) :
@@ -618,8 +816,18 @@ macro object(x)
 end
 findmethod(x) = Expr(:tuple, esc(Docs.namify(x)), esc(Docs.signature(x)))
 
+"""
+    nodocs(x)
+
+Does the document returned from the docsystem contain any useful documentation.
+"""
 nodocs(x) = contains(stringmime("text/plain", x), "No documentation found.")
 
+"""
+    slugify(s)
+
+Slugify a string `s` by removing special characters. Used in the url generation process.
+"""
 function slugify(s)
     s = strip(lowercase(s))
     s = replace(s, r"\s+", "-")
@@ -628,6 +836,11 @@ function slugify(s)
     s = strip(replace(s, r"\-\-+", "-"), '-')
 end
 
+"""
+    doctest(source)
+
+Try to run the Julia source code found in `source`.
+"""
 function doctest(source::Markdown.Code)
     if source.language == "julia"
         sandbox = Module()

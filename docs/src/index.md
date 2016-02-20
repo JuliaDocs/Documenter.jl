@@ -6,7 +6,7 @@
     Pages = ["man/guide.md"]
     Depth = 2
 
-## Table of Contents
+## Package Reference
 
     {contents}
     Pages = ["lib/public.md", "lib/internals.md"]
