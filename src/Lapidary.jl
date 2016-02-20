@@ -409,7 +409,7 @@ immutable DocsBlock <: AbstractExpander end
 
 Stores the object and related docstring for a single object found in a `{docs}` block. When
 a `{docs}` block contains multiple entries then each one is expanded into a separate
-[`DocsNode`]({DocsNode}).
+[`DocsNode`]({ref}).
 """
 immutable DocsNode
     object :: Any

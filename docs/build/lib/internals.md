@@ -244,7 +244,7 @@ Each object is evaluated in the `current_module()` or `CurrentModule` if that ha
 DocsNode
 ```
 
-Stores the object and related docstring for a single object found in a `{docs}` block. When a `{docs}` block contains multiple entries then each one is expanded into a separate [`DocsNode`]({DocsNode}).
+Stores the object and related docstring for a single object found in a `{docs}` block. When a `{docs}` block contains multiple entries then each one is expanded into a separate [`DocsNode`](internals.md#lapidarydocsnode).
 
 ---
 
