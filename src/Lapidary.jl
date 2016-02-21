@@ -135,15 +135,17 @@ standard directory setup for using `makedocs` is as follows:
 
 where `make.jl` contains
 
-    using Lapidary
-    makedocs(
-        # options...
-    )
+```julia
+using Lapidary
+makedocs(
+    # options...
+)
+```
 
 Any non-markdown files found in the `src` directory are copied over to the `build` directory
 without change. Markdown files are those with the extension `.md` only.
 """
-function makedocs(; args...)
+function makedocs(; debug = false, args...)
     env = Env(; args...)
     cd(env.root) do
         process(
@@ -164,6 +166,7 @@ function makedocs(; args...)
             RenderDocument()
         )
     end
+    debug ? env : nothing
 end
 
 # stages

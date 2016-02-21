@@ -1,0 +1,7 @@
+# Documentation
+
+    {contents}
+
+## Index
+
+    {index}

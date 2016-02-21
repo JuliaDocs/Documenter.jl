@@ -28,7 +28,7 @@ docs/
 
 where `make.jl` contains
 
-```
+```julia
 using Lapidary
 makedocs(
     # options...
