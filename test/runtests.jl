@@ -78,6 +78,6 @@ end
 @test length(env.headers)   == 4
 @test length(env.headermap) == 4
 
-@test length(env.docsmap) == 2
+@test length(env.docsmap) == 5
 
 end

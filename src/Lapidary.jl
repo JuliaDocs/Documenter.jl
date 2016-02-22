@@ -437,7 +437,7 @@ function expand(::DocsBlock, b::Markdown.Code, env)
             nodocs(doc)              && error("no docs found for '$n' in '$f'.")
             haskey(env.docsmap, obj) && error("docs for '$n' duplicated in '$f'.")
         end
-        env.docsmap[obj] = (src, dst, doc, strip(str))
+        env.docsmap[obj] = (src, dst, doc, strip(strip(str), ':'))
         push!(env.state.blocks, DocsNode(obj, doc))
     end
     true
@@ -578,8 +578,9 @@ function (::CrossReferenceLinks)(env)
                     haskey(env.docsmap, obj) || error("no doc for reference '$code' found.")
                     doc_src, doc_dst, docs, docstr = env.docsmap[obj]
                     path   = relpath(doc_dst, dirname(dst))
-                    anchor = slugify(string(obj))
+                    anchor = string(obj)
                     link.url = string(path, '#', anchor)
+                    obj.binding.mod == Keywords && (link.text[1].code = strip(code, ':'))
                 elseif isa(link.text, Vector) && length(link.text) === 1
                     r  = match(r"^{ref#(.+)}$", link.url)
                     id = r === nothing ? sprint(Markdown.plain, Markdown.Paragraph(link.text)) : r[1]
@@ -679,7 +680,7 @@ function render(io, mime, h::Markdown.Header, env)
 end
 
 function render(io, mime, doc::DocsNode, env)
-    id = slugify(string(doc.object))
+    id = string(doc.object)
     println(io, "\n", "<a id='$id' href='#$id'>#</a>")
     println(io, "**", doccat(doc.object), "**", "\n")
     writemime(io, mime, doc.docs)
@@ -692,7 +693,7 @@ function render(io, mime, index::IndexNode, env)
     for (obj, (src, dst, markdown, docstr)) in env.docsmap
         path = relpath(dst, dirname(index.dict[:dst]))
         if isempty(pages) || any(x -> startswith(path, x), pages)
-            push!(links, (docstr, string(path, '#', slugify(string(obj)))))
+            push!(links, (docstr, string(path, '#', string(obj))))
         end
     end
     sort!(links, by = t -> t[2])
@@ -912,12 +913,21 @@ function object(ex::Union{Symbol, Expr}, str::AbstractString)
     Expr(:call, Object, binding, signature)
 end
 
+function object(qn::QuoteNode, str::AbstractString)
+    if haskey(Base.Docs.keywords, qn.value)
+        binding = Expr(:call, Base.Docs.Binding, Keywords, qn)
+        Expr(:call, Object, binding, Union{})
+    else
+        error("'$(qn.value)' is not a documented keyword.")
+    end
+end
+
 function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
 end
 print_signature(io::IO, signature::Union) = nothing
-print_signature(io::IO, signature)        = print(io, signature)
+print_signature(io::IO, signature)        = print(io, '-', signature)
 
 ## docs
 ## ====
@@ -926,16 +936,22 @@ function docs(ex::Union{Symbol, Expr}, str::AbstractString)
     isexpr(ex, :macrocall, 1) && !endswith(str, "()") && (ex = quot(ex))
     :(Base.Docs.@doc $ex)
 end
+docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
 
 doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
     "Macro" : doccat(obj.binding, obj.signature)
 
-doccat(b::Docs.Binding, ::Union) = doccat(getfield(b.mod, b.var))
+doccat(b::Docs.Binding, ::Union) = b.mod == Keywords && haskey(Base.Docs.keywords, b.var) ?
+    "Keyword" : doccat(getfield(b.mod, b.var))
+
 doccat(b::Docs.Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
 doccat(::Module)   = "Module"
 doccat(::ANY)      = "Constant"
+
+# Module used to uniquify keyword bindings.
+baremodule Keywords end
 
 end

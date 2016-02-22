@@ -3,7 +3,7 @@
 # Public Documentation
 
 
-<a id='lapidarymakedocs' href='#lapidarymakedocs'>#</a>
+<a id='Lapidary.makedocs' href='#Lapidary.makedocs'>#</a>
 **Function**
 
 ```

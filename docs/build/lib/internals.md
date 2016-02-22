@@ -7,18 +7,18 @@
 ## Types
 
 
-<a id='lapidarystate' href='#lapidarystate'>#</a>
+<a id='Lapidary.State' href='#Lapidary.State'>#</a>
 **Type**
 
 ```
 State
 ```
 
-Used to store the current state of the markdown template expansion. This simplifies the [`expand`](internals.md#lapidaryexpand) methods by avoiding having to thread all the state between each call manually.
+Used to store the current state of the markdown template expansion. This simplifies the [`expand`](internals.md#Lapidary.expand) methods by avoiding having to thread all the state between each call manually.
 
 ---
 
-<a id='lapidarypath' href='#lapidarypath'>#</a>
+<a id='Lapidary.Path' href='#Lapidary.Path'>#</a>
 **Type**
 
 ```
@@ -29,18 +29,18 @@ Represents a file mapping from source file `.src` to destination file `.dst`.
 
 ---
 
-<a id='lapidaryparsedpath' href='#lapidaryparsedpath'>#</a>
+<a id='Lapidary.ParsedPath' href='#Lapidary.ParsedPath'>#</a>
 **Type**
 
 ```
 ParsedPath
 ```
 
-Same as [`Path`](internals.md#lapidarypath), but also includes the parsed content of the markdown file.
+Same as [`Path`](internals.md#Lapidary.Path), but also includes the parsed content of the markdown file.
 
 ---
 
-<a id='lapidaryheaderpath' href='#lapidaryheaderpath'>#</a>
+<a id='Lapidary.HeaderPath' href='#Lapidary.HeaderPath'>#</a>
 **Type**
 
 ```
@@ -51,14 +51,14 @@ Represents a file mapping from `.src` to `.dst` of a markdown header element. Th
 
 ---
 
-<a id='lapidaryenv' href='#lapidaryenv'>#</a>
+<a id='Lapidary.Env' href='#Lapidary.Env'>#</a>
 **Type**
 
 ```
 Env(kwargs...)
 ```
 
-Helper method used to simplidy the construction of [`Env`](internals.md#lapidaryenv) objects. Takes any number of keyword arguments. Note that unknown keyword arguments are discarded by this method.
+Helper method used to simplidy the construction of [`Env`](internals.md#Lapidary.Env) objects. Takes any number of keyword arguments. Note that unknown keyword arguments are discarded by this method.
 
 ```
 Env
@@ -72,7 +72,7 @@ Stores all the state associated with a document. An instance of this type is thr
 ## Stages
 
 
-<a id='lapidarysetupbuilddirectory' href='#lapidarysetupbuilddirectory'>#</a>
+<a id='Lapidary.SetupBuildDirectory' href='#Lapidary.SetupBuildDirectory'>#</a>
 **Type**
 
 ```
@@ -83,7 +83,7 @@ Cleans out previous `build` directory and rebuilds the folder structure to match
 
 ---
 
-<a id='lapidarycopyassetsdirectory' href='#lapidarycopyassetsdirectory'>#</a>
+<a id='Lapidary.CopyAssetsDirectory' href='#Lapidary.CopyAssetsDirectory'>#</a>
 **Type**
 
 ```
@@ -96,7 +96,7 @@ Will throw an error if the directory already exists.
 
 ---
 
-<a id='lapidaryparsetemplates' href='#lapidaryparsetemplates'>#</a>
+<a id='Lapidary.ParseTemplates' href='#Lapidary.ParseTemplates'>#</a>
 **Type**
 
 ```
@@ -107,7 +107,7 @@ Reads the contents of each markdown file found in `src` and them into `Markdown.
 
 ---
 
-<a id='lapidaryexpandtemplates' href='#lapidaryexpandtemplates'>#</a>
+<a id='Lapidary.ExpandTemplates' href='#Lapidary.ExpandTemplates'>#</a>
 **Type**
 
 ```
@@ -118,7 +118,7 @@ Runs all the expanders stored in `.expanders` on each element of the parsed mark
 
 ---
 
-<a id='lapidaryrundoctests' href='#lapidaryrundoctests'>#</a>
+<a id='Lapidary.RunDocTests' href='#Lapidary.RunDocTests'>#</a>
 **Type**
 
 ```
@@ -129,7 +129,7 @@ Finds all code blocks in an expanded document where the language is set to `juli
 
 ---
 
-<a id='lapidarycrossreferencelinks' href='#lapidarycrossreferencelinks'>#</a>
+<a id='Lapidary.CrossReferenceLinks' href='#Lapidary.CrossReferenceLinks'>#</a>
 **Type**
 
 ```
@@ -140,7 +140,7 @@ Finds all `Markdown.Link` elements in an expanded document and tries to find whe
 
 ---
 
-<a id='lapidaryrenderdocument' href='#lapidaryrenderdocument'>#</a>
+<a id='Lapidary.RenderDocument' href='#Lapidary.RenderDocument'>#</a>
 **Type**
 
 ```
@@ -155,7 +155,7 @@ Write the contents of the expanded document tree to file. Currently only support
 ## Expanders
 
 
-<a id='lapidaryexpand' href='#lapidaryexpand'>#</a>
+<a id='Lapidary.expand' href='#Lapidary.expand'>#</a>
 **Function**
 
 ```
@@ -166,7 +166,7 @@ Expand a single element, `block`, of a markdown file.
 
 ---
 
-<a id='lapidarydefaultexpander' href='#lapidarydefaultexpander'>#</a>
+<a id='Lapidary.DefaultExpander' href='#Lapidary.DefaultExpander'>#</a>
 **Type**
 
 ```
@@ -177,7 +177,7 @@ By default block expansion just pushes the block onto the end of the vector of e
 
 ---
 
-<a id='lapidaryfindheaders' href='#lapidaryfindheaders'>#</a>
+<a id='Lapidary.FindHeaders' href='#Lapidary.FindHeaders'>#</a>
 **Type**
 
 ```
@@ -188,7 +188,7 @@ An expander that tracks all header elements in a document. The data gathered by 
 
 ---
 
-<a id='lapidarymetablock' href='#lapidarymetablock'>#</a>
+<a id='Lapidary.MetaBlock' href='#Lapidary.MetaBlock'>#</a>
 **Type**
 
 ```
@@ -206,7 +206,7 @@ Note that all syntax used in the block must be valid Julia syntax.
 
 ---
 
-<a id='lapidarymetanode' href='#lapidarymetanode'>#</a>
+<a id='Lapidary.MetaNode' href='#Lapidary.MetaNode'>#</a>
 **Type**
 
 ```
@@ -217,7 +217,7 @@ Stores the parsed and evaluated key/value pairs found in a `{meta}` block.
 
 ---
 
-<a id='lapidarydocsblock' href='#lapidarydocsblock'>#</a>
+<a id='Lapidary.DocsBlock' href='#Lapidary.DocsBlock'>#</a>
 **Type**
 
 ```
@@ -237,18 +237,18 @@ Each object is evaluated in the `current_module()` or `CurrentModule` if that ha
 
 ---
 
-<a id='lapidarydocsnode' href='#lapidarydocsnode'>#</a>
+<a id='Lapidary.DocsNode' href='#Lapidary.DocsNode'>#</a>
 **Type**
 
 ```
 DocsNode
 ```
 
-Stores the object and related docstring for a single object found in a `{docs}` block. When a `{docs}` block contains multiple entries then each one is expanded into a separate [`DocsNode`](internals.md#lapidarydocsnode).
+Stores the object and related docstring for a single object found in a `{docs}` block. When a `{docs}` block contains multiple entries then each one is expanded into a separate [`DocsNode`](internals.md#Lapidary.DocsNode).
 
 ---
 
-<a id='lapidaryindexblock' href='#lapidaryindexblock'>#</a>
+<a id='Lapidary.IndexBlock' href='#Lapidary.IndexBlock'>#</a>
 **Type**
 
 ```
@@ -261,7 +261,7 @@ Indexes are used to display links to all the docstrings, generated with `{docs}`
 
 ---
 
-<a id='lapidaryindexnode' href='#lapidaryindexnode'>#</a>
+<a id='Lapidary.IndexNode' href='#Lapidary.IndexNode'>#</a>
 **Type**
 
 ```
@@ -272,7 +272,7 @@ IndexNode
 
 ---
 
-<a id='lapidarycontentsblock' href='#lapidarycontentsblock'>#</a>
+<a id='Lapidary.ContentsBlock' href='#Lapidary.ContentsBlock'>#</a>
 **Type**
 
 ```
@@ -292,14 +292,14 @@ Contents blocks are used to a display nested list of the headers found in one or
 
 ---
 
-<a id='lapidarycontentsnode' href='#lapidarycontentsnode'>#</a>
+<a id='Lapidary.ContentsNode' href='#Lapidary.ContentsNode'>#</a>
 **Type**
 
 ```
 ContentsNode
 ```
 
-`{contents}` blocks are expanded into these objects, which, like with [`IndexNode`](internals.md#lapidaryindexnode), store the key/value pairs needed to render the contents during the later rendering stage.
+`{contents}` blocks are expanded into these objects, which, like with [`IndexNode`](internals.md#Lapidary.IndexNode), store the key/value pairs needed to render the contents during the later rendering stage.
 
 ---
 
@@ -307,29 +307,29 @@ ContentsNode
 ## Utilities
 
 
-<a id='lapidarycar' href='#lapidarycar'>#</a>
+<a id='Lapidary.car' href='#Lapidary.car'>#</a>
 **Function**
 
 ```
 car(x)
 ```
 
-Head element of the `Tuple` `x`. See also [`cdr`](internals.md#lapidarycdr).
+Head element of the `Tuple` `x`. See also [`cdr`](internals.md#Lapidary.cdr).
 
 ---
 
-<a id='lapidarycdr' href='#lapidarycdr'>#</a>
+<a id='Lapidary.cdr' href='#Lapidary.cdr'>#</a>
 **Function**
 
 ```
 cdr(x)
 ```
 
-Tail elements of the `Tuple` `x`. See also [`car`](internals.md#lapidarycar).
+Tail elements of the `Tuple` `x`. See also [`car`](internals.md#Lapidary.car).
 
 ---
 
-<a id='lapidaryassetsdir' href='#lapidaryassetsdir'>#</a>
+<a id='Lapidary.assetsdir' href='#Lapidary.assetsdir'>#</a>
 **Function**
 
 ```
@@ -340,7 +340,7 @@ Directory containing Lapidary asset files.
 
 ---
 
-<a id='lapidarycurrentdir' href='#lapidarycurrentdir'>#</a>
+<a id='Lapidary.currentdir' href='#Lapidary.currentdir'>#</a>
 **Function**
 
 ```
@@ -351,7 +351,7 @@ Returns the current source directory. When `isinteractive() ≡ true` then the p
 
 ---
 
-<a id='lapidarywalk' href='#lapidarywalk'>#</a>
+<a id='Lapidary.walk' href='#Lapidary.walk'>#</a>
 **Function**
 
 ```
@@ -362,7 +362,7 @@ Scan a document tree and run function `f` on each `element` that is encountered.
 
 ---
 
-<a id='lapidarylog' href='#lapidarylog'>#</a>
+<a id='Lapidary.log' href='#Lapidary.log'>#</a>
 **Function**
 
 ```
@@ -373,7 +373,7 @@ Print a formatted message to `STDOUT`. Each document "stage" type must provide a
 
 ---
 
-<a id='lapidaryprocess' href='#lapidaryprocess'>#</a>
+<a id='Lapidary.process' href='#Lapidary.process'>#</a>
 **Function**
 
 ```
@@ -384,7 +384,7 @@ For each stage in `stages` execute stage with the given `env` as it's argument.
 
 ---
 
-<a id='lapidaryparseblock' href='#lapidaryparseblock'>#</a>
+<a id='Lapidary.parseblock' href='#Lapidary.parseblock'>#</a>
 **Function**
 
 ```
@@ -395,7 +395,7 @@ Returns an array of (expression, string) tuples for each complete toplevel expre
 
 ---
 
-<a id='lapidarynodocs' href='#lapidarynodocs'>#</a>
+<a id='Lapidary.nodocs' href='#Lapidary.nodocs'>#</a>
 **Function**
 
 ```
@@ -406,7 +406,7 @@ Does the document returned from the docsystem contain any useful documentation.
 
 ---
 
-<a id='lapidarydoctest' href='#lapidarydoctest'>#</a>
+<a id='Lapidary.doctest' href='#Lapidary.doctest'>#</a>
 **Function**
 
 ```
