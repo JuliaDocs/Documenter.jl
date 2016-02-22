@@ -50,6 +50,5 @@
     log
     process
     parseblock
-    @object(x)
     nodocs
     doctest

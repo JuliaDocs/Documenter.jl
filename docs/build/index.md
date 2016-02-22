@@ -47,7 +47,6 @@
 - [`MetaBlock`](lib/internals.md#lapidarymetablock)
 - [`MetaNode`](lib/internals.md#lapidarymetanode)
 - [`nodocs`](lib/internals.md#lapidarynodocs)
-- [`@object(x)`](lib/internals.md#lapidaryobject)
 - [`parseblock`](lib/internals.md#lapidaryparseblock)
 - [`ParsedPath`](lib/internals.md#lapidaryparsedpath)
 - [`ParseTemplates`](lib/internals.md#lapidaryparsetemplates)

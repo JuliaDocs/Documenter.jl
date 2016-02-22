@@ -395,17 +395,6 @@ Returns an array of (expression, string) tuples for each complete toplevel expre
 
 ---
 
-<a id='lapidaryobject' href='#lapidaryobject'>#</a>
-**Macro**
-
-```
-@object(x)
-```
-
-Returns a normalised object that can be used to track which objects from the Julia docsystem have been spliced into the current document tree.
-
----
-
 <a id='lapidarynodocs' href='#lapidarynodocs'>#</a>
 **Function**
 

@@ -429,8 +429,8 @@ function expand(::DocsBlock, b::Markdown.Code, env)
 
     for (ex, str) in parseblock(b.code; skip = 1)
         # find the documented object and it's docstring
-        obj = eval(mod, :($(Lapidary).@object($ex)))
-        doc = eval(mod, :($(Base).@doc($ex)))
+        obj = eval(mod, object(ex, str))
+        doc = eval(mod, docs(ex, str))
         # error checks
         let n = strip(str),
             f = abspath(src)
@@ -574,7 +574,7 @@ function (::CrossReferenceLinks)(env)
                 if isa(link.text[1], Markdown.Code)
                     code = link.text[1].code
                     mod  = get(meta, :CurrentModule, current_module())
-                    obj  = eval(mod, :($(Lapidary).@object($(parse(code)))))
+                    obj  = eval(mod, object(parse(code), code))
                     haskey(env.docsmap, obj) || error("no doc for reference '$code' found.")
                     doc_src, doc_dst, docs, docstr = env.docsmap[obj]
                     path   = relpath(doc_dst, dirname(dst))
@@ -806,25 +806,12 @@ end
 isassign(x) = isexpr(x, :(=), 2) && isa(x.args[1], Symbol)
 
 """
-    @object(x)
-
-Returns a normalised object that can be used to track which objects from the Julia docsystem
-have been spliced into the current document tree.
-"""
-macro object(x)
-    haskey(Docs.keywords, x) ? quot(x) :
-    isexpr(x, :call)         ? findmethod(x) :
-    Docs.isvar(x)            ? :(Docs.@var($(esc(x)))) :
-    esc(x)
-end
-findmethod(x) = Expr(:tuple, esc(Docs.namify(x)), esc(Docs.signature(x)))
-
-"""
     nodocs(x)
 
 Does the document returned from the docsystem contain any useful documentation.
 """
-nodocs(x) = contains(stringmime("text/plain", x), "No documentation found.")
+nodocs(x)      = contains(stringmime("text/plain", x), "No documentation found.")
+nodocs(::Void) = false
 
 """
     slugify(s)
@@ -900,11 +887,55 @@ end
 
 header_level{N}(::Markdown.Header{N}) = N
 
-doccat(x::Docs.Binding) = startswith(string(x.var), "@") ? "Macro" : doccat(getfield(x.mod, x.var))
-doccat(x::Tuple)        = "Method"
-doccat(x::Function)     = "Function"
-doccat(x::DataType)     = "Type"
-doccat(x::Module)       = "Module"
-doccat(other)           = "Constant"
+## objects
+## =======
+
+immutable Object
+    binding   :: Base.Docs.Binding
+    signature :: Type
+end
+
+function splitexpr(x::Expr)
+    isexpr(x, :macrocall) ? splitexpr(x.args[1]) :
+    isexpr(x, :.)         ? (x.args[1], x.args[2]) :
+    error("Invalid @var syntax `$x`.")
+end
+splitexpr(s::Symbol) = :(current_module()), quot(s)
+splitexpr(other)     = error("Invalid @var syntax `$other`.")
+
+Base.Docs.signature(::Symbol) = :(Union{})
+
+function object(ex::Union{Symbol, Expr}, str::AbstractString)
+    binding   = Expr(:call, Base.Docs.Binding, splitexpr(Docs.namify(ex))...)
+    signature = Base.Docs.signature(ex)
+    isexpr(ex, :macrocall, 1) && !endswith(str, "()") && (signature = :(Union{}))
+    Expr(:call, Object, binding, signature)
+end
+
+function Base.print(io::IO, obj::Object)
+    print(io, obj.binding)
+    print_signature(io, obj.signature)
+end
+print_signature(io::IO, signature::Union) = nothing
+print_signature(io::IO, signature)        = print(io, signature)
+
+## docs
+## ====
+
+function docs(ex::Union{Symbol, Expr}, str::AbstractString)
+    isexpr(ex, :macrocall, 1) && !endswith(str, "()") && (ex = quot(ex))
+    :(Base.Docs.@doc $ex)
+end
+
+doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
+    "Macro" : doccat(obj.binding, obj.signature)
+
+doccat(b::Docs.Binding, ::Union) = doccat(getfield(b.mod, b.var))
+doccat(b::Docs.Binding, ::Type)  = "Method"
+
+doccat(::Function) = "Function"
+doccat(::DataType) = "Type"
+doccat(::Module)   = "Module"
+doccat(::ANY)      = "Constant"
 
 end
