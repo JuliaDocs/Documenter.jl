@@ -26,6 +26,7 @@ module Tests
 
 using Lapidary
 using Base.Test
+using Compat
 
 # setup
 # =====

@@ -7,7 +7,7 @@ module Lapidary
 
 export makedocs
 
-using Base.Meta
+using Base.Meta, Compat
 
 # types
 # =====
@@ -172,6 +172,8 @@ end
 # stages
 # ======
 
+function exec end
+
 ## setup build directory
 ## =====================
 
@@ -183,7 +185,7 @@ Cleans out previous `build` directory and rebuilds the folder structure to match
 """
 immutable SetupBuildDirectory end
 
-function (::SetupBuildDirectory)(env)
+function exec(::SetupBuildDirectory, env)
     env.clean && isdir(env.build) && rm(env.build; recursive = true)
     isdir(env.build) || mkdir(env.build)
     if isdir(env.source)
@@ -220,7 +222,7 @@ Will throw an error if the directory already exists.
 """
 immutable CopyAssetsDirectory end
 
-function (::CopyAssetsDirectory)(env)
+function exec(::CopyAssetsDirectory, env)
     if isdir(env.assets)
         dst = joinpath(env.build, "assets")
         if isdir(dst)
@@ -245,7 +247,7 @@ using `Markdown.parse`.
 """
 immutable ParseTemplates end
 
-function (::ParseTemplates)(env)
+function exec(::ParseTemplates, env)
     for path in env.template_paths
         ast = Markdown.parse(readstring(path.src))
         push!(env.parsed_templates, ParsedPath(path.src, path.dst, ast))
@@ -263,10 +265,10 @@ Runs all the expanders stored in `.expanders` on each element of the parsed mark
 """
 immutable ExpandTemplates{E}
     expanders :: E
-    (::Type{ExpandTemplates})(x...) = new{Tuple{map(typeof, x)...}}(x)
 end
+ExpandTemplates(x...) = ExpandTemplates{typeof(x)}(x)
 
-function (E::ExpandTemplates)(env)
+function exec(E::ExpandTemplates, env)
     for each in env.parsed_templates
         env.state = State(each.src, each.dst)
         for block in each.ast.content
@@ -540,7 +542,7 @@ to run them. Any failure will currently just terminate the entire document gener
 """
 immutable RunDocTests end
 
-function (::RunDocTests)(env)
+function exec(::RunDocTests, env)
     for each in env.expanded_templates
         walk(Dict(), each.blocks) do code
             isa(code, Markdown.Code) || return true
@@ -560,7 +562,7 @@ successfully be found.
 """
 immutable CrossReferenceLinks end
 
-function (::CrossReferenceLinks)(env)
+function exec(::CrossReferenceLinks, env)
     for each in env.expanded_templates
 
         src    = each.src
@@ -632,11 +634,14 @@ walk(f, meta, block::MetaNode) = (merge!(meta, block.dict); nothing)
 
 typealias MDTextElements Union{
     Markdown.Bold,
-    Markdown.Footnote,
     Markdown.Header,
     Markdown.Italic,
 }
 walk(f, meta, block::MDTextElements) = f(block) ? walk(f, meta, block.text)  : nothing
+
+if isdefined(Base.Markdown, :Footnote)
+    walk(f, meta, block::Markdown.Footnote) = f(block) ? walk(f, meta, block.text) : nothing
+end
 
 walk(f, meta, block::Markdown.Image) = f(block) ? walk(f, meta, block.alt)   : nothing
 walk(f, meta, block::Markdown.Table) = f(block) ? walk(f, meta, block.rows)  : nothing
@@ -655,7 +660,7 @@ Write the contents of the expanded document tree to file. Currently only support
 """
 immutable RenderDocument end
 
-function (::RenderDocument)(env)
+function exec(::RenderDocument, env)
     for each in env.expanded_templates
         open(each.dst, "w") do io
             render(io, env.mime, each.blocks, env)
@@ -745,7 +750,12 @@ log(io, msg::AbstractString) = print_with_color(:magenta, io, string("LAPIDARY: 
 For each stage in `stages` execute stage with the given `env` as it's argument.
 """
 process(env::Env, stages...)  = process(stages, env)
-process(stages::Tuple,   env) = (log(car(stages)); car(stages)(env); process(cdr(stages), env))
+
+function process(stages::Tuple, env)
+    log(car(stages))
+    exec(car(stages), env)
+    process(cdr(stages), env)
+end
 process(stages::Tuple{}, env) = nothing
 
 
@@ -933,8 +943,16 @@ end
 ## objects
 ## =======
 
+immutable Binding
+    mod :: Module
+    var :: Symbol
+    Binding(m, v) = new(Base.binding_module(m, v), v)
+end
+
+Base.show(io::IO, b::Binding) = print(io, b.mod, '.', b.var)
+
 immutable Object
-    binding   :: Base.Docs.Binding
+    binding   :: Binding
     signature :: Type
 end
 
@@ -949,7 +967,7 @@ splitexpr(other)     = error("Invalid @var syntax `$other`.")
 Base.Docs.signature(::Symbol) = :(Union{})
 
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
-    binding   = Expr(:call, Base.Docs.Binding, splitexpr(Docs.namify(ex))...)
+    binding   = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
     signature = Base.Docs.signature(ex)
     isexpr(ex, :macrocall, 1) && !endswith(str, "()") && (signature = :(Union{}))
     Expr(:call, Object, binding, signature)
@@ -957,7 +975,7 @@ end
 
 function object(qn::QuoteNode, str::AbstractString)
     if haskey(Base.Docs.keywords, qn.value)
-        binding = Expr(:call, Base.Docs.Binding, Keywords, qn)
+        binding = Expr(:call, Binding, Keywords, qn)
         Expr(:call, Object, binding, Union{})
     else
         error("'$(qn.value)' is not a documented keyword.")
@@ -983,10 +1001,10 @@ docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
 doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
     "Macro" : doccat(obj.binding, obj.signature)
 
-doccat(b::Docs.Binding, ::Union) = b.mod == Keywords && haskey(Base.Docs.keywords, b.var) ?
+doccat(b::Binding, ::Union) = b.mod == Keywords && haskey(Base.Docs.keywords, b.var) ?
     "Keyword" : doccat(getfield(b.mod, b.var))
 
-doccat(b::Docs.Binding, ::Type)  = "Method"
+doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
@@ -995,5 +1013,48 @@ doccat(::ANY)      = "Constant"
 
 # Module used to uniquify keyword bindings.
 baremodule Keywords end
+
+## walkdir compat
+
+if !isdefined(:walkdir)
+    function walkdir(root; topdown=true, follow_symlinks=false, onerror=throw)
+        content = nothing
+        try
+            content = readdir(root)
+        catch err
+            isa(err, SystemError) || throw(err)
+            onerror(err)
+            #Need to return an empty task to skip the current root folder
+            return Task(()->())
+        end
+        dirs = Array(eltype(content), 0)
+        files = Array(eltype(content), 0)
+        for name in content
+            if isdir(joinpath(root, name))
+                push!(dirs, name)
+            else
+                push!(files, name)
+            end
+        end
+
+        function _it()
+            if topdown
+                produce(root, dirs, files)
+            end
+            for dir in dirs
+                path = joinpath(root,dir)
+                if follow_symlinks || !islink(path)
+                    for (root_l, dirs_l, files_l) in walkdir(path, topdown=topdown, follow_symlinks=follow_symlinks, onerror=onerror)
+                        produce(root_l, dirs_l, files_l)
+                    end
+                end
+            end
+            if !topdown
+                produce(root, dirs, files)
+            end
+        end
+        Task(_it)
+    end
+end
 
 end

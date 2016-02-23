@@ -15,7 +15,7 @@ Pkg.clone("https://github.com/MichaelHatherly/Lapidary.jl")
 ```
 
 
-Only Julia `0.5` is supported at the moment.
+This package supports Julia `0.4` and `0.5`.
 
 
 <a id='usage'></a>
