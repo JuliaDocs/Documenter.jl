@@ -24,6 +24,7 @@
 <a id='documentation-index'></a>
 ## Documentation Index
 
+- [`CheckDocs`](lib/internals.md#Lapidary.CheckDocs)
 - [`ContentsBlock`](lib/internals.md#Lapidary.ContentsBlock)
 - [`ContentsNode`](lib/internals.md#Lapidary.ContentsNode)
 - [`CopyAssetsDirectory`](lib/internals.md#Lapidary.CopyAssetsDirectory)
@@ -56,5 +57,6 @@
 - [`nodocs`](lib/internals.md#Lapidary.nodocs)
 - [`parseblock`](lib/internals.md#Lapidary.parseblock)
 - [`process`](lib/internals.md#Lapidary.process)
+- [`slugify`](lib/internals.md#Lapidary.slugify)
 - [`walk`](lib/internals.md#Lapidary.walk)
 - [`makedocs`](lib/public.md#Lapidary.makedocs)

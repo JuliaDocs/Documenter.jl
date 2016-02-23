@@ -129,6 +129,17 @@ Finds all code blocks in an expanded document where the language is set to `juli
 
 ---
 
+<a id='Lapidary.CheckDocs' href='#Lapidary.CheckDocs'>#</a>
+**Type**
+
+```
+CheckDocs
+```
+
+Consistency checks for the generated documentation. Have all the available docs from the specified modules been added to the external docs?
+
+---
+
 <a id='Lapidary.CrossReferenceLinks' href='#Lapidary.CrossReferenceLinks'>#</a>
 **Type**
 
@@ -414,5 +425,16 @@ doctest(source)
 ```
 
 Try to run the Julia source code found in `source`.
+
+---
+
+<a id='Lapidary.slugify' href='#Lapidary.slugify'>#</a>
+**Function**
+
+```
+slugify(s)
+```
+
+Slugify a string `s` by removing special characters. Used in the url generation process.
 
 ---

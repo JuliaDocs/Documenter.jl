@@ -1,3 +1,5 @@
 using Lapidary
 
-makedocs()
+makedocs(
+    modules = [Lapidary]
+)

@@ -1,8 +1,5 @@
 __precompile__(true)
 
-"""
-Lapidary.jl -- a documentation generator for Julia.
-"""
 module Lapidary
 
 export makedocs
@@ -77,8 +74,9 @@ type Env{MIMETYPE}
     build  :: Str
     assets :: Str
     # misc
-    clean  :: Bool
-    mime   :: MIMETYPE
+    clean   :: Bool
+    mime    :: MIMETYPE
+    modules :: Vector{Module}
     # state
     template_paths     :: Vector{Path}
     parsed_templates   :: Vector{ParsedPath}
@@ -96,15 +94,16 @@ Helper method used to simplidy the construction of [`Env`]({ref}) objects. Takes
 of keyword arguments. Note that unknown keyword arguments are discarded by this method.
 """
 function Env(;
-        root   = currentdir(),
-        source = "src",
-        build  = "build",
-        assets = assetsdir(),
-        clean  = true,
-        mime   = MIME"text/plain"()
+        root    = currentdir(),
+        source  = "src",
+        build   = "build",
+        assets  = assetsdir(),
+        clean   = true,
+        mime    = MIME"text/plain"(),
+        modules = Module[]
     )
     Env{typeof(mime)}(
-        root, source, build, assets, clean, mime,
+        root, source, build, assets, clean, mime, modules,
         [], [], [], State(),
         Dict(), ObjectIdDict(), ObjectIdDict()
     )
@@ -163,6 +162,7 @@ function makedocs(; debug = false, args...)
             ),
             CrossReferenceLinks(),
             RunDocTests(),
+            CheckDocs(),
             RenderDocument()
         )
     end
@@ -650,6 +650,22 @@ walk(f, meta, block::Markdown.Link)  = f(block) ? walk(f, meta, block.text)  : n
 
 walk(f, meta, block) = (f(block); nothing)
 
+## check docs
+## ==========
+
+"""
+    CheckDocs
+
+Consistency checks for the generated documentation. Have all the available docs from the
+specified modules been added to the external docs?
+"""
+immutable CheckDocs end
+
+function exec(::CheckDocs, env)
+    missing_docs_check(env)
+end
+log(io, ::CheckDocs) = log(io, "checking document consistency.")
+
 ## render document
 ## ===============
 
@@ -1014,7 +1030,52 @@ doccat(::ANY)      = "Constant"
 # Module used to uniquify keyword bindings.
 baremodule Keywords end
 
+## missing docs check
+## ==================
+
+function missing_docs_check(env)
+    bindings = allbindings(env.modules)
+    for obj in keys(env.docsmap)
+        if haskey(bindings, obj.binding)
+            signatures = bindings[obj.binding]
+            if obj.signature == Union{} || length(signatures) == 1
+                delete!(bindings, obj.binding)
+            end
+        end
+    end
+    for (binding, signatures) in bindings
+        warn("docs for '$binding' potentially missing from generated docs.")
+    end
+end
+
+function allbindings(mods)
+    out = Dict{Binding, Vector{Type}}()
+    for m in mods, (obj, doc) in Base.Docs.meta(m)
+        isa(obj, ObjectIdDict) && continue
+        out[Binding(m, nameof(obj))] = sigs(doc)
+    end
+    out
+end
+
+if isleaftype(Function) # 0.4
+    nameof(x::Function) = x.env.name
+else # 0.5
+    nameof(x::Function) = typeof(x).name.mt.name
+end
+nameof(b::Base.Docs.Binding) = b.var
+nameof(x::DataType)          = x.name.name
+nameof(m::Module)            = module_name(m)
+
+if isdefined(Base.Docs, :MultiDoc)
+    sigs(x::Base.Docs.MultiDoc) = x.order
+else
+    sigs(x::Base.Docs.FuncDoc) = x.order
+    sigs(x::Base.Docs.TypeDoc) = x.order
+end
+sigs(::Any)            = Type[Union{}]
+
 ## walkdir compat
+## ==============
 
 if !isdefined(:walkdir)
     function walkdir(root; topdown=true, follow_symlinks=false, onerror=throw)

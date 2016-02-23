@@ -21,6 +21,7 @@
     ParseTemplates
     ExpandTemplates
     RunDocTests
+    CheckDocs
     CrossReferenceLinks
     RenderDocument
 
@@ -52,3 +53,4 @@
     parseblock
     nodocs
     doctest
+    slugify
