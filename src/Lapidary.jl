@@ -745,7 +745,7 @@ log(io, msg::AbstractString) = print_with_color(:magenta, io, string("LAPIDARY: 
 For each stage in `stages` execute stage with the given `env` as it's argument.
 """
 process(env::Env, stages...)  = process(stages, env)
-process(stages::Tuple,   env) = (car(stages)(env); log(car(stages)); process(cdr(stages), env))
+process(stages::Tuple,   env) = (log(car(stages)); car(stages)(env); process(cdr(stages), env))
 process(stages::Tuple{}, env) = nothing
 
 
@@ -827,66 +827,108 @@ function slugify(s)
     s = strip(replace(s, r"\-\-+", "-"), '-')
 end
 
+header_level{N}(::Markdown.Header{N}) = N
+
+## doctests
+## ========
+
 """
     doctest(source)
 
 Try to run the Julia source code found in `source`.
 """
-function doctest(source::Markdown.Code)
-    if source.language == "julia"
-        sandbox = Module()
-        if ismatch(r"^julia> "m, source.code) # test is a REPL-type.
-            parts = split(source.code, "\njulia> ")
-            for part in parts
-                # each part should be a single complete expression followed by a result,
-                # which may not be complete, or actually valid julia code at all.
-                part   = replace(part, "julia> ", "", 1)
-                cursor = 1
-                expr, ncursor = parse(part, cursor)
-                result, backtrace = nothing, nothing
-                try
-                    result = eval(sandbox, expr)
-                    eval(sandbox, :(ans = $(result)))
-                catch err
-                    result, backtrace = err, catch_backtrace()
-                end
-                result_text = strip(part[ncursor:end], '\n')
-                show_result = !endswith(strip(part[cursor:ncursor-1]), ";")
-                # Print out the calculated values and backtrace.
-                buf = IOBuffer()
-                print_response(buf, result, backtrace, show_result)
-                @assert startswith(takebuf_string(buf), result_text)
-            end
-        elseif ismatch(r"^# output:$"m, source.code) # test is a script-type code block.
-            parts = split(source.code, "\n# output:\n", limit = 2)
-            @assert length(parts) == 2
-            code, result_text = parts
-            result, backtrace = nothing, nothing
-            try
-                for (ex, str) in parseblock(code)
-                    result = eval(sandbox, ex)
-                end
-            catch err
-                result, backtrace = err, catch_backtrace()
-            end
-            result_text = strip(result_text, '\n')
-            buf = IOBuffer()
-            print_response(buf, result, backtrace, true)
-            @assert startswith(takebuf_string(buf), result_text)
-        end
-    end
-end
-function print_response(buf, result, backtrace, show_result)
-    if backtrace ≡ nothing
-        if result ≢ nothing && show_result
-            show(buf, result)
-        end
-    else
-        print(buf, "    {throws ", typeof(result), "}")
+function doctest(block::Markdown.Code)
+    if block.language == "julia"
+        code, sandbox = block.code, Module(:Main)
+        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox)   :
+        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox) : nothing
     end
 end
 
-header_level{N}(::Markdown.Header{N}) = N
+function eval_repl(code, sandbox)
+    parts = split(code, "\njulia> ")
+    for part in parts
+        p = replace(part, "julia> ", "", 1)
+        ex, cursor = parse(p, 1)
+        result =
+            try
+                ans = eval(sandbox, ex)
+                eval(sandbox, :(ans = $(ans)))
+                endswith(strip(p[1:cursor-1]), ';') ?
+                    "" : result_to_string(ans)
+            catch err
+                error_to_string(err, catch_backtrace())
+            end
+        checkresults(code, part, p[cursor:end], result)
+    end
+end
+function eval_script(code, sandbox)
+    code, expected = split(code, "\n# output\n", limit = 2)
+    result =
+        try
+            ans = nothing
+            for (ex, str) in parseblock(code)
+                ans = eval(sandbox, ex)
+            end
+            result_to_string(ans)
+        catch err
+            error_to_string(err, catch_backtrace())
+        end
+    checkresults(code, "", expected, result)
+end
+
+function result_to_string(value)
+    buf = IOBuffer()
+    dis = Base.Multimedia.TextDisplay(buf)
+    display(dis, value)
+    takebuf_string(buf)
+end
+function error_to_string(er, bt)
+    buf = IOBuffer()
+    print(buf, "ERROR: ")
+    showerror(buf, er, bt)
+    println(buf)
+    takebuf_string(buf)
+end
+
+function checkresults(code, part, expected, result)
+    ex, res = map(stripws, (expected, result))
+    ex == res ? nothing : throw(DocTestError(code, part, ex, res))
+end
+function stripws(str)
+    buf = IOBuffer()
+    for line in split(str, ['\n', '\r'])
+        line = rstrip(line)
+        isempty(line) || println(buf, line)
+    end
+    takebuf_string(buf)
+end
+
+immutable DocTestError <: Exception
+    code     :: UTF8String
+    part     :: UTF8String
+    expected :: UTF8String
+    result   :: UTF8String
+end
+
+function Base.showerror(io::IO, docerr::DocTestError)
+    println(io, "DocTestError in block:\n")
+    print_indented(io, docerr.code)
+    if !isempty(docerr.part)
+        println(io, "\nfor sub-expression:\n")
+        print_indented(io, docerr.part)
+    end
+    println(io, "\n[Expected Result]\n")
+    print_indented(io, docerr.expected)
+    println(io, "\n[Actual Result]\n")
+    print_indented(io, docerr.result)
+end
+
+function print_indented(buf::IO, str::AbstractString; indent = 4)
+    for line in split(str, ['\n', '\r'])
+        println(buf, " "^indent, line)
+    end
+end
 
 ## objects
 ## =======
