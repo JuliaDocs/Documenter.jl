@@ -76,8 +76,8 @@ end
 @test length(env.parsed_templates)   == 3
 @test length(env.expanded_templates) == 3
 
-@test length(env.headers)   == 4
-@test length(env.headermap) == 4
+@test length(env.headers)   == 8
+@test length(env.headermap) == 8
 
 @test length(env.docsmap) == 5
 
