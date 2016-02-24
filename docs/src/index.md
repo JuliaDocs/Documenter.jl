@@ -3,7 +3,7 @@
 ## Package Manual
 
     {contents}
-    Pages = ["man/guide.md"]
+    Pages = ["man/guide.md", "man/doctests.md"]
     Depth = 2
 
 ## Package Reference

@@ -21,6 +21,7 @@ pages:
 - Home: index.md
 - Manual:
   - Guide: man/guide.md
+  - Doctests: man/doctests.md
   - Internals: man/internals.md
 - Library:
   - Public: lib/public.md

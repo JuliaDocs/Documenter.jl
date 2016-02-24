@@ -1,0 +1,68 @@
+# Doctests
+
+Lapidary will, by default, try to run Julia code blocks that it finds in the generated
+documentation. This can help to avoid documentation examples from becoming outdated,
+incorrect, or misleading. It's recommended that as many of a package's examples be runnable
+by Lapidary's doctest.
+
+This section of the manual outlines how to go about enabling doctests for code blocks in
+your package's documentation.
+
+## "Script" Examples
+
+The first, of two, types of doctests is the "script" code block. To make Lapidary detect
+this kind of code block the following format must be used:
+
+````markdown
+```julia
+a = 1
+b = 2
+a + b
+
+# output
+
+3
+```
+````
+
+The code block's "language" must be `julia` and must include a line containing the text `#
+output`. The text before this line is the contents of the script which is run. The text that
+appears after `# output` is the textual representation that would be shown in the Julia REPL
+if the script had been `include`d.
+
+The actual output produced by running the "script" is compared to the expected result and
+any difference will result in [`makedocs`]({ref}) throwing an error and terminating.
+
+Note that the amount of whitespace appearing above and below the `# output` line is not
+significant and can be increased or decreased if desired.
+
+## REPL Examples
+
+The other kind of doctest is a simulated Julia REPL session. The following format is
+detected by Lapidary as a REPL doctest:
+
+````markdown
+```julia
+julia> a = 1;
+
+julia> b = 2
+2
+
+julia> a + b
+3
+
+```
+````
+
+As with script doctests, the code block must have it's language set to `julia`. When a code
+block contains one or more `julia> ` at the start of a line then it is assumed to be a REPL
+doctest. Semi-colons, `;`, at the end of a line works in the same way as in the Julia REPL
+and will suppress the output, although the line is still evaluated.
+
+Note that not all features of the REPL are supported such as shell and help modes.
+
+## Skipping Doctests
+
+Doctesting can be disabled by setting the [`makedocs`]({ref}) keyword `doctest = false`.
+This should only be done when initially laying out the structure of a package's
+documentation, after which it's encouraged to always run doctests when building docs.

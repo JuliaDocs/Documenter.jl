@@ -75,6 +75,7 @@ type Env{MIMETYPE}
     assets :: Str
     # misc
     clean   :: Bool
+    doctest :: Bool
     mime    :: MIMETYPE
     modules :: Vector{Module}
     # state
@@ -99,11 +100,12 @@ function Env(;
         build   = "build",
         assets  = assetsdir(),
         clean   = true,
+        doctest = true,
         mime    = MIME"text/plain"(),
         modules = Module[]
     )
     Env{typeof(mime)}(
-        root, source, build, assets, clean, mime, modules,
+        root, source, build, assets, clean, doctest, mime, modules,
         [], [], [], State(),
         Dict(), ObjectIdDict(), ObjectIdDict()
     )
@@ -118,6 +120,7 @@ end
         source  = "src",
         build   = "build",
         clean   = true,
+        doctest = true,
         modules = Module[],
     )
 
@@ -163,6 +166,14 @@ to better suit their project needs.
 
 **`clean`** tells [`makedocs`]({ref}) whether to remove all the content from the `build`
 folder prior to generating new content from `source`. By default this is set to `true`.
+
+**`doctest`** instructs [`makedocs`]({ref}) on whether to try to test Julia code blocks
+that are encountered in the generated document. By default this keyword is set to `true`.
+Doctesting should only ever be disabled when initially setting up a newly developed package
+where the developer is just trying to get their package and documentation structure correct.
+After that, it's encouraged to always make sure that documentation examples are runnable and
+produce the expected results. See the [Doctests]({ref}) manual section for details about
+running doctests.
 
 **`modules`** specifies a vector of modules that should be documented in `source`. If any
 inline docstrings from those modules are seen to be missing from the generated content then
@@ -576,17 +587,25 @@ end
 
 Finds all code blocks in an expanded document where the language is set to `julia` and tries
 to run them. Any failure will currently just terminate the entire document generation.
+
+**Notes**
+
+This stage can be disabled in [`makedocs`]({ref}) by setting the keyword `doctest = false`.
 """
 immutable RunDocTests end
 
 function exec(::RunDocTests, env)
-    for each in env.expanded_templates
-        meta = Dict()
-        walk(meta, each.blocks) do code
-            isa(code, Markdown.Code) || return true
-            doctest(code, meta)
-            false
+    if env.doctest
+        for each in env.expanded_templates
+            meta = Dict()
+            walk(meta, each.blocks) do code
+                isa(code, Markdown.Code) || return true
+                doctest(code, meta)
+                false
+            end
         end
+    else
+        warn("doctesting is disabled. Please enable it.")
     end
 end
 log(io, ::RunDocTests) = log(io, "running doctests.")

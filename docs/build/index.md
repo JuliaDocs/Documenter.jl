@@ -6,6 +6,10 @@
 <a id='package-manual'></a>
 ## Package Manual
 
+- [Doctests](man/doctests.md#doctests)
+    - ["Script" Examples](man/doctests.md#script-examples)
+    - [REPL Examples](man/doctests.md#repl-examples)
+    - [Skipping Doctests](man/doctests.md#skipping-doctests)
 - [Package Guide](man/guide.md#package-guide)
     - [Installation](man/guide.md#installation)
     - [Usage](man/guide.md#usage)

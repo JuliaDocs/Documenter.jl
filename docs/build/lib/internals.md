@@ -127,6 +127,10 @@ RunDocTests
 
 Finds all code blocks in an expanded document where the language is set to `julia` and tries to run them. Any failure will currently just terminate the entire document generation.
 
+**Notes**
+
+This stage can be disabled in [`makedocs`](public.md#Lapidary.makedocs) by setting the keyword `doctest = false`.
+
 ---
 
 <a id='Lapidary.CheckDocs' href='#Lapidary.CheckDocs'>#</a>
