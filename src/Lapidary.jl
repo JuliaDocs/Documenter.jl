@@ -684,7 +684,7 @@ function exec(::RenderDocument, env)
         end
     end
 end
-log(io, ::RenderDocument) = log(io, "rending final document to file.")
+log(io, ::RenderDocument) = log(io, "writing document to file.")
 
 function render(io, mime, blocks::Vector, env)
     for each in blocks
