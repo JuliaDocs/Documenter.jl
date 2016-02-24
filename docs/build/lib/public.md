@@ -8,16 +8,33 @@
 
 ```
 makedocs(
-    src    = "src",
-    build  = "build",
-    format = ".md",
-    clean  = true
+    root    = "<current-directory>",
+    source  = "src",
+    build   = "build",
+    clean   = true,
+    modules = Module[],
 )
 ```
 
-Converts markdown formatted template files found in `src` into `format`-formatted files in the `build` directory. Option `clean` will empty out the `build` directory prior to building new documentation.
+Combines markdown files and inline docstrings into an interlinked document.
 
-`src` and `build` paths are set relative to the file from which `makedocs` is called. The standard directory setup for using `makedocs` is as follows:
+In most cases [`makedocs`](public.md#Lapidary.makedocs) should be run from a `make.jl` file:
+
+```julia
+using Lapidary
+
+makedocs(
+    # keywords...
+)
+```
+
+which is then run from the command line with:
+
+```
+$ julia make.jl
+```
+
+The folder structure that [`makedocs`](public.md#Lapidary.makedocs) expects looks like:
 
 ```
 docs/
@@ -26,15 +43,37 @@ docs/
     make.jl
 ```
 
-where `make.jl` contains
+**Keywords**
+
+**`root`** is the directory from which `makedocs` should run. When run from a `make.jl` file this keyword does not need to be set. It is, for the most part, needed when repeatedly running `makedocs` from the Julia REPL like so:
+
+```
+julia> makedocs(root = Pkg.dir("MyPackage", "docs"))
+```
+
+**`source`** is the directory, relative to `root`, where the markdown source files are read from. By convention this folder is called `src`. Note that any non-markdown files stored in `source` are copied over to the build directory when [`makedocs`](public.md#Lapidary.makedocs) is run.
+
+**`build`** is the directory, relative to `root`, into which generated files and folders are written when [`makedocs`](public.md#Lapidary.makedocs) is run. The name of the build directory is, by convention, called `build`, though, like with `source`, users are free to change this to anything else to better suit their project needs.
+
+**`clean`** tells [`makedocs`](public.md#Lapidary.makedocs) whether to remove all the content from the `build` folder prior to generating new content from `source`. By default this is set to `true`.
+
+**`modules`** specifies a vector of modules that should be documented in `source`. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of [`makedocs`](public.md#Lapidary.makedocs). By default no modules are passed to `modules` and so no warnings will appear. This setting can be used as an indicator of the "coverage" of the generated documentation.
+
+For example Lapidary's `make.jl` file contains:
 
 ```julia
 using Lapidary
+
 makedocs(
-    # options...
+    modules = [Lapidary],
+    clean   = false
 )
 ```
 
-Any non-markdown files found in the `src` directory are copied over to the `build` directory without change. Markdown files are those with the extension `.md` only.
+and so any docstring from the module `Lapidary` that is not spliced into the generated documentation in `build` will raise a warning.
+
+**Notes**
+
+A guide detailing how to document a package using Lapidary's [`makedocs`](public.md#Lapidary.makedocs) is provided in the [Usage](../man/guide.md#usage) section of the manual.
 
 ---

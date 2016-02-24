@@ -88,6 +88,7 @@ We you run that you should see the following output
     LAPIDARY: expanding parsed template files.
     LAPIDARY: generating cross-reference links.
     LAPIDARY: running doctests.
+    LAPIDARY: checking document consistency.
     LAPIDARY: writing document to file.
 
 The `docs/` folder should contain a new directory -- called `build/`. It's structure should

@@ -114,35 +114,75 @@ end
 
 """
     makedocs(
-        src    = "src",
-        build  = "build",
-        format = ".md",
-        clean  = true
+        root    = "<current-directory>",
+        source  = "src",
+        build   = "build",
+        clean   = true,
+        modules = Module[],
     )
 
-Converts markdown formatted template files found in `src` into `format`-formatted files in
-the `build` directory. Option `clean` will empty out the `build` directory prior to building
-new documentation.
+Combines markdown files and inline docstrings into an interlinked document.
 
-`src` and `build` paths are set relative to the file from which `makedocs` is called. The
-standard directory setup for using `makedocs` is as follows:
+In most cases [`makedocs`]({ref}) should be run from a `make.jl` file:
+
+```julia
+using Lapidary
+
+makedocs(
+    # keywords...
+)
+```
+
+which is then run from the command line with:
+
+    \$ julia make.jl
+
+The folder structure that [`makedocs`]({ref}) expects looks like:
 
     docs/
         build/
         src/
         make.jl
 
-where `make.jl` contains
+**Keywords**
+
+**`root`** is the directory from which `makedocs` should run. When run from a `make.jl` file
+this keyword does not need to be set. It is, for the most part, needed when repeatedly
+running `makedocs` from the Julia REPL like so:
+
+    julia> makedocs(root = Pkg.dir("MyPackage", "docs"))
+
+**`source`** is the directory, relative to `root`, where the markdown source files are read
+from. By convention this folder is called `src`. Note that any non-markdown files stored
+in `source` are copied over to the build directory when [`makedocs`]({ref}) is run.
+
+**`build`** is the directory, relative to `root`, into which generated files and folders are
+written when [`makedocs`]({ref}) is run. The name of the build directory is, by convention,
+called `build`, though, like with `source`, users are free to change this to anything else
+to better suit their project needs.
+
+**`clean`** tells [`makedocs`]({ref}) whether to remove all the content from the `build`
+folder prior to generating new content from `source`. By default this is set to `true`.
+
+**`modules`** specifies a vector of modules that should be documented in `source`. If any
+inline docstrings from those modules are seen to be missing from the generated content then
+a warning will be printed during execution of [`makedocs`]({ref}). By default no modules are
+passed to `modules` and so no warnings will appear. This setting can be used as an indicator
+of the "coverage" of the generated documentation.
+
+For example Lapidary's `make.jl` file contains:
 
 ```julia
-using Lapidary
-makedocs(
-    # options...
-)
+$(strip(readstring(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))))
 ```
 
-Any non-markdown files found in the `src` directory are copied over to the `build` directory
-without change. Markdown files are those with the extension `.md` only.
+and so any docstring from the module `Lapidary` that is not spliced into the generated
+documentation in `build` will raise a warning.
+
+**Notes**
+
+A guide detailing how to document a package using Lapidary's [`makedocs`]({ref}) is provided
+in the [Usage]({ref}) section of the manual.
 """
 function makedocs(; debug = false, args...)
     env = Env(; args...)
@@ -225,11 +265,8 @@ immutable CopyAssetsDirectory end
 function exec(::CopyAssetsDirectory, env)
     if isdir(env.assets)
         dst = joinpath(env.build, "assets")
-        if isdir(dst)
-            error("'$(abs(dst))' is a reserved directory name.")
-        else
-            cp(env.assets, dst; remove_destination = true)
-        end
+        isdir(dst) && rm(dst; recursive = true)
+        cp(env.assets, dst; remove_destination = true)
     else
         error("assets directory '$(abspath(env.assets))' is missing.")
     end

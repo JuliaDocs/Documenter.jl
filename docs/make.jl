@@ -1,5 +1,6 @@
 using Lapidary
 
 makedocs(
-    modules = [Lapidary]
+    modules = [Lapidary],
+    clean   = false
 )

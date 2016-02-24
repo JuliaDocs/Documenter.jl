@@ -118,6 +118,7 @@ LAPIDARY: parsing markdown templates.
 LAPIDARY: expanding parsed template files.
 LAPIDARY: generating cross-reference links.
 LAPIDARY: running doctests.
+LAPIDARY: checking document consistency.
 LAPIDARY: writing document to file.
 ```
 
