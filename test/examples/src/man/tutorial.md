@@ -30,8 +30,13 @@ a + b
 3
 ```
 
+    {meta}
+    DocTestSetup =
+        quote
+            srand(1)
+        end
+
 ```julia
-srand(1)
 A = rand(3, 3)
 b = [1, 2, 3]
 A \ b
@@ -45,8 +50,6 @@ A \ b
 ```
 
 ```julia
-julia> srand(1);
-
 julia> A = rand(3, 3)
 3x3 Array{Float64,2}:
  0.236033  0.00790928  0.951916

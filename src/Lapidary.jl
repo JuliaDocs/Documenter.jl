@@ -544,9 +544,10 @@ immutable RunDocTests end
 
 function exec(::RunDocTests, env)
     for each in env.expanded_templates
-        walk(Dict(), each.blocks) do code
+        meta = Dict()
+        walk(meta, each.blocks) do code
             isa(code, Markdown.Code) || return true
-            doctest(code)
+            doctest(code, meta)
             false
         end
     end
@@ -863,9 +864,10 @@ header_level{N}(::Markdown.Header{N}) = N
 
 Try to run the Julia source code found in `source`.
 """
-function doctest(block::Markdown.Code)
+function doctest(block::Markdown.Code, meta::Dict)
     if block.language == "julia"
         code, sandbox = block.code, Module(:Main)
+        haskey(meta, :DocTestSetup) && eval(sandbox, meta[:DocTestSetup])
         ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox)   :
         ismatch(r"^# output$"m, code) ? eval_script(code, sandbox) : nothing
     end
