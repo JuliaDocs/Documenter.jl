@@ -3,4 +3,5 @@
 *.jl.mem
 
 test/examples/build/
+docs/build/
 docs/site/
