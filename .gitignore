@@ -1,6 +1,0 @@
-*.jl.cov
-*.jl.*.cov
-*.jl.mem
-
-test/examples/build/
-docs/site/

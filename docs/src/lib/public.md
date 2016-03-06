@@ -1,4 +1,0 @@
-# Public Documentation
-
-    {docs}
-    makedocs
