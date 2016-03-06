@@ -2,7 +2,7 @@ __precompile__(true)
 
 module Lapidary
 
-export makedocs
+export makedocs, deploydocs
 
 using Base.Meta, Compat
 
@@ -218,6 +218,67 @@ function makedocs(; debug = false, args...)
         )
     end
     debug ? env : nothing
+end
+
+# deploy docs (experimental)
+# ==========================
+
+function deploydocs(;
+        root    = currentdir(),
+        target  = "site",
+
+        repo    = error("no 'repo' keyword provided."),
+        branch  = "gh-pages",
+
+        deps    = () -> run(`pip install --user pygments mkdocs`),
+        make    = () -> run(`mkdocs build`)
+    )
+    # Get needed environment variables.
+    github_api_key      = get(ENV, "GITHUB_API_KEY",      "")
+    travis_branch       = get(ENV, "TRAVIS_BRANCH",       "")
+    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST", "")
+    git_rev             = readchomp(`git rev-parse --short HEAD`)
+
+    # When should a deploy be tried?
+    should_deploy =
+        travis_branch       == "master" &&
+        travis_pull_request == "false"  &&
+        github_api_key      != ""       &&
+        OS_NAME             == :Linux   && # TODO: make OS and version user-defined.
+        VERSION             >  v"0.5.0-"
+
+    if should_deploy
+        # Install dependancies.
+        log("installing dependancies.")
+        deps()
+        # Change to the root directory and try to deploy the docs.
+        cd(root) do
+            # Setup the 'target' directory.
+            log("setting up target directory.")
+            isdir(target) && rm(target, recursive = true)
+            mkdir(target)
+            cd(target) do
+                run(`git init`)
+                run(`git config user.name  "autodocs"`)
+                run(`git config user.email "autodocs"`)
+                run(`git remote add upstream "https://$github_api_key@$repo"`)
+                run(`git fetch upstream`)
+                run(`git reset upstream/$branch`)
+            end
+            # Build the docs.
+            log("building documentation.")
+            make()
+            # Add and commit the changes made by `make`.
+            log("pushing new documentation to remote: $repo:$branch.")
+            cd(target) do
+                run(`git add -A .`)
+                run(`git commit -m "build based on $git_rev"`)
+                run(`git push -q upstream HEAD:$branch`)
+            end
+        end
+    else
+        log("skipping docs deployment.")
+    end
 end
 
 # stages

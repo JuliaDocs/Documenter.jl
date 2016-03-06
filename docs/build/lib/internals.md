@@ -55,16 +55,16 @@ Represents a file mapping from `.src` to `.dst` of a markdown header element. Th
 **Type**
 
 ```
-Env(kwargs...)
-```
-
-Helper method used to simplidy the construction of [`Env`](internals.md#Lapidary.Env) objects. Takes any number of keyword arguments. Note that unknown keyword arguments are discarded by this method.
-
-```
 Env
 ```
 
 Stores all the state associated with a document. An instance of this type is threaded through the sequence of transformations used to build the document.
+
+```
+Env(kwargs...)
+```
+
+Helper method used to simplidy the construction of [`Env`](internals.md#Lapidary.Env) objects. Takes any number of keyword arguments. Note that unknown keyword arguments are discarded by this method.
 
 ---
 

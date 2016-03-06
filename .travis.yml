@@ -11,5 +11,9 @@ julia:
 notifications:
   email: false
 
+before_script:
+  - export PATH=$HOME/.local/bin:$PATH
+
 after_success:
+  - julia -e 'cd(Pkg.dir("Lapidary")); include(joinpath("docs", "make.jl"))'
   - julia -e 'cd(Pkg.dir("Lapidary")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
