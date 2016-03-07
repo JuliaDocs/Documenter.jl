@@ -12,8 +12,6 @@ using Base.Meta, Compat
 typealias Str UTF8String
 
 """
-    State
-
 Used to store the current state of the markdown template expansion. This simplifies the
 [`expand`]({ref}) methods by avoiding having to thread all the state between each call
 manually.
@@ -28,8 +26,6 @@ State(src, dst) = State(src, dst, [], Dict())
 State()         = State("",  "",  [], Dict())
 
 """
-    Path
-
 Represents a file mapping from source file `.src` to destination file `.dst`.
 """
 immutable Path
@@ -38,8 +34,6 @@ immutable Path
 end
 
 """
-    ParsedPath
-
 Same as [`Path`]({ref}), but also includes the parsed content of the markdown file.
 """
 immutable ParsedPath
@@ -49,8 +43,6 @@ immutable ParsedPath
 end
 
 """
-    HeaderPath
-
 Represents a file mapping from `.src` to `.dst` of a markdown header element. The `.nth`
 field tracks the ordering of the headers within the file.
 """
@@ -62,8 +54,6 @@ immutable HeaderPath
 end
 
 """
-    Env
-
 Stores all the state associated with a document. An instance of this type is threaded
 through the sequence of transformations used to build the document.
 """
@@ -290,8 +280,6 @@ function exec end
 ## =====================
 
 """
-    SetupBuildDirectory
-
 Cleans out previous `build` directory and rebuilds the folder structure to match that of the
 `src` directory. Copies all non-markdown files from `src` to `build`.
 """
@@ -326,8 +314,6 @@ log(io, ::SetupBuildDirectory) = log(io, "setting up build directory.")
 ## ====================
 
 """
-    CopyAssetsDirectory
-
 Copies the contents of the Lapidary `assets` folder to `build/assets`.
 
 Will throw an error if the directory already exists.
@@ -349,8 +335,6 @@ log(io, ::CopyAssetsDirectory) = log(io, "copying assets to build directory.")
 ## ===============
 
 """
-    ParseTemplates
-
 Reads the contents of each markdown file found in `src` and them into `Markdown.MD` objects
 using `Markdown.parse`.
 """
@@ -368,8 +352,6 @@ log(io, ::ParseTemplates) = log(io, "parsing markdown templates.")
 ## ================
 
 """
-    ExpandTemplates
-
 Runs all the expanders stored in `.expanders` on each element of the parsed markdown files.
 """
 immutable ExpandTemplates{E}
@@ -396,8 +378,6 @@ log(io, ::ExpandTemplates) = log(io, "expanding parsed template files.")
 abstract AbstractExpander
 
 """
-    expand
-
 Expand a single element, `block`, of a markdown file.
 """
 expand(::AbstractExpander, block, env) = false
@@ -406,8 +386,6 @@ expand(::AbstractExpander, block, env) = false
 # ----------------
 
 """
-    DefaultExpander
-
 By default block expansion just pushes the block onto the end of the vector of expanded blocks.
 """
 immutable DefaultExpander <: AbstractExpander end
@@ -422,8 +400,6 @@ end
 # ---------------
 
 """
-    FindHeaders
-
 An expander that tracks all header elements in a document. The data gathered by this expander
 is used in later stages to build cross-reference links and tables of contents.
 """
@@ -468,8 +444,6 @@ end
 # ------------
 
 """
-    MetaBlock
-
 Expands markdown code blocks where the first line contains `{meta}`. The expander parses
 the contents of the block expecting key/value pairs such as
 
@@ -481,8 +455,6 @@ Note that all syntax used in the block must be valid Julia syntax.
 immutable MetaBlock <: AbstractExpander end
 
 """
-    MetaNode
-
 Stores the parsed and evaluated key/value pairs found in a `{meta}` block.
 """
 immutable MetaNode
@@ -503,8 +475,6 @@ end
 # ------------
 
 """
-    DocsBlock
-
 Expands code blocks where the first line contains `{docs}`. Subsequent lines should be names
 of objects whose documentation should be retrieved from the Julia docsystem.
 
@@ -519,8 +489,6 @@ in a `{meta}` block of the current page prior to the `{docs}` block.
 immutable DocsBlock <: AbstractExpander end
 
 """
-    DocsNode
-
 Stores the object and related docstring for a single object found in a `{docs}` block. When
 a `{docs}` block contains multiple entries then each one is expanded into a separate
 [`DocsNode`]({ref}).
@@ -558,8 +526,6 @@ end
 # -------------
 
 """
-    IndexBlock
-
 Expands code blocks where the first line contains `{index}`. Subsequent lines can contain
 key/value pairs relevant to the index. Currently `Pages = ["...", ..., "..."]` is supported
 for filtering the contents of the index based on source page.
@@ -570,8 +536,6 @@ any number of pages.
 immutable IndexBlock <: AbstractExpander end
 
 """
-    IndexNode
-
 `{index}` code blocks are expanded into this object which is used to store the key/value
 pairs needed to build the actual index during the later rendering state.
 """
@@ -599,8 +563,6 @@ end
 # ----------------
 
 """
-    ContentsBlock
-
 Expands code blocks where the first line contains `{contents}`. Subsequent lines can, like
 the `{index}` block, contains key/value pairs. Supported pairs are
 
@@ -615,8 +577,6 @@ Contents blocks are used to a display nested list of the headers found in one or
 immutable ContentsBlock <: AbstractExpander end
 
 """
-    ContentsNode
-
 `{contents}` blocks are expanded into these objects, which, like with [`IndexNode`]({ref}),
 store the key/value pairs needed to render the contents during the later rendering stage.
 """
@@ -644,8 +604,6 @@ end
 ## ==============
 
 """
-    RunDocTests
-
 Finds all code blocks in an expanded document where the language is set to `julia` and tries
 to run them. Any failure will currently just terminate the entire document generation.
 
@@ -672,8 +630,6 @@ end
 log(io, ::RunDocTests) = log(io, "running doctests.")
 
 """
-    CrossReferenceLinks
-
 Finds all `Markdown.Link` elements in an expanded document and tries to find where the link
 should point to. Will terminate the entire document generation process when a link cannot
 successfully be found.
@@ -717,7 +673,7 @@ end
 log(io, ::CrossReferenceLinks) = log(io, "generating cross-reference links.")
 
 """
-    walk(f, meta, element)
+    walk(f::Function, meta::Dict, element)
 
 Scan a document tree and run function `f` on each `element` that is encountered.
 """
@@ -772,8 +728,6 @@ walk(f, meta, block) = (f(block); nothing)
 ## ==========
 
 """
-    CheckDocs
-
 Consistency checks for the generated documentation. Have all the available docs from the
 specified modules been added to the external docs?
 """
@@ -788,8 +742,6 @@ log(io, ::CheckDocs) = log(io, "checking document consistency.")
 ## ===============
 
 """
-    RenderDocument
-
 Write the contents of the expanded document tree to file. Currently only supports markdown output.
 """
 immutable RenderDocument end
@@ -820,10 +772,11 @@ end
 
 function render(io, mime, doc::DocsNode, env)
     id = string(doc.object)
-    println(io, "\n", "<a id='$id' href='#$id'>#</a>")
-    println(io, "**", doccat(doc.object), "**", "\n")
+    print(io, "\n", "<a id='$id' href='#$id'>#</a>")
+    println(io, "**", doc.object.binding, "** &mdash; *", doccat(doc.object), "*.\n")
+    println(io, "---\n")
     writemime(io, mime, doc.docs)
-    println(io, "\n", "---")
+    println(io, "\n")
 end
 
 function render(io, mime, index::IndexNode, env)
@@ -868,7 +821,8 @@ render(io, mime, meta::MetaNode, env) = nothing
 # =========
 
 """
-    log
+    log(io::IO, msg::AbstractString)
+    log(msg::AbstractString)
 
 Print a formatted message to `STDOUT`. Each document "stage" type must provide an implementation
 of this function.
@@ -894,7 +848,7 @@ process(stages::Tuple{}, env) = nothing
 
 
 """
-    car(x)
+    car(x::Tuple)
 
 Head element of the `Tuple` `x`. See also [`cdr`]({ref}).
 """
@@ -903,7 +857,7 @@ Head element of the `Tuple` `x`. See also [`cdr`]({ref}).
 @noinline _car()         = error("empty tuple.")
 
 """
-    cdr(x)
+    cdr(x::Tuple)
 
 Tail elements of the `Tuple` `x`. See also [`car`]({ref}).
 """
@@ -931,7 +885,7 @@ Directory containing Lapidary asset files.
 assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "assets"))
 
 """
-    parseblock(code; skip = 0)
+    parseblock(code::AbstractString; skip = 0)
 
 Returns an array of (expression, string) tuples for each complete toplevel expression from
 `code`. The `skip` keyword argument will drop the provided number of leading lines.
@@ -951,16 +905,12 @@ end
 isassign(x) = isexpr(x, :(=), 2) && isa(x.args[1], Symbol)
 
 """
-    nodocs(x)
-
 Does the document returned from the docsystem contain any useful documentation.
 """
 nodocs(x)      = contains(stringmime("text/plain", x), "No documentation found.")
 nodocs(::Void) = false
 
 """
-    slugify(s)
-
 Slugify a string `s` by removing special characters. Used in the url generation process.
 """
 function slugify(s)
@@ -977,7 +927,7 @@ header_level{N}(::Markdown.Header{N}) = N
 ## ========
 
 """
-    doctest(source)
+    doctest(source::Markdown.Code)
 
 Try to run the Julia source code found in `source`.
 """
