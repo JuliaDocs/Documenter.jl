@@ -30,6 +30,7 @@ pages:
 - Manual:
   - Guide: man/guide.md
   - Doctests: man/doctests.md
+  - Hosting Documentation: man/hosting.md
   - Internals: man/internals.md
 - Library:
   - Public: lib/public.md
