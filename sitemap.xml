@@ -24,6 +24,12 @@
     </url>
         
     <url>
+     <loc>None/man/hosting/</loc>
+     <lastmod>2016-03-07</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
      <loc>None/man/internals/</loc>
      <lastmod>2016-03-07</lastmod>
      <changefreq>daily</changefreq>

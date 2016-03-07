@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Lapidary Documentation Outline\n\n\n\n\nPackage Manual\n\n\n\n\nDoctests\n\n\n\"Script\" Examples\n\n\nREPL Examples\n\n\nSkipping Doctests\n\n\n\n\n\n\nPackage Guide\n\n\nInstallation\n\n\nUsage\n\n\nSyntax\n\n\n\n\n\n\n\n\n\n\nPackage Reference\n\n\n\n\nInternal Documentation\n\n\nTypes\n\n\nStages\n\n\nExpanders\n\n\nUtilities\n\n\n\n\n\n\nPublic Documentation\n\n\n\n\n\n\nDocumentation Index\n\n\n\n\nCheckDocs\n\n\nContentsBlock\n\n\nContentsNode\n\n\nCopyAssetsDirectory\n\n\nCrossReferenceLinks\n\n\nDefaultExpander\n\n\nDocsBlock\n\n\nDocsNode\n\n\nEnv\n\n\nExpandTemplates\n\n\nFindHeaders\n\n\nHeaderPath\n\n\nIndexBlock\n\n\nIndexNode\n\n\nMetaBlock\n\n\nMetaNode\n\n\nParseTemplates\n\n\nParsedPath\n\n\nPath\n\n\nRenderDocument\n\n\nRunDocTests\n\n\nSetupBuildDirectory\n\n\nState\n\n\nassetsdir\n\n\ncar\n\n\ncdr\n\n\ncurrentdir\n\n\ndoctest\n\n\nexpand\n\n\nlog\n\n\nnodocs\n\n\nparseblock\n\n\nprocess\n\n\nslugify\n\n\nwalk\n\n\nmakedocs", 
+            "text": "Lapidary Documentation Outline\n\n\n\n\nPackage Manual\n\n\n\n\nDoctests\n\n\n\"Script\" Examples\n\n\nREPL Examples\n\n\nSkipping Doctests\n\n\n\n\n\n\nPackage Guide\n\n\nInstallation\n\n\nUsage\n\n\nSyntax\n\n\n\n\n\n\nHosting Documentation\n\n\nOverview\n\n\nGitHub Security Key\n\n\nTravis Environment Settings\n\n\n.travis.yml\n Configuration\n\n\nThe \ndeploydocs\n Function\n\n\nThe MkDocs \nmkdocs.yml\n File\n\n\n.gitignore\n\n\ngh-pages\n Branch\n\n\n\n\n\n\n\n\n\n\nPackage Reference\n\n\n\n\nInternal Documentation\n\n\nTypes\n\n\nStages\n\n\nExpanders\n\n\nUtilities\n\n\n\n\n\n\nPublic Documentation\n\n\n\n\n\n\nDocumentation Index\n\n\n\n\nCheckDocs\n\n\nContentsBlock\n\n\nContentsNode\n\n\nCopyAssetsDirectory\n\n\nCrossReferenceLinks\n\n\nDefaultExpander\n\n\nDocsBlock\n\n\nDocsNode\n\n\nEnv\n\n\nExpandTemplates\n\n\nFindHeaders\n\n\nHeaderPath\n\n\nIndexBlock\n\n\nIndexNode\n\n\nMetaBlock\n\n\nMetaNode\n\n\nParseTemplates\n\n\nParsedPath\n\n\nPath\n\n\nRenderDocument\n\n\nRunDocTests\n\n\nSetupBuildDirectory\n\n\nState\n\n\nassetsdir\n\n\ncar\n\n\ncdr\n\n\ncurrentdir\n\n\ndoctest\n\n\nexpand\n\n\nlog\n\n\nnodocs\n\n\nparseblock\n\n\nprocess\n\n\nslugify\n\n\nwalk\n\n\nmakedocs", 
             "title": "Home"
         }, 
         {
@@ -12,7 +12,7 @@
         }, 
         {
             "location": "/#package-manual", 
-            "text": "Doctests  \"Script\" Examples  REPL Examples  Skipping Doctests    Package Guide  Installation  Usage  Syntax", 
+            "text": "Doctests  \"Script\" Examples  REPL Examples  Skipping Doctests    Package Guide  Installation  Usage  Syntax    Hosting Documentation  Overview  GitHub Security Key  Travis Environment Settings  .travis.yml  Configuration  The  deploydocs  Function  The MkDocs  mkdocs.yml  File  .gitignore  gh-pages  Branch", 
             "title": "Package Manual"
         }, 
         {
@@ -124,6 +124,56 @@
             "location": "/man/doctests/#skipping-doctests", 
             "text": "Doctesting can be disabled by setting the  makedocs  keyword  doctest = false . This should only be done when initially laying out the structure of a package's documentation, after which it's encouraged to always run doctests when building docs.", 
             "title": "Skipping Doctests"
+        }, 
+        {
+            "location": "/man/hosting/", 
+            "text": "Hosting Documentation\n\n\nAfter going through the \nPackage Guide\n and \nDoctests\n page you will need to host the generated documentation somewhere for potential users to read. This guide will describe how to setup automatic updates for your package docs using the Travis build service and GitHub Pages. This is the same approach used by this package to host it's own docs \u2013 the docs you're currently reading.\n\n\nNote\n\n\nThis guide assumes that you already have GitHub and Travis accounts setup. If not then go set those up first and then return here.\n\n\n\n\nOverview\n\n\nOnce setup correctly the following will happen each time you push new updates to your package repository:\n\n\n\n\ntravis buildbots startup and run your tests;\n\n\neach buildbot will build the package docs using your \ndocs/make.jl\n script;\n\n\na single buildbot will then try to push the generated docs back the github.\n\n\n\n\nThe following sections outline how to enable this for your own package.\n\n\n\n\nGitHub Security Key\n\n\nFirstly, generate a new \npersonal access token\n.\n\n\nEnter a description for this new token. We'll be calling ours \"Travis\", but any other name will do. For the \"Select scopes\" option choose \"public_repo\" \nonly\n. Then generate the token and save it somewhere safe. We'll be needing it during the next section.\n\n\n\n\nTravis Environment Settings\n\n\nNext we'll add the generated token to our repository's Travis page. Go to the settings page for the repository and under the \"Environment Variables\" section add a new variable called \nGITHUB_API_KEY\n. Copy the generated key from the \nGitHub Security Key\n section as the value and \nmake sure\n that \"Display value in build log\" is \noff\n. Then add the key.\n\n\n\n\n.travis.yml\n Configuration\n\n\nTo allow Travis to install the extra dependencies needed to build our docs add the following to your \n.travis.yml\n file in your package:\n\n\nbefore_script\n:\n\n  \n-\n \nexport PATH=$HOME/.local/bin:$PATH\n\n\n\n\n\n\nIn the \nafter_success\n section of the \n.travis.yml\n file, where code coverage is processed, run your \ndocs/make.jl\n file:\n\n\nafter_success\n:\n\n  \n-\n \njulia -e \ncd(Pkg.dir(\nPACKAGE_NAME\n)); include(joinpath(\ndocs\n, \nmake.jl\n))\n\n\n\n\n\n\n\n\nThe \ndeploydocs\n Function\n\n\nAt the moment your \ndocs/make.jl\n file probably only contains\n\n\nusing\n \nLapidary\n,\n \nPACKAGE_NAME\n\n\n\nmakedocs\n()\n\n\n\n\n\n\nWe'll need to add an additional call to this file after \nmakedocs\n. Add the following at the end of the file:\n\n\ndeploydocs\n(\n\n    \nrepo\n \n=\n \ngithub.com/USER_NAME/PACKAGE_NAME.jl.git\n\n\n)\n\n\n\n\n\n\nwhere \nUSER_NAME\n and \nPACKAGE_NAME\n must be set to the appropriate names.\n\n\n\n\nThe MkDocs \nmkdocs.yml\n File\n\n\nWe'll be using \nMkDocs\n to convert the markdown files generated by Lapidary to HTML. (This, of course, is not the only option you have for this step. Any markdown to HTML converter should work fine with some amount of setting up.)\n\n\nAdd an \nmkdocs.yml\n file to your \ndocs/\n directory with the following content:\n\n\nsite_name\n:\n        \nPACKAGE_NAME.jl\n\n\nrepo_url\n:\n         \nhttps://github.com/USER_NAME/PACKAGE_NAME.jl\n\n\nsite_description\n:\n \nDescription...\n\n\nsite_author\n:\n      \nUSER_NAME\n\n\n\ntheme\n:\n \nreadthedocs\n\n\n\nextra_css\n:\n\n  \n-\n \nassets/Lapidary.css\n\n\n\nextra_javascript\n:\n\n  \n-\n \nhttps://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML\n\n  \n-\n \nassets/mathjaxhelper.js\n\n\n\nmarkdown_extensions\n:\n\n  \n-\n \nextra\n\n  \n-\n \ntables\n\n  \n-\n \nfenced_code\n\n\n\ndocs_dir\n:\n \nbuild\n\n\n\npages\n:\n\n  \n-\n \nHome\n:\n \nindex.md\n\n\n\n\n\n\nThis is only a basic skeleton. Read through the MkDocs documentation if you would like to know more about the available settings.\n\n\n\n\n.gitignore\n\n\nAdd the following to your package's \n.gitignore\n file\n\n\ndocs/build/\ndocs/site/\n\n\n\n\n\nThese are needed to avoid committing generated content to your repository.\n\n\n\n\ngh-pages\n Branch\n\n\nCreate a new branch called \ngh-pages\n and push it to GitHub. If this branch already exists then you can skip this step, but do note that the generated content is automatically pushed to this branch from Travis.\n\n\n\n\nFinal Remarks\n\n\nThat should be all that is needed to enable automatic documentation building. Pushing new commits to your \nmaster\n branch should trigger doc builds. Note that other branches do not trigger these builds and neither do pull requests by potential contributors.\n\n\nIf you would like to see a more complete example of how this process is setup then take a look at this package's repository for some inspiration.", 
+            "title": "Hosting Documentation"
+        }, 
+        {
+            "location": "/man/hosting/#hosting-documentation", 
+            "text": "After going through the  Package Guide  and  Doctests  page you will need to host the generated documentation somewhere for potential users to read. This guide will describe how to setup automatic updates for your package docs using the Travis build service and GitHub Pages. This is the same approach used by this package to host it's own docs \u2013 the docs you're currently reading.  Note  This guide assumes that you already have GitHub and Travis accounts setup. If not then go set those up first and then return here.", 
+            "title": "Hosting Documentation"
+        }, 
+        {
+            "location": "/man/hosting/#overview", 
+            "text": "Once setup correctly the following will happen each time you push new updates to your package repository:   travis buildbots startup and run your tests;  each buildbot will build the package docs using your  docs/make.jl  script;  a single buildbot will then try to push the generated docs back the github.   The following sections outline how to enable this for your own package.", 
+            "title": "Overview"
+        }, 
+        {
+            "location": "/man/hosting/#github-security-key", 
+            "text": "Firstly, generate a new  personal access token .  Enter a description for this new token. We'll be calling ours \"Travis\", but any other name will do. For the \"Select scopes\" option choose \"public_repo\"  only . Then generate the token and save it somewhere safe. We'll be needing it during the next section.", 
+            "title": "GitHub Security Key"
+        }, 
+        {
+            "location": "/man/hosting/#travis-environment-settings", 
+            "text": "Next we'll add the generated token to our repository's Travis page. Go to the settings page for the repository and under the \"Environment Variables\" section add a new variable called  GITHUB_API_KEY . Copy the generated key from the  GitHub Security Key  section as the value and  make sure  that \"Display value in build log\" is  off . Then add the key.", 
+            "title": "Travis Environment Settings"
+        }, 
+        {
+            "location": "/man/hosting/#travisyml-configuration", 
+            "text": "To allow Travis to install the extra dependencies needed to build our docs add the following to your  .travis.yml  file in your package:  before_script : \n   -   export PATH=$HOME/.local/bin:$PATH   In the  after_success  section of the  .travis.yml  file, where code coverage is processed, run your  docs/make.jl  file:  after_success : \n   -   julia -e  cd(Pkg.dir( PACKAGE_NAME )); include(joinpath( docs ,  make.jl ))", 
+            "title": ".travis.yml Configuration"
+        }, 
+        {
+            "location": "/man/hosting/#the-deploydocs-function", 
+            "text": "At the moment your  docs/make.jl  file probably only contains  using   Lapidary ,   PACKAGE_NAME  makedocs ()   We'll need to add an additional call to this file after  makedocs . Add the following at the end of the file:  deploydocs ( \n     repo   =   github.com/USER_NAME/PACKAGE_NAME.jl.git  )   where  USER_NAME  and  PACKAGE_NAME  must be set to the appropriate names.", 
+            "title": "The deploydocs Function"
+        }, 
+        {
+            "location": "/man/hosting/#the-mkdocs-mkdocsyml-file", 
+            "text": "We'll be using  MkDocs  to convert the markdown files generated by Lapidary to HTML. (This, of course, is not the only option you have for this step. Any markdown to HTML converter should work fine with some amount of setting up.)  Add an  mkdocs.yml  file to your  docs/  directory with the following content:  site_name :          PACKAGE_NAME.jl  repo_url :           https://github.com/USER_NAME/PACKAGE_NAME.jl  site_description :   Description...  site_author :        USER_NAME  theme :   readthedocs  extra_css : \n   -   assets/Lapidary.css  extra_javascript : \n   -   https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML \n   -   assets/mathjaxhelper.js  markdown_extensions : \n   -   extra \n   -   tables \n   -   fenced_code  docs_dir :   build  pages : \n   -   Home :   index.md   This is only a basic skeleton. Read through the MkDocs documentation if you would like to know more about the available settings.", 
+            "title": "The MkDocs mkdocs.yml File"
+        }, 
+        {
+            "location": "/man/hosting/#gitignore", 
+            "text": "Add the following to your package's  .gitignore  file  docs/build/\ndocs/site/  These are needed to avoid committing generated content to your repository.", 
+            "title": ".gitignore"
+        }, 
+        {
+            "location": "/man/hosting/#gh-pages-branch", 
+            "text": "Create a new branch called  gh-pages  and push it to GitHub. If this branch already exists then you can skip this step, but do note that the generated content is automatically pushed to this branch from Travis.   Final Remarks  That should be all that is needed to enable automatic documentation building. Pushing new commits to your  master  branch should trigger doc builds. Note that other branches do not trigger these builds and neither do pull requests by potential contributors.  If you would like to see a more complete example of how this process is setup then take a look at this package's repository for some inspiration.", 
+            "title": "gh-pages Branch"
         }, 
         {
             "location": "/man/internals/", 
