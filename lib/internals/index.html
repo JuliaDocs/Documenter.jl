@@ -377,6 +377,10 @@ Baz.@baz
 <p><a id='Lapidary.DocsNode' href='#Lapidary.DocsNode'>#</a><strong>Lapidary.DocsNode</strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Stores the object and related docstring for a single object found in a <code>{docs}</code> block. When a <code>{docs}</code> block contains multiple entries then each one is expanded into a separate <a href="./#Lapidary.DocsNode"><code>DocsNode</code></a>.</p>
+<p><a id='Lapidary.EvalBlock' href='#Lapidary.EvalBlock'>#</a><strong>Lapidary.EvalBlock</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Expands code blocks where the first line constains <code>{eval}</code>. Subsequent lines are evalutated and the final result is used in place of the code block.</p>
+<p>This expander block should be used when custom content should be generated such as plots or other external data that must appear in the final documentation.</p>
 <p><a id='Lapidary.IndexBlock' href='#Lapidary.IndexBlock'>#</a><strong>Lapidary.IndexBlock</strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Expands code blocks where the first line contains <code>{index}</code>. Subsequent lines can contain key/value pairs relevant to the index. Currently <code>Pages = ["...", ..., "..."]</code> is supported for filtering the contents of the index based on source page.</p>
