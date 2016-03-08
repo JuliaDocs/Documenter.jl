@@ -2,3 +2,4 @@
 
     {docs}
     makedocs
+    deploydocs
