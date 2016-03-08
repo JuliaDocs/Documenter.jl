@@ -861,38 +861,44 @@ function render(io, mime, doc::DocsNode, env)
 end
 
 function render(io, mime, index::IndexNode, env)
-    pages = get!(index.dict, :Pages, [])
-    links = []
+    pages   = get!(index.dict, :Pages, [])
+    mapping = Dict()
     for (obj, (src, dst, markdown, docstr)) in env.docsmap
         path = relpath(dst, dirname(index.dict[:dst]))
-        if isempty(pages) || any(x -> startswith(path, x), pages)
-            push!(links, (docstr, string(path, '#', string(obj))))
-        end
+        push!(get!(mapping, path, []), (docstr, path, string(obj)))
     end
-    sort!(links, by = t -> t[2])
-    for (docstr, path) in links
-        println(io, "- ", "[`", docstr, "`](", path, ")")
+    pages = isempty(pages) ? sort!(collect(keys(mapping))) : pages
+    for page in pages
+        if haskey(mapping, page)
+            docs = mapping[page]
+            for (docstr, path, object) in sort!(docs, by = t -> t[3])
+                println(io, "- [`", docstr, "`](", path, '#', object, ")")
+            end
+        end
     end
 end
 
 function render(io, mime, contents::ContentsNode, env)
     pages = get(contents.dict, :Pages, [])
     depth = get(contents.dict, :Depth, 2)
-    links = []
+    mapping = Dict()
     for (id, headerpath) in env.headers
         path = relpath(headerpath.dst, dirname(contents.dict[:dst]))
-        if isempty(pages) || any(x -> startswith(path, x), pages)
-            if header_level(headerpath.ast) ≤ depth
-                push!(links, (headerpath.nth, headerpath.ast, string(path, '#', id)))
-            end
+        if header_level(headerpath.ast) ≤ depth
+            push!(get!(mapping, path, []), (headerpath.nth, headerpath.ast, path, id))
         end
     end
-    sort!(links, by = t -> t[1])
-    for (counter, header, path) in links
-        link = Markdown.Link(header.text, path)
-        print(io, "    "^(header_level(header) - 1), "- ")
-        Markdown.plaininline(io, link)
-        println(io)
+    pages = isempty(pages) ? sort!(collect(keys(mapping))) : pages
+    for page in pages
+        if haskey(mapping, page)
+            links = mapping[page]
+            for (counter, header, path, id) in sort!(links, by = first)
+                print(io, "    "^(header_level(header) - 1), "- ")
+                link = Markdown.Link(header.text, string(path, '#', id))
+                Markdown.plaininline(io, link)
+                println(io)
+            end
+        end
     end
 end
 
