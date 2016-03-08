@@ -35,6 +35,7 @@
     MetaNode
     DocsBlock
     DocsNode
+    EvalBlock
     IndexBlock
     IndexNode
     ContentsBlock

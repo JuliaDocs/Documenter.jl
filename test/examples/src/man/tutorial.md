@@ -68,3 +68,7 @@ julia> A \ b
  -0.32122
  -1.72323
 ```
+
+    {eval}
+    code = string(sprint(Base.banner), "julia>")
+    Markdown.Code(code)

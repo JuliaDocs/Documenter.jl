@@ -197,6 +197,7 @@ function makedocs(; debug = false, args...)
                 FindHeaders(),
                 MetaBlock(),
                 DocsBlock(),
+                EvalBlock(),
                 IndexBlock(),
                 ContentsBlock(),
                 DefaultExpander()
@@ -518,6 +519,31 @@ function expand(::DocsBlock, b::Markdown.Code, env)
         end
         env.docsmap[obj] = (src, dst, doc, strip(strip(str), ':'))
         push!(env.state.blocks, DocsNode(obj, doc))
+    end
+    true
+end
+
+# {eval} block
+# ------------
+
+"""
+Expands code blocks where the first line constains `{eval}`. Subsequent lines are evalutated
+and the final result is used in place of the code block.
+
+This expander block should be used when custom content should be generated such as plots or
+other external data that must appear in the final documentation.
+"""
+immutable EvalBlock <: AbstractExpander end
+
+function expand(::EvalBlock, b::Markdown.Code, env)
+    startswith(b.code, "{eval}") || return false
+    sandbox = Module(:EvalBlockSandbox)
+    cd(dirname(env.state.dst)) do
+        result = nothing
+        for (ex, str) in parseblock(b.code; skip = 1)
+            result = eval(sandbox, ex)
+        end
+        result === nothing || push!(env.state.blocks, result)
     end
     true
 end
