@@ -43,7 +43,7 @@
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
+    <link rel="stylesheet" href="../../assets/stylesheets/application-20d5debb47.css">
     
       <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
     
@@ -201,14 +201,17 @@
               </a>
             </li>
           
-            <li class="anchor">
-              <a title="Syntax" href="#syntax">
-                Syntax
-              </a>
-            </li>
-          
         </ul>
       
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Syntax" href="../syntax/">
+      Syntax
+    </a>
     
   </li>
 
@@ -450,54 +453,6 @@
 
 
 <p>The <code>{index}</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>{docs}</code> blocks. As with the <code>{contents}</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>{index}</code>.</p>
-<p><a id='syntax'></a></p>
-<h2 id="syntax">Syntax</h2>
-<p>This section provides a quick summary of the available syntax and it's meaning.</p>
-<p><a id='ref'></a></p>
-<h3 id="ref"><code>{ref}</code></h3>
-<p>Used in markdown links as the url to tell Lapidary to generate a cross-reference automatically. The text part of the link can be either a docstring or header name.</p>
-<div class="codehilite"><pre><span></span>[Foo]({ref})   # Link to the section called &quot;Foo&quot;.
-[`bar`]({ref}) # Link to the docstring called `bar`.
-</pre></div>
-
-
-<p><a id='docs'></a></p>
-<h3 id="docs"><code>{docs}</code></h3>
-<p>Splice a collection of docstrings into a document.</p>
-<div class="codehilite"><pre><span></span>    {docs}
-    Foo
-    bar(x)
-    @baz(x, y)
-</pre></div>
-
-
-<p><a id='meta'></a></p>
-<h3 id="meta"><code>{meta}</code></h3>
-<p>Used to define any number of metadata key/value pairs that can then be used elsewhere in the page. Currently <code>CurrentModule = ...</code> is the only recognised pair.</p>
-<div class="codehilite"><pre><span></span>    {meta}
-    CurrentModule = FooBar
-</pre></div>
-
-
-<p><a id='index'></a></p>
-<h3 id="index"><code>{index}</code></h3>
-<p>Generates a list of links to docstrings that have been spliced into a document. The only valid setting is currently <code>Pages = ...</code>.</p>
-<div class="codehilite"><pre><span></span>    {index}
-    Pages = [&quot;foo.md&quot;]
-</pre></div>
-
-
-<p>When <code>Pages</code> is not provided all pages in the document are included.</p>
-<p><a id='contents'></a></p>
-<h3 id="contents"><code>{contents}</code></h3>
-<p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p>
-<div class="codehilite"><pre><span></span>    {contents}
-    Pages = [&quot;foo.md&quot;]
-    Depth = 5
-</pre></div>
-
-
-<p>As with <code>{index}</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -533,14 +488,14 @@
     </div>
     <div class="next">
       
-        <a href="../doctests/" title="Doctests">
+        <a href="../syntax/" title="Syntax">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Doctests
+                Syntax
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
@@ -554,7 +509,8 @@
 
             </footer>
           
-        </div></article>
+        </div>
+      </article>
       <div class="results" role="status" aria-live="polite">
         <div class="scrollable">
           <div class="wrapper">
@@ -568,7 +524,7 @@
       var base_url = '../..';
       var repo_id  = 'MichaelHatherly/Lapidary.jl';
     </script>
-    <script src="../../assets/javascripts/application-a10a824a49.js"></script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     
       <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
     
