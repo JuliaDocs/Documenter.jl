@@ -19,7 +19,7 @@ The package is tested against Julia `0.4` and *current* `0.5`:
 Contributions are very welcome, as are feature requests and suggestions. Please open an
 [issue][issues-url] if you encounter any problems.
 
-[gh-pages-url]:  https://michaelhatherly.github.io/Lapidary.jl/
+[gh-pages-url]:  https://michaelhatherly.github.io/Lapidary.jl/latest
 [travis-badge]:  https://travis-ci.org/MichaelHatherly/Lapidary.jl.svg?branch=master
 [travis-url]:    https://travis-ci.org/MichaelHatherly/Lapidary.jl
 [codecov-badge]: http://codecov.io/github/MichaelHatherly/Lapidary.jl/coverage.svg?branch=master
