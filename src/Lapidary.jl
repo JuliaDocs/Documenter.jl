@@ -220,6 +220,7 @@ end
         target = "site",
         repo   = "<required>",
         branch = "gh-pages",
+        latest = "master",
         deps   = <Function>,
         make   = <Function>,
     )
@@ -255,6 +256,12 @@ uses the following `repo` value:
 
     repo = "github.com/MichaelHatherly/Lapidary.jl.git"
 
+**`branch`** is the branch where the generated documentation is pushed. By default this
+value is set to `"gh-pages"`.
+
+**`latest`** is the branch that "tracks" the latest generated documentation. By default this
+value is set to `"master"`.
+
 **`deps`** is the function used to install any dependancies needed to build the
 documentation. By default this function installs `pygments` and `mkdocs`:
 
@@ -275,6 +282,7 @@ function deploydocs(;
 
         repo    = error("no 'repo' keyword provided."),
         branch  = "gh-pages",
+        latest  = "master",
 
         deps    = () -> run(`pip install --user pygments mkdocs`),
         make    = () -> run(`mkdocs build`)
@@ -283,15 +291,19 @@ function deploydocs(;
     github_api_key      = get(ENV, "GITHUB_API_KEY",      "")
     travis_branch       = get(ENV, "TRAVIS_BRANCH",       "")
     travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST", "")
+    travis_tag          = get(ENV, "TRAVIS_TAG",          "")
     git_rev             = readchomp(`git rev-parse --short HEAD`)
 
     # When should a deploy be tried?
     should_deploy =
-        travis_branch       == "master" &&
-        travis_pull_request == "false"  &&
-        github_api_key      != ""       &&
-        OS_NAME             == :Linux   && # TODO: make OS and version user-defined.
-        VERSION             >  v"0.5.0-"
+        travis_pull_request == "false"   &&
+        github_api_key      != ""        &&
+        OS_NAME             == :Linux    && # TODO: make OS and version user-defined.
+        VERSION             >  v"0.5.0-" &&
+        (
+            travis_branch == latest ||
+            travis_tag    != ""
+        )
 
     if should_deploy
         # Install dependancies.
@@ -299,27 +311,41 @@ function deploydocs(;
         deps()
         # Change to the root directory and try to deploy the docs.
         cd(root) do
-            # Setup the 'target' directory.
             log("setting up target directory.")
-            isdir(target) && rm(target, recursive = true)
-            mkdir(target)
-            cd(target) do
-                run(`git init`)
-                run(`git config user.name  "autodocs"`)
-                run(`git config user.email "autodocs"`)
-                run(`git remote add upstream "https://$github_api_key@$repo"`)
-                run(`git fetch upstream`)
-                run(`git reset upstream/$branch`)
-            end
-            # Build the docs.
+            cleandir(target)
             log("building documentation.")
             make()
-            # Add and commit the changes made by `make`.
             log("pushing new documentation to remote: $repo:$branch.")
-            cd(target) do
-                run(`git add -A .`)
-                run(`git commit -m "build based on $git_rev"`)
-                run(`git push -q upstream HEAD:$branch`)
+            mktempdir() do temp
+                # Versioned docs directories.
+                latest_dir = joinpath(temp, "latest")
+                stable_dir = joinpath(temp, "stable")
+                tagged_dir = joinpath(temp, travis_tag)
+                # Git repo setup.
+                cd(temp) do
+                    run(`git init`)
+                    run(`git config user.name  "autodocs"`)
+                    run(`git config user.email "autodocs"`)
+                    run(`git remote add upstream "https://$github_api_key@$repo"`)
+                    run(`git fetch upstream`)
+                    run(`git checkout -b $branch upstream/$branch`)
+                end
+                # Copy generated from target to versioned doc directories.
+                if travis_tag == ""
+                    cleandir(latest_dir)
+                    cp(target, latest_dir, remove_destination = true)
+                else
+                    cleandir(stable_dir)
+                    cleandir(tagged_dir)
+                    cp(target, stable_dir, remove_destination = true)
+                    cp(target, tagged_dir, remove_destination = true)
+                end
+                # Commit the generated content to the repo.
+                cd(temp) do
+                    run(`git add -A .`)
+                    run(`git commit -m "build based on $git_rev"`)
+                    run(`git push -q upstream HEAD:$branch`)
+                end
             end
         end
     else
@@ -970,6 +996,8 @@ end
 Directory containing Lapidary asset files.
 """
 assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "assets"))
+
+cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive = true); mkdir(d))
 
 """
     parseblock(code::AbstractString; skip = 0)

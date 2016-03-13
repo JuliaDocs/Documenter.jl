@@ -130,6 +130,16 @@ Create a new branch called `gh-pages` and push it to GitHub. If this branch alre
 then you can skip this step, but do note that the generated content is automatically pushed
 to this branch from Travis.
 
+## Documentation Versions
+
+When documentation is generated it is stored in one of the following folders:
+
+- `latest` stores the most recent documentation that is committed to the `master` branch.
+
+- `stable` stores the most recent documentation from a tagged commit. Older tagged versions
+  are stored in directories named after their tags. These tagged directories are persistent
+  and must be manually removed from the `gh-pages` branch if necessary.
+
 ---
 
 **Final Remarks**
