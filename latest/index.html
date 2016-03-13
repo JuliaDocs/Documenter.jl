@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Lapidary.jl - Julia package documentation generator.</title>
+      
+      
+        <meta name="description" content="Julia package documentation generator.">
+      
+      
+      
+        <meta name="author" content="Michael Hatherly">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="Lapidary.jl">
+    <meta property="og:image" content="None/./">
+    <meta name="apple-mobile-web-app-title" content="Lapidary.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="./assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="./assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('./assets/fonts/icon.eot?52m981');
+      	src: url('./assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('./assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('./assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('./assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="./assets/stylesheets/application-20d5debb47.css">
+    
+      <link rel="stylesheet" href="./assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="./assets/Lapidary.css">
+    
+    <script src="./assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+          </span>
+        
+        Lapidary.jl
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/MichaelHatherly/Lapidary.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>Lapidary.jl </strong>
+        
+          <br>
+          MichaelHatherly/Lapidary.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/MichaelHatherly/Lapidary.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/MichaelHatherly/Lapidary.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="current" title="Home" href=".">
+      Home
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Package Manual" href="#package-manual">
+                Package Manual
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Package Reference" href="#package-reference">
+                Package Reference
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Documentation Index" href="#documentation-index">
+                Documentation Index
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Manual</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Guide" href="man/guide/">
+      Guide
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Syntax" href="man/syntax/">
+      Syntax
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Doctests" href="man/doctests/">
+      Doctests
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Hosting Documentation" href="man/hosting/">
+      Hosting Documentation
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Internals" href="man/internals/">
+      Internals
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Library</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Public" href="lib/public/">
+      Public
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Internals" href="lib/internals/">
+      Internals
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <p><a id='lapidary-documentation-outline'></a></p>
+<h1 id="lapidary-documentation-outline">Lapidary Documentation Outline</h1>
+<p><a id='package-manual'></a></p>
+<h2 id="package-manual">Package Manual</h2>
+<ul>
+<li><a href="man/guide/#package-guide">Package Guide</a><ul>
+<li><a href="man/guide/#installation">Installation</a></li>
+<li><a href="man/guide/#usage">Usage</a></li>
+</ul>
+</li>
+<li><a href="man/syntax/#syntax">Syntax</a><ul>
+<li><a href="man/syntax/#ref"><code>{ref}</code></a></li>
+<li><a href="man/syntax/#docs"><code>{docs}</code></a></li>
+<li><a href="man/syntax/#meta"><code>{meta}</code></a></li>
+<li><a href="man/syntax/#index"><code>{index}</code></a></li>
+<li><a href="man/syntax/#contents"><code>{contents}</code></a></li>
+<li><a href="man/syntax/#eval"><code>{eval}</code></a></li>
+</ul>
+</li>
+<li><a href="man/doctests/#doctests">Doctests</a><ul>
+<li><a href="man/doctests/#script-examples">"Script" Examples</a></li>
+<li><a href="man/doctests/#repl-examples">REPL Examples</a></li>
+<li><a href="man/doctests/#skipping-doctests">Skipping Doctests</a></li>
+</ul>
+</li>
+<li><a href="man/hosting/#hosting-documentation">Hosting Documentation</a><ul>
+<li><a href="man/hosting/#overview">Overview</a></li>
+<li><a href="man/hosting/#github-security-key">GitHub Security Key</a></li>
+<li><a href="man/hosting/#travis-environment-settings">Travis Environment Settings</a></li>
+<li><a href="man/hosting/#travisyml-configuration"><code>.travis.yml</code> Configuration</a></li>
+<li><a href="man/hosting/#the-deploydocs-function">The <code>deploydocs</code> Function</a></li>
+<li><a href="man/hosting/#the-mkdocs-mkdocsyml-file">The MkDocs <code>mkdocs.yml</code> File</a></li>
+<li><a href="man/hosting/#gitignore"><code>.gitignore</code></a></li>
+<li><a href="man/hosting/#gh-pages-branch"><code>gh-pages</code> Branch</a></li>
+<li><a href="man/hosting/#documentation-versions">Documentation Versions</a></li>
+</ul>
+</li>
+</ul>
+<p><a id='package-reference'></a></p>
+<h2 id="package-reference">Package Reference</h2>
+<ul>
+<li><a href="lib/public/#public-documentation">Public Documentation</a></li>
+<li><a href="lib/internals/#internal-documentation">Internal Documentation</a><ul>
+<li><a href="lib/internals/#types">Types</a></li>
+<li><a href="lib/internals/#stages">Stages</a></li>
+<li><a href="lib/internals/#expanders">Expanders</a></li>
+<li><a href="lib/internals/#utilities">Utilities</a></li>
+</ul>
+</li>
+</ul>
+<p><a id='documentation-index'></a></p>
+<h2 id="documentation-index">Documentation Index</h2>
+<ul>
+<li><a href="lib/public/#Lapidary.deploydocs"><code>deploydocs</code></a></li>
+<li><a href="lib/public/#Lapidary.makedocs"><code>makedocs</code></a></li>
+<li><a href="lib/internals/#Lapidary.CheckDocs"><code>CheckDocs</code></a></li>
+<li><a href="lib/internals/#Lapidary.ContentsBlock"><code>ContentsBlock</code></a></li>
+<li><a href="lib/internals/#Lapidary.ContentsNode"><code>ContentsNode</code></a></li>
+<li><a href="lib/internals/#Lapidary.CopyAssetsDirectory"><code>CopyAssetsDirectory</code></a></li>
+<li><a href="lib/internals/#Lapidary.CrossReferenceLinks"><code>CrossReferenceLinks</code></a></li>
+<li><a href="lib/internals/#Lapidary.DefaultExpander"><code>DefaultExpander</code></a></li>
+<li><a href="lib/internals/#Lapidary.DocsBlock"><code>DocsBlock</code></a></li>
+<li><a href="lib/internals/#Lapidary.DocsNode"><code>DocsNode</code></a></li>
+<li><a href="lib/internals/#Lapidary.Env"><code>Env</code></a></li>
+<li><a href="lib/internals/#Lapidary.EvalBlock"><code>EvalBlock</code></a></li>
+<li><a href="lib/internals/#Lapidary.ExpandTemplates"><code>ExpandTemplates</code></a></li>
+<li><a href="lib/internals/#Lapidary.FindHeaders"><code>FindHeaders</code></a></li>
+<li><a href="lib/internals/#Lapidary.HeaderPath"><code>HeaderPath</code></a></li>
+<li><a href="lib/internals/#Lapidary.IndexBlock"><code>IndexBlock</code></a></li>
+<li><a href="lib/internals/#Lapidary.IndexNode"><code>IndexNode</code></a></li>
+<li><a href="lib/internals/#Lapidary.MetaBlock"><code>MetaBlock</code></a></li>
+<li><a href="lib/internals/#Lapidary.MetaNode"><code>MetaNode</code></a></li>
+<li><a href="lib/internals/#Lapidary.ParseTemplates"><code>ParseTemplates</code></a></li>
+<li><a href="lib/internals/#Lapidary.ParsedPath"><code>ParsedPath</code></a></li>
+<li><a href="lib/internals/#Lapidary.Path"><code>Path</code></a></li>
+<li><a href="lib/internals/#Lapidary.RenderDocument"><code>RenderDocument</code></a></li>
+<li><a href="lib/internals/#Lapidary.RunDocTests"><code>RunDocTests</code></a></li>
+<li><a href="lib/internals/#Lapidary.SetupBuildDirectory"><code>SetupBuildDirectory</code></a></li>
+<li><a href="lib/internals/#Lapidary.State"><code>State</code></a></li>
+<li><a href="lib/internals/#Lapidary.assetsdir"><code>assetsdir</code></a></li>
+<li><a href="lib/internals/#Lapidary.car"><code>car</code></a></li>
+<li><a href="lib/internals/#Lapidary.cdr"><code>cdr</code></a></li>
+<li><a href="lib/internals/#Lapidary.currentdir"><code>currentdir</code></a></li>
+<li><a href="lib/internals/#Lapidary.doctest"><code>doctest</code></a></li>
+<li><a href="lib/internals/#Lapidary.expand"><code>expand</code></a></li>
+<li><a href="lib/internals/#Lapidary.log"><code>log</code></a></li>
+<li><a href="lib/internals/#Lapidary.nodocs"><code>nodocs</code></a></li>
+<li><a href="lib/internals/#Lapidary.parseblock"><code>parseblock</code></a></li>
+<li><a href="lib/internals/#Lapidary.process"><code>process</code></a></li>
+<li><a href="lib/internals/#Lapidary.slugify"><code>slugify</code></a></li>
+<li><a href="lib/internals/#Lapidary.walk"><code>walk</code></a></li>
+</ul>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+    </div>
+    <div class="next">
+      
+        <a href="man/guide/" title="Guide">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Guide
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '.';
+      var repo_id  = 'MichaelHatherly/Lapidary.jl';
+    </script>
+    <script src="./assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="./assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
+</html>

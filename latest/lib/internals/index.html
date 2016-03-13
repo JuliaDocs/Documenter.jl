@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Internals - Lapidary.jl</title>
+      
+      
+      
+      
+        <meta name="author" content="Michael Hatherly">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="Lapidary.jl">
+    <meta property="og:image" content="None/../../">
+    <meta name="apple-mobile-web-app-title" content="Lapidary.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../assets/stylesheets/application-20d5debb47.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../assets/Lapidary.css">
+    
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Library <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Internals
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/MichaelHatherly/Lapidary.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>Lapidary.jl </strong>
+        
+          <br>
+          MichaelHatherly/Lapidary.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/MichaelHatherly/Lapidary.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/MichaelHatherly/Lapidary.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Manual</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Guide" href="../../man/guide/">
+      Guide
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Syntax" href="../../man/syntax/">
+      Syntax
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Doctests" href="../../man/doctests/">
+      Doctests
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Hosting Documentation" href="../../man/hosting/">
+      Hosting Documentation
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Internals" href="../../man/internals/">
+      Internals
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Library</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Public" href="../public/">
+      Public
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="Internals" href="./">
+      Internals
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Types" href="#types">
+                Types
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Stages" href="#stages">
+                Stages
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Expanders" href="#expanders">
+                Expanders
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Utilities" href="#utilities">
+                Utilities
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <p><a id='internal-documentation'></a></p>
+<h1 id="internal-documentation">Internal Documentation</h1>
+<p><a id='types'></a></p>
+<h2 id="types">Types</h2>
+<p><a id='Lapidary.State' href='#Lapidary.State'>#</a><strong>Lapidary.State</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Used to store the current state of the markdown template expansion. This simplifies the <a href="./#Lapidary.expand"><code>expand</code></a> methods by avoiding having to thread all the state between each call manually.</p>
+<p><a id='Lapidary.Path' href='#Lapidary.Path'>#</a><strong>Lapidary.Path</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Represents a file mapping from source file <code>.src</code> to destination file <code>.dst</code>.</p>
+<p><a id='Lapidary.ParsedPath' href='#Lapidary.ParsedPath'>#</a><strong>Lapidary.ParsedPath</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Same as <a href="./#Lapidary.Path"><code>Path</code></a>, but also includes the parsed content of the markdown file.</p>
+<p><a id='Lapidary.HeaderPath' href='#Lapidary.HeaderPath'>#</a><strong>Lapidary.HeaderPath</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Represents a file mapping from <code>.src</code> to <code>.dst</code> of a markdown header element. The <code>.nth</code> field tracks the ordering of the headers within the file.</p>
+<p><a id='Lapidary.Env' href='#Lapidary.Env'>#</a><strong>Lapidary.Env</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Stores all the state associated with a document. An instance of this type is threaded through the sequence of transformations used to build the document.</p>
+<div class="codehilite"><pre><span></span>Env(kwargs...)
+</pre></div>
+
+
+<p>Helper method used to simplidy the construction of <a href="./#Lapidary.Env"><code>Env</code></a> objects. Takes any number of keyword arguments. Note that unknown keyword arguments are discarded by this method.</p>
+<p><a id='stages'></a></p>
+<h2 id="stages">Stages</h2>
+<p><a id='Lapidary.SetupBuildDirectory' href='#Lapidary.SetupBuildDirectory'>#</a><strong>Lapidary.SetupBuildDirectory</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Cleans out previous <code>build</code> directory and rebuilds the folder structure to match that of the <code>src</code> directory. Copies all non-markdown files from <code>src</code> to <code>build</code>.</p>
+<p><a id='Lapidary.CopyAssetsDirectory' href='#Lapidary.CopyAssetsDirectory'>#</a><strong>Lapidary.CopyAssetsDirectory</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Copies the contents of the Lapidary <code>assets</code> folder to <code>build/assets</code>.</p>
+<p>Will throw an error if the directory already exists.</p>
+<p><a id='Lapidary.ParseTemplates' href='#Lapidary.ParseTemplates'>#</a><strong>Lapidary.ParseTemplates</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Reads the contents of each markdown file found in <code>src</code> and them into <code>Markdown.MD</code> objects using <code>Markdown.parse</code>.</p>
+<p><a id='Lapidary.ExpandTemplates' href='#Lapidary.ExpandTemplates'>#</a><strong>Lapidary.ExpandTemplates</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Runs all the expanders stored in <code>.expanders</code> on each element of the parsed markdown files.</p>
+<p><a id='Lapidary.RunDocTests' href='#Lapidary.RunDocTests'>#</a><strong>Lapidary.RunDocTests</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Finds all code blocks in an expanded document where the language is set to <code>julia</code> and tries to run them. Any failure will currently just terminate the entire document generation.</p>
+<p><strong>Notes</strong></p>
+<p>This stage can be disabled in <a href="../public/#Lapidary.makedocs"><code>makedocs</code></a> by setting the keyword <code>doctest = false</code>.</p>
+<p><a id='Lapidary.CheckDocs' href='#Lapidary.CheckDocs'>#</a><strong>Lapidary.CheckDocs</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Consistency checks for the generated documentation. Have all the available docs from the specified modules been added to the external docs?</p>
+<p><a id='Lapidary.CrossReferenceLinks' href='#Lapidary.CrossReferenceLinks'>#</a><strong>Lapidary.CrossReferenceLinks</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Finds all <code>Markdown.Link</code> elements in an expanded document and tries to find where the link should point to. Will terminate the entire document generation process when a link cannot successfully be found.</p>
+<p><a id='Lapidary.RenderDocument' href='#Lapidary.RenderDocument'>#</a><strong>Lapidary.RenderDocument</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Write the contents of the expanded document tree to file. Currently only supports markdown output.</p>
+<p><a id='expanders'></a></p>
+<h2 id="expanders">Expanders</h2>
+<p><a id='Lapidary.expand' href='#Lapidary.expand'>#</a><strong>Lapidary.expand</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p>Expand a single element, <code>block</code>, of a markdown file.</p>
+<p><a id='Lapidary.DefaultExpander' href='#Lapidary.DefaultExpander'>#</a><strong>Lapidary.DefaultExpander</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>By default block expansion just pushes the block onto the end of the vector of expanded blocks.</p>
+<p><a id='Lapidary.FindHeaders' href='#Lapidary.FindHeaders'>#</a><strong>Lapidary.FindHeaders</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>An expander that tracks all header elements in a document. The data gathered by this expander is used in later stages to build cross-reference links and tables of contents.</p>
+<p><a id='Lapidary.MetaBlock' href='#Lapidary.MetaBlock'>#</a><strong>Lapidary.MetaBlock</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Expands markdown code blocks where the first line contains <code>{meta}</code>. The expander parses the contents of the block expecting key/value pairs such as</p>
+<div class="codehilite"><pre><span></span>{meta}
+CurrentModule = Lapidary
+</pre></div>
+
+
+<p>Note that all syntax used in the block must be valid Julia syntax.</p>
+<p><a id='Lapidary.MetaNode' href='#Lapidary.MetaNode'>#</a><strong>Lapidary.MetaNode</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Stores the parsed and evaluated key/value pairs found in a <code>{meta}</code> block.</p>
+<p><a id='Lapidary.DocsBlock' href='#Lapidary.DocsBlock'>#</a><strong>Lapidary.DocsBlock</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Expands code blocks where the first line contains <code>{docs}</code>. Subsequent lines should be names of objects whose documentation should be retrieved from the Julia docsystem.</p>
+<div class="codehilite"><pre><span></span>{docs}
+foo
+bar(x, y)
+Baz.@baz
+</pre></div>
+
+
+<p>Each object is evaluated in the <code>current_module()</code> or <code>CurrentModule</code> if that has been set in a <code>{meta}</code> block of the current page prior to the <code>{docs}</code> block.</p>
+<p><a id='Lapidary.DocsNode' href='#Lapidary.DocsNode'>#</a><strong>Lapidary.DocsNode</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Stores the object and related docstring for a single object found in a <code>{docs}</code> block. When a <code>{docs}</code> block contains multiple entries then each one is expanded into a separate <a href="./#Lapidary.DocsNode"><code>DocsNode</code></a>.</p>
+<p><a id='Lapidary.EvalBlock' href='#Lapidary.EvalBlock'>#</a><strong>Lapidary.EvalBlock</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Expands code blocks where the first line constains <code>{eval}</code>. Subsequent lines are evalutated and the final result is used in place of the code block.</p>
+<p>This expander block should be used when custom content should be generated such as plots or other external data that must appear in the final documentation.</p>
+<p><a id='Lapidary.IndexBlock' href='#Lapidary.IndexBlock'>#</a><strong>Lapidary.IndexBlock</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Expands code blocks where the first line contains <code>{index}</code>. Subsequent lines can contain key/value pairs relevant to the index. Currently <code>Pages = ["...", ..., "..."]</code> is supported for filtering the contents of the index based on source page.</p>
+<p>Indexes are used to display links to all the docstrings, generated with <code>{docs}</code> blocks, on any number of pages.</p>
+<p><a id='Lapidary.IndexNode' href='#Lapidary.IndexNode'>#</a><strong>Lapidary.IndexNode</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p><code>{index}</code> code blocks are expanded into this object which is used to store the key/value pairs needed to build the actual index during the later rendering state.</p>
+<p><a id='Lapidary.ContentsBlock' href='#Lapidary.ContentsBlock'>#</a><strong>Lapidary.ContentsBlock</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p>Expands code blocks where the first line contains <code>{contents}</code>. Subsequent lines can, like the <code>{index}</code> block, contains key/value pairs. Supported pairs are</p>
+<div class="codehilite"><pre><span></span>Pages = [&quot;...&quot;, ..., &quot;...&quot;]
+Depth = 2
+</pre></div>
+
+
+<p>where <code>Pages</code> acts the same as for <code>{index}</code> and <code>Depth</code> limits the header level displayed in the generated contents.</p>
+<p>Contents blocks are used to a display nested list of the headers found in one or more pages.</p>
+<p><a id='Lapidary.ContentsNode' href='#Lapidary.ContentsNode'>#</a><strong>Lapidary.ContentsNode</strong> &mdash; <em>Type</em>.</p>
+<hr />
+<p><code>{contents}</code> blocks are expanded into these objects, which, like with <a href="./#Lapidary.IndexNode"><code>IndexNode</code></a>, store the key/value pairs needed to render the contents during the later rendering stage.</p>
+<p><a id='utilities'></a></p>
+<h2 id="utilities">Utilities</h2>
+<p><a id='Lapidary.car' href='#Lapidary.car'>#</a><strong>Lapidary.car</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>car(x::Tuple)
+</pre></div>
+
+
+<p>Head element of the <code>Tuple</code> <code>x</code>. See also <a href="./#Lapidary.cdr"><code>cdr</code></a>.</p>
+<p><a id='Lapidary.cdr' href='#Lapidary.cdr'>#</a><strong>Lapidary.cdr</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>cdr(x::Tuple)
+</pre></div>
+
+
+<p>Tail elements of the <code>Tuple</code> <code>x</code>. See also <a href="./#Lapidary.car"><code>car</code></a>.</p>
+<p><a id='Lapidary.assetsdir' href='#Lapidary.assetsdir'>#</a><strong>Lapidary.assetsdir</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>assetsdir()
+</pre></div>
+
+
+<p>Directory containing Lapidary asset files.</p>
+<p><a id='Lapidary.currentdir' href='#Lapidary.currentdir'>#</a><strong>Lapidary.currentdir</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>currentdir()
+</pre></div>
+
+
+<p>Returns the current source directory. When <code>isinteractive() ≡ true</code> then the present working directory, <code>pwd()</code> is returned instead.</p>
+<p><a id='Lapidary.walk' href='#Lapidary.walk'>#</a><strong>Lapidary.walk</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>walk(f::Function, meta::Dict, element)
+</pre></div>
+
+
+<p>Scan a document tree and run function <code>f</code> on each <code>element</code> that is encountered.</p>
+<p><a id='Lapidary.log' href='#Lapidary.log'>#</a><strong>Lapidary.log</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>log(io::IO, msg::AbstractString)
+log(msg::AbstractString)
+</pre></div>
+
+
+<p>Print a formatted message to <code>STDOUT</code>. Each document "stage" type must provide an implementation of this function.</p>
+<p><a id='Lapidary.process' href='#Lapidary.process'>#</a><strong>Lapidary.process</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>process(env, stages...)
+</pre></div>
+
+
+<p>For each stage in <code>stages</code> execute stage with the given <code>env</code> as it's argument.</p>
+<p><a id='Lapidary.parseblock' href='#Lapidary.parseblock'>#</a><strong>Lapidary.parseblock</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span><span class="nt">parseblock</span><span class="o">(</span><span class="nt">code</span><span class="o">:</span><span class="nd">:AbstractString</span><span class="o">;</span> <span class="nt">skip</span> <span class="o">=</span> <span class="nt">0</span><span class="o">)</span>
+</pre></div>
+
+
+<p>Returns an array of (expression, string) tuples for each complete toplevel expression from <code>code</code>. The <code>skip</code> keyword argument will drop the provided number of leading lines.</p>
+<p><a id='Lapidary.nodocs' href='#Lapidary.nodocs'>#</a><strong>Lapidary.nodocs</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p>Does the document returned from the docsystem contain any useful documentation.</p>
+<p><a id='Lapidary.doctest' href='#Lapidary.doctest'>#</a><strong>Lapidary.doctest</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>doctest(source::Markdown.Code)
+</pre></div>
+
+
+<p>Try to run the Julia source code found in <code>source</code>.</p>
+<p><a id='Lapidary.slugify' href='#Lapidary.slugify'>#</a><strong>Lapidary.slugify</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p>Slugify a string <code>s</code> by removing special characters. Used in the url generation process.</p>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../public/" title="Public">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Public
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../..';
+      var repo_id  = 'MichaelHatherly/Lapidary.jl';
+    </script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="../../assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
+</html>
