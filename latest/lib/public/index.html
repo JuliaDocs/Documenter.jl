@@ -354,6 +354,8 @@
     repo   = &quot;&lt;required&gt;&quot;,
     branch = &quot;gh-pages&quot;,
     latest = &quot;master&quot;,
+    osname = &quot;linux&quot;,
+    julia  = &quot;nightly&quot;,
     deps   = &lt;Function&gt;,
     make   = &lt;Function&gt;,
 )
@@ -384,6 +386,8 @@
 
 <p><strong><code>branch</code></strong> is the branch where the generated documentation is pushed. By default this value is set to <code>"gh-pages"</code>.</p>
 <p><strong><code>latest</code></strong> is the branch that "tracks" the latest generated documentation. By default this value is set to <code>"master"</code>.</p>
+<p><strong><code>osname</code></strong> is the operating system which will be used to deploy generated documentation. This defaults to <code>"linux"</code>. This value must be one of those specified in the <code>os:</code> section of the <code>.travis.yml</code> configuration file.</p>
+<p><strong><code>julia</code></strong> is the version of Julia that will be used to deploy generated documentation. This defaults to <code>"nightly"</code>. This value must be one of those specified in the <code>julia:</code> section of the <code>.travis.yml</code> configuration file.</p>
 <p><strong><code>deps</code></strong> is the function used to install any dependancies needed to build the documentation. By default this function installs <code>pygments</code> and <code>mkdocs</code>:</p>
 <div class="codehilite"><pre><span></span>deps = () -&gt; run(`pip install --user pygments mkdocs`)
 </pre></div>
