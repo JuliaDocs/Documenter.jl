@@ -341,9 +341,12 @@ function deploydocs(;
                     run(`git init`)
                     run(`git config user.name  "autodocs"`)
                     run(`git config user.email "autodocs"`)
-                    run(`git remote add upstream "https://$github_api_key@$repo"`)
-                    run(`git fetch upstream`)
-                    run(`git checkout -b $branch upstream/$branch`)
+                    success(`git remote add upstream "https://$github_api_key@$repo"`) ||
+                        error("failed to add remote.")
+                    success(`git fetch upstream`) ||
+                        error("failed to fetch from remote.")
+                    success(`git checkout -b $branch upstream/$branch`) ||
+                        error("failed to checkout remote.")
                 end
                 # Copy generated from target to versioned doc directories.
                 if travis_tag == ""
@@ -359,7 +362,8 @@ function deploydocs(;
                 cd(temp) do
                     run(`git add -A .`)
                     run(`git commit -m "build based on $git_rev"`)
-                    run(`git push -q upstream HEAD:$branch`)
+                    success(`git push -q upstream HEAD:$branch`) ||
+                        error("failed to push to remote.")
                 end
             end
         end
