@@ -221,6 +221,8 @@ end
         repo   = "<required>",
         branch = "gh-pages",
         latest = "master",
+        osname = "linux",
+        julia  = "nightly",
         deps   = <Function>,
         make   = <Function>,
     )
@@ -262,6 +264,14 @@ value is set to `"gh-pages"`.
 **`latest`** is the branch that "tracks" the latest generated documentation. By default this
 value is set to `"master"`.
 
+**`osname`** is the operating system which will be used to deploy generated documentation.
+This defaults to `"linux"`. This value must be one of those specified in the `os:` section
+of the `.travis.yml` configuration file.
+
+**`julia`** is the version of Julia that will be used to deploy generated documentation.
+This defaults to `"nightly"`. This value must be one of those specified in the `julia:`
+section of the `.travis.yml` configuration file.
+
 **`deps`** is the function used to install any dependancies needed to build the
 documentation. By default this function installs `pygments` and `mkdocs`:
 
@@ -284,22 +294,27 @@ function deploydocs(;
         branch  = "gh-pages",
         latest  = "master",
 
+        osname  = "linux",
+        julia   = "nightly",
+
         deps    = () -> run(`pip install --user pygments mkdocs`),
         make    = () -> run(`mkdocs build`)
     )
     # Get needed environment variables.
-    github_api_key      = get(ENV, "GITHUB_API_KEY",      "")
-    travis_branch       = get(ENV, "TRAVIS_BRANCH",       "")
-    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST", "")
-    travis_tag          = get(ENV, "TRAVIS_TAG",          "")
+    github_api_key      = get(ENV, "GITHUB_API_KEY",       "")
+    travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
+    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
+    travis_tag          = get(ENV, "TRAVIS_TAG",           "")
+    travis_osname       = get(ENV, "TRAVIS_OS_NAME",       "")
+    travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
     git_rev             = readchomp(`git rev-parse --short HEAD`)
 
     # When should a deploy be tried?
     should_deploy =
-        travis_pull_request == "false"   &&
-        github_api_key      != ""        &&
-        OS_NAME             == :Linux    && # TODO: make OS and version user-defined.
-        VERSION             >  v"0.5.0-" &&
+        travis_pull_request == "false" &&
+        github_api_key      != ""      &&
+        travis_osname       == osname  &&
+        travis_julia        == julia   &&
         (
             travis_branch == latest ||
             travis_tag    != ""
