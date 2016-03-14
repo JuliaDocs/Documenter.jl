@@ -79,6 +79,6 @@ end
 @test length(env.headers)   == 8
 @test length(env.headermap) == 8
 
-@test length(env.docsmap) == 5
+@test length(env.docsmap) == 7
 
 end

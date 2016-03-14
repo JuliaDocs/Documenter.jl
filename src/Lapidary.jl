@@ -1207,9 +1207,16 @@ print_signature(io::IO, signature)        = print(io, '-', signature)
 ## docs
 ## ====
 
-function docs(ex::Union{Symbol, Expr}, str::AbstractString)
-    isexpr(ex, :macrocall, 1) && !endswith(str, "()") && (ex = quot(ex))
-    :(Base.Docs.@doc $ex)
+# Macro representation changed between 0.4 and 0.5.
+if VERSION < v"0.5-"
+    function docs(ex::Union{Symbol, Expr}, str::AbstractString)
+        :(Base.Docs.@doc $ex)
+    end
+else
+    function docs(ex::Union{Symbol, Expr}, str::AbstractString)
+        isexpr(ex, :macrocall, 1) && !endswith(rstrip(str), "()") && (ex = quot(ex))
+        :(Base.Docs.@doc $ex)
+    end
 end
 docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
 

@@ -17,3 +17,5 @@
     :ccall
     :for
     :while
+    @time(x)
+    @assert
