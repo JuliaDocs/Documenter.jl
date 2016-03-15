@@ -66,3 +66,48 @@ Note that not all features of the REPL are supported such as shell and help mode
 Doctesting can be disabled by setting the [`makedocs`]({ref}) keyword `doctest = false`.
 This should only be done when initially laying out the structure of a package's
 documentation, after which it's encouraged to always run doctests when building docs.
+
+## Setup Code
+
+Doctests may require some setup code that must be evaluated prior to that of the actual
+example, but that should not be displayed in the final documentation. It could also be that
+several separate doctests require the same definitions. For both these cases a `{meta}`
+block containing a `DocTestSetup = ...` value can be used as follows:
+
+    ```julia
+    julia> using DataFrames
+
+    julia> df = DataFrame(A = 1:10, B = 2:2:20);
+
+    ```
+
+    Some text discussing `df`...
+
+        {meta}
+        DocTestSetup = quote
+            using DataFrames
+            df = DataFrame(A = 1:10, B = 2:2:20)
+        end
+
+    ```julia
+    julia> df[1, 1]
+    1
+    ```
+
+    Some more text...
+
+    ```julia
+    julia> df[1, :]
+    1x2 DataFrames.DataFrame
+    | Row | A | B |
+    |-----|---|---|
+    | 1   | 1 | 2 |
+    ```
+
+        {meta}
+        DocTestSetup = nothing
+
+Note that the `DocTestSetup` value is **re-evaluated** at the start of *each* doctest block
+and no state is shared between any code blocks. The `DocTestSetup = nothing` is not strictly
+necessary, but good practice nonetheless to help avoid unintentional definitions later on a
+page.

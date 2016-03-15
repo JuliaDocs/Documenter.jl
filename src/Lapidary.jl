@@ -1112,6 +1112,8 @@ function result_to_string(value)
     display(dis, value)
     takebuf_string(buf)
 end
+result_to_string(::Void) = ""
+
 function error_to_string(er, bt)
     buf = IOBuffer()
     print(buf, "ERROR: ")

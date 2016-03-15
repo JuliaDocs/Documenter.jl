@@ -11,6 +11,11 @@
 [`Main.Mod.T`]({ref})
 
 ```julia
+julia> using Base.Meta # `nothing` shouldn't be displayed.
+
+julia> Meta
+Base.Meta
+
 julia> a = 1
 1
 
