@@ -225,6 +225,12 @@
               </a>
             </li>
           
+            <li class="anchor">
+              <a title="Setup Code" href="#setup-code">
+                Setup Code
+              </a>
+            </li>
+          
         </ul>
       
     
@@ -333,6 +339,45 @@ julia&gt; a + b
 <p><a id='skipping-doctests'></a></p>
 <h2 id="skipping-doctests">Skipping Doctests</h2>
 <p>Doctesting can be disabled by setting the <a href="../../lib/public/#Lapidary.makedocs"><code>makedocs</code></a> keyword <code>doctest = false</code>. This should only be done when initially laying out the structure of a package's documentation, after which it's encouraged to always run doctests when building docs.</p>
+<p><a id='setup-code'></a></p>
+<h2 id="setup-code">Setup Code</h2>
+<p>Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. It could also be that several separate doctests require the same definitions. For both these cases a <code>{meta}</code> block containing a <code>DocTestSetup = ...</code> value can be used as follows:</p>
+<div class="codehilite"><pre><span></span><span class="err">```</span><span class="nt">julia</span>
+<span class="nt">julia</span><span class="o">&gt;</span> <span class="nt">using</span> <span class="nt">DataFrames</span>
+
+<span class="nt">julia</span><span class="o">&gt;</span> <span class="nt">df</span> <span class="o">=</span> <span class="nt">DataFrame</span><span class="o">(</span><span class="nt">A</span> <span class="o">=</span> <span class="nt">1</span><span class="nd">:10</span><span class="o">,</span> <span class="nt">B</span> <span class="o">=</span> <span class="nt">2</span><span class="nd">:2:20</span><span class="o">);</span>
+
+<span class="err">```</span>
+
+<span class="nt">Some</span> <span class="nt">text</span> <span class="nt">discussing</span> <span class="err">`</span><span class="nt">df</span><span class="err">`</span><span class="o">...</span>
+
+    <span class="p">{</span><span class="n">meta</span><span class="p">}</span>
+    <span class="nt">DocTestSetup</span> <span class="o">=</span> <span class="nt">quote</span>
+        <span class="nt">using</span> <span class="nt">DataFrames</span>
+        <span class="nt">df</span> <span class="o">=</span> <span class="nt">DataFrame</span><span class="o">(</span><span class="nt">A</span> <span class="o">=</span> <span class="nt">1</span><span class="nd">:10</span><span class="o">,</span> <span class="nt">B</span> <span class="o">=</span> <span class="nt">2</span><span class="nd">:2:20</span><span class="o">)</span>
+    <span class="nt">end</span>
+
+<span class="err">```</span><span class="nt">julia</span>
+<span class="nt">julia</span><span class="o">&gt;</span> <span class="nt">df</span><span class="cp">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="cp">]</span>
+<span class="nt">1</span>
+<span class="err">```</span>
+
+<span class="nt">Some</span> <span class="nt">more</span> <span class="nt">text</span><span class="o">...</span>
+
+<span class="err">```</span><span class="nt">julia</span>
+<span class="nt">julia</span><span class="o">&gt;</span> <span class="nt">df</span><span class="cp">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="cp">]</span>
+<span class="nt">1x2</span> <span class="nt">DataFrames</span><span class="nc">.DataFrame</span>
+<span class="o">|</span> <span class="nt">Row</span> <span class="o">|</span> <span class="nt">A</span> <span class="o">|</span> <span class="nt">B</span> <span class="o">|</span>
+<span class="o">|</span><span class="nt">-----</span><span class="o">|</span><span class="nt">---</span><span class="o">|</span><span class="nt">---</span><span class="o">|</span>
+<span class="o">|</span> <span class="nt">1</span>   <span class="o">|</span> <span class="nt">1</span> <span class="o">|</span> <span class="nt">2</span> <span class="o">|</span>
+<span class="err">```</span>
+
+    <span class="p">{</span><span class="n">meta</span><span class="p">}</span>
+    <span class="nt">DocTestSetup</span> <span class="o">=</span> <span class="nt">nothing</span>
+</pre></div>
+
+
+<p>Note that the <code>DocTestSetup</code> value is <strong>re-evaluated</strong> at the start of <em>each</em> doctest block and no state is shared between any code blocks. The <code>DocTestSetup = nothing</code> is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions later on a page.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
