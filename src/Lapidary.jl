@@ -211,9 +211,6 @@ function makedocs(; debug = false, args...)
     debug ? env : nothing
 end
 
-# deploy docs (experimental)
-# ==========================
-
 """
     deploydocs(
         root   = "<current-directory>",

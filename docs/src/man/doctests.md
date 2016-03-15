@@ -71,7 +71,7 @@ documentation, after which it's encouraged to always run doctests when building 
 
 Doctests may require some setup code that must be evaluated prior to that of the actual
 example, but that should not be displayed in the final documentation. It could also be that
-several separate doctests require the same definitions. For both these cases a `{meta}`
+several separate doctests require the same definitions. For both of these cases a `{meta}`
 block containing a `DocTestSetup = ...` value can be used as follows:
 
     ```julia
