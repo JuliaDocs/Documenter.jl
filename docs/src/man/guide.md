@@ -161,8 +161,8 @@ break up the blocks using extra text.
 
 #### Filtering Included Docstrings
 
-In some cases the you may want to include a docstring for a `Method` that extends a
-`Function` from a different module, such as `Base`. In the following example we extend
+In some cases you may want to include a docstring for a `Method` that extends a
+`Function` from a different module -- such as `Base`. In the following example we extend
 `Base.length` with a new definition for type `T` and also add a docstring:
 
 ```julia
