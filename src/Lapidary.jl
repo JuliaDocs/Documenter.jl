@@ -614,6 +614,12 @@ function expand(::DocsBlock, b::Markdown.Code, env)
             nodocs(doc)              && error("no docs found for '$n' in '$f'.")
             haskey(env.docsmap, obj) && error("docs for '$n' duplicated in '$f'.")
         end
+        # remove docstrings that aren't from one of `env.modules`
+        doc = filterdocs(doc, env.modules)
+        if doc ≡ nothing
+            modules = join(env.modules, ", ", ", or ")
+            error("no docs found for '$obj' in modules $modules.")
+        end
         env.docsmap[obj] = (src, dst, doc, strip(strip(str), ':'))
         push!(env.state.blocks, DocsNode(obj, doc))
     end
@@ -1235,6 +1241,31 @@ doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
 doccat(::Module)   = "Module"
 doccat(::ANY)      = "Constant"
+
+"""
+Remove docs that are not from one of the modules found in the argument `modules`.
+
+Used in the [`DocsBlock`]({ref}) expander. Returns `nothing` when no docs are found.
+"""
+function filterdocs(doc::Markdown.MD, modules::Vector{Module})
+    if isempty(modules)
+        # When no modules are specified in `makedocs` then don't filter anything.
+        doc
+    else
+        if haskey(doc.meta, :module)
+            doc.meta[:module] ∈ modules ? doc : nothing
+        else
+            out = []
+            for each in doc.content
+                r = filterdocs(each, modules)
+                r ≡ nothing || push!(out, r)
+            end
+            isempty(out) ? nothing : Markdown.MD(out)
+        end
+    end
+end
+# Non-markdown docs won't have a `.meta` field so always just accept those.
+filterdocs(other, modules::Vector{Module}) = other
 
 # Module used to uniquify keyword bindings.
 baremodule Keywords end

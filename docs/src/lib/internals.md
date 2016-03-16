@@ -53,5 +53,6 @@
     process
     parseblock
     nodocs
+    filterdocs
     doctest
     slugify

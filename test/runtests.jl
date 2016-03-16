@@ -28,6 +28,33 @@ using Lapidary
 using Base.Test
 using Compat
 
+
+# Unit tests for module internals.
+
+module UnitTests
+
+type T end
+
+"Lapidary unit tests."
+Base.length(::T) = 1
+
+end
+
+let doc = @doc(length)
+    a = Lapidary.filterdocs(doc, Module[])
+    b = Lapidary.filterdocs(doc, Module[UnitTests])
+    c = Lapidary.filterdocs(doc, Module[Base])
+    d = Lapidary.filterdocs(doc, Module[Tests])
+
+    @test a === doc
+    @test contains(stringmime("text/plain", b), "Lapidary unit tests.")
+    @test !contains(stringmime("text/plain", c), "Lapidary unit tests.")
+    @test d === nothing
+end
+
+
+# Integration tests for module api.
+
 # setup
 # =====
 

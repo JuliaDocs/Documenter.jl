@@ -159,6 +159,51 @@ Note that the `...` in the example above is just there to stop the code blocks f
 into a single block. You could use fenced code blocks instead to avoid needing to have to
 break up the blocks using extra text.
 
+#### Filtering Included Docstrings
+
+In some cases the you may want to include a docstring for a `Method` that extends a
+`Function` from a different module, such as `Base`. In the following example we extend
+`Base.length` with a new definition for type `T` and also add a docstring:
+
+```julia
+type T
+    # ...
+end
+
+"""
+Custom `length` docs for `T`.
+"""
+Base.length(::T) = 1
+```
+
+When trying to include this docstring with
+
+```markdown
+
+    {docs}
+    length
+
+```
+
+all the docs for `length` will be included -- even those from other modules. There are two
+ways to solve this problem. Either include the type in the signature with
+
+```markdown
+
+    {docs}
+    length(::T)
+
+```
+
+or declare the specific modules that [`makedocs`]({ref}) should include with
+
+```julia
+makedocs(
+    # options
+    modules = [MyModule]
+)
+```
+
 ### Cross Referencing
 
 It may be necessary to refer to a particular docstring or section of your document from
