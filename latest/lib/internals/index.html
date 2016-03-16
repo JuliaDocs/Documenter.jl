@@ -472,6 +472,10 @@ log(msg::AbstractString)
 <p><a id='Lapidary.nodocs' href='#Lapidary.nodocs'>#</a><strong>Lapidary.nodocs</strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Does the document returned from the docsystem contain any useful documentation.</p>
+<p><a id='Lapidary.filterdocs' href='#Lapidary.filterdocs'>#</a><strong>Lapidary.filterdocs</strong> &mdash; <em>Function</em>.</p>
+<hr />
+<p>Remove docs that are not from one of the modules found in the argument <code>modules</code>.</p>
+<p>Used in the <a href="./#Lapidary.DocsBlock"><code>DocsBlock</code></a> expander. Returns <code>nothing</code> when no docs are found.</p>
 <p><a id='Lapidary.doctest' href='#Lapidary.doctest'>#</a><strong>Lapidary.doctest</strong> &mdash; <em>Function</em>.</p>
 <hr />
 <div class="codehilite"><pre><span></span>doctest(source::Markdown.Code)

@@ -412,6 +412,40 @@
 
 
 <p>Note that the <code>...</code> in the example above is just there to stop the code blocks from merging into a single block. You could use fenced code blocks instead to avoid needing to have to break up the blocks using extra text.</p>
+<p><a id='filtering-included-docstrings'></a></p>
+<h4 id="filtering-included-docstrings">Filtering Included Docstrings</h4>
+<p>In some cases the you may want to include a docstring for a <code>Method</code> that extends a <code>Function</code> from a different module, such as <code>Base</code>. In the following example we extend <code>Base.length</code> with a new definition for type <code>T</code> and also add a docstring:</p>
+<div class="codehilite"><pre><span></span><span class="k">type</span><span class="nc"> T</span>
+    <span class="c"># ...</span>
+<span class="k">end</span>
+
+<span class="s">&quot;&quot;&quot;</span>
+<span class="s">Custom `length` docs for `T`.</span>
+<span class="s">&quot;&quot;&quot;</span>
+<span class="n">Base</span><span class="o">.</span><span class="n">length</span><span class="p">(::</span><span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>When trying to include this docstring with</p>
+<div class="codehilite"><pre><span></span>    {docs}
+    length
+</pre></div>
+
+
+<p>all the docs for <code>length</code> will be included – even those from other modules. There are two ways to solve this problem. Either include the type in the signature with</p>
+<div class="codehilite"><pre><span></span>    {docs}
+    length(::T)
+</pre></div>
+
+
+<p>or declare the specific modules that <a href="../../lib/public/#Lapidary.makedocs"><code>makedocs</code></a> should include with</p>
+<div class="codehilite"><pre><span></span><span class="n">makedocs</span><span class="p">(</span>
+    <span class="c"># options</span>
+    <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">MyModule</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+
 <p><a id='cross-referencing'></a></p>
 <h3 id="cross-referencing">Cross Referencing</h3>
 <p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Lapidary's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p>
