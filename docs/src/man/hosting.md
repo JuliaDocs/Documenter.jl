@@ -52,8 +52,12 @@ run your `docs/make.jl` file:
 
 ```yaml
 after_success:
+  - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Lapidary.jl")'
   - julia -e 'cd(Pkg.dir("PACKAGE_NAME")); include(joinpath("docs", "make.jl"))'
 ```
+
+Note that once the package is registered in `METADATA.jl` the `Pkg.clone` call can be
+replaced with `Pkg.add("Lapidary")`.
 
 ## The `deploydocs` Function
 
@@ -75,6 +79,21 @@ deploydocs(
 ```
 
 where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names.
+
+By default `deploydocs` will deploy the documentation from the `nightly` Julia build for
+Linux. This can be changed using the `julia` and `osname` keywords as follows:
+
+```julia
+deploydocs(
+    repo   = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    julia  = "0.4",
+    osname = "osx"
+)
+```
+
+This will deploy the docs from the OSX Julia 0.4 Travis build bot.
+
+See the [`deploydocs`]({ref}) function documentation for more details.
 
 ## The MkDocs `mkdocs.yml` File
 
