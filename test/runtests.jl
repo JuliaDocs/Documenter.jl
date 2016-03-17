@@ -55,16 +55,17 @@ end
 
 # Integration tests for module api.
 
+# Mock package docs:
+
 # setup
 # =====
 
 const example_root = joinpath(dirname(@__FILE__), "examples")
 
-const env =
-    makedocs(
-        debug = true,
-        root  = example_root,
-    )
+env = makedocs(
+    debug = true,
+    root  = example_root,
+)
 
 # tests
 # =====
@@ -108,5 +109,38 @@ end
 @test length(env.headermap) == 8
 
 @test length(env.docsmap) == 7
+
+# Lapidary package docs:
+
+const lapidary_root = Pkg.dir("Lapidary", "docs")
+
+env = makedocs(
+    debug   = true,
+    root    = lapidary_root,
+    modules = Lapidary,
+    clean   = false,
+)
+
+@test isa(env, Lapidary.Env)
+
+let build_dir  = joinpath(lapidary_root, "build"),
+    source_dir = joinpath(lapidary_root, "src")
+
+    @test isdir(build_dir)
+    @test isdir(joinpath(build_dir, "assets"))
+    @test isdir(joinpath(build_dir, "lib"))
+    @test isdir(joinpath(build_dir, "man"))
+
+    @test isfile(joinpath(build_dir, "index.md"))
+    @test isfile(joinpath(build_dir, "assets", "mathjaxhelper.js"))
+    @test isfile(joinpath(build_dir, "assets", "Lapidary.css"))
+end
+
+@test env.root   == lapidary_root
+@test env.source == "src"
+@test env.build  == "build"
+@test env.clean  == false
+
+rm(joinpath(lapidary_root, "build"); recursive = true)
 
 end

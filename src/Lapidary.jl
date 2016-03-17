@@ -94,6 +94,7 @@ function Env(;
         mime    = MIME"text/plain"(),
         modules = Module[]
     )
+    modules = collect(submodules(modules))
     Env{typeof(mime)}(
         root, source, build, assets, clean, doctest, mime, modules,
         [], [], [], State(),
@@ -1318,6 +1319,28 @@ else
     sigs(x::Base.Docs.TypeDoc) = x.order
 end
 sigs(::Any)            = Type[Union{}]
+
+function submodules(modules::Vector{Module})
+    out = Set{Module}()
+    for each in modules
+        union!(out, submodules(each))
+    end
+    out
+end
+function submodules(root::Module, out = Set([root]))
+    for name in names(root, true)
+        if isdefined(root, name)
+            object = getfield(root, name)
+            if isvalidmodule(root, object)
+                push!(out, object)
+                submodules(object)
+            end
+        end
+    end
+    out
+end
+isvalidmodule(a::Module, b::Module) = a !== b && b !== Main
+isvalidmodule(a, b)                 = false
 
 ## walkdir compat
 ## ==============
