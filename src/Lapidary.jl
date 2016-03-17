@@ -1296,11 +1296,18 @@ end
 
 function allbindings(mods)
     out = Dict{Binding, Vector{Type}}()
-    for m in mods, (obj, doc) in Base.Docs.meta(m)
+    for m in mods, (obj, doc) in meta(m)
         isa(obj, ObjectIdDict) && continue
         out[Binding(m, nameof(obj))] = sigs(doc)
     end
     out
+end
+
+# Julia 0.4
+if isdefined(Base.Docs, :META′)
+    meta(m) = isdefined(m, Docs.META′) ? Docs.meta(m) : ObjectIdDict()
+else
+    meta(m) = Docs.meta(m)
 end
 
 if isleaftype(Function) # 0.4
