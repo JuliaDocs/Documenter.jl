@@ -420,10 +420,12 @@ immutable CopyAssetsDirectory end
 
 function exec(::CopyAssetsDirectory, env)
     if isdir(env.assets)
+        dst = joinpath(env.build, "assets")
+        isdir(dst) || mkdir(dst)
         for each in readdir(env.assets)
             from = joinpath(env.assets, each)
-            to   = joinpath(env.build, "assets", each)
-            ispath(to) && warn("'$to' is a reserved asset name. Overwriting.")
+            to   = joinpath(dst, each)
+            ispath(to) && warn("Overwriting '$to'.")
             cp(from, to; remove_destination = true)
         end
     else
