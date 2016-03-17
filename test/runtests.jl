@@ -82,6 +82,7 @@ let build_dir  = joinpath(example_root, "build"),
     @test isfile(joinpath(build_dir, "index.md"))
     @test isfile(joinpath(build_dir, "assets", "mathjaxhelper.js"))
     @test isfile(joinpath(build_dir, "assets", "Lapidary.css"))
+    @test isfile(joinpath(build_dir, "assets", "custom.css"))
     @test isfile(joinpath(build_dir, "lib", "functions.md"))
     @test isfile(joinpath(build_dir, "man", "tutorial.md"))
     @test isfile(joinpath(build_dir, "man", "data.csv"))

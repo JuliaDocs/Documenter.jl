@@ -420,9 +420,12 @@ immutable CopyAssetsDirectory end
 
 function exec(::CopyAssetsDirectory, env)
     if isdir(env.assets)
-        dst = joinpath(env.build, "assets")
-        isdir(dst) && rm(dst; recursive = true)
-        cp(env.assets, dst; remove_destination = true)
+        for each in readdir(env.assets)
+            from = joinpath(env.assets, each)
+            to   = joinpath(env.build, "assets", each)
+            ispath(to) && warn("'$to' is a reserved asset name. Overwriting.")
+            cp(from, to; remove_destination = true)
+        end
     else
         error("assets directory '$(abspath(env.assets))' is missing.")
     end
