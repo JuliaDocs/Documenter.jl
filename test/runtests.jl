@@ -41,15 +41,18 @@ Base.length(::T) = 1
 end
 
 let doc = @doc(length)
-    a = Lapidary.filterdocs(doc, Module[])
-    b = Lapidary.filterdocs(doc, Module[UnitTests])
-    c = Lapidary.filterdocs(doc, Module[Base])
-    d = Lapidary.filterdocs(doc, Module[Tests])
+    a = Lapidary.Utilities.filterdocs(doc, Set{Module}())
+    b = Lapidary.Utilities.filterdocs(doc, Set{Module}([UnitTests]))
+    c = Lapidary.Utilities.filterdocs(doc, Set{Module}([Base]))
+    d = Lapidary.Utilities.filterdocs(doc, Set{Module}([Tests]))
 
-    @test a === doc
-    @test contains(stringmime("text/plain", b), "Lapidary unit tests.")
-    @test !contains(stringmime("text/plain", c), "Lapidary unit tests.")
-    @test d === nothing
+    @test !isnull(a)
+    @test get(a) === doc
+    @test !isnull(b)
+    @test contains(stringmime("text/plain", get(b)), "Lapidary unit tests.")
+    @test !isnull(c)
+    @test !contains(stringmime("text/plain", get(c)), "Lapidary unit tests.")
+    @test isnull(d)
 end
 
 
@@ -62,7 +65,7 @@ end
 
 const example_root = joinpath(dirname(@__FILE__), "examples")
 
-env = makedocs(
+doc = makedocs(
     debug = true,
     root  = example_root,
 )
@@ -70,7 +73,7 @@ env = makedocs(
 # tests
 # =====
 
-@test isa(env, Lapidary.Env)
+@test isa(doc, Lapidary.Documents.Document)
 
 let build_dir  = joinpath(example_root, "build"),
     source_dir = joinpath(example_root, "src")
@@ -94,34 +97,50 @@ let build_dir  = joinpath(example_root, "build"),
     )
 end
 
-@test env.root   == example_root
-@test env.source == "src"
-@test env.build  == "build"
-@test env.assets == normpath(joinpath(dirname(@__FILE__), "..", "assets"))
-@test env.clean  == true
-@test env.mime   == MIME"text/plain"()
+@test doc.user.root   == example_root
+@test doc.user.source == "src"
+@test doc.user.build  == "build"
+@test doc.user.clean  == true
+@test doc.user.format == Lapidary.Formats.Markdown
 
-@test length(env.template_paths)     == 3
-@test length(env.parsed_templates)   == 3
-@test length(env.expanded_templates) == 3
+@test doc.internal.assets == normpath(joinpath(dirname(@__FILE__), "..", "assets"))
 
-@test length(env.headers)   == 8
-@test length(env.headermap) == 8
+@test length(doc.internal.pages) == 3
 
-@test length(env.docsmap) == 7
+let headers = doc.internal.headers
+    @test Lapidary.Anchors.exists(headers, "Documentation")
+    @test Lapidary.Anchors.exists(headers, "Documentation")
+    @test Lapidary.Anchors.exists(headers, "Index-Page")
+    @test Lapidary.Anchors.exists(headers, "Functions-Contents")
+    @test Lapidary.Anchors.exists(headers, "Tutorial-Contents")
+    @test Lapidary.Anchors.exists(headers, "Index")
+    @test Lapidary.Anchors.exists(headers, "Tutorial")
+    @test Lapidary.Anchors.exists(headers, "Function-Index")
+    @test Lapidary.Anchors.exists(headers, "Functions")
+    @test Lapidary.Anchors.isunique(headers, "Functions")
+    @test Lapidary.Anchors.isunique(headers, "Functions", joinpath("build", "lib", "functions.md"))
+    let name = "Foo", path = joinpath("build", "lib", "functions.md")
+        @test Lapidary.Anchors.exists(headers, name, path)
+        @test !Lapidary.Anchors.isunique(headers, name)
+        @test !Lapidary.Anchors.isunique(headers, name, path)
+        @test length(headers.map[name][path]) == 4
+    end
+end
+
+@test length(doc.internal.objects) == 7
 
 # Lapidary package docs:
 
 const lapidary_root = Pkg.dir("Lapidary", "docs")
 
-env = makedocs(
+doc = makedocs(
     debug   = true,
     root    = lapidary_root,
     modules = Lapidary,
     clean   = false,
 )
 
-@test isa(env, Lapidary.Env)
+@test isa(doc, Lapidary.Documents.Document)
 
 let build_dir  = joinpath(lapidary_root, "build"),
     source_dir = joinpath(lapidary_root, "src")
@@ -136,11 +155,13 @@ let build_dir  = joinpath(lapidary_root, "build"),
     @test isfile(joinpath(build_dir, "assets", "Lapidary.css"))
 end
 
-@test env.root   == lapidary_root
-@test env.source == "src"
-@test env.build  == "build"
-@test env.clean  == false
+@test doc.user.root   == lapidary_root
+@test doc.user.source == "src"
+@test doc.user.build  == "build"
+@test doc.user.clean  == false
 
 rm(joinpath(lapidary_root, "build"); recursive = true)
 
 end
+
+include(Pkg.dir("Lapidary", "docs", "make.jl"))

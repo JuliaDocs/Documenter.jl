@@ -1,18 +1,17 @@
 using Lapidary
 
-# Build documentation.
-# ====================
+# Build docs.
+# ===========
 
 makedocs(
-    # options
-    modules = [Lapidary],
+    modules = Lapidary,
     clean   = false
 )
 
-# Deploy built documentation from Travis.
-# =======================================
+# Deploy docs.
+# ============
 
-# Needs to install an additional dep, mkdocs-material, so provide a custom `deps`.
+# We need to install an additional dep, `mkdocs-material`, so provide a custom `deps`.
 custom_deps() = run(`pip install --user pygments mkdocs mkdocs-material`)
 
 deploydocs(
