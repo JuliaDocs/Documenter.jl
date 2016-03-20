@@ -6,9 +6,17 @@ Note that currently `Formats.Markdown` is the **only** supported format.
 """
 module Writers
 
-using Compat
+import ..Lapidary:
 
-import ..Lapidary: Anchors, Lapidary, Documents, Builder, Expanders, Formats, Utilities
+    Anchors,
+    Builder,
+    Documents,
+    Expanders,
+    Formats,
+    Lapidary,
+    Utilities
+
+using Compat
 
 # Driver method for document rendering.
 # -------------------------------------

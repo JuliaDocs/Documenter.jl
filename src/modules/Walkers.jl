@@ -3,9 +3,16 @@ Provides the [`walk`]({ref}) function.
 """
 module Walkers
 
-using Compat
+import ..Lapidary:
 
-import ..Lapidary: Anchors, Builder, Documents, Expanders, Formats, Utilities
+    Anchors,
+    Builder,
+    Documents,
+    Expanders,
+    Formats,
+    Utilities
+
+using Compat
 
 """
     walk(f, meta, element)

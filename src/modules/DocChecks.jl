@@ -3,9 +3,16 @@ Provides two functions, [`missingdocs`]({ref}) and [`doctest`]({ref}), for check
 """
 module DocChecks
 
-using Compat
+import ..Lapidary:
 
-import ..Lapidary: Builder, Documents, Expanders, Lapidary, Utilities, Walkers
+    Builder,
+    Documents,
+    Expanders,
+    Lapidary,
+    Utilities,
+    Walkers
+
+using Compat
 
 # Missing docstrings.
 # -------------------

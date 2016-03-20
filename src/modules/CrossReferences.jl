@@ -3,9 +3,18 @@ Provides the [`crossref`]({ref}) function used to automatically calculate link U
 """
 module CrossReferences
 
-using Compat
+import ..Lapidary:
 
-import ..Lapidary: Anchors, Builder, Documents, Expanders, Formats, Lapidary, Utilities, Walkers
+    Anchors,
+    Builder,
+    Documents,
+    Expanders,
+    Formats,
+    Lapidary,
+    Utilities,
+    Walkers
+
+using Compat
 
 """
 Traverses a [`Documents.Document`]({ref}) and replaces links containg `{ref}` URLs with

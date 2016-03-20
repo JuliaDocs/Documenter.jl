@@ -9,9 +9,13 @@ Defines [`Document`]({ref}) and its supporting types
 """
 module Documents
 
-using Compat
+import ..Lapidary:
 
-import ..Lapidary: Anchors, Formats, Utilities
+    Anchors,
+    Formats,
+    Utilities
+
+using Compat
 
 # Pages.
 # ------

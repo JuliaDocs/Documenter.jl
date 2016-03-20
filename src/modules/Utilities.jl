@@ -3,9 +3,7 @@ Provides a collection of utility functions and types that are used in other subm
 """
 module Utilities
 
-using Compat
-
-using Base.Meta
+using Base.Meta, Compat
 
 # Logging output.
 

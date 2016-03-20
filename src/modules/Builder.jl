@@ -15,9 +15,14 @@ actions may involve creating directory structures, expanding templates, running 
 """
 module Builder
 
-using Compat
+import ..Lapidary:
 
-import ..Lapidary: Anchors, Documents, Utilities, Lapidary
+    Anchors,
+    Documents,
+    Lapidary,
+    Utilities
+
+using Compat
 
 # Stages.
 # -------
@@ -56,7 +61,7 @@ abstract Expander
 Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
 [`Anchors.Anchor`]({ref}) object for each one.
 """
-immutable TrackHeaders   <: Expander end
+immutable TrackHeaders <: Expander end
 """
 Parses each code block where the first line is `{meta}` and evaluates the key/value pairs
 found within the block, i.e.
@@ -68,7 +73,7 @@ found within the block, i.e.
         end
 
 """
-immutable MetaBlocks     <: Expander end
+immutable MetaBlocks <: Expander end
 """
 Parses each code block where the first line is `{docs}` and evaluates the expressions found
 within the block. Replaces the block with the docstrings associated with each expression.
@@ -79,7 +84,7 @@ within the block. Replaces the block with the docstrings associated with each ex
         deploydocs
 
 """
-immutable DocsBlocks     <: Expander end
+immutable DocsBlocks <: Expander end
 """
 Parses each code block where the first line is `{eval}` and evaluates it's content. Replaces
 the block with the value resulting from the evaluation. This can be useful for inserting
@@ -97,17 +102,17 @@ generated content into a document such as plots.
         Markdown.Image("Plot", "plot.svg")
 
 """
-immutable EvalBlocks     <: Expander end
+immutable EvalBlocks <: Expander end
 """
 Parses each code block where the first line is `{index}` and replaces it with an index of
-all docstrings sliced into the document. The pages that are included can be set using a
+all docstrings spliced into the document. The pages that are included can be set using a
 key/value pair `Pages = [...]` such as
 
         {index}
         Pages = ["foo.md", "bar.md"]
 
 """
-immutable IndexBlocks    <: Expander end
+immutable IndexBlocks <: Expander end
 """
 Parses each code block where the first line is `{contents}` and replaces it with a nested
 list of all `Header` nodes in the generated document. The pages and depth of the list can

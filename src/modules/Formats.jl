@@ -5,9 +5,9 @@ The only supported format is currently `Markdown`.
 """
 module Formats
 
-using Compat
-
 import ..Lapidary
+
+using Compat
 
 """
 Represents the output format. Possible values are `Markdown`, `LaTeX`, and `HTML`.

@@ -3,9 +3,15 @@ Defines node "expanders" that transform nodes from the parsed markdown files.
 """
 module Expanders
 
-using Compat
+import ..Lapidary:
 
-import ..Lapidary: Anchors, Builder, Documents, Formats, Utilities
+    Anchors,
+    Builder,
+    Documents,
+    Formats,
+    Utilities
+
+using Compat
 
 # Basic driver definitions.
 # -------------------------
