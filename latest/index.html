@@ -174,20 +174,26 @@
         <ul>
           
             <li class="anchor">
-              <a title="Package Manual" href="#package-manual">
-                Package Manual
+              <a title="Package Features" href="#package-features">
+                Package Features
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Package Reference" href="#package-reference">
-                Package Reference
+              <a title="Manual Outline" href="#manual-outline">
+                Manual Outline
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Documentation Index" href="#documentation-index">
-                Documentation Index
+              <a title="Library Outline" href="#library-outline">
+                Library Outline
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Index" href="#index">
+                Index
               </a>
             </li>
           
@@ -288,99 +294,147 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='lapidary-documentation-outline'></a></p>
-<h1 id="lapidary-documentation-outline">Lapidary Documentation Outline</h1>
-<p><a id='package-manual'></a></p>
-<h2 id="package-manual">Package Manual</h2>
+          <p><a id='Lapidary.jl-1'></a></p>
+<h1 id="lapidaryjl">Lapidary.jl</h1>
+<p><em>A documentation generator for Julia.</em></p>
+<p>A package for building documentation from docstrings and markdown files.</p>
+<p><a id='Package-Features-1'></a></p>
+<h2 id="package-features">Package Features</h2>
 <ul>
-<li><a href="man/guide/#package-guide">Package Guide</a><ul>
-<li><a href="man/guide/#installation">Installation</a></li>
-<li><a href="man/guide/#usage">Usage</a></li>
+<li>Minimal configuration.</li>
+<li>Supports Julia <code>0.4</code> and <code>0.5-dev</code>.</li>
+<li>Doctests Julia code blocks.</li>
+<li>Cross references for docs and section headers.</li>
+<li>Checks for missing docstrings and incorrect cross references.</li>
+<li>Generates tables of contents and docstring indexes.</li>
+<li>Use <code>git push</code> to automatically build and deploy docs from Travis to GitHub Pages.</li>
 </ul>
-</li>
-<li><a href="man/syntax/#syntax">Syntax</a><ul>
-<li><a href="man/syntax/#ref"><code>{ref}</code></a></li>
-<li><a href="man/syntax/#docs"><code>{docs}</code></a></li>
-<li><a href="man/syntax/#meta"><code>{meta}</code></a></li>
-<li><a href="man/syntax/#index"><code>{index}</code></a></li>
-<li><a href="man/syntax/#contents"><code>{contents}</code></a></li>
-<li><a href="man/syntax/#eval"><code>{eval}</code></a></li>
-</ul>
-</li>
-<li><a href="man/doctests/#doctests">Doctests</a><ul>
-<li><a href="man/doctests/#script-examples">"Script" Examples</a></li>
-<li><a href="man/doctests/#repl-examples">REPL Examples</a></li>
-<li><a href="man/doctests/#skipping-doctests">Skipping Doctests</a></li>
-<li><a href="man/doctests/#setup-code">Setup Code</a></li>
-</ul>
-</li>
-<li><a href="man/hosting/#hosting-documentation">Hosting Documentation</a><ul>
-<li><a href="man/hosting/#overview">Overview</a></li>
-<li><a href="man/hosting/#github-security-key">GitHub Security Key</a></li>
-<li><a href="man/hosting/#travis-environment-settings">Travis Environment Settings</a></li>
-<li><a href="man/hosting/#travisyml-configuration"><code>.travis.yml</code> Configuration</a></li>
-<li><a href="man/hosting/#the-deploydocs-function">The <code>deploydocs</code> Function</a></li>
-<li><a href="man/hosting/#the-mkdocs-mkdocsyml-file">The MkDocs <code>mkdocs.yml</code> File</a></li>
-<li><a href="man/hosting/#gitignore"><code>.gitignore</code></a></li>
-<li><a href="man/hosting/#gh-pages-branch"><code>gh-pages</code> Branch</a></li>
-<li><a href="man/hosting/#documentation-versions">Documentation Versions</a></li>
-</ul>
-</li>
-</ul>
-<p><a id='package-reference'></a></p>
-<h2 id="package-reference">Package Reference</h2>
+<p>The <a href="man/guide/#Package-Guide-1">Package Guide</a> provides a tutorial explaining how to get started using Lapidary.</p>
+<p>See the <a href=".#main-index-1">Index</a> for the complete list of documented functions and types.</p>
+<p><a id='Manual-Outline-1'></a></p>
+<h2 id="manual-outline">Manual Outline</h2>
 <ul>
-<li><a href="lib/public/#public-documentation">Public Documentation</a></li>
-<li><a href="lib/internals/#internal-documentation">Internal Documentation</a><ul>
-<li><a href="lib/internals/#types">Types</a></li>
-<li><a href="lib/internals/#stages">Stages</a></li>
-<li><a href="lib/internals/#expanders">Expanders</a></li>
-<li><a href="lib/internals/#utilities">Utilities</a></li>
+<li><a href="man/guide/#Package-Guide-1">Package Guide</a><ul>
+<li><a href="man/guide/#Installation-1">Installation</a></li>
+<li><a href="man/guide/#Usage-1">Usage</a></li>
+</ul>
+</li>
+<li><a href="man/syntax/#Syntax-1">Syntax</a><ul>
+<li><a href="man/syntax/#{ref}-1"><code>{ref}</code></a></li>
+<li><a href="man/syntax/#{docs}-1"><code>{docs}</code></a></li>
+<li><a href="man/syntax/#{meta}-1"><code>{meta}</code></a></li>
+<li><a href="man/syntax/#{index}-1"><code>{index}</code></a></li>
+<li><a href="man/syntax/#{contents}-1"><code>{contents}</code></a></li>
+<li><a href="man/syntax/#{eval}-1"><code>{eval}</code></a></li>
+</ul>
+</li>
+<li><a href="man/doctests/#Doctests-1">Doctests</a><ul>
+<li><a href="man/doctests/#&quot;Script&quot;-Examples-1">"Script" Examples</a></li>
+<li><a href="man/doctests/#REPL-Examples-1">REPL Examples</a></li>
+<li><a href="man/doctests/#Skipping-Doctests-1">Skipping Doctests</a></li>
+<li><a href="man/doctests/#Setup-Code-1">Setup Code</a></li>
+</ul>
+</li>
+<li><a href="man/hosting/#Hosting-Documentation-1">Hosting Documentation</a><ul>
+<li><a href="man/hosting/#Overview-1">Overview</a></li>
+<li><a href="man/hosting/#GitHub-Security-Key-1">GitHub Security Key</a></li>
+<li><a href="man/hosting/#Travis-Environment-Settings-1">Travis Environment Settings</a></li>
+<li><a href="man/hosting/#.travis.yml-Configuration-1"><code>.travis.yml</code> Configuration</a></li>
+<li><a href="man/hosting/#The-deploydocs-Function-1">The <code>deploydocs</code> Function</a></li>
+<li><a href="man/hosting/#The-MkDocs-mkdocs.yml-File-1">The MkDocs <code>mkdocs.yml</code> File</a></li>
+<li><a href="man/hosting/#.gitignore-1"><code>.gitignore</code></a></li>
+<li><a href="man/hosting/#gh-pages-Branch-1"><code>gh-pages</code> Branch</a></li>
+<li><a href="man/hosting/#Documentation-Versions-1">Documentation Versions</a></li>
 </ul>
 </li>
 </ul>
-<p><a id='documentation-index'></a></p>
-<h2 id="documentation-index">Documentation Index</h2>
+<p><a id='Library-Outline-1'></a></p>
+<h2 id="library-outline">Library Outline</h2>
 <ul>
-<li><a href="lib/public/#Lapidary.deploydocs"><code>deploydocs</code></a></li>
-<li><a href="lib/public/#Lapidary.makedocs"><code>makedocs</code></a></li>
-<li><a href="lib/internals/#Lapidary.CheckDocs"><code>CheckDocs</code></a></li>
-<li><a href="lib/internals/#Lapidary.ContentsBlock"><code>ContentsBlock</code></a></li>
-<li><a href="lib/internals/#Lapidary.ContentsNode"><code>ContentsNode</code></a></li>
-<li><a href="lib/internals/#Lapidary.CopyAssetsDirectory"><code>CopyAssetsDirectory</code></a></li>
-<li><a href="lib/internals/#Lapidary.CrossReferenceLinks"><code>CrossReferenceLinks</code></a></li>
-<li><a href="lib/internals/#Lapidary.DefaultExpander"><code>DefaultExpander</code></a></li>
-<li><a href="lib/internals/#Lapidary.DocsBlock"><code>DocsBlock</code></a></li>
-<li><a href="lib/internals/#Lapidary.DocsNode"><code>DocsNode</code></a></li>
-<li><a href="lib/internals/#Lapidary.Env"><code>Env</code></a></li>
-<li><a href="lib/internals/#Lapidary.EvalBlock"><code>EvalBlock</code></a></li>
-<li><a href="lib/internals/#Lapidary.ExpandTemplates"><code>ExpandTemplates</code></a></li>
-<li><a href="lib/internals/#Lapidary.FindHeaders"><code>FindHeaders</code></a></li>
-<li><a href="lib/internals/#Lapidary.HeaderPath"><code>HeaderPath</code></a></li>
-<li><a href="lib/internals/#Lapidary.IndexBlock"><code>IndexBlock</code></a></li>
-<li><a href="lib/internals/#Lapidary.IndexNode"><code>IndexNode</code></a></li>
-<li><a href="lib/internals/#Lapidary.MetaBlock"><code>MetaBlock</code></a></li>
-<li><a href="lib/internals/#Lapidary.MetaNode"><code>MetaNode</code></a></li>
-<li><a href="lib/internals/#Lapidary.ParseTemplates"><code>ParseTemplates</code></a></li>
-<li><a href="lib/internals/#Lapidary.ParsedPath"><code>ParsedPath</code></a></li>
-<li><a href="lib/internals/#Lapidary.Path"><code>Path</code></a></li>
-<li><a href="lib/internals/#Lapidary.RenderDocument"><code>RenderDocument</code></a></li>
-<li><a href="lib/internals/#Lapidary.RunDocTests"><code>RunDocTests</code></a></li>
-<li><a href="lib/internals/#Lapidary.SetupBuildDirectory"><code>SetupBuildDirectory</code></a></li>
-<li><a href="lib/internals/#Lapidary.State"><code>State</code></a></li>
-<li><a href="lib/internals/#Lapidary.assetsdir"><code>assetsdir</code></a></li>
-<li><a href="lib/internals/#Lapidary.car"><code>car</code></a></li>
-<li><a href="lib/internals/#Lapidary.cdr"><code>cdr</code></a></li>
-<li><a href="lib/internals/#Lapidary.currentdir"><code>currentdir</code></a></li>
-<li><a href="lib/internals/#Lapidary.doctest"><code>doctest</code></a></li>
-<li><a href="lib/internals/#Lapidary.expand"><code>expand</code></a></li>
-<li><a href="lib/internals/#Lapidary.filterdocs"><code>filterdocs</code></a></li>
-<li><a href="lib/internals/#Lapidary.log"><code>log</code></a></li>
-<li><a href="lib/internals/#Lapidary.nodocs"><code>nodocs</code></a></li>
-<li><a href="lib/internals/#Lapidary.parseblock"><code>parseblock</code></a></li>
-<li><a href="lib/internals/#Lapidary.process"><code>process</code></a></li>
-<li><a href="lib/internals/#Lapidary.slugify"><code>slugify</code></a></li>
-<li><a href="lib/internals/#Lapidary.walk"><code>walk</code></a></li>
+<li><a href="lib/public/#Public-Documentation-1">Public Documentation</a><ul>
+<li><a href="lib/public/#Contents-1">Contents</a></li>
+<li><a href="lib/public/#Index-1">Index</a></li>
+<li><a href="lib/public/#Lapidary-1">Lapidary</a></li>
+</ul>
+</li>
+<li><a href="lib/internals/#Internal-Documentation-1">Internal Documentation</a><ul>
+<li><a href="lib/internals/#Contents-1">Contents</a></li>
+<li><a href="lib/internals/#Index-1">Index</a></li>
+<li><a href="lib/internals/#Anchors-1">Anchors</a></li>
+<li><a href="lib/internals/#Builder-1">Builder</a></li>
+<li><a href="lib/internals/#CrossReferences-1">CrossReferences</a></li>
+<li><a href="lib/internals/#DocChecks-1">DocChecks</a></li>
+<li><a href="lib/internals/#Documents-1">Documents</a></li>
+<li><a href="lib/internals/#Expanders-1">Expanders</a></li>
+<li><a href="lib/internals/#Formats-1">Formats</a></li>
+<li><a href="lib/internals/#Walkers-1">Walkers</a></li>
+<li><a href="lib/internals/#Writers-1">Writers</a></li>
+<li><a href="lib/internals/#Utilities-1">Utilities</a></li>
+</ul>
+</li>
+</ul>
+<p><a id='main-index-1'></a></p>
+<h2 id="index">Index</h2>
+<ul>
+<li><a href="lib/public/#Lapidary"><code>Lapidary</code></a></li>
+<li><a href="lib/public/#Lapidary.deploydocs"><code>Lapidary.deploydocs</code></a></li>
+<li><a href="lib/public/#Lapidary.makedocs"><code>Lapidary.makedocs</code></a></li>
+<li><a href="lib/internals/#Lapidary.Anchors"><code>Lapidary.Anchors</code></a></li>
+<li><a href="lib/internals/#Lapidary.Anchors.Anchor"><code>Lapidary.Anchors.Anchor</code></a></li>
+<li><a href="lib/internals/#Lapidary.Anchors.AnchorMap"><code>Lapidary.Anchors.AnchorMap</code></a></li>
+<li><a href="lib/internals/#Lapidary.Anchors.add!"><code>Lapidary.Anchors.add!</code></a></li>
+<li><a href="lib/internals/#Lapidary.Anchors.anchor"><code>Lapidary.Anchors.anchor</code></a></li>
+<li><a href="lib/internals/#Lapidary.Anchors.exists"><code>Lapidary.Anchors.exists</code></a></li>
+<li><a href="lib/internals/#Lapidary.Anchors.isunique"><code>Lapidary.Anchors.isunique</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder"><code>Lapidary.Builder</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.CheckDocument"><code>Lapidary.Builder.CheckDocument</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.ContentsBlocks"><code>Lapidary.Builder.ContentsBlocks</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.CopyAssetsDirectory"><code>Lapidary.Builder.CopyAssetsDirectory</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.CrossReferences"><code>Lapidary.Builder.CrossReferences</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.DocsBlocks"><code>Lapidary.Builder.DocsBlocks</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.EvalBlocks"><code>Lapidary.Builder.EvalBlocks</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.ExpandTemplates"><code>Lapidary.Builder.ExpandTemplates</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.IndexBlocks"><code>Lapidary.Builder.IndexBlocks</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.MetaBlocks"><code>Lapidary.Builder.MetaBlocks</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.RenderDocument"><code>Lapidary.Builder.RenderDocument</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.SetupBuildDirectory"><code>Lapidary.Builder.SetupBuildDirectory</code></a></li>
+<li><a href="lib/internals/#Lapidary.Builder.TrackHeaders"><code>Lapidary.Builder.TrackHeaders</code></a></li>
+<li><a href="lib/internals/#Lapidary.CrossReferences"><code>Lapidary.CrossReferences</code></a></li>
+<li><a href="lib/internals/#Lapidary.CrossReferences.crossref"><code>Lapidary.CrossReferences.crossref</code></a></li>
+<li><a href="lib/internals/#Lapidary.DocChecks"><code>Lapidary.DocChecks</code></a></li>
+<li><a href="lib/internals/#Lapidary.DocChecks.doctest"><code>Lapidary.DocChecks.doctest</code></a></li>
+<li><a href="lib/internals/#Lapidary.DocChecks.missingdocs"><code>Lapidary.DocChecks.missingdocs</code></a></li>
+<li><a href="lib/internals/#Lapidary.Documents"><code>Lapidary.Documents</code></a></li>
+<li><a href="lib/internals/#Lapidary.Documents.Document"><code>Lapidary.Documents.Document</code></a></li>
+<li><a href="lib/internals/#Lapidary.Documents.Globals"><code>Lapidary.Documents.Globals</code></a></li>
+<li><a href="lib/internals/#Lapidary.Documents.Internal"><code>Lapidary.Documents.Internal</code></a></li>
+<li><a href="lib/internals/#Lapidary.Documents.Page"><code>Lapidary.Documents.Page</code></a></li>
+<li><a href="lib/internals/#Lapidary.Documents.User"><code>Lapidary.Documents.User</code></a></li>
+<li><a href="lib/internals/#Lapidary.Expanders"><code>Lapidary.Expanders</code></a></li>
+<li><a href="lib/internals/#Lapidary.Expanders.expand"><code>Lapidary.Expanders.expand</code></a></li>
+<li><a href="lib/internals/#Lapidary.Formats"><code>Lapidary.Formats</code></a></li>
+<li><a href="lib/internals/#Lapidary.Formats.Format"><code>Lapidary.Formats.Format</code></a></li>
+<li><a href="lib/internals/#Lapidary.Formats.mimetype"><code>Lapidary.Formats.mimetype</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities"><code>Lapidary.Utilities</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.Object"><code>Lapidary.Utilities.Object</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.assetsdir"><code>Lapidary.Utilities.assetsdir</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.check_kwargs"><code>Lapidary.Utilities.check_kwargs</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.currentdir"><code>Lapidary.Utilities.currentdir</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.doccat"><code>Lapidary.Utilities.doccat</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.docs"><code>Lapidary.Utilities.docs</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.filterdocs"><code>Lapidary.Utilities.filterdocs</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.log"><code>Lapidary.Utilities.log</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.logging"><code>Lapidary.Utilities.logging</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.nodocs"><code>Lapidary.Utilities.nodocs</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.object"><code>Lapidary.Utilities.object</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.parseblock"><code>Lapidary.Utilities.parseblock</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.slugify"><code>Lapidary.Utilities.slugify</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.submodules"><code>Lapidary.Utilities.submodules</code></a></li>
+<li><a href="lib/internals/#Lapidary.Utilities.warn"><code>Lapidary.Utilities.warn</code></a></li>
+<li><a href="lib/internals/#Lapidary.Walkers"><code>Lapidary.Walkers</code></a></li>
+<li><a href="lib/internals/#Lapidary.Walkers.walk"><code>Lapidary.Walkers.walk</code></a></li>
+<li><a href="lib/internals/#Lapidary.Writers"><code>Lapidary.Writers</code></a></li>
+<li><a href="lib/internals/#Lapidary.Writers.render"><code>Lapidary.Writers.render</code></a></li>
 </ul>
           <aside class="copyright" role="note">
             

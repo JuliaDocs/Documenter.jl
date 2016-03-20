@@ -284,9 +284,9 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='package-guide'></a></p>
+          <p><a id='Package-Guide-1'></a></p>
 <h1 id="package-guide">Package Guide</h1>
-<p><a id='installation'></a></p>
+<p><a id='Installation-1'></a></p>
 <h2 id="installation">Installation</h2>
 <p>Lapidary is currently not registered and so must be installed via <code>Pkg.clone</code>.</p>
 <div class="codehilite"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="s">&quot;https://github.com/MichaelHatherly/Lapidary.jl&quot;</span><span class="p">)</span>
@@ -294,10 +294,10 @@
 
 
 <p>This package supports Julia <code>0.4</code> and <code>0.5</code>.</p>
-<p><a id='usage'></a></p>
+<p><a id='Usage-1'></a></p>
 <h2 id="usage">Usage</h2>
 <p>Lapidary is designed to do one thing – combine markdown files and inline docstrings from Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document.</p>
-<p><a id='setting-up-the-folder-structure'></a></p>
+<p><a id='Setting-up-the-folder-structure-1'></a></p>
 <h3 id="setting-up-the-folder-structure">Setting up the folder structure</h3>
 <p>Firstly, we need a Julia module to document. This could be a package generated via <code>PkgDev.generate</code> or a single <code>.jl</code> script. For this guide we'll be using a package called <code>Example.jl</code> that has the following directory layout:</p>
 <div class="codehilite"><pre><span></span>Example/
@@ -325,7 +325,7 @@
 </pre></div>
 
 
-<p><a id='building-an-empty-document'></a></p>
+<p><a id='Building-an-empty-document-1'></a></p>
 <h3 id="building-an-empty-document">Building an empty document</h3>
 <p>With our <code>docs/</code> directory now setup we're going to build our first document. It'll just be a single empty file at the moment, but we'll be adding to it later on.</p>
 <p>Add the following to your <code>make.jl</code> file</p>
@@ -335,7 +335,7 @@
 </pre></div>
 
 
-<p>This assumes you've installed Lapidary as discussed in <a href="./#installation">Installation</a> and that your Examples package can be found by Julia.</p>
+<p>This assumes you've installed Lapidary as discussed in <a href="./#Installation-1">Installation</a> and that your Examples package can be found by Julia.</p>
 <p>Now add an <code>index.md</code> file to the <code>src/</code> directory. The name has no particular significance though and you may name it whatever you like. We'll stick to <code>index.md</code> for this guide.</p>
 <p>Leave the newly added file empty and the run the following command from the <code>docs/</code> directory</p>
 <div class="codehilite"><pre><span></span>$ julia make.jl
@@ -371,7 +371,7 @@
 
 <p>At the moment <code>build/index.md</code> should be empty since <code>src/index.md</code> is empty.</p>
 <p>At this point you can add some text to <code>src/index.md</code> and rerun the <code>make.jl</code> file to see the changes if you'd like to.</p>
-<p><a id='adding-some-docstrings'></a></p>
+<p><a id='Adding-some-docstrings-1'></a></p>
 <h3 id="adding-some-docstrings">Adding some docstrings</h3>
 <p>Next we'll splice a docstring defined in the <code>Example</code> module into the <code>index.md</code> file. To do this first document a function in that module:</p>
 <div class="codehilite"><pre><span></span><span class="k">module</span> <span class="n">Example</span>
@@ -412,7 +412,7 @@
 
 
 <p>Note that the <code>...</code> in the example above is just there to stop the code blocks from merging into a single block. You could use fenced code blocks instead to avoid needing to have to break up the blocks using extra text.</p>
-<p><a id='filtering-included-docstrings'></a></p>
+<p><a id='Filtering-Included-Docstrings-1'></a></p>
 <h4 id="filtering-included-docstrings">Filtering Included Docstrings</h4>
 <p>In some cases you may want to include a docstring for a <code>Method</code> that extends a <code>Function</code> from a different module – such as <code>Base</code>. In the following example we extend <code>Base.length</code> with a new definition for type <code>T</code> and also add a docstring:</p>
 <div class="codehilite"><pre><span></span><span class="k">type</span><span class="nc"> T</span>
@@ -446,7 +446,7 @@
 </pre></div>
 
 
-<p><a id='cross-referencing'></a></p>
+<p><a id='Cross-Referencing-1'></a></p>
 <h3 id="cross-referencing">Cross Referencing</h3>
 <p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Lapidary's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation
@@ -461,7 +461,7 @@
 
 <p>So we just have to replace each link's url with <code>{ref}</code> and write the name of the thing we'd link to cross-reference. For document headers it's just plain text that matches the name of the header and for docstrings enclose the object in backticks.</p>
 <p>This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document.</p>
-<p><a id='navigation'></a></p>
+<p><a id='Navigation-1'></a></p>
 <h3 id="navigation">Navigation</h3>
 <p>Lapidary can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation

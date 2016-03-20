@@ -308,10 +308,10 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='syntax'></a></p>
+          <p><a id='Syntax-1'></a></p>
 <h1 id="syntax">Syntax</h1>
 <p>This section of the manual summarises the special syntax used by Lapidary.</p>
-<p><a id='ref'></a></p>
+<p><a id='{ref}-1'></a></p>
 <h2 id="ref"><code>{ref}</code></h2>
 <p>Used in markdown links as the url to tell Lapidary to generate a cross-reference automatically. The text part of the link can be either a docstring or header name.</p>
 <div class="codehilite"><pre><span></span>[Foo]({ref})   # Link to the section called &quot;Foo&quot;.
@@ -319,7 +319,7 @@
 </pre></div>
 
 
-<p><a id='docs'></a></p>
+<p><a id='{docs}-1'></a></p>
 <h2 id="docs"><code>{docs}</code></h2>
 <p>Splice a collection of docstrings into a document.</p>
 <div class="codehilite"><pre><span></span>    {docs}
@@ -329,7 +329,7 @@
 </pre></div>
 
 
-<p><a id='meta'></a></p>
+<p><a id='{meta}-1'></a></p>
 <h2 id="meta"><code>{meta}</code></h2>
 <p>Used to define any number of metadata key/value pairs that can then be used elsewhere in the page. Currently <code>CurrentModule = ...</code> is the only recognised pair.</p>
 <div class="codehilite"><pre><span></span>    {meta}
@@ -337,7 +337,7 @@
 </pre></div>
 
 
-<p><a id='index'></a></p>
+<p><a id='{index}-1'></a></p>
 <h2 id="index"><code>{index}</code></h2>
 <p>Generates a list of links to docstrings that have been spliced into a document. The only valid setting is currently <code>Pages = ...</code>.</p>
 <div class="codehilite"><pre><span></span>    {index}
@@ -346,7 +346,7 @@
 
 
 <p>When <code>Pages</code> is not provided all pages in the document are included.</p>
-<p><a id='contents'></a></p>
+<p><a id='{contents}-1'></a></p>
 <h2 id="contents"><code>{contents}</code></h2>
 <p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p>
 <div class="codehilite"><pre><span></span>    {contents}
@@ -356,7 +356,7 @@
 
 
 <p>As with <code>{index}</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p>
-<p><a id='eval'></a></p>
+<p><a id='{eval}-1'></a></p>
 <h2 id="eval"><code>{eval}</code></h2>
 <p>Evaluates the contents of the block and inserts the resulting value into the final document.</p>
 <p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p>

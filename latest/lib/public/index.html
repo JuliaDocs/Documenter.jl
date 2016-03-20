@@ -241,6 +241,28 @@
         
       
       
+        <ul>
+          
+            <li class="anchor">
+              <a title="Contents" href="#contents">
+                Contents
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Index" href="#index">
+                Index
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Lapidary" href="#lapidary">
+                Lapidary
+              </a>
+            </li>
+          
+        </ul>
+      
     
   </li>
 
@@ -268,9 +290,40 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='public-documentation'></a></p>
+          <p><a id='Public-Documentation-1'></a></p>
 <h1 id="public-documentation">Public Documentation</h1>
-<p><a id='Lapidary.makedocs' href='#Lapidary.makedocs'>#</a><strong>Lapidary.makedocs</strong> &mdash; <em>Function</em>.</p>
+<p>Documentation for <code>Lapidary.jl</code>'s public interface.</p>
+<p>See <a href="../internals/#Internal-Documentation-1">Internal Documentation</a> for internal package docs covering all submodules.</p>
+<p><a id='Contents-1'></a></p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="./#Public-Documentation-1">Public Documentation</a><ul>
+<li><a href="./#Contents-1">Contents</a></li>
+<li><a href="./#Index-1">Index</a></li>
+<li><a href="./#Lapidary-1">Lapidary</a></li>
+</ul>
+</li>
+</ul>
+<p><a id='Index-1'></a></p>
+<h2 id="index">Index</h2>
+<ul>
+<li><a href="./#Lapidary"><code>Lapidary</code></a></li>
+<li><a href="./#Lapidary.deploydocs"><code>Lapidary.deploydocs</code></a></li>
+<li><a href="./#Lapidary.makedocs"><code>Lapidary.makedocs</code></a></li>
+</ul>
+<p><a id='Lapidary-1'></a></p>
+<h2 id="lapidary">Lapidary</h2>
+<p><a id='Lapidary' href='#Lapidary'>#</a>
+<strong><code>Lapidary</code></strong> &mdash; <em>Module</em>.</p>
+<hr />
+<p>Main module for <code>Lapidary.jl</code> – a documentation generation package for Julia.</p>
+<p>Two functions are exported from this module for public use:</p>
+<ul>
+<li><a href="./#Lapidary.makedocs"><code>makedocs</code></a>. Generates documentation from docstrings and templated markdown files.</li>
+<li><a href="./#Lapidary.deploydocs"><code>deploydocs</code></a>. Deploys generated documentation from <em>Travis-CI</em> to <em>GitHub Pages</em>.</li>
+</ul>
+<p><a id='Lapidary.makedocs' href='#Lapidary.makedocs'>#</a>
+<strong><code>Lapidary.makedocs</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <div class="codehilite"><pre><span></span>makedocs(
     root    = &quot;&lt;current-directory&gt;&quot;,
@@ -283,10 +336,8 @@
 </pre></div>
 
 
-<p>Combines markdown files and inline docstrings into an interlinked document.</p>
-<p>In most cases <a href="./#Lapidary.makedocs"><code>makedocs</code></a> should be run from a <code>make.jl</code> file:</p>
+<p>Combines markdown files and inline docstrings into an interlinked document. In most cases <a href="./#Lapidary.makedocs"><code>makedocs</code></a> should be run from a <code>make.jl</code> file:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Lapidary</span>
-
 <span class="n">makedocs</span><span class="p">(</span>
     <span class="c"># keywords...</span>
 <span class="p">)</span>
@@ -315,24 +366,22 @@
 <p><strong><code>source</code></strong> is the directory, relative to <code>root</code>, where the markdown source files are read from. By convention this folder is called <code>src</code>. Note that any non-markdown files stored in <code>source</code> are copied over to the build directory when <a href="./#Lapidary.makedocs"><code>makedocs</code></a> is run.</p>
 <p><strong><code>build</code></strong> is the directory, relative to <code>root</code>, into which generated files and folders are written when <a href="./#Lapidary.makedocs"><code>makedocs</code></a> is run. The name of the build directory is, by convention, called <code>build</code>, though, like with <code>source</code>, users are free to change this to anything else to better suit their project needs.</p>
 <p><strong><code>clean</code></strong> tells <a href="./#Lapidary.makedocs"><code>makedocs</code></a> whether to remove all the content from the <code>build</code> folder prior to generating new content from <code>source</code>. By default this is set to <code>true</code>.</p>
-<p><strong><code>doctest</code></strong> instructs <a href="./#Lapidary.makedocs"><code>makedocs</code></a> on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to <code>true</code>. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it's encouraged to always make sure that documentation examples are runnable and produce the expected results. See the <a href="../../man/doctests/#doctests">Doctests</a> manual section for details about running doctests.</p>
-<p><strong><code>modules</code></strong> specifies a vector of modules that should be documented in <code>source</code>. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of <a href="./#Lapidary.makedocs"><code>makedocs</code></a>. By default no modules are passed to <code>modules</code> and so no warnings will appear. This setting can be used as an indicator of the "coverage" of the generated documentation.</p>
-<p>For example Lapidary's <code>make.jl</code> file contains:</p>
+<p><strong><code>doctest</code></strong> instructs <a href="./#Lapidary.makedocs"><code>makedocs</code></a> on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to <code>true</code>. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it's encouraged to always make sure that documentation examples are runnable and produce the expected results. See the <a href="../../man/doctests/#Doctests-1">Doctests</a> manual section for details about running doctests.</p>
+<p><strong><code>modules</code></strong> specifies a vector of modules that should be documented in <code>source</code>. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of <a href="./#Lapidary.makedocs"><code>makedocs</code></a>. By default no modules are passed to <code>modules</code> and so no warnings will appear. This setting can be used as an indicator of the "coverage" of the generated documentation. For example Lapidary's <code>make.jl</code> file contains:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Lapidary</span>
 
-<span class="c"># Build documentation.</span>
-<span class="c"># ====================</span>
+<span class="c"># Build docs.</span>
+<span class="c"># ===========</span>
 
 <span class="n">makedocs</span><span class="p">(</span>
-    <span class="c"># options</span>
-    <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">Lapidary</span><span class="p">],</span>
+    <span class="n">modules</span> <span class="o">=</span> <span class="n">Lapidary</span><span class="p">,</span>
     <span class="n">clean</span>   <span class="o">=</span> <span class="n">false</span>
 <span class="p">)</span>
 
-<span class="c"># Deploy built documentation from Travis.</span>
-<span class="c"># =======================================</span>
+<span class="c"># Deploy docs.</span>
+<span class="c"># ============</span>
 
-<span class="c"># Needs to install an additional dep, mkdocs-material, so provide a custom `deps`.</span>
+<span class="c"># We need to install an additional dep, `mkdocs-material`, so provide a custom `deps`.</span>
 <span class="n">custom_deps</span><span class="p">()</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="sb">`pip install --user pygments mkdocs mkdocs-material`</span><span class="p">)</span>
 
 <span class="n">deploydocs</span><span class="p">(</span>
@@ -345,8 +394,9 @@
 
 <p>and so any docstring from the module <code>Lapidary</code> that is not spliced into the generated documentation in <code>build</code> will raise a warning.</p>
 <p><strong>See Also</strong></p>
-<p>A guide detailing how to document a package using Lapidary's <a href="./#Lapidary.makedocs"><code>makedocs</code></a> is provided in the <a href="../../man/guide/#usage">Usage</a> section of the manual.</p>
-<p><a id='Lapidary.deploydocs' href='#Lapidary.deploydocs'>#</a><strong>Lapidary.deploydocs</strong> &mdash; <em>Function</em>.</p>
+<p>A guide detailing how to document a package using Lapidary's <a href="./#Lapidary.makedocs"><code>makedocs</code></a> is provided in the <a href="../../man/guide/#Usage-1">Usage</a> section of the manual.</p>
+<p><a id='Lapidary.deploydocs' href='#Lapidary.deploydocs'>#</a>
+<strong><code>Lapidary.deploydocs</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <div class="codehilite"><pre><span></span>deploydocs(
     root   = &quot;&lt;current-directory&gt;&quot;,
@@ -362,14 +412,11 @@
 </pre></div>
 
 
-<p>Converts markdown files generated by <a href="./#Lapidary.makedocs"><code>makedocs</code></a> to HTML and pushes them to <code>repo</code>.</p>
-<p>This function should be called from within a package's <code>docs/make.jl</code> file after the call to <a href="./#Lapidary.makedocs"><code>makedocs</code></a>, like so</p>
+<p>Converts markdown files generated by <a href="./#Lapidary.makedocs"><code>makedocs</code></a> to HTML and pushes them to <code>repo</code>. This function should be called from within a package's <code>docs/make.jl</code> file after the call to <a href="./#Lapidary.makedocs"><code>makedocs</code></a>, like so</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Lapidary</span><span class="p">,</span> <span class="n">PACKAGE_NAME</span>
-
 <span class="n">makedocs</span><span class="p">(</span>
     <span class="c"># options...</span>
 <span class="p">)</span>
-
 <span class="n">deploydocs</span><span class="p">(</span>
     <span class="n">repo</span> <span class="o">=</span> <span class="s">&quot;github.com/...&quot;</span>
 <span class="p">)</span>
@@ -395,7 +442,7 @@
 
 <p><strong><code>make</code></strong> is the function used to convert the markdown files to HTML. By default this just runs <code>mkdocs build</code> which populates the <code>target</code> directory.</p>
 <p><strong>See Also</strong></p>
-<p>The <a href="../../man/hosting/#hosting-documentation">Hosting Documentation</a> section of the manual provides a step-by-step guide to using the <a href="./#Lapidary.deploydocs"><code>deploydocs</code></a> function to automatically generate docs and push then to GitHub.</p>
+<p>The <a href="../../man/hosting/#Hosting-Documentation-1">Hosting Documentation</a> section of the manual provides a step-by-step guide to using the <a href="./#Lapidary.deploydocs"><code>deploydocs</code></a> function to automatically generate docs and push then to GitHub.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
