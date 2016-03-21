@@ -204,21 +204,23 @@ function deploydocs(;
         deps   = () -> run(`pip install --user pygments mkdocs`),
         make   = () -> run(`mkdocs build`),
     )
-    # Get needed environment variables.
+    # Get environment variables.
     github_api_key      = get(ENV, "GITHUB_API_KEY",       "")
     travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
     travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
+    travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
     travis_tag          = get(ENV, "TRAVIS_TAG",           "")
     travis_osname       = get(ENV, "TRAVIS_OS_NAME",       "")
     travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
     git_rev             = readchomp(`git rev-parse --short HEAD`)
 
-    # When should a deploy be tried?
+    # When should a deploy be attempted?
     should_deploy =
-        travis_pull_request == "false" &&
-        github_api_key      != ""      &&
-        travis_osname       == osname  &&
-        travis_julia        == julia   &&
+        contains(repo, travis_repo_slug) &&
+        travis_pull_request == "false"   &&
+        github_api_key      != ""        &&
+        travis_osname       == osname    &&
+        travis_julia        == julia     &&
         (
             travis_branch == latest ||
             travis_tag    != ""
