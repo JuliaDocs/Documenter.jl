@@ -25,8 +25,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="../../None">
+    <link rel="icon" type="image/x-icon" href="../../None">
     <style>
       @font-face {
       	font-family: 'Icon';
@@ -43,7 +43,7 @@
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-20d5debb47.css">
+    <link rel="stylesheet" href="../../assets/stylesheets/application-54f87043f3.css">
     
       <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
     
@@ -133,7 +133,12 @@
     <div class="banner">
       
       <div class="name">
-        <strong>Lapidary.jl </strong>
+        <strong>
+          Lapidary.jl
+          <span class="version">
+            
+          </span>
+        </strong>
         
           <br>
           MichaelHatherly/Lapidary.jl
@@ -322,13 +327,15 @@ a + b
 <h2 id="repl-examples">REPL Examples</h2>
 <p>The other kind of doctest is a simulated Julia REPL session. The following format is detected by Lapidary as a REPL doctest:</p>
 <div class="codehilite"><pre><span></span>```julia
-julia&gt; a = 1;
+julia&gt; a = 1
+1
 
-julia&gt; b = 2
-2
+julia&gt; b = 2;
 
-julia&gt; a + b
-3
+julia&gt; c = 3;  # comment
+
+julia&gt; a + b + c
+6
 
 ```
 </pre></div>
