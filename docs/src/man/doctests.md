@@ -43,13 +43,15 @@ detected by Lapidary as a REPL doctest:
 
 ````markdown
 ```julia
-julia> a = 1;
+julia> a = 1
+1
 
-julia> b = 2
-2
+julia> b = 2;
 
-julia> a + b
-3
+julia> c = 3;  # comment
+
+julia> a + b + c
+6
 
 ```
 ````

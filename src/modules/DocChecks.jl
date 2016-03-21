@@ -119,14 +119,26 @@ function eval_repl(code, sandbox)
             try
                 ans = eval(sandbox, ex)
                 eval(sandbox, :(ans = $(ans)))
-                endswith(strip(p[1:cursor-1]), ';') ?
-                    "" : result_to_string(ans)
+                ends_with_semicolon(p) ? "" : result_to_string(ans)
             catch err
                 error_to_string(err, catch_backtrace())
             end
         checkresults(code, part, p[cursor:end], result)
     end
 end
+
+# from base/REPL.jl
+function ends_with_semicolon(line)
+    match = rsearch(line, ';')
+    if match != 0
+        for c in line[(match+1):end]
+            isspace(c) || return c == '#'
+        end
+        return true
+    end
+    return false
+end
+
 function eval_script(code, sandbox)
     code, expected = split(code, "\n# output\n", limit = 2)
     result =
