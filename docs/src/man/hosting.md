@@ -35,7 +35,7 @@ token and save it somewhere safe. We'll be needing it during the next section.
 Next we'll add the generated token to our repository's Travis page. Go to the settings page
 for the repository and under the "Environment Variables" section add a new variable called
 `GITHUB_API_KEY`. Copy the generated key from the [GitHub Security Key]({ref}) section as
-the value and **make sure** that "Display value in build log" is **off**. Then add the key.
+the value and **make sure** that "Display value in build log" is **off**. Be careful to remove any leading white-space from the key. Then add the key.
 
 ## `.travis.yml` Configuration
 
