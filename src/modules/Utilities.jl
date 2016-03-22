@@ -20,6 +20,8 @@ Format and print a message to the user.
 """
 log(msg) = __log__[] ? print_with_color(:magenta, STDOUT, "LAPIDARY: ", msg, "\n") : nothing
 
+debug(msg) = print_with_color(:green, " ?? ", msg, "\n")
+
 """
     warn(file, msg)
     warn(msg)
