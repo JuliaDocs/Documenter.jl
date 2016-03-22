@@ -226,6 +226,17 @@ function deploydocs(;
             travis_tag    != ""
         )
 
+    # When env variable `LAPIDARY_DEBUG == "true"` then print some debugging info.
+    debugdeploy(
+        github_api_key,
+        travis_repo_slug,
+        travis_pull_request,
+        travis_osname,
+        travis_julia,
+        travis_branch,
+        travis_tag,
+    )
+
     if should_deploy
         # Install dependancies.
         Utilities.log("installing dependancies.")
@@ -275,6 +286,26 @@ function deploydocs(;
         end
     else
         Utilities.log("skipping docs deployment.")
+    end
+end
+
+function debugdeploy(
+        github_api_key,
+        travis_repo_slug,
+        travis_pull_request,
+        travis_osname,
+        travis_julia,
+        travis_branch,
+        travis_tag,
+    )
+    if get(ENV, "LAPIDARY_DEBUG", "") == "true"
+        Utilities.debug("GITHUB_API_KEY empty = $(github_api_key == "")")
+        Utilities.debug("TRAVIS_REPO_SLUG     = \"$travis_repo_slug\"")
+        Utilities.debug("TRAVIS_PULL_REQUEST  = \"$travis_pull_request\"")
+        Utilities.debug("TRAVIS_OS_NAME       = \"$travis_osname\"")
+        Utilities.debug("TRAVIS_JULIA_VERSION = \"$travis_julia\"")
+        Utilities.debug("TRAVIS_BRANCH        = \"$travis_branch\"")
+        Utilities.debug("TRAVIS_TAG           = \"$travis_tag\"")
     end
 end
 
