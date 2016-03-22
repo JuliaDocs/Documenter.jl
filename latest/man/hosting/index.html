@@ -351,7 +351,7 @@
 <p>Enter a description for this new token. We'll be calling ours "Travis", but any other name will do. For the "Select scopes" option choose "public_repo" <strong>only</strong>. Then generate the token and save it somewhere safe. We'll be needing it during the next section.</p>
 <p><a id='Travis-Environment-Settings-1'></a></p>
 <h2 id="travis-environment-settings">Travis Environment Settings</h2>
-<p>Next we'll add the generated token to our repository's Travis page. Go to the settings page for the repository and under the "Environment Variables" section add a new variable called <code>GITHUB_API_KEY</code>. Copy the generated key from the <a href="./#GitHub-Security-Key-1">GitHub Security Key</a> section as the value and <strong>make sure</strong> that "Display value in build log" is <strong>off</strong>. Then add the key.</p>
+<p>Next we'll add the generated token to our repository's Travis page. Go to the settings page for the repository and under the "Environment Variables" section add a new variable called <code>GITHUB_API_KEY</code>. Copy the generated key from the <a href="./#GitHub-Security-Key-1">GitHub Security Key</a> section as the value and <strong>make sure</strong> that "Display value in build log" is <strong>off</strong>. Be careful to remove any leading white-space from the key. Then add the key.</p>
 <p><a id='.travis.yml-Configuration-1'></a></p>
 <h2 id="travisyml-configuration"><code>.travis.yml</code> Configuration</h2>
 <p>To allow Travis to install the extra dependencies needed to build our docs add the following to your <code>.travis.yml</code> file in your package:</p>
