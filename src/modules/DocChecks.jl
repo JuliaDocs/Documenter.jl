@@ -110,20 +110,78 @@ function doctest(block::Markdown.Code, meta::Dict)
 end
 doctest(block, meta::Dict) = true
 
+# Doctest evaluation.
+
+type Result
+    code   :: UTF8String # The entire code block that is being tested.
+    input  :: UTF8String # Part of `code` representing the current input.
+    output :: UTF8String # Part of `code` representing the current expected output.
+    value  :: Any        # The value returned when evaluating `input`.
+    hide   :: Bool       # Semi-colon suppressing the output?
+    stdout :: IOBuffer   # Redirected STDOUT/STDERR gets sent here.
+    bt     :: Vector     # Backtrace when an error is thrown.
+
+    function Result(code, input, output)
+        new(code, input, strip(output, '\n'), nothing, false, IOBuffer())
+    end
+end
+
 function eval_repl(code, sandbox)
-    parts = split(code, "\njulia> ")
-    for part in parts
-        p = replace(part, "julia> ", "", 1)
-        ex, cursor = parse(p, 1)
-        result =
+    for (input, output) in repl_splitter(code)
+        result = Result(code, input, output)
+        for (ex, str) in Utilities.parseblock(input)
             try
-                ans = eval(sandbox, ex)
-                eval(sandbox, :(ans = $(ans)))
-                ends_with_semicolon(p) ? "" : result_to_string(ans)
+                result.hide  = ends_with_semicolon(str)
+                result.value = withoutput(result.stdout) do
+                    eval(sandbox, ex)
+                end
+                # Redefine the magic `ans` binding available in the REPL.
+                eval(sandbox, :(ans = $(result.value)))
             catch err
-                error_to_string(err, catch_backtrace())
+                result.value = err
+                result.bt    = catch_backtrace()
+                break
             end
-        checkresults(code, part, p[cursor:end], result)
+        end
+        checkresult(result)
+    end
+end
+
+function eval_script(code, sandbox)
+    # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
+    #       Maybe use double blank lines, i.e.
+    #
+    #
+    #       to mark `input`/`output` separation.
+    input, output = split(code, "\n# output\n", limit = 2)
+    result = Result(code, "", output)
+    try
+        ans = nothing
+        for (ex, str) in Utilities.parseblock(input)
+            ans = withoutput(result.stdout) do
+                eval(sandbox, ex)
+            end
+        end
+        result.value = ans
+    catch err
+        result.value = err
+        result.bt    = catch_backtrace()
+    end
+    checkresult(result)
+end
+
+function checkresult(result::Result)
+    if isdefined(result, :bt) # An error was thrown and we have a backtrace.
+        # To avoid dealing with path/line number issues in backtraces we use `[...]` to
+        # mark ignored output from an error message. Only the text prior to it is used to
+        # test for doctest success/failure.
+        head = split(result.output, "\n[...]"; limit = 2)[1]
+        str  = error_to_string(result.stdout, result.value, result.bt)
+        startswith(str, head) || report(result, str)
+    else
+        value = result.hide ? nothing : result.value # `;` hides output.
+        str   = result_to_string(result.stdout, value)
+        str == result.output || report(result, str)
     end
 end
 
@@ -139,73 +197,152 @@ function ends_with_semicolon(line)
     return false
 end
 
-function eval_script(code, sandbox)
-    code, expected = split(code, "\n# output\n", limit = 2)
-    result =
-        try
-            ans = nothing
-            for (ex, str) in Utilities.parseblock(code)
-                ans = eval(sandbox, ex)
-            end
-            result_to_string(ans)
-        catch err
-            error_to_string(err, catch_backtrace())
-        end
-    checkresults(code, "", expected, result)
-end
+# Display doctesting results.
 
-function result_to_string(value)
-    buf = IOBuffer()
+function result_to_string(buf, value)
     dis = Base.Multimedia.TextDisplay(buf)
-    display(dis, value)
-    takebuf_string(buf)
+    value === nothing || display(dis, value)
+    sanitise(buf)
 end
-result_to_string(::Void) = ""
 
-function error_to_string(er, bt)
-    buf = IOBuffer()
+function error_to_string(buf, er, bt)
     print(buf, "ERROR: ")
     showerror(buf, er, bt)
-    println(buf)
-    takebuf_string(buf)
+    sanitise(buf)
 end
 
-function checkresults(code, part, expected, result)
-    ex, res = map(stripws, (expected, result))
-    ex == res ? nothing : throw(DocTestError(code, part, ex, res))
-end
-function stripws(str)
-    buf = IOBuffer()
-    for line in split(str, ['\n', '\r'])
-        line = rstrip(line)
-        isempty(line) || println(buf, line)
+# Strip trailing whitespace and remove terminal colors.
+function sanitise(buffer)
+    out = IOBuffer()
+    for line in eachline(seekstart(buffer))
+        println(out, rstrip(line))
     end
-    takebuf_string(buf)
+    remove_term_colors(rstrip(takebuf_string(out), '\n'))
 end
 
-immutable DocTestError <: Exception
-    code     :: UTF8String
-    part     :: UTF8String
-    expected :: UTF8String
-    result   :: UTF8String
-end
-
-function Base.showerror(io::IO, docerr::DocTestError)
-    println(io, "DocTestError in block:\n")
-    print_indented(io, docerr.code)
-    if !isempty(docerr.part)
-        println(io, "\nfor sub-expression:\n")
-        print_indented(io, docerr.part)
+function report(result::Result, str)
+    buffer = IOBuffer()
+    println(buffer, "Test error in the following code block:")
+    print_indented(buffer, result.code; indent = 8)
+    if result.input != ""
+        print_indented(buffer, "in expression:")
+        print_indented(buffer, result.input; indent = 8)
     end
-    println(io, "\n[Expected Result]\n")
-    print_indented(io, docerr.expected)
-    println(io, "\n[Actual Result]\n")
-    print_indented(io, docerr.result)
+    print_indented(buffer, "expected:")
+    print_indented(buffer, result.output; indent = 8)
+    print_indented(buffer, "returned:")
+    print_indented(buffer, rstrip(str); indent = 8) # Drops trailing whitespace.
+    Utilities.warn(takebuf_string(buffer))
 end
 
-function print_indented(buf::IO, str::AbstractString; indent = 4)
-    for line in split(str, ['\n', '\r'])
-        println(buf, " "^indent, line)
+function print_indented(buffer::IO, str::AbstractString; indent = 4)
+    println(buffer)
+    for line in split(str, '\n')
+        println(buffer, " "^indent, line)
+    end
+end
+
+# Remove terminal colors.
+
+const TERM_COLOR_REGEX =
+    let _1 = map(escape_string, values(Base.text_colors)),
+        _2 = map(each -> replace(each, "[", "\\["), _1)
+        Regex(string("(", join(_2, "|"), ")"))
+    end
+
+remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")
+
+# REPL doctest splitter.
+
+const PROMPT_REGEX = r"^julia> (.*)$"
+const SOURCE_REGEX = r"^       (.*)$"
+
+function repl_splitter(code)
+    lines  = split(code, '\n')
+    input  = UTF8String[]
+    output = UTF8String[]
+    buffer = IOBuffer()
+    while !isempty(lines)
+        line = shift!(lines)
+        # REPL code blocks may contain leading lines with comments. Drop them.
+        # TODO: handle multiline comments?
+        startswith(line, '#') && continue
+        prompt = nullmatch(PROMPT_REGEX, line)
+        if isnull(prompt)
+            source = nullmatch(SOURCE_REGEX, line)
+            if isnull(source)
+                savebuffer!(input, buffer)
+                println(buffer, line)
+                takeuntil!(PROMPT_REGEX, buffer, lines)
+            else
+                println(buffer, getmatch(source, 1))
+            end
+        else
+            savebuffer!(output, buffer)
+            println(buffer, getmatch(prompt, 1))
+        end
+    end
+    savebuffer!(output, buffer)
+    zip(input, output)
+end
+
+function savebuffer!(out, buf)
+    n = nb_available(seekstart(buf))
+    n > 0 ? push!(out, rstrip(takebuf_string(buf))) : out
+end
+
+function takeuntil!(r, buf, lines)
+    while !isempty(lines)
+        line = lines[1]
+        if isnull(nullmatch(r, line))
+            println(buf, shift!(lines))
+        else
+            break
+        end
+    end
+end
+
+wrapnothing(T, ::Void) = Nullable{T}()
+wrapnothing(T, value)  = Nullable(value)
+
+nullmatch(r::Regex, str::AbstractString) = wrapnothing(RegexMatch, match(r, str))
+
+getmatch(n::Nullable{RegexMatch}, i) = get(n)[i]
+
+# STDOUT / STDERR output redirection.
+
+# Evaluate `func` and send all stdout/stderr text to `buffer`.
+function withoutput(func, buffer)
+    # Switch to custom output streams.
+    STDOUT′, STDERR′ = STDOUT, STDERR
+    STDOUT_R, _ = redirect_stdout()
+    STDERR_R, _ = redirect_stderr()
+    # Spin up the STD* watchers.
+    killed = Ref(false)
+    @async watchbuffer(STDOUT_R, buffer, killed)
+    @async watchbuffer(STDERR_R, buffer, killed)
+    # Execute the function.
+    result =
+        try
+            func()
+        catch err
+            rethrow(err)
+        finally
+            # Switch back to standard output streams.
+            redirect_stdout(STDOUT′)
+            redirect_stderr(STDERR′)
+            # Terminate the `@async` watchers.
+            killed[] = true
+        end
+    # Return the result of evaluating `func`.
+    result
+end
+
+# Sends all data from `from` to `to`. Exits when `killed` is set to `true`.
+function watchbuffer(from::IO, to::IO, killed::Ref)
+    while !eof(from) || !killed[]
+        n = nb_available(from)
+        n > 0 ? write(to, read(from, n)) : 0
     end
 end
 

@@ -77,3 +77,76 @@ julia> A \ b
     {eval}
     code = string(sprint(Base.banner), "julia>")
     Markdown.Code(code)
+
+```julia
+julia> # First definition.
+       function f(x, y)
+           x + y
+       end
+       #
+       # Second definition.
+       #
+       type T
+           x
+       end
+
+julia> isdefined(:f), isdefined(:T) # Check for both definitions.
+(true,true)
+
+julia> import Base
+
+julia> using Base.Meta
+
+julia> r = isexpr(:(using Base.Meta), :using); # Discarded result.
+
+julia> !r
+false
+```
+
+```julia
+julia> for i = 1:5
+           println(i)
+       end
+1
+2
+3
+4
+5
+
+julia> println("Printing with semi-comma ending.");
+Printing with semi-comma ending.
+
+julia> warn("...");
+WARNING: ...
+
+julia> div(1, 0)
+ERROR: DivideError: integer division error
+[...]
+
+julia> info("...")   # ...
+       println("a"); # Semi-colons *not* on the last expression shouldn't suppress output.
+       println(1)    # ...
+       2             # ...
+INFO: ...
+a
+1
+2
+
+julia> info("...")   # ...
+       println("a"); # Semi-colons *not* on the last expression shouldn't suppress output.
+       println(1)    # ...
+       2;            # Only those in the last expression.
+INFO: ...
+a
+1
+
+```
+
+```julia
+a = 1
+b = 2; # Semi-colons don't affect script doctests.
+
+# output
+
+2
+```
