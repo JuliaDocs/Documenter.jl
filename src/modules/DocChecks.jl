@@ -38,7 +38,7 @@ function missingdocs(doc::Documents.Document)
         b = IOBuffer()
         println(b, "$n docstring$(n == 1 ? "" : "s") potentially missing:\n")
         for (binding, signatures) in bindings
-            println(b, "  - $binding")
+            println(b, "    $binding")
         end
         Utilities.warn(takebuf_string(b))
     end
