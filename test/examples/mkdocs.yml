@@ -1,0 +1,33 @@
+site_name:        Lapidary.jl
+repo_url:         https://github.com/MichaelHatherly/Lapidary.jl
+site_description: Julia package documentation generator.
+site_author:      Michael Hatherly
+
+theme: material
+
+extra:
+  palette:
+    primary: 'indigo'
+    accent:  'blue'
+
+extra_css:
+  - assets/Lapidary.css
+
+markdown_extensions:
+  - codehilite
+  - extra
+  - tables
+  - fenced_code
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
+  - assets/mathjaxhelper.js
+
+docs_dir: 'build'
+
+pages:
+- Home: index.md
+- Manual:
+  - Tutorial: man/tutorial.md
+- Library:
+  - Functions: lib/functions.md

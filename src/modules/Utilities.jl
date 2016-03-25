@@ -39,6 +39,15 @@ function warn(file, msg)
 end
 warn(msg) = __log__[] ? print_with_color(:red, STDOUT, " !! ", msg, "\n") : nothing
 
+# Nullable regex matches.
+
+wrapnothing(T, ::Void) = Nullable{T}()
+wrapnothing(T, value)  = Nullable(value)
+
+nullmatch(r::Regex, str::AbstractString) = wrapnothing(RegexMatch, match(r, str))
+
+getmatch(n::Nullable{RegexMatch}, i) = get(n)[i]
+
 # Directory paths.
 
 """

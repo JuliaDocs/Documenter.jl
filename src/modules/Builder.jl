@@ -126,6 +126,7 @@ The default `Depth` value is `2`.
 """
 immutable ContentsBlocks <: Expander end
 
+immutable ExampleBlocks <: Expander end
 
 """
 Finds and sets URLs for each `{ref}` link in the document to the correct destinations.
@@ -159,6 +160,7 @@ const DEFAULT_PIPELINE = Pipeline(
         EvalBlocks(),
         IndexBlocks(),
         ContentsBlocks(),
+        ExampleBlocks(),
     ),
     CrossReferences(),
     CheckDocument(),

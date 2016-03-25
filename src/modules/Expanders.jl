@@ -9,6 +9,7 @@ import ..Lapidary:
     Builder,
     Documents,
     Formats,
+    Lapidary,
     Utilities
 
 using Compat
@@ -174,6 +175,54 @@ function expand(::Builder.ContentsBlocks, x::Base.Markdown.Code, page, doc)
     end
     page.mapping[x] = ContentsNode(dict)
     return true
+end
+
+function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
+    # Match `{example}` and `{example <name>}` blocks.
+    matched = Utilities.nullmatch(r"^{example[ ]?(.*)}\n", x.code)
+    isnull(matched) && return false
+    # The sandboxed module -- either a new one or a cached one from this page.
+    name = Utilities.getmatch(matched, 1)
+    sym  = isempty(name) ? gensym("ex-") : symbol("ex-", name)
+    mod  = get!(page.globals.meta, sym, Module(sym))::Module
+    # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
+    result, buffer = nothing, IOBuffer()
+    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+        try
+            result = Lapidary.DocChecks.withoutput(buffer) do
+                # Evaluate within the build folder.
+                cd(dirname(page.build)) do
+                    eval(mod, ex)
+                end
+            end
+        catch err
+            # TODO: should errors be allowed to appear in the generated result?
+            #       Currently we just bail out and leave the original code block as is.
+            Utilities.warn(page.source, "failed to run code block.\n\n$err")
+            page.mapping[x] = x
+            return true
+        end
+    end
+    # Splice the input and output into the document.
+    content = []
+    input   = droplines(x.code; skip = 1)
+    output  = Lapidary.DocChecks.result_to_string(buffer, result)
+    # Only add content when there's actually something to add.
+    isempty(input)  || push!(content, Markdown.Code("julia", input))
+    isempty(output) || push!(content, Markdown.Code(output))
+    # ... and finally map the original code block to the newly generated ones.
+    page.mapping[x] = Markdown.MD(content)
+    true
+end
+
+# Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
+function droplines(code; skip = 0)
+    buffer = IOBuffer()
+    for line in split(code, '\n')[(skip + 1):end]
+        ismatch(r"^(.*)# hide$", line) && continue
+        println(buffer, rstrip(line))
+    end
+    strip(takebuf_string(buffer), '\n')
 end
 
 end

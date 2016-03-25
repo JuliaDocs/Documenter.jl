@@ -267,19 +267,19 @@ function repl_splitter(code)
         # REPL code blocks may contain leading lines with comments. Drop them.
         # TODO: handle multiline comments?
         startswith(line, '#') && continue
-        prompt = nullmatch(PROMPT_REGEX, line)
+        prompt = Utilities.nullmatch(PROMPT_REGEX, line)
         if isnull(prompt)
-            source = nullmatch(SOURCE_REGEX, line)
+            source = Utilities.nullmatch(SOURCE_REGEX, line)
             if isnull(source)
                 savebuffer!(input, buffer)
                 println(buffer, line)
                 takeuntil!(PROMPT_REGEX, buffer, lines)
             else
-                println(buffer, getmatch(source, 1))
+                println(buffer, Utilities.getmatch(source, 1))
             end
         else
             savebuffer!(output, buffer)
-            println(buffer, getmatch(prompt, 1))
+            println(buffer, Utilities.getmatch(prompt, 1))
         end
     end
     savebuffer!(output, buffer)
@@ -294,20 +294,13 @@ end
 function takeuntil!(r, buf, lines)
     while !isempty(lines)
         line = lines[1]
-        if isnull(nullmatch(r, line))
+        if isnull(Utilities.nullmatch(r, line))
             println(buf, shift!(lines))
         else
             break
         end
     end
 end
-
-wrapnothing(T, ::Void) = Nullable{T}()
-wrapnothing(T, value)  = Nullable(value)
-
-nullmatch(r::Regex, str::AbstractString) = wrapnothing(RegexMatch, match(r, str))
-
-getmatch(n::Nullable{RegexMatch}, i) = get(n)[i]
 
 # STDOUT / STDERR output redirection.
 
