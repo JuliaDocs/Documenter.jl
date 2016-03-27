@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Hosting Documentation - Lapidary.jl</title>
+        <title>Hosting Documentation - Documenter.jl</title>
       
       
       
@@ -18,9 +18,9 @@
       
     
     <meta property="og:url" content="None">
-    <meta property="og:title" content="Lapidary.jl">
+    <meta property="og:title" content="Documenter.jl">
     <meta property="og:image" content="None/../../">
-    <meta name="apple-mobile-web-app-title" content="Lapidary.jl">
+    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -62,7 +62,7 @@
       </style>
     
     
-      <link rel="stylesheet" href="../../assets/Lapidary.css">
+      <link rel="stylesheet" href="../../assets/Documenter.css">
     
     <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
@@ -129,19 +129,19 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://github.com/MichaelHatherly/Lapidary.jl" class="project">
+  <a href="https://github.com/MichaelHatherly/Documenter.jl" class="project">
     <div class="banner">
       
       <div class="name">
         <strong>
-          Lapidary.jl
+          Documenter.jl
           <span class="version">
             
           </span>
         </strong>
         
           <br>
-          MichaelHatherly/Lapidary.jl
+          MichaelHatherly/Documenter.jl
         
       </div>
     </div>
@@ -152,12 +152,12 @@
         <ul class="repo">
           <li class="repo-download">
             
-            <a href="https://github.com/MichaelHatherly/Lapidary.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+            <a href="https://github.com/MichaelHatherly/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
               <i class="icon icon-download"></i> Download
             </a>
           </li>
           <li class="repo-stars">
-            <a href="https://github.com/MichaelHatherly/Lapidary.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+            <a href="https://github.com/MichaelHatherly/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
               <i class="icon icon-star"></i> Stars
               <span class="count">&ndash;</span>
             </a>
@@ -362,22 +362,22 @@
 
 <p>In the <code>after_success</code> section of the <code>.travis.yml</code> file, where code coverage is processed, run your <code>docs/make.jl</code> file:</p>
 <div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">julia -e &#39;Pkg.clone(&quot;https://github.com/MichaelHatherly/Lapidary.jl&quot;)&#39;</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">julia -e &#39;Pkg.clone(&quot;https://github.com/MichaelHatherly/Documenter.jl&quot;)&#39;</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">julia -e &#39;cd(Pkg.dir(&quot;PACKAGE_NAME&quot;)); include(joinpath(&quot;docs&quot;, &quot;make.jl&quot;))&#39;</span>
 </pre></div>
 
 
-<p>Note that once the package is registered in <code>METADATA.jl</code> the <code>Pkg.clone</code> call can be replaced with <code>Pkg.add("Lapidary")</code>.</p>
+<p>Note that once the package is registered in <code>METADATA.jl</code> the <code>Pkg.clone</code> call can be replaced with <code>Pkg.add("Documenter")</code>.</p>
 <p><a id='The-deploydocs-Function-1'></a></p>
 <h2 id="the-deploydocs-function">The <code>deploydocs</code> Function</h2>
 <p>At the moment your <code>docs/make.jl</code> file probably only contains</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Lapidary</span><span class="p">,</span> <span class="n">PACKAGE_NAME</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span><span class="p">,</span> <span class="n">PACKAGE_NAME</span>
 
 <span class="n">makedocs</span><span class="p">()</span>
 </pre></div>
 
 
-<p>We'll need to add an additional call to this file after <a href="../../lib/public/#Lapidary.makedocs"><code>makedocs</code></a>. Add the following at the end of the file:</p>
+<p>We'll need to add an additional call to this file after <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a>. Add the following at the end of the file:</p>
 <div class="codehilite"><pre><span></span><span class="n">deploydocs</span><span class="p">(</span>
     <span class="n">repo</span> <span class="o">=</span> <span class="s">&quot;github.com/USER_NAME/PACKAGE_NAME.jl.git&quot;</span>
 <span class="p">)</span>
@@ -395,10 +395,10 @@
 
 
 <p>This will deploy the docs from the OSX Julia 0.4 Travis build bot.</p>
-<p>See the <a href="../../lib/public/#Lapidary.deploydocs"><code>deploydocs</code></a> function documentation for more details.</p>
+<p>See the <a href="../../lib/public/#Documenter.deploydocs"><code>deploydocs</code></a> function documentation for more details.</p>
 <p><a id='The-MkDocs-mkdocs.yml-File-1'></a></p>
 <h2 id="the-mkdocs-mkdocsyml-file">The MkDocs <code>mkdocs.yml</code> File</h2>
-<p>We'll be using <a href="http://www.mkdocs.org">MkDocs</a> to convert the markdown files generated by Lapidary to HTML. (This, of course, is not the only option you have for this step. Any markdown to HTML converter should work fine with some amount of setting up.)</p>
+<p>We'll be using <a href="http://www.mkdocs.org">MkDocs</a> to convert the markdown files generated by Documenter to HTML. (This, of course, is not the only option you have for this step. Any markdown to HTML converter should work fine with some amount of setting up.)</p>
 <p>Add an <code>mkdocs.yml</code> file to your <code>docs/</code> directory with the following content:</p>
 <div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">site_name</span><span class="p p-Indicator">:</span>        <span class="l l-Scalar l-Scalar-Plain">PACKAGE_NAME.jl</span>
 <span class="l l-Scalar l-Scalar-Plain">repo_url</span><span class="p p-Indicator">:</span>         <span class="l l-Scalar l-Scalar-Plain">https://github.com/USER_NAME/PACKAGE_NAME.jl</span>
@@ -408,7 +408,7 @@
 <span class="l l-Scalar l-Scalar-Plain">theme</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">readthedocs</span>
 
 <span class="l l-Scalar l-Scalar-Plain">extra_css</span><span class="p p-Indicator">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">assets/Lapidary.css</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">assets/Documenter.css</span>
 
 <span class="l l-Scalar l-Scalar-Plain">extra_javascript</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML</span>
@@ -523,7 +523,7 @@ docs/site/
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = 'MichaelHatherly/Lapidary.jl';
+      var repo_id  = 'MichaelHatherly/Documenter.jl';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

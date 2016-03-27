@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Guide - Lapidary.jl</title>
+        <title>Guide - Documenter.jl</title>
       
       
       
@@ -18,9 +18,9 @@
       
     
     <meta property="og:url" content="None">
-    <meta property="og:title" content="Lapidary.jl">
+    <meta property="og:title" content="Documenter.jl">
     <meta property="og:image" content="None/../../">
-    <meta name="apple-mobile-web-app-title" content="Lapidary.jl">
+    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -62,7 +62,7 @@
       </style>
     
     
-      <link rel="stylesheet" href="../../assets/Lapidary.css">
+      <link rel="stylesheet" href="../../assets/Documenter.css">
     
     <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
@@ -129,19 +129,19 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://github.com/MichaelHatherly/Lapidary.jl" class="project">
+  <a href="https://github.com/MichaelHatherly/Documenter.jl" class="project">
     <div class="banner">
       
       <div class="name">
         <strong>
-          Lapidary.jl
+          Documenter.jl
           <span class="version">
             
           </span>
         </strong>
         
           <br>
-          MichaelHatherly/Lapidary.jl
+          MichaelHatherly/Documenter.jl
         
       </div>
     </div>
@@ -152,12 +152,12 @@
         <ul class="repo">
           <li class="repo-download">
             
-            <a href="https://github.com/MichaelHatherly/Lapidary.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+            <a href="https://github.com/MichaelHatherly/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
               <i class="icon icon-download"></i> Download
             </a>
           </li>
           <li class="repo-stars">
-            <a href="https://github.com/MichaelHatherly/Lapidary.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+            <a href="https://github.com/MichaelHatherly/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
               <i class="icon icon-star"></i> Stars
               <span class="count">&ndash;</span>
             </a>
@@ -293,15 +293,15 @@
 <h1 id="package-guide">Package Guide</h1>
 <p><a id='Installation-1'></a></p>
 <h2 id="installation">Installation</h2>
-<p>Lapidary is currently not registered and so must be installed via <code>Pkg.clone</code>.</p>
-<div class="codehilite"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="s">&quot;https://github.com/MichaelHatherly/Lapidary.jl&quot;</span><span class="p">)</span>
+<p>Documenter is currently not registered and so must be installed via <code>Pkg.clone</code>.</p>
+<div class="codehilite"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="s">&quot;https://github.com/MichaelHatherly/Documenter.jl&quot;</span><span class="p">)</span>
 </pre></div>
 
 
 <p>This package supports Julia <code>0.4</code> and <code>0.5</code>.</p>
 <p><a id='Usage-1'></a></p>
 <h2 id="usage">Usage</h2>
-<p>Lapidary is designed to do one thing – combine markdown files and inline docstrings from Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document.</p>
+<p>Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document.</p>
 <p><a id='Setting-up-the-folder-structure-1'></a></p>
 <h3 id="setting-up-the-folder-structure">Setting up the folder structure</h3>
 <p>Firstly, we need a Julia module to document. This could be a package generated via <code>PkgDev.generate</code> or a single <code>.jl</code> script. For this guide we'll be using a package called <code>Example.jl</code> that has the following directory layout:</p>
@@ -334,13 +334,13 @@
 <h3 id="building-an-empty-document">Building an empty document</h3>
 <p>With our <code>docs/</code> directory now setup we're going to build our first document. It'll just be a single empty file at the moment, but we'll be adding to it later on.</p>
 <p>Add the following to your <code>make.jl</code> file</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Lapidary</span><span class="p">,</span> <span class="n">Example</span>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span><span class="p">,</span> <span class="n">Example</span>
 
 <span class="n">makedocs</span><span class="p">()</span>
 </pre></div>
 
 
-<p>This assumes you've installed Lapidary as discussed in <a href="./#Installation-1">Installation</a> and that your Examples package can be found by Julia.</p>
+<p>This assumes you've installed Documenter as discussed in <a href="./#Installation-1">Installation</a> and that your Examples package can be found by Julia.</p>
 <p>Now add an <code>index.md</code> file to the <code>src/</code> directory. The name has no particular significance though and you may name it whatever you like. We'll stick to <code>index.md</code> for this guide.</p>
 <p>Leave the newly added file empty and the run the following command from the <code>docs/</code> directory</p>
 <div class="codehilite"><pre><span></span>$ julia make.jl
@@ -354,19 +354,19 @@
 
 
 <p>We you run that you should see the following output</p>
-<div class="codehilite"><pre><span></span><span class="n">LAPIDARY</span><span class="o">:</span> <span class="n">setting</span> <span class="n">up</span> <span class="n">build</span> <span class="n">directory</span><span class="o">.</span>
-<span class="n">LAPIDARY</span><span class="o">:</span> <span class="n">copying</span> <span class="n">assets</span> <span class="n">to</span> <span class="n">build</span> <span class="n">directory</span><span class="o">.</span>
-<span class="n">LAPIDARY</span><span class="o">:</span> <span class="n">expanding</span> <span class="n">markdown</span> <span class="n">templates</span><span class="o">.</span>
-<span class="n">LAPIDARY</span><span class="o">:</span> <span class="n">building</span> <span class="n">cross</span><span class="o">-</span><span class="n">references</span><span class="o">.</span>
-<span class="n">LAPIDARY</span><span class="o">:</span> <span class="n">running</span> <span class="n">document</span> <span class="n">checks</span><span class="o">.</span>
-<span class="n">LAPIDARY</span><span class="o">:</span> <span class="n">rendering</span> <span class="n">document</span><span class="o">.</span>
+<div class="codehilite"><pre><span></span><span class="n">Documenter</span><span class="o">:</span> <span class="n">setting</span> <span class="n">up</span> <span class="n">build</span> <span class="n">directory</span><span class="o">.</span>
+<span class="n">Documenter</span><span class="o">:</span> <span class="n">copying</span> <span class="n">assets</span> <span class="n">to</span> <span class="n">build</span> <span class="n">directory</span><span class="o">.</span>
+<span class="n">Documenter</span><span class="o">:</span> <span class="n">expanding</span> <span class="n">markdown</span> <span class="n">templates</span><span class="o">.</span>
+<span class="n">Documenter</span><span class="o">:</span> <span class="n">building</span> <span class="n">cross</span><span class="o">-</span><span class="n">references</span><span class="o">.</span>
+<span class="n">Documenter</span><span class="o">:</span> <span class="n">running</span> <span class="n">document</span> <span class="n">checks</span><span class="o">.</span>
+<span class="n">Documenter</span><span class="o">:</span> <span class="n">rendering</span> <span class="n">document</span><span class="o">.</span>
 </pre></div>
 
 
 <p>The <code>docs/</code> folder should contain a new directory – called <code>build/</code>. It's structure should look like the following</p>
 <div class="codehilite"><pre><span></span>build/
     assets/
-        Lapidary.css
+        Documenter.css
         mathjaxhelper.js
     index.md
 </pre></div>
@@ -405,7 +405,7 @@
 <div class="codehilite"><pre><span></span># Example.jl Documentation
 
     {meta}
-    CurrentModule = Lapidary
+    CurrentModule = Documenter
 
 ...
 
@@ -441,7 +441,7 @@
 </pre></div>
 
 
-<p>or declare the specific modules that <a href="../../lib/public/#Lapidary.makedocs"><code>makedocs</code></a> should include with</p>
+<p>or declare the specific modules that <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> should include with</p>
 <div class="codehilite"><pre><span></span><span class="n">makedocs</span><span class="p">(</span>
     <span class="c"># options</span>
     <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">MyModule</span><span class="p">]</span>
@@ -451,7 +451,7 @@
 
 <p><a id='Cross-Referencing-1'></a></p>
 <h3 id="cross-referencing">Cross Referencing</h3>
-<p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Lapidary's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p>
+<p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation
 
     {docs}
@@ -466,7 +466,7 @@
 <p>This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document.</p>
 <p><a id='Navigation-1'></a></p>
 <h3 id="navigation">Navigation</h3>
-<p>Lapidary can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p>
+<p>Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation
 
     {contents}
@@ -559,7 +559,7 @@
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = 'MichaelHatherly/Lapidary.jl';
+      var repo_id  = 'MichaelHatherly/Documenter.jl';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     
