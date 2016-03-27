@@ -1,6 +1,6 @@
 
     {meta}
-    CurrentModule = Lapidary
+    CurrentModule = Documenter
 
 # Internal Documentation
 

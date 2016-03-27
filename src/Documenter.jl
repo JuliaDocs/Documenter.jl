@@ -1,7 +1,7 @@
 __precompile__(true)
 
 """
-Main module for `Lapidary.jl` -- a documentation generation package for Julia.
+Main module for `Documenter.jl` -- a documentation generation package for Julia.
 
 Two functions are exported from this module for public use:
 
@@ -9,7 +9,7 @@ Two functions are exported from this module for public use:
 - [`deploydocs`]({ref}). Deploys generated documentation from *Travis-CI* to *GitHub Pages*.
 
 """
-module Lapidary
+module Documenter
 
 using Compat
 
@@ -48,7 +48,7 @@ Combines markdown files and inline docstrings into an interlinked document.
 In most cases [`makedocs`]({ref}) should be run from a `make.jl` file:
 
 ```julia
-using Lapidary
+using Documenter
 makedocs(
     # keywords...
 )
@@ -98,18 +98,18 @@ inline docstrings from those modules are seen to be missing from the generated c
 a warning will be printed during execution of [`makedocs`]({ref}). By default no modules are
 passed to `modules` and so no warnings will appear. This setting can be used as an indicator
 of the "coverage" of the generated documentation.
-For example Lapidary's `make.jl` file contains:
+For example Documenter's `make.jl` file contains:
 
 ```julia
 $(strip(readstring(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))))
 ```
 
-and so any docstring from the module `Lapidary` that is not spliced into the generated
+and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
 
 **See Also**
 
-A guide detailing how to document a package using Lapidary's [`makedocs`]({ref}) is provided
+A guide detailing how to document a package using Documenter's [`makedocs`]({ref}) is provided
 in the [Usage]({ref}) section of the manual.
 """
 function makedocs(; debug = false, args...)
@@ -139,7 +139,7 @@ This function should be called from within a package's `docs/make.jl` file after
 [`makedocs`]({ref}), like so
 
 ```julia
-using Lapidary, PACKAGE_NAME
+using Documenter, PACKAGE_NAME
 makedocs(
     # options...
 )
@@ -160,7 +160,7 @@ default value is `"site"`.
 keyword *must* be set and will throw an error when left undefined. For example this package
 uses the following `repo` value:
 
-    repo = "github.com/MichaelHatherly/Lapidary.jl.git"
+    repo = "github.com/MichaelHatherly/Documenter.jl.git"
 
 **`branch`** is the branch where the generated documentation is pushed. By default this
 value is set to `"gh-pages"`.
@@ -226,7 +226,7 @@ function deploydocs(;
             travis_tag    != ""
         )
 
-    # When env variable `LAPIDARY_DEBUG == "true"` then print some debugging info.
+    # When env variable `DOCUMENTER_DEBUG == "true"` then print some debugging info.
     debugdeploy(
         github_api_key,
         travis_repo_slug,
@@ -298,7 +298,7 @@ function debugdeploy(
         travis_branch,
         travis_tag,
     )
-    if get(ENV, "LAPIDARY_DEBUG", "") == "true"
+    if get(ENV, "DOCUMENTER_DEBUG", "") == "true"
         Utilities.debug("GITHUB_API_KEY empty = $(github_api_key == "")")
         Utilities.debug("TRAVIS_REPO_SLUG     = \"$travis_repo_slug\"")
         Utilities.debug("TRAVIS_PULL_REQUEST  = \"$travis_pull_request\"")

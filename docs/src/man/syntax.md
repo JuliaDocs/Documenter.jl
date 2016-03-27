@@ -1,10 +1,10 @@
 # Syntax
 
-This section of the manual summarises the special syntax used by Lapidary.
+This section of the manual summarises the special syntax used by Documenter.
 
 ## `{ref}`
 
-Used in markdown links as the url to tell Lapidary to generate a cross-reference
+Used in markdown links as the url to tell Documenter to generate a cross-reference
 automatically. The text part of the link can be either a docstring or header name.
 
     [Foo]({ref})   # Link to the section called "Foo".

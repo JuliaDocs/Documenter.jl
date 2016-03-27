@@ -1,10 +1,10 @@
-using Lapidary
+using Documenter
 
 # Build docs.
 # ===========
 
 makedocs(
-    modules = Lapidary,
+    modules = Documenter,
     clean   = false
 )
 
@@ -17,5 +17,5 @@ custom_deps() = run(`pip install --user pygments mkdocs mkdocs-material`)
 deploydocs(
     # options
     deps = custom_deps,
-    repo = "github.com/MichaelHatherly/Lapidary.jl.git"
+    repo = "github.com/MichaelHatherly/Documenter.jl.git"
 )

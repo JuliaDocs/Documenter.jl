@@ -3,12 +3,12 @@ Provides two functions, [`missingdocs`]({ref}) and [`doctest`]({ref}), for check
 """
 module DocChecks
 
-import ..Lapidary:
+import ..Documenter:
 
     Builder,
     Documents,
     Expanders,
-    Lapidary,
+    Documenter,
     Utilities,
     Walkers
 
@@ -19,7 +19,7 @@ using Compat
 
 """
 Checks that a [`Documents.Document`]({ref}) contains all available docstrings that are
-defined in the `modules` keyword passed to [`Lapidary.makedocs`]({ref}).
+defined in the `modules` keyword passed to [`Documenter.makedocs`]({ref}).
 
 Prints out the name of each object that has not had its docs spliced into the document.
 """
@@ -82,7 +82,7 @@ sigs(::Any) = Type[Union{}]
 """
 Traverses the document tree and tries to run each Julia code block encountered. Will abort
 the document generation when an error is thrown. Use `doctest = false` keyword in
-[`Lapidary.makedocs`]({ref}) to disable doctesting.
+[`Documenter.makedocs`]({ref}) to disable doctesting.
 """
 function doctest(doc::Documents.Document)
     if doc.user.doctest

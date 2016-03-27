@@ -3,14 +3,14 @@ Provides the [`crossref`]({ref}) function used to automatically calculate link U
 """
 module CrossReferences
 
-import ..Lapidary:
+import ..Documenter:
 
     Anchors,
     Builder,
     Documents,
     Expanders,
     Formats,
-    Lapidary,
+    Documenter,
     Utilities,
     Walkers
 

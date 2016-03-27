@@ -3,13 +3,13 @@ Defines node "expanders" that transform nodes from the parsed markdown files.
 """
 module Expanders
 
-import ..Lapidary:
+import ..Documenter:
 
     Anchors,
     Builder,
     Documents,
     Formats,
-    Lapidary,
+    Documenter,
     Utilities
 
 using Compat
@@ -189,7 +189,7 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     result, buffer = nothing, IOBuffer()
     for (ex, str) in Utilities.parseblock(x.code; skip = 1)
         try
-            result = Lapidary.DocChecks.withoutput(buffer) do
+            result = Documenter.DocChecks.withoutput(buffer) do
                 # Evaluate within the build folder.
                 cd(dirname(page.build)) do
                     eval(mod, ex)
@@ -206,7 +206,7 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     # Splice the input and output into the document.
     content = []
     input   = droplines(x.code; skip = 1)
-    output  = Lapidary.DocChecks.result_to_string(buffer, result)
+    output  = Documenter.DocChecks.result_to_string(buffer, result)
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))
     isempty(output) || push!(content, Markdown.Code(output))

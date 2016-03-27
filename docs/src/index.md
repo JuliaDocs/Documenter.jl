@@ -1,4 +1,4 @@
-# Lapidary.jl
+# Documenter.jl
 
 *A documentation generator for Julia.*
 
@@ -14,7 +14,7 @@ A package for building documentation from docstrings and markdown files.
 - Generates tables of contents and docstring indexes.
 - Use `git push` to automatically build and deploy docs from Travis to GitHub Pages.
 
-The [Package Guide]({ref}) provides a tutorial explaining how to get started using Lapidary.
+The [Package Guide]({ref}) provides a tutorial explaining how to get started using Documenter.
 
 See the [Index]({ref#main-index}) for the complete list of documented functions and types.
 

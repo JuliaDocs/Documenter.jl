@@ -3,7 +3,7 @@ Provides the [`walk`]({ref}) function.
 """
 module Walkers
 
-import ..Lapidary:
+import ..Documenter:
 
     Anchors,
     Builder,

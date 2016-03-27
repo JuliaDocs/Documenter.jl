@@ -1,11 +1,11 @@
 """
-Filetypes used to decide which rendering methods in [`Lapidary.Writers`]({ref}) are called.
+Filetypes used to decide which rendering methods in [`Documenter.Writers`]({ref}) are called.
 
 The only supported format is currently `Markdown`.
 """
 module Formats
 
-import ..Lapidary
+import ..Documenter
 
 using Compat
 

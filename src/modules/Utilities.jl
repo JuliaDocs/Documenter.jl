@@ -18,7 +18,7 @@ logging(flag::Bool) = __log__[] = flag
 """
 Format and print a message to the user.
 """
-log(msg) = __log__[] ? print_with_color(:magenta, STDOUT, "LAPIDARY: ", msg, "\n") : nothing
+log(msg) = __log__[] ? print_with_color(:magenta, STDOUT, "Documenter: ", msg, "\n") : nothing
 
 debug(msg) = print_with_color(:green, " ?? ", msg, "\n")
 
@@ -59,7 +59,7 @@ function currentdir()
 end
 
 """
-Returns the path to the Lapidary `assets` directory.
+Returns the path to the Documenter `assets` directory.
 """
 assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 

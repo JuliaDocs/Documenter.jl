@@ -1,16 +1,16 @@
 # Doctests
 
-Lapidary will, by default, try to run Julia code blocks that it finds in the generated
+Documenter will, by default, try to run Julia code blocks that it finds in the generated
 documentation. This can help to avoid documentation examples from becoming outdated,
 incorrect, or misleading. It's recommended that as many of a package's examples be runnable
-by Lapidary's doctest.
+by Documenter's doctest.
 
 This section of the manual outlines how to go about enabling doctests for code blocks in
 your package's documentation.
 
 ## "Script" Examples
 
-The first, of two, types of doctests is the "script" code block. To make Lapidary detect
+The first, of two, types of doctests is the "script" code block. To make Documenter detect
 this kind of code block the following format must be used:
 
 ````markdown
@@ -39,7 +39,7 @@ significant and can be increased or decreased if desired.
 ## REPL Examples
 
 The other kind of doctest is a simulated Julia REPL session. The following format is
-detected by Lapidary as a REPL doctest:
+detected by Documenter as a REPL doctest:
 
 ````markdown
 ```julia

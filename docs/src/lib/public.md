@@ -1,6 +1,6 @@
 # Public Documentation
 
-Documentation for `Lapidary.jl`'s public interface.
+Documentation for `Documenter.jl`'s public interface.
 
 See [Internal Documentation]({ref}) for internal package docs covering all submodules.
 
@@ -14,9 +14,9 @@ See [Internal Documentation]({ref}) for internal package docs covering all submo
     {index}
     Pages = ["public.md"]
 
-## Lapidary
+## Documenter
 
     {docs}
-    Lapidary
+    Documenter
     makedocs
     deploydocs

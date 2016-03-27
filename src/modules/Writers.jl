@@ -6,14 +6,14 @@ Note that currently `Formats.Markdown` is the **only** supported format.
 """
 module Writers
 
-import ..Lapidary:
+import ..Documenter:
 
     Anchors,
     Builder,
     Documents,
     Expanders,
     Formats,
-    Lapidary,
+    Documenter,
     Utilities
 
 using Compat

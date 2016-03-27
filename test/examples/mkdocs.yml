@@ -1,5 +1,5 @@
-site_name:        Lapidary.jl
-repo_url:         https://github.com/MichaelHatherly/Lapidary.jl
+site_name:        Documenter.jl
+repo_url:         https://github.com/MichaelHatherly/Documenter.jl
 site_description: Julia package documentation generator.
 site_author:      Michael Hatherly
 
@@ -11,7 +11,7 @@ extra:
     accent:  'blue'
 
 extra_css:
-  - assets/Lapidary.css
+  - assets/Documenter.css
 
 markdown_extensions:
   - codehilite

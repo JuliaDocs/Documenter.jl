@@ -9,7 +9,7 @@ Defines [`Document`]({ref}) and its supporting types
 """
 module Documents
 
-import ..Lapidary:
+import ..Documenter:
 
     Anchors,
     Formats,

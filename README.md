@@ -1,11 +1,11 @@
-# Lapidary
+# Documenter
 
 *A documentation generator for Julia.*
 
-Lapidary is currently an unregistered package and so must be installed using
+Documenter is currently an unregistered package and so must be installed using
 
 ```julia
-julia> Pkg.clone("https://github.com/MichaelHatherly/Lapidary.jl")
+julia> Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")
 ```
 
 Self-generated [package documentation][gh-pages-url] is automatically built with help from
@@ -19,9 +19,9 @@ The package is tested against Julia `0.4` and *current* `0.5`:
 Contributions are very welcome, as are feature requests and suggestions. Please open an
 [issue][issues-url] if you encounter any problems.
 
-[gh-pages-url]:  https://michaelhatherly.github.io/Lapidary.jl/latest
-[travis-badge]:  https://travis-ci.org/MichaelHatherly/Lapidary.jl.svg?branch=master
-[travis-url]:    https://travis-ci.org/MichaelHatherly/Lapidary.jl
-[codecov-badge]: http://codecov.io/github/MichaelHatherly/Lapidary.jl/coverage.svg?branch=master
-[codecov-url]:   http://codecov.io/github/MichaelHatherly/Lapidary.jl?branch=master
-[issues-url]:    https://github.com/MichaelHatherly/Lapidary.jl/issues
+[gh-pages-url]:  https://michaelhatherly.github.io/Documenter.jl/latest
+[travis-badge]:  https://travis-ci.org/MichaelHatherly/Documenter.jl.svg?branch=master
+[travis-url]:    https://travis-ci.org/MichaelHatherly/Documenter.jl
+[codecov-badge]: http://codecov.io/github/MichaelHatherly/Documenter.jl/coverage.svg?branch=master
+[codecov-url]:   http://codecov.io/github/MichaelHatherly/Documenter.jl?branch=master
+[issues-url]:    https://github.com/MichaelHatherly/Documenter.jl/issues

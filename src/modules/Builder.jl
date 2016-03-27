@@ -1,5 +1,5 @@
 """
-Defines the Lapidary build "pipeline".
+Defines the Documenter build "pipeline".
 
 The default pipeline consists of the following:
 
@@ -15,11 +15,11 @@ actions may involve creating directory structures, expanding templates, running 
 """
 module Builder
 
-import ..Lapidary:
+import ..Documenter:
 
     Anchors,
     Documents,
-    Lapidary,
+    Documenter,
     Utilities
 
 using Compat
@@ -67,9 +67,9 @@ Parses each code block where the first line is `{meta}` and evaluates the key/va
 found within the block, i.e.
 
         {meta}
-        CurrentModule = Lapidary
+        CurrentModule = Documenter
         DocTestSetup  = quote
-            using Lapidary
+            using Documenter
         end
 
 """
@@ -79,7 +79,7 @@ Parses each code block where the first line is `{docs}` and evaluates the expres
 within the block. Replaces the block with the docstrings associated with each expression.
 
         {docs}
-        Lapidary
+        Documenter
         makedocs
         deploydocs
 
@@ -251,25 +251,25 @@ end
 # Expand templates.
 
 log(::ExpandTemplates)         = Utilities.log("expanding markdown templates.")
-exec(ex::ExpandTemplates, doc) = Lapidary.Expanders.expand(ex, doc)
+exec(ex::ExpandTemplates, doc) = Documenter.Expanders.expand(ex, doc)
 
 # Build cross-references.
 
 log(::CrossReferences)       = Utilities.log("building cross-references.")
-exec(::CrossReferences, doc) = Lapidary.CrossReferences.crossref(doc)
+exec(::CrossReferences, doc) = Documenter.CrossReferences.crossref(doc)
 
 # Check document.
 
 log(::CheckDocument) = Utilities.log("running document checks.")
 
 function exec(::CheckDocument, doc)
-    Lapidary.DocChecks.missingdocs(doc)
-    Lapidary.DocChecks.doctest(doc)
+    Documenter.DocChecks.missingdocs(doc)
+    Documenter.DocChecks.doctest(doc)
 end
 
 # Render document.
 
 log(::RenderDocument)       = Utilities.log("rendering document.")
-exec(::RenderDocument, doc) = Lapidary.Writers.render(doc)
+exec(::RenderDocument, doc) = Documenter.Writers.render(doc)
 
 end

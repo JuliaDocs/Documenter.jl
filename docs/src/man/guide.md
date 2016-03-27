@@ -2,17 +2,17 @@
 
 ## Installation
 
-Lapidary is currently not registered and so must be installed via `Pkg.clone`.
+Documenter is currently not registered and so must be installed via `Pkg.clone`.
 
 ```julia
-Pkg.clone("https://github.com/MichaelHatherly/Lapidary.jl")
+Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")
 ```
 
 This package supports Julia `0.4` and `0.5`.
 
 ## Usage
 
-Lapidary is designed to do one thing -- combine markdown files and inline docstrings from
+Documenter is designed to do one thing -- combine markdown files and inline docstrings from
 Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide
 to creating a simple document.
 
@@ -55,12 +55,12 @@ a single empty file at the moment, but we'll be adding to it later on.
 Add the following to your `make.jl` file
 
 ```julia
-using Lapidary, Example
+using Documenter, Example
 
 makedocs()
 ```
 
-This assumes you've installed Lapidary as discussed in [Installation]({ref}) and that your
+This assumes you've installed Documenter as discussed in [Installation]({ref}) and that your
 Examples package can be found by Julia.
 
 Now add an `index.md` file to the `src/` directory. The name has no particular significance
@@ -82,19 +82,19 @@ $ julia --color=yes make.jl
 
 We you run that you should see the following output
 
-    LAPIDARY: setting up build directory.
-    LAPIDARY: copying assets to build directory.
-    LAPIDARY: expanding markdown templates.
-    LAPIDARY: building cross-references.
-    LAPIDARY: running document checks.
-    LAPIDARY: rendering document.
+    Documenter: setting up build directory.
+    Documenter: copying assets to build directory.
+    Documenter: expanding markdown templates.
+    Documenter: building cross-references.
+    Documenter: running document checks.
+    Documenter: rendering document.
 
 The `docs/` folder should contain a new directory -- called `build/`. It's structure should
 look like the following
 
     build/
         assets/
-            Lapidary.css
+            Documenter.css
             mathjaxhelper.js
         index.md
 
@@ -145,7 +145,7 @@ a per-page basis with a `{meta}` block as in the following
 # Example.jl Documentation
 
     {meta}
-    CurrentModule = Lapidary
+    CurrentModule = Documenter
 
 ...
 
@@ -205,7 +205,7 @@ makedocs(
 ### Cross Referencing
 
 It may be necessary to refer to a particular docstring or section of your document from
-elsewhere in the document. To do this we can make use of Lapidary's cross-referencing
+elsewhere in the document. To do this we can make use of Documenter's cross-referencing
 syntax which looks pretty similar to normal markdown link syntax. Replace the contents of
 `src/index.md` with the following
 
@@ -228,7 +228,7 @@ docstrings must be unique within a document.
 
 ### Navigation
 
-Lapidary can auto-generate tables of contents and docstring indexes for your document with
+Documenter can auto-generate tables of contents and docstring indexes for your document with
 the following syntax. We'll illustrate these features using our `index.md` file from the
 previous sections. Add the following to that file
 
