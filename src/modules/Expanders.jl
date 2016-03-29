@@ -179,7 +179,7 @@ end
 
 function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     # Match `{example}` and `{example <name>}` blocks.
-    matched = Utilities.nullmatch(r"^{example[ ]?(.*)}\n", x.code)
+    matched = Utilities.nullmatch(r"^{example[ ]?(.*)}\r{0,1}\n", x.code)
     isnull(matched) && return false
     # The sandboxed module -- either a new one or a cached one from this page.
     name = Utilities.getmatch(matched, 1)
