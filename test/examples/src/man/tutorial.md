@@ -43,7 +43,7 @@ a + b
 
 ```julia
 A = rand(3, 3)
-b = [1, 2, 3]
+b = [1.0, 2.0, 3.0]
 A \ b
 
 # output
@@ -61,11 +61,11 @@ julia> A = rand(3, 3)
  0.346517  0.488613    0.999905
  0.312707  0.210968    0.251662
 
-julia> b = [1, 2, 3]
-3-element Array{Int64,1}:
- 1
- 2
- 3
+julia> b = [1.0, 2.0, 3.0]
+3-element Array{Float64,1}:
+ 1.0
+ 2.0
+ 3.0
 
 julia> A \ b
 3-element Array{Float64,1}:
