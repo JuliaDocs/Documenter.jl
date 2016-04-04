@@ -29,6 +29,7 @@ pages:
 - Home: index.md
 - Manual:
   - Guide: man/guide.md
+  - Examples: man/examples.md
   - Syntax: man/syntax.md
   - Doctests: man/doctests.md
   - Hosting Documentation: man/hosting.md
