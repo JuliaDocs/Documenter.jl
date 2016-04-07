@@ -160,6 +160,23 @@ When documentation is generated it is stored in one of the following folders:
   are stored in directories named after their tags. These tagged directories are persistent
   and must be manually removed from the `gh-pages` branch if necessary.
 
+Once your documentation has been pushed to the `gh-pages` branch you should add links to
+your `README.md` pointing to the `stable` and `latest` documentation URLs. It is common
+practice to make use of "badges" similar to those used for Travis and AppVeyor build
+statuses or code coverage. Adding the following to your package `README.md` should be all
+that is necessary:
+
+```markdown
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)
+```
+
+`PACKAGE_NAME` and `USER_NAME` should be replaced with their appropriate values. The colour
+and text of the image can be changed by altering `docs-stable-blue` as described on
+[shields.io](https://shields.io), though it is recommended that package authors follow this
+standard to make it easier for potential users to find documentation links across multiple
+package README files.
+
 ---
 
 **Final Remarks**
