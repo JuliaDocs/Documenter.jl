@@ -15,8 +15,5 @@ notifications:
 git:
   depth: 99999
 
-before_script:
-  - export PATH=$HOME/.local/bin:$PATH
-
 after_success:
   - julia -e 'cd(Pkg.dir("Documenter", "test")); include("coverage.jl")'
