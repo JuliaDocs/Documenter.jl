@@ -101,7 +101,7 @@ function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
         # Find the documented object and it's docstring.
         object   = eval(curmod, Utilities.object(ex, str))
         docstr   = eval(curmod, Utilities.docs(ex, str))
-        slug     = Utilities.slugify(string(object))
+        slug     = Utilities.slugify(object)
 
         # Remove docstrings that are not from the user-specified list of modules.
         filtered = Utilities.filterdocs(docstr, doc.user.modules)

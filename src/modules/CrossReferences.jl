@@ -101,7 +101,7 @@ function docsxref(link::Markdown.Link, meta, page, doc)
         # Replace the `{ref}` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
-        slug     = Utilities.slugify(string(object))
+        slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
         # Fixup keyword ref text since they have a leading ':' char.
         if object.binding.mod === Utilities.Keywords

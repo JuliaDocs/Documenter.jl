@@ -76,7 +76,8 @@ function render(io::IO, ::MIME"text/plain", index::Expanders.IndexNode, page, do
         if haskey(mapping, page)
             docs = mapping[page]
             for (path, object) in sort!(docs, by = t -> string(t[2]))
-                println(io, "- [`", object.binding, "`](", path, "#", object, ")")
+                url = string(path, "#", Utilities.slugify(object))
+                println(io, "- [`", object.binding, "`](", url, ")")
             end
         end
     end

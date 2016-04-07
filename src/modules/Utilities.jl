@@ -70,13 +70,14 @@ cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive = true); mkdir(d))
 """
 Slugify a string into a suitable URL.
 """
-function slugify(s)
+function slugify(s::AbstractString)
     s = replace(s, r"\s+", "-")
     s = replace(s, r"^\d+", "")
     s = replace(s, r"&", "-and-")
     s = replace(s, r"[^\p{L}\p{P}\d\-]+", "")
     s = strip(replace(s, r"\-\-+", "-"), '-')
 end
+slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 
 # Parse code blocks.
 
