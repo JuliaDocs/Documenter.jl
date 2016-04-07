@@ -173,7 +173,7 @@ that is necessary:
 
 `PACKAGE_NAME` and `USER_NAME` should be replaced with their appropriate values. The colour
 and text of the image can be changed by altering `docs-stable-blue` as described on
-[shields.io](https://shields.io), though it is recommended that package authors follow this
+[shields.io](http://shields.io), though it is recommended that package authors follow this
 standard to make it easier for potential users to find documentation links across multiple
 package README files.
 
