@@ -28,11 +28,12 @@ submodule(:Walkers)
 submodule(:CrossReferences)
 submodule(:DocChecks)
 submodule(:Writers)
+submodule(:Deps)
 
 # User Interface.
 # ---------------
 
-export makedocs, deploydocs
+export Deps, makedocs, deploydocs
 
 """
     makedocs(
@@ -177,9 +178,10 @@ This defaults to `"nightly"`. This value must be one of those specified in the `
 section of the `.travis.yml` configuration file.
 
 **`deps`** is the function used to install any dependancies needed to build the
-documentation. By default this function installs `pygments` and `mkdocs`:
+documentation. By default this function installs `pygments` and `mkdocs` using the
+[`Deps.pip`]({ref}) function:
 
-    deps = () -> run(`pip install --user pygments mkdocs`)
+    deps = Deps.pip("pygments", "mkdocs")
 
 **`make`** is the function used to convert the markdown files to HTML. By default this just
 runs `mkdocs build` which populates the `target` directory.
@@ -201,7 +203,7 @@ function deploydocs(;
         osname = "linux",
         julia  = "nightly",
 
-        deps   = () -> run(`pip install --user pygments mkdocs`),
+        deps   = Deps.pip("pygments", "mkdocs"),
         make   = () -> run(`mkdocs build`),
     )
     # Get environment variables.

@@ -20,3 +20,5 @@ See [Internal Documentation]({ref}) for internal package docs covering all submo
     Documenter
     makedocs
     deploydocs
+    Deps
+    Deps.pip
