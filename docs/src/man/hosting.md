@@ -6,10 +6,19 @@ describe how to setup automatic updates for your package docs using the Travis b
 and GitHub Pages. This is the same approach used by this package to host it's own docs --
 the docs you're currently reading.
 
-**Note**
+---
+
+**Notes**
+
+Following this guide should be the *final* step you take after you are comfortable with the
+syntax and build process used by `Documenter.jl`. Only proceed with the steps outlined on
+this page once you have successfully used `mkdocs` locally to build your documentation.
+`mkdocs` can typically be installed using `pip install mkdocs` in your terminal.
 
 This guide assumes that you already have GitHub and Travis accounts setup. If not then go
 set those up first and then return here.
+
+---
 
 ## Overview
 
@@ -38,14 +47,6 @@ for the repository and under the "Environment Variables" section add a new varia
 the value and **make sure** that "Display value in build log" is **off**. Be careful to remove any leading white-space from the key. Then add the key.
 
 ## `.travis.yml` Configuration
-
-To allow Travis to install the extra dependencies needed to build our docs add the following
-to your `.travis.yml` file in your package:
-
-```yaml
-before_script:
-  - export PATH=$HOME/.local/bin:$PATH
-```
 
 In the `after_success` section of the `.travis.yml` file, where code coverage is processed,
 run your `docs/make.jl` file:
