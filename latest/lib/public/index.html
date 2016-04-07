@@ -322,6 +322,8 @@
 <h2 id="index">Index</h2>
 <ul>
 <li><a href="./#Documenter"><code>Documenter</code></a></li>
+<li><a href="./#Documenter.Deps"><code>Documenter.Deps</code></a></li>
+<li><a href="./#Documenter.Deps.pip"><code>Documenter.Deps.pip</code></a></li>
 <li><a href="./#Documenter.deploydocs"><code>Documenter.deploydocs</code></a></li>
 <li><a href="./#Documenter.makedocs"><code>Documenter.makedocs</code></a></li>
 </ul>
@@ -384,24 +386,14 @@
 <p><strong><code>modules</code></strong> specifies a vector of modules that should be documented in <code>source</code>. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of <a href="./#Documenter.makedocs"><code>makedocs</code></a>. By default no modules are passed to <code>modules</code> and so no warnings will appear. This setting can be used as an indicator of the "coverage" of the generated documentation. For example Documenter's <code>make.jl</code> file contains:</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span>
 
-<span class="c"># Build docs.</span>
-<span class="c"># ===========</span>
-
 <span class="n">makedocs</span><span class="p">(</span>
     <span class="n">modules</span> <span class="o">=</span> <span class="n">Documenter</span><span class="p">,</span>
-    <span class="n">clean</span>   <span class="o">=</span> <span class="n">false</span>
+    <span class="n">clean</span>   <span class="o">=</span> <span class="n">false</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c"># Deploy docs.</span>
-<span class="c"># ============</span>
-
-<span class="c"># We need to install an additional dep, `mkdocs-material`, so provide a custom `deps`.</span>
-<span class="n">custom_deps</span><span class="p">()</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="sb">`pip install --user pygments mkdocs mkdocs-material`</span><span class="p">)</span>
-
 <span class="n">deploydocs</span><span class="p">(</span>
-    <span class="c"># options</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="n">custom_deps</span><span class="p">,</span>
-    <span class="n">repo</span> <span class="o">=</span> <span class="s">&quot;github.com/MichaelHatherly/Documenter.jl.git&quot;</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="o">.</span><span class="n">pip</span><span class="p">(</span><span class="s">&quot;pygments&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs-material&quot;</span><span class="p">),</span>
+    <span class="n">repo</span> <span class="o">=</span> <span class="s">&quot;github.com/MichaelHatherly/Documenter.jl.git&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -449,14 +441,39 @@
 <p><strong><code>latest</code></strong> is the branch that "tracks" the latest generated documentation. By default this value is set to <code>"master"</code>.</p>
 <p><strong><code>osname</code></strong> is the operating system which will be used to deploy generated documentation. This defaults to <code>"linux"</code>. This value must be one of those specified in the <code>os:</code> section of the <code>.travis.yml</code> configuration file.</p>
 <p><strong><code>julia</code></strong> is the version of Julia that will be used to deploy generated documentation. This defaults to <code>"nightly"</code>. This value must be one of those specified in the <code>julia:</code> section of the <code>.travis.yml</code> configuration file.</p>
-<p><strong><code>deps</code></strong> is the function used to install any dependancies needed to build the documentation. By default this function installs <code>pygments</code> and <code>mkdocs</code>:</p>
-<div class="codehilite"><pre><span></span>deps = () -&gt; run(`pip install --user pygments mkdocs`)
+<p><strong><code>deps</code></strong> is the function used to install any dependancies needed to build the documentation. By default this function installs <code>pygments</code> and <code>mkdocs</code> using the <a href="./#Documenter.Deps.pip"><code>Deps.pip</code></a> function:</p>
+<div class="codehilite"><pre><span></span>deps = Deps.pip(&quot;pygments&quot;, &quot;mkdocs&quot;)
 </pre></div>
 
 
 <p><strong><code>make</code></strong> is the function used to convert the markdown files to HTML. By default this just runs <code>mkdocs build</code> which populates the <code>target</code> directory.</p>
 <p><strong>See Also</strong></p>
 <p>The <a href="../../man/hosting/#Hosting-Documentation-1">Hosting Documentation</a> section of the manual provides a step-by-step guide to using the <a href="./#Documenter.deploydocs"><code>deploydocs</code></a> function to automatically generate docs and push then to GitHub.</p>
+<p><a id='Documenter.Deps' href='#Documenter.Deps'>#</a>
+<strong><code>Documenter.Deps</code></strong> &mdash; <em>Module</em>.</p>
+<hr />
+<p>Exported module that provides build and deploy dependancies and related functions.</p>
+<p>Currently only <a href="./#Documenter.Deps.pip"><code>pip</code></a> is implemented.</p>
+<p><a id='Documenter.Deps.pip' href='#Documenter.Deps.pip'>#</a>
+<strong><code>Documenter.Deps.pip</code></strong> &mdash; <em>Function</em>.</p>
+<hr />
+<div class="codehilite"><pre><span></span>pip(deps...)
+</pre></div>
+
+
+<p>Installs (as non-root user) all python packages listed in <code>deps</code>.</p>
+<p><strong>Examples</strong></p>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span>
+
+<span class="n">makedocs</span><span class="p">(</span>
+    <span class="c"># ...</span>
+<span class="p">)</span>
+
+<span class="n">deploydocs</span><span class="p">(</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="o">.</span><span class="n">pip</span><span class="p">(</span><span class="s">&quot;pygments&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs-material&quot;</span><span class="p">),</span>
+    <span class="c"># ...</span>
+<span class="p">)</span>
+</pre></div>
           <aside class="copyright" role="note">
             
             Documentation built with
