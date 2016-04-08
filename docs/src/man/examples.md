@@ -22,6 +22,10 @@ regressions prior to tagging new Documenter releases whenever possible.
 
 Packages that have tagged versions available in `METADATA.jl`.
 
+- [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
+- [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
+- [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest)
+
 ## Unregistered
 
 Packages that are not available in `METADATA.jl` and may be works-in-progress.
@@ -29,4 +33,3 @@ Please do take that into consideration when browsing this list.
 
 - [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest)
 - [Documenter.jl](https://michaelhatherly.github.io/Documenter.jl/latest)
-
