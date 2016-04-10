@@ -461,11 +461,13 @@ a + b
 <p>Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace on each line is also removed.</p>
 <p><strong>Hiding Source Code</strong></p>
 <p>Code blocks may have some content that does not need to be displayed in the final document. <code># hide</code> comments can be appended to lines that should not be rendered, i.e.</p>
-<div class="codehilite"><pre><span></span>    {example}
-    srand(1) # hide
-    A = rand(3, 3)
-    b = [1, 2, 3]
-    A \ b
+<div class="codehilite"><pre><span></span>```julia
+{example}
+srand(1) # hide
+A = rand(3, 3)
+b = [1, 2, 3]
+A \ b
+```
 </pre></div>
 
 
@@ -523,6 +525,18 @@ savefig(&quot;g-plot.svg&quot;); nothing # hide
 
 
 <p>Note that <code>{example}</code> blocks are evaluated within the directory of <code>build</code> where the file will be rendered . This means than in the above example <code>savefig</code> will output the <code>.svg</code> files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.</p>
+<p><code>{example}</code> blocks automatically define <code>ans</code> which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by <code>plot</code> to a named variable would look out of place in the final rendered documentation:</p>
+<div class="codehilite"><pre><span></span>```julia
+{example}
+using Gadfly # hide
+plot([sin, x -&gt; 2sin(x) + x], -2π, 2π)
+draw(SVG(&quot;plot.svg&quot;, 6inch, 4inch), ans); nothing # hide
+```
+
+![](plot.svg)
+</pre></div>
+
+
 <p><a id='{eval}-1'></a></p>
 <h2 id="eval"><code>{eval}</code></h2>
 <p>Evaluates the contents of the block and inserts the resulting value into the final document.</p>
