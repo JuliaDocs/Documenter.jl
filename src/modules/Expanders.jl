@@ -190,9 +190,9 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     for (ex, str) in Utilities.parseblock(x.code; skip = 1)
         try
             result = Documenter.DocChecks.withoutput(buffer) do
-                # Evaluate within the build folder.
+                # Evaluate within the build folder. Defines REPL-like `ans` binding as well.
                 cd(dirname(page.build)) do
-                    eval(mod, ex)
+                    eval(mod, :(ans = $(eval(mod, ex))))
                 end
             end
         catch err

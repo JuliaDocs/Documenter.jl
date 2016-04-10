@@ -92,3 +92,10 @@ f(1), g(1)
 ```
 
 #### Foo
+
+```julia
+{example}
+a = 1
+b = ans
+@assert a === b
+```

@@ -176,13 +176,15 @@ on each line is also removed.
 Code blocks may have some content that does not need to be displayed in the final document.
 `# hide` comments can be appended to lines that should not be rendered, i.e.
 
+````markdown
+```julia
+{example}
+srand(1) # hide
+A = rand(3, 3)
+b = [1, 2, 3]
+A \ b
 ```
-    {example}
-    srand(1) # hide
-    A = rand(3, 3)
-    b = [1, 2, 3]
-    A \ b
-```
+````
 
 Note that appending `# hide` to every line in an `{example}` block will result in the block
 being hidden in the rendered document. The results block will still be rendered though.
@@ -258,6 +260,22 @@ Note that `{example}` blocks are evaluated within the directory of `build` where
 will be rendered . This means than in the above example `savefig` will output the `.svg`
 files into that directory. This allows the images to be easily referenced without needing to
 worry about relative paths.
+
+`{example}` blocks automatically define `ans` which, as in the Julia REPL, is bound to the
+value of the last evaluated expression. This can be useful in situations such as the
+following one where where binding the object returned by `plot` to a named variable would
+look out of place in the final rendered documentation:
+
+````markdown
+```julia
+{example}
+using Gadfly # hide
+plot([sin, x -> 2sin(x) + x], -2π, 2π)
+draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
+```
+
+![](plot.svg)
+````
 
 ## `{eval}`
 
