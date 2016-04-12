@@ -86,18 +86,23 @@ Linux. This can be changed using the `julia` and `osname` keywords as follows:
 
 ```julia
 deploydocs(
-    deps   = Deps.pip("python-markdown-math"),
+    deps   = Deps.pip("mkdocs", "python-markdown-math"),
     repo   = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
     julia  = "0.4",
     osname = "osx"
 )
 ```
 
-This will deploy the docs from the OSX Julia 0.4 Travis build bot. The keyword
-`deps` serves to provide dependencies. In the example above we include
-[python-markdown-math](https://github.com/mitya57/python-markdown-math),
-which provides the `mdx_math` markdown extension to exploit MathJax
-rendering of latex equations in markdown.
+This will deploy the docs from the OSX Julia 0.4 Travis build bot.
+
+The keyword `deps` serves to provide the required dependencies to deploy
+the documentation. In the example above we include the dependencies
+[mkdocs`](http://www.mkdocs.org)
+and [`python-markdown-math`](https://github.com/mitya57/python-markdown-math).
+The former makes sure that MkDocs is install to deploy the documentation,
+and the latter provides the `mdx_math` markdown extension to exploit MathJax
+rendering of latex equations in markdown. Other dependencies should be
+included here.
 
 See the [`deploydocs`]({ref}) function documentation for more details.
 
