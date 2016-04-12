@@ -97,9 +97,9 @@ This will deploy the docs from the OSX Julia 0.4 Travis build bot.
 
 The keyword `deps` serves to provide the required dependencies to deploy
 the documentation. In the example above we include the dependencies
-[mkdocs`](http://www.mkdocs.org)
+[mkdocs](http://www.mkdocs.org)
 and [`python-markdown-math`](https://github.com/mitya57/python-markdown-math).
-The former makes sure that MkDocs is install to deploy the documentation,
+The former makes sure that MkDocs is installed to deploy the documentation,
 and the latter provides the `mdx_math` markdown extension to exploit MathJax
 rendering of latex equations in markdown. Other dependencies should be
 included here.
