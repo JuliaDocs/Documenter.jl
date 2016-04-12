@@ -393,6 +393,7 @@
 <p>where <code>USER_NAME</code> and <code>PACKAGE_NAME</code> must be set to the appropriate names.</p>
 <p>By default <code>deploydocs</code> will deploy the documentation from the <code>nightly</code> Julia build for Linux. This can be changed using the <code>julia</code> and <code>osname</code> keywords as follows:</p>
 <div class="codehilite"><pre><span></span><span class="n">deploydocs</span><span class="p">(</span>
+    <span class="n">deps</span>   <span class="o">=</span> <span class="n">Deps</span><span class="o">.</span><span class="n">pip</span><span class="p">(</span><span class="s">&quot;mkdocs&quot;</span><span class="p">,</span> <span class="s">&quot;python-markdown-math&quot;</span><span class="p">),</span>
     <span class="n">repo</span>   <span class="o">=</span> <span class="s">&quot;github.com/USER_NAME/PACKAGE_NAME.jl.git&quot;</span><span class="p">,</span>
     <span class="n">julia</span>  <span class="o">=</span> <span class="s">&quot;0.4&quot;</span><span class="p">,</span>
     <span class="n">osname</span> <span class="o">=</span> <span class="s">&quot;osx&quot;</span>
@@ -401,6 +402,7 @@
 
 
 <p>This will deploy the docs from the OSX Julia 0.4 Travis build bot.</p>
+<p>The keyword <code>deps</code> serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies [mkdocs<code>](http://www.mkdocs.org) and [</code>python-markdown-math<code>](https://github.com/mitya57/python-markdown-math). The former makes sure that MkDocs is install to deploy the documentation, and the latter provides the</code>mdx_math` markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.</p>
 <p>See the <a href="../../lib/public/#Documenter.deploydocs"><code>deploydocs</code></a> function documentation for more details.</p>
 <p><a id='The-MkDocs-mkdocs.yml-File-1'></a></p>
 <h2 id="the-mkdocs-mkdocsyml-file">The MkDocs <code>mkdocs.yml</code> File</h2>
@@ -417,13 +419,14 @@
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">assets/Documenter.css</span>
 
 <span class="l l-Scalar l-Scalar-Plain">extra_javascript</span><span class="p p-Indicator">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">assets/mathjaxhelper.js</span>
 
 <span class="l l-Scalar l-Scalar-Plain">markdown_extensions</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">extra</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">tables</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">fenced_code</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mdx_math</span>
 
 <span class="l l-Scalar l-Scalar-Plain">docs_dir</span><span class="p p-Indicator">:</span> <span class="s">&#39;build&#39;</span>
 
