@@ -277,6 +277,38 @@ draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 ![](plot.svg)
 ````
 
+## `{repl}`
+
+These are similar to `{example}` blocks, but adds a `julia> ` prompt before each toplevel
+expression. `;` and `# hide` syntax may be used in `{repl}` blocks in the same way as in the
+Julia REPL and `{example}` blocks.
+
+````markdown
+```julia
+{repl}
+a = 1
+b = 2
+a + b
+```
+````
+
+will generate
+
+````markdown
+```julia
+julia> a = 1
+1
+
+julia> b = 2
+2
+
+julia> a + b
+3
+```
+````
+
+Named `{repl <name>}` blocks behave in the same way as named `{example <name>}` blocks.
+
 ## `{eval}`
 
 Evaluates the contents of the block and inserts the resulting value into the final document.

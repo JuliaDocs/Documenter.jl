@@ -128,6 +128,8 @@ immutable ContentsBlocks <: Expander end
 
 immutable ExampleBlocks <: Expander end
 
+immutable REPLBlocks <: Expander end
+
 """
 Finds and sets URLs for each `{ref}` link in the document to the correct destinations.
 """
@@ -161,6 +163,7 @@ const DEFAULT_PIPELINE = Pipeline(
         IndexBlocks(),
         ContentsBlocks(),
         ExampleBlocks(),
+        REPLBlocks(),
     ),
     CrossReferences(),
     CheckDocument(),

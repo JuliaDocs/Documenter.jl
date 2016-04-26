@@ -225,4 +225,53 @@ function droplines(code; skip = 0)
     strip(takebuf_string(buffer), '\n')
 end
 
+function expand(::Builder.REPLBlocks, x::Base.Markdown.Code, page, doc)
+    matched = Utilities.nullmatch(r"^{repl[ ]?(.*)}\r{0,1}\n", x.code)
+    isnull(matched) && return false
+    name = Utilities.getmatch(matched, 1)
+    sym  = isempty(name) ? gensym("repl-") : symbol("repl-", name)
+    mod  = get!(page.globals.meta, sym, Module(sym))::Module
+    code = split(x.code, '\n'; limit = 2)[end]
+    result, out = nothing, IOBuffer()
+    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+        buffer = IOBuffer()
+        try
+            result = Documenter.DocChecks.withoutput(buffer) do
+                cd(dirname(page.build)) do
+                    eval(mod, :(ans = $(eval(mod, ex))))
+                end
+            end
+        catch err
+            Utilities.warn(page.source, "failed to run code block.\n\n$err")
+            page.mapping[x] = x
+            return true
+        end
+        input = droplines(str)
+        isempty(input) || println(out, prepend_prompt(input))
+        output = Documenter.DocChecks.result_to_string(buffer, result)
+        hide   = Documenter.DocChecks.ends_with_semicolon(input)
+        if isempty(input) || isempty(output) || hide
+            # When no input or output then don't print the output text, or when a semi colon
+            # is present. TODO: improve this check.
+            println(out)
+        else
+            println(out, output, "\n")
+        end
+    end
+    # Trailing whitespace in `"julia "` to avoid doctesting generated repl examples.
+    page.mapping[x] = Base.Markdown.Code("julia ", rstrip(takebuf_string(out)))
+    return true
+end
+
+function prepend_prompt(input)
+    prompt  = "julia> "
+    padding = " "^length(prompt)
+    out = IOBuffer()
+    for (n, line) in enumerate(split(input, '\n'))
+        line = rstrip(line)
+        println(out, n == 1 ? prompt : padding, line)
+    end
+    rstrip(takebuf_string(out))
+end
+
 end

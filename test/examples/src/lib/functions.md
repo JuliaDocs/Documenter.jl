@@ -99,3 +99,31 @@ a = 1
 b = ans
 @assert a === b
 ```
+
+```julia
+{repl}
+srand(1); # hide
+nothing
+rand()
+a = 1
+println(a)
+b = 2
+a + b
+type T
+    x :: Int
+    y :: Vector
+end
+x = T(1, [1])
+x.y
+x.x
+```
+
+```julia
+{repl 1}
+d = 1
+```
+
+```julia
+{repl 1}
+println(d)
+```
