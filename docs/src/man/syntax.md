@@ -37,6 +37,41 @@ which will cause any unlisted docstrings to raise warnings when [`makedocs`]({re
 called. If `modules` is not defined then no warnings are printed, even if a document has
 missing docstrings.
 
+## `{autodocs}`
+
+Automatically splices all docstrings from the provided modules in place of the code block.
+This is equivalent to manually adding all the docstrings in a `{docs}` block.
+
+````markdown
+```
+{autodocs}
+Modules = [Foo, Bar]
+Order   = [:function, :type]
+```
+````
+
+The above `{autodocs}` block adds all the docstrings found in modules `Foo` and `Bar` that
+refer to functions or types to the document.
+
+Each module is added in order and so all docs from `Foo` will appear before those of `Bar`.
+Possible values for the `Order` vector are
+
+- `:module`
+- `:constant`
+- `:type`
+- `:function`
+- `:macro`
+
+If no `Order` is provided then the order listed above is used.
+
+When a potential docstring is found in one of the listed modules, but does not match any
+value from `Order` then it will be omitted from the document. Hence `Order` acts as a basic
+filter as well as sorter.
+
+**Note**
+
+When more complex sorting and filtering is needed then use `{docs}` to define it explicitly.
+
 ## `{ref}`
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference

@@ -19,6 +19,60 @@ type T end
 
 end
 
+# autodocs module
+# ===============
+
+"`AutoDocs` module."
+module AutoDocs
+
+"Function `f`."
+f(x) = x
+
+"Constant `K`."
+const K = 1
+
+"Type `T`."
+type T end
+
+"Macro `@m`."
+macro m() end
+
+"Module `A`."
+module A
+
+"Function `A.f`."
+f(x) = x
+
+"Constant `A.K`."
+const K = 1
+
+"Type `B.T`."
+type T end
+
+"Macro `B.@m`."
+macro m() end
+
+end
+
+"Module `B`."
+module B
+
+"Function `B.f`."
+f(x) = x
+
+"Constant `B.K`."
+const K = 1
+
+"Type `B.T`."
+type T end
+
+"Macro `B.@m`."
+macro m() end
+
+end
+
+end
+
 # tests module
 # ============
 
@@ -127,7 +181,7 @@ let headers = doc.internal.headers
     end
 end
 
-@test length(doc.internal.objects) == 7
+@test length(doc.internal.objects) == 22
 
 # Documenter package docs:
 

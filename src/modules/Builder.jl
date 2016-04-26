@@ -85,6 +85,9 @@ within the block. Replaces the block with the docstrings associated with each ex
 
 """
 immutable DocsBlocks <: Expander end
+
+immutable AutoDocsBlocks <: Expander end
+
 """
 Parses each code block where the first line is `{eval}` and evaluates it's content. Replaces
 the block with the value resulting from the evaluation. This can be useful for inserting
@@ -159,6 +162,7 @@ const DEFAULT_PIPELINE = Pipeline(
         TrackHeaders(),
         MetaBlocks(),
         DocsBlocks(),
+        AutoDocsBlocks(),
         EvalBlocks(),
         IndexBlocks(),
         ContentsBlocks(),

@@ -132,6 +132,42 @@ function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
     return true
 end
 
+function expand(::Builder.AutoDocsBlocks, x::Base.Markdown.Code, page, doc)
+    startswith(x.code, "{autodocs}") || return false
+    curmod = get(page.globals.meta, :CurrentModule, current_module())
+    fields = Dict{Symbol, Any}()
+    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+        if Utilities.isassign(ex)
+            fields[ex.args[1]] = eval(curmod, ex.args[2])
+        end
+    end
+    if haskey(fields, :Modules)
+        order = get(fields, :Order, [:module, :constant, :type, :function, :macro])
+        block = IOBuffer()
+        # TODO: refactor `{docs}` to avoid doing string manipulation to get docs here.
+        println(block, "{docs}")
+        for mod in fields[:Modules]
+            bindings = collect(keys(Documenter.DocChecks.allbindings(mod)))
+            sorted   = Dict{Symbol, Vector{Utilities.Binding}}()
+            for b in bindings
+                category = symbol(lowercase(Utilities.doccat(b, Union{})))
+                push!(get!(sorted, category, Utilities.Binding[]), b)
+            end
+            for category in order
+                for b in sort!(get(sorted, category, Utilities.Binding[]), by = string)
+                    println(block, b)
+                end
+            end
+        end
+        x.code = takebuf_string(block)
+        expand(Builder.DocsBlocks(), x, page, doc)
+    else
+        Utilities.warn(page.source, "'{autodocs}' missing 'Modules = ...'.")
+        page.mapping[x] = x
+    end
+    return true
+end
+
 immutable EvalNode
     code   :: Base.Markdown.Code
     result :: Any

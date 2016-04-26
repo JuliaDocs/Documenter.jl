@@ -159,7 +159,7 @@ immutable Binding
 end
 
 function Base.show(io::IO, b::Binding)
-    m = b.mod ≡ Main ? "" : string(b.mod, '.')
+    m = b.mod ∈ (Main, Keywords) ? "" : string(b.mod, '.')
     print(io, m, b.var)
 end
 
@@ -238,15 +238,22 @@ Returns the category name of the provided [`Object`]({ref}).
 doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
     "Macro" : doccat(obj.binding, obj.signature)
 
-doccat(b::Binding, ::Union) = b.mod == Keywords && haskey(Base.Docs.keywords, b.var) ?
-    "Keyword" : doccat(getfield(b.mod, b.var))
+function doccat(b::Binding, ::Union)
+    if b.mod === Keywords && haskey(Base.Docs.keywords, b.var)
+        "Keyword"
+    elseif startswith(string(b.var), '@')
+        "Macro"
+    else
+        doccat(getfield(b.mod, b.var))
+    end
+end
 
 doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
 doccat(::Module)   = "Module"
-doccat(::ANY)      = "Constant"
+doccat(::Any)      = "Constant"
 
 """
     filterdocs(doc, modules)

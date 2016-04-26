@@ -127,3 +127,33 @@ d = 1
 {repl 1}
 println(d)
 ```
+
+# Autodocs
+
+```
+{meta}
+CurrentModule = Main
+```
+
+## AutoDocs Module
+
+```
+{autodocs}
+Modules = [AutoDocs]
+```
+
+## Functions, Modules, and Macros
+
+```
+{autodocs}
+Modules = [AutoDocs.A, AutoDocs.B]
+Order   = [:function, :module, :macro]
+```
+
+## Constants and Types
+
+```
+{autodocs}
+Modules = [AutoDocs.A, AutoDocs.B]
+Order   = [:constant, :type]
+```

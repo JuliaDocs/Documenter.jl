@@ -46,9 +46,16 @@ end
 
 function allbindings(mods)
     out = Dict{Utilities.Binding, Vector{Type}}()
-    for m in mods, (obj, doc) in meta(m)
+    for m in mods
+        allbindings(m, out)
+    end
+    out
+end
+
+function allbindings(mod::Module, out = Dict{Utilities.Binding, Vector{Type}}())
+    for (obj, doc) in meta(mod)
         isa(obj, ObjectIdDict) && continue
-        out[Utilities.Binding(m, nameof(obj))] = sigs(doc)
+        out[Utilities.Binding(mod, nameof(obj))] = sigs(doc)
     end
     out
 end
