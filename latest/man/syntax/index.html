@@ -219,6 +219,12 @@
             </li>
           
             <li class="anchor">
+              <a title="{autodocs}" href="#autodocs">
+                {autodocs}
+              </a>
+            </li>
+          
+            <li class="anchor">
               <a title="{ref}" href="#ref">
                 {ref}
               </a>
@@ -340,6 +346,7 @@
 <ul>
 <li><a href="./#Syntax-1">Syntax</a><ul>
 <li><a href="./#{docs}-1"><code>{docs}</code></a></li>
+<li><a href="./#{autodocs}-1"><code>{autodocs}</code></a></li>
 <li><a href="./#{ref}-1"><code>{ref}</code></a></li>
 <li><a href="./#{meta}-1"><code>{meta}</code></a></li>
 <li><a href="./#{index}-1"><code>{index}</code></a></li>
@@ -370,6 +377,30 @@
 
 
 <p>which will cause any unlisted docstrings to raise warnings when <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> is called. If <code>modules</code> is not defined then no warnings are printed, even if a document has missing docstrings.</p>
+<p><a id='{autodocs}-1'></a></p>
+<h2 id="autodocs"><code>{autodocs}</code></h2>
+<p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>{docs}</code> block.</p>
+<div class="codehilite"><pre><span></span><span class="err">```</span>
+<span class="p">{</span><span class="n">autodocs</span><span class="p">}</span>
+<span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Bar</span><span class="o">]</span>
+<span class="n">Order</span>   <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">function</span><span class="p">,</span> <span class="p">:</span><span class="n">type</span><span class="o">]</span>
+<span class="err">```</span>
+</pre></div>
+
+
+<p>The above <code>{autodocs}</code> block adds all the docstrings found in modules <code>Foo</code> and <code>Bar</code> that refer to functions or types to the document.</p>
+<p>Each module is added in order and so all docs from <code>Foo</code> will appear before those of <code>Bar</code>. Possible values for the <code>Order</code> vector are</p>
+<ul>
+<li><code>:module</code></li>
+<li><code>:constant</code></li>
+<li><code>:type</code></li>
+<li><code>:function</code></li>
+<li><code>:macro</code></li>
+</ul>
+<p>If no <code>Order</code> is provided then the order listed above is used.</p>
+<p>When a potential docstring is found in one of the listed modules, but does not match any value from <code>Order</code> then it will be omitted from the document. Hence <code>Order</code> acts as a basic filter as well as sorter.</p>
+<p><strong>Note</strong></p>
+<p>When more complex sorting and filtering is needed then use <code>{docs}</code> to define it explicitly.</p>
 <p><a id='{ref}-1'></a></p>
 <h2 id="ref"><code>{ref}</code></h2>
 <p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be either a docstring or header name.</p>
