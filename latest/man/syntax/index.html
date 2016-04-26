@@ -249,6 +249,12 @@
             </li>
           
             <li class="anchor">
+              <a title="{repl}" href="#repl">
+                {repl}
+              </a>
+            </li>
+          
+            <li class="anchor">
               <a title="{eval}" href="#eval">
                 {eval}
               </a>
@@ -339,6 +345,7 @@
 <li><a href="./#{index}-1"><code>{index}</code></a></li>
 <li><a href="./#{contents}-1"><code>{contents}</code></a></li>
 <li><a href="./#{example}-1"><code>{example}</code></a></li>
+<li><a href="./#{repl}-1"><code>{repl}</code></a></li>
 <li><a href="./#{eval}-1"><code>{eval}</code></a></li>
 </ul>
 </li>
@@ -537,6 +544,33 @@ draw(SVG(&quot;plot.svg&quot;, 6inch, 4inch), ans); nothing # hide
 </pre></div>
 
 
+<p><a id='{repl}-1'></a></p>
+<h2 id="repl"><code>{repl}</code></h2>
+<p>These are similar to <code>{example}</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>{repl}</code> blocks in the same way as in the Julia REPL and <code>{example}</code> blocks.</p>
+<div class="codehilite"><pre><span></span>```julia
+{repl}
+a = 1
+b = 2
+a + b
+```
+</pre></div>
+
+
+<p>will generate</p>
+<div class="codehilite"><pre><span></span>```julia
+julia&gt; a = 1
+1
+
+julia&gt; b = 2
+2
+
+julia&gt; a + b
+3
+```
+</pre></div>
+
+
+<p>Named <code>{repl &lt;name&gt;}</code> blocks behave in the same way as named <code>{example &lt;name&gt;}</code> blocks.</p>
 <p><a id='{eval}-1'></a></p>
 <h2 id="eval"><code>{eval}</code></h2>
 <p>Evaluates the contents of the block and inserts the resulting value into the final document.</p>
