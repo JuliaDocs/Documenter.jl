@@ -268,12 +268,31 @@ function filterdocs(doc::Markdown.MD, modules::Set{Module})
         if haskey(doc.meta, :module)
             doc.meta[:module] ∈ modules ? Nullable(doc) : Nullable{Markdown.MD}()
         else
-            out = []
-            for each in doc.content
-                r = filterdocs(each, modules)
-                isnull(r) || push!(out, get(r))
+            if haskey(doc.meta, :results)
+                out = []
+                results = []
+                for (each, result) in zip(doc.content, doc.meta[:results])
+                    r = filterdocs(each, modules)
+                    if !isnull(r)
+                        push!(out, get(r))
+                        push!(results, result)
+                    end
+                end
+                if isempty(out)
+                    Nullable{Markdown.MD}()
+                else
+                    md = Markdown.MD(out)
+                    md.meta[:results] = results
+                    Nullable(md)
+                end
+            else
+                out = []
+                for each in doc.content
+                    r = filterdocs(each, modules)
+                    isnull(r) || push!(out, get(r))
+                end
+                isempty(out) ? Nullable{Markdown.MD}() : Nullable(Markdown.MD(out))
             end
-            isempty(out) ? Nullable{Markdown.MD}() : Nullable(Markdown.MD(out))
         end
     end
 end
@@ -290,5 +309,59 @@ nodocs(x)      = contains(stringmime("text/plain", x), "No documentation found."
 nodocs(::Void) = false
 
 header_level{N}(::Markdown.Header{N}) = N
+
+# Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
+
+# Correct file and line info only available from this version onwards.
+if VERSION >= v"0.5.0-dev+3442"
+    # TODO: get docstring line range rather than just starting point.
+    function url(mod, file, line)
+        if inbase(mod)
+            base = "https://github.com/JuliaLang/julia/tree"
+            dest = "base/$file#L$line"
+            Nullable{UTF8String}(
+                if isempty(Base.GIT_VERSION_INFO.commit)
+                    "$base/v$VERSION/$dest"
+                else
+                    commit = Base.GIT_VERSION_INFO.commit
+                    "$base/$commit/$dest"
+                end
+            )
+        else
+            LibGit2.with(LibGit2.GitRepoExt(dirname(file))) do repo
+                LibGit2.with(LibGit2.GitConfig(repo)) do cfg
+                    remote = nullmatch(
+                        LibGit2.GITHUB_REGEX,
+                        LibGit2.get(cfg, "remote.origin.url", "")
+                    )
+                    if isnull(remote)
+                        Nullable{UTF8String}()
+                    else
+                        commit = string(LibGit2.head_oid(repo))
+                        root   = LibGit2.path(repo)
+                        if startswith(file, root)
+                            base = "https://github.com/$(getmatch(remote, 1))/tree"
+                            path = last(split(file, root; limit = 2))
+                            Nullable{UTF8String}("$base/$commit/$path#L$line")
+                        else
+                            Nullable{UTF8String}()
+                        end
+                    end
+                end
+            end
+        end
+    end
+else
+    url(mod, file, line) = Nullable{UTF8String}()
+end
+
+function inbase(m::Module)
+    if m ≡ Base
+        true
+    else
+        parent = module_parent(m)
+        parent ≡ m ? false : inbase(parent)
+    end
+end
 
 end

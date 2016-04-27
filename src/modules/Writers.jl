@@ -39,6 +39,12 @@ end
 # Markdown Output.
 # ----------------
 
+function render(io::IO, mime::MIME"text/plain", vec::Vector, page, doc)
+    for each in vec
+        render(io, mime, each, page, doc)
+    end
+end
+
 function render(io::IO, mime::MIME"text/plain", anchor::Anchors.Anchor, page, doc)
     println(io, "\n<a id='", anchor.id, "-", anchor.nth, "'></a>")
     render(io, mime, anchor.object, page, doc)
@@ -60,8 +66,29 @@ function render(io::IO, mime::MIME"text/plain", node::Expanders.DocsNode, page, 
         ---
         """
     )
-    render(io, mime, node.docstr, page, doc)
+    render(io, mime, source_urls(node.docstr), page, doc)
 end
+
+function source_urls(docstr::Base.Markdown.MD)
+    if haskey(docstr.meta, :results)
+        out = []
+        for (md, result) in zip(docstr.content, docstr.meta[:results])
+            push!(out, md)
+            url = Utilities.url(
+                result.data[:module],
+                result.data[:path],
+                result.data[:linenumber],
+            )
+            isnull(url) || push!(
+                out, "\n<a href='$(get(url))' class='documenter-source'>source</a><br>\n"
+            )
+        end
+        out
+    else
+        docstr
+    end
+end
+source_urls(other) = other
 
 function render(io::IO, ::MIME"text/plain", index::Expanders.IndexNode, page, doc)
     pages   = get(index.dict, :Pages, [])
@@ -123,6 +150,8 @@ function render(io::IO, ::MIME"text/plain", other, page, doc)
     Markdown.plain(io, other)
     println(io)
 end
+
+render(io::IO, ::MIME"text/plain", str::AbstractString, page, doc) = print(io, str)
 
 render(io::IO, ::MIME"text/plain", node::Expanders.MetaNode, page, doc) = println(io, "\n")
 
