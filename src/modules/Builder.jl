@@ -215,7 +215,7 @@ function exec(::SetupBuildDirectory, doc)
     doc.user.clean && isdir(build) && rm(build; recursive = true)
     isdir(build) || mkdir(build)
     if isdir(source)
-        for (root, dirs, files) in Utilities.walkdir(source)
+        for (root, dirs, files) in walkdir(source)
             for dir in dirs
                 d = normpath(joinpath(build, relpath(root, source), dir))
                 isdir(d) || mkdir(d)
