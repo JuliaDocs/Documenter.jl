@@ -330,17 +330,14 @@ if VERSION >= v"0.5.0-dev+3442"
         else
             LibGit2.with(LibGit2.GitRepoExt(dirname(file))) do repo
                 LibGit2.with(LibGit2.GitConfig(repo)) do cfg
-                    remote = nullmatch(
-                        LibGit2.GITHUB_REGEX,
-                        LibGit2.get(cfg, "remote.origin.url", "")
-                    )
+                    remote = getremote(cfg)
                     if isnull(remote)
                         Nullable{UTF8String}()
                     else
                         commit = string(LibGit2.head_oid(repo))
                         root   = LibGit2.path(repo)
                         if startswith(file, root)
-                            base = "https://github.com/$(getmatch(remote, 1))/tree"
+                            base = "https://github.com/$(get(remote))/tree"
                             path = last(split(file, root; limit = 2))
                             Nullable{UTF8String}("$base/$commit/$path#L$line")
                         else
@@ -353,6 +350,22 @@ if VERSION >= v"0.5.0-dev+3442"
     end
 else
     url(mod, file, line) = Nullable{UTF8String}()
+end
+
+function getremote(cfg)
+    remote = nullmatch(
+        LibGit2.GITHUB_REGEX,
+        LibGit2.get(cfg, "remote.origin.url", ""),
+    )
+    if isnull(remote)
+        # On Travis remote `origin` is set to the local directory, not an URL.
+        travis = get(ENV, "TRAVIS_REPO_SLUG", "")
+        isempty(travis) ?
+            Nullable{UTF8String}() :
+            Nullable{UTF8String}(travis)
+    else
+        Nullable{UTF8String}(getmatch(remote, 1))
+    end
 end
 
 function inbase(m::Module)
