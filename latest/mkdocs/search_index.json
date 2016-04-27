@@ -82,7 +82,7 @@
         }, 
         {
             "location": "/man/examples/", 
-            "text": "Examples\n\n\nSometimes the best way to learn how to use a new package is to look for examples of what others have already built with it.\n\n\nThe following packages use Documenter to build their documentation and so should give a good overview of what this package is currently able to do.\n\n\n\n\nNote\n\n\nPackages are listed alphabetically. If you have a package that uses Documenter then please open a PR that adds it to the appropriate list below.\n\n\nThe \nmake.jl\n file for all listed packages will be tested to check for potential regressions prior to tagging new Documenter releases whenever possible.\n\n\n\n\n\n\nRegistered\n\n\nPackages that have tagged versions available in \nMETADATA.jl\n.\n\n\n\n\nMergedMethods.jl\n\n\nNumericSuffixes.jl\n\n\nPrivateModules.jl\n\n\nWeave.jl\n\n\n\n\n\n\nUnregistered\n\n\nPackages that are not available in \nMETADATA.jl\n and may be works-in-progress. Please do take that into consideration when browsing this list.\n\n\n\n\nAnonymousTypes.jl\n\n\nDocumenter.jl", 
+            "text": "Examples\n\n\nSometimes the best way to learn how to use a new package is to look for examples of what others have already built with it.\n\n\nThe following packages use Documenter to build their documentation and so should give a good overview of what this package is currently able to do.\n\n\n\n\nNote\n\n\nPackages are listed alphabetically. If you have a package that uses Documenter then please open a PR that adds it to the appropriate list below.\n\n\nThe \nmake.jl\n file for all listed packages will be tested to check for potential regressions prior to tagging new Documenter releases whenever possible.\n\n\n\n\n\n\nRegistered\n\n\nPackages that have tagged versions available in \nMETADATA.jl\n.\n\n\n\n\nControlSystems.jl\n\n\nMergedMethods.jl\n\n\nNumericSuffixes.jl\n\n\nPrivateModules.jl\n\n\nWeave.jl\n\n\n\n\n\n\nUnregistered\n\n\nPackages that are not available in \nMETADATA.jl\n and may be works-in-progress. Please do take that into consideration when browsing this list.\n\n\n\n\nAnonymousTypes.jl\n\n\nDocumenter.jl", 
             "title": "Examples"
         }, 
         {
@@ -92,7 +92,7 @@
         }, 
         {
             "location": "/man/examples/#registered", 
-            "text": "Packages that have tagged versions available in  METADATA.jl .   MergedMethods.jl  NumericSuffixes.jl  PrivateModules.jl  Weave.jl", 
+            "text": "Packages that have tagged versions available in  METADATA.jl .   ControlSystems.jl  MergedMethods.jl  NumericSuffixes.jl  PrivateModules.jl  Weave.jl", 
             "title": "Registered"
         }, 
         {
