@@ -22,6 +22,7 @@ regressions prior to tagging new Documenter releases whenever possible.
 
 Packages that have tagged versions available in `METADATA.jl`.
 
+- [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest)
