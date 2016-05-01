@@ -446,7 +446,7 @@
 <hr />
 <p>Defines the <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> and <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a> types.</p>
 <p><code>Anchor</code>s and <code>AnchorMap</code>s are used to represent links between objects within a document.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Anchors.jl#L124-128' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Anchors.jl#L124-128' class='documenter-source'>source</a><br>
 <a id='Documenter.Anchors.Anchor' href='#Documenter.Anchors.Anchor'>#</a>
 <strong><code>Documenter.Anchors.Anchor</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -459,7 +459,7 @@
 <li><code>id</code>     – the generated "slug" identifying the object.</li>
 <li><code>nth</code>    – integer that unique-ifies anchors with the same <code>id</code>.</li>
 </ul>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Anchors.jl#L13-23' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Anchors.jl#L13-23' class='documenter-source'>source</a><br>
 <a id='Documenter.Anchors.AnchorMap' href='#Documenter.Anchors.AnchorMap'>#</a>
 <strong><code>Documenter.Anchors.AnchorMap</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -470,13 +470,13 @@
 
 
 <p>Each <code>id</code> maps to a <code>file</code> which in turn maps to a vector of <code>Anchor</code> objects.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Anchors.jl#L33-41' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Anchors.jl#L33-41' class='documenter-source'>source</a><br>
 <a id='Documenter.Anchors.add!' href='#Documenter.Anchors.add!'>#</a>
 <strong><code>Documenter.Anchors.add!</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Adds a new <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> to the <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a> for a given <code>id</code> and <code>file</code>.</p>
 <p>Either an actual <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> object may be provided or any other object which is automatically wrapped in an <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> before being added to the <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Anchors.jl#L51-56' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Anchors.jl#L51-56' class='documenter-source'>source</a><br>
 <a id='Documenter.Anchors.anchor' href='#Documenter.Anchors.anchor'>#</a>
 <strong><code>Documenter.Anchors.anchor</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -487,7 +487,7 @@ anchor(m, id, file, n)
 
 
 <p>Returns the <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> object matching <code>id</code>. <code>file</code> and <code>n</code> may also be provided. A <code>Nullable{Anchor}</code> is returned which must be unwrapped with <code>isnull</code> and <code>get</code> before use.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Anchors.jl#L106-113' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Anchors.jl#L106-113' class='documenter-source'>source</a><br>
 <a id='Documenter.Anchors.exists' href='#Documenter.Anchors.exists'>#</a>
 <strong><code>Documenter.Anchors.exists</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -498,7 +498,7 @@ exists(m, id, file, n)
 
 
 <p>Does the given <code>id</code> exist within the <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a>? A <code>file</code> and integer <code>n</code> may also be provided to narrow the search for existance.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Anchors.jl#L72-79' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Anchors.jl#L72-79' class='documenter-source'>source</a><br>
 <a id='Documenter.Anchors.isunique' href='#Documenter.Anchors.isunique'>#</a>
 <strong><code>Documenter.Anchors.isunique</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -508,7 +508,7 @@ isunique(m, id, file)
 
 
 <p>Is the <code>id</code> unique within the given <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a>? May also specify the <code>file</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Anchors.jl#L87-92' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Anchors.jl#L87-92' class='documenter-source'>source</a><br></p>
 <p><a id='Builder-1'></a></p>
 <h2 id="builder">Builder</h2>
 <p><a id='Documenter.Builder' href='#Documenter.Builder'>#</a>
@@ -525,17 +525,17 @@ isunique(m, id, file)
 <li><a href="./#Documenter.Builder.RenderDocument"><code>RenderDocument</code></a></li>
 </ul>
 <p>Each stage of the pipeline performs an action on a <a href="./#Documenter.Documents.Document"><code>Documents.Document</code></a>. These actions may involve creating directory structures, expanding templates, running doctests, etc.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L280-294' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L280-294' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.SetupBuildDirectory' href='#Documenter.Builder.SetupBuildDirectory'>#</a>
 <strong><code>Documenter.Builder.SetupBuildDirectory</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Creates the correct directory layout within the <code>build</code> folder and parses markdown files.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L30-32' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L30-32' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.CopyAssetsDirectory' href='#Documenter.Builder.CopyAssetsDirectory'>#</a>
 <strong><code>Documenter.Builder.CopyAssetsDirectory</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Copies the contents of the <code>assets</code> directory into the <code>build</code> folder.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L34-36' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L34-36' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.ExpandTemplates' href='#Documenter.Builder.ExpandTemplates'>#</a>
 <strong><code>Documenter.Builder.ExpandTemplates</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -549,12 +549,12 @@ isunique(m, id, file)
 <li><a href="./#Documenter.Builder.ContentsBlocks"><code>ContentsBlocks</code></a></li>
 </ul>
 <p>See the docs for each of the listed "expanders" for their description.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L40-52' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L40-52' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.TrackHeaders' href='#Documenter.Builder.TrackHeaders'>#</a>
 <strong><code>Documenter.Builder.TrackHeaders</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Tracks all <code>Markdown.Header</code> nodes found in the parsed markdown files and stores an <a href="./#Documenter.Anchors.Anchor"><code>Anchors.Anchor</code></a> object for each one.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L60-63' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L60-63' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.MetaBlocks' href='#Documenter.Builder.MetaBlocks'>#</a>
 <strong><code>Documenter.Builder.MetaBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -567,7 +567,7 @@ isunique(m, id, file)
 </pre></div>
 
 
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L65-75' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L65-75' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.DocsBlocks' href='#Documenter.Builder.DocsBlocks'>#</a>
 <strong><code>Documenter.Builder.DocsBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -579,7 +579,7 @@ isunique(m, id, file)
 </pre></div>
 
 
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L77-86' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L77-86' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.EvalBlocks' href='#Documenter.Builder.EvalBlocks'>#</a>
 <strong><code>Documenter.Builder.EvalBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -597,7 +597,7 @@ isunique(m, id, file)
 </pre></div>
 
 
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L91-107' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L91-107' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.IndexBlocks' href='#Documenter.Builder.IndexBlocks'>#</a>
 <strong><code>Documenter.Builder.IndexBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -607,7 +607,7 @@ isunique(m, id, file)
 </pre></div>
 
 
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L109-117' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L109-117' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.ContentsBlocks' href='#Documenter.Builder.ContentsBlocks'>#</a>
 <strong><code>Documenter.Builder.ContentsBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
@@ -619,52 +619,52 @@ isunique(m, id, file)
 
 
 <p>The default <code>Depth</code> value is <code>2</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L119-129' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L119-129' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.CrossReferences' href='#Documenter.Builder.CrossReferences'>#</a>
 <strong><code>Documenter.Builder.CrossReferences</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Finds and sets URLs for each <code>{ref}</code> link in the document to the correct destinations.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L136-138' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L136-138' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.CheckDocument' href='#Documenter.Builder.CheckDocument'>#</a>
 <strong><code>Documenter.Builder.CheckDocument</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Checks that all documented objects are included in the document and runs doctests on all valid Julia code blocks.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L140-143' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L140-143' class='documenter-source'>source</a><br>
 <a id='Documenter.Builder.RenderDocument' href='#Documenter.Builder.RenderDocument'>#</a>
 <strong><code>Documenter.Builder.RenderDocument</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Writes the document tree to the <code>build</code> directory.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Builder.jl#L145-147' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Builder.jl#L145-147' class='documenter-source'>source</a><br></p>
 <p><a id='CrossReferences-1'></a></p>
 <h2 id="crossreferences">CrossReferences</h2>
 <p><a id='Documenter.CrossReferences' href='#Documenter.CrossReferences'>#</a>
 <strong><code>Documenter.CrossReferences</code></strong> &mdash; <em>Module</em>.</p>
 <hr />
 <p>Provides the <a href="./#Documenter.CrossReferences.crossref"><code>crossref</code></a> function used to automatically calculate link URLs.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/CrossReferences.jl#L96-98' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/CrossReferences.jl#L96-98' class='documenter-source'>source</a><br>
 <a id='Documenter.CrossReferences.crossref' href='#Documenter.CrossReferences.crossref'>#</a>
 <strong><code>Documenter.CrossReferences.crossref</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Traverses a <a href="./#Documenter.Documents.Document"><code>Documents.Document</code></a> and replaces links containg <code>{ref}</code> URLs with their real URLs.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/CrossReferences.jl#L19-22' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/CrossReferences.jl#L19-22' class='documenter-source'>source</a><br></p>
 <p><a id='DocChecks-1'></a></p>
 <h2 id="docchecks">DocChecks</h2>
 <p><a id='Documenter.DocChecks' href='#Documenter.DocChecks'>#</a>
 <strong><code>Documenter.DocChecks</code></strong> &mdash; <em>Module</em>.</p>
 <hr />
 <p>Provides two functions, <a href="./#Documenter.DocChecks.missingdocs"><code>missingdocs</code></a> and <a href="./#Documenter.DocChecks.doctest"><code>doctest</code></a>, for checking docs.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/DocChecks.jl#L342-344' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/DocChecks.jl#L342-344' class='documenter-source'>source</a><br>
 <a id='Documenter.DocChecks.missingdocs' href='#Documenter.DocChecks.missingdocs'>#</a>
 <strong><code>Documenter.DocChecks.missingdocs</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Checks that a <a href="./#Documenter.Documents.Document"><code>Documents.Document</code></a> contains all available docstrings that are defined in the <code>modules</code> keyword passed to <a href="../public/#Documenter.makedocs"><code>Documenter.makedocs</code></a>.</p>
 <p>Prints out the name of each object that has not had its docs spliced into the document.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/DocChecks.jl#L20-25' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/DocChecks.jl#L20-25' class='documenter-source'>source</a><br>
 <a id='Documenter.DocChecks.doctest' href='#Documenter.DocChecks.doctest'>#</a>
 <strong><code>Documenter.DocChecks.doctest</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Traverses the document tree and tries to run each Julia code block encountered. Will abort the document generation when an error is thrown. Use <code>doctest = false</code> keyword in <a href="../public/#Documenter.makedocs"><code>Documenter.makedocs</code></a> to disable doctesting.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/DocChecks.jl#L89-93' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/DocChecks.jl#L89-93' class='documenter-source'>source</a><br></p>
 <p><a id='Documents-1'></a></p>
 <h2 id="documents">Documents</h2>
 <p><a id='Documenter.Documents' href='#Documenter.Documents'>#</a>
@@ -677,39 +677,39 @@ isunique(m, id, file)
 <li><a href="./#Documenter.Documents.Internal"><code>Internal</code></a></li>
 <li><a href="./#Documenter.Documents.Globals"><code>Globals</code></a></li>
 </ul>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Documents.jl#L116-124' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Documents.jl#L116-124' class='documenter-source'>source</a><br>
 <a id='Documenter.Documents.Document' href='#Documenter.Documents.Document'>#</a>
 <strong><code>Documenter.Documents.Document</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Represents an entire document.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Documents.jl#L77-79' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Documents.jl#L77-79' class='documenter-source'>source</a><br>
 <a id='Documenter.Documents.Page' href='#Documenter.Documents.Page'>#</a>
 <strong><code>Documenter.Documents.Page</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Represents a single markdown file.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Documents.jl#L32-34' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Documents.jl#L32-34' class='documenter-source'>source</a><br>
 <a id='Documenter.Documents.User' href='#Documenter.Documents.User'>#</a>
 <strong><code>Documenter.Documents.User</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>User-specified values used to control the generation process.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Documents.jl#L50-52' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Documents.jl#L50-52' class='documenter-source'>source</a><br>
 <a id='Documenter.Documents.Internal' href='#Documenter.Documents.Internal'>#</a>
 <strong><code>Documenter.Documents.Internal</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Private state used to control the generation process.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Documents.jl#L63-65' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Documents.jl#L63-65' class='documenter-source'>source</a><br>
 <a id='Documenter.Documents.Globals' href='#Documenter.Documents.Globals'>#</a>
 <strong><code>Documenter.Documents.Globals</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p><a href="./#Documenter.Documents.Page"><code>Page</code></a>-local values such as current module that are shared between nodes in a page.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Documents.jl#L23-25' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Documents.jl#L23-25' class='documenter-source'>source</a><br></p>
 <p><a id='Expanders-1'></a></p>
 <h2 id="expanders">Expanders</h2>
 <p><a id='Documenter.Expanders' href='#Documenter.Expanders'>#</a>
 <strong><code>Documenter.Expanders</code></strong> &mdash; <em>Module</em>.</p>
 <hr />
 <p>Defines node "expanders" that transform nodes from the parsed markdown files.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Expanders.jl#L302-304' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Expanders.jl#L302-304' class='documenter-source'>source</a><br>
 <a id='Documenter.Expanders.expand' href='#Documenter.Expanders.expand'>#</a>
 <strong><code>Documenter.Expanders.expand</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -718,7 +718,7 @@ isunique(m, id, file)
 
 
 <p>Expands each node of a <a href="./#Documenter.Documents.Document"><code>Documents.Document</code></a> using the expanders provided by <code>ex</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Expanders.jl#L20-24' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Expanders.jl#L20-24' class='documenter-source'>source</a><br></p>
 <p><a id='Formats-1'></a></p>
 <h2 id="formats">Formats</h2>
 <p><a id='Documenter.Formats' href='#Documenter.Formats'>#</a>
@@ -726,24 +726,24 @@ isunique(m, id, file)
 <hr />
 <p>Filetypes used to decide which rendering methods in <a href="./#Documenter.Writers"><code>Documenter.Writers</code></a> are called.</p>
 <p>The only supported format is currently <code>Markdown</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Formats.jl#L480-484' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Formats.jl#L480-484' class='documenter-source'>source</a><br>
 <a id='Documenter.Formats.Format' href='#Documenter.Formats.Format'>#</a>
 <strong><code>Documenter.Formats.Format</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Represents the output format. Possible values are <code>Markdown</code>, <code>LaTeX</code>, and <code>HTML</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Formats.jl#L12-14' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Formats.jl#L12-14' class='documenter-source'>source</a><br>
 <a id='Documenter.Formats.mimetype' href='#Documenter.Formats.mimetype'>#</a>
 <strong><code>Documenter.Formats.mimetype</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Converts a <a href="./#Documenter.Formats.Format"><code>Format</code></a> value to a <code>MIME</code> type.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Formats.jl#L22-24' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Formats.jl#L22-24' class='documenter-source'>source</a><br></p>
 <p><a id='Walkers-1'></a></p>
 <h2 id="walkers">Walkers</h2>
 <p><a id='Documenter.Walkers' href='#Documenter.Walkers'>#</a>
 <strong><code>Documenter.Walkers</code></strong> &mdash; <em>Module</em>.</p>
 <hr />
 <p>Provides the <a href="./#Documenter.Walkers.walk"><code>walk</code></a> function.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Walkers.jl#L71-73' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Walkers.jl#L71-73' class='documenter-source'>source</a><br>
 <a id='Documenter.Walkers.walk' href='#Documenter.Walkers.walk'>#</a>
 <strong><code>Documenter.Walkers.walk</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -752,7 +752,7 @@ isunique(m, id, file)
 
 
 <p>Calls <code>f</code> on <code>element</code> and any of its child elements. <code>meta</code> is a <code>Dict</code> containing metadata such as current module.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Walkers.jl#L17-22' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Walkers.jl#L17-22' class='documenter-source'>source</a><br></p>
 <p><a id='Writers-1'></a></p>
 <h2 id="writers">Writers</h2>
 <p><a id='Documenter.Writers' href='#Documenter.Writers'>#</a>
@@ -760,50 +760,50 @@ isunique(m, id, file)
 <hr />
 <p>Provides a rendering function, <a href="./#Documenter.Writers.render"><code>render</code></a>, for writing each supported <a href="./#Documenter.Formats.Format"><code>Formats.Format</code></a> to file.</p>
 <p>Note that currently <code>Formats.Markdown</code> is the <strong>only</strong> supported format.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Writers.jl#L164-169' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Writers.jl#L164-169' class='documenter-source'>source</a><br>
 <a id='Documenter.Writers.render' href='#Documenter.Writers.render'>#</a>
 <strong><code>Documenter.Writers.render</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Writes a <a href="./#Documenter.Documents.Document"><code>Documents.Document</code></a> object to <code>build</code> directory in specified file format.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Writers.jl#L24-26' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Writers.jl#L24-26' class='documenter-source'>source</a><br></p>
 <p><a id='Utilities-1'></a></p>
 <h2 id="utilities">Utilities</h2>
 <p><a id='Documenter.Utilities' href='#Documenter.Utilities'>#</a>
 <strong><code>Documenter.Utilities</code></strong> &mdash; <em>Module</em>.</p>
 <hr />
 <p>Provides a collection of utility functions and types that are used in other submodules.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L371-373' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L371-373' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.currentdir' href='#Documenter.Utilities.currentdir'>#</a>
 <strong><code>Documenter.Utilities.currentdir</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Returns the current directory.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L53-55' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L53-55' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.assetsdir' href='#Documenter.Utilities.assetsdir'>#</a>
 <strong><code>Documenter.Utilities.assetsdir</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Returns the path to the Documenter <code>assets</code> directory.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L61-63' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L61-63' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.check_kwargs' href='#Documenter.Utilities.check_kwargs'>#</a>
 <strong><code>Documenter.Utilities.check_kwargs</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Prints a formatted warning to the user listing unrecognised keyword arguments.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L104-106' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L104-106' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.slugify' href='#Documenter.Utilities.slugify'>#</a>
 <strong><code>Documenter.Utilities.slugify</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Slugify a string into a suitable URL.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L70-72' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L70-72' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.parseblock' href='#Documenter.Utilities.parseblock'>#</a>
 <strong><code>Documenter.Utilities.parseblock</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Returns a vector of parsed expressions and their corresponding raw strings.</p>
 <p>The keyword argument <code>skip = N</code> drops the leading <code>N</code> lines from the input string.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L84-88' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L84-88' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.log' href='#Documenter.Utilities.log'>#</a>
 <strong><code>Documenter.Utilities.log</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Format and print a message to the user.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L18-20' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L18-20' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.warn' href='#Documenter.Utilities.warn'>#</a>
 <strong><code>Documenter.Utilities.warn</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -813,7 +813,7 @@ warn(msg)
 
 
 <p>Format and print a warning message to the user. Passing a <code>file</code> will include the filename where the warning was raised.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L25-31' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L25-31' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.logging' href='#Documenter.Utilities.logging'>#</a>
 <strong><code>Documenter.Utilities.logging</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -822,12 +822,12 @@ warn(msg)
 
 
 <p>Enable or disable logging output for <a href="./#Documenter.Utilities.log"><code>log</code></a> and <a href="./#Documenter.Utilities.warn"><code>warn</code></a>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L11-15' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L11-15' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.submodules' href='#Documenter.Utilities.submodules'>#</a>
 <strong><code>Documenter.Utilities.submodules</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Returns the set of submodules of a given root module/s.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L121-123' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L121-123' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.filterdocs' href='#Documenter.Utilities.filterdocs'>#</a>
 <strong><code>Documenter.Utilities.filterdocs</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -836,12 +836,12 @@ warn(msg)
 
 
 <p>Remove docstrings from the markdown object, <code>doc</code>, that are not from one of <code>modules</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L258-262' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L258-262' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.Object' href='#Documenter.Utilities.Object'>#</a>
 <strong><code>Documenter.Utilities.Object</code></strong> &mdash; <em>Type</em>.</p>
 <hr />
 <p>Represents an object stored in the docsystem by its binding and signature.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L166-168' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L166-168' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.object' href='#Documenter.Utilities.object'>#</a>
 <strong><code>Documenter.Utilities.object</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -850,7 +850,7 @@ warn(msg)
 
 
 <p>Returns a expression that, when evaluated, returns an <a href="./#Documenter.Utilities.Object"><code>Object</code></a> representing <code>ex</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L184-188' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L184-188' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.docs' href='#Documenter.Utilities.docs'>#</a>
 <strong><code>Documenter.Utilities.docs</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
@@ -859,17 +859,17 @@ warn(msg)
 
 
 <p>Returns an expression that, when evaluated, returns the docstrings associated with <code>ex</code>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L215-219' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L215-219' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.doccat' href='#Documenter.Utilities.doccat'>#</a>
 <strong><code>Documenter.Utilities.doccat</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Returns the category name of the provided <a href="./#Documenter.Utilities.Object"><code>Object</code></a>.</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L235-237' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L235-237' class='documenter-source'>source</a><br>
 <a id='Documenter.Utilities.nodocs' href='#Documenter.Utilities.nodocs'>#</a>
 <strong><code>Documenter.Utilities.nodocs</code></strong> &mdash; <em>Function</em>.</p>
 <hr />
 <p>Does the given docstring represent actual documentation or a no docs error message?</p>
-<p><a href='https://github.com/MichaelHatherly/Documenter.jl/tree/1a22f059356c53651cd145ca46ece5f260b1da8e/src/modules/Utilities.jl#L305-307' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/fbcf0953548f30ed5f55e2ce9752a806357f3151/src/modules/Utilities.jl#L305-307' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
