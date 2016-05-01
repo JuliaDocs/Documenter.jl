@@ -146,3 +146,15 @@ b = 2; # Semi-colons don't affect script doctests.
 
 2
 ```
+
+```
+{repl 1}
+f(x) = (sleep(x); x)
+@time f(0.1);
+```
+
+```
+{repl 1}
+f(0.01)
+div(1, 0)
+```

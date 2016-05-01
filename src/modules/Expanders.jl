@@ -271,24 +271,23 @@ function expand(::Builder.REPLBlocks, x::Base.Markdown.Code, page, doc)
     result, out = nothing, IOBuffer()
     for (ex, str) in Utilities.parseblock(x.code; skip = 1)
         buffer = IOBuffer()
-        try
-            result = Documenter.DocChecks.withoutput(buffer) do
-                cd(dirname(page.build)) do
-                    eval(mod, :(ans = $(eval(mod, ex))))
+        input  = droplines(str)
+        output =
+            try
+                result = Documenter.DocChecks.withoutput(buffer) do
+                    cd(dirname(page.build)) do
+                        eval(mod, :(ans = $(eval(mod, ex))))
+                    end
                 end
+                hide = Documenter.DocChecks.ends_with_semicolon(input)
+                Documenter.DocChecks.result_to_string(buffer, hide ? nothing : result)
+            catch err
+                # TODO: Pass the backtrace through? Needs filtering to remove line info from
+                #       Documenter module and it's submodules.
+                Documenter.DocChecks.error_to_string(buffer, err, [])
             end
-        catch err
-            Utilities.warn(page.source, "failed to run code block.\n\n$err")
-            page.mapping[x] = x
-            return true
-        end
-        input = droplines(str)
         isempty(input) || println(out, prepend_prompt(input))
-        output = Documenter.DocChecks.result_to_string(buffer, result)
-        hide   = Documenter.DocChecks.ends_with_semicolon(input)
-        if isempty(input) || isempty(output) || hide
-            # When no input or output then don't print the output text, or when a semi colon
-            # is present. TODO: improve this check.
+        if isempty(input) || isempty(output)
             println(out)
         else
             println(out, output, "\n")
