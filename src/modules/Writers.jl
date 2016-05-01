@@ -77,7 +77,7 @@ function source_urls(docstr::Base.Markdown.MD)
             url = Utilities.url(
                 result.data[:module],
                 result.data[:path],
-                result.data[:linenumber],
+                linerange(result.text, result.data[:linenumber]),
             )
             isnull(url) || push!(
                 out, "\n<a href='$(get(url))' class='documenter-source'>source</a><br>\n"
@@ -89,6 +89,14 @@ function source_urls(docstr::Base.Markdown.MD)
     end
 end
 source_urls(other) = other
+
+function linerange(text, from)
+    lines = sum([isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
+    lines > 0 ? string(from, '-', from + lines + 1) : string(from)
+end
+
+newlines(s::AbstractString) = count(c -> c === '\n', s)
+newlines(other) = 0
 
 function render(io::IO, ::MIME"text/plain", index::Expanders.IndexNode, page, doc)
     pages   = get(index.dict, :Pages, [])
