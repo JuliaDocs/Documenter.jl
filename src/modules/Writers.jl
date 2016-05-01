@@ -80,7 +80,7 @@ function source_urls(docstr::Base.Markdown.MD)
                 linerange(result.text, result.data[:linenumber]),
             )
             isnull(url) || push!(
-                out, "\n<a href='$(get(url))' class='documenter-source'>source</a><br>\n"
+                out, "\n<a target='_blank' href='$(get(url))' class='documenter-source'>source</a><br>\n"
             )
         end
         out
