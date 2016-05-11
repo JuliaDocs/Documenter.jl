@@ -107,7 +107,7 @@ function doctest(doc::Documents.Document)
 end
 
 function doctest(block::Markdown.Code, meta::Dict)
-    if block.language == "julia"
+    if block.language == "julia" || block.language == "jlcon"
         code, sandbox = block.code, Module(:Main)
         haskey(meta, :DocTestSetup) && eval(sandbox, meta[:DocTestSetup])
         ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox)   :
