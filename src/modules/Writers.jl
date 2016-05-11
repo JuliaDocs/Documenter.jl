@@ -63,7 +63,6 @@ function render(io::IO, mime::MIME"text/plain", node::Expanders.DocsNode, page, 
         <a id='$(node.anchor.id)' href='#$(node.anchor.id)'>#</a>
         **`$(node.object.binding)`** &mdash; *$(Utilities.doccat(node.object))*.
 
-        ---
         """
     )
     render(io, mime, source_urls(node.docstr), page, doc)
