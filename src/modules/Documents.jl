@@ -33,8 +33,8 @@ Globals() = Globals(current_module(), Dict())
 Represents a single markdown file.
 """
 immutable Page
-    source   :: UTF8String
-    build    :: UTF8String
+    source   :: Compat.String
+    build    :: Compat.String
     elements :: Vector
     mapping  :: ObjectIdDict
     globals  :: Globals
@@ -51,9 +51,9 @@ end
 User-specified values used to control the generation process.
 """
 immutable User
-    root    :: UTF8String
-    source  :: UTF8String
-    build   :: UTF8String
+    root    :: Compat.String
+    source  :: Compat.String
+    build   :: Compat.String
     format  :: Formats.Format
     clean   :: Bool
     doctest :: Bool
@@ -64,8 +64,8 @@ end
 Private state used to control the generation process.
 """
 immutable Internal
-    assets  :: UTF8String
-    pages   :: Dict{UTF8String, Page}
+    assets  :: Compat.String
+    pages   :: Dict{Compat.String, Page}
     headers :: Anchors.AnchorMap
     docs    :: Anchors.AnchorMap
     objects :: ObjectIdDict
@@ -105,7 +105,7 @@ function Document(;
     )
     internal = Internal(
         Utilities.assetsdir(),
-        Dict{UTF8String, Page}(),
+        Dict{Compat.String, Page}(),
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),
         ObjectIdDict(),

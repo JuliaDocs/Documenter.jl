@@ -120,9 +120,9 @@ doctest(block, meta::Dict) = true
 # Doctest evaluation.
 
 type Result
-    code   :: UTF8String # The entire code block that is being tested.
-    input  :: UTF8String # Part of `code` representing the current input.
-    output :: UTF8String # Part of `code` representing the current expected output.
+    code   :: Compat.String # The entire code block that is being tested.
+    input  :: Compat.String # Part of `code` representing the current input.
+    output :: Compat.String # Part of `code` representing the current expected output.
     value  :: Any        # The value returned when evaluating `input`.
     hide   :: Bool       # Semi-colon suppressing the output?
     stdout :: IOBuffer   # Redirected STDOUT/STDERR gets sent here.
@@ -266,8 +266,8 @@ const SOURCE_REGEX = r"^       (.*)$"
 
 function repl_splitter(code)
     lines  = split(code, '\n')
-    input  = UTF8String[]
-    output = UTF8String[]
+    input  = Compat.String[]
+    output = Compat.String[]
     buffer = IOBuffer()
     while !isempty(lines)
         line = shift!(lines)

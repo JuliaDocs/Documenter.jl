@@ -319,7 +319,7 @@ if VERSION >= v"0.5.0-dev+3442"
         if inbase(mod)
             base = "https://github.com/JuliaLang/julia/tree"
             dest = "base/$file#L$line"
-            Nullable{UTF8String}(
+            Nullable{Compat.String}(
                 if isempty(Base.GIT_VERSION_INFO.commit)
                     "$base/v$VERSION/$dest"
                 else
@@ -332,16 +332,16 @@ if VERSION >= v"0.5.0-dev+3442"
                 LibGit2.with(LibGit2.GitConfig(repo)) do cfg
                     remote = getremote(cfg)
                     if isnull(remote)
-                        Nullable{UTF8String}()
+                        Nullable{Compat.String}()
                     else
                         commit = string(LibGit2.head_oid(repo))
                         root   = LibGit2.path(repo)
                         if startswith(file, root)
                             base = "https://github.com/$(get(remote))/tree"
                             path = last(split(file, root; limit = 2))
-                            Nullable{UTF8String}("$base/$commit/$path#L$line")
+                            Nullable{Compat.String}("$base/$commit/$path#L$line")
                         else
-                            Nullable{UTF8String}()
+                            Nullable{Compat.String}()
                         end
                     end
                 end
@@ -349,7 +349,7 @@ if VERSION >= v"0.5.0-dev+3442"
         end
     end
 else
-    url(mod, file, line) = Nullable{UTF8String}()
+    url(mod, file, line) = Nullable{Compat.String}()
 end
 
 function getremote(cfg)
@@ -361,10 +361,10 @@ function getremote(cfg)
         # On Travis remote `origin` is set to the local directory, not an URL.
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ?
-            Nullable{UTF8String}() :
-            Nullable{UTF8String}(travis)
+            Nullable{Compat.String}() :
+            Nullable{Compat.String}(travis)
     else
-        Nullable{UTF8String}(getmatch(remote, 1))
+        Nullable{Compat.String}(getmatch(remote, 1))
     end
 end
 

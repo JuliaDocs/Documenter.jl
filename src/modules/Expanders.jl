@@ -150,7 +150,7 @@ function expand(::Builder.AutoDocsBlocks, x::Base.Markdown.Code, page, doc)
             bindings = collect(keys(Documenter.DocChecks.allbindings(mod)))
             sorted   = Dict{Symbol, Vector{Utilities.Binding}}()
             for b in bindings
-                category = symbol(lowercase(Utilities.doccat(b, Union{})))
+                category = Symbol(lowercase(Utilities.doccat(b, Union{})))
                 push!(get!(sorted, category, Utilities.Binding[]), b)
             end
             for category in order
@@ -219,7 +219,7 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     isnull(matched) && return false
     # The sandboxed module -- either a new one or a cached one from this page.
     name = Utilities.getmatch(matched, 1)
-    sym  = isempty(name) ? gensym("ex-") : symbol("ex-", name)
+    sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
     result, buffer = nothing, IOBuffer()
@@ -265,7 +265,7 @@ function expand(::Builder.REPLBlocks, x::Base.Markdown.Code, page, doc)
     matched = Utilities.nullmatch(r"^{repl[ ]?(.*)}\r{0,1}\n", x.code)
     isnull(matched) && return false
     name = Utilities.getmatch(matched, 1)
-    sym  = isempty(name) ? gensym("repl-") : symbol("repl-", name)
+    sym  = isempty(name) ? gensym("repl-") : Symbol("repl-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     code = split(x.code, '\n'; limit = 2)[end]
     result, out = nothing, IOBuffer()
