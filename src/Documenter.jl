@@ -66,7 +66,7 @@ The folder structure that [`makedocs`]({ref}) expects looks like:
         src/
         make.jl
 
-**Keywords**
+# Keywords
 
 **`root`** is the directory from which `makedocs` should run. When run from a `make.jl` file
 this keyword does not need to be set. It is, for the most part, needed when repeatedly
@@ -108,7 +108,7 @@ $(strip(readstring(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))))
 and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
 
-**See Also**
+# See Also
 
 A guide detailing how to document a package using Documenter's [`makedocs`]({ref}) is provided
 in the [Usage]({ref}) section of the manual.
@@ -149,7 +149,7 @@ deploydocs(
 )
 ```
 
-**Keywords**
+# Keywords
 
 **`root`** has the same purpose as the `root` keyword for [`makedocs`]({ref}).
 
@@ -186,7 +186,7 @@ documentation. By default this function installs `pygments` and `mkdocs` using t
 **`make`** is the function used to convert the markdown files to HTML. By default this just
 runs `mkdocs build` which populates the `target` directory.
 
-**See Also**
+# See Also
 
 The [Hosting Documentation]({ref}) section of the manual provides a step-by-step guide to
 using the [`deploydocs`]({ref}) function to automatically generate docs and push then to

@@ -65,7 +65,7 @@ function render(io::IO, mime::MIME"text/plain", node::Expanders.DocsNode, page, 
 
         """
     )
-    render(io, mime, source_urls(node.docstr), page, doc)
+    render(io, mime, dropheaders(source_urls(node.docstr)), page, doc)
 end
 
 function source_urls(docstr::Base.Markdown.MD)
@@ -154,7 +154,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", other, page, doc)
     println(io)
-    Markdown.plain(io, dropheaders(other))
+    Markdown.plain(io, other)
     println(io)
 end
 
@@ -182,6 +182,7 @@ function dropheaders(md::Markdown.MD)
     out
 end
 dropheaders(h::Markdown.Header) = Markdown.Paragraph(Markdown.Bold(h.text))
+dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
 end
