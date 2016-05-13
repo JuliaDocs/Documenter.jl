@@ -225,66 +225,6 @@
     </a>
     
       
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Overview" href="#overview">
-                Overview
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="GitHub Security Key" href="#github-security-key">
-                GitHub Security Key
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Travis Environment Settings" href="#travis-environment-settings">
-                Travis Environment Settings
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title=".travis.yml Configuration" href="#travisyml-configuration">
-                .travis.yml Configuration
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="The deploydocs Function" href="#the-deploydocs-function">
-                The deploydocs Function
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="The MkDocs mkdocs.yml File" href="#the-mkdocs-mkdocsyml-file">
-                The MkDocs mkdocs.yml File
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title=".gitignore" href="#gitignore">
-                .gitignore
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="gh-pages Branch" href="#gh-pages-branch">
-                gh-pages Branch
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Documentation Versions" href="#documentation-versions">
-                Documentation Versions
-              </a>
-            </li>
-          
-        </ul>
       
     
   </li>
@@ -340,8 +280,10 @@
       <article class="article">
         <div class="wrapper">
           
+            <h1>Hosting Documentation</h1>
+          
           <p><a id='Hosting-Documentation-1'></a></p>
-<h1 id="hosting-documentation">Hosting Documentation</h1>
+<p><strong>Hosting Documentation</strong></p>
 <p>After going through the <a href="../guide/#Package-Guide-1">Package Guide</a> and <a href="../doctests/#Doctests-1">Doctests</a> page you will need to host the generated documentation somewhere for potential users to read. This guide will describe how to setup automatic updates for your package docs using the Travis build service and GitHub Pages. This is the same approach used by this package to host it's own docs – the docs you're currently reading.</p>
 <hr />
 <p><strong>Notes</strong></p>
@@ -349,7 +291,7 @@
 <p>This guide assumes that you already have GitHub and Travis accounts setup. If not then go set those up first and then return here.</p>
 <hr />
 <p><a id='Overview-1'></a></p>
-<h2 id="overview">Overview</h2>
+<p><strong>Overview</strong></p>
 <p>Once setup correctly the following will happen each time you push new updates to your package repository:</p>
 <ul>
 <li>travis buildbots startup and run your tests;</li>
@@ -358,14 +300,14 @@
 </ul>
 <p>The following sections outline how to enable this for your own package.</p>
 <p><a id='GitHub-Security-Key-1'></a></p>
-<h2 id="github-security-key">GitHub Security Key</h2>
+<p><strong>GitHub Security Key</strong></p>
 <p>Firstly, generate a new <a href="https://github.com/settings/tokens">personal access token</a>.</p>
 <p>Enter a description for this new token. We'll be calling ours "Travis", but any other name will do. For the "Select scopes" option choose "public_repo" <strong>only</strong>. Then generate the token and save it somewhere safe. We'll be needing it during the next section.</p>
 <p><a id='Travis-Environment-Settings-1'></a></p>
-<h2 id="travis-environment-settings">Travis Environment Settings</h2>
+<p><strong>Travis Environment Settings</strong></p>
 <p>Next we'll add the generated token to our repository's Travis page. Go to the settings page for the repository and under the "Environment Variables" section add a new variable called <code>GITHUB_API_KEY</code>. Copy the generated key from the <a href="./#GitHub-Security-Key-1">GitHub Security Key</a> section as the value and <strong>make sure</strong> that "Display value in build log" is <strong>off</strong>. Be careful to remove any leading white-space from the key. Then add the key.</p>
 <p><a id='.travis.yml-Configuration-1'></a></p>
-<h2 id="travisyml-configuration"><code>.travis.yml</code> Configuration</h2>
+<p><strong><code>.travis.yml</code> Configuration</strong></p>
 <p>In the <code>after_success</code> section of the <code>.travis.yml</code> file, where code coverage is processed, run your <code>docs/make.jl</code> file:</p>
 <div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">julia -e &#39;Pkg.clone(&quot;https://github.com/MichaelHatherly/Documenter.jl&quot;)&#39;</span>
@@ -375,7 +317,7 @@
 
 <p>Note that once the package is registered in <code>METADATA.jl</code> the <code>Pkg.clone</code> call can be replaced with <code>Pkg.add("Documenter")</code>.</p>
 <p><a id='The-deploydocs-Function-1'></a></p>
-<h2 id="the-deploydocs-function">The <code>deploydocs</code> Function</h2>
+<p><strong>The <code>deploydocs</code> Function</strong></p>
 <p>At the moment your <code>docs/make.jl</code> file probably only contains</p>
 <div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span><span class="p">,</span> <span class="n">PACKAGE_NAME</span>
 
@@ -405,7 +347,7 @@
 <p>The keyword <code>deps</code> serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies <a href="http://www.mkdocs.org">mkdocs</a> and <a href="https://github.com/mitya57/python-markdown-math"><code>python-markdown-math</code></a>. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the <code>mdx_math</code> markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.</p>
 <p>See the <a href="../../lib/public/#Documenter.deploydocs"><code>deploydocs</code></a> function documentation for more details.</p>
 <p><a id='The-MkDocs-mkdocs.yml-File-1'></a></p>
-<h2 id="the-mkdocs-mkdocsyml-file">The MkDocs <code>mkdocs.yml</code> File</h2>
+<p><strong>The MkDocs <code>mkdocs.yml</code> File</strong></p>
 <p>We'll be using <a href="http://www.mkdocs.org">MkDocs</a> to convert the markdown files generated by Documenter to HTML. (This, of course, is not the only option you have for this step. Any markdown to HTML converter should work fine with some amount of setting up.)</p>
 <p>Add an <code>mkdocs.yml</code> file to your <code>docs/</code> directory with the following content:</p>
 <div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">site_name</span><span class="p p-Indicator">:</span>        <span class="l l-Scalar l-Scalar-Plain">PACKAGE_NAME.jl</span>
@@ -437,7 +379,7 @@
 
 <p>This is only a basic skeleton. Read through the MkDocs documentation if you would like to know more about the available settings.</p>
 <p><a id='.gitignore-1'></a></p>
-<h2 id="gitignore"><code>.gitignore</code></h2>
+<p><strong><code>.gitignore</code></strong></p>
 <p>Add the following to your package's <code>.gitignore</code> file</p>
 <div class="codehilite"><pre><span></span>docs/build/
 docs/site/
@@ -446,10 +388,10 @@ docs/site/
 
 <p>These are needed to avoid committing generated content to your repository.</p>
 <p><a id='gh-pages-Branch-1'></a></p>
-<h2 id="gh-pages-branch"><code>gh-pages</code> Branch</h2>
+<p><strong><code>gh-pages</code> Branch</strong></p>
 <p>Create a new branch called <code>gh-pages</code> and push it to GitHub. If this branch already exists then you can skip this step, but do note that the generated content is automatically pushed to this branch from Travis.</p>
 <p><a id='Documentation-Versions-1'></a></p>
-<h2 id="documentation-versions">Documentation Versions</h2>
+<p><strong>Documentation Versions</strong></p>
 <p>When documentation is generated it is stored in one of the following folders:</p>
 <ul>
 <li>
