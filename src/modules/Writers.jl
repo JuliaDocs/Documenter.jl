@@ -154,7 +154,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", other, page, doc)
     println(io)
-    Markdown.plain(io, other)
+    Markdown.plain(io, dropheaders(other))
     println(io)
 end
 
@@ -171,5 +171,17 @@ render(io::IO, ::MIME"text/plain", node::Expanders.MetaNode, page, doc) = printl
 # ------------
 
 # TODO
+
+# Utilities.
+# ----------
+
+function dropheaders(md::Markdown.MD)
+    out = Markdown.MD()
+    out.meta = md.meta
+    out.content = map(dropheaders, md.content)
+    out
+end
+dropheaders(h::Markdown.Header) = Markdown.Paragraph(Markdown.Bold(h.text))
+dropheaders(other) = other
 
 end
