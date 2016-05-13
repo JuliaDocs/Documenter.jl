@@ -252,6 +252,30 @@
     </a>
     
       
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Contents" href="#contents">
+                Contents
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Index" href="#index">
+                Index
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Documenter" href="#documenter">
+                Documenter
+              </a>
+            </li>
+          
+        </ul>
       
     
   </li>
@@ -280,14 +304,12 @@
       <article class="article">
         <div class="wrapper">
           
-            <h1>Public</h1>
-          
           <p><a id='Public-Documentation-1'></a></p>
-<p><strong>Public Documentation</strong></p>
+<h1 id="public-documentation">Public Documentation</h1>
 <p>Documentation for <code>Documenter.jl</code>'s public interface.</p>
 <p>See <a href="../internals/#Internal-Documentation-1">Internal Documentation</a> for internal package docs covering all submodules.</p>
 <p><a id='Contents-1'></a></p>
-<p><strong>Contents</strong></p>
+<h2 id="contents">Contents</h2>
 <ul>
 <li><a href="./#Public-Documentation-1">Public Documentation</a><ul>
 <li><a href="./#Contents-1">Contents</a></li>
@@ -297,7 +319,7 @@
 </li>
 </ul>
 <p><a id='Index-1'></a></p>
-<p><strong>Index</strong></p>
+<h2 id="index">Index</h2>
 <ul>
 <li><a href="./#Documenter"><code>Documenter</code></a></li>
 <li><a href="./#Documenter.Deps"><code>Documenter.Deps</code></a></li>
@@ -306,7 +328,7 @@
 <li><a href="./#Documenter.makedocs"><code>Documenter.makedocs</code></a></li>
 </ul>
 <p><a id='Documenter-1'></a></p>
-<p><strong>Documenter</strong></p>
+<h2 id="documenter">Documenter</h2>
 <p><a id='Documenter' href='#Documenter'>#</a>
 <strong><code>Documenter</code></strong> &mdash; <em>Module</em>.</p>
 <p>Main module for <code>Documenter.jl</code> – a documentation generation package for Julia.</p>
@@ -315,7 +337,7 @@
 <li><a href="./#Documenter.makedocs"><code>makedocs</code></a>. Generates documentation from docstrings and templated markdown files.</li>
 <li><a href="./#Documenter.deploydocs"><code>deploydocs</code></a>. Deploys generated documentation from <em>Travis-CI</em> to <em>GitHub Pages</em>.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/a4ebb461f3b73bf6d86d0d9d7fbed73226ac06eb/src/Documenter.jl#L3-11' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/1ebcbdaf1df2747b94b26734be3639426f4920f9/src/Documenter.jl#L3-11' class='documenter-source'>source</a><br>
 <a id='Documenter.makedocs' href='#Documenter.makedocs'>#</a>
 <strong><code>Documenter.makedocs</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>makedocs(
@@ -378,7 +400,7 @@
 <p>and so any docstring from the module <code>Documenter</code> that is not spliced into the generated documentation in <code>build</code> will raise a warning.</p>
 <p><strong>See Also</strong></p>
 <p>A guide detailing how to document a package using Documenter's <a href="./#Documenter.makedocs"><code>makedocs</code></a> is provided in the <a href="../../man/guide/#Usage-1">Usage</a> section of the manual.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/a4ebb461f3b73bf6d86d0d9d7fbed73226ac06eb/src/Documenter.jl#L38-115' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/1ebcbdaf1df2747b94b26734be3639426f4920f9/src/Documenter.jl#L38-115' class='documenter-source'>source</a><br>
 <a id='Documenter.deploydocs' href='#Documenter.deploydocs'>#</a>
 <strong><code>Documenter.deploydocs</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>deploydocs(
@@ -426,12 +448,12 @@
 <p><strong><code>make</code></strong> is the function used to convert the markdown files to HTML. By default this just runs <code>mkdocs build</code> which populates the <code>target</code> directory.</p>
 <p><strong>See Also</strong></p>
 <p>The <a href="../../man/hosting/#Hosting-Documentation-1">Hosting Documentation</a> section of the manual provides a step-by-step guide to using the <a href="./#Documenter.deploydocs"><code>deploydocs</code></a> function to automatically generate docs and push then to GitHub.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/a4ebb461f3b73bf6d86d0d9d7fbed73226ac06eb/src/Documenter.jl#L125-194' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/1ebcbdaf1df2747b94b26734be3639426f4920f9/src/Documenter.jl#L125-194' class='documenter-source'>source</a><br>
 <a id='Documenter.Deps' href='#Documenter.Deps'>#</a>
 <strong><code>Documenter.Deps</code></strong> &mdash; <em>Module</em>.</p>
 <p>Exported module that provides build and deploy dependancies and related functions.</p>
 <p>Currently only <a href="./#Documenter.Deps.pip"><code>pip</code></a> is implemented.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/a4ebb461f3b73bf6d86d0d9d7fbed73226ac06eb/src/modules/Deps.jl#L1-5' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/1ebcbdaf1df2747b94b26734be3639426f4920f9/src/modules/Deps.jl#L1-5' class='documenter-source'>source</a><br>
 <a id='Documenter.Deps.pip' href='#Documenter.Deps.pip'>#</a>
 <strong><code>Documenter.Deps.pip</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>pip(deps...)
@@ -453,7 +475,7 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/a4ebb461f3b73bf6d86d0d9d7fbed73226ac06eb/src/modules/Deps.jl#L10-29' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/1ebcbdaf1df2747b94b26734be3639426f4920f9/src/modules/Deps.jl#L10-29' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with

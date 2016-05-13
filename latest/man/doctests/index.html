@@ -216,6 +216,36 @@
     </a>
     
       
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title=""Script" Examples" href="#script-examples">
+                "Script" Examples
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="REPL Examples" href="#repl-examples">
+                REPL Examples
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Skipping Doctests" href="#skipping-doctests">
+                Skipping Doctests
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Setup Code" href="#setup-code">
+                Setup Code
+              </a>
+            </li>
+          
+        </ul>
       
     
   </li>
@@ -280,14 +310,12 @@
       <article class="article">
         <div class="wrapper">
           
-            <h1>Doctests</h1>
-          
           <p><a id='Doctests-1'></a></p>
-<p><strong>Doctests</strong></p>
+<h1 id="doctests">Doctests</h1>
 <p>Documenter will, by default, try to run Julia code blocks that it finds in the generated documentation. This can help to avoid documentation examples from becoming outdated, incorrect, or misleading. It's recommended that as many of a package's examples be runnable by Documenter's doctest.</p>
 <p>This section of the manual outlines how to go about enabling doctests for code blocks in your package's documentation.</p>
 <p><a id='"Script"-Examples-1'></a></p>
-<p><strong>"Script" Examples</strong></p>
+<h2 id="script-examples">"Script" Examples</h2>
 <p>The first, of two, types of doctests is the "script" code block. To make Documenter detect this kind of code block the following format must be used:</p>
 <div class="codehilite"><pre><span></span>```julia
 a = 1
@@ -305,7 +333,7 @@ a + b
 <p>The actual output produced by running the "script" is compared to the expected result and any difference will result in <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> throwing an error and terminating.</p>
 <p>Note that the amount of whitespace appearing above and below the <code># output</code> line is not significant and can be increased or decreased if desired.</p>
 <p><a id='REPL-Examples-1'></a></p>
-<p><strong>REPL Examples</strong></p>
+<h2 id="repl-examples">REPL Examples</h2>
 <p>The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:</p>
 <div class="codehilite"><pre><span></span>```julia
 julia&gt; a = 1
@@ -325,10 +353,10 @@ julia&gt; a + b + c
 <p>As with script doctests, the code block must have it's language set to <code>julia</code>. When a code block contains one or more <code>julia&gt;</code> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, <code>;</code>, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.</p>
 <p>Note that not all features of the REPL are supported such as shell and help modes.</p>
 <p><a id='Skipping-Doctests-1'></a></p>
-<p><strong>Skipping Doctests</strong></p>
+<h2 id="skipping-doctests">Skipping Doctests</h2>
 <p>Doctesting can be disabled by setting the <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> keyword <code>doctest = false</code>. This should only be done when initially laying out the structure of a package's documentation, after which it's encouraged to always run doctests when building docs.</p>
 <p><a id='Setup-Code-1'></a></p>
-<p><strong>Setup Code</strong></p>
+<h2 id="setup-code">Setup Code</h2>
 <p>Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. It could also be that several separate doctests require the same definitions. For both of these cases a <code>{meta}</code> block containing a <code>DocTestSetup = ...</code> value can be used as follows:</p>
 <div class="codehilite"><pre><span></span><span class="err">```</span><span class="nt">julia</span>
 <span class="nt">julia</span><span class="o">&gt;</span> <span class="nt">using</span> <span class="nt">DataFrames</span>

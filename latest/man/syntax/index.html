@@ -207,6 +207,66 @@
     </a>
     
       
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="{docs}" href="#docs">
+                {docs}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{autodocs}" href="#autodocs">
+                {autodocs}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{ref}" href="#ref">
+                {ref}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{meta}" href="#meta">
+                {meta}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{index}" href="#index">
+                {index}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{contents}" href="#contents">
+                {contents}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{example}" href="#example">
+                {example}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{repl}" href="#repl">
+                {repl}
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="{eval}" href="#eval">
+                {eval}
+              </a>
+            </li>
+          
+        </ul>
       
     
   </li>
@@ -280,10 +340,8 @@
       <article class="article">
         <div class="wrapper">
           
-            <h1>Syntax</h1>
-          
           <p><a id='Syntax-1'></a></p>
-<p><strong>Syntax</strong></p>
+<h1 id="syntax">Syntax</h1>
 <p>This section of the manual describes the syntax used by Documenter to build documentation.</p>
 <ul>
 <li><a href="./#Syntax-1">Syntax</a><ul>
@@ -300,7 +358,7 @@
 </li>
 </ul>
 <p><a id='{docs}-1'></a></p>
-<p><strong><code>{docs}</code></strong></p>
+<h2 id="docs"><code>{docs}</code></h2>
 <p>Splice one or more docstrings into a document in place of the code block, i.e.</p>
 <div class="codehilite"><pre><span></span>    {docs}
     Documenter
@@ -320,7 +378,7 @@
 
 <p>which will cause any unlisted docstrings to raise warnings when <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> is called. If <code>modules</code> is not defined then no warnings are printed, even if a document has missing docstrings.</p>
 <p><a id='{autodocs}-1'></a></p>
-<p><strong><code>{autodocs}</code></strong></p>
+<h2 id="autodocs"><code>{autodocs}</code></h2>
 <p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>{docs}</code> block.</p>
 <div class="codehilite"><pre><span></span><span class="err">```</span>
 <span class="p">{</span><span class="n">autodocs</span><span class="p">}</span>
@@ -344,7 +402,7 @@
 <p><strong>Note</strong></p>
 <p>When more complex sorting and filtering is needed then use <code>{docs}</code> to define it explicitly.</p>
 <p><a id='{ref}-1'></a></p>
-<p><strong><code>{ref}</code></strong></p>
+<h2 id="ref"><code>{ref}</code></h2>
 <p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be either a docstring or header name.</p>
 <div class="codehilite"><pre><span></span># Syntax
 
@@ -377,7 +435,7 @@
 <p>The link that wraps the named header is removed in the final document. The text for a named <code>{ref#...}</code> does not need to match the header that it references. Named <code>{ref#...}</code>s may refer to headers on different pages in the same way as unnamed ones do.</p>
 <p>Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed.</p>
 <p><a id='{meta}-1'></a></p>
-<p><strong><code>{meta}</code></strong></p>
+<h2 id="meta"><code>{meta}</code></h2>
 <p>This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently <code>CurrentModule</code> and <code>DocTestSetup</code> are the only recognised keys.</p>
 <div class="codehilite"><pre><span></span>    {meta}
     CurrentModule = FooBar
@@ -390,7 +448,7 @@
 <p>Note that <code>{meta}</code> blocks are always evaluated with the <code>current_module()</code>, which is typically <code>Main</code>.</p>
 <p>See <a href="../doctests/#Setup-Code-1">Setup Code</a> section of the Doctests page for an explanation of <code>DocTestSetup</code>.</p>
 <p><a id='{index}-1'></a></p>
-<p><strong><code>{index}</code></strong></p>
+<h2 id="index"><code>{index}</code></h2>
 <p>Generates a list of links to docstrings that have been spliced into a document. The only valid setting is currently <code>Pages = ...</code>.</p>
 <div class="codehilite"><pre><span></span>    {index}
     Pages = [&quot;foo.md&quot;]
@@ -406,7 +464,7 @@
 
 <p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals for <code>Pages</code> as much as possible.</p>
 <p><a id='{contents}-1'></a></p>
-<p><strong><code>{contents}</code></strong></p>
+<h2 id="contents"><code>{contents}</code></h2>
 <p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p>
 <div class="codehilite"><pre><span></span>    {contents}
     Pages = [&quot;foo.md&quot;]
@@ -416,7 +474,7 @@
 
 <p>As with <code>{index}</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p>
 <p><a id='{example}-1'></a></p>
-<p><strong><code>{example}</code></strong></p>
+<h2 id="example"><code>{example}</code></h2>
 <p>Evaluates the code block and inserts the result into the final document along with the original source code.</p>
 <div class="codehilite"><pre><span></span>    {example}
     a = 1
@@ -518,7 +576,7 @@ draw(SVG(&quot;plot.svg&quot;, 6inch, 4inch), ans); nothing # hide
 
 
 <p><a id='{repl}-1'></a></p>
-<p><strong><code>{repl}</code></strong></p>
+<h2 id="repl"><code>{repl}</code></h2>
 <p>These are similar to <code>{example}</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>{repl}</code> blocks in the same way as in the Julia REPL and <code>{example}</code> blocks.</p>
 <div class="codehilite"><pre><span></span>```julia
 {repl}
@@ -545,7 +603,7 @@ julia&gt; a + b
 
 <p>Named <code>{repl &lt;name&gt;}</code> blocks behave in the same way as named <code>{example &lt;name&gt;}</code> blocks.</p>
 <p><a id='{eval}-1'></a></p>
-<p><strong><code>{eval}</code></strong></p>
+<h2 id="eval"><code>{eval}</code></h2>
 <p>Evaluates the contents of the block and inserts the resulting value into the final document.</p>
 <p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p>
 <div class="codehilite"><pre><span></span>    {eval}
