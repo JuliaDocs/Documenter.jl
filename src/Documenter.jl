@@ -241,7 +241,7 @@ function deploydocs(;
 
     if should_deploy
         # Add local bin path if needed.
-        updatepath!(localbin)
+        Deps.updatepath!()
         # Install dependancies.
         Utilities.log("installing dependancies.")
         deps()
@@ -312,9 +312,5 @@ function debugdeploy(
         Utilities.debug("TRAVIS_TAG           = \"$travis_tag\"")
     end
 end
-
-const localbin = joinpath(homedir(), ".local", "bin")
-
-updatepath!(p) = contains(ENV["PATH"], p) ? ENV["PATH"] : (ENV["PATH"] = "$p:$(ENV["PATH"])")
 
 end
