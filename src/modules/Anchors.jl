@@ -1,5 +1,5 @@
 """
-Defines the [`Anchor`]({ref}) and [`AnchorMap`]({ref}) types.
+Defines the [`Anchor`](@ref) and [`AnchorMap`](@ref) types.
 
 `Anchor`s and `AnchorMap`s are used to represent links between objects within a document.
 """
@@ -49,10 +49,10 @@ end
 # -----------
 
 """
-Adds a new [`Anchor`]({ref}) to the [`AnchorMap`]({ref}) for a given `id` and `file`.
+Adds a new [`Anchor`](@ref) to the [`AnchorMap`](@ref) for a given `id` and `file`.
 
-Either an actual [`Anchor`]({ref}) object may be provided or any other object which is
-automatically wrapped in an [`Anchor`]({ref}) before being added to the [`AnchorMap`]({ref}).
+Either an actual [`Anchor`](@ref) object may be provided or any other object which is
+automatically wrapped in an [`Anchor`](@ref) before being added to the [`AnchorMap`](@ref).
 """
 function add!(m::AnchorMap, anchor::Anchor, id, file)
     filemap = get!(m.map, id, Dict{Compat.String, Vector{Anchor}}())
@@ -74,7 +74,7 @@ add!(m::AnchorMap, object, id, file) = add!(m, Anchor(object), id, file)
     exists(m, id, file)
     exists(m, id, file, n)
 
-Does the given `id` exist within the [`AnchorMap`]({ref})? A `file` and integer `n` may also
+Does the given `id` exist within the [`AnchorMap`](@ref)? A `file` and integer `n` may also
 be provided to narrow the search for existance.
 """
 exists(m::AnchorMap, id, file, n) = exists(m, id, file) && 1 ≤ n ≤ length(m.map[id][file])
@@ -88,7 +88,7 @@ exists(m::AnchorMap, id)          = haskey(m.map, id)
     isunique(m, id)
     isunique(m, id, file)
 
-Is the `id` unique within the given [`AnchorMap`]({ref})? May also specify the `file`.
+Is the `id` unique within the given [`AnchorMap`](@ref)? May also specify the `file`.
 """
 function isunique(m::AnchorMap, id)
     exists(m, id) &&
@@ -108,7 +108,7 @@ end
     anchor(m, id, file)
     anchor(m, id, file, n)
 
-Returns the [`Anchor`]({ref}) object matching `id`. `file` and `n` may also be provided. A
+Returns the [`Anchor`](@ref) object matching `id`. `file` and `n` may also be provided. A
 `Nullable{Anchor}` is returned which must be unwrapped with `isnull` and `get` before use.
 """
 function anchor(m::AnchorMap, id)

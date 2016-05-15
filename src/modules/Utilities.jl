@@ -11,7 +11,7 @@ const __log__ = Ref(true)
 """
     logging(flag::Bool)
 
-Enable or disable logging output for [`log`]({ref}) and [`warn`]({ref}).
+Enable or disable logging output for [`log`](@ref) and [`warn`](@ref).
 """
 logging(flag::Bool) = __log__[] = flag
 
@@ -184,7 +184,7 @@ Base.Docs.signature(::Symbol) = :(Union{})
 """
     object(ex, str)
 
-Returns a expression that, when evaluated, returns an [`Object`]({ref}) representing `ex`.
+Returns a expression that, when evaluated, returns an [`Object`](@ref) representing `ex`.
 """
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
     binding   = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
@@ -233,7 +233,7 @@ end
 docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
 
 """
-Returns the category name of the provided [`Object`]({ref}).
+Returns the category name of the provided [`Object`](@ref).
 """
 doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
     "Macro" : doccat(obj.binding, obj.signature)

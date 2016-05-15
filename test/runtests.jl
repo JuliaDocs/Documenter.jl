@@ -6,14 +6,14 @@ module Mod
 """
     func(x)
 
-[`T`]({ref})
+[`T`](@ref)
 """
 func(x) = x
 
 """
     T
 
-[`func(x)`]({ref})
+[`func(x)`](@ref)
 """
 type T end
 

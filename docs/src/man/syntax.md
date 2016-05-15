@@ -2,8 +2,9 @@
 
 This section of the manual describes the syntax used by Documenter to build documentation.
 
-    {contents}
-    Pages = ["syntax.md"]
+```@contents
+Pages = ["syntax.md"]
+```
 
 ## `{docs}`
 
@@ -25,7 +26,7 @@ Objects may not be listed more than once within the document. When duplicate obj
 detected an error will be raised and the build process will be terminated.
 
 To ensure that all docstrings from a module are included in the final document the `modules`
-keyword for [`makedocs`]({ref}) can be set to the desired module or modules, i.e.
+keyword for [`makedocs`](@ref) can be set to the desired module or modules, i.e.
 
 ```julia
 makedocs(
@@ -33,7 +34,7 @@ makedocs(
 )
 ```
 
-which will cause any unlisted docstrings to raise warnings when [`makedocs`]({ref}) is
+which will cause any unlisted docstrings to raise warnings when [`makedocs`](@ref) is
 called. If `modules` is not defined then no warnings are printed, even if a document has
 missing docstrings.
 
@@ -139,7 +140,7 @@ page. Currently `CurrentModule` and `DocTestSetup` are the only recognised keys.
 Note that `{meta}` blocks are always evaluated with the `current_module()`, which is
 typically `Main`.
 
-See [Setup Code]({ref}) section of the Doctests page for an explanation of `DocTestSetup`.
+See [Setup Code](@ref) section of the Doctests page for an explanation of `DocTestSetup`.
 
 ## `{index}`
 

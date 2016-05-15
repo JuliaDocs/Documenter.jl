@@ -1,7 +1,7 @@
 """
 Exported module that provides build and deploy dependancies and related functions.
 
-Currently only [`pip`]({ref}) is implemented.
+Currently only [`pip`](@ref) is implemented.
 """
 module Deps
 

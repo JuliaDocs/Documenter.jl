@@ -60,7 +60,7 @@ using Documenter, Example
 makedocs()
 ```
 
-This assumes you've installed Documenter as discussed in [Installation]({ref}) and that your
+This assumes you've installed Documenter as discussed in [Installation](@ref) and that your
 Examples package can be found by Julia.
 
 Now add an `index.md` file to the `src/` directory. The name has no particular significance
@@ -193,7 +193,7 @@ ways to solve this problem. Either include the type in the signature with
 
 ```
 
-or declare the specific modules that [`makedocs`]({ref}) should include with
+or declare the specific modules that [`makedocs`](@ref) should include with
 
 ```julia
 makedocs(
@@ -215,8 +215,8 @@ syntax which looks pretty similar to normal markdown link syntax. Replace the co
     {docs}
     func(x)
 
-- link to [Example.jl Documentation]({ref})
-- link to [`func(x)`]({ref})
+- link to [Example.jl Documentation](@ref)
+- link to [`func(x)`](@ref)
 ```
 
 So we just have to replace each link's url with `{ref}` and write the name of the thing we'd

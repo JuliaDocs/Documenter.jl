@@ -3,14 +3,14 @@ Defines the Documenter build "pipeline".
 
 The default pipeline consists of the following:
 
-- [`SetupBuildDirectory`]({ref})
-- [`CopyAssetsDirectory`]({ref})
-- [`ExpandTemplates`]({ref})
-- [`CrossReferences`]({ref})
-- [`CheckDocument`]({ref})
-- [`RenderDocument`]({ref})
+- [`SetupBuildDirectory`](@ref)
+- [`CopyAssetsDirectory`](@ref)
+- [`ExpandTemplates`](@ref)
+- [`CrossReferences`](@ref)
+- [`CheckDocument`](@ref)
+- [`RenderDocument`](@ref)
 
-Each stage of the pipeline performs an action on a [`Documents.Document`]({ref}). These
+Each stage of the pipeline performs an action on a [`Documents.Document`](@ref). These
 actions may involve creating directory structures, expanding templates, running doctests, etc.
 """
 module Builder
@@ -41,12 +41,12 @@ immutable CopyAssetsDirectory end
 Executes a sequence of actions on each node of the parsed markdown files in turn. These
 actions may be any of:
 
-- [`TrackHeaders`]({ref})
-- [`MetaBlocks`]({ref})
-- [`DocsBlocks`]({ref})
-- [`EvalBlocks`]({ref})
-- [`IndexBlocks`]({ref})
-- [`ContentsBlocks`]({ref})
+- [`TrackHeaders`](@ref)
+- [`MetaBlocks`](@ref)
+- [`DocsBlocks`](@ref)
+- [`EvalBlocks`](@ref)
+- [`IndexBlocks`](@ref)
+- [`ContentsBlocks`](@ref)
 
 See the docs for each of the listed "expanders" for their description.
 """
@@ -59,7 +59,7 @@ abstract Expander
 
 """
 Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
-[`Anchors.Anchor`]({ref}) object for each one.
+[`Anchors.Anchor`](@ref) object for each one.
 """
 immutable TrackHeaders <: Expander end
 """
@@ -134,7 +134,7 @@ immutable ExampleBlocks <: Expander end
 immutable REPLBlocks <: Expander end
 
 """
-Finds and sets URLs for each `{ref}` link in the document to the correct destinations.
+Finds and sets URLs for each `@ref` link in the document to the correct destinations.
 """
 immutable CrossReferences end
 """

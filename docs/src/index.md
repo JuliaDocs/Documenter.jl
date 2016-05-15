@@ -14,31 +14,34 @@ A package for building documentation from docstrings and markdown files.
 - Generates tables of contents and docstring indexes.
 - Use `git push` to automatically build and deploy docs from Travis to GitHub Pages.
 
-The [Package Guide]({ref}) provides a tutorial explaining how to get started using Documenter.
+The [Package Guide](@ref) provides a tutorial explaining how to get started using Documenter.
 
-Some examples of packages using Documenter can be found on the [Examples]({ref}) page.
+Some examples of packages using Documenter can be found on the [Examples](@ref) page.
 
-See the [Index]({ref#main-index}) for the complete list of documented functions and types.
+See the [Index](@ref main-index) for the complete list of documented functions and types.
 
 ## Manual Outline
 
-    {contents}
-    Pages = [
-        "man/guide.md",
-        "man/examples.md",
-        "man/syntax.md",
-        "man/doctests.md",
-        "man/hosting.md",
-    ]
-    Depth = 2
+```@contents
+Pages = [
+    "man/guide.md",
+    "man/examples.md",
+    "man/syntax.md",
+    "man/doctests.md",
+    "man/hosting.md",
+]
+Depth = 2
+```
 
 ## Library Outline
 
-    {contents}
-    Pages = ["lib/public.md", "lib/internals.md"]
-    Depth = 2
+```@contents
+Pages = ["lib/public.md", "lib/internals.md"]
+Depth = 2
+```
 
-## [Index]({ref#main-index})
+## [Index](@id main-index)
 
-    {index}
-    Pages = ["lib/public.md", "lib/internals.md"]
+```@index
+Pages = ["lib/public.md", "lib/internals.md"]
+```

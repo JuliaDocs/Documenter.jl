@@ -2,21 +2,25 @@
 
 ## Index Page
 
-    {contents}
-    Pages = ["index.md"]
-    Depth = 5
+```@contents
+Pages = ["index.md"]
+Depth = 5
+```
 
 ## Functions Contents
 
-    {contents}
-    Pages = ["lib/functions.md"]
-    Depth = 3
+```@contents
+Pages = ["lib/functions.md"]
+Depth = 3
+```
 
 ## Tutorial Contents
 
-    {contents}
-    Pages = ["man/tutorial.md"]
+```@contents
+Pages = ["man/tutorial.md"]
+```
 
 ## Index
 
-    {index}
+```@index
+```

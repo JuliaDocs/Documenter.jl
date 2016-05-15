@@ -1,6 +1,6 @@
 """
-Provides a rendering function, [`render`]({ref}), for writing each supported
-[`Formats.Format`]({ref}) to file.
+Provides a rendering function, [`render`](@ref), for writing each supported
+[`Formats.Format`](@ref) to file.
 
 Note that currently `Formats.Markdown` is the **only** supported format.
 """
@@ -22,7 +22,7 @@ using Compat
 # -------------------------------------
 
 """
-Writes a [`Documents.Document`]({ref}) object to `build` directory in specified file format.
+Writes a [`Documents.Document`](@ref) object to `build` directory in specified file format.
 """
 function render(doc::Documents.Document)
     mime = Formats.mimetype(doc.user.format)

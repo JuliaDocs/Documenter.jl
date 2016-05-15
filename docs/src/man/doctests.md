@@ -31,7 +31,7 @@ appears after `# output` is the textual representation that would be shown in th
 if the script had been `include`d.
 
 The actual output produced by running the "script" is compared to the expected result and
-any difference will result in [`makedocs`]({ref}) throwing an error and terminating.
+any difference will result in [`makedocs`](@ref) throwing an error and terminating.
 
 Note that the amount of whitespace appearing above and below the `# output` line is not
 significant and can be increased or decreased if desired.
@@ -65,7 +65,7 @@ Note that not all features of the REPL are supported such as shell and help mode
 
 ## Skipping Doctests
 
-Doctesting can be disabled by setting the [`makedocs`]({ref}) keyword `doctest = false`.
+Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
 This should only be done when initially laying out the structure of a package's
 documentation, after which it's encouraged to always run doctests when building docs.
 

@@ -1,5 +1,5 @@
 """
-Provides the [`crossref`]({ref}) function used to automatically calculate link URLs.
+Provides the [`crossref`](@ref) function used to automatically calculate link URLs.
 """
 module CrossReferences
 
@@ -17,7 +17,7 @@ import ..Documenter:
 using Compat
 
 """
-Traverses a [`Documents.Document`]({ref}) and replaces links containg `{ref}` URLs with
+Traverses a [`Documents.Document`](@ref) and replaces links containg `@ref` URLs with
 their real URLs.
 """
 function crossref(doc::Documents.Document)
@@ -31,17 +31,32 @@ end
 
 function crossref(elem, page, doc)
     Walkers.walk(page.globals.meta, elem) do link
+        deprecate_link_syntax!(link)
         xref(link, page.globals.meta, page, doc)
     end
 end
 
+function deprecate_link_syntax!(link::Markdown.Link)
+    if link.url == "{ref}"
+        warn("autolink syntax '{ref}' is deprecated use '@ref' instead.")
+        link.url = "@ref"
+    elseif ismatch(OLD_NAMED_XREF, link.url)
+        id = match(OLD_NAMED_XREF, link.url)[1]
+        warn("named autolink syntax '$(link.url)' is deprecated use '@ref $id' instead.")
+        link.url = "@ref $id"
+    end
+    nothing
+end
+deprecate_link_syntax!(other) = nothing
+
 # Dispatch to `namedxref` / `docsxref`.
 # -------------------------------------
 
-const NAMED_XREF = r"^{ref#([^{}]*)}$"
+const NAMED_XREF = r"^@ref (.+)$"
+const OLD_NAMED_XREF = r"^{ref#([^{}]*)}$"
 
 function xref(link::Markdown.Link, meta, page, doc)
-    link.url == "{ref}"           ? basicxref(link, meta, page, doc) :
+    link.url == "@ref"            ? basicxref(link, meta, page, doc) :
     ismatch(NAMED_XREF, link.url) ? namedxref(link, meta, page, doc) : nothing
     return false # Stop `walk`ing down this `link` element.
 end
@@ -51,7 +66,7 @@ function basicxref(link::Markdown.Link, meta, page, doc)
     if isa(link.text[1], Base.Markdown.Code)
         docsxref(link, meta, page, doc)
     elseif isa(link.text, Vector) && length(link.text) === 1
-        # No `name` was provided, since given a `{ref}`, so slugify the `.text` instead.
+        # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
         name = Utilities.slugify(text)
         namedxref(link, name, meta, page, doc)
@@ -78,7 +93,7 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
     # TODO: handle non-unique slugs.
     if Anchors.exists(headers, slug)
         if Anchors.isunique(headers, slug)
-            # Replace the `{ref}` url with a path to the referenced header.
+            # Replace the `@ref` url with a path to the referenced header.
             anchor   = get(Anchors.anchor(headers, slug))
             path     = relpath(anchor.file, dirname(page.build))
             link.url = string(path, '#', slug, '-', anchor.nth)
@@ -98,7 +113,7 @@ function docsxref(link::Markdown.Link, meta, page, doc)
     curmod = get(meta, :CurrentModule, current_module())
     object = eval(curmod, Utilities.object(parse(code), code))
     if haskey(doc.internal.objects, object)
-        # Replace the `{ref}` url with a path to the referenced docs.
+        # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
         slug     = Utilities.slugify(object)
@@ -108,7 +123,7 @@ function docsxref(link::Markdown.Link, meta, page, doc)
             link.text[1].code = lstrip(code, ':')
         end
     else
-        Utilities.warn(page.source, "No doc found for reference '[`$code`]({ref})'.")
+        Utilities.warn(page.source, "No doc found for reference '[`$code`](@ref)'.")
     end
 end
 
