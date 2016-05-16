@@ -43,11 +43,9 @@ Automatically splices all docstrings from the provided modules in place of the c
 This is equivalent to manually adding all the docstrings in a `{docs}` block.
 
 ````markdown
-```
 {autodocs}
 Modules = [Foo, Bar]
 Order   = [:function, :type]
-```
 ````
 
 The above `{autodocs}` block adds all the docstrings found in modules `Foo` and `Bar` that
