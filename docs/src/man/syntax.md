@@ -29,7 +29,7 @@ keyword for [`makedocs`]({ref}) can be set to the desired module or modules, i.e
 
 ```julia
 makedocs(
-    modules = [Lapidary],
+    modules = [Documenter],
 )
 ```
 
