@@ -80,7 +80,7 @@ If you'd like to see the output from this command in color use
 $ julia --color=yes make.jl
 ```
 
-We you run that you should see the following output
+When you run that you should see the following output
 
     Documenter: setting up build directory.
     Documenter: copying assets to build directory.
