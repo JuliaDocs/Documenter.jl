@@ -63,67 +63,78 @@ Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores
 """
 immutable TrackHeaders <: Expander end
 """
-Parses each code block where the first line is `{meta}` and evaluates the key/value pairs
-found within the block, i.e.
+Parses each code block where the language is `@meta` and evaluates the key/value pairs found
+within the block, i.e.
 
-        {meta}
-        CurrentModule = Documenter
-        DocTestSetup  = quote
-            using Documenter
-        end
-
+````markdown
+```@meta
+CurrentModule = Documenter
+DocTestSetup  = quote
+    using Documenter
+end
+```
+````
 """
 immutable MetaBlocks <: Expander end
 """
-Parses each code block where the first line is `{docs}` and evaluates the expressions found
+Parses each code block where the language is `@docs` and evaluates the expressions found
 within the block. Replaces the block with the docstrings associated with each expression.
 
-        {docs}
-        Documenter
-        makedocs
-        deploydocs
-
+````markdown
+```@docs
+Documenter
+makedocs
+deploydocs
+```
+````
 """
 immutable DocsBlocks <: Expander end
 
 immutable AutoDocsBlocks <: Expander end
 
 """
-Parses each code block where the first line is `{eval}` and evaluates it's content. Replaces
+Parses each code block where the language is `@eval` and evaluates it's content. Replaces
 the block with the value resulting from the evaluation. This can be useful for inserting
 generated content into a document such as plots.
 
-        {eval}
-        using PyPlot
+````markdown
+```@eval
+using PyPlot
 
-        x = linspace(-π, π)
-        y = sin(x)
+x = linspace(-π, π)
+y = sin(x)
 
-        plot(x, y, color = "red")
-        savefig("plot.svg")
+plot(x, y, color = "red")
+savefig("plot.svg")
 
-        Markdown.Image("Plot", "plot.svg")
-
+Markdown.Image("Plot", "plot.svg")
+```
+````
 """
 immutable EvalBlocks <: Expander end
 """
-Parses each code block where the first line is `{index}` and replaces it with an index of
-all docstrings spliced into the document. The pages that are included can be set using a
+Parses each code block where the language is `@index` and replaces it with an index of all
+docstrings spliced into the document. The pages that are included can be set using a
 key/value pair `Pages = [...]` such as
 
-        {index}
-        Pages = ["foo.md", "bar.md"]
-
+````markdown
+```@index
+Pages = ["foo.md", "bar.md"]
+```
+````
 """
 immutable IndexBlocks <: Expander end
 """
-Parses each code block where the first line is `{contents}` and replaces it with a nested
-list of all `Header` nodes in the generated document. The pages and depth of the list can
-be set using `Pages = [...]` and `Depth = N` where `N` is and integer.
+Parses each code block where the language is `@contents` and replaces it with a nested list
+of all `Header` nodes in the generated document. The pages and depth of the list can be set
+using `Pages = [...]` and `Depth = N` where `N` is and integer.
 
-        {contents}
-        Pages = ["foo.md", "bar.md"]
-        Depth = 1
+````markdown
+```@contents
+Pages = ["foo.md", "bar.md"]
+Depth = 1
+```
+````
 
 The default `Depth` value is `2`.
 """

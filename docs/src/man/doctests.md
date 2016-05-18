@@ -73,7 +73,7 @@ documentation, after which it's encouraged to always run doctests when building 
 
 Doctests may require some setup code that must be evaluated prior to that of the actual
 example, but that should not be displayed in the final documentation. It could also be that
-several separate doctests require the same definitions. For both of these cases a `{meta}`
+several separate doctests require the same definitions. For both of these cases a `@meta`
 block containing a `DocTestSetup = ...` value can be used as follows:
 
     ```julia
@@ -85,11 +85,12 @@ block containing a `DocTestSetup = ...` value can be used as follows:
 
     Some text discussing `df`...
 
-        {meta}
-        DocTestSetup = quote
-            using DataFrames
-            df = DataFrame(A = 1:10, B = 2:2:20)
-        end
+    ```@meta
+    DocTestSetup = quote
+        using DataFrames
+        df = DataFrame(A = 1:10, B = 2:2:20)
+    end
+    ```
 
     ```julia
     julia> df[1, 1]
@@ -106,8 +107,9 @@ block containing a `DocTestSetup = ...` value can be used as follows:
     | 1   | 1 | 2 |
     ```
 
-        {meta}
-        DocTestSetup = nothing
+    ```@meta
+    DocTestSetup = nothing
+    ```
 
 Note that the `DocTestSetup` value is **re-evaluated** at the start of *each* doctest block
 and no state is shared between any code blocks. The `DocTestSetup = nothing` is not strictly

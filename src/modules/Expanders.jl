@@ -166,7 +166,7 @@ function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
             dupdoc && Utilities.warn(page.source, "Duplicate docs found for '$name'.")
             nuldoc && Utilities.warn(page.source, "No docs for '$object' from provided modules.")
 
-            # When an warning is raise here we discard all found docs from the `{docs}` and
+            # When an warning is raise here we discard all found docs from the `@docs` and
             # just map the element `x` back to itself and move on to the next element.
             (failed = failed || nodocs || dupdoc || nuldoc) && continue
         end
@@ -263,7 +263,7 @@ function expand(::Builder.ContentsBlocks, x::Base.Markdown.Code, page, doc)
 end
 
 function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
-    # Match `{example}` and `{example <name>}` blocks.
+    # Match `@example` and `@example <name>` blocks.
     matched = Utilities.nullmatch(r"^@example[ ]?(.*)$", x.language)
     isnull(matched) && return false
     # The sandboxed module -- either a new one or a cached one from this page.

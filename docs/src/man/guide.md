@@ -22,30 +22,36 @@ Firstly, we need a Julia module to document. This could be a package generated v
 `PkgDev.generate` or a single `.jl` script. For this guide we'll be using a package called
 `Example.jl` that has the following directory layout:
 
-    Example/
-        src/
-            Example.jl
-        ...
+```
+Example/
+    src/
+        Example.jl
+    ...
+```
 
 Note that the `...` just represent unimportant files and folders.
 
 We must decide on a location where we'd like to store the documentation for this package.
 It's recommended to use a folder named `docs/` in the toplevel of the package, like so
 
-    Example/
-        docs/
-            ...
-        src/
-            Example.jl
+```
+Example/
+    docs/
         ...
+    src/
+        Example.jl
+    ...
+```
 
 Inside the `docs/` folder we need to add two things. A source folder which will contain the
 markdown files that will be used to build the finished document and a Julia script that will
 be used to control the build process. The following names are recommended
 
-    docs/
-        src/
-        make.jl
+```
+docs/
+    src/
+    make.jl
+```
 
 ### Building an empty document
 
@@ -82,21 +88,25 @@ $ julia --color=yes make.jl
 
 When you run that you should see the following output
 
-    Documenter: setting up build directory.
-    Documenter: copying assets to build directory.
-    Documenter: expanding markdown templates.
-    Documenter: building cross-references.
-    Documenter: running document checks.
-    Documenter: rendering document.
+```
+Documenter: setting up build directory.
+Documenter: copying assets to build directory.
+Documenter: expanding markdown templates.
+Documenter: building cross-references.
+Documenter: running document checks.
+Documenter: rendering document.
+```
 
 The `docs/` folder should contain a new directory -- called `build/`. It's structure should
 look like the following
 
-    build/
-        assets/
-            Documenter.css
-            mathjaxhelper.js
-        index.md
+```
+build/
+    assets/
+        Documenter.css
+        mathjaxhelper.js
+    index.md
+```
 
 At the moment `build/index.md` should be empty since `src/index.md` is empty.
 
@@ -125,37 +135,34 @@ end
 
 Then in the `src/index.md` file add the following
 
-```markdown
+````markdown
 # Example.jl Documentation
 
-    {docs}
-    func(x)
+```@docs
+func(x)
 ```
+````
 
 When we next run `make.jl` the docstring for `Example.func(x)` should appear in place of
-the `{docs}` block in `build/index.md`. Note that *more than one* object can be referenced
-inside a `{docs}` block -- just place each one on a separate line.
+the `@docs` block in `build/index.md`. Note that *more than one* object can be referenced
+inside a `@docs` block -- just place each one on a separate line.
 
-Note that the module in which a `{docs}` block is evaluated is determined by
+Note that the module in which a `@docs` block is evaluated is determined by
 `current_module()` and so will more than likely be `Main`. This means that each object
 listed in the block must be visible there. The module can be changed to something else on
-a per-page basis with a `{meta}` block as in the following
+a per-page basis with a `@meta` block as in the following
 
-```markdown
+````markdown
 # Example.jl Documentation
 
-    {meta}
-    CurrentModule = Documenter
-
-...
-
-    {docs}
-    func(x)
+```@meta
+CurrentModule = Documenter
 ```
 
-Note that the `...` in the example above is just there to stop the code blocks from merging
-into a single block. You could use fenced code blocks instead to avoid needing to have to
-break up the blocks using extra text.
+```@docs
+func(x)
+```
+````
 
 #### Filtering Included Docstrings
 
@@ -176,22 +183,20 @@ Base.length(::T) = 1
 
 When trying to include this docstring with
 
-```markdown
-
-    {docs}
-    length
-
+````markdown
+```@docs
+length
 ```
+````
 
 all the docs for `length` will be included -- even those from other modules. There are two
 ways to solve this problem. Either include the type in the signature with
 
-```markdown
-
-    {docs}
-    length(::T)
-
+````markdown
+```@docs
+length(::T)
 ```
+````
 
 or declare the specific modules that [`makedocs`](@ref) should include with
 
@@ -209,17 +214,18 @@ elsewhere in the document. To do this we can make use of Documenter's cross-refe
 syntax which looks pretty similar to normal markdown link syntax. Replace the contents of
 `src/index.md` with the following
 
-```markdown
+````markdown
 # Example.jl Documentation
 
-    {docs}
-    func(x)
+```@docs
+func(x)
+```
 
 - link to [Example.jl Documentation](@ref)
 - link to [`func(x)`](@ref)
-```
+````
 
-So we just have to replace each link's url with `{ref}` and write the name of the thing we'd
+So we just have to replace each link's url with `@ref` and write the name of the thing we'd
 link to cross-reference. For document headers it's just plain text that matches the name of
 the header and for docstrings enclose the object in backticks.
 
@@ -232,32 +238,36 @@ Documenter can auto-generate tables of contents and docstring indexes for your d
 the following syntax. We'll illustrate these features using our `index.md` file from the
 previous sections. Add the following to that file
 
-```markdown
+````markdown
 # Example.jl Documentation
 
-    {contents}
+```@contents
+```
 
 ## Functions
 
-    {docs}
-    func(x)
+```@docs
+func(x)
+```
 
 ## Index
 
-    {index}
+```@index
 ```
+````
 
-The `{contents}` block will generate a nested list of links to all the section headers in
+The `@contents` block will generate a nested list of links to all the section headers in
 the document. By default it will gather all the level 1 and 2 headers from every page in the
 document, but this can be adjusted using `Pages` and `Depth` settings as in the following
 
+````markdown
+```@contents
+Pages = ["foo.md", "bar.md"]
+Depth = 3
 ```
-    {contents}
-    Pages = ["foo.md", "bar.md"]
-    Depth = 3
-```
+````
 
-The `{index}` block will generate a flat list of links to all the docs that that have been
-spliced into the document using `{docs}` blocks. As with the `{contents}` block the pages to
+The `@index` block will generate a flat list of links to all the docs that that have been
+spliced into the document using `@docs` blocks. As with the `@contents` block the pages to
 be included can be set with a `Pages = [...]` line. Since the list is not nested `Depth` is
-not supported for `{index}`.
+not supported for `@index`.
