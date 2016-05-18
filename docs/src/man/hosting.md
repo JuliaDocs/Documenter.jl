@@ -1,6 +1,6 @@
 # Hosting Documentation
 
-After going through the [Package Guide]({ref}) and [Doctests]({ref}) page you will need to
+After going through the [Package Guide](@ref) and [Doctests](@ref) page you will need to
 host the generated documentation somewhere for potential users to read. This guide will
 describe how to setup automatic updates for your package docs using the Travis build service
 and GitHub Pages. This is the same approach used by this package to host it's own docs --
@@ -43,7 +43,7 @@ token and save it somewhere safe. We'll be needing it during the next section.
 
 Next we'll add the generated token to our repository's Travis page. Go to the settings page
 for the repository and under the "Environment Variables" section add a new variable called
-`GITHUB_API_KEY`. Copy the generated key from the [GitHub Security Key]({ref}) section as
+`GITHUB_API_KEY`. Copy the generated key from the [GitHub Security Key](@ref) section as
 the value and **make sure** that "Display value in build log" is **off**. Be careful to remove any leading white-space from the key. Then add the key.
 
 ## `.travis.yml` Configuration
@@ -70,7 +70,7 @@ using Documenter, PACKAGE_NAME
 makedocs()
 ```
 
-We'll need to add an additional call to this file after [`makedocs`]({ref}). Add the
+We'll need to add an additional call to this file after [`makedocs`](@ref). Add the
 following at the end of the file:
 
 ```julia
@@ -104,7 +104,7 @@ and the latter provides the `mdx_math` markdown extension to exploit MathJax
 rendering of latex equations in markdown. Other dependencies should be
 included here.
 
-See the [`deploydocs`]({ref}) function documentation for more details.
+See the [`deploydocs`](@ref) function documentation for more details.
 
 ## The MkDocs `mkdocs.yml` File
 

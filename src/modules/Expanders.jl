@@ -17,15 +17,55 @@ using Compat
 # Basic driver definitions.
 # -------------------------
 
+const CURLY_BRACKET_SYNTAX = r"^{([a-z]+)(.*)}"
+
+const CURLY_NAMES = Set([
+    "meta",
+    "docs",
+    "autodocs",
+    "eval",
+    "index",
+    "contents",
+    "example",
+    "repl"
+])
+
+function deprecate_syntax!(element::Markdown.Code)
+    if ismatch(CURLY_BRACKET_SYNTAX, element.code)
+        m = match(CURLY_BRACKET_SYNTAX, element.code)
+        name, id = m[1], m[2]
+        if name in CURLY_NAMES
+            _id = lstrip(id)
+            new_syntax = string("@", name, isempty(_id) ? "" : " $_id")
+            warn(
+                """
+                syntax '{$name$id}' is deprecated. Use the following syntax instead:
+
+                    ```$new_syntax
+                    ...
+                    ```
+
+                """
+            )
+            lines = split(element.code, '\n', limit = 2)[2:end]
+            element.code = join(split(element.code, '\n', limit = 2)[2:end])
+            element.language = new_syntax
+        end
+    end
+    nothing
+end
+deprecate_syntax!(other) = nothing
+
 """
     expand(ex, doc)
 
-Expands each node of a [`Documents.Document`]({ref}) using the expanders provided by `ex`.
+Expands each node of a [`Documents.Document`](@ref) using the expanders provided by `ex`.
 """
 function expand(ex::Builder.ExpandTemplates, doc::Documents.Document)
     for (src, page) in doc.internal.pages
         empty!(page.globals.meta)
         for element in page.elements
+            deprecate_syntax!(element)
             expand(ex.expanders, element, page, doc)
         end
     end
@@ -43,13 +83,23 @@ expand(::Tuple{}, elem, page, doc) = (page.mapping[elem] = elem; true)
 # Implementations.
 # ----------------
 
-const NAMEDHEADER_REGEX = r"^{ref#([^{}]+)}$"
+const NAMEDHEADER_REGEX = r"^@id (.+)$"
+const OLD_NAMEDHEADER_REGEX = r"^{ref#([^{}]+)}$"
 
 function namedheader(h::Markdown.Header)
-    isa(h.text, Vector) &&
-    length(h.text) === 1 &&
-    isa(h.text[1], Markdown.Link) &&
-    ismatch(NAMEDHEADER_REGEX, h.text[1].url)
+    if isa(h.text, Vector) && length(h.text) === 1 && isa(h.text[1], Markdown.Link)
+        url = h.text[1].url
+        if ismatch(OLD_NAMEDHEADER_REGEX, url)
+            id = match(OLD_NAMEDHEADER_REGEX, url)[1]
+            h.text[1].url = "@id $id"
+            warn("syntax '", url, "' is deprecated. Use '@id ", id, "' instead.")
+            true
+        else
+            ismatch(NAMEDHEADER_REGEX, url)
+        end
+    else
+        false
+    end
 end
 
 function expand(::Builder.TrackHeaders, header::Base.Markdown.Header, page, doc)
@@ -74,9 +124,9 @@ immutable MetaNode
     dict :: Dict{Symbol, Any}
 end
 function expand(::Builder.MetaBlocks, x::Base.Markdown.Code, page, doc)
-    startswith(x.code, "{meta}") || return false
+    x.language == "@meta" || return false
     meta = page.globals.meta
-    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+    for (ex, str) in Utilities.parseblock(x.code)
         Utilities.isassign(ex) && (meta[ex.args[1]] = eval(current_module(), ex.args[2]))
     end
     page.mapping[x] = MetaNode(copy(meta))
@@ -93,11 +143,11 @@ immutable DocsNodes
     nodes :: Vector{DocsNode}
 end
 function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
-    startswith(x.code, "{docs}") || return false
+    x.language == "@docs" || return false
     failed = false
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
-    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+    for (ex, str) in Utilities.parseblock(x.code)
         # Find the documented object and it's docstring.
         object   = eval(curmod, Utilities.object(ex, str))
         docstr   = eval(curmod, Utilities.docs(ex, str))
@@ -116,7 +166,7 @@ function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
             dupdoc && Utilities.warn(page.source, "Duplicate docs found for '$name'.")
             nuldoc && Utilities.warn(page.source, "No docs for '$object' from provided modules.")
 
-            # When an warning is raise here we discard all found docs from the `{docs}` and
+            # When an warning is raise here we discard all found docs from the `@docs` and
             # just map the element `x` back to itself and move on to the next element.
             (failed = failed || nodocs || dupdoc || nuldoc) && continue
         end
@@ -133,10 +183,10 @@ function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
 end
 
 function expand(::Builder.AutoDocsBlocks, x::Base.Markdown.Code, page, doc)
-    startswith(x.code, "{autodocs}") || return false
+    x.language == "@autodocs" || return false
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     fields = Dict{Symbol, Any}()
-    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+    for (ex, str) in Utilities.parseblock(x.code)
         if Utilities.isassign(ex)
             fields[ex.args[1]] = eval(curmod, ex.args[2])
         end
@@ -144,8 +194,6 @@ function expand(::Builder.AutoDocsBlocks, x::Base.Markdown.Code, page, doc)
     if haskey(fields, :Modules)
         order = get(fields, :Order, [:module, :constant, :type, :function, :macro])
         block = IOBuffer()
-        # TODO: refactor `{docs}` to avoid doing string manipulation to get docs here.
-        println(block, "{docs}")
         for mod in fields[:Modules]
             bindings = collect(keys(Documenter.DocChecks.allbindings(mod)))
             sorted   = Dict{Symbol, Vector{Utilities.Binding}}()
@@ -159,10 +207,11 @@ function expand(::Builder.AutoDocsBlocks, x::Base.Markdown.Code, page, doc)
                 end
             end
         end
+        x.language = "@docs"
         x.code = takebuf_string(block)
         expand(Builder.DocsBlocks(), x, page, doc)
     else
-        Utilities.warn(page.source, "'{autodocs}' missing 'Modules = ...'.")
+        Utilities.warn(page.source, "'@autodocs' missing 'Modules = ...'.")
         page.mapping[x] = x
     end
     return true
@@ -173,11 +222,11 @@ immutable EvalNode
     result :: Any
 end
 function expand(::Builder.EvalBlocks, x::Base.Markdown.Code, page, doc)
-    startswith(x.code, "{eval}") || return false
+    x.language == "@eval" || return false
     sandbox = Module(:EvalBlockSandbox)
     cd(dirname(page.build)) do
         result = nothing
-        for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+        for (ex, str) in Utilities.parseblock(x.code)
             result = eval(sandbox, ex)
         end
         page.mapping[x] = EvalNode(x, result)
@@ -189,10 +238,10 @@ immutable IndexNode
     dict :: Dict{Symbol, Any}
 end
 function expand(::Builder.IndexBlocks, x::Base.Markdown.Code, page, doc)
-    startswith(x.code, "{index}") || return false
+    x.language == "@index" || return false
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     dict   = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+    for (ex, str) in Utilities.parseblock(x.code)
         Utilities.isassign(ex) && (dict[ex.args[1]] = eval(curmod, ex.args[2]))
     end
     page.mapping[x] = IndexNode(dict)
@@ -203,10 +252,10 @@ immutable ContentsNode
     dict :: Dict{Symbol, Any}
 end
 function expand(::Builder.ContentsBlocks, x::Base.Markdown.Code, page, doc)
-    startswith(x.code, "{contents}") || return false
+    x.language == "@contents" || return false
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     dict   = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+    for (ex, str) in Utilities.parseblock(x.code)
         Utilities.isassign(ex) && (dict[ex.args[1]] = eval(curmod, ex.args[2]))
     end
     page.mapping[x] = ContentsNode(dict)
@@ -214,8 +263,8 @@ function expand(::Builder.ContentsBlocks, x::Base.Markdown.Code, page, doc)
 end
 
 function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
-    # Match `{example}` and `{example <name>}` blocks.
-    matched = Utilities.nullmatch(r"^{example[ ]?(.*)}\r{0,1}\n", x.code)
+    # Match `@example` and `@example <name>` blocks.
+    matched = Utilities.nullmatch(r"^@example[ ]?(.*)$", x.language)
     isnull(matched) && return false
     # The sandboxed module -- either a new one or a cached one from this page.
     name = Utilities.getmatch(matched, 1)
@@ -223,7 +272,7 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
     result, buffer = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+    for (ex, str) in Utilities.parseblock(x.code)
         try
             result = Documenter.DocChecks.withoutput(buffer) do
                 # Evaluate within the build folder. Defines REPL-like `ans` binding as well.
@@ -241,7 +290,7 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     end
     # Splice the input and output into the document.
     content = []
-    input   = droplines(x.code; skip = 1)
+    input   = droplines(x.code)
     output  = Documenter.DocChecks.result_to_string(buffer, result)
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))
@@ -262,14 +311,14 @@ function droplines(code; skip = 0)
 end
 
 function expand(::Builder.REPLBlocks, x::Base.Markdown.Code, page, doc)
-    matched = Utilities.nullmatch(r"^{repl[ ]?(.*)}\r{0,1}\n", x.code)
+    matched = Utilities.nullmatch(r"^@repl[ ]?(.*)$", x.language)
     isnull(matched) && return false
     name = Utilities.getmatch(matched, 1)
     sym  = isempty(name) ? gensym("repl-") : Symbol("repl-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     code = split(x.code, '\n'; limit = 2)[end]
     result, out = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code; skip = 1)
+    for (ex, str) in Utilities.parseblock(x.code)
         buffer = IOBuffer()
         input  = droplines(str)
         output =

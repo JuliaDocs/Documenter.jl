@@ -1,14 +1,14 @@
 # Tutorial
 
-[Documentation]({ref})
+[Documentation](@ref)
 
-[Index]({ref})
+[Index](@ref)
 
-[Functions]({ref})
+[Functions](@ref)
 
-[`Main.Mod.func(x)`]({ref})
+[`Main.Mod.func(x)`](@ref)
 
-[`Main.Mod.T`]({ref})
+[`Main.Mod.T`](@ref)
 
 ```julia
 julia> using Base.Meta # `nothing` shouldn't be displayed.
@@ -35,11 +35,12 @@ a + b
 3
 ```
 
-    {meta}
-    DocTestSetup =
-        quote
-            srand(1)
-        end
+```@meta
+DocTestSetup =
+    quote
+        srand(1)
+    end
+```
 
 ```julia
 A = rand(3, 3)
@@ -70,9 +71,10 @@ julia> A \ b
  -1.72323
 ```
 
-    {eval}
-    code = string(sprint(Base.banner), "julia>")
-    Markdown.Code(code)
+```@eval
+code = string(sprint(Base.banner), "julia>")
+Markdown.Code(code)
+```
 
 ```julia
 julia> # First definition.
@@ -147,14 +149,12 @@ b = 2; # Semi-colons don't affect script doctests.
 2
 ```
 
-```
-{repl 1}
+```@repl 1
 f(x) = (sleep(x); x)
 @time f(0.1);
 ```
 
-```
-{repl 1}
+```@repl 1
 f(0.01)
 div(1, 0)
 ```

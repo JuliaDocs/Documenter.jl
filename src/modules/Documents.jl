@@ -1,10 +1,10 @@
 """
-Defines [`Document`]({ref}) and its supporting types
+Defines [`Document`](@ref) and its supporting types
 
-- [`Page`]({ref})
-- [`User`]({ref})
-- [`Internal`]({ref})
-- [`Globals`]({ref})
+- [`Page`](@ref)
+- [`User`](@ref)
+- [`Internal`](@ref)
+- [`Globals`](@ref)
 
 """
 module Documents
@@ -21,7 +21,7 @@ using Compat
 # ------
 
 """
-[`Page`]({ref})-local values such as current module that are shared between nodes in a page.
+[`Page`](@ref)-local values such as current module that are shared between nodes in a page.
 """
 type Globals
     mod  :: Module

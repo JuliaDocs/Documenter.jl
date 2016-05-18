@@ -31,7 +31,7 @@ appears after `# output` is the textual representation that would be shown in th
 if the script had been `include`d.
 
 The actual output produced by running the "script" is compared to the expected result and
-any difference will result in [`makedocs`]({ref}) throwing an error and terminating.
+any difference will result in [`makedocs`](@ref) throwing an error and terminating.
 
 Note that the amount of whitespace appearing above and below the `# output` line is not
 significant and can be increased or decreased if desired.
@@ -65,7 +65,7 @@ Note that not all features of the REPL are supported such as shell and help mode
 
 ## Skipping Doctests
 
-Doctesting can be disabled by setting the [`makedocs`]({ref}) keyword `doctest = false`.
+Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
 This should only be done when initially laying out the structure of a package's
 documentation, after which it's encouraged to always run doctests when building docs.
 
@@ -73,7 +73,7 @@ documentation, after which it's encouraged to always run doctests when building 
 
 Doctests may require some setup code that must be evaluated prior to that of the actual
 example, but that should not be displayed in the final documentation. It could also be that
-several separate doctests require the same definitions. For both of these cases a `{meta}`
+several separate doctests require the same definitions. For both of these cases a `@meta`
 block containing a `DocTestSetup = ...` value can be used as follows:
 
     ```julia
@@ -85,11 +85,12 @@ block containing a `DocTestSetup = ...` value can be used as follows:
 
     Some text discussing `df`...
 
-        {meta}
-        DocTestSetup = quote
-            using DataFrames
-            df = DataFrame(A = 1:10, B = 2:2:20)
-        end
+    ```@meta
+    DocTestSetup = quote
+        using DataFrames
+        df = DataFrame(A = 1:10, B = 2:2:20)
+    end
+    ```
 
     ```julia
     julia> df[1, 1]
@@ -106,8 +107,9 @@ block containing a `DocTestSetup = ...` value can be used as follows:
     | 1   | 1 | 2 |
     ```
 
-        {meta}
-        DocTestSetup = nothing
+    ```@meta
+    DocTestSetup = nothing
+    ```
 
 Note that the `DocTestSetup` value is **re-evaluated** at the start of *each* doctest block
 and no state is shared between any code blocks. The `DocTestSetup = nothing` is not strictly

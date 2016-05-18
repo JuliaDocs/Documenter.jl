@@ -1,5 +1,5 @@
 """
-Provides the [`walk`]({ref}) function.
+Provides the [`walk`](@ref) function.
 """
 module Walkers
 
