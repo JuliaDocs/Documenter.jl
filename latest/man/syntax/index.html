@@ -213,56 +213,56 @@
         <ul>
           
             <li class="anchor">
-              <a title="{docs}" href="#docs">
-                {docs}
+              <a title="@docs block" href="#docs-block">
+                @docs block
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{autodocs}" href="#autodocs">
-                {autodocs}
+              <a title="@autodocs block" href="#autodocs-block">
+                @autodocs block
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{ref}" href="#ref">
-                {ref}
+              <a title="@ref link" href="#ref-link">
+                @ref link
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{meta}" href="#meta">
-                {meta}
+              <a title="@meta block" href="#meta-block">
+                @meta block
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{index}" href="#index">
-                {index}
+              <a title="@index block" href="#index-block">
+                @index block
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{contents}" href="#contents">
-                {contents}
+              <a title="@contents block" href="#contents-block">
+                @contents block
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{example}" href="#example">
-                {example}
+              <a title="@example block" href="#example-block">
+                @example block
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{repl}" href="#repl">
-                {repl}
+              <a title="@repl block" href="#repl-block">
+                @repl block
               </a>
             </li>
           
             <li class="anchor">
-              <a title="{eval}" href="#eval">
-                {eval}
+              <a title="@eval block" href="#eval-block">
+                @eval block
               </a>
             </li>
           
@@ -345,25 +345,26 @@
 <p>This section of the manual describes the syntax used by Documenter to build documentation.</p>
 <ul>
 <li><a href="./#Syntax-1">Syntax</a><ul>
-<li><a href="./#{docs}-1"><code>{docs}</code></a></li>
-<li><a href="./#{autodocs}-1"><code>{autodocs}</code></a></li>
-<li><a href="./#{ref}-1"><code>{ref}</code></a></li>
-<li><a href="./#{meta}-1"><code>{meta}</code></a></li>
-<li><a href="./#{index}-1"><code>{index}</code></a></li>
-<li><a href="./#{contents}-1"><code>{contents}</code></a></li>
-<li><a href="./#{example}-1"><code>{example}</code></a></li>
-<li><a href="./#{repl}-1"><code>{repl}</code></a></li>
-<li><a href="./#{eval}-1"><code>{eval}</code></a></li>
+<li><a href="./#@docs-block-1"><code>@docs</code> block</a></li>
+<li><a href="./#@autodocs-block-1"><code>@autodocs</code> block</a></li>
+<li><a href="./#@ref-link-1"><code>@ref</code> link</a></li>
+<li><a href="./#@meta-block-1"><code>@meta</code> block</a></li>
+<li><a href="./#@index-block-1"><code>@index</code> block</a></li>
+<li><a href="./#@contents-block-1"><code>@contents</code> block</a></li>
+<li><a href="./#@example-block-1"><code>@example</code> block</a></li>
+<li><a href="./#@repl-block-1"><code>@repl</code> block</a></li>
+<li><a href="./#@eval-block-1"><code>@eval</code> block</a></li>
 </ul>
 </li>
 </ul>
-<p><a id='{docs}-1'></a></p>
-<h2 id="docs"><code>{docs}</code></h2>
+<p><a id='@docs-block-1'></a></p>
+<h2 id="docs-block"><code>@docs</code> block</h2>
 <p>Splice one or more docstrings into a document in place of the code block, i.e.</p>
-<div class="codehilite"><pre><span></span>    {docs}
-    Documenter
-    makedocs
-    deploydocs
+<div class="codehilite"><pre><span></span>```@docs
+Documenter
+makedocs
+deploydocs
+```
 </pre></div>
 
 
@@ -377,18 +378,17 @@
 
 
 <p>which will cause any unlisted docstrings to raise warnings when <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> is called. If <code>modules</code> is not defined then no warnings are printed, even if a document has missing docstrings.</p>
-<p><a id='{autodocs}-1'></a></p>
-<h2 id="autodocs"><code>{autodocs}</code></h2>
-<p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>{docs}</code> block.</p>
-<div class="codehilite"><pre><span></span><span class="err">```</span>
-<span class="p">{</span><span class="n">autodocs</span><span class="p">}</span>
+<p><a id='@autodocs-block-1'></a></p>
+<h2 id="autodocs-block"><code>@autodocs</code> block</h2>
+<p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>@docs</code> block.</p>
+<div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">autodocs</span>
 <span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Bar</span><span class="o">]</span>
 <span class="n">Order</span>   <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">function</span><span class="p">,</span> <span class="p">:</span><span class="n">type</span><span class="o">]</span>
 <span class="err">```</span>
 </pre></div>
 
 
-<p>The above <code>{autodocs}</code> block adds all the docstrings found in modules <code>Foo</code> and <code>Bar</code> that refer to functions or types to the document.</p>
+<p>The above <code>@autodocs</code> block adds all the docstrings found in modules <code>Foo</code> and <code>Bar</code> that refer to functions or types to the document.</p>
 <p>Each module is added in order and so all docs from <code>Foo</code> will appear before those of <code>Bar</code>. Possible values for the <code>Order</code> vector are</p>
 <ul>
 <li><code>:module</code></li>
@@ -400,90 +400,96 @@
 <p>If no <code>Order</code> is provided then the order listed above is used.</p>
 <p>When a potential docstring is found in one of the listed modules, but does not match any value from <code>Order</code> then it will be omitted from the document. Hence <code>Order</code> acts as a basic filter as well as sorter.</p>
 <p><strong>Note</strong></p>
-<p>When more complex sorting and filtering is needed then use <code>{docs}</code> to define it explicitly.</p>
-<p><a id='{ref}-1'></a></p>
-<h2 id="ref"><code>{ref}</code></h2>
+<p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p>
+<p><a id='@ref-link-1'></a></p>
+<h2 id="ref-link"><code>@ref</code> link</h2>
 <p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be either a docstring or header name.</p>
 <div class="codehilite"><pre><span></span># Syntax
 
-... [`makedocs`]({ref}) ...
+... [`makedocs`](@ref) ...
 
 # Functions
 
-    {docs}
-    makedocs
+```@docs
+makedocs
+```
 
-... [Syntax]({ref}) ...
+... [Syntax](@ref) ...
 </pre></div>
 
 
-<p>Plain text in the "text" part of a link will cross-reference a header, while text in backticks will cross-reference a docstring from a <code>{docs}</code> block. The text should match the name of the header exactly.</p>
-<p><code>{ref}</code>s may refer to docstrings or headers on different pages as well as the current page using the same syntax.</p>
-<p>Note that depending on what the <code>CurrentModule</code> is set to, a docstring <code>{ref}</code> may need to be prefixed by the module which defines it.</p>
+<p>Plain text in the "text" part of a link will cross-reference a header, while text in backticks will cross-reference a docstring from a <code>@docs</code> block. The text should match the name of the header exactly.</p>
+<p><code>@ref</code>s may refer to docstrings or headers on different pages as well as the current page using the same syntax.</p>
+<p>Note that depending on what the <code>CurrentModule</code> is set to, a docstring <code>@ref</code> may need to be prefixed by the module which defines it.</p>
 <p><strong>Duplicate Headers</strong></p>
-<p>In some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow <code>{ref}</code> to cross-reference a duplicate header it must be given a name as in the following example</p>
-<div class="codehilite"><pre><span></span><span class="cp"># [Header]({ref#my-custom-header-name})</span>
+<p>In some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow <code>@ref</code> to cross-reference a duplicate header it must be given a name as in the following example</p>
+<div class="codehilite"><pre><span></span><span class="cp"># [Header](@id my_custom_header_name)</span>
 
 <span class="p">...</span>
 
 <span class="cp">## Header</span>
 
-<span class="p">...</span> <span class="p">[</span><span class="n">Custom</span> <span class="n">Header</span><span class="p">]({</span><span class="n">ref</span><span class="err">#</span><span class="n">my</span><span class="o">-</span><span class="n">custom</span><span class="o">-</span><span class="n">header</span><span class="o">-</span><span class="n">name</span><span class="p">})</span> <span class="p">...</span>
+<span class="p">...</span> <span class="p">[</span><span class="n">Custom</span> <span class="n">Header</span><span class="p">](@</span><span class="n">ref</span> <span class="n">my_custom_header_name</span><span class="p">)</span> <span class="p">...</span>
 </pre></div>
 
 
-<p>The link that wraps the named header is removed in the final document. The text for a named <code>{ref#...}</code> does not need to match the header that it references. Named <code>{ref#...}</code>s may refer to headers on different pages in the same way as unnamed ones do.</p>
+<p>The link that wraps the named header is removed in the final document. The text for a named <code>@ref ...</code> does not need to match the header that it references. Named <code>@ref ...</code>s may refer to headers on different pages in the same way as unnamed ones do.</p>
 <p>Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed.</p>
-<p><a id='{meta}-1'></a></p>
-<h2 id="meta"><code>{meta}</code></h2>
+<p><a id='@meta-block-1'></a></p>
+<h2 id="meta-block"><code>@meta</code> block</h2>
 <p>This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently <code>CurrentModule</code> and <code>DocTestSetup</code> are the only recognised keys.</p>
-<div class="codehilite"><pre><span></span>    {meta}
-    CurrentModule = FooBar
-    DocTestSetup  = quote
-        using MyPackage
-    end
+<div class="codehilite"><pre><span></span>```@meta
+CurrentModule = FooBar
+DocTestSetup  = quote
+    using MyPackage
+end
+```
 </pre></div>
 
 
-<p>Note that <code>{meta}</code> blocks are always evaluated with the <code>current_module()</code>, which is typically <code>Main</code>.</p>
+<p>Note that <code>@meta</code> blocks are always evaluated with the <code>current_module()</code>, which is typically <code>Main</code>.</p>
 <p>See <a href="../doctests/#Setup-Code-1">Setup Code</a> section of the Doctests page for an explanation of <code>DocTestSetup</code>.</p>
-<p><a id='{index}-1'></a></p>
-<h2 id="index"><code>{index}</code></h2>
+<p><a id='@index-block-1'></a></p>
+<h2 id="index-block"><code>@index</code> block</h2>
 <p>Generates a list of links to docstrings that have been spliced into a document. The only valid setting is currently <code>Pages = ...</code>.</p>
-<div class="codehilite"><pre><span></span>    {index}
-    Pages = [&quot;foo.md&quot;]
+<div class="codehilite"><pre><span></span>```@index
+Pages = [&quot;foo.md&quot;]
+```
 </pre></div>
 
 
 <p>When <code>Pages</code> is not provided all pages in the document are included.</p>
 <p>Note that the <code>Pages</code> value can be any valid Julia code and so can be something more complex that an array literal if a large number of pages must be included, i.e.</p>
-<div class="codehilite"><pre><span></span>    {index}
-    Pages = map(file -&gt; joinpath(&quot;man&quot;, file), readdir(&quot;man&quot;))
+<div class="codehilite"><pre><span></span>```@index
+Pages = map(file -&gt; joinpath(&quot;man&quot;, file), readdir(&quot;man&quot;))
+```
 </pre></div>
 
 
 <p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals for <code>Pages</code> as much as possible.</p>
-<p><a id='{contents}-1'></a></p>
-<h2 id="contents"><code>{contents}</code></h2>
+<p><a id='@contents-block-1'></a></p>
+<h2 id="contents-block"><code>@contents</code> block</h2>
 <p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p>
-<div class="codehilite"><pre><span></span>    {contents}
-    Pages = [&quot;foo.md&quot;]
-    Depth = 5
+<div class="codehilite"><pre><span></span>```@contents
+Pages = [&quot;foo.md&quot;]
+Depth = 5
+```
 </pre></div>
 
 
-<p>As with <code>{index}</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p>
-<p><a id='{example}-1'></a></p>
-<h2 id="example"><code>{example}</code></h2>
+<p>As with <code>@index</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p>
+<p><a id='@example-block-1'></a></p>
+<h2 id="example-block"><code>@example</code> block</h2>
 <p>Evaluates the code block and inserts the result into the final document along with the original source code.</p>
-<div class="codehilite"><pre><span></span>    {example}
-    a = 1
-    b = 2
-    a + b
+<div class="codehilite"><pre><span></span>```@example
+a = 1
+b = 2
+a + b
+```
 </pre></div>
 
 
-<p>The above <code>{example}</code> block will splice the following into the final document</p>
+<p>The above <code>@example</code> block will splice the following into the final document</p>
 <div class="codehilite"><pre><span></span>```julia
 a = 1
 b = 2
@@ -499,8 +505,7 @@ a + b
 <p>Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace on each line is also removed.</p>
 <p><strong>Hiding Source Code</strong></p>
 <p>Code blocks may have some content that does not need to be displayed in the final document. <code># hide</code> comments can be appended to lines that should not be rendered, i.e.</p>
-<div class="codehilite"><pre><span></span>```julia
-{example}
+<div class="codehilite"><pre><span></span>```@example
 srand(1) # hide
 A = rand(3, 3)
 b = [1, 2, 3]
@@ -509,31 +514,28 @@ A \ b
 </pre></div>
 
 
-<p>Note that appending <code># hide</code> to every line in an <code>{example}</code> block will result in the block being hidden in the rendered document. The results block will still be rendered though.</p>
+<p>Note that appending <code># hide</code> to every line in an <code>@example</code> block will result in the block being hidden in the rendered document. The results block will still be rendered though.</p>
 <p><strong><code>STDOUT</code> and <code>STDERR</code></strong></p>
-<p>The Julia output streams are redirected to the results block when evaluating <code>{example}</code> blocks in the same way as when running doctest code blocks.</p>
+<p>The Julia output streams are redirected to the results block when evaluating <code>@example</code> blocks in the same way as when running doctest code blocks.</p>
 <p><strong><code>nothing</code> Results</strong></p>
-<p>When the <code>{example}</code> block evaluates to <code>nothing</code> then the second block is not displayed. Only the source code block will be shown in the rendered document. Note that if any output from either <code>STDOUT</code> or <code>STDERR</code> is captured then the results block will be displayed even if <code>nothing</code> is returned.</p>
-<p><strong>Named <code>{example}</code> Blocks</strong></p>
-<p>By default <code>{example}</code> blocks are run in their own anonymous <code>Module</code>s to avoid side-effects between blocks. To share the same module between different blocks on a page the <code>{example}</code> can be named with the following syntax</p>
-<div class="codehilite"><pre><span></span>```julia
-{example 1}
+<p>When the <code>@example</code> block evaluates to <code>nothing</code> then the second block is not displayed. Only the source code block will be shown in the rendered document. Note that if any output from either <code>STDOUT</code> or <code>STDERR</code> is captured then the results block will be displayed even if <code>nothing</code> is returned.</p>
+<p><strong>Named <code>@example</code> Blocks</strong></p>
+<p>By default <code>@example</code> blocks are run in their own anonymous <code>Module</code>s to avoid side-effects between blocks. To share the same module between different blocks on a page the <code>@example</code> can be named with the following syntax</p>
+<div class="codehilite"><pre><span></span>```@example 1
 a = 1
 ```
 
-```julia
-{example 1}
+```@example 1
 println(a)
 ```
 </pre></div>
 
 
-<p>The name can be any text, not just integers as in the example above, i.e. <code>{example foo}</code>.</p>
-<p>Named <code>{example}</code> blocks can be useful when generating documentation that requires intermediate explanation or multimedia such as plots as illustrated in the following example</p>
+<p>The name can be any text, not just integers as in the example above, i.e. <code>@example foo</code>.</p>
+<p>Named <code>@example</code> blocks can be useful when generating documentation that requires intermediate explanation or multimedia such as plots as illustrated in the following example</p>
 <div class="codehilite"><pre><span></span>First we define some functions
 
-```julia
-{example 1}
+```@example 1
 using PyPlot # hide
 f(x) = sin(2x) + 1
 g(x) = cos(x) - x
@@ -541,8 +543,7 @@ g(x) = cos(x) - x
 
 and then we plot `f` over the interval from ``-π`` to ``π``
 
-```julia
-{example 1}
+```@example 1
 x = linspace(-π, π)
 plot(x, f(x), color = &quot;red&quot;)
 savefig(&quot;f-plot.svg&quot;); nothing # hide
@@ -552,8 +553,7 @@ savefig(&quot;f-plot.svg&quot;); nothing # hide
 
 and then we do the same with `g`
 
-```julia
-{example 1}
+```@example 1
 plot(x, g(x), color = &quot;blue&quot;)
 savefig(&quot;g-plot.svg&quot;); nothing # hide
 ```
@@ -562,10 +562,9 @@ savefig(&quot;g-plot.svg&quot;); nothing # hide
 </pre></div>
 
 
-<p>Note that <code>{example}</code> blocks are evaluated within the directory of <code>build</code> where the file will be rendered . This means than in the above example <code>savefig</code> will output the <code>.svg</code> files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.</p>
-<p><code>{example}</code> blocks automatically define <code>ans</code> which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by <code>plot</code> to a named variable would look out of place in the final rendered documentation:</p>
-<div class="codehilite"><pre><span></span>```julia
-{example}
+<p>Note that <code>@example</code> blocks are evaluated within the directory of <code>build</code> where the file will be rendered . This means than in the above example <code>savefig</code> will output the <code>.svg</code> files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.</p>
+<p><code>@example</code> blocks automatically define <code>ans</code> which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by <code>plot</code> to a named variable would look out of place in the final rendered documentation:</p>
+<div class="codehilite"><pre><span></span>```@example
 using Gadfly # hide
 plot([sin, x -&gt; 2sin(x) + x], -2π, 2π)
 draw(SVG(&quot;plot.svg&quot;, 6inch, 4inch), ans); nothing # hide
@@ -575,11 +574,10 @@ draw(SVG(&quot;plot.svg&quot;, 6inch, 4inch), ans); nothing # hide
 </pre></div>
 
 
-<p><a id='{repl}-1'></a></p>
-<h2 id="repl"><code>{repl}</code></h2>
-<p>These are similar to <code>{example}</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>{repl}</code> blocks in the same way as in the Julia REPL and <code>{example}</code> blocks.</p>
-<div class="codehilite"><pre><span></span>```julia
-{repl}
+<p><a id='@repl-block-1'></a></p>
+<h2 id="repl-block"><code>@repl</code> block</h2>
+<p>These are similar to <code>@example</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>@repl</code> blocks in the same way as in the Julia REPL and <code>@example</code> blocks.</p>
+<div class="codehilite"><pre><span></span>```@repl
 a = 1
 b = 2
 a + b
@@ -601,30 +599,31 @@ julia&gt; a + b
 </pre></div>
 
 
-<p>Named <code>{repl &lt;name&gt;}</code> blocks behave in the same way as named <code>{example &lt;name&gt;}</code> blocks.</p>
-<p><a id='{eval}-1'></a></p>
-<h2 id="eval"><code>{eval}</code></h2>
+<p>Named <code>@repl &lt;name&gt;</code> blocks behave in the same way as named <code>@example &lt;name&gt;</code> blocks.</p>
+<p><a id='@eval-block-1'></a></p>
+<h2 id="eval-block"><code>@eval</code> block</h2>
 <p>Evaluates the contents of the block and inserts the resulting value into the final document.</p>
 <p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p>
-<div class="codehilite"><pre><span></span>    {eval}
-    using PyPlot
+<div class="codehilite"><pre><span></span>```@eval
+using PyPlot
 
-    x = linspace(-π, π)
-    y = sin(x)
+x = linspace(-π, π)
+y = sin(x)
 
-    plot(x, y, color = &quot;red&quot;)
-    savefig(&quot;plot.svg&quot;)
+plot(x, y, color = &quot;red&quot;)
+savefig(&quot;plot.svg&quot;)
 
-    nothing
+nothing
+```
 
 ![](plot.svg)
 </pre></div>
 
 
-<p>Note that each <code>{eval}</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p>
+<p>Note that each <code>@eval</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p>
 <p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.Image</code> object directly. This can be more appropriate when the filename is not known until evaluation of the block itself.</p>
 <p><strong>Note</strong></p>
-<p>In most cases <code>{example}</code> is preferred over <code>{eval}</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>{eval}</code> should be treated in the same way.</p>
+<p>In most cases <code>@example</code> is preferred over <code>@eval</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>@eval</code> should be treated in the same way.</p>
           <aside class="copyright" role="note">
             
             Documentation built with

@@ -404,26 +404,26 @@
 <p>Then in the <code>src/index.md</code> file add the following</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation
 
-    {docs}
-    func(x)
+```@docs
+func(x)
+```
 </pre></div>
 
 
-<p>When we next run <code>make.jl</code> the docstring for <code>Example.func(x)</code> should appear in place of the <code>{docs}</code> block in <code>build/index.md</code>. Note that <em>more than one</em> object can be referenced inside a <code>{docs}</code> block – just place each one on a separate line.</p>
-<p>Note that the module in which a <code>{docs}</code> block is evaluated is determined by <code>current_module()</code> and so will more than likely be <code>Main</code>. This means that each object listed in the block must be visible there. The module can be changed to something else on a per-page basis with a <code>{meta}</code> block as in the following</p>
+<p>When we next run <code>make.jl</code> the docstring for <code>Example.func(x)</code> should appear in place of the <code>@docs</code> block in <code>build/index.md</code>. Note that <em>more than one</em> object can be referenced inside a <code>@docs</code> block – just place each one on a separate line.</p>
+<p>Note that the module in which a <code>@docs</code> block is evaluated is determined by <code>current_module()</code> and so will more than likely be <code>Main</code>. This means that each object listed in the block must be visible there. The module can be changed to something else on a per-page basis with a <code>@meta</code> block as in the following</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation
 
-    {meta}
-    CurrentModule = Documenter
+```@meta
+CurrentModule = Documenter
+```
 
-...
-
-    {docs}
-    func(x)
+```@docs
+func(x)
+```
 </pre></div>
 
 
-<p>Note that the <code>...</code> in the example above is just there to stop the code blocks from merging into a single block. You could use fenced code blocks instead to avoid needing to have to break up the blocks using extra text.</p>
 <p><a id='Filtering-Included-Docstrings-1'></a></p>
 <h4 id="filtering-included-docstrings">Filtering Included Docstrings</h4>
 <p>In some cases you may want to include a docstring for a <code>Method</code> that extends a <code>Function</code> from a different module – such as <code>Base</code>. In the following example we extend <code>Base.length</code> with a new definition for type <code>T</code> and also add a docstring:</p>
@@ -439,14 +439,16 @@
 
 
 <p>When trying to include this docstring with</p>
-<div class="codehilite"><pre><span></span>    {docs}
-    length
+<div class="codehilite"><pre><span></span>```@docs
+length
+```
 </pre></div>
 
 
 <p>all the docs for <code>length</code> will be included – even those from other modules. There are two ways to solve this problem. Either include the type in the signature with</p>
-<div class="codehilite"><pre><span></span>    {docs}
-    length(::T)
+<div class="codehilite"><pre><span></span>```@docs
+length(::T)
+```
 </pre></div>
 
 
@@ -463,42 +465,47 @@
 <p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation
 
-    {docs}
-    func(x)
+```@docs
+func(x)
+```
 
-- link to [Example.jl Documentation]({ref})
-- link to [`func(x)`]({ref})
+- link to [Example.jl Documentation](@ref)
+- link to [`func(x)`](@ref)
 </pre></div>
 
 
-<p>So we just have to replace each link's url with <code>{ref}</code> and write the name of the thing we'd link to cross-reference. For document headers it's just plain text that matches the name of the header and for docstrings enclose the object in backticks.</p>
+<p>So we just have to replace each link's url with <code>@ref</code> and write the name of the thing we'd link to cross-reference. For document headers it's just plain text that matches the name of the header and for docstrings enclose the object in backticks.</p>
 <p>This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document.</p>
 <p><a id='Navigation-1'></a></p>
 <h3 id="navigation">Navigation</h3>
 <p>Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p>
 <div class="codehilite"><pre><span></span># Example.jl Documentation
 
-    {contents}
+```@contents
+```
 
 ## Functions
 
-    {docs}
-    func(x)
+```@docs
+func(x)
+```
 
 ## Index
 
-    {index}
+```@index
+```
 </pre></div>
 
 
-<p>The <code>{contents}</code> block will generate a nested list of links to all the section headers in the document. By default it will gather all the level 1 and 2 headers from every page in the document, but this can be adjusted using <code>Pages</code> and <code>Depth</code> settings as in the following</p>
-<div class="codehilite"><pre><span></span>    {contents}
-    Pages = [&quot;foo.md&quot;, &quot;bar.md&quot;]
-    Depth = 3
+<p>The <code>@contents</code> block will generate a nested list of links to all the section headers in the document. By default it will gather all the level 1 and 2 headers from every page in the document, but this can be adjusted using <code>Pages</code> and <code>Depth</code> settings as in the following</p>
+<div class="codehilite"><pre><span></span>```@contents
+Pages = [&quot;foo.md&quot;, &quot;bar.md&quot;]
+Depth = 3
+```
 </pre></div>
 
 
-<p>The <code>{index}</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>{docs}</code> blocks. As with the <code>{contents}</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>{index}</code>.</p>
+<p>The <code>@index</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>@docs</code> blocks. As with the <code>@contents</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>@index</code>.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
