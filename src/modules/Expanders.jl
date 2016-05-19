@@ -178,7 +178,9 @@ function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
         doc.internal.objects[object] = docsnode
         push!(nodes, docsnode)
     end
-    page.mapping[x] = failed ? x : DocsNodes(nodes)
+    # When a `@docs` block fails we need to remove the `.language` since some markdown
+    # parsers have trouble rendering it correctly.
+    page.mapping[x] = failed ? (x.language = ""; x) : DocsNodes(nodes)
     return true
 end
 
