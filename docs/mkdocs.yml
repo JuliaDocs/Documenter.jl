@@ -18,6 +18,7 @@ markdown_extensions:
   - extra
   - tables
   - fenced_code
+  - mdx_math
 
 extra_javascript:
   - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
@@ -33,6 +34,7 @@ pages:
   - Syntax: man/syntax.md
   - Doctests: man/doctests.md
   - Hosting Documentation: man/hosting.md
+  - LaTeX Syntax: man/latex.md
   - Internals: man/internals.md
 - Library:
   - Public: lib/public.md

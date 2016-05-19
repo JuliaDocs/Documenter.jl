@@ -10,6 +10,7 @@ A package for building documentation from docstrings and markdown files.
 - Supports Julia `0.4` and `0.5-dev`.
 - Doctests Julia code blocks.
 - Cross references for docs and section headers.
+- [``\LaTeX`` syntax](@ref latex_syntax) support.
 - Checks for missing docstrings and incorrect cross references.
 - Generates tables of contents and docstring indexes.
 - Use `git push` to automatically build and deploy docs from Travis to GitHub Pages.
@@ -29,6 +30,7 @@ Pages = [
     "man/syntax.md",
     "man/doctests.md",
     "man/hosting.md",
+    "man/latex.md",
 ]
 Depth = 2
 ```
