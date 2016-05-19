@@ -72,7 +72,7 @@ Examples package can be found by Julia.
 Now add an `index.md` file to the `src/` directory. The name has no particular significance
 though and you may name it whatever you like. We'll stick to `index.md` for this guide.
 
-Leave the newly added file empty and the run the following command from the `docs/` directory
+Leave the newly added file empty and then run the following command from the `docs/` directory
 
 ```sh
 $ julia make.jl
