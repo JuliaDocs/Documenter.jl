@@ -22,6 +22,8 @@ Pages = ["public.md"]
 Documenter
 makedocs
 deploydocs
+Travis
+Travis.genkeys
 Deps
 Deps.pip
 ```

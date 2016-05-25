@@ -214,29 +214,40 @@ function deploydocs(;
     travis_tag          = get(ENV, "TRAVIS_TAG",           "")
     travis_osname       = get(ENV, "TRAVIS_OS_NAME",       "")
     travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
-    git_rev             = readchomp(`git rev-parse --short HEAD`)
+
+    # Other variables.
+    sha          = readchomp(`git rev-parse --short HEAD`)
+    ssh_key_file = abspath(joinpath(root, ".documenter.enc"))
+    has_ssh_key  = isfile(ssh_key_file)
 
     # When should a deploy be attempted?
     should_deploy =
         contains(repo, travis_repo_slug) &&
         travis_pull_request == "false"   &&
-        github_api_key      != ""        &&
-        travis_osname       == osname    &&
-        travis_julia        == julia     &&
+        (
+            # Support token and ssh key deployments.
+            github_api_key != "" ||
+            has_ssh_key
+        ) &&
+        travis_osname == osname &&
+        travis_julia  == julia  &&
         (
             travis_branch == latest ||
             travis_tag    != ""
         )
 
     if get(ENV, "DOCUMENTER_DEBUG", "") == "true"
-        Utilities.debug("GITHUB_API_KEY empty = $(github_api_key == "")")
-        Utilities.debug("TRAVIS_REPO_SLUG     = \"$travis_repo_slug\"")
-        Utilities.debug("TRAVIS_PULL_REQUEST  = \"$travis_pull_request\"")
-        Utilities.debug("TRAVIS_OS_NAME       = \"$travis_osname\"")
-        Utilities.debug("TRAVIS_JULIA_VERSION = \"$travis_julia\"")
-        Utilities.debug("TRAVIS_BRANCH        = \"$travis_branch\"")
-        Utilities.debug("TRAVIS_TAG           = \"$travis_tag\"")
-        Utilities.debug("should_deploy        = \"$should_deploy\"")
+        Utilities.debug("TRAVIS_REPO_SLUG       = \"$travis_repo_slug\"")
+        Utilities.debug("TRAVIS_PULL_REQUEST    = \"$travis_pull_request\"")
+        Utilities.debug("TRAVIS_OS_NAME         = \"$travis_osname\"")
+        Utilities.debug("TRAVIS_JULIA_VERSION   = \"$travis_julia\"")
+        Utilities.debug("TRAVIS_BRANCH          = \"$travis_branch\"")
+        Utilities.debug("TRAVIS_TAG             = \"$travis_tag\"")
+        Utilities.debug("git commit SHA         = $sha")
+        Utilities.debug("GITHUB_API_KEY exists  = $(github_api_key != "")")
+        Utilities.debug(".documenter.enc path   = $(ssh_key_file)")
+        Utilities.debug(".documenter.enc exists = $(has_ssh_key)")
+        Utilities.debug("should_deploy          = $should_deploy")
     end
 
     if should_deploy
@@ -257,40 +268,177 @@ function deploydocs(;
                 latest_dir = joinpath(temp, "latest")
                 stable_dir = joinpath(temp, "stable")
                 tagged_dir = joinpath(temp, travis_tag)
-                # Git repo setup.
-                cd(temp) do
-                    run(`git init`)
-                    run(`git config user.name  "autodocs"`)
-                    run(`git config user.email "autodocs"`)
-                    success(`git remote add upstream "https://$github_api_key@$repo"`) ||
-                        error("failed to add remote.")
-                    success(`git fetch upstream`) ||
-                        error("failed to fetch from remote.")
-                    success(`git checkout -b $branch upstream/$branch`) ||
-                        error("failed to checkout remote.")
+
+                keyfile, _ = splitext(ssh_key_file)
+                target_dir = abspath(target)
+
+                # The upstream URL to which we push new content and the ssh decryption commands.
+                upstream, ssh_script =
+                    if has_ssh_key
+                        key = getenv(r"encrypted_(.+)_key")
+                        iv  = getenv(r"encrypted_(.+)_iv")
+                        "git@$(replace(repo, "github.com/", "github.com:"))",
+                        """
+                        openssl aes-256-cbc -K $key -iv $iv -in $keyfile.enc -out $keyfile -d
+                        chmod 600 $keyfile
+                        eval `ssh-agent -s`
+                        ssh-add $keyfile
+                        """
+                    else
+                        "https://$github_api_key@$repo", ""
+                    end
+
+                # On non-tagged builds we just build `latest`,
+                # otherwise build the `stable` and `version` builds.
+                copy_script =
+                    if travis_tag == ""
+                        """
+                        rm -rf $latest_dir
+                        cp -r  $target_dir $latest_dir
+                        """
+                    else
+                        """
+                        rm -rf $stable_dir
+                        cp -r  $target_dir $stable_dir
+                        rm -rf $tagged_dir
+                        cp -r  $target_dir $tagged_dir
+                        """
+                    end
+
+                # Auto authorise SSH authentication requests for github.com.
+                open(joinpath(homedir(), ".ssh", "config"), "a") do io
+                    println(io,
+                        """
+                        Host github.com
+                            StrictHostKeyChecking no
+                        """
+                    )
                 end
-                # Copy generated from target to versioned doc directories.
-                if travis_tag == ""
-                    Utilities.cleandir(latest_dir)
-                    cp(target, latest_dir, remove_destination = true)
-                else
-                    Utilities.cleandir(stable_dir)
-                    Utilities.cleandir(tagged_dir)
-                    cp(target, stable_dir, remove_destination = true)
-                    cp(target, tagged_dir, remove_destination = true)
-                end
-                # Commit the generated content to the repo.
-                cd(temp) do
-                    run(`git add -A .`)
-                    run(`git commit -m "build based on $git_rev"`)
-                    success(`git push -q upstream HEAD:$branch`) ||
-                        error("failed to push to remote.")
+
+                # Write, run, and delete the deploy script.
+                mktemp() do path, io
+                    script = buildscript(
+                        temp,
+                        upstream,
+                        branch,
+                        ssh_script,
+                        copy_script,
+                        sha,
+                    )
+                    println(io, script); flush(io) # `flush`, otherwise `path` is empty.
+                    run(`sh $path`)
+                    # Remove the unencrypted private key.
+                    isfile(keyfile) && rm(keyfile)
                 end
             end
         end
     else
         Utilities.log("skipping docs deployment.")
     end
+end
+
+buildscript(dir, upstream, branch, ssh_script, copy_script, sha) =
+    """
+    $ssh_script
+
+    cd $dir
+
+    git init
+
+    git config user.name  "autodocs"
+    git config user.email "autodocs"
+
+    git remote add upstream "$upstream"
+
+    git fetch upstream
+
+    git checkout -b $branch upstream/$branch
+
+    $copy_script
+
+    git add -A .
+    git commit -m "build based on $sha"
+
+    git push -q upstream HEAD:$branch
+    """
+
+function getenv(k::Regex)
+    found = collect(filter(s -> ismatch(k, s), keys(ENV)))
+    length(found) === 1 ? ENV[found[1]] : error("no keys found in ENV 'key/iv' pair.")
+end
+
+export Travis
+
+"""
+Package functions for interacting with Travis.
+"""
+module Travis
+
+export genkeys
+
+"""
+Generate ssh keys for automatic deployment of docs from Travis to GitHub pages. Requires the
+following command lines programs to be installed:
+
+- `which`
+- `git`
+- `travis`
+- `ssh-keygen`
+
+# Examples
+
+    julia> using Documenter
+
+    julia> Travis.genkeys("MyPackageName")
+    [ ... output ... ]
+
+"""
+function genkeys(package)
+    # Error checking. Do the required programs exist?
+    isdir(Pkg.dir(package))     || error("'$package' could not be found in '$(Pkg.dir())'.")
+    success(`which -v`)         || error("'which' not found.")
+    success(`which git`)        || error("'git' not found.")
+    success(`which travis`)     || error("'travis' not found.")
+    success(`which ssh-keygen`) || error("'ssh-keygen' not found.")
+
+    directory = "docs"
+    filename  = ".documenter"
+
+    cd(Pkg.dir(package, directory)) do
+
+        run(`ssh-keygen -N "" -f $filename`)
+        run(`travis login --auto`)
+        run(`travis encrypt-file $filename`)
+
+        warn("removing private key.")
+        rm(filename)
+
+        # Get remote details.
+        user, repo =
+            let r = readchomp(`git config --get remote.origin.url`)
+                m = match(Pkg.Git.GITHUB_REGEX, r)
+                m === nothing && error("no remote repo named 'origin' found.")
+                m[2], m[3]
+            end
+        println(
+            """
+
+            Add the following public deploy key to '$user/$repo' with write access
+
+            $(strip(readstring("$filename.pub")))
+
+            on the following page:
+
+                https://github.com/$user/$repo/settings/keys
+
+            Then commit the '$filename.enc' file. Do not edit '.travis.yml'.
+            """
+        )
+        warn("removing public key.")
+        rm("$filename.pub")
+    end
+end
+
 end
 
 end
