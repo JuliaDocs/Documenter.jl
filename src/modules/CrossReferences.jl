@@ -134,14 +134,18 @@ end
 # Issues/PRs cross referencing.
 # -----------------------------
 
-function issue_xref(link::Markdown.Link, num, meta, page, doc)
-    remote =
-        LibGit2.with(LibGit2.GitRepoExt(dirname(doc.user.root))) do repo
-            LibGit2.with(LibGit2.GitConfig(repo)) do cfg
-                Utilities.getremote(cfg)
+if isdefined(Base, :LibGit2)
+    function issue_xref(link::Markdown.Link, num, meta, page, doc)
+        remote =
+            LibGit2.with(LibGit2.GitRepoExt(dirname(doc.user.root))) do repo
+                LibGit2.with(LibGit2.GitConfig(repo)) do cfg
+                    Utilities.getremote(cfg)
+                end
             end
-        end
-    isnull(remote) || (link.url = "https://github.com/$(get(remote))/issues/$(num[2:end])")
+        isnull(remote) || (link.url = "https://github.com/$(get(remote))/issues/$(num[2:end])")
+    end
+else
+    issue_xref(link::Markdown.Link, num, meta, page, doc) = nothing
 end
 
 end
