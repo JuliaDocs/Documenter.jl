@@ -68,8 +68,12 @@ function basicxref(link::Markdown.Link, meta, page, doc)
     elseif isa(link.text, Vector) && length(link.text) === 1
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
-        name = Utilities.slugify(text)
-        namedxref(link, name, meta, page, doc)
+        if ismatch(r"#[0-9]+", text)
+            issue_xref(link, text, meta, page, doc)
+        else
+            name = Utilities.slugify(text)
+            namedxref(link, name, meta, page, doc)
+        end
     end
 end
 
@@ -125,6 +129,19 @@ function docsxref(link::Markdown.Link, meta, page, doc)
     else
         Utilities.warn(page.source, "No doc found for reference '[`$code`](@ref)'.")
     end
+end
+
+# Issues/PRs cross referencing.
+# -----------------------------
+
+function issue_xref(link::Markdown.Link, num, meta, page, doc)
+    remote =
+        LibGit2.with(LibGit2.GitRepoExt(dirname(doc.user.root))) do repo
+            LibGit2.with(LibGit2.GitConfig(repo)) do cfg
+                Utilities.getremote(cfg)
+            end
+        end
+    isnull(remote) || (link.url = "https://github.com/$(get(remote))/issues/$(num[2:end])")
 end
 
 end

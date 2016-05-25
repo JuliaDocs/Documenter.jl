@@ -24,3 +24,5 @@ Pages = ["man/tutorial.md"]
 
 ```@index
 ```
+
+[#60](@ref) [#61](@ref)

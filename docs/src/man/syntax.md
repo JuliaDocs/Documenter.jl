@@ -76,7 +76,8 @@ When more complex sorting and filtering is needed then use `@docs` to define it 
 ## `@ref` link
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
-automatically. The text part of the link can be either a docstring or header name.
+automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue
+number.
 
 ````markdown
 # Syntax
@@ -90,11 +91,13 @@ makedocs
 ```
 
 ... [Syntax](@ref) ...
+
+... [#42](@ref) ...
 ````
 
-Plain text in the "text" part of a link will cross-reference a header, while text in
-backticks will cross-reference a docstring from a `@docs` block. The text should match the
-name of the header exactly.
+Plain text in the "text" part of a link will either cross-reference a header, or, when it is
+a number preceded by a `#`, a GitHub issue/pull request. Text wrapped in backticks will
+cross-reference a docstring from a `@docs` block.
 
 `@ref`s may refer to docstrings or headers on different pages as well as the current page
 using the same syntax.
