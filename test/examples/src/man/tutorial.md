@@ -43,32 +43,23 @@ DocTestSetup =
 ```
 
 ```julia
-A = rand(3, 3)
-b = [1.0, 2.0, 3.0]
-A \ b
+a = 1
+b = 2
+a / b
 
 # output
 
-3-element Array{Float64,1}:
- 11.1972
- -0.32122
- -1.72323
+0.5
 ```
 
 ```julia
-julia> A = rand(3, 3);
+julia> a = 1;
 
-julia> b = [1.0, 2.0, 3.0]
-3-element Array{Float64,1}:
- 1.0
- 2.0
- 3.0
+julia> b = 2
+2
 
-julia> A \ b
-3-element Array{Float64,1}:
- 11.1972
- -0.32122
- -1.72323
+julia> a / b
+0.5
 ```
 
 ```@eval
