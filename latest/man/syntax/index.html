@@ -412,7 +412,7 @@ deploydocs
 <p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p>
 <p><a id='@ref-link-1'></a></p>
 <h2 id="ref-link"><code>@ref</code> link</h2>
-<p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be either a docstring or header name.</p>
+<p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.</p>
 <div class="codehilite"><pre><span></span># Syntax
 
 ... [`makedocs`](@ref) ...
@@ -424,10 +424,12 @@ makedocs
 ```
 
 ... [Syntax](@ref) ...
+
+... [#42](@ref) ...
 </pre></div>
 
 
-<p>Plain text in the "text" part of a link will cross-reference a header, while text in backticks will cross-reference a docstring from a <code>@docs</code> block. The text should match the name of the header exactly.</p>
+<p>Plain text in the "text" part of a link will either cross-reference a header, or, when it is a number preceded by a <code>#</code>, a GitHub issue/pull request. Text wrapped in backticks will cross-reference a docstring from a <code>@docs</code> block.</p>
 <p><code>@ref</code>s may refer to docstrings or headers on different pages as well as the current page using the same syntax.</p>
 <p>Note that depending on what the <code>CurrentModule</code> is set to, a docstring <code>@ref</code> may need to be prefixed by the module which defines it.</p>
 <p><strong>Duplicate Headers</strong></p>
