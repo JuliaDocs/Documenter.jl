@@ -333,6 +333,8 @@
 <li><a href="./#Documenter"><code>Documenter</code></a></li>
 <li><a href="./#Documenter.Deps"><code>Documenter.Deps</code></a></li>
 <li><a href="./#Documenter.Deps.pip"><code>Documenter.Deps.pip</code></a></li>
+<li><a href="./#Documenter.Travis"><code>Documenter.Travis</code></a></li>
+<li><a href="./#Documenter.Travis.genkeys"><code>Documenter.Travis.genkeys</code></a></li>
 <li><a href="./#Documenter.deploydocs"><code>Documenter.deploydocs</code></a></li>
 <li><a href="./#Documenter.makedocs"><code>Documenter.makedocs</code></a></li>
 </ul>
@@ -346,7 +348,7 @@
 <li><a href="./#Documenter.makedocs"><code>makedocs</code></a>. Generates documentation from docstrings and templated markdown files.</li>
 <li><a href="./#Documenter.deploydocs"><code>deploydocs</code></a>. Deploys generated documentation from <em>Travis-CI</em> to <em>GitHub Pages</em>.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/417934ad64da909354963c1fd70e14dc5bff9e2b/src/Documenter.jl#L3-11' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/f6a9e6776dc5330fb0dc14827dfc687d25bc3146/src/Documenter.jl#L3-11' class='documenter-source'>source</a><br>
 <a id='Documenter.makedocs' href='#Documenter.makedocs'>#</a>
 <strong><code>Documenter.makedocs</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>makedocs(
@@ -409,7 +411,7 @@
 <p>and so any docstring from the module <code>Documenter</code> that is not spliced into the generated documentation in <code>build</code> will raise a warning.</p>
 <p><strong>See Also</strong></p>
 <p>A guide detailing how to document a package using Documenter's <a href="./#Documenter.makedocs"><code>makedocs</code></a> is provided in the <a href="../../man/guide/#Usage-1">Usage</a> section of the manual.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/417934ad64da909354963c1fd70e14dc5bff9e2b/src/Documenter.jl#L38-115' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/f6a9e6776dc5330fb0dc14827dfc687d25bc3146/src/Documenter.jl#L38-115' class='documenter-source'>source</a><br>
 <a id='Documenter.deploydocs' href='#Documenter.deploydocs'>#</a>
 <strong><code>Documenter.deploydocs</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>deploydocs(
@@ -457,12 +459,34 @@
 <p><strong><code>make</code></strong> is the function used to convert the markdown files to HTML. By default this just runs <code>mkdocs build</code> which populates the <code>target</code> directory.</p>
 <p><strong>See Also</strong></p>
 <p>The <a href="../../man/hosting/#Hosting-Documentation-1">Hosting Documentation</a> section of the manual provides a step-by-step guide to using the <a href="./#Documenter.deploydocs"><code>deploydocs</code></a> function to automatically generate docs and push then to GitHub.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/417934ad64da909354963c1fd70e14dc5bff9e2b/src/Documenter.jl#L125-194' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/f6a9e6776dc5330fb0dc14827dfc687d25bc3146/src/Documenter.jl#L125-194' class='documenter-source'>source</a><br>
+<a id='Documenter.Travis' href='#Documenter.Travis'>#</a>
+<strong><code>Documenter.Travis</code></strong> &mdash; <em>Module</em>.</p>
+<p>Package functions for interacting with Travis.</p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/f6a9e6776dc5330fb0dc14827dfc687d25bc3146/src/Documenter.jl#L372-374' class='documenter-source'>source</a><br>
+<a id='Documenter.Travis.genkeys' href='#Documenter.Travis.genkeys'>#</a>
+<strong><code>Documenter.Travis.genkeys</code></strong> &mdash; <em>Function</em>.</p>
+<p>Generate ssh keys for automatic deployment of docs from Travis to GitHub pages. Requires the following command lines programs to be installed:</p>
+<ul>
+<li><code>which</code></li>
+<li><code>git</code></li>
+<li><code>travis</code></li>
+<li><code>ssh-keygen</code></li>
+</ul>
+<p><strong>Examples</strong></p>
+<div class="codehilite"><pre><span></span>julia&gt; using Documenter
+
+julia&gt; Travis.genkeys(&quot;MyPackageName&quot;)
+[ ... output ... ]
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/f6a9e6776dc5330fb0dc14827dfc687d25bc3146/src/Documenter.jl#L379-395' class='documenter-source'>source</a><br>
 <a id='Documenter.Deps' href='#Documenter.Deps'>#</a>
 <strong><code>Documenter.Deps</code></strong> &mdash; <em>Module</em>.</p>
 <p>Exported module that provides build and deploy dependancies and related functions.</p>
 <p>Currently only <a href="./#Documenter.Deps.pip"><code>pip</code></a> is implemented.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/417934ad64da909354963c1fd70e14dc5bff9e2b/src/modules/Deps.jl#L1-5' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/f6a9e6776dc5330fb0dc14827dfc687d25bc3146/src/modules/Deps.jl#L1-5' class='documenter-source'>source</a><br>
 <a id='Documenter.Deps.pip' href='#Documenter.Deps.pip'>#</a>
 <strong><code>Documenter.Deps.pip</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>pip(deps...)
@@ -484,7 +508,7 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/417934ad64da909354963c1fd70e14dc5bff9e2b/src/modules/Deps.jl#L10-29' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/f6a9e6776dc5330fb0dc14827dfc687d25bc3146/src/modules/Deps.jl#L10-29' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
