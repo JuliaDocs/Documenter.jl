@@ -63,9 +63,9 @@ end
 xref(other, meta, page, doc) = true # Continue to `walk` through element `other`.
 
 function basicxref(link::Markdown.Link, meta, page, doc)
-    if isa(link.text[1], Base.Markdown.Code)
+    if length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
         docsxref(link, meta, page, doc)
-    elseif isa(link.text, Vector) && length(link.text) === 1
+    elseif isa(link.text, Vector)
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
         if ismatch(r"#[0-9]+", text)
