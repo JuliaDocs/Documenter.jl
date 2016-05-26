@@ -396,7 +396,7 @@ following command lines programs to be installed:
 function genkeys(package)
     # Error checking. Do the required programs exist?
     isdir(Pkg.dir(package))     || error("'$package' could not be found in '$(Pkg.dir())'.")
-    success(`which -v`)         || error("'which' not found.")
+    success(`which which`)      || error("'which' not found.")
     success(`which git`)        || error("'git' not found.")
     success(`which travis`)     || error("'travis' not found.")
     success(`which ssh-keygen`) || error("'ssh-keygen' not found.")
