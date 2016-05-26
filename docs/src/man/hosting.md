@@ -46,8 +46,8 @@ Deploy keys provide push access to a *single* repository.
 **Note**
 
 You will need several command line programs installed for the following steps to work. They
-are `which`, `git`, `ssh-keygen`, and `travis`. Make sure these are installed before you
-begin.
+are `which`, `git`, `ssh-keygen`, and [`travis`](https://github.com/travis-ci/travis.rb).
+Make sure these are installed before you begin.
 
 ---
 
