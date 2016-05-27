@@ -374,6 +374,8 @@ Package functions for interacting with Travis.
 """
 module Travis
 
+using Compat
+
 export genkeys
 
 """
