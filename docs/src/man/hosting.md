@@ -105,7 +105,7 @@ run your `docs/make.jl` file:
 
 ```yaml
 after_success:
-  - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaDocs/Documenter.jl")'
   - julia -e 'cd(Pkg.dir("PACKAGE_NAME")); include(joinpath("docs", "make.jl"))'
 ```
 

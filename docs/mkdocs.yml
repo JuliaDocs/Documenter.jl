@@ -1,5 +1,5 @@
 site_name:        Documenter.jl
-repo_url:         https://github.com/MichaelHatherly/Documenter.jl
+repo_url:         https://github.com/JuliaDocs/Documenter.jl
 site_description: Julia package documentation generator.
 site_author:      Michael Hatherly
 
