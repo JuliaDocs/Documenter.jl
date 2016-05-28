@@ -129,7 +129,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://github.com/MichaelHatherly/Documenter.jl" class="project">
+  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
     <div class="banner">
       
       <div class="name">
@@ -141,7 +141,7 @@
         </strong>
         
           <br>
-          MichaelHatherly/Documenter.jl
+          JuliaDocs/Documenter.jl
         
       </div>
     </div>
@@ -152,12 +152,12 @@
         <ul class="repo">
           <li class="repo-download">
             
-            <a href="https://github.com/MichaelHatherly/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
               <i class="icon icon-download"></i> Download
             </a>
           </li>
           <li class="repo-stars">
-            <a href="https://github.com/MichaelHatherly/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
               <i class="icon icon-star"></i> Stars
               <span class="count">&ndash;</span>
             </a>
@@ -350,7 +350,7 @@
 <li><a href="./#Documenter.deploydocs"><code>deploydocs</code></a>. Deploys generated documentation from <em>Travis-CI</em> to <em>GitHub Pages</em>.</li>
 </ul>
 <p>Additionally it provides the unexported <a href="./#Documenter.generate"><code>Documenter.generate</code></a>, which can be used to generate documentation stubs for new packages.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/Documenter.jl#L3-14' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/Documenter.jl#L3-14' class='documenter-source'>source</a><br>
 <a id='Documenter.makedocs' href='#Documenter.makedocs'>#</a>
 <strong><code>Documenter.makedocs</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>makedocs(
@@ -405,7 +405,7 @@
 
 <span class="n">deploydocs</span><span class="p">(</span>
     <span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="o">.</span><span class="n">pip</span><span class="p">(</span><span class="s">&quot;pygments&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs-material&quot;</span><span class="p">,</span> <span class="s">&quot;python-markdown-math&quot;</span><span class="p">),</span>
-    <span class="n">repo</span> <span class="o">=</span> <span class="s">&quot;github.com/MichaelHatherly/Documenter.jl.git&quot;</span><span class="p">,</span>
+    <span class="n">repo</span> <span class="o">=</span> <span class="s">&quot;github.com/JuliaDocs/Documenter.jl.git&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -413,7 +413,7 @@
 <p>and so any docstring from the module <code>Documenter</code> that is not spliced into the generated documentation in <code>build</code> will raise a warning.</p>
 <p><strong>See Also</strong></p>
 <p>A guide detailing how to document a package using Documenter's <a href="./#Documenter.makedocs"><code>makedocs</code></a> is provided in the <a href="../../man/guide/#Usage-1">Usage</a> section of the manual.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/Documenter.jl#L42-119' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/Documenter.jl#L42-119' class='documenter-source'>source</a><br>
 <a id='Documenter.deploydocs' href='#Documenter.deploydocs'>#</a>
 <strong><code>Documenter.deploydocs</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>deploydocs(
@@ -445,7 +445,7 @@
 <p><strong><code>root</code></strong> has the same purpose as the <code>root</code> keyword for <a href="./#Documenter.makedocs"><code>makedocs</code></a>.</p>
 <p><strong><code>target</code></strong> is the directory, relative to <code>root</code>, where generated HTML content should be written to. This directory <strong>must</strong> be added to the repository's <code>.gitignore</code> file. The default value is <code>"site"</code>.</p>
 <p><strong><code>repo</code></strong> is the remote repository where generated HTML content should be pushed to. This keyword <em>must</em> be set and will throw an error when left undefined. For example this package uses the following <code>repo</code> value:</p>
-<div class="codehilite"><pre><span></span>repo = &quot;github.com/MichaelHatherly/Documenter.jl.git&quot;
+<div class="codehilite"><pre><span></span>repo = &quot;github.com/JuliaDocs/Documenter.jl.git&quot;
 </pre></div>
 
 
@@ -461,7 +461,7 @@
 <p><strong><code>make</code></strong> is the function used to convert the markdown files to HTML. By default this just runs <code>mkdocs build</code> which populates the <code>target</code> directory.</p>
 <p><strong>See Also</strong></p>
 <p>The <a href="../../man/hosting/#Hosting-Documentation-1">Hosting Documentation</a> section of the manual provides a step-by-step guide to using the <a href="./#Documenter.deploydocs"><code>deploydocs</code></a> function to automatically generate docs and push then to GitHub.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/Documenter.jl#L129-198' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/Documenter.jl#L129-198' class='documenter-source'>source</a><br>
 <a id='Documenter.generate' href='#Documenter.generate'>#</a>
 <strong><code>Documenter.generate</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>generate(
@@ -493,11 +493,11 @@ julia&gt; Documenter.generate(&quot;MyPackageName&quot;)
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/Documenter.jl#L450-485' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/Documenter.jl#L450-485' class='documenter-source'>source</a><br>
 <a id='Documenter.Travis' href='#Documenter.Travis'>#</a>
 <strong><code>Documenter.Travis</code></strong> &mdash; <em>Module</em>.</p>
 <p>Package functions for interacting with Travis.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/Documenter.jl#L376-378' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/Documenter.jl#L376-378' class='documenter-source'>source</a><br>
 <a id='Documenter.Travis.genkeys' href='#Documenter.Travis.genkeys'>#</a>
 <strong><code>Documenter.Travis.genkeys</code></strong> &mdash; <em>Function</em>.</p>
 <p>Generate ssh keys for automatic deployment of docs from Travis to GitHub pages. Requires the following command lines programs to be installed:</p>
@@ -515,12 +515,12 @@ julia&gt; Travis.genkeys(&quot;MyPackageName&quot;)
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/Documenter.jl#L385-401' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/Documenter.jl#L385-401' class='documenter-source'>source</a><br>
 <a id='Documenter.Deps' href='#Documenter.Deps'>#</a>
 <strong><code>Documenter.Deps</code></strong> &mdash; <em>Module</em>.</p>
 <p>Exported module that provides build and deploy dependancies and related functions.</p>
 <p>Currently only <a href="./#Documenter.Deps.pip"><code>pip</code></a> is implemented.</p>
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/modules/Deps.jl#L1-5' class='documenter-source'>source</a><br>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/modules/Deps.jl#L1-5' class='documenter-source'>source</a><br>
 <a id='Documenter.Deps.pip' href='#Documenter.Deps.pip'>#</a>
 <strong><code>Documenter.Deps.pip</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>pip(deps...)
@@ -542,7 +542,7 @@ julia&gt; Travis.genkeys(&quot;MyPackageName&quot;)
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/MichaelHatherly/Documenter.jl/tree/345f016fdf13a59701d60e5db216d584c0b452a1/src/modules/Deps.jl#L10-29' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/ee898aa8097e61cce88b2d5ba8e4b07025445983/src/modules/Deps.jl#L10-29' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -612,7 +612,7 @@ julia&gt; Travis.genkeys(&quot;MyPackageName&quot;)
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = 'MichaelHatherly/Documenter.jl';
+      var repo_id  = 'JuliaDocs/Documenter.jl';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     
