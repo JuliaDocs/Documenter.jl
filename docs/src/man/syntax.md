@@ -149,19 +149,29 @@ See [Setup Code](@ref) section of the Doctests page for an explanation of `DocTe
 
 ## `@index` block
 
-Generates a list of links to docstrings that have been spliced into a document. The only
-valid setting is currently `Pages = ...`.
+Generates a list of links to docstrings that have been spliced into a document. Valid
+settings are `Pages`, `Modules`, and `Order`. For example:
 
 ````markdown
 ```@index
-Pages = ["foo.md"]
+Pages   = ["foo.md"]
+Modules = [Foo, Bar]
+Order   = [:function, :type]
 ```
 ````
 
-When `Pages` is not provided all pages in the document are included.
+When `Pages` or `Modules` are not provided then all pages or modules are included. `Order`
+defaults to
 
-Note that the `Pages` value can be any valid Julia code and so can be something more complex
-that an array literal if a large number of pages must be included, i.e.
+```
+[:module, :constant, :type, :function, :macro]
+```
+
+if not specified. `Order` and `Modules` behave the same way as in [`@autodocs` block](@ref)s
+and filter out docstrings that do not match one of the modules or categories specified.
+
+Note that the values assigned to `Pages`, `Modules`, and `Order` may be any valid Julia code
+and thus can be something more complex that an array literal if required, i.e.
 
 ````markdown
 ```@index
@@ -170,7 +180,7 @@ Pages = map(file -> joinpath("man", file), readdir("man"))
 ````
 
 It should be noted though that in this case `Pages` may not be sorted in the order that is
-expected by the user. Try to stick to array literals for `Pages` as much as possible.
+expected by the user. Try to stick to array literals as much as possible.
 
 ## `@contents` block
 

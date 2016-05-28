@@ -44,6 +44,23 @@ Depth = 2
 
 ## [Index](@id main-index)
 
+### Modules
+
 ```@index
 Pages = ["lib/public.md", "lib/internals.md"]
+Order = [:module]
+```
+
+### Functions
+
+```@index
+Pages = ["lib/public.md", "lib/internals.md"]
+Order = [:function]
+```
+
+### Types
+
+```@index
+Pages = ["lib/public.md", "lib/internals.md"]
+Order = [:type]
 ```

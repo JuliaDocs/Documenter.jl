@@ -97,23 +97,46 @@ end
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
 
+# Helpers for @index filtering and sorting.
+function _compare(col, ind, a, b)
+    x, y = a[ind], b[ind]
+    haskey(col, x) && haskey(col, y) ? _compare(col[x], col[y]) : 0
+end
+_compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
+_isvalid(x, xs) = isempty(xs) || x in xs
+
+
 function render(io::IO, ::MIME"text/plain", index::Expanders.IndexNode, page, doc)
+    # Get user-defined key/value pairs.
     pages   = get(index.dict, :Pages, [])
-    mapping = Dict()
-    for (object, docsnode) in doc.internal.objects
-        build = docsnode.page.build
-        path = relpath(build, dirname(index.dict[:build]))
-        push!(get!(mapping, path, []), (path, object))
-    end
-    pages = isempty(pages) ? sort!(collect(keys(mapping))) : pages
-    for page in pages
-        if haskey(mapping, page)
-            docs = mapping[page]
-            for (path, object) in sort!(docs, by = t -> string(t[2]))
-                url = string(path, "#", Utilities.slugify(object))
-                println(io, "- [`", object.binding, "`](", url, ")")
-            end
+    modules = get(index.dict, :Modules, [])
+    order   = get(index.dict, :Order, [:module, :constant, :type, :function, :macro])
+    # Filtering.
+    docs = []
+    for (object, doc) in doc.internal.objects
+        # Get docstring info for filtering and sorting.
+        page = relpath(doc.page.build, dirname(index.dict[:build]))
+        mod  = object.binding.mod
+        cat  = Symbol(lowercase(Utilities.doccat(object)))
+        # Filter out docs that don't match.
+        if _isvalid(page, pages) && _isvalid(mod, modules) && _isvalid(cat, order)
+            push!(docs, (object, doc, page, mod, cat))
         end
+    end
+    # Sorting.
+    pagesmap   = Dict(zip(pages,   1:length(pages)))
+    modulesmap = Dict(zip(modules, 1:length(modules)))
+    ordermap   = Dict(zip(order,   1:length(order)))
+    comparison = function(a, b)
+        (x = _compare(pagesmap, 3, a, b)) == 0 || return x < 0   # page
+        (x = _compare(modulesmap, 4, a, b)) == 0 || return x < 0 # module
+        (x = _compare(ordermap, 5, a, b)) == 0 || return x < 0   # category
+        string(a[1].binding) < string(b[1].binding)              # object name
+    end
+    # Print out list of ordered doc links.
+    for (object, doc, page, mod, cat) in sort!(docs, lt = comparison)
+        url = string(page, "#", Utilities.slugify(object))
+        println(io, "- [`", object.binding, "`](", url, ")")
     end
 end
 
