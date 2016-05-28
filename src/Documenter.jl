@@ -165,7 +165,7 @@ default value is `"site"`.
 keyword *must* be set and will throw an error when left undefined. For example this package
 uses the following `repo` value:
 
-    repo = "github.com/MichaelHatherly/Documenter.jl.git"
+    repo = "github.com/JuliaDocs/Documenter.jl.git"
 
 **`branch`** is the branch where the generated documentation is pushed. By default this
 value is set to `"gh-pages"`.

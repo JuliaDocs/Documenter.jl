@@ -5,7 +5,7 @@
 Documenter is currently not registered and so must be installed via `Pkg.clone`.
 
 ```julia
-Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")
+Pkg.clone("https://github.com/JuliaDocs/Documenter.jl")
 ```
 
 This package supports Julia `0.4` and `0.5`.
