@@ -462,22 +462,29 @@ end
 <p>See <a href="../doctests/#Setup-Code-1">Setup Code</a> section of the Doctests page for an explanation of <code>DocTestSetup</code>.</p>
 <p><a id='@index-block-1'></a></p>
 <h2 id="index-block"><code>@index</code> block</h2>
-<p>Generates a list of links to docstrings that have been spliced into a document. The only valid setting is currently <code>Pages = ...</code>.</p>
-<div class="codehilite"><pre><span></span>```@index
-Pages = [&quot;foo.md&quot;]
-```
+<p>Generates a list of links to docstrings that have been spliced into a document. Valid settings are <code>Pages</code>, <code>Modules</code>, and <code>Order</code>. For example:</p>
+<div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">index</span>
+<span class="n">Pages</span>   <span class="o">=</span> <span class="o">[</span><span class="s">&quot;foo.md&quot;</span><span class="o">]</span>
+<span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Bar</span><span class="o">]</span>
+<span class="n">Order</span>   <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">function</span><span class="p">,</span> <span class="p">:</span><span class="n">type</span><span class="o">]</span>
+<span class="err">```</span>
 </pre></div>
 
 
-<p>When <code>Pages</code> is not provided all pages in the document are included.</p>
-<p>Note that the <code>Pages</code> value can be any valid Julia code and so can be something more complex that an array literal if a large number of pages must be included, i.e.</p>
+<p>When <code>Pages</code> or <code>Modules</code> are not provided then all pages or modules are included. <code>Order</code> defaults to</p>
+<div class="codehilite"><pre><span></span>[:module, :constant, :type, :function, :macro]
+</pre></div>
+
+
+<p>if not specified. <code>Order</code> and <code>Modules</code> behave the same way as in <a href="./#@autodocs-block-1"><code>@autodocs</code> block</a>s and filter out docstrings that do not match one of the modules or categories specified.</p>
+<p>Note that the values assigned to <code>Pages</code>, <code>Modules</code>, and <code>Order</code> may be any valid Julia code and thus can be something more complex that an array literal if required, i.e.</p>
 <div class="codehilite"><pre><span></span>```@index
 Pages = map(file -&gt; joinpath(&quot;man&quot;, file), readdir(&quot;man&quot;))
 ```
 </pre></div>
 
 
-<p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals for <code>Pages</code> as much as possible.</p>
+<p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals as much as possible.</p>
 <p><a id='@contents-block-1'></a></p>
 <h2 id="contents-block"><code>@contents</code> block</h2>
 <p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p>
