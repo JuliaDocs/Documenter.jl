@@ -216,6 +216,46 @@ end
 
 rm(joinpath(Documenter_root, "build"); recursive = true)
 
+# Try generating documentation with generate()
+
+pkg_generate = if VERSION >= v"0.5-"
+    isdir(Pkg.dir("PkgDev")) || Pkg.add("PkgDev")
+    import PkgDev
+    PkgDev.generate
+else
+    Pkg.generate
+end
+
+const testpkgname = "DocumenterTestPackage"
+
+function check_generated_files(path)
+    @test isdir(path)
+    @test isfile(joinpath(path, "mkdocs.yml"))
+    @test isfile(joinpath(path, ".gitignore"))
+    @test isfile(joinpath(path, "make.jl"))
+    @test isdir(joinpath(path, "src"))
+    @test isfile(joinpath(path, "src", "index.md"))
+end
+
+if ispath(Pkg.dir(testpkgname))
+    error("A package is already installed at $(Pkg.dir(testpkgname))")
+else
+    try
+        pkg_generate(testpkgname,"MIT",config=Dict("user.name"=>"Julia Test", "user.email"=>"tests@docs.julia"))
+        Documenter.generate(testpkgname)
+        check_generated_files(Pkg.dir(testpkgname,"docs"))
+    finally
+        Pkg.rm(testpkgname)
+    end
+end
+
+# try generating at a custom location
+let path = joinpath(Pkg.dir("Documenter"), "test", "docs")
+    Documenter.generate(testpkgname, dir=path)
+    check_generated_files(path)
+    rm(path,recursive=true)
+end
+
 end
 
 include(Pkg.dir("Documenter", "docs", "make.jl"))

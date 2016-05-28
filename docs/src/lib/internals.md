@@ -88,6 +88,17 @@ Formats.Format
 Formats.mimetype
 ```
 
+## Generator
+
+```@docs
+Generator
+Generator.savefile
+Generator.make
+Generator.gitignore
+Generator.mkdocs
+Generator.index
+```
+
 ## Walkers
 
 ```@docs
