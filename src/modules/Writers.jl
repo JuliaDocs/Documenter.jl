@@ -138,6 +138,7 @@ function render(io::IO, ::MIME"text/plain", index::Expanders.IndexNode, page, do
         url = string(page, "#", Utilities.slugify(object))
         println(io, "- [`", object.binding, "`](", url, ")")
     end
+    println(io)
 end
 
 function render(io::IO, ::MIME"text/plain", contents::Expanders.ContentsNode, page, doc)
@@ -169,6 +170,7 @@ function render(io::IO, ::MIME"text/plain", contents::Expanders.ContentsNode, pa
             end
         end
     end
+    println(io)
 end
 
 function render(io::IO, mime::MIME"text/plain", node::Expanders.EvalNode, page, doc)
