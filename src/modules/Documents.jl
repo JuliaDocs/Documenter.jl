@@ -118,4 +118,96 @@ function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
     doc.internal.pages[src] = page
 end
 
+# Document Nodes.
+# ---------------
+
+## IndexNode.
+
+immutable IndexNode
+    dict     :: Dict{Symbol, Any}
+    elements :: Vector
+end
+
+function populate!(index::IndexNode, doc::Document)
+    # Get user-defined key/value pairs.
+    pages   = get(index.dict, :Pages, [])
+    modules = get(index.dict, :Modules, [])
+    order   = get(index.dict, :Order, [:module, :constant, :type, :function, :macro])
+    # Filtering valid index links.
+    for (object, doc) in doc.internal.objects
+        page = relpath(doc.page.build, dirname(index.dict[:build]))
+        mod  = object.binding.mod
+        cat = Symbol(lowercase(Utilities.doccat(object)))
+        if _isvalid(page, pages) && _isvalid(mod, modules) && _isvalid(cat, order)
+            push!(index.elements, (object, doc, page, mod, cat))
+        end
+    end
+    # Sorting index links.
+    pagesmap   = precedence(pages)
+    modulesmap = precedence(modules)
+    ordermap   = precedence(order)
+    comparison = function(a, b)
+        (x = _compare(pagesmap,   3, a, b)) == 0 || return x < 0 # page
+        (x = _compare(modulesmap, 4, a, b)) == 0 || return x < 0 # module
+        (x = _compare(ordermap,   5, a, b)) == 0 || return x < 0 # category
+        string(a[1].binding) < string(b[1].binding)              # object name
+    end
+    sort!(index.elements, lt = comparison)
+    return index
+end
+
+
+## ContentsNode.
+
+immutable ContentsNode
+    dict     :: Dict{Symbol, Any}
+    elements :: Vector
+end
+
+function populate!(contents::ContentsNode, doc::Document)
+    # Get user-defined key/value pairs.
+    pages = get(contents.dict, :Pages, [])
+    depth = get(contents.dict, :Depth, 2)
+    # Filtering valid contents links.
+    for (id, filedict) in doc.internal.headers.map
+        for (file, anchors) in filedict
+            for anchor in anchors
+                page = relpath(anchor.file, dirname(contents.dict[:build]))
+                if _isvalid(page, pages) && Utilities.header_level(anchor.object) ≤ depth
+                    push!(contents.elements, (anchor.order, page, anchor))
+                end
+            end
+        end
+    end
+    # Sorting contents links.
+    pagesmap   = precedence(pages)
+    comparison = function(a, b)
+        (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
+        a[1] < b[1]                                            # anchor order
+    end
+    sort!(contents.elements, lt = comparison)
+    return contents
+end
+
+## Utilities.
+
+function buildnode(T::Type, block, page)
+    mod  = get(page.globals.meta, :CurrentModule, current_module())
+    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
+    for (ex, str) in Utilities.parseblock(block.code)
+        if Utilities.isassign(ex)
+            dict[ex.args[1]] = eval(mod, ex.args[2])
+        end
+    end
+    T(dict, [])
+end
+
+function _compare(col, ind, a, b)
+    x, y = a[ind], b[ind]
+    haskey(col, x) && haskey(col, y) ? _compare(col[x], col[y]) : 0
+end
+_compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
+_isvalid(x, xs) = isempty(xs) || x in xs
+precedence(vec) = Dict(zip(vec, 1:length(vec)))
+
 end
