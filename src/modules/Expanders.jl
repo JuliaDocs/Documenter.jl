@@ -236,31 +236,15 @@ function expand(::Builder.EvalBlocks, x::Base.Markdown.Code, page, doc)
     return true
 end
 
-immutable IndexNode
-    dict :: Dict{Symbol, Any}
-end
 function expand(::Builder.IndexBlocks, x::Base.Markdown.Code, page, doc)
     x.language == "@index" || return false
-    curmod = get(page.globals.meta, :CurrentModule, current_module())
-    dict   = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in Utilities.parseblock(x.code)
-        Utilities.isassign(ex) && (dict[ex.args[1]] = eval(curmod, ex.args[2]))
-    end
-    page.mapping[x] = IndexNode(dict)
+    page.mapping[x] = Documents.buildnode(Documents.IndexNode, x, page)
     return true
 end
 
-immutable ContentsNode
-    dict :: Dict{Symbol, Any}
-end
 function expand(::Builder.ContentsBlocks, x::Base.Markdown.Code, page, doc)
     x.language == "@contents" || return false
-    curmod = get(page.globals.meta, :CurrentModule, current_module())
-    dict   = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in Utilities.parseblock(x.code)
-        Utilities.isassign(ex) && (dict[ex.args[1]] = eval(curmod, ex.args[2]))
-    end
-    page.mapping[x] = ContentsNode(dict)
+    page.mapping[x] = Documents.buildnode(Documents.ContentsNode, x, page)
     return true
 end
 

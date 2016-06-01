@@ -97,78 +97,25 @@ end
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
 
-# Helpers for @index filtering and sorting.
-function _compare(col, ind, a, b)
-    x, y = a[ind], b[ind]
-    haskey(col, x) && haskey(col, y) ? _compare(col[x], col[y]) : 0
-end
-_compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
-_isvalid(x, xs) = isempty(xs) || x in xs
-
-
-function render(io::IO, ::MIME"text/plain", index::Expanders.IndexNode, page, doc)
-    # Get user-defined key/value pairs.
-    pages   = get(index.dict, :Pages, [])
-    modules = get(index.dict, :Modules, [])
-    order   = get(index.dict, :Order, [:module, :constant, :type, :function, :macro])
-    # Filtering.
-    docs = []
-    for (object, doc) in doc.internal.objects
-        # Get docstring info for filtering and sorting.
-        page = relpath(doc.page.build, dirname(index.dict[:build]))
-        mod  = object.binding.mod
-        cat  = Symbol(lowercase(Utilities.doccat(object)))
-        # Filter out docs that don't match.
-        if _isvalid(page, pages) && _isvalid(mod, modules) && _isvalid(cat, order)
-            push!(docs, (object, doc, page, mod, cat))
-        end
-    end
-    # Sorting.
-    pagesmap   = Dict(zip(pages,   1:length(pages)))
-    modulesmap = Dict(zip(modules, 1:length(modules)))
-    ordermap   = Dict(zip(order,   1:length(order)))
-    comparison = function(a, b)
-        (x = _compare(pagesmap, 3, a, b)) == 0 || return x < 0   # page
-        (x = _compare(modulesmap, 4, a, b)) == 0 || return x < 0 # module
-        (x = _compare(ordermap, 5, a, b)) == 0 || return x < 0   # category
-        string(a[1].binding) < string(b[1].binding)              # object name
-    end
-    # Print out list of ordered doc links.
-    for (object, doc, page, mod, cat) in sort!(docs, lt = comparison)
+function render(io::IO, ::MIME"text/plain", index::Documents.IndexNode, page, doc)
+    Documents.populate!(index, doc)
+    for (object, doc, page, mod, cat) in index.elements
         url = string(page, "#", Utilities.slugify(object))
         println(io, "- [`", object.binding, "`](", url, ")")
     end
     println(io)
 end
 
-function render(io::IO, ::MIME"text/plain", contents::Expanders.ContentsNode, page, doc)
-    pages = get(contents.dict, :Pages, [])
-    depth = get(contents.dict, :Depth, 2)
-    mapping = Dict()
-    for (id, filedict) in doc.internal.headers.map
-        for (file, anchors) in filedict
-            for anchor in anchors
-                path = relpath(anchor.file, dirname(contents.dict[:build]))
-                if Utilities.header_level(anchor.object) ≤ depth
-                    push!(get!(mapping, path, []), (anchor.order, path, anchor))
-                end
-            end
-        end
-    end
-    pages = isempty(pages) ? sort!(collect(keys(mapping))) : pages
-    for page in pages
-        if haskey(mapping, page)
-            headers = mapping[page]
-            for (count, path, anchor) in sort!(headers, by = first)
-                header = anchor.object
-                url    = string(path, '#', anchor.id, '-', anchor.nth)
-                link   = Markdown.Link(header.text, url)
-                level  = Utilities.header_level(header)
-                print(io, "    "^(level - 1), "- ")
-                Markdown.plaininline(io, link)
-                println(io)
-            end
-        end
+function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, page, doc)
+    Documents.populate!(contents, doc)
+    for (count, path, anchor) in contents.elements
+        header = anchor.object
+        url    = string(path, '#', anchor.id, '-', anchor.nth)
+        link   = Markdown.Link(header.text, url)
+        level  = Utilities.header_level(header)
+        print(io, "    "^(level - 1), "- ")
+        Markdown.plaininline(io, link)
+        println(io)
     end
     println(io)
 end
