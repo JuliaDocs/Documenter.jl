@@ -17,6 +17,8 @@ import ..Documenter:
 
 using Compat
 
+import Compat: String
+
 # Pages.
 # ------
 
@@ -124,28 +126,41 @@ end
 ## IndexNode.
 
 immutable IndexNode
-    dict     :: Dict{Symbol, Any}
+    pages    :: Vector{String}
+    modules  :: Vector{Module}
+    order    :: Vector{Symbol}
+    build    :: String
+    source   :: String
     elements :: Vector
+
+    function IndexNode(;
+            # TODO: Fix difference between uppercase and lowercase naming of keys.
+            #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
+            Pages   = [],
+            Modules = [],
+            Order   = [:module, :constant, :type, :function, :macro],
+            build   = error("missing value for `build` in `IndexNode`."),
+            source  = error("missing value for `source` in `IndexNode`."),
+            others...
+        )
+        new(Pages, Modules, Order, build, source, [])
+    end
 end
 
 function populate!(index::IndexNode, doc::Document)
-    # Get user-defined key/value pairs.
-    pages   = get(index.dict, :Pages, [])
-    modules = get(index.dict, :Modules, [])
-    order   = get(index.dict, :Order, [:module, :constant, :type, :function, :macro])
     # Filtering valid index links.
     for (object, doc) in doc.internal.objects
-        page = relpath(doc.page.build, dirname(index.dict[:build]))
+        page = relpath(doc.page.build, dirname(index.build))
         mod  = object.binding.mod
-        cat = Symbol(lowercase(Utilities.doccat(object)))
-        if _isvalid(page, pages) && _isvalid(mod, modules) && _isvalid(cat, order)
+        cat  = Symbol(lowercase(Utilities.doccat(object)))
+        if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end
     # Sorting index links.
-    pagesmap   = precedence(pages)
-    modulesmap = precedence(modules)
-    ordermap   = precedence(order)
+    pagesmap   = precedence(index.pages)
+    modulesmap = precedence(index.modules)
+    ordermap   = precedence(index.order)
     comparison = function(a, b)
         (x = _compare(pagesmap,   3, a, b)) == 0 || return x < 0 # page
         (x = _compare(modulesmap, 4, a, b)) == 0 || return x < 0 # module
@@ -160,27 +175,37 @@ end
 ## ContentsNode.
 
 immutable ContentsNode
-    dict     :: Dict{Symbol, Any}
+    pages    :: Vector{String}
+    depth    :: Int
+    build    :: String
+    source   :: String
     elements :: Vector
+
+    function ContentsNode(;
+            Pages  = [],
+            Depth  = 2,
+            build  = error("missing value for `build` in `ContentsNode`."),
+            source = error("missing value for `source` in `ContentsNode`."),
+            others...
+        )
+        new(Pages, Depth, build, source, [])
+    end
 end
 
 function populate!(contents::ContentsNode, doc::Document)
-    # Get user-defined key/value pairs.
-    pages = get(contents.dict, :Pages, [])
-    depth = get(contents.dict, :Depth, 2)
     # Filtering valid contents links.
     for (id, filedict) in doc.internal.headers.map
         for (file, anchors) in filedict
             for anchor in anchors
-                page = relpath(anchor.file, dirname(contents.dict[:build]))
-                if _isvalid(page, pages) && Utilities.header_level(anchor.object) ≤ depth
+                page = relpath(anchor.file, dirname(contents.build))
+                if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
         end
     end
     # Sorting contents links.
-    pagesmap   = precedence(pages)
+    pagesmap   = precedence(contents.pages)
     comparison = function(a, b)
         (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
         a[1] < b[1]                                            # anchor order
@@ -199,7 +224,7 @@ function buildnode(T::Type, block, page)
             dict[ex.args[1]] = eval(mod, ex.args[2])
         end
     end
-    T(dict, [])
+    T(; dict...)
 end
 
 function _compare(col, ind, a, b)
