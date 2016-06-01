@@ -22,6 +22,7 @@ using Compat
 submodule(name) = include(joinpath("modules", string(name, ".jl")))
 
 submodule(:Utilities)
+submodule(:Selectors)
 submodule(:Formats)
 submodule(:Anchors)
 submodule(:Documents)

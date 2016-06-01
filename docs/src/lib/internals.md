@@ -99,6 +99,18 @@ Generator.mkdocs
 Generator.index
 ```
 
+## Selectors
+
+```@docs
+Selectors
+Selectors.AbstractSelector
+Selectors.order
+Selectors.matcher
+Selectors.runner
+Selectors.strict
+Selectors.dispatch
+```
+
 ## Walkers
 
 ```@docs
