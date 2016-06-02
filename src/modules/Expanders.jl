@@ -6,6 +6,7 @@ module Expanders
 import ..Documenter:
 
     Anchors,
+    Selectors,
     Builder,
     Documents,
     Formats,
@@ -14,8 +15,16 @@ import ..Documenter:
 
 using Compat
 
-# Basic driver definitions.
-# -------------------------
+
+function expand(doc::Documents.Document)
+    for (src, page) in doc.internal.pages
+        empty!(page.globals.meta)
+        for element in page.elements
+            deprecate_syntax!(element)
+            Selectors.dispatch(ExpanderPipeline, element, page, doc)
+        end
+    end
+end
 
 const CURLY_BRACKET_SYNTAX = r"^{([a-z]+)(.*)}"
 
@@ -56,53 +65,168 @@ function deprecate_syntax!(element::Markdown.Code)
 end
 deprecate_syntax!(other) = nothing
 
+# Expander Pipeline.
+# ------------------
+
 """
-    expand(ex, doc)
+The default node expander "pipeline", which consists of the following expanders:
 
-Expands each node of a [`Documents.Document`](@ref) using the expanders provided by `ex`.
+- [`TrackHeaders`](@ref)
+- [`MetaBlocks`](@ref)
+- [`DocsBlocks`](@ref)
+- [`AutoDocsBlocks`](@ref)
+- [`EvalBlocks`](@ref)
+- [`IndexBlocks`](@ref)
+- [`ContentsBlocks`](@ref)
+- [`ExampleBlocks`](@ref)
+- [`REPLBlocks`](@ref)
+
 """
-function expand(ex::Builder.ExpandTemplates, doc::Documents.Document)
-    for (src, page) in doc.internal.pages
-        empty!(page.globals.meta)
-        for element in page.elements
-            deprecate_syntax!(element)
-            expand(ex.expanders, element, page, doc)
-        end
-    end
+abstract ExpanderPipeline <: Selectors.AbstractSelector
+
+"""
+Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
+[`Anchors.Anchor`](@ref) object for each one.
+"""
+abstract TrackHeaders <: ExpanderPipeline
+
+"""
+Parses each code block where the language is `@meta` and evaluates the key/value pairs found
+within the block, i.e.
+
+````markdown
+```@meta
+CurrentModule = Documenter
+DocTestSetup  = quote
+    using Documenter
 end
+```
+````
+"""
+abstract MetaBlocks <: ExpanderPipeline
 
-function expand(pipeline, elem, page, doc)
-    expand(Builder.car(pipeline), elem, page, doc)::Bool && return
-    expand(Builder.cdr(pipeline), elem, page, doc)
-end
-expand(::Builder.Expander, elem, page, doc) = false
+"""
+Parses each code block where the language is `@docs` and evaluates the expressions found
+within the block. Replaces the block with the docstrings associated with each expression.
 
-# Default to mapping each element to itself.
-expand(::Tuple{}, elem, page, doc) = (page.mapping[elem] = elem; true)
+````markdown
+```@docs
+Documenter
+makedocs
+deploydocs
+```
+````
+"""
+abstract DocsBlocks <: ExpanderPipeline
 
-# Implementations.
-# ----------------
+"""
+Parses each code block where the language is `@autodocs` and replaces it with all the
+docstrings that match the provided key/value pairs `Modules = ...` and `Order = ...`.
 
-const NAMEDHEADER_REGEX = r"^@id (.+)$"
-const OLD_NAMEDHEADER_REGEX = r"^{ref#([^{}]+)}$"
+````markdown
+```@autodocs
+Modules = [Foo, Bar]
+Order   = [:function, :type]
+```
+````
+"""
+abstract AutoDocsBlocks <: ExpanderPipeline
 
-function namedheader(h::Markdown.Header)
-    if isa(h.text, Vector) && length(h.text) === 1 && isa(h.text[1], Markdown.Link)
-        url = h.text[1].url
-        if ismatch(OLD_NAMEDHEADER_REGEX, url)
-            id = match(OLD_NAMEDHEADER_REGEX, url)[1]
-            h.text[1].url = "@id $id"
-            warn("syntax '", url, "' is deprecated. Use '@id ", id, "' instead.")
-            true
-        else
-            ismatch(NAMEDHEADER_REGEX, url)
-        end
-    else
-        false
-    end
-end
+"""
+Parses each code block where the language is `@eval` and evaluates it's content. Replaces
+the block with the value resulting from the evaluation. This can be useful for inserting
+generated content into a document such as plots.
 
-function expand(::Builder.TrackHeaders, header::Base.Markdown.Header, page, doc)
+````markdown
+```@eval
+using PyPlot
+x = linspace(-π, π)
+y = sin(x)
+plot(x, y, color = "red")
+savefig("plot.svg")
+Markdown.Image("Plot", "plot.svg")
+```
+````
+"""
+abstract EvalBlocks <: ExpanderPipeline
+
+"""
+Parses each code block where the language is `@index` and replaces it with an index of all
+docstrings spliced into the document. The pages that are included can be set using a
+key/value pair `Pages = [...]` such as
+
+````markdown
+```@index
+Pages = ["foo.md", "bar.md"]
+```
+````
+"""
+abstract IndexBlocks <: ExpanderPipeline
+
+"""
+Parses each code block where the language is `@contents` and replaces it with a nested list
+of all `Header` nodes in the generated document. The pages and depth of the list can be set
+using `Pages = [...]` and `Depth = N` where `N` is and integer.
+
+````markdown
+```@contents
+Pages = ["foo.md", "bar.md"]
+Depth = 1
+```
+````
+The default `Depth` value is `2`.
+"""
+abstract ContentsBlocks <: ExpanderPipeline
+
+"""
+Parses each code block where the language is `@example` and evaluates the parsed Julia code
+found within. The resulting value is then inserted into the final document after the source
+code.
+
+````markdown
+```@example
+a = 1
+b = 2
+a + b
+```
+````
+"""
+abstract ExampleBlocks <: ExpanderPipeline
+
+"""
+Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
+toplevel expression in the final document.
+"""
+abstract REPLBlocks <: ExpanderPipeline
+
+Selectors.order(::Type{TrackHeaders})   = 1.0
+Selectors.order(::Type{MetaBlocks})     = 2.0
+Selectors.order(::Type{DocsBlocks})     = 3.0
+Selectors.order(::Type{AutoDocsBlocks}) = 4.0
+Selectors.order(::Type{EvalBlocks})     = 5.0
+Selectors.order(::Type{IndexBlocks})    = 6.0
+Selectors.order(::Type{ContentsBlocks}) = 7.0
+Selectors.order(::Type{ExampleBlocks})  = 8.0
+Selectors.order(::Type{REPLBlocks})     = 9.0
+
+Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node, Markdown.Header)
+Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
+Selectors.matcher(::Type{DocsBlocks},     node, page, doc) = iscode(node, "@docs")
+Selectors.matcher(::Type{AutoDocsBlocks}, node, page, doc) = iscode(node, "@autodocs")
+Selectors.matcher(::Type{EvalBlocks},     node, page, doc) = iscode(node, "@eval")
+Selectors.matcher(::Type{IndexBlocks},    node, page, doc) = iscode(node, "@index")
+Selectors.matcher(::Type{ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
+Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@example")
+Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
+
+# Default Expander.
+
+Selectors.runner(::Type{ExpanderPipeline}, x, page, doc) = page.mapping[x] = x
+
+# Track Headers.
+# --------------
+
+function Selectors.runner(::Type{TrackHeaders}, header, page, doc)
     # Get the header slug.
     text =
         if namedheader(header)
@@ -117,21 +241,25 @@ function expand(::Builder.TrackHeaders, header::Base.Markdown.Header, page, doc)
     anchor = Anchors.add!(doc.internal.headers, header, slug, page.build)
     # Map the header element to the generated anchor and the current anchor count.
     page.mapping[header] = anchor
-    return true
 end
+
+# @meta
+# -----
 
 immutable MetaNode
     dict :: Dict{Symbol, Any}
 end
-function expand(::Builder.MetaBlocks, x::Base.Markdown.Code, page, doc)
-    x.language == "@meta" || return false
+
+function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     meta = page.globals.meta
     for (ex, str) in Utilities.parseblock(x.code)
         Utilities.isassign(ex) && (meta[ex.args[1]] = eval(current_module(), ex.args[2]))
     end
     page.mapping[x] = MetaNode(copy(meta))
-    return true
 end
+
+# @docs
+# -----
 
 immutable DocsNode
     docstr :: Any
@@ -139,11 +267,12 @@ immutable DocsNode
     object :: Utilities.Object
     page   :: Documents.Page
 end
+
 immutable DocsNodes
     nodes :: Vector{DocsNode}
 end
-function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
-    x.language == "@docs" || return false
+
+function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     failed = false
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
@@ -181,11 +310,12 @@ function expand(::Builder.DocsBlocks, x::Base.Markdown.Code, page, doc)
     # When a `@docs` block fails we need to remove the `.language` since some markdown
     # parsers have trouble rendering it correctly.
     page.mapping[x] = failed ? (x.language = ""; x) : DocsNodes(nodes)
-    return true
 end
 
-function expand(::Builder.AutoDocsBlocks, x::Base.Markdown.Code, page, doc)
-    x.language == "@autodocs" || return false
+# @autodocs
+# ---------
+
+function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     fields = Dict{Symbol, Any}()
     for (ex, str) in Utilities.parseblock(x.code)
@@ -211,20 +341,22 @@ function expand(::Builder.AutoDocsBlocks, x::Base.Markdown.Code, page, doc)
         end
         x.language = "@docs"
         x.code = takebuf_string(block)
-        expand(Builder.DocsBlocks(), x, page, doc)
+        Selectors.runner(DocsBlocks, x, page, doc)
     else
         Utilities.warn(page.source, "'@autodocs' missing 'Modules = ...'.")
         page.mapping[x] = x
     end
-    return true
 end
+
+# @eval
+# -----
 
 immutable EvalNode
     code   :: Base.Markdown.Code
     result :: Any
 end
-function expand(::Builder.EvalBlocks, x::Base.Markdown.Code, page, doc)
-    x.language == "@eval" || return false
+
+function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     cd(dirname(page.build)) do
         result = nothing
@@ -233,25 +365,28 @@ function expand(::Builder.EvalBlocks, x::Base.Markdown.Code, page, doc)
         end
         page.mapping[x] = EvalNode(x, result)
     end
-    return true
 end
 
-function expand(::Builder.IndexBlocks, x::Base.Markdown.Code, page, doc)
-    x.language == "@index" || return false
+# @index
+# ------
+
+function Selectors.runner(::Type{IndexBlocks}, x, page, doc)
     page.mapping[x] = Documents.buildnode(Documents.IndexNode, x, page)
-    return true
 end
 
-function expand(::Builder.ContentsBlocks, x::Base.Markdown.Code, page, doc)
-    x.language == "@contents" || return false
+# @contents
+# ---------
+
+function Selectors.runner(::Type{ContentsBlocks}, x, page, doc)
     page.mapping[x] = Documents.buildnode(Documents.ContentsNode, x, page)
-    return true
 end
 
-function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
-    # Match `@example` and `@example <name>` blocks.
+# @example
+# --------
+
+function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     matched = Utilities.nullmatch(r"^@example[ ]?(.*)$", x.language)
-    isnull(matched) && return false
+    isnull(matched) && error("invalid '@example' syntax: $(x.language)")
     # The sandboxed module -- either a new one or a cached one from this page.
     name = Utilities.getmatch(matched, 1)
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
@@ -271,7 +406,7 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
             #       Currently we just bail out and leave the original code block as is.
             Utilities.warn(page.source, "failed to run code block.\n\n$err")
             page.mapping[x] = x
-            return true
+            return
         end
     end
     # Splice the input and output into the document.
@@ -283,22 +418,14 @@ function expand(::Builder.ExampleBlocks, x::Base.Markdown.Code, page, doc)
     isempty(output) || push!(content, Markdown.Code(output))
     # ... and finally map the original code block to the newly generated ones.
     page.mapping[x] = Markdown.MD(content)
-    true
 end
 
-# Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
-function droplines(code; skip = 0)
-    buffer = IOBuffer()
-    for line in split(code, '\n')[(skip + 1):end]
-        ismatch(r"^(.*)# hide$", line) && continue
-        println(buffer, rstrip(line))
-    end
-    strip(takebuf_string(buffer), '\n')
-end
+# @repl
+# -----
 
-function expand(::Builder.REPLBlocks, x::Base.Markdown.Code, page, doc)
+function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     matched = Utilities.nullmatch(r"^@repl[ ]?(.*)$", x.language)
-    isnull(matched) && return false
+    isnull(matched) && error("invalid '@repl' syntax: $(x.language)")
     name = Utilities.getmatch(matched, 1)
     sym  = isempty(name) ? gensym("repl-") : Symbol("repl-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
@@ -330,7 +457,42 @@ function expand(::Builder.REPLBlocks, x::Base.Markdown.Code, page, doc)
     end
     # Trailing whitespace in `"julia "` to avoid doctesting generated repl examples.
     page.mapping[x] = Base.Markdown.Code("julia ", rstrip(takebuf_string(out)))
-    return true
+end
+
+# Utilities.
+# ----------
+
+iscode(x::Markdown.Code, r::Regex) = ismatch(r, x.language)
+iscode(x::Markdown.Code, lang)     = x.language == lang
+iscode(x, lang)                    = false
+
+const NAMEDHEADER_REGEX = r"^@id (.+)$"
+const OLD_NAMEDHEADER_REGEX = r"^{ref#([^{}]+)}$"
+
+function namedheader(h::Markdown.Header)
+    if isa(h.text, Vector) && length(h.text) === 1 && isa(h.text[1], Markdown.Link)
+        url = h.text[1].url
+        if ismatch(OLD_NAMEDHEADER_REGEX, url)
+            id = match(OLD_NAMEDHEADER_REGEX, url)[1]
+            h.text[1].url = "@id $id"
+            warn("syntax '", url, "' is deprecated. Use '@id ", id, "' instead.")
+            true
+        else
+            ismatch(NAMEDHEADER_REGEX, url)
+        end
+    else
+        false
+    end
+end
+
+# Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
+function droplines(code; skip = 0)
+    buffer = IOBuffer()
+    for line in split(code, '\n')[(skip + 1):end]
+        ismatch(r"^(.*)# hide$", line) && continue
+        println(buffer, rstrip(line))
+    end
+    strip(takebuf_string(buffer), '\n')
 end
 
 function prepend_prompt(input)

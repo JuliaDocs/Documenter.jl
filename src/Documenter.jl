@@ -22,6 +22,7 @@ using Compat
 submodule(name) = include(joinpath("modules", string(name, ".jl")))
 
 submodule(:Utilities)
+submodule(:Selectors)
 submodule(:Formats)
 submodule(:Anchors)
 submodule(:Documents)
@@ -119,9 +120,8 @@ in the [Usage](@ref) section of the manual.
 """
 function makedocs(; debug = false, args...)
     document = Documents.Document(; args...)
-    pipeline = Builder.DEFAULT_PIPELINE
     cd(document.user.root) do
-        Builder.process(pipeline, document)
+        Selectors.dispatch(Builder.DocumentPipeline, document)
     end
     debug ? document : nothing
 end

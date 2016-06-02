@@ -33,15 +33,10 @@ Anchors.isunique
 
 ```@docs
 Builder
+Builder.DocumentPipeline
 Builder.SetupBuildDirectory
 Builder.CopyAssetsDirectory
 Builder.ExpandTemplates
-Builder.TrackHeaders
-Builder.MetaBlocks
-Builder.DocsBlocks
-Builder.EvalBlocks
-Builder.IndexBlocks
-Builder.ContentsBlocks
 Builder.CrossReferences
 Builder.CheckDocument
 Builder.RenderDocument
@@ -77,7 +72,16 @@ Documents.Globals
 
 ```@docs
 Expanders
-Expanders.expand
+Expanders.ExpanderPipeline
+Expanders.TrackHeaders
+Expanders.MetaBlocks
+Expanders.DocsBlocks
+Expanders.AutoDocsBlocks
+Expanders.EvalBlocks
+Expanders.IndexBlocks
+Expanders.ContentsBlocks
+Expanders.ExampleBlocks
+Expanders.REPLBlocks
 ```
 
 ## Formats
@@ -97,6 +101,19 @@ Generator.make
 Generator.gitignore
 Generator.mkdocs
 Generator.index
+```
+
+## Selectors
+
+```@docs
+Selectors
+Selectors.AbstractSelector
+Selectors.order
+Selectors.matcher
+Selectors.runner
+Selectors.strict
+Selectors.disable
+Selectors.dispatch
 ```
 
 ## Walkers

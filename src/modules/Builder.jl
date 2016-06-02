@@ -1,7 +1,27 @@
 """
-Defines the Documenter build "pipeline".
+Defines the `Documenter.jl` build "pipeline" named [`DocumentPipeline`](@ref).
 
-The default pipeline consists of the following:
+Each stage of the pipeline performs an action on a [`Documents.Document`](@ref) object.
+These actions may involve creating directory structures, expanding templates, running
+doctests, etc.
+"""
+module Builder
+
+import ..Documenter:
+
+    Anchors,
+    Selectors,
+    Documents,
+    Documenter,
+    Utilities
+
+using Compat
+
+# Document Pipeline.
+# ------------------
+
+"""
+The default document processing "pipeline", which consists of the following actions:
 
 - [`SetupBuildDirectory`](@ref)
 - [`CopyAssetsDirectory`](@ref)
@@ -10,215 +30,53 @@ The default pipeline consists of the following:
 - [`CheckDocument`](@ref)
 - [`RenderDocument`](@ref)
 
-Each stage of the pipeline performs an action on a [`Documents.Document`](@ref). These
-actions may involve creating directory structures, expanding templates, running doctests, etc.
 """
-module Builder
-
-import ..Documenter:
-
-    Anchors,
-    Documents,
-    Documenter,
-    Utilities
-
-using Compat
-
-# Stages.
-# -------
+abstract DocumentPipeline <: Selectors.AbstractSelector
 
 """
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
-immutable SetupBuildDirectory end
+abstract SetupBuildDirectory <: DocumentPipeline
+
 """
 Copies the contents of the `assets` directory into the `build` folder.
 """
-immutable CopyAssetsDirectory end
-
-
-"""
-Executes a sequence of actions on each node of the parsed markdown files in turn. These
-actions may be any of:
-
-- [`TrackHeaders`](@ref)
-- [`MetaBlocks`](@ref)
-- [`DocsBlocks`](@ref)
-- [`EvalBlocks`](@ref)
-- [`IndexBlocks`](@ref)
-- [`ContentsBlocks`](@ref)
-
-See the docs for each of the listed "expanders" for their description.
-"""
-immutable ExpandTemplates{T}
-    expanders :: T
-end
-ExpandTemplates(t...) = ExpandTemplates{typeof(t)}(t)
-
-abstract Expander
+abstract CopyAssetsDirectory <: DocumentPipeline
 
 """
-Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
-[`Anchors.Anchor`](@ref) object for each one.
+Executes a sequence of actions on each node of the parsed markdown files in turn.
 """
-immutable TrackHeaders <: Expander end
-"""
-Parses each code block where the language is `@meta` and evaluates the key/value pairs found
-within the block, i.e.
-
-````markdown
-```@meta
-CurrentModule = Documenter
-DocTestSetup  = quote
-    using Documenter
-end
-```
-````
-"""
-immutable MetaBlocks <: Expander end
-"""
-Parses each code block where the language is `@docs` and evaluates the expressions found
-within the block. Replaces the block with the docstrings associated with each expression.
-
-````markdown
-```@docs
-Documenter
-makedocs
-deploydocs
-```
-````
-"""
-immutable DocsBlocks <: Expander end
-
-immutable AutoDocsBlocks <: Expander end
-
-"""
-Parses each code block where the language is `@eval` and evaluates it's content. Replaces
-the block with the value resulting from the evaluation. This can be useful for inserting
-generated content into a document such as plots.
-
-````markdown
-```@eval
-using PyPlot
-
-x = linspace(-π, π)
-y = sin(x)
-
-plot(x, y, color = "red")
-savefig("plot.svg")
-
-Markdown.Image("Plot", "plot.svg")
-```
-````
-"""
-immutable EvalBlocks <: Expander end
-"""
-Parses each code block where the language is `@index` and replaces it with an index of all
-docstrings spliced into the document. The pages that are included can be set using a
-key/value pair `Pages = [...]` such as
-
-````markdown
-```@index
-Pages = ["foo.md", "bar.md"]
-```
-````
-"""
-immutable IndexBlocks <: Expander end
-"""
-Parses each code block where the language is `@contents` and replaces it with a nested list
-of all `Header` nodes in the generated document. The pages and depth of the list can be set
-using `Pages = [...]` and `Depth = N` where `N` is and integer.
-
-````markdown
-```@contents
-Pages = ["foo.md", "bar.md"]
-Depth = 1
-```
-````
-
-The default `Depth` value is `2`.
-"""
-immutable ContentsBlocks <: Expander end
-
-immutable ExampleBlocks <: Expander end
-
-immutable REPLBlocks <: Expander end
+abstract ExpandTemplates <: DocumentPipeline
 
 """
 Finds and sets URLs for each `@ref` link in the document to the correct destinations.
 """
-immutable CrossReferences end
+abstract CrossReferences <: DocumentPipeline
+
 """
 Checks that all documented objects are included in the document and runs doctests on all
 valid Julia code blocks.
 """
-immutable CheckDocument end
+abstract CheckDocument <: DocumentPipeline
+
 """
 Writes the document tree to the `build` directory.
 """
-immutable RenderDocument end
+abstract RenderDocument <: DocumentPipeline
 
-# Pipeline.
-# ---------
+Selectors.order(::Type{SetupBuildDirectory}) = 1.0
+Selectors.order(::Type{CopyAssetsDirectory}) = 2.0
+Selectors.order(::Type{ExpandTemplates})     = 3.0
+Selectors.order(::Type{CrossReferences})     = 4.0
+Selectors.order(::Type{CheckDocument})       = 5.0
+Selectors.order(::Type{RenderDocument})      = 6.0
 
-immutable Pipeline{T}
-    pipeline :: T
-end
-Pipeline(p...) = Pipeline{typeof(p)}(p)
+Selectors.matcher{T <: DocumentPipeline}(::Type{T}, doc::Documents.Document) = true
 
-const DEFAULT_PIPELINE = Pipeline(
-    SetupBuildDirectory(),
-    CopyAssetsDirectory(),
-    ExpandTemplates(
-        TrackHeaders(),
-        MetaBlocks(),
-        DocsBlocks(),
-        AutoDocsBlocks(),
-        EvalBlocks(),
-        IndexBlocks(),
-        ContentsBlocks(),
-        ExampleBlocks(),
-        REPLBlocks(),
-    ),
-    CrossReferences(),
-    CheckDocument(),
-    RenderDocument(),
-)
+Selectors.strict{T <: DocumentPipeline}(::Type{T}) = false
 
-# Processing.
-# -----------
-
-process(p::Pipeline, document) = process(p.pipeline, document)
-
-function process(pipeline::Tuple, document)
-    stage = car(pipeline)
-    log(stage); exec(stage, document)
-    process(cdr(pipeline), document)
-end
-process(::Tuple{}, document) = nothing
-
-@inline  car(x::Tuple) = _car(x...)
-@inline _car(h, t...)  = h
-@inline _car()         = ()
-
-@inline  cdr(x::Tuple) = _cdr(x...)
-@inline _cdr(h, t...)  = t
-@inline _cdr()         = ()
-
-# Interface.
-# ----------
-
-function log  end
-function exec end
-
-# Implementations.
-# ----------------
-
-# Setup build directory.
-
-log(::SetupBuildDirectory) = Utilities.log("setting up build directory.")
-
-function exec(::SetupBuildDirectory, doc)
+function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
+    Utilities.log("setting up build directory.")
     # Frequently used fields.
     build  = doc.user.build
     source = doc.user.source
@@ -246,11 +104,8 @@ function exec(::SetupBuildDirectory, doc)
     end
 end
 
-# Copy assets directory.
-
-log(::CopyAssetsDirectory) = Utilities.log("copying assets to build directory.")
-
-function exec(::CopyAssetsDirectory, doc)
+function Selectors.runner(::Type{CopyAssetsDirectory}, doc::Documents.Document)
+    Utilities.log("copying assets to build directory.")
     assets = doc.internal.assets
     if isdir(assets)
         builddir = joinpath(doc.user.build, "assets")
@@ -266,28 +121,27 @@ function exec(::CopyAssetsDirectory, doc)
     end
 end
 
-# Expand templates.
+function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)
+    Utilities.log("expanding markdown templates.")
+    Documenter.Expanders.expand(doc)
+end
 
-log(::ExpandTemplates)         = Utilities.log("expanding markdown templates.")
-exec(ex::ExpandTemplates, doc) = Documenter.Expanders.expand(ex, doc)
+function Selectors.runner(::Type{CrossReferences}, doc::Documents.Document)
+    Utilities.log("building cross-references.")
+    Documenter.CrossReferences.crossref(doc)
+end
 
-# Build cross-references.
-
-log(::CrossReferences)       = Utilities.log("building cross-references.")
-exec(::CrossReferences, doc) = Documenter.CrossReferences.crossref(doc)
-
-# Check document.
-
-log(::CheckDocument) = Utilities.log("running document checks.")
-
-function exec(::CheckDocument, doc)
+function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
+    Utilities.log("running document checks.")
     Documenter.DocChecks.missingdocs(doc)
     Documenter.DocChecks.doctest(doc)
 end
 
-# Render document.
+function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
+    Utilities.log("rendering document.")
+    Documenter.Writers.render(doc)
+end
 
-log(::RenderDocument)       = Utilities.log("rendering document.")
-exec(::RenderDocument, doc) = Documenter.Writers.render(doc)
+Selectors.runner(::Type{DocumentPipeline}, doc::Documents.Document) = nothing
 
 end
