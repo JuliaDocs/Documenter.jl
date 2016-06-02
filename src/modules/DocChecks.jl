@@ -28,34 +28,38 @@ function missingdocs(doc::Documents.Document)
     for object in keys(doc.internal.objects)
         if haskey(bindings, object.binding)
             signatures = bindings[object.binding]
-            if object.signature == Union{} || length(signatures) == 1
+            if object.signature ≡ Union{} || length(signatures) ≡ 1
                 delete!(bindings, object.binding)
+            elseif object.signature in signatures
+                delete!(signatures, object.signature)
             end
         end
     end
-    n = length(bindings)
+    n = reduce(+, 0, map(length, values(bindings)))
     if n > 0
         b = IOBuffer()
-        println(b, "$n docstring$(n == 1 ? "" : "s") potentially missing:\n")
+        println(b, "$n docstring$(n ≡ 1 ? "" : "s") potentially missing:\n")
         for (binding, signatures) in bindings
-            println(b, "    $binding")
+            for sig in signatures
+                println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
+            end
         end
         Utilities.warn(takebuf_string(b))
     end
 end
 
 function allbindings(mods)
-    out = Dict{Utilities.Binding, Vector{Type}}()
+    out = Dict{Utilities.Binding, Set{Type}}()
     for m in mods
         allbindings(m, out)
     end
     out
 end
 
-function allbindings(mod::Module, out = Dict{Utilities.Binding, Vector{Type}}())
+function allbindings(mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
         isa(obj, ObjectIdDict) && continue
-        out[Utilities.Binding(mod, nameof(obj))] = sigs(doc)
+        out[Utilities.Binding(mod, nameof(obj))] = Set(sigs(doc))
     end
     out
 end
