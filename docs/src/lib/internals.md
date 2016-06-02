@@ -112,6 +112,7 @@ Selectors.order
 Selectors.matcher
 Selectors.runner
 Selectors.strict
+Selectors.disable
 Selectors.dispatch
 ```
 

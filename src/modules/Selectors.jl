@@ -63,6 +63,7 @@ The module provides the following interface for creating selectors:
 - [`matcher`](@ref)
 - [`runner`](@ref)
 - [`strict`](@ref)
+- [`disable`](@ref)
 - [`dispatch`](@ref)
 
 """
@@ -144,6 +145,15 @@ Selectors.runner(::Type{Debug}, x) = @show x
 strict{T <: AbstractSelector}(::Type{T}) = true
 
 """
+Disable a particular case in a selector so that it is never used.
+
+```julia
+Selectors.disable(::Type{Debug}) = true
+```
+"""
+disable{T <: AbstractSelector}(::Type{T}) = false
+
+"""
 Generated function that builds a specialised selector for each selector type provided, i.e.
 
 ```julia
@@ -153,7 +163,7 @@ Selectors.dispatch(MySelector, 1)
 @generated function dispatch{T <: AbstractSelector}(::Type{T}, x...)
     out = map(sort(subtypes(T); by = order)) do t
         ret = strict(t) ? :(@goto END) : nothing
-        :($(matcher)($t, x...) && ($(runner)($t, x...); $ret))
+        disable(t) ? nothing : :($(matcher)($t, x...) && ($(runner)($t, x...); $ret))
     end
     Expr(:block, out..., :($(runner)($T, x...); @label END))
 end
