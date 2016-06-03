@@ -27,7 +27,7 @@ Writes a [`Documents.Document`](@ref) object to `build` directory in specified f
 function render(doc::Documents.Document)
     mime = Formats.mimetype(doc.user.format)
     for (src, page) in doc.internal.pages
-        open(page.build, "w") do io
+        open(Formats.extension(doc.user.format, page.build), "w") do io
             for elem in page.elements
                 node = page.mapping[elem]
                 render(io, mime, node, page, doc)
@@ -160,10 +160,15 @@ dropheaders(other) = other
 
 # TODO
 
+function render(io::IO, ::MIME"text/latex", node, page, doc)
+end
+
 # HTML Output.
 # ------------
 
 # TODO
 
+function render(io::IO, ::MIME"text/html", node, page, doc)
+end
 
 end

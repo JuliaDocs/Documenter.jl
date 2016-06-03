@@ -100,6 +100,7 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
             # Replace the `@ref` url with a path to the referenced header.
             anchor   = get(Anchors.anchor(headers, slug))
             path     = relpath(anchor.file, dirname(page.build))
+            path     = Formats.extension(doc.user.format, path)
             link.url = string(path, '#', slug, '-', anchor.nth)
         else
             Utilities.warn(page.source, "'$slug' is not unique.")
@@ -120,6 +121,7 @@ function docsxref(link::Markdown.Link, meta, page, doc)
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
+        path     = Formats.extension(doc.user.format, path)
         slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
         # Fixup keyword ref text since they have a leading ':' char.

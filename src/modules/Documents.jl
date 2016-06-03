@@ -149,13 +149,14 @@ immutable IndexNode
     end
 end
 
-function populate!(index::IndexNode, doc::Document)
+function populate!(index::IndexNode, document::Document)
     # Filtering valid index links.
-    for (object, doc) in doc.internal.objects
+    for (object, doc) in document.internal.objects
         page = relpath(doc.page.build, dirname(index.build))
         mod  = object.binding.mod
         cat  = Symbol(lowercase(Utilities.doccat(object)))
         if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
+            page = Formats.extension(document.user.format, page)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end
@@ -194,13 +195,14 @@ immutable ContentsNode
     end
 end
 
-function populate!(contents::ContentsNode, doc::Document)
+function populate!(contents::ContentsNode, document::Document)
     # Filtering valid contents links.
-    for (id, filedict) in doc.internal.headers.map
+    for (id, filedict) in document.internal.headers.map
         for (file, anchors) in filedict
             for anchor in anchors
                 page = relpath(anchor.file, dirname(contents.build))
                 if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) ≤ contents.depth
+                    page = Formats.extension(document.user.format, page)
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
