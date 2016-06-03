@@ -312,10 +312,11 @@ header_level{N}(::Markdown.Header{N}) = N
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
 
+url(remote, doc) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
+
 # Correct file and line info only available from this version onwards.
 if VERSION >= v"0.5.0-dev+3442"
-    # TODO: get docstring line range rather than just starting point.
-    function url(mod, file, line)
+    function url(remote, mod, file, line)
         if inbase(mod)
             base = "https://github.com/JuliaLang/julia/tree"
             dest = "base/$file#L$line"
@@ -328,43 +329,30 @@ if VERSION >= v"0.5.0-dev+3442"
                 end
             )
         else
-            LibGit2.with(LibGit2.GitRepoExt(dirname(file))) do repo
-                LibGit2.with(LibGit2.GitConfig(repo)) do cfg
-                    remote = getremote(cfg)
-                    if isnull(remote)
-                        Nullable{Compat.String}()
-                    else
-                        commit = string(LibGit2.head_oid(repo))
-                        root   = LibGit2.path(repo)
-                        if startswith(file, root)
-                            base = "https://github.com/$(get(remote))/tree"
-                            path = last(split(file, root; limit = 2))
-                            Nullable{Compat.String}("$base/$commit/$path#L$line")
-                        else
-                            Nullable{Compat.String}()
-                        end
-                    end
-                end
+            commit, root = cd(dirname(file)) do
+                readchomp(`git rev-parse HEAD`), readchomp(`git rev-parse --show-toplevel`)
+            end
+            if startswith(file, root)
+                base = "https://github.com/$remote/tree"
+                _, path = split(file, root; limit = 2)
+                Nullable{Compat.String}("$base/$commit/$path#L$line")
+            else
+                Nullable{Comapat.String}()
             end
         end
     end
 else
-    url(mod, file, line) = Nullable{Compat.String}()
+    url(remote, mod, file, line) = Nullable{Compat.String}()
 end
 
-function getremote(cfg)
-    remote = nullmatch(
-        LibGit2.GITHUB_REGEX,
-        LibGit2.get(cfg, "remote.origin.url", ""),
-    )
-    if isnull(remote)
-        # On Travis remote `origin` is set to the local directory, not an URL.
+function getremote(dir::AbstractString)
+    remote = cd(() -> readchomp(`git config --get remote.origin.url`), dir)
+    match  = Utilities.nullmatch(Pkg.Git.GITHUB_REGEX, remote)
+    if isnull(match)
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
-        isempty(travis) ?
-            Nullable{Compat.String}() :
-            Nullable{Compat.String}(travis)
+        isempty(travis) ? error("no remote repository found.") : travis
     else
-        Nullable{Compat.String}(getmatch(remote, 1))
+        getmatch(match, 1)
     end
 end
 
@@ -376,5 +364,21 @@ function inbase(m::Module)
         parent ≡ m ? false : inbase(parent)
     end
 end
+
+# Find line numbers.
+# ------------------
+
+linerange(doc) = linerange(doc.text, doc.data[:linenumber])
+
+function linerange(text, from)
+    lines = sum([isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
+    lines > 0 ? string(from, '-', from + lines + 1) : string(from)
+end
+
+newlines(s::AbstractString) = count(c -> c === '\n', s)
+newlines(other) = 0
+
+
+unwrap(f, x::Nullable) = isnull(x) ? nothing : f(get(x))
 
 end

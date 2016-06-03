@@ -67,6 +67,7 @@ Private state used to control the generation process.
 """
 immutable Internal
     assets  :: Compat.String
+    remote  :: Compat.String
     pages   :: Dict{Compat.String, Page}
     headers :: Anchors.AnchorMap
     docs    :: Anchors.AnchorMap
@@ -107,6 +108,7 @@ function Document(;
     )
     internal = Internal(
         Utilities.assetsdir(),
+        Utilities.getremote(root),
         Dict{Compat.String, Page}(),
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),

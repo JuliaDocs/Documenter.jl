@@ -69,7 +69,7 @@ function basicxref(link::Markdown.Link, meta, page, doc)
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
         if ismatch(r"#[0-9]+", text)
-            issue_xref(link, text, meta, page, doc)
+            issue_xref(link, lstrip(text, '#'), meta, page, doc)
         else
             name = Utilities.slugify(text)
             namedxref(link, name, meta, page, doc)
@@ -134,18 +134,8 @@ end
 # Issues/PRs cross referencing.
 # -----------------------------
 
-if isdefined(Base, :LibGit2)
-    function issue_xref(link::Markdown.Link, num, meta, page, doc)
-        remote =
-            LibGit2.with(LibGit2.GitRepoExt(dirname(doc.user.root))) do repo
-                LibGit2.with(LibGit2.GitConfig(repo)) do cfg
-                    Utilities.getremote(cfg)
-                end
-            end
-        isnull(remote) || (link.url = "https://github.com/$(get(remote))/issues/$(num[2:end])")
-    end
-else
-    issue_xref(link::Markdown.Link, num, meta, page, doc) = nothing
+function issue_xref(link::Markdown.Link, num, meta, page, doc)
+    link.url = "https://github.com/$(doc.internal.remote)/issues/$num"
 end
 
 end
