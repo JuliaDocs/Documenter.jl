@@ -161,6 +161,7 @@ dropheaders(other) = other
 # TODO
 
 function render(io::IO, ::MIME"text/latex", node, page, doc)
+    error("LaTeX rendering is unsupported.")
 end
 
 # HTML Output.
@@ -169,6 +170,7 @@ end
 # TODO
 
 function render(io::IO, ::MIME"text/html", node, page, doc)
+    error("HTML rendering is unsupported.")
 end
 
 end
