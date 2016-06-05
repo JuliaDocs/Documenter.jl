@@ -211,9 +211,15 @@ end
 # Display doctesting results.
 
 function result_to_string(buf, value)
-    dis = Base.Multimedia.TextDisplay(buf)
+    dis = text_display(buf)
     value === nothing || display(dis, value)
     sanitise(buf)
+end
+
+if VERSION < v"0.5.0-dev+4305"
+    text_display(buf) = TextDisplay(buf)
+else
+    text_display(buf) = TextDisplay(IOContext(buf, multiline = true, limit = true))
 end
 
 function error_to_string(buf, er, bt)
