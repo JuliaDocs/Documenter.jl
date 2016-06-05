@@ -29,4 +29,16 @@ function mimetype(f::Format)
         error("unexpected format.")
 end
 
+function extension(f::Format, file)
+    path, _ = splitext(file)
+    string(path, extension(f))
+end
+
+function extension(f::Format)
+    f ≡ Markdown ? ".md"   :
+    f ≡ LaTeX    ? ".tex"  :
+    f ≡ HTML     ? ".html" :
+        error("unexpected format.")
+end
+
 end

@@ -69,7 +69,7 @@ function basicxref(link::Markdown.Link, meta, page, doc)
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
         if ismatch(r"#[0-9]+", text)
-            issue_xref(link, text, meta, page, doc)
+            issue_xref(link, lstrip(text, '#'), meta, page, doc)
         else
             name = Utilities.slugify(text)
             namedxref(link, name, meta, page, doc)
@@ -100,6 +100,7 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
             # Replace the `@ref` url with a path to the referenced header.
             anchor   = get(Anchors.anchor(headers, slug))
             path     = relpath(anchor.file, dirname(page.build))
+            path     = Formats.extension(doc.user.format, path)
             link.url = string(path, '#', slug, '-', anchor.nth)
         else
             Utilities.warn(page.source, "'$slug' is not unique.")
@@ -120,6 +121,7 @@ function docsxref(link::Markdown.Link, meta, page, doc)
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
+        path     = Formats.extension(doc.user.format, path)
         slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
         # Fixup keyword ref text since they have a leading ':' char.
@@ -134,18 +136,8 @@ end
 # Issues/PRs cross referencing.
 # -----------------------------
 
-if isdefined(Base, :LibGit2)
-    function issue_xref(link::Markdown.Link, num, meta, page, doc)
-        remote =
-            LibGit2.with(LibGit2.GitRepoExt(dirname(doc.user.root))) do repo
-                LibGit2.with(LibGit2.GitConfig(repo)) do cfg
-                    Utilities.getremote(cfg)
-                end
-            end
-        isnull(remote) || (link.url = "https://github.com/$(get(remote))/issues/$(num[2:end])")
-    end
-else
-    issue_xref(link::Markdown.Link, num, meta, page, doc) = nothing
+function issue_xref(link::Markdown.Link, num, meta, page, doc)
+    link.url = "https://github.com/$(doc.internal.remote)/issues/$num"
 end
 
 end
