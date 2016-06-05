@@ -26,3 +26,17 @@ Pages = ["man/tutorial.md"]
 ```
 
 [#60](@ref) [#61](@ref)
+
+```@repl
+zeros(5, 5)
+zeros(50, 50)
+```
+
+```julia
+julia> [1.0, 2.0, 3.0]
+3-element Array{Float64,1}:
+ 1.0
+ 2.0
+ 3.0
+
+```
