@@ -337,7 +337,7 @@ if VERSION >= v"0.5.0-dev+3442"
                 _, path = split(file, root; limit = 2)
                 Nullable{Compat.String}("$base/$commit/$path#L$line")
             else
-                Nullable{Comapat.String}()
+                Nullable{Compat.String}()
             end
         end
     end
