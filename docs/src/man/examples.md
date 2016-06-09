@@ -27,6 +27,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [DifferentialEquations.jl](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
+- [PhyloNetworks.jl](http://crsl4.github.io/PhyloNetworks.jl/latest/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest)
 - [Weave.jl](https://mpastell.github.io/Weave.jl/stable)
 
