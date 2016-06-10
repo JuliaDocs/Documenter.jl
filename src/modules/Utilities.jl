@@ -317,6 +317,7 @@ url(remote, doc) = url(remote, doc.data[:module], doc.data[:path], linerange(doc
 # Correct file and line info only available from this version onwards.
 if VERSION >= v"0.5.0-dev+3442"
     function url(remote, mod, file, line)
+        isempty(remote) && return Nullable{Compat.String}()
         if inbase(mod)
             base = "https://github.com/JuliaLang/julia/tree"
             dest = "base/$file#L$line"
@@ -346,11 +347,16 @@ else
 end
 
 function getremote(dir::AbstractString)
-    remote = cd(() -> readchomp(`git config --get remote.origin.url`), dir)
+    remote =
+        try
+            cd(() -> readchomp(`git config --get remote.origin.url`), dir)
+        catch err
+            ""
+        end
     match  = Utilities.nullmatch(Pkg.Git.GITHUB_REGEX, remote)
     if isnull(match)
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
-        isempty(travis) ? error("no remote repository found.") : travis
+        isempty(travis) ? "" : travis
     else
         getmatch(match, 1)
     end

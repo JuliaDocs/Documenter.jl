@@ -137,7 +137,8 @@ end
 # -----------------------------
 
 function issue_xref(link::Markdown.Link, num, meta, page, doc)
-    link.url = "https://github.com/$(doc.internal.remote)/issues/$num"
+    link.url = isempty(doc.internal.remote) ? link.url :
+        "https://github.com/$(doc.internal.remote)/issues/$num"
 end
 
 end
