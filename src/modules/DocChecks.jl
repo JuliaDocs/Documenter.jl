@@ -101,7 +101,7 @@ function doctest(doc::Documents.Document)
             empty!(page.globals.meta)
             for element in page.elements
                 Walkers.walk(page.globals.meta, page.mapping[element]) do block
-                    doctest(block, page.globals.meta)
+                    doctest(block, page.globals.meta, doc)
                 end
             end
         end
@@ -110,16 +110,16 @@ function doctest(doc::Documents.Document)
     end
 end
 
-function doctest(block::Markdown.Code, meta::Dict)
+function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document)
     if block.language == "julia" || block.language == "jlcon"
         code, sandbox = block.code, Module(:Main)
         haskey(meta, :DocTestSetup) && eval(sandbox, meta[:DocTestSetup])
-        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox)   :
-        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox) : nothing
+        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox, doc)   :
+        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox, doc) : nothing
     end
     false
 end
-doctest(block, meta::Dict) = true
+doctest(block, meta::Dict, doc::Documents.Document) = true
 
 # Doctest evaluation.
 
@@ -137,13 +137,13 @@ type Result
     end
 end
 
-function eval_repl(code, sandbox)
+function eval_repl(code, sandbox, doc::Documents.Document)
     for (input, output) in repl_splitter(code)
         result = Result(code, input, output)
         for (ex, str) in Utilities.parseblock(input)
             try
                 result.hide  = ends_with_semicolon(str)
-                result.value = withoutput(result.stdout) do
+                result.value = Utilities.withoutput(doc.internal.stream, result.stdout) do
                     eval(sandbox, ex)
                 end
                 # Redefine the magic `ans` binding available in the REPL.
@@ -158,7 +158,7 @@ function eval_repl(code, sandbox)
     end
 end
 
-function eval_script(code, sandbox)
+function eval_script(code, sandbox, doc::Documents.Document)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
@@ -169,7 +169,7 @@ function eval_script(code, sandbox)
     try
         ans = nothing
         for (ex, str) in Utilities.parseblock(input)
-            ans = withoutput(result.stdout) do
+            ans = Utilities.withoutput(doc.internal.stream, result.stdout) do
                 eval(sandbox, ex)
             end
         end
@@ -316,43 +316,6 @@ function takeuntil!(r, buf, lines)
         else
             break
         end
-    end
-end
-
-# STDOUT / STDERR output redirection.
-
-# Evaluate `func` and send all stdout/stderr text to `buffer`.
-function withoutput(func, buffer)
-    # Switch to custom output streams.
-    STDOUT′, STDERR′ = STDOUT, STDERR
-    STDOUT_R, _ = redirect_stdout()
-    STDERR_R, _ = redirect_stderr()
-    # Spin up the STD* watchers.
-    killed = Ref(false)
-    @async watchbuffer(STDOUT_R, buffer, killed)
-    @async watchbuffer(STDERR_R, buffer, killed)
-    # Execute the function.
-    result =
-        try
-            func()
-        catch err
-            rethrow(err)
-        finally
-            # Switch back to standard output streams.
-            redirect_stdout(STDOUT′)
-            redirect_stderr(STDERR′)
-            # Terminate the `@async` watchers.
-            killed[] = true
-        end
-    # Return the result of evaluating `func`.
-    result
-end
-
-# Sends all data from `from` to `to`. Exits when `killed` is set to `true`.
-function watchbuffer(from::IO, to::IO, killed::Ref)
-    while !eof(from) || !killed[]
-        n = nb_available(from)
-        n > 0 ? write(to, read(from, n)) : 0
     end
 end
 
