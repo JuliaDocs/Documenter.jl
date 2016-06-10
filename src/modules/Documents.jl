@@ -37,7 +37,16 @@ Represents a single markdown file.
 immutable Page
     source   :: Compat.String
     build    :: Compat.String
+    """
+    Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
+    should be considered immutable.
+    """
     elements :: Vector
+    """
+    Each element in `.elements` maps to an "expanded" element. This may be itself if the
+    element does not need expanding or some other object, such as a `DocsNode` in the case
+    of `@docs` code blocks.
+    """
     mapping  :: ObjectIdDict
     globals  :: Globals
 end
@@ -53,25 +62,25 @@ end
 User-specified values used to control the generation process.
 """
 immutable User
-    root    :: Compat.String
-    source  :: Compat.String
-    build   :: Compat.String
-    format  :: Formats.Format
-    clean   :: Bool
-    doctest :: Bool
-    modules :: Set{Module}
+    root    :: Compat.String  # An absolute path to the root directory of the document.
+    source  :: Compat.String  # Parent directory is `.root`. Where files are read from.
+    build   :: Compat.String  # Parent directory is also `.root`. Where files are written to.
+    format  :: Formats.Format # What format to render the final document with?
+    clean   :: Bool           # Empty the `build` directory before starting a new build?
+    doctest :: Bool           # Run doctests?
+    modules :: Set{Module}    # Which modules to check for missing docs?
 end
 
 """
 Private state used to control the generation process.
 """
 immutable Internal
-    assets  :: Compat.String
-    remote  :: Compat.String
-    pages   :: Dict{Compat.String, Page}
-    headers :: Anchors.AnchorMap
-    docs    :: Anchors.AnchorMap
-    objects :: ObjectIdDict
+    assets  :: Compat.String             # Path where asset files will be copied to.
+    remote  :: Compat.String             # The remote repo on github where this package is hosted.
+    pages   :: Dict{Compat.String, Page} # Markdown files only.
+    headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
 end
 
 # Document.
@@ -81,8 +90,8 @@ end
 Represents an entire document.
 """
 immutable Document
-    user     :: User
-    internal :: Internal
+    user     :: User     # Set by the user via `makedocs`.
+    internal :: Internal # Computed values.
 end
 
 function Document(;
@@ -128,12 +137,12 @@ end
 ## IndexNode.
 
 immutable IndexNode
-    pages    :: Vector{String}
-    modules  :: Vector{Module}
-    order    :: Vector{Symbol}
-    build    :: String
-    source   :: String
-    elements :: Vector
+    pages    :: Vector{String} # Which pages to include in the index? Set by user.
+    modules  :: Vector{Module} # Which modules to include? Set by user.
+    order    :: Vector{Symbol} # What order should docs be listed in? Set by user.
+    build    :: String         # Path to the file where this index will appear.
+    source   :: String         # Path to the file where this index was written.
+    elements :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
 
     function IndexNode(;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
@@ -178,11 +187,11 @@ end
 ## ContentsNode.
 
 immutable ContentsNode
-    pages    :: Vector{String}
-    depth    :: Int
-    build    :: String
-    source   :: String
-    elements :: Vector
+    pages    :: Vector{String} # Which pages should be included in contents? Set by user.
+    depth    :: Int            # Down to which level should headers be displayed? Set by user.
+    build    :: String         # Same as for `IndexNode`s.
+    source   :: String         # Same as for `IndexNode`s.
+    elements :: Vector         # (order, page, anchor)-tuple for constructing links.
 
     function ContentsNode(;
             Pages  = [],
