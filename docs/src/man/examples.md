@@ -23,12 +23,12 @@ regressions prior to tagging new Documenter releases whenever possible.
 Packages that have tagged versions available in `METADATA.jl`.
 
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
-- [POMDPs.jl](http://juliapomdp.github.io/POMDPs.jl/latest/)
 - [Currencies.jl](https://totalverb.github.io/Currencies.jl/latest/)
 - [DifferentialEquations.jl](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
 - [PhyloNetworks.jl](http://crsl4.github.io/PhyloNetworks.jl/latest/)
+- [POMDPs.jl](http://juliapomdp.github.io/POMDPs.jl/latest/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest)
 - [Weave.jl](https://mpastell.github.io/Weave.jl/stable)
 
