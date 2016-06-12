@@ -336,7 +336,7 @@ if VERSION >= v"0.5.0-dev+3442"
             if startswith(file, root)
                 base = "https://github.com/$remote/tree"
                 _, path = split(file, root; limit = 2)
-                Nullable{Compat.String}("$base/$commit/$path#L$line")
+                Nullable{Compat.String}("$base/$commit$path#L$line")
             else
                 Nullable{Compat.String}()
             end
