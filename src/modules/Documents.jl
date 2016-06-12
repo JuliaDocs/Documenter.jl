@@ -81,6 +81,7 @@ immutable Internal
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
+    stream  :: Utilities.CombinedStream  # Redirected STDOUT and STDERR streams.
 end
 
 # Document.
@@ -122,6 +123,7 @@ function Document(;
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),
         ObjectIdDict(),
+        Utilities.CombinedStream()
     )
     Document(user, internal)
 end

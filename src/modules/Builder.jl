@@ -138,6 +138,7 @@ function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
 end
 
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
+    Utilities.redirect_stream(doc.internal.stream)
     Utilities.log("rendering document.")
     Documenter.Writers.render(doc)
 end

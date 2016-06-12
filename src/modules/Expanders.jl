@@ -395,7 +395,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     result, buffer = nothing, IOBuffer()
     for (ex, str) in Utilities.parseblock(x.code)
         try
-            result = Documenter.DocChecks.withoutput(buffer) do
+            result = Utilities.withoutput(doc.internal.stream, buffer) do
                 # Evaluate within the build folder. Defines REPL-like `ans` binding as well.
                 cd(dirname(page.build)) do
                     eval(mod, :(ans = $(eval(mod, ex))))
@@ -436,7 +436,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         input  = droplines(str)
         output =
             try
-                result = Documenter.DocChecks.withoutput(buffer) do
+                result = Utilities.withoutput(doc.internal.stream, buffer) do
                     cd(dirname(page.build)) do
                         eval(mod, :(ans = $(eval(mod, ex))))
                     end

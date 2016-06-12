@@ -387,4 +387,65 @@ newlines(other) = 0
 
 unwrap(f, x::Nullable) = isnull(x) ? nothing : f(get(x))
 
+# CombinedStreams.
+# ----------------
+
+type RedirectedStream
+    real  :: IO
+    input :: IO
+    from  :: IO
+    to    :: IO
+
+    function RedirectedStream(stream::IO, f)
+        real = stream
+        from, input = f()
+        new(real, input, from, real)
+    end
+end
+
+type CombinedStream
+    out  :: RedirectedStream
+    err  :: RedirectedStream
+    done :: Bool
+    tout :: Task
+    terr :: Task
+
+    function CombinedStream()
+        out = RedirectedStream(STDOUT, redirect_stdout)
+        err = RedirectedStream(STDERR, redirect_stderr)
+        stream = new(out, err, false)
+        stream.tout = @async watchbuffer(stream, out)
+        stream.terr = @async watchbuffer(stream, err)
+        return stream
+    end
+end
+
+function redirect_stream(stream::CombinedStream)
+    redirect_stdout(stream.out.real)
+    redirect_stderr(stream.err.real)
+    stream.done = true
+    return stream
+end
+
+function watchbuffer(stream::CombinedStream, r::RedirectedStream)
+    while !eof(r.from)
+        n = nb_available(r.from)
+        n > 0 && write(r.to, read(r.from, n))
+        stream.done && break
+    end
+end
+
+function withoutput(func, stream::CombinedStream, buffer::IOBuffer)
+    stream.out.to = buffer
+    stream.err.to = buffer
+    try
+        func()
+    catch err
+        rethrow(err)
+    finally
+        stream.out.to = stream.out.real
+        stream.err.to = stream.err.real
+    end
+end
+
 end
