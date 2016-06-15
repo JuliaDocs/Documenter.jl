@@ -16,24 +16,35 @@ module Documenter
 
 using Compat
 
-# Submodules.
-# -----------
+#
+# Submodules
+#
+# All submodules of this package are declared in the following loop.
+#
+# They can either be a single file in the "modules" folder or a subfolder of
+# "modules" containing a file with the same name. Large submodules should be
+# split into several files in a subfolder.
+#
+for mod in [
+    "Utilities",
+    "Selectors",
+    "Formats",
+    "Anchors",
+    "Documents",
+    "Builder",
+    "Expanders",
+    "Walkers",
+    "CrossReferences",
+    "DocChecks",
+    "Writers",
+    "Deps",
+    "Generator",
+]
+    dir = joinpath(dirname(@__FILE__), "modules")
+    file = joinpath(dir, mod * ".jl")
+    isfile(file) ? include(file) : include(joinpath(dir, mod, mod * ".jl"))
+end
 
-submodule(name) = include(joinpath("modules", string(name, ".jl")))
-
-submodule(:Utilities)
-submodule(:Selectors)
-submodule(:Formats)
-submodule(:Anchors)
-submodule(:Documents)
-submodule(:Builder)
-submodule(:Expanders)
-submodule(:Walkers)
-submodule(:CrossReferences)
-submodule(:DocChecks)
-submodule(:Writers)
-submodule(:Deps)
-submodule(:Generator)
 
 # User Interface.
 # ---------------
