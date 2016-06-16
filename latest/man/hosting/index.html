@@ -410,12 +410,11 @@
 <h2 id="travisyml-configuration"><code>.travis.yml</code> Configuration</h2>
 <p>In the <code>after_success</code> section of the <code>.travis.yml</code> file, where code coverage is processed, run your <code>docs/make.jl</code> file:</p>
 <div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">after_success</span><span class="p p-Indicator">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">julia -e &#39;Pkg.clone(&quot;https://github.com/JuliaDocs/Documenter.jl&quot;)&#39;</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">julia -e &#39;Pkg.add(&quot;Documenter&quot;)&#39;</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">julia -e &#39;cd(Pkg.dir(&quot;PACKAGE_NAME&quot;)); include(joinpath(&quot;docs&quot;, &quot;make.jl&quot;))&#39;</span>
 </pre></div>
 
 
-<p>Note that once the package is registered in <code>METADATA.jl</code> the <code>Pkg.clone</code> call can be replaced with <code>Pkg.add("Documenter")</code>.</p>
 <p><a id='The-deploydocs-Function-1'></a></p>
 <h2 id="the-deploydocs-function">The <code>deploydocs</code> Function</h2>
 <p>At the moment your <code>docs/make.jl</code> file probably only contains</p>
