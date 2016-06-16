@@ -105,12 +105,9 @@ run your `docs/make.jl` file:
 
 ```yaml
 after_success:
-  - julia -e 'Pkg.clone("https://github.com/JuliaDocs/Documenter.jl")'
+  - julia -e 'Pkg.add("Documenter")'
   - julia -e 'cd(Pkg.dir("PACKAGE_NAME")); include(joinpath("docs", "make.jl"))'
 ```
-
-Note that once the package is registered in `METADATA.jl` the `Pkg.clone` call can be
-replaced with `Pkg.add("Documenter")`.
 
 ## The `deploydocs` Function
 

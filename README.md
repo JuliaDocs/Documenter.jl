@@ -4,10 +4,10 @@
 
 ## Installation
 
-`Documenter.jl` is currently an unregistered package and so must be installed with
+`Documenter.jl` is a registered package and so can be installed with
 
 ```julia
-julia> Pkg.clone("https://github.com/JuliaDocs/Documenter.jl")
+julia> Pkg.add("Documenter")
 ```
 
 ## Documentation
@@ -32,7 +32,7 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 [docs-latest-url]: https://juliadocs.github.io/Documenter.jl/latest
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://juliadocs.github.io/Documenter.jl/latest
+[docs-stable-url]: https://juliadocs.github.io/Documenter.jl/stable
 
 [travis-img]: https://travis-ci.org/JuliaDocs/Documenter.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/JuliaDocs/Documenter.jl
