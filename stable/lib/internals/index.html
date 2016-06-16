@@ -1916,6 +1916,24 @@ a + b
     <pre><span class="nf">walk</span><span class="p">(</span>
     <span class="n">f</span><span class="p">,
 </span>    <span class="n">meta</span><span class="p">,
+</span>    <span class="n">block</span><span class="p">::</span><span class="n">Documenter.Expanders.DocsNodes</span>
+<span class="p">)</span></pre>
+    defined at
+    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L48">src/Walkers.jl:48</a>
+</li>
+<li>
+    <pre><span class="nf">walk</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">,
+</span>    <span class="n">meta</span><span class="p">,
+</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.Footnote</span>
+<span class="p">)</span></pre>
+    defined at
+    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L63">src/Walkers.jl:63</a>
+</li>
+<li>
+    <pre><span class="nf">walk</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">,
+</span>    <span class="n">meta</span><span class="p">,
 </span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.List</span>
 <span class="p">)</span></pre>
     defined at
@@ -1934,28 +1952,10 @@ a + b
     <pre><span class="nf">walk</span><span class="p">(</span>
     <span class="n">f</span><span class="p">,
 </span>    <span class="n">meta</span><span class="p">,
-</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.Image</span>
+</span>    <span class="n">block</span><span class="p">::</span><span class="n">Documenter.Expanders.MetaNode</span>
 <span class="p">)</span></pre>
     defined at
-    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L66">src/Walkers.jl:66</a>
-</li>
-<li>
-    <pre><span class="nf">walk</span><span class="p">(</span>
-    <span class="n">f</span><span class="p">,
-</span>    <span class="n">meta</span><span class="p">,
-</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.Link</span>
-<span class="p">)</span></pre>
-    defined at
-    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L69">src/Walkers.jl:69</a>
-</li>
-<li>
-    <pre><span class="nf">walk</span><span class="p">(</span>
-    <span class="n">f</span><span class="p">,
-</span>    <span class="n">meta</span><span class="p">,
-</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.Footnote</span>
-<span class="p">)</span></pre>
-    defined at
-    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L63">src/Walkers.jl:63</a>
+    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L53">src/Walkers.jl:53</a>
 </li>
 <li>
     <pre><span class="nf">walk</span><span class="p">(</span>
@@ -1970,24 +1970,6 @@ a + b
     <pre><span class="nf">walk</span><span class="p">(</span>
     <span class="n">f</span><span class="p">,
 </span>    <span class="n">meta</span><span class="p">,
-</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.MD</span>
-<span class="p">)</span></pre>
-    defined at
-    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L27">src/Walkers.jl:27</a>
-</li>
-<li>
-    <pre><span class="nf">walk</span><span class="p">(</span>
-    <span class="n">f</span><span class="p">,
-</span>    <span class="n">meta</span><span class="p">,
-</span>    <span class="n">block</span><span class="p">::</span><span class="n">Documenter.Expanders.DocsNodes</span>
-<span class="p">)</span></pre>
-    defined at
-    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L48">src/Walkers.jl:48</a>
-</li>
-<li>
-    <pre><span class="nf">walk</span><span class="p">(</span>
-    <span class="n">f</span><span class="p">,
-</span>    <span class="n">meta</span><span class="p">,
 </span>    <span class="n">block</span><span class="p">::</span><span class="n">Documenter.Expanders.EvalNode</span>
 <span class="p">)</span></pre>
     defined at
@@ -1997,10 +1979,28 @@ a + b
     <pre><span class="nf">walk</span><span class="p">(</span>
     <span class="n">f</span><span class="p">,
 </span>    <span class="n">meta</span><span class="p">,
-</span>    <span class="n">block</span><span class="p">::</span><span class="n">Documenter.Expanders.MetaNode</span>
+</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.MD</span>
 <span class="p">)</span></pre>
     defined at
-    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L53">src/Walkers.jl:53</a>
+    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L27">src/Walkers.jl:27</a>
+</li>
+<li>
+    <pre><span class="nf">walk</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">,
+</span>    <span class="n">meta</span><span class="p">,
+</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.Image</span>
+<span class="p">)</span></pre>
+    defined at
+    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L66">src/Walkers.jl:66</a>
+</li>
+<li>
+    <pre><span class="nf">walk</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">,
+</span>    <span class="n">meta</span><span class="p">,
+</span>    <span class="n">block</span><span class="p">::</span><span class="n">Base.Markdown.Link</span>
+<span class="p">)</span></pre>
+    defined at
+    <a target="_blank" href="https://github.com/JuliaDocs/Documenter.jl/tree/31f4f43feedc272e1a85ffd2ee6ed03bf49e5083/src/Walkers.jl#L69">src/Walkers.jl:69</a>
 </li>
 <li>
     <pre><span class="nf">walk</span><span class="p">(</span>
