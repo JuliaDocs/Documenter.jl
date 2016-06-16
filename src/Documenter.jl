@@ -27,6 +27,7 @@ using Compat
 #
 for mod in [
     "Utilities",
+    "DocSystem",
     "Selectors",
     "Formats",
     "Anchors",
