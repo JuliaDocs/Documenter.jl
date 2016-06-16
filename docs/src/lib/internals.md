@@ -57,6 +57,17 @@ DocChecks.missingdocs
 DocChecks.doctest
 ```
 
+## DocSystem
+
+```@docs
+DocSystem
+DocSystem.getdocs
+DocSystem.binding
+DocSystem.docstr
+DocSystem.multidoc
+DocSystem.convertmeta
+```
+
 ## Documents
 
 ```@docs
