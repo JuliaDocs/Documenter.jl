@@ -82,6 +82,7 @@ Expanders.IndexBlocks
 Expanders.ContentsBlocks
 Expanders.ExampleBlocks
 Expanders.REPLBlocks
+Expanders.docsnode_methodlist
 ```
 
 ## Formats
@@ -128,6 +129,8 @@ Walkers.walk
 ```@docs
 Writers
 Writers.render
+Writers.join_decl
+Writers.span
 ```
 
 ## Utilities
@@ -149,4 +152,5 @@ Utilities.object
 Utilities.docs
 Utilities.doccat
 Utilities.nodocs
+Utilities.issubmodule
 ```

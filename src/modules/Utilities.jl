@@ -448,4 +448,20 @@ function withoutput(func, stream::CombinedStream, buffer::IOBuffer)
     end
 end
 
+"""
+    issubmodule(sub, mod)
+
+Checks whether `sub` is a submodule of `mod`. A module is also considered to be
+its own submodule.
+
+E.g. `A.B.C` is a submodule of `A`, `A.B` and `A.B.C`, but it is not a submodule
+of `D`, `A.D` nor `A.B.C.D`.
+"""
+function issubmodule(sub, mod)
+    if (sub === Main) && (mod !== Main)
+        return false
+    end
+    (sub === mod) || issubmodule(module_parent(sub), mod)
+end
+
 end

@@ -87,6 +87,8 @@ using Compat
 
 module UnitTests
 
+module SubModule end
+
 type T end
 
 "Documenter unit tests."
@@ -108,6 +110,14 @@ let doc = @doc(length)
     @test !contains(stringmime("text/plain", get(c)), "Documenter unit tests.")
     @test isnull(d)
 end
+
+# Documenter.Utilities.issubmodule
+@test Documenter.Utilities.issubmodule(Main, Main) === true
+@test Documenter.Utilities.issubmodule(UnitTests, UnitTests) === true
+@test Documenter.Utilities.issubmodule(UnitTests.SubModule, Main) === true
+@test Documenter.Utilities.issubmodule(UnitTests.SubModule, UnitTests) === true
+@test Documenter.Utilities.issubmodule(UnitTests.SubModule, Base) === false
+@test Documenter.Utilities.issubmodule(UnitTests, UnitTests.SubModule) === false
 
 
 # Integration tests for module api.
