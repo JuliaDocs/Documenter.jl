@@ -41,7 +41,7 @@ for mod in [
     "Deps",
     "Generator",
 ]
-    dir = joinpath(dirname(@__FILE__), "modules")
+    dir = dirname(@__FILE__)
     file = joinpath(dir, mod * ".jl")
     isfile(file) ? include(file) : include(joinpath(dir, mod, mod * ".jl"))
 end
