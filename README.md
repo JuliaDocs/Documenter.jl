@@ -2,9 +2,11 @@
 
 *A documentation generator for Julia.*
 
+[![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] [![][docs-latest-img]][docs-latest-url] [![][docs-stable-img]][docs-stable-url]
+
 ## Installation
 
-`Documenter.jl` is a registered package and so can be installed with
+The package is registered in `METADATA.jl` and so can be installed with `Pkg.add`.
 
 ```julia
 julia> Pkg.add("Documenter")
@@ -12,15 +14,12 @@ julia> Pkg.add("Documenter")
 
 ## Documentation
 
-Documentation is built automatically with help from *MkDocs* on *Travis CI* and hosted by *GitHub Pages*.
-
-[![][docs-latest-img]][docs-latest-url] [![][docs-stable-img]][docs-stable-url]
+- [**STABLE**][docs-stable-url] &mdash; **most recently tagged version of the documentation.**
+- [**LATEST**][docs-latest-url] &mdash; *in-development version of the documentation.*
 
 ## Project Status
 
-`Documenter.jl` is tested against Julia `0.4` and *current* `0.5-dev` on Linux, OS X, and Windows.
-
-[![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url]
+The package is tested against Julia `0.4` and *current* `0.5-dev` on Linux, OS X, and Windows.
 
 ## Contributing and Questions
 
@@ -44,3 +43,4 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl
 
 [issues-url]: https://github.com/JuliaDocs/Documenter.jl/issues
+
