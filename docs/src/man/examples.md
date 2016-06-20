@@ -25,6 +25,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
 - [DifferentialEquations.jl](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
+- [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
 - [PhyloNetworks.jl](http://crsl4.github.io/PhyloNetworks.jl/latest/)
@@ -38,4 +39,3 @@ Packages that are not available in `METADATA.jl` and may be works-in-progress.
 Please do take that into consideration when browsing this list.
 
 - [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest)
-- [Documenter.jl](https://michaelhatherly.github.io/Documenter.jl/latest)
