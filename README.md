@@ -1,8 +1,12 @@
+
 # Documenter
 
 *A documentation generator for Julia.*
 
-[![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] [![][docs-latest-img]][docs-latest-url] [![][docs-stable-img]][docs-stable-url]
+| **Documentation**                                                               | **PackageEvaluator**                                            | **Build Status**                                                                                |
+|:-------------------------------------------------------------------------------:|:---------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
+| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.4-img]][pkg-0.4-url] [![][pkg-0.5-img]][pkg-0.5-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+
 
 ## Installation
 
@@ -44,3 +48,7 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 
 [issues-url]: https://github.com/JuliaDocs/Documenter.jl/issues
 
+[pkg-0.4-img]: http://pkg.julialang.org/badges/Documenter_0.4.svg
+[pkg-0.4-url]: http://pkg.julialang.org/?pkg=Documenter
+[pkg-0.5-img]: http://pkg.julialang.org/badges/Documenter_0.5.svg
+[pkg-0.5-url]: http://pkg.julialang.org/?pkg=Documenter
