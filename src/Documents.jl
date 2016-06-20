@@ -231,10 +231,10 @@ end
 
 ## Utilities.
 
-function buildnode(T::Type, block, page)
+function buildnode(T::Type, block, doc, page)
     mod  = get(page.globals.meta, :CurrentModule, current_module())
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in Utilities.parseblock(block.code)
+    for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)
             dict[ex.args[1]] = eval(mod, ex.args[2])
         end

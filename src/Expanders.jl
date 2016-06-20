@@ -252,8 +252,14 @@ end
 
 function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     meta = page.globals.meta
-    for (ex, str) in Utilities.parseblock(x.code)
-        Utilities.isassign(ex) && (meta[ex.args[1]] = eval(current_module(), ex.args[2]))
+    for (ex, str) in Utilities.parseblock(x.code, doc, page)
+        if Utilities.isassign(ex)
+            try
+                meta[ex.args[1]] = eval(current_module(), ex.args[2])
+            catch err
+                Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@meta` block.", err)
+            end
+        end
     end
     page.mapping[x] = MetaNode(copy(meta))
 end
@@ -348,11 +354,25 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     failed = false
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
-    for (ex, str) in Utilities.parseblock(x.code)
+    for (ex, str) in Utilities.parseblock(x.code, doc, page)
         # Find the documented object and it's docstring.
-        object   = eval(curmod, Utilities.object(ex, str))
-        docstr   = eval(curmod, Utilities.docs(ex, str))
-        slug     = Utilities.slugify(object)
+        object =
+            try
+                eval(curmod, Utilities.object(ex, str))
+            catch err
+                Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@docs` block.", err)
+                failed = true
+                continue
+            end
+        docstr =
+            try
+                eval(curmod, Utilities.docs(ex, str))
+            catch err
+                Utilities.warn("Failed to find docs for `$(strip(str))` in `@docs` block.", err)
+                failed = true
+                continue
+            end
+        slug = Utilities.slugify(object)
 
         # Remove docstrings that are not from the user-specified list of modules.
         filtered = Utilities.filterdocs(docstr, doc.user.modules)
@@ -391,9 +411,13 @@ end
 function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     fields = Dict{Symbol, Any}()
-    for (ex, str) in Utilities.parseblock(x.code)
+    for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
-            fields[ex.args[1]] = eval(curmod, ex.args[2])
+            try
+                fields[ex.args[1]] = eval(curmod, ex.args[2])
+            catch err
+                Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@autodocs` block.", err)
+            end
         end
     end
     if haskey(fields, :Modules)
@@ -433,8 +457,12 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     cd(dirname(page.build)) do
         result = nothing
-        for (ex, str) in Utilities.parseblock(x.code)
-            result = eval(sandbox, ex)
+        for (ex, str) in Utilities.parseblock(x.code, doc, page)
+            try
+                result = eval(sandbox, ex)
+            catch err
+                Utilities.warn(doc, page, "Failed to evaluate `@eval` block.", err)
+            end
         end
         page.mapping[x] = EvalNode(x, result)
     end
@@ -444,14 +472,14 @@ end
 # ------
 
 function Selectors.runner(::Type{IndexBlocks}, x, page, doc)
-    page.mapping[x] = Documents.buildnode(Documents.IndexNode, x, page)
+    page.mapping[x] = Documents.buildnode(Documents.IndexNode, x, doc, page)
 end
 
 # @contents
 # ---------
 
 function Selectors.runner(::Type{ContentsBlocks}, x, page, doc)
-    page.mapping[x] = Documents.buildnode(Documents.ContentsNode, x, page)
+    page.mapping[x] = Documents.buildnode(Documents.ContentsNode, x, doc, page)
 end
 
 # @example
@@ -466,7 +494,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
     result, buffer = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code)
+    for (ex, str) in Utilities.parseblock(x.code, doc, page)
         try
             result = Utilities.withoutput(doc.internal.stream, buffer) do
                 # Evaluate within the build folder. Defines REPL-like `ans` binding as well.
@@ -504,7 +532,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     code = split(x.code, '\n'; limit = 2)[end]
     result, out = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code)
+    for (ex, str) in Utilities.parseblock(x.code, doc, page)
         buffer = IOBuffer()
         input  = droplines(str)
         output =
