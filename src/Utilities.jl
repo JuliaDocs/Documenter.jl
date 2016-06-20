@@ -134,7 +134,7 @@ function submodules(root::Module, out = Set([root]))
             object = getfield(root, name)
             if isvalidmodule(root, object)
                 push!(out, object)
-                submodules(object)
+                submodules(object, out)
             end
         end
     end

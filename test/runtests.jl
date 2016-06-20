@@ -89,6 +89,16 @@ module UnitTests
 
 module SubModule end
 
+# Does `submodules` collect *all* the submodules?
+module A
+module B
+module C
+module D
+end
+end
+end
+end
+
 type T end
 
 "Documenter unit tests."
@@ -119,6 +129,10 @@ end
 @test Documenter.Utilities.issubmodule(UnitTests.SubModule, Base) === false
 @test Documenter.Utilities.issubmodule(UnitTests, UnitTests.SubModule) === false
 
+@test UnitTests.A in Documenter.Utilities.submodules(UnitTests.A)
+@test UnitTests.A.B in Documenter.Utilities.submodules(UnitTests.A)
+@test UnitTests.A.B.C in Documenter.Utilities.submodules(UnitTests.A)
+@test UnitTests.A.B.C.D in Documenter.Utilities.submodules(UnitTests.A)
 
 # DocSystem unit tests.
 
