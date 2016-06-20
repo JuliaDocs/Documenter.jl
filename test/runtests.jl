@@ -219,6 +219,12 @@ end
 
 # Integration tests for module api.
 
+# Error reporting.
+
+info("The following errors are expected output.")
+include(joinpath("errors", "make.jl"))
+info("END of expected error output.")
+
 # Mock package docs:
 
 # setup

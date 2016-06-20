@@ -101,7 +101,7 @@ function doctest(doc::Documents.Document)
             empty!(page.globals.meta)
             for element in page.elements
                 Walkers.walk(page.globals.meta, page.mapping[element]) do block
-                    doctest(block, page.globals.meta, doc)
+                    doctest(block, page.globals.meta, doc, page)
                 end
             end
         end
@@ -110,16 +110,16 @@ function doctest(doc::Documents.Document)
     end
 end
 
-function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document)
+function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
     if block.language == "julia" || block.language == "jlcon"
         code, sandbox = block.code, Module(:Main)
         haskey(meta, :DocTestSetup) && eval(sandbox, meta[:DocTestSetup])
-        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox, doc)   :
-        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox, doc) : nothing
+        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox, doc, page)   :
+        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox, doc, page) : nothing
     end
     false
 end
-doctest(block, meta::Dict, doc::Documents.Document) = true
+doctest(block, meta::Dict, doc::Documents.Document, page) = true
 
 # Doctest evaluation.
 
@@ -137,10 +137,10 @@ type Result
     end
 end
 
-function eval_repl(code, sandbox, doc::Documents.Document)
+function eval_repl(code, sandbox, doc::Documents.Document, page)
     for (input, output) in repl_splitter(code)
         result = Result(code, input, output)
-        for (ex, str) in Utilities.parseblock(input)
+        for (ex, str) in Utilities.parseblock(input, doc, page)
             try
                 result.hide  = ends_with_semicolon(str)
                 result.value = Utilities.withoutput(doc.internal.stream, result.stdout) do
@@ -158,7 +158,7 @@ function eval_repl(code, sandbox, doc::Documents.Document)
     end
 end
 
-function eval_script(code, sandbox, doc::Documents.Document)
+function eval_script(code, sandbox, doc::Documents.Document, page)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
@@ -168,7 +168,7 @@ function eval_script(code, sandbox, doc::Documents.Document)
     result = Result(code, "", output)
     try
         ans = nothing
-        for (ex, str) in Utilities.parseblock(input)
+        for (ex, str) in Utilities.parseblock(input, doc, page)
             ans = Utilities.withoutput(doc.internal.stream, result.stdout) do
                 eval(sandbox, ex)
             end

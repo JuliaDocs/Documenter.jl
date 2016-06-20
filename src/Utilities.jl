@@ -39,6 +39,12 @@ function warn(file, msg)
 end
 warn(msg) = __log__[] ? print_with_color(:red, STDOUT, " !! ", msg, "\n") : nothing
 
+function warn(doc, page, msg, err)
+    real = doc.internal.stream.out.real
+    file = page.source
+    print_with_color(:red, real, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n")
+end
+
 # Nullable regex matches.
 
 wrapnothing(T, ::Void) = Nullable{T}()
@@ -86,12 +92,18 @@ Returns a vector of parsed expressions and their corresponding raw strings.
 
 The keyword argument `skip = N` drops the leading `N` lines from the input string.
 """
-function parseblock(code; skip = 0)
+function parseblock(code, doc, page; skip = 0)
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
     results, cursor = [], 1
     while cursor < length(code)
-        ex, ncursor = parse(code, cursor)
+        ex, ncursor =
+            try
+                parse(code, cursor)
+            catch err
+                Utilities.warn(doc, page, "Failed to parse expression.", err)
+                break
+            end
         push!(results, (ex, code[cursor:ncursor-1]))
         cursor = ncursor
     end
