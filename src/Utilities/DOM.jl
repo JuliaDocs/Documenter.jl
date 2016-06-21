@@ -207,7 +207,7 @@ attr(args) = flatten!(attributes!, Attributes(), args)
 #
 # Types that must not be flattened when constructing a `Node`'s child vector.
 #
-typealias Atom Union{AbstractString, Node, Pair{Symbol, String}, Symbol}
+typealias Atom Union{AbstractString, Node, Pair, Symbol}
 
 """
 # Signatures
