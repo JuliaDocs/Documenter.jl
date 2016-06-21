@@ -21,7 +21,17 @@ function expand(doc::Documents.Document)
         empty!(page.globals.meta)
         for element in page.elements
             deprecate_syntax!(element)
-            Selectors.dispatch(ExpanderPipeline, element, page, doc)
+            # Since we call `eval` from multiple expanders any number of
+            # different errors can be thrown here. When that happens the
+            # STDOUT/STDERR redirection is not returned to it's original state
+            # automatically. We need to do that manually here to avoid dropping
+            # the error messages.
+            try
+                Selectors.dispatch(ExpanderPipeline, element, page, doc)
+            catch err
+                Utilities.redirect_stream(doc.internal.stream)
+                rethrow(err)
+            end
         end
     end
 end
