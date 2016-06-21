@@ -40,3 +40,19 @@ julia> [1.0, 2.0, 3.0]
  3.0
 
 ```
+
+```julia
+julia> println(" "^5)
+
+julia> "\nfoo\n\nbar\n\n\nbaz"
+"\nfoo\n\nbar\n\n\nbaz"
+
+julia> println(ans)
+
+foo
+
+bar
+
+
+baz
+```
