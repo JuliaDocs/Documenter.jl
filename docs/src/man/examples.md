@@ -28,6 +28,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
+- [Optim.jl](https://juliaopt.github.io/Optim.jl/latest)
 - [PhyloNetworks.jl](http://crsl4.github.io/PhyloNetworks.jl/latest/)
 - [POMDPs.jl](http://juliapomdp.github.io/POMDPs.jl/latest/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest)
