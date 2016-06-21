@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Examples - Documenter.jl</title>
+        <title>LaTeX Syntax - Documenter.jl</title>
       
       
       
@@ -100,7 +100,7 @@
             
           </span>
         
-        Examples
+        LaTeX Syntax
       </div>
     </div>
     
@@ -193,30 +193,9 @@
       
         
   <li>
-    <a class="current" title="Examples" href="./">
+    <a class="" title="Examples" href="../examples/">
       Examples
     </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Registered" href="#registered">
-                Registered
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Unregistered" href="#unregistered">
-                Unregistered
-              </a>
-            </li>
-          
-        </ul>
-      
     
   </li>
 
@@ -250,9 +229,36 @@
       
         
   <li>
-    <a class="" title="LaTeX Syntax" href="../latex/">
+    <a class="current" title="LaTeX Syntax" href="./">
       LaTeX Syntax
     </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Julia 0.4" href="#julia-04">
+                Julia 0.4
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Julia 0.5" href="#julia-05">
+                Julia 0.5
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="MkDocs and MathJax" href="#mkdocs-and-mathjax">
+                MkDocs and MathJax
+              </a>
+            </li>
+          
+        </ul>
+      
     
   </li>
 
@@ -307,36 +313,144 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='Examples-1'></a></p>
-<h1 id="examples">Examples</h1>
-<p>Sometimes the best way to learn how to use a new package is to look for examples of what others have already built with it.</p>
-<p>The following packages use Documenter to build their documentation and so should give a good overview of what this package is currently able to do.</p>
+          <p><a id='latex_syntax-1'></a></p>
+<h1 id="latex-syntax">$\LaTeX$ syntax</h1>
+<p>The following section describes how to add equations written using $\LaTeX$ to your documentation. There are some differences between Julia <code>0.4</code> and <code>0.5</code> that need to be taken into account when reading this section of the manual. These differences are outlined in the next two sections.</p>
+<p><a id='Julia-0.4-1'></a></p>
+<h2 id="julia-04">Julia <code>0.4</code></h2>
+<p><a id='Inline-equations-1'></a></p>
+<h3 id="inline-equations">Inline equations</h3>
+<p>Surround inline equations and mathematical symbols in <code>$</code> characters, i.e.</p>
+<div class="codehilite"><pre><span></span>Here&#39;s some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.
+</pre></div>
+
+
+<p>which will be displayed as</p>
 <hr />
-<p><strong>Note</strong></p>
-<p>Packages are listed alphabetically. If you have a package that uses Documenter then please open a PR that adds it to the appropriate list below.</p>
-<p>The <code>make.jl</code> file for all listed packages will be tested to check for potential regressions prior to tagging new Documenter releases whenever possible.</p>
+<p>Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</p>
 <hr />
-<p><a id='Registered-1'></a></p>
-<h2 id="registered">Registered</h2>
-<p>Packages that have tagged versions available in <code>METADATA.jl</code>.</p>
-<ul>
-<li><a href="http://juliacontrol.github.io/ControlSystems.jl/latest/">ControlSystems.jl</a></li>
-<li><a href="https://juliafinance.github.io/Currencies.jl/latest/">Currencies.jl</a></li>
-<li><a href="http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/">DifferentialEquations.jl</a></li>
-<li><a href="https://juliadocs.github.io/Documenter.jl/latest">Documenter.jl</a></li>
-<li><a href="https://michaelhatherly.github.io/MergedMethods.jl/latest">MergedMethods.jl</a></li>
-<li><a href="https://michaelhatherly.github.io/NumericSuffixes.jl/latest">NumericSuffixes.jl</a></li>
-<li><a href="http://crsl4.github.io/PhyloNetworks.jl/latest/">PhyloNetworks.jl</a></li>
-<li><a href="http://juliapomdp.github.io/POMDPs.jl/latest/">POMDPs.jl</a></li>
-<li><a href="https://michaelhatherly.github.io/PrivateModules.jl/latest">PrivateModules.jl</a></li>
-<li><a href="https://mpastell.github.io/Weave.jl/stable">Weave.jl</a></li>
-</ul>
-<p><a id='Unregistered-1'></a></p>
-<h2 id="unregistered">Unregistered</h2>
-<p>Packages that are not available in <code>METADATA.jl</code> and may be works-in-progress. Please do take that into consideration when browsing this list.</p>
-<ul>
-<li><a href="https://michaelhatherly.github.io/AnonymousTypes.jl/latest">AnonymousTypes.jl</a></li>
-</ul>
+<p><a id='Display-equations-1'></a></p>
+<h3 id="display-equations">Display equations</h3>
+<p>Use the same single <code>$</code> characters to wrap the equation, but also add a newline above and below it, i.e.</p>
+<div class="codehilite"><pre><span></span>Here&#39;s an equation:
+
+$\frac{n!}{k!(n - k)!} = \binom{n}{k}$
+
+This is the binomial coefficient.
+</pre></div>
+
+
+<p>which will be displayed as</p>
+<hr />
+<p>Here's an equation:</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{n!}{k!(n - k)!} = \binom{n}{k}
+</script>
+</p>
+<p>This is the binomial coefficient.</p>
+<hr />
+<p><a id='Escaping-characters-in-docstrings-1'></a></p>
+<h3 id="escaping-characters-in-docstrings">Escaping characters in docstrings</h3>
+<p>Since some characters used in $\LaTeX$ syntax are treated differently in docstrings they need to be escaped using a <code>\</code> character as in the following example:</p>
+<div class="codehilite"><pre><span></span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">Here&#39;s some inline maths: \$</span><span class="se">\\</span><span class="s">sqrt[n]{1 + x + x^2 + </span><span class="se">\\</span><span class="s">ldots}\$.</span>
+
+<span class="s">Here&#39;s an equation:</span>
+
+<span class="s">\$</span><span class="se">\\</span><span class="s">frac{n!}{k!(n - k)!} = </span><span class="se">\\</span><span class="s">binom{n}{k}\$</span>
+
+<span class="s">This is the binomial coefficient.</span>
+<span class="s">&quot;&quot;&quot;</span>
+<span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="c"># ...</span>
+</pre></div>
+
+
+<p>To avoid needing to escape the special characters the <code>doc""</code> string macro can be used:</p>
+<div class="codehilite"><pre><span></span><span class="n">doc</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">Here&#39;s some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</span>
+
+<span class="s">Here&#39;s an equation:</span>
+
+<span class="s">$</span><span class="se">\f</span><span class="s">rac{n!}{k!(n - k)!} = </span><span class="se">\b</span><span class="s">inom{n}{k}$</span>
+
+<span class="s">This is the binomial coefficient.</span>
+<span class="s">&quot;&quot;&quot;</span>
+<span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="c"># ...</span>
+</pre></div>
+
+
+<p><a id='Julia-0.5-1'></a></p>
+<h2 id="julia-05">Julia <code>0.5</code></h2>
+<p>The syntax from above, using <code>$</code>s, will still work in <code>0.5</code>, but it is recommended, if possible, to use the following double backtick syntax instead since it avoids overloading the meaning of the <code>$</code> character within docstrings.</p>
+<p><a id='Inline-equations-2'></a></p>
+<h3 id="inline-equations_1">Inline equations</h3>
+<div class="codehilite"><pre><span></span>Here&#39;s some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
+</pre></div>
+
+
+<p>which will be displayed as</p>
+<hr />
+<p>Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</p>
+<hr />
+<p><a id='Display-equations-2'></a></p>
+<h3 id="display-equations_1">Display equations</h3>
+<div class="codehilite"><pre><span></span>Here&#39;s an equation:
+
+```math
+\frac{n!}{k!(n - k)!} = \binom{n}{k}
+```
+
+This is the binomial coefficient.
+</pre></div>
+
+
+<p>which will be displayed as</p>
+<hr />
+<p>Here's an equation:</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{n!}{k!(n - k)!} = \binom{n}{k}
+</script>
+</p>
+<p>This is the binomial coefficient.</p>
+<hr />
+<p><a id='Escaping-characters-in-docstrings-2'></a></p>
+<h3 id="escaping-characters-in-docstrings_1">Escaping characters in docstrings</h3>
+<p>In the same way as in Julia <code>0.4</code> <code>\</code> characters in docstrings must be escaped using a <code>\</code>.</p>
+<p><a id='MkDocs-and-MathJax-1'></a></p>
+<h2 id="mkdocs-and-mathjax">MkDocs and MathJax</h2>
+<p>To get MkDocs to display $\LaTeX$ equations correctly we need to update several of this configuration files described in the <a href="../guide/#Package-Guide-1">Package Guide</a>.</p>
+<p><code>docs/make.jl</code> should add the <code>python-markdown-math</code> dependency to allow for equations to be rendered correctly.</p>
+<div class="codehilite"><pre><span></span><span class="c"># ...</span>
+
+<span class="n">deploydocs</span><span class="p">(</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="o">.</span><span class="n">pip</span><span class="p">(</span><span class="s">&quot;pygments&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs&quot;</span><span class="p">,</span> <span class="s">&quot;python-markdown-math&quot;</span><span class="p">),</span>
+    <span class="c"># ...</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>This package should also be installed locally so that you can preview the generated documentation prior to pushing new commits to a repository.</p>
+<div class="codehilite"><pre><span></span>$ pip install python-markdown-math
+</pre></div>
+
+
+<p>The <code>docs/mkdocs.yml</code> file must add the <code>python-markdown-math</code> extension, called <code>mdx_math</code>, as well as two MathJax JavaScript files:</p>
+<div class="codehilite"><pre><span></span><span class="c1"># ...</span>
+<span class="l l-Scalar l-Scalar-Plain">markdown_extensions</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mdx_math</span>
+  <span class="c1"># ...</span>
+
+<span class="l l-Scalar l-Scalar-Plain">extra_javascript</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">assets/mathjaxhelper.js</span>
+<span class="c1"># ...</span>
+</pre></div>
+
+
+<p><strong>Final Remarks</strong></p>
+<p>Following this guide and adding the necessary changes to the configuration files should enable properly rendered mathematical equations within your documentation both locally and when built and deployed using the Travis built service.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -353,7 +467,7 @@
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../guide/" title="Guide">
+        <a href="../hosting/" title="Hosting Documentation">
           <span class="direction">
             Previous
           </span>
@@ -363,7 +477,7 @@
             </div>
             <div class="stretch">
               <div class="title">
-                Guide
+                Hosting Documentation
               </div>
             </div>
           </div>
@@ -372,14 +486,14 @@
     </div>
     <div class="next">
       
-        <a href="../syntax/" title="Syntax">
+        <a href="../internals/" title="Internals">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Syntax
+                Internals
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
