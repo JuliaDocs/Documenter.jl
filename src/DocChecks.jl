@@ -133,7 +133,7 @@ type Result
     bt     :: Vector     # Backtrace when an error is thrown.
 
     function Result(code, input, output)
-        new(code, input, strip(output, '\n'), nothing, false, IOBuffer())
+        new(code, input, rstrip(output, '\n'), nothing, false, IOBuffer())
     end
 end
 
@@ -192,7 +192,7 @@ function checkresult(result::Result)
     else
         value = result.hide ? nothing : result.value # `;` hides output.
         str   = result_to_string(result.stdout, value)
-        str == result.output || report(result, str)
+        strip(str) == strip(sanitise(IOBuffer(result.output))) || report(result, str)
     end
 end
 
