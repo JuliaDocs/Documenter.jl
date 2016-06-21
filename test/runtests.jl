@@ -217,6 +217,83 @@ let b   = DocSystem.binding(DocSystem, :getdocs),
 end
 
 
+## DOM Tests.
+
+module DOMTests
+
+using Base.Test
+import Documenter.Utilities.DOM: DOM, @tags
+
+@tags div ul li p
+
+for tag in (:div, :ul, :li, :p)
+    TAG = getfield(current_module(), tag)
+    @test isdefined(tag)
+    @test isa(TAG, DOM.Tag)
+    @test TAG.name === tag
+end
+
+@test div().name === :div
+@test div().text == ""
+@test isempty(div().nodes)
+@test isempty(div().attributes)
+
+@test div("...").name === :div
+@test div("...").text == ""
+@test length(div("...").nodes) === 1
+@test div("...").nodes[1].text == "..."
+@test div("...").nodes[1].name === Symbol("")
+@test isempty(div("...").attributes)
+
+@test div[".class"]("...").name === :div
+@test div[".class"]("...").text == ""
+@test length(div[".class"]("...").nodes) === 1
+@test div[".class"]("...").nodes[1].text == "..."
+@test div[".class"]("...").nodes[1].name === Symbol("")
+@test length(div[".class"]("...").attributes) === 1
+@test div[".class"]("...").attributes[1] == (:class => "class")
+
+let d = div(ul(map(li, [string(n) for n = 1:10])))
+    @test d.name === :div
+    @test d.text == ""
+    @test isempty(d.attributes)
+    @test length(d.nodes) === 1
+    let u = d.nodes[1]
+        @test u.name === :ul
+        @test u.text == ""
+        @test isempty(u.attributes)
+        @test length(u.nodes) === 10
+        for n = 1:10
+            let v = u.nodes[n]
+                @test v.name === :li
+                @test v.text == ""
+                @test isempty(v.attributes)
+                @test length(v.nodes) === 1
+                @test v.nodes[1].name === Symbol("")
+                @test v.nodes[1].text == string(n)
+                @test !isdefined(v.nodes[1], :attributes)
+                @test !isdefined(v.nodes[1], :nodes)
+            end
+        end
+    end
+end
+
+function locally_defined()
+    @tags button
+    @test try
+        x = button
+        true
+    catch err
+        false
+    end
+end
+@test !isdefined(current_module(), :button)
+locally_defined()
+@test !isdefined(current_module(), :button)
+
+end
+
+
 # Integration tests for module api.
 
 # Error reporting.
