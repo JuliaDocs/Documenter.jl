@@ -269,6 +269,8 @@ function Base.show(io::IO, n::Node)
     end
 end
 
+@compat Base.show(io::IO, ::MIME"text/html", n::Node) = print(io, n)
+
 """
 Escape characters in the provided string. This converts the following characters:
 
@@ -296,6 +298,82 @@ function escapehtml(text::AbstractString)
     else
         text
     end
+end
+
+
+"""
+Provides support for conversion from `Markdown.MD` to `DOM.Node` objects.
+"""
+module MarkdownConverter
+
+import ..DOM: @tags, Node, Tag
+
+@tags blockquote strong code pre p a h1 h2 h3 h4 h5 h6 hr
+@tags img em span div br ul ol li table th tr td
+
+
+import Base.Markdown:
+
+    MD, BlockQuote, Bold, Code, Header, HorizontalRule,
+    Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table
+
+
+"""
+Convert a markdown object to a `DOM.Node` object.
+
+The `parent` argument is passed to allow for context-dependant conversions.
+"""
+mdconvert(md) = mdconvert(md, md)
+
+
+mdconvert(text::AbstractString, parent) = Node(text)
+
+mdconvert(vec::Vector, parent) = [mdconvert(x, parent) for x in vec]
+
+mdconvert(md::MD, parent) = div(mdconvert(md.content, md))
+
+mdconvert(b::BlockQuote, parent) = blockquote(mdconvert(b.content, b))
+
+mdconvert(b::Bold, parent) = strong(mdconvert(b.text, parent))
+
+function mdconvert(c::Code, parent::MD)
+    language = isempty(c.language) ? "none" : c.language
+    pre(code[".language-$(language)"](c.code))
+end
+mdconvert(c::Code, parent) = code(c.code)
+
+mdconvert{N}(h::Header{N}, parent) = Tag(Symbol("h$N"))(mdconvert(h.text, h))
+
+mdconvert(::HorizontalRule, parent) = hr()
+
+mdconvert(i::Image, parent) = img[:src => i.url, :alt => i.alt]
+
+mdconvert(i::Italic, parent) = em(mdconvert(i.text, i))
+
+mdconvert(m::LaTeX, ::MD)   = div(string("\\[", m.formula, "\\]"))
+mdconvert(m::LaTeX, parent) = span(string('$', m.formula, '$'))
+
+mdconvert(::LineBreak, parent) = br()
+
+mdconvert(link::Link, parent) = a[:href => link.url](mdconvert(link.text, link))
+
+mdconvert(list::List, parent) = (list.ordered ? ol : ul)(map(li, mdconvert(list.items, list)))
+
+mdconvert(paragraph::Paragraph, parent) = p(mdconvert(paragraph.content, paragraph))
+
+mdconvert(t::Table, parent) = table(
+    tr(map(_ -> th(mdconvert(_, t)), t.rows[1])),
+    map(_ -> tr(map(__ -> td(mdconvert(__, _)), _)), t.rows[2:end])
+)
+
+# Only available on Julia 0.5.
+if isdefined(Base.Markdown, :Footnote)
+    import Base.Markdown: Footnote
+    mdconvert(f::Footnote, parent)   = footnote(f.id, f.text, parent)
+    footnote(id, text::Void, parent) = a[:href => "#footnote-$(id)"]("[$id]")
+    footnote(id, text,       parent) = span["#footnote-$(id)"](mdconvert(text, parent))
+end
+
 end
 
 end

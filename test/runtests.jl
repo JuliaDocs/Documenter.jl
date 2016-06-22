@@ -306,6 +306,22 @@ locally_defined()
 
 end
 
+# `Markdown.MD` to `DOM.Node` conversion tests.
+module MarkdownToNode
+
+import Documenter.Utilities.DOM, Documenter.DocSystem
+
+# Exhaustive Conversion from Markdown to Nodes.
+for mod in Base.Docs.modules
+    for (binding, multidoc) in DocSystem.getmeta(mod)
+        for (typesig, docstr) in multidoc.docs
+            md = DocSystem.parsedoc(docstr)
+            string(DOM.MarkdownConverter.mdconvert(md))
+        end
+    end
+end
+
+end
 
 # Integration tests for module api.
 
