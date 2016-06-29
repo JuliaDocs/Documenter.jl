@@ -4,7 +4,6 @@ Provides the [`walk`](@ref) function.
 module Walkers
 
 import ..Documenter:
-
     Anchors,
     Builder,
     Documents,

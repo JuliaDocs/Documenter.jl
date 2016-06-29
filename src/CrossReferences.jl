@@ -4,7 +4,6 @@ Provides the [`crossref`](@ref) function used to automatically calculate link UR
 module CrossReferences
 
 import ..Documenter:
-
     Anchors,
     Builder,
     Documents,
