@@ -10,7 +10,6 @@ Defines [`Document`](@ref) and its supporting types
 module Documents
 
 import ..Documenter:
-
     Anchors,
     Formats,
     Utilities

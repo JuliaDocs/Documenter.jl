@@ -313,7 +313,6 @@ import ..DOM: @tags, Node, Tag
 
 
 import Base.Markdown:
-
     MD, BlockQuote, Bold, Code, Header, HorizontalRule,
     Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table
 
@@ -377,4 +376,3 @@ end
 end
 
 end
-

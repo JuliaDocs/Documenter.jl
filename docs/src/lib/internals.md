@@ -140,8 +140,11 @@ Walkers.walk
 ```@docs
 Writers
 Writers.render
-Writers.join_decl
-Writers.span
+Writers.MarkdownWriter
+Writers.MarkdownWriter.join_decl
+Writers.MarkdownWriter.span
+Writers.HTMLWriter
+Writers.LaTeXWriter
 ```
 
 ## Utilities
@@ -178,4 +181,3 @@ Utilities.DOM.flatten!
 Utilities.DOM.MarkdownConverter
 Utilities.DOM.MarkdownConverter.mdconvert(md)
 ```
-

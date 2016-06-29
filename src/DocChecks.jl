@@ -4,7 +4,6 @@ Provides two functions, [`missingdocs`](@ref) and [`doctest`](@ref), for checkin
 module DocChecks
 
 import ..Documenter:
-
     Builder,
     Documents,
     Expanders,

@@ -4,7 +4,6 @@ Defines node "expanders" that transform nodes from the parsed markdown files.
 module Expanders
 
 import ..Documenter:
-
     Anchors,
     Selectors,
     Builder,

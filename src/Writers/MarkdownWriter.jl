@@ -1,13 +1,10 @@
 """
-Provides a rendering function, [`render`](@ref), for writing each supported
-[`Formats.Format`](@ref) to file.
-
-Note that currently `Formats.Markdown` is the **only** supported format.
+Provides the [`render`](@ref) methods to write the documentation as Markdown files
+(`MIME"text/plain"`).
 """
-module Writers
+module MarkdownWriter
 
-import ..Documenter:
-
+import ...Documenter:
     Anchors,
     Builder,
     Documents,
@@ -16,28 +13,7 @@ import ..Documenter:
     Documenter,
     Utilities
 
-using Compat
-
-# Driver method for document rendering.
-# -------------------------------------
-
-"""
-Writes a [`Documents.Document`](@ref) object to `build` directory in specified file format.
-"""
-function render(doc::Documents.Document)
-    mime = Formats.mimetype(doc.user.format)
-    for (src, page) in doc.internal.pages
-        open(Formats.extension(doc.user.format, page.build), "w") do io
-            for elem in page.elements
-                node = page.mapping[elem]
-                render(io, mime, node, page, doc)
-            end
-        end
-    end
-end
-
-# Markdown Output.
-# ----------------
+import ..Writers: render
 
 function render(io::IO, mime::MIME"text/plain", vec::Vector, page, doc)
     for each in vec
@@ -262,24 +238,5 @@ end
 dropheaders(h::Markdown.Header) = Markdown.Paragraph(Markdown.Bold(h.text))
 dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
-
-
-# LaTeX Output.
-# -------------
-
-# TODO
-
-function render(io::IO, ::MIME"text/latex", node, page, doc)
-    error("LaTeX rendering is unsupported.")
-end
-
-# HTML Output.
-# ------------
-
-# TODO
-
-function render(io::IO, ::MIME"text/html", node, page, doc)
-    error("HTML rendering is unsupported.")
-end
 
 end
