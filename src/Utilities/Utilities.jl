@@ -422,20 +422,23 @@ type CombinedStream
     tout :: Task
     terr :: Task
 
-    function CombinedStream()
-        out = RedirectedStream(STDOUT, redirect_stdout)
-        err = RedirectedStream(STDERR, redirect_stderr)
-        stream = new(out, err, false)
-        stream.tout = @async watchbuffer(stream, out)
-        stream.terr = @async watchbuffer(stream, err)
-        return stream
-    end
+    CombinedStream() = new()
 end
 
-function redirect_stream(stream::CombinedStream)
+function redirect_output_stream!(stream::CombinedStream)
+    stream.out  = RedirectedStream(STDOUT, redirect_stdout)
+    stream.err  = RedirectedStream(STDERR, redirect_stderr)
+    stream.done = false
+    stream.tout = @async watchbuffer(stream, stream.out)
+    stream.terr = @async watchbuffer(stream, stream.err)
+    return stream
+end
+
+function restore_output_stream!(stream::CombinedStream)
     redirect_stdout(stream.out.real)
     redirect_stderr(stream.err.real)
     stream.done = true
+    sleep(0.1)
     return stream
 end
 

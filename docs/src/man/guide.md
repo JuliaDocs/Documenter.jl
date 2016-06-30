@@ -91,9 +91,11 @@ When you run that you should see the following output
 ```
 Documenter: setting up build directory.
 Documenter: copying assets to build directory.
+Documenter: redirecting output streams.
 Documenter: expanding markdown templates.
 Documenter: building cross-references.
 Documenter: running document checks.
+Documenter: restoring output streams.
 Documenter: rendering document.
 ```
 
