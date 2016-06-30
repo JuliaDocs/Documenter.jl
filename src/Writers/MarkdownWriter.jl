@@ -29,7 +29,7 @@ end
 
 ## Documentation Nodes.
 
-function render(io::IO, mime::MIME"text/plain", node::Expanders.DocsNodes, page, doc)
+function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNodes, page, doc)
     for node in node.nodes
         render(io, mime, node, page, doc)
     end
@@ -60,7 +60,7 @@ function join_decl(decl; html::Bool=true)
     end
 end
 
-function render(io::IO, mime::MIME"text/plain", node::Expanders.DocsNode, page, doc)
+function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNode, page, doc)
     # Docstring header based on the name of the binding and it's category.
     anchor = "<a id='$(node.anchor.id)' href='#$(node.anchor.id)'>#</a>"
     header = "**`$(node.object.binding)`** &mdash; *$(Utilities.doccat(node.object))*."
@@ -204,7 +204,7 @@ function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, pa
     println(io)
 end
 
-function render(io::IO, mime::MIME"text/plain", node::Expanders.EvalNode, page, doc)
+function render(io::IO, mime::MIME"text/plain", node::Documents.EvalNode, page, doc)
     render(io, mime, node.result, page, doc)
 end
 
@@ -221,7 +221,7 @@ render(io::IO, ::MIME"text/plain", str::AbstractString, page, doc) = print(io, s
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
 # rest of the build and so we just leave them in place and print a blank line in their place.
-render(io::IO, ::MIME"text/plain", node::Expanders.MetaNode, page, doc) = println(io, "\n")
+render(io::IO, ::MIME"text/plain", node::Documents.MetaNode, page, doc) = println(io, "\n")
 
 
 ## Markdown Utilities.

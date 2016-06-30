@@ -231,6 +231,39 @@ function populate!(contents::ContentsNode, document::Document)
     return contents
 end
 
+## Other nodes
+
+immutable MetaNode
+    dict :: Dict{Symbol, Any}
+end
+
+immutable MethodNode
+    method  :: Method
+    visible :: Bool
+end
+
+immutable DocsNode
+    docstr  :: Any
+    anchor  :: Anchors.Anchor
+    object  :: Utilities.Object
+    page    :: Documents.Page
+    """
+    Vector of methods associated with this `DocsNode`. Being nulled means that
+    conceptually the `DocsNode` has no table of method (as opposed to having
+    an empty table).
+    """
+    methods :: Nullable{Vector{MethodNode}}
+end
+
+immutable DocsNodes
+    nodes :: Vector{DocsNode}
+end
+
+immutable EvalNode
+    code   :: Base.Markdown.Code
+    result :: Any
+end
+
 ## Utilities.
 
 function buildnode(T::Type, block, doc, page)
