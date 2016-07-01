@@ -23,7 +23,6 @@ using Compat
 The default document processing "pipeline", which consists of the following actions:
 
 - [`SetupBuildDirectory`](@ref)
-- [`CopyAssetsDirectory`](@ref)
 - [`RedirectOutputStreams`](@ref)
 - [`ExpandTemplates`](@ref)
 - [`CrossReferences`](@ref)
@@ -38,11 +37,6 @@ abstract DocumentPipeline <: Selectors.AbstractSelector
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
 abstract SetupBuildDirectory <: DocumentPipeline
-
-"""
-Copies the contents of the `assets` directory into the `build` folder.
-"""
-abstract CopyAssetsDirectory <: DocumentPipeline
 
 """
 Replace `STDOUT` and `STDERR` streams with a single stream to capture doctest output.
@@ -76,13 +70,12 @@ Writes the document tree to the `build` directory.
 abstract RenderDocument <: DocumentPipeline
 
 Selectors.order(::Type{SetupBuildDirectory})   = 1.0
-Selectors.order(::Type{CopyAssetsDirectory})   = 2.0
-Selectors.order(::Type{RedirectOutputStreams}) = 3.0
-Selectors.order(::Type{ExpandTemplates})       = 4.0
-Selectors.order(::Type{CrossReferences})       = 5.0
-Selectors.order(::Type{CheckDocument})         = 6.0
-Selectors.order(::Type{RestoreOutputStreams})  = 7.0
-Selectors.order(::Type{RenderDocument})        = 8.0
+Selectors.order(::Type{RedirectOutputStreams}) = 2.0
+Selectors.order(::Type{ExpandTemplates})       = 3.0
+Selectors.order(::Type{CrossReferences})       = 4.0
+Selectors.order(::Type{CheckDocument})         = 5.0
+Selectors.order(::Type{RestoreOutputStreams})  = 6.0
+Selectors.order(::Type{RenderDocument})        = 7.0
 
 Selectors.matcher{T <: DocumentPipeline}(::Type{T}, doc::Documents.Document) = true
 
@@ -114,23 +107,6 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
         end
     else
         error("source directory '$(abspath(source))' is missing.")
-    end
-end
-
-function Selectors.runner(::Type{CopyAssetsDirectory}, doc::Documents.Document)
-    Utilities.log("copying assets to build directory.")
-    assets = doc.internal.assets
-    if isdir(assets)
-        builddir = joinpath(doc.user.build, "assets")
-        isdir(builddir) || mkdir(builddir)
-        for each in readdir(assets)
-            src = joinpath(assets, each)
-            dst = joinpath(builddir, each)
-            ispath(dst) && Utilities.warn("Overwriting '$dst'.")
-            cp(src, dst; remove_destination = true)
-        end
-    else
-        error("assets directory '$(abspath(assets))' is missing.")
     end
 end
 

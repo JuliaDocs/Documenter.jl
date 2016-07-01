@@ -16,6 +16,7 @@ import ...Documenter:
 import ..Writers: Writer, render
 
 function render(::Writer{Formats.Markdown}, doc::Documents.Document)
+    copy_assets(doc)
     mime = Formats.mimetype(doc.user.format)
     for (src, page) in doc.internal.pages
         open(Formats.extension(doc.user.format, page.build), "w") do io
@@ -24,6 +25,23 @@ function render(::Writer{Formats.Markdown}, doc::Documents.Document)
                 render(io, mime, node, page, doc)
             end
         end
+    end
+end
+
+function copy_assets(doc::Documents.Document)
+    Utilities.log("copying assets to build directory.")
+    assets = doc.internal.assets
+    if isdir(assets)
+        builddir = joinpath(doc.user.build, "assets")
+        isdir(builddir) || mkdir(builddir)
+        for each in readdir(assets)
+            src = joinpath(assets, each)
+            dst = joinpath(builddir, each)
+            ispath(dst) && Utilities.warn("Overwriting '$dst'.")
+            cp(src, dst; remove_destination = true)
+        end
+    else
+        error("assets directory '$(abspath(assets))' is missing.")
     end
 end
 

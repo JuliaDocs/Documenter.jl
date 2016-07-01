@@ -35,7 +35,6 @@ Anchors.isunique
 Builder
 Builder.DocumentPipeline
 Builder.SetupBuildDirectory
-Builder.CopyAssetsDirectory
 Builder.RedirectOutputStreams
 Builder.ExpandTemplates
 Builder.CrossReferences
