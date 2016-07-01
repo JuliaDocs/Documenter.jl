@@ -28,7 +28,7 @@ function expand(doc::Documents.Document)
             try
                 Selectors.dispatch(ExpanderPipeline, element, page, doc)
             catch err
-                Utilities.redirect_stream(doc.internal.stream)
+                Utilities.restore_output_stream!(doc.internal.stream)
                 rethrow(err)
             end
         end
