@@ -141,6 +141,7 @@ Walkers.walk
 
 ```@docs
 Writers
+Writers.Writer
 Writers.render
 Writers.MarkdownWriter
 Writers.MarkdownWriter.join_decl

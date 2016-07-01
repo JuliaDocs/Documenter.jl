@@ -13,11 +13,11 @@ import ...Documenter:
     Documenter,
     Utilities
 
-import ..Writers: render
+import ..Writers: Writer, render
 
 # TODO
 
-function render(io::IO, ::MIME"text/latex", node, page, doc)
+function render(::Writer{Formats.LaTeX}, doc::Documents.Document)
     error("LaTeX rendering is unsupported.")
 end
 

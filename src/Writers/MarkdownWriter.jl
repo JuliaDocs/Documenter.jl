@@ -13,7 +13,19 @@ import ...Documenter:
     Documenter,
     Utilities
 
-import ..Writers: render
+import ..Writers: Writer, render
+
+function render(::Writer{Formats.Markdown}, doc::Documents.Document)
+    mime = Formats.mimetype(doc.user.format)
+    for (src, page) in doc.internal.pages
+        open(Formats.extension(doc.user.format, page.build), "w") do io
+            for elem in page.elements
+                node = page.mapping[elem]
+                render(io, mime, node, page, doc)
+            end
+        end
+    end
+end
 
 function render(io::IO, mime::MIME"text/plain", vec::Vector, page, doc)
     for each in vec
