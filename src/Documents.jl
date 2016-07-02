@@ -68,6 +68,7 @@ immutable User
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Bool           # Run doctests?
     modules :: Set{Module}    # Which modules to check for missing docs?
+    pages   :: Vector{Any}    # Ordering of document pages specified by the user.
 end
 
 """
@@ -102,6 +103,7 @@ function Document(;
         clean    :: Bool             = true,
         doctest  :: Bool             = true,
         modules  :: Utilities.ModVec = Module[],
+        pages    :: Vector           = Any[],
         others...
     )
     Utilities.check_kwargs(others)
@@ -113,7 +115,8 @@ function Document(;
         format,
         clean,
         doctest,
-        Utilities.submodules(modules)
+        Utilities.submodules(modules),
+        pages,
     )
     internal = Internal(
         Utilities.assetsdir(),
