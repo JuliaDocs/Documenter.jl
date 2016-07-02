@@ -12,6 +12,13 @@ import ..Documenter:
     Documenter,
     Utilities
 
+import .Documents:
+    MethodNode,
+    DocsNode,
+    DocsNodes,
+    EvalNode,
+    MetaNode
+
 using Compat
 
 
@@ -255,10 +262,6 @@ end
 # @meta
 # -----
 
-immutable MetaNode
-    dict :: Dict{Symbol, Any}
-end
-
 function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     meta = page.globals.meta
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
@@ -275,28 +278,6 @@ end
 
 # @docs
 # -----
-
-immutable MethodNode
-    method  :: Method
-    visible :: Bool
-end
-
-immutable DocsNode
-    docstr  :: Any
-    anchor  :: Anchors.Anchor
-    object  :: Utilities.Object
-    page    :: Documents.Page
-    """
-    Vector of methods associated with this `DocsNode`. Being nulled means that
-    conceptually the `DocsNode` has no table of method (as opposed to having
-    an empty table).
-    """
-    methods :: Nullable{Vector{MethodNode}}
-end
-
-immutable DocsNodes
-    nodes :: Vector{DocsNode}
-end
 
 """
 Returns a `Nullable{Vector{MethodNode}}` with the methods associated with the `object`.
@@ -456,11 +437,6 @@ end
 
 # @eval
 # -----
-
-immutable EvalNode
-    code   :: Base.Markdown.Code
-    result :: Any
-end
 
 function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)

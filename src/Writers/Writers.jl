@@ -18,23 +18,26 @@ import ..Documenter:
 
 using Compat
 
-# Driver method for document rendering.
-# -------------------------------------
+"""
+A parametric type that allows us to use multiple dispatch to pick the appropriate
+writer for each output format.
+
+The parameter `f` should be an instance of the [`Formats.Format`](@ref) enumeration.
+"""
+immutable Writer{f} end
+Writer(f::Formats.Format) = Writer{f}()
 
 """
-Writes a [`Documents.Document`](@ref) object to `build` directory in specified file format.
+Writes a [`Documents.Document`](@ref) object to `.user.build` directory in
+the format specified in `.user.format`.
+
+The method should be overloaded in each writer as
+
+    render(::Writer{format}, doc)
+
+where `format` is one of the values of the [`Formats.Format`](@ref) enumeration.
 """
-function render(doc::Documents.Document)
-    mime = Formats.mimetype(doc.user.format)
-    for (src, page) in doc.internal.pages
-        open(Formats.extension(doc.user.format, page.build), "w") do io
-            for elem in page.elements
-                node = page.mapping[elem]
-                render(io, mime, node, page, doc)
-            end
-        end
-    end
-end
+render(doc::Documents.Document) = render(Writer(doc.user.format), doc)
 
 include("MarkdownWriter.jl")
 include("HTMLWriter.jl")

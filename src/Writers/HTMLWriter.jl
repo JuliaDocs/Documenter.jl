@@ -13,11 +13,11 @@ import ...Documenter:
     Documenter,
     Utilities
 
-import ..Writers: render
+import ..Writers: Writer, render
 
 # TODO
 
-function render(io::IO, ::MIME"text/html", node, page, doc)
+function render(::Writer{Formats.HTML}, doc::Documents.Document)
     error("HTML rendering is unsupported.")
 end
 

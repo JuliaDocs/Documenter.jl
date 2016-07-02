@@ -132,7 +132,10 @@ end
 
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
     page = Page(src, dst)
-    doc.internal.pages[src] = page
+    # the page's name is determined from the file system path, but we need
+    # the path relative to `doc.user.source` and must drop the extension
+    name = first(splitext(normpath(relpath(src, doc.user.source))))
+    doc.internal.pages[name] = page
 end
 
 # Document Nodes.
@@ -229,6 +232,39 @@ function populate!(contents::ContentsNode, document::Document)
     end
     sort!(contents.elements, lt = comparison)
     return contents
+end
+
+## Other nodes
+
+immutable MetaNode
+    dict :: Dict{Symbol, Any}
+end
+
+immutable MethodNode
+    method  :: Method
+    visible :: Bool
+end
+
+immutable DocsNode
+    docstr  :: Any
+    anchor  :: Anchors.Anchor
+    object  :: Utilities.Object
+    page    :: Documents.Page
+    """
+    Vector of methods associated with this `DocsNode`. Being nulled means that
+    conceptually the `DocsNode` has no table of method (as opposed to having
+    an empty table).
+    """
+    methods :: Nullable{Vector{MethodNode}}
+end
+
+immutable DocsNodes
+    nodes :: Vector{DocsNode}
+end
+
+immutable EvalNode
+    code   :: Base.Markdown.Code
+    result :: Any
 end
 
 ## Utilities.

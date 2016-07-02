@@ -35,7 +35,6 @@ Anchors.isunique
 Builder
 Builder.DocumentPipeline
 Builder.SetupBuildDirectory
-Builder.CopyAssetsDirectory
 Builder.RedirectOutputStreams
 Builder.ExpandTemplates
 Builder.CrossReferences
@@ -141,6 +140,7 @@ Walkers.walk
 
 ```@docs
 Writers
+Writers.Writer
 Writers.render
 Writers.MarkdownWriter
 Writers.MarkdownWriter.join_decl
