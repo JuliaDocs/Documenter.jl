@@ -132,7 +132,10 @@ end
 
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
     page = Page(src, dst)
-    doc.internal.pages[src] = page
+    # the page's name is determined from the file system path, but we need
+    # the path relative to `doc.user.source` and must drop the extension
+    name = first(splitext(normpath(relpath(src, doc.user.source))))
+    doc.internal.pages[name] = page
 end
 
 # Document Nodes.
