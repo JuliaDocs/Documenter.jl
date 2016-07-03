@@ -143,7 +143,6 @@ end
 # - `:module`     Valid in both `0.4` and `0.5`.
 # - `:path`       Invalid for `Base` docstrings in `0.4`.
 # - `:linenumber` Invalid for docstrings in `0.4`.
-# - `:source`     Invalid for everything except functions in `0.4`. Valid in `0.5`.
 # - `:binding`    Non-standard: Added by `DocSystem.getdocs`.
 # - `:typesig`    Non-standard: Added by `DocSystem.getdocs`.
 #
@@ -167,7 +166,6 @@ function docstr(md::Markdown.MD; kws...)
     data = Dict{Symbol, Any}(
         :path => md.meta[:path],
         :module => md.meta[:module],
-        :source => quote end,
         :linenumber => 0,
     )
     doc = DocStr(Core.svec(), Nullable(md), data)
