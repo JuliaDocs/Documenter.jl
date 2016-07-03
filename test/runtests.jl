@@ -204,13 +204,10 @@ let b   = DocSystem.binding(DocSystem, :getdocs),
     @test d_1[2].data[:typesig] == Union{Tuple{ANY}, Tuple{ANY, Type}}
     @test d_1[1].data[:module]  == DocSystem
     @test d_1[2].data[:module]  == DocSystem
-    @test d_1[1].data[:source]  != quote end
-    @test d_1[2].data[:source]  != quote end
 
     @test d_2[1].data[:binding] == b
     @test d_2[1].data[:typesig] == Union{Tuple{ANY}, Tuple{ANY, Type}}
     @test d_2[1].data[:module]  == DocSystem
-    @test d_2[1].data[:source]  != quote end
 
     @test d_1 == d_4
     @test d_1 != d_5
