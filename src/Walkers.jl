@@ -62,6 +62,10 @@ if isdefined(Base.Markdown, :Footnote)
     walk(f, meta, block::Markdown.Footnote) = f(block) ? walk(f, meta, block.text) : nothing
 end
 
+if isdefined(Base.Markdown, :Admonition)
+    walk(f, meta, block::Markdown.Admonition) = f(block) ? walk(f, meta, block.content) : nothing
+end
+
 walk(f, meta, block::Markdown.Image) = f(block) ? walk(f, meta, block.alt)   : nothing
 walk(f, meta, block::Markdown.Table) = f(block) ? walk(f, meta, block.rows)  : nothing
 walk(f, meta, block::Markdown.List)  = f(block) ? walk(f, meta, block.items) : nothing

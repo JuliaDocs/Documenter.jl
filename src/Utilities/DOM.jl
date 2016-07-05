@@ -373,6 +373,15 @@ if isdefined(Base.Markdown, :Footnote)
     footnote(id, text,       parent) = span["#footnote-$(id)"](mdconvert(text, parent))
 end
 
+if isdefined(Base.Markdown, :Admonition)
+    import Base.Markdown: Admonition
+    mdconvert(a::Admonition, parent) =
+        div[".admonition.$(a.category)"](
+            p[".admonition-title"](a.title),
+            mdconvert(a.content, a),
+        )
+end
+
 end
 
 end
