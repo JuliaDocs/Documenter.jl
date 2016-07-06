@@ -51,16 +51,7 @@ function gitignore()
     """
 end
 
-
-macro mkdocs_default(name,value,default)
-    quote
-        if $value===nothing
-            "#"*$name*$default
-        else
-            $name*$value
-        end
-    end
-end
+mkdocs_default(name, value, default) = value == nothing ? "#$name$default" : "$name$value"
 
 """
 Contents of the default `mkdocs.yml` file.
@@ -75,9 +66,9 @@ function mkdocs(pkgname;
     #   http://www.mkdocs.org/user-guide/configuration/
 
     site_name:        $(pkgname).jl
-    $(@mkdocs_default "repo_url:         " url "https://github.com/USER_NAME/PACKAGE_NAME.jl")
-    $(@mkdocs_default "site_description: " description "Description...")
-    $(@mkdocs_default "site_author:      " author "USER_NAME")
+    $(mkdocs_default("repo_url:         ", url, "https://github.com/USER_NAME/PACKAGE_NAME.jl"))
+    $(mkdocs_default("site_description: ", description, "Description..."))
+    $(mkdocs_default("site_author:      ", author, "USER_NAME"))
 
     theme: readthedocs
 
