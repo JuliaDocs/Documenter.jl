@@ -124,7 +124,7 @@ function docsxref(link::Markdown.Link, meta, page, doc)
         slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
         # Fixup keyword ref text since they have a leading ':' char.
-        if object.binding.mod === Utilities.Keywords
+        if object.binding.mod === Main && haskey(Base.Docs.keywords, object.binding.var)
             link.text[1].code = lstrip(code, ':')
         end
     else

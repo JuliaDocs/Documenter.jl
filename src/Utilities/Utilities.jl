@@ -158,21 +158,14 @@ isvalidmodule(a, b)                 = false
 ## objects
 ## =======
 
-immutable Binding
-    mod :: Module
-    var :: Symbol
+import Base.Docs: Binding
 
-    function Binding(m::Module, v::Symbol)
-        # Normalise the binding module for module symbols so that:
-        #   Binding(Base, :Base) === Binding(Main, :Base)
+if VERSION < v"0.5.0-dev"
+    @eval function Base.call(::Type{Binding}, m::Module, v::Symbol)
         m = module_name(m) === v ? module_parent(m) : m
-        new(Base.binding_module(m, v), v)
+        m = Base.binding_module(m, v)
+        $(Expr(:new, :Binding, :m, :v))
     end
-end
-
-function Base.show(io::IO, b::Binding)
-    m = b.mod ∈ (Main, Keywords) ? "" : string(b.mod, '.')
-    print(io, m, b.var)
 end
 
 """
@@ -181,6 +174,11 @@ Represents an object stored in the docsystem by its binding and signature.
 immutable Object
     binding   :: Binding
     signature :: Type
+
+    function Object(b::Binding, signature::Type)
+        m = module_name(b.mod) === b.var ? module_parent(b.mod) : b.mod
+        new(Binding(m, b.var), signature)
+    end
 end
 
 function splitexpr(x::Expr)
@@ -207,7 +205,7 @@ end
 
 function object(qn::QuoteNode, str::AbstractString)
     if haskey(Base.Docs.keywords, qn.value)
-        binding = Expr(:call, Binding, Keywords, qn)
+        binding = Expr(:call, Binding, Main, qn)
         Expr(:call, Object, binding, Union{})
     else
         error("'$(qn.value)' is not a documented keyword.")
@@ -251,7 +249,7 @@ doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
     "Macro" : doccat(obj.binding, obj.signature)
 
 function doccat(b::Binding, ::Union)
-    if b.mod === Keywords && haskey(Base.Docs.keywords, b.var)
+    if b.mod === Main && haskey(Base.Docs.keywords, b.var)
         "Keyword"
     elseif startswith(string(b.var), '@')
         "Macro"
@@ -310,9 +308,6 @@ function filterdocs(doc::Markdown.MD, modules::Set{Module})
 end
 # Non-markdown docs won't have a `.meta` field so always just accept those.
 filterdocs(other, modules::Set{Module}) = Nullable(other)
-
-# Module used to uniquify keyword bindings.
-baremodule Keywords end
 
 """
 Does the given docstring represent actual documentation or a no docs error message?
