@@ -6,17 +6,13 @@ examples of what others have already built with it.
 The following packages use Documenter to build their documentation and so
 should give a good overview of what this package is currently able to do.
 
----
+!!! note
 
-**Note**
+    Packages are listed alphabetically. If you have a package that uses Documenter then
+    please open a PR that adds it to the appropriate list below.
 
-Packages are listed alphabetically. If you have a package that uses Documenter
-then please open a PR that adds it to the appropriate list below.
-
-The `make.jl` file for all listed packages will be tested to check for potential
-regressions prior to tagging new Documenter releases whenever possible.
-
----
+    The `make.jl` file for all listed packages will be tested to check for potential
+    regressions prior to tagging new Documenter releases whenever possible.
 
 ## Registered
 

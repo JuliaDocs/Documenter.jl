@@ -85,9 +85,10 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
-**Note**
+!!! note
 
-When more complex sorting and filtering is needed then use `@docs` to define it explicitly.
+    When more complex sorting and filtering is needed then use `@docs` to define it
+    explicitly.
 
 ## `@ref` link
 
@@ -403,8 +404,8 @@ Also, instead of returning `nothing` in the example above we could have returned
 `Markdown.Image` object directly. This can be more appropriate when the filename is not
 known until evaluation of the block itself.
 
-**Note**
+!!! note
 
-In most cases `@example` is preferred over `@eval`. Just like in normal Julia code where
-`eval` should be only be considered as a last resort, `@eval` should be treated in the same
-way.
+    In most cases `@example` is preferred over `@eval`. Just like in normal Julia code where
+    `eval` should be only be considered as a last resort, `@eval` should be treated in the
+    same way.

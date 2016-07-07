@@ -6,19 +6,16 @@ describe how to setup automatic updates for your package docs using the Travis b
 and GitHub Pages. This is the same approach used by this package to host it's own docs --
 the docs you're currently reading.
 
----
+!!! note
 
-**Notes**
+    Following this guide should be the *final* step you take after you are comfortable with
+    the syntax and build process used by `Documenter.jl`. Only proceed with the steps
+    outlined on this page once you have successfully used `mkdocs` locally to build your
+    documentation.  `mkdocs` can typically be installed using `pip install mkdocs` in your
+    terminal.
 
-Following this guide should be the *final* step you take after you are comfortable with the
-syntax and build process used by `Documenter.jl`. Only proceed with the steps outlined on
-this page once you have successfully used `mkdocs` locally to build your documentation.
-`mkdocs` can typically be installed using `pip install mkdocs` in your terminal.
-
-This guide assumes that you already have GitHub and Travis accounts setup. If not then go
-set those up first and then return here.
-
----
+    This guide assumes that you already have GitHub and Travis accounts setup. If not then
+    go set those up first and then return here.
 
 ## Overview
 
@@ -41,15 +38,12 @@ method should be avoided whenever possible.
 
 Deploy keys provide push access to a *single* repository.
 
----
+!!! note
 
-**Note**
-
-You will need several command line programs installed for the following steps to work. They
-are `which`, `git`, `ssh-keygen`, and [`travis`](https://github.com/travis-ci/travis.rb).
-Make sure these are installed before you begin.
-
----
+    You will need several command line programs installed for the following steps to work.
+    They are `which`, `git`, `ssh-keygen`, and
+    [`travis`](https://github.com/travis-ci/travis.rb).  Make sure these are installed
+    before you begin.
 
 Open a Julia REPL and import [`Documenter`](@ref).
 
