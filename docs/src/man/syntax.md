@@ -69,6 +69,22 @@ When a potential docstring is found in one of the listed modules, but does not m
 value from `Order` then it will be omitted from the document. Hence `Order` acts as a basic
 filter as well as sorter.
 
+In addition to `Order`, a `Pages` vector may be included in `@autodocs` to filter docstrings
+based on the source file in which they are defined:
+
+````markdown
+```@autodocs
+Modules = [Foo]
+Pages   = ["a.jl", "b.jl"]
+```
+````
+
+In the above example docstrings from module `Foo` found in source files that end in `a.jl`
+and `b.jl` are included. The page order provided by `Pages` is also used to sort the
+docstrings. Note that page matching is done using the end of the provided strings and so
+`a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
+`src/foo/a.jl`.
+
 **Note**
 
 When more complex sorting and filtering is needed then use `@docs` to define it explicitly.

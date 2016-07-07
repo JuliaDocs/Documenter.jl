@@ -343,5 +343,21 @@ end
 aliasof(s::Symbol, b) = binding(s)
 
 iskeyword(b::Docs.Binding) = b.mod === Main && haskey(Base.Docs.keywords, b.var)
+ismacro(b::Docs.Binding) = startswith(string(b.var), '@')
+
+
+function category(b::Docs.Binding)
+    if iskeyword(b)
+        :keyword
+    elseif ismacro(b)
+        :macro
+    else
+        category(resolve(b))
+    end
+end
+category(::Function) = :function
+category(::DataType) = :type
+category(::Module) = :module
+category(::Any) = :constant
 
 end
