@@ -189,8 +189,6 @@ end
 splitexpr(s::Symbol) = :(current_module()), quot(s)
 splitexpr(other)     = error("Invalid @var syntax `$other`.")
 
-Base.Docs.signature(::Symbol) = :(Union{})
-
 """
     object(ex, str)
 

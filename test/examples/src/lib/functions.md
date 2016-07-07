@@ -19,7 +19,7 @@ T
 :ccall
 :for
 :while
-@time(x)
+@time
 @assert
 ```
 
@@ -141,3 +141,16 @@ Order   = [:function, :module, :macro]
 Modules = [AutoDocs.A, AutoDocs.B]
 Order   = [:constant, :type]
 ```
+
+## Autodocs by Page
+
+```@autodocs
+Modules = [AutoDocs.Pages]
+Pages = ["a.jl", "b.jl"]
+```
+
+```@autodocs
+Modules = [AutoDocs.Pages]
+Pages = ["c.jl", "d.jl"]
+```
+

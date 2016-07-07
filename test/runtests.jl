@@ -25,6 +25,15 @@ end
 "`AutoDocs` module."
 module AutoDocs
 
+module Pages
+
+include("pages/a.jl")
+include("pages/b.jl")
+include("pages/c.jl")
+include("pages/d.jl")
+
+end
+
 "Function `f`."
 f(x) = x
 
@@ -397,7 +406,7 @@ let headers = doc.internal.headers
     end
 end
 
-@test length(doc.internal.objects) == 22
+@test length(doc.internal.objects) == 26
 
 # Documenter package docs:
 

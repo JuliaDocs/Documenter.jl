@@ -345,48 +345,37 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        # Find the documented object and it's docstring.
-        object =
-            try
-                eval(curmod, Utilities.object(ex, str))
-            catch err
-                Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@docs` block.", err)
-                failed = true
-                continue
-            end
-        docstr =
-            try
-                eval(curmod, Utilities.docs(ex, str))
-            catch err
-                Utilities.warn("Failed to find docs for `$(strip(str))` in `@docs` block.", err)
-                failed = true
-                continue
-            end
-        slug = Utilities.slugify(object)
+        local binding = Documenter.DocSystem.binding(curmod, ex)
+        # Undefined `Bindings` get discarded.
+        if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
+            Utilities.warn(page.source, "Undefined binding '$(binding)'.")
+            failed = true
+            continue
+        end
+        local typesig = eval(curmod, Documenter.DocSystem.signature(ex, str))
 
-        # Remove docstrings that are not from the user-specified list of modules.
-        filtered = Utilities.filterdocs(docstr, doc.user.modules)
-
-        # Error Checking.
-        let name = strip(str),
-            nodocs = Utilities.nodocs(docstr),
-            dupdoc = haskey(doc.internal.objects, object),
-            nuldoc = isnull(filtered)
-
-            nodocs && Utilities.warn(page.source, "No docs found for '$name'.")
-            dupdoc && Utilities.warn(page.source, "Duplicate docs found for '$name'.")
-            nuldoc && Utilities.warn(page.source, "No docs for '$object' from provided modules.")
-
-            # When an warning is raise here we discard all found docs from the `@docs` and
-            # just map the element `x` back to itself and move on to the next element.
-            (failed = failed || nodocs || dupdoc || nuldoc) && continue
+        local object = Utilities.Object(binding, typesig)
+        # We can't include the same object more than once in a document.
+        if haskey(doc.internal.objects, object)
+            Utilities.warn(page.source, "Duplicate docs found for '$(strip(str))'.")
+            failed = true
+            continue
         end
 
-        # Update `doc` with new object and anchor.
-        docstr   = get(filtered)
-        anchor   = Anchors.add!(doc.internal.docs, object, slug, page.build)
-        ms = docsnode_methodlist(object, page, doc)
-        docsnode = DocsNode(docstr, anchor, object, page, ms)
+        local docs = Documenter.DocSystem.getdocs(binding, typesig)
+        # Include only docstrings from user-provided modules if provided.
+        if !isempty(doc.user.modules)
+            filter!(d -> d.data[:module] in doc.user.modules, docs)
+        end
+        # Concatenate found docstrings into a single `MD` object.
+        local docstr = Base.Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
+
+        # Generate a unique name to be used in anchors and links for the docstring.
+        local slug = Utilities.slugify(object)
+        local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
+        local ms = docsnode_methodlist(object, page, doc)
+        local docsnode = DocsNode(docstr, anchor, object, page, ms)
+
         doc.internal.objects[object] = docsnode
         push!(nodes, docsnode)
     end
@@ -397,6 +386,8 @@ end
 
 # @autodocs
 # ---------
+
+const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 
 function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, current_module())
@@ -411,24 +402,61 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         end
     end
     if haskey(fields, :Modules)
-        order = get(fields, :Order, [:module, :constant, :type, :function, :macro])
-        block = IOBuffer()
-        for mod in fields[:Modules]
-            bindings = collect(keys(Documenter.DocChecks.allbindings(mod)))
-            sorted   = Dict{Symbol, Vector{Utilities.Binding}}()
-            for b in bindings
-                category = Symbol(lowercase(Utilities.doccat(b, Union{})))
-                push!(get!(sorted, category, Utilities.Binding[]), b)
-            end
-            for category in order
-                for b in sort!(get(sorted, category, Utilities.Binding[]), by = string)
-                    println(block, b)
+        # Gather and filter docstrings.
+        local modules = fields[:Modules]
+        local order = get(fields, :Order, AUTODOCS_DEFAULT_ORDER)
+        local pages = get(fields, :Pages, [])
+        local results = []
+        for mod in modules
+            for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
+                local category = Documenter.DocSystem.category(binding)
+                if category in order
+                    for (typesig, docstr) in multidoc.docs
+                        local path = docstr.data[:path]
+                        local object = Utilities.Object(binding, typesig)
+                        if isempty(pages)
+                            push!(results, (mod, path, category, object, docstr))
+                        else
+                            for p in pages
+                                if endswith(path, p)
+                                    push!(results, (mod, p, category, object, docstr))
+                                    break
+                                end
+                            end
+                        end
+                    end
                 end
             end
         end
-        x.language = "@docs"
-        x.code = takebuf_string(block)
-        Selectors.runner(DocsBlocks, x, page, doc)
+
+        # Sort docstrings.
+        local modulemap = Documents.precedence(modules)
+        local pagesmap = Documents.precedence(pages)
+        local ordermap = Documents.precedence(order)
+        local comparison = function (a, b)
+            local t
+            (t = Documents._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
+            (t = Documents._compare(pagesmap,  2, a, b)) == 0 || return t < 0 # page
+            (t = Documents._compare(ordermap,  3, a, b)) == 0 || return t < 0 # category
+            string(a[4]) < string(b[4])                                       # name
+        end
+        sort!(results; lt = comparison)
+
+        # Finalise docstrings.
+        nodes = DocsNode[]
+        for (mod, path, category, object, docstr) in results
+            if haskey(doc.internal.objects, object)
+                Utilities.warn(page.source, "Duplicate docs found for '$(binding)'.")
+                continue
+            end
+            local markdown = Documenter.DocSystem.parsedoc(docstr)
+            local slug = Utilities.slugify(object)
+            local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
+            local docsnode = DocsNode(markdown, anchor, object, page, Nullable())
+            doc.internal.objects[object] = docsnode
+            push!(nodes, docsnode)
+        end
+        page.mapping[x] = DocsNodes(nodes)
     else
         Utilities.warn(page.source, "'@autodocs' missing 'Modules = ...'.")
         page.mapping[x] = x
