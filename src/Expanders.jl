@@ -345,48 +345,37 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        # Find the documented object and it's docstring.
-        object =
-            try
-                eval(curmod, Utilities.object(ex, str))
-            catch err
-                Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@docs` block.", err)
-                failed = true
-                continue
-            end
-        docstr =
-            try
-                eval(curmod, Utilities.docs(ex, str))
-            catch err
-                Utilities.warn("Failed to find docs for `$(strip(str))` in `@docs` block.", err)
-                failed = true
-                continue
-            end
-        slug = Utilities.slugify(object)
+        local binding = Documenter.DocSystem.binding(curmod, ex)
+        # Undefined `Bindings` get discarded.
+        if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
+            Utilities.warn(page.source, "Undefined binding '$(binding)'.")
+            failed = true
+            continue
+        end
+        local typesig = eval(curmod, Documenter.DocSystem.signature(ex, str))
 
-        # Remove docstrings that are not from the user-specified list of modules.
-        filtered = Utilities.filterdocs(docstr, doc.user.modules)
-
-        # Error Checking.
-        let name = strip(str),
-            nodocs = Utilities.nodocs(docstr),
-            dupdoc = haskey(doc.internal.objects, object),
-            nuldoc = isnull(filtered)
-
-            nodocs && Utilities.warn(page.source, "No docs found for '$name'.")
-            dupdoc && Utilities.warn(page.source, "Duplicate docs found for '$name'.")
-            nuldoc && Utilities.warn(page.source, "No docs for '$object' from provided modules.")
-
-            # When an warning is raise here we discard all found docs from the `@docs` and
-            # just map the element `x` back to itself and move on to the next element.
-            (failed = failed || nodocs || dupdoc || nuldoc) && continue
+        local object = Utilities.Object(binding, typesig)
+        # We can't include the same object more than once in a document.
+        if haskey(doc.internal.objects, object)
+            Utilities.warn(page.source, "Duplicate docs found for '$(strip(str))'.")
+            failed = true
+            continue
         end
 
-        # Update `doc` with new object and anchor.
-        docstr   = get(filtered)
-        anchor   = Anchors.add!(doc.internal.docs, object, slug, page.build)
-        ms = docsnode_methodlist(object, page, doc)
-        docsnode = DocsNode(docstr, anchor, object, page, ms)
+        local docs = Documenter.DocSystem.getdocs(binding, typesig)
+        # Include only docstrings from user-provided modules if provided.
+        if !isempty(doc.user.modules)
+            filter!(d -> d.data[:module] in doc.user.modules, docs)
+        end
+        # Concatenate found docstrings into a single `MD` object.
+        local docstr = Base.Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
+
+        # Generate a unique name to be used in anchors and links for the docstring.
+        local slug = Utilities.slugify(object)
+        local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
+        local ms = docsnode_methodlist(object, page, doc)
+        local docsnode = DocsNode(docstr, anchor, object, page, ms)
+
         doc.internal.objects[object] = docsnode
         push!(nodes, docsnode)
     end

@@ -67,6 +67,31 @@ function binding(m::Module, v::Symbol)
     Docs.Binding(m, v)
 end
 
+#
+# Pseudo-eval of `Expr`s to find their equivalent `Binding`.
+#
+binding(m::Module, x::Expr) =
+    Meta.isexpr(x, :.) ? binding(getmod(m, x.args[1]), x.args[2].value) :
+    Meta.isexpr(x, [:call, :macrocall, :curly]) ? binding(m, x.args[1]) :
+        error("`binding` cannot understand expression `$x`.")
+
+# Helper methods for the above `binding` method.
+getmod(m::Module, x::Expr) = getfield(getmod(m, x.args[1]), x.args[2].value)
+getmod(m::Module, s::Symbol) = getfield(m, s)
+
+binding(m::Module, q::QuoteNode) = binding(Main, q.value)
+
+binding(m::Module, λ::Any) = binding(λ)
+
+## Signatures. ##
+
+function signature(x, str::AbstractString)
+    ts = Base.Docs.signature(x)
+    (Meta.isexpr(x, :macrocall, 1) && !endswith(strip(str), "()")) ? :(Union{}) : ts
+end
+if VERSION < v"0.5.0-dev"
+    Base.Docs.signature(::Any) = :(Union{})
+end
 
 ## Docstring containers. ##
 
@@ -174,6 +199,7 @@ function docstr(md::Markdown.MD; kws...)
     end
     doc
 end
+docstr(other) = other
 
 
 ## Formatting `DocStr`s. ##
@@ -255,6 +281,9 @@ function getdocs(
         modules = Docs.modules,
         aliases = true,
     )
+    # Keywords are special-cased within the docsystem. Handle those first.
+    iskeyword(binding) && return [docstr(Base.Docs.keywords[binding.var])]
+    # Handle all the other possible bindings.
     results = DocStr[]
     for mod in modules
         meta = getmeta(mod)
@@ -312,5 +341,7 @@ else
 end
 
 aliasof(s::Symbol, b) = binding(s)
+
+iskeyword(b::Docs.Binding) = b.mod === Main && haskey(Base.Docs.keywords, b.var)
 
 end

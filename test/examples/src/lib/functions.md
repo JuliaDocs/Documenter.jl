@@ -19,7 +19,7 @@ T
 :ccall
 :for
 :while
-@time(x)
+@time
 @assert
 ```
 
