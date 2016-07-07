@@ -408,6 +408,15 @@ deploydocs
 </ul>
 <p>If no <code>Order</code> is provided then the order listed above is used.</p>
 <p>When a potential docstring is found in one of the listed modules, but does not match any value from <code>Order</code> then it will be omitted from the document. Hence <code>Order</code> acts as a basic filter as well as sorter.</p>
+<p>In addition to <code>Order</code>, a <code>Pages</code> vector may be included in <code>@autodocs</code> to filter docstrings based on the source file in which they are defined:</p>
+<div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">autodocs</span>
+<span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="o">]</span>
+<span class="n">Pages</span>   <span class="o">=</span> <span class="o">[</span><span class="s">&quot;a.jl&quot;</span><span class="p">,</span> <span class="s">&quot;b.jl&quot;</span><span class="o">]</span>
+<span class="err">```</span>
+</pre></div>
+
+
+<p>In the above example docstrings from module <code>Foo</code> found in source files that end in <code>a.jl</code> and <code>b.jl</code> are included. The page order provided by <code>Pages</code> is also used to sort the docstrings. Note that page matching is done using the end of the provided strings and so <code>a.jl</code> will be matched by <em>any</em> source file that ends in <code>a.jl</code>, i.e. <code>src/a.jl</code> or <code>src/foo/a.jl</code>.</p>
 <p><strong>Note</strong></p>
 <p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p>
 <p><a id='@ref-link-1'></a></p>
