@@ -417,8 +417,10 @@ deploydocs
 
 
 <p>In the above example docstrings from module <code>Foo</code> found in source files that end in <code>a.jl</code> and <code>b.jl</code> are included. The page order provided by <code>Pages</code> is also used to sort the docstrings. Note that page matching is done using the end of the provided strings and so <code>a.jl</code> will be matched by <em>any</em> source file that ends in <code>a.jl</code>, i.e. <code>src/a.jl</code> or <code>src/foo/a.jl</code>.</p>
-<p><strong>Note</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p>
+</div>
 <p><a id='@ref-link-1'></a></p>
 <h2 id="ref-link"><code>@ref</code> link</h2>
 <p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.</p>
@@ -649,8 +651,10 @@ nothing
 
 <p>Note that each <code>@eval</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p>
 <p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.Image</code> object directly. This can be more appropriate when the filename is not known until evaluation of the block itself.</p>
-<p><strong>Note</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>In most cases <code>@example</code> is preferred over <code>@eval</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>@eval</code> should be treated in the same way.</p>
+</div>
           <aside class="copyright" role="note">
             
             Documentation built with
