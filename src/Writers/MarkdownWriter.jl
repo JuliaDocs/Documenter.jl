@@ -129,7 +129,7 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNode, page, 
                 tv, decls, file, line = Base.arg_decl_parts(m)
                 decls = decls[2:end]
                 file = string(file)
-                url = get(Utilities.url(doc.internal.remote, m.module, file, line), "")
+                url = get(Utilities.url(doc.internal.remote, doc.user.repo, m.module, file, line), "")
                 file_match = match(r, file)
                 if file_match !== nothing
                     file = file_match.captures[2]
@@ -191,7 +191,7 @@ function renderdoc(io::IO, mime::MIME"text/plain", md::Markdown.MD, page, doc)
         for (markdown, result) in zip(md.content, md.meta[:results])
             render(io, mime, dropheaders(markdown), page, doc)
             # When a source link is available then print the link.
-            Utilities.unwrap(Utilities.url(doc.internal.remote, result)) do url
+            Utilities.unwrap(Utilities.url(doc.internal.remote, doc.user.repo, result)) do url
                 link = "<a target='_blank' href='$url' class='documenter-source'>source</a><br>"
                 println(io, "\n", link, "\n")
             end
