@@ -325,12 +325,12 @@ header_level{N}(::Markdown.Header{N}) = N
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
 
-url(remote, doc) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
+url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
 
 # Correct file and line info only available from this version onwards.
 if VERSION >= v"0.5.0-dev+3442"
-    function url(remote, mod, file, line)
-        isempty(remote) && return Nullable{Compat.String}()
+    function url(remote, repo, mod, file, line)
+        isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
         if inbase(mod)
             base = "https://github.com/JuliaLang/julia/tree"
             dest = "base/$file#L$line"
@@ -347,16 +347,23 @@ if VERSION >= v"0.5.0-dev+3442"
                 readchomp(`git rev-parse HEAD`), readchomp(`git rev-parse --show-toplevel`)
             end
             if startswith(file, root)
-                base = "https://github.com/$remote/tree"
+                if isempty(repo)
+                    repo = "https://github.com/$remote/tree/{commit}{path}#L{line}"
+                end
+
                 _, path = split(file, root; limit = 2)
-                Nullable{Compat.String}("$base/$commit$path#L$line")
+                repo = replace(repo, "{commit}", commit)
+                repo = replace(repo, "{path}", path)
+                repo = replace(repo, "{line}", line)
+
+                Nullable{Compat.String}(repo)
             else
                 Nullable{Compat.String}()
             end
         end
     end
 else
-    url(remote, mod, file, line) = Nullable{Compat.String}()
+    url(remote, repo, mod, file, line) = Nullable{Compat.String}()
 end
 
 function getremote(dir::AbstractString)

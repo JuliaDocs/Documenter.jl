@@ -69,6 +69,7 @@ immutable User
     doctest :: Bool           # Run doctests?
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
+    repo    :: Compat.String  # Template for URL to source code repo
 end
 
 """
@@ -104,6 +105,7 @@ function Document(;
         doctest  :: Bool             = true,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
+        repo     :: AbstractString   = "",
         others...
     )
     Utilities.check_kwargs(others)
@@ -117,6 +119,7 @@ function Document(;
         doctest,
         Utilities.submodules(modules),
         pages,
+        repo,
     )
     internal = Internal(
         Utilities.assetsdir(),

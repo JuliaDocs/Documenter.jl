@@ -60,6 +60,7 @@ export Deps, makedocs, deploydocs
         clean   = true,
         doctest = true,
         modules = Module[],
+        repo    = "",
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -124,6 +125,22 @@ $(strip(readstring(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))))
 
 and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
+
+**`repo`** specifies a template for the "link to source" feature. If you are
+using GitHub, this is automatically generated from the remote. If you are using
+a different host, you can use this option to tell Documenter how URLs should be
+generated. The following placeholders will be replaced with the respective
+value of the generated link:
+
+  - `{commit}` Git commit id
+  - `{path}` Path to the file in the repository
+  - `{line}` Line (or range of lines) in the source file
+
+For example if you are using GitLab.com, you could use
+
+```julia
+makedocs(repo = "https://gitlab.com/user/project/blob/{commit}{path}#L{line}")
+```
 
 # See Also
 
