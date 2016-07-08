@@ -212,7 +212,6 @@ end
 ## Index, Contents, and Eval Nodes.
 
 function render(io::IO, ::MIME"text/plain", index::Documents.IndexNode, page, doc)
-    Documents.populate!(index, doc)
     for (object, doc, page, mod, cat) in index.elements
         url = string(page, "#", Utilities.slugify(object))
         println(io, "- [`", object.binding, "`](", url, ")")
@@ -221,7 +220,6 @@ function render(io::IO, ::MIME"text/plain", index::Documents.IndexNode, page, do
 end
 
 function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, page, doc)
-    Documents.populate!(contents, doc)
     for (count, path, anchor) in contents.elements
         header = anchor.object
         url    = string(path, '#', anchor.id, '-', anchor.nth)

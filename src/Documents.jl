@@ -163,6 +163,8 @@ immutable Internal
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
     stream  :: Utilities.CombinedStream  # Redirected STDOUT and STDERR streams.
+    contentsnodes :: Vector{ContentsNode}
+    indexnodes    :: Vector{IndexNode}
 end
 
 # Document.
@@ -208,7 +210,9 @@ function Document(;
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),
         ObjectIdDict(),
-        Utilities.CombinedStream()
+        Utilities.CombinedStream(),
+        [],
+        []
     )
     Document(user, internal)
 end
@@ -221,6 +225,21 @@ function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
     # the path relative to `doc.user.source` and must drop the extension
     name = first(splitext(normpath(relpath(src, doc.user.source))))
     doc.internal.pages[name] = page
+end
+
+"""
+Populates the `ContentsNode`s and `IndexNode`s of the `document` with links.
+
+This can only be done after all the blocks have been expanded (and nodes constructed),
+because the items have to exist before we can gather the links to those items.
+"""
+function populate!(document::Document)
+    for node in document.internal.contentsnodes
+        populate!(node, document)
+    end
+    for node in document.internal.indexnodes
+        populate!(node, document)
+    end
 end
 
 function populate!(index::IndexNode, document::Document)

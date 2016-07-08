@@ -96,6 +96,7 @@ Documenter: building cross-references.
 Documenter: running document checks.
 Documenter: restoring output streams.
 Documenter: rendering document.
+Documenter: populating indices.
 Documenter: copying assets to build directory.
 ```
 
