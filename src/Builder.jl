@@ -28,6 +28,7 @@ The default document processing "pipeline", which consists of the following acti
 - [`CrossReferences`](@ref)
 - [`CheckDocument`](@ref)
 - [`RestoreOutputStreams`](@ref)
+- [`Populate`](@ref)
 - [`RenderDocument`](@ref)
 
 """
@@ -65,6 +66,11 @@ Switch back to the real `STDOUT` and `STDERR` that were changed in [`RedirectOut
 abstract RestoreOutputStreams <: DocumentPipeline
 
 """
+Populates the `ContentsNode`s and `IndexNode`s with links.
+"""
+abstract Populate <: DocumentPipeline
+
+"""
 Writes the document tree to the `build` directory.
 """
 abstract RenderDocument <: DocumentPipeline
@@ -75,7 +81,8 @@ Selectors.order(::Type{ExpandTemplates})       = 3.0
 Selectors.order(::Type{CrossReferences})       = 4.0
 Selectors.order(::Type{CheckDocument})         = 5.0
 Selectors.order(::Type{RestoreOutputStreams})  = 6.0
-Selectors.order(::Type{RenderDocument})        = 7.0
+Selectors.order(::Type{Populate})              = 7.0
+Selectors.order(::Type{RenderDocument})        = 8.0
 
 Selectors.matcher{T <: DocumentPipeline}(::Type{T}, doc::Documents.Document) = true
 
@@ -134,6 +141,11 @@ end
 function Selectors.runner(::Type{RestoreOutputStreams}, doc::Documents.Document)
     Utilities.log(doc, "restoring output streams.")
     Utilities.restore_output_stream!(doc.internal.stream)
+end
+
+function Selectors.runner(::Type{Populate}, doc::Documents.Document)
+    Utilities.log("populating indices.")
+    Documents.populate!(doc)
 end
 
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)

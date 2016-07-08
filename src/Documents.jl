@@ -54,6 +54,86 @@ function Page(source::AbstractString, build::AbstractString)
     Page(source, build, elements, ObjectIdDict(), Globals())
 end
 
+# Document Nodes.
+# ---------------
+
+## IndexNode.
+
+immutable IndexNode
+    pages    :: Vector{String} # Which pages to include in the index? Set by user.
+    modules  :: Vector{Module} # Which modules to include? Set by user.
+    order    :: Vector{Symbol} # What order should docs be listed in? Set by user.
+    build    :: String         # Path to the file where this index will appear.
+    source   :: String         # Path to the file where this index was written.
+    elements :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
+
+    function IndexNode(;
+            # TODO: Fix difference between uppercase and lowercase naming of keys.
+            #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
+            Pages   = [],
+            Modules = [],
+            Order   = [:module, :constant, :type, :function, :macro],
+            build   = error("missing value for `build` in `IndexNode`."),
+            source  = error("missing value for `source` in `IndexNode`."),
+            others...
+        )
+        new(Pages, Modules, Order, build, source, [])
+    end
+end
+
+## ContentsNode.
+
+immutable ContentsNode
+    pages    :: Vector{String} # Which pages should be included in contents? Set by user.
+    depth    :: Int            # Down to which level should headers be displayed? Set by user.
+    build    :: String         # Same as for `IndexNode`s.
+    source   :: String         # Same as for `IndexNode`s.
+    elements :: Vector         # (order, page, anchor)-tuple for constructing links.
+
+    function ContentsNode(;
+            Pages  = [],
+            Depth  = 2,
+            build  = error("missing value for `build` in `ContentsNode`."),
+            source = error("missing value for `source` in `ContentsNode`."),
+            others...
+        )
+        new(Pages, Depth, build, source, [])
+    end
+end
+
+## Other nodes
+
+immutable MetaNode
+    dict :: Dict{Symbol, Any}
+end
+
+immutable MethodNode
+    method  :: Method
+    visible :: Bool
+end
+
+immutable DocsNode
+    docstr  :: Any
+    anchor  :: Anchors.Anchor
+    object  :: Utilities.Object
+    page    :: Documents.Page
+    """
+    Vector of methods associated with this `DocsNode`. Being nulled means that
+    conceptually the `DocsNode` has no table of method (as opposed to having
+    an empty table).
+    """
+    methods :: Nullable{Vector{MethodNode}}
+end
+
+immutable DocsNodes
+    nodes :: Vector{DocsNode}
+end
+
+immutable EvalNode
+    code   :: Base.Markdown.Code
+    result :: Any
+end
+
 # Inner Document Fields.
 # ----------------------
 
@@ -83,6 +163,8 @@ immutable Internal
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
     stream  :: Utilities.CombinedStream  # Redirected STDOUT and STDERR streams.
+    contentsnodes :: Vector{ContentsNode}
+    indexnodes    :: Vector{IndexNode}
 end
 
 # Document.
@@ -128,10 +210,14 @@ function Document(;
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),
         ObjectIdDict(),
-        Utilities.CombinedStream()
+        Utilities.CombinedStream(),
+        [],
+        []
     )
     Document(user, internal)
 end
+
+## Methods
 
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
     page = Page(src, dst)
@@ -141,30 +227,18 @@ function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
     doc.internal.pages[name] = page
 end
 
-# Document Nodes.
-# ---------------
+"""
+Populates the `ContentsNode`s and `IndexNode`s of the `document` with links.
 
-## IndexNode.
-
-immutable IndexNode
-    pages    :: Vector{String} # Which pages to include in the index? Set by user.
-    modules  :: Vector{Module} # Which modules to include? Set by user.
-    order    :: Vector{Symbol} # What order should docs be listed in? Set by user.
-    build    :: String         # Path to the file where this index will appear.
-    source   :: String         # Path to the file where this index was written.
-    elements :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
-
-    function IndexNode(;
-            # TODO: Fix difference between uppercase and lowercase naming of keys.
-            #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
-            Pages   = [],
-            Modules = [],
-            Order   = [:module, :constant, :type, :function, :macro],
-            build   = error("missing value for `build` in `IndexNode`."),
-            source  = error("missing value for `source` in `IndexNode`."),
-            others...
-        )
-        new(Pages, Modules, Order, build, source, [])
+This can only be done after all the blocks have been expanded (and nodes constructed),
+because the items have to exist before we can gather the links to those items.
+"""
+function populate!(document::Document)
+    for node in document.internal.contentsnodes
+        populate!(node, document)
+    end
+    for node in document.internal.indexnodes
+        populate!(node, document)
     end
 end
 
@@ -193,27 +267,6 @@ function populate!(index::IndexNode, document::Document)
     return index
 end
 
-
-## ContentsNode.
-
-immutable ContentsNode
-    pages    :: Vector{String} # Which pages should be included in contents? Set by user.
-    depth    :: Int            # Down to which level should headers be displayed? Set by user.
-    build    :: String         # Same as for `IndexNode`s.
-    source   :: String         # Same as for `IndexNode`s.
-    elements :: Vector         # (order, page, anchor)-tuple for constructing links.
-
-    function ContentsNode(;
-            Pages  = [],
-            Depth  = 2,
-            build  = error("missing value for `build` in `ContentsNode`."),
-            source = error("missing value for `source` in `ContentsNode`."),
-            others...
-        )
-        new(Pages, Depth, build, source, [])
-    end
-end
-
 function populate!(contents::ContentsNode, document::Document)
     # Filtering valid contents links.
     for (id, filedict) in document.internal.headers.map
@@ -235,39 +288,6 @@ function populate!(contents::ContentsNode, document::Document)
     end
     sort!(contents.elements, lt = comparison)
     return contents
-end
-
-## Other nodes
-
-immutable MetaNode
-    dict :: Dict{Symbol, Any}
-end
-
-immutable MethodNode
-    method  :: Method
-    visible :: Bool
-end
-
-immutable DocsNode
-    docstr  :: Any
-    anchor  :: Anchors.Anchor
-    object  :: Utilities.Object
-    page    :: Documents.Page
-    """
-    Vector of methods associated with this `DocsNode`. Being nulled means that
-    conceptually the `DocsNode` has no table of method (as opposed to having
-    an empty table).
-    """
-    methods :: Nullable{Vector{MethodNode}}
-end
-
-immutable DocsNodes
-    nodes :: Vector{DocsNode}
-end
-
-immutable EvalNode
-    code   :: Base.Markdown.Code
-    result :: Any
 end
 
 ## Utilities.

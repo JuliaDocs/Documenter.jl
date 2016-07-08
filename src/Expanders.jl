@@ -485,14 +485,18 @@ end
 # ------
 
 function Selectors.runner(::Type{IndexBlocks}, x, page, doc)
-    page.mapping[x] = Documents.buildnode(Documents.IndexNode, x, doc, page)
+    node = Documents.buildnode(Documents.IndexNode, x, doc, page)
+    push!(doc.internal.indexnodes, node)
+    page.mapping[x] = node
 end
 
 # @contents
 # ---------
 
 function Selectors.runner(::Type{ContentsBlocks}, x, page, doc)
-    page.mapping[x] = Documents.buildnode(Documents.ContentsNode, x, doc, page)
+    node = Documents.buildnode(Documents.ContentsNode, x, doc, page)
+    push!(doc.internal.contentsnodes, node)
+    page.mapping[x] = node
 end
 
 # @example

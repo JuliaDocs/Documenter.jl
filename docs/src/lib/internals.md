@@ -40,6 +40,7 @@ Builder.ExpandTemplates
 Builder.CrossReferences
 Builder.CheckDocument
 Builder.RestoreOutputStreams
+Builder.Populate
 Builder.RenderDocument
 ```
 
@@ -78,6 +79,7 @@ Documents.Page
 Documents.User
 Documents.Internal
 Documents.Globals
+Documents.populate!
 ```
 
 ## Expanders
