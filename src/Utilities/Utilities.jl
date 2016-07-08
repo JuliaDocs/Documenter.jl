@@ -20,6 +20,14 @@ Format and print a message to the user.
 """
 log(msg) = __log__[] ? print_with_color(:magenta, STDOUT, "Documenter: ", msg, "\n") : nothing
 
+# Print logging output to the "real" STDOUT.
+function log(doc, msg)
+    local stdout = isdefined(doc.internal.stream, :out) ?
+        doc.internal.stream.out.real : STDOUT
+    __log__[] && print_with_color(:magenta, stdout, "Documenter: ", msg, "\n")
+    return nothing
+end
+
 debug(msg) = print_with_color(:green, " ?? ", msg, "\n")
 
 """

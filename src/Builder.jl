@@ -82,7 +82,7 @@ Selectors.matcher{T <: DocumentPipeline}(::Type{T}, doc::Documents.Document) = t
 Selectors.strict{T <: DocumentPipeline}(::Type{T}) = false
 
 function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
-    Utilities.log("setting up build directory.")
+    Utilities.log(doc, "setting up build directory.")
     # Frequently used fields.
     build  = doc.user.build
     source = doc.user.source
@@ -111,33 +111,33 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
 end
 
 function Selectors.runner(::Type{RedirectOutputStreams}, doc::Documents.Document)
-    Utilities.log("redirecting output streams.")
+    Utilities.log(doc, "redirecting output streams.")
     Utilities.redirect_output_stream!(doc.internal.stream)
 end
 
 function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)
-    Utilities.log("expanding markdown templates.")
+    Utilities.log(doc, "expanding markdown templates.")
     Documenter.Expanders.expand(doc)
 end
 
 function Selectors.runner(::Type{CrossReferences}, doc::Documents.Document)
-    Utilities.log("building cross-references.")
+    Utilities.log(doc, "building cross-references.")
     Documenter.CrossReferences.crossref(doc)
 end
 
 function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
-    Utilities.log("running document checks.")
+    Utilities.log(doc, "running document checks.")
     Documenter.DocChecks.missingdocs(doc)
     Documenter.DocChecks.doctest(doc)
 end
 
 function Selectors.runner(::Type{RestoreOutputStreams}, doc::Documents.Document)
-    Utilities.log("restoring output streams.")
+    Utilities.log(doc, "restoring output streams.")
     Utilities.restore_output_stream!(doc.internal.stream)
 end
 
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
-    Utilities.log("rendering document.")
+    Utilities.log(doc, "rendering document.")
     Documenter.Writers.render(doc)
 end
 

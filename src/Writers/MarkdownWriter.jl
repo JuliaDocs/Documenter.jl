@@ -29,7 +29,7 @@ function render(::Writer{Formats.Markdown}, doc::Documents.Document)
 end
 
 function copy_assets(doc::Documents.Document)
-    Utilities.log("copying assets to build directory.")
+    Utilities.log(doc, "copying assets to build directory.")
     assets = doc.internal.assets
     if isdir(assets)
         builddir = joinpath(doc.user.build, "assets")
