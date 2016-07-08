@@ -369,6 +369,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         end
         # Concatenate found docstrings into a single `MD` object.
         local docstr = Base.Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
+        docstr.meta[:results] = docs
 
         # Generate a unique name to be used in anchors and links for the docstring.
         local slug = Utilities.slugify(object)
@@ -449,7 +450,8 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 Utilities.warn(page.source, "Duplicate docs found for '$(binding)'.")
                 continue
             end
-            local markdown = Documenter.DocSystem.parsedoc(docstr)
+            local markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
+            markdown.meta[:results] = [docstr]
             local slug = Utilities.slugify(object)
             local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
             local docsnode = DocsNode(markdown, anchor, object, page, Nullable())
