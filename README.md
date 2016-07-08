@@ -40,8 +40,8 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 [travis-img]: https://travis-ci.org/JuliaDocs/Documenter.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/JuliaDocs/Documenter.jl
 
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/h227adt6ovd1u3sx/branch/master?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/JuliaDocs/documenter-jl/branch/master
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/egdu3hrptf3mnfc6/branch/master?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/MichaelHatherly/documenter-jl-bqgcw/branch/master
 
 [codecov-img]: https://codecov.io/gh/JuliaDocs/Documenter.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl
