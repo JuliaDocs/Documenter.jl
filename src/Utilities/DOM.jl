@@ -356,7 +356,12 @@ mdconvert(::LineBreak, parent) = br()
 
 mdconvert(link::Link, parent) = a[:href => link.url](mdconvert(link.text, link))
 
-mdconvert(list::List, parent) = (list.ordered ? ol : ul)(map(li, mdconvert(list.items, list)))
+if isdefined(Base.Markdown, :isordered)
+    import Base.Markdown: isordered
+else
+    isordered(a::List) = a.ordered::Bool
+end
+mdconvert(list::List, parent) = (isordered(list) ? ol : ul)(map(li, mdconvert(list.items, list)))
 
 mdconvert(paragraph::Paragraph, parent) = p(mdconvert(paragraph.content, paragraph))
 
