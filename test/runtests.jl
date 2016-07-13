@@ -406,7 +406,7 @@ let headers = doc.internal.headers
     end
 end
 
-@test length(doc.internal.objects) == 26
+@test length(doc.internal.objects) == 28
 
 # Documenter package docs:
 

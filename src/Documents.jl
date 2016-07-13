@@ -161,6 +161,7 @@ immutable Internal
     pages   :: Dict{Compat.String, Page} # Markdown files only.
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    bindings:: ObjectIdDict              # Tracks insertion order of object per-binding.
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
     stream  :: Utilities.CombinedStream  # Redirected STDOUT and STDERR streams.
     contentsnodes :: Vector{ContentsNode}
@@ -210,6 +211,7 @@ function Document(;
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),
         ObjectIdDict(),
+        ObjectIdDict(),
         Utilities.CombinedStream(),
         [],
         []
@@ -247,7 +249,8 @@ function populate!(index::IndexNode, document::Document)
     for (object, doc) in document.internal.objects
         page = relpath(doc.page.build, dirname(index.build))
         mod  = object.binding.mod
-        cat  = Symbol(lowercase(Utilities.doccat(object)))
+        # Include *all* signatures, whether they are `Union{}` or not.
+        cat  = Symbol(lowercase(Utilities.doccat(object.binding, Union{})))
         if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             page = Formats.extension(document.user.format, page)
             push!(index.elements, (object, doc, page, mod, cat))

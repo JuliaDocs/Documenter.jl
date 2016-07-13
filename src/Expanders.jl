@@ -377,6 +377,9 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         local ms = docsnode_methodlist(object, page, doc)
         local docsnode = DocsNode(docstr, anchor, object, page, ms)
 
+        # Track the order of insertion of objects per-binding.
+        push!(get!(doc.internal.bindings, binding, Utilities.Object[]), object)
+
         doc.internal.objects[object] = docsnode
         push!(nodes, docsnode)
     end
@@ -455,6 +458,10 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
             local slug = Utilities.slugify(object)
             local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
             local docsnode = DocsNode(markdown, anchor, object, page, Nullable())
+
+            # Track the order of insertion of objects per-binding.
+            push!(get!(doc.internal.bindings, object.binding, Utilities.Object[]), object)
+
             doc.internal.objects[object] = docsnode
             push!(nodes, docsnode)
         end
