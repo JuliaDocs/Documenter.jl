@@ -23,7 +23,12 @@ function crossref(doc::Documents.Document)
     for (src, page) in doc.internal.pages
         empty!(page.globals.meta)
         for element in page.elements
-            crossref(page.mapping[element], page, doc)
+            try
+                crossref(page.mapping[element], page, doc)
+            catch err
+                Utilities.restore_output_stream!(doc.internal.stream)
+                rethrow(err)
+            end
         end
     end
 end
@@ -113,10 +118,17 @@ end
 # -----------------------------
 
 function docsxref(link::Markdown.Link, meta, page, doc)
-    code   = link.text[1].code
-    curmod = get(meta, :CurrentModule, current_module())
-    object = eval(curmod, Utilities.object(parse(code), code))
-    if haskey(doc.internal.objects, object)
+    # Parse the link text and find current module.
+    local code = link.text[1].code
+    local ex = parse(code)
+    local mod = get(meta, :CurrentModule, current_module())
+    # Find binding and type signature associated with the link.
+    local binding = Documenter.DocSystem.binding(mod, ex)
+    local typesig = eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
+    # Try to find a valid object that we can cross-reference.
+    local nullobject = find_object(doc, binding, typesig)
+    if !isnull(nullobject)
+        object = get(nullobject)
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
@@ -131,6 +143,66 @@ function docsxref(link::Markdown.Link, meta, page, doc)
         Utilities.warn(page.source, "No doc found for reference '[`$code`](@ref)'.")
     end
 end
+
+#
+# Find the included `Object` in the `doc` matching `binding` and `typesig`.
+# The matching heuristic isn't too picky about what matches and will only fail
+# when no `Binding`s matching `binding` have been included.
+#
+function find_object(doc::Documents.Document, binding, typesig)
+    local object = Utilities.Object(binding, typesig)
+    if haskey(doc.internal.objects, object)
+        # Exact object matching the requested one.
+        return Nullable(object)
+    else
+        local objects = get(doc.internal.bindings, binding, Utilities.Object[])
+        if isempty(objects)
+            # No bindings match the requested object == FAILED.
+            return Nullable{Utilities.Object}()
+        elseif length(objects) == 1
+            # Only one possible choice. Use it even if the signature doesn't match.
+            return Nullable(objects[1])
+        else
+            local candidate = find_object(binding, typesig)
+            if candidate in objects
+                # We've found an actual match out of the possible choices! Use it.
+                return Nullable(candidate)
+            else
+                # No match in the possible choices. Use the one that was first included.
+                return Nullable(objects[1])
+            end
+        end
+    end
+end
+function find_object(binding, typesig)
+    if Documenter.DocSystem.defined(binding)
+        local λ = Documenter.DocSystem.resolve(binding)
+        return find_object(λ, binding, typesig)
+    else
+        return Utilities.Object(binding, typesig)
+    end
+end
+function find_object(λ::Union{Function, DataType}, binding, typesig)
+    if _method_exists(λ, typesig)
+        local signature = getsig(λ, typesig)
+        return Utilities.Object(binding, signature)
+    else
+        return Utilities.Object(binding, typesig)
+    end
+end
+find_object(::Union{Function, DataType}, binding, ::Union) = Utilities.Object(binding, Union{})
+find_object(other, binding, typesig) = Utilities.Object(binding, typesig)
+
+_method_exists(f, t) = method_exists(f, t)
+
+if VERSION < v"0.5.0-dev"
+    _method_exists(d::DataType, t) = false
+    getsig(f::Function, typesig) = which(f, typesig).sig
+    getsig(d::DataType, typesig) = Base.tuple_type_tail(which(d, typesig).sig)
+else
+    getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
+end
+
 
 # Issues/PRs cross referencing.
 # -----------------------------
