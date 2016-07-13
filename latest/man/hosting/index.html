@@ -493,12 +493,8 @@ docs/site/
 <h2 id="documentation-versions">Documentation Versions</h2>
 <p>When documentation is generated it is stored in one of the following folders:</p>
 <ul>
-<li>
-<p><code>latest</code> stores the most recent documentation that is committed to the <code>master</code> branch.</p>
-</li>
-<li>
-<p><code>stable</code> stores the most recent documentation from a tagged commit. Older tagged versions   are stored in directories named after their tags. These tagged directories are persistent   and must be manually removed from the <code>gh-pages</code> branch if necessary.</p>
-</li>
+<li><code>latest</code> stores the most recent documentation that is committed to the <code>master</code> branch.</li>
+<li><code>stable</code> stores the most recent documentation from a tagged commit. Older tagged versions are stored in directories named after their tags. These tagged directories are persistent and must be manually removed from the <code>gh-pages</code> branch if necessary.</li>
 </ul>
 <p>Once your documentation has been pushed to the <code>gh-pages</code> branch you should add links to your <code>README.md</code> pointing to the <code>stable</code> and <code>latest</code> documentation URLs. It is common practice to make use of "badges" similar to those used for Travis and AppVeyor build statuses or code coverage. Adding the following to your package <code>README.md</code> should be all that is necessary:</p>
 <div class="codehilite"><pre><span></span>[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)
