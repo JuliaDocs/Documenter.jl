@@ -373,7 +373,8 @@ function getremote(dir::AbstractString)
         catch err
             ""
         end
-    match  = Utilities.nullmatch(Pkg.Git.GITHUB_REGEX, remote)
+    match  = Utilities.nullmatch(isdefined(Base, :LibGit2) ?
+        Base.LibGit2.GITHUB_REGEX : Pkg.Git.GITHUB_REGEX, remote)
     if isnull(match)
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis

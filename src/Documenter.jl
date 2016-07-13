@@ -451,7 +451,9 @@ function genkeys(package)
         # Get remote details.
         user, repo =
             let r = readchomp(`git config --get remote.origin.url`)
-                m = match(Pkg.Git.GITHUB_REGEX, r)
+                m = match(isdefined(Base, :LibGit2) ?
+                    Base.LibGit2.GITHUB_REGEX :
+                    Pkg.Git.GITHUB_REGEX, r)
                 m === nothing && error("no remote repo named 'origin' found.")
                 m[2], m[3]
             end
