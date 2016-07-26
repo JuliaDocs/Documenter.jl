@@ -148,6 +148,7 @@ Writers.MarkdownWriter
 Writers.MarkdownWriter.join_decl
 Writers.MarkdownWriter.span
 Writers.HTMLWriter
+Writers.HTMLWriter.mdconvert
 Writers.LaTeXWriter
 ```
 
@@ -182,6 +183,4 @@ Utilities.DOM.Tag
 Utilities.DOM.Node
 Utilities.DOM.escapehtml
 Utilities.DOM.flatten!
-Utilities.DOM.MarkdownConverter
-Utilities.DOM.MarkdownConverter.mdconvert(md)
 ```

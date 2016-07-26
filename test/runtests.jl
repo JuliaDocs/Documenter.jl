@@ -315,14 +315,15 @@ end
 # `Markdown.MD` to `DOM.Node` conversion tests.
 module MarkdownToNode
 
-import Documenter.Utilities.DOM, Documenter.DocSystem
+import Documenter.DocSystem
+import Documenter.Writers.HTMLWriter: mdconvert
 
 # Exhaustive Conversion from Markdown to Nodes.
 for mod in Base.Docs.modules
     for (binding, multidoc) in DocSystem.getmeta(mod)
         for (typesig, docstr) in multidoc.docs
             md = DocSystem.parsedoc(docstr)
-            string(DOM.MarkdownConverter.mdconvert(md))
+            string(mdconvert(md))
         end
     end
 end
