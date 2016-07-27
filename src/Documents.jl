@@ -163,7 +163,6 @@ immutable Internal
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings:: ObjectIdDict              # Tracks insertion order of object per-binding.
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
-    stream  :: Utilities.CombinedStream  # Redirected STDOUT and STDERR streams.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
 end
@@ -212,7 +211,6 @@ function Document(;
         Anchors.AnchorMap(),
         ObjectIdDict(),
         ObjectIdDict(),
-        Utilities.CombinedStream(),
         [],
         []
     )

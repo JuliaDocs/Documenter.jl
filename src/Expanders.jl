@@ -27,17 +27,7 @@ function expand(doc::Documents.Document)
         empty!(page.globals.meta)
         for element in page.elements
             deprecate_syntax!(element)
-            # Since we call `eval` from multiple expanders any number of
-            # different errors can be thrown here. When that happens the
-            # STDOUT/STDERR redirection is not returned to it's original state
-            # automatically. We need to do that manually here to avoid dropping
-            # the error messages.
-            try
-                Selectors.dispatch(ExpanderPipeline, element, page, doc)
-            catch err
-                Utilities.restore_output_stream!(doc.internal.stream)
-                rethrow(err)
-            end
+            Selectors.dispatch(ExpanderPipeline, element, page, doc)
         end
     end
 end
@@ -521,17 +511,15 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
     result, buffer = nothing, IOBuffer()
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        try
-            result = Utilities.withoutput(doc.internal.stream, buffer) do
-                # Evaluate within the build folder. Defines REPL-like `ans` binding as well.
-                cd(dirname(page.build)) do
-                    eval(mod, :(ans = $(eval(mod, ex))))
-                end
+        (value, success, backtrace, text) = Utilities.withoutput() do
+            cd(dirname(page.build)) do
+                eval(mod, :(ans = $(eval(mod, ex))))
             end
-        catch err
-            # TODO: should errors be allowed to appear in the generated result?
-            #       Currently we just bail out and leave the original code block as is.
-            Utilities.warn(page.source, "failed to run code block.\n\n$err")
+        end
+        result = value
+        print(buffer, text)
+        if !success
+            Utilities.warn(page.source, "failed to run code block.\n\n$(value)")
             page.mapping[x] = x
             return
         end
@@ -561,20 +549,19 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         buffer = IOBuffer()
         input  = droplines(str)
-        output =
-            try
-                result = Utilities.withoutput(doc.internal.stream, buffer) do
-                    cd(dirname(page.build)) do
-                        eval(mod, :(ans = $(eval(mod, ex))))
-                    end
-                end
-                hide = Documenter.DocChecks.ends_with_semicolon(input)
-                Documenter.DocChecks.result_to_string(buffer, hide ? nothing : result)
-            catch err
-                # TODO: Pass the backtrace through? Needs filtering to remove line info from
-                #       Documenter module and it's submodules.
-                Documenter.DocChecks.error_to_string(buffer, err, [])
+        (value, success, backtrace, text) = Utilities.withoutput() do
+            cd(dirname(page.build)) do
+                eval(mod, :(ans = $(eval(mod, ex))))
             end
+        end
+        result = value
+        print(out, text)
+        local output = if success
+            hide = Documenter.DocChecks.ends_with_semicolon(input)
+            Documenter.DocChecks.result_to_string(buffer, hide ? nothing : value)
+        else
+            Documenter.DocChecks.error_to_string(buffer, value, [])
+        end
         isempty(input) || println(out, prepend_prompt(input))
         if isempty(input) || isempty(output)
             println(out)

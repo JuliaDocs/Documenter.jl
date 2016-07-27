@@ -35,11 +35,9 @@ Anchors.isunique
 Builder
 Builder.DocumentPipeline
 Builder.SetupBuildDirectory
-Builder.RedirectOutputStreams
 Builder.ExpandTemplates
 Builder.CrossReferences
 Builder.CheckDocument
-Builder.RestoreOutputStreams
 Builder.Populate
 Builder.RenderDocument
 ```
@@ -172,6 +170,7 @@ Utilities.docs
 Utilities.doccat
 Utilities.nodocs
 Utilities.issubmodule
+Utilities.withoutput
 ```
 
 ### DOM

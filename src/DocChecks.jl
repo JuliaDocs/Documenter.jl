@@ -140,17 +140,18 @@ function eval_repl(code, sandbox, doc::Documents.Document, page)
     for (input, output) in repl_splitter(code)
         result = Result(code, input, output)
         for (ex, str) in Utilities.parseblock(input, doc, page)
-            try
-                result.hide  = ends_with_semicolon(str)
-                result.value = Utilities.withoutput(doc.internal.stream, result.stdout) do
-                    eval(sandbox, ex)
-                end
+            # Input containing a semi-colon gets suppressed in the final output.
+            result.hide = ends_with_semicolon(str)
+            (value, success, backtrace, text) = Utilities.withoutput() do
+                eval(sandbox, ex)
+            end
+            result.value = value
+            print(result.stdout, text)
+            if success
                 # Redefine the magic `ans` binding available in the REPL.
                 eval(sandbox, :(ans = $(result.value)))
-            catch err
-                result.value = err
-                result.bt    = catch_backtrace()
-                break
+            else
+                result.bt = backtrace
             end
         end
         checkresult(result)
@@ -165,17 +166,16 @@ function eval_script(code, sandbox, doc::Documents.Document, page)
     #       to mark `input`/`output` separation.
     input, output = split(code, "\n# output\n", limit = 2)
     result = Result(code, "", output)
-    try
-        ans = nothing
-        for (ex, str) in Utilities.parseblock(input, doc, page)
-            ans = Utilities.withoutput(doc.internal.stream, result.stdout) do
-                eval(sandbox, ex)
-            end
+    for (ex, str) in Utilities.parseblock(input, doc, page)
+        (value, success, backtrace, text) = Utilities.withoutput() do
+            eval(sandbox, ex)
         end
-        result.value = ans
-    catch err
-        result.value = err
-        result.bt    = catch_backtrace()
+        result.value = value
+        print(result.stdout, text)
+        if !success
+            result.bt = backtrace
+            break
+        end
     end
     checkresult(result)
 end

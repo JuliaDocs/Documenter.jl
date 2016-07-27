@@ -22,9 +22,7 @@ log(msg) = __log__[] ? print_with_color(:magenta, STDOUT, "Documenter: ", msg, "
 
 # Print logging output to the "real" STDOUT.
 function log(doc, msg)
-    local stdout = isdefined(doc.internal.stream, :out) ?
-        doc.internal.stream.out.real : STDOUT
-    __log__[] && print_with_color(:magenta, stdout, "Documenter: ", msg, "\n")
+    __log__[] && print_with_color(:magenta, STDOUT, "Documenter: ", msg, "\n")
     return nothing
 end
 
@@ -48,9 +46,8 @@ end
 warn(msg) = __log__[] ? print_with_color(:red, STDOUT, " !! ", msg, "\n") : nothing
 
 function warn(doc, page, msg, err)
-    real = doc.internal.stream.out.real
     file = page.source
-    print_with_color(:red, real, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n")
+    print_with_color(:red, STDOUT, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n")
 end
 
 # Nullable regex matches.
@@ -408,69 +405,57 @@ newlines(other) = 0
 
 unwrap(f, x::Nullable) = isnull(x) ? nothing : f(get(x))
 
-# CombinedStreams.
-# ----------------
+# Output redirection.
+# -------------------
 
-type RedirectedStream
-    real  :: IO
-    input :: IO
-    from  :: IO
-    to    :: IO
+"""
+Call a function and capture all `STDOUT` and `STDERR` output.
 
-    function RedirectedStream(stream::IO, f)
-        real = stream
-        from, input = f()
-        new(real, input, from, real)
-    end
+    withoutput(f) --> (result, success, backtrace, output)
+
+where
+
+  * `result` is the value returned from calling function `f`.
+  * `success` signals whether `f` has thrown an error, in which case `result` stores the
+    `Exception` that was raised.
+  * `backtrace` a `Vector{Ptr{Void}}` produced by `catch_backtrace()` if an error is thrown.
+  * `output` is the combined output of `STDOUT` and `STDERR` during execution of `f`.
+
+"""
+function withoutput(f)
+    # Save the default output streams.
+    local stdout = STDOUT
+    local stderr = STDERR
+
+    # Redirect both the `STDOUT` and `STDERR` streams to a single `Pipe` object.
+    local pipe = Pipe()
+    Base.link_pipe(pipe; julia_only_read = true, julia_only_write = true)
+    redirect_stdout(pipe.in)
+    redirect_stderr(pipe.in)
+
+    # Bytes written to the `pipe` are captured in `output` and converted to a `String`.
+    local output = UInt8[]
+
+    # Run the function `f`, capturing all output that it might have generated.
+    # Success signals whether the function `f` did or did not throw an exception.
+    result, success, backtrace =
+        try
+            f(), true, Vector{Ptr{Void}}()
+        catch err
+            err, false, catch_backtrace()
+        finally
+            # Force at least a single write to `pipe`, otherwise `readavailable` blocks.
+            println()
+            # Restore the original output streams.
+            redirect_stdout(stdout)
+            redirect_stderr(stderr)
+            # NOTE: `close` must always be called *after* `readavailable`.
+            append!(output, readavailable(pipe))
+            close(pipe)
+        end
+    return result, success, backtrace, chomp(Compat.String(output))
 end
 
-type CombinedStream
-    out  :: RedirectedStream
-    err  :: RedirectedStream
-    done :: Bool
-    tout :: Task
-    terr :: Task
-
-    CombinedStream() = new()
-end
-
-function redirect_output_stream!(stream::CombinedStream)
-    stream.out  = RedirectedStream(STDOUT, redirect_stdout)
-    stream.err  = RedirectedStream(STDERR, redirect_stderr)
-    stream.done = false
-    stream.tout = @async watchbuffer(stream, stream.out)
-    stream.terr = @async watchbuffer(stream, stream.err)
-    return stream
-end
-
-function restore_output_stream!(stream::CombinedStream)
-    redirect_stdout(stream.out.real)
-    redirect_stderr(stream.err.real)
-    stream.done = true
-    sleep(0.1)
-    return stream
-end
-
-function watchbuffer(stream::CombinedStream, r::RedirectedStream)
-    while !eof(r.from)
-        n = nb_available(r.from)
-        n > 0 && write(r.to, read(r.from, n))
-        stream.done && break
-    end
-end
-
-function withoutput(func, stream::CombinedStream, buffer::IOBuffer)
-    stream.out.to = buffer
-    stream.err.to = buffer
-    try
-        func()
-    catch err
-        rethrow(err)
-    finally
-        stream.out.to = stream.out.real
-        stream.err.to = stream.err.real
-    end
-end
 
 """
     issubmodule(sub, mod)

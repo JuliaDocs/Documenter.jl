@@ -56,3 +56,10 @@ bar
 
 baz
 ```
+
+```julia
+julia> info("...")
+INFO: ...
+
+```
+

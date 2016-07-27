@@ -23,11 +23,9 @@ using Compat
 The default document processing "pipeline", which consists of the following actions:
 
 - [`SetupBuildDirectory`](@ref)
-- [`RedirectOutputStreams`](@ref)
 - [`ExpandTemplates`](@ref)
 - [`CrossReferences`](@ref)
 - [`CheckDocument`](@ref)
-- [`RestoreOutputStreams`](@ref)
 - [`Populate`](@ref)
 - [`RenderDocument`](@ref)
 
@@ -38,11 +36,6 @@ abstract DocumentPipeline <: Selectors.AbstractSelector
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
 abstract SetupBuildDirectory <: DocumentPipeline
-
-"""
-Replace `STDOUT` and `STDERR` streams with a single stream to capture doctest output.
-"""
-abstract RedirectOutputStreams <: DocumentPipeline
 
 """
 Executes a sequence of actions on each node of the parsed markdown files in turn.
@@ -61,11 +54,6 @@ valid Julia code blocks.
 abstract CheckDocument <: DocumentPipeline
 
 """
-Switch back to the real `STDOUT` and `STDERR` that were changed in [`RedirectOutputStreams`](@ref).
-"""
-abstract RestoreOutputStreams <: DocumentPipeline
-
-"""
 Populates the `ContentsNode`s and `IndexNode`s with links.
 """
 abstract Populate <: DocumentPipeline
@@ -76,13 +64,11 @@ Writes the document tree to the `build` directory.
 abstract RenderDocument <: DocumentPipeline
 
 Selectors.order(::Type{SetupBuildDirectory})   = 1.0
-Selectors.order(::Type{RedirectOutputStreams}) = 2.0
-Selectors.order(::Type{ExpandTemplates})       = 3.0
-Selectors.order(::Type{CrossReferences})       = 4.0
-Selectors.order(::Type{CheckDocument})         = 5.0
-Selectors.order(::Type{RestoreOutputStreams})  = 6.0
-Selectors.order(::Type{Populate})              = 7.0
-Selectors.order(::Type{RenderDocument})        = 8.0
+Selectors.order(::Type{ExpandTemplates})       = 2.0
+Selectors.order(::Type{CrossReferences})       = 3.0
+Selectors.order(::Type{CheckDocument})         = 4.0
+Selectors.order(::Type{Populate})              = 5.0
+Selectors.order(::Type{RenderDocument})        = 6.0
 
 Selectors.matcher{T <: DocumentPipeline}(::Type{T}, doc::Documents.Document) = true
 
@@ -117,11 +103,6 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     end
 end
 
-function Selectors.runner(::Type{RedirectOutputStreams}, doc::Documents.Document)
-    Utilities.log(doc, "redirecting output streams.")
-    Utilities.redirect_output_stream!(doc.internal.stream)
-end
-
 function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)
     Utilities.log(doc, "expanding markdown templates.")
     Documenter.Expanders.expand(doc)
@@ -136,11 +117,6 @@ function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
     Utilities.log(doc, "running document checks.")
     Documenter.DocChecks.missingdocs(doc)
     Documenter.DocChecks.doctest(doc)
-end
-
-function Selectors.runner(::Type{RestoreOutputStreams}, doc::Documents.Document)
-    Utilities.log(doc, "restoring output streams.")
-    Utilities.restore_output_stream!(doc.internal.stream)
 end
 
 function Selectors.runner(::Type{Populate}, doc::Documents.Document)
