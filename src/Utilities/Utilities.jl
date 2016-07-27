@@ -417,6 +417,8 @@ type RedirectedStream
     from  :: IO
     to    :: IO
 
+    RedirectedStream(stream::IO) = new(stream, stream, DevNull, stream)
+
     function RedirectedStream(stream::IO, f)
         real = stream
         from, input = f()
@@ -431,7 +433,7 @@ type CombinedStream
     tout :: Task
     terr :: Task
 
-    CombinedStream() = new()
+    CombinedStream() = new(RedirectedStream(STDOUT), RedirectedStream(STDOUT), false)
 end
 
 function redirect_output_stream!(stream::CombinedStream)
@@ -444,16 +446,8 @@ function redirect_output_stream!(stream::CombinedStream)
 end
 
 function restore_output_stream!(stream::CombinedStream)
-    # The `isdefined` checks make sure that the streams are actually redirected
-    # in the first place. A `CombinedStream` is initially created with undefined
-    # fields and they remain so if the stream is not redirected. It should not
-    # happen normally, but can happen if the `RedirectOutputStreams` build step
-    # is disabled when debugging. We handle it gracefully by printing an error,
-    # so that Documenter could continue running.
-    isdefined(stream, :out) ? redirect_stdout(stream.out.real) :
-        warn("restore_output_stream!: stream.out has not been redirected")
-    isdefined(stream, :err) ? redirect_stderr(stream.err.real) :
-        warn("restore_output_stream!: stream.err has not been redirected")
+    redirect_stdout(stream.out.real)
+    redirect_stderr(stream.err.real)
     stream.done = true
     sleep(0.1)
     return stream
@@ -468,18 +462,15 @@ function watchbuffer(stream::CombinedStream, r::RedirectedStream)
 end
 
 function withoutput(func, stream::CombinedStream, buffer::IOBuffer)
-    # see `restore_output_stream!` for information on the `isdefined` checks
-    isdefined(stream, :out) ? (stream.out.to = buffer) :
-        warn("withoutput: STDOUT is not being captured")
-    isdefined(stream, :err) ? (stream.err.to = buffer) :
-        warn("withoutput: STDERR is not being captured")
+    stream.out.to = buffer
+    stream.err.to = buffer
     try
         func()
     catch err
         rethrow(err)
     finally
-        isdefined(stream, :out) && (stream.out.to = stream.out.real)
-        isdefined(stream, :err) && (stream.err.to = stream.err.real)
+        stream.out.to = stream.out.real
+        stream.err.to = stream.err.real
     end
 end
 
