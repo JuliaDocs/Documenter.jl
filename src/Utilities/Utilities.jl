@@ -417,6 +417,8 @@ type RedirectedStream
     from  :: IO
     to    :: IO
 
+    RedirectedStream(stream::IO) = new(stream, stream, DevNull, stream)
+
     function RedirectedStream(stream::IO, f)
         real = stream
         from, input = f()
@@ -431,7 +433,7 @@ type CombinedStream
     tout :: Task
     terr :: Task
 
-    CombinedStream() = new()
+    CombinedStream() = new(RedirectedStream(STDOUT), RedirectedStream(STDOUT), false)
 end
 
 function redirect_output_stream!(stream::CombinedStream)
