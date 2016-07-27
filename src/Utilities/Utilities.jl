@@ -444,8 +444,16 @@ function redirect_output_stream!(stream::CombinedStream)
 end
 
 function restore_output_stream!(stream::CombinedStream)
-    redirect_stdout(stream.out.real)
-    redirect_stderr(stream.err.real)
+    # The `isdefined` checks make sure that the streams are actually redirected
+    # in the first place. A `CombinedStream` is initially created with undefined
+    # fields and they remain so if the stream is not redirected. It should not
+    # happen normally, but can happen if the `RedirectOutputStreams` build step
+    # is disabled when debugging. We handle it gracefully by printing an error,
+    # so that Documenter could continue running.
+    isdefined(stream, :out) ? redirect_stdout(stream.out.real) :
+        warn("restore_output_stream!: stream.out has not been redirected")
+    isdefined(stream, :err) ? redirect_stderr(stream.err.real) :
+        warn("restore_output_stream!: stream.err has not been redirected")
     stream.done = true
     sleep(0.1)
     return stream
@@ -460,15 +468,18 @@ function watchbuffer(stream::CombinedStream, r::RedirectedStream)
 end
 
 function withoutput(func, stream::CombinedStream, buffer::IOBuffer)
-    stream.out.to = buffer
-    stream.err.to = buffer
+    # see `restore_output_stream!` for information on the `isdefined` checks
+    isdefined(stream, :out) ? (stream.out.to = buffer) :
+        warn("withoutput: STDOUT is not being captured")
+    isdefined(stream, :err) ? (stream.err.to = buffer) :
+        warn("withoutput: STDERR is not being captured")
     try
         func()
     catch err
         rethrow(err)
     finally
-        stream.out.to = stream.out.real
-        stream.err.to = stream.err.real
+        isdefined(stream, :out) && (stream.out.to = stream.out.real)
+        isdefined(stream, :err) && (stream.err.to = stream.err.real)
     end
 end
 
