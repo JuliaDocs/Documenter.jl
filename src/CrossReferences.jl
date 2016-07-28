@@ -23,12 +23,7 @@ function crossref(doc::Documents.Document)
     for (src, page) in doc.internal.pages
         empty!(page.globals.meta)
         for element in page.elements
-            try
-                crossref(page.mapping[element], page, doc)
-            catch err
-                Utilities.restore_output_stream!(doc.internal.stream)
-                rethrow(err)
-            end
+            crossref(page.mapping[element], page, doc)
         end
     end
 end
