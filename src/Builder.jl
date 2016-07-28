@@ -117,6 +117,7 @@ function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
     Utilities.log(doc, "running document checks.")
     Documenter.DocChecks.missingdocs(doc)
     Documenter.DocChecks.doctest(doc)
+    Documenter.DocChecks.footnotes(doc)
 end
 
 function Selectors.runner(::Type{Populate}, doc::Documents.Document)

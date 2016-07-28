@@ -33,7 +33,7 @@ end
 
 function walk(f, meta, block::Vector)
     for each in block
-        f(each) && walk(f, meta, each)
+        walk(f, meta, each)
     end
 end
 
