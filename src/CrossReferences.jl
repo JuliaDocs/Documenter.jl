@@ -115,7 +115,8 @@ end
 function docsxref(link::Markdown.Link, meta, page, doc)
     # Parse the link text and find current module.
     local code = link.text[1].code
-    local ex = parse(code)
+    local keyword = Symbol(strip(code))
+    local ex = haskey(Docs.keywords, keyword) ? QuoteNode(keyword) : parse(code)
     local mod = get(meta, :CurrentModule, current_module())
     # Find binding and type signature associated with the link.
     local binding = Documenter.DocSystem.binding(mod, ex)
@@ -130,10 +131,6 @@ function docsxref(link::Markdown.Link, meta, page, doc)
         path     = Formats.extension(doc.user.format, path)
         slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
-        # Fixup keyword ref text since they have a leading ':' char.
-        if object.binding.mod === Main && haskey(Base.Docs.keywords, object.binding.var)
-            link.text[1].code = lstrip(code, ':')
-        end
     else
         Utilities.warn(page.source, "No doc found for reference '[`$code`](@ref)'.")
     end
