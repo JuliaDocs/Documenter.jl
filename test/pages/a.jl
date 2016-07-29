@@ -14,6 +14,10 @@ Links:
 - [`f(::Any, ::Any)`](@ref)
 - [`f(x, y, z)`](@ref)
 
+[^footnote]:
+
+    Footnote contents. [^footnote]
+
 """
 f(x) = x
 

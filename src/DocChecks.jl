@@ -318,4 +318,61 @@ function takeuntil!(r, buf, lines)
     end
 end
 
+# Footnote checks.
+# ----------------
+
+if isdefined(Base.Markdown, :Footnote)
+    function footnotes(doc::Documents.Document)
+        # A mapping of footnote ids to a tuple counter of how many footnote references and
+        # footnote bodies have been found.
+        #
+        # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
+        # footnote references and a single footnote body.
+        local footnotes = Dict{Documents.Page, Dict{Compat.String, Tuple{Int, Int}}}()
+        for (src, page) in doc.internal.pages
+            empty!(page.globals.meta)
+            local orphans = Dict{Compat.String, Tuple{Int, Int}}()
+            for element in page.elements
+                Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                    footnote(block, orphans)
+                end
+            end
+            footnotes[page] = orphans
+        end
+        for (page, orphans) in footnotes
+            for (id, (ids, bodies)) in orphans
+                # Multiple footnote bodies.
+                if bodies > 1
+                    Utilities.warn(page.source, "Footnote '$id' has $bodies bodies.")
+                end
+                # No footnote references for an id.
+                if ids === 0
+                    Utilities.warn(page.source, "Unused footnote named '$id'.")
+                end
+                # No footnote bodies for an id.
+                if bodies === 0
+                    Utilities.warn(page.source, "No footnotes found for '$id'.")
+                end
+            end
+        end
+    end
+
+    function footnote(fn::Markdown.Footnote, orphans::Dict)
+        ids, bodies = get(orphans, fn.id, (0, 0))
+        if fn.text === nothing
+            # Footnote references: syntax `[^1]`.
+            orphans[fn.id] = (ids + 1, bodies)
+            return false # No more footnotes inside footnote references.
+        else
+            # Footnote body: syntax `[^1]:`.
+            orphans[fn.id] = (ids, bodies + 1)
+            return true # Might be footnotes inside footnote bodies.
+        end
+    end
+
+    footnote(other, orphans::Dict) = true
+else
+    footnotes(doc::Documents.Document) = nothing
+end
+
 end
