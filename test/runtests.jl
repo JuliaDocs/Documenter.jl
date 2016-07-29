@@ -315,6 +315,11 @@ end
 locally_defined()
 @test !isdefined(current_module(), :button)
 
+# HTMLDocument
+import Documenter.Utilities.DOM: HTMLDocument
+@test string(HTMLDocument(div())) == "<!DOCTYPE html>\n<div></div>\n"
+@test string(HTMLDocument("custom doctype", div())) == "<!DOCTYPE custom doctype>\n<div></div>\n"
+
 end
 
 # `Markdown.MD` to `DOM.Node` conversion tests.
