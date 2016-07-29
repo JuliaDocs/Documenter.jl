@@ -182,4 +182,5 @@ Utilities.DOM.Tag
 Utilities.DOM.Node
 Utilities.DOM.escapehtml
 Utilities.DOM.flatten!
+Utilities.DOM.HTMLDocument
 ```

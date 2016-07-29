@@ -300,4 +300,19 @@ function escapehtml(text::AbstractString)
     end
 end
 
+"""
+A HTML node that wraps around the root node of the document and adds a DOCTYPE
+to it.
+"""
+type HTMLDocument
+    doctype :: String
+    root    :: Node
+end
+HTMLDocument(root) = HTMLDocument("html", root)
+
+function Base.show(io::IO, doc::HTMLDocument)
+    println(io, "<!DOCTYPE $(doc.doctype)>")
+    println(io, doc.root)
+end
+
 end
