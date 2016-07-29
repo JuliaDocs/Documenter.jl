@@ -277,7 +277,7 @@ Returns a `Vector{DocStr}` ordered by definition order in `0.5` and by
 function getdocs(
         binding::Docs.Binding,
         typesig::Type = Union{};
-        compare = (<:),
+        compare = (==),
         modules = Docs.modules,
         aliases = true,
     )
@@ -299,12 +299,27 @@ function getdocs(
             end
         end
     end
-    # When nothing is found we check whether the `binding` is an alias of some
-    # other `Binding`. If so then we redo the search using that `Binding` instead.
-    if aliases && isempty(results) && (b = aliasof(binding)) != binding
-        getdocs(b, typesig; compare = compare, modules = modules)
+    if compare == (==)
+        # Exact matching of signatures:
+        #
+        # When we get a single match from using `==` as the comparision then we just return
+        # that one result.
+        #
+        # Otherwise we fallback to comparing signatures using `<:` to match, hopefully, a
+        # wider range of possible docstrings.
+        if length(results) == 1
+            results
+        else
+            getdocs(binding, typesig; compare = (<:), modules = modules, aliases = aliases)
+        end
     else
-        results
+        # When nothing is found we check whether the `binding` is an alias of some other
+        # `Binding`. If so then we redo the search using that `Binding` instead.
+        if aliases && isempty(results) && (b = aliasof(binding)) != binding
+            getdocs(b, typesig; compare = compare, modules = modules)
+        else
+            results
+        end
     end
 end
 
