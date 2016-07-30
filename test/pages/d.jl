@@ -4,8 +4,8 @@
 
 Links:
 
-- [`:ccall`](@ref)
-- [`:while`](@ref)
+- [`ccall`](@ref)
+- [`while`](@ref)
 - [`@time`](@ref)
 - [`T`](@ref)
 - [`f`](@ref)
@@ -22,8 +22,8 @@ type T end
 
 Links:
 
-- [`:ccall`](@ref)
-- [`:while`](@ref)
+- [`ccall`](@ref)
+- [`while`](@ref)
 - [`@time`](@ref)
 - [`T(x)`](@ref)
 - [`T(x, y)`](@ref)
@@ -41,8 +41,8 @@ T(x) = T()
 
 Links:
 
-- [`:ccall`](@ref)
-- [`:while`](@ref)
+- [`ccall`](@ref)
+- [`while`](@ref)
 - [`@time`](@ref)
 - [`T()`](@ref)
 - [`T(x)`](@ref)

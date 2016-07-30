@@ -11,14 +11,14 @@ Pages = ["lib/functions.md"]
 
 # Functions
 
-[`:ccall`](@ref), [`func(x)`](@ref), [`T`](@ref), [`:for`](@ref), and [`:while`](@ref).
+[`ccall`](@ref), [`func(x)`](@ref), [`T`](@ref), [`for`](@ref), and [`while`](@ref).
 
 ```@docs
 func(x)
 T
-:ccall
-:for
-:while
+ccall
+for
+while
 @time
 @assert
 ```

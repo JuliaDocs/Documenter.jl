@@ -4,8 +4,8 @@
 
 Links:
 
-- [`:ccall`](@ref)
-- [`:while`](@ref)
+- [`ccall`](@ref)
+- [`while`](@ref)
 - [`@time`](@ref)
 - [`T`](@ref)
 - [`f`](@ref)

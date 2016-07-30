@@ -97,19 +97,31 @@ Returns a vector of parsed expressions and their corresponding raw strings.
 
 The keyword argument `skip = N` drops the leading `N` lines from the input string.
 """
-function parseblock(code, doc, page; skip = 0)
+function parseblock(code::AbstractString, doc, page; skip = 0)
+    # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
-    results, cursor = [], 1
-    while cursor < length(code)
-        ex, ncursor =
-            try
-                parse(code, cursor)
-            catch err
-                Utilities.warn(doc, page, "Failed to parse expression.", err)
-                break
+    # Check whether we have windows-style line endings.
+    local offset = contains(code, "\n\r") ? 2 : 1
+    local strlen = length(code)
+    local results = []
+    local cursor = 1
+    while cursor < strlen
+        # Check for keywords first since they will throw parse errors if we `parse` them.
+        local line = match(r"^(.+)$"m, SubString(code, cursor, strlen)).captures[1]
+        local keyword = Symbol(strip(line))
+        (ex, ncursor) =
+            if haskey(Docs.keywords, keyword)
+                (QuoteNode(keyword), cursor + length(line) + offset)
+            else
+                try
+                    parse(code, cursor)
+                catch err
+                    Utilities.warn(doc, page, "Failed to parse expression.", err)
+                    break
+                end
             end
-        push!(results, (ex, code[cursor:ncursor-1]))
+        push!(results, (ex, SubString(code, cursor, ncursor - 1)))
         cursor = ncursor
     end
     results
