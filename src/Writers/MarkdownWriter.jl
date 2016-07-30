@@ -129,6 +129,10 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNode, page, 
                 tv, decls, file, line = Base.arg_decl_parts(m)
                 decls = decls[2:end]
                 file = string(file)
+                if !isfile(file)
+                    println("Skipping ", m, " (file not found; method may be deprecated)")
+                    continue
+                end
                 url = get(Utilities.url(doc.internal.remote, doc.user.repo, m.module, file, line), "")
                 file_match = match(r, file)
                 if file_match !== nothing
