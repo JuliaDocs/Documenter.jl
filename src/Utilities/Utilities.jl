@@ -340,7 +340,10 @@ url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], l
 if VERSION >= v"0.5.0-dev+3442"
     function url(remote, repo, mod, file, line)
         isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
-        if inbase(mod)
+        # Macro-generated methods such as those produced by `@deprecate` list their file as
+        # `deprecated.jl` since that is where the macro is defined. Use that to help
+        # determine the correct URL.
+        if inbase(mod) || !isabspath(file)
             base = "https://github.com/JuliaLang/julia/tree"
             dest = "base/$file#L$line"
             Nullable{Compat.String}(
