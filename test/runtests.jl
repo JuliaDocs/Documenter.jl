@@ -411,7 +411,7 @@ end
 
 # Documenter package docs:
 
-const Documenter_root = Pkg.dir("Documenter", "docs")
+const Documenter_root = normpath(joinpath(dirname(@__FILE__), "..", "docs"))
 
 doc = makedocs(
     debug   = true,
@@ -459,4 +459,4 @@ end
 
 end
 
-include(Pkg.dir("Documenter", "docs", "make.jl"))
+include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))
