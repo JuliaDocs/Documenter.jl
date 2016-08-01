@@ -45,6 +45,15 @@ function warn(file, msg)
 end
 warn(msg) = __log__[] ? print_with_color(:red, STDOUT, " !! ", msg, "\n") : nothing
 
+function warn(file, msg, err, ex, mod)
+    if __log__[]
+        warn(file, msg)
+        print_with_color(:red, STDOUT, "\nERROR: $err\n\nexpression '$ex' in module '$mod'\n\n")
+    else
+        nothing
+    end
+end
+
 function warn(doc, page, msg, err)
     file = page.source
     print_with_color(:red, STDOUT, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n")

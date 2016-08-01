@@ -155,4 +155,3 @@ Pages = ["c.jl", "d.jl"]
 ```
 
 A footnote reference [^footnote].
-

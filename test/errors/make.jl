@@ -5,4 +5,3 @@ end
 using Documenter
 
 makedocs(modules = [ErrorsModule])
-
