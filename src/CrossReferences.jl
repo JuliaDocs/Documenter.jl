@@ -116,11 +116,37 @@ function docsxref(link::Markdown.Link, meta, page, doc)
     # Parse the link text and find current module.
     local code = link.text[1].code
     local keyword = Symbol(strip(code))
-    local ex = haskey(Docs.keywords, keyword) ? QuoteNode(keyword) : parse(code)
+    local ex
+    if haskey(Docs.keywords, keyword)
+        ex = QuoteNode(keyword)
+    else
+        try
+            ex = parse(code)
+        catch err
+            !isa(err, ParseError) && rethrow(err)
+            Utilities.warn(page.source, "Unable to parse the reference '[`$code`](@ref)'.")
+            return
+        end
+    end
     local mod = get(meta, :CurrentModule, current_module())
+
     # Find binding and type signature associated with the link.
-    local binding = Documenter.DocSystem.binding(mod, ex)
-    local typesig = eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
+    local binding
+    try
+        binding = Documenter.DocSystem.binding(mod, ex)
+    catch err
+        Utilities.warn(page.source, "Unable to get the binding for '[`$code`](@ref)'.", err, ex, mod)
+        return
+    end
+
+    local typesig
+    try
+        typesig = eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
+    catch err
+        Utilities.warn(page.source, "Unable to evaluate the type signature for '[`$code`](@ref)'.", err, ex, mod)
+        return
+    end
+
     # Try to find a valid object that we can cross-reference.
     local nullobject = find_object(doc, binding, typesig)
     if !isnull(nullobject)

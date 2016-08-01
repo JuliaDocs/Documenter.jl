@@ -335,7 +335,13 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        local binding = Documenter.DocSystem.binding(curmod, ex)
+        local binding = try
+            Documenter.DocSystem.binding(curmod, ex)
+        catch err
+            Utilities.warn(page.source, "Unable to get the binding for '$(strip(str))'.", err, ex, curmod)
+            failed = true
+            continue
+        end
         # Undefined `Bindings` get discarded.
         if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
             Utilities.warn(page.source, "Undefined binding '$(binding)'.")
