@@ -34,4 +34,3 @@ This is the footnote [^1]. And [^another] [^another].
 [^nested]:
 
     Duplicate [^1] nested footnote.
-
