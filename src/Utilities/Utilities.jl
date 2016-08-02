@@ -85,6 +85,14 @@ assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
 cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive = true); mkdir(d))
 
+"""
+Find the path of a file relative to the `source` directory. `root` is the path
+to the directory containing the file `file`.
+
+It is meant to be used with `walkdir(source)`.
+"""
+srcpath(source, root, file) = normpath(joinpath(relpath(root, source), file))
+
 # Slugify text.
 
 """

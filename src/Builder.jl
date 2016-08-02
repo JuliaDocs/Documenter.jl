@@ -76,30 +76,41 @@ Selectors.strict{T <: DocumentPipeline}(::Type{T}) = false
 
 function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     Utilities.log(doc, "setting up build directory.")
+
     # Frequently used fields.
     build  = doc.user.build
     source = doc.user.source
 
+    # The .user.source directory must exist.
+    isdir(source) || error("source directory '$(abspath(source))' is missing.")
+
+    # We create the .user.build directory.
+    # If .user.clean is set, we first clean the existing directory.
     doc.user.clean && isdir(build) && rm(build; recursive = true)
     isdir(build) || mkdir(build)
-    if isdir(source)
-        for (root, dirs, files) in walkdir(source)
-            for dir in dirs
-                d = normpath(joinpath(build, relpath(root, source), dir))
-                isdir(d) || mkdir(d)
-            end
-            for file in files
-                src = normpath(joinpath(root, file))
-                dst = normpath(joinpath(build, relpath(root, source), file))
-                # Non-markdown files are simply copied over to `build`.
-                # Markdown files get added to the document tree as `Page` objects.
-                endswith(src, ".md") ?
-                    Documents.addpage!(doc, src, dst) :
-                    cp(src, dst; remove_destination = true)
+
+    # We'll walk over all the files in the .user.source directory.
+    # The directory structure is copied over to .user.build. All files, with
+    # the exception of markdown files (identified by the extension) are copied
+    # over as well, since they're assumed to be images, data files etc.
+    # Markdown files, however, get added to the document and also stored into
+    # `mdpages`, to be used later.
+    mdpages = Compat.String[]
+    for (root, dirs, files) in walkdir(source)
+        for dir in dirs
+            d = normpath(joinpath(build, relpath(root, source), dir))
+            isdir(d) || mkdir(d)
+        end
+        for file in files
+            src = normpath(joinpath(root, file))
+            dst = normpath(joinpath(build, relpath(root, source), file))
+            if endswith(file, ".md")
+                push!(mdpages, Utilities.srcpath(source, root, file))
+                Documents.addpage!(doc, src, dst)
+            else
+                cp(src, dst; remove_destination = true)
             end
         end
-    else
-        error("source directory '$(abspath(source))' is missing.")
     end
 end
 

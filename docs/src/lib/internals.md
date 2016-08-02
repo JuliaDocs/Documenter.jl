@@ -156,6 +156,7 @@ Writers.LaTeXWriter
 Utilities
 Utilities.currentdir
 Utilities.assetsdir
+Utilities.srcpath
 Utilities.check_kwargs
 Utilities.slugify
 Utilities.parseblock
