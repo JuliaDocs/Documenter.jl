@@ -522,5 +522,6 @@ function issubmodule(sub, mod)
 end
 
 include("DOM.jl")
+include("MDFlatten.jl")
 
 end
