@@ -99,6 +99,7 @@ function doctest(doc::Documents.Document)
         for (src, page) in doc.internal.pages
             empty!(page.globals.meta)
             for element in page.elements
+                page.globals.meta[:CurrentFile] = page.source
                 Walkers.walk(page.globals.meta, page.mapping[element]) do block
                     doctest(block, page.globals.meta, doc, page)
                 end
@@ -113,12 +114,17 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
     if block.language == "julia" || block.language == "jlcon"
         code, sandbox = block.code, Module(:Main)
         haskey(meta, :DocTestSetup) && eval(sandbox, meta[:DocTestSetup])
-        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox, doc, page)   :
-        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox, doc, page) : nothing
+        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox, meta, doc, page)   :
+        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox, meta, doc, page) : nothing
     end
     false
 end
 doctest(block, meta::Dict, doc::Documents.Document, page) = true
+
+function doctest(block::Markdown.MD, meta::Dict, doc::Documents.Document, page)
+    haskey(block.meta, :path) && (meta[:CurrentFile] = block.meta[:path])
+    return true
+end
 
 # Doctest evaluation.
 
@@ -126,19 +132,20 @@ type Result
     code   :: Compat.String # The entire code block that is being tested.
     input  :: Compat.String # Part of `code` representing the current input.
     output :: Compat.String # Part of `code` representing the current expected output.
+    file   :: Compat.String # File in which the doctest is written. Either `.md` or `.jl`.
     value  :: Any        # The value returned when evaluating `input`.
     hide   :: Bool       # Semi-colon suppressing the output?
     stdout :: IOBuffer   # Redirected STDOUT/STDERR gets sent here.
     bt     :: Vector     # Backtrace when an error is thrown.
 
-    function Result(code, input, output)
-        new(code, input, rstrip(output, '\n'), nothing, false, IOBuffer())
+    function Result(code, input, output, file)
+        new(code, input, rstrip(output, '\n'), file, nothing, false, IOBuffer())
     end
 end
 
-function eval_repl(code, sandbox, doc::Documents.Document, page)
+function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
     for (input, output) in repl_splitter(code)
-        result = Result(code, input, output)
+        result = Result(code, input, output, meta[:CurrentFile])
         for (ex, str) in Utilities.parseblock(input, doc, page)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = ends_with_semicolon(str)
@@ -158,14 +165,14 @@ function eval_repl(code, sandbox, doc::Documents.Document, page)
     end
 end
 
-function eval_script(code, sandbox, doc::Documents.Document, page)
+function eval_script(code, sandbox, meta::Dict, doc::Documents.Document, page)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
     #
     #       to mark `input`/`output` separation.
     input, output = split(code, "\n# output\n", limit = 2)
-    result = Result(code, "", output)
+    result = Result(code, "", output, meta[:CurrentFile])
     for (ex, str) in Utilities.parseblock(input, doc, page)
         (value, success, backtrace, text) = Utilities.withoutput() do
             eval(sandbox, ex)
@@ -238,7 +245,7 @@ end
 
 function report(result::Result, str)
     buffer = IOBuffer()
-    println(buffer, "Test error in the following code block:")
+    println(buffer, "Test error in the following code block in '$(result.file)':")
     print_indented(buffer, result.code; indent = 8)
     if result.input != ""
         print_indented(buffer, "in expression:")
