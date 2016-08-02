@@ -171,6 +171,8 @@ Utilities.doccat
 Utilities.nodocs
 Utilities.issubmodule
 Utilities.withoutput
+Utilities.MDFlatten
+Utilities.MDFlatten.mdflatten
 ```
 
 ### DOM
