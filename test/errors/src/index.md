@@ -47,3 +47,13 @@ This is the footnote [^1]. And [^another] [^another].
 [^nested]:
 
     Duplicate [^1] nested footnote.
+
+```@docs
+ErrorsModule.func
+```
+
+```julia
+julia> b = 1
+2
+
+```
