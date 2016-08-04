@@ -31,3 +31,4 @@ pages:
   - Tutorial: man/tutorial.md
 - Library:
   - Functions: lib/functions.md
+  - AutoDocs: lib/autodocs.md

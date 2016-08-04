@@ -85,6 +85,28 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
+To include only the exported names from the modules listed in `Modules` use `Private = false`.
+In a similar way `Public = false` can be used to only show the unexported names. By
+default both of these are set to `true` so that all names will be shown.
+
+````markdown
+Functions exported from `Foo`:
+
+```@autodocs
+Modules = [Foo]
+Private = false
+Order = [:function]
+```
+
+Private types in module `Foo`:
+
+```@autodocs
+Modules = [Foo]
+Public = false
+Order = [:type]
+```
+````
+
 !!! note
 
     When more complex sorting and filtering is needed then use `@docs` to define it
