@@ -1,6 +1,9 @@
 """
 Proved the [`mdflatten`](@ref) function that can "flatten" Markdown objects into
 a string, with formatting etc. stripped.
+
+Note that the tests in `test/mdflatten.jl` should be considered to be the spec
+for the output (number of newlines, indents, formatting, etc.).
 """
 module MDFlatten
 

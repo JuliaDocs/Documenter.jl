@@ -41,12 +41,14 @@ using Documenter.Utilities.MDFlatten
     # blocks
     @test mdflatten(Markdown.parse("> Test\n> Test\n\n> Test")) == "Test Test\n\nTest\n\n"
     @test mdflatten(Markdown.parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
+    @test mdflatten(Markdown.parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
+    @test mdflatten(Markdown.parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
 
     # test some inline blocks
     @test mdflatten(md"`code` *em* normal **strong**") == "code em normal strong\n\n"
     @test mdflatten(md"[link text *parsed*](link/itself/ignored)") == "link text parsed\n\n"
-    @test mdflatten(md"![title text **unparsed**](image/link/ignored)") == "[Image: title text **unparsed**]\n\n"
-    @test mdflatten(md"![title text **unparsed**](image/link/ignored)") == "[Image: title text **unparsed**]\n\n"
+    @test mdflatten(Markdown.parse("- a\n- b\n- c")) == "a\nb\nc\n\n"
+    @test mdflatten(Markdown.parse("A | B\n---|---\naa|bb\ncc | dd")) == "A B\naa bb\ncc dd\n\n"
 
     # Math
     @test mdflatten(md"$e=mc^2$") == "``e=mc^2``\n\n"
