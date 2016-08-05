@@ -406,20 +406,26 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         local modules = fields[:Modules]
         local order = get(fields, :Order, AUTODOCS_DEFAULT_ORDER)
         local pages = get(fields, :Pages, [])
+        local public = get(fields, :Public, true)
+        local private = get(fields, :Private, true)
         local results = []
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
+                # Which bindings should be included?
+                local isexported = Base.isexported(mod, binding.var)
+                local included = (isexported && public) || (!isexported && private)
+                # What category does the binding belong to?
                 local category = Documenter.DocSystem.category(binding)
-                if category in order
+                if category in order && included
                     for (typesig, docstr) in multidoc.docs
                         local path = docstr.data[:path]
                         local object = Utilities.Object(binding, typesig)
                         if isempty(pages)
-                            push!(results, (mod, path, category, object, docstr))
+                            push!(results, (mod, path, category, object, isexported, docstr))
                         else
                             for p in pages
                                 if endswith(path, p)
-                                    push!(results, (mod, p, category, object, docstr))
+                                    push!(results, (mod, p, category, object, isexported, docstr))
                                     break
                                 end
                             end
@@ -436,6 +442,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         local comparison = function (a, b)
             local t
             (t = Documents._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
+            a[5] == b[5] || return a[5] > b[5] # exported bindings before unexported ones.
             (t = Documents._compare(pagesmap,  2, a, b)) == 0 || return t < 0 # page
             (t = Documents._compare(ordermap,  3, a, b)) == 0 || return t < 0 # category
             string(a[4]) < string(b[4])                                       # name
@@ -444,9 +451,9 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
 
         # Finalise docstrings.
         nodes = DocsNode[]
-        for (mod, path, category, object, docstr) in results
+        for (mod, path, category, object, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
-                Utilities.warn(page.source, "Duplicate docs found for '$(binding)'.")
+                Utilities.warn(page.source, "Duplicate docs found for '$(object.binding)'.")
                 continue
             end
             local markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))

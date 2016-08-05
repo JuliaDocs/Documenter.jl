@@ -31,6 +31,7 @@ include("pages/a.jl")
 include("pages/b.jl")
 include("pages/c.jl")
 include("pages/d.jl")
+include("pages/e.jl")
 
 end
 
@@ -387,7 +388,7 @@ end
 
 @test doc.internal.assets == normpath(joinpath(dirname(@__FILE__), "..", "assets"))
 
-@test length(doc.internal.pages) == 3
+@test length(doc.internal.pages) == 4
 
 let headers = doc.internal.headers
     @test Documenter.Anchors.exists(headers, "Documentation")
@@ -409,7 +410,7 @@ let headers = doc.internal.headers
     end
 end
 
-@test length(doc.internal.objects) == 28
+@test length(doc.internal.objects) == 36
 
 # Documenter package docs:
 
