@@ -40,6 +40,7 @@ Builder.CrossReferences
 Builder.CheckDocument
 Builder.Populate
 Builder.RenderDocument
+Builder.walk_navpages
 ```
 
 ## CrossReferences
@@ -78,6 +79,8 @@ Documents.User
 Documents.Internal
 Documents.Globals
 Documents.populate!
+Documents.NavNode
+Documents.navpath
 ```
 
 ## Expanders

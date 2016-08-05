@@ -144,6 +144,10 @@ end
 @test UnitTests.A.B.C in Documenter.Utilities.submodules(UnitTests.A)
 @test UnitTests.A.B.C.D in Documenter.Utilities.submodules(UnitTests.A)
 
+## NavNode tests
+
+include("navnode.jl")
+
 # DocSystem unit tests.
 
 import Documenter: DocSystem

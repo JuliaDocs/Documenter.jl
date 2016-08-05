@@ -134,6 +134,40 @@ immutable EvalNode
     result :: Any
 end
 
+# Navigation
+# ----------------------
+
+"""
+Element in the navigation tree of a document, containing navigation references
+to other page, reference to the [`Page`](@ref) object etc.
+"""
+type NavNode
+    """
+    `null` if the `NavNode` is a non-page node of the navigation tree, otherwise
+    the string should be a valid key in `doc.internal.pages`
+    """
+    page           :: Nullable{Compat.String}
+    """
+    If not `null`, specifies the text that should be displayed in navigation
+    links etc. instead of the automatically determined text.
+    """
+    title_override :: Nullable{Compat.String}
+    parent         :: Nullable{NavNode}
+    children       :: Vector{NavNode}
+    prev           :: Nullable{NavNode}
+    next           :: Nullable{NavNode}
+end
+NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], nothing, nothing)
+
+"""
+Constructs a list of the ancestors of the `navnode` (inclding the `navnode` itself),
+ordered so that the root of the navigation tree is the first and `navnode` itself
+is the last item.
+"""
+navpath(navnode::NavNode) = isnull(navnode.parent) ? [navnode] :
+    push!(navpath(get(navnode.parent)), navnode)
+
+
 # Inner Document Fields.
 # ----------------------
 
@@ -159,6 +193,8 @@ immutable Internal
     assets  :: Compat.String             # Path where asset files will be copied to.
     remote  :: Compat.String             # The remote repo on github where this package is hosted.
     pages   :: Dict{Compat.String, Page} # Markdown files only.
+    navtree :: Vector{NavNode}           # A vector of top-level navigation items.
+    navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings:: ObjectIdDict              # Tracks insertion order of object per-binding.
@@ -207,6 +243,8 @@ function Document(;
         Utilities.assetsdir(),
         Utilities.getremote(root),
         Dict{Compat.String, Page}(),
+        [],
+        [],
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),
         ObjectIdDict(),
