@@ -335,7 +335,9 @@ function buildnode(T::Type, block, doc, page)
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
     for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)
-            dict[ex.args[1]] = eval(mod, ex.args[2])
+            cd(dirname(page.source)) do
+                dict[ex.args[1]] = eval(mod, ex.args[2])
+            end
         end
     end
     T(; dict...)
