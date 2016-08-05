@@ -26,50 +26,11 @@ function expand(doc::Documents.Document)
     for (src, page) in doc.internal.pages
         empty!(page.globals.meta)
         for element in page.elements
-            deprecate_syntax!(element)
             Selectors.dispatch(ExpanderPipeline, element, page, doc)
         end
     end
 end
 
-const CURLY_BRACKET_SYNTAX = r"^{([a-z]+)(.*)}"
-
-const CURLY_NAMES = Set([
-    "meta",
-    "docs",
-    "autodocs",
-    "eval",
-    "index",
-    "contents",
-    "example",
-    "repl"
-])
-
-function deprecate_syntax!(element::Markdown.Code)
-    if ismatch(CURLY_BRACKET_SYNTAX, element.code)
-        m = match(CURLY_BRACKET_SYNTAX, element.code)
-        name, id = m[1], m[2]
-        if name in CURLY_NAMES
-            _id = lstrip(id)
-            new_syntax = string("@", name, isempty(_id) ? "" : " $_id")
-            warn(
-                """
-                syntax '{$name$id}' is deprecated. Use the following syntax instead:
-
-                    ```$new_syntax
-                    ...
-                    ```
-
-                """
-            )
-            lines = split(element.code, '\n', limit = 2)[2:end]
-            element.code = join(split(element.code, '\n', limit = 2)[2:end])
-            element.language = new_syntax
-        end
-    end
-    nothing
-end
-deprecate_syntax!(other) = nothing
 
 # Expander Pipeline.
 # ------------------
@@ -603,19 +564,11 @@ iscode(x::Markdown.Code, lang)     = x.language == lang
 iscode(x, lang)                    = false
 
 const NAMEDHEADER_REGEX = r"^@id (.+)$"
-const OLD_NAMEDHEADER_REGEX = r"^{ref#([^{}]+)}$"
 
 function namedheader(h::Markdown.Header)
     if isa(h.text, Vector) && length(h.text) === 1 && isa(h.text[1], Markdown.Link)
         url = h.text[1].url
-        if ismatch(OLD_NAMEDHEADER_REGEX, url)
-            id = match(OLD_NAMEDHEADER_REGEX, url)[1]
-            h.text[1].url = "@id $id"
-            warn("syntax '", url, "' is deprecated. Use '@id ", id, "' instead.")
-            true
-        else
-            ismatch(NAMEDHEADER_REGEX, url)
-        end
+        ismatch(NAMEDHEADER_REGEX, url)
     else
         false
     end

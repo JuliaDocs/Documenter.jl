@@ -30,29 +30,14 @@ end
 
 function crossref(elem, page, doc)
     Walkers.walk(page.globals.meta, elem) do link
-        deprecate_link_syntax!(link)
         xref(link, page.globals.meta, page, doc)
     end
 end
-
-function deprecate_link_syntax!(link::Markdown.Link)
-    if link.url == "{ref}"
-        warn("autolink syntax '{ref}' is deprecated use '@ref' instead.")
-        link.url = "@ref"
-    elseif ismatch(OLD_NAMED_XREF, link.url)
-        id = match(OLD_NAMED_XREF, link.url)[1]
-        warn("named autolink syntax '$(link.url)' is deprecated use '@ref $id' instead.")
-        link.url = "@ref $id"
-    end
-    nothing
-end
-deprecate_link_syntax!(other) = nothing
 
 # Dispatch to `namedxref` / `docsxref`.
 # -------------------------------------
 
 const NAMED_XREF = r"^@ref (.+)$"
-const OLD_NAMED_XREF = r"^{ref#([^{}]*)}$"
 
 function xref(link::Markdown.Link, meta, page, doc)
     link.url == "@ref"            ? basicxref(link, meta, page, doc) :
@@ -80,7 +65,7 @@ end
 # --------------------------
 
 function namedxref(link::Markdown.Link, meta, page, doc)
-    # Extract the `name` from the `{ref#...}`.
+    # Extract the `name` from the `(@ref ...)`.
     slug = match(NAMED_XREF, link.url)[1]
     if isempty(slug)
         text = sprint(Markdown.plaininline, link)
