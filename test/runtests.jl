@@ -201,7 +201,7 @@ let b   = DocSystem.binding(DocSystem, :getdocs),
     d_0 = DocSystem.getdocs(b, Tuple{}),
     d_1 = DocSystem.getdocs(b),
     d_2 = DocSystem.getdocs(b, Union{Tuple{ANY}, Tuple{ANY, Type}}; compare = (==)),
-    d_3 = DocSystem.getdocs(b; modules = Module[]),
+    d_3 = DocSystem.getdocs(b; modules = Module[Main]),
     d_4 = DocSystem.getdocs(DocSystem.binding(current_module(), :alias_of_getdocs)),
     d_5 = DocSystem.getdocs(DocSystem.binding(current_module(), :alias_of_getdocs); aliases = false)
 
