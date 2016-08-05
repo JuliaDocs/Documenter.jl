@@ -417,6 +417,25 @@ deploydocs
 
 
 <p>In the above example docstrings from module <code>Foo</code> found in source files that end in <code>a.jl</code> and <code>b.jl</code> are included. The page order provided by <code>Pages</code> is also used to sort the docstrings. Note that page matching is done using the end of the provided strings and so <code>a.jl</code> will be matched by <em>any</em> source file that ends in <code>a.jl</code>, i.e. <code>src/a.jl</code> or <code>src/foo/a.jl</code>.</p>
+<p>To include only the exported names from the modules listed in <code>Modules</code> use <code>Private = false</code>. In a similar way <code>Public = false</code> can be used to only show the unexported names. By default both of these are set to <code>true</code> so that all names will be shown.</p>
+<div class="codehilite"><pre><span></span><span class="n">Functions</span> <span class="n">exported</span> <span class="n">from</span> <span class="err">`</span><span class="n">Foo</span><span class="err">`</span><span class="p">:</span>
+
+<span class="err">```@</span><span class="n">autodocs</span>
+<span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="o">]</span>
+<span class="k">Private</span> <span class="o">=</span> <span class="k">false</span>
+<span class="n">Order</span> <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">function</span><span class="o">]</span>
+<span class="err">```</span>
+
+<span class="k">Private</span> <span class="n">types</span> <span class="ow">in</span> <span class="k">module</span> <span class="err">`</span><span class="n">Foo</span><span class="err">`</span><span class="p">:</span>
+
+<span class="err">```@</span><span class="n">autodocs</span>
+<span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="o">]</span>
+<span class="k">Public</span> <span class="o">=</span> <span class="k">false</span>
+<span class="n">Order</span> <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">type</span><span class="o">]</span>
+<span class="err">```</span>
+</pre></div>
+
+
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p>
