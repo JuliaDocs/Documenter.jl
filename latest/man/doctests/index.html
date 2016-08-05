@@ -234,6 +234,12 @@
             </li>
           
             <li class="anchor">
+              <a title="Exceptions" href="#exceptions">
+                Exceptions
+              </a>
+            </li>
+          
+            <li class="anchor">
               <a title="Skipping Doctests" href="#skipping-doctests">
                 Skipping Doctests
               </a>
@@ -361,6 +367,42 @@ julia&gt; a + b + c
 
 <p>As with script doctests, the code block must have it's language set to <code>jldoctest</code>. When a code block contains one or more <code>julia&gt;</code> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, <code>;</code>, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.</p>
 <p>Note that not all features of the REPL are supported such as shell and help modes.</p>
+<p><a id='Exceptions-1'></a></p>
+<h2 id="exceptions">Exceptions</h2>
+<p>Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual and expected results is done by checking whether the expected result matches the start of the actual result. Hence, both of the following errors will match the actual result.</p>
+<div class="codehilite"><pre><span></span>```jldoctest
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+ in div(::Int64, ::Int64) at ./int.jl:115
+
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+
+```
+</pre></div>
+
+
+<p>If instead the first <code>div(1, 0)</code> error was written as</p>
+<div class="codehilite"><pre><span></span>```jldoctest
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+ in div(::Int64, ::Int64) at ./int.jl:114
+
+```
+</pre></div>
+
+
+<p>where line <code>115</code> is replaced with <code>114</code> then the doctest will fail.</p>
+<p>In the second <code>div(1, 0)</code>, where no stacktrace is shown, it may appear to the reader that it is expected that no stacktrace will actually be displayed when they attempt to try to recreate the error themselves. To indicate to readers that the output result is truncated and does not display the entire (or any of) the stacktrace you may write <code>[...]</code> at the line where checking should stop, i.e.</p>
+<div class="codehilite"><pre><span></span>```jldoctest
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+[...]
+
+```
+</pre></div>
+
+
 <p><a id='Skipping-Doctests-1'></a></p>
 <h2 id="skipping-doctests">Skipping Doctests</h2>
 <p>Doctesting can be disabled by setting the <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> keyword <code>doctest = false</code>. This should only be done when initially laying out the structure of a package's documentation, after which it's encouraged to always run doctests when building docs.</p>
