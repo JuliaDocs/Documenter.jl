@@ -111,11 +111,26 @@ function doctest(doc::Documents.Document)
 end
 
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
-    if block.language == "julia" || block.language == "jlcon"
+    if block.language == "jldoctest"
         code, sandbox = block.code, Module(:Main)
         haskey(meta, :DocTestSetup) && eval(sandbox, meta[:DocTestSetup])
-        ismatch(r"^julia> "m, code)   ? eval_repl(code, sandbox, meta, doc, page)   :
-        ismatch(r"^# output$"m, code) ? eval_script(code, sandbox, meta, doc, page) : nothing
+        if ismatch(r"^julia> "m, code)
+            eval_repl(code, sandbox, meta, doc, page)
+            block.language = "jlcon"
+        elseif ismatch(r"^# output$"m, code)
+            eval_script(code, sandbox, meta, doc, page)
+            block.language = "julia"
+        else
+            Utilities.warn(
+                """
+                Invalid doctest block. Requires `julia> ` or `# output` in '$(meta[:CurrentFile])'
+
+                ```jldoctest
+                $(code)
+                ```
+                """
+            )
+        end
     end
     false
 end

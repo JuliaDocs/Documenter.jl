@@ -52,7 +52,7 @@ This is the footnote [^1]. And [^another] [^another].
 ErrorsModule.func
 ```
 
-```julia
+```jldoctest
 julia> b = 1
 2
 

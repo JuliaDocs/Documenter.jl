@@ -10,7 +10,7 @@
 
 [`Main.Mod.T`](@ref)
 
-```julia
+```jldoctest
 julia> using Base.Meta # `nothing` shouldn't be displayed.
 
 julia> Meta
@@ -25,7 +25,7 @@ julia> a + b
 3
 ```
 
-```julia
+```jldoctest
 a = 1
 b = 2
 a + b
@@ -42,7 +42,7 @@ DocTestSetup =
     end
 ```
 
-```julia
+```jldoctest
 a = 1
 b = 2
 a / b
@@ -52,7 +52,7 @@ a / b
 0.5
 ```
 
-```julia
+```jldoctest
 julia> a = 1;
 
 julia> b = 2
@@ -67,7 +67,7 @@ code = string(sprint(Base.banner), "julia>")
 Markdown.Code(code)
 ```
 
-```julia
+```jldoctest
 julia> # First definition.
        function f(x, y)
            x + y
@@ -92,7 +92,7 @@ julia> !r
 false
 ```
 
-```julia
+```jldoctest
 julia> for i = 1:5
            println(i)
        end
@@ -131,7 +131,7 @@ a
 
 ```
 
-```julia
+```jldoctest
 a = 1
 b = 2; # Semi-colons don't affect script doctests.
 
