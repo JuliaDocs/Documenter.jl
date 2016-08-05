@@ -378,12 +378,12 @@
 <p>You will need several command line programs installed for the following steps to work. They are <code>which</code>, <code>git</code>, <code>ssh-keygen</code>, and <a href="https://github.com/travis-ci/travis.rb"><code>travis</code></a>.  Make sure these are installed before you begin.</p>
 </div>
 <p>Open a Julia REPL and import <a href="../../lib/public/#Documenter"><code>Documenter</code></a>.</p>
-<div class="codehilite"><pre><span></span>julia&gt; using Documenter
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="k">using</span> <span class="n">Documenter</span>
 </pre></div>
 
 
 <p>Then call the <a href="../../lib/public/#Documenter.Travis.genkeys"><code>Travis.genkeys</code></a> function as follows:</p>
-<div class="codehilite"><pre><span></span>julia&gt; Travis.genkeys(&quot;MyPackage&quot;)
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">Travis</span><span class="o">.</span><span class="n">genkeys</span><span class="p">(</span><span class="s">&quot;MyPackage&quot;</span><span class="p">)</span>
 </pre></div>
 
 
