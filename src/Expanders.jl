@@ -358,11 +358,21 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
             continue
         end
 
-        local docs = Documenter.DocSystem.getdocs(binding, typesig)
+        # Find the docs matching `binding` and `typesig`. Only search within the provided modules.
+        local docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.user.modules)
+
         # Include only docstrings from user-provided modules if provided.
         if !isempty(doc.user.modules)
             filter!(d -> d.data[:module] in doc.user.modules, docs)
         end
+
+        # Check that we aren't printing an empty docs list. Skip block when empty.
+        if isempty(docs)
+            Utilities.warn(page.source, "No docs found for '$(strip(str))'.")
+            failed = true
+            continue
+        end
+
         # Concatenate found docstrings into a single `MD` object.
         local docstr = Base.Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
         docstr.meta[:results] = docs

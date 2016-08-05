@@ -281,6 +281,8 @@ function getdocs(
         modules = Docs.modules,
         aliases = true,
     )
+    # Fall back to searching all modules if user provides no modules.
+    modules = isempty(modules) ? Docs.modules : modules
     # Keywords are special-cased within the docsystem. Handle those first.
     iskeyword(binding) && return [docstr(Base.Docs.keywords[binding.var])]
     # Handle all the other possible bindings.
