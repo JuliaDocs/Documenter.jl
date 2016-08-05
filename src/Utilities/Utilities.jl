@@ -355,14 +355,16 @@ url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], l
 
 # Correct file and line info only available from this version onwards.
 if VERSION >= v"0.5.0-dev+3442"
-    function url(remote, repo, mod, file, line)
+    function url(remote, repo, mod, file, linerange)
         isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
+        # Format the line range.
+        line = format_line(linerange)
         # Macro-generated methods such as those produced by `@deprecate` list their file as
         # `deprecated.jl` since that is where the macro is defined. Use that to help
         # determine the correct URL.
         if inbase(mod) || !isabspath(file)
             base = "https://github.com/JuliaLang/julia/tree"
-            dest = "base/$file#L$line"
+            dest = "base/$file#$line"
             Nullable{Compat.String}(
                 if isempty(Base.GIT_VERSION_INFO.commit)
                     "$base/v$VERSION/$dest"
@@ -377,7 +379,7 @@ if VERSION >= v"0.5.0-dev+3442"
             end
             if startswith(file, root)
                 if isempty(repo)
-                    repo = "https://github.com/$remote/tree/{commit}{path}#L{line}"
+                    repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
                 end
 
                 _, path = split(file, root; limit = 2)
@@ -428,8 +430,14 @@ linerange(doc) = linerange(doc.text, doc.data[:linenumber])
 
 function linerange(text, from)
     lines = sum([isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
-    lines > 0 ? string(from, '-', from + lines + 1) : string(from)
+    return lines > 0 ? (from:(from + lines + 1)) : (from:from)
 end
+
+function format_line(range::Range)
+    local top = format_line(first(range))
+    return length(range) <= 1 ? top : string(top, '-', format_line(last(range)))
+end
+format_line(line::Integer) = string('L', line)
 
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
