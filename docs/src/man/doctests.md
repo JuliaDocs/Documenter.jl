@@ -63,6 +63,52 @@ and will suppress the output, although the line is still evaluated.
 
 Note that not all features of the REPL are supported such as shell and help modes.
 
+## Exceptions
+
+Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual
+and expected results is done by checking whether the expected result matches the start of
+the actual result. Hence, both of the following errors will match the actual result.
+
+````markdown
+```jldoctest
+julia> div(1, 0)
+ERROR: DivideError: integer division error
+ in div(::Int64, ::Int64) at ./int.jl:115
+
+julia> div(1, 0)
+ERROR: DivideError: integer division error
+
+```
+````
+
+If instead the first `div(1, 0)` error was written as
+
+````markdown
+```jldoctest
+julia> div(1, 0)
+ERROR: DivideError: integer division error
+ in div(::Int64, ::Int64) at ./int.jl:114
+
+```
+````
+
+where line `115` is replaced with `114` then the doctest will fail.
+
+In the second `div(1, 0)`, where no stacktrace is shown, it may appear to the reader that
+it is expected that no stacktrace will actually be displayed when they attempt to try to
+recreate the error themselves. To indicate to readers that the output result is truncated
+and does not display the entire (or any of) the stacktrace you may write `[...]` at the
+line where checking should stop, i.e.
+
+````markdown
+```jldoctest
+julia> div(1, 0)
+ERROR: DivideError: integer division error
+[...]
+
+```
+````
+
 ## Skipping Doctests
 
 Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
