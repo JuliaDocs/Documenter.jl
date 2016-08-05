@@ -1,10 +1,13 @@
 module ErrorsModule
 
 """
-```julia
+```jldoctest
 julia> a = 1
 2
 
+```
+
+```jldoctest
 ```
 """
 func(x) = x

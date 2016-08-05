@@ -32,7 +32,7 @@ zeros(5, 5)
 zeros(50, 50)
 ```
 
-```julia
+```jldoctest
 julia> [1.0, 2.0, 3.0]
 3-element Array{Float64,1}:
  1.0
@@ -41,7 +41,7 @@ julia> [1.0, 2.0, 3.0]
 
 ```
 
-```julia
+```jldoctest
 julia> println(" "^5)
 
 julia> "\nfoo\n\nbar\n\n\nbaz"
@@ -57,7 +57,7 @@ bar
 baz
 ```
 
-```julia
+```jldoctest
 julia> info("...")
 INFO: ...
 

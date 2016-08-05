@@ -50,11 +50,15 @@ Deploy keys provide push access to a *single* repository.
 
 Open a Julia REPL and import [`Documenter`](@ref).
 
-    julia> using Documenter
+```jlcon
+julia> using Documenter
+```
 
 Then call the [`Travis.genkeys`](@ref) function as follows:
 
-    julia> Travis.genkeys("MyPackage")
+```jlcon
+julia> Travis.genkeys("MyPackage")
+```
 
 where `"MyPackage"` is the name of the package you would like to create deploy keys for.
 

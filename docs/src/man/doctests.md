@@ -1,6 +1,6 @@
 # Doctests
 
-Documenter will, by default, try to run Julia code blocks that it finds in the generated
+Documenter will, by default, try to run `jldoctest` code blocks that it finds in the generated
 documentation. This can help to avoid documentation examples from becoming outdated,
 incorrect, or misleading. It's recommended that as many of a package's examples be runnable
 by Documenter's doctest.
@@ -14,7 +14,7 @@ The first, of two, types of doctests is the "script" code block. To make Documen
 this kind of code block the following format must be used:
 
 ````markdown
-```julia
+```jldoctest
 a = 1
 b = 2
 a + b
@@ -25,7 +25,7 @@ a + b
 ```
 ````
 
-The code block's "language" must be `julia` and must include a line containing the text `#
+The code block's "language" must be `jldoctest` and must include a line containing the text `#
 output`. The text before this line is the contents of the script which is run. The text that
 appears after `# output` is the textual representation that would be shown in the Julia REPL
 if the script had been `include`d.
@@ -42,7 +42,7 @@ The other kind of doctest is a simulated Julia REPL session. The following forma
 detected by Documenter as a REPL doctest:
 
 ````markdown
-```julia
+```jldoctest
 julia> a = 1
 1
 
@@ -56,7 +56,7 @@ julia> a + b + c
 ```
 ````
 
-As with script doctests, the code block must have it's language set to `julia`. When a code
+As with script doctests, the code block must have it's language set to `jldoctest`. When a code
 block contains one or more `julia> ` at the start of a line then it is assumed to be a REPL
 doctest. Semi-colons, `;`, at the end of a line works in the same way as in the Julia REPL
 and will suppress the output, although the line is still evaluated.
@@ -76,7 +76,7 @@ example, but that should not be displayed in the final documentation. It could a
 several separate doctests require the same definitions. For both of these cases a `@meta`
 block containing a `DocTestSetup = ...` value can be used as follows:
 
-    ```julia
+    ```jldoctest
     julia> using DataFrames
 
     julia> df = DataFrame(A = 1:10, B = 2:2:20);
@@ -92,14 +92,14 @@ block containing a `DocTestSetup = ...` value can be used as follows:
     end
     ```
 
-    ```julia
+    ```jldoctest
     julia> df[1, 1]
     1
     ```
 
     Some more text...
 
-    ```julia
+    ```jldoctest
     julia> df[1, :]
     1x2 DataFrames.DataFrame
     | Row | A | B |

@@ -75,7 +75,9 @@ makedocs(
 
 which is then run from the command line with:
 
-    \$ julia make.jl
+```sh
+\$ julia make.jl
+```
 
 The folder structure that [`makedocs`](@ref) expects looks like:
 
@@ -194,7 +196,9 @@ default value is `"site"`.
 keyword *must* be set and will throw an error when left undefined. For example this package
 uses the following `repo` value:
 
-    repo = "github.com/JuliaDocs/Documenter.jl.git"
+```julia
+repo = "github.com/JuliaDocs/Documenter.jl.git"
+```
 
 **`branch`** is the branch where the generated documentation is pushed. By default this
 value is set to `"gh-pages"`.
@@ -214,7 +218,9 @@ section of the `.travis.yml` configuration file.
 documentation. By default this function installs `pygments` and `mkdocs` using the
 [`Deps.pip`](@ref) function:
 
-    deps = Deps.pip("pygments", "mkdocs")
+```julia
+deps = Deps.pip("pygments", "mkdocs")
+```
 
 **`make`** is the function used to convert the markdown files to HTML. By default this just
 runs `mkdocs build` which populates the `target` directory.
@@ -422,10 +428,12 @@ following command lines programs to be installed:
 
 # Examples
 
-    julia> using Documenter
+```jlcon
+julia> using Documenter
 
-    julia> Travis.genkeys("MyPackageName")
-    [ ... output ... ]
+julia> Travis.genkeys("MyPackageName")
+[ ... output ... ]
+```
 
 """
 function genkeys(package)
@@ -508,11 +516,12 @@ It defaults to `<package directory>/docs`. The directory must not exist.
 
 # Examples
 
-    julia> using Documenter
+```jlcon
+julia> using Documenter
 
-    julia> Documenter.generate("MyPackageName")
-    [ ... output ... ]
-
+julia> Documenter.generate("MyPackageName")
+[ ... output ... ]
+```
 """
 function generate(pkgname::AbstractString; dir=nothing)
     # TODO:

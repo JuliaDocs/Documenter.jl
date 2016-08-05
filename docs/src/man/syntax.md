@@ -202,7 +202,7 @@ Order   = [:function, :type]
 When `Pages` or `Modules` are not provided then all pages or modules are included. `Order`
 defaults to
 
-```
+```julia
 [:module, :constant, :type, :function, :macro]
 ```
 

@@ -582,8 +582,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             println(out, output, "\n")
         end
     end
-    # Trailing whitespace in `"julia "` to avoid doctesting generated repl examples.
-    page.mapping[x] = Base.Markdown.Code("julia ", rstrip(takebuf_string(out)))
+    page.mapping[x] = Base.Markdown.Code("julia", rstrip(takebuf_string(out)))
 end
 
 # Utilities.
