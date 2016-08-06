@@ -13,9 +13,11 @@ import ..Documenter:
     Utilities,
     Walkers
 
-using Compat
+using Compat, DocStringExtensions
 
 """
+$(SIGNATURES)
+
 Traverses a [`Documents.Document`](@ref) and replaces links containg `@ref` URLs with
 their real URLs.
 """
@@ -147,11 +149,13 @@ function docsxref(link::Markdown.Link, meta, page, doc)
     end
 end
 
-#
-# Find the included `Object` in the `doc` matching `binding` and `typesig`.
-# The matching heuristic isn't too picky about what matches and will only fail
-# when no `Binding`s matching `binding` have been included.
-#
+"""
+$(SIGNATURES)
+
+Find the included `Object` in the `doc` matching `binding` and `typesig`. The matching
+heuristic isn't too picky about what matches and will only fail when no `Binding`s matching
+`binding` have been included.
+"""
 function find_object(doc::Documents.Document, binding, typesig)
     local object = Utilities.Object(binding, typesig)
     if haskey(doc.internal.objects, object)

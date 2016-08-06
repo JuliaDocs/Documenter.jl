@@ -11,10 +11,12 @@ Two functions are exported from this module for public use:
 Additionally it provides the unexported [`Documenter.generate`](@ref), which can be used to
 generate documentation stubs for new packages.
 
+$(EXPORTS)
+
 """
 module Documenter
 
-using Compat
+using Compat, DocStringExtensions
 
 #
 # Submodules
@@ -410,16 +412,20 @@ export Travis
 
 """
 Package functions for interacting with Travis.
+
+$(EXPORTS)
 """
 module Travis
 
-using Compat
+using Compat, DocStringExtensions
 
 export genkeys
 
 """
-Generate ssh keys for automatic deployment of docs from Travis to GitHub pages. Requires the
-following command lines programs to be installed:
+$(SIGNATURES)
+
+Generate ssh keys for package `package` to automatically deploy docs from Travis to GitHub
+pages. Requires the following command lines programs to be installed:
 
 - `which`
 - `git`
@@ -434,7 +440,6 @@ julia> using Documenter
 julia> Travis.genkeys("MyPackageName")
 [ ... output ... ]
 ```
-
 """
 function genkeys(package)
     # Error checking. Do the required programs exist?
@@ -487,24 +492,23 @@ end
 end
 
 """
-    generate(
-        pkgname;
-        dir = "<package directory>/docs"
-    )
+$(SIGNATURES)
 
 Creates a documentation stub for a package called `pkgname`. The location of
 the documentation is assumed to be `<package directory>/docs`, but this can
-be overriden with keyword arguments.
+be overriden with the keyword argument `dir`.
 
 It creates the following files
 
-    docs/
-        .gitignore
-        src/index.md
-        make.jl
-        mkdocs.yml
+```
+docs/
+    .gitignore
+    src/index.md
+    make.jl
+    mkdocs.yml
+```
 
-# Positionals
+# Arguments
 
 **`pkgname`** is the name of the package (without `.jl`). It is used to
 determine the location of the documentation if `dir` is not provided.

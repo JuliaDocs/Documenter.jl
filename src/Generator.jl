@@ -3,8 +3,10 @@ Provides the functions related to generating documentation stubs.
 """
 module Generator
 
+using DocStringExtensions
+
 """
-    savefile(f, root, filename)
+$(SIGNATURES)
 
 Attempts to save a file at `\$(root)/\$(filename)`. `f` will be called with file
 stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network/#Base.open)).
@@ -21,6 +23,8 @@ function savefile(f, root, filename)
 end
 
 """
+$(SIGNATURES)
+
 Contents of the default `make.jl` file.
 """
 function make(pkgname)
@@ -42,6 +46,8 @@ function make(pkgname)
 end
 
 """
+$(SIGNATURES)
+
 Contents of the default `.gitignore` file.
 """
 function gitignore()
@@ -54,6 +60,8 @@ end
 mkdocs_default(name, value, default) = value == nothing ? "#$name$default" : "$name$value"
 
 """
+$(SIGNATURES)
+
 Contents of the default `mkdocs.yml` file.
 """
 function mkdocs(pkgname;
@@ -93,6 +101,8 @@ function mkdocs(pkgname;
 end
 
 """
+$(SIGNATURES)
+
 Contents of the default `src/index.md` file.
 """
 function index(pkgname)

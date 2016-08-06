@@ -14,7 +14,7 @@ import ..Documenter:
     Documenter,
     Utilities
 
-using Compat
+using Compat, DocStringExtensions
 
 # Document Pipeline.
 # ------------------
@@ -138,7 +138,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
 end
 
 """
-    walk_navpages(x, parent, doc)
+$(SIGNATURES)
 
 Recursively walks through the [`Documents.Document`](@ref)'s `.user.pages` field,
 generating [`Documents.NavNode`](@ref)s and related data structures in the
