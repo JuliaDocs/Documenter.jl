@@ -5,7 +5,7 @@ Defines the [`Anchor`](@ref) and [`AnchorMap`](@ref) types.
 """
 module Anchors
 
-using Compat
+using Compat, DocStringExtensions
 
 # Types.
 # ------
@@ -49,6 +49,8 @@ end
 # -----------
 
 """
+$(SIGNATURES)
+
 Adds a new [`Anchor`](@ref) to the [`AnchorMap`](@ref) for a given `id` and `file`.
 
 Either an actual [`Anchor`](@ref) object may be provided or any other object which is
@@ -70,9 +72,7 @@ add!(m::AnchorMap, object, id, file) = add!(m, Anchor(object), id, file)
 # -----------------
 
 """
-    exists(m, id)
-    exists(m, id, file)
-    exists(m, id, file, n)
+$(SIGNATURES)
 
 Does the given `id` exist within the [`AnchorMap`](@ref)? A `file` and integer `n` may also
 be provided to narrow the search for existance.
@@ -85,8 +85,7 @@ exists(m::AnchorMap, id)          = haskey(m.map, id)
 # ------------------
 
 """
-    isunique(m, id)
-    isunique(m, id, file)
+$(SIGNATURES)
 
 Is the `id` unique within the given [`AnchorMap`](@ref)? May also specify the `file`.
 """
@@ -104,9 +103,7 @@ end
 # -----------
 
 """
-    anchor(m, id)
-    anchor(m, id, file)
-    anchor(m, id, file, n)
+$(SIGNATURES)
 
 Returns the [`Anchor`](@ref) object matching `id`. `file` and `n` may also be provided. A
 `Nullable{Anchor}` is returned which must be unwrapped with `isnull` and `get` before use.

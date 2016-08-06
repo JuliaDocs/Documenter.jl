@@ -4,14 +4,14 @@ docsystem in both `0.4` and `0.5`.
 """
 module DocSystem
 
-using Compat
+using Compat, DocStringExtensions
 
 ## Bindings ##
 
 """
 Converts an object to a `Base.Docs.Binding` object.
 
-    binding(object) :: Binding
+$(SIGNATURES)
 
 Supported inputs are:
 
@@ -182,6 +182,8 @@ else
 end
 
 """
+$(SIGNATURES)
+
 Construct a `DocStr` object from a `Markdown.MD` object.
 
 The optional keyword arguments are used to add new data to the `DocStr`'s
@@ -241,6 +243,8 @@ end
 ## Converting docstring caches. ##
 
 """
+$(SIGNATURES)
+
 Converts a `0.4`-style docstring cache into a `0.5` one.
 
 The original docstring cache is not modified.
@@ -263,6 +267,8 @@ const CACHED = ObjectIdDict()
 ## Get docs from modules.
 
 """
+$(SIGNATURES)
+
 Find all `DocStr` objects that match the provided arguments:
 
 - `binding`: the name of the object.
@@ -326,14 +332,16 @@ function getdocs(
 end
 
 """
+$(SIGNATURES)
+
 Accepts objects of any type and tries to convert them to `Binding`s before
 searching for the `Binding` in the docsystem.
 
 Note that when conversion fails this method returns an empty `Vector{DocStr}`.
 """
-function getdocs(other::Any, typesig::Type = Union{}; kws...)
-    binding = aliasof(other, other)
-    binding === other ? DocStr[] : getdocs(binding, typesig; kws...)
+function getdocs(object::Any, typesig::Type = Union{}; kws...)
+    binding = aliasof(object, object)
+    binding === object ? DocStr[] : getdocs(binding, typesig; kws...)
 end
 
 #

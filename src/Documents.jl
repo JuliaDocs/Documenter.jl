@@ -14,7 +14,7 @@ import ..Documenter:
     Formats,
     Utilities
 
-using Compat
+using Compat, DocStringExtensions
 
 import Compat: String
 
@@ -259,6 +259,8 @@ function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
 end
 
 """
+$(SIGNATURES)
+
 Populates the `ContentsNode`s and `IndexNode`s of the `document` with links.
 
 This can only be done after all the blocks have been expanded (and nodes constructed),

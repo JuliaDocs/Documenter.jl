@@ -7,12 +7,14 @@ module Deps
 
 export pip
 
+using DocStringExtensions
+
 """
-    pip(deps...)
+$(SIGNATURES)
 
 Installs (as non-root user) all python packages listed in `deps`.
 
-**Examples**
+# Examples
 
 ```julia
 using Documenter

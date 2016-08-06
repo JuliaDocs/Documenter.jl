@@ -7,7 +7,7 @@ module Formats
 
 import ..Documenter
 
-using Compat
+using Compat, DocStringExtensions
 
 """
 Represents the output format. Possible values are `Markdown`, `LaTeX`, and `HTML`.
@@ -20,6 +20,8 @@ Represents the output format. Possible values are `Markdown`, `LaTeX`, and `HTML
 )
 
 """
+$(SIGNATURES)
+
 Converts a [`Format`](@ref) value to a `MIME` type.
 """
 function mimetype(f::Format)

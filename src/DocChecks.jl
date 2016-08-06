@@ -11,12 +11,14 @@ import ..Documenter:
     Utilities,
     Walkers
 
-using Compat
+using Compat, DocStringExtensions
 
 # Missing docstrings.
 # -------------------
 
 """
+$(SIGNATURES)
+
 Checks that a [`Documents.Document`](@ref) contains all available docstrings that are
 defined in the `modules` keyword passed to [`Documenter.makedocs`](@ref).
 
@@ -90,6 +92,8 @@ sigs(::Any) = Type[Union{}]
 # -------------------------
 
 """
+$(SIGNATURES)
+
 Traverses the document tree and tries to run each Julia code block encountered. Will abort
 the document generation when an error is thrown. Use `doctest = false` keyword in
 [`Documenter.makedocs`](@ref) to disable doctesting.

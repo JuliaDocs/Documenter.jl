@@ -11,15 +11,15 @@ import ..Documenter:
     Formats,
     Utilities
 
-using Compat
+using Compat, DocStringExtensions
 
 """
-    walk(f, meta, element)
+$(SIGNATURES)
 
 Calls `f` on `element` and any of its child elements. `meta` is a `Dict` containing metadata
 such as current module.
 """
-function walk end
+walk(f, meta, element) = (f(element); nothing)
 
 # Change to the docstring's defining module if it has one. Change back afterwards.
 function walk(f, meta, block::Markdown.MD)
@@ -70,7 +70,5 @@ walk(f, meta, block::Markdown.Image) = f(block) ? walk(f, meta, block.alt)   : n
 walk(f, meta, block::Markdown.Table) = f(block) ? walk(f, meta, block.rows)  : nothing
 walk(f, meta, block::Markdown.List)  = f(block) ? walk(f, meta, block.items) : nothing
 walk(f, meta, block::Markdown.Link)  = f(block) ? walk(f, meta, block.text)  : nothing
-
-walk(f, meta, block) = (f(block); nothing)
 
 end
