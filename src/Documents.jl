@@ -117,12 +117,6 @@ immutable DocsNode
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
     page    :: Documents.Page
-    """
-    Vector of methods associated with this `DocsNode`. Being nulled means that
-    conceptually the `DocsNode` has no table of method (as opposed to having
-    an empty table).
-    """
-    methods :: Nullable{Vector{MethodNode}}
 end
 
 immutable DocsNodes
