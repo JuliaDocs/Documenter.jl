@@ -436,12 +436,12 @@
 <strong><code>Documenter.Writers</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides a rendering function, <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a>, for writing each supported <a href="../formats/#Documenter.Formats.Format"><code>Formats.Format</code></a> to file.</p>
 <p>Note that currently <code>Formats.Markdown</code> is the <strong>only</strong> supported format.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/Writers.jl#L1-L7' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/0fb265f83c83859e9312265841d3e447b36b59c1/src/Writers/Writers.jl#L1-L7' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.Writer' href='#Documenter.Writers.Writer'>#</a>
 <strong><code>Documenter.Writers.Writer</code></strong> &mdash; <em>Type</em>.</p>
 <p>A parametric type that allows us to use multiple dispatch to pick the appropriate writer for each output format.</p>
 <p>The parameter <code>f</code> should be an instance of the <a href="../formats/#Documenter.Formats.Format"><code>Formats.Format</code></a> enumeration.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/Writers.jl#L21-L26' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/0fb265f83c83859e9312265841d3e447b36b59c1/src/Writers/Writers.jl#L21-L26' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.render-Tuple{Documenter.Documents.Document}' href='#Documenter.Writers.render-Tuple{Documenter.Documents.Document}'>#</a>
 <strong><code>Documenter.Writers.render</code></strong> &mdash; <em>Method</em>.</p>
 <p>Writes a <a href="../documents/#Documenter.Documents.Document"><code>Documents.Document</code></a> object to <code>.user.build</code> directory in the format specified in <code>.user.format</code>.</p>
@@ -451,35 +451,24 @@
 
 
 <p>where <code>format</code> is one of the values of the <a href="../formats/#Documenter.Formats.Format"><code>Formats.Format</code></a> enumeration.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/Writers.jl#L30-L39' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/0fb265f83c83859e9312265841d3e447b36b59c1/src/Writers/Writers.jl#L30-L39' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.MarkdownWriter' href='#Documenter.Writers.MarkdownWriter'>#</a>
 <strong><code>Documenter.Writers.MarkdownWriter</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides the <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a> methods to write the documentation as Markdown files (<code>MIME"text/plain"</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/MarkdownWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Writers.MarkdownWriter.join_decl-Tuple{Any}' href='#Documenter.Writers.MarkdownWriter.join_decl-Tuple{Any}'>#</a>
-<strong><code>Documenter.Writers.MarkdownWriter.join_decl</code></strong> &mdash; <em>Method</em>.</p>
-<p>Converts the function argument tuple <code>(name, type)</code> into a string.</p>
-<p>The tuple comes from the second return element of the <code>Base.arg_decl_parts(::Method)</code> and it seems they are always both <code>::String</code> (<code>::ASCIIString</code> in 0.4). It also appears that if the type is not declared for the method, <code>arg_decl_parts</code> returns an empty string.</p>
-<p>The returned string is <code>name::type</code> or just <code>name</code>, if the type is not declared.</p>
-<p>If the keyword argument <code>html</code> is true (default), then it also puts <code>&lt;span&gt;</code>s around the characters for code highlighting.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/MarkdownWriter.jl#L71-L83' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Writers.MarkdownWriter.span-Tuple{Any,Any}' href='#Documenter.Writers.MarkdownWriter.span-Tuple{Any,Any}'>#</a>
-<strong><code>Documenter.Writers.MarkdownWriter.span</code></strong> &mdash; <em>Method</em>.</p>
-<p>Wrap a string <code>str</code> in a <code>&lt;span class="&lt;cls&gt;"&gt;</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/MarkdownWriter.jl#L68' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/0fb265f83c83859e9312265841d3e447b36b59c1/src/Writers/MarkdownWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter' href='#Documenter.Writers.HTMLWriter'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides the <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a> methods to write the documentation as HTML files (<code>MIME"text/html"</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/HTMLWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/0fb265f83c83859e9312265841d3e447b36b59c1/src/Writers/HTMLWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}' href='#Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.mdconvert</code></strong> &mdash; <em>Method</em>.</p>
 <p>Convert a markdown object to a <code>DOM.Node</code> object.</p>
 <p>The <code>parent</code> argument is passed to allow for context-dependant conversions.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/HTMLWriter.jl#L25-L29' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/0fb265f83c83859e9312265841d3e447b36b59c1/src/Writers/HTMLWriter.jl#L25-L29' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.LaTeXWriter' href='#Documenter.Writers.LaTeXWriter'>#</a>
 <strong><code>Documenter.Writers.LaTeXWriter</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides the <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a> methods to write the documentation as LaTeX files (<code>MIME"text/latex"</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/6a63482c352d904f68614e7b85a1957c44ed4f60/src/Writers/LaTeXWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/0fb265f83c83859e9312265841d3e447b36b59c1/src/Writers/LaTeXWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
