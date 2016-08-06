@@ -230,67 +230,6 @@ end
 # @docs
 # -----
 
-"""
-Returns a `Nullable{Vector{MethodNode}}` with the methods associated with the `object`.
-
-Null is returned if the object conceptually does not have a table of methods (e.g.
-modules). If instead the object should have a table of methods which just happens
-to be empty then it returns an empty vector.
-
-The methods are also filtered, with `MethodNode.visible` set to false for those
-methods not defined in this package. This allows the writers to choose how they
-want to treat trivial constructors, functions imported from `Base` and such.
-
-Due to differences between 0.4 and 0.5, only 0.5 is supported currently. On 0.4
-we always drop the methods table.
-"""
-function docsnode_methodlist end
-
-if VERSION > v"0.5-"
-    function docsnode_methodlist(object::Utilities.Object, page, doc)
-        if !isdefined(object.binding.mod, object.binding.var)
-            info("Unable to find $(object)")
-            return Nullable{Vector{MethodNode}}()
-        end
-
-        # Fetch the actual object and its category
-        object_deref = getfield(object.binding.mod, object.binding.var)
-        doccat = Utilities.doccat(object)
-
-        # We do not attach a method table to a `DocsNode` of an abstract type,
-        # except when it has 2 or more methods. While abstract types can not be
-        # constructed, they do have the default (::Type{T})(args..) method attached
-        # to them, but this is not very interesting to the user. However, it is
-        # possible to add additional methods to abstract types and if that is the
-        # case then we should display the method table, hence the "less than two"
-        # check.
-        if (doccat == "Type") && !isleaftype(object_deref) && length(methods(object_deref)) < 2
-            return Nullable{Vector{MethodNode}}()
-        end
-
-        # We only generate the method table for a Function, Type and Macro.
-        # The only other one with methods should be Method itself (e.g. defined
-        # with `foo(x,y)` in the @docs block), but in that case the user has
-        # already picked a method and we shouldn't generate a single element
-        # table.
-        if doccat == "Function" || doccat == "Type" || doccat == "Macro"
-            ms = map(methods(object_deref)) do m
-                # We filter out the methods not defined in this package.
-                # That is we only show the method if it is defined in any of the
-                # modules in `doc.user.modules`, which is derived from the `modules`
-                # setting in `makedocs`.
-                MethodNode(m, m.module in doc.user.modules)
-            end
-            return Nullable(ms)
-        else
-            return Nullable{Vector{MethodNode}}()
-        end
-    end
-else
-    docsnode_methodlist(args...) = Nullable{Vector{MethodNode}}()
-end
-
-
 function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     failed = false
     nodes  = DocsNode[]
@@ -341,8 +280,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         # Generate a unique name to be used in anchors and links for the docstring.
         local slug = Utilities.slugify(object)
         local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
-        local ms = docsnode_methodlist(object, page, doc)
-        local docsnode = DocsNode(docstr, anchor, object, page, ms)
+        local docsnode = DocsNode(docstr, anchor, object, page)
 
         # Track the order of insertion of objects per-binding.
         push!(get!(doc.internal.bindings, binding, Utilities.Object[]), object)
@@ -431,7 +369,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
             markdown.meta[:results] = [docstr]
             local slug = Utilities.slugify(object)
             local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
-            local docsnode = DocsNode(markdown, anchor, object, page, Nullable())
+            local docsnode = DocsNode(markdown, anchor, object, page)
 
             # Track the order of insertion of objects per-binding.
             push!(get!(doc.internal.bindings, object.binding, Utilities.Object[]), object)

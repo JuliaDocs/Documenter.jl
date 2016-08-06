@@ -65,31 +65,6 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNodes, page,
     end
 end
 
-"""Wrap a string `str` in a `<span class="<cls>">`."""
-span(cls,str) = "<span class=\"$(cls)\">$(str)</span>"
-
-"""
-Converts the function argument tuple `(name, type)` into a string.
-
-The tuple comes from the second return element of the `Base.arg_decl_parts(::Method)`
-and it seems they are always both `::String` (`::ASCIIString` in 0.4).
-It also appears that if the type is not declared for the method, `arg_decl_parts`
-returns an empty string.
-
-The returned string is `name::type` or just `name`, if the type is not declared.
-
-If the keyword argument `html` is true (default), then it also puts `<span>`s
-around the characters for code highlighting.
-"""
-function join_decl(decl; html::Bool=true)
-    n, t = decl
-    if html
-        isempty(t) ? span(:n,n) : span(:n,n) * span(:p,"::") * span(:n,t)
-    else
-        isempty(t) ? n : "$(n)::$(t)"
-    end
-end
-
 function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNode, page, doc)
     # Docstring header based on the name of the binding and it's category.
     anchor = "<a id='$(node.anchor.id)' href='#$(node.anchor.id)'>#</a>"
@@ -97,90 +72,6 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNode, page, 
     println(io, anchor, "\n", header, "\n\n")
     # Body. May contain several concatenated docstrings.
     renderdoc(io, mime, node.docstr, page, doc)
-
-    # Table of methods.
-    # If DocsNode.methods is nulled, then we assume that we should not render a
-    # table. However, if the list of methods is there but has no elements then
-    # we output an appropriate note saying that the name has no methods associated
-    # with it.
-    Utilities.unwrap(node.methods) do methodnodes
-        name = node.object.binding.var # name of the method without the modules
-
-        # We filter out the methods that are marked `visible`
-        ms = [m.method for m in filter(m -> m.visible, methodnodes)]
-
-        println(io, "<strong>Methods</strong>\n")
-
-        # We print a small notice of the methods table is completely empty,
-        # and an unordered list of methods if there are some to display.
-        if isempty(methodnodes)
-            println(io, "This function has no methods.\n")
-        elseif isempty(ms)
-            println(io, "This function has no methods to display.\n")
-        else
-            # A regexp to match filenames with an absolute path
-            r = Regex("$(Pkg.dir())/([A-Za-z0-9]+)/(.*)")
-
-            print(io, """
-            <ul class="documenter-methodtable">
-            """)
-
-            for m in ms
-                tv, decls, file, line = Base.arg_decl_parts(m)
-                decls = decls[2:end]
-                file = string(file)
-                url = get(Utilities.url(doc.internal.remote, doc.user.repo, m.module, file, line), "")
-                file_match = match(r, file)
-                if file_match !== nothing
-                    file = file_match.captures[2]
-                end
-                # We'll generate the HTML now.
-                #
-                # We also apply code highlighting that tries to be consistent with
-                # how the code blocks are highlighted in mkdocs. In a nutshell, all
-                # characters have to be wrapped in <span>s with specific classes.
-                # The classes seem to have the following semantics:
-                #
-                #   - p   punctuation, e.g. {} () :: ,.
-                #   - k   keyword, e.g. type, return
-                #   - nf  function name, in a function definition
-                #   - n   name (generally, as used in code)
-                #
-                # TODO: the type expressions (in typevars or after ::) are colored
-                #       as normal names, but it would be nice to have them properly
-                #       highlighted (e.g. if there's a string in the type name,
-                #       like in MIME"text/html")
-                #
-                tvars = isempty(tv) ? "" :
-                    span(:p,"{") * join([span(:n,t) for t in tv], span(:p,", ")) * span(:p,"}")
-                # If the list of arguments is too long (which can happen quite easily
-                # due to long type names), we will display them in a multiline block
-                # instead.
-                args_raw = join([join_decl(d, html=false) for d in decls], span(:p,", "))
-                args,preclass = if length(args_raw) <= 50
-                    join([join_decl(d) for d in decls], span(:p,", ")),
-                    " class=\"documenter-inline\""
-                else
-                    "\n" * join([(" "^4)*join_decl(d) for d in decls], span(:p,",\n")) * "\n",
-                    ""
-                end
-                print(io, """
-                <li>
-                    <pre$(preclass)>$(span(:nf,name))$(tvars)$(span(:p,"("))$(args)$(span(:p,")"))</pre>
-                    defined at
-                    <a target="_blank" href="$(url)">$(file):$(line)</a>
-                </li>
-                """)
-            end
-            print(io, "</ul>\n\n")
-        end
-
-        # we print a small notice if we are not displaying all the methods
-        nh = length(methodnodes)-length(ms) # number of hidden methods
-        if nh > 0
-            println(io, "_Hiding $(nh) method$(nh==1?"":"s") defined outside of this package._\n")
-        end
-    end
 end
 
 function renderdoc(io::IO, mime::MIME"text/plain", md::Markdown.MD, page, doc)
