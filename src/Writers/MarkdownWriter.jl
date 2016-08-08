@@ -30,7 +30,7 @@ end
 
 function copy_assets(doc::Documents.Document)
     Utilities.log(doc, "copying assets to build directory.")
-    assets = doc.internal.assets
+    assets = joinpath(doc.internal.assets, "mkdocs")
     if isdir(assets)
         builddir = joinpath(doc.user.build, "assets")
         isdir(builddir) || mkdir(builddir)
