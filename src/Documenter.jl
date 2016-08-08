@@ -31,6 +31,8 @@ for mod in [
     "Utilities",
     "DocSystem",
     "Selectors",
+    "DocTrees",
+    "Renderers",
     "Formats",
     "Anchors",
     "Documents",
