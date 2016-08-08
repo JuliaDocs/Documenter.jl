@@ -79,10 +79,10 @@ end
 
 if isdefined(Base.Markdown, :Admonition)
     function mdconvert(a::Markdown.Admonition, parent)
-        @tags div p
+        @tags div
         div[".admonition.$(a.category)"](
-            p[".admonition-title"](a.title),
-            mdconvert(a.content, a),
+            div[".admonition-title"](a.title),
+            div[".admonition-text"](mdconvert(a.content, a))
         )
     end
 end
