@@ -70,6 +70,8 @@ mdconvert(t::Markdown.Table, parent) = Tag(:table)(
     map(_ -> Tag(:tr)(map(__ -> Tag(:td)(mdconvert(__, _)), _)), t.rows[2:end])
 )
 
+mdconvert(expr::Union{Expr,Symbol}, parent) = string(expr)
+
 # Only available on Julia 0.5.
 if isdefined(Base.Markdown, :Footnote)
     mdconvert(f::Markdown.Footnote, parent)   = footnote(f.id, f.text, parent)
