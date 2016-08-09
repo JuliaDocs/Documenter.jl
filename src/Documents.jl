@@ -178,6 +178,7 @@ immutable User
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     repo    :: Compat.String  # Template for URL to source code repo
+    sitename:: Compat.String
 end
 
 """
@@ -218,6 +219,7 @@ function Document(;
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         repo     :: AbstractString   = "",
+        sitename :: AbstractString   = "",
         others...
     )
     Utilities.check_kwargs(others)
@@ -232,6 +234,7 @@ function Document(;
         Utilities.submodules(modules),
         pages,
         repo,
+        sitename,
     )
     internal = Internal(
         Utilities.assetsdir(),
