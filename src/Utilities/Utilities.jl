@@ -176,7 +176,7 @@ function submodules(modules::Vector{Module})
 end
 function submodules(root::Module, out = Set([root]))
     for name in names(root, true)
-        if isdefined(root, name)
+        if isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
             if isvalidmodule(root, object)
                 push!(out, object)
@@ -188,6 +188,13 @@ function submodules(root::Module, out = Set([root]))
 end
 isvalidmodule(a::Module, b::Module) = a !== b && b !== Main
 isvalidmodule(a, b)                 = false
+
+# Compat for `isdeprecated` which does not exist in Julia 0.4.
+if isdefined(Base, :isdeprecated)
+    isdeprecated(m, s) = Base.isdeprecated(m, s)
+else
+    isdeprecated(m, s) = ccall(:jl_is_binding_deprecated, Cint, (Any, Any), m, s) != 0
+end
 
 ## objects
 ## =======
