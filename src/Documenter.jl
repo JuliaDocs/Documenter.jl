@@ -124,7 +124,10 @@ of the "coverage" of the generated documentation.
 For example Documenter's `make.jl` file contains:
 
 ```julia
-$(strip(readstring(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))))
+makedocs(
+    modules = [Documenter],
+    # ...
+)
 ```
 
 and so any docstring from the module `Documenter` that is not spliced into the generated
