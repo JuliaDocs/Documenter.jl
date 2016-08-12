@@ -7,7 +7,7 @@ A package for building documentation from docstrings and markdown files.
 !!! note
 
     Please read through the
-    [Documentation](http://docs.julialang.org/en/release-0.4/manual/documentation/) section
+    [Documentation](http://docs.julialang.org/en/latest/manual/documentation/) section
     of the main Julia manual if this is your first time using Julia's documentation system.
     Once you've read through how to write documentation for your code then come back here.
 
@@ -40,35 +40,17 @@ Pages = [
     "man/hosting.md",
     "man/latex.md",
 ]
-Depth = 2
+Depth = 1
 ```
 
 ## Library Outline
 
 ```@contents
 Pages = ["lib/public.md", "lib/internals.md"]
-Depth = 2
 ```
 
-## [Index](@id main-index)
-
-### Modules
+### [Index](@id main-index)
 
 ```@index
-Pages = ["lib/public.md", "lib/internals.md"]
-Order = [:module]
-```
-
-### Functions
-
-```@index
-Pages = ["lib/public.md", "lib/internals.md"]
-Order = [:function]
-```
-
-### Types
-
-```@index
-Pages = ["lib/public.md", "lib/internals.md"]
-Order = [:type]
+Pages = ["lib/public.md"]
 ```

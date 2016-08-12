@@ -1,7 +1,7 @@
 using Documenter
 
 makedocs(
-    modules = Documenter,
+    modules = [Documenter],
     clean   = false,
 )
 

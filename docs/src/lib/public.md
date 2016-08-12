@@ -16,7 +16,7 @@ Pages = ["public.md"]
 Pages = ["public.md"]
 ```
 
-## Documenter
+## Public Interface
 
 ```@docs
 Documenter
