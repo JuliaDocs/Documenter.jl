@@ -37,6 +37,7 @@ pages:
   - Hosting Documentation: man/hosting.md
   - LaTeX Syntax: man/latex.md
   - Internals: man/internals.md
+  - Contributing: man/contributing.md
 - Library:
   - Public: lib/public.md
   - Internals:

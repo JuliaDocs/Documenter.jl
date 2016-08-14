@@ -39,6 +39,7 @@ Pages = [
     "man/doctests.md",
     "man/hosting.md",
     "man/latex.md",
+    "man/contributing.md",
 ]
 Depth = 1
 ```
