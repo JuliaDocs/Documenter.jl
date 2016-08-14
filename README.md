@@ -31,7 +31,7 @@ Contributions are very welcome, as are feature requests and suggestions. The [co
 
 Please open an [issue][issues-url] if you encounter any problems or would just like to ask a question.
 
-[contrib-url]: https://juliadocs.github.io/Documenter.jl/latest/man/contributing.html
+[contrib-url]: https://juliadocs.github.io/Documenter.jl/latest/man/contributing/
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [docs-latest-url]: https://juliadocs.github.io/Documenter.jl/latest
