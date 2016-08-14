@@ -363,6 +363,7 @@ url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], l
 # Correct file and line info only available from this version onwards.
 if VERSION >= v"0.5.0-dev+3442"
     function url(remote, repo, mod, file, linerange)
+        remote = getremote(dirname(file))
         isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
         # Format the line range.
         line = format_line(linerange)
