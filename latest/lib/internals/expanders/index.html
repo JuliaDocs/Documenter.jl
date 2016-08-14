@@ -249,6 +249,15 @@
   </li>
 
       
+        
+  <li>
+    <a class="" title="Contributing" href="../../../man/contributing/">
+      Contributing
+    </a>
+    
+  </li>
+
+      
     </ul>
   </li>
 
@@ -435,7 +444,7 @@
 <p><a id='Documenter.Expanders' href='#Documenter.Expanders'>#</a>
 <strong><code>Documenter.Expanders</code></strong> &mdash; <em>Module</em>.</p>
 <p>Defines node "expanders" that transform nodes from the parsed markdown files.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L1-L3' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L1-L3' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.AutoDocsBlocks' href='#Documenter.Expanders.AutoDocsBlocks'>#</a>
 <strong><code>Documenter.Expanders.AutoDocsBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Parses each code block where the language is <code>@autodocs</code> and replaces it with all the docstrings that match the provided key/value pairs <code>Modules = ...</code> and <code>Order = ...</code>.</p>
@@ -446,7 +455,7 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L89-L99' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L89-L99' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.ContentsBlocks' href='#Documenter.Expanders.ContentsBlocks'>#</a>
 <strong><code>Documenter.Expanders.ContentsBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Parses each code block where the language is <code>@contents</code> and replaces it with a nested list of all <code>Header</code> nodes in the generated document. The pages and depth of the list can be set using <code>Pages = [...]</code> and <code>Depth = N</code> where <code>N</code> is and integer.</p>
@@ -458,7 +467,7 @@ Depth = 1
 
 
 <p>The default <code>Depth</code> value is <code>2</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L133-L145' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L133-L145' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.DocsBlocks' href='#Documenter.Expanders.DocsBlocks'>#</a>
 <strong><code>Documenter.Expanders.DocsBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Parses each code block where the language is <code>@docs</code> and evaluates the expressions found within the block. Replaces the block with the docstrings associated with each expression.</p>
@@ -470,7 +479,7 @@ deploydocs
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L75-L86' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L75-L86' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.EvalBlocks' href='#Documenter.Expanders.EvalBlocks'>#</a>
 <strong><code>Documenter.Expanders.EvalBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Parses each code block where the language is <code>@eval</code> and evaluates it's content. Replaces the block with the value resulting from the evaluation. This can be useful for inserting generated content into a document such as plots.</p>
@@ -485,7 +494,7 @@ Markdown.Image(&quot;Plot&quot;, &quot;plot.svg&quot;)
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L102-L117' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L102-L117' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.ExampleBlocks' href='#Documenter.Expanders.ExampleBlocks'>#</a>
 <strong><code>Documenter.Expanders.ExampleBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Parses each code block where the language is <code>@example</code> and evaluates the parsed Julia code found within. The resulting value is then inserted into the final document after the source code.</p>
@@ -497,7 +506,7 @@ a + b
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L148-L160' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L148-L160' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.ExpanderPipeline' href='#Documenter.Expanders.ExpanderPipeline'>#</a>
 <strong><code>Documenter.Expanders.ExpanderPipeline</code></strong> &mdash; <em>Type</em>.</p>
 <p>The default node expander "pipeline", which consists of the following expanders:</p>
@@ -512,7 +521,7 @@ a + b
 <li><a href="./#Documenter.Expanders.ExampleBlocks"><code>ExampleBlocks</code></a></li>
 <li><a href="./#Documenter.Expanders.REPLBlocks"><code>REPLBlocks</code></a></li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L38-L51' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L38-L51' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.IndexBlocks' href='#Documenter.Expanders.IndexBlocks'>#</a>
 <strong><code>Documenter.Expanders.IndexBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Parses each code block where the language is <code>@index</code> and replaces it with an index of all docstrings spliced into the document. The pages that are included can be set using a key/value pair <code>Pages = [...]</code> such as</p>
@@ -522,7 +531,7 @@ Pages = [&quot;foo.md&quot;, &quot;bar.md&quot;]
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L120-L130' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L120-L130' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.MetaBlocks' href='#Documenter.Expanders.MetaBlocks'>#</a>
 <strong><code>Documenter.Expanders.MetaBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Parses each code block where the language is <code>@meta</code> and evaluates the key/value pairs found within the block, i.e.</p>
@@ -535,15 +544,15 @@ end
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L60-L72' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L60-L72' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.REPLBlocks' href='#Documenter.Expanders.REPLBlocks'>#</a>
 <strong><code>Documenter.Expanders.REPLBlocks</code></strong> &mdash; <em>Type</em>.</p>
 <p>Similar to the <a href="./#Documenter.Expanders.ExampleBlocks"><code>ExampleBlocks</code></a> expander, but inserts a Julia REPL prompt before each toplevel expression in the final document.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L163-L166' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L163-L166' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Expanders.TrackHeaders' href='#Documenter.Expanders.TrackHeaders'>#</a>
 <strong><code>Documenter.Expanders.TrackHeaders</code></strong> &mdash; <em>Type</em>.</p>
 <p>Tracks all <code>Markdown.Header</code> nodes found in the parsed markdown files and stores an <a href="../anchors/#Documenter.Anchors.Anchor"><code>Anchors.Anchor</code></a> object for each one.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/04162fcc5b10be402a75370b09353dae8b700d6c/src/Expanders.jl#L54-L57' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/8fe7a2bc32289dcd1816e0c05bc1011fbe18daec/src/Expanders.jl#L54-L57' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with

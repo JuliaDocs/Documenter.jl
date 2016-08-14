@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Documenter.jl\n\n\nA documentation generator for Julia.\n\n\nA package for building documentation from docstrings and markdown files.\n\n\n\n\nNote\n\n\nPlease read through the \nDocumentation\n section of the main Julia manual if this is your first time using Julia's documentation system. Once you've read through how to write documentation for your code then come back here.\n\n\n\n\n\n\nPackage Features\n\n\n\n\nWrite all your documentation in \nMarkdown\n.\n\n\nMinimal configuration.\n\n\nSupports Julia \n0.4\n and \n0.5-dev\n.\n\n\nDoctests Julia code blocks.\n\n\nCross references for docs and section headers.\n\n\n$\\LaTeX$ syntax\n support.\n\n\nChecks for missing docstrings and incorrect cross references.\n\n\nGenerates tables of contents and docstring indexes.\n\n\nUse \ngit push\n to automatically build and deploy docs from Travis to GitHub Pages.\n\n\n\n\nThe \nPackage Guide\n provides a tutorial explaining how to get started using Documenter.\n\n\nSome examples of packages using Documenter can be found on the \nExamples\n page.\n\n\nSee the \nIndex\n for the complete list of documented functions and types.\n\n\n\n\nManual Outline\n\n\n\n\nPackage Guide\n\n\nExamples\n\n\nSyntax\n\n\nDoctests\n\n\nHosting Documentation\n\n\n$\\LaTeX$ syntax\n\n\n\n\n\n\nLibrary Outline\n\n\n\n\nPublic Documentation\n\n\nContents\n\n\nIndex\n\n\nPublic Interface\n\n\n\n\n\n\nInternal Documentation\n\n\nContents\n\n\nIndex\n\n\n\n\n\n\n\n\n\n\nIndex\n\n\n\n\nDocumenter\n\n\nDocumenter.Deps\n\n\nDocumenter.Travis\n\n\nDocumenter.Deps.pip\n\n\nDocumenter.Travis.genkeys\n\n\nDocumenter.deploydocs\n\n\nDocumenter.generate\n\n\nDocumenter.makedocs", 
+            "text": "Documenter.jl\n\n\nA documentation generator for Julia.\n\n\nA package for building documentation from docstrings and markdown files.\n\n\n\n\nNote\n\n\nPlease read through the \nDocumentation\n section of the main Julia manual if this is your first time using Julia's documentation system. Once you've read through how to write documentation for your code then come back here.\n\n\n\n\n\n\nPackage Features\n\n\n\n\nWrite all your documentation in \nMarkdown\n.\n\n\nMinimal configuration.\n\n\nSupports Julia \n0.4\n and \n0.5-dev\n.\n\n\nDoctests Julia code blocks.\n\n\nCross references for docs and section headers.\n\n\n$\\LaTeX$ syntax\n support.\n\n\nChecks for missing docstrings and incorrect cross references.\n\n\nGenerates tables of contents and docstring indexes.\n\n\nUse \ngit push\n to automatically build and deploy docs from Travis to GitHub Pages.\n\n\n\n\nThe \nPackage Guide\n provides a tutorial explaining how to get started using Documenter.\n\n\nSome examples of packages using Documenter can be found on the \nExamples\n page.\n\n\nSee the \nIndex\n for the complete list of documented functions and types.\n\n\n\n\nManual Outline\n\n\n\n\nPackage Guide\n\n\nExamples\n\n\nSyntax\n\n\nDoctests\n\n\nHosting Documentation\n\n\n$\\LaTeX$ syntax\n\n\nContributing\n\n\n\n\n\n\nLibrary Outline\n\n\n\n\nPublic Documentation\n\n\nContents\n\n\nIndex\n\n\nPublic Interface\n\n\n\n\n\n\nInternal Documentation\n\n\nContents\n\n\nIndex\n\n\n\n\n\n\n\n\n\n\nIndex\n\n\n\n\nDocumenter\n\n\nDocumenter.Deps\n\n\nDocumenter.Travis\n\n\nDocumenter.Deps.pip\n\n\nDocumenter.Travis.genkeys\n\n\nDocumenter.deploydocs\n\n\nDocumenter.generate\n\n\nDocumenter.makedocs", 
             "title": "Home"
         }, 
         {
@@ -17,7 +17,7 @@
         }, 
         {
             "location": "/#manual-outline", 
-            "text": "Package Guide  Examples  Syntax  Doctests  Hosting Documentation  $\\LaTeX$ syntax", 
+            "text": "Package Guide  Examples  Syntax  Doctests  Hosting Documentation  $\\LaTeX$ syntax  Contributing", 
             "title": "Manual Outline"
         }, 
         {
@@ -329,6 +329,41 @@
             "location": "/man/internals/#package-internals", 
             "text": "", 
             "title": "Package Internals"
+        }, 
+        {
+            "location": "/man/contributing/", 
+            "text": "Contributing\n\n\nThis page details the some of the guidelines that should be followed when contributing to this package.\n\n\n\n\nBranches\n\n\nFrom \nDocumenter\n version \n0.3\n onwards \nrelease-*\n branches are used for tagged minor versions of this package. This follows the same approach used in the main Julia repository, albeit on a much more modest scale.\n\n\nPlease open pull requests against the \nmaster\n branch rather than any of the \nrelease-*\n branches whenever possible.\n\n\n\n\nBackports\n\n\nBug fixes are backported to the \nrelease-*\n branches using \ngit cherry-pick -x\n by a JuliaDocs member and will become available in point releases of that particular minor version of the package.\n\n\nFeel free to nominate commits that should be backported by opening an issue. Requests for new point releases to be tagged in \nMETADATA.jl\n can also be made in the same way.\n\n\n\n\nStyle Guide\n\n\nFollow the style of the surrounding text when making changes. When adding new features please try to stick to the following points whenever applicable.\n\n\n\n\nJulia\n\n\n\n\n4-space indentation;\n\n\nno blank lines at the start or end of files;\n\n\ndo not manually align syntax such as \n=\n or \n::\n over adjacent lines;\n\n\nuse \nlocal\n to define new local variables so that they are easier to locate;\n\n\nuse \nfunction ... end\n when a method definition contains more than one toplevel expression;\n\n\nrelated short-form method definitions don't need a new line between them;\n\n\nunrelated or long-form method definitions must have a blank line separating each one;\n\n\nsurround all binary operators with whitespace except for \n::\n, \n^\n, and \n:\n;\n\n\nfiles containing a single \nmodule ... end\n must be named after the module;\n\n\nmethod arguments should be ordered based on the amount of usage within the method body;\n\n\nmethods extended from other modules must follow their inherited argument order, not the above rule;\n\n\nexplicit \nreturn\n should be preferred except in short-form method definitions;\n\n\navoid dense expressions where possible e.g. prefer nested \nif\ns over complex nested \n?\ns;\n\n\ninclude a trailing \n,\n in vectors, tuples, or method calls that span several lines;\n\n\ndo not use multiline comments (\n#=\n and \n=#\n);\n\n\nwrap long lines as near to 92 characters as possible, this includes docstrings;\n\n\nfollow the standard naming conventions used in \nBase\n.\n\n\n\n\n\n\nMarkdown\n\n\n\n\nUse unbalanced \n#\n headers, i.e. no \n#\n on the right hand side of the header text;\n\n\ninclude a single blank line between toplevel blocks;\n\n\nunordered lists must use \n*\n bullets with two preceding spaces;\n\n\ndo \nnot\n hard wrap lines;\n\n\nuse emphasis (\n*\n) and bold (\n**\n) sparingly;\n\n\nalways use fenced code blocks instead of indented blocks;\n\n\nfollow the conventions outlined in the Julia documentation page on documentation.", 
+            "title": "Contributing"
+        }, 
+        {
+            "location": "/man/contributing/#contributing", 
+            "text": "This page details the some of the guidelines that should be followed when contributing to this package.", 
+            "title": "Contributing"
+        }, 
+        {
+            "location": "/man/contributing/#branches", 
+            "text": "From  Documenter  version  0.3  onwards  release-*  branches are used for tagged minor versions of this package. This follows the same approach used in the main Julia repository, albeit on a much more modest scale.  Please open pull requests against the  master  branch rather than any of the  release-*  branches whenever possible.", 
+            "title": "Branches"
+        }, 
+        {
+            "location": "/man/contributing/#backports", 
+            "text": "Bug fixes are backported to the  release-*  branches using  git cherry-pick -x  by a JuliaDocs member and will become available in point releases of that particular minor version of the package.  Feel free to nominate commits that should be backported by opening an issue. Requests for new point releases to be tagged in  METADATA.jl  can also be made in the same way.", 
+            "title": "Backports"
+        }, 
+        {
+            "location": "/man/contributing/#style-guide", 
+            "text": "Follow the style of the surrounding text when making changes. When adding new features please try to stick to the following points whenever applicable.", 
+            "title": "Style Guide"
+        }, 
+        {
+            "location": "/man/contributing/#julia", 
+            "text": "4-space indentation;  no blank lines at the start or end of files;  do not manually align syntax such as  =  or  ::  over adjacent lines;  use  local  to define new local variables so that they are easier to locate;  use  function ... end  when a method definition contains more than one toplevel expression;  related short-form method definitions don't need a new line between them;  unrelated or long-form method definitions must have a blank line separating each one;  surround all binary operators with whitespace except for  :: ,  ^ , and  : ;  files containing a single  module ... end  must be named after the module;  method arguments should be ordered based on the amount of usage within the method body;  methods extended from other modules must follow their inherited argument order, not the above rule;  explicit  return  should be preferred except in short-form method definitions;  avoid dense expressions where possible e.g. prefer nested  if s over complex nested  ? s;  include a trailing  ,  in vectors, tuples, or method calls that span several lines;  do not use multiline comments ( #=  and  =# );  wrap long lines as near to 92 characters as possible, this includes docstrings;  follow the standard naming conventions used in  Base .", 
+            "title": "Julia"
+        }, 
+        {
+            "location": "/man/contributing/#markdown", 
+            "text": "Use unbalanced  #  headers, i.e. no  #  on the right hand side of the header text;  include a single blank line between toplevel blocks;  unordered lists must use  *  bullets with two preceding spaces;  do  not  hard wrap lines;  use emphasis ( * ) and bold ( ** ) sparingly;  always use fenced code blocks instead of indented blocks;  follow the conventions outlined in the Julia documentation page on documentation.", 
+            "title": "Markdown"
         }, 
         {
             "location": "/lib/public/", 
