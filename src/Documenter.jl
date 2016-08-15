@@ -297,9 +297,11 @@ function deploydocs(;
     if should_deploy
         # Add local bin path if needed.
         Deps.updatepath!()
-        # Install dependancies.
-        Utilities.log("installing dependancies.")
-        deps()
+        # Install dependancies when applicable.
+        if deps !== nothing
+            Utilities.log("installing dependancies.")
+            deps()
+        end
         # Change to the root directory and try to deploy the docs.
         cd(root) do
             Utilities.log("setting up target directory.")
