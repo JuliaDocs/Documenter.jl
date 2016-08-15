@@ -206,6 +206,12 @@
               </a>
             </li>
           
+            <li class="anchor">
+              <a title="Output formats" href="#output-formats">
+                Output formats
+              </a>
+            </li>
+          
         </ul>
       
     
@@ -392,6 +398,15 @@
   <li>
     <a class="" title="Generator" href="../../lib/internals/generator/">
       Generator
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="MDFlatten" href="../../lib/internals/mdflatten/">
+      MDFlatten
     </a>
     
   </li>
@@ -660,6 +675,14 @@ Depth = 3
 
 
 <p>The <code>@index</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>@docs</code> blocks. As with the <code>@contents</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>@index</code>.</p>
+<p><a id='Output-formats-1'></a></p>
+<h2 id="output-formats">Output formats</h2>
+<p>Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based <a href="http://www.mkdocs.org/">MkDocs</a> is usually used to convert the Markdown files into a set of HTML pages. See <a href="../hosting/#Hosting-Documentation-1">Hosting Documentation</a> for further information on configuring <code>mkdocs</code> for Documenter.</p>
+<div class="admonition note">
+<p class="admonition-title">Native HTML output</p>
+<p>There is experimental support for native HTML output in Documenter. It can be enabled by passing the <code>format = Documenter.Formats.HTML</code> option to <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a>. An example <code>make.jl</code> can be found under <code>test/html/</code>.</p>
+<p>It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to <a href="https://github.com/JuliaDocs/Documenter.jl/issues">Documenter.jl's issue tracker</a>.</p>
+</div>
           <aside class="copyright" role="note">
             
             Documentation built with

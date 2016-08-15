@@ -387,6 +387,15 @@
       
         
   <li>
+    <a class="" title="MDFlatten" href="../mdflatten/">
+      MDFlatten
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
     <a class="" title="Selectors" href="../selectors/">
       Selectors
     </a>
@@ -505,7 +514,7 @@
 
 
 <p>All three of the above syntaxes return a new <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object. Printing of <code>Node</code> objects is defined using the standard Julia display functions, so only needs a call to <code>print</code> to print out a valid HTML document with all nessesary text escaped.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/446ab503f658c408ed3012ccb57fd2c399c16e55/src/Utilities/DOM.jl#L1-L94' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/5872f70d488f684d58845dced168de2f7cd35497/src/Utilities/DOM.jl#L1-L94' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}' href='#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}'>#</a>
 <strong><code>Documenter.Utilities.DOM.@tags</code></strong> &mdash; <em>Macro</em>.</p>
 <p>Define a collection of <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> objects and bind them to constants with the same names.</p>
@@ -523,17 +532,21 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/446ab503f658c408ed3012ccb57fd2c399c16e55/src/Utilities/DOM.jl#L150-L170' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/5872f70d488f684d58845dced168de2f7cd35497/src/Utilities/DOM.jl#L150-L170' class='documenter-source'>source</a><br></p>
+<p><a id='Documenter.Utilities.DOM.HTMLDocument' href='#Documenter.Utilities.DOM.HTMLDocument'>#</a>
+<strong><code>Documenter.Utilities.DOM.HTMLDocument</code></strong> &mdash; <em>Type</em>.</p>
+<p>A HTML node that wraps around the root node of the document and adds a DOCTYPE to it.</p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/5872f70d488f684d58845dced168de2f7cd35497/src/Utilities/DOM.jl#L303-L306' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Utilities.DOM.Node' href='#Documenter.Utilities.DOM.Node'>#</a>
 <strong><code>Documenter.Utilities.DOM.Node</code></strong> &mdash; <em>Type</em>.</p>
 <p>Represents an element within an HTML document including any textual content, children <code>Node</code>s, and attributes.</p>
 <p>This type should not be constructed directly, but instead via <code>(...)</code> and <code>[...]</code> applied to a <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> or another <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/446ab503f658c408ed3012ccb57fd2c399c16e55/src/Utilities/DOM.jl#L176-L182' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/5872f70d488f684d58845dced168de2f7cd35497/src/Utilities/DOM.jl#L176-L182' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Utilities.DOM.Tag' href='#Documenter.Utilities.DOM.Tag'>#</a>
 <strong><code>Documenter.Utilities.DOM.Tag</code></strong> &mdash; <em>Type</em>.</p>
 <p>Represents a empty and attribute-less HTML element.</p>
 <p>Use <a href="./#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}"><code>@tags</code></a> to define instances of this type rather than manually creating them via <code>Tag(:tagname)</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/446ab503f658c408ed3012ccb57fd2c399c16e55/src/Utilities/DOM.jl#L138-L143' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/5872f70d488f684d58845dced168de2f7cd35497/src/Utilities/DOM.jl#L138-L143' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}' href='#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}'>#</a>
 <strong><code>Documenter.Utilities.DOM.escapehtml</code></strong> &mdash; <em>Method</em>.</p>
 <p>Escape characters in the provided string. This converts the following characters:</p>
@@ -545,7 +558,7 @@
 <li><code>"</code> to <code>&amp;quot;</code></li>
 </ul>
 <p>When no escaping is needed then the same object is returned, otherwise a new string is constructed with the characters escaped. The returned object should always be treated as an immutable copy and compared using <code>==</code> rather than <code>===</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/446ab503f658c408ed3012ccb57fd2c399c16e55/src/Utilities/DOM.jl#L274-L286' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/5872f70d488f684d58845dced168de2f7cd35497/src/Utilities/DOM.jl#L274-L286' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString,Documenter.Utilities.DOM.Node,Pair,Symbol}}' href='#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString,Documenter.Utilities.DOM.Node,Pair,Symbol}}'>#</a>
 <strong><code>Documenter.Utilities.DOM.flatten!</code></strong> &mdash; <em>Method</em>.</p>
 <p><strong>Signatures</strong></p>
@@ -555,7 +568,7 @@
 
 
 <p>Flatten the contents the third argument into the second after applying the function <code>f!</code> to the element.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/446ab503f658c408ed3012ccb57fd2c399c16e55/src/Utilities/DOM.jl#L212-L222' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/5872f70d488f684d58845dced168de2f7cd35497/src/Utilities/DOM.jl#L212-L222' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
