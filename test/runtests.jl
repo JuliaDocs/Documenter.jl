@@ -475,3 +475,4 @@ end
 include("mdflatten.jl")
 
 include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))
+include(joinpath(dirname(@__FILE__), "html", "make.jl"))

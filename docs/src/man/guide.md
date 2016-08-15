@@ -272,3 +272,22 @@ The `@index` block will generate a flat list of links to all the docs that that 
 spliced into the document using `@docs` blocks. As with the `@contents` block the pages to
 be included can be set with a `Pages = [...]` line. Since the list is not nested `Depth` is
 not supported for `@index`.
+
+## Output formats
+
+Documenter produces a set of Markdown files, which then have to be converted into a
+user-readable format for distribution.
+While in principle any Markdown parser would do (as long as it supports the required
+Markdown extensions), the Python-based [MkDocs](http://www.mkdocs.org/) is usually used
+to convert the Markdown files into a set of HTML pages.
+See [Hosting Documentation](@ref) for further information on configuring `mkdocs` for Documenter.
+
+!!! note "Native HTML output"
+    There is experimental support for native HTML output in Documenter.
+    It can be enabled by passing the `format = Documenter.Formats.HTML` option to
+    [`makedocs`](@ref). An example `make.jl` can be found under `test/html/`.
+
+    It is still under development, may contain bugs, and undergo changes.
+    However, any feedback is very welcome and early adopters are encouraged to try it out.
+    Issues and suggestions should be posted to
+    [Documenter.jl's issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues).
