@@ -423,8 +423,8 @@ evaluating each block the present working directory, `pwd`, is set to the direct
 `build` where the file will be written to.
 
 Also, instead of returning `nothing` in the example above we could have returned a new
-`Markdown.Image` object directly. This can be more appropriate when the filename is not
-known until evaluation of the block itself.
+`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the 
+filename is not known until evaluation of the block itself.
 
 !!! note
 
