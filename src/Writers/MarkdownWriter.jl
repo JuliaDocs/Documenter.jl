@@ -124,7 +124,7 @@ function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, pa
 end
 
 function render(io::IO, mime::MIME"text/plain", node::Documents.EvalNode, page, doc)
-    render(io, mime, node.result, page, doc)
+    node.result === nothing ? nothing : render(io, mime, node.result, page, doc)
 end
 
 

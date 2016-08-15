@@ -149,3 +149,8 @@ f(x) = (sleep(x); x)
 f(0.01)
 div(1, 0)
 ```
+
+```@eval
+1 + 2
+nothing
+```
