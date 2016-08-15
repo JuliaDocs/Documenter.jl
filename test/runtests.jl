@@ -315,6 +315,11 @@ end
 locally_defined()
 @test !isdefined(current_module(), :button)
 
+# HTMLDocument
+import Documenter.Utilities.DOM: HTMLDocument
+@test string(HTMLDocument(div())) == "<!DOCTYPE html>\n<div></div>\n"
+@test string(HTMLDocument("custom doctype", div())) == "<!DOCTYPE custom doctype>\n<div></div>\n"
+
 end
 
 # `Markdown.MD` to `DOM.Node` conversion tests.
@@ -466,4 +471,8 @@ end
 
 end
 
+# more tests from files
+include("mdflatten.jl")
+
 include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))
+include(joinpath(dirname(@__FILE__), "html", "make.jl"))

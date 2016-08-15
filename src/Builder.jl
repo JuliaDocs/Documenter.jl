@@ -159,6 +159,7 @@ function walk_navpages(title::Compat.String, page::Compat.String, parent, doc)
     nn
 end
 function walk_navpages(src::Compat.String, parent, doc)
+    src = normpath(src)
     src in keys(doc.internal.pages) || error("'$src' is not an existing page!")
     nn = Documents.NavNode(src, nothing, parent)
     push!(doc.internal.navlist, nn)

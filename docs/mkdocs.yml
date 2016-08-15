@@ -52,6 +52,7 @@ pages:
     - Expanders: lib/internals/expanders.md
     - Formats: lib/internals/formats.md
     - Generator: lib/internals/generator.md
+    - MDFlatten: lib/internals/mdflatten.md
     - Selectors: lib/internals/selectors.md
     - Utilities: lib/internals/utilities.md
     - Walkers: lib/internals/walkers.md
