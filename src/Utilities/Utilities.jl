@@ -358,6 +358,23 @@ header_level{N}(::Markdown.Header{N}) = N
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
 
+function url(repo, file)
+    file = abspath(file)
+    remote = getremote(dirname(file))
+    isempty(repo) && (repo = "https://github.com/$remote/tree/{commit}{path}")
+    commit, root = cd(dirname(file)) do
+        readchomp(`git rev-parse HEAD`), readchomp(`git rev-parse --show-toplevel`)
+    end
+    if startswith(file, root)
+        _, path = split(file, root; limit = 2)
+        repo = replace(repo, "{commit}", commit)
+        repo = replace(repo, "{path}", path)
+        Nullable{Compat.String}(repo)
+    else
+        Nullable{Compat.String}()
+    end
+end
+
 url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
 
 # Correct file and line info only available from this version onwards.
