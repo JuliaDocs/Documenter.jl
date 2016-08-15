@@ -59,7 +59,19 @@ mdconvert(m::Markdown.LaTeX, parent) = Tag(:span)(string('$', m.formula, '$'))
 
 mdconvert(::Markdown.LineBreak, parent) = Tag(:br)()
 
-mdconvert(link::Markdown.Link, parent) = Tag(:a)[:href => link.url](mdconvert(link.text, link))
+const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
+function mdconvert(link::Markdown.Link, parent)
+    # TODO: fixing the extension should probably be moved to an earlier step
+    if ismatch(ABSURL_REGEX, link.url)
+        Tag(:a)[:href => link.url](mdconvert(link.text, link))
+    else
+        s = split(link.url, "#", limit=1)
+        path = first(s)
+        path = endswith(path, ".md") ? Formats.extension(Formats.HTML, path) : path
+        url = (length(s) > 1) ? "$path#$(second(s))" : Compat.String(path)
+        Tag(:a)[:href => url](mdconvert(link.text, link))
+    end
+end
 
 mdconvert(list::Markdown.List, parent) = (isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list)))
 
