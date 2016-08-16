@@ -392,7 +392,7 @@ end
 
 @test doc.internal.assets == normpath(joinpath(dirname(@__FILE__), "..", "assets"))
 
-@test length(doc.internal.pages) == 4
+@test length(doc.internal.pages) == 5
 
 let headers = doc.internal.headers
     @test Documenter.Anchors.exists(headers, "Documentation")
