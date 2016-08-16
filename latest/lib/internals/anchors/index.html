@@ -454,7 +454,7 @@
 <strong><code>Documenter.Anchors</code></strong> &mdash; <em>Module</em>.</p>
 <p>Defines the <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> and <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a> types.</p>
 <p><code>Anchor</code>s and <code>AnchorMap</code>s are used to represent links between objects within a document.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Anchors.jl#L1-L5' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/36db5610c25feabcfde95c1854846ed8e996bdc5/src/Anchors.jl#L1-L5' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Anchors.Anchor' href='#Documenter.Anchors.Anchor'>#</a>
 <strong><code>Documenter.Anchors.Anchor</code></strong> &mdash; <em>Type</em>.</p>
 <p>Stores an arbitrary object called <code>.object</code> and it's location within a document.</p>
@@ -466,7 +466,7 @@
 <li><code>id</code>     – the generated "slug" identifying the object.</li>
 <li><code>nth</code>    – integer that unique-ifies anchors with the same <code>id</code>.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Anchors.jl#L13-L23' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/36db5610c25feabcfde95c1854846ed8e996bdc5/src/Anchors.jl#L13-L23' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Anchors.AnchorMap' href='#Documenter.Anchors.AnchorMap'>#</a>
 <strong><code>Documenter.Anchors.AnchorMap</code></strong> &mdash; <em>Type</em>.</p>
 <p>Tree structure representating anchors in a document and their relationships with eachother.</p>
@@ -476,7 +476,7 @@
 
 
 <p>Each <code>id</code> maps to a <code>file</code> which in turn maps to a vector of <code>Anchor</code> objects.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Anchors.jl#L33-L41' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/36db5610c25feabcfde95c1854846ed8e996bdc5/src/Anchors.jl#L33-L41' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Anchors.add!-Tuple{Documenter.Anchors.AnchorMap,Documenter.Anchors.Anchor,Any,Any}' href='#Documenter.Anchors.add!-Tuple{Documenter.Anchors.AnchorMap,Documenter.Anchors.Anchor,Any,Any}'>#</a>
 <strong><code>Documenter.Anchors.add!</code></strong> &mdash; <em>Method</em>.</p>
 <p><strong>Signatures</strong></p>
@@ -486,7 +486,7 @@
 
 <p>Adds a new <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> to the <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a> for a given <code>id</code> and <code>file</code>.</p>
 <p>Either an actual <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> object may be provided or any other object which is automatically wrapped in an <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> before being added to the <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Anchors.jl#L51' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/36db5610c25feabcfde95c1854846ed8e996bdc5/src/Anchors.jl#L51' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Anchors.anchor-Tuple{Documenter.Anchors.AnchorMap,Any}' href='#Documenter.Anchors.anchor-Tuple{Documenter.Anchors.AnchorMap,Any}'>#</a>
 <strong><code>Documenter.Anchors.anchor</code></strong> &mdash; <em>Method</em>.</p>
 <p><strong>Signatures</strong></p>
@@ -495,7 +495,7 @@
 
 
 <p>Returns the <a href="./#Documenter.Anchors.Anchor"><code>Anchor</code></a> object matching <code>id</code>. <code>file</code> and <code>n</code> may also be provided. A <code>Nullable{Anchor}</code> is returned which must be unwrapped with <code>isnull</code> and <code>get</code> before use.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Anchors.jl#L105' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/36db5610c25feabcfde95c1854846ed8e996bdc5/src/Anchors.jl#L105' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Anchors.exists-Tuple{Documenter.Anchors.AnchorMap,Any,Any,Any}' href='#Documenter.Anchors.exists-Tuple{Documenter.Anchors.AnchorMap,Any,Any,Any}'>#</a>
 <strong><code>Documenter.Anchors.exists</code></strong> &mdash; <em>Method</em>.</p>
 <p><strong>Signatures</strong></p>
@@ -504,7 +504,7 @@
 
 
 <p>Does the given <code>id</code> exist within the <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a>? A <code>file</code> and integer <code>n</code> may also be provided to narrow the search for existance.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Anchors.jl#L74' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/36db5610c25feabcfde95c1854846ed8e996bdc5/src/Anchors.jl#L74' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Anchors.isunique-Tuple{Documenter.Anchors.AnchorMap,Any}' href='#Documenter.Anchors.isunique-Tuple{Documenter.Anchors.AnchorMap,Any}'>#</a>
 <strong><code>Documenter.Anchors.isunique</code></strong> &mdash; <em>Method</em>.</p>
 <p><strong>Signatures</strong></p>
@@ -513,7 +513,7 @@
 
 
 <p>Is the <code>id</code> unique within the given <a href="./#Documenter.Anchors.AnchorMap"><code>AnchorMap</code></a>? May also specify the <code>file</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Anchors.jl#L87' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/36db5610c25feabcfde95c1854846ed8e996bdc5/src/Anchors.jl#L87' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
