@@ -822,7 +822,7 @@ nothing
 
 
 <p>Note that each <code>@eval</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p>
-<p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.Image</code> object directly. This can be more appropriate when the filename is not known until evaluation of the block itself.</p>
+<p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.MD</code> object through <code>Markdown.parse</code>. This can be more appropriate when the  filename is not known until evaluation of the block itself.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In most cases <code>@example</code> is preferred over <code>@eval</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>@eval</code> should be treated in the same way.</p>
