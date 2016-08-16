@@ -454,15 +454,15 @@
 <strong><code>Documenter.Builder</code></strong> &mdash; <em>Module</em>.</p>
 <p>Defines the <code>Documenter.jl</code> build "pipeline" named <a href="./#Documenter.Builder.DocumentPipeline"><code>DocumentPipeline</code></a>.</p>
 <p>Each stage of the pipeline performs an action on a <a href="../documents/#Documenter.Documents.Document"><code>Documents.Document</code></a> object. These actions may involve creating directory structures, expanding templates, running doctests, etc.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L1-L7' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L1-L7' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.CheckDocument' href='#Documenter.Builder.CheckDocument'>#</a>
 <strong><code>Documenter.Builder.CheckDocument</code></strong> &mdash; <em>Type</em>.</p>
 <p>Checks that all documented objects are included in the document and runs doctests on all valid Julia code blocks.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L50-L53' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L50-L53' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.CrossReferences' href='#Documenter.Builder.CrossReferences'>#</a>
 <strong><code>Documenter.Builder.CrossReferences</code></strong> &mdash; <em>Type</em>.</p>
 <p>Finds and sets URLs for each <code>@ref</code> link in the document to the correct destinations.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L45-L47' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L45-L47' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.DocumentPipeline' href='#Documenter.Builder.DocumentPipeline'>#</a>
 <strong><code>Documenter.Builder.DocumentPipeline</code></strong> &mdash; <em>Type</em>.</p>
 <p>The default document processing "pipeline", which consists of the following actions:</p>
@@ -474,23 +474,23 @@
 <li><a href="./#Documenter.Builder.Populate"><code>Populate</code></a></li>
 <li><a href="./#Documenter.Builder.RenderDocument"><code>RenderDocument</code></a></li>
 </ul>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L22-L32' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L22-L32' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.ExpandTemplates' href='#Documenter.Builder.ExpandTemplates'>#</a>
 <strong><code>Documenter.Builder.ExpandTemplates</code></strong> &mdash; <em>Type</em>.</p>
 <p>Executes a sequence of actions on each node of the parsed markdown files in turn.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L40-L42' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L40-L42' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.Populate' href='#Documenter.Builder.Populate'>#</a>
 <strong><code>Documenter.Builder.Populate</code></strong> &mdash; <em>Type</em>.</p>
 <p>Populates the <code>ContentsNode</code>s and <code>IndexNode</code>s with links.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L56-L58' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L56-L58' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.RenderDocument' href='#Documenter.Builder.RenderDocument'>#</a>
 <strong><code>Documenter.Builder.RenderDocument</code></strong> &mdash; <em>Type</em>.</p>
 <p>Writes the document tree to the <code>build</code> directory.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L61-L63' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L61-L63' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.SetupBuildDirectory' href='#Documenter.Builder.SetupBuildDirectory'>#</a>
 <strong><code>Documenter.Builder.SetupBuildDirectory</code></strong> &mdash; <em>Type</em>.</p>
 <p>Creates the correct directory layout within the <code>build</code> folder and parses markdown files.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L35-L37' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L35-L37' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Builder.walk_navpages-Tuple{Array{T,1},Any,Any}' href='#Documenter.Builder.walk_navpages-Tuple{Array{T,1},Any,Any}'>#</a>
 <strong><code>Documenter.Builder.walk_navpages</code></strong> &mdash; <em>Method</em>.</p>
 <p><strong>Signatures</strong></p>
@@ -500,7 +500,7 @@
 
 <p>Recursively walks through the <a href="../documents/#Documenter.Documents.Document"><code>Documents.Document</code></a>'s <code>.user.pages</code> field, generating <a href="../documents/#Documenter.Documents.NavNode"><code>Documents.NavNode</code></a>s and related data structures in the process.</p>
 <p>This implementation is the de facto specification for the <code>.user.pages</code> field.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/d29bcaafd47fd4262f7413cfdead6f65afabeb8e/src/Builder.jl#L140' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Builder.jl#L140' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
