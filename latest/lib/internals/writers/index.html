@@ -454,12 +454,12 @@
 <strong><code>Documenter.Writers</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides a rendering function, <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a>, for writing each supported <a href="../formats/#Documenter.Formats.Format"><code>Formats.Format</code></a> to file.</p>
 <p>Note that currently <code>Formats.Markdown</code> is the <strong>only</strong> supported format.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/Writers.jl#L1-L7' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/Writers.jl#L1-L7' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.Writer' href='#Documenter.Writers.Writer'>#</a>
 <strong><code>Documenter.Writers.Writer</code></strong> &mdash; <em>Type</em>.</p>
 <p>A parametric type that allows us to use multiple dispatch to pick the appropriate writer for each output format.</p>
 <p>The parameter <code>f</code> should be an instance of the <a href="../formats/#Documenter.Formats.Format"><code>Formats.Format</code></a> enumeration.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/Writers.jl#L21-L26' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/Writers.jl#L21-L26' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.render-Tuple{Documenter.Documents.Document}' href='#Documenter.Writers.render-Tuple{Documenter.Documents.Document}'>#</a>
 <strong><code>Documenter.Writers.render</code></strong> &mdash; <em>Method</em>.</p>
 <p>Writes a <a href="../documents/#Documenter.Documents.Document"><code>Documents.Document</code></a> object to <code>.user.build</code> directory in the format specified in <code>.user.format</code>.</p>
@@ -469,64 +469,64 @@
 
 
 <p>where <code>format</code> is one of the values of the <a href="../formats/#Documenter.Formats.Format"><code>Formats.Format</code></a> enumeration.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/Writers.jl#L30-L39' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/Writers.jl#L30-L39' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.MarkdownWriter' href='#Documenter.Writers.MarkdownWriter'>#</a>
 <strong><code>Documenter.Writers.MarkdownWriter</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides the <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a> methods to write the documentation as Markdown files (<code>MIME"text/plain"</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/MarkdownWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/MarkdownWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter' href='#Documenter.Writers.HTMLWriter'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides the <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a> methods to write the documentation as HTML files (<code>MIME"text/html"</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.HTMLContext' href='#Documenter.Writers.HTMLWriter.HTMLContext'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.HTMLContext</code></strong> &mdash; <em>Type</em>.</p>
 <p><a href="./#Documenter.Writers.HTMLWriter"><code>HTMLWriter</code></a>-specific globals that are passed to <a href="./#Documenter.Writers.HTMLWriter.domify-Tuple{Any,Any}"><code>domify</code></a> and other recursive functions.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L25-L28' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L25-L28' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.collect_subsections-Tuple{Documenter.Documents.Page}' href='#Documenter.Writers.HTMLWriter.collect_subsections-Tuple{Documenter.Documents.Page}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.collect_subsections</code></strong> &mdash; <em>Method</em>.</p>
 <p>Returns a list of tuples <code>(anchor, text)</code>, corresponding to all level 2 headers.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L513-L515' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L513-L515' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.copy_asset-Tuple{Any,Any}' href='#Documenter.Writers.HTMLWriter.copy_asset-Tuple{Any,Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.copy_asset</code></strong> &mdash; <em>Method</em>.</p>
 <p>Copies an asset from Documenters <code>assets/html/</code> directory to <code>doc.user.build</code>. Returns the path of the copied asset relative to <code>.build</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L82-L85' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L82-L85' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.domify-Tuple{Any,Any}' href='#Documenter.Writers.HTMLWriter.domify-Tuple{Any,Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.domify</code></strong> &mdash; <em>Method</em>.</p>
 <p>Converts recursively a <a href="../documents/#Documenter.Documents.Page"><code>Documents.Page</code></a>, <code>Base.Markdown</code> or Documenter <code>*Node</code> objects into HTML DOM.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L289-L292' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L289-L292' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.getpage-Tuple{Any,Any}' href='#Documenter.Writers.HTMLWriter.getpage-Tuple{Any,Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.getpage</code></strong> &mdash; <em>Method</em>.</p>
 <p>Returns a page (as a <a href="../documents/#Documenter.Documents.Page"><code>Documents.Page</code></a> object) using the <a href="./#Documenter.Writers.HTMLWriter.HTMLContext"><code>HTMLContext</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L41-L43' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L41-L43' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}' href='#Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.mdconvert</code></strong> &mdash; <em>Method</em>.</p>
 <p>Convert a markdown object to a <code>DOM.Node</code> object.</p>
 <p>The <code>parent</code> argument is passed to allow for context-dependant conversions.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L530-L534' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L530-L534' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.navhref-Tuple{Any,Any}' href='#Documenter.Writers.HTMLWriter.navhref-Tuple{Any,Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.navhref</code></strong> &mdash; <em>Method</em>.</p>
 <p>Get the relative hyperlink between two <a href="../documents/#Documenter.Documents.NavNode"><code>Documents.NavNode</code></a>s. Assumes that both <a href="../documents/#Documenter.Documents.NavNode"><code>Documents.NavNode</code></a>s have an associated <a href="../documents/#Documenter.Documents.Page"><code>Documents.Page</code></a> (i.e. <code>.page</code> is not null).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L476-L479' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L476-L479' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.navitem-Tuple{Any,Any}' href='#Documenter.Writers.HTMLWriter.navitem-Tuple{Any,Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.navitem</code></strong> &mdash; <em>Method</em>.</p>
 <p><a href="./#Documenter.Writers.HTMLWriter.navitem-Tuple{Any,Any}"><code>navitem</code></a> returns the lists and list items of the navigation menu. It gets called recursively to construct the whole tree.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L212-L215' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L212-L215' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.pagetitle-Tuple{Documenter.Documents.Page}' href='#Documenter.Writers.HTMLWriter.pagetitle-Tuple{Documenter.Documents.Page}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.pagetitle</code></strong> &mdash; <em>Method</em>.</p>
 <p>Tries to guess the page title by looking at the <code>&lt;h1&gt;</code> headers and returns the header contents as a <code>Nullable</code> (nulled if the algorithm was unable to determine the header).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L490-L494' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L490-L494' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.relhref-Tuple{Any,Any}' href='#Documenter.Writers.HTMLWriter.relhref-Tuple{Any,Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.relhref</code></strong> &mdash; <em>Method</em>.</p>
 <p>Calculates a relative HTML link from one path to another.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L482-L484' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L482-L484' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.HTMLWriter.render_page-Tuple{Any,Any}' href='#Documenter.Writers.HTMLWriter.render_page-Tuple{Any,Any}'>#</a>
 <strong><code>Documenter.Writers.HTMLWriter.render_page</code></strong> &mdash; <em>Method</em>.</p>
 <p>Constructs and writes the page referred to by the <code>navnode</code> to <code>.build</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/HTMLWriter.jl#L100-L102' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/HTMLWriter.jl#L100-L102' class='documenter-source'>source</a><br></p>
 <p><a id='Documenter.Writers.LaTeXWriter' href='#Documenter.Writers.LaTeXWriter'>#</a>
 <strong><code>Documenter.Writers.LaTeXWriter</code></strong> &mdash; <em>Module</em>.</p>
 <p>Provides the <a href="./#Documenter.Writers.render-Tuple{Documenter.Documents.Document}"><code>render</code></a> methods to write the documentation as LaTeX files (<code>MIME"text/latex"</code>).</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/e20b1f8187cc140f568c424d07d4bf04117c0d28/src/Writers/LaTeXWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/23ebc4706c2169ae68e300965150061241e74bb7/src/Writers/LaTeXWriter.jl#L1-L4' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
