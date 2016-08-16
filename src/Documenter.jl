@@ -305,9 +305,12 @@ function deploydocs(;
         # Change to the root directory and try to deploy the docs.
         cd(root) do
             Utilities.log("setting up target directory.")
-            Utilities.cleandir(target)
-            Utilities.log("building documentation.")
-            make()
+            isdir(target) || mkpath(target)
+            # Run extra build steps defined in `make` if required.
+            if make !== nothing
+                Utilities.log("running extra build steps.")
+                make()
+            end
             Utilities.log("pushing new documentation to remote: $repo:$branch.")
             mktempdir() do temp
                 # Versioned docs directories.
