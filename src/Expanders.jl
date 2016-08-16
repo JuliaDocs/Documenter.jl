@@ -111,7 +111,7 @@ x = linspace(-π, π)
 y = sin(x)
 plot(x, y, color = "red")
 savefig("plot.svg")
-Markdown.Image("Plot", "plot.svg")
+Markdown.parse("![Plot](plot.svg)")
 ```
 ````
 """
