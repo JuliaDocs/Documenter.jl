@@ -357,6 +357,7 @@ println("="^50)
 
 const example_root = joinpath(dirname(@__FILE__), "examples")
 
+info("Building mock package docs: MarkdownWriter")
 doc = makedocs(
     debug = true,
     root  = example_root,
@@ -421,10 +422,30 @@ end
 
 @test length(doc.internal.objects) == 36
 
+info("Building mock package docs: HTMLWriter")
+doc = makedocs(
+    debug = true,
+    root  = example_root,
+    build = "build-html",
+    format   = Documenter.Formats.HTML,
+    sitename = "Documenter example",
+    pages    = Any[
+        "Home" => "index.md",
+        "Manual" => [
+            "man/tutorial.md",
+        ],
+        "Library" => [
+            "lib/functions.md",
+            "lib/autodocs.md",
+        ]
+    ]
+)
+
 # Documenter package docs:
 
 const Documenter_root = normpath(joinpath(dirname(@__FILE__), "..", "docs"))
 
+info("Building Documenter package docs.")
 doc = makedocs(
     debug   = true,
     root    = Documenter_root,
@@ -475,4 +496,3 @@ end
 include("mdflatten.jl")
 
 include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))
-include(joinpath(dirname(@__FILE__), "html", "make.jl"))

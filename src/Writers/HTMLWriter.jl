@@ -466,6 +466,10 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
     end
 end
 
+function domify(ctx, navnode, node::Documents.EvalNode)
+    node.result === nothing ? DOM.Node[] : domify(ctx, navnode, node.result)
+end
+
 # nothing to show for MetaNodes, so we just return an empty list
 domify(ctx, navnode, node::Documents.MetaNode) = DOM.Node[]
 
