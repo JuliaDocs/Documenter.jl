@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Doctests · Documenter.jl documentation</title><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script></head><body><nav class="toc"><a href><img class="logo" src="../logo.png" alt="Documenter.jl logo"/></a><h1>Documenter.jl</h1><form class="search" action="../search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../index.html">Home</a></li><li><span class="toctext">Manual</span><ul><li><a class="toctext" href="guide.html">Guide</a></li><li><a class="toctext" href="examples.html">Examples</a></li><li><a class="toctext" href="syntax.html">Syntax</a></li><li class="current"><a class="toctext" href="doctests.html">Doctests</a><ul class="internal"><li><a class="toctext" href="#\"Script\"-Examples-1">&quot;Script&quot; Examples</a></li><li><a class="toctext" href="#REPL-Examples-1">REPL Examples</a></li><li><a class="toctext" href="#Exceptions-1">Exceptions</a></li><li><a class="toctext" href="#Skipping-Doctests-1">Skipping Doctests</a></li><li><a class="toctext" href="#Setup-Code-1">Setup Code</a></li></ul></li><li><a class="toctext" href="hosting.html">Hosting Documentation</a></li><li><a class="toctext" href="latex.html"><span>$\LaTeX$</span> syntax</a></li><li><a class="toctext" href="internals.html">Package Internals</a></li><li><a class="toctext" href="contributing.html">Contributing</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="../lib/public.html">Public</a></li><li><span class="toctext">Internals</span><ul><li><a class="toctext" href="../lib/internals.html">Internals</a></li><li><a class="toctext" href="../lib/internals/anchors.html">Anchors</a></li><li><a class="toctext" href="../lib/internals/builder.html">Builder</a></li><li><a class="toctext" href="../lib/internals/cross-references.html">CrossReferences</a></li><li><a class="toctext" href="../lib/internals/docchecks.html">DocChecks</a></li><li><a class="toctext" href="../lib/internals/docsystem.html">DocSystem</a></li><li><a class="toctext" href="../lib/internals/documents.html">Documents</a></li><li><a class="toctext" href="../lib/internals/dom.html">DOM</a></li><li><a class="toctext" href="../lib/internals/expanders.html">Expanders</a></li><li><a class="toctext" href="../lib/internals/formats.html">Formats</a></li><li><a class="toctext" href="../lib/internals/generator.html">Generator</a></li><li><a class="toctext" href="../lib/internals/mdflatten.html">MDFlatten</a></li><li><a class="toctext" href="../lib/internals/selectors.html">Selectors</a></li><li><a class="toctext" href="../lib/internals/utilities.html">Utilities</a></li><li><a class="toctext" href="../lib/internals/walkers.html">Walkers</a></li><li><a class="toctext" href="../lib/internals/writers.html">Writers</a></li></ul></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href="doctests.html">Doctests</a></li></ul><a class="edit-page" href="https://github.com/JuliaDocs/Documenter.jl/tree/19eb0d6d5437b4b790ae2dfd44e3792ccd703a62/docs/src/man/doctests.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" id="Doctests-1" href="#Doctests-1">Doctests</a></h1><p>Documenter will, by default, try to run <code>jldoctest</code> code blocks that it finds in the generated documentation. This can help to avoid documentation examples from becoming outdated, incorrect, or misleading. It&#39;s recommended that as many of a package&#39;s examples be runnable by Documenter&#39;s doctest.</p><p>This section of the manual outlines how to go about enabling doctests for code blocks in your package&#39;s documentation.</p><h2><a class="nav-anchor" id="\"Script\"-Examples-1" href="#\"Script\"-Examples-1">&quot;Script&quot; Examples</a></h2><p>The first, of two, types of doctests is the &quot;script&quot; code block. To make Documenter detect this kind of code block the following format must be used:</p><pre><code class="language-markdown">```jldoctest
+a = 1
+b = 2
+a + b
+
+# output
+
+3
+```</code></pre><p>The code block&#39;s &quot;language&quot; must be <code>jldoctest</code> and must include a line containing the text <code># output</code>. The text before this line is the contents of the script which is run. The text that appears after <code># output</code> is the textual representation that would be shown in the Julia REPL if the script had been <code>include</code>d.</p><p>The actual output produced by running the &quot;script&quot; is compared to the expected result and any difference will result in <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a> throwing an error and terminating.</p><p>Note that the amount of whitespace appearing above and below the <code># output</code> line is not significant and can be increased or decreased if desired.</p><h2><a class="nav-anchor" id="REPL-Examples-1" href="#REPL-Examples-1">REPL Examples</a></h2><p>The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:</p><pre><code class="language-markdown">```jldoctest
+julia&gt; a = 1
+1
+
+julia&gt; b = 2;
+
+julia&gt; c = 3;  # comment
+
+julia&gt; a + b + c
+6
+
+```</code></pre><p>As with script doctests, the code block must have it&#39;s language set to <code>jldoctest</code>. When a code block contains one or more <code>julia&gt;</code> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, <code>;</code>, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.</p><p>Note that not all features of the REPL are supported such as shell and help modes.</p><h2><a class="nav-anchor" id="Exceptions-1" href="#Exceptions-1">Exceptions</a></h2><p>Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual and expected results is done by checking whether the expected result matches the start of the actual result. Hence, both of the following errors will match the actual result.</p><pre><code class="language-markdown">```jldoctest
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+ in div(::Int64, ::Int64) at ./int.jl:115
+
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+
+```</code></pre><p>If instead the first <code>div(1, 0)</code> error was written as</p><pre><code class="language-markdown">```jldoctest
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+ in div(::Int64, ::Int64) at ./int.jl:114
+
+```</code></pre><p>where line <code>115</code> is replaced with <code>114</code> then the doctest will fail.</p><p>In the second <code>div(1, 0)</code>, where no stacktrace is shown, it may appear to the reader that it is expected that no stacktrace will actually be displayed when they attempt to try to recreate the error themselves. To indicate to readers that the output result is truncated and does not display the entire (or any of) the stacktrace you may write <code>[...]</code> at the line where checking should stop, i.e.</p><pre><code class="language-markdown">```jldoctest
+julia&gt; div(1, 0)
+ERROR: DivideError: integer division error
+[...]
+
+```</code></pre><h2><a class="nav-anchor" id="Skipping-Doctests-1" href="#Skipping-Doctests-1">Skipping Doctests</a></h2><p>Doctesting can be disabled by setting the <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a> keyword <code>doctest = false</code>. This should only be done when initially laying out the structure of a package&#39;s documentation, after which it&#39;s encouraged to always run doctests when building docs.</p><h2><a class="nav-anchor" id="Setup-Code-1" href="#Setup-Code-1">Setup Code</a></h2><p>Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. It could also be that several separate doctests require the same definitions. For both of these cases a <code>@meta</code> block containing a <code>DocTestSetup = ...</code> value can be used as follows:</p><pre><code class="language-none">```jldoctest
+julia&gt; using DataFrames
+
+julia&gt; df = DataFrame(A = 1:10, B = 2:2:20);
+
+```
+
+Some text discussing `df`...
+
+```@meta
+DocTestSetup = quote
+    using DataFrames
+    df = DataFrame(A = 1:10, B = 2:2:20)
+end
+```
+
+```jldoctest
+julia&gt; df[1, 1]
+1
+```
+
+Some more text...
+
+```jldoctest
+julia&gt; df[1, :]
+1x2 DataFrames.DataFrame
+| Row | A | B |
+|-----|---|---|
+| 1   | 1 | 2 |
+```
+
+```@meta
+DocTestSetup = nothing
+```</code></pre><p>Note that the <code>DocTestSetup</code> value is <strong>re-evaluated</strong> at the start of <em>each</em> doctest block and no state is shared between any code blocks. The <code>DocTestSetup = nothing</code> is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions later on a page.</p><footer><hr/><a class="previous" href="syntax.html"><span class="direction">Previous</span><span class="title">Syntax</span></a><a class="next" href="hosting.html"><span class="direction">Next</span><span class="title">Hosting Documentation</span></a></footer></article></body></html>
