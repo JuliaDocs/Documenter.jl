@@ -54,12 +54,9 @@ function render(::Writer{Formats.HTML}, doc::Documents.Document)
     ctx.documenter_css = copy_asset("documenter.css", doc)
     copy_asset("style.css", doc)
 
-    local_assetsdir = joinpath(pwd(), "assets")
-    let src = joinpath(local_assetsdir, "logo.png")
-        if isfile(src)
-            dst = joinpath(doc.user.build, "logo.png")
-            cp(src, dst, remove_destination=true)
-            ctx.logo = "logo.png"
+    let logo = joinpath("assets", "logo.png")
+        if isfile(joinpath(doc.user.build, logo))
+            ctx.logo = logo
         end
     end
 
