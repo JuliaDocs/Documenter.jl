@@ -381,6 +381,7 @@ let build_dir  = joinpath(example_root, "build-markdown"),
     @test isfile(joinpath(build_dir, "assets", "mathjaxhelper.js"))
     @test isfile(joinpath(build_dir, "assets", "Documenter.css"))
     @test isfile(joinpath(build_dir, "assets", "custom.css"))
+    @test isfile(joinpath(build_dir, "assets", "custom.js"))
     @test isfile(joinpath(build_dir, "lib", "functions.md"))
     @test isfile(joinpath(build_dir, "man", "tutorial.md"))
     @test isfile(joinpath(build_dir, "man", "data.csv"))
