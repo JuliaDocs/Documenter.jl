@@ -1,5 +1,5 @@
 """
-Exported module that provides build and deploy dependancies and related functions.
+Exported module that provides build and deploy dependencies and related functions.
 
 Currently only [`pip`](@ref) is implemented.
 """
