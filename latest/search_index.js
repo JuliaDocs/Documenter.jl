@@ -1765,7 +1765,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
-    "text": "Provides the render methods to write the documentation as HTML files (MIME\"text/html\").\n\n\n\n"
+    "text": "Provides the render methods to write the documentation as HTML files (MIME\"text/html\").\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nFor scripts, every assets/*.js gets a <script> link in the <head> tag of every page (except if it matches one of Documenter's default scripts; the filtering is done in user_scripts).\n\nNote that only javascript files are linked to the generated HTML. Any related CSS must be loaded by the script. With jQuery this could be done with the following snippet\n\n$('head').append($('<link rel=\"stylesheet\">').attr('href', documenterBaseURL + \"/assets/<file>.css\"))\n\n\n\n"
 },
 
 {
@@ -1854,6 +1854,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.Writers.HTMLWriter.render_page",
     "category": "Method",
     "text": "Constructs and writes the page referred to by the navnode to .build.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.user_scripts-Tuple{Any}",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.user_scripts",
+    "category": "Method",
+    "text": "Creates a list of .js files provided by the user under assets. Returns a list of paths relative to the site root.\n\n\n\n"
 },
 
 {
