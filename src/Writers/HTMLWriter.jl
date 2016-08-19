@@ -574,10 +574,10 @@ function mdconvert(link::Markdown.Link, parent)
     if ismatch(ABSURL_REGEX, link.url)
         Tag(:a)[:href => link.url](mdconvert(link.text, link))
     else
-        s = split(link.url, "#", limit=1)
+        s = split(link.url, "#", limit = 2)
         path = first(s)
         path = endswith(path, ".md") ? Formats.extension(Formats.HTML, path) : path
-        url = (length(s) > 1) ? "$path#$(second(s))" : Compat.String(path)
+        url = (length(s) > 1) ? "$path#$(last(s))" : Compat.String(path)
         Tag(:a)[:href => url](mdconvert(link.text, link))
     end
 end
