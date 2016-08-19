@@ -219,7 +219,7 @@ of the `.travis.yml` configuration file.
 This defaults to `"nightly"`. This value must be one of those specified in the `julia:`
 section of the `.travis.yml` configuration file.
 
-**`deps`** is the function used to install any dependancies needed to build the
+**`deps`** is the function used to install any dependencies needed to build the
 documentation. By default this function installs `pygments` and `mkdocs` using the
 [`Deps.pip`](@ref) function:
 
