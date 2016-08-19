@@ -361,6 +361,7 @@ info("Building mock package docs: MarkdownWriter")
 doc = makedocs(
     debug = true,
     root  = example_root,
+    build = "build-markdown",
 )
 
 # tests
@@ -368,7 +369,7 @@ doc = makedocs(
 
 @test isa(doc, Documenter.Documents.Document)
 
-let build_dir  = joinpath(example_root, "build"),
+let build_dir  = joinpath(example_root, "build-markdown"),
     source_dir = joinpath(example_root, "src")
 
     @test isdir(build_dir)
@@ -380,6 +381,7 @@ let build_dir  = joinpath(example_root, "build"),
     @test isfile(joinpath(build_dir, "assets", "mathjaxhelper.js"))
     @test isfile(joinpath(build_dir, "assets", "Documenter.css"))
     @test isfile(joinpath(build_dir, "assets", "custom.css"))
+    @test isfile(joinpath(build_dir, "assets", "custom.js"))
     @test isfile(joinpath(build_dir, "lib", "functions.md"))
     @test isfile(joinpath(build_dir, "man", "tutorial.md"))
     @test isfile(joinpath(build_dir, "man", "data.csv"))
@@ -392,7 +394,7 @@ end
 
 @test doc.user.root   == example_root
 @test doc.user.source == "src"
-@test doc.user.build  == "build"
+@test doc.user.build  == "build-markdown"
 @test doc.user.clean  == true
 @test doc.user.format == Documenter.Formats.Markdown
 
@@ -411,8 +413,8 @@ let headers = doc.internal.headers
     @test Documenter.Anchors.exists(headers, "Function-Index")
     @test Documenter.Anchors.exists(headers, "Functions")
     @test Documenter.Anchors.isunique(headers, "Functions")
-    @test Documenter.Anchors.isunique(headers, "Functions", joinpath("build", "lib", "functions.md"))
-    let name = "Foo", path = joinpath("build", "lib", "functions.md")
+    @test Documenter.Anchors.isunique(headers, "Functions", joinpath("build-markdown", "lib", "functions.md"))
+    let name = "Foo", path = joinpath("build-markdown", "lib", "functions.md")
         @test Documenter.Anchors.exists(headers, name, path)
         @test !Documenter.Anchors.isunique(headers, name)
         @test !Documenter.Anchors.isunique(headers, name, path)

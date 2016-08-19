@@ -1,6 +1,35 @@
 """
 Provides the [`render`](@ref) methods to write the documentation as HTML files
 (`MIME"text/html"`).
+
+# Default and custom assets
+
+Documenter copies all files under the source directory (e.g. `/docs/src/`) over
+to the compiled site. It also copies a set of default assets from `/assets/html/`
+to the site's `assets/` directory, unless the user already had a file with the
+same name, in which case the user's files overrides the Documenter's file.
+This could, in principle, be used for customizing the site's style and scripting.
+
+The HTML output also links certain custom assets to the generated HTML documents,
+specfically a logo and additional javascript files.
+The asset files that should be linked must be placed in `assets/`, under the source
+directory (e.g `/docs/src/assets`) and must be on the top level (i.e. files in
+the subdirectories of `assets/` are not linked).
+
+For the **logo**, Documenter checks for the existence of `assets/logo.png`.
+If that's present, it gets displayed in the navigation bar.
+
+For **scripts**, every `assets/*.js` gets a `<script>` link in the `<head>` tag
+of every page (except if it matches one of Documenter's default scripts;
+the filtering is done in [`user_scripts`](@ref)).
+
+Note that only javascript files are linked to the generated HTML. Any related CSS
+must be loaded by the script. With jQuery this could be done with the following
+snippet
+
+```javascript
+\$('head').append(\$('<link rel="stylesheet">').attr('href', documenterBaseURL + "/assets/<file>.css"))
+```
 """
 module HTMLWriter
 
@@ -35,8 +64,9 @@ type HTMLContext
     search_js :: Compat.String
     search_index :: IOBuffer
     search_index_js :: Compat.String
+    user_scripts :: Vector{Compat.String}
 end
-HTMLContext(doc) = HTMLContext(doc, "", [], "", "", "", IOBuffer(), "")
+HTMLContext(doc) = HTMLContext(doc, "", [], "", "", "", IOBuffer(), "", [])
 
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
@@ -54,17 +84,15 @@ function render(::Writer{Formats.HTML}, doc::Documents.Document)
     ctx.documenter_css = copy_asset("documenter.css", doc)
     copy_asset("style.css", doc)
 
-    local_assetsdir = joinpath(pwd(), "assets")
-    let src = joinpath(local_assetsdir, "logo.png")
-        if isfile(src)
-            dst = joinpath(doc.user.build, "logo.png")
-            cp(src, dst, remove_destination=true)
-            ctx.logo = "logo.png"
+    let logo = joinpath("assets", "logo.png")
+        if isfile(joinpath(doc.user.build, logo))
+            ctx.logo = logo
         end
     end
 
     ctx.documenter_js = copy_asset("documenter.js", doc)
     ctx.search_js = copy_asset("search.js", doc)
+    ctx.user_scripts = user_scripts(doc)
 
     for navnode in doc.internal.navlist
         render_page(ctx, navnode)
@@ -85,14 +113,44 @@ Returns the path of the copied asset relative to `.build`.
 """
 function copy_asset(file, doc)
     src = joinpath(Utilities.assetsdir(), "html", file)
+    alt_src = joinpath(doc.user.source, "assets", file)
     dst = joinpath(doc.user.build, "assets", file)
     isfile(src) || error("Asset '$file' not found at $(abspath(src))")
-    ispath(dirname(dst)) || mkpath(dirname(dst))
-    ispath(dst) && Utilities.warn("Overwriting '$dst'.")
-    cp(src, dst, remove_destination=true)
+
+    # Since user's alternative assets are already copied over in a previous build
+    # step and they should override documenter's original assets, we only actually
+    # perform the copy if <source>/assets/<file> does not exist. Note that checking
+    # the existence of <build>/assets/<file> is not sufficient since the <build>
+    # directory might be dirty from a previous build.
+    if isfile(alt_src)
+        Utilities.warn("Not copying '$src', provided by the user.")
+    else
+        ispath(dirname(dst)) || mkpath(dirname(dst))
+        ispath(dst) && Utilities.warn("Overwriting '$dst'.")
+        cp(src, dst, remove_destination=true)
+    end
     normpath(joinpath("assets", file))
 end
 
+"""
+Creates a list of `.js` files provided by the user under `assets`. Returns a list
+of paths relative to the site root.
+"""
+function user_scripts(doc)
+    documenter_assetsdir = joinpath(Utilities.assetsdir(), "html")
+    local_assetsdir = joinpath(doc.user.source, "assets")
+    isdir(local_assetsdir) || return []
+    scripts = filter(readdir(local_assetsdir)) do file
+        # we'll make sure that it's
+        #   1. a file (i.e. not a directory),
+        #   2. a script, determined by the extension
+        #   3. not one of the default assets, which get handled separately
+        isfile(joinpath(local_assetsdir, file)) &&
+            last(splitext(file)) == ".js" &&
+            !isfile(joinpath(documenter_assetsdir, file))
+    end
+    [joinpath("assets", script) for script in scripts]
+end
 
 # Page
 # ------------------------------------------------------------------------------
@@ -105,7 +163,7 @@ function render_page(ctx, navnode)
 
     page = getpage(ctx, navnode)
 
-    head = render_head(ctx, navnode, [])
+    head = render_head(ctx, navnode, ctx.user_scripts)
     navmenu = render_navmenu(ctx, navnode)
     article = render_article(ctx, navnode)
 
@@ -153,7 +211,8 @@ function render_search(ctx)
     @tags article body h1 header hr html li nav p span ul
     navnode = Documents.NavNode("search", "Search", nothing)
 
-    head = render_head(ctx, navnode, [ctx.search_js, ctx.search_index_js])
+    additional_scripts = vcat([ctx.search_js, ctx.search_index_js], ctx.user_scripts)
+    head = render_head(ctx, navnode, additional_scripts)
     navmenu = render_navmenu(ctx, navnode)
     article = article(
         header(
