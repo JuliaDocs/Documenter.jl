@@ -590,6 +590,15 @@ end
 # mdconvert
 # ------------------------------------------------------------------------------
 
+md_block_nodes = [Markdown.MD, Markdown.BlockQuote, Markdown.List]
+if isdefined(Base.Markdown, :Admonition) push!(md_block_nodes, Markdown.Admonition) end
+
+"""
+[`MDBlockContext`](@ref) is a union of all the Markdown nodes whose children should
+be blocks. It can be used to dispatch on all the block-context nodes at once.
+"""
+typealias MDBlockContext Union{md_block_nodes...}
+
 """
 Convert a markdown object to a `DOM.Node` object.
 
@@ -607,7 +616,7 @@ mdconvert(b::Markdown.BlockQuote, parent) = Tag(:blockquote)(mdconvert(b.content
 
 mdconvert(b::Markdown.Bold, parent) = Tag(:strong)(mdconvert(b.text, parent))
 
-function mdconvert(c::Markdown.Code, parent::Markdown.MD)
+function mdconvert(c::Markdown.Code, parent::MDBlockContext)
     @tags pre code
     language = isempty(c.language) ? "none" : c.language
     pre(code[".language-$(language)"](c.code))
@@ -622,7 +631,7 @@ mdconvert(i::Markdown.Image, parent) = Tag(:img)[:src => i.url, :alt => i.alt]
 
 mdconvert(i::Markdown.Italic, parent) = Tag(:em)(mdconvert(i.text, i))
 
-mdconvert(m::Markdown.LaTeX, ::Markdown.MD)   = Tag(:div)(string("\\[", m.formula, "\\]"))
+mdconvert(m::Markdown.LaTeX, ::MDBlockContext)   = Tag(:div)(string("\\[", m.formula, "\\]"))
 mdconvert(m::Markdown.LaTeX, parent) = Tag(:span)(string('$', m.formula, '$'))
 
 mdconvert(::Markdown.LineBreak, parent) = Tag(:br)()
