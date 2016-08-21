@@ -105,6 +105,28 @@ pre code {
     background-color: initial;
 }
 
+/* Headers in admonitions and docstrings */
+.admonition h1,
+article section.docstring h1 {
+    font-size: 1.25em;
+}
+
+.admonition h2,
+article section.docstring h2 {
+    font-size: 1.10em;
+}
+
+.admonition h3,
+.admonition h4,
+.admonition h5,
+.admonition h6,
+article section.docstring h3,
+article section.docstring h4,
+article section.docstring h5,
+article section.docstring h6 {
+    font-size: 1em;
+}
+
 /* Navigation */
 nav.toc {
     /* TODO: would be nice to have the navigation fixed, but the simple
