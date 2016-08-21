@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Output formats",
     "category": "section",
-    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring mkdocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = Documenter.Formats.HTML option to makedocs. An example make.jl can be found under test/html/.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl's issue tracker."
+    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring MkDocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = Documenter.Formats.HTML option to makedocs. It also requires the pages and sitename options. make.jl should then look something likemakedocs(\n    ...,\n    format = Documenter.Formats.HTML,\n    sitename = \"Package name\",\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)Since Documenter's docs are already built using HTML output, a fully working example of the configuration can be found in docs/make.jl.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl's issue tracker.Additional makedocs options for HTML outputsitename is the site's title displayed in the title bar and at the top of the navigation menu.pages defines the hierarchy of the navigation menu."
 },
 
 {
@@ -1766,6 +1766,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
     "text": "Provides the render methods to write the documentation as HTML files (MIME\"text/html\").\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nFor scripts, every assets/*.js gets a <script> link in the <head> tag of every page (except if it matches one of Documenter's default scripts; the filtering is done in user_scripts).\n\nNote that only javascript files are linked to the generated HTML. Any related CSS must be loaded by the script. With jQuery this could be done with the following snippet\n\n$('head').append($('<link rel=\"stylesheet\">').attr('href', documenterBaseURL + \"/assets/<file>.css\"))\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.MDBlockContext",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.MDBlockContext",
+    "category": "Constant",
+    "text": "MDBlockContext is a union of all the Markdown nodes whose children should be blocks. It can be used to dispatch on all the block-context nodes at once.\n\n\n\n"
 },
 
 {
