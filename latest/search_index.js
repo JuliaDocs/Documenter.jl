@@ -629,7 +629,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter",
     "category": "Module",
-    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nAdditionally it provides the unexported Documenter.generate, which can be used to generate documentation stubs for new packages.\n\nExports\n\nDeps\nTravis\ndeploydocs\nmakedocs\n\n\n\n"
+    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nAdditionally it provides the unexported Documenter.generate, which can be used to generate documentation stubs for new packages.\n\nDeps\nTravis\ndeploydocs\nmakedocs\n\n\n\n"
 },
 
 {
@@ -653,7 +653,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.generate",
     "category": "Function",
-    "text": "Signatures\n\ngenerate(pkgname; dir)\n\n\nCreates a documentation stub for a package called pkgname. The location of the documentation is assumed to be <package directory>/docs, but this can be overriden with the keyword argument dir.\n\nIt creates the following files\n\ndocs/\n    .gitignore\n    src/index.md\n    make.jl\n    mkdocs.yml\n\nArguments\n\npkgname is the name of the package (without .jl). It is used to determine the location of the documentation if dir is not provided.\n\nKeywords\n\ndir defines the directory where the documentation will be generated. It defaults to <package directory>/docs. The directory must not exist.\n\nExamples\n\njulia> using Documenter\n\njulia> Documenter.generate(\"MyPackageName\")\n[ ... output ... ]\n\n\n\n"
+    "text": "generate(pkgname; dir)\n\n\nCreates a documentation stub for a package called pkgname. The location of the documentation is assumed to be <package directory>/docs, but this can be overriden with the keyword argument dir.\n\nIt creates the following files\n\ndocs/\n    .gitignore\n    src/index.md\n    make.jl\n    mkdocs.yml\n\nArguments\n\npkgname is the name of the package (without .jl). It is used to determine the location of the documentation if dir is not provided.\n\nKeywords\n\ndir defines the directory where the documentation will be generated. It defaults to <package directory>/docs. The directory must not exist.\n\nExamples\n\njulia> using Documenter\n\njulia> Documenter.generate(\"MyPackageName\")\n[ ... output ... ]\n\n\n\n"
 },
 
 {
@@ -661,7 +661,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.Travis",
     "category": "Module",
-    "text": "Package functions for interacting with Travis.\n\nExports\n\ngenkeys\n\n\n\n"
+    "text": "Package functions for interacting with Travis.\n\ngenkeys\n\n\n\n"
 },
 
 {
@@ -669,7 +669,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.Travis.genkeys",
     "category": "Function",
-    "text": "Signatures\n\ngenkeys(package)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. Requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\n\n\n"
+    "text": "genkeys(package)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. Requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\n\n\n"
 },
 
 {
@@ -685,7 +685,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.Deps.pip",
     "category": "Function",
-    "text": "Signatures\n\npip(deps)\n\n\nInstalls (as non-root user) all python packages listed in deps.\n\nExamples\n\nusing Documenter\n\nmakedocs(\n    # ...\n)\n\ndeploydocs(\n    deps = Deps.pip(\"pygments\", \"mkdocs\", \"mkdocs-material\"),\n    # ...\n)\n\n\n\n"
+    "text": "pip(deps)\n\n\nInstalls (as non-root user) all python packages listed in deps.\n\nExamples\n\nusing Documenter\n\nmakedocs(\n    # ...\n)\n\ndeploydocs(\n    deps = Deps.pip(\"pygments\", \"mkdocs\", \"mkdocs-material\"),\n    # ...\n)\n\n\n\n"
 },
 
 {
@@ -765,7 +765,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Anchors",
     "title": "Documenter.Anchors.add!",
     "category": "Method",
-    "text": "Signatures\n\nadd!(m, anchor, id, file)\n\n\nAdds a new Anchor to the AnchorMap for a given id and file.\n\nEither an actual Anchor object may be provided or any other object which is automatically wrapped in an Anchor before being added to the AnchorMap.\n\n\n\n"
+    "text": "add!(m, anchor, id, file)\n\n\nAdds a new Anchor to the AnchorMap for a given id and file.\n\nEither an actual Anchor object may be provided or any other object which is automatically wrapped in an Anchor before being added to the AnchorMap.\n\n\n\n"
 },
 
 {
@@ -773,7 +773,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Anchors",
     "title": "Documenter.Anchors.anchor",
     "category": "Method",
-    "text": "Signatures\n\nanchor(m, id)\n\n\nReturns the Anchor object matching id. file and n may also be provided. A Nullable{Anchor} is returned which must be unwrapped with isnull and get before use.\n\n\n\n"
+    "text": "anchor(m, id)\n\n\nReturns the Anchor object matching id. file and n may also be provided. A Nullable{Anchor} is returned which must be unwrapped with isnull and get before use.\n\n\n\n"
 },
 
 {
@@ -781,7 +781,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Anchors",
     "title": "Documenter.Anchors.exists",
     "category": "Method",
-    "text": "Signatures\n\nexists(m, id, file, n)\n\n\nDoes the given id exist within the AnchorMap? A file and integer n may also be provided to narrow the search for existance.\n\n\n\n"
+    "text": "exists(m, id, file, n)\n\n\nDoes the given id exist within the AnchorMap? A file and integer n may also be provided to narrow the search for existance.\n\n\n\n"
 },
 
 {
@@ -789,7 +789,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Anchors",
     "title": "Documenter.Anchors.isunique",
     "category": "Method",
-    "text": "Signatures\n\nisunique(m, id)\n\n\nIs the id unique within the given AnchorMap? May also specify the file.\n\n\n\n"
+    "text": "isunique(m, id)\n\n\nIs the id unique within the given AnchorMap? May also specify the file.\n\n\n\n"
 },
 
 {
@@ -877,7 +877,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Builder",
     "title": "Documenter.Builder.walk_navpages",
     "category": "Method",
-    "text": "Signatures\n\nwalk_navpages(ps, parent, doc)\n\n\nRecursively walks through the Documents.Document's .user.pages field, generating Documents.NavNodes and related data structures in the process.\n\nThis implementation is the de facto specification for the .user.pages field.\n\n\n\n"
+    "text": "walk_navpages(ps, parent, doc)\n\n\nRecursively walks through the Documents.Document's .user.pages field, generating Documents.NavNodes and related data structures in the process.\n\nThis implementation is the de facto specification for the .user.pages field.\n\n\n\n"
 },
 
 {
@@ -909,7 +909,7 @@ var documenterSearchIndex = {"docs": [
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences.crossref",
     "category": "Method",
-    "text": "Signatures\n\ncrossref(doc)\n\n\nTraverses a Documents.Document and replaces links containg @ref URLs with their real URLs.\n\n\n\n"
+    "text": "crossref(doc)\n\n\nTraverses a Documents.Document and replaces links containg @ref URLs with their real URLs.\n\n\n\n"
 },
 
 {
@@ -917,7 +917,7 @@ var documenterSearchIndex = {"docs": [
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences.find_object",
     "category": "Method",
-    "text": "Signatures\n\nfind_object(doc, binding, typesig)\n\n\nFind the included Object in the doc matching binding and typesig. The matching heuristic isn't too picky about what matches and will only fail when no Bindings matching binding have been included.\n\n\n\n"
+    "text": "find_object(doc, binding, typesig)\n\n\nFind the included Object in the doc matching binding and typesig. The matching heuristic isn't too picky about what matches and will only fail when no Bindings matching binding have been included.\n\n\n\n"
 },
 
 {
@@ -949,7 +949,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocChecks",
     "title": "Documenter.DocChecks.doctest",
     "category": "Method",
-    "text": "Signatures\n\ndoctest(doc)\n\n\nTraverses the document tree and tries to run each Julia code block encountered. Will abort the document generation when an error is thrown. Use doctest = false keyword in Documenter.makedocs to disable doctesting.\n\n\n\n"
+    "text": "doctest(doc)\n\n\nTraverses the document tree and tries to run each Julia code block encountered. Will abort the document generation when an error is thrown. Use doctest = false keyword in Documenter.makedocs to disable doctesting.\n\n\n\n"
 },
 
 {
@@ -957,7 +957,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocChecks",
     "title": "Documenter.DocChecks.missingdocs",
     "category": "Method",
-    "text": "Signatures\n\nmissingdocs(doc)\n\n\nChecks that a Documents.Document contains all available docstrings that are defined in the modules keyword passed to Documenter.makedocs.\n\nPrints out the name of each object that has not had its docs spliced into the document.\n\n\n\n"
+    "text": "missingdocs(doc)\n\n\nChecks that a Documents.Document contains all available docstrings that are defined in the modules keyword passed to Documenter.makedocs.\n\nPrints out the name of each object that has not had its docs spliced into the document.\n\n\n\n"
 },
 
 {
@@ -989,7 +989,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.binding",
     "category": "Method",
-    "text": "Converts an object to a Base.Docs.Binding object.\n\nSignatures\n\nbinding(any)\n\n\nSupported inputs are:\n\nBinding\nDataType\nFunction\nModule\nSymbol\n\nNote that unsupported objects will throw an ArgumentError.\n\n\n\n"
+    "text": "Converts an object to a Base.Docs.Binding object.\n\nbinding(any)\n\n\nSupported inputs are:\n\nBinding\nDataType\nFunction\nModule\nSymbol\n\nNote that unsupported objects will throw an ArgumentError.\n\n\n\n"
 },
 
 {
@@ -997,7 +997,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.convertmeta",
     "category": "Method",
-    "text": "Signatures\n\nconvertmeta(meta)\n\n\nConverts a 0.4-style docstring cache into a 0.5 one.\n\nThe original docstring cache is not modified.\n\n\n\n"
+    "text": "convertmeta(meta)\n\n\nConverts a 0.4-style docstring cache into a 0.5 one.\n\nThe original docstring cache is not modified.\n\n\n\n"
 },
 
 {
@@ -1005,7 +1005,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.docstr",
     "category": "Method",
-    "text": "Signatures\n\ndocstr(md; kws...)\n\n\nConstruct a DocStr object from a Markdown.MD object.\n\nThe optional keyword arguments are used to add new data to the DocStr's .data dictionary.\n\n\n\n"
+    "text": "docstr(md; kws...)\n\n\nConstruct a DocStr object from a Markdown.MD object.\n\nThe optional keyword arguments are used to add new data to the DocStr's .data dictionary.\n\n\n\n"
 },
 
 {
@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "Signatures\n\ngetdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1021,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "Signatures\n\ngetdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1117,7 +1117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Documents",
     "title": "Documenter.Documents.populate!",
     "category": "Method",
-    "text": "Signatures\n\npopulate!(document)\n\n\nPopulates the ContentsNodes and IndexNodes of the document with links.\n\nThis can only be done after all the blocks have been expanded (and nodes constructed), because the items have to exist before we can gather the links to those items.\n\n\n\n"
+    "text": "populate!(document)\n\n\nPopulates the ContentsNodes and IndexNodes of the document with links.\n\nThis can only be done after all the blocks have been expanded (and nodes constructed), because the items have to exist before we can gather the links to those items.\n\n\n\n"
 },
 
 {
@@ -1333,7 +1333,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Formats",
     "title": "Documenter.Formats.mimetype",
     "category": "Method",
-    "text": "Signatures\n\nmimetype(f)\n\n\nConverts a Format value to a MIME type.\n\n\n\n"
+    "text": "mimetype(f)\n\n\nConverts a Format value to a MIME type.\n\n\n\n"
 },
 
 {
@@ -1365,7 +1365,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Generator",
     "title": "Documenter.Generator.gitignore",
     "category": "Method",
-    "text": "Signatures\n\ngitignore()\n\n\nContents of the default .gitignore file.\n\n\n\n"
+    "text": "gitignore()\n\n\nContents of the default .gitignore file.\n\n\n\n"
 },
 
 {
@@ -1373,7 +1373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Generator",
     "title": "Documenter.Generator.index",
     "category": "Method",
-    "text": "Signatures\n\nindex(pkgname)\n\n\nContents of the default src/index.md file.\n\n\n\n"
+    "text": "index(pkgname)\n\n\nContents of the default src/index.md file.\n\n\n\n"
 },
 
 {
@@ -1381,7 +1381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Generator",
     "title": "Documenter.Generator.make",
     "category": "Method",
-    "text": "Signatures\n\nmake(pkgname)\n\n\nContents of the default make.jl file.\n\n\n\n"
+    "text": "make(pkgname)\n\n\nContents of the default make.jl file.\n\n\n\n"
 },
 
 {
@@ -1389,7 +1389,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Generator",
     "title": "Documenter.Generator.mkdocs",
     "category": "Method",
-    "text": "Signatures\n\nmkdocs(pkgname; description, author, url)\n\n\nContents of the default mkdocs.yml file.\n\n\n\n"
+    "text": "mkdocs(pkgname; description, author, url)\n\n\nContents of the default mkdocs.yml file.\n\n\n\n"
 },
 
 {
@@ -1397,7 +1397,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Generator",
     "title": "Documenter.Generator.savefile",
     "category": "Method",
-    "text": "Signatures\n\nsavefile(f, root, filename)\n\n\nAttempts to save a file at $(root)/$(filename). f will be called with file stream (see open).\n\nfilename can also be a file in a subdirectory (e.g. src/index.md), and then then subdirectories will be created automatically.\n\n\n\n"
+    "text": "savefile(f, root, filename)\n\n\nAttempts to save a file at $(root)/$(filename). f will be called with file stream (see open).\n\nfilename can also be a file in a subdirectory (e.g. src/index.md), and then then subdirectories will be created automatically.\n\n\n\n"
 },
 
 {
@@ -1709,7 +1709,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Walkers",
     "title": "Documenter.Walkers.walk",
     "category": "Method",
-    "text": "Signatures\n\nwalk(f, meta, element)\n\n\nCalls f on element and any of its child elements. meta is a Dict containing metadata such as current module.\n\n\n\n"
+    "text": "walk(f, meta, element)\n\n\nCalls f on element and any of its child elements. meta is a Dict containing metadata such as current module.\n\n\n\n"
 },
 
 {
