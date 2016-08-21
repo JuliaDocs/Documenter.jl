@@ -280,14 +280,37 @@ user-readable format for distribution.
 While in principle any Markdown parser would do (as long as it supports the required
 Markdown extensions), the Python-based [MkDocs](http://www.mkdocs.org/) is usually used
 to convert the Markdown files into a set of HTML pages.
-See [Hosting Documentation](@ref) for further information on configuring `mkdocs` for Documenter.
+See [Hosting Documentation](@ref) for further information on configuring MkDocs for Documenter.
 
 !!! note "Native HTML output"
     There is experimental support for native HTML output in Documenter.
     It can be enabled by passing the `format = Documenter.Formats.HTML` option to
-    [`makedocs`](@ref). An example `make.jl` can be found under `test/html/`.
+    [`makedocs`](@ref). It also requires the `pages` and `sitename` options.
+    `make.jl` should then look something like
+    ```julia
+    makedocs(
+        ...,
+        format = Documenter.Formats.HTML,
+        sitename = "Package name",
+        pages = [
+            "page.md",
+            "Page title" => "page2.md",
+            "Subsection" => [
+                ...
+            ]
+        ]
+    )
+    ```
+    Since Documenter's docs are already built using HTML output, a fully working
+    example of the configuration can be found in `docs/make.jl`.
 
     It is still under development, may contain bugs, and undergo changes.
     However, any feedback is very welcome and early adopters are encouraged to try it out.
     Issues and suggestions should be posted to
     [Documenter.jl's issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues).
+
+    # Additional `makedocs` options for HTML output
+    **`sitename`** is the site's title displayed in the title bar and at the top
+    of the navigation menu.
+
+    **`pages`** defines the hierarchy of the navigation menu.
