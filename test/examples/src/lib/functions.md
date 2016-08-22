@@ -155,3 +155,10 @@ Pages = ["c.jl", "d.jl"]
 ```
 
 A footnote reference [^footnote].
+
+# Named docstring `@ref`s
+
+  * a normal docstring `@ref` link: [`AutoDocs.Pages.f`](@ref);
+  * a named docstring `@ref` link: [`f`](@ref AutoDocs.Pages.f);
+  * and a link with custom text: [`@time 1 + 2`](@ref @time);
+  * some invalid syntax: [`for i = 1:10; ...`](@ref for).
