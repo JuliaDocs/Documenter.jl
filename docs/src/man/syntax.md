@@ -144,7 +144,7 @@ using the same syntax.
 Note that depending on what the `CurrentModule` is set to, a docstring `@ref` may need to
 be prefixed by the module which defines it.
 
-**Duplicate Headers**
+### Duplicate Headers
 
 In some cases a document may contain multiple headers with the same name, but on different
 pages or of different levels. To allow `@ref` to cross-reference a duplicate header it must
@@ -166,6 +166,41 @@ to headers on different pages in the same way as unnamed ones do.
 
 Duplicate docstring references do not occur since splicing the same docstring into a
 document more than once is disallowed.
+
+### Named doc `@ref`s
+
+Docstring `@ref`s can also be "named" in a similar way to headers as shown in the
+[Duplicate Headers](@ref) section above. For example
+
+```julia
+module Mod
+
+"""
+Both of the following references point to `g` found in module `Main.Other`:
+
+  * [`Main.Other.g`](@ref)
+  * [`g`](@ref Main.Other.g)
+
+"""
+f(args...) = # ...
+
+end
+```
+
+This can be useful to avoid having to write fully qualified names for references that
+are not imported into the current module, or when the text displayed in the link is
+used to add additional meaning to the surrounding text, such as
+
+```markdown
+Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
+```
+
+!!! note
+
+    Named doc `@ref`s should be used sparingly since writing unqualified names may, in some
+    cases, make it difficult to tell *which* function is being referred to in a particular
+    docstring if there happen to be several modules that provide definitions with the same
+    name.
 
 ## `@meta` block
 
@@ -423,7 +458,7 @@ evaluating each block the present working directory, `pwd`, is set to the direct
 `build` where the file will be written to.
 
 Also, instead of returning `nothing` in the example above we could have returned a new
-`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the 
+`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
 filename is not known until evaluation of the block itself.
 
 !!! note
