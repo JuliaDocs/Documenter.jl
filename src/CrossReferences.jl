@@ -50,7 +50,7 @@ xref(other, meta, page, doc) = true # Continue to `walk` through element `other`
 
 function basicxref(link::Markdown.Link, meta, page, doc)
     if length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
-        docsxref(link, meta, page, doc)
+        docsxref(link, link.text[1].code, meta, page, doc)
     elseif isa(link.text, Vector)
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
@@ -73,7 +73,11 @@ function namedxref(link::Markdown.Link, meta, page, doc)
         text = sprint(Markdown.plaininline, link)
         Utilities.warn(page.source, "'$text' missing a name after '#'.")
     else
-        namedxref(link, slug, meta, page, doc)
+        if length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
+            docsxref(link, slug, meta, page, doc)
+        else
+            namedxref(link, slug, meta, page, doc)
+        end
     end
 end
 
@@ -99,9 +103,8 @@ end
 # Cross referencing docstrings.
 # -----------------------------
 
-function docsxref(link::Markdown.Link, meta, page, doc)
+function docsxref(link::Markdown.Link, code, meta, page, doc)
     # Parse the link text and find current module.
-    local code = link.text[1].code
     local keyword = Symbol(strip(code))
     local ex
     if haskey(Docs.keywords, keyword)
