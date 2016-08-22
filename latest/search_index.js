@@ -205,7 +205,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Syntax",
     "title": "@ref link",
     "category": "section",
-    "text": "Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.# Syntax\n\n... [`makedocs`](@ref) ...\n\n# Functions\n\n```@docs\nmakedocs\n```\n\n... [Syntax](@ref) ...\n\n... [#42](@ref) ...Plain text in the \"text\" part of a link will either cross-reference a header, or, when it is a number preceded by a #, a GitHub issue/pull request. Text wrapped in backticks will cross-reference a docstring from a @docs block.@refs may refer to docstrings or headers on different pages as well as the current page using the same syntax.Note that depending on what the CurrentModule is set to, a docstring @ref may need to be prefixed by the module which defines it.Duplicate HeadersIn some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow @ref to cross-reference a duplicate header it must be given a name as in the following example# [Header](@id my_custom_header_name)\n\n...\n\n## Header\n\n... [Custom Header](@ref my_custom_header_name) ...The link that wraps the named header is removed in the final document. The text for a named @ref ... does not need to match the header that it references. Named @ref ...s may refer to headers on different pages in the same way as unnamed ones do.Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed."
+    "text": "Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.# Syntax\n\n... [`makedocs`](@ref) ...\n\n# Functions\n\n```@docs\nmakedocs\n```\n\n... [Syntax](@ref) ...\n\n... [#42](@ref) ...Plain text in the \"text\" part of a link will either cross-reference a header, or, when it is a number preceded by a #, a GitHub issue/pull request. Text wrapped in backticks will cross-reference a docstring from a @docs block.@refs may refer to docstrings or headers on different pages as well as the current page using the same syntax.Note that depending on what the CurrentModule is set to, a docstring @ref may need to be prefixed by the module which defines it."
+},
+
+{
+    "location": "man/syntax.html#Duplicate-Headers-1",
+    "page": "Syntax",
+    "title": "Duplicate Headers",
+    "category": "section",
+    "text": "In some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow @ref to cross-reference a duplicate header it must be given a name as in the following example# [Header](@id my_custom_header_name)\n\n...\n\n## Header\n\n... [Custom Header](@ref my_custom_header_name) ...The link that wraps the named header is removed in the final document. The text for a named @ref ... does not need to match the header that it references. Named @ref ...s may refer to headers on different pages in the same way as unnamed ones do.Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed."
+},
+
+{
+    "location": "man/syntax.html#Named-doc-@refs-1",
+    "page": "Syntax",
+    "title": "Named doc @refs",
+    "category": "section",
+    "text": "Docstring @refs can also be \"named\" in a similar way to headers as shown in the Duplicate Headers section above. For examplemodule Mod\n\n\"\"\"\nBoth of the following references point to `g` found in module `Main.Other`:\n\n  * [`Main.Other.g`](@ref)\n  * [`g`](@ref Main.Other.g)\n\n\"\"\"\nf(args...) = # ...\n\nendThis can be useful to avoid having to write fully qualified names for references that are not imported into the current module, or when the text displayed in the link is used to add additional meaning to the surrounding text, such asUse [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.note: Note\nNamed doc @refs should be used sparingly since writing unqualified names may, in some cases, make it difficult to tell which function is being referred to in a particular docstring if there happen to be several modules that provide definitions with the same name."
 },
 
 {
@@ -253,7 +269,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Syntax",
     "title": "@eval block",
     "category": "section",
-    "text": "Evaluates the contents of the block and inserts the resulting value into the final document.In the following example we use the PyPlot package to generate a plot and display it in the final document.```@eval\nusing PyPlot\n\nx = linspace(-π, π)\ny = sin(x)\n\nplot(x, y, color = \"red\")\nsavefig(\"plot.svg\")\n\nnothing\n```\n\n![](plot.svg)Note that each @eval block evaluates its contents within a separate module. When evaluating each block the present working directory, pwd, is set to the directory in build where the file will be written to.Also, instead of returning nothing in the example above we could have returned a new Markdown.MD object through Markdown.parse. This can be more appropriate when the  filename is not known until evaluation of the block itself.note: Note\nIn most cases @example is preferred over @eval. Just like in normal Julia code where eval should be only be considered as a last resort, @eval should be treated in the same way."
+    "text": "Evaluates the contents of the block and inserts the resulting value into the final document.In the following example we use the PyPlot package to generate a plot and display it in the final document.```@eval\nusing PyPlot\n\nx = linspace(-π, π)\ny = sin(x)\n\nplot(x, y, color = \"red\")\nsavefig(\"plot.svg\")\n\nnothing\n```\n\n![](plot.svg)Note that each @eval block evaluates its contents within a separate module. When evaluating each block the present working directory, pwd, is set to the directory in build where the file will be written to.Also, instead of returning nothing in the example above we could have returned a new Markdown.MD object through Markdown.parse. This can be more appropriate when the filename is not known until evaluation of the block itself.note: Note\nIn most cases @example is preferred over @eval. Just like in normal Julia code where eval should be only be considered as a last resort, @eval should be treated in the same way."
 },
 
 {
@@ -1013,7 +1029,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1021,7 +1037,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
