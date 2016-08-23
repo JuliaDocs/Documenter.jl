@@ -457,6 +457,7 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
     @tags a
     lb = ListBuilder()
     for (count, path, anchor) in contents.elements
+        path = Formats.extension(ctx.doc.user.format, path)
         header = anchor.object
         url = string(path, '#', anchor.id, '-', anchor.nth)
         node = a[:href=>url](mdconvert(header.text))
@@ -470,6 +471,7 @@ function domify(ctx, navnode, index::Documents.IndexNode)
     @tags a code li ul
     lis = map(index.elements) do _
         object, doc, page, mod, cat = _
+        page = Formats.extension(ctx.doc.user.format, page)
         url = string(page, "#", Utilities.slugify(object))
         li(a[:href=>url](code("$(object.binding)")))
     end
