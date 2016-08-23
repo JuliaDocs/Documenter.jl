@@ -449,10 +449,15 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     # Splice the input and output into the document.
     content = []
     input   = droplines(x.code)
-    output  = Documenter.DocChecks.result_to_string(buffer, result)
+
+    # Special-case support for displaying SVG graphics. TODO: make this more general.
+    output = mimewritable(MIME"image/svg+xml"(), result) ?
+        Documents.RawHTML(stringmime(MIME"image/svg+xml"(), result)) :
+        Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
+
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))
-    isempty(output) || push!(content, Markdown.Code(output))
+    isempty(output.code) || push!(content, output)
     # ... and finally map the original code block to the newly generated ones.
     page.mapping[x] = Markdown.MD(content)
 end

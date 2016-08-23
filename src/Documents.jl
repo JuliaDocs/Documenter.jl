@@ -128,6 +128,10 @@ immutable EvalNode
     result :: Any
 end
 
+immutable RawHTML
+    code::String
+end
+
 # Navigation
 # ----------------------
 
