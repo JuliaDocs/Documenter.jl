@@ -49,6 +49,8 @@ walk(f, meta, block::Expanders.DocsNode)  = walk(f, meta, block.docstr)
 
 walk(f, meta, block::Expanders.EvalNode) = walk(f, meta, block.result)
 
+walk(f, meta, block::Documents.RawHTML) = nothing
+
 walk(f, meta, block::Expanders.MetaNode) = (merge!(meta, block.dict); nothing)
 
 typealias MDTextElements Union{

@@ -684,4 +684,6 @@ else
     isordered(a::Markdown.List) = a.ordered::Bool
 end
 
+mdconvert(html::Documents.RawHTML, parent) = Tag(Symbol("#RAW#"))(html.code)
+
 end
