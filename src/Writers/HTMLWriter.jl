@@ -290,8 +290,9 @@ function navitem(ctx, current, nn::Documents.NavNode)
     if nn === current && !isnull(nn.page)
         subs = collect_subsections(ctx.doc.internal.pages[get(nn.page)])
         internal_links = map(subs) do _
-            anchor, text = _
-            li(a[".toctext", :href => anchor](mdconvert(text)))
+            istoplevel, anchor, text = _
+            _li = istoplevel ? li[".toplevel"] : li[]
+            _li(a[".toctext", :href => anchor](mdconvert(text)))
         end
         push!(item.nodes, ul[".internal"](internal_links))
     end
@@ -576,15 +577,22 @@ function pagetitle(ctx, navnode::Documents.NavNode)
 end
 
 """
-Returns a list of tuples `(anchor, text)`, corresponding to all level 2 headers.
+Returns an ordered list of tuples `(toplevel, anchor, text)`, corresponding to
+level 1 and 2 headings on the page. The only exception is if the first block on
+the page also happens to be a level 1 heading. In that case it is assumed to be
+the page title and is dropped from the list of subsections.
 """
 function collect_subsections(page::Documents.Page)
-    # TODO: Should probably be replaced by a proper outline algorithm.
-    #       Currently we ignore the case when there are multiple h1-s.
-    hs = filter(e -> isa(e, Base.Markdown.Header{2}), page.elements)
-    map(hs) do e
-        anchor = page.mapping[e]
-        "#$(anchor.id)-$(anchor.nth)", e.text
+    hs = filter(enumerate(page.elements)) do _
+        idx, element = _
+        isa(element, Base.Markdown.Header) || return false # ignore non-headers
+        (idx == 1) && (Utilities.header_level(element) == 1) && return false # if first elem. <h1> => ignored
+        Utilities.header_level(element) <= 2 # only let <h1> and <h2> through
+    end
+    map(hs) do _
+        idx, heading = _
+        anchor = page.mapping[heading]
+        (Utilities.header_level(heading) == 1), "#$(anchor.id)-$(anchor.nth)", heading.text
     end
 end
 
