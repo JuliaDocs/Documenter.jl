@@ -103,7 +103,8 @@ end
 ## Index, Contents, and Eval Nodes.
 
 function render(io::IO, ::MIME"text/plain", index::Documents.IndexNode, page, doc)
-    for (object, doc, page, mod, cat) in index.elements
+    for (object, _, page, mod, cat) in index.elements
+        page = Formats.extension(doc.user.format, page)
         url = string(page, "#", Utilities.slugify(object))
         println(io, "- [`", object.binding, "`](", url, ")")
     end
@@ -112,6 +113,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, page, doc)
     for (count, path, anchor) in contents.elements
+        path = Formats.extension(doc.user.format, path)
         header = anchor.object
         url    = string(path, '#', anchor.id, '-', anchor.nth)
         link   = Markdown.Link(header.text, url)
