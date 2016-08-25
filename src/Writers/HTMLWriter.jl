@@ -2,6 +2,17 @@
 Provides the [`render`](@ref) methods to write the documentation as HTML files
 (`MIME"text/html"`).
 
+# Page outline
+
+The [`HTMLWriter`](@ref) makes use of the page outline that is determined by the
+headings. It is assumed that if the very first block of a page is a level 1 heading,
+then it is intended as the page title. This has two consequences:
+
+1. It is then used to automatically determine the page title in the navigation menu
+   and in the `<title>` tag, unless specified in the `.pages` option.
+2. If the first heading is interpreted as being the page title, it is not displayed
+   in the navigation sidebar.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
