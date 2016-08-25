@@ -997,7 +997,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1749,7 +1749,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
-    "text": "Provides the render methods to write the documentation as HTML files (MIME\"text/html\").\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nFor scripts, every assets/*.js gets a <script> link in the <head> tag of every page (except if it matches one of Documenter's default scripts; the filtering is done in user_scripts).\n\nNote that only javascript files are linked to the generated HTML. Any related CSS must be loaded by the script. With jQuery this could be done with the following snippet\n\n$('head').append($('<link rel=\"stylesheet\">').attr('href', documenterBaseURL + \"/assets/<file>.css\"))\n\n\n\n"
+    "text": "Provides the render methods to write the documentation as HTML files (MIME\"text/html\").\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nFor scripts, every assets/*.js gets a <script> link in the <head> tag of every page (except if it matches one of Documenter's default scripts; the filtering is done in user_scripts).\n\nNote that only javascript files are linked to the generated HTML. Any related CSS must be loaded by the script. With jQuery this could be done with the following snippet\n\n$('head').append($('<link rel=\"stylesheet\">').attr('href', documenterBaseURL + \"/assets/<file>.css\"))\n\n\n\n"
 },
 
 {
@@ -1773,7 +1773,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.collect_subsections",
     "category": "Method",
-    "text": "Returns a list of tuples (anchor, text), corresponding to all level 2 headers.\n\n\n\n"
+    "text": "Returns an ordered list of tuples (toplevel, anchor, text), corresponding to level 1 and 2 headings on the page. The only exception is if the first block on the page also happens to be a level 1 heading. In that case it is assumed to be the page title and is dropped from the list of subsections.\n\n\n\n"
 },
 
 {
@@ -1829,7 +1829,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pagetitle",
     "category": "Method",
-    "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents as a Nullable (nulled if the algorithm was unable to determine the header).\n\n\n\n"
+    "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents as a Nullable (nulled if the algorithm was unable to determine the header).\n\nIt is assumed that the intended page title can only be guessed if the very first block of the page is <h1> heading. If there is something before the first heading or the first heading is a lower level heading, then the return value is nulled.\n\n\n\n"
 },
 
 {
