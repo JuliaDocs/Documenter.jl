@@ -557,12 +557,17 @@ end
 Tries to guess the page title by looking at the `<h1>` headers and returns the
 header contents as a `Nullable` (nulled if the algorithm was unable to determine
 the header).
+
+It is assumed that the intended page title can only be guessed if the very first
+block of the page is `<h1>` heading. If there is something before the first heading
+or the first heading is a lower level heading, then the return value is nulled.
 """
 function pagetitle(page::Documents.Page)
-    for e in page.elements
-        isa(e, Base.Markdown.Header{1}) && return Nullable{Any}(e.text)
+    if length(page.elements) >= 1 && isa(page.elements[1], Base.Markdown.Header{1})
+        Nullable{Any}(page.elements[1].text)
+    else
+        Nullable{Any}()
     end
-    return Nullable{Any}()
 end
 
 function pagetitle(ctx, navnode::Documents.NavNode)
