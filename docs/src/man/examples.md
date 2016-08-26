@@ -38,4 +38,4 @@ Packages that are not available in `METADATA.jl` and may be works-in-progress.
 Please do take that into consideration when browsing this list.
 
 - [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest)
-- [Luxor.jl](https://cormullion.github.io/Luxor.jl/latest)
+- [Luxor.jl](https://cormullion.github.io/Luxor.jl)
