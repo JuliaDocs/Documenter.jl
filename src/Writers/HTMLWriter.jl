@@ -2,6 +2,17 @@
 Provides the [`render`](@ref) methods to write the documentation as HTML files
 (`MIME"text/html"`).
 
+# Page outline
+
+The [`HTMLWriter`](@ref) makes use of the page outline that is determined by the
+headings. It is assumed that if the very first block of a page is a level 1 heading,
+then it is intended as the page title. This has two consequences:
+
+1. It is then used to automatically determine the page title in the navigation menu
+   and in the `<title>` tag, unless specified in the `.pages` option.
+2. If the first heading is interpreted as being the page title, it is not displayed
+   in the navigation sidebar.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -290,8 +301,9 @@ function navitem(ctx, current, nn::Documents.NavNode)
     if nn === current && !isnull(nn.page)
         subs = collect_subsections(ctx.doc.internal.pages[get(nn.page)])
         internal_links = map(subs) do _
-            anchor, text = _
-            li(a[".toctext", :href => anchor](mdconvert(text)))
+            istoplevel, anchor, text = _
+            _li = istoplevel ? li[".toplevel"] : li[]
+            _li(a[".toctext", :href => anchor](mdconvert(text)))
         end
         push!(item.nodes, ul[".internal"](internal_links))
     end
@@ -457,6 +469,7 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
     @tags a
     lb = ListBuilder()
     for (count, path, anchor) in contents.elements
+        path = Formats.extension(ctx.doc.user.format, path)
         header = anchor.object
         url = string(path, '#', anchor.id, '-', anchor.nth)
         node = a[:href=>url](mdconvert(header.text))
@@ -470,6 +483,7 @@ function domify(ctx, navnode, index::Documents.IndexNode)
     @tags a code li ul
     lis = map(index.elements) do _
         object, doc, page, mod, cat = _
+        page = Formats.extension(ctx.doc.user.format, page)
         url = string(page, "#", Utilities.slugify(object))
         li(a[:href=>url](code("$(object.binding)")))
     end
@@ -554,12 +568,17 @@ end
 Tries to guess the page title by looking at the `<h1>` headers and returns the
 header contents as a `Nullable` (nulled if the algorithm was unable to determine
 the header).
+
+It is assumed that the intended page title can only be guessed if the very first
+block of the page is `<h1>` heading. If there is something before the first heading
+or the first heading is a lower level heading, then the return value is nulled.
 """
 function pagetitle(page::Documents.Page)
-    for e in page.elements
-        isa(e, Base.Markdown.Header{1}) && return Nullable{Any}(e.text)
+    if length(page.elements) >= 1 && isa(page.elements[1], Base.Markdown.Header{1})
+        Nullable{Any}(page.elements[1].text)
+    else
+        Nullable{Any}()
     end
-    return Nullable{Any}()
 end
 
 function pagetitle(ctx, navnode::Documents.NavNode)
@@ -574,15 +593,22 @@ function pagetitle(ctx, navnode::Documents.NavNode)
 end
 
 """
-Returns a list of tuples `(anchor, text)`, corresponding to all level 2 headers.
+Returns an ordered list of tuples `(toplevel, anchor, text)`, corresponding to
+level 1 and 2 headings on the page. The only exception is if the first block on
+the page also happens to be a level 1 heading. In that case it is assumed to be
+the page title and is dropped from the list of subsections.
 """
 function collect_subsections(page::Documents.Page)
-    # TODO: Should probably be replaced by a proper outline algorithm.
-    #       Currently we ignore the case when there are multiple h1-s.
-    hs = filter(e -> isa(e, Base.Markdown.Header{2}), page.elements)
-    map(hs) do e
-        anchor = page.mapping[e]
-        "#$(anchor.id)-$(anchor.nth)", e.text
+    hs = filter(enumerate(page.elements)) do _
+        idx, element = _
+        isa(element, Base.Markdown.Header) || return false # ignore non-headers
+        (idx == 1) && (Utilities.header_level(element) == 1) && return false # if first elem. <h1> => ignored
+        Utilities.header_level(element) <= 2 # only let <h1> and <h2> through
+    end
+    map(hs) do _
+        idx, heading = _
+        anchor = page.mapping[heading]
+        (Utilities.header_level(heading) == 1), "#$(anchor.id)-$(anchor.nth)", heading.text
     end
 end
 
@@ -683,5 +709,7 @@ if isdefined(Base.Markdown, :isordered)
 else
     isordered(a::Markdown.List) = a.ordered::Bool
 end
+
+mdconvert(html::Documents.RawHTML, parent) = Tag(Symbol("#RAW#"))(html.code)
 
 end

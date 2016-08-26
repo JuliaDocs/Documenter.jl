@@ -245,7 +245,9 @@ attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
 attributes!(out, p::Pair)   = push!(out, tostr(p))
 
 function Base.show(io::IO, n::Node)
-    if n.name === TEXT
+    if n.name === Symbol("#RAW#")
+        print(io, n.nodes[1].text)
+    elseif n.name === TEXT
         print(io, escapehtml(n.text))
     else
         print(io, '<', n.name)

@@ -128,6 +128,10 @@ immutable EvalNode
     result :: Any
 end
 
+immutable RawHTML
+    code::String
+end
+
 # Navigation
 # ----------------------
 
@@ -286,7 +290,6 @@ function populate!(index::IndexNode, document::Document)
         # Include *all* signatures, whether they are `Union{}` or not.
         cat  = Symbol(lowercase(Utilities.doccat(object.binding, Union{})))
         if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
-            page = Formats.extension(document.user.format, page)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end
@@ -311,7 +314,6 @@ function populate!(contents::ContentsNode, document::Document)
             for anchor in anchors
                 page = relpath(anchor.file, dirname(contents.build))
                 if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) ≤ contents.depth
-                    page = Formats.extension(document.user.format, page)
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
