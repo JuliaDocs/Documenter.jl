@@ -116,6 +116,16 @@ d = 1
 println(d)
 ```
 
+Test setup function
+
+```@setup testsetup
+w = 5
+```
+
+```@example testsetup
+@assert w === 5
+```
+
 # Autodocs
 
 ```@meta

@@ -316,6 +316,7 @@ A \ b
 
 Note that appending `# hide` to every line in an `@example` block will result in the block
 being hidden in the rendered document. The results block will still be rendered though.
+`@setup` blocks are a convenient shorthand for hiding an entire block, including the output.
 
 **`STDOUT` and `STDERR`**
 
@@ -429,6 +430,29 @@ julia> a + b
 ````
 
 Named `@repl <name>` blocks behave in the same way as named `@example <name>` blocks.
+
+## `@setup <name>` block
+
+These are similar to `@example` blocks, but both the input and output are hidden from the
+final document. This can be convenient if there are several lines of setup code that need to be
+hidden.
+
+````markdown
+```@setup abc
+using RDatasets
+using DataFrames
+iris = dataset("datasets", "iris")
+```
+
+```@example abc
+println(iris)
+```
+````
+
+Named `@setup <name>` blocks behave in the same way as named `@example <name>` blocks.
+
+Unlike `@example` blocks, `@setup` requires a `<name>` attribute to group it with the correct
+`@example <name>` blocks.
 
 ## `@eval` block
 
