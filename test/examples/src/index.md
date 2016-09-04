@@ -32,6 +32,15 @@ zeros(5, 5)
 zeros(50, 50)
 ```
 
+```@meta
+DocTestSetup = quote
+    using Base
+    x = -3:0.01:3
+    y = -4:0.02:5
+    z = [Float64((xi^2 + yi^2)) for xi in x, yi in y]
+end
+```
+
 ```jldoctest
 julia> [1.0, 2.0, 3.0]
 3-element Array{Float64,1}:
