@@ -117,7 +117,11 @@ end
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
     if block.language == "jldoctest"
         code, sandbox = replace(block.code, "\r\n", "\n"), Module(:Main)
-        haskey(meta, :DocTestSetup) && eval(sandbox, meta[:DocTestSetup])
+        if haskey(meta, :DocTestSetup)
+            expr = meta[:DocTestSetup]
+            Meta.isexpr(expr, :block) && (expr.head = :toplevel)
+            eval(sandbox, expr)
+        end
         if ismatch(r"^julia> "m, code)
             eval_repl(code, sandbox, meta, doc, page)
             block.language = "jlcon"
