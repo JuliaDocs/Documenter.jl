@@ -253,7 +253,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Syntax",
     "title": "@example block",
     "category": "section",
-    "text": "Evaluates the code block and inserts the result into the final document along with the original source code.```@example\na = 1\nb = 2\na + b\n```The above @example block will splice the following into the final document```julia\na = 1\nb = 2\na + b\n```\n\n```\n3\n```Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace on each line is also removed.Hiding Source CodeCode blocks may have some content that does not need to be displayed in the final document. # hide comments can be appended to lines that should not be rendered, i.e.```@example\nsrand(1) # hide\nA = rand(3, 3)\nb = [1, 2, 3]\nA \\ b\n```Note that appending # hide to every line in an @example block will result in the block being hidden in the rendered document. The results block will still be rendered though.STDOUT and STDERRThe Julia output streams are redirected to the results block when evaluating @example blocks in the same way as when running doctest code blocks.nothing ResultsWhen the @example block evaluates to nothing then the second block is not displayed. Only the source code block will be shown in the rendered document. Note that if any output from either STDOUT or STDERR is captured then the results block will be displayed even if nothing is returned.Named @example BlocksBy default @example blocks are run in their own anonymous Modules to avoid side-effects between blocks. To share the same module between different blocks on a page the @example can be named with the following syntax```@example 1\na = 1\n```\n\n```@example 1\nprintln(a)\n```The name can be any text, not just integers as in the example above, i.e. @example foo.Named @example blocks can be useful when generating documentation that requires intermediate explanation or multimedia such as plots as illustrated in the following exampleFirst we define some functions\n\n```@example 1\nusing PyPlot # hide\nf(x) = sin(2x) + 1\ng(x) = cos(x) - x\n```\n\nand then we plot `f` over the interval from ``-π`` to ``π``\n\n```@example 1\nx = linspace(-π, π)\nplot(x, f(x), color = \"red\")\nsavefig(\"f-plot.svg\"); nothing # hide\n```\n\n![](f-plot.svg)\n\nand then we do the same with `g`\n\n```@example 1\nplot(x, g(x), color = \"blue\")\nsavefig(\"g-plot.svg\"); nothing # hide\n```\n\n![](g-plot.svg)Note that @example blocks are evaluated within the directory of build where the file will be rendered . This means than in the above example savefig will output the .svg files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.@example blocks automatically define ans which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by plot to a named variable would look out of place in the final rendered documentation:```@example\nusing Gadfly # hide\nplot([sin, x -> 2sin(x) + x], -2π, 2π)\ndraw(SVG(\"plot.svg\", 6inch, 4inch), ans); nothing # hide\n```\n\n![](plot.svg)"
+    "text": "Evaluates the code block and inserts the result into the final document along with the original source code.```@example\na = 1\nb = 2\na + b\n```The above @example block will splice the following into the final document```julia\na = 1\nb = 2\na + b\n```\n\n```\n3\n```Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace on each line is also removed.Hiding Source CodeCode blocks may have some content that does not need to be displayed in the final document. # hide comments can be appended to lines that should not be rendered, i.e.```@example\nsrand(1) # hide\nA = rand(3, 3)\nb = [1, 2, 3]\nA \\ b\n```Note that appending # hide to every line in an @example block will result in the block being hidden in the rendered document. The results block will still be rendered though. @setup blocks are a convenient shorthand for hiding an entire block, including the output.STDOUT and STDERRThe Julia output streams are redirected to the results block when evaluating @example blocks in the same way as when running doctest code blocks.nothing ResultsWhen the @example block evaluates to nothing then the second block is not displayed. Only the source code block will be shown in the rendered document. Note that if any output from either STDOUT or STDERR is captured then the results block will be displayed even if nothing is returned.Named @example BlocksBy default @example blocks are run in their own anonymous Modules to avoid side-effects between blocks. To share the same module between different blocks on a page the @example can be named with the following syntax```@example 1\na = 1\n```\n\n```@example 1\nprintln(a)\n```The name can be any text, not just integers as in the example above, i.e. @example foo.Named @example blocks can be useful when generating documentation that requires intermediate explanation or multimedia such as plots as illustrated in the following exampleFirst we define some functions\n\n```@example 1\nusing PyPlot # hide\nf(x) = sin(2x) + 1\ng(x) = cos(x) - x\n```\n\nand then we plot `f` over the interval from ``-π`` to ``π``\n\n```@example 1\nx = linspace(-π, π)\nplot(x, f(x), color = \"red\")\nsavefig(\"f-plot.svg\"); nothing # hide\n```\n\n![](f-plot.svg)\n\nand then we do the same with `g`\n\n```@example 1\nplot(x, g(x), color = \"blue\")\nsavefig(\"g-plot.svg\"); nothing # hide\n```\n\n![](g-plot.svg)Note that @example blocks are evaluated within the directory of build where the file will be rendered . This means than in the above example savefig will output the .svg files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.@example blocks automatically define ans which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by plot to a named variable would look out of place in the final rendered documentation:```@example\nusing Gadfly # hide\nplot([sin, x -> 2sin(x) + x], -2π, 2π)\ndraw(SVG(\"plot.svg\", 6inch, 4inch), ans); nothing # hide\n```\n\n![](plot.svg)"
 },
 
 {
@@ -262,6 +262,14 @@ var documenterSearchIndex = {"docs": [
     "title": "@repl block",
     "category": "section",
     "text": "These are similar to @example blocks, but adds a julia> prompt before each toplevel expression. ; and # hide syntax may be used in @repl blocks in the same way as in the Julia REPL and @example blocks.```@repl\na = 1\nb = 2\na + b\n```will generate```julia\njulia> a = 1\n1\n\njulia> b = 2\n2\n\njulia> a + b\n3\n```Named @repl <name> blocks behave in the same way as named @example <name> blocks."
+},
+
+{
+    "location": "man/syntax.html#@setup-name-block-1",
+    "page": "Syntax",
+    "title": "@setup <name> block",
+    "category": "section",
+    "text": "These are similar to @example blocks, but both the input and output are hidden from the final document. This can be convenient if there are several lines of setup code that need to be hidden.note: Note\nUnlike @example and @repl blocks, @setup requires a <name> attribute to associate it with downstream @example <name> and @repl <name> blocks.```@setup abc\nusing RDatasets\nusing DataFrames\niris = dataset(\"datasets\", \"iris\")\n```\n\n```@example abc\nprintln(iris)\n```"
 },
 
 {
@@ -1129,7 +1137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}",
+    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.@tags-Tuple",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.@tags",
     "category": "Macro",
@@ -1245,7 +1253,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Expanders",
     "title": "Documenter.Expanders.ExpanderPipeline",
     "category": "Type",
-    "text": "The default node expander \"pipeline\", which consists of the following expanders:\n\nTrackHeaders\nMetaBlocks\nDocsBlocks\nAutoDocsBlocks\nEvalBlocks\nIndexBlocks\nContentsBlocks\nExampleBlocks\nREPLBlocks\n\n\n\n"
+    "text": "The default node expander \"pipeline\", which consists of the following expanders:\n\nTrackHeaders\nMetaBlocks\nDocsBlocks\nAutoDocsBlocks\nEvalBlocks\nIndexBlocks\nContentsBlocks\nExampleBlocks\nSetupBlocks\nREPLBlocks\n\n\n\n"
 },
 
 {
@@ -1270,6 +1278,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.Expanders.REPLBlocks",
     "category": "Type",
     "text": "Similar to the ExampleBlocks expander, but inserts a Julia REPL prompt before each toplevel expression in the final document.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/expanders.html#Documenter.Expanders.SetupBlocks",
+    "page": "Expanders",
+    "title": "Documenter.Expanders.SetupBlocks",
+    "category": "Type",
+    "text": "Similar to the ExampleBlocks expander, but hides all output in the final document.\n\n\n\n"
 },
 
 {
