@@ -46,6 +46,7 @@ The default node expander "pipeline", which consists of the following expanders:
 - [`IndexBlocks`](@ref)
 - [`ContentsBlocks`](@ref)
 - [`ExampleBlocks`](@ref)
+- [`SetupBlocks`](@ref)
 - [`REPLBlocks`](@ref)
 
 """
@@ -166,6 +167,11 @@ toplevel expression in the final document.
 """
 abstract REPLBlocks <: ExpanderPipeline
 
+"""
+Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
+"""
+abstract SetupBlocks <: ExpanderPipeline
+
 Selectors.order(::Type{TrackHeaders})   = 1.0
 Selectors.order(::Type{MetaBlocks})     = 2.0
 Selectors.order(::Type{DocsBlocks})     = 3.0
@@ -175,6 +181,7 @@ Selectors.order(::Type{IndexBlocks})    = 6.0
 Selectors.order(::Type{ContentsBlocks}) = 7.0
 Selectors.order(::Type{ExampleBlocks})  = 8.0
 Selectors.order(::Type{REPLBlocks})     = 9.0
+Selectors.order(::Type{SetupBlocks})     = 10.0
 
 Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node, Markdown.Header)
 Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
@@ -185,6 +192,7 @@ Selectors.matcher(::Type{IndexBlocks},    node, page, doc) = iscode(node, "@inde
 Selectors.matcher(::Type{ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
 Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@example")
 Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
+Selectors.matcher(::Type{SetupBlocks},     node, page, doc) = iscode(node, r"^@setup")
 
 # Default Expander.
 
@@ -497,6 +505,32 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         end
     end
     page.mapping[x] = Base.Markdown.Code("julia", rstrip(takebuf_string(out)))
+end
+
+# @setup
+# --------
+
+function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
+    matched = Utilities.nullmatch(r"^@setup[ ](.+)$", x.language)
+    isnull(matched) && error("invalid '@setup <name>' syntax: $(x.language)")
+    # The sandboxed module -- either a new one or a cached one from this page.
+    name = Utilities.getmatch(matched, 1)
+    sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
+    mod  = get!(page.globals.meta, sym, Module(sym))::Module
+
+    # Evaluate whole @setup block at once instead of piecewise
+    page.mapping[x] =
+    try
+        cd(dirname(page.build)) do
+            eval(mod, :(include_string($(x.code))))
+        end
+        Markdown.MD([])
+    catch err
+        Utilities.warn(page.source, "failed to run `@setup` block.\n\n$(err)")
+        x
+    end
+    # ... and finally map the original code block to the newly generated ones.
+    page.mapping[x] = Markdown.MD([])
 end
 
 # Utilities.
