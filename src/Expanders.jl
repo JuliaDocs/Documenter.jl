@@ -517,21 +517,17 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     name = Utilities.getmatch(matched, 1)
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
-    # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
-    result, buffer = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        (value, success, backtrace, text) = Utilities.withoutput() do
-            cd(dirname(page.build)) do
-                eval(mod, :(ans = $(eval(mod, ex))))
-            end
+
+    # Evaluate whole @setup block at once instead of piecewise
+    page.mapping[x] =
+    try
+        cd(dirname(page.build)) do
+            eval(mod, :(include_string($(x.code))))
         end
-        result = value
-        print(buffer, text)
-        if !success
-            Utilities.warn(page.source, "failed to run code block.\n\n$(value)")
-            page.mapping[x] = x
-            return
-        end
+        Markdown.MD([])
+    catch err
+        Utilities.warn(page.source, "failed to run `@setup` block.\n\n$(err)")
+        x
     end
     # ... and finally map the original code block to the newly generated ones.
     page.mapping[x] = Markdown.MD([])

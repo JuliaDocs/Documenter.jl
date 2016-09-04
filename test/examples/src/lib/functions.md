@@ -126,6 +126,10 @@ w = 5
 @assert w === 5
 ```
 
+```@repl testsetup
+@assert w === 5
+```
+
 # Autodocs
 
 ```@meta

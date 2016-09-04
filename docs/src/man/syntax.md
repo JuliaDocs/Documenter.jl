@@ -437,6 +437,11 @@ These are similar to `@example` blocks, but both the input and output are hidden
 final document. This can be convenient if there are several lines of setup code that need to be
 hidden.
 
+!!! note
+
+    Unlike `@example` and `@repl` blocks, `@setup` requires a `<name>` attribute to associate it
+    with downstream `@example <name>` and `@repl <name>` blocks.
+
 ````markdown
 ```@setup abc
 using RDatasets
@@ -449,10 +454,6 @@ println(iris)
 ```
 ````
 
-Named `@setup <name>` blocks behave in the same way as named `@example <name>` blocks.
-
-Unlike `@example` blocks, `@setup` requires a `<name>` attribute to group it with the correct
-`@example <name>` blocks.
 
 ## `@eval` block
 
