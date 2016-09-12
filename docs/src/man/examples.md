@@ -39,3 +39,4 @@ Please do take that into consideration when browsing this list.
 
 - [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest)
 - [Luxor.jl](https://cormullion.github.io/Luxor.jl)
+- [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
