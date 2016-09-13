@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Unregistered",
     "category": "section",
-    "text": "Packages that are not available in METADATA.jl and may be works-in-progress. Please do take that into consideration when browsing this list.AnonymousTypes.jl"
+    "text": "Packages that are not available in METADATA.jl and may be works-in-progress. Please do take that into consideration when browsing this list.AnonymousTypes.jl\nOhMyREPL.jl"
 },
 
 {
