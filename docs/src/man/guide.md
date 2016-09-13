@@ -300,9 +300,18 @@ See [Hosting Documentation](@ref) for further information on configuring MkDocs 
             ]
         ]
     )
+
+    deploydocs(
+        repo   = "github.com/USER/PKG.jl.git",
+        target = "build",
+        deps   = nothing,
+        make   = nothing
+    )
     ```
-    Since Documenter's docs are already built using HTML output, a fully working
-    example of the configuration can be found in `docs/make.jl`.
+    Since Documenter's docs are already built using HTML output, a
+    fully working example of the configuration can be found in
+    `docs/make.jl`. Note that with this configuration, `mkdocs.yml` is
+    not required.
 
     It is still under development, may contain bugs, and undergo changes.
     However, any feedback is very welcome and early adopters are encouraged to try it out.
