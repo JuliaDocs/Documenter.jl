@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Output formats",
     "category": "section",
-    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring MkDocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = Documenter.Formats.HTML option to makedocs. It also requires the pages and sitename options. make.jl should then look something likemakedocs(\n    ...,\n    format = Documenter.Formats.HTML,\n    sitename = \"Package name\",\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)Since Documenter's docs are already built using HTML output, a fully working example of the configuration can be found in docs/make.jl.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl's issue tracker.Additional makedocs options for HTML outputsitename is the site's title displayed in the title bar and at the top of the navigation menu.pages defines the hierarchy of the navigation menu."
+    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring MkDocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = Documenter.Formats.HTML option to makedocs. It also requires the pages and sitename options. make.jl should then look something likemakedocs(\n    ...,\n    format = Documenter.Formats.HTML,\n    sitename = \"Package name\",\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)\n\ndeploydocs(\n    repo   = \"github.com/USER/PKG.jl.git\",\n    target = \"build\",\n    deps   = nothing,\n    make   = nothing\n)Since Documenter's docs are already built using HTML output, a fully working example of the configuration can be found in docs/make.jl. Note that with this configuration, mkdocs.yml is not required.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl's issue tracker.Additional makedocs options for HTML outputsitename is the site's title displayed in the title bar and at the top of the navigation menu.pages defines the hierarchy of the navigation menu."
 },
 
 {
@@ -1005,7 +1005,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
