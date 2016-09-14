@@ -31,6 +31,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest)
 - [TaylorSeries.jl](http://www.juliadiff.org/TaylorSeries.jl/latest/)
 - [Weave.jl](https://mpastell.github.io/Weave.jl/stable)
+- [Luxor.jl](https://cormullion.github.io/Luxor.jl)
 
 ## Unregistered
 
@@ -38,4 +39,4 @@ Packages that are not available in `METADATA.jl` and may be works-in-progress.
 Please do take that into consideration when browsing this list.
 
 - [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest)
-- [Luxor.jl](https://cormullion.github.io/Luxor.jl)
+- [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
