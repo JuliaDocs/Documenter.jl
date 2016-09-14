@@ -689,9 +689,14 @@ mdconvert(expr::Union{Expr,Symbol}, parent) = string(expr)
 
 # Only available on Julia 0.5.
 if isdefined(Base.Markdown, :Footnote)
-    mdconvert(f::Markdown.Footnote, parent)   = footnote(f.id, f.text, parent)
+    mdconvert(f::Markdown.Footnote, parent) = footnote(f.id, f.text, parent)
     footnote(id, text::Void, parent) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
-    footnote(id, text,       parent) = Tag(:span)["#footnote-$(id)"](mdconvert(text, parent))
+    function footnote(id, text, parent)
+        Tag(:div)[".footnote#footnote-$(id)"](
+            Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
+            mdconvert(text, parent),
+        )
+    end
 end
 
 if isdefined(Base.Markdown, :Admonition)
