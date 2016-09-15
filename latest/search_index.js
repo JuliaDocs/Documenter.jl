@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1845,7 +1845,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pagetitle",
     "category": "Method",
-    "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents as a Nullable (nulled if the algorithm was unable to determine the header).\n\nIt is assumed that the intended page title can only be guessed if the very first block of the page is <h1> heading. If there is something before the first heading or the first heading is a lower level heading, then the return value is nulled.\n\n\n\n"
+    "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents of the first <h1> on a page as a Nullable (nulled if the algorithm was unable to find any <h1> headers).\n\n\n\n"
 },
 
 {
