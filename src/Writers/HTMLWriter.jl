@@ -592,23 +592,23 @@ function pagetitle(ctx, navnode::Documents.NavNode)
 end
 
 """
-Returns an ordered list of tuples `(toplevel, anchor, text)`, corresponding to
-level 1 and 2 headings on the page. The only exception is if the first block on
-the page also happens to be a level 1 heading. In that case it is assumed to be
-the page title and is dropped from the list of subsections.
+Returns an ordered list of tuples, `(toplevel, anchor, text)`, corresponding to level 1 and 2
+headings on the `page`. Note that if the first header on the `page` is a level 1 header then
+it is not included -- it is assumed to be the page title and so does not need to be included
+in the navigation menu twice.
 """
 function collect_subsections(page::Documents.Page)
-    hs = filter(enumerate(page.elements)) do _
-        idx, element = _
-        isa(element, Base.Markdown.Header) || return false # ignore non-headers
-        (idx == 1) && (Utilities.header_level(element) == 1) && return false # if first elem. <h1> => ignored
-        Utilities.header_level(element) <= 2 # only let <h1> and <h2> through
+    local sections = []
+    for element in page.elements
+        if isa(element, Base.Markdown.Header) && Utilities.header_level(element) < 3
+            local toplevel = Utilities.header_level(element) === 1
+            # Don't include the first header if it is `h1`.
+            toplevel && isempty(sections) && continue
+            local anchor = page.mapping[element]
+            push!(sections, (toplevel, "#$(anchor.id)-$(anchor.nth)", element.text))
+        end
     end
-    map(hs) do _
-        idx, heading = _
-        anchor = page.mapping[heading]
-        (Utilities.header_level(heading) == 1), "#$(anchor.id)-$(anchor.nth)", heading.text
-    end
+    return sections
 end
 
 
