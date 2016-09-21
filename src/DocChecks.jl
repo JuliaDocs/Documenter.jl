@@ -293,7 +293,7 @@ end
 const TERM_COLOR_REGEX =
     let _1 = map(escape_string, values(Base.text_colors)),
         _2 = map(each -> replace(each, "[", "\\["), _1)
-        Regex(string("(", join(_2, "|"), ")"))
+        Regex(string("(\\e\\[31m|", join(_2, "|"), ")"))
     end
 
 remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")

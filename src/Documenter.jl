@@ -433,7 +433,8 @@ export genkeys
 $(SIGNATURES)
 
 Generate ssh keys for package `package` to automatically deploy docs from Travis to GitHub
-pages. Requires the following command lines programs to be installed:
+pages. Uses the `remote` information to get the user and repository values.
+Requires the following command lines programs to be installed:
 
 - `which`
 - `git`
@@ -447,9 +448,12 @@ julia> using Documenter
 
 julia> Travis.genkeys("MyPackageName")
 [ ... output ... ]
+
+julia> Travis.genkeys("MyPackageName", remote="organization")
+[ ... output ... ]
 ```
 """
-function genkeys(package)
+function genkeys(package; remote="origin")
     # Error checking. Do the required programs exist?
     isdir(Pkg.dir(package))     || error("'$package' could not be found in '$(Pkg.dir())'.")
     success(`which which`)      || error("'which' not found.")
@@ -461,23 +465,23 @@ function genkeys(package)
     filename  = ".documenter"
 
     cd(Pkg.dir(package, directory)) do
+        # Get remote details.
+        user, repo =
+            let r = readchomp(`git config --get remote.$remote.url`)
+                m = match(isdefined(Base, :LibGit2) ?
+                    Base.LibGit2.GITHUB_REGEX :
+                    Pkg.Git.GITHUB_REGEX, r)
+                m === nothing && error("no remote repo named '$remote' found.")
+                m[2], m[3]
+            end
 
         run(`ssh-keygen -N "" -f $filename`)
         run(`travis login --auto`)
-        run(`travis encrypt-file $filename`)
+        run(`travis encrypt-file $filename -r $user/$repo`)
 
         warn("removing private key.")
         rm(filename)
 
-        # Get remote details.
-        user, repo =
-            let r = readchomp(`git config --get remote.origin.url`)
-                m = match(isdefined(Base, :LibGit2) ?
-                    Base.LibGit2.GITHUB_REGEX :
-                    Pkg.Git.GITHUB_REGEX, r)
-                m === nothing && error("no remote repo named 'origin' found.")
-                m[2], m[3]
-            end
         println(
             """
 
