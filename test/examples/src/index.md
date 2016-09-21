@@ -25,6 +25,8 @@ Pages = ["man/tutorial.md"]
 ```@index
 ```
 
+### Embedded `@ref` links headers: [`ccall`](@ref)
+
 [#60](@ref) [#61](@ref)
 
 ```@repl
