@@ -615,7 +615,8 @@ end
 # mdconvert
 # ------------------------------------------------------------------------------
 
-md_block_nodes = [Markdown.MD, Markdown.BlockQuote, Markdown.List]
+const md_block_nodes = [Markdown.MD, Markdown.BlockQuote]
+isa(fieldtype(Markdown.List, :ordered), Integer) && push!(md_block_nodes, Markdown.List)
 if isdefined(Base.Markdown, :Admonition) push!(md_block_nodes, Markdown.Admonition) end
 
 """
