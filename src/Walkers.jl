@@ -44,6 +44,8 @@ typealias MDContentElements Union{
 }
 walk(f, meta, block::MDContentElements) = f(block) ? walk(f, meta, block.content) : nothing
 
+walk(f, meta, block::Anchors.Anchor) = walk(f, meta, block.object)
+
 walk(f, meta, block::Expanders.DocsNodes) = walk(f, meta, block.nodes)
 walk(f, meta, block::Expanders.DocsNode)  = walk(f, meta, block.docstr)
 
