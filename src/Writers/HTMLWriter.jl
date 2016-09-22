@@ -616,7 +616,7 @@ end
 # ------------------------------------------------------------------------------
 
 const md_block_nodes = [Markdown.MD, Markdown.BlockQuote]
-isa(fieldtype(Markdown.List, :ordered), Integer) && push!(md_block_nodes, Markdown.List)
+fieldtype(Markdown.List, :ordered) == Int && push!(md_block_nodes, Markdown.List)
 if isdefined(Base.Markdown, :Admonition) push!(md_block_nodes, Markdown.Admonition) end
 
 """
