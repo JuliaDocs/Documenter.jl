@@ -87,7 +87,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # We create the .user.build directory.
     # If .user.clean is set, we first clean the existing directory.
     doc.user.clean && isdir(build) && rm(build; recursive = true)
-    isdir(build) || mkdir(build)
+    isdir(build) || mkpath(build)
 
     # We'll walk over all the files in the .user.source directory.
     # The directory structure is copied over to .user.build. All files, with
