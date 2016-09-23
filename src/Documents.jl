@@ -179,6 +179,7 @@ immutable User
     format  :: Formats.Format # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Bool           # Run doctests?
+    linkcheck::Bool           # Check external links.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     repo    :: Compat.String  # Template for URL to source code repo
@@ -200,6 +201,7 @@ immutable Internal
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
+    locallinks :: Set{Base.Markdown.Link}
 end
 
 # Document.
@@ -220,6 +222,7 @@ function Document(;
         format   :: Formats.Format   = Formats.Markdown,
         clean    :: Bool             = true,
         doctest  :: Bool             = true,
+        linkcheck:: Bool             = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         repo     :: AbstractString   = "",
@@ -235,6 +238,7 @@ function Document(;
         format,
         clean,
         doctest,
+        linkcheck,
         Utilities.submodules(modules),
         pages,
         repo,
@@ -251,7 +255,8 @@ function Document(;
         ObjectIdDict(),
         ObjectIdDict(),
         [],
-        []
+        [],
+        Set{Base.Markdown.Link}(),
     )
     Document(user, internal)
 end

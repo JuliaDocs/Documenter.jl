@@ -83,6 +83,8 @@ end
 
 function namedxref(link::Markdown.Link, slug, meta, page, doc)
     headers = doc.internal.headers
+    # Add the link to list of local uncheck links.
+    push!(doc.internal.locallinks, link)
     # Error checking: `slug` should exist and be unique.
     # TODO: handle non-unique slugs.
     if Anchors.exists(headers, slug)
@@ -104,6 +106,8 @@ end
 # -----------------------------
 
 function docsxref(link::Markdown.Link, code, meta, page, doc)
+    # Add the link to list of local uncheck links.
+    push!(doc.internal.locallinks, link)
     # Parse the link text and find current module.
     local keyword = Symbol(strip(code))
     local ex
