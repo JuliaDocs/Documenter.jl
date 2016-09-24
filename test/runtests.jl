@@ -1,3 +1,6 @@
+# Build the real docs first.
+include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))
+
 # docs module
 # ===========
 
@@ -496,5 +499,3 @@ end
 
 # more tests from files
 include("mdflatten.jl")
-
-include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))

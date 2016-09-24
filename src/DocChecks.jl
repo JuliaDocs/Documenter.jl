@@ -25,6 +25,7 @@ defined in the `modules` keyword passed to [`Documenter.makedocs`](@ref).
 Prints out the name of each object that has not had its docs spliced into the document.
 """
 function missingdocs(doc::Documents.Document)
+    println(" > checking for missing docstrings.")
     bindings = allbindings(doc.user.modules)
     for object in keys(doc.internal.objects)
         if haskey(bindings, object.binding)
@@ -100,6 +101,7 @@ the document generation when an error is thrown. Use `doctest = false` keyword i
 """
 function doctest(doc::Documents.Document)
     if doc.user.doctest
+        println(" > running doctests.")
         for (src, page) in doc.internal.pages
             empty!(page.globals.meta)
             for element in page.elements
@@ -353,6 +355,7 @@ end
 
 if isdefined(Base.Markdown, :Footnote)
     function footnotes(doc::Documents.Document)
+        println(" > checking footnote links.")
         # A mapping of footnote ids to a tuple counter of how many footnote references and
         # footnote bodies have been found.
         #
@@ -404,5 +407,44 @@ if isdefined(Base.Markdown, :Footnote)
 else
     footnotes(doc::Documents.Document) = nothing
 end
+
+
+# Link Checks.
+# ------------
+
+import Requests
+
+function linkcheck(doc::Documents.Document)
+    if doc.user.linkcheck
+        println(" > checking external URLs:")
+        for (src, page) in doc.internal.pages
+            println("   - ", src)
+            for element in page.elements
+                Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                    linkcheck(block, doc)
+                end
+            end
+        end
+    end
+    return nothing
+end
+
+function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
+    if !(link in doc.internal.locallinks)
+        local status, success
+        try
+            local response = Requests.head(link.url)
+            status = Requests.statuscode(response)
+            success = status == 200
+        catch err
+            status, success = 0, false
+        end
+        print(" "^5)
+        status in (0, 200) ? print(" "^5) : print_with_color(:red, " $(status) ")
+        print_with_color(success ? :green : :red, link.url, "\n")
+    end
+    return false
+end
+linkcheck(other, doc::Documents.Document) = true
 
 end

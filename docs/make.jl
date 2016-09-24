@@ -5,6 +5,7 @@ makedocs(
     clean   = false,
     format   = Documenter.Formats.HTML,
     sitename = "Documenter.jl",
+    linkcheck= !("skiplinks" in ARGS),
     pages    = Any[ # Compat: `Any` for 0.4 compat
         "Home" => "index.md",
         "Manual" => Any[
