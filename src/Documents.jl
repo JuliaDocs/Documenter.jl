@@ -180,6 +180,7 @@ immutable User
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Bool           # Run doctests?
     linkcheck::Bool           # Check external links.
+    checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     repo    :: Compat.String  # Template for URL to source code repo
@@ -223,6 +224,7 @@ function Document(;
         clean    :: Bool             = true,
         doctest  :: Bool             = true,
         linkcheck:: Bool             = false,
+        checkdocs::Symbol            = :all,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         repo     :: AbstractString   = "",
@@ -239,6 +241,7 @@ function Document(;
         clean,
         doctest,
         linkcheck,
+        checkdocs,
         Utilities.submodules(modules),
         pages,
         repo,
