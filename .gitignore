@@ -3,6 +3,7 @@
 *.jl.mem
 
 test/examples/build-*
+test/missingdocs/build/
 test/errors/build/
 docs/build/
 docs/site/

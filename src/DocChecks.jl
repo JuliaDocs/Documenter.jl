@@ -25,8 +25,9 @@ defined in the `modules` keyword passed to [`Documenter.makedocs`](@ref).
 Prints out the name of each object that has not had its docs spliced into the document.
 """
 function missingdocs(doc::Documents.Document)
+    doc.user.checkdocs === :none && return
     println(" > checking for missing docstrings.")
-    bindings = allbindings(doc.user.modules)
+    bindings = allbindings(doc.user.checkdocs, doc.user.modules)
     for object in keys(doc.internal.objects)
         if haskey(bindings, object.binding)
             signatures = bindings[object.binding]
@@ -50,18 +51,22 @@ function missingdocs(doc::Documents.Document)
     end
 end
 
-function allbindings(mods)
+function allbindings(checkdocs::Symbol, mods)
     out = Dict{Utilities.Binding, Set{Type}}()
     for m in mods
-        allbindings(m, out)
+        allbindings(checkdocs, m, out)
     end
     out
 end
 
-function allbindings(mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
         isa(obj, ObjectIdDict) && continue
-        out[Utilities.Binding(mod, nameof(obj))] = Set(sigs(doc))
+        local name = nameof(obj)
+        local isexported = Base.isexported(mod, name)
+        if checkdocs === :all || (isexported && checkdocs === :exports)
+            out[Utilities.Binding(mod, name)] = Set(sigs(doc))
+        end
     end
     out
 end

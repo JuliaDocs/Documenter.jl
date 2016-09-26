@@ -86,6 +86,17 @@ end
 
 end
 
+module MissingDocs
+
+export f
+"exported"
+f(x) = x
+
+"unexported"
+g(x) = x
+
+end
+
 # tests module
 # ============
 
@@ -354,6 +365,20 @@ info("END of expected error output.")
 println("="^50)
 
 # Mock package docs:
+
+## Missing Docs.
+
+for sym in [:none, :exports]
+    makedocs(
+        root = joinpath(dirname(@__FILE__), "missingdocs"),
+        source = joinpath("src", string(sym)),
+        build = joinpath("build", string(sym)),
+        modules = Main.MissingDocs,
+        checkdocs = sym,
+        format = Documenter.Formats.HTML,
+        sitename = "MissingDocs Checks",
+    )
+end
 
 # setup
 # =====
