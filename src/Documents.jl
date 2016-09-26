@@ -190,6 +190,7 @@ immutable User
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     repo    :: Compat.String  # Template for URL to source code repo
     sitename:: Compat.String
+    authors :: Compat.String
 end
 
 """
@@ -234,6 +235,7 @@ function Document(;
         pages    :: Vector           = Any[],
         repo     :: AbstractString   = "",
         sitename :: AbstractString   = "",
+        authors  :: AbstractString   = "",
         others...
     )
     Utilities.check_kwargs(others)
@@ -251,6 +253,7 @@ function Document(;
         pages,
         repo,
         sitename,
+        authors,
     )
     internal = Internal(
         Utilities.assetsdir(),

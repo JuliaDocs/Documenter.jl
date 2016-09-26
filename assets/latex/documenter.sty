@@ -1,0 +1,77 @@
+% font settings
+\usepackage{fontspec, newunicodechar, polyglossia}
+
+\setsansfont{Lato}[Scale=MatchLowercase, Ligatures=TeX]
+\setmonofont{Fantasque Sans Mono}[Scale=MatchLowercase]
+\renewcommand{\familydefault}{\sfdefault}
+%
+
+% colours
+\usepackage{xcolor}
+
+\definecolor{light-blue}{HTML}{6b85dd}
+\definecolor{dark-blue}{HTML}{4266d5}
+\definecolor{light-red}{HTML}{d66661}
+\definecolor{dark-red}{HTML}{c93d39}
+\definecolor{light-green}{HTML}{6bab5b}
+\definecolor{dark-green}{HTML}{3b972e}
+\definecolor{light-purple}{HTML}{aa7dc0}
+\definecolor{dark-purple}{HTML}{945bb0}
+%
+
+% maths
+\usepackage{amsmath, amssymb}
+%
+
+% listings
+\usepackage{listings, minted}
+
+\lstset{
+    basicstyle = \small\ttfamily,
+    breaklines = true,
+    columns = fullflexible,
+    frame = leftline,
+    keepspaces = true,
+    showstringspaces = false,
+    xleftmargin = 3pt,
+}
+
+\setminted{
+    breaklines = true,
+    fontsize = \small,
+    frame = leftline,
+}
+%
+
+% tables
+\usepackage{tabulary}
+%
+
+% hyperref
+\usepackage{hyperref}
+\hypersetup{
+    pdfpagelabels,
+    bookmarks,
+    hyperindex,
+    unicode = true,
+    linkcolor = dark-blue,
+    urlcolor = dark-purple,
+    colorlinks = true,
+}
+%
+
+% table of contents
+\maxtocdepth{subsection}
+%
+
+% paragraphs
+\setlength{\parindent}{0pt}
+\nonzeroparskip
+%
+
+% adjust margins
+\setulmarginsandblock{1.5in}{1in}{*}
+\setlrmarginsandblock{1.5in}{1in}{*}
+\setheaderspaces{1in}{*}{*}
+\checkandfixthelayout
+%

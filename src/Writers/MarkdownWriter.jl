@@ -160,7 +160,7 @@ function dropheaders(md::Markdown.MD)
     out.content = map(dropheaders, md.content)
     out
 end
-dropheaders(h::Markdown.Header) = Markdown.Paragraph(Markdown.Bold(h.text))
+dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
 dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
