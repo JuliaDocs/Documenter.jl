@@ -18,6 +18,7 @@ should give a good overview of what this package is currently able to do.
 
 Packages that have tagged versions available in `METADATA.jl`.
 
+- [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/latest/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
 - [DifferentialEquations.jl](http://chrisrackauckas.github.io/DifferentialEquations.jl/latest/)
