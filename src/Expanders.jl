@@ -118,6 +118,8 @@ Markdown.parse("![Plot](plot.svg)")
 """
 abstract EvalBlocks <: ExpanderPipeline
 
+abstract RawBlocks <: ExpanderPipeline
+
 """
 Parses each code block where the language is `@index` and replaces it with an index of all
 docstrings spliced into the document. The pages that are included can be set using a
@@ -181,7 +183,8 @@ Selectors.order(::Type{IndexBlocks})    = 6.0
 Selectors.order(::Type{ContentsBlocks}) = 7.0
 Selectors.order(::Type{ExampleBlocks})  = 8.0
 Selectors.order(::Type{REPLBlocks})     = 9.0
-Selectors.order(::Type{SetupBlocks})     = 10.0
+Selectors.order(::Type{SetupBlocks})    = 10.0
+Selectors.order(::Type{RawBlocks})      = 11.0
 
 Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node, Markdown.Header)
 Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
@@ -192,7 +195,8 @@ Selectors.matcher(::Type{IndexBlocks},    node, page, doc) = iscode(node, "@inde
 Selectors.matcher(::Type{ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
 Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@example")
 Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
-Selectors.matcher(::Type{SetupBlocks},     node, page, doc) = iscode(node, r"^@setup")
+Selectors.matcher(::Type{SetupBlocks},    node, page, doc) = iscode(node, r"^@setup")
+Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@raw")
 
 # Default Expander.
 
@@ -508,7 +512,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
 end
 
 # @setup
-# --------
+# ------
 
 function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     matched = Utilities.nullmatch(r"^@setup[ ](.+)$", x.language)
@@ -531,6 +535,15 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     end
     # ... and finally map the original code block to the newly generated ones.
     page.mapping[x] = Markdown.MD([])
+end
+
+# @raw
+# ----
+
+function Selectors.runner(::Type{RawBlocks}, x, page, doc)
+    local matched = Utilities.nullmatch(r"@raw[ ](.+)$", x.language)
+    isnull(matched) && error("invalid '@raw <name>' syntax: $(x.language)")
+    page.mapping[x] = Documents.RawNode(Symbol(Utilities.getmatch(matched, 1)), x.code)
 end
 
 # Utilities.

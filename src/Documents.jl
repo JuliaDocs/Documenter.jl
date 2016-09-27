@@ -132,6 +132,11 @@ immutable RawHTML
     code::String
 end
 
+immutable RawNode
+    name::Symbol
+    text::Compat.String
+end
+
 # Navigation
 # ----------------------
 

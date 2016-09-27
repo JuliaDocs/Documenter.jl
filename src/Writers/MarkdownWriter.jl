@@ -144,6 +144,10 @@ render(io::IO, ::MIME"text/plain", str::AbstractString, page, doc) = print(io, s
 # rest of the build and so we just leave them in place and print a blank line in their place.
 render(io::IO, ::MIME"text/plain", node::Documents.MetaNode, page, doc) = println(io, "\n")
 
+function render(io::IO, ::MIME"text/plain", raw::Documents.RawNode, page, doc)
+    raw.name === :html ? println(io, "\n", raw.text, "\n") : nothing
+end
+
 
 ## Markdown Utilities.
 
