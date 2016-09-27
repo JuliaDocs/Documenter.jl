@@ -80,3 +80,19 @@ INFO: ...
   * ```
     one
     ```
+
+## Raw Blocks
+
+```@raw html
+<center>
+    <strong>CENTER</strong>
+</center>
+```
+
+```@raw latex
+\begin{CJK*}{UTF8}{mj}
+```
+
+```@raw latex
+\end{CJK*}
+```

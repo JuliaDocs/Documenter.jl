@@ -546,6 +546,10 @@ end
 # nothing to show for MetaNodes, so we just return an empty list
 domify(ctx, navnode, node::Documents.MetaNode) = DOM.Node[]
 
+function domify(ctx, navnode, raw::Documents.RawNode)
+    raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
+end
+
 
 # Utilities
 # ------------------------------------------------------------------------------
