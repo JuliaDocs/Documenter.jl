@@ -435,7 +435,7 @@ function linkcheck(doc::Documents.Document)
 end
 
 function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
-    if !(link in doc.internal.locallinks)
+    if !haskey(doc.internal.locallinks, link)
         local status, success
         try
             local response = Requests.head(link.url)

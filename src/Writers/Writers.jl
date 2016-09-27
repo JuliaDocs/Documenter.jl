@@ -37,7 +37,13 @@ The method should be overloaded in each writer as
 
 where `format` is one of the values of the [`Formats.Format`](@ref) enumeration.
 """
-render(doc::Documents.Document) = render(Writer(doc.user.format), doc)
+function render(doc::Documents.Document)
+    render(Writer(doc.user.format), doc)
+    # Revert all local links to their original URLs.
+    for (link, url) in doc.internal.locallinks
+        link.url = url
+    end
+end
 
 include("MarkdownWriter.jl")
 include("HTMLWriter.jl")
