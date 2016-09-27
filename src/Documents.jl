@@ -202,7 +202,7 @@ immutable Internal
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
-    locallinks :: Set{Base.Markdown.Link}
+    locallinks :: Dict{Base.Markdown.Link, Compat.String}
 end
 
 # Document.
@@ -259,7 +259,7 @@ function Document(;
         ObjectIdDict(),
         [],
         [],
-        Set{Base.Markdown.Link}(),
+        Dict{Base.Markdown.Link, Compat.String}(),
     )
     Document(user, internal)
 end
