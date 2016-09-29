@@ -2,11 +2,12 @@ using Documenter
 
 makedocs(
     modules = [Documenter],
-    clean   = false,
-    format   = Documenter.Formats.HTML,
+    clean = false,
+    format = Documenter.Formats.HTML,
     sitename = "Documenter.jl",
-    linkcheck= !("skiplinks" in ARGS),
-    pages    = Any[ # Compat: `Any` for 0.4 compat
+    authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
+    linkcheck = !("skiplinks" in ARGS),
+    pages = Any[ # Compat: `Any` for 0.4 compat
         "Home" => "index.md",
         "Manual" => Any[
             "Guide" => "man/guide.md",

@@ -90,9 +90,9 @@ INFO: ...
 ```
 
 ```@raw latex
-\begin{CJK*}{UTF8}{mj}
+\begin{verbatim}
 ```
 
 ```@raw latex
-\end{CJK*}
+\end{verbatim}
 ```
