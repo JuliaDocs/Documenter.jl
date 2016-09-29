@@ -21,6 +21,7 @@ Follow the style of the surrounding text when making changes. When adding new fe
 ### Julia
 
   * 4-space indentation;
+  * modules spanning entire files should not be indented, but modules that have surrounding code should;
   * no blank lines at the start or end of files;
   * do not manually align syntax such as `=` or `::` over adjacent lines;
   * use `local` to define new local variables so that they are easier to locate;
