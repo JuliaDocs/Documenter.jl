@@ -1,90 +1,8 @@
 # Build the real docs first.
 include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))
 
-# docs module
-# ===========
-
-module Mod
-
-"""
-    func(x)
-
-[`T`](@ref)
-"""
-func(x) = x
-
-"""
-    T
-
-[`func(x)`](@ref)
-"""
-type T end
-
-end
-
-# autodocs module
-# ===============
-
-"`AutoDocs` module."
-module AutoDocs
-
-module Pages
-
-include("pages/a.jl")
-include("pages/b.jl")
-include("pages/c.jl")
-include("pages/d.jl")
-include("pages/e.jl")
-
-end
-
-"Function `f`."
-f(x) = x
-
-"Constant `K`."
-const K = 1
-
-"Type `T`."
-type T end
-
-"Macro `@m`."
-macro m() end
-
-"Module `A`."
-module A
-
-"Function `A.f`."
-f(x) = x
-
-"Constant `A.K`."
-const K = 1
-
-"Type `B.T`."
-type T end
-
-"Macro `B.@m`."
-macro m() end
-
-end
-
-"Module `B`."
-module B
-
-"Function `B.f`."
-f(x) = x
-
-"Constant `B.K`."
-const K = 1
-
-"Type `B.T`."
-type T end
-
-"Macro `B.@m`."
-macro m() end
-
-end
-
-end
+# Build the example docs
+include(joinpath(dirname(@__FILE__), "examples", "make.jl"))
 
 module MissingDocs
 
@@ -380,25 +298,15 @@ for sym in [:none, :exports]
     )
 end
 
-# setup
-# =====
-
-const example_root = joinpath(dirname(@__FILE__), "examples")
-
-info("Building mock package docs: MarkdownWriter")
-doc = makedocs(
-    debug = true,
-    root  = example_root,
-    build = "build-markdown",
-)
-
 # tests
 # =====
 
+let examples_root = Main.examples_root, doc = Main.examples_markdown_doc
+
 @test isa(doc, Documenter.Documents.Document)
 
-let build_dir  = joinpath(example_root, "build-markdown"),
-    source_dir = joinpath(example_root, "src")
+let build_dir  = joinpath(examples_root, "builds", "markdown"),
+    source_dir = joinpath(examples_root, "src")
 
     @test isdir(build_dir)
     @test isdir(joinpath(build_dir, "assets"))
@@ -420,9 +328,9 @@ let build_dir  = joinpath(example_root, "build-markdown"),
     )
 end
 
-@test doc.user.root   == example_root
+@test doc.user.root   == examples_root
 @test doc.user.source == "src"
-@test doc.user.build  == "build-markdown"
+@test doc.user.build  == "builds/markdown"
 @test doc.user.clean  == true
 @test doc.user.format == Documenter.Formats.Markdown
 
@@ -441,8 +349,8 @@ let headers = doc.internal.headers
     @test Documenter.Anchors.exists(headers, "Function-Index")
     @test Documenter.Anchors.exists(headers, "Functions")
     @test Documenter.Anchors.isunique(headers, "Functions")
-    @test Documenter.Anchors.isunique(headers, "Functions", joinpath("build-markdown", "lib", "functions.md"))
-    let name = "Foo", path = joinpath("build-markdown", "lib", "functions.md")
+    @test Documenter.Anchors.isunique(headers, "Functions", joinpath("builds", "markdown", "lib", "functions.md"))
+    let name = "Foo", path = joinpath("builds", "markdown", "lib", "functions.md")
         @test Documenter.Anchors.exists(headers, name, path)
         @test !Documenter.Anchors.isunique(headers, name)
         @test !Documenter.Anchors.isunique(headers, name, path)
@@ -452,24 +360,7 @@ end
 
 @test length(doc.internal.objects) == 36
 
-info("Building mock package docs: HTMLWriter")
-doc = makedocs(
-    debug = true,
-    root  = example_root,
-    build = "build-html",
-    format   = Documenter.Formats.HTML,
-    sitename = "Documenter example",
-    pages    = Any[
-        "Home" => "index.md",
-        "Manual" => [
-            "man/tutorial.md",
-        ],
-        "Library" => [
-            "lib/functions.md",
-            "lib/autodocs.md",
-        ]
-    ]
-)
+end # for `let doc = examples_markdown_doc`
 
 # Documenter package docs:
 
