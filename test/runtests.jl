@@ -20,24 +20,21 @@ using Compat
 # Unit tests for module internals.
 
 module UnitTests
+    module SubModule end
 
-module SubModule end
+    # Does `submodules` collect *all* the submodules?
+    module A
+        module B
+            module C
+                module D end
+            end
+        end
+    end
 
-# Does `submodules` collect *all* the submodules?
-module A
-module B
-module C
-module D
-end
-end
-end
-end
+    type T end
 
-type T end
-
-"Documenter unit tests."
-Base.length(::T) = 1
-
+    "Documenter unit tests."
+    Base.length(::T) = 1
 end
 
 let doc = @doc(length)
@@ -155,113 +152,109 @@ end
 ## DOM Tests.
 
 module DOMTests
+    using Base.Test
+    import Documenter.Utilities.DOM: DOM, @tags
 
-using Base.Test
-import Documenter.Utilities.DOM: DOM, @tags
+    @tags div ul li p
 
-@tags div ul li p
+    for tag in (:div, :ul, :li, :p)
+        TAG = getfield(current_module(), tag)
+        @test isdefined(tag)
+        @test isa(TAG, DOM.Tag)
+        @test TAG.name === tag
+    end
 
-for tag in (:div, :ul, :li, :p)
-    TAG = getfield(current_module(), tag)
-    @test isdefined(tag)
-    @test isa(TAG, DOM.Tag)
-    @test TAG.name === tag
-end
+    @test div().name === :div
+    @test div().text == ""
+    @test isempty(div().nodes)
+    @test isempty(div().attributes)
 
-@test div().name === :div
-@test div().text == ""
-@test isempty(div().nodes)
-@test isempty(div().attributes)
+    @test div("...").name === :div
+    @test div("...").text == ""
+    @test length(div("...").nodes) === 1
+    @test div("...").nodes[1].text == "..."
+    @test div("...").nodes[1].name === Symbol("")
+    @test isempty(div("...").attributes)
 
-@test div("...").name === :div
-@test div("...").text == ""
-@test length(div("...").nodes) === 1
-@test div("...").nodes[1].text == "..."
-@test div("...").nodes[1].name === Symbol("")
-@test isempty(div("...").attributes)
+    @test div[".class"]("...").name === :div
+    @test div[".class"]("...").text == ""
+    @test length(div[".class"]("...").nodes) === 1
+    @test div[".class"]("...").nodes[1].text == "..."
+    @test div[".class"]("...").nodes[1].name === Symbol("")
+    @test length(div[".class"]("...").attributes) === 1
+    @test div[".class"]("...").attributes[1] == (:class => "class")
+    @test div[:attribute].attributes[1] == (:attribute => "")
+    @test div[:attribute => "value"].attributes[1] == (:attribute => "value")
 
-@test div[".class"]("...").name === :div
-@test div[".class"]("...").text == ""
-@test length(div[".class"]("...").nodes) === 1
-@test div[".class"]("...").nodes[1].text == "..."
-@test div[".class"]("...").nodes[1].name === Symbol("")
-@test length(div[".class"]("...").attributes) === 1
-@test div[".class"]("...").attributes[1] == (:class => "class")
-@test div[:attribute].attributes[1] == (:attribute => "")
-@test div[:attribute => "value"].attributes[1] == (:attribute => "value")
-
-let d = div(ul(map(li, [string(n) for n = 1:10])))
-    @test d.name === :div
-    @test d.text == ""
-    @test isempty(d.attributes)
-    @test length(d.nodes) === 1
-    let u = d.nodes[1]
-        @test u.name === :ul
-        @test u.text == ""
-        @test isempty(u.attributes)
-        @test length(u.nodes) === 10
-        for n = 1:10
-            let v = u.nodes[n]
-                @test v.name === :li
-                @test v.text == ""
-                @test isempty(v.attributes)
-                @test length(v.nodes) === 1
-                @test v.nodes[1].name === Symbol("")
-                @test v.nodes[1].text == string(n)
-                @test !isdefined(v.nodes[1], :attributes)
-                @test !isdefined(v.nodes[1], :nodes)
+    let d = div(ul(map(li, [string(n) for n = 1:10])))
+        @test d.name === :div
+        @test d.text == ""
+        @test isempty(d.attributes)
+        @test length(d.nodes) === 1
+        let u = d.nodes[1]
+            @test u.name === :ul
+            @test u.text == ""
+            @test isempty(u.attributes)
+            @test length(u.nodes) === 10
+            for n = 1:10
+                let v = u.nodes[n]
+                    @test v.name === :li
+                    @test v.text == ""
+                    @test isempty(v.attributes)
+                    @test length(v.nodes) === 1
+                    @test v.nodes[1].name === Symbol("")
+                    @test v.nodes[1].text == string(n)
+                    @test !isdefined(v.nodes[1], :attributes)
+                    @test !isdefined(v.nodes[1], :nodes)
+                end
             end
         end
     end
-end
 
-@tags script style img
+    @tags script style img
 
-@test string(div(p("one"), p("two"))) == "<div><p>one</p><p>two</p></div>"
-@test string(div[:key => "value"])    == "<div key=\"value\"></div>"
-@test string(p(" < > & ' \" "))       == "<p> &lt; &gt; &amp; &#39; &quot; </p>"
-@test string(img[:src => "source"])   == "<img src=\"source\"/>"
-@test string(img[:none])              == "<img none/>"
-@test string(script(" < > & ' \" "))  == "<script> < > & ' \" </script>"
-@test string(style(" < > & ' \" "))   == "<style> < > & ' \" </style>"
-@test string(script)                  == "<script>"
+    @test string(div(p("one"), p("two"))) == "<div><p>one</p><p>two</p></div>"
+    @test string(div[:key => "value"])    == "<div key=\"value\"></div>"
+    @test string(p(" < > & ' \" "))       == "<p> &lt; &gt; &amp; &#39; &quot; </p>"
+    @test string(img[:src => "source"])   == "<img src=\"source\"/>"
+    @test string(img[:none])              == "<img none/>"
+    @test string(script(" < > & ' \" "))  == "<script> < > & ' \" </script>"
+    @test string(style(" < > & ' \" "))   == "<style> < > & ' \" </style>"
+    @test string(script)                  == "<script>"
 
-function locally_defined()
-    @tags button
-    @test try
-        x = button
-        true
-    catch err
-        false
+    function locally_defined()
+        @tags button
+        @test try
+            x = button
+            true
+        catch err
+            false
+        end
     end
-end
-@test !isdefined(current_module(), :button)
-locally_defined()
-@test !isdefined(current_module(), :button)
+    @test !isdefined(current_module(), :button)
+    locally_defined()
+    @test !isdefined(current_module(), :button)
 
-# HTMLDocument
-import Documenter.Utilities.DOM: HTMLDocument
-@test string(HTMLDocument(div())) == "<!DOCTYPE html>\n<div></div>\n"
-@test string(HTMLDocument("custom doctype", div())) == "<!DOCTYPE custom doctype>\n<div></div>\n"
-
+    # HTMLDocument
+    import Documenter.Utilities.DOM: HTMLDocument
+    @test string(HTMLDocument(div())) == "<!DOCTYPE html>\n<div></div>\n"
+    @test string(HTMLDocument("custom doctype", div())) == "<!DOCTYPE custom doctype>\n<div></div>\n"
 end
 
 # `Markdown.MD` to `DOM.Node` conversion tests.
 module MarkdownToNode
+    import Documenter.DocSystem
+    import Documenter.Writers.HTMLWriter: mdconvert
 
-import Documenter.DocSystem
-import Documenter.Writers.HTMLWriter: mdconvert
-
-# Exhaustive Conversion from Markdown to Nodes.
-for mod in Base.Docs.modules
-    for (binding, multidoc) in DocSystem.getmeta(mod)
-        for (typesig, docstr) in multidoc.docs
-            md = DocSystem.parsedoc(docstr)
-            string(mdconvert(md))
+    # Exhaustive Conversion from Markdown to Nodes.
+    for mod in Base.Docs.modules
+        for (binding, multidoc) in DocSystem.getmeta(mod)
+            for (typesig, docstr) in multidoc.docs
+                md = DocSystem.parsedoc(docstr)
+                string(mdconvert(md))
+            end
         end
     end
-end
-
 end
 
 # Integration tests for module api.
