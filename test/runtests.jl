@@ -7,33 +7,49 @@ include(joinpath(dirname(@__FILE__), "examples", "make.jl"))
 # Test missing docs
 include(joinpath(dirname(@__FILE__), "missingdocs", "make.jl"))
 
-# tests module
-# ============
+# Error reporting.
+println("="^50)
+info("The following errors are expected output.")
+include(joinpath("errors", "make.jl"))
+info("END of expected error output.")
+println("="^50)
 
-module Tests
+# Primary @testset
 
-using Documenter
-using Base.Test
-using Compat
+if VERSION >= v"0.5.0-dev+7720"
+    using Base.Test
+else
+    using BaseTestNext
+    const Test = BaseTestNext
+end
 
+@testset "Documenter" begin
+    # Unit tests for module internals.
+    include("utilities.jl")
 
-# Unit tests for module internals.
+    # NavNode tests.
+    include("navnode.jl")
 
-include("utilities.jl")
+    # DocSystem unit tests.
+    include("docsystem.jl")
 
-## NavNode tests
+    # DOM Tests.
+    include("dom.jl")
 
-include("navnode.jl")
+    # MDFlatten tests.
+    include("mdflatten.jl")
 
-# DocSystem unit tests.
+    # Mock package docs.
+    include("examples/tests.jl")
 
-include("docsystem.jl")
+    # Documenter package docs with other formats.
+    include("formats/markdown.jl")
+    include("formats/latex.jl")
+end
 
-## DOM Tests.
+# Additional tests
 
-include("dom.jl")
-
-# `Markdown.MD` to `DOM.Node` conversion tests.
+## `Markdown.MD` to `DOM.Node` conversion tests.
 module MarkdownToNode
     import Documenter.DocSystem
     import Documenter.Writers.HTMLWriter: mdconvert
@@ -48,27 +64,3 @@ module MarkdownToNode
         end
     end
 end
-
-# Integration tests for module api.
-
-# Error reporting.
-
-println("="^50)
-info("The following errors are expected output.")
-include(joinpath("errors", "make.jl"))
-info("END of expected error output.")
-println("="^50)
-
-# Mock package docs:
-
-include(joinpath(dirname(@__FILE__), "examples", "tests.jl"))
-
-# Documenter package docs with other formats
-
-include("formats/markdown.jl")
-include("formats/latex.jl")
-
-end
-
-# more tests from files
-include("mdflatten.jl")
