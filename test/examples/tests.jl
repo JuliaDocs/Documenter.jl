@@ -2,7 +2,7 @@
 # the docs and defines a few modules that are referred to in the docs. The make.jl
 # has to be expected in the context of the Main module.
 if current_module() === Main && !isdefined(:examples_root)
-    include(joinpath(dirname(@__FILE__), "make.jl"))
+    include("make.jl")
 elseif current_module() !== Main && isdefined(Main, :examples_root)
     using Documenter
     const examples_root = Main.examples_root

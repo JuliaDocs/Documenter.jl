@@ -1,11 +1,11 @@
 # Build the real docs first.
-include(joinpath(dirname(@__FILE__), "..", "docs", "make.jl"))
+include("../docs/make.jl")
 
 # Build the example docs
-include(joinpath(dirname(@__FILE__), "examples", "make.jl"))
+include("examples/make.jl")
 
 # Test missing docs
-include(joinpath(dirname(@__FILE__), "missingdocs", "make.jl"))
+include("missingdocs/make.jl")
 
 # Error reporting.
 println("="^50)
