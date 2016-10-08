@@ -264,6 +264,14 @@ function deploydocs(;
     ssh_key_file = abspath(joinpath(root, ".documenter.enc"))
     has_ssh_key  = isfile(ssh_key_file)
 
+    # Sanity checks
+    if !isa(julia, AbstractString)
+        error("julia must be a string, got $julia ($(typeof(julia)))")
+    end
+    if !isempty(travis_repo_slug) && !contains(repo, travis_repo_slug)
+        error("repo $repo does not match $travis_repo_slug")
+    end
+
     # When should a deploy be attempted?
     should_deploy =
         contains(repo, travis_repo_slug) &&
