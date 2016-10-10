@@ -47,6 +47,7 @@ function missingdocs(doc::Documents.Document)
                 println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
             end
         end
+        push!(doc.internal.errors, :missing_docs)
         Utilities.warn(takebuf_string(b))
     end
 end
@@ -136,6 +137,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             eval_script(code, sandbox, meta, doc, page)
             block.language = "julia"
         else
+            push!(doc.internal.errors, :doctest)
             Utilities.warn(
                 """
                 Invalid doctest block. Requires `julia> ` or `# output` in '$(meta[:CurrentFile])'
@@ -191,7 +193,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
                 result.bt = backtrace
             end
         end
-        checkresult(result)
+        checkresult(result, doc)
     end
 end
 
@@ -214,21 +216,21 @@ function eval_script(code, sandbox, meta::Dict, doc::Documents.Document, page)
             break
         end
     end
-    checkresult(result)
+    checkresult(result, doc)
 end
 
-function checkresult(result::Result)
+function checkresult(result::Result, doc::Documents.Document)
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
         head = split(result.output, "\n[...]"; limit = 2)[1]
         str  = error_to_string(result.stdout, result.value, result.bt)
-        startswith(str, head) || report(result, str)
+        startswith(str, head) || report(result, str, doc)
     else
         value = result.hide ? nothing : result.value # `;` hides output.
         str   = result_to_string(result.stdout, value)
-        strip(str) == strip(sanitise(IOBuffer(result.output))) || report(result, str)
+        strip(str) == strip(sanitise(IOBuffer(result.output))) || report(result, str, doc)
     end
 end
 
@@ -273,7 +275,7 @@ function sanitise(buffer)
     remove_term_colors(rstrip(takebuf_string(out), '\n'))
 end
 
-function report(result::Result, str)
+function report(result::Result, str, doc::Documents.Document)
     buffer = IOBuffer()
     println(buffer, "Test error in the following code block in '$(result.file)':")
     print_indented(buffer, result.code; indent = 8)
@@ -285,6 +287,7 @@ function report(result::Result, str)
     print_indented(buffer, result.output; indent = 8)
     print_indented(buffer, "returned:")
     print_indented(buffer, rstrip(str); indent = 8) # Drops trailing whitespace.
+    push!(doc.internal.errors, :doctest)
     Utilities.warn(takebuf_string(buffer))
 end
 
@@ -381,14 +384,17 @@ if isdefined(Base.Markdown, :Footnote)
             for (id, (ids, bodies)) in orphans
                 # Multiple footnote bodies.
                 if bodies > 1
+                    push!(doc.internal.errors, :footnote)
                     Utilities.warn(page.source, "Footnote '$id' has $bodies bodies.")
                 end
                 # No footnote references for an id.
                 if ids === 0
+                    push!(doc.internal.errors, :footnote)
                     Utilities.warn(page.source, "Unused footnote named '$id'.")
                 end
                 # No footnote bodies for an id.
                 if bodies === 0
+                    push!(doc.internal.errors, :footnote)
                     Utilities.warn(page.source, "No footnotes found for '$id'.")
                 end
             end
@@ -445,7 +451,12 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
             status, success = 0, false
         end
         print(" "^5)
-        status in (0, 200) ? print(" "^5) : print_with_color(:red, " $(status) ")
+        if status in (0, 200)
+            print(" "^5)
+        else
+            push!(doc.internal.errors, :linkcheck)
+            print_with_color(:red, " $(status) ")
+        end
         print_with_color(success ? :green : :red, link.url, "\n")
     end
     return false

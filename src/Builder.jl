@@ -191,8 +191,13 @@ function Selectors.runner(::Type{Populate}, doc::Documents.Document)
 end
 
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
-    Utilities.log(doc, "rendering document.")
-    Documenter.Writers.render(doc)
+    local count = length(doc.internal.errors)
+    if doc.user.strict && count > 0
+        error("`makedocs` encountered $(count > 1 ? "errors" : "an error"). Terminating build")
+    else
+        Utilities.log(doc, "rendering document.")
+        Documenter.Writers.render(doc)
+    end
 end
 
 Selectors.runner(::Type{DocumentPipeline}, doc::Documents.Document) = nothing
