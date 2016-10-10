@@ -7,13 +7,6 @@ include("examples/make.jl")
 # Test missing docs
 include("missingdocs/make.jl")
 
-# Error reporting.
-println("="^50)
-info("The following errors are expected output.")
-include(joinpath("errors", "make.jl"))
-info("END of expected error output.")
-println("="^50)
-
 # Primary @testset
 
 if VERSION >= v"0.5.0-dev+7720"
@@ -22,6 +15,13 @@ else
     using BaseTestNext
     const Test = BaseTestNext
 end
+
+# Error reporting.
+println("="^50)
+info("The following errors are expected output.")
+include(joinpath("errors", "make.jl"))
+info("END of expected error output.")
+println("="^50)
 
 @testset "Documenter" begin
     # Unit tests for module internals.
