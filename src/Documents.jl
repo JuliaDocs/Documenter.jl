@@ -186,6 +186,7 @@ immutable User
     doctest :: Bool           # Run doctests?
     linkcheck::Bool           # Check external links.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
+    strict::Bool              # Throw an exception when any warnings are encountered.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     repo    :: Compat.String  # Template for URL to source code repo
@@ -209,6 +210,7 @@ immutable Internal
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
     locallinks :: Dict{Base.Markdown.Link, Compat.String}
+    errors::Set{Symbol}
 end
 
 # Document.
@@ -231,6 +233,7 @@ function Document(;
         doctest  :: Bool             = true,
         linkcheck:: Bool             = false,
         checkdocs::Symbol            = :all,
+        strict::Bool                 = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         repo     :: AbstractString   = "",
@@ -249,6 +252,7 @@ function Document(;
         doctest,
         linkcheck,
         checkdocs,
+        strict,
         Utilities.submodules(modules),
         pages,
         repo,
@@ -268,6 +272,7 @@ function Document(;
         [],
         [],
         Dict{Base.Markdown.Link, Compat.String}(),
+        Set{Symbol}(),
     )
     Document(user, internal)
 end

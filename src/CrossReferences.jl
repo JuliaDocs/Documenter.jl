@@ -71,6 +71,7 @@ function namedxref(link::Markdown.Link, meta, page, doc)
     slug = match(NAMED_XREF, link.url)[1]
     if isempty(slug)
         text = sprint(Markdown.plaininline, link)
+        push!(doc.internal.errors, :cross_references)
         Utilities.warn(page.source, "'$text' missing a name after '#'.")
     else
         if length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
@@ -95,9 +96,11 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
             path     = Formats.extension(doc.user.format, path)
             link.url = string(path, '#', slug, '-', anchor.nth)
         else
+            push!(doc.internal.errors, :cross_references)
             Utilities.warn(page.source, "'$slug' is not unique.")
         end
     else
+        push!(doc.internal.errors, :cross_references)
         Utilities.warn(page.source, "Reference for '$slug' could no be found.")
     end
 end
@@ -118,6 +121,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
             ex = parse(code)
         catch err
             !isa(err, ParseError) && rethrow(err)
+            push!(doc.internal.errors, :cross_references)
             Utilities.warn(page.source, "Unable to parse the reference '[`$code`](@ref)'.")
             return
         end
@@ -129,6 +133,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
     try
         binding = Documenter.DocSystem.binding(mod, ex)
     catch err
+        push!(doc.internal.errors, :cross_references)
         Utilities.warn(page.source, "Unable to get the binding for '[`$code`](@ref)'.", err, ex, mod)
         return
     end
@@ -137,6 +142,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
     try
         typesig = eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
+        push!(doc.internal.errors, :cross_references)
         Utilities.warn(page.source, "Unable to evaluate the type signature for '[`$code`](@ref)'.", err, ex, mod)
         return
     end
@@ -152,6 +158,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
     else
+        push!(doc.internal.errors, :cross_references)
         Utilities.warn(page.source, "No doc found for reference '[`$code`](@ref)'.")
     end
 end
