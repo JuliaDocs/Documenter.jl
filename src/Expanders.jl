@@ -232,6 +232,7 @@ function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
             try
                 meta[ex.args[1]] = eval(current_module(), ex.args[2])
             catch err
+                push!(doc.internal.errors, :meta_block)
                 Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@meta` block.", err)
             end
         end
@@ -250,12 +251,14 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         local binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
+            push!(doc.internal.errors, :docs_block)
             Utilities.warn(page.source, "Unable to get the binding for '$(strip(str))'.", err, ex, curmod)
             failed = true
             continue
         end
         # Undefined `Bindings` get discarded.
         if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
+            push!(doc.internal.errors, :docs_block)
             Utilities.warn(page.source, "Undefined binding '$(binding)'.")
             failed = true
             continue
@@ -265,6 +268,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         local object = Utilities.Object(binding, typesig)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
+            push!(doc.internal.errors, :docs_block)
             Utilities.warn(page.source, "Duplicate docs found for '$(strip(str))'.")
             failed = true
             continue
@@ -280,6 +284,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
 
         # Check that we aren't printing an empty docs list. Skip block when empty.
         if isempty(docs)
+            push!(doc.internal.errors, :docs_block)
             Utilities.warn(page.source, "No docs found for '$(strip(str))'.")
             failed = true
             continue
@@ -318,6 +323,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
             try
                 fields[ex.args[1]] = eval(curmod, ex.args[2])
             catch err
+                push!(doc.internal.errors, :autodocs_block)
                 Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@autodocs` block.", err)
             end
         end
@@ -374,6 +380,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         nodes = DocsNode[]
         for (mod, path, category, object, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
+                push!(doc.internal.errors, :autodocs_block)
                 Utilities.warn(page.source, "Duplicate docs found for '$(object.binding)'.")
                 continue
             end
@@ -391,6 +398,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         end
         page.mapping[x] = DocsNodes(nodes)
     else
+        push!(doc.internal.errors, :autodocs_block)
         Utilities.warn(page.source, "'@autodocs' missing 'Modules = ...'.")
         page.mapping[x] = x
     end
@@ -407,6 +415,7 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
             try
                 result = eval(sandbox, ex)
             catch err
+                push!(doc.internal.errors, :eval_block)
                 Utilities.warn(doc, page, "Failed to evaluate `@eval` block.", err)
             end
         end
@@ -453,6 +462,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         result = value
         print(buffer, text)
         if !success
+            push!(doc.internal.errors, :example_block)
             Utilities.warn(page.source, "failed to run code block.\n\n$(value)")
             page.mapping[x] = x
             return
@@ -530,6 +540,7 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
         end
         Markdown.MD([])
     catch err
+        push!(doc.internal.errors, :setup_block)
         Utilities.warn(page.source, "failed to run `@setup` block.\n\n$(err)")
         x
     end

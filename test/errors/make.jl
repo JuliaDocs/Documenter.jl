@@ -17,3 +17,5 @@ end
 using Documenter
 
 makedocs(modules = [ErrorsModule])
+
+@test_throws ErrorException makedocs(modules = [ErrorsModule], strict = true)

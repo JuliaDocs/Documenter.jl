@@ -134,6 +134,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0)
                 try
                     parse(code, cursor)
                 catch err
+                    push!(doc.internal.errors, :parse_error)
                     Utilities.warn(doc, page, "Failed to parse expression.", err)
                     break
                 end
