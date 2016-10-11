@@ -52,7 +52,7 @@ using Compat
         @test doc.user.source == "src"
         @test doc.user.build  == "builds/markdown"
         @test doc.user.clean  == true
-        @test doc.user.format == Documenter.Formats.Markdown
+        @test doc.user.format == [:markdown]
 
         @test doc.internal.assets == normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 

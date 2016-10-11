@@ -1,6 +1,5 @@
 """
-Provides the [`render`](@ref) methods to write the documentation as LaTeX files
-(`MIME"text/latex"`).
+A module for rendering `Document` objects to LaTeX and PDF.
 """
 module LaTeXWriter
 
@@ -11,9 +10,8 @@ import ...Documenter:
     Expanders,
     Formats,
     Documenter,
-    Utilities
-
-import ..Writers: Writers, Writer, render
+    Utilities,
+    Writers
 
 using Compat
 
@@ -44,7 +42,7 @@ const DOCUMENT_STRUCTURE = (
     "subparagraph",
 )
 
-function render(::Writer{Formats.LaTeX}, doc::Documents.Document)
+function render(doc::Documents.Document)
     mktempdir() do path
         cd(path) do
             local file = replace("$(doc.user.sitename).tex", " ", "")

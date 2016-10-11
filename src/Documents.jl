@@ -181,7 +181,7 @@ immutable User
     root    :: Compat.String  # An absolute path to the root directory of the document.
     source  :: Compat.String  # Parent directory is `.root`. Where files are read from.
     build   :: Compat.String  # Parent directory is also `.root`. Where files are written to.
-    format  :: Formats.Format # What format to render the final document with?
+    format  :: Vector{Symbol} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Bool           # Run doctests?
     linkcheck::Bool           # Check external links.
@@ -228,7 +228,7 @@ function Document(;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
-        format   :: Formats.Format   = Formats.Markdown,
+        format   :: Any              = :markdown,
         clean    :: Bool             = true,
         doctest  :: Bool             = true,
         linkcheck:: Bool             = false,
@@ -243,11 +243,14 @@ function Document(;
     )
     Utilities.check_kwargs(others)
 
+    local fmt = Formats.fmt(format)
+    @assert !isempty(fmt) "No formats provided."
+
     user = User(
         root,
         source,
         build,
-        format,
+        fmt,
         clean,
         doctest,
         linkcheck,
