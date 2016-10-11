@@ -426,15 +426,20 @@ end
 hascurl() = (try; success(`curl --version`); catch err; false; end)
 
 function linkcheck(doc::Documents.Document)
-    if doc.user.linkcheck && hascurl()
-        println(" > checking external URLs:")
-        for (src, page) in doc.internal.pages
-            println("   - ", src)
-            for element in page.elements
-                Walkers.walk(page.globals.meta, page.mapping[element]) do block
-                    linkcheck(block, doc)
+    if doc.user.linkcheck
+        if hascurl()
+            println(" > checking external URLs:")
+            for (src, page) in doc.internal.pages
+                println("   - ", src)
+                for element in page.elements
+                    Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                        linkcheck(block, doc)
+                    end
                 end
             end
+        else
+            push!(doc.internal.errors, :linkcheck)
+            Utilities.warn("linkcheck requires `curl`.")
         end
     end
     return nothing
