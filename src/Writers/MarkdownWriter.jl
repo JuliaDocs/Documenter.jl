@@ -1,6 +1,5 @@
 """
-Provides the [`render`](@ref) methods to write the documentation as Markdown files
-(`MIME"text/plain"`).
+A module for rendering `Document` objects to markdown.
 """
 module MarkdownWriter
 
@@ -13,13 +12,11 @@ import ...Documenter:
     Documenter,
     Utilities
 
-import ..Writers: Writer, render
-
-function render(::Writer{Formats.Markdown}, doc::Documents.Document)
+function render(doc::Documents.Document)
     copy_assets(doc)
-    mime = Formats.mimetype(doc.user.format)
+    mime = Formats.mimetype(:markdown)
     for (src, page) in doc.internal.pages
-        open(Formats.extension(doc.user.format, page.build), "w") do io
+        open(Formats.extension(:markdown, page.build), "w") do io
             for elem in page.elements
                 node = page.mapping[elem]
                 render(io, mime, node, page, doc)
@@ -104,7 +101,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", index::Documents.IndexNode, page, doc)
     for (object, _, page, mod, cat) in index.elements
-        page = Formats.extension(doc.user.format, page)
+        page = Formats.extension(:markdown, page)
         url = string(page, "#", Utilities.slugify(object))
         println(io, "- [`", object.binding, "`](", url, ")")
     end
@@ -113,7 +110,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, page, doc)
     for (count, path, anchor) in contents.elements
-        path = Formats.extension(doc.user.format, path)
+        path = Formats.extension(:markdown, path)
         header = anchor.object
         url    = string(path, '#', anchor.id, '-', anchor.nth)
         link   = Markdown.Link(header.text, url)

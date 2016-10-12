@@ -93,7 +93,7 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
             # Replace the `@ref` url with a path to the referenced header.
             anchor   = get(Anchors.anchor(headers, slug))
             path     = relpath(anchor.file, dirname(page.build))
-            path     = Formats.extension(doc.user.format, path)
+            path     = Formats.extension(doc.user.format[1], path) # TODO: handle multiple formats.
             link.url = string(path, '#', slug, '-', anchor.nth)
         else
             push!(doc.internal.errors, :cross_references)
@@ -154,7 +154,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
-        path     = Formats.extension(doc.user.format, path)
+        path     = Formats.extension(doc.user.format[1], path) # TODO: handle multiple formats.
         slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
     else
