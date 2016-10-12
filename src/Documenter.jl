@@ -441,8 +441,11 @@ export genkeys
 $(SIGNATURES)
 
 Generate ssh keys for package `package` to automatically deploy docs from Travis to GitHub
-pages. Uses the `remote` information to get the user and repository values.
-Requires the following command lines programs to be installed:
+pages. `package` can be either the name of a package or a path. Providing a path allows keys
+to be generated for non-packages or packages that are not found in the Julia `LOAD_PATH`.
+Use the `remote` keyword to specify the user and repository values.
+
+This function requires the following command lines programs to be installed:
 
 - `which`
 - `git`
@@ -459,11 +462,13 @@ julia> Travis.genkeys("MyPackageName")
 
 julia> Travis.genkeys("MyPackageName", remote="organization")
 [ ... output ... ]
+
+julia> Travis.genkeys("/path/to/target/directory")
+[ ... output ... ]
 ```
 """
 function genkeys(package; remote="origin")
     # Error checking. Do the required programs exist?
-    isdir(Pkg.dir(package))     || error("'$package' could not be found in '$(Pkg.dir())'.")
     success(`which which`)      || error("'which' not found.")
     success(`which git`)        || error("'git' not found.")
     success(`which travis`)     || error("'travis' not found.")
@@ -472,7 +477,10 @@ function genkeys(package; remote="origin")
     directory = "docs"
     filename  = ".documenter"
 
-    cd(Pkg.dir(package, directory)) do
+    local path = isdir(package) ? package : Pkg.dir(package, directory)
+    isdir(path) || error("`$path` not found. Provide a package name or directory.")
+
+    cd(path) do
         # Get remote details.
         user, repo =
             let r = readchomp(`git config --get remote.$remote.url`)
