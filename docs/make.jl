@@ -3,7 +3,7 @@ using Documenter
 makedocs(
     modules = [Documenter],
     clean = false,
-    format = Documenter.Formats.HTML,
+    format = :html,
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     linkcheck = !("skiplinks" in ARGS),

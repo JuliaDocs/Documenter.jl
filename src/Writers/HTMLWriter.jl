@@ -1,6 +1,5 @@
 """
-Provides the [`render`](@ref) methods to write the documentation as HTML files
-(`MIME"text/html"`).
+A module for rendering `Document` objects to HTML.
 
 # Page outline
 
@@ -56,7 +55,6 @@ import ...Documenter:
     Utilities,
     Writers
 
-import ..Writers: Writer, render
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
@@ -86,7 +84,7 @@ getpage(ctx, path) = ctx.doc.internal.pages[path]
 getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, get(navnode.page))
 
 
-function render(::Writer{Formats.HTML}, doc::Documents.Document)
+function render(doc::Documents.Document)
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
 
     ctx = HTMLContext(doc)
@@ -184,7 +182,7 @@ function render_page(ctx, navnode)
             body(navmenu, article)
         )
     )
-    open(Formats.extension(Formats.HTML, page.build), "w") do io
+    open(Formats.extension(:html, page.build), "w") do io
         print(io, htmldoc)
     end
 end
@@ -241,7 +239,7 @@ function render_search(ctx)
             body(navmenu, article)
         )
     )
-    open(Formats.extension(Formats.HTML, joinpath(ctx.doc.user.build, "search")), "w") do io
+    open(Formats.extension(:html, joinpath(ctx.doc.user.build, "search")), "w") do io
         print(io, htmldoc)
     end
 end
@@ -385,7 +383,7 @@ type SearchIndexBuffer
         page_title = mdflatten(pagetitle(ctx, navnode))
         new(
             ctx,
-            Formats.extension(Formats.HTML, get(navnode.page)),
+            Formats.extension(:html, get(navnode.page)),
             getpage(ctx, navnode),
             "",
             :page,
@@ -469,7 +467,7 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
     @tags a
     lb = ListBuilder()
     for (count, path, anchor) in contents.elements
-        path = Formats.extension(ctx.doc.user.format, path)
+        path = Formats.extension(:html, path)
         header = anchor.object
         url = string(path, '#', anchor.id, '-', anchor.nth)
         node = a[:href=>url](mdconvert(header.text))
@@ -483,7 +481,7 @@ function domify(ctx, navnode, index::Documents.IndexNode)
     @tags a code li ul
     lis = map(index.elements) do _
         object, doc, page, mod, cat = _
-        page = Formats.extension(ctx.doc.user.format, page)
+        page = Formats.extension(:html, page)
         url = string(page, "#", Utilities.slugify(object))
         li(a[:href=>url](code("$(object.binding)")))
     end
@@ -558,7 +556,7 @@ end
 Get the relative hyperlink between two [`Documents.NavNode`](@ref)s. Assumes that both
 [`Documents.NavNode`](@ref)s have an associated [`Documents.Page`](@ref) (i.e. `.page` is not null).
 """
-navhref(to, from) = Formats.extension(Formats.HTML, relhref(get(from.page), get(to.page)))
+navhref(to, from) = Formats.extension(:html, relhref(get(from.page), get(to.page)))
 
 """
 Calculates a relative HTML link from one path to another.
@@ -674,7 +672,7 @@ function mdconvert(link::Markdown.Link, parent)
     else
         s = split(link.url, "#", limit = 2)
         path = first(s)
-        path = endswith(path, ".md") ? Formats.extension(Formats.HTML, path) : path
+        path = endswith(path, ".md") ? Formats.extension(:html, path) : path
         url = (length(s) > 1) ? "$path#$(last(s))" : Compat.String(path)
         Tag(:a)[:href => url](mdconvert(link.text, link))
     end

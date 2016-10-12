@@ -283,14 +283,15 @@ to convert the Markdown files into a set of HTML pages.
 See [Hosting Documentation](@ref) for further information on configuring MkDocs for Documenter.
 
 !!! note "Native HTML output"
-    There is experimental support for native HTML output in Documenter.
-    It can be enabled by passing the `format = Documenter.Formats.HTML` option to
-    [`makedocs`](@ref). It also requires the `pages` and `sitename` options.
-    `make.jl` should then look something like
+
+    There is experimental support for native HTML output in Documenter. It can be enabled by
+    passing the `format = :html` option to [`makedocs`](@ref). It also requires the `pages`
+    and `sitename` options. `make.jl` should then look something like
+
     ```julia
     makedocs(
         ...,
-        format = Documenter.Formats.HTML,
+        format = :html,
         sitename = "Package name",
         pages = [
             "page.md",
@@ -308,6 +309,7 @@ See [Hosting Documentation](@ref) for further information on configuring MkDocs 
         make   = nothing
     )
     ```
+
     Since Documenter's docs are already built using HTML output, a
     fully working example of the configuration can be found in
     `docs/make.jl`. Note that with this configuration, `mkdocs.yml` is
@@ -319,6 +321,7 @@ See [Hosting Documentation](@ref) for further information on configuring MkDocs 
     [Documenter.jl's issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues).
 
     # Additional `makedocs` options for HTML output
+
     **`sitename`** is the site's title displayed in the title bar and at the top
     of the navigation menu.
 
