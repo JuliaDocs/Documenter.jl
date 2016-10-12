@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Output formats",
     "category": "section",
-    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring MkDocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = Documenter.Formats.HTML option to makedocs. It also requires the pages and sitename options. make.jl should then look something likemakedocs(\n    ...,\n    format = Documenter.Formats.HTML,\n    sitename = \"Package name\",\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)\n\ndeploydocs(\n    repo   = \"github.com/USER/PKG.jl.git\",\n    target = \"build\",\n    deps   = nothing,\n    make   = nothing\n)Since Documenter's docs are already built using HTML output, a fully working example of the configuration can be found in docs/make.jl. Note that with this configuration, mkdocs.yml is not required.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl's issue tracker.Additional makedocs options for HTML outputsitename is the site's title displayed in the title bar and at the top of the navigation menu.pages defines the hierarchy of the navigation menu."
+    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring MkDocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = :html option to makedocs. It also requires the pages and sitename options. make.jl should then look something likemakedocs(\n    ...,\n    format = :html,\n    sitename = \"Package name\",\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)\n\ndeploydocs(\n    repo   = \"github.com/USER/PKG.jl.git\",\n    target = \"build\",\n    deps   = nothing,\n    make   = nothing\n)Since Documenter's docs are already built using HTML output, a fully working example of the configuration can be found in docs/make.jl. Note that with this configuration, mkdocs.yml is not required.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl's issue tracker.Additional makedocs options for HTML outputsitename is the site's title displayed in the title bar and at the top of the navigation menu.pages defines the hierarchy of the navigation menu."
 },
 
 {
@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1329,7 +1329,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/formats.html#Documenter.Formats.mimetype-Tuple{Documenter.Formats.Format}",
+    "location": "lib/internals/formats.html#Documenter.Formats.mimetype-Tuple{Symbol}",
     "page": "Formats",
     "title": "Documenter.Formats.mimetype",
     "category": "Method",
@@ -1733,15 +1733,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers",
     "category": "Module",
-    "text": "Provides a rendering function, render, for writing each supported Formats.Format to file.\n\nNote that currently Formats.Markdown is the only supported format.\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/writers.html#Documenter.Writers.Writer",
-    "page": "Writers",
-    "title": "Documenter.Writers.Writer",
-    "category": "Type",
-    "text": "A parametric type that allows us to use multiple dispatch to pick the appropriate writer for each output format.\n\nThe parameter f should be an instance of the Formats.Format enumeration.\n\n\n\n"
+    "text": "A module that provides several renderers for Document objects. The supported formats are currently:\n\n:markdown – the default format.\n:html – generates a complete HTML site with navigation and search included.\n:latex – generates a PDF using LuaLaTeX.\n\n\n\n"
 },
 
 {
@@ -1749,7 +1741,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.render",
     "category": "Method",
-    "text": "Writes a Documents.Document object to .user.build directory in the format specified in .user.format.\n\nThe method should be overloaded in each writer as\n\nrender(::Writer{format}, doc)\n\nwhere format is one of the values of the Formats.Format enumeration.\n\n\n\n"
+    "text": "Writes a Documents.Document object to .user.build directory in the formats specified in the .user.format vector.\n\nAdding additional formats requires adding new Selector definitions as follows:\n\nabstract CustomFormat <: FormatSelector\n\nSelectors.order(::Type{CustomFormat}) = 4.0 # or a higher number.\nSelectors.matcher(::Type{CustomFormat}, fmt, _) = fmt === :custom\nSelectors.runner(::Type{CustomFormat}, _, doc) = CustomWriter.render(doc)\n\n# Definition of `CustomWriter` module below...\n\n\n\n"
 },
 
 {
@@ -1757,7 +1749,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.MarkdownWriter",
     "category": "Module",
-    "text": "Provides the render methods to write the documentation as Markdown files (MIME\"text/plain\").\n\n\n\n"
+    "text": "A module for rendering Document objects to markdown.\n\n\n\n"
 },
 
 {
@@ -1765,7 +1757,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
-    "text": "Provides the render methods to write the documentation as HTML files (MIME\"text/html\").\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nFor scripts, every assets/*.js gets a <script> link in the <head> tag of every page (except if it matches one of Documenter's default scripts; the filtering is done in user_scripts).\n\nNote that only javascript files are linked to the generated HTML. Any related CSS must be loaded by the script. With jQuery this could be done with the following snippet\n\n$('head').append($('<link rel=\"stylesheet\">').attr('href', documenterBaseURL + \"/assets/<file>.css\"))\n\n\n\n"
+    "text": "A module for rendering Document objects to HTML.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nFor scripts, every assets/*.js gets a <script> link in the <head> tag of every page (except if it matches one of Documenter's default scripts; the filtering is done in user_scripts).\n\nNote that only javascript files are linked to the generated HTML. Any related CSS must be loaded by the script. With jQuery this could be done with the following snippet\n\n$('head').append($('<link rel=\"stylesheet\">').attr('href', documenterBaseURL + \"/assets/<file>.css\"))\n\n\n\n"
 },
 
 {
@@ -1877,7 +1869,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.LaTeXWriter",
     "category": "Module",
-    "text": "Provides the render methods to write the documentation as LaTeX files (MIME\"text/latex\").\n\n\n\n"
+    "text": "A module for rendering Document objects to LaTeX and PDF.\n\n\n\n"
 },
 
 {
