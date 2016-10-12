@@ -661,7 +661,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.Travis.genkeys",
     "category": "Function",
-    "text": "genkeys(package; remote)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. Uses the remote information to get the user and repository values. Requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"MyPackageName\", remote=\"organization\")\n[ ... output ... ]\n\n\n\n"
+    "text": "genkeys(package; remote)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. package can be either the name of a package or a path. Providing a path allows keys to be generated for non-packages or packages that are not found in the Julia LOAD_PATH. Use the remote keyword to specify the user and repository values.\n\nThis function requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"MyPackageName\", remote=\"organization\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"/path/to/target/directory\")\n[ ... output ... ]\n\n\n\n"
 },
 
 {
@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
