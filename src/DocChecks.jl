@@ -423,18 +423,23 @@ end
 # Link Checks.
 # ------------
 
-import Requests
+hascurl() = (try; success(`curl --version`); catch err; false; end)
 
 function linkcheck(doc::Documents.Document)
     if doc.user.linkcheck
-        println(" > checking external URLs:")
-        for (src, page) in doc.internal.pages
-            println("   - ", src)
-            for element in page.elements
-                Walkers.walk(page.globals.meta, page.mapping[element]) do block
-                    linkcheck(block, doc)
+        if hascurl()
+            println(" > checking external URLs:")
+            for (src, page) in doc.internal.pages
+                println("   - ", src)
+                for element in page.elements
+                    Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                        linkcheck(block, doc)
+                    end
                 end
             end
+        else
+            push!(doc.internal.errors, :linkcheck)
+            Utilities.warn("linkcheck requires `curl`.")
         end
     end
     return nothing
@@ -442,22 +447,23 @@ end
 
 function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
     if !haskey(doc.internal.locallinks, link)
-        local status, success
-        try
-            local response = Requests.head(link.url)
-            status = Requests.statuscode(response)
-            success = status == 200
-        catch err
-            status, success = 0, false
-        end
+        const ERROR = typemax(Int)
+        local status =
+            try
+                local res = readstring(`curl -sI $(link.url)`)
+                local regex = r"^HTTP/1.1 (\d+) "
+                ismatch(regex, res) ? parse(Int, match(regex, res).captures[1]) : ERROR
+            catch err
+                ERROR
+            end
         print(" "^5)
-        if status in (0, 200)
-            print(" "^5)
+        if status < 400
+            print_with_color(:green, " $(status) ", link.url, "\n")
         else
             push!(doc.internal.errors, :linkcheck)
-            print_with_color(:red, " $(status) ")
+            # Don't print the status when ERROR, since that's just an internal flag.
+            print_with_color(:red, " $(status == ERROR ? "???" : status) ", link.url, "\n")
         end
-        print_with_color(success ? :green : :red, link.url, "\n")
     end
     return false
 end
