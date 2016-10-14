@@ -600,12 +600,15 @@ it is not included -- it is assumed to be the page title and so does not need to
 in the navigation menu twice.
 """
 function collect_subsections(page::Documents.Page)
-    local sections = []
+    local sections = [], title_found = false
     for element in page.elements
         if isa(element, Base.Markdown.Header) && Utilities.header_level(element) < 3
             local toplevel = Utilities.header_level(element) === 1
             # Don't include the first header if it is `h1`.
-            toplevel && isempty(sections) && continue
+            if toplevel && isempty(sections) && !title_found
+                title_found = true
+                continue
+            end
             local anchor = page.mapping[element]
             push!(sections, (toplevel, "#$(anchor.id)-$(anchor.nth)", element.text))
         end
