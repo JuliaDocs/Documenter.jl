@@ -269,7 +269,7 @@ function deploydocs(;
         error("julia must be a string, got $julia ($(typeof(julia)))")
     end
     if !isempty(travis_repo_slug) && !contains(repo, travis_repo_slug)
-        error("repo $repo does not match $travis_repo_slug")
+        warn("repo $repo does not match $travis_repo_slug")
     end
 
     # When should a deploy be attempted?
