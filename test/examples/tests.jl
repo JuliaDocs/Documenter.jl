@@ -56,7 +56,7 @@ using Compat
 
         @test doc.internal.assets == normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-        @test length(doc.internal.pages) == 5
+        @test length(doc.internal.pages) == 10
 
         let headers = doc.internal.headers
             @test Documenter.Anchors.exists(headers, "Documentation")
@@ -78,7 +78,7 @@ using Compat
             end
         end
 
-        @test length(doc.internal.objects) == 36
+        @test length(doc.internal.objects) == 37
     end
 
     @testset "HTML" begin

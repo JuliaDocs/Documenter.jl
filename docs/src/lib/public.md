@@ -21,6 +21,7 @@ Pages = ["public.md"]
 ```@docs
 Documenter
 makedocs
+hide
 deploydocs
 Documenter.generate
 Travis
