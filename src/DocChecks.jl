@@ -447,22 +447,36 @@ end
 
 function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
     if !haskey(doc.internal.locallinks, link)
-        const ERROR = typemax(Int)
-        local status =
-            try
-                local res = readstring(`curl -sI $(link.url)`)
-                local regex = r"^HTTP/1.1 (\d+) "
-                ismatch(regex, res) ? parse(Int, match(regex, res).captures[1]) : ERROR
-            catch err
-                ERROR
+        local result
+        try
+            result = readstring(`curl -sI $(link.url)`)
+        catch err
+            push!(doc.internal.errors, :linkcheck)
+            Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")
+            return false
+        end
+        local INDENT = " "^6
+        local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
+        if ismatch(STATUS_REGEX, result)
+            local status = parse(Int, match(STATUS_REGEX, result).captures[1])
+            if status < 300
+                print_with_color(:green, INDENT, "$(status) ", link.url, "\n")
+            elseif status < 400
+                local LOCATION_REGEX = r"^Location: (.+)$"m
+                if ismatch(LOCATION_REGEX, result)
+                    local location = strip(match(LOCATION_REGEX, result).captures[1])
+                    print_with_color(:yellow, INDENT, "$(status) ", link.url, "\n")
+                    print_with_color(:yellow, INDENT, " -> ", location, "\n\n")
+                else
+                    print_with_color(:yellow, INDENT, "$(status) ", link.url, "\n")
+                end
+            else
+                push!(doc.internal.errors, :linkcheck)
+                print_with_color(:red, INDENT, "$(status) ", link.url, "\n")
             end
-        print(" "^5)
-        if status < 400
-            print_with_color(:green, " $(status) ", link.url, "\n")
         else
             push!(doc.internal.errors, :linkcheck)
-            # Don't print the status when ERROR, since that's just an internal flag.
-            print_with_color(:red, " $(status == ERROR ? "???" : status) ", link.url, "\n")
+            Utilities.warn("invalid result returned by `curl -sI $(link.url)`:\n\n$(result)")
         end
     end
     return false
