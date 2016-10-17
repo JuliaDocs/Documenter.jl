@@ -280,11 +280,26 @@ end
 """
 [`navitem`](@ref) returns the lists and list items of the navigation menu.
 It gets called recursively to construct the whole tree.
+
+It always returns a [`DOM.Node`](@ref). If there's nothing to display (e.g. the node is set
+to be invisible), it returns an empty text node (`DOM.Node("")`).
 """
 navitem(ctx, current) = navitem(ctx, current, ctx.doc.internal.navtree)
-navitem(ctx, current, nns::Vector) = DOM.Tag(:ul)(map(nn -> navitem(ctx, current, nn), nns))
+function navitem(ctx, current, nns::Vector)
+    nodes = map(nn -> navitem(ctx, current, nn), nns)
+    filter!(node -> node.name !== DOM.TEXT, nodes)
+    isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)(nodes)
+end
 function navitem(ctx, current, nn::Documents.NavNode)
     @tags ul li span a
+
+    # We'll do the children first, primarily to determine if this node has any that are
+    # visible. If it does not and it itself is not visible (including current), then
+    # we'll hide this one as well, returning an empty string Node.
+    children = navitem(ctx, current, nn.children)
+    if nn !== current && !nn.visible && children.name === DOM.TEXT
+        return DOM.Node("")
+    end
 
     # construct this item
     title = mdconvert(pagetitle(ctx, nn))
@@ -296,8 +311,8 @@ function navitem(ctx, current, nn::Documents.NavNode)
     item = (nn === current) ? li[".current"](link) : li(link)
 
     # add the subsections (2nd level headings) from the page
-    if nn === current && !isnull(nn.page)
-        subs = collect_subsections(ctx.doc.internal.pages[get(nn.page)])
+    if (nn === current) && !isnull(current.page)
+        subs = collect_subsections(ctx.doc.internal.pages[get(current.page)])
         internal_links = map(subs) do _
             istoplevel, anchor, text = _
             _li = istoplevel ? li[".toplevel"] : li[]
@@ -306,10 +321,8 @@ function navitem(ctx, current, nn::Documents.NavNode)
         push!(item.nodes, ul[".internal"](internal_links))
     end
 
-    # add the subsections, if any, as a single list
-    if !isempty(nn.children)
-        push!(item.nodes, navitem(ctx, current, nn.children))
-    end
+    # add the visible subsections, if any, as a single list
+    (children.name === DOM.TEXT) || push!(item.nodes, children)
 
     item
 end
@@ -600,12 +613,15 @@ it is not included -- it is assumed to be the page title and so does not need to
 in the navigation menu twice.
 """
 function collect_subsections(page::Documents.Page)
-    local sections = []
+    local sections = [], title_found = false
     for element in page.elements
         if isa(element, Base.Markdown.Header) && Utilities.header_level(element) < 3
             local toplevel = Utilities.header_level(element) === 1
             # Don't include the first header if it is `h1`.
-            toplevel && isempty(sections) && continue
+            if toplevel && isempty(sections) && !title_found
+                title_found = true
+                continue
+            end
             local anchor = page.mapping[element]
             push!(sections, (toplevel, "#$(anchor.id)-$(anchor.nth)", element.text))
         end

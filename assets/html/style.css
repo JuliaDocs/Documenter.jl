@@ -203,6 +203,10 @@ nav.toc ul.internal li.toplevel {
     font-weight: bold;
 }
 
+nav.toc ul.internal li.toplevel:first-child {
+    border-top: none;
+}
+
 nav.toc .toctext {
     padding-top: 0.3em;
     padding-bottom: 0.3em;

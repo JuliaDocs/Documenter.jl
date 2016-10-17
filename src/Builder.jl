@@ -146,25 +146,31 @@ process.
 
 This implementation is the de facto specification for the `.user.pages` field.
 """
-walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
-walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
-function walk_navpages(title::Compat.String, children::Vector, parent, doc)
-    nn = Documents.NavNode(nothing, title, parent)
+function walk_navpages(visible, title, src, children, parent, doc)
+    # parent can also be nothing (for top-level elements)
+    parent_visible = (parent === nothing) || parent.visible
+    if src !== nothing
+        src = normpath(src)
+        src in keys(doc.internal.pages) || error("'$src' is not an existing page!")
+    end
+    nn = Documents.NavNode(src, title, parent)
+    (src === nothing) || push!(doc.internal.navlist, nn)
+    nn.visible = parent_visible && visible
     nn.children = walk_navpages(children, nn, doc)
     nn
 end
-function walk_navpages(title::Compat.String, page::Compat.String, parent, doc)
-    nn = walk_navpages(page, parent, doc)
-    nn.title_override = title
-    nn
+
+function walk_navpages(hps::Tuple, parent, doc)
+    @assert length(hps) == 4
+    walk_navpages(hps..., parent, doc)
 end
-function walk_navpages(src::Compat.String, parent, doc)
-    src = normpath(src)
-    src in keys(doc.internal.pages) || error("'$src' is not an existing page!")
-    nn = Documents.NavNode(src, nothing, parent)
-    push!(doc.internal.navlist, nn)
-    nn
-end
+
+walk_navpages(title::Compat.String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
+walk_navpages(title::Compat.String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
+
+walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
+walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
+walk_navpages(src::Compat.String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 
 function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)

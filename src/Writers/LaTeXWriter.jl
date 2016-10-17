@@ -74,7 +74,7 @@ function render(doc::Documents.Document)
                 local outdir = joinpath(doc.user.root, doc.user.build)
                 local pdf = replace("$(doc.user.sitename).pdf", " ", "")
                 try
-                    run(`latexmk -f -view=none -lualatex -shell-escape $file`)
+                    run(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $file`)
                 catch err
                     Utilities.warn("failed to compile. Check generated LaTeX file.")
                     cp(file, joinpath(outdir, file); remove_destination = true)
