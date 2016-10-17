@@ -97,6 +97,7 @@ examples_html_doc = makedocs(
     root  = examples_root,
     build = "builds/html",
     format   = :html,
+    assets = ["assets/custom.css"],
     sitename = "Documenter example",
     pages    = Any[
         "Home" => "index.md",

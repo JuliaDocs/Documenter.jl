@@ -84,7 +84,7 @@ INFO: ...
 ## Raw Blocks
 
 ```@raw html
-<center>
+<center class="raw-html-block">
     <strong>CENTER</strong>
 </center>
 ```
