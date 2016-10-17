@@ -7,7 +7,6 @@ makedocs(
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     linkcheck = !("skiplinks" in ARGS),
-    strict = true,
     pages = Any[ # Compat: `Any` for 0.4 compat
         "Home" => "index.md",
         "Manual" => Any[
