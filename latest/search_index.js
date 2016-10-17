@@ -621,7 +621,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter",
     "category": "Module",
-    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nAdditionally it provides the unexported Documenter.generate, which can be used to generate documentation stubs for new packages.\n\nDeps\nTravis\ndeploydocs\nmakedocs\n\n\n\n"
+    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nAdditionally it provides the unexported Documenter.generate, which can be used to generate documentation stubs for new packages.\n\nDeps\nTravis\ndeploydocs\nhide\nmakedocs\n\n\n\n"
 },
 
 {
@@ -630,6 +630,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.makedocs",
     "category": "Function",
     "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = Pkg.dir(\"MyPackage\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it's encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter's make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git commit id\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")\n\nSee Also\n\nA guide detailing how to document a package using Documenter's makedocs is provided in the Usage section of the manual.\n\n\n\n"
+},
+
+{
+    "location": "lib/public.html#Documenter.hide",
+    "page": "Public",
+    "title": "Documenter.hide",
+    "category": "Function",
+    "text": "hide(page)\n\n\nAllows a page to be hidden in the navigation menu. It will only show up if it happens to be the current page. The hidden page will still be present in the linear page list that can be accessed via the previous and next page links. The title of the hidden page can be overriden using the => operator as usual.\n\nUsage\n\nmakedocs(\n    ...,\n    pages = [\n        ...,\n        hide(\"page1.md\"),\n        hide(\"Title\" => \"page2.md\")\n    ]\n)\n\n\n\nhide(root, children)\n\n\nAllows a subsection of pages to be hidden from the navigation menu. root will be linked to in the navigation menu, with the title determined as usual. children should be a list of pages (note that it can not be hierarchical).\n\nUsage\n\nmakedocs(\n    ...,\n    pages = [\n        ...,\n        hide(\"Hidden section\" => \"hidden_index.md\", [\n            \"hidden1.md\",\n            \"Hidden 2\" => \"hidden2.md\"\n        ]),\n        hide(\"hidden_index.md\", [...])\n    ]\n)\n\n\n\n"
 },
 
 {
@@ -685,7 +693,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Public Interface",
     "category": "section",
-    "text": "Documenter\nmakedocs\ndeploydocs\nDocumenter.generate\nTravis\nTravis.genkeys\nDeps\nDeps.pip"
+    "text": "Documenter\nmakedocs\nhide\ndeploydocs\nDocumenter.generate\nTravis\nTravis.genkeys\nDeps\nDeps.pip"
 },
 
 {
@@ -865,11 +873,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.walk_navpages-Tuple{Array{T,1},Any,Any}",
+    "location": "lib/internals/builder.html#Documenter.Builder.walk_navpages-NTuple{6,Any}",
     "page": "Builder",
     "title": "Documenter.Builder.walk_navpages",
     "category": "Method",
-    "text": "walk_navpages(ps, parent, doc)\n\n\nRecursively walks through the Documents.Document's .user.pages field, generating Documents.NavNodes and related data structures in the process.\n\nThis implementation is the de facto specification for the .user.pages field.\n\n\n\n"
+    "text": "walk_navpages(visible, title, src, children, parent, doc)\n\n\nRecursively walks through the Documents.Document's .user.pages field, generating Documents.NavNodes and related data structures in the process.\n\nThis implementation is the de facto specification for the .user.pages field.\n\n\n\n"
 },
 
 {
@@ -1005,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1013,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1829,7 +1837,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navitem",
     "category": "Method",
-    "text": "navitem returns the lists and list items of the navigation menu. It gets called recursively to construct the whole tree.\n\n\n\n"
+    "text": "navitem returns the lists and list items of the navigation menu. It gets called recursively to construct the whole tree.\n\nIt always returns a DOM.Node. If there's nothing to display (e.g. the node is set to be invisible), it returns an empty text node (DOM.Node(\"\")).\n\n\n\n"
 },
 
 {
