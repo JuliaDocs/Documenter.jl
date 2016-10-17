@@ -21,8 +21,7 @@ makedocs(
         ],
         "Library" => Any[
             "Public" => "lib/public.md",
-            "Internals" => Any[
-                "Internals" => "lib/internals.md",
+            hide("Internals" => "lib/internals.md", Any[
                 "lib/internals/anchors.md",
                 "lib/internals/builder.md",
                 "lib/internals/cross-references.md",
@@ -38,7 +37,7 @@ makedocs(
                 "lib/internals/utilities.md",
                 "lib/internals/walkers.md",
                 "lib/internals/writers.md",
-            ]
+            ])
         ]
     ]
 )
