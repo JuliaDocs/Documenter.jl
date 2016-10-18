@@ -576,7 +576,9 @@ Calculates a relative HTML link from one path to another.
 """
 function relhref(from, to)
     pagedir = dirname(from)
-    relpath(to, isempty(pagedir) ? "." : pagedir)
+    # The regex separator replacement is necessary since otherwise building the docs on
+    # Windows will result in paths that have `//` separators which break asset inclusion.
+    replace(relpath(to, isempty(pagedir) ? "." : pagedir), r"[/\\]+", "/")
 end
 
 """
