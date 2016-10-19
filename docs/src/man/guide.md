@@ -19,8 +19,8 @@ to creating a simple document.
 ### Setting up the folder structure
 
 Firstly, we need a Julia module to document. This could be a package generated via
-`PkgDev.generate` or a single `.jl` script. For this guide we'll be using a package called
-`Example.jl` that has the following directory layout:
+`PkgDev.generate` or a single `.jl` script accessible via Julia's `LOAD_PATH`. For this
+guide we'll be using a package called `Example.jl` that has the following directory layout:
 
 ```
 Example/
@@ -67,7 +67,16 @@ makedocs()
 ```
 
 This assumes you've installed Documenter as discussed in [Installation](@ref) and that your
-Examples package can be found by Julia.
+`Example.jl` package can be found by Julia.
+
+!!! note
+
+    If your source directory is not accessible through Julia's LOAD_PATH, you might wish to
+    add the following line at the top of make.jl
+
+    ```julia
+    push!(LOAD_PATH,"../src/")
+    ```
 
 Now add an `index.md` file to the `src/` directory. The name has no particular significance
 though and you may name it whatever you like. We'll stick to `index.md` for this guide.
