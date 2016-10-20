@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1021,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1765,7 +1765,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
-    "text": "A module for rendering Document objects to HTML.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nFor scripts, every assets/*.js gets a <script> link in the <head> tag of every page (except if it matches one of Documenter's default scripts; the filtering is done in user_scripts).\n\nNote that only javascript files are linked to the generated HTML. Any related CSS must be loaded by the script. With jQuery this could be done with the following snippet\n\n$('head').append($('<link rel=\"stylesheet\">').attr('href', documenterBaseURL + \"/assets/<file>.css\"))\n\n\n\n"
+    "text": "A module for rendering Document objects to HTML.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nAdditional JS and CSS assets can be included in the generated pages using the assets keyword for makedocs. assets must be a Vector{String} and will include each listed asset in the <head> of every page in the order in which they are listed. The type of the asset (i.e. whether it is going to be included with a <script> or a <link> tag) is determined by the file's extension – either .js or .css.\n\n\n\n"
 },
 
 {
@@ -1862,14 +1862,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.Writers.HTMLWriter.render_page",
     "category": "Method",
     "text": "Constructs and writes the page referred to by the navnode to .build.\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.user_scripts-Tuple{Any}",
-    "page": "Writers",
-    "title": "Documenter.Writers.HTMLWriter.user_scripts",
-    "category": "Method",
-    "text": "Creates a list of .js files provided by the user under assets. Returns a list of paths relative to the site root.\n\n\n\n"
 },
 
 {
