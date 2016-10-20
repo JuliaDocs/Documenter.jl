@@ -190,6 +190,7 @@ immutable User
     strict::Bool              # Throw an exception when any warnings are encountered.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
+    assets  :: Vector{Compat.String}
     repo    :: Compat.String  # Template for URL to source code repo
     sitename:: Compat.String
     authors :: Compat.String
@@ -237,6 +238,7 @@ function Document(;
         strict::Bool                 = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
+        assets   :: Vector           = Compat.String[],
         repo     :: AbstractString   = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
@@ -259,6 +261,7 @@ function Document(;
         strict,
         Utilities.submodules(modules),
         pages,
+        assets,
         repo,
         sitename,
         authors,

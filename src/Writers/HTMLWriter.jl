@@ -29,17 +29,11 @@ the subdirectories of `assets/` are not linked).
 For the **logo**, Documenter checks for the existence of `assets/logo.png`.
 If that's present, it gets displayed in the navigation bar.
 
-For **scripts**, every `assets/*.js` gets a `<script>` link in the `<head>` tag
-of every page (except if it matches one of Documenter's default scripts;
-the filtering is done in [`user_scripts`](@ref)).
-
-Note that only javascript files are linked to the generated HTML. Any related CSS
-must be loaded by the script. With jQuery this could be done with the following
-snippet
-
-```javascript
-\$('head').append(\$('<link rel="stylesheet">').attr('href', documenterBaseURL + "/assets/<file>.css"))
-```
+Additional JS and CSS assets can be included in the generated pages using the `assets`
+keyword for `makedocs`. `assets` must be a `Vector{String}` and will include each listed
+asset in the `<head>` of every page in the order in which they are listed. The type of
+the asset (i.e. whether it is going to be included with a `<script>` or a `<link>` tag)
+is determined by the file's extension -- either `.js` or `.css`.
 """
 module HTMLWriter
 
@@ -73,7 +67,7 @@ type HTMLContext
     search_js :: Compat.String
     search_index :: IOBuffer
     search_index_js :: Compat.String
-    user_scripts :: Vector{Compat.String}
+    user_assets :: Vector{Compat.String}
 end
 HTMLContext(doc) = HTMLContext(doc, "", [], "", "", "", IOBuffer(), "", [])
 
@@ -101,7 +95,8 @@ function render(doc::Documents.Document)
 
     ctx.documenter_js = copy_asset("documenter.js", doc)
     ctx.search_js = copy_asset("search.js", doc)
-    ctx.user_scripts = user_scripts(doc)
+
+    ctx.user_assets = doc.user.assets
 
     for navnode in doc.internal.navlist
         render_page(ctx, navnode)
@@ -141,26 +136,6 @@ function copy_asset(file, doc)
     normpath(joinpath("assets", file))
 end
 
-"""
-Creates a list of `.js` files provided by the user under `assets`. Returns a list
-of paths relative to the site root.
-"""
-function user_scripts(doc)
-    documenter_assetsdir = joinpath(Utilities.assetsdir(), "html")
-    local_assetsdir = joinpath(doc.user.source, "assets")
-    isdir(local_assetsdir) || return []
-    scripts = filter(readdir(local_assetsdir)) do file
-        # we'll make sure that it's
-        #   1. a file (i.e. not a directory),
-        #   2. a script, determined by the extension
-        #   3. not one of the default assets, which get handled separately
-        isfile(joinpath(local_assetsdir, file)) &&
-            last(splitext(file)) == ".js" &&
-            !isfile(joinpath(documenter_assetsdir, file))
-    end
-    [joinpath("assets", script) for script in scripts]
-end
-
 # Page
 # ------------------------------------------------------------------------------
 
@@ -172,7 +147,7 @@ function render_page(ctx, navnode)
 
     page = getpage(ctx, navnode)
 
-    head = render_head(ctx, navnode, ctx.user_scripts)
+    head = render_head(ctx, navnode, [])
     navmenu = render_navmenu(ctx, navnode)
     article = render_article(ctx, navnode)
 
@@ -196,21 +171,38 @@ function render_head(ctx, navnode, additional_scripts)
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
         title(page_title),
 
+        # Documenter default asset links.
         link[
             :href => relhref(src, ctx.documenter_css),
             :rel => "stylesheet",
             :type => "text/css"
         ],
-
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
         script[
             :src => requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
-        map(additional_scripts) do s
-            script[:src => relhref(src, s)]
-        end
+
+        # Additional JS files needed for the search page.
+        [script[:src => relhref(src, each)] for each in additional_scripts],
+
+        # Custom user-provided assets.
+        asset_links(src, ctx.user_assets)
     )
+end
+
+function asset_links(src::AbstractString, assets::Vector)
+    @tags link script
+    local links = DOM.Node[]
+    for each in assets
+        local ext = splitext(each)[end]
+        local url = relhref(src, each)
+        local node =
+            ext == ".css" ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
+            ext == ".js"  ? script[:src => url] : continue # Skip non-js/css files.
+        push!(links, node)
+    end
+    return links
 end
 
 ## Search page
@@ -220,8 +212,7 @@ function render_search(ctx)
     @tags article body h1 header hr html li nav p span ul
     navnode = Documents.NavNode("search", "Search", nothing)
 
-    additional_scripts = vcat([ctx.search_js, ctx.search_index_js], ctx.user_scripts)
-    head = render_head(ctx, navnode, additional_scripts)
+    head = render_head(ctx, navnode, [ctx.search_js, ctx.search_index_js])
     navmenu = render_navmenu(ctx, navnode)
     article = article(
         header(
