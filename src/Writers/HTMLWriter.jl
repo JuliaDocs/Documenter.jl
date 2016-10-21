@@ -85,7 +85,6 @@ function render(doc::Documents.Document)
     ctx.search_index_js = "search_index.js"
 
     ctx.documenter_css = copy_asset("documenter.css", doc)
-    copy_asset("style.css", doc)
 
     let logo = joinpath("assets", "logo.png")
         if isfile(joinpath(doc.user.build, logo))
@@ -166,17 +165,23 @@ function render_head(ctx, navnode, additional_scripts)
     @tags head meta link script title
     src = get(navnode.page)
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename) documentation"
+    css_links = [
+        "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css",
+        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css",
+        "https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css",
+        relhref(src, ctx.documenter_css),
+    ]
     head(
         meta[:charset=>"UTF-8"],
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
         title(page_title),
 
-        # Documenter default asset links.
-        link[
-            :href => relhref(src, ctx.documenter_css),
-            :rel => "stylesheet",
-            :type => "text/css"
-        ],
+        # Stylesheets.
+        map(css_links) do each
+            link[:href => each, :rel => "stylesheet", :type => "text/css"]
+        end,
+
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
         script[
             :src => requirejs_cdn,
