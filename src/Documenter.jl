@@ -302,6 +302,7 @@ function deploydocs(;
     )
     # Get environment variables.
     github_api_key      = get(ENV, "GITHUB_API_KEY",       "")
+    documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
     travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
     travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
     travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
@@ -328,6 +329,7 @@ function deploydocs(;
         travis_pull_request == "false"   &&
         (
             # Support token and ssh key deployments.
+            documenter_key != "" ||
             github_api_key != "" ||
             has_ssh_key
         ) &&
@@ -347,6 +349,7 @@ function deploydocs(;
         Utilities.debug("TRAVIS_TAG             = \"$travis_tag\"")
         Utilities.debug("git commit SHA         = $sha")
         Utilities.debug("GITHUB_API_KEY exists  = $(github_api_key != "")")
+        Utilities.debug("DOCUMENTER_KEY exists  = $(documenter_key != "")")
         Utilities.debug(".documenter.enc path   = $(ssh_key_file)")
         Utilities.debug(".documenter.enc exists = $(has_ssh_key)")
         Utilities.debug("should_deploy          = $should_deploy")
@@ -381,7 +384,22 @@ function deploydocs(;
 
                 # The upstream URL to which we push new content and the ssh decryption commands.
                 upstream, ssh_script =
-                    if has_ssh_key
+                    if documenter_key != ""
+                        "git@$(replace(repo, "github.com/", "github.com:"))",
+                        """
+                        echo "$(Compat.String(base64decode(documenter_key)))" >> $keyfile
+                        chmod 600 $keyfile
+                        eval `ssh-agent -s`
+                        ssh-add $keyfile
+                        """
+                    elseif has_ssh_key
+                        warn(
+                            """
+                            deploying docs with travis-generated SSH keys is deprecated. Please use the new method discussed in:
+
+                                https://juliadocs.github.io/Documenter.jl/latest/man/hosting.html#SSH-Deploy-Keys-1
+                            """
+                        )
                         key = getenv(r"encrypted_(.+)_key")
                         iv  = getenv(r"encrypted_(.+)_iv")
                         "git@$(replace(repo, "github.com/", "github.com:"))",
@@ -392,6 +410,13 @@ function deploydocs(;
                         ssh-add $keyfile
                         """
                     else
+                        warn(
+                            """
+                            deploying docs with `GITHUB_API_KEY` is deprecated. Please use the new method discussed in:
+
+                                https://juliadocs.github.io/Documenter.jl/latest/man/hosting.html#SSH-Deploy-Keys-1
+                            """
+                        )
                         "https://$github_api_key@$repo", ""
                     end
 
@@ -487,6 +512,11 @@ using Compat, DocStringExtensions
 
 export genkeys
 
+
+const GITHUB_REGEX = isdefined(Base, :LibGit2) ?
+    Base.LibGit2.GITHUB_REGEX : Base.Pkg.Git.GITHUB_REGEX
+
+
 """
 $(SIGNATURES)
 
@@ -521,7 +551,6 @@ function genkeys(package; remote="origin")
     # Error checking. Do the required programs exist?
     success(`which which`)      || error("'which' not found.")
     success(`which git`)        || error("'git' not found.")
-    success(`which travis`)     || error("'travis' not found.")
     success(`which ssh-keygen`) || error("'ssh-keygen' not found.")
 
     directory = "docs"
@@ -531,39 +560,39 @@ function genkeys(package; remote="origin")
     isdir(path) || error("`$path` not found. Provide a package name or directory.")
 
     cd(path) do
-        # Get remote details.
+        # Check for old '$filename.enc' and terminate.
+        isfile("$filename.enc") &&
+            error("$package already has an ssh key. Remove it and try again.")
+
+        # Are we in a git repo?
+        success(`git status`) || error("'Travis.genkey' only works with git repositories.")
+
+        # Find the GitHub repo org and name.
         user, repo =
             let r = readchomp(`git config --get remote.$remote.url`)
-                m = match(isdefined(Base, :LibGit2) ?
-                    Base.LibGit2.GITHUB_REGEX :
-                    Pkg.Git.GITHUB_REGEX, r)
+                m = match(GITHUB_REGEX, r)
                 m === nothing && error("no remote repo named '$remote' found.")
                 m[2], m[3]
             end
 
-        run(`ssh-keygen -N "" -f $filename`)
-        run(`travis login --auto`)
-        run(`travis encrypt-file $filename -r $user/$repo`)
+        # Generate the ssh key pair.
+        success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
 
-        warn("removing private key.")
-        rm(filename)
+        # Prompt user to add public key to github then remove the public key.
+        let url = "https://github.com/$user/$repo/settings/keys"
+            info("add the public key below to $url with read/write access:")
+            println("\n", readstring("$filename.pub"))
+            rm("$filename.pub")
+        end
 
-        println(
-            """
-
-            Add the following public deploy key to '$user/$repo' with write access
-
-            $(strip(readstring("$filename.pub")))
-
-            on the following page:
-
-                https://github.com/$user/$repo/settings/keys
-
-            Then commit the '$filename.enc' file. Do not edit '.travis.yml'.
-            """
-        )
-        warn("removing public key.")
-        rm("$filename.pub")
+        # Base64 encode the private key and prompt user to add it to travis. The key is
+        # *not* encoded for the sake of security, but instead to make it easier to
+        # copy/paste it over to travis without having to worry about whitespace.
+        let url = "https://travis-ci.org/$user/$repo/settings"
+            info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
+            println("\n", base64encode(readstring(".documenter")), "\n")
+            rm(filename)
+        end
     end
 end
 
