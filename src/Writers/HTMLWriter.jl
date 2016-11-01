@@ -53,6 +53,10 @@ import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
 const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
+const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
+const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css"
+const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono"
+const fontawesome_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
 
 """
 [`HTMLWriter`](@ref)-specific globals that are passed to [`domify`](@ref) and
@@ -166,10 +170,10 @@ function render_head(ctx, navnode, additional_scripts)
     src = get(navnode.page)
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename) documentation"
     css_links = [
-        "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css",
-        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css",
-        "https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono",
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css",
+        normalize_css,
+        highlightjs_css,
+        google_fonts,
+        fontawesome_css,
         relhref(src, ctx.documenter_css),
     ]
     head(
