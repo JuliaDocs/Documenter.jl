@@ -33,10 +33,6 @@ const alias_of_getdocs = DocSystem.getdocs # NOTE: won't get docstrings if in a 
         @test b.mod === DocSystem
         @test b.var === :binding
     end
-    let b = DocSystem.binding(getfield(Core.Intrinsics, :ccall))
-        @test b.mod === Core.Intrinsics
-        @test b.var === :ccall
-    end
     let b = DocSystem.binding(Documenter, :Documenter)
         @test b.mod === Main
         @test b.var === :Documenter
