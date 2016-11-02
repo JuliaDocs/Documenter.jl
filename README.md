@@ -3,9 +3,9 @@
 
 *A documentation generator for Julia.*
 
-| **Documentation**                                                               | **PackageEvaluator**                                            | **Build Status**                                                                                |
-|:-------------------------------------------------------------------------------:|:---------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.4-img]][pkg-0.4-url] [![][pkg-0.5-img]][pkg-0.5-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+| **Documentation**                                                               | **PackageEvaluator**                                                                            | **Build Status**                                                                                |
+|:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
+| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.4-img]][pkg-0.4-url] [![][pkg-0.5-img]][pkg-0.5-url] [![][pkg-0.6-img]][pkg-0.6-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 
 
 ## Installation
@@ -23,7 +23,7 @@ julia> Pkg.add("Documenter")
 
 ## Project Status
 
-The package is tested against Julia `0.4` and *current* `0.5-dev` on Linux, OS X, and Windows.
+The package is tested against Julia `0.4`, `0.5`, and *current* `0.6-dev` on Linux, OS X, and Windows.
 
 ## Contributing and Questions
 
@@ -56,3 +56,5 @@ Please open an [issue][issues-url] if you encounter any problems. If you have a 
 [pkg-0.4-url]: http://pkg.julialang.org/?pkg=Documenter
 [pkg-0.5-img]: http://pkg.julialang.org/badges/Documenter_0.5.svg
 [pkg-0.5-url]: http://pkg.julialang.org/?pkg=Documenter
+[pkg-0.6-img]: http://pkg.julialang.org/badges/Documenter_0.6.svg
+[pkg-0.6-url]: http://pkg.julialang.org/?pkg=Documenter
