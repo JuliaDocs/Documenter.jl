@@ -21,7 +21,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/latest/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
-- [DifferentialEquations.jl](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/)
+- [DifferentialEquations.jl](http://juliadiffeq.github.io/DiffEqDocs.jl/latest/)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
