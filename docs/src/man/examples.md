@@ -24,6 +24,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [DifferentialEquations.jl](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest)
+- [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
