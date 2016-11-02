@@ -12,21 +12,16 @@
  * License: MIT
  */
 
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css');
-@import url("https://fonts.googleapis.com/css?family=Lato");
-@import url("https://fontlibrary.org/face/fantasque-sans-mono");
-
 /* fonts */
 body, input {
-  font-family: "Lato", Arial, sans-serif;
+  font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  color: #222;
+  text-rendering: optimizeLegibility;
 }
 
 pre, code {
-  font-family: 'Fantasque Sans Mono', monospace;
-}
-
-body {
-    color: #333;
+  font-family: 'Ubuntu Mono', Monaco, courier, monospace;
 }
 
 a {
@@ -386,4 +381,14 @@ article section.docstring a.source-link {
 
 #search-results .category:before {
     content: " ";
+}
+
+/* Overriding the <code> block style of highligh.js.
+ * We have to override the padding and the background-color, since we style this
+ * part ourselves. Specifically, we style the <pre> surrounding the <code>, while
+ * highlight.js applies the .hljs style directly to the <code> tag.
+ */
+.hljs {
+    background-color: transparent;
+    padding: 0;
 }
