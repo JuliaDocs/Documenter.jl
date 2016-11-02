@@ -168,7 +168,7 @@ end
 function render_head(ctx, navnode, additional_scripts)
     @tags head meta link script title
     src = get(navnode.page)
-    page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename) documentation"
+    page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
         normalize_css,
         highlightjs_css,
