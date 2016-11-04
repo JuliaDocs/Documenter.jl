@@ -182,7 +182,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
-                eval(sandbox, ex)
+                Core.eval(sandbox, ex)
             end
             result.value = value
             print(result.stdout, text)
@@ -207,7 +207,7 @@ function eval_script(code, sandbox, meta::Dict, doc::Documents.Document, page)
     result = Result(code, "", output, meta[:CurrentFile])
     for (ex, str) in Utilities.parseblock(input, doc, page)
         (value, success, backtrace, text) = Utilities.withoutput() do
-            eval(sandbox, ex)
+            Core.eval(sandbox, ex)
         end
         result.value = value
         print(result.stdout, text)
@@ -226,12 +226,17 @@ function checkresult(result::Result, doc::Documents.Document)
         # test for doctest success/failure.
         head = split(result.output, "\n[...]"; limit = 2)[1]
         str  = error_to_string(result.stdout, result.value, result.bt)
-        startswith(str, head) || report(result, str, doc)
+        # Since checking for the prefix of an error won't catch the empty case we need
+        # to check that manually with `isempty`.
+        if isempty(head) || !startswith(str, head)
+            report(result, str, doc)
+        end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
         str   = result_to_string(result.stdout, value)
         strip(str) == strip(sanitise(IOBuffer(result.output))) || report(result, str, doc)
     end
+    return nothing
 end
 
 # from base/REPL.jl
@@ -260,10 +265,30 @@ else
     text_display(buf) = TextDisplay(IOContext(buf, multiline = true, limit = true))
 end
 
-function error_to_string(buf, er, bt)
-    print(buf, "ERROR: ")
-    showerror(buf, er, bt)
-    sanitise(buf)
+funcsym() = CAN_INLINE[] ? :withoutput : :eval
+
+if isdefined(Base.REPL, :ip_matches_func)
+    function error_to_string(buf, er, bt)
+        local fs = funcsym()
+        # Remove unimportant backtrace info.
+        local index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
+        # Print a REPL-like error message.
+        print(buf, "ERROR: ")
+        showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
+        sanitise(buf)
+    end
+else
+    # Compat for Julia 0.4.
+    function error_to_string(buf, er, bt)
+        local fs = funcsym()
+        print(buf, "ERROR: ")
+        try
+            Base.showerror(buf, er)
+        finally
+            Base.show_backtrace(buf, fs, bt, 1:typemax(Int))
+        end
+        sanitise(buf)
+    end
 end
 
 # Strip trailing whitespace and remove terminal colors.
@@ -314,7 +339,7 @@ const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
 
 function repl_splitter(code)
-    lines  = split(code, '\n')
+    lines  = split(string(code, "\n"), '\n')
     input  = Compat.String[]
     output = Compat.String[]
     buffer = IOBuffer()
@@ -482,5 +507,11 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
     return false
 end
 linkcheck(other, doc::Documents.Document) = true
+
+
+const CAN_INLINE = Ref(true)
+function __init__()
+    CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
+end
 
 end
