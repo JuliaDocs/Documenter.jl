@@ -56,4 +56,10 @@ ErrorsModule.func
 julia> b = 1
 2
 
+julia> x
+
+julia> x
+ERROR: UndefVarError: x not defined
+
+julia> x
 ```
