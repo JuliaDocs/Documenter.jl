@@ -21,9 +21,11 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/latest/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
-- [DifferentialEquations.jl](http://juliadiffeq.github.io/DifferentialEquations.jl/latest/)
+- [DifferentialEquations.jl](http://juliadiffeq.github.io/DiffEqDocs.jl/latest/)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest)
+- [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
+- [Luxor.jl](https://cormullion.github.io/Luxor.jl)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
@@ -34,7 +36,6 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [Query.jl](http://www.david-anthoff.com/Query.jl/stable/)
 - [TaylorSeries.jl](http://www.juliadiff.org/TaylorSeries.jl/latest/)
 - [Weave.jl](https://mpastell.github.io/Weave.jl/stable)
-- [Luxor.jl](https://cormullion.github.io/Luxor.jl)
 
 ## Unregistered
 
