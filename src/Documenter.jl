@@ -386,84 +386,67 @@ function deploydocs(;
                 target_dir = abspath(target)
 
                 # The upstream URL to which we push new content and the ssh decryption commands.
-                upstream, ssh_script =
+                upstream =
                     if documenter_key != ""
-                        "git@$(replace(repo, "github.com/", "github.com:"))",
-                        """
-                        echo "$(Compat.String(base64decode(documenter_key)))" >> $keyfile
-                        chmod 600 $keyfile
-                        eval `ssh-agent -s`
-                        ssh-add $keyfile
-                        """
+                        write(keyfile, Compat.String(base64decode(documenter_key)))
+                        chmod(keyfile, 0o600)
+                        "git@$(replace(repo, "github.com/", "github.com:"))"
                     elseif has_ssh_key
-                        warn(
-                            """
-                            deploying docs with travis-generated SSH keys is deprecated. Please use the new method discussed in:
-
-                                https://juliadocs.github.io/Documenter.jl/latest/man/hosting.html#SSH-Deploy-Keys-1
-                            """
-                        )
+                        dep_warn("travis-generated SSH keys")
                         key = getenv(r"encrypted_(.+)_key")
                         iv  = getenv(r"encrypted_(.+)_iv")
-                        "git@$(replace(repo, "github.com/", "github.com:"))",
-                        """
-                        openssl aes-256-cbc -K $key -iv $iv -in $keyfile.enc -out $keyfile -d
-                        chmod 600 $keyfile
-                        eval `ssh-agent -s`
-                        ssh-add $keyfile
-                        """
+                        success(`openssl aes-256-cbc -K $key -iv $iv -in $keyfile.enc -out $keyfile -d`) ||
+                            error("failed to decrypt SSH key.")
+                        chmod(keyfile, 0o600)
+                        "git@$(replace(repo, "github.com/", "github.com:"))"
                     else
-                        warn(
-                            """
-                            deploying docs with `GITHUB_API_KEY` is deprecated. Please use the new method discussed in:
-
-                                https://juliadocs.github.io/Documenter.jl/latest/man/hosting.html#SSH-Deploy-Keys-1
-                            """
-                        )
-                        "https://$github_api_key@$repo", ""
+                        dep_warn("`GITHUB_API_KEY`")
+                        "https://$github_api_key@$repo"
                     end
 
-                # On non-tagged builds we just build `latest`,
-                # otherwise build the `stable` and `version` builds.
-                copy_script =
-                    if travis_tag == ""
-                        """
-                        rm -rf $latest_dir
-                        cp -r  $target_dir $latest_dir
-                        """
-                    else
-                        """
-                        rm -rf $stable_dir
-                        cp -r  $target_dir $stable_dir
-                        rm -rf $tagged_dir
-                        cp -r  $target_dir $tagged_dir
-                        """
+                # Use a custom SSH config file to avoid overwriting the default user config.
+                withfile(joinpath(homedir(), ".ssh", "config"),
+                    """
+                    Host github.com
+                        StrictHostKeyChecking no
+                        HostName github.com
+                        IdentityFile $keyfile
+                    """
+                ) do
+                    cd(temp) do
+                        # Setup git.
+                        run(`git init`)
+                        run(`git config user.name "autodocs"`)
+                        run(`git config user.email "autodocs"`)
+
+                        # Fetch from remote and checkout the branch.
+                        success(`git remote add upstream $upstream`) ||
+                            error("could not add new remote repo.")
+
+                        success(`git fetch upstream`) ||
+                            error("could not fetch from remote.")
+
+                        success(`git checkout -b $branch upstream/$branch`) ||
+                            error("could not checkout remote branch.")
+
+                        # Copy docs to `latest`, or `stable` and `<version>` directories.
+                        if isempty(travis_tag)
+                            cp(target_dir, latest_dir; remove_destination = true)
+                        else
+                            cp(target_dir, stable_dir; remove_destination = true)
+                            cp(target_dir, tagged_dir; remove_destination = true)
+                        end
+
+                        # Add, commit, and push the docs to the remote.
+                        run(`git add -A .`)
+                        try run(`git commit -m "build based on $sha"`) end
+
+                        success(`git push -q upstream HEAD:$branch`) ||
+                            error("could not push to remote repo.")
+
+                        # Remove the unencrypted private key.
+                        isfile(keyfile) && rm(keyfile)
                     end
-
-                # Auto authorise SSH authentication requests for github.com.
-                open(joinpath(homedir(), ".ssh", "config"), "a") do io
-                    println(io,
-                        """
-                        Host github.com
-                            StrictHostKeyChecking no
-                        """
-                    )
-                end
-
-                # Write, run, and delete the deploy script.
-                mktemp() do path, io
-                    script = buildscript(
-                        temp,
-                        upstream,
-                        branch,
-                        ssh_script,
-                        copy_script,
-                        sha,
-                    )
-                    println(io, script); flush(io) # `flush`, otherwise `path` is empty.
-                    run(`sh $path`)
-                    # Remove the unencrypted private key.
-                    isfile(keyfile) && rm(keyfile)
                 end
             end
         end
@@ -472,30 +455,34 @@ function deploydocs(;
     end
 end
 
-buildscript(dir, upstream, branch, ssh_script, copy_script, sha) =
+function withfile(func, file::AbstractString, contents::AbstractString)
+    local hasfile = isfile(file)
+    local original = hasfile ? readstring(file) : ""
+    open(file, "w") do stream
+        print(stream, contents)
+        flush(stream) # Make sure file is written before continuing.
+    end
+    try
+        func()
+    finally
+        if hasfile
+            open(file, "w") do stream
+                print(stream, original)
+            end
+        else
+            rm(file)
+        end
+    end
+end
+
+dep_warn(msg) = warn(
     """
-    $ssh_script
+    deploying docs with $msg is deprecated. Please use the new method discussed in:
 
-    cd $dir
+        https://juliadocs.github.io/Documenter.jl/latest/man/hosting.html#SSH-Deploy-Keys-1
 
-    git init
-
-    git config user.name  "autodocs"
-    git config user.email "autodocs"
-
-    git remote add upstream "$upstream"
-
-    git fetch upstream
-
-    git checkout -b $branch upstream/$branch
-
-    $copy_script
-
-    git add -A .
-    git commit -m "build based on $sha"
-
-    git push -q upstream HEAD:$branch
     """
+)
 
 function getenv(k::Regex)
     found = collect(filter(s -> ismatch(k, s), keys(ENV)))
