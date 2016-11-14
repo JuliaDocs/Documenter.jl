@@ -289,6 +289,7 @@ GitHub.
 function deploydocs(;
         root   = Utilities.currentdir(),
         target = "site",
+        dirname = "",
 
         repo   = error("no 'repo' keyword provided."),
         branch = "gh-pages",
@@ -374,10 +375,12 @@ function deploydocs(;
             end
             Utilities.log("pushing new documentation to remote: $repo:$branch.")
             mktempdir() do temp
+                dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
+                isdir(dirname) || mkpath(dirname)
                 # Versioned docs directories.
-                latest_dir = joinpath(temp, "latest")
-                stable_dir = joinpath(temp, "stable")
-                tagged_dir = joinpath(temp, travis_tag)
+                latest_dir = joinpath(dirname, "latest")
+                stable_dir = joinpath(dirname, "stable")
+                tagged_dir = joinpath(dirname, travis_tag)
 
                 keyfile, _ = splitext(ssh_key_file)
                 target_dir = abspath(target)
