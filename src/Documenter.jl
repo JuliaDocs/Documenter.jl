@@ -484,9 +484,11 @@ dep_warn(msg) = warn(
     """
 )
 
-function getenv(k::Regex)
-    found = collect(filter(s -> ismatch(k, s), keys(ENV)))
-    length(found) === 1 ? ENV[found[1]] : error("no keys found in ENV 'key/iv' pair.")
+function getenv(regex::Regex)
+    for (key, value) in ENV
+        ismatch(regex, key) && return value
+    end
+    error("could not find key/iv pair.")
 end
 
 export Travis
