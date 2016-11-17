@@ -48,7 +48,7 @@ function missingdocs(doc::Documents.Document)
             end
         end
         push!(doc.internal.errors, :missing_docs)
-        Utilities.warn(takebuf_string(b))
+        Utilities.warn(Utilities.takebuf_str(b))
     end
 end
 
@@ -297,7 +297,7 @@ function sanitise(buffer)
     for line in eachline(seekstart(buffer))
         println(out, rstrip(line))
     end
-    remove_term_colors(rstrip(takebuf_string(out), '\n'))
+    remove_term_colors(rstrip(Utilities.takebuf_str(out), '\n'))
 end
 
 function report(result::Result, str, doc::Documents.Document)
@@ -313,7 +313,7 @@ function report(result::Result, str, doc::Documents.Document)
     print_indented(buffer, "returned:")
     print_indented(buffer, rstrip(str); indent = 8) # Drops trailing whitespace.
     push!(doc.internal.errors, :doctest)
-    Utilities.warn(takebuf_string(buffer))
+    Utilities.warn(Utilities.takebuf_str(buffer))
 end
 
 function print_indented(buffer::IO, str::AbstractString; indent = 4)
@@ -369,7 +369,7 @@ end
 
 function savebuffer!(out, buf)
     n = nb_available(seekstart(buf))
-    n > 0 ? push!(out, rstrip(takebuf_string(buf))) : out
+    n > 0 ? push!(out, rstrip(Utilities.takebuf_str(buf))) : out
 end
 
 function takeuntil!(r, buf, lines)

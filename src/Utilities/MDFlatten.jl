@@ -9,6 +9,8 @@ module MDFlatten
 
 export mdflatten
 
+import ..Utilities
+
 import Base.Markdown:
     MD, BlockQuote, Bold, Code, Header, HorizontalRule,
     Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table
@@ -23,7 +25,7 @@ then be used as input for search engines.
 function mdflatten(md)
     io = IOBuffer()
     mdflatten(io, md)
-    takebuf_string(io)
+    Utilities.takebuf_str(io)
 end
 
 mdflatten(io, md) = mdflatten(io, md, md)
