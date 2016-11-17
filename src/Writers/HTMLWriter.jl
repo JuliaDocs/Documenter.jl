@@ -109,7 +109,7 @@ function render(doc::Documents.Document)
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\": [\n")
-        write(io, takebuf_string(ctx.search_index))
+        write(io, Utilities.takebuf_str(ctx.search_index))
         println(io, "]}")
     end
 end
@@ -419,7 +419,7 @@ search_append(sib, node) = mdflatten(sib.buffer, node)
 
 function search_flush(sib)
     ref = isempty(sib.src) ? sib.src : "$(sib.src)#$(sib.loc)"
-    text = takebuf_string(sib.buffer)
+    text = Utilities.takebuf_str(sib.buffer)
     println(sib.ctx.search_index, """
     {
         "location": "$(jsonescape(ref))",

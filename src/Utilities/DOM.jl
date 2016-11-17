@@ -94,6 +94,8 @@ text escaped.
 """
 module DOM
 
+import ..Utilities
+
 using Compat
 
 if VERSION < v"0.5.0-dev"
@@ -237,8 +239,8 @@ function attributes!(out, s::AbstractString)
     for x in eachmatch(r"[#|\.]([\w\-]+)", s)
         print(startswith(x.match, '.') ? class : id, x.captures[1], ' ')
     end
-    position(class) === 0 || push!(out, tostr(:class => rstrip(takebuf_string(class))))
-    position(id)    === 0 || push!(out, tostr(:id    => rstrip(takebuf_string(id))))
+    position(class) === 0 || push!(out, tostr(:class => rstrip(Utilities.takebuf_str(class))))
+    position(id)    === 0 || push!(out, tostr(:id    => rstrip(Utilities.takebuf_str(id))))
     return out
 end
 attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
@@ -296,7 +298,7 @@ function escapehtml(text::AbstractString)
             char === '\'' ? write(buffer, "&#39;")  :
             char === '"'  ? write(buffer, "&quot;") : write(buffer, char)
         end
-        takebuf_string(buffer)
+        Utilities.takebuf_str(buffer)
     else
         text
     end

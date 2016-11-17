@@ -518,7 +518,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             println(out, output, "\n")
         end
     end
-    page.mapping[x] = Base.Markdown.Code("julia", rstrip(takebuf_string(out)))
+    page.mapping[x] = Base.Markdown.Code("julia", rstrip(Utilities.takebuf_str(out)))
 end
 
 # @setup
@@ -582,7 +582,7 @@ function droplines(code; skip = 0)
         ismatch(r"^(.*)# hide$", line) && continue
         println(buffer, rstrip(line))
     end
-    strip(takebuf_string(buffer), '\n')
+    strip(Utilities.takebuf_str(buffer), '\n')
 end
 
 function prepend_prompt(input)
@@ -593,7 +593,7 @@ function prepend_prompt(input)
         line = rstrip(line)
         println(out, n == 1 ? prompt : padding, line)
     end
-    rstrip(takebuf_string(out))
+    rstrip(Utilities.takebuf_str(out))
 end
 
 end
