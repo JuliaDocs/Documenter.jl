@@ -429,12 +429,19 @@ function deploydocs(;
                         success(`git checkout -b $branch upstream/$branch`) ||
                             error("could not checkout remote branch.")
 
-                        # Copy docs to `latest`, or `stable` and `<version>` directories.
+                        # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
                         if isempty(travis_tag)
                             cp(target_dir, latest_dir; remove_destination = true)
                         else
                             cp(target_dir, stable_dir; remove_destination = true)
                             cp(target_dir, tagged_dir; remove_destination = true)
+                            # Build a `release-*.*` folder as well when the travis tag is
+                            # valid, which it *should* always be anyway.
+                            if ismatch(Base.VERSION_REGEX, travis_tag)
+                                local version = VersionNumber(travis_tag)
+                                local release = "release-$(version.major).$(version.minor)"
+                                cp(target_dir, joinpath(dirname, release); remove_destination = true)
+                            end
                         end
 
                         # Add, commit, and push the docs to the remote.
