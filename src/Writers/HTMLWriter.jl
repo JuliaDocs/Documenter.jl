@@ -192,6 +192,8 @@ function render_head(ctx, navnode, additional_scripts)
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
 
+        script[:src => relhref(src, "../versions.js")],
+
         # Additional JS files needed for the search page.
         [script[:src => relhref(src, each)] for each in additional_scripts],
 
@@ -248,12 +250,12 @@ end
 # ------------------------------------------------------------------------------
 
 function render_navmenu(ctx, navnode)
-    @tags a form h1 img input nav
+    @tags a form h1 img input nav div select option
     src = get(navnode.page)
     navmenu = nav[".toc"]
     if !isempty(ctx.logo)
         push!(navmenu.nodes,
-            a[:href => ""]( # TODO: link to github?
+            a[:href => relhref(src, "index.html")](
                 img[
                     ".logo",
                     :src => relhref(src, ctx.logo),
@@ -265,12 +267,22 @@ function render_navmenu(ctx, navnode)
     push!(navmenu.nodes, h1(ctx.doc.user.sitename))
     push!(navmenu.nodes,
         form[".search", :action => relhref(src, "search.html")](
+            select[
+                "#version-selector",
+                :onChange => "window.location.href=this.value",
+            ](
+                option[
+                    :value => "#",
+                    :selected => "selected",
+                    :disabled => "disabled",
+                ]("Version"),
+            ),
             input[
                 "#search-query",
                 :name => "q",
                 :type => "text",
-                :placeholder => "Search docs"
-            ]
+                :placeholder => "Search docs",
+            ],
         )
     )
     push!(navmenu.nodes, navitem(ctx, navnode))
@@ -363,6 +375,26 @@ function render_article(ctx, navnode)
 
     pagenodes = domify(ctx, navnode)
     article["#docs"](art_header, pagenodes, art_footer)
+end
+
+function generate_version_file(dir::AbstractString)
+    local named_folders = []
+    local release_folders = []
+    local tag_folders = []
+    for each in readdir(dir)
+        each in ("stable", "latest")        ? push!(named_folders,   each) :
+        ismatch(r"release\-\d+\.\d+", each) ? push!(release_folders, each) :
+        ismatch(Base.VERSION_REGEX, each)   ? push!(tag_folders,     each) : nothing
+    end
+    open(joinpath(dir, "versions.js"), "w") do buf
+        println(buf, "var DOC_VERSIONS = [")
+        for group in (named_folders, release_folders, tag_folders)
+            for folder in sort!(group, rev = true)
+                println(buf, "  \"", folder, "\",")
+            end
+        end
+        println(buf, "];")
+    end
 end
 
 ## domify(...)
