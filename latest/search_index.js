@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.BeaData.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDocumenter.jl\nExtractMacro.jl\nHighlights.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOptim.jl\nPhyloNetworks.jl\nPOMDPs.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.BeaData.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nHighlights.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOptim.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
 },
 
 {
