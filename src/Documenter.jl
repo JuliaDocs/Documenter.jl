@@ -446,7 +446,7 @@ function deploydocs(;
 
                         # Create the versions.js file containing a list of all docs
                         # versions. This must always happen after the folder copying.
-                        Writers.HTMLWriter.generate_version_file(pwd())
+                        Writers.HTMLWriter.generate_version_file(dirname)
 
                         # Add, commit, and push the docs to the remote.
                         run(`git add -A .`)
