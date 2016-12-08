@@ -96,3 +96,43 @@ INFO: ...
 ```@raw latex
 \end{verbatim}
 ```
+
+# Symbols in doctests
+
+```jldoctest
+julia> a = :undefined
+:undefined
+
+julia> a
+:undefined
+```
+
+# Named doctests
+
+```jldoctest test-one
+julia> a = 1
+1
+```
+
+```jldoctest test-one
+julia> a + 1
+2
+```
+
+# Sanitise module names
+
+```jldoctest
+julia> type T end
+
+julia> t = T()
+T()
+
+julia> fullname(current_module())
+()
+
+julia> fullname(Base.Pkg)
+(:Base,:Pkg)
+
+julia> current_module()
+Main
+```
