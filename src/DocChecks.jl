@@ -125,6 +125,7 @@ end
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
     if block.language == "jldoctest"
         code, sandbox = replace(block.code, "\r\n", "\n"), Module(:Main)
+        eval(sandbox, :(__ans__!(value) = (global ans = value)))
         if haskey(meta, :DocTestSetup)
             expr = meta[:DocTestSetup]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
@@ -188,7 +189,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
             print(result.stdout, text)
             if success
                 # Redefine the magic `ans` binding available in the REPL.
-                eval(sandbox, :(ans = $(result.value)))
+                sandbox.__ans__!(result.value)
             else
                 result.bt = backtrace
             end

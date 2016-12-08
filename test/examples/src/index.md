@@ -96,3 +96,13 @@ INFO: ...
 ```@raw latex
 \end{verbatim}
 ```
+
+# Symbols in doctests
+
+```jldoctest
+julia> a = :undefined
+:undefined
+
+julia> a
+:undefined
+```
