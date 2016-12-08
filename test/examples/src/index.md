@@ -106,3 +106,15 @@ julia> a = :undefined
 julia> a
 :undefined
 ```
+
+# Named doctests
+
+```jldoctest test-one
+julia> a = 1
+1
+```
+
+```jldoctest test-one
+julia> a + 1
+2
+```

@@ -123,9 +123,17 @@ function doctest(doc::Documents.Document)
 end
 
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
-    if block.language == "jldoctest"
-        code, sandbox = replace(block.code, "\r\n", "\n"), Module(:Main)
-        eval(sandbox, :(__ans__!(value) = (global ans = value)))
+    local matched = Utilities.nullmatch(r"jldoctest[ ]?(.*)$", block.language)
+    if !isnull(matched)
+        # Define new module or reuse an old one from this page if we have a named doctest.
+        local name = Utilities.getmatch(matched, 1)
+        local sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
+        local sandbox = get!(page.globals.meta, sym, Module(sym))::Module
+        if !isdefined(sandbox, :__ans__!)
+            eval(sandbox, :(__ans__!(value) = (global ans = value)))
+        end
+        # Normalise line endings.
+        local code = replace(block.code, "\r\n", "\n")
         if haskey(meta, :DocTestSetup)
             expr = meta[:DocTestSetup]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
