@@ -118,3 +118,21 @@ julia> a = 1
 julia> a + 1
 2
 ```
+
+# Sanitise module names
+
+```jldoctest
+julia> type T end
+
+julia> t = T()
+T()
+
+julia> fullname(current_module())
+()
+
+julia> fullname(Base.Pkg)
+(:Base,:Pkg)
+
+julia> current_module()
+Main
+```

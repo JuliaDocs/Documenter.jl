@@ -202,7 +202,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
                 result.bt = backtrace
             end
         end
-        checkresult(result, doc)
+        checkresult(sandbox, result, doc)
     end
 end
 
@@ -225,16 +225,18 @@ function eval_script(code, sandbox, meta::Dict, doc::Documents.Document, page)
             break
         end
     end
-    checkresult(result, doc)
+    checkresult(sandbox, result, doc)
 end
 
-function checkresult(result::Result, doc::Documents.Document)
+# Regex used here to replace gensym'd module names could probably use improvements.
+function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
+    local mod_regex = Regex("(Symbol\\(\"$(sandbox)\"\\)|$(sandbox))[,.]")
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
-        head = split(result.output, "\n[...]"; limit = 2)[1]
-        str  = error_to_string(result.stdout, result.value, result.bt)
+        head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex, "")
+        str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
         if isempty(head) || !startswith(str, head)
@@ -242,8 +244,11 @@ function checkresult(result::Result, doc::Documents.Document)
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
-        str   = result_to_string(result.stdout, value)
-        strip(str) == strip(sanitise(IOBuffer(result.output))) || report(result, str, doc)
+        str = replace(result_to_string(result.stdout, value), mod_regex, "")
+        # Replace a standalone module name with `Main`.
+        str = replace(str, Regex(string(sandbox)), "Main")
+        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
+        strip(str) == output || report(result, str, doc)
     end
     return nothing
 end
