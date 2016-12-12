@@ -211,7 +211,7 @@ function find_object(λ::Union{Function, DataType}, binding, typesig)
         return Utilities.Object(binding, typesig)
     end
 end
-find_object(::Union{Function, DataType}, binding, ::Union) = Utilities.Object(binding, Union{})
+find_object(::Union{Function, DataType}, binding, ::Union{Union,Type{Union{}}}) = Utilities.Object(binding, Union{})
 find_object(other, binding, typesig) = Utilities.Object(binding, typesig)
 
 _method_exists(f, t) = method_exists(f, t)
