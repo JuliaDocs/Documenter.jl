@@ -256,7 +256,7 @@ function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
 end
-print_signature(io::IO, signature::Union) = nothing
+print_signature(io::IO, signature::Union{Union, Type{Union{}}}) = nothing
 print_signature(io::IO, signature)        = print(io, '-', signature)
 
 ## docs
@@ -288,7 +288,7 @@ Returns the category name of the provided [`Object`](@ref).
 doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
     "Macro" : doccat(obj.binding, obj.signature)
 
-function doccat(b::Binding, ::Union)
+function doccat(b::Binding, ::Union{Union, Type{Union{}}})
     if b.mod === Main && haskey(Base.Docs.keywords, b.var)
         "Keyword"
     elseif startswith(string(b.var), '@')
