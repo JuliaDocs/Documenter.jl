@@ -122,6 +122,11 @@ function doctest(doc::Documents.Document)
     end
 end
 
+function __ans__!(m::Module, value)
+    isdefined(m, :__ans__!) || eval(m, :(__ans__!(value) = global ans = value))
+    return eval(m, Expr(:call, () -> m.__ans__!(value)))
+end
+
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
     local matched = Utilities.nullmatch(r"jldoctest[ ]?(.*)$", block.language)
     if !isnull(matched)
@@ -129,9 +134,6 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         local name = Utilities.getmatch(matched, 1)
         local sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
         local sandbox = get!(page.globals.meta, sym, Module(sym))::Module
-        if !isdefined(sandbox, :__ans__!)
-            eval(sandbox, :(__ans__!(value) = (global ans = value)))
-        end
         # Normalise line endings.
         local code = replace(block.code, "\r\n", "\n")
         if haskey(meta, :DocTestSetup)
@@ -197,7 +199,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
             print(result.stdout, text)
             if success
                 # Redefine the magic `ans` binding available in the REPL.
-                sandbox.__ans__!(result.value)
+                __ans__!(sandbox, result.value)
             else
                 result.bt = backtrace
             end
@@ -342,7 +344,7 @@ end
 const TERM_COLOR_REGEX =
     let _1 = map(escape_string, values(Base.text_colors)),
         _2 = map(each -> replace(each, "[", "\\["), _1)
-        Regex(string("(\\e\\[31m|", join(_2, "|"), ")"))
+        Regex(string("(\\e\\[31m|\\e\\[22m|", join(_2, "|"), ")"))
     end
 
 remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")
