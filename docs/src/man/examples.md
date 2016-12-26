@@ -9,7 +9,9 @@ should give a good overview of what this package is currently able to do.
 !!! note
 
     Packages are listed alphabetically. If you have a package that uses Documenter then
-    please open a PR that adds it to the appropriate list below.
+    please open a PR that adds it to the appropriate list below; a simple way to do so 
+    is to navigate to
+    https://github.com/JuliaDocs/Documenter.jl/edit/master/docs/src/man/examples.md.
 
     The `make.jl` file for all listed packages will be tested to check for potential
     regressions prior to tagging new Documenter releases whenever possible.
@@ -26,6 +28,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
+- [IntervalConstraintProgramming.jl](https://github.com/dpsanders/IntervalConstraintProgramming.jl/latest/)
 - [Luxor.jl](https://cormullion.github.io/Luxor.jl)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
