@@ -547,5 +547,6 @@ end
 
 include("DOM.jl")
 include("MDFlatten.jl")
+include("TextDiff.jl")
 
 end
