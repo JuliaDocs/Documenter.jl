@@ -28,7 +28,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
-- [IntervalConstraintProgramming.jl](https://github.com/dpsanders/IntervalConstraintProgramming.jl/latest/)
+- [IntervalConstraintProgramming.jl](http://dpsanders.github.io/IntervalConstraintProgramming.jl/latest/)
 - [Luxor.jl](https://cormullion.github.io/Luxor.jl)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
