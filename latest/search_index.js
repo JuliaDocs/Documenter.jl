@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Examples",
     "category": "section",
-    "text": "Sometimes the best way to learn how to use a new package is to look for examples of what others have already built with it.The following packages use Documenter to build their documentation and so should give a good overview of what this package is currently able to do.note: Note\nPackages are listed alphabetically. If you have a package that uses Documenter then please open a PR that adds it to the appropriate list below.The make.jl file for all listed packages will be tested to check for potential regressions prior to tagging new Documenter releases whenever possible."
+    "text": "Sometimes the best way to learn how to use a new package is to look for examples of what others have already built with it.The following packages use Documenter to build their documentation and so should give a good overview of what this package is currently able to do.note: Note\nPackages are listed alphabetically. If you have a package that uses Documenter then please open a PR that adds it to the appropriate list below; a simple way to do so  is to navigate to https://github.com/JuliaDocs/Documenter.jl/edit/master/docs/src/man/examples.md.The make.jl file for all listed packages will be tested to check for potential regressions prior to tagging new Documenter releases whenever possible."
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.BeaData.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nHighlights.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOptim.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.BeaData.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOptim.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
 },
 
 {
@@ -1005,7 +1005,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
