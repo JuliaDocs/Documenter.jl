@@ -316,20 +316,28 @@ function sanitise(buffer)
     remove_term_colors(rstrip(Utilities.takebuf_str(out), '\n'))
 end
 
+import .Utilities.TextDiff
+
 function report(result::Result, str, doc::Documents.Document)
-    buffer = IOBuffer()
-    println(buffer, "Test error in the following code block in '$(result.file)':")
-    print_indented(buffer, result.code; indent = 8)
-    if result.input != ""
-        print_indented(buffer, "in expression:")
-        print_indented(buffer, result.input; indent = 8)
+    local buffer = IOBuffer()
+    println(buffer, "=====[Test Error]", "="^30)
+    println(buffer)
+    print_with_color(:cyan, buffer, "> File: ", result.file, "\n")
+    print_with_color(:cyan, buffer, "\n> Code block:\n")
+    println(buffer, "\n```jldoctest")
+    println(buffer, result.code)
+    println(buffer, "```")
+    if !isempty(result.input)
+        print_with_color(:cyan, buffer, "\n> Subexpression:\n")
+        print_indented(buffer, result.input; indent = 4)
     end
-    print_indented(buffer, "expected:")
-    print_indented(buffer, result.output; indent = 8)
-    print_indented(buffer, "returned:")
-    print_indented(buffer, rstrip(str); indent = 8) # Drops trailing whitespace.
+    local warning = Base.have_color ? "" : " (REQUIRES COLOR)"
+    print_with_color(:cyan, buffer, "\n> Output Diff", warning, ":\n\n")
+    local diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
+    Utilities.TextDiff.showdiff(buffer, diff)
+    println(buffer, "\n\n", "=====[End Error]=", "="^30)
     push!(doc.internal.errors, :doctest)
-    Utilities.warn(Utilities.takebuf_str(buffer))
+    print_with_color(:normal, Utilities.takebuf_str(buffer))
 end
 
 function print_indented(buffer::IO, str::AbstractString; indent = 4)

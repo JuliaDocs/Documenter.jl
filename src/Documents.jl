@@ -194,6 +194,7 @@ immutable User
     repo    :: Compat.String  # Template for URL to source code repo
     sitename:: Compat.String
     authors :: Compat.String
+    analytics::Compat.String
 end
 
 """
@@ -242,6 +243,7 @@ function Document(;
         repo     :: AbstractString   = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
+        analytics :: AbstractString = "",
         others...
     )
     Utilities.check_kwargs(others)
@@ -265,6 +267,7 @@ function Document(;
         repo,
         sitename,
         authors,
+        analytics,
     )
     internal = Internal(
         Utilities.assetsdir(),

@@ -181,6 +181,8 @@ function render_head(ctx, navnode, additional_scripts)
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
         title(page_title),
 
+        analytics_script(ctx.doc.user.analytics),
+
         # Stylesheets.
         map(css_links) do each
             link[:href => each, :rel => "stylesheet", :type => "text/css"]
@@ -215,6 +217,19 @@ function asset_links(src::AbstractString, assets::Vector)
     end
     return links
 end
+
+analytics_script(tracking_id::AbstractString) =
+    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : Tag(:script)(
+        """
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', '$(tracking_id)', 'auto');
+        ga('send', 'pageview');
+        """
+    )
 
 ## Search page
 # ------------
@@ -697,6 +712,7 @@ mdconvert(b::Markdown.Bold, parent) = Tag(:strong)(mdconvert(b.text, parent))
 function mdconvert(c::Markdown.Code, parent::MDBlockContext)
     @tags pre code
     language = isempty(c.language) ? "none" : c.language
+    language = language == "jldoctest" ? "julia" : language
     pre(code[".language-$(language)"](c.code))
 end
 mdconvert(c::Markdown.Code, parent) = Tag(:code)(c.code)
