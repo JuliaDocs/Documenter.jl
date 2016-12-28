@@ -74,7 +74,9 @@ function namedxref(link::Markdown.Link, meta, page, doc)
         push!(doc.internal.errors, :cross_references)
         Utilities.warn(page.source, "'$text' missing a name after '#'.")
     else
-        if length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
+        if Anchors.exists(doc.internal.headers, slug)
+            namedxref(link, slug, meta, page, doc)
+        elseif length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
             docsxref(link, slug, meta, page, doc)
         else
             namedxref(link, slug, meta, page, doc)
