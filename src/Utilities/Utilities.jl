@@ -171,24 +171,22 @@ Returns the set of submodules of a given root module/s.
 function submodules(modules::Vector{Module})
     out = Set{Module}()
     for each in modules
-        union!(out, submodules(each))
+        submodules(each, out)
     end
     out
 end
-function submodules(root::Module, out = Set([root]))
+function submodules(root::Module, seen = Set{Module}())
+    push!(seen, root)
     for name in names(root, true)
-        if isdefined(root, name) && !isdeprecated(root, name)
+        if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
-            if isvalidmodule(root, object)
-                push!(out, object)
-                submodules(object, out)
+            if isa(object, Module) && !(object in seen)
+                submodules(object, seen)
             end
         end
     end
-    out
+    return seen
 end
-isvalidmodule(a::Module, b::Module) = a !== b && b !== Main
-isvalidmodule(a, b)                 = false
 
 # Compat for `isdeprecated` which does not exist in Julia 0.4.
 if isdefined(Base, :isdeprecated)
