@@ -349,12 +349,7 @@ end
 
 # Remove terminal colors.
 
-const TERM_COLOR_REGEX =
-    let _1 = map(escape_string, values(Base.text_colors)),
-        _2 = map(each -> replace(each, "[", "\\["), _1)
-        Regex(string("(\\e\\[31m|\\e\\[22m|", join(_2, "|"), ")"))
-    end
-
+const TERM_COLOR_REGEX = r"\e\[[0-9;]*m"
 remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")
 
 # REPL doctest splitter.
