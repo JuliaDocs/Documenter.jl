@@ -27,6 +27,13 @@ module UnitTests
     Base.length(::T) = 1
 end
 
+module OuterModule
+module InnerModule
+import ..OuterModule
+export OuterModule
+end
+end
+
 @testset "Utilities" begin
     let doc = @doc(length)
         a = Documenter.Utilities.filterdocs(doc, Set{Module}())
@@ -55,6 +62,9 @@ end
     @test UnitTests.A.B in Documenter.Utilities.submodules(UnitTests.A)
     @test UnitTests.A.B.C in Documenter.Utilities.submodules(UnitTests.A)
     @test UnitTests.A.B.C.D in Documenter.Utilities.submodules(UnitTests.A)
+    @test OuterModule in Documenter.Utilities.submodules(OuterModule)
+    @test OuterModule.InnerModule in Documenter.Utilities.submodules(OuterModule)
+    @test length(Documenter.Utilities.submodules(OuterModule)) == 2
 end
 
 end
