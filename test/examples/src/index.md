@@ -136,3 +136,16 @@ julia> fullname(Base.Pkg)
 julia> current_module()
 Main
 ```
+
+# Issue398
+
+```@meta
+DocTestSetup = quote
+    using Issue398
+end
+```
+
+```jldoctest
+julia> @define_show_and_make_object q "abcd"
+abcd
+```
