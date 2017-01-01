@@ -271,7 +271,7 @@ end
 
 function result_to_string(buf, value)
     dis = text_display(buf)
-    value === nothing || display(dis, value)
+    value === nothing || eval(Expr(:call, display, dis, QuoteNode(value)))
     sanitise(buf)
 end
 
