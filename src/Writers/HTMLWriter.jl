@@ -150,7 +150,7 @@ function render_page(ctx, navnode)
 
     page = getpage(ctx, navnode)
 
-    head = render_head(ctx, navnode, [])
+    head = render_head(ctx, navnode)
     navmenu = render_navmenu(ctx, navnode)
     article = render_article(ctx, navnode)
 
@@ -165,7 +165,7 @@ function render_page(ctx, navnode)
     end
 end
 
-function render_head(ctx, navnode, additional_scripts)
+function render_head(ctx, navnode)
     @tags head meta link script title
     src = get(navnode.page)
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
@@ -195,9 +195,6 @@ function render_head(ctx, navnode, additional_scripts)
         ],
 
         script[:src => relhref(src, "../versions.js")],
-
-        # Additional JS files needed for the search page.
-        [script[:src => relhref(src, each)] for each in additional_scripts],
 
         # Custom user-provided assets.
         asset_links(src, ctx.user_assets)
@@ -235,10 +232,10 @@ analytics_script(tracking_id::AbstractString) =
 # ------------
 
 function render_search(ctx)
-    @tags article body h1 header hr html li nav p span ul
+    @tags article body h1 header hr html li nav p span ul script
     navnode = Documents.NavNode("search", "Search", nothing)
 
-    head = render_head(ctx, navnode, [ctx.search_js, ctx.search_index_js])
+    head = render_head(ctx, navnode)
     navmenu = render_navmenu(ctx, navnode)
     article = article(
         header(
@@ -246,14 +243,16 @@ function render_search(ctx)
             hr()
         ),
         h1("Search"),
-        p["#search-info"]("Number of results: ", span["#search-results-number"]("-")),
+        p["#search-info"]("Number of results: ", span["#search-results-number"]("loading...")),
         ul["#search-results"]
     )
 
     htmldoc = DOM.HTMLDocument(
         html[:lang=>"en"](
             head,
-            body(navmenu, article)
+            body(navmenu, article),
+            script[:src => ctx.search_index_js],
+            script[:src => ctx.search_js],
         )
     )
     open(Formats.extension(:html, joinpath(ctx.doc.user.build, "search")), "w") do io
