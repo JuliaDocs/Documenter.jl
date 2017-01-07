@@ -29,7 +29,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
 - [IntervalConstraintProgramming.jl](http://dpsanders.github.io/IntervalConstraintProgramming.jl/latest/)
-- [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl)
+- [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl/stable/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
