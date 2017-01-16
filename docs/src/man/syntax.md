@@ -492,3 +492,35 @@ filename is not known until evaluation of the block itself.
     In most cases `@example` is preferred over `@eval`. Just like in normal Julia code where
     `eval` should be only be considered as a last resort, `@eval` should be treated in the
     same way.
+
+
+## `@raw <format>` block
+
+Allows code to be inserted into the final document verbatim. E.g. to insert custom HTML or
+LaTeX code into the output.
+
+The `format` argument is mandatory and Documenter uses it to determine whether a particular
+block should be copied over to the output or not. Currently supported formats are `html`
+and `latex`, used by the respective writers. A `@raw` block whose `format` is not
+recognized is usually ignored, so it is possible to have a raw block for each output format
+without the blocks being duplicated in the output.
+
+The following example shows how SVG code with custom styling can be included into documents
+using the `@raw` block.
+
+````markdown
+```@raw html
+<svg style="display: block; margin: 0 auto;" width="5em" heigth="5em">
+	<circle cx="2.5em" cy="2.5em" r="2em" stroke="black" stroke-width=".1em" fill="red" />
+</svg>
+```
+````
+
+It will show up as follows, with code having been copied over verbatim to the HTML file.
+
+```@raw html
+<svg style="display: block; margin: 0 auto;" width="5em" heigth="5em">
+	<circle cx="2.5em" cy="2.5em" r="2em" stroke="black" stroke-width=".1em" fill="red" />
+    (SVG)
+</svg>
+```
