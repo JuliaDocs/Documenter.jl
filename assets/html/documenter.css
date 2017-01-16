@@ -172,7 +172,7 @@ nav.toc > ul * {
 }
 
 nav.toc ul {
-    color: #b3b3b3;
+    color: #404040;
     padding: 0;
     list-style: none;
 }
@@ -183,6 +183,7 @@ nav.toc ul .toctext {
 }
 
 nav.toc ul a:hover {
+    color: #fcfcfc;
     background-color: #4e4a4a;
 }
 
@@ -196,7 +197,6 @@ nav.toc ul.internal a:hover {
 }
 
 nav.toc ul.internal {
-    color: gray;
     background-color: #e3e3e3;
     box-shadow: inset -14px 0px 5px -12px rgb(210,210,210);
     list-style: none;
