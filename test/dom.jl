@@ -68,13 +68,13 @@ import Documenter.Utilities.DOM: DOM, @tags, HTMLDocument
 
     @tags script style img
 
-    @test string(div(p("one"), p("two"))) == "<div><p>one</p><p>two</p></div>"
+    @test string(div(p("one"), p("two"))) == "<div>\n  <p>\none\n  </p>\n  <p>\ntwo\n  </p>\n</div>"
     @test string(div[:key => "value"])    == "<div key=\"value\"></div>"
-    @test string(p(" < > & ' \" "))       == "<p> &lt; &gt; &amp; &#39; &quot; </p>"
+    @test string(p(" < > & ' \" "))       == "<p>\n &lt; &gt; &amp; &#39; &quot; \n</p>"
     @test string(img[:src => "source"])   == "<img src=\"source\"/>"
     @test string(img[:none])              == "<img none/>"
-    @test string(script(" < > & ' \" "))  == "<script> < > & ' \" </script>"
-    @test string(style(" < > & ' \" "))   == "<style> < > & ' \" </style>"
+    @test string(script(" < > & ' \" "))  == "<script>\n < > & ' \" \n</script>"
+    @test string(style(" < > & ' \" "))   == "<style>\n < > & ' \" \n</style>"
     @test string(script)                  == "<script>"
 
     function locally_defined()
