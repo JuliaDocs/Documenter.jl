@@ -262,10 +262,13 @@ function Base.show(io::IO, n::Node)
         else
             print(io, '>')
             if n.name === :script || n.name === :style
+                println(io)
                 isempty(n.nodes) || print(io, n.nodes[1].text)
-            else
+            elseif !isempty(n.nodes)
+                println(io)
                 for each in n.nodes
                     show(io, each)
+                    println(io)
                 end
             end
             print(io, "</", n.name, '>')
