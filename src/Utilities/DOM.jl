@@ -247,12 +247,13 @@ attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
 attributes!(out, p::Pair)   = push!(out, tostr(p))
 
 function Base.show(io::IO, n::Node; level = 0)
+    ws = n.name ∉ (:code, :pre)
     if n.name === Symbol("#RAW#")
         print(io, n.nodes[1].text)
     elseif n.name === TEXT
         print(io, escapehtml(n.text))
     else
-        print(io, "  "^level)
+        ws && print(io, "  "^level)
         print(io, '<', n.name)
         for (name, value) in n.attributes
             print(io, ' ', name)
@@ -269,12 +270,12 @@ function Base.show(io::IO, n::Node; level = 0)
                   print(io, "  "^level)
                 end
             elseif !isempty(n.nodes)
-                println(io)
+                ws && println(io)
                 for each in n.nodes
                     show(io, each; level = level + 1)
-                    println(io)
+                    ws && println(io)
                 end
-                print(io, "  "^level)
+                ws && print(io, "  "^level)
             end
             print(io, "</", n.name, '>')
         end
