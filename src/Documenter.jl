@@ -604,6 +604,19 @@ end
 """
 $(SIGNATURES)
 
+Get your github username, or error if git doesn't know it yet.
+"""
+github_username() = begin
+    result = LibGit2.getconfig("github.user", "")
+    if isempty(result)
+        ErrorException("Please run `git config --global github.user your_github_username`")
+    end
+    result
+end
+
+"""
+$(SIGNATURES)
+
 Creates a documentation stub for a package called `pkgname`. The location of
 the documentation is assumed to be `<package directory>/docs`, but this can
 be overriden with the keyword argument `dir`.
@@ -638,18 +651,17 @@ julia> Documenter.generate("MyPackageName")
 ```
 """
 function generate(pkgname::AbstractString; dir=nothing)
-    # TODO:
-    #   - set up deployment to `gh-pages`
-    #   - fetch url and username automatically (e.g from git remote.origin.url)
+
+    user = github_username()
 
     # Check the validity of the package name
     if length(pkgname) == 0
         error("Package name can not be an empty string.")
     end
-    # Determine the root directory where we wish to generate the docs and
-    # check that it is a valid directory.
+
+    pkgdir = Pkg.dir(pkgname)
+
     docroot = if dir === nothing
-        pkgdir = Pkg.dir(pkgname)
         if !isdir(pkgdir)
             error("Unable to find package $(pkgname).jl at $(pkgdir).")
         end
@@ -672,15 +684,24 @@ function generate(pkgname::AbstractString; dir=nothing)
             write(io, Generator.gitignore())
         end
         Generator.savefile(docroot, "make.jl") do io
-            write(io, Generator.make(pkgname))
-        end
-        Generator.savefile(docroot, "mkdocs.yml") do io
-            write(io, Generator.mkdocs(pkgname))
+            write(io, Generator.make(pkgname, user))
         end
 
         # Create the default documentation source files
         Generator.savefile(docroot, "src/index.md") do io
             write(io, Generator.index(pkgname))
+        end
+
+        Generator.appendfile(pkgdir, "README.md") do io
+            write(io, Generator.readme(pkgname, user))
+        end
+
+        Generator.appendfile(pkgdir, ".travis.yml") do io
+            write(io, Generator.travis(pkgname))
+        end
+
+        Generator.appendfile(pkgdir, "test/REQUIRE") do io
+            write(io, Generator.require())
         end
     catch
         rm(docroot, recursive=true)

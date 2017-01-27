@@ -25,23 +25,44 @@ end
 """
 $(SIGNATURES)
 
+Attempts to append to a file at `\$(root)/\$(filename)`. `f` will be called with
+file stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network/#Base.open)).
+"""
+function appendfile(f, root, filename)
+    filepath = joinpath(root, filename)
+    info("Appending to $filename at $filepath")
+    open(f,filepath,"a")
+end
+
+"""
+$(SIGNATURES)
+
 Contents of the default `make.jl` file.
 """
-function make(pkgname)
+function make(pkgname, user)
     """
     using Documenter
-    using $(pkgname)
+    using $pkgname
 
     makedocs(
-        modules = [$(pkgname)]
+        modules = [$pkgname],
+        format = :html,
+        sitename = "$pkgname.jl",
+        pages = Any["Home" => "index.md"],
+        strict = true
     )
 
-    # Documenter can also automatically deploy documentation to gh-pages.
-    # See "Hosting Documentation" and deploydocs() in the Documenter manual
-    # for more information.
-    #=deploydocs(
-        repo = "<repository url>"
-    )=#
+    # for successful deployment, make sure to
+    # - add a gh-pages branch on github
+    # - run `import Documenter; Documenter.Travis.genkeys("$pkgname")` in a
+    #       *REPL* and follow instructions. For Windows, run from inside
+    #       git-bash.
+    deploydocs(
+        repo = "github.com/$user/$pkgname.jl.git",
+        target = "build",
+        deps = nothing,
+        make = nothing
+    )
     """
 end
 
@@ -57,49 +78,6 @@ function gitignore()
     """
 end
 
-mkdocs_default(name, value, default) = value == nothing ? "#$name$default" : "$name$value"
-
-"""
-$(SIGNATURES)
-
-Contents of the default `mkdocs.yml` file.
-"""
-function mkdocs(pkgname;
-        description = nothing,
-        author = nothing,
-        url = nothing
-    )
-    s = """
-    # See the mkdocs user guide for more information on these settings.
-    #   http://www.mkdocs.org/user-guide/configuration/
-
-    site_name:        $(pkgname).jl
-    $(mkdocs_default("repo_url:         ", url, "https://github.com/USER_NAME/PACKAGE_NAME.jl"))
-    $(mkdocs_default("site_description: ", description, "Description..."))
-    $(mkdocs_default("site_author:      ", author, "USER_NAME"))
-
-    theme: readthedocs
-
-    extra_css:
-      - assets/Documenter.css
-
-    extra_javascript:
-      - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
-      - assets/mathjaxhelper.js
-
-    markdown_extensions:
-      - extra
-      - tables
-      - fenced_code
-      - mdx_math
-
-    docs_dir: 'build'
-
-    pages:
-      - Home: index.md
-    """
-end
-
 """
 $(SIGNATURES)
 
@@ -107,9 +85,56 @@ Contents of the default `src/index.md` file.
 """
 function index(pkgname)
     """
-    # $(pkgname).jl
+    # $pkgname.jl
 
-    Documentation for $(pkgname).jl
+    Documentation for $pkgname.jl
+
+    ```@index
+    ```
+
+    ```@autodocs
+    Modules = [$pkgname]
+    ```
+    """
+end
+
+"""
+$(SIGNATURES)
+
+Additions to `README.md`
+"""
+function readme(pkgname, user)
+    docs_stable_url = "https://$user.github.io/$pkgname.jl/stable"
+    docs_latest_url = "https://$user.github.io/$pkgname.jl/latest"
+    """
+
+    ## Documentation
+
+    - [**STABLE**]($docs_stable_url) &mdash; **most recently tagged version of the documentation.**
+    - [**LATEST**]($docs_latest_url) &mdash; *in-development version of the documentation.*
+    """
+end
+
+"""
+$(SIGNATURES)
+
+Additions to `travis.yml`
+"""
+function travis(pkgname)
+    """
+      # build documentation
+      - julia -e 'ENV["DOCUMENTER_DEBUG"] = "true"; cd(Pkg.dir("$pkgname")); Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
+    """
+end
+
+"""
+$(SIGNATURES)
+
+Additions to `test/REQUIRE`
+"""
+function require()
+    """
+    Documenter
     """
 end
 
