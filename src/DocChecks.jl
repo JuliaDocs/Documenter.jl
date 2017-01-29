@@ -193,7 +193,9 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
-                Core.eval(sandbox, ex)
+                disable_color() do
+                    Core.eval(sandbox, ex)
+                end
             end
             result.value = value
             print(result.stdout, text)
@@ -271,7 +273,9 @@ end
 
 function result_to_string(buf, value)
     dis = text_display(buf)
-    value === nothing || eval(Expr(:call, display, dis, QuoteNode(value)))
+    value === nothing || disable_color() do
+        eval(Expr(:call, display, dis, QuoteNode(value)))
+    end
     sanitise(buf)
 end
 
@@ -281,7 +285,7 @@ else
     text_display(buf) = TextDisplay(IOContext(buf, multiline = true, limit = true))
 end
 
-funcsym() = CAN_INLINE[] ? :withoutput : :eval
+funcsym() = CAN_INLINE[] ? :disable_color : :eval
 
 if isdefined(Base.REPL, :ip_matches_func)
     function error_to_string(buf, er, bt)
@@ -289,19 +293,23 @@ if isdefined(Base.REPL, :ip_matches_func)
         # Remove unimportant backtrace info.
         local index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
         # Print a REPL-like error message.
-        print(buf, "ERROR: ")
-        showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
+        disable_color() do
+            print(buf, "ERROR: ")
+            showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
+        end
         sanitise(buf)
     end
 else
     # Compat for Julia 0.4.
     function error_to_string(buf, er, bt)
         local fs = funcsym()
-        print(buf, "ERROR: ")
-        try
-            Base.showerror(buf, er)
-        finally
-            Base.show_backtrace(buf, fs, bt, 1:typemax(Int))
+        disable_color() do
+            print(buf, "ERROR: ")
+            try
+                Base.showerror(buf, er)
+            finally
+                Base.show_backtrace(buf, fs, bt, 1:typemax(Int))
+            end
         end
         sanitise(buf)
     end
@@ -527,9 +535,18 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
 end
 linkcheck(other, doc::Documents.Document) = true
 
+function disable_color(func)
+    orig = setcolor!(false)
+    try
+        func()
+    finally
+        setcolor!(orig)
+    end
+end
 
 const CAN_INLINE = Ref(true)
 function __init__()
+    global setcolor! = eval(Base, :(x -> (_ = have_color; global have_color = x; _)))
     CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
 end
 
