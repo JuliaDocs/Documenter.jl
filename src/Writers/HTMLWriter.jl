@@ -661,7 +661,8 @@ it is not included -- it is assumed to be the page title and so does not need to
 in the navigation menu twice.
 """
 function collect_subsections(page::Documents.Page)
-    local sections = [], title_found = false
+    sections = []
+    title_found = false
     for element in page.elements
         if isa(element, Base.Markdown.Header) && Utilities.header_level(element) < 3
             local toplevel = Utilities.header_level(element) === 1
