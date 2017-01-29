@@ -19,19 +19,18 @@ function savefile(f, root, filename)
     if ispath(filepath) error("$(filepath) already exists") end
     info("Generating $filename at $filepath")
     mkpath(dirname(filepath))
-    open(f,filepath,"w")
+    open(f, filepath, "w")
 end
 
 """
 $(SIGNATURES)
 
-Attempts to append to a file at `\$(root)/\$(filename)`. `f` will be called with
-file stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network/#Base.open)).
+Attempts to append to a file at `\$(root)/\$(filename)`.
 """
 function appendfile(f, root, filename)
     filepath = joinpath(root, filename)
     info("Appending to $filename at $filepath")
-    open(f,filepath,"a")
+    open(f, filepath, "a")
 end
 
 """
@@ -52,11 +51,9 @@ function make(pkgname, user)
         strict = true
     )
 
-    # for successful deployment, make sure to
-    # - add a gh-pages branch on github
-    # - run `import Documenter; Documenter.Travis.genkeys("$pkgname")` in a
-    #       *REPL* and follow instructions. For Windows, run from inside
-    #       git-bash.
+    # Documenter can also automatically deploy documentation to gh-pages.
+    # See "Hosting Documentation" and deploydocs() in the Documenter manual
+    # for more information.
     deploydocs(
         repo = "github.com/$user/$pkgname.jl.git",
         target = "build",
@@ -98,11 +95,6 @@ function index(pkgname)
     """
 end
 
-"""
-$(SIGNATURES)
-
-Additions to `README.md`
-"""
 function readme(pkgname, user)
     docs_stable_url = "https://$user.github.io/$pkgname.jl/stable"
     docs_latest_url = "https://$user.github.io/$pkgname.jl/latest"
@@ -115,23 +107,13 @@ function readme(pkgname, user)
     """
 end
 
-"""
-$(SIGNATURES)
-
-Additions to `travis.yml`
-"""
 function travis(pkgname)
     """
       # build documentation
-      - julia -e 'ENV["DOCUMENTER_DEBUG"] = "true"; cd(Pkg.dir("$pkgname")); Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
+      - julia -e 'cd(Pkg.dir("$pkgname")); Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
     """
 end
 
-"""
-$(SIGNATURES)
-
-Additions to `test/REQUIRE`
-"""
 function require()
     """
     Documenter
