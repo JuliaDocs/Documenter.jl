@@ -302,7 +302,6 @@ function deploydocs(;
         make   = () -> run(`mkdocs build`),
     )
     # Get environment variables.
-    github_api_key      = get(ENV, "GITHUB_API_KEY",       "")
     documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
     travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
     travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
@@ -312,9 +311,7 @@ function deploydocs(;
     travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
 
     # Other variables.
-    sha          = readchomp(`git rev-parse --short HEAD`)
-    ssh_key_file = abspath(joinpath(root, ".documenter.enc"))
-    has_ssh_key  = isfile(ssh_key_file)
+    sha = readchomp(`git rev-parse --short HEAD`)
 
     # Sanity checks
     if !isa(julia, AbstractString)
@@ -328,12 +325,7 @@ function deploydocs(;
     should_deploy =
         contains(repo, travis_repo_slug) &&
         travis_pull_request == "false"   &&
-        (
-            # Support token and ssh key deployments.
-            documenter_key != "" ||
-            github_api_key != "" ||
-            has_ssh_key
-        ) &&
+        documenter_key != "" &&
         travis_osname == osname &&
         travis_julia  == julia  &&
         (
@@ -349,10 +341,7 @@ function deploydocs(;
         Utilities.debug("TRAVIS_BRANCH          = \"$travis_branch\"")
         Utilities.debug("TRAVIS_TAG             = \"$travis_tag\"")
         Utilities.debug("git commit SHA         = $sha")
-        Utilities.debug("GITHUB_API_KEY exists  = $(github_api_key != "")")
         Utilities.debug("DOCUMENTER_KEY exists  = $(documenter_key != "")")
-        Utilities.debug(".documenter.enc path   = $(ssh_key_file)")
-        Utilities.debug(".documenter.enc exists = $(has_ssh_key)")
         Utilities.debug("should_deploy          = $should_deploy")
     end
 
@@ -382,27 +371,13 @@ function deploydocs(;
                 stable_dir = joinpath(dirname, "stable")
                 tagged_dir = joinpath(dirname, travis_tag)
 
-                keyfile, _ = splitext(ssh_key_file)
+                keyfile = abspath(joinpath(root, ".documenter"))
                 target_dir = abspath(target)
 
                 # The upstream URL to which we push new content and the ssh decryption commands.
-                upstream =
-                    if documenter_key != ""
-                        write(keyfile, Compat.String(base64decode(documenter_key)))
-                        chmod(keyfile, 0o600)
-                        "git@$(replace(repo, "github.com/", "github.com:"))"
-                    elseif has_ssh_key
-                        dep_warn("travis-generated SSH keys")
-                        key = getenv(r"encrypted_(.+)_key")
-                        iv  = getenv(r"encrypted_(.+)_iv")
-                        success(`openssl aes-256-cbc -K $key -iv $iv -in $keyfile.enc -out $keyfile -d`) ||
-                            error("failed to decrypt SSH key.")
-                        chmod(keyfile, 0o600)
-                        "git@$(replace(repo, "github.com/", "github.com:"))"
-                    else
-                        dep_warn("`GITHUB_API_KEY`")
-                        "https://$github_api_key@$repo"
-                    end
+                write(keyfile, Compat.String(base64decode(documenter_key)))
+                chmod(keyfile, 0o600)
+                upstream = "git@$(replace(repo, "github.com/", "github.com:"))"
 
                 # Use a custom SSH config file to avoid overwriting the default user config.
                 withfile(joinpath(homedir(), ".ssh", "config"),
@@ -485,15 +460,6 @@ function withfile(func, file::AbstractString, contents::AbstractString)
         end
     end
 end
-
-dep_warn(msg) = warn(
-    """
-    deploying docs with $msg is deprecated. Please use the new method discussed in:
-
-        https://juliadocs.github.io/Documenter.jl/latest/man/hosting.html#SSH-Deploy-Keys-1
-
-    """
-)
 
 function getenv(regex::Regex)
     for (key, value) in ENV
