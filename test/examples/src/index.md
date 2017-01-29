@@ -161,3 +161,18 @@ ERROR: MethodError: no method matching f(::String)
 Closest candidates are:
   f(!Matched::Float64) at none:1
 ```
+
+
+```jldoctest
+julia> a = 1
+1
+
+julia> b = 2
+2
+
+julia> ex = :(a + b)
+:(a + b)
+
+julia> eval(ex)
+3
+```

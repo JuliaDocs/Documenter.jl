@@ -133,7 +133,12 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         # Define new module or reuse an old one from this page if we have a named doctest.
         local name = Utilities.getmatch(matched, 1)
         local sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        local sandbox = get!(page.globals.meta, sym, Module(sym))::Module
+        local sandbox = get!(page.globals.meta, sym) do
+            newmod = Module(sym)
+            eval(newmod, :(eval(x) = Core.eval(current_module(), x)))
+            eval(newmod, :(eval(m, x) = Core.eval(m, x)))
+            newmod
+        end
         # Normalise line endings.
         local code = replace(block.code, "\r\n", "\n")
         if haskey(meta, :DocTestSetup)
