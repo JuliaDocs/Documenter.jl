@@ -194,7 +194,7 @@ end
 function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
     for (input, output) in repl_splitter(code)
         result = Result(code, input, output, meta[:CurrentFile])
-        for (ex, str) in Utilities.parseblock(input, doc, page)
+        for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
@@ -223,7 +223,7 @@ function eval_script(code, sandbox, meta::Dict, doc::Documents.Document, page)
     #       to mark `input`/`output` separation.
     input, output = split(code, "\n# output\n", limit = 2)
     result = Result(code, "", output, meta[:CurrentFile])
-    for (ex, str) in Utilities.parseblock(input, doc, page)
+    for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
         (value, success, backtrace, text) = Utilities.withoutput() do
             Core.eval(sandbox, ex)
         end

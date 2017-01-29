@@ -176,3 +176,12 @@ julia> ex = :(a + b)
 julia> eval(ex)
 3
 ```
+
+
+```jldoctest
+julia> a = 1
+1
+
+julia> ans
+1
+```
