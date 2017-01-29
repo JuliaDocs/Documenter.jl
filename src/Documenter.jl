@@ -606,7 +606,7 @@ $(SIGNATURES)
 
 Get your github username, or error if git doesn't know it yet.
 """
-github_username() = begin
+function github_username()
     result = LibGit2.getconfig("github.user", "")
     if isempty(result)
         ErrorException("Please run `git config --global github.user your_github_username`")
