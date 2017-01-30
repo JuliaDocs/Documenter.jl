@@ -640,6 +640,12 @@ determine the location of the documentation if `dir` is not provided.
 **`dir`** defines the directory where the documentation will be generated.
 It defaults to `<package directory>/docs`. The directory must not exist.
 
+**`gh_pages`**: should Documenter attempt to add a gh-pages branch and push it
+to github?
+
+**`deploy_keys`**: should Documenter generate deploy keys and print out
+instructions on how to add them to git and travis?
+
 # Examples
 
 ```jlcon
