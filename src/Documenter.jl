@@ -650,7 +650,7 @@ julia> Documenter.generate("MyPackageName")
 [ ... output ... ]
 ```
 """
-function generate(pkgname::AbstractString; dir=nothing, gh_pages = true)
+function generate(pkgname::AbstractString; dir=nothing, gh_pages = true, deploy_keys = true)
 
     user = github_username()
 
@@ -714,10 +714,14 @@ function generate(pkgname::AbstractString; dir=nothing, gh_pages = true)
                 warning("gh-pages branch not created; make sure it exists on github for deployment")
             else
                 if !success(`git push origin gh-pages`)
-                    warning("gh-pages branch not pushed to origin; make sure it exists on github for deployment")
+                    warning("gh-pages branch created but not pushed to origin; make sure it exists on github for deployment")
                 end
             end
         end
+    end
+
+    if deploy_keys
+        Travis.genkeys(pkgname)
     end
 
     nothing
