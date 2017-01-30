@@ -532,7 +532,6 @@ This function requires the following command lines programs to be installed:
 
 - `which`
 - `git`
-- `travis`
 - `ssh-keygen`
 
 # Examples
