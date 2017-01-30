@@ -580,19 +580,19 @@ function genkeys(package; remote="origin")
         # Generate the ssh key pair.
         success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
 
-        # Prompt user to add public key to github then remove the public key.
-        let url = "https://github.com/$user/$repo/settings/keys"
-            info("add the public key below to $url with read/write access:")
-            println("\n", readstring("$filename.pub"))
-            rm("$filename.pub")
-        end
+        github_key = readstring("$filename.pub")
+
+        # add the github key via the github api
+        # will prompt the user for their password, which frustratingly won't
+        # work inside git bash, but does work from the terminal
+        run(`curl --user $user --request POST --data '{"title":"documenter", "key":"$github_key", "read_only":false}' https://api.github.com/repos/$user/$repo/keys`)
 
         # Base64 encode the private key and prompt user to add it to travis. The key is
         # *not* encoded for the sake of security, but instead to make it easier to
         # copy/paste it over to travis without having to worry about whitespace.
         let url = "https://travis-ci.org/$user/$repo/settings"
             info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
-            println("\n", base64encode(readstring(".documenter")), "\n")
+            println("\n", base64encode(readstring("$filename")), "\n")
             rm(filename)
         end
     end
