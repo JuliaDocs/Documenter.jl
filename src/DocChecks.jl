@@ -133,7 +133,12 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         # Define new module or reuse an old one from this page if we have a named doctest.
         local name = Utilities.getmatch(matched, 1)
         local sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        local sandbox = get!(page.globals.meta, sym, Module(sym))::Module
+        local sandbox = get!(page.globals.meta, sym) do
+            newmod = Module(sym)
+            eval(newmod, :(eval(x) = Core.eval(current_module(), x)))
+            eval(newmod, :(eval(m, x) = Core.eval(m, x)))
+            newmod
+        end
         # Normalise line endings.
         local code = replace(block.code, "\r\n", "\n")
         if haskey(meta, :DocTestSetup)
@@ -189,11 +194,13 @@ end
 function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
     for (input, output) in repl_splitter(code)
         result = Result(code, input, output, meta[:CurrentFile])
-        for (ex, str) in Utilities.parseblock(input, doc, page)
+        for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
-                Core.eval(sandbox, ex)
+                disable_color() do
+                    Core.eval(sandbox, ex)
+                end
             end
             result.value = value
             print(result.stdout, text)
@@ -216,7 +223,7 @@ function eval_script(code, sandbox, meta::Dict, doc::Documents.Document, page)
     #       to mark `input`/`output` separation.
     input, output = split(code, "\n# output\n", limit = 2)
     result = Result(code, "", output, meta[:CurrentFile])
-    for (ex, str) in Utilities.parseblock(input, doc, page)
+    for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
         (value, success, backtrace, text) = Utilities.withoutput() do
             Core.eval(sandbox, ex)
         end
@@ -271,7 +278,9 @@ end
 
 function result_to_string(buf, value)
     dis = text_display(buf)
-    value === nothing || eval(Expr(:call, display, dis, QuoteNode(value)))
+    value === nothing || disable_color() do
+        eval(Expr(:call, display, dis, QuoteNode(value)))
+    end
     sanitise(buf)
 end
 
@@ -281,7 +290,7 @@ else
     text_display(buf) = TextDisplay(IOContext(buf, multiline = true, limit = true))
 end
 
-funcsym() = CAN_INLINE[] ? :withoutput : :eval
+funcsym() = CAN_INLINE[] ? :disable_color : :eval
 
 if isdefined(Base.REPL, :ip_matches_func)
     function error_to_string(buf, er, bt)
@@ -289,19 +298,23 @@ if isdefined(Base.REPL, :ip_matches_func)
         # Remove unimportant backtrace info.
         local index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
         # Print a REPL-like error message.
-        print(buf, "ERROR: ")
-        showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
+        disable_color() do
+            print(buf, "ERROR: ")
+            showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
+        end
         sanitise(buf)
     end
 else
     # Compat for Julia 0.4.
     function error_to_string(buf, er, bt)
         local fs = funcsym()
-        print(buf, "ERROR: ")
-        try
-            Base.showerror(buf, er)
-        finally
-            Base.show_backtrace(buf, fs, bt, 1:typemax(Int))
+        disable_color() do
+            print(buf, "ERROR: ")
+            try
+                Base.showerror(buf, er)
+            finally
+                Base.show_backtrace(buf, fs, bt, 1:typemax(Int))
+            end
         end
         sanitise(buf)
     end
@@ -527,9 +540,18 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
 end
 linkcheck(other, doc::Documents.Document) = true
 
+function disable_color(func)
+    orig = setcolor!(false)
+    try
+        func()
+    finally
+        setcolor!(orig)
+    end
+end
 
 const CAN_INLINE = Ref(true)
 function __init__()
+    global setcolor! = eval(Base, :(x -> (_ = have_color; global have_color = x; _)))
     CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
 end
 

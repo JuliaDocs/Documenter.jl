@@ -149,3 +149,39 @@ end
 julia> @define_show_and_make_object q "abcd"
 abcd
 ```
+
+# Issue418
+
+```jldoctest
+julia> f(x::Float64) = x
+f (generic function with 1 method)
+
+julia> f("")
+ERROR: MethodError: no method matching f(::String)
+Closest candidates are:
+  f(!Matched::Float64) at none:1
+```
+
+
+```jldoctest
+julia> a = 1
+1
+
+julia> b = 2
+2
+
+julia> ex = :(a + b)
+:(a + b)
+
+julia> eval(ex)
+3
+```
+
+
+```jldoctest
+julia> a = 1
+1
+
+julia> ans
+1
+```
