@@ -580,12 +580,13 @@ function genkeys(package; remote="origin")
         # Generate the ssh key pair.
         success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
 
-        github_key = readstring("$filename.pub")
-
+        public_filename = string(filename, ".pub")
+        github_key = readstring(public_filename)
         # add the github key via the github api
         # will prompt the user for their password, which frustratingly won't
         # work inside git bash, but does work from the terminal
         run(`curl --user $user --request POST --data '{"title":"documenter", "key":"$github_key", "read_only":false}' https://api.github.com/repos/$user/$repo/keys`)
+        rm(public_filename)
 
         # Base64 encode the private key and prompt user to add it to travis. The key is
         # *not* encoded for the sake of security, but instead to make it easier to
