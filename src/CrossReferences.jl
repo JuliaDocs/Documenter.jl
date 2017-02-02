@@ -103,7 +103,7 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
         end
     else
         push!(doc.internal.errors, :cross_references)
-        Utilities.warn(page.source, "Reference for '$slug' could no be found.")
+        Utilities.warn(page.source, "Reference for '$slug' could not be found.")
     end
 end
 

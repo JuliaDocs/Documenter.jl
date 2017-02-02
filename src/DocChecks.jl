@@ -287,7 +287,7 @@ end
 if VERSION < v"0.5.0-dev+4305"
     text_display(buf) = TextDisplay(buf)
 else
-    text_display(buf) = TextDisplay(IOContext(buf, multiline = true, limit = true))
+    text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
 end
 
 funcsym() = CAN_INLINE[] ? :disable_color : :eval
