@@ -512,9 +512,9 @@ $(EXPORTS)
 module Travis
 
 using Compat, DocStringExtensions
+import JSON
 
 export genkeys
-
 
 const GITHUB_REGEX = isdefined(Base, :LibGit2) ?
     Base.LibGit2.GITHUB_REGEX : Base.Pkg.Git.GITHUB_REGEX
@@ -528,11 +528,26 @@ pages. `package` can be either the name of a package or a path. Providing a path
 to be generated for non-packages or packages that are not found in the Julia `LOAD_PATH`.
 Use the `remote` keyword to specify the user and repository values.
 
-This function requires the following command lines programs to be installed:
+This function requires the following command lines programs to be installed and
+on your path:
 
 - `which`
 - `git`
 - `ssh-keygen`
+- `travis`
+
+For Windows users, the first three are packaged with Git: check
+"C:\\Program Files\\Git\\user\\bin". Run in a regular terminal: git bash would
+work except there is a bug preventing password entry. Install travis with
+by downloading and using Ruby: `gem install travis`.
+
+You need to use a travis token to access your repository. Generate one by
+running in a command line:
+
+```
+travis login --org
+travis token --org
+```
 
 # Examples
 
@@ -549,53 +564,77 @@ julia> Travis.genkeys("/path/to/target/directory")
 [ ... output ... ]
 ```
 """
-function genkeys(package; remote="origin")
+function genkeys(package, travis_token; remote="origin")
     # Error checking. Do the required programs exist?
-    success(`which which`)      || error("'which' not found.")
-    success(`which git`)        || error("'git' not found.")
-    success(`which ssh-keygen`) || error("'ssh-keygen' not found.")
+    if !success(`which which`)
+        error("'which' not found.")
+    end
+    if !success(`which git`)
+        error("'git' not found.")
+    end
+    if !success(`which ssh-keygen`)
+        error("'ssh-keygen' not found.")
+    end
+    if !success(`which travis`)
+        error("'travis' not found.")
+    end
 
     directory = "docs"
     filename  = ".documenter"
 
-    local path = isdir(package) ? package : Pkg.dir(package, directory)
-    isdir(path) || error("`$path` not found. Provide a package name or directory.")
+    path = if isdir(package)
+        package
+    else
+        Pkg.dir(package, directory)
+    end
+    if !isdir(path)
+        error("`$path` not found. Provide a package name or directory.")
+    end
 
     cd(path) do
         # Check for old '$filename.enc' and terminate.
-        isfile("$filename.enc") &&
+        if isfile("$filename.enc")
             error("$package already has an ssh key. Remove it and try again.")
+        end
 
         # Are we in a git repo?
-        success(`git status`) || error("'Travis.genkey' only works with git repositories.")
+        if !success(`git status`)
+            error("'Travis.genkey' only works with git repositories.")
+        end
 
         # Find the GitHub repo org and name.
         user, repo =
             let r = readchomp(`git config --get remote.$remote.url`)
                 m = match(GITHUB_REGEX, r)
-                m === nothing && error("no remote repo named '$remote' found.")
+                if m === nothing
+                    error("no remote repo named '$remote' found.")
+                end
                 m[2], m[3]
             end
 
         # Generate the ssh key pair.
-        success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
+        run(`ssh-keygen -N "" -f $filename`)
 
         public_filename = string(filename, ".pub")
         github_key = readstring(public_filename)
-        # add the github key via the github api
-        # will prompt the user for their password, which frustratingly won't
-        # work inside git bash, but does work from the terminal
-        run(`curl --user $user --request POST --data '{"title":"documenter", "key":"$github_key", "read_only":false}' https://api.github.com/repos/$user/$repo/keys`)
+        github_query = Dict(
+            "title" => "documenter",
+            "key" => github_key,
+            "read_only" => false) |> JSON.json
+        run(`curl --user $user --request POST --data $github_query  https://api.github.com/repos/$user/$repo/keys`)
         rm(public_filename)
 
-        # Base64 encode the private key and prompt user to add it to travis. The key is
-        # *not* encoded for the sake of security, but instead to make it easier to
-        # copy/paste it over to travis without having to worry about whitespace.
-        let url = "https://travis-ci.org/$user/$repo/settings"
-            info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
-            println("\n", base64encode(readstring("$filename")), "\n")
-            rm(filename)
-        end
+        travis_key = readstring(filename) |> base64encode
+        travis_info = readstring(`curl https://api.travis-ci.org/repos/$user/$repo`) |> JSON.Parser.parse
+        travis_ID = travis_info["id"]
+        travis_key_query = Dict(
+            "name" => "DOCUMENTER_KEY",
+            "value" => travis_key,
+            "public" => false)
+        travis_query = Dict("env_var" => travis_key_query) |> JSON.json
+        authorization_string = "Authorization: token $travis_token"
+        run(`curl --header $authorization_string --request POST --data $travis_query https://api.travis-ci.org/settings/env_vars?repository_id=$travis_ID`)
+        rm(filename)
     end
 end
 
@@ -716,13 +755,8 @@ function generate(pkgname::AbstractString; dir=nothing, gh_pages = true, deploy_
 
     if gh_pages
         cd(pkgdir) do
-            if !success(`git branch gh-pages`)
-                warning("gh-pages branch not created; make sure it exists on github for deployment")
-            else
-                if !success(`git push origin gh-pages`)
-                    warning("gh-pages branch created but not pushed to origin; make sure it exists on github for deployment")
-                end
-            end
+            run(`git branch gh-pages`)
+            run(`git push origin gh-pages`)
         end
     end
 

@@ -102,8 +102,8 @@ function readme(pkgname, user)
 
     ## Documentation
 
-    - [**STABLE**]($docs_stable_url) &mdash; **most recently tagged version of the documentation.**
-    - [**LATEST**]($docs_latest_url) &mdash; *in-development version of the documentation.*
+    - [Stable]($docs_stable_url)
+    - [In Development]($docs_latest_url)
     """
 end
 
