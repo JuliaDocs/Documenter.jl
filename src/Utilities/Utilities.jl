@@ -4,6 +4,7 @@ Provides a collection of utility functions and types that are used in other subm
 module Utilities
 
 using Base.Meta, Compat
+using DocStringExtensions
 
 # Logging output.
 
@@ -503,6 +504,18 @@ function getremote(dir::AbstractString)
     else
         getmatch(match, 1)
     end
+end
+
+"""
+$(SIGNATURES)
+
+Returns the first 5 characters of the current git commit hash of the directory `dir`.
+"""
+function get_commit_short(dir)
+    commit = cd(dir) do
+        readchomp(`git rev-parse HEAD`)
+    end
+    (length(commit) > 5) ? commit[1:5] : commit
 end
 
 function inbase(m::Module)

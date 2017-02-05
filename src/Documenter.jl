@@ -149,6 +149,11 @@ For example if you are using GitLab.com, you could use
 makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")
 ```
 
+**`version`** specifies the version string of the current version which will be the
+selected option in the version selector. If this is left empty (default) the version
+selector will be hidden. The special value `git-commit` sets the value in the output to
+`git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
+
 # See Also
 
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
@@ -434,15 +439,19 @@ function deploydocs(;
                         # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
                         if isempty(travis_tag)
                             cp(target_dir, latest_dir; remove_destination = true)
+                            Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
                         else
                             cp(target_dir, stable_dir; remove_destination = true)
+                            Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
                             cp(target_dir, tagged_dir; remove_destination = true)
+                            Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, travis_tag)
                             # Build a `release-*.*` folder as well when the travis tag is
                             # valid, which it *should* always be anyway.
                             if ismatch(Base.VERSION_REGEX, travis_tag)
                                 local version = VersionNumber(travis_tag)
                                 local release = "release-$(version.major).$(version.minor)"
                                 cp(target_dir, joinpath(dirname, release); remove_destination = true)
+                                Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
                             end
                         end
 

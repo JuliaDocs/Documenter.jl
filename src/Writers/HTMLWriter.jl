@@ -89,6 +89,7 @@ function render(doc::Documents.Document)
     ctx.search_index_js = "search_index.js"
 
     ctx.documenter_css = copy_asset("documenter.css", doc)
+    copy_asset("arrow.svg", doc)
 
     let logo = joinpath("assets", "logo.png")
         if isfile(joinpath(doc.user.build, logo))
@@ -196,6 +197,7 @@ function render_head(ctx, navnode)
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
 
+        script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
 
         # Custom user-provided assets.
@@ -281,18 +283,21 @@ function render_navmenu(ctx, navnode)
         )
     end
     push!(navmenu.nodes, h1(ctx.doc.user.sitename))
-    push!(navmenu.nodes,
-        form[".search", :action => relhref(src, "search.html")](
-            select[
-                "#version-selector",
-                :onChange => "window.location.href=this.value",
-            ](
+    let version_selector = select["#version-selector", :onChange => "window.location.href=this.value"]()
+        if isempty(ctx.doc.user.version)
+            push!(version_selector.attributes, :style => "visibility: hidden")
+        else
+            push!(version_selector.nodes,
                 option[
                     :value => "#",
                     :selected => "selected",
-                    :disabled => "disabled",
-                ]("Version"),
-            ),
+                ](ctx.doc.user.version)
+            )
+        end
+        push!(navmenu.nodes, version_selector)
+    end
+    push!(navmenu.nodes,
+        form[".search", :action => relhref(src, "search.html")](
             input[
                 "#search-query",
                 :name => "q",
@@ -421,6 +426,12 @@ function generate_version_file(dir::AbstractString)
             end
         end
         println(buf, "];")
+    end
+end
+
+function generate_siteinfo_file(dir::AbstractString, version::AbstractString)
+    open(joinpath(dir, "siteinfo.js"), "w") do buf
+        println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
     end
 end
 
