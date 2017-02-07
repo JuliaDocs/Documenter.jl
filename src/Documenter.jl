@@ -47,7 +47,12 @@ for mod in [
 ]
     dir = dirname(@__FILE__)
     file = joinpath(dir, mod * ".jl")
-    isfile(file) ? include(file) : include(joinpath(dir, mod, mod * ".jl"))
+
+    if isfile(file)
+        file |> include
+    else
+        joinpath(dir, mod, mod * ".jl") |> include
+    end
 end
 
 
@@ -561,10 +566,14 @@ function generate(pkgname::AbstractString; dir=nothing,
                   remote = "origin", online = true,
                   extras = ["C:/Program Files/Git/usr/bin"] )
 
-    pkgdir = Utilities.backup_path(dir, pkgname)
-    docroot = joinpath(pkgdir, "docs") |> Utilities.check_not_path
+    pkgdir = Utilities.backup_dir(dir, pkgname)
+    docroot = joinpath(pkgdir, "docs") |> Utilities.bad_dir
 
-    user, repo = GitHub.user_repo(remote = remote, path = pkgdir)
+    user, repo = if online
+        GitHub.user_repo(remote = remote, path = pkgdir)
+    else
+        "your_user_name", "your_repository_name"
+    end
 
     try
         info("Deploying documentation to $docroot")

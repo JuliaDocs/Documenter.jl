@@ -5,6 +5,7 @@ module Utilities
 
 using Base.Meta, Compat
 
+
 # Logging output.
 
 const __log__ = Ref(true)
@@ -557,32 +558,44 @@ command_line(args...; kwargs...) =
 abbreviated_command_line(args...; kwargs...) =
     single_command_line(args, kwargs, "-")
 
-check_path(path) = if isdir(path)
-    path
-else
-    error("Unable to find $path")
+exists(dir) = "Found file at $dir"
+not_exists(dir) = "No file at $dir"
+
+function info_dir(dir)
+    result = ispath(dir)
+    if result
+        dir |> exists |> info
+    else
+        dir |> not_exists |> info
+    end
+    result
 end
 
-check_not_path(path) = if isdir(path)
-    error("$path already exists. Remove and try again")
+good_dir(dir) = if ispath(dir)
+    dir |> exists |> info
+    dir
 else
-    path
+    dir |> not_exists |> error
 end
 
-expand_path(package, args...) = if isdir(package)
-    package
+bad_dir(dir) = if ispath(dir)
+    dir |> exists |> error
 else
-    Pkg.dir(package, args...) |> check_path
+    dir |> not_exists |> info
+    dir
 end
 
-backup_path(path, pkgname) = if path == nothing
-    Pkg.dir(pkgname) |> check_path
-else
-    path |> check_path
-end
+expand_dir(package, args...) =
+    joinpath( Pkg.dir(package) |> good_dir, args...)
 
-path_check(path) = if isdir(path)
-    ";" * path
+backup_dir(dir, pkgname) = if dir == nothing
+    Pkg.dir(pkgname)
+else
+    dir
+end |> good_dir
+
+path_check(dir) = if info_dir(dir)
+    ";" * dir
 else
     ""
 end

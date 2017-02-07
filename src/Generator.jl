@@ -18,9 +18,8 @@ stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network.html#
 then subdirectories will be created automatically.
 """
 function savefile(filename, file, root = pwd() )
-    filepath = joinpath(root, filename) |> Utilities.check_not_path
-    info("Generating $filename at $filepath")
-    mkpath(dirname(filepath))
+    filepath = joinpath(root, filename) |> Utilities.bad_dir
+    mkpath(dirname(filepath) )
     open(filepath, "w") do io
         write(io, file)
     end
@@ -33,9 +32,10 @@ Attempts to append to a file at `\$(root)/\$(filename)`.
 """
 function appendfile(filename, file, root = pwd() )
     filepath = joinpath(root, filename)
-    info("Appending to $filename at $filepath")
-    open(filepath, "a") do io
-        write(io, file)
+    if filepath |> Utilities.info_dir
+        open(filepath, "a") do io
+            write(io, file)
+        end
     end
 end
 

@@ -62,7 +62,7 @@ end
 function unix_genkeys(package, user, repo)
     filename  = ".documenter"
 
-    path = Utilities.expand_path(package, "docs")
+    path = Utilities.expand_dir(package, "docs")
     print(path)
 
     cd(path) do
