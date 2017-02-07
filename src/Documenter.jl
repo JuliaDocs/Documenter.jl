@@ -545,6 +545,9 @@ It defaults to `<package directory>/docs`. The directory must not exist.
 to ["C:/Program Files/Git/usr/bin"]; see the documentation of `Travis.genkeys`
 for more info.
 
+**`online`**: whether Documenter should conduct online transactions: adding a
+gh-pages branch to GitHub, and adding an ssh-key to GitHub and Travis
+
 # Examples
 
 ```jlcon
@@ -555,8 +558,8 @@ julia> Documenter.generate("MyPackageName")
 ```
 """
 function generate(pkgname::AbstractString; dir=nothing,
-                  remote = "origin", gh_pages = true, ssh_keygen = true,
-                  extras = ["C:/Program Files/Git/usr/bin"])
+                  remote = "origin", online = true,
+                  extras = ["C:/Program Files/Git/usr/bin"] )
 
     pkgdir = Utilities.backup_path(dir, pkgname)
     docroot = joinpath(pkgdir, "docs") |> Utilities.check_not_path
@@ -578,10 +581,18 @@ function generate(pkgname::AbstractString; dir=nothing,
             Generator.appendfile(".travis.yml", Generator.travis(pkgname) )
             Generator.appendfile("test/REQUIRE", Generator.require() )
 
-            GitHub.branch_push("gh-pages"; remote = remote)
+            if online
+                GitHub.branch_push("gh-pages"; remote = remote)
+            else
+                info("Please add a gh-pages branch on github")
+            end
         end
 
-        Travis.genkeys(pkgname, user, repo; extras = extras)
+        if online
+            Travis.genkeys(pkgname, user, repo; extras = extras)
+        else
+            info("Run Travis.genkeys at a later time for deployment")
+        end
 
     catch
         # note: won't clean up files that have been appended to

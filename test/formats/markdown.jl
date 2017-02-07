@@ -44,7 +44,7 @@ doc = makedocs(
 
     mktempdir() do root
         let path = joinpath(root, "docs")
-            Documenter.generate("DocumenterTestPackage", dir = path)
+            Documenter.generate("DocumenterTestPackage", dir = path, online = false)
             @test isdir(path)
             @test isfile(joinpath(path, "mkdocs.yml"))
             @test isfile(joinpath(path, ".gitignore"))
