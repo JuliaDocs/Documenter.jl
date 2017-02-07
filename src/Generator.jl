@@ -5,6 +5,9 @@ module Generator
 
 using DocStringExtensions
 
+import ..Documenter:
+    Utilities
+
 """
 $(SIGNATURES)
 
@@ -14,12 +17,13 @@ stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network.html#
 `filename` can also be a file in a subdirectory (e.g. `src/index.md`), and then
 then subdirectories will be created automatically.
 """
-function savefile(f, root, filename)
-    filepath = joinpath(root, filename)
-    if ispath(filepath) error("$(filepath) already exists") end
+function savefile(filename, file, root = pwd() )
+    filepath = joinpath(root, filename) |> Utilities.check_not_path
     info("Generating $filename at $filepath")
     mkpath(dirname(filepath))
-    open(f, filepath, "w")
+    open(filepath, "w") do io
+        write(io, file)
+    end
 end
 
 """
@@ -27,10 +31,12 @@ $(SIGNATURES)
 
 Attempts to append to a file at `\$(root)/\$(filename)`.
 """
-function appendfile(f, root, filename)
+function appendfile(filename, file, root = pwd() )
     filepath = joinpath(root, filename)
     info("Appending to $filename at $filepath")
-    open(f, filepath, "a")
+    open(filepath, "a") do io
+        write(io, file)
+    end
 end
 
 """
@@ -51,9 +57,6 @@ function make(pkgname, user)
         strict = true
     )
 
-    # Documenter can also automatically deploy documentation to gh-pages.
-    # See "Hosting Documentation" and deploydocs() in the Documenter manual
-    # for more information.
     deploydocs(
         repo = "github.com/$user/$pkgname.jl.git",
         target = "build",

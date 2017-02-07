@@ -41,6 +41,8 @@ for mod in [
     "DocChecks",
     "Writers",
     "Deps",
+    "GitHub",
+    "Travis",
     "Generator",
 ]
     dir = dirname(@__FILE__)
@@ -502,157 +504,6 @@ function getenv(regex::Regex)
     error("could not find key/iv pair.")
 end
 
-export Travis
-
-"""
-Package functions for interacting with Travis.
-
-$(EXPORTS)
-"""
-module Travis
-
-using Compat, DocStringExtensions
-import JSON
-
-export genkeys
-
-const GITHUB_REGEX = isdefined(Base, :LibGit2) ?
-    Base.LibGit2.GITHUB_REGEX : Base.Pkg.Git.GITHUB_REGEX
-
-
-"""
-$(SIGNATURES)
-
-Generate ssh keys for package `package` to automatically deploy docs from Travis to GitHub
-pages. `package` can be either the name of a package or a path. Providing a path allows keys
-to be generated for non-packages or packages that are not found in the Julia `LOAD_PATH`.
-Use the `remote` keyword to specify the user and repository values.
-
-This function requires the following command lines programs to be installed and
-on your path:
-
-- `which`
-- `git`
-- `ssh-keygen`
-- `travis`
-
-For Windows users, the first three are packaged with Git: check
-"C:\\Program Files\\Git\\user\\bin". Run in a regular terminal: git bash would
-work except there is a bug preventing password entry. Install travis with
-by downloading and using Ruby: `gem install travis`.
-
-You need to use a travis token to access your repository. Generate one by
-running in a command line:
-
-```
-travis login --org
-travis token --org
-```
-
-# Examples
-
-```jlcon
-julia> using Documenter
-
-julia> Travis.genkeys("MyPackageName")
-[ ... output ... ]
-
-julia> Travis.genkeys("MyPackageName", remote="organization")
-[ ... output ... ]
-
-julia> Travis.genkeys("/path/to/target/directory")
-[ ... output ... ]
-```
-"""
-function genkeys(package, travis_token; remote="origin")
-    # Error checking. Do the required programs exist?
-    if !success(`which which`)
-        error("'which' not found.")
-    end
-    if !success(`which git`)
-        error("'git' not found.")
-    end
-    if !success(`which ssh-keygen`)
-        error("'ssh-keygen' not found.")
-    end
-    if !success(`which travis`)
-        error("'travis' not found.")
-    end
-
-    directory = "docs"
-    filename  = ".documenter"
-
-    path = if isdir(package)
-        package
-    else
-        Pkg.dir(package, directory)
-    end
-    if !isdir(path)
-        error("`$path` not found. Provide a package name or directory.")
-    end
-
-    cd(path) do
-        # Check for old '$filename.enc' and terminate.
-        if isfile("$filename.enc")
-            error("$package already has an ssh key. Remove it and try again.")
-        end
-
-        # Are we in a git repo?
-        if !success(`git status`)
-            error("'Travis.genkey' only works with git repositories.")
-        end
-
-        # Find the GitHub repo org and name.
-        user, repo =
-            let r = readchomp(`git config --get remote.$remote.url`)
-                m = match(GITHUB_REGEX, r)
-                if m === nothing
-                    error("no remote repo named '$remote' found.")
-                end
-                m[2], m[3]
-            end
-
-        # Generate the ssh key pair.
-        run(`ssh-keygen -N "" -f $filename`)
-
-        public_filename = string(filename, ".pub")
-        github_key = readstring(public_filename)
-        github_query = Dict(
-            "title" => "documenter",
-            "key" => github_key,
-            "read_only" => false) |> JSON.json
-        run(`curl --user $user --request POST --data $github_query  https://api.github.com/repos/$user/$repo/keys`)
-        rm(public_filename)
-
-        travis_key = readstring(filename) |> base64encode
-        travis_info = readstring(`curl https://api.travis-ci.org/repos/$user/$repo`) |> JSON.Parser.parse
-        travis_ID = travis_info["id"]
-        travis_key_query = Dict(
-            "name" => "DOCUMENTER_KEY",
-            "value" => travis_key,
-            "public" => false)
-        travis_query = Dict("env_var" => travis_key_query) |> JSON.json
-        authorization_string = "Authorization: token $travis_token"
-        run(`curl --header $authorization_string --request POST --data $travis_query https://api.travis-ci.org/settings/env_vars?repository_id=$travis_ID`)
-        rm(filename)
-    end
-end
-
-end
-
-"""
-$(SIGNATURES)
-
-Get your github username, or error if git doesn't know it yet.
-"""
-function github_username()
-    result = LibGit2.getconfig("github.user", "")
-    if isempty(result)
-        ErrorException("Please run `git config --global github.user your_github_username`")
-    end
-    result
-end
-
 """
 $(SIGNATURES)
 
@@ -667,7 +518,14 @@ docs/
     .gitignore
     src/index.md
     make.jl
-    mkdocs.yml
+```
+
+and appends to
+
+```
+README.md
+.travis.yml
+test/REQUIRE,
 ```
 
 # Arguments
@@ -680,11 +538,12 @@ determine the location of the documentation if `dir` is not provided.
 **`dir`** defines the directory where the documentation will be generated.
 It defaults to `<package directory>/docs`. The directory must not exist.
 
-**`gh_pages`**: should Documenter attempt to add a gh-pages branch and push it
-to github?
+**`remote`** is the Git remote where documentation will be hosted. Defaults to
+"origin"
 
-**`deploy_keys`**: should Documenter generate deploy keys and print out
-instructions on how to add them to git and travis?
+**`extras`** are folders to temporarily add to your path if they exist. Defaults
+to ["C:/Program Files/Git/usr/bin"]; see the documentation of `Travis.genkeys`
+for more info.
 
 # Examples
 
@@ -695,73 +554,39 @@ julia> Documenter.generate("MyPackageName")
 [ ... output ... ]
 ```
 """
-function generate(pkgname::AbstractString; dir=nothing, gh_pages = true, deploy_keys = true)
+function generate(pkgname::AbstractString; dir=nothing,
+                  remote = "origin", gh_pages = true, ssh_keygen = true,
+                  extras = ["C:/Program Files/Git/usr/bin"])
 
-    user = github_username()
+    pkgdir = Utilities.backup_path(dir, pkgname)
+    docroot = joinpath(pkgdir, "docs") |> Utilities.check_not_path
 
-    # Check the validity of the package name
-    if length(pkgname) == 0
-        error("Package name can not be an empty string.")
-    end
+    user, repo = GitHub.user_repo(remote = remote, path = pkgdir)
 
-    pkgdir = Pkg.dir(pkgname)
-
-    docroot = if dir === nothing
-        if !isdir(pkgdir)
-            error("Unable to find package $(pkgname).jl at $(pkgdir).")
-        end
-        joinpath(pkgdir, "docs")
-    else
-        dir
-    end
-
-    if ispath(docroot)
-        error("Directory $(docroot) already exists.")
-    end
-
-    # deploy the stub
     try
-        info("Deploying documentation to $(docroot)")
+        info("Deploying documentation to $docroot")
         mkdir(docroot)
 
-        # create the root doc files
-        Generator.savefile(docroot, ".gitignore") do io
-            write(io, Generator.gitignore())
-        end
-        Generator.savefile(docroot, "make.jl") do io
-            write(io, Generator.make(pkgname, user))
+        cd(docroot) do
+            Generator.savefile(".gitignore", Generator.gitignore() )
+            Generator.savefile("make.jl", Generator.make(pkgname, user) )
+            Generator.savefile("src/index.md", Generator.index(pkgname) )
         end
 
-        # Create the default documentation source files
-        Generator.savefile(docroot, "src/index.md") do io
-            write(io, Generator.index(pkgname))
+        cd(pkgdir) do
+            Generator.appendfile("README.md", Generator.readme(pkgname, user) )
+            Generator.appendfile(".travis.yml", Generator.travis(pkgname) )
+            Generator.appendfile("test/REQUIRE", Generator.require() )
+
+            GitHub.branch_push("gh-pages"; remote = remote)
         end
 
-        Generator.appendfile(pkgdir, "README.md") do io
-            write(io, Generator.readme(pkgname, user))
-        end
+        Travis.genkeys(pkgname, user, repo; extras = extras)
 
-        Generator.appendfile(pkgdir, ".travis.yml") do io
-            write(io, Generator.travis(pkgname))
-        end
-
-        Generator.appendfile(pkgdir, "test/REQUIRE") do io
-            write(io, Generator.require())
-        end
     catch
+        # note: won't clean up files that have been appended to
         rm(docroot, recursive=true)
         rethrow()
-    end
-
-    if gh_pages
-        cd(pkgdir) do
-            run(`git branch gh-pages`)
-            run(`git push origin gh-pages`)
-        end
-    end
-
-    if deploy_keys
-        Travis.genkeys(pkgname)
     end
 
     nothing

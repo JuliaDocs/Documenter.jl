@@ -526,7 +526,6 @@ function withoutput(f)
     return result, success, backtrace, chomp(Compat.String(output))
 end
 
-
 """
     issubmodule(sub, mod)
 
@@ -542,6 +541,53 @@ function issubmodule(sub, mod)
     end
     (sub === mod) || issubmodule(module_parent(sub), mod)
 end
+
+function single_command_line(args, kwargs, marker = "--")
+    result = ``
+    for arg in args
+        result = `$result $arg`
+    end
+    for (key, value) in kwargs
+        result = `$result $marker$key $value`
+    end
+    result
+end
+command_line(args...; kwargs...) =
+    single_command_line(args, kwargs)
+abbreviated_command_line(args...; kwargs...) =
+    single_command_line(args, kwargs, "-")
+
+check_path(path) = if isdir(path)
+    path
+else
+    error("Unable to find $path")
+end
+
+check_not_path(path) = if isdir(path)
+    error("$path already exists. Remove and try again")
+else
+    path
+end
+
+expand_path(package, args...) = if isdir(package)
+    package
+else
+    Pkg.dir(package, args...) |> check_path
+end
+
+backup_path(path, pkgname) = if path == nothing
+    Pkg.dir(pkgname) |> check_path
+else
+    path |> check_path
+end
+
+path_check(path) = if isdir(path)
+    ";" * path
+else
+    ""
+end
+
+add_to_path(dirs) = "Path" => string(ENV["Path"], map(path_check, dirs)...)
 
 include("DOM.jl")
 include("MDFlatten.jl")
