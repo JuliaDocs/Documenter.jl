@@ -44,7 +44,8 @@ const DOCUMENT_STRUCTURE = (
 
 function render(doc::Documents.Document)
     mktempdir() do path
-        cd(path) do
+        cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
+        cd(joinpath(path, "build")) do
             local file = replace("$(doc.user.sitename).tex", " ", "")
             open(file, "w") do io
                 local context = Context(io)
