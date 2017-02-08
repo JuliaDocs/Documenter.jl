@@ -558,8 +558,8 @@ command_line(args...; kwargs...) =
 abbreviated_command_line(args...; kwargs...) =
     single_command_line(args, kwargs, "-")
 
-exists(dir) = "Found file at $dir"
-not_exists(dir) = "No file at $dir"
+exists(dir) = "Found $dir"
+not_exists(dir) = "Cannot find $dir"
 
 function info_dir(dir)
     result = ispath(dir)
@@ -571,17 +571,17 @@ function info_dir(dir)
     result
 end
 
-good_dir(dir) = if ispath(dir)
-    dir |> exists |> info
+function good_dir(dir)
+    if !info_dir(dir)
+        error("Please make sure it exists")
+    end
     dir
-else
-    dir |> not_exists |> error
 end
 
-bad_dir(dir) = if ispath(dir)
-    dir |> exists |> error
-else
-    dir |> not_exists |> info
+function bad_dir(dir)
+    if info_dir(dir)
+        error("Please remove it")
+    end
     dir
 end
 
@@ -596,6 +596,7 @@ end |> good_dir
 
 path_check(dir) = if info_dir(dir)
     ";" * dir
+    info("Adding to path")
 else
     ""
 end

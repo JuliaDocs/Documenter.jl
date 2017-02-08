@@ -567,7 +567,9 @@ function generate(pkgname::AbstractString; dir=nothing,
                   extras = ["C:/Program Files/Git/usr/bin"] )
 
     pkgdir = Utilities.backup_dir(dir, pkgname)
+    info("with base files")
     docroot = joinpath(pkgdir, "docs") |> Utilities.bad_dir
+    info("Will generate documentation here")
 
     user, repo = if online
         GitHub.user_repo(remote = remote, path = pkgdir)
@@ -576,7 +578,6 @@ function generate(pkgname::AbstractString; dir=nothing,
     end
 
     try
-        info("Deploying documentation to $docroot")
         mkdir(docroot)
 
         cd(docroot) do

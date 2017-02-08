@@ -19,6 +19,7 @@ then subdirectories will be created automatically.
 """
 function savefile(filename, file, root = pwd() )
     filepath = joinpath(root, filename) |> Utilities.bad_dir
+    info("Creating")
     mkpath(dirname(filepath) )
     open(filepath, "w") do io
         write(io, file)
@@ -33,6 +34,7 @@ Attempts to append to a file at `\$(root)/\$(filename)`.
 function appendfile(filename, file, root = pwd() )
     filepath = joinpath(root, filename)
     if filepath |> Utilities.info_dir
+        info("Appending")
         open(filepath, "a") do io
             write(io, file)
         end

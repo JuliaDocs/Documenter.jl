@@ -63,7 +63,7 @@ function unix_genkeys(package, user, repo)
     filename  = ".documenter"
 
     path = Utilities.expand_dir(package, "docs")
-    print(path)
+    info("Adding keys")
 
     cd(path) do
         which()
