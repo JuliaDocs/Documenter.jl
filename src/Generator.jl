@@ -105,10 +105,7 @@ function readme(pkgname, user)
     docs_latest_url = "https://$user.github.io/$pkgname.jl/latest"
     """
 
-    ## Documentation
-
-    - [Stable]($docs_stable_url)
-    - [In Development]($docs_latest_url)
+    ## Documentation [here]($docs_stable_url)
     """
 end
 

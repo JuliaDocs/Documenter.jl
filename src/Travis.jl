@@ -66,6 +66,7 @@ function unix_genkeys(package, user, repo)
     info("Adding keys")
 
     cd(path) do
+
         which()
         ssh_keygen(filename)
 
