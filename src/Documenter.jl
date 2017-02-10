@@ -312,7 +312,20 @@ function deploydocs(;
     travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
 
     # Other variables.
-    sha = readchomp(`git rev-parse --short HEAD`)
+    sha = cd(root) do
+        # We'll make sure we run the git commands in the source directory (root), in case
+        # the working directory has been changed (e.g. if the makedocs' build argument is
+        # outside root).
+        try
+            readchomp(`git rev-parse --short HEAD`)
+        catch
+            # git rev-parse will throw an error and return code 128 if it is not being
+            # run in a git repository, which will make run/readchomp throw an exception.
+            # We'll assume that if readchomp fails it is due to this and set the sha
+            # variable accordingly.
+            "(not-git-repo)"
+        end
+    end
 
     # Sanity checks
     if !isa(julia, AbstractString)
