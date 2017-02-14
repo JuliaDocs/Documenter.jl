@@ -44,7 +44,8 @@ const DOCUMENT_STRUCTURE = (
 
 function render(doc::Documents.Document)
     mktempdir() do path
-        cd(path) do
+        cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
+        cd(joinpath(path, "build")) do
             local file = replace("$(doc.user.sitename).tex", " ", "")
             open(file, "w") do io
                 local context = Context(io)
@@ -407,7 +408,7 @@ function latexinline(io::IO, md::Markdown.Image)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
         wrapinline(io, "includegraphics") do
-            _print(io, md.url)
+            _print(io,  md.url)
         end
         _println(io)
         wrapinline(io, "caption") do
