@@ -43,11 +43,10 @@ const DOCUMENT_STRUCTURE = (
 )
 
 function render(doc::Documents.Document)
-    task_local_storage(:doc, doc)
     mktempdir() do path
-        cd(path) do
+        cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
+        cd(joinpath(path, "build")) do
             local file = replace("$(doc.user.sitename).tex", " ", "")
-            cp(joinpath(doc.user.root, doc.user.source, "assets"), "assets")
             open(file, "w") do io
                 local context = Context(io)
                 writeheader(context, doc)
@@ -87,7 +86,6 @@ function render(doc::Documents.Document)
             end
         end
     end
-    task_local_storage(:doc, nothing)
 end
 
 function writeheader(io::IO, doc::Documents.Document)
@@ -407,11 +405,10 @@ function latexinline(io::IO, md::Markdown.Italic)
 end
 
 function latexinline(io::IO, md::Markdown.Image)
-    doc = task_local_storage(:doc)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
         wrapinline(io, "includegraphics") do
-            _print(io, joinpath(doc.user.root, doc.user.build, md.url))
+            _print(io,  md.url)
         end
         _println(io)
         wrapinline(io, "caption") do
