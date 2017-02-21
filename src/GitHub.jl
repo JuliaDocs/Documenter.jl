@@ -39,7 +39,7 @@ function submit_keys(user, repo_name, title, key; read_only = false)
 end
 
 function branch_push(repo; branch = "gh-pages", remote = "origin")
-    info("Adding and pushing gh-pages branch")
+    info("Adding and pushing $branch branch")
 
     LibGit2.branch!(repo, branch)
     try

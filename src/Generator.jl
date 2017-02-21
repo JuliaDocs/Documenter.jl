@@ -13,7 +13,7 @@ $(SIGNATURES)
 
 Attempts to save a file at `\$(root)/\$(filename)`.
 
-`f` will be called with file stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network.html#Base.open)).
+`f` will be called with file stream.
 `root` defaults to your present working directory. `filename` can also be a file
 in a subdirectory (e.g. `src/index.md`), and then subdirectories will be created
 automatically. Errors if the creation location already exists.
@@ -64,6 +64,9 @@ function make(pkgname, user)
         pages = ["Home" => "index.md"],
         strict = true
     )
+
+    # See https://juliadocs.github.io/Documenter.jl/stable/man/hosting.html
+    # for more information about deployment
 
     deploydocs(
         repo = "github.com/$user/$pkgname.jl.git",
