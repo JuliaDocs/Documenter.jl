@@ -32,7 +32,9 @@ function ssh_keygen(filename)
     if isfile("$filename.enc")
         error("ssh key already exists. Remove it and try again.")
     end
-    run(`ssh-keygen -f $filename`)
+    if !success(`ssh-keygen -f $filename`)
+        error("Cannot generate ssh keys")
+    end
 end
 
 basic_info(user, repo_name) =
@@ -61,7 +63,9 @@ function env_vars(repository_id, token, name, value; public = false)
     data = Dict("env_var" => env_var) |> JSON.json
     url = "https://api.travis-ci.org/settings/env_vars?repository_id=$repository_id"
     header = "Authorization: token $token"
-    run(`curl $url --header $header --data $data`)
+    if !success(`curl $url --header $header --data $data`)
+        error("Cannot submit key to Travis")
+    end
 end
 
 function unix_genkeys(user, repo_name)

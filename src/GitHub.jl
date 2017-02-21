@@ -5,8 +5,6 @@ import JSON
 const GITHUB_REGEX = isdefined(Base, :LibGit2) ?
     Base.LibGit2.GITHUB_REGEX : Base.Pkg.Git.GITHUB_REGEX
 
-path = "C:/Users/brandon_taylor/.julia/v0.5/Test"
-
 get_repo(path) =
     try
         LibGit2.GitRepo(path)
@@ -35,19 +33,27 @@ function submit_keys(user, repo_name, title, key; read_only = false)
                 "read_only" => read_only) |>
         JSON.json
     url = "https://api.github.com/repos/$user/$repo_name/keys"
-    run(`curl $url --user $user --request POST --data $data`)
+    if !success(`curl $url --user $user --request POST --data $data`)
+        error("Cannot push key to github")
+    end
 end
 
-function branch_push(repo; branch = "gh-pages", remote = "origin")
-    info("Adding and pushing $branch branch")
-
-    LibGit2.branch!(repo, branch)
+function test_push(repo; remote = remote)
     try
         LibGit2.push(repo; remote = remote)
     catch
         error("Cannot push to remote $remote")
     end
-    LibGit2.branch!(repo, "master")
+end
+
+function branch_push(repo; branch = "gh-pages", remote = "origin")
+    info("Adding and pushing $branch branch")
+    current_branch = LibGit2.branch(repo)
+    test_push(repo, remote = remote)
+    LibGit2.branch!(repo, branch)
+    LibGit2.GitCommit
+    test_push(repo, remote = remote)
+    LibGit2.branch!(repo, current_branch)
 end
 
 end
