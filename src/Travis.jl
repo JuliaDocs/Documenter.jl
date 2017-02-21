@@ -19,7 +19,7 @@ test_for(program) = if !success(`which $program`)
     error("$program not found.")
 end
 
-which() = foreach(test_for, ("which", "git", "ssh-keygen", "travis") )
+which() = foreach(test_for, ("which", "ssh-keygen", "travis") )
 
 windows_prefix() = if is_windows()
     `cmd /c`
@@ -32,12 +32,17 @@ function ssh_keygen(filename)
     if isfile("$filename.enc")
         error("ssh key already exists. Remove it and try again.")
     end
-    Utilities.abbreviated_command_line("ssh-keygen", f = filename) |> run
+    run(`ssh-keygen -f $filename`)
 end
 
-basic_info(user, repo) =
-    readstring(`curl https://api.travis-ci.org/repos/$user/$repo`) |>
-    JSON.Parser.parse
+basic_info(user, repo_name) =
+    try
+        readstring(`curl https://api.travis-ci.org/repos/$user/$repo_name`) |>
+            JSON.Parser.parse
+    catch
+        error("Cannot get basic info from Travis for $user/$repo_name")
+    end
+
 
 function token()
     info("Creating travis token")
@@ -54,30 +59,22 @@ function env_vars(repository_id, token, name, value; public = false)
         "value" => value,
         "public" => public)
     data = Dict("env_var" => env_var) |> JSON.json
-    Utilities.command_line(:curl,
-        "https://api.travis-ci.org/settings/env_vars?repository_id=$repository_id",
-        header = "Authorization: token $token", data = data) |> run
+    url = "https://api.travis-ci.org/settings/env_vars?repository_id=$repository_id"
+    header = "Authorization: token $token"
+    run(`curl $url --header $header --data $data`)
 end
 
-function unix_genkeys(package, user, repo)
+function unix_genkeys(user, repo_name)
     filename  = ".documenter"
+    which()
 
-    path = Utilities.expand_dir(package, "docs")
-    info("Adding keys")
-
-    cd(path) do
-
-        which()
-        ssh_keygen(filename)
-
-        public_filename = string(filename, ".pub")
-        GitHub.submit_keys(user, repo, "documenter", readstring(public_filename) )
-        rm(public_filename)
-
-        env_vars(
-            basic_info(user, repo)["id"], token(),
-            "DOCUMENTER_KEY", readstring(filename) |> base64encode)
-        rm(filename)
+    mktempdir() do tmp
+        cd(tmp) do
+            ssh_keygen(filename)
+            GitHub.submit_keys(user, repo_name, "documenter", readstring( filename * ".pub" ) )
+            env_vars(basic_info(user, repo_name)["id"], token(),
+                     "DOCUMENTER_KEY", readstring(filename) |> base64encode)
+        end
     end
 end
 
@@ -87,20 +84,19 @@ $(SIGNATURES)
 Generate ssh keys for package `package` to automatically deploy docs from Travis to GitHub
 pages. `package` can be either the name of a package or a path. Providing a path allows keys
 to be generated for non-packages or packages that are not found in the Julia `LOAD_PATH`.
-Provide your github username: `user` and the repository name: `repo`. `extras` are additional
+Provide your github username: `user` and the repository name: `repo`. `path_additions` are additional
 folders to **temporarily** add to your path if they exist; defaults to
-["C:/Program Files/Git/usr/bin"].
+`["C:/Program Files/Git/usr/bin"]` on Windows.
 
 This function requires the following command line programs to be installed and
 on your path:
 
 - `which`
-- `git`
 - `ssh-keygen`
 - `travis`
 
-For Windows users, the first three might be packaged with Git in
-"C:/Program Files/Git/usr/bin". Install travis with ruby: `gem install travis`.
+For Windows users, the first two might be packaged with Git in
+`C:/Program Files/Git/usr/bin`. Install travis with ruby: `gem install travis`.
 
 # Examples
 
@@ -117,9 +113,9 @@ julia> Travis.genkeys("/path/to/target/directory")
 [ ... output ... ]
 ```
 """
-genkeys(package, user, repo; extras = ["C:/Program Files/Git/usr/bin"] ) =
-    withenv(Utilities.add_to_path(extras) ) do
-        unix_genkeys(package, user, repo)
+genkeys(user, repo_name; path_additions = Utilities.platform_paths() ) =
+    withenv(Utilities.add_to_path(path_additions) ) do
+        unix_genkeys(user, repo_name)
     end
 
 end

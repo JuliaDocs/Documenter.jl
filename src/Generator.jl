@@ -11,15 +11,19 @@ import ..Documenter:
 """
 $(SIGNATURES)
 
-Attempts to save a file at `\$(root)/\$(filename)`. `f` will be called with file
-stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network.html#Base.open)).
+Attempts to save a file at `\$(root)/\$(filename)`.
 
-`filename` can also be a file in a subdirectory (e.g. `src/index.md`), and then
-then subdirectories will be created automatically.
+`f` will be called with file stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network.html#Base.open)).
+`root` defaults to your present working directory. `filename` can also be a file
+in a subdirectory (e.g. `src/index.md`), and then subdirectories will be created
+automatically. Errors if the creation location already exists.
 """
 function savefile(filename, file, root = pwd() )
-    filepath = joinpath(root, filename) |> Utilities.bad_dir
-    info("Creating")
+    filepath = joinpath(root, filename)
+    if ispath(filepath)
+        error("$filepath already exists")
+    end
+    info("Creating $filepath")
     mkpath(dirname(filepath) )
     open(filepath, "w") do io
         write(io, file)
@@ -33,8 +37,10 @@ Attempts to append to a file at `\$(root)/\$(filename)`.
 """
 function appendfile(filename, file, root = pwd() )
     filepath = joinpath(root, filename)
-    if filepath |> Utilities.info_dir
-        info("Appending")
+    if !ispath(filepath)
+        savefile(filename, file, root)
+    else
+        info("Appending to $filepath")
         open(filepath, "a") do io
             write(io, file)
         end
@@ -55,7 +61,7 @@ function make(pkgname, user)
         modules = [$pkgname],
         format = :html,
         sitename = "$pkgname.jl",
-        pages = Any["Home" => "index.md"],
+        pages = ["Home" => "index.md"],
         strict = true
     )
 

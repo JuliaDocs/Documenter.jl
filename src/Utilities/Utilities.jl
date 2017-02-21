@@ -543,65 +543,25 @@ function issubmodule(sub, mod)
     (sub === mod) || issubmodule(module_parent(sub), mod)
 end
 
-function single_command_line(args, kwargs, marker = "--")
-    result = ``
-    for arg in args
-        result = `$result $arg`
-    end
-    for (key, value) in kwargs
-        result = `$result $marker$key $value`
-    end
-    result
-end
-command_line(args...; kwargs...) =
-    single_command_line(args, kwargs)
-abbreviated_command_line(args...; kwargs...) =
-    single_command_line(args, kwargs, "-")
-
-exists(dir) = "Found $dir"
-not_exists(dir) = "Cannot find $dir"
-
-function info_dir(dir)
-    result = ispath(dir)
-    if result
-        dir |> exists |> info
-    else
-        dir |> not_exists |> info
-    end
-    result
-end
-
-function good_dir(dir)
-    if !info_dir(dir)
-        error("Please make sure it exists")
-    end
-    dir
-end
-
-function bad_dir(dir)
-    if info_dir(dir)
-        error("Please remove it")
-    end
-    dir
-end
-
-expand_dir(package, args...) =
-    joinpath( Pkg.dir(package) |> good_dir, args...)
-
-backup_dir(dir, pkgname) = if dir == nothing
-    Pkg.dir(pkgname)
+path_separator() = if is_windows()
+    ";"
 else
-    dir
-end |> good_dir
-
-path_check(dir) = if info_dir(dir)
-    ";" * dir
-    info("Adding to path")
-else
-    ""
+    ":"
 end
 
-add_to_path(dirs) = "Path" => string(ENV["Path"], map(path_check, dirs)...)
+path_check(path) = if ispath(path)
+    path_separator() * path
+else
+    info("Cannot find $path")
+end
+
+add_to_path(paths) = "PATH" => string(ENV["PATH"], map(path_check, paths)...)
+
+platform_paths() = if is_windows()
+    ["C:/Program Files/Git/usr/bin"]
+else
+    []
+end
 
 include("DOM.jl")
 include("MDFlatten.jl")

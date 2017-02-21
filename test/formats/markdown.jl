@@ -48,6 +48,7 @@ doc = makedocs(
             @test isdir(path)
             @test isfile(joinpath(path, ".gitignore"))
             @test isfile(joinpath(path, "make.jl"))
+            @test isfile(joinpath(path, "test/REQUIRE"))
             @test isdir(joinpath(path, "src"))
             @test isfile(joinpath(path, "src", "index.md"))
         end

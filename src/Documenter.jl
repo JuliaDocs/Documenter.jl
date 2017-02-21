@@ -55,7 +55,6 @@ for mod in [
     end
 end
 
-
 # User Interface.
 # ---------------
 
@@ -546,7 +545,7 @@ It defaults to `<package directory>/docs`. The directory must not exist.
 **`remote`** is the Git remote where documentation will be hosted. Defaults to
 "origin"
 
-**`extras`** are folders to temporarily add to your path if they exist. Defaults
+**`path_additions`** are folders to temporarily add to your path if they exist. Defaults
 to ["C:/Program Files/Git/usr/bin"]; see the documentation of `Travis.genkeys`
 for more info.
 
@@ -562,19 +561,34 @@ julia> Documenter.generate("MyPackageName")
 [ ... output ... ]
 ```
 """
-function generate(pkgname::AbstractString; dir=nothing,
-                  remote = "origin", online = true,
-                  extras = ["C:/Program Files/Git/usr/bin"] )
+function generate(pkgname::AbstractString;
+                  dir=nothing,
+                  remote = "origin",
+                  online = true,
+                  path_additions = Utilities.platform_paths() )
 
-    pkgdir = Utilities.backup_dir(dir, pkgname)
-    info("with base files")
-    docroot = joinpath(pkgdir, "docs") |> Utilities.bad_dir
-    info("Will generate documentation here")
-
-    user, repo = if online
-        GitHub.user_repo(remote = remote, path = pkgdir)
+    pkgdir = if dir == nothing
+        Pkg.dir(pkgname)
     else
-        "your_user_name", "your_repository_name"
+        dir
+    end
+
+    if !ispath(pkgdir)
+        error("$pkgdir cannot be found")
+    end
+
+    docroot = joinpath(pkgdir, "docs")
+    if ispath(docroot)
+        error("$docroot already exists. Remove it and try again")
+    end
+
+    if online
+        repo = GitHub.get_repo(pkgdir)
+        user, repo_name = GitHub.user_repo_name(repo; remote = remote)
+        GitHub.branch_push(repo; remote = remote)
+    else
+        user, repo_name = "YOUR_USER_NAME", "YOUR_REPOSITORY_NAME"
+        info("Please add a gh-pages branch on github")
     end
 
     try
@@ -590,22 +604,16 @@ function generate(pkgname::AbstractString; dir=nothing,
             Generator.appendfile("README.md", Generator.readme(pkgname, user) )
             Generator.appendfile(".travis.yml", Generator.travis(pkgname) )
             Generator.appendfile("test/REQUIRE", Generator.require() )
-
-            if online
-                GitHub.branch_push("gh-pages"; remote = remote)
-            else
-                info("Please add a gh-pages branch on github")
-            end
         end
 
         if online
-            Travis.genkeys(pkgname, user, repo; extras = extras)
+            Travis.genkeys(user, repo_name; path_additions = path_additions)
         else
             info("Run Travis.genkeys at a later time for deployment")
         end
 
     catch
-        # note: won't clean up files that have been appended to
+        # note: won't clean up files that have been appended to or keys created
         rm(docroot, recursive=true)
         rethrow()
     end

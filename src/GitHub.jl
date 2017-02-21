@@ -1,47 +1,53 @@
 module GitHub
 
 import JSON
-import ..Documenter:
-    Utilities
 
 const GITHUB_REGEX = isdefined(Base, :LibGit2) ?
     Base.LibGit2.GITHUB_REGEX : Base.Pkg.Git.GITHUB_REGEX
 
-is_git(path = pwd() ) = cd(path) do
-    if !success(`git status`)
-        error("Must be a git repository")
+path = "C:/Users/brandon_taylor/.julia/v0.5/Test"
+
+get_repo(path) =
+    try
+        LibGit2.GitRepo(path)
+    catch
+        "Cannot find git repository at $path"
+    end
+
+function remote_url(repo; remote = "origin")
+    url = LibGit2.getconfig(repo, "remote.$remote.url", "default")
+    if url == "default"
+        error("Cannot find url for remote $remote")
+    else
+        url
     end
 end
 
-function user_repo(; path = pwd(), remote = "origin")
-    is_git(path)
-    config = cd(path) do
-        readchomp(`git config --get remote.$remote.url`)
-    end
-    matches = match(GITHUB_REGEX, config)
-    if matches === nothing
-        error("no remote repo named '$remote' found.")
-    end
+function user_repo_name(repo; remote = "origin")
+    matches = match(GITHUB_REGEX, remote_url(repo, remote = remote))
     matches[2], matches[3]
 end
 
-function submit_keys(user, repo, title, key; read_only = false)
+function submit_keys(user, repo_name, title, key; read_only = false)
     info("Submitting key to GitHub")
     data = Dict("title" => title,
                 "key" => key,
                 "read_only" => read_only) |>
         JSON.json
-    Utilities.command_line(:curl, "https://api.github.com/repos/$user/$repo/keys",
-                           user = user, request = :POST, data = data) |> run
+    url = "https://api.github.com/repos/$user/$repo_name/keys"
+    run(`curl $url --user $user --request POST --data $data`)
 end
 
-function branch_push(branch; remote = "origin", path = pwd() )
+function branch_push(repo; branch = "gh-pages", remote = "origin")
     info("Adding and pushing gh-pages branch")
-    is_git(path)
-    if !success(`git branch $branch`)
-        info("gh-pages branch already exists")
+
+    LibGit2.branch!(repo, branch)
+    try
+        LibGit2.push(repo; remote = remote)
+    catch
+        error("Cannot push to remote $remote")
     end
-    run(`git push $remote $branch`)
+    LibGit2.branch!(repo, "master")
 end
 
 end
