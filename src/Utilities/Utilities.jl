@@ -363,12 +363,31 @@ end
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
 
+function in_cygwin()
+    # check if in cygwin, if so we need to translate cygwin paths to windows paths
+    if is_windows()
+        try
+            return success(`cygpath -h`)
+        catch
+            return false
+        end
+    else
+        return false
+    end
+end
+
 function url(repo, file)
     file = abspath(file)
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/tree/{commit}{path}")
+    # Replace any backslashes in links, if building the docs on Windows
+    file = replace(file, '\\', '/')
     commit, root = cd(dirname(file)) do
-        readchomp(`git rev-parse HEAD`), readchomp(`git rev-parse --show-toplevel`)
+        toplevel = readchomp(`git rev-parse --show-toplevel`)
+        if in_cygwin()
+            toplevel = readchomp(`cygpath -m "$toplevel"`)
+        end
+        readchomp(`git rev-parse HEAD`), toplevel
     end
     if startswith(file, root)
         _, path = split(file, root; limit = 2)
@@ -387,6 +406,8 @@ if VERSION >= v"0.5.0-dev+3442"
     function url(remote, repo, mod, file, linerange)
         remote = getremote(dirname(file))
         isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
+        # Replace any backslashes in links, if building the docs on Windows
+        file = replace(file, '\\', '/')
         # Format the line range.
         line = format_line(linerange)
         # Macro-generated methods such as those produced by `@deprecate` list their file as
@@ -405,7 +426,11 @@ if VERSION >= v"0.5.0-dev+3442"
             )
         else
             commit, root = cd(dirname(file)) do
-                readchomp(`git rev-parse HEAD`), readchomp(`git rev-parse --show-toplevel`)
+                toplevel = readchomp(`git rev-parse --show-toplevel`)
+                if in_cygwin()
+                    toplevel = readchomp(`cygpath -m "$toplevel"`)
+                end
+                readchomp(`git rev-parse HEAD`), toplevel
             end
             if startswith(file, root)
                 if isempty(repo)
