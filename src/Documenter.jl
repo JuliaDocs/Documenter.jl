@@ -247,9 +247,10 @@ deploydocs(
 written to. This directory **must** be added to the repository's `.gitignore` file. The
 default value is `"site"`.
 
-**`repo`** is the remote repository where generated HTML content should be pushed to. This
-keyword *must* be set and will throw an error when left undefined. For example this package
-uses the following `repo` value:
+**`repo`** is the remote repository where generated HTML content should be pushed to. Do not
+specify any protocol - "https://" or "git@" should not be present. This keyword *must*
+be set and will throw an error when left undefined. For example this package uses the 
+following `repo` value:
 
 ```julia
 repo = "github.com/JuliaDocs/Documenter.jl.git"

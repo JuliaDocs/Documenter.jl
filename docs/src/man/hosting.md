@@ -121,7 +121,8 @@ deploydocs(
 )
 ```
 
-where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names.
+where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names. Note that `repo`
+should not specify any protocol, i.e. it should not begin with `https://` or `git@`. 
 
 By default `deploydocs` will deploy the documentation from the `nightly` Julia build for
 Linux. This can be changed using the `julia` and `osname` keywords as follows:
