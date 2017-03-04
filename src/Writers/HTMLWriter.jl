@@ -730,10 +730,9 @@ mdconvert(m::Markdown.LaTeX, parent) = Tag(:span)(string('$', m.formula, '$'))
 
 mdconvert(::Markdown.LineBreak, parent) = Tag(:br)()
 
-const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 function mdconvert(link::Markdown.Link, parent)
     # TODO: fixing the extension should probably be moved to an earlier step
-    if ismatch(ABSURL_REGEX, link.url)
+    if Utilities.isabsurl(link.url)
         Tag(:a)[:href => link.url](mdconvert(link.text, link))
     else
         s = split(link.url, "#", limit = 2)

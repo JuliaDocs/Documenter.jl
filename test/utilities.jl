@@ -65,6 +65,14 @@ end
     @test OuterModule in Documenter.Utilities.submodules(OuterModule)
     @test OuterModule.InnerModule in Documenter.Utilities.submodules(OuterModule)
     @test length(Documenter.Utilities.submodules(OuterModule)) == 2
+
+    @test Documenter.Utilities.isabsurl("file.md") === false
+    @test Documenter.Utilities.isabsurl("../file.md") === false
+    @test Documenter.Utilities.isabsurl(".") === false
+    @test Documenter.Utilities.isabsurl("https://example.org/file.md") === true
+    @test Documenter.Utilities.isabsurl("http://example.org") === true
+    @test Documenter.Utilities.isabsurl("ftp://user:pw@example.org") === true
+    @test Documenter.Utilities.isabsurl("/fs/absolute/path") === false
 end
 
 end

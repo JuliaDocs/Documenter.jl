@@ -543,6 +543,14 @@ function issubmodule(sub, mod)
     (sub === mod) || issubmodule(module_parent(sub), mod)
 end
 
+"""
+    isabsurl(url)
+
+Checks whether `url` is an absolute URL (as opposed to a relative one).
+"""
+isabsurl(url) = ismatch(ABSURL_REGEX, url)
+const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
