@@ -312,7 +312,20 @@ function deploydocs(;
     travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
 
     # Other variables.
-    sha = readchomp(`git rev-parse --short HEAD`)
+    sha = cd(root) do
+        # We'll make sure we run the git commands in the source directory (root), in case
+        # the working directory has been changed (e.g. if the makedocs' build argument is
+        # outside root).
+        try
+            readchomp(`git rev-parse --short HEAD`)
+        catch
+            # git rev-parse will throw an error and return code 128 if it is not being
+            # run in a git repository, which will make run/readchomp throw an exception.
+            # We'll assume that if readchomp fails it is due to this and set the sha
+            # variable accordingly.
+            "(not-git-repo)"
+        end
+    end
 
     # Sanity checks
     if !isa(julia, AbstractString)
@@ -326,7 +339,6 @@ function deploydocs(;
     should_deploy =
         contains(repo, travis_repo_slug) &&
         travis_pull_request == "false"   &&
-        documenter_key != "" &&
         travis_osname == osname &&
         travis_julia  == julia  &&
         (
@@ -334,15 +346,29 @@ function deploydocs(;
             travis_tag    != ""
         )
 
+    # check DOCUMENTER_KEY only if the branch, Julia version etc. check out
+    if should_deploy && isempty(documenter_key)
+        warn("""
+            DOCUMENTER_KEY environment variable missing, unable to deploy.
+              Note that in Documenter v0.9.0 old deprecated authentication methods were removed.
+              DOCUMENTER_KEY is now the only option. See the documentation for more information.""")
+        should_deploy = false
+    end
+
     if get(ENV, "DOCUMENTER_DEBUG", "") == "true"
         Utilities.debug("TRAVIS_REPO_SLUG       = \"$travis_repo_slug\"")
+        Utilities.debug("  should match \"$repo\" (kwarg: repo)")
         Utilities.debug("TRAVIS_PULL_REQUEST    = \"$travis_pull_request\"")
+        Utilities.debug("  deploying if equal to \"false\"")
         Utilities.debug("TRAVIS_OS_NAME         = \"$travis_osname\"")
+        Utilities.debug("  deploying if equal to \"$osname\" (kwarg: osname)")
         Utilities.debug("TRAVIS_JULIA_VERSION   = \"$travis_julia\"")
+        Utilities.debug("  deploying if equal to \"$julia\" (kwarg: julia)")
         Utilities.debug("TRAVIS_BRANCH          = \"$travis_branch\"")
         Utilities.debug("TRAVIS_TAG             = \"$travis_tag\"")
+        Utilities.debug("  deploying if branch equal to \"$latest\" (kwarg: latest) or tag is set")
         Utilities.debug("git commit SHA         = $sha")
-        Utilities.debug("DOCUMENTER_KEY exists  = $(documenter_key != "")")
+        Utilities.debug("DOCUMENTER_KEY exists  = $(!isempty(documenter_key))")
         Utilities.debug("should_deploy          = $should_deploy")
     end
 
@@ -438,7 +464,9 @@ function deploydocs(;
             end
         end
     else
-        Utilities.log("skipping docs deployment.")
+        Utilities.log("""
+            skipping docs deployment.
+              You can set DOCUMENTER_DEBUG to "true" in Travis to see more information.""")
     end
 end
 
