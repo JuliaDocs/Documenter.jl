@@ -21,8 +21,9 @@ type Context{I <: IO} <: IO
     in_header::Bool
     footnotes::Dict{Compat.String, Int}
     depth::Int
+    filename::String # currently active source file
 end
-Context(io) = Context{typeof(io)}(io, false, Dict(), 1)
+Context(io) = Context{typeof(io)}(io, false, Dict(), 1, "")
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
@@ -44,12 +45,14 @@ const DOCUMENT_STRUCTURE = (
 
 function render(doc::Documents.Document)
     mktempdir() do path
-        cd(path) do
+        cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
+        cd(joinpath(path, "build")) do
             local file = replace("$(doc.user.sitename).tex", " ", "")
             open(file, "w") do io
                 local context = Context(io)
                 writeheader(context, doc)
                 for (title, filename, depth) in files(doc.user.pages)
+                    context.filename = filename
                     empty!(context.footnotes)
                     if 1 <= depth <= length(DOCUMENT_STRUCTURE)
                         local header_type = DOCUMENT_STRUCTURE[depth]
@@ -406,8 +409,20 @@ end
 function latexinline(io::IO, md::Markdown.Image)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
+        url = if Utilities.isabsurl(md.url)
+            Utilities.warn("Images with absolute URLs not supported in LaTeX output.\n     in $(io.filename)\n     url: $(md.url)")
+            # We nevertheless output an \includegraphics with the URL. The LaTeX build will
+            # then give an error, indicating to the user that something wrong. Only the
+            # warning would be drowned by all the output from LaTeX.
+            md.url
+        elseif startswith(md.url, '/')
+            # URLs starting with a / are assumed to be relative to the document's root
+            normpath(lstrip(md.url, '/'))
+        else
+            normpath(joinpath(dirname(io.filename), md.url))
+        end
         wrapinline(io, "includegraphics") do
-            _print(io, md.url)
+            _print(io, url)
         end
         _println(io)
         wrapinline(io, "caption") do
