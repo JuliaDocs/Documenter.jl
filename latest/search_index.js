@@ -309,7 +309,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "REPL Examples",
     "category": "section",
-    "text": "The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:```jldoctest\njulia> a = 1\n1\n\njulia> b = 2;\n\njulia> c = 3;  # comment\n\njulia> a + b + c\n6\n\n```As with script doctests, the code block must have it's language set to jldoctest. When a code block contains one or more julia> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, ;, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.Note that not all features of the REPL are supported such as shell and help modes."
+    "text": "The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:```jldoctest\njulia> a = 1\n1\n\njulia> b = 2;\n\njulia> c = 3;  # comment\n\njulia> a + b + c\n6\n```As with script doctests, the code block must have it's language set to jldoctest. When a code block contains one or more julia> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, ;, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.Note that not all features of the REPL are supported such as shell and help modes."
 },
 
 {
@@ -317,7 +317,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "Exceptions",
     "category": "section",
-    "text": "Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual and expected results is done by checking whether the expected result matches the start of the actual result. Hence, both of the following errors will match the actual result.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:115\n\njulia> div(1, 0)\nERROR: DivideError: integer division error\n\n```If instead the first div(1, 0) error was written as```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:114\n\n```where line 115 is replaced with 114 then the doctest will fail.In the second div(1, 0), where no stacktrace is shown, it may appear to the reader that it is expected that no stacktrace will actually be displayed when they attempt to try to recreate the error themselves. To indicate to readers that the output result is truncated and does not display the entire (or any of) the stacktrace you may write [...] at the line where checking should stop, i.e.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n[...]\n\n```"
+    "text": "Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual and expected results is done by checking whether the expected result matches the start of the actual result. Hence, both of the following errors will match the actual result.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:115\n\njulia> div(1, 0)\nERROR: DivideError: integer division error\n```If instead the first div(1, 0) error was written as```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:114\n```where line 115 is replaced with 114 then the doctest will fail.In the second div(1, 0), where no stacktrace is shown, it may appear to the reader that it is expected that no stacktrace will actually be displayed when they attempt to try to recreate the error themselves. To indicate to readers that the output result is truncated and does not display the entire (or any of) the stacktrace you may write [...] at the line where checking should stop, i.e.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n[...]\n```"
+},
+
+{
+    "location": "man/doctests.html#Preserving-definitions-between-blocks-1",
+    "page": "Doctests",
+    "title": "Preserving definitions between blocks",
+    "category": "section",
+    "text": "Every doctest block is evaluated inside its own module. This means that definitions (types, variables, functions etc.) from a block can not be used in the next block. For example:```jldoctest\njulia> foo = 42\n42\n```The variable foo will not be defined in the next block:```jldoctest\njulia> println(foo)\nERROR: UndefVarError: foo not defined\n```To preserve definitions it is possible to label blocks in order to collect several blocks into the same module. All blocks with the same label (in the same file) will be evaluated in the same module, and hence share scope. This can be useful if the same definitions are used in more than one block, with for example text, or other doctest blocks, in between. Example:```jldoctest mylabel\njulia> foo = 42\n42\n```Now, since the block below has the same label as the block above, the variable foo can be used:```jldoctest mylabel\njulia> println(foo)\n42\n```note: Note\nLabeled doctest blocks does not need to be consecutive (as in the example above) to be included in the same module. They can be interspaced with unlabeled blocks or blocks with another label."
+},
+
+{
+    "location": "man/doctests.html#Setup-Code-1",
+    "page": "Doctests",
+    "title": "Setup Code",
+    "category": "section",
+    "text": "Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. For this purpose a @meta block containing a DocTestSetup = ... value can be used. In the example below, the function foo is defined inside a @meta block. This block will be evaluated at the start of the following doctest blocks:```@meta\nDocTestSetup = quote\n    function foo(x)\n        return x^2\n    end\nend\n```\n\n```jldoctest\njulia> foo(2)\n4\n```\n\n```@meta\nDocTestSetup = nothing\n```The DocTestSetup = nothing is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions in following doctest blocks.note: Note\nThe DocTestSetup value is re-evaluated at the start of each doctest block and no state is shared between any code blocks."
 },
 
 {
@@ -326,14 +342,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Skipping Doctests",
     "category": "section",
     "text": "Doctesting can be disabled by setting the makedocs keyword doctest = false. This should only be done when initially laying out the structure of a package's documentation, after which it's encouraged to always run doctests when building docs."
-},
-
-{
-    "location": "man/doctests.html#Setup-Code-1",
-    "page": "Doctests",
-    "title": "Setup Code",
-    "category": "section",
-    "text": "Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. It could also be that several separate doctests require the same definitions. For both of these cases a @meta block containing a DocTestSetup = ... value can be used as follows:```jldoctest\njulia> using DataFrames\n\njulia> df = DataFrame(A = 1:10, B = 2:2:20);\n\n```\n\nSome text discussing `df`...\n\n```@meta\nDocTestSetup = quote\n    using DataFrames\n    df = DataFrame(A = 1:10, B = 2:2:20)\nend\n```\n\n```jldoctest\njulia> df[1, 1]\n1\n```\n\nSome more text...\n\n```jldoctest\njulia> df[1, :]\n1x2 DataFrames.DataFrame\n| Row | A | B |\n|-----|---|---|\n| 1   | 1 | 2 |\n```\n\n```@meta\nDocTestSetup = nothing\n```Note that the DocTestSetup value is re-evaluated at the start of each doctest block and no state is shared between any code blocks. The DocTestSetup = nothing is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions later on a page."
 },
 
 {
