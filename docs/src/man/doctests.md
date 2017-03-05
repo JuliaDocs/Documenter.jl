@@ -52,7 +52,6 @@ julia> c = 3;  # comment
 
 julia> a + b + c
 6
-
 ```
 ````
 
@@ -77,7 +76,6 @@ ERROR: DivideError: integer division error
 
 julia> div(1, 0)
 ERROR: DivideError: integer division error
-
 ```
 ````
 
@@ -88,7 +86,6 @@ If instead the first `div(1, 0)` error was written as
 julia> div(1, 0)
 ERROR: DivideError: integer division error
  in div(::Int64, ::Int64) at ./int.jl:114
-
 ```
 ````
 
@@ -105,59 +102,97 @@ line where checking should stop, i.e.
 julia> div(1, 0)
 ERROR: DivideError: integer division error
 [...]
-
 ```
 ````
+
+## Preserving definitions between blocks
+
+Every doctest block is evaluated inside its own `module`. This means that definitions
+(types, variables, functions etc.) from a block can *not* be used in the next block.
+For example:
+
+````markdown
+```jldoctest
+julia> foo = 42
+42
+```
+````
+
+The variable `foo` will not be defined in the next block:
+
+````markdown
+```jldoctest
+julia> println(foo)
+ERROR: UndefVarError: foo not defined
+```
+````
+
+To preserve definitions it is possible to label blocks in order to collect several blocks
+into the same module. All blocks with the same label (in the same file) will be evaluated
+in the same module, and hence share scope. This can be useful if the same definitions are
+used in more than one block, with for example text, or other doctest blocks, in between.
+Example:
+
+````markdown
+```jldoctest mylabel
+julia> foo = 42
+42
+```
+````
+
+Now, since the block below has the same label as the block above, the variable `foo` can
+be used:
+
+````markdown
+```jldoctest mylabel
+julia> println(foo)
+42
+```
+````
+
+!!! note
+
+    Labeled doctest blocks does not need to be consecutive (as in the example above) to be
+    included in the same module. They can be interspaced with unlabeled blocks or blocks
+    with another label.
+
+## Setup Code
+
+Doctests may require some setup code that must be evaluated prior to that of the actual
+example, but that should not be displayed in the final documentation. For this purpose a
+`@meta` block containing a `DocTestSetup = ...` value can be used. In the example below,
+the function `foo` is defined inside a `@meta` block. This block will be evaluated at
+the start of the following doctest blocks:
+
+````markdown
+```@meta
+DocTestSetup = quote
+    function foo(x)
+        return x^2
+    end
+end
+```
+
+```jldoctest
+julia> foo(2)
+4
+```
+
+```@meta
+DocTestSetup = nothing
+```
+````
+
+The `DocTestSetup = nothing` is not strictly necessary, but good practice nonetheless to
+help avoid unintentional definitions in following doctest blocks.
+
+!!! note
+
+    The `DocTestSetup` value is **re-evaluated** at the start of *each* doctest block
+    and no state is shared between any code blocks.
 
 ## Skipping Doctests
 
 Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
 This should only be done when initially laying out the structure of a package's
 documentation, after which it's encouraged to always run doctests when building docs.
-
-## Setup Code
-
-Doctests may require some setup code that must be evaluated prior to that of the actual
-example, but that should not be displayed in the final documentation. It could also be that
-several separate doctests require the same definitions. For both of these cases a `@meta`
-block containing a `DocTestSetup = ...` value can be used as follows:
-
-    ```jldoctest
-    julia> using DataFrames
-
-    julia> df = DataFrame(A = 1:10, B = 2:2:20);
-
-    ```
-
-    Some text discussing `df`...
-
-    ```@meta
-    DocTestSetup = quote
-        using DataFrames
-        df = DataFrame(A = 1:10, B = 2:2:20)
-    end
-    ```
-
-    ```jldoctest
-    julia> df[1, 1]
-    1
-    ```
-
-    Some more text...
-
-    ```jldoctest
-    julia> df[1, :]
-    1x2 DataFrames.DataFrame
-    | Row | A | B |
-    |-----|---|---|
-    | 1   | 1 | 2 |
-    ```
-
-    ```@meta
-    DocTestSetup = nothing
-    ```
-
-Note that the `DocTestSetup` value is **re-evaluated** at the start of *each* doctest block
-and no state is shared between any code blocks. The `DocTestSetup = nothing` is not strictly
-necessary, but good practice nonetheless to help avoid unintentional definitions later on a
-page.
