@@ -44,9 +44,11 @@ doc = makedocs(
 
     mktempdir() do root
         let path = joinpath(root, "docs")
-            Documenter.generate("DocumenterTestPackage", dir = path)
+            Documenter.generate("DocumenterTestPackage", dir = root, online = false)
             @test isdir(path)
-            @test isfile(joinpath(path, "mkdocs.yml"))
+            @test isfile(joinpath(root, "test/REQUIRE"))
+            @test isfile(joinpath(root, "README.md"))
+            @test isfile(joinpath(root, ".travis.yml"))
             @test isfile(joinpath(path, ".gitignore"))
             @test isfile(joinpath(path, "make.jl"))
             @test isdir(joinpath(path, "src"))

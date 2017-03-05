@@ -5,21 +5,46 @@ module Generator
 
 using DocStringExtensions
 
+import ..Documenter:
+    Utilities
+
 """
 $(SIGNATURES)
 
-Attempts to save a file at `\$(root)/\$(filename)`. `f` will be called with file
-stream (see [`open`](http://docs.julialang.org/en/latest/stdlib/io-network.html#Base.open)).
+Attempts to save a file at `\$(root)/\$(filename)`.
 
-`filename` can also be a file in a subdirectory (e.g. `src/index.md`), and then
-then subdirectories will be created automatically.
+`f` will be called with file stream.
+`root` defaults to your present working directory. `filename` can also be a file
+in a subdirectory (e.g. `src/index.md`), and then subdirectories will be created
+automatically. Errors if the creation location already exists.
 """
-function savefile(f, root, filename)
+function savefile(filename, file, root = pwd() )
     filepath = joinpath(root, filename)
-    if ispath(filepath) error("$(filepath) already exists") end
-    info("Generating $filename at $filepath")
-    mkpath(dirname(filepath))
-    open(f,filepath,"w")
+    if ispath(filepath)
+        error("$filepath already exists")
+    end
+    info("Creating $filepath")
+    mkpath(dirname(filepath) )
+    open(filepath, "w") do io
+        write(io, file)
+    end
+end
+
+"""
+$(SIGNATURES)
+
+Attempts to append to a file at `\$(root)/\$(filename)`.
+"""
+function appendfile(filename, file, root = pwd() )
+    filepath = joinpath(root, filename)
+    if !ispath(filepath)
+        savefile(filename, file, root)
+    else
+        info("Appending to $filepath")
+        open(filepath, "a") do io
+            write(io, file)
+        end
+    end
 end
 
 """
@@ -27,21 +52,28 @@ $(SIGNATURES)
 
 Contents of the default `make.jl` file.
 """
-function make(pkgname)
+function make(pkgname, user)
     """
     using Documenter
-    using $(pkgname)
+    using $pkgname
 
     makedocs(
-        modules = [$(pkgname)]
+        modules = [$pkgname],
+        format = :html,
+        sitename = "$pkgname.jl",
+        pages = ["Home" => "index.md"],
+        strict = true
     )
 
-    # Documenter can also automatically deploy documentation to gh-pages.
-    # See "Hosting Documentation" and deploydocs() in the Documenter manual
-    # for more information.
-    #=deploydocs(
-        repo = "<repository url>"
-    )=#
+    # See https://juliadocs.github.io/Documenter.jl/stable/man/hosting.html
+    # for more information about deployment
+
+    deploydocs(
+        repo = "github.com/$user/$pkgname.jl.git",
+        target = "build",
+        deps = nothing,
+        make = nothing
+    )
     """
 end
 
@@ -57,49 +89,6 @@ function gitignore()
     """
 end
 
-mkdocs_default(name, value, default) = value == nothing ? "#$name$default" : "$name$value"
-
-"""
-$(SIGNATURES)
-
-Contents of the default `mkdocs.yml` file.
-"""
-function mkdocs(pkgname;
-        description = nothing,
-        author = nothing,
-        url = nothing
-    )
-    s = """
-    # See the mkdocs user guide for more information on these settings.
-    #   http://www.mkdocs.org/user-guide/configuration/
-
-    site_name:        $(pkgname).jl
-    $(mkdocs_default("repo_url:         ", url, "https://github.com/USER_NAME/PACKAGE_NAME.jl"))
-    $(mkdocs_default("site_description: ", description, "Description..."))
-    $(mkdocs_default("site_author:      ", author, "USER_NAME"))
-
-    theme: readthedocs
-
-    extra_css:
-      - assets/Documenter.css
-
-    extra_javascript:
-      - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
-      - assets/mathjaxhelper.js
-
-    markdown_extensions:
-      - extra
-      - tables
-      - fenced_code
-      - mdx_math
-
-    docs_dir: 'build'
-
-    pages:
-      - Home: index.md
-    """
-end
-
 """
 $(SIGNATURES)
 
@@ -107,9 +96,38 @@ Contents of the default `src/index.md` file.
 """
 function index(pkgname)
     """
-    # $(pkgname).jl
+    # $pkgname.jl
 
-    Documentation for $(pkgname).jl
+    Documentation for $pkgname.jl
+
+    ```@index
+    ```
+
+    ```@autodocs
+    Modules = [$pkgname]
+    ```
+    """
+end
+
+function readme(pkgname, user)
+    docs_stable_url = "https://$user.github.io/$pkgname.jl/stable"
+    docs_latest_url = "https://$user.github.io/$pkgname.jl/latest"
+    """
+
+    ## Documentation [here]($docs_stable_url)
+    """
+end
+
+function travis(pkgname)
+    """
+      # build documentation
+      - julia -e 'cd(Pkg.dir("$pkgname")); Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
+    """
+end
+
+function require()
+    """
+    Documenter
     """
 end
 

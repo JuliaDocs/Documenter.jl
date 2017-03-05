@@ -5,6 +5,7 @@ module Utilities
 
 using Base.Meta, Compat
 
+
 # Logging output.
 
 const __log__ = Ref(true)
@@ -526,7 +527,6 @@ function withoutput(f)
     return result, success, backtrace, chomp(Compat.String(output))
 end
 
-
 """
     issubmodule(sub, mod)
 
@@ -541,6 +541,26 @@ function issubmodule(sub, mod)
         return false
     end
     (sub === mod) || issubmodule(module_parent(sub), mod)
+end
+
+path_separator() = if is_windows()
+    ";"
+else
+    ":"
+end
+
+path_check(path) = if ispath(path)
+    path_separator() * path
+else
+    info("Cannot find $path")
+end
+
+add_to_path(paths) = "PATH" => string(ENV["PATH"], map(path_check, paths)...)
+
+platform_paths() = if is_windows()
+    ["C:/Program Files/Git/usr/bin"]
+else
+    []
 end
 
 include("DOM.jl")
