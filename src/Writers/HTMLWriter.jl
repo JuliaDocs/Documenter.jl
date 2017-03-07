@@ -366,8 +366,19 @@ function render_article(ctx, navnode)
     end
 
     topnav = nav(ul(header_links))
+
+    # Set the logo and name for the "Edit on.." button. We assume GitHub as a host.
+    host = "GitHub"
+    logo = "\uf09b"
+    if contains(ctx.doc.user.repo, "gitlab")
+        host = "GitLab"
+        logo = "\uf296"
+    elseif contains(ctx.doc.user.repo, "bitbucket")
+        host = "BitBucket"
+        logo = "\uf171"
+    end
     Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
-        push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"]("\uf09b"), " Edit on GitHub"))
+        push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
     end
     art_header = header(topnav, hr())
 
