@@ -362,9 +362,42 @@ else
 end
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
+#
+# Paths on Windows contain backslashes, so the `url` function needs to take care of them.
+# However, the exact formatting is not consistent and depends on whether Julia runs
+# separately or in Cygwin.
+#
+# We get paths from Julia's docsystem, e.g.
+#     Docs.docstr(Docs.Binding(Documenter,:Documenter)).data[:path]
+# and from git
+#     git rev-parse --show-toplevel
+#
+# * Ordinary Windows binaries (both Julia and git)
+#   In this case the paths from the docsystem are Windows-like with backslashes, e.g.:
+#       C:\Users\<user>\.julia\v0.6\Documenter\src\Documenter.jl
+#   But the paths from git have forward slashes, e.g.:
+#       C:/Users/<user>julia/v0.6/Documenter
+#
+# * Running under Cygwin
+#   The paths from the docsystem are the same as before, e.g.:
+#       C:\Users\<user>\.julia\v0.6\Documenter\src\Documenter.jl
+#   However, git returns UNIX-y paths using a /cygdrive mount, e.g.:
+#       /cygdrive/c/<user>/.julia/v0.6/Documenter
+#   We can fix that with `cygpath -m <path>` to get a Windows-like path with forward
+#   slashes, e.g.:
+#       C:/Users/<user>/.julia/v0.6/Documenter)
+#
+# In the docsystem paths we replace the backslashes with forward slashes before we start
+# comparing paths with the ones from git.
+#
 
+"""
+    in_cygwin()
+
+Check if we're running under cygwin. Useful when we need to translate cygwin paths to
+windows paths.
+"""
 function in_cygwin()
-    # check if in cygwin, if so we need to translate cygwin paths to windows paths
     if is_windows()
         try
             return success(`cygpath -h`)
