@@ -136,7 +136,9 @@ function copy_asset(file, doc)
         ispath(dst) && Utilities.warn("Overwriting '$dst'.")
         cp(src, dst, remove_destination=true)
     end
-    normpath(joinpath("assets", file))
+    assetpath = normpath(joinpath("assets", file))
+    # Replace any backslashes in links, if building the docs on Windows
+    return replace(assetpath, '\\', '/')
 end
 
 # Page
@@ -464,7 +466,9 @@ end
 search_append(sib, node) = mdflatten(sib.buffer, node)
 
 function search_flush(sib)
-    ref = isempty(sib.src) ? sib.src : "$(sib.src)#$(sib.loc)"
+    # Replace any backslashes in links, if building the docs on Windows
+    src = replace(sib.src, '\\', '/')
+    ref = isempty(src) ? src : "$(src)#$(sib.loc)"
     text = Utilities.takebuf_str(sib.buffer)
     println(sib.ctx.search_index, """
     {
@@ -738,6 +742,8 @@ function mdconvert(link::Markdown.Link, parent)
         s = split(link.url, "#", limit = 2)
         path = first(s)
         path = endswith(path, ".md") ? Formats.extension(:html, path) : path
+        # Replace any backslashes in links, if building the docs on Windows
+        path = replace(path, '\\', '/')
         url = (length(s) > 1) ? "$path#$(last(s))" : Compat.String(path)
         Tag(:a)[:href => url](mdconvert(link.text, link))
     end
