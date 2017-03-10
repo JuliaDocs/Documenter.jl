@@ -255,7 +255,7 @@ function Base.show(io::IO, n::Node)
         print(io, '<', n.name)
         for (name, value) in n.attributes
             print(io, ' ', name)
-            isempty(value) || print(io, '=', repr(value))
+            isempty(value) || print(io, '=', repr(escapehtml(value)))
         end
         if n.name in VOID_ELEMENTS
             print(io, "/>")
