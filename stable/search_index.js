@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.BeaData.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOptim.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.BeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOptim.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
 },
 
 {
@@ -309,7 +309,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "REPL Examples",
     "category": "section",
-    "text": "The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:```jldoctest\njulia> a = 1\n1\n\njulia> b = 2;\n\njulia> c = 3;  # comment\n\njulia> a + b + c\n6\n\n```As with script doctests, the code block must have it's language set to jldoctest. When a code block contains one or more julia> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, ;, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.Note that not all features of the REPL are supported such as shell and help modes."
+    "text": "The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:```jldoctest\njulia> a = 1\n1\n\njulia> b = 2;\n\njulia> c = 3;  # comment\n\njulia> a + b + c\n6\n```As with script doctests, the code block must have it's language set to jldoctest. When a code block contains one or more julia> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, ;, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.Note that not all features of the REPL are supported such as shell and help modes."
 },
 
 {
@@ -317,7 +317,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "Exceptions",
     "category": "section",
-    "text": "Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual and expected results is done by checking whether the expected result matches the start of the actual result. Hence, both of the following errors will match the actual result.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:115\n\njulia> div(1, 0)\nERROR: DivideError: integer division error\n\n```If instead the first div(1, 0) error was written as```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:114\n\n```where line 115 is replaced with 114 then the doctest will fail.In the second div(1, 0), where no stacktrace is shown, it may appear to the reader that it is expected that no stacktrace will actually be displayed when they attempt to try to recreate the error themselves. To indicate to readers that the output result is truncated and does not display the entire (or any of) the stacktrace you may write [...] at the line where checking should stop, i.e.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n[...]\n\n```"
+    "text": "Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual and expected results is done by checking whether the expected result matches the start of the actual result. Hence, both of the following errors will match the actual result.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:115\n\njulia> div(1, 0)\nERROR: DivideError: integer division error\n```If instead the first div(1, 0) error was written as```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n in div(::Int64, ::Int64) at ./int.jl:114\n```where line 115 is replaced with 114 then the doctest will fail.In the second div(1, 0), where no stacktrace is shown, it may appear to the reader that it is expected that no stacktrace will actually be displayed when they attempt to try to recreate the error themselves. To indicate to readers that the output result is truncated and does not display the entire (or any of) the stacktrace you may write [...] at the line where checking should stop, i.e.```jldoctest\njulia> div(1, 0)\nERROR: DivideError: integer division error\n[...]\n```"
+},
+
+{
+    "location": "man/doctests.html#Preserving-definitions-between-blocks-1",
+    "page": "Doctests",
+    "title": "Preserving definitions between blocks",
+    "category": "section",
+    "text": "Every doctest block is evaluated inside its own module. This means that definitions (types, variables, functions etc.) from a block can not be used in the next block. For example:```jldoctest\njulia> foo = 42\n42\n```The variable foo will not be defined in the next block:```jldoctest\njulia> println(foo)\nERROR: UndefVarError: foo not defined\n```To preserve definitions it is possible to label blocks in order to collect several blocks into the same module. All blocks with the same label (in the same file) will be evaluated in the same module, and hence share scope. This can be useful if the same definitions are used in more than one block, with for example text, or other doctest blocks, in between. Example:```jldoctest mylabel\njulia> foo = 42\n42\n```Now, since the block below has the same label as the block above, the variable foo can be used:```jldoctest mylabel\njulia> println(foo)\n42\n```note: Note\nLabeled doctest blocks does not need to be consecutive (as in the example above) to be included in the same module. They can be interspaced with unlabeled blocks or blocks with another label."
+},
+
+{
+    "location": "man/doctests.html#Setup-Code-1",
+    "page": "Doctests",
+    "title": "Setup Code",
+    "category": "section",
+    "text": "Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. For this purpose a @meta block containing a DocTestSetup = ... value can be used. In the example below, the function foo is defined inside a @meta block. This block will be evaluated at the start of the following doctest blocks:```@meta\nDocTestSetup = quote\n    function foo(x)\n        return x^2\n    end\nend\n```\n\n```jldoctest\njulia> foo(2)\n4\n```\n\n```@meta\nDocTestSetup = nothing\n```The DocTestSetup = nothing is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions in following doctest blocks.note: Note\nThe DocTestSetup value is re-evaluated at the start of each doctest block and no state is shared between any code blocks."
 },
 
 {
@@ -326,14 +342,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Skipping Doctests",
     "category": "section",
     "text": "Doctesting can be disabled by setting the makedocs keyword doctest = false. This should only be done when initially laying out the structure of a package's documentation, after which it's encouraged to always run doctests when building docs."
-},
-
-{
-    "location": "man/doctests.html#Setup-Code-1",
-    "page": "Doctests",
-    "title": "Setup Code",
-    "category": "section",
-    "text": "Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. It could also be that several separate doctests require the same definitions. For both of these cases a @meta block containing a DocTestSetup = ... value can be used as follows:```jldoctest\njulia> using DataFrames\n\njulia> df = DataFrame(A = 1:10, B = 2:2:20);\n\n```\n\nSome text discussing `df`...\n\n```@meta\nDocTestSetup = quote\n    using DataFrames\n    df = DataFrame(A = 1:10, B = 2:2:20)\nend\n```\n\n```jldoctest\njulia> df[1, 1]\n1\n```\n\nSome more text...\n\n```jldoctest\njulia> df[1, :]\n1x2 DataFrames.DataFrame\n| Row | A | B |\n|-----|---|---|\n| 1   | 1 | 2 |\n```\n\n```@meta\nDocTestSetup = nothing\n```Note that the DocTestSetup value is re-evaluated at the start of each doctest block and no state is shared between any code blocks. The DocTestSetup = nothing is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions later on a page."
 },
 
 {
@@ -381,7 +389,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "The deploydocs Function",
     "category": "section",
-    "text": "At the moment your docs/make.jl file probably only containsusing Documenter, PACKAGE_NAME\n\nmakedocs()We'll need to add an additional call to this file after makedocs. Add the following at the end of the file:deploydocs(\n    repo = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\"\n)where USER_NAME and PACKAGE_NAME must be set to the appropriate names.By default deploydocs will deploy the documentation from the nightly Julia build for Linux. This can be changed using the julia and osname keywords as follows:deploydocs(\n    deps   = Deps.pip(\"mkdocs\", \"python-markdown-math\"),\n    repo   = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia  = \"0.4\",\n    osname = \"osx\"\n)This will deploy the docs from the OSX Julia 0.4 Travis build bot.The keyword deps serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies mkdocs and python-markdown-math. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the mdx_math markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.See the deploydocs function documentation for more details."
+    "text": "At the moment your docs/make.jl file probably only containsusing Documenter, PACKAGE_NAME\n\nmakedocs()We'll need to add an additional call to this file after makedocs. Add the following at the end of the file:deploydocs(\n    repo = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\"\n)where USER_NAME and PACKAGE_NAME must be set to the appropriate names. Note that repo should not specify any protocol, i.e. it should not begin with https:// or git@. By default deploydocs will deploy the documentation from the nightly Julia build for Linux. This can be changed using the julia and osname keywords as follows:deploydocs(\n    deps   = Deps.pip(\"mkdocs\", \"python-markdown-math\"),\n    repo   = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia  = \"0.4\",\n    osname = \"osx\"\n)This will deploy the docs from the OSX Julia 0.4 Travis build bot.The keyword deps serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies mkdocs and python-markdown-math. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the mdx_math markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.See the deploydocs function documentation for more details."
 },
 
 {
@@ -637,7 +645,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.deploydocs",
     "category": "Function",
-    "text": "deploydocs(\n    root   = \"<current-directory>\",\n    target = \"site\",\n    repo   = \"<required>\",\n    branch = \"gh-pages\",\n    latest = \"master\",\n    osname = \"linux\",\n    julia  = \"nightly\",\n    deps   = <Function>,\n    make   = <Function>,\n)\n\nConverts markdown files generated by makedocs to HTML and pushes them to repo. This function should be called from within a package's docs/make.jl file after the call to makedocs, like so\n\nusing Documenter, PACKAGE_NAME\nmakedocs(\n    # options...\n)\ndeploydocs(\n    repo = \"github.com/...\"\n)\n\nKeywords\n\nroot has the same purpose as the root keyword for makedocs.\n\ntarget is the directory, relative to root, where generated HTML content should be written to. This directory must be added to the repository's .gitignore file. The default value is \"site\".\n\nrepo is the remote repository where generated HTML content should be pushed to. This keyword must be set and will throw an error when left undefined. For example this package uses the following repo value:\n\nrepo = \"github.com/JuliaDocs/Documenter.jl.git\"\n\nbranch is the branch where the generated documentation is pushed. By default this value is set to \"gh-pages\".\n\nlatest is the branch that \"tracks\" the latest generated documentation. By default this value is set to \"master\".\n\nosname is the operating system which will be used to deploy generated documentation. This defaults to \"linux\". This value must be one of those specified in the os: section of the .travis.yml configuration file.\n\njulia is the version of Julia that will be used to deploy generated documentation. This defaults to \"nightly\". This value must be one of those specified in the julia: section of the .travis.yml configuration file.\n\ndeps is the function used to install any dependencies needed to build the documentation. By default this function installs pygments and mkdocs using the Deps.pip function:\n\ndeps = Deps.pip(\"pygments\", \"mkdocs\")\n\nmake is the function used to convert the markdown files to HTML. By default this just runs mkdocs build which populates the target directory.\n\nSee Also\n\nThe Hosting Documentation section of the manual provides a step-by-step guide to using the deploydocs function to automatically generate docs and push then to GitHub.\n\n\n\n"
+    "text": "deploydocs(\n    root   = \"<current-directory>\",\n    target = \"site\",\n    repo   = \"<required>\",\n    branch = \"gh-pages\",\n    latest = \"master\",\n    osname = \"linux\",\n    julia  = \"nightly\",\n    deps   = <Function>,\n    make   = <Function>,\n)\n\nConverts markdown files generated by makedocs to HTML and pushes them to repo. This function should be called from within a package's docs/make.jl file after the call to makedocs, like so\n\nusing Documenter, PACKAGE_NAME\nmakedocs(\n    # options...\n)\ndeploydocs(\n    repo = \"github.com/...\"\n)\n\nKeywords\n\nroot has the same purpose as the root keyword for makedocs.\n\ntarget is the directory, relative to root, where generated HTML content should be written to. This directory must be added to the repository's .gitignore file. The default value is \"site\".\n\nrepo is the remote repository where generated HTML content should be pushed to. Do not specify any protocol - \"https://\" or \"git@\" should not be present. This keyword must be set and will throw an error when left undefined. For example this package uses the  following repo value:\n\nrepo = \"github.com/JuliaDocs/Documenter.jl.git\"\n\nbranch is the branch where the generated documentation is pushed. By default this value is set to \"gh-pages\".\n\nlatest is the branch that \"tracks\" the latest generated documentation. By default this value is set to \"master\".\n\nosname is the operating system which will be used to deploy generated documentation. This defaults to \"linux\". This value must be one of those specified in the os: section of the .travis.yml configuration file.\n\njulia is the version of Julia that will be used to deploy generated documentation. This defaults to \"nightly\". This value must be one of those specified in the julia: section of the .travis.yml configuration file.\n\ndeps is the function used to install any dependencies needed to build the documentation. By default this function installs pygments and mkdocs using the Deps.pip function:\n\ndeps = Deps.pip(\"pygments\", \"mkdocs\")\n\nmake is the function used to convert the markdown files to HTML. By default this just runs mkdocs build which populates the target directory.\n\nSee Also\n\nThe Hosting Documentation section of the manual provides a step-by-step guide to using the deploydocs function to automatically generate docs and push then to GitHub.\n\n\n\n"
 },
 
 {
@@ -1005,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1013,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1177,7 +1185,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString,Documenter.Utilities.DOM.Node,Pair,Symbol}}",
+    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString, Documenter.Utilities.DOM.Node, Pair, Symbol}}",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.flatten!",
     "category": "Method",
@@ -1593,6 +1601,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/utilities.html#Documenter.Utilities.in_cygwin-Tuple{}",
+    "page": "Utilities",
+    "title": "Documenter.Utilities.in_cygwin",
+    "category": "Method",
+    "text": "in_cygwin()\n\nCheck if we're running under cygwin. Useful when we need to translate cygwin paths to windows paths.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/utilities.html#Documenter.Utilities.isabsurl-Tuple{Any}",
+    "page": "Utilities",
+    "title": "Documenter.Utilities.isabsurl",
+    "category": "Method",
+    "text": "isabsurl(url)\n\nChecks whether url is an absolute URL (as opposed to a relative one).\n\n\n\n"
+},
+
+{
     "location": "lib/internals/utilities.html#Documenter.Utilities.issubmodule-Tuple{Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.issubmodule",
@@ -1625,7 +1649,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.object-Tuple{Union{Expr,Symbol},AbstractString}",
+    "location": "lib/internals/utilities.html#Documenter.Utilities.object-Tuple{Union{Expr, Symbol},AbstractString}",
     "page": "Utilities",
     "title": "Documenter.Utilities.object",
     "category": "Method",
