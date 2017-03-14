@@ -22,9 +22,14 @@ module UnitTests
     end
 
     type T end
+    type S{T} end
 
     "Documenter unit tests."
     Base.length(::T) = 1
+
+    f(x) = x
+
+    const pi = 3.0
 end
 
 module OuterModule
@@ -73,6 +78,12 @@ end
     @test Documenter.Utilities.isabsurl("http://example.org") === true
     @test Documenter.Utilities.isabsurl("ftp://user:pw@example.org") === true
     @test Documenter.Utilities.isabsurl("/fs/absolute/path") === false
+
+    @test Documenter.Utilities.doccat(UnitTests) == "Module"
+    @test Documenter.Utilities.doccat(UnitTests.T) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.S) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
+    @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
 end
 
 end

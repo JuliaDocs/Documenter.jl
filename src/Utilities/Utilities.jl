@@ -300,6 +300,9 @@ doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
+if VERSION >= v"0.6.0-dev.2122"
+    doccat(::UnionAll) = "Type"
+end
 doccat(::Module)   = "Module"
 doccat(::Any)      = "Constant"
 
