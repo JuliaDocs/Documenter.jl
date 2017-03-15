@@ -25,11 +25,11 @@ using Compat
 # Format selector definitions.
 #
 
-abstract FormatSelector <: Selectors.AbstractSelector
+@compat abstract type FormatSelector <: Selectors.AbstractSelector end
 
-abstract MarkdownFormat <: FormatSelector
-abstract LaTeXFormat    <: FormatSelector
-abstract HTMLFormat     <: FormatSelector
+@compat abstract type MarkdownFormat <: FormatSelector end
+@compat abstract type LaTeXFormat    <: FormatSelector end
+@compat abstract type HTMLFormat     <: FormatSelector end
 
 Selectors.order(::Type{MarkdownFormat}) = 1.0
 Selectors.order(::Type{LaTeXFormat})    = 2.0
@@ -50,7 +50,7 @@ the formats specified in the `.user.format` vector.
 Adding additional formats requires adding new `Selector` definitions as follows:
 
 ```julia
-abstract CustomFormat <: FormatSelector
+abstract type CustomFormat <: FormatSelector end
 
 Selectors.order(::Type{CustomFormat}) = 4.0 # or a higher number.
 Selectors.matcher(::Type{CustomFormat}, fmt, _) = fmt === :custom

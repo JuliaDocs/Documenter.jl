@@ -37,7 +37,7 @@ function walk(f, meta, block::Vector)
     end
 end
 
-typealias MDContentElements Union{
+const MDContentElements = Union{
     Markdown.BlockQuote,
     Markdown.Paragraph,
     Markdown.MD,
@@ -55,7 +55,7 @@ walk(f, meta, block::Documents.RawHTML) = nothing
 
 walk(f, meta, block::Expanders.MetaNode) = (merge!(meta, block.dict); nothing)
 
-typealias MDTextElements Union{
+const MDTextElements = Union{
     Markdown.Bold,
     Markdown.Header,
     Markdown.Italic,

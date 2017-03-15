@@ -9,11 +9,11 @@ In the following example a selector for a simple condition is implemented and th
 selector code is described:
 
 ```julia
-abstract MySelector <: Selectors.AbstractSelector
+abstract type MySelector <: Selectors.AbstractSelector end
 
 # The different cases we want to test.
-abstract One    <: MySelector
-abstract NotOne <: MySelector
+abstract type One    <: MySelector end
+abstract type NotOne <: MySelector end
 
 # The order in which to test the cases.
 Selectors.order(::Type{One})    = 0.0
@@ -75,13 +75,13 @@ using Compat
 Root selector type. Each user-defined selector must subtype from this, i.e.
 
 ```julia
-abstract MySelector <: Selectors.AbstractSelector
+abstract type MySelector <: Selectors.AbstractSelector end
 
-abstract First  <: MySelector
-abstract Second <: MySelector
+abstract type First  <: MySelector end
+abstract type Second <: MySelector end
 ```
 """
-abstract AbstractSelector
+@compat abstract type AbstractSelector end
 
 """
 Define the precedence of each case in a selector, i.e.
@@ -127,7 +127,7 @@ By default matching is strict and does not fallthrough to subsequent selector ca
 
 ```julia
 # Adding a debugging selector case.
-abstract Debug <: MySelector
+abstract type Debug <: MySelector end
 
 # Insert prior to all other cases.
 Selectors.order(::Type{Debug}) = 0.0
