@@ -362,13 +362,65 @@ else
 end
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
+#
+# Paths on Windows contain backslashes, so the `url` function needs to take care of them.
+# However, the exact formatting is not consistent and depends on whether Julia runs
+# separately or in Cygwin.
+#
+# We get paths from Julia's docsystem, e.g.
+#     Docs.docstr(Docs.Binding(Documenter,:Documenter)).data[:path]
+# and from git
+#     git rev-parse --show-toplevel
+#
+# * Ordinary Windows binaries (both Julia and git)
+#   In this case the paths from the docsystem are Windows-like with backslashes, e.g.:
+#       C:\Users\<user>\.julia\v0.6\Documenter\src\Documenter.jl
+#   But the paths from git have forward slashes, e.g.:
+#       C:/Users/<user>julia/v0.6/Documenter
+#
+# * Running under Cygwin
+#   The paths from the docsystem are the same as before, e.g.:
+#       C:\Users\<user>\.julia\v0.6\Documenter\src\Documenter.jl
+#   However, git returns UNIX-y paths using a /cygdrive mount, e.g.:
+#       /cygdrive/c/<user>/.julia/v0.6/Documenter
+#   We can fix that with `cygpath -m <path>` to get a Windows-like path with forward
+#   slashes, e.g.:
+#       C:/Users/<user>/.julia/v0.6/Documenter)
+#
+# In the docsystem paths we replace the backslashes with forward slashes before we start
+# comparing paths with the ones from git.
+#
+
+"""
+    in_cygwin()
+
+Check if we're running under cygwin. Useful when we need to translate cygwin paths to
+windows paths.
+"""
+function in_cygwin()
+    if is_windows()
+        try
+            return success(`cygpath -h`)
+        catch
+            return false
+        end
+    else
+        return false
+    end
+end
 
 function url(repo, file)
     file = abspath(file)
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/tree/{commit}{path}")
+    # Replace any backslashes in links, if building the docs on Windows
+    file = replace(file, '\\', '/')
     commit, root = cd(dirname(file)) do
-        readchomp(`git rev-parse HEAD`), readchomp(`git rev-parse --show-toplevel`)
+        toplevel = readchomp(`git rev-parse --show-toplevel`)
+        if in_cygwin()
+            toplevel = readchomp(`cygpath -m "$toplevel"`)
+        end
+        readchomp(`git rev-parse HEAD`), toplevel
     end
     if startswith(file, root)
         _, path = split(file, root; limit = 2)
@@ -387,6 +439,8 @@ if VERSION >= v"0.5.0-dev+3442"
     function url(remote, repo, mod, file, linerange)
         remote = getremote(dirname(file))
         isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
+        # Replace any backslashes in links, if building the docs on Windows
+        file = replace(file, '\\', '/')
         # Format the line range.
         line = format_line(linerange)
         # Macro-generated methods such as those produced by `@deprecate` list their file as
@@ -405,7 +459,11 @@ if VERSION >= v"0.5.0-dev+3442"
             )
         else
             commit, root = cd(dirname(file)) do
-                readchomp(`git rev-parse HEAD`), readchomp(`git rev-parse --show-toplevel`)
+                toplevel = readchomp(`git rev-parse --show-toplevel`)
+                if in_cygwin()
+                    toplevel = readchomp(`cygpath -m "$toplevel"`)
+                end
+                readchomp(`git rev-parse HEAD`), toplevel
             end
             if startswith(file, root)
                 if isempty(repo)
