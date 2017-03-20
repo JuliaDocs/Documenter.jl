@@ -341,8 +341,8 @@ function navitem(ctx, current, nn::Documents.NavNode)
     # add the subsections (2nd level headings) from the page
     if (nn === current) && !isnull(current.page)
         subs = collect_subsections(ctx.doc.internal.pages[get(current.page)])
-        internal_links = map(subs) do _
-            istoplevel, anchor, text = _
+        internal_links = map(subs) do s
+            istoplevel, anchor, text = s
             _li = istoplevel ? li[".toplevel"] : li[]
             _li(a[".toctext", :href => anchor](mdconvert(text)))
         end
@@ -553,8 +553,8 @@ end
 
 function domify(ctx, navnode, index::Documents.IndexNode)
     @tags a code li ul
-    lis = map(index.elements) do _
-        object, doc, page, mod, cat = _
+    lis = map(index.elements) do el
+        object, doc, page, mod, cat = el
         page = Formats.extension(:html, page)
         url = string(page, "#", Utilities.slugify(object))
         li(a[:href=>url](code("$(object.binding)")))
@@ -594,8 +594,8 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
         # The `:results` field contains a vector of `Docs.DocStr` objects associated with
         # each markdown object. The `DocStr` contains data such as file and line info that
         # we need for generating correct source links.
-        map(zip(md.content, md.meta[:results])) do _
-            markdown, result = _
+        map(zip(md.content, md.meta[:results])) do md
+            markdown, result = md
             ret = Any[domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))]
             # When a source link is available then print the link.
             Utilities.unwrap(Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)) do url
@@ -705,7 +705,7 @@ if isdefined(Base.Markdown, :Admonition) push!(md_block_nodes, Markdown.Admoniti
 [`MDBlockContext`](@ref) is a union of all the Markdown nodes whose children should
 be blocks. It can be used to dispatch on all the block-context nodes at once.
 """
-typealias MDBlockContext Union{md_block_nodes...}
+const MDBlockContext = Union{md_block_nodes...}
 
 """
 Convert a markdown object to a `DOM.Node` object.
@@ -765,8 +765,8 @@ mdconvert(list::Markdown.List, parent) = (isordered(list) ? Tag(:ol) : Tag(:ul))
 mdconvert(paragraph::Markdown.Paragraph, parent) = Tag(:p)(mdconvert(paragraph.content, paragraph))
 
 mdconvert(t::Markdown.Table, parent) = Tag(:table)(
-    Tag(:tr)(map(_ -> Tag(:th)(mdconvert(_, t)), t.rows[1])),
-    map(_ -> Tag(:tr)(map(__ -> Tag(:td)(mdconvert(__, _)), _)), t.rows[2:end])
+    Tag(:tr)(map(x -> Tag(:th)(mdconvert(x, t)), t.rows[1])),
+    map(x -> Tag(:tr)(map(y -> Tag(:td)(mdconvert(y, x)), x)), t.rows[2:end])
 )
 
 mdconvert(expr::Union{Expr,Symbol}, parent) = string(expr)

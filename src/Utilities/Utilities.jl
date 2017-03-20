@@ -163,7 +163,7 @@ end
 
 # Finding submodules.
 
-typealias ModVec Union{Module, Vector{Module}}
+const ModVec = Union{Module, Vector{Module}}
 
 """
 Returns the set of submodules of a given root module/s.
@@ -300,6 +300,9 @@ doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
+if isdefined(Base, :UnionAll)
+    doccat(::UnionAll) = "Type"
+end
 doccat(::Module)   = "Module"
 doccat(::Any)      = "Constant"
 

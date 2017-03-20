@@ -551,7 +551,7 @@ end
 
 const CAN_INLINE = Ref(true)
 function __init__()
-    global setcolor! = eval(Base, :(x -> (_ = have_color; global have_color = x; _)))
+    global setcolor! = eval(Base, :(x -> (y = have_color; global have_color = x; y)))
     CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
 end
 

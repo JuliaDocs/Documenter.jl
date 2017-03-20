@@ -99,7 +99,7 @@ import ..Utilities
 using Compat
 
 if VERSION < v"0.5.0-dev"
-    typealias String UTF8String
+    const String = UTF8String
     tostr(p::Pair) = p[1] => utf8(p[2])
 else
     tostr(p::Pair) = p
@@ -173,7 +173,7 @@ end
 macro tags(args...) esc(tags(args)) end
 tags(s) = :(const ($(s...),) = $(map(Tag, s)))
 
-typealias Attributes Vector{Pair{Symbol, String}}
+const Attributes = Vector{Pair{Symbol, String}}
 
 """
 Represents an element within an HTML document including any textual content,
@@ -209,7 +209,7 @@ attr(args) = flatten!(attributes!, Attributes(), args)
 #
 # Types that must not be flattened when constructing a `Node`'s child vector.
 #
-typealias Atom Union{AbstractString, Node, Pair, Symbol}
+const Atom = Union{AbstractString, Node, Pair, Symbol}
 
 """
 # Signatures

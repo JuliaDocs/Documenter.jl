@@ -67,13 +67,13 @@ immutable Diff{T}
     weights::Matrix{Int}
     diff::Vector{Pair{Symbol, SubString{Str}}}
 
-    function Diff(old_text::AbstractString, new_text::AbstractString)
+    function (::Type{Diff{T}}){T}(old_text::AbstractString, new_text::AbstractString)
         local reg = splitter(T)
         local old_tokens = splitby(reg, old_text)
         local new_tokens = splitby(reg, new_text)
         local weights = lcs(old_tokens, new_tokens)
         local diff = makediff(weights, old_tokens, new_tokens)
-        return new(old_tokens, new_tokens, weights, diff)
+        return new{T}(old_tokens, new_tokens, weights, diff)
     end
 end
 

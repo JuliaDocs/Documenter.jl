@@ -30,38 +30,38 @@ The default document processing "pipeline", which consists of the following acti
 - [`RenderDocument`](@ref)
 
 """
-abstract DocumentPipeline <: Selectors.AbstractSelector
+@compat abstract type DocumentPipeline <: Selectors.AbstractSelector end
 
 """
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
-abstract SetupBuildDirectory <: DocumentPipeline
+@compat abstract type SetupBuildDirectory <: DocumentPipeline end
 
 """
 Executes a sequence of actions on each node of the parsed markdown files in turn.
 """
-abstract ExpandTemplates <: DocumentPipeline
+@compat abstract type ExpandTemplates <: DocumentPipeline end
 
 """
 Finds and sets URLs for each `@ref` link in the document to the correct destinations.
 """
-abstract CrossReferences <: DocumentPipeline
+@compat abstract type CrossReferences <: DocumentPipeline end
 
 """
 Checks that all documented objects are included in the document and runs doctests on all
 valid Julia code blocks.
 """
-abstract CheckDocument <: DocumentPipeline
+@compat abstract type CheckDocument <: DocumentPipeline end
 
 """
 Populates the `ContentsNode`s and `IndexNode`s with links.
 """
-abstract Populate <: DocumentPipeline
+@compat abstract type Populate <: DocumentPipeline end
 
 """
 Writes the document tree to the `build` directory.
 """
-abstract RenderDocument <: DocumentPipeline
+@compat abstract type RenderDocument <: DocumentPipeline end
 
 Selectors.order(::Type{SetupBuildDirectory})   = 1.0
 Selectors.order(::Type{ExpandTemplates})       = 2.0
