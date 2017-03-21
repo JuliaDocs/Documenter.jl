@@ -201,7 +201,7 @@ These are needed to avoid committing generated content to your repository.
 ## `gh-pages` Branch
 
 Create a new branch called `gh-pages` and push it to GitHub. Note that a new and empty
-`gh-pages` branch can be created following [these](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch) instructions.
+`gh-pages` branch can be created following [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
 If the `gh-pages` branch already exists then you can skip this step, but do note that the 
 generated content is automatically pushed to this branch from Travis.
@@ -216,7 +216,7 @@ When documentation is generated it is stored in one of the following folders:
   are stored in directories named after their tags. These tagged directories are persistent
   and must be manually removed from the `gh-pages` branch if necessary.
 
-The `stable` and `latest` pages are found at:
+Unless a custom domain is being used, the `stable` and `latest` pages are found at:
 
 ```markdown
 https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
