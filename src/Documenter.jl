@@ -467,8 +467,15 @@ function deploydocs(;
                         success(`git fetch upstream`) ||
                             error("could not fetch from remote.")
 
-                        success(`git checkout -b $branch upstream/$branch`) ||
-                            error("could not checkout remote branch.")
+                        branch_exists = success(`git checkout -b $branch upstream/$branch`)
+
+                        if !branch_exists
+                            Utilities.log("assuming $branch doesn't exist yet; creating a new one.")
+                            success(`git checkout --orphan $branch`) ||
+                                error("could not create new empty branch.")
+                            success(`git commit --allow-empty -m "Initial empty commit for docs"`) ||
+                                error("could not commit to new branch $branch")
+                        end
 
                         # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
                         if isempty(travis_tag)
