@@ -77,10 +77,10 @@ Follow the instructions that are printed out, namely:
     Check **`Allow write access`** to allow Documenter to commit the generated documentation
     to the repo.
 
- 2. Next add the long private key to the Travis settings page using the provided link. In
-    the **`Environment Variables`** section add a key with the name `DOCUMENTER_KEY` and the
-    value that was printed out. **Do not** set the variable to be displayed in the build
-    log. Then click **`Add`**.
+ 2. Next add the long private key to the Travis settings page using the provided link. Again
+    note that you should include **no whitespace** when copying the key. In the **`Environment
+    Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed 
+    out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
 
     !!! warning "Security warning"
 
@@ -200,9 +200,11 @@ These are needed to avoid committing generated content to your repository.
 
 ## `gh-pages` Branch
 
-Create a new branch called `gh-pages` and push it to GitHub. If this branch already exists
-then you can skip this step, but do note that the generated content is automatically pushed
-to this branch from Travis.
+Create a new branch called `gh-pages` and push it to GitHub. Note that a new and empty
+`gh-pages` branch can be created following [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
+
+If the `gh-pages` branch already exists then you can skip this step, but do note that the 
+generated content is automatically pushed to this branch from Travis.
 
 ## Documentation Versions
 
@@ -213,6 +215,13 @@ When documentation is generated it is stored in one of the following folders:
 - `stable` stores the most recent documentation from a tagged commit. Older tagged versions
   are stored in directories named after their tags. These tagged directories are persistent
   and must be manually removed from the `gh-pages` branch if necessary.
+
+Unless a custom domain is being used, the `stable` and `latest` pages are found at:
+
+```markdown
+https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
+https://USER_NAME.github.io/PACKAGE_NAME.jl/latest
+```
 
 Once your documentation has been pushed to the `gh-pages` branch you should add links to
 your `README.md` pointing to the `stable` and `latest` documentation URLs. It is common
