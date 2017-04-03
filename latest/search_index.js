@@ -373,7 +373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "SSH Deploy Keys",
     "category": "section",
-    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.Open a Julia REPL and import Documenter.julia> using DocumenterThen call the Travis.genkeys function as follows:julia> Travis.genkeys(\"MyPackage\")where \"MyPackage\" is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named 'DOCUMENTER_KEY' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field.  Note that you should include no whitespace when copying the key. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
+    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.Open a Julia REPL and import Documenter.julia> using DocumenterThen call the Travis.genkeys function as follows:julia> Travis.genkeys(\"MyPackage\")where \"MyPackage\" is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named 'DOCUMENTER_KEY' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field.  Note that you should include no whitespace when copying the key. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed  out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
 },
 
 {
@@ -413,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "gh-pages Branch",
     "category": "section",
-    "text": "Create a new branch called gh-pages and push it to GitHub. If this branch already exists then you can skip this step, but do note that the generated content is automatically pushed to this branch from Travis."
+    "text": "Create a new branch called gh-pages and push it to GitHub. Note that a new and empty gh-pages branch can be created following these instructions.If the gh-pages branch already exists then you can skip this step, but do note that the  generated content is automatically pushed to this branch from Travis."
 },
 
 {
@@ -421,7 +421,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "Documentation Versions",
     "category": "section",
-    "text": "When documentation is generated it is stored in one of the following folders:latest stores the most recent documentation that is committed to the master branch.\nstable stores the most recent documentation from a tagged commit. Older tagged versions are stored in directories named after their tags. These tagged directories are persistent and must be manually removed from the gh-pages branch if necessary.Once your documentation has been pushed to the gh-pages branch you should add links to your README.md pointing to the stable and latest documentation URLs. It is common practice to make use of \"badges\" similar to those used for Travis and AppVeyor build statuses or code coverage. Adding the following to your package README.md should be all that is necessary:[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)\n[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)PACKAGE_NAME and USER_NAME should be replaced with their appropriate values. The colour and text of the image can be changed by altering docs-stable-blue as described on shields.io, though it is recommended that package authors follow this standard to make it easier for potential users to find documentation links across multiple package README files.Final RemarksThat should be all that is needed to enable automatic documentation building. Pushing new commits to your master branch should trigger doc builds. Note that other branches do not trigger these builds and neither do pull requests by potential contributors.If you would like to see a more complete example of how this process is setup then take a look at this package's repository for some inspiration."
+    "text": "When documentation is generated it is stored in one of the following folders:latest stores the most recent documentation that is committed to the master branch.\nstable stores the most recent documentation from a tagged commit. Older tagged versions are stored in directories named after their tags. These tagged directories are persistent and must be manually removed from the gh-pages branch if necessary.Unless a custom domain is being used, the stable and latest pages are found at:https://USER_NAME.github.io/PACKAGE_NAME.jl/stable\nhttps://USER_NAME.github.io/PACKAGE_NAME.jl/latestOnce your documentation has been pushed to the gh-pages branch you should add links to your README.md pointing to the stable and latest documentation URLs. It is common practice to make use of \"badges\" similar to those used for Travis and AppVeyor build statuses or code coverage. Adding the following to your package README.md should be all that is necessary:[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)\n[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)PACKAGE_NAME and USER_NAME should be replaced with their appropriate values. The colour and text of the image can be changed by altering docs-stable-blue as described on shields.io, though it is recommended that package authors follow this standard to make it easier for potential users to find documentation links across multiple package README files.Final RemarksThat should be all that is needed to enable automatic documentation building. Pushing new commits to your master branch should trigger doc builds. Note that other branches do not trigger these builds and neither do pull requests by potential contributors.If you would like to see a more complete example of how this process is setup then take a look at this package's repository for some inspiration."
 },
 
 {
@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1021,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1473,7 +1473,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.disable-Tuple{Type{T}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors.html#Documenter.Selectors.disable-Union{Tuple{T}, Tuple{Type{T}}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.disable",
     "category": "Method",
@@ -1481,7 +1481,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.dispatch-Tuple{Type{T},Vararg{Any,N} where N} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors.html#Documenter.Selectors.dispatch-Union{Tuple{T}, Tuple{Type{T},Vararg{Any,N} where N}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.dispatch",
     "category": "Method",
@@ -1513,7 +1513,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.strict-Tuple{Type{T}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors.html#Documenter.Selectors.strict-Union{Tuple{T}, Tuple{Type{T}}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.strict",
     "category": "Method",
