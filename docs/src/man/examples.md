@@ -24,28 +24,27 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [Bio.jl](https://biojulia.github.io/Bio.jl/latest/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
-- [DifferentialEquations.jl](http://juliadiffeq.github.io/DiffEqDocs.jl/latest/)
-- [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest)
-- [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest)
+- [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
+- [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest/)
+- [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
-- [IntervalConstraintProgramming.jl](http://dpsanders.github.io/IntervalConstraintProgramming.jl/latest/)
+- [IntervalConstraintProgramming.jl](https://juliaintervals.github.io/IntervalConstraintProgramming.jl/latest/)
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
-- [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest)
+- [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest/)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
-- [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest)
-- [Optim.jl](https://juliaopt.github.io/Optim.jl/latest)
+- [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest/)
 - [POMDPs.jl](http://juliapomdp.github.io/POMDPs.jl/latest/)
 - [PhyloNetworks.jl](http://crsl4.github.io/PhyloNetworks.jl/latest/)
-- [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest)
+- [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest/)
 - [Query.jl](http://www.david-anthoff.com/Query.jl/stable/)
 - [TaylorSeries.jl](http://www.juliadiff.org/TaylorSeries.jl/latest/)
-- [Weave.jl](https://mpastell.github.io/Weave.jl/stable)
+- [Weave.jl](http://weavejl.mpastell.com/stable/)
 
 ## Unregistered
 
 Packages that are not available in `METADATA.jl` and may be works-in-progress.
 Please do take that into consideration when browsing this list.
 
-- [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest)
+- [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest/)
 - [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
