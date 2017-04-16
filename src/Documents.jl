@@ -195,6 +195,7 @@ immutable User
     sitename:: Compat.String
     authors :: Compat.String
     analytics::Compat.String
+    version :: Compat.String # version string used in the version selector by default
 end
 
 """
@@ -244,12 +245,17 @@ function Document(;
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         analytics :: AbstractString = "",
+        version :: AbstractString = "",
         others...
     )
     Utilities.check_kwargs(others)
 
     local fmt = Formats.fmt(format)
     @assert !isempty(fmt) "No formats provided."
+
+    if version == "git-commit"
+        version = "git:$(Utilities.get_commit_short(root))"
+    end
 
     user = User(
         root,
@@ -268,6 +274,7 @@ function Document(;
         sitename,
         authors,
         analytics,
+        version,
     )
     internal = Internal(
         Utilities.assetsdir(),
