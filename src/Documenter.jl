@@ -254,7 +254,7 @@ default value is `"site"`.
 
 **`repo`** is the remote repository where generated HTML content should be pushed to. Do not
 specify any protocol - "https://" or "git@" should not be present. This keyword *must*
-be set and will throw an error when left undefined. For example this package uses the 
+be set and will throw an error when left undefined. For example this package uses the
 following `repo` value:
 
 ```julia

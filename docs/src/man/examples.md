@@ -9,7 +9,7 @@ should give a good overview of what this package is currently able to do.
 !!! note
 
     Packages are listed alphabetically. If you have a package that uses Documenter then
-    please open a PR that adds it to the appropriate list below; a simple way to do so 
+    please open a PR that adds it to the appropriate list below; a simple way to do so
     is to navigate to
     https://github.com/JuliaDocs/Documenter.jl/edit/master/docs/src/man/examples.md.
 
