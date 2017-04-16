@@ -167,6 +167,10 @@ of external-pointing links, to make sure that they are up-to-date. The links and
 status codes are printed to the standard output. If `strict` is also enabled then the build
 will fail if there are any broken (400+ status code) links. Default: `false`.
 
+**`linkcheck_ignore`** allows certain URLs to be ignored in `linkcheck`. The values should
+be a list of strings (which get matched exactly) or `Regex` objects. By default nothing is
+ignored.
+
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
 

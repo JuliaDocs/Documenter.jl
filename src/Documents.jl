@@ -185,7 +185,8 @@ immutable User
     format  :: Vector{Symbol} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Bool           # Run doctests?
-    linkcheck::Bool           # Check external links.
+    linkcheck::Bool           # Check external links..
+    linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     strict::Bool              # Throw an exception when any warnings are encountered.
     modules :: Set{Module}    # Which modules to check for missing docs?
@@ -236,6 +237,7 @@ function Document(;
         clean    :: Bool             = true,
         doctest  :: Bool             = true,
         linkcheck:: Bool             = false,
+        linkcheck_ignore :: Vector   = [],
         checkdocs::Symbol            = :all,
         strict::Bool                 = false,
         modules  :: Utilities.ModVec = Module[],
@@ -265,6 +267,7 @@ function Document(;
         clean,
         doctest,
         linkcheck,
+        linkcheck_ignore,
         checkdocs,
         strict,
         Utilities.submodules(modules),
