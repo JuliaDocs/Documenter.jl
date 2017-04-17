@@ -134,5 +134,8 @@ examples_html_doc = makedocs(
             "hidden/y.md",
             "hidden/z.md",
         ])
-    ]
+    ],
+
+    linkcheck = true,
+    linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
 )

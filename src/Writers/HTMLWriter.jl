@@ -1,6 +1,17 @@
 """
 A module for rendering `Document` objects to HTML.
 
+# Keywords
+
+[`HTMLWriter`](@ref) uses the following additional keyword arguments that can be passed to
+[`Documenter.makedocs`](@ref): `assets`, `sitename`, `analytics`, `authors`, `pages`,
+`version`.
+
+**`version`** specifies the version string of the current version which will be the
+selected option in the version selector. If this is left empty (default) the version
+selector will be hidden. The special value `git-commit` sets the value in the output to
+`git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
+
 # Page outline
 
 The [`HTMLWriter`](@ref) makes use of the page outline that is determined by the

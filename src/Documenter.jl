@@ -149,10 +149,44 @@ For example if you are using GitLab.com, you could use
 makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")
 ```
 
-**`version`** specifies the version string of the current version which will be the
-selected option in the version selector. If this is left empty (default) the version
-selector will be hidden. The special value `git-commit` sets the value in the output to
-`git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
+# Experimental keywords
+
+In addition to standard arguments there is a set of non-finalized experimental keyword
+arguments. The behaviour of these may change or they may be removed without deprecation
+when a minor version changes (i.e. except in patch releases).
+
+**`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
+defined in the `modules` keyword that have a docstring attached have the docstring also
+listed in the manual (e.g. there's a `@docs` blocks with that docstring). Possible values
+are `:all` (check all names) and `:exports` (check only exported names). The default value
+is `:none`, in which case no checks are performed. If `strict` is also enabled then the
+build will fail if any missing docstrings are encountered.
+
+**`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
+of external-pointing links, to make sure that they are up-to-date. The links and their
+status codes are printed to the standard output. If `strict` is also enabled then the build
+will fail if there are any broken (400+ status code) links. Default: `false`.
+
+**`linkcheck_ignore`** allows certain URLs to be ignored in `linkcheck`. The values should
+be a list of strings (which get matched exactly) or `Regex` objects. By default nothing is
+ignored.
+
+**`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
+any errors with the document in the previous build phases.
+
+## Non-MkDocs builds
+
+Documenter also has (experimental) support for native HTML and LaTeX builds.
+These can be enabled using the `format` keyword and they generally require additional
+keywords be defined, depending on the format. These keywords are also currently considered
+experimental.
+
+**`format`** allows the output format to be specified. Possible values are `:html`, `:latex`
+and `:markdown` (default).
+
+Other keywords related to non-MkDocs builds (**`assets`**, **`sitename`**, **`analytics`**,
+**`authors`**, **`pages`**, **`version`**) should be documented at the respective `*Writer`
+modules ([`Writers.HTMLWriter`](@ref), [`Writers.LaTeXWriter`](@ref)).
 
 # See Also
 
@@ -254,7 +288,7 @@ default value is `"site"`.
 
 **`repo`** is the remote repository where generated HTML content should be pushed to. Do not
 specify any protocol - "https://" or "git@" should not be present. This keyword *must*
-be set and will throw an error when left undefined. For example this package uses the 
+be set and will throw an error when left undefined. For example this package uses the
 following `repo` value:
 
 ```julia

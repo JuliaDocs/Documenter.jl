@@ -503,6 +503,16 @@ function linkcheck(doc::Documents.Document)
 end
 
 function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
+    local INDENT = " "^6
+
+    # first, make sure we're not supposed to ignore this link
+    for r in doc.user.linkcheck_ignore
+        if linkcheck_ismatch(r, link.url)
+            print_with_color(:normal, INDENT, "--- ", link.url, "\n")
+            return false
+        end
+    end
+
     if !haskey(doc.internal.locallinks, link)
         local result
         try
@@ -512,7 +522,6 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
             Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")
             return false
         end
-        local INDENT = " "^6
         local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
         if ismatch(STATUS_REGEX, result)
             local status = parse(Int, match(STATUS_REGEX, result).captures[1])
@@ -539,6 +548,9 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
     return false
 end
 linkcheck(other, doc::Documents.Document) = true
+
+linkcheck_ismatch(r::String, url) = (url == r)
+linkcheck_ismatch(r::Regex, url) = ismatch(r, url)
 
 function disable_color(func)
     orig = setcolor!(false)
