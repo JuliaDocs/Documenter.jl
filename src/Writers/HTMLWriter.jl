@@ -66,7 +66,7 @@ using ...Utilities.MDFlatten
 const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
 const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
 const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css"
-const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono"
+const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
 const fontawesome_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
 
 """
