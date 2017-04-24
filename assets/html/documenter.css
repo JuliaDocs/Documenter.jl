@@ -21,7 +21,12 @@ body, input {
 }
 
 pre, code {
-  font-family: 'Ubuntu Mono', Monaco, courier, monospace;
+  font-family: 'Roboto Mono', Monaco, courier, monospace;
+  font-size: 0.95em;
+}
+
+pre code {
+  font-family: 1em;
 }
 
 a {
