@@ -259,7 +259,7 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
         branch = "gh-pages",
         latest = "master",
         osname = "linux",
-        julia  = "nightly",
+        julia  = "release",
         deps   = <Function>,
         make   = <Function>,
     )
@@ -306,7 +306,7 @@ This defaults to `"linux"`. This value must be one of those specified in the `os
 of the `.travis.yml` configuration file.
 
 **`julia`** is the version of Julia that will be used to deploy generated documentation.
-This defaults to `"nightly"`. This value must be one of those specified in the `julia:`
+This defaults to `"release"`. This value must be one of those specified in the `julia:`
 section of the `.travis.yml` configuration file.
 
 **`deps`** is the function used to install any dependencies needed to build the
@@ -336,7 +336,7 @@ function deploydocs(;
         latest = "master",
 
         osname = "linux",
-        julia  = "nightly",
+        julia  = "release",
 
         deps   = Deps.pip("pygments", "mkdocs"),
         make   = () -> run(`mkdocs build`),
