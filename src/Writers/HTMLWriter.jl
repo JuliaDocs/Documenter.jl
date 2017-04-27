@@ -65,7 +65,6 @@ using ...Utilities.MDFlatten
 
 const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
 const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
-const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css"
 const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
 const fontawesome_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
 
@@ -78,13 +77,12 @@ type HTMLContext
     logo :: Compat.String
     scripts :: Vector{Compat.String}
     documenter_js :: Compat.String
-    documenter_css :: Compat.String
     search_js :: Compat.String
     search_index :: IOBuffer
     search_index_js :: Compat.String
-    user_assets :: Vector{Compat.String}
+    local_assets :: Vector{Compat.String}
 end
-HTMLContext(doc) = HTMLContext(doc, "", [], "", "", "", IOBuffer(), "", [])
+HTMLContext(doc) = HTMLContext(doc, "", [], "", "", IOBuffer(), "", [])
 
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
@@ -99,7 +97,6 @@ function render(doc::Documents.Document)
     ctx = HTMLContext(doc)
     ctx.search_index_js = "search_index.js"
 
-    ctx.documenter_css = copy_asset("documenter.css", doc)
     copy_asset("arrow.svg", doc)
 
     let logo = joinpath("assets", "logo.png")
@@ -111,7 +108,10 @@ function render(doc::Documents.Document)
     ctx.documenter_js = copy_asset("documenter.js", doc)
     ctx.search_js = copy_asset("search.js", doc)
 
-    ctx.user_assets = doc.user.assets
+    copy_asset("highlightjs/highlight.js", doc)
+    push!(ctx.local_assets, copy_asset("highlightjs/default.css", doc))
+    push!(ctx.local_assets, copy_asset("documenter.css", doc))
+    append!(ctx.local_assets, doc.user.assets)
 
     for navnode in doc.internal.navlist
         render_page(ctx, navnode)
@@ -185,10 +185,8 @@ function render_head(ctx, navnode)
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
         normalize_css,
-        highlightjs_css,
         google_fonts,
         fontawesome_css,
-        relhref(src, ctx.documenter_css),
     ]
     head(
         meta[:charset=>"UTF-8"],
@@ -212,7 +210,7 @@ function render_head(ctx, navnode)
         script[:src => relhref(src, "../versions.js")],
 
         # Custom user-provided assets.
-        asset_links(src, ctx.user_assets)
+        asset_links(src, ctx.local_assets)
     )
 end
 
