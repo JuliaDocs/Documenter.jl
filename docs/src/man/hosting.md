@@ -79,7 +79,7 @@ Follow the instructions that are printed out, namely:
 
  2. Next add the long private key to the Travis settings page using the provided link. Again
     note that you should include **no whitespace** when copying the key. In the **`Environment
-    Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed 
+    Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
     out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
 
     !!! warning "Security warning"
@@ -122,7 +122,7 @@ deploydocs(
 ```
 
 where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names. Note that `repo`
-should not specify any protocol, i.e. it should not begin with `https://` or `git@`. 
+should not specify any protocol, i.e. it should not begin with `https://` or `git@`.
 
 By default `deploydocs` will deploy the documentation from the `nightly` Julia build for
 Linux. This can be changed using the `julia` and `osname` keywords as follows:
