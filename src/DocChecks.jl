@@ -148,7 +148,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         end
         if ismatch(r"^julia> "m, code)
             eval_repl(code, sandbox, meta, doc, page)
-            block.language = "jlcon"
+            block.language = "julia-repl"
         elseif ismatch(r"^# output$"m, code)
             eval_script(code, sandbox, meta, doc, page)
             block.language = "julia"

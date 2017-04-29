@@ -260,9 +260,21 @@ const LEXER = Set([
 ])
 
 function latex(io::IO, code::Markdown.Code)
-    if code.language in LEXER
+    language = if code.language == "jldoctest"
+        # When the doctests are not being run, Markdown.Code blocks will have jldoctest as
+        # the language attribute. The check here to determine if it is a REPL-type or
+        # script-type doctest should match the corresponding one in DocChecks.jl. This makes
+        # sure that doctests get highlighted the same way independent of whether they're
+        # being run or not.
+        ismatch(r"^julia> "m, code.code) ? "julia-repl" : "julia"
+    else
+        code.language
+    end
+    # the julia-repl is called "jlcon" in Pygments
+    language = (language == "julia-repl") ? "jlcon" : language
+    if language in LEXER
         _print(io, "\n\\begin{minted}")
-        _println(io, "{", code.language, "}")
+        _println(io, "{", language, "}")
         _println(io, code.code)
         _println(io, "\\end{minted}\n")
     else
