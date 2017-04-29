@@ -200,11 +200,13 @@ These are needed to avoid committing generated content to your repository.
 
 ## `gh-pages` Branch
 
-Create a new branch called `gh-pages` and push it to GitHub. Note that a new and empty
-`gh-pages` branch can be created following [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
+By default, Documenter pushes documentation to the `gh-pages` branch. If the branch does not
+exist it will be created automatically by [`deploydocs`](@ref). If does exist then
+Documenter simply adds an additional commit with the built documentation. You should be
+aware that Documenter may overwrite existing content without warning.
 
-If the `gh-pages` branch already exists then you can skip this step, but do note that the 
-generated content is automatically pushed to this branch from Travis.
+If you wish to create the `gh-pages` branch manually the that can be done following
+[these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
 ## Documentation Versions
 

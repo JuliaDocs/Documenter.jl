@@ -295,8 +295,8 @@ following `repo` value:
 repo = "github.com/JuliaDocs/Documenter.jl.git"
 ```
 
-**`branch`** is the branch where the generated documentation is pushed. By default this
-value is set to `"gh-pages"`.
+**`branch`** is the branch where the generated documentation is pushed. If the branch does
+not exist, a new orphaned branch is created automatically. It defaults to `"gh-pages"`.
 
 **`latest`** is the branch that "tracks" the latest generated documentation. By default this
 value is set to `"master"`.
