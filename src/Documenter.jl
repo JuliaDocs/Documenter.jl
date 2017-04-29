@@ -295,8 +295,8 @@ following `repo` value:
 repo = "github.com/JuliaDocs/Documenter.jl.git"
 ```
 
-**`branch`** is the branch where the generated documentation is pushed. By default this
-value is set to `"gh-pages"`.
+**`branch`** is the branch where the generated documentation is pushed. If the branch does
+not exist, a new orphaned branch is created automatically. It defaults to `"gh-pages"`.
 
 **`latest`** is the branch that "tracks" the latest generated documentation. By default this
 value is set to `"master"`.
@@ -467,8 +467,15 @@ function deploydocs(;
                         success(`git fetch upstream`) ||
                             error("could not fetch from remote.")
 
-                        success(`git checkout -b $branch upstream/$branch`) ||
-                            error("could not checkout remote branch.")
+                        branch_exists = success(`git checkout -b $branch upstream/$branch`)
+
+                        if !branch_exists
+                            Utilities.log("assuming $branch doesn't exist yet; creating a new one.")
+                            success(`git checkout --orphan $branch`) ||
+                                error("could not create new empty branch.")
+                            success(`git commit --allow-empty -m "Initial empty commit for docs"`) ||
+                                error("could not commit to new branch $branch")
+                        end
 
                         # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
                         if isempty(travis_tag)
