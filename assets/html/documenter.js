@@ -7,10 +7,10 @@
 
 requirejs.config({
     paths: {
-        'jquery': 'https://code.jquery.com/jquery-3.1.0.js?',
+        'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min',
         'jqueryui': 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min',
         'headroom': 'https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.3/headroom.min',
-        'mathjax': 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML',
+        'mathjax': 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML',
         'highlight': 'highlightjs/highlight',
     },
     shim: {
