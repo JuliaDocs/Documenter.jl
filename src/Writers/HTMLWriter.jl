@@ -376,7 +376,7 @@ end
 # ------------------------------------------------------------------------------
 
 function render_article(ctx, navnode)
-    @tags article header footer nav ul li hr span a
+    @tags article header footer nav ul li hr span a div
 
     header_links = map(Documents.navpath(navnode)) do nn
         title = mdconvert(pagetitle(ctx, nn))
@@ -398,7 +398,9 @@ function render_article(ctx, navnode)
     Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
         push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
     end
-    art_header = header(topnav, hr())
+    page_title = string(mdflatten(pagetitle(ctx, navnode)))
+    topbar = div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
+    art_header = header(topnav, hr(), topbar)
 
     # build the footer with nav links
     art_footer = footer(hr())
