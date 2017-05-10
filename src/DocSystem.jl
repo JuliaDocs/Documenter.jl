@@ -88,7 +88,7 @@ binding(m::Module, λ::Any) = binding(λ)
 
 function signature(x, str::AbstractString)
     ts = Base.Docs.signature(x)
-    (Meta.isexpr(x, :macrocall, 1) && !endswith(strip(str), "()")) ? :(Union{}) : ts
+    (Meta.isexpr(x, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(strip(str), "()")) ? :(Union{}) : ts
 end
 if VERSION < v"0.5.0-dev"
     Base.Docs.signature(::Any) = :(Union{})
