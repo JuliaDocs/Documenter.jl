@@ -504,7 +504,6 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             end
         end
         result = value
-        print(out, text)
         local output = if success
             hide = Documenter.DocChecks.ends_with_semicolon(input)
             Documenter.DocChecks.result_to_string(buffer, hide ? nothing : value)
@@ -512,13 +511,14 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             Documenter.DocChecks.error_to_string(buffer, value, [])
         end
         isempty(input) || println(out, prepend_prompt(input))
+        print(out, text)
         if isempty(input) || isempty(output)
             println(out)
         else
             println(out, output, "\n")
         end
     end
-    page.mapping[x] = Base.Markdown.Code("julia", rstrip(Utilities.takebuf_str(out)))
+    page.mapping[x] = Base.Markdown.Code("julia-repl", rstrip(Utilities.takebuf_str(out)))
 end
 
 # @setup
