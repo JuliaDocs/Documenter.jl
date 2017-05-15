@@ -238,7 +238,7 @@ Returns a expression that, when evaluated, returns an [`Object`](@ref) represent
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
     binding   = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
     signature = Base.Docs.signature(ex)
-    isexpr(ex, :macrocall, 1) && !endswith(str, "()") && (signature = :(Union{}))
+    isexpr(ex, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(str, "()") && (signature = :(Union{}))
     Expr(:call, Object, binding, signature)
 end
 
@@ -275,7 +275,7 @@ if VERSION < v"0.5-"
     end
 else
     function docs(ex::Union{Symbol, Expr}, str::AbstractString)
-        isexpr(ex, :macrocall, 1) && !endswith(rstrip(str), "()") && (ex = quot(ex))
+        isexpr(ex, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(rstrip(str), "()") && (ex = quot(ex))
         :(Base.Docs.@doc $ex)
     end
 end
