@@ -5,7 +5,7 @@
 
 | **Documentation**                                                               | **PackageEvaluator**                                                                            | **Build Status**                                                                                |
 |:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.4-img]][pkg-0.4-url] [![][pkg-0.5-img]][pkg-0.5-url] [![][pkg-0.6-img]][pkg-0.6-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.4-img]][pkg-0.4-url] [![][pkg-0.5-img]][pkg-0.5-url] [![][pkg-0.6-img]][pkg-0.6-url] [![][pkg-0.7-img]][pkg-0.7-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 
 
 ## Installation
@@ -53,8 +53,10 @@ Please open an [issue][issues-url] if you encounter any problems. If you have a 
 [issues-url]: https://github.com/JuliaDocs/Documenter.jl/issues
 
 [pkg-0.4-img]: http://pkg.julialang.org/badges/Documenter_0.4.svg
-[pkg-0.4-url]: http://pkg.julialang.org/?pkg=Documenter
+[pkg-0.4-url]: http://pkg.julialang.org/?pkg=Documenter&ver=0.4
 [pkg-0.5-img]: http://pkg.julialang.org/badges/Documenter_0.5.svg
-[pkg-0.5-url]: http://pkg.julialang.org/?pkg=Documenter
+[pkg-0.5-url]: http://pkg.julialang.org/?pkg=Documenter&ver=0.5
 [pkg-0.6-img]: http://pkg.julialang.org/badges/Documenter_0.6.svg
-[pkg-0.6-url]: http://pkg.julialang.org/?pkg=Documenter
+[pkg-0.6-url]: http://pkg.julialang.org/?pkg=Documenter&ver=0.6
+[pkg-0.7-img]: http://pkg.julialang.org/badges/Documenter_0.7.svg
+[pkg-0.7-url]: http://pkg.julialang.org/?pkg=Documenter&ver=0.7
