@@ -89,4 +89,12 @@ using Compat
 
         # TODO: test the HTML build
     end
+
+    @testset "HTML: html-pretty-urls" begin
+        local doc = Main.examples_html_doc
+
+        @test isa(doc, Documenter.Documents.Document)
+
+        # TODO: test the HTML build with pretty URLs
+    end
 end

@@ -185,3 +185,9 @@ julia> a = 1
 julia> ans
 1
 ```
+
+# Bad links (Windows)
+
+* [Colons not allowed on Windows -- `some:path`](some:path)
+* [No "drive" -- `:path`](:path)
+* [Absolute Windows paths -- `X:\some\path`](X:\some\path)
