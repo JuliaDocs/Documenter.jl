@@ -41,6 +41,7 @@ using Compat
             @test isfile(joinpath(build_dir, "lib", "functions.md"))
             @test isfile(joinpath(build_dir, "man", "tutorial.md"))
             @test isfile(joinpath(build_dir, "man", "data.csv"))
+            @test isfile(joinpath(build_dir, "man", "julia.svg"))
 
             @test (==)(
                 readstring(joinpath(source_dir, "man", "data.csv")),

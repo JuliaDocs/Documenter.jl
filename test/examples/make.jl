@@ -98,6 +98,14 @@ export @define_show_and_make_object
 
 end # module
 
+module InlineSVG
+export SVG
+type SVG
+    code :: String
+end
+Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
+end # module
+
 # Build example docs
 using Documenter
 
