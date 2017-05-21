@@ -33,7 +33,7 @@ Please open an [issue][issues-url] if you encounter any problems. If you have a 
 
 [gitter-url]: https://gitter.im/juliadocs/users
 
-[contrib-url]: https://juliadocs.github.io/Documenter.jl/latest/man/contributing.html
+[contrib-url]: https://juliadocs.github.io/Documenter.jl/latest/man/contributing/
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [docs-latest-url]: https://juliadocs.github.io/Documenter.jl/latest

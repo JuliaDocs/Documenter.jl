@@ -455,8 +455,8 @@ function latexinline(io::IO, md::Markdown.Link)
     if io.in_header
         latexinline(io, md.text)
     else
-        if contains(md.url, ".tex#")
-            file, target = split(md.url, ".tex#"; limit = 2)
+        if contains(md.url, ".md#")
+            file, target = split(md.url, ".md#"; limit = 2)
             local id = string(hash(target))
             wrapinline(io, "hyperlink") do
                 _print(io, id)

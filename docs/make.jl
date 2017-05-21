@@ -40,7 +40,8 @@ makedocs(
                 "lib/internals/writers.md",
             ])
         ]
-    ]
+    ],
+    html_prettyurls = true,
 )
 
 deploydocs(

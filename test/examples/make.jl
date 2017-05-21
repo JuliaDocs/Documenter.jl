@@ -98,6 +98,14 @@ export @define_show_and_make_object
 
 end # module
 
+module InlineSVG
+export SVG
+type SVG
+    code :: String
+end
+Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
+end # module
+
 # Build example docs
 using Documenter
 
@@ -138,4 +146,32 @@ examples_html_doc = makedocs(
 
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+)
+
+info("Building mock package docs: HTMLWriter with pretty URLs")
+examples_html_doc = makedocs(
+    debug = true,
+    root  = examples_root,
+    build = "builds/html-pretty-urls",
+    format   = :html,
+    html_prettyurls = true,
+    assets = ["assets/custom.css"],
+    sitename = "Documenter example",
+    pages    = Any[
+        "Home" => "index.md",
+        "Manual" => [
+            "man/tutorial.md",
+        ],
+        hide("hidden.md"),
+        "Library" => [
+            "lib/functions.md",
+            "lib/autodocs.md",
+        ],
+        hide("Hidden Pages" => "hidden/index.md", Any[
+            "Page X" => "hidden/x.md",
+            "hidden/y.md",
+            "hidden/z.md",
+        ])
+    ],
+    doctest = false,
 )

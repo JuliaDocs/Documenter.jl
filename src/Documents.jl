@@ -197,6 +197,7 @@ immutable User
     authors :: Compat.String
     analytics::Compat.String
     version :: Compat.String # version string used in the version selector by default
+    html_prettyurls :: Bool # Use pretty URLs in the HTML build?
 end
 
 """
@@ -248,6 +249,7 @@ function Document(;
         authors  :: AbstractString   = "",
         analytics :: AbstractString = "",
         version :: AbstractString = "",
+        html_prettyurls :: Bool = false,
         others...
     )
     Utilities.check_kwargs(others)
@@ -278,6 +280,7 @@ function Document(;
         authors,
         analytics,
         version,
+        html_prettyurls,
     )
     internal = Internal(
         Utilities.assetsdir(),
