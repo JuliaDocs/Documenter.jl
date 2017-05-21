@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1021,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding, typesig; aliases, compare, modules)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1789,7 +1789,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
-    "text": "A module for rendering Document objects to HTML.\n\nKeywords\n\nHTMLWriter uses the following additional keyword arguments that can be passed to Documenter.makedocs: assets, sitename, analytics, authors, pages, version.\n\nversion specifies the version string of the current version which will be the selected option in the version selector. If this is left empty (default) the version selector will be hidden. The special value git-commit sets the value in the output to git:{commit}, where {commit} is the first few characters of the current commit hash.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nAdditional JS and CSS assets can be included in the generated pages using the assets keyword for makedocs. assets must be a Vector{String} and will include each listed asset in the <head> of every page in the order in which they are listed. The type of the asset (i.e. whether it is going to be included with a <script> or a <link> tag) is determined by the file's extension – either .js or .css.\n\n\n\n"
+    "text": "A module for rendering Document objects to HTML.\n\nKeywords\n\nHTMLWriter uses the following additional keyword arguments that can be passed to Documenter.makedocs: assets, sitename, analytics, authors, pages, version, html_prettyurls.\n\nversion specifies the version string of the current version which will be the selected option in the version selector. If this is left empty (default) the version selector will be hidden. The special value git-commit sets the value in the output to git:{commit}, where {commit} is the first few characters of the current commit hash.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nAdditional JS and CSS assets can be included in the generated pages using the assets keyword for makedocs. assets must be a Vector{String} and will include each listed asset in the <head> of every page in the order in which they are listed. The type of the asset (i.e. whether it is going to be included with a <script> or a <link> tag) is determined by the file's extension – either .js or .css.\n\n\n\n"
 },
 
 {
@@ -1833,6 +1833,30 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Base.Markdown.Link}",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.fixlinks!",
+    "category": "Method",
+    "text": "Replaces URLs in Markdown.Link elements (if they point to a local .md page) with the actual URLs.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Any}",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.get_url",
+    "category": "Method",
+    "text": "Returns the full path corresponding to a path of a .md page file. The the input and output paths are assumed to be relative to src/.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Documenter.Documents.NavNode}",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.get_url",
+    "category": "Method",
+    "text": "Returns the full path of a Documents.NavNode relative to src/.\n\n\n\n"
+},
+
+{
     "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.getpage-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.getpage",
@@ -1849,7 +1873,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.navhref-Tuple{Any,Any}",
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.navhref-Tuple{Any,Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navhref",
     "category": "Method",
@@ -1865,11 +1889,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.open_output-Tuple{Any,Any,Any}",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.open_output",
+    "category": "Method",
+    "text": "Opens the output file of the navnode in write node. If necessary, the path to the output file is created before opening the file.\n\n\n\n"
+},
+
+{
     "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.pagetitle-Tuple{Documenter.Documents.Page}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pagetitle",
     "category": "Method",
     "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents of the first <h1> on a page as a Nullable (nulled if the algorithm was unable to find any <h1> headers).\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.pretty_url-Tuple{Any,Any}",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.pretty_url",
+    "category": "Method",
+    "text": "If html_prettyurls is enabled, returns a \"pretty\" version of the path which can then be used in links in the resulting HTML file.\n\n\n\n"
 },
 
 {
