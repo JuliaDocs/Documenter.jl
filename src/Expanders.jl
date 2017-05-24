@@ -248,6 +248,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
+        failed = false
         local binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
