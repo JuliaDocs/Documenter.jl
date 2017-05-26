@@ -842,7 +842,14 @@ mdconvert(link::Markdown.Link, parent) = Tag(:a)[:href => link.url](mdconvert(li
 
 mdconvert(list::Markdown.List, parent) = (isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list)))
 
-mdconvert(paragraph::Markdown.Paragraph, parent) = Tag(:p)(mdconvert(paragraph.content, paragraph))
+function mdconvert(paragraph::Markdown.Paragraph, parent)
+    mdc = mdconvert(paragraph.content, paragraph)
+    if :intightlist in fieldnames(Markdown.Paragraph) && paragraph.intightlist
+        return mdc
+    else
+        return Tag(:p)(mdc)
+    end
+end
 
 mdconvert(t::Markdown.Table, parent) = Tag(:table)(
     Tag(:tr)(map(x -> Tag(:th)(mdconvert(x, t)), t.rows[1])),
