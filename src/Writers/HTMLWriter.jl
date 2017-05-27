@@ -257,7 +257,8 @@ function render_search(ctx)
     article = article(
         header(
             nav(ul(li("Search"))),
-            hr()
+            hr(),
+            render_topbar(ctx, ctx.search_navnode),
         ),
         h1("Search"),
         p["#search-info"]("Number of results: ", span["#search-results-number"]("loading...")),
@@ -380,7 +381,7 @@ end
 # ------------------------------------------------------------------------------
 
 function render_article(ctx, navnode)
-    @tags article header footer nav ul li hr span a div
+    @tags article header footer nav ul li hr span a
 
     header_links = map(Documents.navpath(navnode)) do nn
         title = mdconvert(pagetitle(ctx, nn))
@@ -402,9 +403,7 @@ function render_article(ctx, navnode)
     Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
         push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
     end
-    page_title = string(mdflatten(pagetitle(ctx, navnode)))
-    topbar = div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
-    art_header = header(topnav, hr(), topbar)
+    art_header = header(topnav, hr(), render_topbar(ctx, navnode))
 
     # build the footer with nav links
     art_footer = footer(hr())
@@ -424,6 +423,12 @@ function render_article(ctx, navnode)
 
     pagenodes = domify(ctx, navnode)
     article["#docs"](art_header, pagenodes, art_footer)
+end
+
+function render_topbar(ctx, navnode)
+    @tags a div span
+    page_title = string(mdflatten(pagetitle(ctx, navnode)))
+    return div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
 end
 
 function generate_version_file(dir::AbstractString)
