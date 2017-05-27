@@ -41,7 +41,8 @@ makedocs(
             ])
         ]
     ],
-    html_prettyurls = true,
+    # Use clean URLs, unless built as a "local" build
+    html_prettyurls = !("local" in ARGS),
 )
 
 deploydocs(
