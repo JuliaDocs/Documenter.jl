@@ -847,7 +847,15 @@ mdconvert(link::Markdown.Link, parent) = Tag(:a)[:href => link.url](mdconvert(li
 
 mdconvert(list::Markdown.List, parent) = (isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list)))
 
-mdconvert(paragraph::Markdown.Paragraph, parent) = Tag(:p)(mdconvert(paragraph.content, paragraph))
+const TIGHT_LIST_SUPPORT = :isloose in fieldnames(Markdown.List)
+function mdconvert(paragraph::Markdown.Paragraph, parent)
+    mdc = mdconvert(paragraph.content, paragraph)
+    if isa(parent, Markdown.List) && TIGHT_LIST_SUPPORT && !parent.isloose
+        return mdc
+    else
+        return Tag(:p)(mdc)
+    end
+end
 
 mdconvert(t::Markdown.Table, parent) = Tag(:table)(
     Tag(:tr)(map(x -> Tag(:th)(mdconvert(x, t)), t.rows[1])),
