@@ -257,7 +257,8 @@ function render_search(ctx)
     article = article(
         header(
             nav(ul(li("Search"))),
-            hr()
+            hr(),
+            render_topbar(ctx, ctx.search_navnode),
         ),
         h1("Search"),
         p["#search-info"]("Number of results: ", span["#search-results-number"]("loading...")),
@@ -380,7 +381,7 @@ end
 # ------------------------------------------------------------------------------
 
 function render_article(ctx, navnode)
-    @tags article header footer nav ul li hr span a div
+    @tags article header footer nav ul li hr span a
 
     header_links = map(Documents.navpath(navnode)) do nn
         title = mdconvert(pagetitle(ctx, nn))
@@ -402,9 +403,7 @@ function render_article(ctx, navnode)
     Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
         push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
     end
-    page_title = string(mdflatten(pagetitle(ctx, navnode)))
-    topbar = div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
-    art_header = header(topnav, hr(), topbar)
+    art_header = header(topnav, hr(), render_topbar(ctx, navnode))
 
     # build the footer with nav links
     art_footer = footer(hr())
@@ -424,6 +423,12 @@ function render_article(ctx, navnode)
 
     pagenodes = domify(ctx, navnode)
     article["#docs"](art_header, pagenodes, art_footer)
+end
+
+function render_topbar(ctx, navnode)
+    @tags a div span
+    page_title = string(mdflatten(pagetitle(ctx, navnode)))
+    return div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
 end
 
 function generate_version_file(dir::AbstractString)
@@ -483,7 +488,7 @@ type SearchIndexBuffer
         page_title = mdflatten(pagetitle(ctx, navnode))
         new(
             ctx,
-            Formats.extension(:html, get(navnode.page)),
+            pretty_url(ctx, get_url(ctx, get(navnode.page))),
             getpage(ctx, navnode),
             "",
             :page,
@@ -507,7 +512,7 @@ search_append(sib, node) = mdflatten(sib.buffer, node)
 function search_flush(sib)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(sib.src, '\\', '/')
-    ref = isempty(src) ? src : "$(src)#$(sib.loc)"
+    ref = "$(src)#$(sib.loc)"
     text = Utilities.takebuf_str(sib.buffer)
     println(sib.ctx.search_index, """
     {
@@ -892,6 +897,10 @@ actual URLs.
 function fixlinks!(ctx, navnode, link::Markdown.Link)
     fixlinks!(ctx, navnode, link.text)
     Utilities.isabsurl(link.url) && return
+
+    # links starting with a # are references within the same file -- there's nothing to fix
+    # for such links
+    startswith(link.url, '#') && return
 
     s = split(link.url, "#", limit = 2)
     if is_windows() && ':' in first(s)
