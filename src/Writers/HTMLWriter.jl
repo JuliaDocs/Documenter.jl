@@ -483,7 +483,7 @@ type SearchIndexBuffer
         page_title = mdflatten(pagetitle(ctx, navnode))
         new(
             ctx,
-            Formats.extension(:html, get(navnode.page)),
+            pretty_url(ctx, get_url(ctx, get(navnode.page))),
             getpage(ctx, navnode),
             "",
             :page,
@@ -507,7 +507,7 @@ search_append(sib, node) = mdflatten(sib.buffer, node)
 function search_flush(sib)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(sib.src, '\\', '/')
-    ref = isempty(src) ? src : "$(src)#$(sib.loc)"
+    ref = "$(src)#$(sib.loc)"
     text = Utilities.takebuf_str(sib.buffer)
     println(sib.ctx.search_index, """
     {
