@@ -1,7 +1,7 @@
 var documenterSearchIndex = {"docs": [
 
 {
-    "location": "index.html#",
+    "location": "#",
     "page": "Home",
     "title": "Home",
     "category": "page",
@@ -9,7 +9,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Documenter.jl-1",
+    "location": "#Documenter.jl-1",
     "page": "Home",
     "title": "Documenter.jl",
     "category": "section",
@@ -17,7 +17,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Package-Features-1",
+    "location": "#Package-Features-1",
     "page": "Home",
     "title": "Package Features",
     "category": "section",
@@ -25,7 +25,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Manual-Outline-1",
+    "location": "#Manual-Outline-1",
     "page": "Home",
     "title": "Manual Outline",
     "category": "section",
@@ -33,7 +33,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Library-Outline-1",
+    "location": "#Library-Outline-1",
     "page": "Home",
     "title": "Library Outline",
     "category": "section",
@@ -41,7 +41,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#main-index-1",
+    "location": "#main-index-1",
     "page": "Home",
     "title": "Index",
     "category": "section",
@@ -49,7 +49,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#",
+    "location": "man/guide/#",
     "page": "Guide",
     "title": "Guide",
     "category": "page",
@@ -57,7 +57,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Package-Guide-1",
+    "location": "man/guide/#Package-Guide-1",
     "page": "Guide",
     "title": "Package Guide",
     "category": "section",
@@ -65,7 +65,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Installation-1",
+    "location": "man/guide/#Installation-1",
     "page": "Guide",
     "title": "Installation",
     "category": "section",
@@ -73,7 +73,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Usage-1",
+    "location": "man/guide/#Usage-1",
     "page": "Guide",
     "title": "Usage",
     "category": "section",
@@ -81,7 +81,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Setting-up-the-folder-structure-1",
+    "location": "man/guide/#Setting-up-the-folder-structure-1",
     "page": "Guide",
     "title": "Setting up the folder structure",
     "category": "section",
@@ -89,7 +89,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Building-an-empty-document-1",
+    "location": "man/guide/#Building-an-empty-document-1",
     "page": "Guide",
     "title": "Building an empty document",
     "category": "section",
@@ -97,7 +97,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Adding-some-docstrings-1",
+    "location": "man/guide/#Adding-some-docstrings-1",
     "page": "Guide",
     "title": "Adding some docstrings",
     "category": "section",
@@ -105,7 +105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Filtering-Included-Docstrings-1",
+    "location": "man/guide/#Filtering-Included-Docstrings-1",
     "page": "Guide",
     "title": "Filtering Included Docstrings",
     "category": "section",
@@ -113,7 +113,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Cross-Referencing-1",
+    "location": "man/guide/#Cross-Referencing-1",
     "page": "Guide",
     "title": "Cross Referencing",
     "category": "section",
@@ -121,7 +121,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Navigation-1",
+    "location": "man/guide/#Navigation-1",
     "page": "Guide",
     "title": "Navigation",
     "category": "section",
@@ -129,7 +129,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide.html#Output-formats-1",
+    "location": "man/guide/#Output-formats-1",
     "page": "Guide",
     "title": "Output formats",
     "category": "section",
@@ -137,7 +137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/examples.html#",
+    "location": "man/examples/#",
     "page": "Examples",
     "title": "Examples",
     "category": "page",
@@ -145,7 +145,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/examples.html#Examples-1",
+    "location": "man/examples/#Examples-1",
     "page": "Examples",
     "title": "Examples",
     "category": "section",
@@ -153,7 +153,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/examples.html#Registered-1",
+    "location": "man/examples/#Registered-1",
     "page": "Examples",
     "title": "Registered",
     "category": "section",
@@ -161,7 +161,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/examples.html#Unregistered-1",
+    "location": "man/examples/#Unregistered-1",
     "page": "Examples",
     "title": "Unregistered",
     "category": "section",
@@ -169,7 +169,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#",
+    "location": "man/syntax/#",
     "page": "Syntax",
     "title": "Syntax",
     "category": "page",
@@ -177,7 +177,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#Syntax-1",
+    "location": "man/syntax/#Syntax-1",
     "page": "Syntax",
     "title": "Syntax",
     "category": "section",
@@ -185,7 +185,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@docs-block-1",
+    "location": "man/syntax/#@docs-block-1",
     "page": "Syntax",
     "title": "@docs block",
     "category": "section",
@@ -193,7 +193,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@autodocs-block-1",
+    "location": "man/syntax/#@autodocs-block-1",
     "page": "Syntax",
     "title": "@autodocs block",
     "category": "section",
@@ -201,7 +201,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@ref-link-1",
+    "location": "man/syntax/#@ref-link-1",
     "page": "Syntax",
     "title": "@ref link",
     "category": "section",
@@ -209,7 +209,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#Duplicate-Headers-1",
+    "location": "man/syntax/#Duplicate-Headers-1",
     "page": "Syntax",
     "title": "Duplicate Headers",
     "category": "section",
@@ -217,7 +217,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#Named-doc-@refs-1",
+    "location": "man/syntax/#Named-doc-@refs-1",
     "page": "Syntax",
     "title": "Named doc @refs",
     "category": "section",
@@ -225,7 +225,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@meta-block-1",
+    "location": "man/syntax/#@meta-block-1",
     "page": "Syntax",
     "title": "@meta block",
     "category": "section",
@@ -233,7 +233,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@index-block-1",
+    "location": "man/syntax/#@index-block-1",
     "page": "Syntax",
     "title": "@index block",
     "category": "section",
@@ -241,7 +241,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@contents-block-1",
+    "location": "man/syntax/#@contents-block-1",
     "page": "Syntax",
     "title": "@contents block",
     "category": "section",
@@ -249,7 +249,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@example-block-1",
+    "location": "man/syntax/#@example-block-1",
     "page": "Syntax",
     "title": "@example block",
     "category": "section",
@@ -257,7 +257,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@repl-block-1",
+    "location": "man/syntax/#@repl-block-1",
     "page": "Syntax",
     "title": "@repl block",
     "category": "section",
@@ -265,7 +265,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@setup-name-block-1",
+    "location": "man/syntax/#@setup-name-block-1",
     "page": "Syntax",
     "title": "@setup <name> block",
     "category": "section",
@@ -273,7 +273,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/syntax.html#@eval-block-1",
+    "location": "man/syntax/#@eval-block-1",
     "page": "Syntax",
     "title": "@eval block",
     "category": "section",
@@ -281,7 +281,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#",
+    "location": "man/doctests/#",
     "page": "Doctests",
     "title": "Doctests",
     "category": "page",
@@ -289,7 +289,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#Doctests-1",
+    "location": "man/doctests/#Doctests-1",
     "page": "Doctests",
     "title": "Doctests",
     "category": "section",
@@ -297,7 +297,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#\"Script\"-Examples-1",
+    "location": "man/doctests/#\"Script\"-Examples-1",
     "page": "Doctests",
     "title": "\"Script\" Examples",
     "category": "section",
@@ -305,7 +305,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#REPL-Examples-1",
+    "location": "man/doctests/#REPL-Examples-1",
     "page": "Doctests",
     "title": "REPL Examples",
     "category": "section",
@@ -313,7 +313,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#Exceptions-1",
+    "location": "man/doctests/#Exceptions-1",
     "page": "Doctests",
     "title": "Exceptions",
     "category": "section",
@@ -321,7 +321,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#Preserving-definitions-between-blocks-1",
+    "location": "man/doctests/#Preserving-definitions-between-blocks-1",
     "page": "Doctests",
     "title": "Preserving definitions between blocks",
     "category": "section",
@@ -329,7 +329,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#Setup-Code-1",
+    "location": "man/doctests/#Setup-Code-1",
     "page": "Doctests",
     "title": "Setup Code",
     "category": "section",
@@ -337,7 +337,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests.html#Skipping-Doctests-1",
+    "location": "man/doctests/#Skipping-Doctests-1",
     "page": "Doctests",
     "title": "Skipping Doctests",
     "category": "section",
@@ -345,7 +345,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#",
+    "location": "man/hosting/#",
     "page": "Hosting Documentation",
     "title": "Hosting Documentation",
     "category": "page",
@@ -353,7 +353,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#Hosting-Documentation-1",
+    "location": "man/hosting/#Hosting-Documentation-1",
     "page": "Hosting Documentation",
     "title": "Hosting Documentation",
     "category": "section",
@@ -361,7 +361,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#Overview-1",
+    "location": "man/hosting/#Overview-1",
     "page": "Hosting Documentation",
     "title": "Overview",
     "category": "section",
@@ -369,7 +369,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#SSH-Deploy-Keys-1",
+    "location": "man/hosting/#SSH-Deploy-Keys-1",
     "page": "Hosting Documentation",
     "title": "SSH Deploy Keys",
     "category": "section",
@@ -377,7 +377,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#.travis.yml-Configuration-1",
+    "location": "man/hosting/#.travis.yml-Configuration-1",
     "page": "Hosting Documentation",
     "title": ".travis.yml Configuration",
     "category": "section",
@@ -385,7 +385,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#The-deploydocs-Function-1",
+    "location": "man/hosting/#The-deploydocs-Function-1",
     "page": "Hosting Documentation",
     "title": "The deploydocs Function",
     "category": "section",
@@ -393,7 +393,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#The-MkDocs-mkdocs.yml-File-1",
+    "location": "man/hosting/#The-MkDocs-mkdocs.yml-File-1",
     "page": "Hosting Documentation",
     "title": "The MkDocs mkdocs.yml File",
     "category": "section",
@@ -401,7 +401,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#.gitignore-1",
+    "location": "man/hosting/#.gitignore-1",
     "page": "Hosting Documentation",
     "title": ".gitignore",
     "category": "section",
@@ -409,7 +409,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#gh-pages-Branch-1",
+    "location": "man/hosting/#gh-pages-Branch-1",
     "page": "Hosting Documentation",
     "title": "gh-pages Branch",
     "category": "section",
@@ -417,7 +417,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting.html#Documentation-Versions-1",
+    "location": "man/hosting/#Documentation-Versions-1",
     "page": "Hosting Documentation",
     "title": "Documentation Versions",
     "category": "section",
@@ -425,7 +425,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#",
+    "location": "man/latex/#",
     "page": "LaTeX syntax",
     "title": "LaTeX syntax",
     "category": "page",
@@ -433,7 +433,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#latex_syntax-1",
+    "location": "man/latex/#latex_syntax-1",
     "page": "LaTeX syntax",
     "title": "LaTeX syntax",
     "category": "section",
@@ -441,7 +441,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Julia-0.4-1",
+    "location": "man/latex/#Julia-0.4-1",
     "page": "LaTeX syntax",
     "title": "Julia 0.4",
     "category": "section",
@@ -449,7 +449,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Inline-equations-1",
+    "location": "man/latex/#Inline-equations-1",
     "page": "LaTeX syntax",
     "title": "Inline equations",
     "category": "section",
@@ -457,7 +457,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Display-equations-1",
+    "location": "man/latex/#Display-equations-1",
     "page": "LaTeX syntax",
     "title": "Display equations",
     "category": "section",
@@ -465,7 +465,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Escaping-characters-in-docstrings-1",
+    "location": "man/latex/#Escaping-characters-in-docstrings-1",
     "page": "LaTeX syntax",
     "title": "Escaping characters in docstrings",
     "category": "section",
@@ -473,7 +473,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Julia-0.5-1",
+    "location": "man/latex/#Julia-0.5-1",
     "page": "LaTeX syntax",
     "title": "Julia 0.5",
     "category": "section",
@@ -481,7 +481,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Inline-equations-2",
+    "location": "man/latex/#Inline-equations-2",
     "page": "LaTeX syntax",
     "title": "Inline equations",
     "category": "section",
@@ -489,7 +489,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Display-equations-2",
+    "location": "man/latex/#Display-equations-2",
     "page": "LaTeX syntax",
     "title": "Display equations",
     "category": "section",
@@ -497,7 +497,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#Escaping-characters-in-docstrings-2",
+    "location": "man/latex/#Escaping-characters-in-docstrings-2",
     "page": "LaTeX syntax",
     "title": "Escaping characters in docstrings",
     "category": "section",
@@ -505,7 +505,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex.html#MkDocs-and-MathJax-1",
+    "location": "man/latex/#MkDocs-and-MathJax-1",
     "page": "LaTeX syntax",
     "title": "MkDocs and MathJax",
     "category": "section",
@@ -513,7 +513,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/internals.html#",
+    "location": "man/internals/#",
     "page": "Package Internals",
     "title": "Package Internals",
     "category": "page",
@@ -521,7 +521,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/internals.html#Package-Internals-1",
+    "location": "man/internals/#Package-Internals-1",
     "page": "Package Internals",
     "title": "Package Internals",
     "category": "section",
@@ -529,7 +529,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/contributing.html#",
+    "location": "man/contributing/#",
     "page": "Contributing",
     "title": "Contributing",
     "category": "page",
@@ -537,7 +537,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/contributing.html#Contributing-1",
+    "location": "man/contributing/#Contributing-1",
     "page": "Contributing",
     "title": "Contributing",
     "category": "section",
@@ -545,7 +545,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/contributing.html#Branches-1",
+    "location": "man/contributing/#Branches-1",
     "page": "Contributing",
     "title": "Branches",
     "category": "section",
@@ -553,7 +553,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/contributing.html#Backports-1",
+    "location": "man/contributing/#Backports-1",
     "page": "Contributing",
     "title": "Backports",
     "category": "section",
@@ -561,7 +561,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/contributing.html#Style-Guide-1",
+    "location": "man/contributing/#Style-Guide-1",
     "page": "Contributing",
     "title": "Style Guide",
     "category": "section",
@@ -569,7 +569,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/contributing.html#Julia-1",
+    "location": "man/contributing/#Julia-1",
     "page": "Contributing",
     "title": "Julia",
     "category": "section",
@@ -577,7 +577,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/contributing.html#Markdown-1",
+    "location": "man/contributing/#Markdown-1",
     "page": "Contributing",
     "title": "Markdown",
     "category": "section",
@@ -585,7 +585,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#",
+    "location": "lib/public/#",
     "page": "Public",
     "title": "Public",
     "category": "page",
@@ -593,7 +593,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Public-Documentation-1",
+    "location": "lib/public/#Public-Documentation-1",
     "page": "Public",
     "title": "Public Documentation",
     "category": "section",
@@ -601,7 +601,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Contents-1",
+    "location": "lib/public/#Contents-1",
     "page": "Public",
     "title": "Contents",
     "category": "section",
@@ -609,7 +609,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Index-1",
+    "location": "lib/public/#Index-1",
     "page": "Public",
     "title": "Index",
     "category": "section",
@@ -617,7 +617,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter",
+    "location": "lib/public/#Documenter",
     "page": "Public",
     "title": "Documenter",
     "category": "Module",
@@ -625,7 +625,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.makedocs",
+    "location": "lib/public/#Documenter.makedocs",
     "page": "Public",
     "title": "Documenter.makedocs",
     "category": "Function",
@@ -633,7 +633,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.hide",
+    "location": "lib/public/#Documenter.hide",
     "page": "Public",
     "title": "Documenter.hide",
     "category": "Function",
@@ -641,7 +641,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.deploydocs",
+    "location": "lib/public/#Documenter.deploydocs",
     "page": "Public",
     "title": "Documenter.deploydocs",
     "category": "Function",
@@ -649,7 +649,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.generate",
+    "location": "lib/public/#Documenter.generate",
     "page": "Public",
     "title": "Documenter.generate",
     "category": "Function",
@@ -657,7 +657,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.Travis",
+    "location": "lib/public/#Documenter.Travis",
     "page": "Public",
     "title": "Documenter.Travis",
     "category": "Module",
@@ -665,7 +665,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.Travis.genkeys",
+    "location": "lib/public/#Documenter.Travis.genkeys",
     "page": "Public",
     "title": "Documenter.Travis.genkeys",
     "category": "Function",
@@ -673,7 +673,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.Deps",
+    "location": "lib/public/#Documenter.Deps",
     "page": "Public",
     "title": "Documenter.Deps",
     "category": "Module",
@@ -681,7 +681,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Documenter.Deps.pip",
+    "location": "lib/public/#Documenter.Deps.pip",
     "page": "Public",
     "title": "Documenter.Deps.pip",
     "category": "Function",
@@ -689,7 +689,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public.html#Public-Interface-1",
+    "location": "lib/public/#Public-Interface-1",
     "page": "Public",
     "title": "Public Interface",
     "category": "section",
@@ -697,7 +697,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals.html#",
+    "location": "lib/internals/#",
     "page": "Internals",
     "title": "Internals",
     "category": "page",
@@ -705,7 +705,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals.html#Internal-Documentation-1",
+    "location": "lib/internals/#Internal-Documentation-1",
     "page": "Internals",
     "title": "Internal Documentation",
     "category": "section",
@@ -713,7 +713,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals.html#Contents-1",
+    "location": "lib/internals/#Contents-1",
     "page": "Internals",
     "title": "Contents",
     "category": "section",
@@ -721,7 +721,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals.html#Index-1",
+    "location": "lib/internals/#Index-1",
     "page": "Internals",
     "title": "Index",
     "category": "section",
@@ -729,7 +729,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#",
+    "location": "lib/internals/anchors/#",
     "page": "Anchors",
     "title": "Anchors",
     "category": "page",
@@ -737,7 +737,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Documenter.Anchors",
+    "location": "lib/internals/anchors/#Documenter.Anchors",
     "page": "Anchors",
     "title": "Documenter.Anchors",
     "category": "Module",
@@ -745,7 +745,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Documenter.Anchors.Anchor",
+    "location": "lib/internals/anchors/#Documenter.Anchors.Anchor",
     "page": "Anchors",
     "title": "Documenter.Anchors.Anchor",
     "category": "Type",
@@ -753,7 +753,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Documenter.Anchors.AnchorMap",
+    "location": "lib/internals/anchors/#Documenter.Anchors.AnchorMap",
     "page": "Anchors",
     "title": "Documenter.Anchors.AnchorMap",
     "category": "Type",
@@ -761,7 +761,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Documenter.Anchors.add!-Tuple{Documenter.Anchors.AnchorMap,Documenter.Anchors.Anchor,Any,Any}",
+    "location": "lib/internals/anchors/#Documenter.Anchors.add!-Tuple{Documenter.Anchors.AnchorMap,Documenter.Anchors.Anchor,Any,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.add!",
     "category": "Method",
@@ -769,7 +769,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Documenter.Anchors.anchor-Tuple{Documenter.Anchors.AnchorMap,Any}",
+    "location": "lib/internals/anchors/#Documenter.Anchors.anchor-Tuple{Documenter.Anchors.AnchorMap,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.anchor",
     "category": "Method",
@@ -777,7 +777,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Documenter.Anchors.exists-Tuple{Documenter.Anchors.AnchorMap,Any,Any,Any}",
+    "location": "lib/internals/anchors/#Documenter.Anchors.exists-Tuple{Documenter.Anchors.AnchorMap,Any,Any,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.exists",
     "category": "Method",
@@ -785,7 +785,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Documenter.Anchors.isunique-Tuple{Documenter.Anchors.AnchorMap,Any}",
+    "location": "lib/internals/anchors/#Documenter.Anchors.isunique-Tuple{Documenter.Anchors.AnchorMap,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.isunique",
     "category": "Method",
@@ -793,7 +793,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/anchors.html#Anchors-1",
+    "location": "lib/internals/anchors/#Anchors-1",
     "page": "Anchors",
     "title": "Anchors",
     "category": "section",
@@ -801,7 +801,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#",
+    "location": "lib/internals/builder/#",
     "page": "Builder",
     "title": "Builder",
     "category": "page",
@@ -809,7 +809,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder",
+    "location": "lib/internals/builder/#Documenter.Builder",
     "page": "Builder",
     "title": "Documenter.Builder",
     "category": "Module",
@@ -817,7 +817,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.CheckDocument",
+    "location": "lib/internals/builder/#Documenter.Builder.CheckDocument",
     "page": "Builder",
     "title": "Documenter.Builder.CheckDocument",
     "category": "Type",
@@ -825,7 +825,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.CrossReferences",
+    "location": "lib/internals/builder/#Documenter.Builder.CrossReferences",
     "page": "Builder",
     "title": "Documenter.Builder.CrossReferences",
     "category": "Type",
@@ -833,7 +833,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.DocumentPipeline",
+    "location": "lib/internals/builder/#Documenter.Builder.DocumentPipeline",
     "page": "Builder",
     "title": "Documenter.Builder.DocumentPipeline",
     "category": "Type",
@@ -841,7 +841,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.ExpandTemplates",
+    "location": "lib/internals/builder/#Documenter.Builder.ExpandTemplates",
     "page": "Builder",
     "title": "Documenter.Builder.ExpandTemplates",
     "category": "Type",
@@ -849,7 +849,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.Populate",
+    "location": "lib/internals/builder/#Documenter.Builder.Populate",
     "page": "Builder",
     "title": "Documenter.Builder.Populate",
     "category": "Type",
@@ -857,7 +857,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.RenderDocument",
+    "location": "lib/internals/builder/#Documenter.Builder.RenderDocument",
     "page": "Builder",
     "title": "Documenter.Builder.RenderDocument",
     "category": "Type",
@@ -865,7 +865,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.SetupBuildDirectory",
+    "location": "lib/internals/builder/#Documenter.Builder.SetupBuildDirectory",
     "page": "Builder",
     "title": "Documenter.Builder.SetupBuildDirectory",
     "category": "Type",
@@ -873,7 +873,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Documenter.Builder.walk_navpages-NTuple{6,Any}",
+    "location": "lib/internals/builder/#Documenter.Builder.walk_navpages-NTuple{6,Any}",
     "page": "Builder",
     "title": "Documenter.Builder.walk_navpages",
     "category": "Method",
@@ -881,7 +881,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/builder.html#Builder-1",
+    "location": "lib/internals/builder/#Builder-1",
     "page": "Builder",
     "title": "Builder",
     "category": "section",
@@ -889,7 +889,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/cross-references.html#",
+    "location": "lib/internals/cross-references/#",
     "page": "CrossReferences",
     "title": "CrossReferences",
     "category": "page",
@@ -897,7 +897,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/cross-references.html#Documenter.CrossReferences",
+    "location": "lib/internals/cross-references/#Documenter.CrossReferences",
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences",
     "category": "Module",
@@ -905,7 +905,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/cross-references.html#Documenter.CrossReferences.crossref-Tuple{Documenter.Documents.Document}",
+    "location": "lib/internals/cross-references/#Documenter.CrossReferences.crossref-Tuple{Documenter.Documents.Document}",
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences.crossref",
     "category": "Method",
@@ -913,7 +913,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/cross-references.html#Documenter.CrossReferences.find_object-Tuple{Documenter.Documents.Document,Any,Any}",
+    "location": "lib/internals/cross-references/#Documenter.CrossReferences.find_object-Tuple{Documenter.Documents.Document,Any,Any}",
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences.find_object",
     "category": "Method",
@@ -921,7 +921,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/cross-references.html#CrossReferences-1",
+    "location": "lib/internals/cross-references/#CrossReferences-1",
     "page": "CrossReferences",
     "title": "CrossReferences",
     "category": "section",
@@ -929,7 +929,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docchecks.html#",
+    "location": "lib/internals/docchecks/#",
     "page": "DocChecks",
     "title": "DocChecks",
     "category": "page",
@@ -937,7 +937,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docchecks.html#Documenter.DocChecks",
+    "location": "lib/internals/docchecks/#Documenter.DocChecks",
     "page": "DocChecks",
     "title": "Documenter.DocChecks",
     "category": "Module",
@@ -945,7 +945,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docchecks.html#Documenter.DocChecks.doctest-Tuple{Documenter.Documents.Document}",
+    "location": "lib/internals/docchecks/#Documenter.DocChecks.doctest-Tuple{Documenter.Documents.Document}",
     "page": "DocChecks",
     "title": "Documenter.DocChecks.doctest",
     "category": "Method",
@@ -953,7 +953,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docchecks.html#Documenter.DocChecks.missingdocs-Tuple{Documenter.Documents.Document}",
+    "location": "lib/internals/docchecks/#Documenter.DocChecks.missingdocs-Tuple{Documenter.Documents.Document}",
     "page": "DocChecks",
     "title": "Documenter.DocChecks.missingdocs",
     "category": "Method",
@@ -961,7 +961,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docchecks.html#DocChecks-1",
+    "location": "lib/internals/docchecks/#DocChecks-1",
     "page": "DocChecks",
     "title": "DocChecks",
     "category": "section",
@@ -969,7 +969,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#",
+    "location": "lib/internals/docsystem/#",
     "page": "DocSystem",
     "title": "DocSystem",
     "category": "page",
@@ -977,7 +977,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#Documenter.DocSystem",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem",
     "page": "DocSystem",
     "title": "Documenter.DocSystem",
     "category": "Module",
@@ -985,7 +985,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#Documenter.DocSystem.binding-Tuple{Any}",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.binding-Tuple{Any}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.binding",
     "category": "Method",
@@ -993,7 +993,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#Documenter.DocSystem.convertmeta-Tuple{ObjectIdDict}",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.convertmeta-Tuple{ObjectIdDict}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.convertmeta",
     "category": "Method",
@@ -1001,7 +1001,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#Documenter.DocSystem.docstr-Tuple{Base.Markdown.MD}",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.docstr-Tuple{Base.Markdown.MD}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.docstr",
     "category": "Method",
@@ -1009,15 +1009,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#Documenter.DocSystem.getdocs",
-    "page": "DocSystem",
-    "title": "Documenter.DocSystem.getdocs",
-    "category": "Function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/docsystem.html#Documenter.DocSystem.getdocs",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.getdocs",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
@@ -1025,7 +1017,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#Documenter.DocSystem.multidoc",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.getdocs",
+    "page": "DocSystem",
+    "title": "Documenter.DocSystem.getdocs",
+    "category": "Function",
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; aliases, compare, modules)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.multidoc",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.multidoc",
     "category": "Function",
@@ -1033,7 +1033,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem.html#DocSystem-1",
+    "location": "lib/internals/docsystem/#DocSystem-1",
     "page": "DocSystem",
     "title": "DocSystem",
     "category": "section",
@@ -1041,7 +1041,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#",
+    "location": "lib/internals/documents/#",
     "page": "Documents",
     "title": "Documents",
     "category": "page",
@@ -1049,7 +1049,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents",
+    "location": "lib/internals/documents/#Documenter.Documents",
     "page": "Documents",
     "title": "Documenter.Documents",
     "category": "Module",
@@ -1057,7 +1057,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.Document",
+    "location": "lib/internals/documents/#Documenter.Documents.Document",
     "page": "Documents",
     "title": "Documenter.Documents.Document",
     "category": "Type",
@@ -1065,7 +1065,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.Globals",
+    "location": "lib/internals/documents/#Documenter.Documents.Globals",
     "page": "Documents",
     "title": "Documenter.Documents.Globals",
     "category": "Type",
@@ -1073,7 +1073,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.Internal",
+    "location": "lib/internals/documents/#Documenter.Documents.Internal",
     "page": "Documents",
     "title": "Documenter.Documents.Internal",
     "category": "Type",
@@ -1081,7 +1081,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.NavNode",
+    "location": "lib/internals/documents/#Documenter.Documents.NavNode",
     "page": "Documents",
     "title": "Documenter.Documents.NavNode",
     "category": "Type",
@@ -1089,7 +1089,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.Page",
+    "location": "lib/internals/documents/#Documenter.Documents.Page",
     "page": "Documents",
     "title": "Documenter.Documents.Page",
     "category": "Type",
@@ -1097,7 +1097,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.User",
+    "location": "lib/internals/documents/#Documenter.Documents.User",
     "page": "Documents",
     "title": "Documenter.Documents.User",
     "category": "Type",
@@ -1105,7 +1105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.navpath-Tuple{Documenter.Documents.NavNode}",
+    "location": "lib/internals/documents/#Documenter.Documents.navpath-Tuple{Documenter.Documents.NavNode}",
     "page": "Documents",
     "title": "Documenter.Documents.navpath",
     "category": "Method",
@@ -1113,7 +1113,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documenter.Documents.populate!-Tuple{Documenter.Documents.Document}",
+    "location": "lib/internals/documents/#Documenter.Documents.populate!-Tuple{Documenter.Documents.Document}",
     "page": "Documents",
     "title": "Documenter.Documents.populate!",
     "category": "Method",
@@ -1121,7 +1121,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/documents.html#Documents-1",
+    "location": "lib/internals/documents/#Documents-1",
     "page": "Documents",
     "title": "Documents",
     "category": "section",
@@ -1129,7 +1129,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#",
+    "location": "lib/internals/dom/#",
     "page": "DOM",
     "title": "DOM",
     "category": "page",
@@ -1137,7 +1137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM",
     "category": "Module",
@@ -1145,7 +1145,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.@tags-Tuple",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM.@tags-Tuple",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.@tags",
     "category": "Macro",
@@ -1153,7 +1153,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.HTMLDocument",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM.HTMLDocument",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.HTMLDocument",
     "category": "Type",
@@ -1161,7 +1161,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.Node",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM.Node",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.Node",
     "category": "Type",
@@ -1169,7 +1169,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.Tag",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM.Tag",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.Tag",
     "category": "Type",
@@ -1177,7 +1177,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.escapehtml",
     "category": "Method",
@@ -1185,7 +1185,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString, Documenter.Utilities.DOM.Node, Pair, Symbol}}",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString, Documenter.Utilities.DOM.Node, Pair, Symbol}}",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.flatten!",
     "category": "Method",
@@ -1193,7 +1193,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom.html#DOM-1",
+    "location": "lib/internals/dom/#DOM-1",
     "page": "DOM",
     "title": "DOM",
     "category": "section",
@@ -1201,7 +1201,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#",
+    "location": "lib/internals/expanders/#",
     "page": "Expanders",
     "title": "Expanders",
     "category": "page",
@@ -1209,7 +1209,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders",
+    "location": "lib/internals/expanders/#Documenter.Expanders",
     "page": "Expanders",
     "title": "Documenter.Expanders",
     "category": "Module",
@@ -1217,7 +1217,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.AutoDocsBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.AutoDocsBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.AutoDocsBlocks",
     "category": "Type",
@@ -1225,7 +1225,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.ContentsBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.ContentsBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.ContentsBlocks",
     "category": "Type",
@@ -1233,7 +1233,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.DocsBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.DocsBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.DocsBlocks",
     "category": "Type",
@@ -1241,7 +1241,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.EvalBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.EvalBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.EvalBlocks",
     "category": "Type",
@@ -1249,7 +1249,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.ExampleBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.ExampleBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.ExampleBlocks",
     "category": "Type",
@@ -1257,7 +1257,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.ExpanderPipeline",
+    "location": "lib/internals/expanders/#Documenter.Expanders.ExpanderPipeline",
     "page": "Expanders",
     "title": "Documenter.Expanders.ExpanderPipeline",
     "category": "Type",
@@ -1265,7 +1265,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.IndexBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.IndexBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.IndexBlocks",
     "category": "Type",
@@ -1273,7 +1273,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.MetaBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.MetaBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.MetaBlocks",
     "category": "Type",
@@ -1281,7 +1281,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.REPLBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.REPLBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.REPLBlocks",
     "category": "Type",
@@ -1289,7 +1289,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.SetupBlocks",
+    "location": "lib/internals/expanders/#Documenter.Expanders.SetupBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.SetupBlocks",
     "category": "Type",
@@ -1297,7 +1297,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Documenter.Expanders.TrackHeaders",
+    "location": "lib/internals/expanders/#Documenter.Expanders.TrackHeaders",
     "page": "Expanders",
     "title": "Documenter.Expanders.TrackHeaders",
     "category": "Type",
@@ -1305,7 +1305,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/expanders.html#Expanders-1",
+    "location": "lib/internals/expanders/#Expanders-1",
     "page": "Expanders",
     "title": "Expanders",
     "category": "section",
@@ -1313,7 +1313,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/formats.html#",
+    "location": "lib/internals/formats/#",
     "page": "Formats",
     "title": "Formats",
     "category": "page",
@@ -1321,7 +1321,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/formats.html#Documenter.Formats",
+    "location": "lib/internals/formats/#Documenter.Formats",
     "page": "Formats",
     "title": "Documenter.Formats",
     "category": "Module",
@@ -1329,7 +1329,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/formats.html#Documenter.Formats.Format",
+    "location": "lib/internals/formats/#Documenter.Formats.Format",
     "page": "Formats",
     "title": "Documenter.Formats.Format",
     "category": "Type",
@@ -1337,7 +1337,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/formats.html#Documenter.Formats.mimetype-Tuple{Symbol}",
+    "location": "lib/internals/formats/#Documenter.Formats.mimetype-Tuple{Symbol}",
     "page": "Formats",
     "title": "Documenter.Formats.mimetype",
     "category": "Method",
@@ -1345,7 +1345,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/formats.html#Formats-1",
+    "location": "lib/internals/formats/#Formats-1",
     "page": "Formats",
     "title": "Formats",
     "category": "section",
@@ -1353,7 +1353,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#",
+    "location": "lib/internals/generator/#",
     "page": "Generator",
     "title": "Generator",
     "category": "page",
@@ -1361,7 +1361,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#Documenter.Generator",
+    "location": "lib/internals/generator/#Documenter.Generator",
     "page": "Generator",
     "title": "Documenter.Generator",
     "category": "Module",
@@ -1369,7 +1369,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#Documenter.Generator.gitignore-Tuple{}",
+    "location": "lib/internals/generator/#Documenter.Generator.gitignore-Tuple{}",
     "page": "Generator",
     "title": "Documenter.Generator.gitignore",
     "category": "Method",
@@ -1377,7 +1377,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#Documenter.Generator.index-Tuple{Any}",
+    "location": "lib/internals/generator/#Documenter.Generator.index-Tuple{Any}",
     "page": "Generator",
     "title": "Documenter.Generator.index",
     "category": "Method",
@@ -1385,7 +1385,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#Documenter.Generator.make-Tuple{Any}",
+    "location": "lib/internals/generator/#Documenter.Generator.make-Tuple{Any}",
     "page": "Generator",
     "title": "Documenter.Generator.make",
     "category": "Method",
@@ -1393,7 +1393,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#Documenter.Generator.mkdocs-Tuple{Any}",
+    "location": "lib/internals/generator/#Documenter.Generator.mkdocs-Tuple{Any}",
     "page": "Generator",
     "title": "Documenter.Generator.mkdocs",
     "category": "Method",
@@ -1401,7 +1401,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#Documenter.Generator.savefile-Tuple{Any,Any,Any}",
+    "location": "lib/internals/generator/#Documenter.Generator.savefile-Tuple{Any,Any,Any}",
     "page": "Generator",
     "title": "Documenter.Generator.savefile",
     "category": "Method",
@@ -1409,7 +1409,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator.html#Generator-1",
+    "location": "lib/internals/generator/#Generator-1",
     "page": "Generator",
     "title": "Generator",
     "category": "section",
@@ -1417,7 +1417,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/mdflatten.html#",
+    "location": "lib/internals/mdflatten/#",
     "page": "MDFlatten",
     "title": "MDFlatten",
     "category": "page",
@@ -1425,7 +1425,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/mdflatten.html#Documenter.Utilities.MDFlatten",
+    "location": "lib/internals/mdflatten/#Documenter.Utilities.MDFlatten",
     "page": "MDFlatten",
     "title": "Documenter.Utilities.MDFlatten",
     "category": "Module",
@@ -1433,7 +1433,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/mdflatten.html#Documenter.Utilities.MDFlatten.mdflatten-Tuple{Any}",
+    "location": "lib/internals/mdflatten/#Documenter.Utilities.MDFlatten.mdflatten-Tuple{Any}",
     "page": "MDFlatten",
     "title": "Documenter.Utilities.MDFlatten.mdflatten",
     "category": "Method",
@@ -1441,7 +1441,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/mdflatten.html#MDFlatten-1",
+    "location": "lib/internals/mdflatten/#MDFlatten-1",
     "page": "MDFlatten",
     "title": "MDFlatten",
     "category": "section",
@@ -1449,7 +1449,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#",
+    "location": "lib/internals/selectors/#",
     "page": "Selectors",
     "title": "Selectors",
     "category": "page",
@@ -1457,7 +1457,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors",
+    "location": "lib/internals/selectors/#Documenter.Selectors",
     "page": "Selectors",
     "title": "Documenter.Selectors",
     "category": "Module",
@@ -1465,7 +1465,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.AbstractSelector",
     "category": "Type",
@@ -1473,7 +1473,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.disable-Union{Tuple{T}, Tuple{Type{T}}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Selectors.disable-Union{Tuple{T}, Tuple{Type{T}}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.disable",
     "category": "Method",
@@ -1481,7 +1481,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.dispatch-Union{Tuple{T}, Tuple{Type{T},Vararg{Any,N} where N}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Selectors.dispatch-Union{Tuple{T}, Tuple{Type{T},Vararg{Any,N} where N}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.dispatch",
     "category": "Method",
@@ -1489,7 +1489,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.matcher",
+    "location": "lib/internals/selectors/#Documenter.Selectors.matcher",
     "page": "Selectors",
     "title": "Documenter.Selectors.matcher",
     "category": "Function",
@@ -1497,7 +1497,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.order",
+    "location": "lib/internals/selectors/#Documenter.Selectors.order",
     "page": "Selectors",
     "title": "Documenter.Selectors.order",
     "category": "Function",
@@ -1505,7 +1505,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.runner",
+    "location": "lib/internals/selectors/#Documenter.Selectors.runner",
     "page": "Selectors",
     "title": "Documenter.Selectors.runner",
     "category": "Function",
@@ -1513,7 +1513,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Documenter.Selectors.strict-Union{Tuple{T}, Tuple{Type{T}}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Selectors.strict-Union{Tuple{T}, Tuple{Type{T}}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.strict",
     "category": "Method",
@@ -1521,7 +1521,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors.html#Selectors-1",
+    "location": "lib/internals/selectors/#Selectors-1",
     "page": "Selectors",
     "title": "Selectors",
     "category": "section",
@@ -1529,7 +1529,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#",
+    "location": "lib/internals/utilities/#",
     "page": "Utilities",
     "title": "Utilities",
     "category": "page",
@@ -1537,7 +1537,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities",
+    "location": "lib/internals/utilities/#Documenter.Utilities",
     "page": "Utilities",
     "title": "Documenter.Utilities",
     "category": "Module",
@@ -1545,7 +1545,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.Object",
+    "location": "lib/internals/utilities/#Documenter.Utilities.Object",
     "page": "Utilities",
     "title": "Documenter.Utilities.Object",
     "category": "Type",
@@ -1553,7 +1553,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.assetsdir-Tuple{}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.assetsdir-Tuple{}",
     "page": "Utilities",
     "title": "Documenter.Utilities.assetsdir",
     "category": "Method",
@@ -1561,7 +1561,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.check_kwargs-Tuple{Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.check_kwargs-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.check_kwargs",
     "category": "Method",
@@ -1569,7 +1569,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.currentdir-Tuple{}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.currentdir-Tuple{}",
     "page": "Utilities",
     "title": "Documenter.Utilities.currentdir",
     "category": "Method",
@@ -1577,7 +1577,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.doccat-Tuple{Documenter.Utilities.Object}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.doccat-Tuple{Documenter.Utilities.Object}",
     "page": "Utilities",
     "title": "Documenter.Utilities.doccat",
     "category": "Method",
@@ -1585,7 +1585,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.docs",
+    "location": "lib/internals/utilities/#Documenter.Utilities.docs",
     "page": "Utilities",
     "title": "Documenter.Utilities.docs",
     "category": "Function",
@@ -1593,7 +1593,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}",
     "page": "Utilities",
     "title": "Documenter.Utilities.filterdocs",
     "category": "Method",
@@ -1601,7 +1601,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.get_commit_short-Tuple{Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.get_commit_short-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.get_commit_short",
     "category": "Method",
@@ -1609,7 +1609,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.in_cygwin-Tuple{}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.in_cygwin-Tuple{}",
     "page": "Utilities",
     "title": "Documenter.Utilities.in_cygwin",
     "category": "Method",
@@ -1617,7 +1617,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.isabsurl-Tuple{Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.isabsurl-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.isabsurl",
     "category": "Method",
@@ -1625,7 +1625,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.issubmodule-Tuple{Any,Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.issubmodule-Tuple{Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.issubmodule",
     "category": "Method",
@@ -1633,7 +1633,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.log-Tuple{Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.log-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.log",
     "category": "Method",
@@ -1641,7 +1641,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.logging-Tuple{Bool}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.logging-Tuple{Bool}",
     "page": "Utilities",
     "title": "Documenter.Utilities.logging",
     "category": "Method",
@@ -1649,7 +1649,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.nodocs-Tuple{Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.nodocs-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.nodocs",
     "category": "Method",
@@ -1657,7 +1657,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.object-Tuple{Union{Expr, Symbol},AbstractString}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.object-Tuple{Union{Expr, Symbol},AbstractString}",
     "page": "Utilities",
     "title": "Documenter.Utilities.object",
     "category": "Method",
@@ -1665,7 +1665,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.parseblock-Tuple{AbstractString,Any,Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.parseblock-Tuple{AbstractString,Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.parseblock",
     "category": "Method",
@@ -1673,7 +1673,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.slugify-Tuple{AbstractString}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.slugify-Tuple{AbstractString}",
     "page": "Utilities",
     "title": "Documenter.Utilities.slugify",
     "category": "Method",
@@ -1681,7 +1681,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.srcpath-Tuple{Any,Any,Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.srcpath-Tuple{Any,Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.srcpath",
     "category": "Method",
@@ -1689,7 +1689,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.submodules-Tuple{Array{Module,1}}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.submodules-Tuple{Array{Module,1}}",
     "page": "Utilities",
     "title": "Documenter.Utilities.submodules",
     "category": "Method",
@@ -1697,7 +1697,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.warn-Tuple{Any,Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.warn-Tuple{Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.warn",
     "category": "Method",
@@ -1705,7 +1705,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Documenter.Utilities.withoutput-Tuple{Any}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.withoutput-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.withoutput",
     "category": "Method",
@@ -1713,7 +1713,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities.html#Utilities-1",
+    "location": "lib/internals/utilities/#Utilities-1",
     "page": "Utilities",
     "title": "Utilities",
     "category": "section",
@@ -1721,7 +1721,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/walkers.html#",
+    "location": "lib/internals/walkers/#",
     "page": "Walkers",
     "title": "Walkers",
     "category": "page",
@@ -1729,7 +1729,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/walkers.html#Documenter.Walkers",
+    "location": "lib/internals/walkers/#Documenter.Walkers",
     "page": "Walkers",
     "title": "Documenter.Walkers",
     "category": "Module",
@@ -1737,7 +1737,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/walkers.html#Documenter.Walkers.walk-Tuple{Any,Any,Any}",
+    "location": "lib/internals/walkers/#Documenter.Walkers.walk-Tuple{Any,Any,Any}",
     "page": "Walkers",
     "title": "Documenter.Walkers.walk",
     "category": "Method",
@@ -1745,7 +1745,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/walkers.html#Walkers-1",
+    "location": "lib/internals/walkers/#Walkers-1",
     "page": "Walkers",
     "title": "Walkers",
     "category": "section",
@@ -1753,7 +1753,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#",
+    "location": "lib/internals/writers/#",
     "page": "Writers",
     "title": "Writers",
     "category": "page",
@@ -1761,7 +1761,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers",
+    "location": "lib/internals/writers/#Documenter.Writers",
     "page": "Writers",
     "title": "Documenter.Writers",
     "category": "Module",
@@ -1769,7 +1769,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.render-Tuple{Documenter.Documents.Document}",
+    "location": "lib/internals/writers/#Documenter.Writers.render-Tuple{Documenter.Documents.Document}",
     "page": "Writers",
     "title": "Documenter.Writers.render",
     "category": "Method",
@@ -1777,7 +1777,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.MarkdownWriter",
+    "location": "lib/internals/writers/#Documenter.Writers.MarkdownWriter",
     "page": "Writers",
     "title": "Documenter.Writers.MarkdownWriter",
     "category": "Module",
@@ -1785,7 +1785,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
@@ -1793,7 +1793,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.MDBlockContext",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.MDBlockContext",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.MDBlockContext",
     "category": "Constant",
@@ -1801,7 +1801,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.HTMLContext",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.HTMLContext",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.HTMLContext",
     "category": "Type",
@@ -1809,7 +1809,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.collect_subsections-Tuple{Documenter.Documents.Page}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.collect_subsections-Tuple{Documenter.Documents.Page}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.collect_subsections",
     "category": "Method",
@@ -1817,7 +1817,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.copy_asset-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.copy_asset-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.copy_asset",
     "category": "Method",
@@ -1825,7 +1825,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.domify-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.domify-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.domify",
     "category": "Method",
@@ -1833,7 +1833,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Base.Markdown.Link}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Base.Markdown.Link}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.fixlinks!",
     "category": "Method",
@@ -1841,7 +1841,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.get_url",
     "category": "Method",
@@ -1849,7 +1849,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Documenter.Documents.NavNode}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Documenter.Documents.NavNode}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.get_url",
     "category": "Method",
@@ -1857,7 +1857,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.getpage-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.getpage-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.getpage",
     "category": "Method",
@@ -1865,7 +1865,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.mdconvert",
     "category": "Method",
@@ -1873,7 +1873,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.navhref-Tuple{Any,Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.navhref-Tuple{Any,Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navhref",
     "category": "Method",
@@ -1881,7 +1881,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.navitem-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.navitem-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navitem",
     "category": "Method",
@@ -1889,7 +1889,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.open_output-Tuple{Any,Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.open_output-Tuple{Any,Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.open_output",
     "category": "Method",
@@ -1897,7 +1897,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.pagetitle-Tuple{Documenter.Documents.Page}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.pagetitle-Tuple{Documenter.Documents.Page}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pagetitle",
     "category": "Method",
@@ -1905,7 +1905,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.pretty_url-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.pretty_url-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pretty_url",
     "category": "Method",
@@ -1913,7 +1913,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.relhref-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.relhref-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.relhref",
     "category": "Method",
@@ -1921,7 +1921,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.HTMLWriter.render_page-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.render_page-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.render_page",
     "category": "Method",
@@ -1929,7 +1929,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Documenter.Writers.LaTeXWriter",
+    "location": "lib/internals/writers/#Documenter.Writers.LaTeXWriter",
     "page": "Writers",
     "title": "Documenter.Writers.LaTeXWriter",
     "category": "Module",
@@ -1937,7 +1937,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers.html#Writers-1",
+    "location": "lib/internals/writers/#Writers-1",
     "page": "Writers",
     "title": "Writers",
     "category": "section",
