@@ -898,6 +898,10 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     fixlinks!(ctx, navnode, link.text)
     Utilities.isabsurl(link.url) && return
 
+    # links starting with a # are references within the same file -- there's nothing to fix
+    # for such links
+    startswith(link.url, '#') && return
+
     s = split(link.url, "#", limit = 2)
     if is_windows() && ':' in first(s)
         Utilities.warn("Invalid local link: colons not allowed in paths on Windows\n    '$(link.url)' in $(get(navnode.page))")
