@@ -351,7 +351,7 @@ function navitem(ctx, current, nn::Documents.NavNode)
     end
 
     # construct this item
-    title = mdconvert(pagetitle(ctx, nn))
+    title = mdconvert(pagetitle(ctx, nn); droplinks=true)
     link = if isnull(nn.page)
         span[".toctext"](title)
     else
@@ -365,7 +365,7 @@ function navitem(ctx, current, nn::Documents.NavNode)
         internal_links = map(subs) do s
             istoplevel, anchor, text = s
             _li = istoplevel ? li[".toplevel"] : li[]
-            _li(a[".toctext", :href => anchor](mdconvert(text)))
+            _li(a[".toctext", :href => anchor](mdconvert(text; droplinks=true)))
         end
         push!(item.nodes, ul[".internal"](internal_links))
     end
@@ -384,7 +384,7 @@ function render_article(ctx, navnode)
     @tags article header footer nav ul li hr span a
 
     header_links = map(Documents.navpath(navnode)) do nn
-        title = mdconvert(pagetitle(ctx, nn))
+        title = mdconvert(pagetitle(ctx, nn); droplinks=true)
         isnull(nn.page) ? li(title) : li(a[:href => navhref(ctx, nn, navnode)](title))
     end
 
@@ -409,14 +409,14 @@ function render_article(ctx, navnode)
     art_footer = footer(hr())
     Utilities.unwrap(navnode.prev) do nn
         direction = span[".direction"]("Previous")
-        title = span[".title"](mdconvert(pagetitle(ctx, nn)))
+        title = span[".title"](mdconvert(pagetitle(ctx, nn); droplinks=true))
         link = a[".previous", :href => navhref(ctx, nn, navnode)](direction, title)
         push!(art_footer.nodes, link)
     end
 
     Utilities.unwrap(navnode.next) do nn
         direction = span[".direction"]("Next")
-        title = span[".title"](mdconvert(pagetitle(ctx, nn)))
+        title = span[".title"](mdconvert(pagetitle(ctx, nn); droplinks=true))
         link = a[".next", :href => navhref(ctx, nn, navnode)](direction, title)
         push!(art_footer.nodes, link)
     end
@@ -584,7 +584,7 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
         header = anchor.object
         url = string(path, '#', anchor.id, '-', anchor.nth)
-        node = a[:href=>url](mdconvert(header.text))
+        node = a[:href=>url](mdconvert(header.text; droplinks=true))
         level = Utilities.header_level(header)
         push!(lb, level, node)
     end
@@ -801,19 +801,19 @@ Convert a markdown object to a `DOM.Node` object.
 
 The `parent` argument is passed to allow for context-dependant conversions.
 """
-mdconvert(md) = mdconvert(md, md)
+mdconvert(md; kwargs...) = mdconvert(md, md; kwargs...)
 
-mdconvert(text::AbstractString, parent) = DOM.Node(text)
+mdconvert(text::AbstractString, parent; kwargs...) = DOM.Node(text)
 
-mdconvert(vec::Vector, parent) = [mdconvert(x, parent) for x in vec]
+mdconvert(vec::Vector, parent; kwargs...) = [mdconvert(x, parent; kwargs...) for x in vec]
 
-mdconvert(md::Markdown.MD, parent) = Tag(:div)(mdconvert(md.content, md))
+mdconvert(md::Markdown.MD, parent; kwargs...) = Tag(:div)(mdconvert(md.content, md; kwargs...))
 
-mdconvert(b::Markdown.BlockQuote, parent) = Tag(:blockquote)(mdconvert(b.content, b))
+mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconvert(b.content, b; kwargs...))
 
-mdconvert(b::Markdown.Bold, parent) = Tag(:strong)(mdconvert(b.text, parent))
+mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, parent; kwargs...))
 
-function mdconvert(c::Markdown.Code, parent::MDBlockContext)
+function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
     language = if isempty(c.language)
         "none"
@@ -829,52 +829,55 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext)
     end
     pre(code[".language-$(language)"](c.code))
 end
-mdconvert(c::Markdown.Code, parent) = Tag(:code)(c.code)
+mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
 
-mdconvert{N}(h::Markdown.Header{N}, parent) = DOM.Tag(Symbol("h$N"))(mdconvert(h.text, h))
+mdconvert{N}(h::Markdown.Header{N}, parent; kwargs...) = DOM.Tag(Symbol("h$N"))(mdconvert(h.text, h; kwargs...))
 
-mdconvert(::Markdown.HorizontalRule, parent) = Tag(:hr)()
+mdconvert(::Markdown.HorizontalRule, parent; kwargs...) = Tag(:hr)()
 
-mdconvert(i::Markdown.Image, parent) = Tag(:img)[:src => i.url, :alt => i.alt]
+mdconvert(i::Markdown.Image, parent; kwargs...) = Tag(:img)[:src => i.url, :alt => i.alt]
 
-mdconvert(i::Markdown.Italic, parent) = Tag(:em)(mdconvert(i.text, i))
+mdconvert(i::Markdown.Italic, parent; kwargs...) = Tag(:em)(mdconvert(i.text, i; kwargs...))
 
-mdconvert(m::Markdown.LaTeX, ::MDBlockContext)   = Tag(:div)(string("\\[", m.formula, "\\]"))
-mdconvert(m::Markdown.LaTeX, parent) = Tag(:span)(string('$', m.formula, '$'))
+mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)   = Tag(:div)(string("\\[", m.formula, "\\]"))
+mdconvert(m::Markdown.LaTeX, parent; kwargs...) = Tag(:span)(string('$', m.formula, '$'))
 
-mdconvert(::Markdown.LineBreak, parent) = Tag(:br)()
+mdconvert(::Markdown.LineBreak, parent; kwargs...) = Tag(:br)()
 
-mdconvert(link::Markdown.Link, parent) = Tag(:a)[:href => link.url](mdconvert(link.text, link))
+function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
+    link_text = mdconvert(link.text, link; droplinks=droplinks, kwargs...)
+    droplinks ? link_text : Tag(:a)[:href => link.url](link_text)
+end
 
-mdconvert(list::Markdown.List, parent) = (isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list)))
+mdconvert(list::Markdown.List, parent; kwargs...) = (isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
 
-mdconvert(paragraph::Markdown.Paragraph, parent) = Tag(:p)(mdconvert(paragraph.content, paragraph))
+mdconvert(paragraph::Markdown.Paragraph, parent; kwargs...) = Tag(:p)(mdconvert(paragraph.content, paragraph; kwargs...))
 
-mdconvert(t::Markdown.Table, parent) = Tag(:table)(
-    Tag(:tr)(map(x -> Tag(:th)(mdconvert(x, t)), t.rows[1])),
-    map(x -> Tag(:tr)(map(y -> Tag(:td)(mdconvert(y, x)), x)), t.rows[2:end])
+mdconvert(t::Markdown.Table, parent; kwargs...) = Tag(:table)(
+    Tag(:tr)(map(x -> Tag(:th)(mdconvert(x, t; kwargs...)), t.rows[1])),
+    map(x -> Tag(:tr)(map(y -> Tag(:td)(mdconvert(y, x; kwargs...)), x)), t.rows[2:end])
 )
 
-mdconvert(expr::Union{Expr,Symbol}, parent) = string(expr)
+mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 
 # Only available on Julia 0.5.
 if isdefined(Base.Markdown, :Footnote)
-    mdconvert(f::Markdown.Footnote, parent) = footnote(f.id, f.text, parent)
-    footnote(id, text::Void, parent) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
-    function footnote(id, text, parent)
+    mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
+    footnote(id, text::Void, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
+    function footnote(id, text, parent; kwargs...)
         Tag(:div)[".footnote#footnote-$(id)"](
             Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
-            mdconvert(text, parent),
+            mdconvert(text, parent; kwargs...),
         )
     end
 end
 
 if isdefined(Base.Markdown, :Admonition)
-    function mdconvert(a::Markdown.Admonition, parent)
+    function mdconvert(a::Markdown.Admonition, parent; kwargs...)
         @tags div
         div[".admonition.$(a.category)"](
             div[".admonition-title"](a.title),
-            div[".admonition-text"](mdconvert(a.content, a))
+            div[".admonition-text"](mdconvert(a.content, a; kwargs...))
         )
     end
 end
@@ -885,7 +888,7 @@ else
     isordered(a::Markdown.List) = a.ordered::Bool
 end
 
-mdconvert(html::Documents.RawHTML, parent) = Tag(Symbol("#RAW#"))(html.code)
+mdconvert(html::Documents.RawHTML, parent; kwargs...) = Tag(Symbol("#RAW#"))(html.code)
 
 
 # fixlinks!
