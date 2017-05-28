@@ -538,6 +538,7 @@ end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
     @tags a
+    fixlinks!(ctx, navnode, anchor.object)
     aid = "$(anchor.id)-$(anchor.nth)"
     if isa(anchor.object, Markdown.Header)
         h = anchor.object
