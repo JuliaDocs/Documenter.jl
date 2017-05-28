@@ -216,3 +216,8 @@ end
 ![Julia circles](julia.svg)
 
 Dowload [`data.csv`](data.csv).
+
+
+## [Links](../index.md) in headers
+
+... are dropped in the navigation links.
