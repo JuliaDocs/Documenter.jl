@@ -538,10 +538,10 @@ end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
     @tags a
-    fixlinks!(ctx, navnode, anchor.object)
     aid = "$(anchor.id)-$(anchor.nth)"
     if isa(anchor.object, Markdown.Header)
         h = anchor.object
+        fixlinks!(ctx, navnode, h)
         DOM.Tag(Symbol("h$(Utilities.header_level(h))"))(
             a[".nav-anchor", :id => aid, :href => "#$aid"](mdconvert(h.text, h))
         )
