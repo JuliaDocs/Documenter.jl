@@ -1013,7 +1013,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(binding, typesig; compare, modules, aliases)\ngetdocs(binding)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
@@ -1021,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n"
 },
 
 {
@@ -1038,6 +1038,30 @@ var documenterSearchIndex = {"docs": [
     "title": "DocSystem",
     "category": "section",
     "text": "Modules = [Documenter.DocSystem]"
+},
+
+{
+    "location": "lib/internals/documenter/#",
+    "page": "Documenter",
+    "title": "Documenter",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "lib/internals/documenter/#Documenter.gitrm_copy",
+    "page": "Documenter",
+    "title": "Documenter.gitrm_copy",
+    "category": "Function",
+    "text": "gitrm_copy(src, dst)\n\nUses git rm -r to remove dst and then copies src to dst. Assumes that the working directory is within the git repository of dst is when the function is called.\n\nThis is to get around #507 on filesystems that are case-insensitive (e.g. on OS X, Windows). Without doing a git rm first, git add -A will not detect case changes in filenames.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documenter/#Documenter-1",
+    "page": "Documenter",
+    "title": "Documenter",
+    "category": "section",
+    "text": "Documenter.gitrm_copy"
 },
 
 {
