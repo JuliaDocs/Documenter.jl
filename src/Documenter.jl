@@ -479,19 +479,19 @@ function deploydocs(;
 
                         # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
                         if isempty(travis_tag)
-                            cp(target_dir, latest_dir; remove_destination = true)
+                            gitrm_copy(target_dir, latest_dir)
                             Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
                         else
-                            cp(target_dir, stable_dir; remove_destination = true)
+                            gitrm_copy(target_dir, stable_dir)
                             Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
-                            cp(target_dir, tagged_dir; remove_destination = true)
+                            gitrm_copy(target_dir, tagged_dir)
                             Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, travis_tag)
                             # Build a `release-*.*` folder as well when the travis tag is
                             # valid, which it *should* always be anyway.
                             if ismatch(Base.VERSION_REGEX, travis_tag)
                                 local version = VersionNumber(travis_tag)
                                 local release = "release-$(version.major).$(version.minor)"
-                                cp(target_dir, joinpath(dirname, release); remove_destination = true)
+                                gitrm_copy(target_dir, joinpath(dirname, release))
                                 Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
                             end
                         end
@@ -518,6 +518,22 @@ function deploydocs(;
             skipping docs deployment.
               You can set DOCUMENTER_DEBUG to "true" in Travis to see more information.""")
     end
+end
+
+"""
+    gitrm_copy(src, dst)
+
+Uses `git rm -r` to remove `dst` and then copies `src` to `dst`. Assumes that the working
+directory is within the git repository of `dst` is when the function is called.
+
+This is to get around [#507](https://github.com/JuliaDocs/Documenter.jl/issues/507) on
+filesystems that are case-insensitive (e.g. on OS X, Windows). Without doing a `git rm`
+first, `git add -A` will not detect case changes in filenames.
+"""
+function gitrm_copy(src, dst)
+    # --ignore-unmatch so that we wouldn't get errors if dst does not exist
+    run(`git rm -rf --ignore-unmatch $(dst)`)
+    cp(src, dst)
 end
 
 function withfile(func, file::AbstractString, contents::AbstractString)
