@@ -186,6 +186,16 @@ julia> ans
 1
 ```
 
+# Issue513
+
+```jldoctest named
+julia> a = 1
+1
+
+julia> ans
+1
+```
+
 # Bad links (Windows)
 
 * [Colons not allowed on Windows -- `some:path`](some:path)
