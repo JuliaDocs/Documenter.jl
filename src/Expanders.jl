@@ -20,7 +20,7 @@ import .Documents:
     MetaNode
 
 using Compat
-
+import Glob
 
 function expand(doc::Documents.Document)
     for (src, page) in doc.internal.pages
@@ -351,7 +351,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                             push!(results, (mod, path, category, object, isexported, docstr))
                         else
                             for p in pages
-                                if endswith(path, p)
+                                if ismatch(Glob.FilenameMatch(p), path)
                                     push!(results, (mod, p, category, object, isexported, docstr))
                                     break
                                 end
