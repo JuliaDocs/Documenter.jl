@@ -260,7 +260,7 @@ const LEXER = Set([
 ])
 
 function latex(io::IO, code::Markdown.Code)
-    language = if startswith(code.language, "jldoctest")
+    language = if first(split(c.language)) == "jldoctest"
         # When the doctests are not being run, Markdown.Code blocks will have jldoctest as
         # the language attribute. The check here to determine if it is a REPL-type or
         # script-type doctest should match the corresponding one in DocChecks.jl. This makes
