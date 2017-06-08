@@ -817,7 +817,7 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
     language = if isempty(c.language)
         "none"
-    elseif startswith(c.language, "jldoctest")
+    elseif first(split(c.language)) == "jldoctest"
         # When the doctests are not being run, Markdown.Code blocks will have jldoctest as
         # the language attribute. The check here to determine if it is a REPL-type or
         # script-type doctest should match the corresponding one in DocChecks.jl. This makes
