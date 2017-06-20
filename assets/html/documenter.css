@@ -20,7 +20,7 @@ body, input {
   text-rendering: optimizeLegibility;
 }
 
-pre, code {
+pre, code, kbd {
   font-family: 'Roboto Mono', Monaco, courier, monospace;
   font-size: 0.90em;
 }
@@ -106,10 +106,10 @@ pre code {
 }
 
 kbd {
-    font: 11px "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 0.70em;
     display: inline-block;
-    padding: 3px 5px;
-    line-height: 10px;
+    padding: 0.1em 0.5em 0.4em 0.5em;
+    line-height: 1.0em;
     color: #444d56;
     vertical-align: middle;
     background-color: #fafbfc;
