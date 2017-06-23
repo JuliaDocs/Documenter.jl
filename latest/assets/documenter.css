@@ -20,7 +20,7 @@ body, input {
   text-rendering: optimizeLegibility;
 }
 
-pre, code {
+pre, code, kbd {
   font-family: 'Roboto Mono', Monaco, courier, monospace;
   font-size: 0.90em;
 }
@@ -103,6 +103,20 @@ pre {
 pre code {
     padding: 0;
     background-color: initial;
+}
+
+kbd {
+    font-size: 0.70em;
+    display: inline-block;
+    padding: 0.1em 0.5em 0.4em 0.5em;
+    line-height: 1.0em;
+    color: #444d56;
+    vertical-align: middle;
+    background-color: #fafbfc;
+    border: solid 1px #c6cbd1;
+    border-bottom-color: #959da5;
+    border-radius: 3px;
+    box-shadow: inset 0 -1px 0 #959da5;
 }
 
 /* Headers in admonitions and docstrings */
