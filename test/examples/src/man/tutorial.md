@@ -221,3 +221,12 @@ Dowload [`data.csv`](data.csv).
 ## [Links](../index.md) in headers
 
 ... are dropped in the navigation links.
+
+
+## Embedding raw HTML
+
+Below is a nicely rendered version of `^D`:
+
+```@raw html
+<kbd>Ctrl</kbd> + <kbd>D</kbd>
+```
