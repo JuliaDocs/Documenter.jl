@@ -176,7 +176,7 @@ a per-page basis with a `@meta` block as in the following
 # Example.jl Documentation
 
 ```@meta
-CurrentModule = Documenter
+CurrentModule = Example
 ```
 
 ```@docs
