@@ -98,8 +98,7 @@ run your `docs/make.jl` file:
 
 ```yaml
 after_success:
-  - julia -e 'Pkg.add("Documenter")'
-  - julia -e 'cd(Pkg.dir("PACKAGE_NAME")); include(joinpath("docs", "make.jl"))'
+  - julia -e 'Pkg.add("Documenter"); cd(Pkg.dir("PACKAGE_NAME")); include(joinpath("docs", "make.jl"))'
 ```
 
 ## The `deploydocs` Function
