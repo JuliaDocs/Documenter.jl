@@ -345,3 +345,17 @@ See [Hosting Documentation](@ref) for further information on configuring MkDocs 
     of the navigation menu.
 
     **`pages`** defines the hierarchy of the navigation menu.
+
+## Rendering arbitrary markdown files
+
+You can use Documenter to preview arbitrary markdown files like this (example on Linux):
+
+```sh
+cd /tmp
+mkdir src/
+ln -s /path/to/README.md src/
+julia -e "using Documenter; makedocs(format = :html)"
+```
+
+The rendered markdown file(s) (all the ones placed in `src/`) will be
+in a new directory called `build/`.

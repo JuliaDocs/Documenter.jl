@@ -94,8 +94,6 @@ getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, get(navnode.page))
 
 
 function render(doc::Documents.Document)
-    !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
-
     ctx = HTMLContext(doc)
     ctx.search_index_js = "search_index.js"
 
@@ -400,8 +398,10 @@ function render_article(ctx, navnode)
         host = "BitBucket"
         logo = "\uf171"
     end
-    Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
-        push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
+    if !isempty(ctx.doc.user.sitename)
+        Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
+            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
+        end
     end
     art_header = header(topnav, hr(), render_topbar(ctx, navnode))
 
