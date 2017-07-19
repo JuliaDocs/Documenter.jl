@@ -50,20 +50,19 @@ h1 {
     font-size: 1.75em;
 }
 article > h1:not(:nth-child(2)) {
-    margin: 2.00em 0 0;
+    margin: 2.5em 0 0;
     padding-bottom: 0.30em;
     border-bottom: 1px solid #e5e5e5;
 }
 h2 {
     font-size: 1.50em;
-    margin: 1.75em 0 0;
+    margin: 2.3em 0 0;
     padding-bottom: 0.25em;
     border-bottom: 1px solid #e5e5e5;
 }
 h3 {
     font-size: 1.25em;
-    margin: 1.50em 0 0;
-    padding-bottom: 0.20em;
+    margin: 2.0em 0 0;
 }
 h4 { font-size: 1.15em; }
 h5 { font-size: 1.10em; }
