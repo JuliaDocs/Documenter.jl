@@ -113,6 +113,10 @@ slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 """
 Returns a vector of parsed expressions and their corresponding raw strings.
 
+Returns a `Vector` of tuples `(expr, code)`, where `expr` is the corresponding expression
+(e.g. a `Expr` or `Symbol` object) and `code` is the string of code the expression was
+parsed from.
+
 The keyword argument `skip = N` drops the leading `N` lines from the input string.
 """
 function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
