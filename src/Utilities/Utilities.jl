@@ -113,6 +113,10 @@ slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 """
 Returns a vector of parsed expressions and their corresponding raw strings.
 
+Returns a `Vector` of tuples `(expr, code)`, where `expr` is the corresponding expression
+(e.g. a `Expr` or `Symbol` object) and `code` is the string of code the expression was
+parsed from.
+
 The keyword argument `skip = N` drops the leading `N` lines from the input string.
 """
 function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
@@ -121,16 +125,17 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
     code = last(split(code, '\n', limit = skip + 1))
     # Check whether we have windows-style line endings.
     local offset = contains(code, "\n\r") ? 2 : 1
-    local strlen = length(code)
+    local endofstr = endof(code)
     local results = []
     local cursor = 1
-    while cursor < strlen
+    while cursor < endofstr
         # Check for keywords first since they will throw parse errors if we `parse` them.
-        local line = match(r"^(.+)$"m, SubString(code, cursor, strlen)).captures[1]
+        local line = match(r"^(.+)$"m, SubString(code, cursor)).captures[1]
         local keyword = Symbol(strip(line))
         (ex, ncursor) =
             if keywords && haskey(Docs.keywords, keyword)
-                (QuoteNode(keyword), cursor + length(line) + offset)
+                # adding offset below should be OK, as `\n` and `\r` are single byte
+                (QuoteNode(keyword), cursor + endof(line) + offset)
             else
                 try
                     parse(code, cursor)
@@ -140,7 +145,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                     break
                 end
             end
-        push!(results, (ex, SubString(code, cursor, ncursor - 1)))
+        push!(results, (ex, SubString(code, cursor, prevind(code, ncursor))))
         cursor = ncursor
     end
     results
