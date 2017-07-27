@@ -105,6 +105,9 @@ ERROR: DivideError: integer division error
 ```
 ````
 
+It is possible to have Documenter ignore backtraces when running the doctests by setting
+the keyword argument `doctest_stacktraces` to `false` when calling [`makedocs`](@ref).
+
 ## Preserving definitions between blocks
 
 Every doctest block is evaluated inside its own `module`. This means that definitions
