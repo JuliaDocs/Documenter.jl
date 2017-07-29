@@ -44,8 +44,8 @@ Please open an [issue][issues-url] if you encounter any problems. If you have a 
 [travis-img]: https://travis-ci.org/JuliaDocs/Documenter.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/JuliaDocs/Documenter.jl
 
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/egdu3hrptf3mnfc6/branch/master?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/MichaelHatherly/documenter-jl-bqgcw/branch/master
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/xx7nimfpnl1r4gx0?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/JuliaDocs/documenter-jl
 
 [codecov-img]: https://codecov.io/gh/JuliaDocs/Documenter.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl
