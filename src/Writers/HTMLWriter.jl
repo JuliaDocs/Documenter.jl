@@ -67,6 +67,7 @@ const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/r
 const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
 const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
 const fontawesome_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
+const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
 
 """
 [`HTMLWriter`](@ref)-specific globals that are passed to [`domify`](@ref) and
@@ -109,8 +110,6 @@ function render(doc::Documents.Document)
     ctx.documenter_js = copy_asset("documenter.js", doc)
     ctx.search_js = copy_asset("search.js", doc)
 
-    copy_asset("highlightjs/highlight.js", doc)
-    push!(ctx.local_assets, copy_asset("highlightjs/default.css", doc))
     push!(ctx.local_assets, copy_asset("documenter.css", doc))
     append!(ctx.local_assets, doc.user.assets)
 
@@ -190,6 +189,7 @@ function render_head(ctx, navnode)
         normalize_css,
         google_fonts,
         fontawesome_css,
+        highlightjs_css,
     ]
     head(
         meta[:charset=>"UTF-8"],
@@ -817,7 +817,7 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
     language = if isempty(c.language)
         "none"
-    elseif c.language == "jldoctest"
+    elseif first(split(c.language)) == "jldoctest"
         # When the doctests are not being run, Markdown.Code blocks will have jldoctest as
         # the language attribute. The check here to determine if it is a REPL-type or
         # script-type doctest should match the corresponding one in DocChecks.jl. This makes

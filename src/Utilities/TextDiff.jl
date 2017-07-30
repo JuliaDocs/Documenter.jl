@@ -48,7 +48,7 @@ function splitby(reg::Regex, text::AbstractString)
         push!(out, SubString(text, last, each.match.offset + each.match.endof))
         last = each.match.endof + each.offset
     end
-    local laststr = SubString(text, last, length(text))
+    local laststr = SubString(text, last)
     isempty(laststr) || push!(out, laststr)
     return out
 end
