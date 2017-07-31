@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Package Features",
     "category": "section",
-    "text": "Write all your documentation in Markdown.\nMinimal configuration.\nSupports Julia 0.4 and 0.5-dev.\nDoctests Julia code blocks.\nCross references for docs and section headers.\nLaTeX syntax support.\nChecks for missing docstrings and incorrect cross references.\nGenerates tables of contents and docstring indexes.\nUse git push to automatically build and deploy docs from Travis to GitHub Pages.The Package Guide provides a tutorial explaining how to get started using Documenter.Some examples of packages using Documenter can be found on the Examples page.See the Index for the complete list of documented functions and types."
+    "text": "Write all your documentation in Markdown.\nMinimal configuration.\nSupports Julia 0.5, 0.6 and 0.7-dev.\nDoctests Julia code blocks.\nCross references for docs and section headers.\nLaTeX syntax support.\nChecks for missing docstrings and incorrect cross references.\nGenerates tables of contents and docstring indexes.\nUse git push to automatically build and deploy docs from Travis to GitHub Pages.The Package Guide provides a tutorial explaining how to get started using Documenter.Some examples of packages using Documenter can be found on the Examples page.See the Index for the complete list of documented functions and types."
 },
 
 {
@@ -1021,7 +1021,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
+    "text": "getdocs(object, typesig; kws...)\ngetdocs(object)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n"
 },
 
 {
