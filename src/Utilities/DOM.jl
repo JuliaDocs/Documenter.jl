@@ -99,7 +99,7 @@ import ..Utilities
 using Compat
 
 if VERSION < v"0.5.0-dev"
-    const String = UTF8String
+    @eval const String = UTF8String
     tostr(p::Pair) = p[1] => utf8(p[2])
 else
     tostr(p::Pair) = p
