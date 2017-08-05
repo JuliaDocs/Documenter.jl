@@ -355,8 +355,8 @@ article section.docstring .docstring-category {
 }
 
 article section.docstring a.source-link {
-  float: left;
-  font-weight: bold;
+    display: block;
+    font-weight: bold;
 }
 
 .nav-anchor,
