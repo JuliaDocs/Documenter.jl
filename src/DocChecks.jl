@@ -257,7 +257,12 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         # Replace a standalone module name with `Main`.
         str = replace(str, Regex(string(sandbox)), "Main")
         output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
-        strip(str) == output || report(result, str, doc)
+        expected = strip(str)
+        if doc.user.ignore_pointers
+            expected = remove_pointers(expected)
+            output   = remove_pointers(output)
+        end
+        expected == output || report(result, str, doc)
     end
     return nothing
 end
@@ -282,6 +287,17 @@ function result_to_string(buf, value)
         eval(Expr(:call, display, dis, QuoteNode(value)))
     end
     sanitise(buf)
+end
+
+function remove_pointers(str)
+    if Sys.WORD_SIZE == 64
+        ptr_regex = r"@0x[0-9a-z]{16}"
+    elseif Sys.WORD_SIZE == 32
+        ptr_regex = r"@0x[0-9a-z]{8}"
+    else
+        error("cannot determine pointer size")
+    end
+    return replace(str, ptr_regex, "")
 end
 
 if VERSION < v"0.5.0-dev+4305"
