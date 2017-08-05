@@ -291,9 +291,9 @@ end
 
 function remove_pointers(str)
     if Sys.WORD_SIZE == 64
-        ptr_regex = r"@0x[0-9a-z]{16}"
+        ptr_regex = r"@0x[0-9a-f]{16}"
     elseif Sys.WORD_SIZE == 32
-        ptr_regex = r"@0x[0-9a-z]{8}"
+        ptr_regex = r"@0x[0-9a-f]{8}"
     else
         error("cannot determine pointer size")
     end
