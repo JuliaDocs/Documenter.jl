@@ -258,9 +258,9 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         str = replace(str, Regex(string(sandbox)), "Main")
         output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
         expected = strip(str)
-        if doc.user.ignore_pointers
-            expected = remove_pointers(expected)
-            output   = remove_pointers(output)
+        if !isnull(doc.user.pattern_ignore)
+            expected = replace(expected, get(doc.user.pattern_ignore), "")
+            output   = replace(output,   get(doc.user.pattern_ignore), "")
         end
         expected == output || report(result, str, doc)
     end
@@ -287,17 +287,6 @@ function result_to_string(buf, value)
         eval(Expr(:call, display, dis, QuoteNode(value)))
     end
     sanitise(buf)
-end
-
-function remove_pointers(str)
-    if Sys.WORD_SIZE == 64
-        ptr_regex = r"@0x[0-9a-f]{16}"
-    elseif Sys.WORD_SIZE == 32
-        ptr_regex = r"@0x[0-9a-f]{8}"
-    else
-        error("cannot determine pointer size")
-    end
-    return replace(str, ptr_regex, "")
 end
 
 if VERSION < v"0.5.0-dev+4305"
