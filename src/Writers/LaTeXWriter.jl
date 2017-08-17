@@ -16,7 +16,7 @@ import ...Documenter:
 using Compat
 
 
-type Context{I <: IO} <: IO
+mutable struct Context{I <: IO} <: IO
     io::I
     in_header::Bool
     footnotes::Dict{Compat.String, Int}
@@ -244,7 +244,7 @@ function latex(io::IO, content::Vector)
     end
 end
 
-function latex{N}(io::IO, h::Markdown.Header{N})
+function latex(io::IO, h::Markdown.Header{N}) where N
     local tag = DOCUMENT_STRUCTURE[min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))]
     _print(io, "\\", tag, "{")
     io.in_header = true
@@ -542,11 +542,11 @@ end
 
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))
 
-function files!{S <: AbstractString, T <: AbstractString}(out, p::Pair{S, T}, depth)
+function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: AbstractString}
     push!(out, (p.first, p.second, depth))
 end
 
-function files!{S <: AbstractString, V}(out, p::Pair{S, V}, depth)
+function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
     push!(out, (p.first, "", depth))
     files!(out, p.second, depth)
 end

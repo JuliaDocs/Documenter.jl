@@ -176,7 +176,7 @@ end
 
 # Doctest evaluation.
 
-type Result
+mutable struct Result
     code   :: Compat.String # The entire code block that is being tested.
     input  :: Compat.String # Part of `code` representing the current input.
     output :: Compat.String # Part of `code` representing the current expected output.
@@ -284,11 +284,7 @@ function result_to_string(buf, value)
     sanitise(buf)
 end
 
-if VERSION < v"0.5.0-dev+4305"
-    text_display(buf) = TextDisplay(buf)
-else
-    text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
-end
+text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
 
 funcsym() = CAN_INLINE[] ? :disable_color : :eval
 

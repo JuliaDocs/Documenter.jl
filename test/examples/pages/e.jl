@@ -24,9 +24,9 @@ g_3(x) = x
 export T_1
 
 "T_1"
-type T_1 end
+mutable struct T_1 end
 
 "T_2"
-type T_2 end
+mutable struct T_2 end
 
 end

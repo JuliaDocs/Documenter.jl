@@ -23,7 +23,7 @@ module Mod
 
     [`func(x)`](@ref)
     """
-    type T end
+    mutable struct T end
 end
 
 "`AutoDocs` module."
@@ -43,7 +43,7 @@ module AutoDocs
     const K = 1
 
     "Type `T`."
-    type T end
+    mutable struct T end
 
     "Macro `@m`."
     macro m() end
@@ -57,7 +57,7 @@ module AutoDocs
         const K = 1
 
         "Type `B.T`."
-        type T end
+        mutable struct T end
 
         "Macro `B.@m`."
         macro m() end
@@ -72,7 +72,7 @@ module AutoDocs
         const K = 1
 
         "Type `B.T`."
-        type T end
+        mutable struct T end
 
         "Macro `B.@m`."
         macro m() end
@@ -81,7 +81,7 @@ end
 
 module Issue398
 
-immutable TestType{T} end
+struct TestType{T} end
 
 function _show end
 Base.show(io::IO, t::TestType) = _show(io, t)
@@ -100,7 +100,7 @@ end # module
 
 module InlineSVG
 export SVG
-type SVG
+mutable struct SVG
     code :: String
 end
 Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)

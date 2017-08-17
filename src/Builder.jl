@@ -30,38 +30,38 @@ The default document processing "pipeline", which consists of the following acti
 - [`RenderDocument`](@ref)
 
 """
-@compat abstract type DocumentPipeline <: Selectors.AbstractSelector end
+abstract type DocumentPipeline <: Selectors.AbstractSelector end
 
 """
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
-@compat abstract type SetupBuildDirectory <: DocumentPipeline end
+abstract type SetupBuildDirectory <: DocumentPipeline end
 
 """
 Executes a sequence of actions on each node of the parsed markdown files in turn.
 """
-@compat abstract type ExpandTemplates <: DocumentPipeline end
+abstract type ExpandTemplates <: DocumentPipeline end
 
 """
 Finds and sets URLs for each `@ref` link in the document to the correct destinations.
 """
-@compat abstract type CrossReferences <: DocumentPipeline end
+abstract type CrossReferences <: DocumentPipeline end
 
 """
 Checks that all documented objects are included in the document and runs doctests on all
 valid Julia code blocks.
 """
-@compat abstract type CheckDocument <: DocumentPipeline end
+abstract type CheckDocument <: DocumentPipeline end
 
 """
 Populates the `ContentsNode`s and `IndexNode`s with links.
 """
-@compat abstract type Populate <: DocumentPipeline end
+abstract type Populate <: DocumentPipeline end
 
 """
 Writes the document tree to the `build` directory.
 """
-@compat abstract type RenderDocument <: DocumentPipeline end
+abstract type RenderDocument <: DocumentPipeline end
 
 Selectors.order(::Type{SetupBuildDirectory})   = 1.0
 Selectors.order(::Type{ExpandTemplates})       = 2.0
@@ -70,9 +70,9 @@ Selectors.order(::Type{CheckDocument})         = 4.0
 Selectors.order(::Type{Populate})              = 5.0
 Selectors.order(::Type{RenderDocument})        = 6.0
 
-Selectors.matcher{T <: DocumentPipeline}(::Type{T}, doc::Documents.Document) = true
+Selectors.matcher(::Type{T}, doc::Documents.Document) where {T <: DocumentPipeline} = true
 
-Selectors.strict{T <: DocumentPipeline}(::Type{T}) = false
+Selectors.strict(::Type{T}) where {T <: DocumentPipeline} = false
 
 function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     Utilities.log(doc, "setting up build directory.")

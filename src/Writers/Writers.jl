@@ -25,11 +25,11 @@ using Compat
 # Format selector definitions.
 #
 
-@compat abstract type FormatSelector <: Selectors.AbstractSelector end
+abstract type FormatSelector <: Selectors.AbstractSelector end
 
-@compat abstract type MarkdownFormat <: FormatSelector end
-@compat abstract type LaTeXFormat    <: FormatSelector end
-@compat abstract type HTMLFormat     <: FormatSelector end
+abstract type MarkdownFormat <: FormatSelector end
+abstract type LaTeXFormat    <: FormatSelector end
+abstract type HTMLFormat     <: FormatSelector end
 
 Selectors.order(::Type{MarkdownFormat}) = 1.0
 Selectors.order(::Type{LaTeXFormat})    = 2.0
