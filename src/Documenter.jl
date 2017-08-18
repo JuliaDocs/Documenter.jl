@@ -282,14 +282,12 @@ function makedocs(components...; debug = false, format = HTML(),
         )
     end
 
+    pages = copy_external(pages, root, source)
     document = Documents.Document(components; format=format, kwargs...)
-
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end
-    if !isempty(external_path)
-        rm(external_path; recursive = true)
-    end
+    rm(joinpath(root, source, external_dir); force = true, recursive = true)
     debug ? document : nothing
 end
 
@@ -842,8 +840,8 @@ end
     copy_external(pages ,root, source)
 
 Copy all external files in an array into a new directory inside the documentation source
-directory. Returns the directory in which they are stored if any files were copied, or
-an empty string otherwise.
+directory. Returns the array of pages, with any external paths replaced with their new
+paths inside the documentation source directory.
 """
 function copy_external(
     pages::Vector,
@@ -851,15 +849,19 @@ function copy_external(
     source::AbstractString,
 )
     external_path = joinpath(root, source, external_dir)
-    pages = filter(p -> isa(p.second, ExternalPage), pages)
-    if !isempty(pages)
-        Utilities.log("Copying $(length(pages)) external file(s) into $external_path")
-        mkpath(external_path)
+    mkpath(external_path)
+    for (i, page) in enumerate(pages)
+        if isa(page, ExternalPage)
+            dest = destination(page)
+            cp(page.path, joinpath(root, source, dest))
+            pages[i] = dest
+        elseif isa(page, Pair) && isa(page.second, ExternalPage)
+            dest = destination(page.second)
+            cp(page.second.path, joinpath(root, source, dest))
+            pages[i] = Pair(page.first, dest)
+        end
     end
-    for page in map(p -> p.second, pages)
-        cp(page.path, joinpath(root, source, destination(page)))
-    end
-    return isempty(pages) ? "" : external_path
+    return pages
 end
 
 end
