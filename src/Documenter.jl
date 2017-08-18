@@ -804,26 +804,43 @@ A file outside of the documentation directory.
 """
 immutable ExternalPage
     path::AbstractString
+    root::Nullable{AbstractString}
 end
 
 """
-    external(path, pkg_root)
+    external(path; root=nothing)
 
-Mark `pkg_root/path` as an external page. This allows us to use files outside of
-the documentation directory in [`makedocs`](@ref).
+Mark `path` as an external page. This allows us to use files outside of the documentation
+directory in [`makedocs`](@ref). If `root` is not set, then it will be assumed that
+the documentation directory (usually "docs/") is at the top level of the package
+repository, which covers almost all cases.
 
 # Usage
 ```julia
 makedocs(;
     ...,
     pages=[
-        "Home" => external("README.md", Pkg.dir("MyPkg")),
+        "Home" => external("README.md"),
     ],
 )
 ```
 """
-function external(path::AbstractString, pkg_root::AbstractString)
-    return ExternalPage(joinpath(pkg_root, path))
+function external(path::AbstractString; root::Union{AbstractString, Void} = nothing)
+    return ExternalPage(path, root)
+end
+
+"""
+    source(page, default)
+
+Return the absolute path to `page` by joining `page.path` to `page.root` if it is set,
+or a given default root path otherwise.
+"""
+function source(page::ExternalPage, default::AbstractString)
+    return try
+        joinpath(get(page.root), page.path)
+    catch
+        joinpath(default, page.path)
+    end
 end
 
 """
@@ -832,12 +849,10 @@ end
 Return `page`'s final destination in the documentation directory, relative to the
 root of the documentation directory.
 """
-function destination(page::ExternalPage)
-    return joinpath(external_dir, basename(page.path))
-end
+destination(page::ExternalPage) = joinpath(external_dir, page.path)
 
 """
-    copy_external(pages ,root, source)
+    copy_external(pages, root, source)
 
 Copy all external files in an array into a new directory inside the documentation source
 directory. Returns the array of pages, with any external paths replaced with their new
@@ -846,18 +861,21 @@ paths inside the documentation source directory.
 function copy_external(
     pages::Vector,
     root::AbstractString,
-    source::AbstractString,
+    src::AbstractString,
 )
-    external_path = joinpath(root, source, external_dir)
+    external_path = joinpath(root, src, external_dir)
     mkpath(external_path)
+    default = dirname(root)
     for (i, page) in enumerate(pages)
         if isa(page, ExternalPage)
             dest = destination(page)
-            cp(page.path, joinpath(root, source, dest))
+            mkpath(joinpath(root, src, dirname(dest)))
+            cp(source(page, default), joinpath(root, src, dest))
             pages[i] = dest
         elseif isa(page, Pair) && isa(page.second, ExternalPage)
             dest = destination(page.second)
-            cp(page.second.path, joinpath(root, source, dest))
+            mkpath(joinpath(root, src, dirname(dest)))
+            cp(source(page.second, default), joinpath(root, src, dest))
             pages[i] = Pair(page.first, dest)
         end
     end
