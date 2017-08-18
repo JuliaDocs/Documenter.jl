@@ -53,7 +53,8 @@ import .Writers.HTMLWriter: HTML
 # User Interface.
 # ---------------
 
-export Deps, makedocs, deploydocs, hide
+export Deps, makedocs, deploydocs, hide, external
+
 """
     makedocs(
         root    = "<current-directory>",
@@ -272,9 +273,22 @@ function makedocs(components...; debug = false, format = HTML(),
         format = overwrite.(format)
     end
 
+    if any(p -> isa(p.second, ExternalPage), pages)
+        external_path = copy_external(pages, root, source)
+        map!(
+            p -> isa(p.second, ExternalPage) ? (p.first => destination(p.second)) : p,
+            pages,
+            pages,
+        )
+    end
+
     document = Documents.Document(components; format=format, kwargs...)
+
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
+    end
+    if !isempty(external_path)
+        rm(external_path; recursive = true)
     end
     debug ? document : nothing
 end
@@ -785,4 +799,67 @@ function getenv(regex::Regex)
     error("could not find key/iv pair.")
 end
 
-end # module
+const external_dir = "DOCUMENTER_EXTERNAL"
+
+"""
+A file outside of the documentation directory.
+"""
+immutable ExternalPage
+    path::AbstractString
+end
+
+"""
+    external(path, pkg_root)
+
+Mark `pkg_root/path` as an external page. This allows us to use files outside of
+the documentation directory in [`makedocs`](@ref).
+
+# Usage
+```julia
+makedocs(;
+    ...,
+    pages=[
+        "Home" => external("README.md", Pkg.dir("MyPkg")),
+    ],
+)
+```
+"""
+function external(path::AbstractString, pkg_root::AbstractString)
+    return ExternalPage(joinpath(pkg_root, path))
+end
+
+"""
+    destination(page, root, source)
+
+Return `page`'s final destination in the documentation directory, relative to the
+root of the documentation directory.
+"""
+function destination(page::ExternalPage)
+    return joinpath(external_dir, basename(page.path))
+end
+
+"""
+    copy_external(pages ,root, source)
+
+Copy all external files in an array into a new directory inside the documentation source
+directory. Returns the directory in which they are stored if any files were copied, or
+an empty string otherwise.
+"""
+function copy_external(
+    pages::Vector,
+    root::AbstractString,
+    source::AbstractString,
+)
+    external_path = joinpath(root, source, external_dir)
+    pages = filter(p -> isa(p.second, ExternalPage), pages)
+    if !isempty(pages)
+        Utilities.log("Copying $(length(pages)) external file(s) into $external_path")
+        mkpath(external_path)
+    end
+    for page in map(p -> p.second, pages)
+        cp(page.path, joinpath(root, source, destination(page)))
+    end
+    return isempty(pages) ? "" : external_path
+end
+
+end
