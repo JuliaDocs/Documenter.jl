@@ -74,7 +74,7 @@ using Compat
             end
         end
 
-        @test length(doc.internal.objects) == 37
+        @test length(doc.internal.objects) == 38
     end
 
     @testset "HTML" begin
