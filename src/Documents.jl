@@ -24,7 +24,7 @@ import Compat: String
 """
 [`Page`](@ref)-local values such as current module that are shared between nodes in a page.
 """
-type Globals
+mutable struct Globals
     mod  :: Module
     meta :: Dict{Symbol, Any}
 end
@@ -33,7 +33,7 @@ Globals() = Globals(current_module(), Dict())
 """
 Represents a single markdown file.
 """
-immutable Page
+struct Page
     source   :: Compat.String
     build    :: Compat.String
     """
@@ -59,7 +59,7 @@ end
 
 ## IndexNode.
 
-immutable IndexNode
+struct IndexNode
     pages    :: Vector{String} # Which pages to include in the index? Set by user.
     modules  :: Vector{Module} # Which modules to include? Set by user.
     order    :: Vector{Symbol} # What order should docs be listed in? Set by user.
@@ -83,7 +83,7 @@ end
 
 ## ContentsNode.
 
-immutable ContentsNode
+struct ContentsNode
     pages    :: Vector{String} # Which pages should be included in contents? Set by user.
     depth    :: Int            # Down to which level should headers be displayed? Set by user.
     build    :: String         # Same as for `IndexNode`s.
@@ -103,36 +103,36 @@ end
 
 ## Other nodes
 
-immutable MetaNode
+struct MetaNode
     dict :: Dict{Symbol, Any}
 end
 
-immutable MethodNode
+struct MethodNode
     method  :: Method
     visible :: Bool
 end
 
-immutable DocsNode
+struct DocsNode
     docstr  :: Any
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
     page    :: Documents.Page
 end
 
-immutable DocsNodes
+struct DocsNodes
     nodes :: Vector{DocsNode}
 end
 
-immutable EvalNode
+struct EvalNode
     code   :: Base.Markdown.Code
     result :: Any
 end
 
-immutable RawHTML
+struct RawHTML
     code::String
 end
 
-immutable RawNode
+struct RawNode
     name::Symbol
     text::Compat.String
 end
@@ -144,7 +144,7 @@ end
 Element in the navigation tree of a document, containing navigation references
 to other page, reference to the [`Page`](@ref) object etc.
 """
-type NavNode
+mutable struct NavNode
     """
     `null` if the `NavNode` is a non-page node of the navigation tree, otherwise
     the string should be a valid key in `doc.internal.pages`
@@ -178,7 +178,7 @@ navpath(navnode::NavNode) = isnull(navnode.parent) ? [navnode] :
 """
 User-specified values used to control the generation process.
 """
-immutable User
+struct User
     root    :: Compat.String  # An absolute path to the root directory of the document.
     source  :: Compat.String  # Parent directory is `.root`. Where files are read from.
     build   :: Compat.String  # Parent directory is also `.root`. Where files are written to.
@@ -203,7 +203,7 @@ end
 """
 Private state used to control the generation process.
 """
-immutable Internal
+struct Internal
     assets  :: Compat.String             # Path where asset files will be copied to.
     remote  :: Compat.String             # The remote repo on github where this package is hosted.
     pages   :: Dict{Compat.String, Page} # Markdown files only.
@@ -225,7 +225,7 @@ end
 """
 Represents an entire document.
 """
-immutable Document
+struct Document
     user     :: User     # Set by the user via `makedocs`.
     internal :: Internal # Computed values.
 end

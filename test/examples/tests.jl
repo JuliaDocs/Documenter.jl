@@ -10,12 +10,7 @@ elseif current_module() !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
-if VERSION >= v"0.5.0-dev+7720"
-    using Base.Test
-else
-    using BaseTestNext
-    const Test = BaseTestNext
-end
+using Base.Test
 
 using Compat
 

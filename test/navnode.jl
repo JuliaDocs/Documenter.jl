@@ -1,22 +1,17 @@
 module NavNodeTests
 
-if VERSION >= v"0.5.0-dev+7720"
-    using Base.Test
-else
-    using BaseTestNext
-    const Test = BaseTestNext
-end
+using Base.Test
 
 using Compat
 import Documenter: Documents, Builder
 import Documenter.Documents: NavNode
 
-type FakeDocumentInternal
+mutable struct FakeDocumentInternal
     pages   :: Dict{Compat.String, Void}
     navlist :: Vector{NavNode}
     FakeDocumentInternal() = new(Dict(), [])
 end
-type FakeDocument
+mutable struct FakeDocument
     internal :: FakeDocumentInternal
     FakeDocument() = new(FakeDocumentInternal())
 end

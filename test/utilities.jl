@@ -1,11 +1,6 @@
 module UtilitiesTests
 
-if VERSION >= v"0.5.0-dev+7720"
-    using Base.Test
-else
-    using BaseTestNext
-    const Test = BaseTestNext
-end
+using Base.Test
 
 import Documenter
 
@@ -21,8 +16,8 @@ module UnitTests
         end
     end
 
-    type T end
-    type S{T} end
+    mutable struct T end
+    mutable struct S{T} end
 
     "Documenter unit tests."
     Base.length(::T) = 1

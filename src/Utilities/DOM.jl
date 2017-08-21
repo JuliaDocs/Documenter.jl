@@ -98,12 +98,7 @@ import ..Utilities
 
 using Compat
 
-if VERSION < v"0.5.0-dev"
-    const String = UTF8String
-    tostr(p::Pair) = p[1] => utf8(p[2])
-else
-    tostr(p::Pair) = p
-end
+tostr(p::Pair) = p
 
 export @tags
 
@@ -143,7 +138,7 @@ Represents a empty and attribute-less HTML element.
 Use [`@tags`](@ref) to define instances of this type rather than manually
 creating them via `Tag(:tagname)`.
 """
-immutable Tag
+struct Tag
     name :: Symbol
 end
 
@@ -182,7 +177,7 @@ children `Node`s, and attributes.
 This type should not be constructed directly, but instead via `(...)` and
 `[...]` applied to a [`Tag`](@ref) or another [`Node`](@ref) object.
 """
-immutable Node
+struct Node
     name :: Symbol
     text :: String
     attributes :: Attributes
@@ -195,8 +190,8 @@ end
 #
 # Syntax for defining `Node` objects from `Tag`s and other `Node` objects.
 #
-@compat (t::Tag)(args...) = Node(t.name, Attributes(), data(args))
-@compat (n::Node)(args...) = Node(n.name, n.attributes, data(args))
+(t::Tag)(args...) = Node(t.name, Attributes(), data(args))
+(n::Node)(args...) = Node(n.name, n.attributes, data(args))
 Base.getindex(t::Tag, args...) = Node(t.name, attr(args), Node[])
 Base.getindex(n::Node, args...) = Node(n.name, attr(args), n.nodes)
 
@@ -273,7 +268,7 @@ function Base.show(io::IO, n::Node)
     end
 end
 
-@compat Base.show(io::IO, ::MIME"text/html", n::Node) = print(io, n)
+Base.show(io::IO, ::MIME"text/html", n::Node) = print(io, n)
 
 """
 Escape characters in the provided string. This converts the following characters:
@@ -308,7 +303,7 @@ end
 A HTML node that wraps around the root node of the document and adds a DOCTYPE
 to it.
 """
-type HTMLDocument
+mutable struct HTMLDocument
     doctype :: String
     root    :: Node
 end

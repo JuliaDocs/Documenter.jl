@@ -21,7 +21,7 @@ Stores an arbitrary object called `.object` and it's location within a document.
 - `id`     -- the generated "slug" identifying the object.
 - `nth`    -- integer that unique-ifies anchors with the same `id`.
 """
-type Anchor
+mutable struct Anchor
     object :: Any
     order  :: Int
     file   :: Compat.String
@@ -39,7 +39,7 @@ Tree structure representating anchors in a document and their relationships with
 
 Each `id` maps to a `file` which in turn maps to a vector of `Anchor` objects.
 """
-type AnchorMap
+mutable struct AnchorMap
     map   :: Dict{Compat.String, Dict{Compat.String, Vector{Anchor}}}
     count :: Int
     AnchorMap() = new(Dict(), 0)
