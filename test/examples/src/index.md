@@ -122,18 +122,18 @@ julia> a + 1
 # Sanitise module names
 
 ```jldoctest
-julia> type T end
+julia> mutable struct T end
 
 julia> t = T()
 T()
 
-julia> fullname(current_module())
+julia> fullname(@__MODULE__)
 ()
 
 julia> fullname(Base.Pkg)
-(:Base,:Pkg)
+(:Base, :Pkg)
 
-julia> current_module()
+julia> @__MODULE__
 Main
 ```
 

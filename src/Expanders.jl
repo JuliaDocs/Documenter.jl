@@ -230,7 +230,7 @@ function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
-                meta[ex.args[1]] = eval(current_module(), ex.args[2])
+                meta[ex.args[1]] = eval(@__MODULE__(), ex.args[2])
             catch err
                 push!(doc.internal.errors, :meta_block)
                 Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@meta` block.", err)
@@ -246,7 +246,7 @@ end
 function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     failed = false
     nodes  = DocsNode[]
-    curmod = get(page.globals.meta, :CurrentModule, current_module())
+    curmod = get(page.globals.meta, :CurrentModule, @__MODULE__())
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         local binding = try
             Documenter.DocSystem.binding(curmod, ex)
@@ -316,7 +316,7 @@ end
 const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 
 function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
-    curmod = get(page.globals.meta, :CurrentModule, current_module())
+    curmod = get(page.globals.meta, :CurrentModule, @__MODULE__())
     fields = Dict{Symbol, Any}()
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)

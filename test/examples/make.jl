@@ -7,7 +7,7 @@
 isdefined(:examples_root) && error("examples_root is already defined\n$(@__FILE__) included multiple times?")
 
 # The `Mod` and `AutoDocs` modules are assumed to exists in the Main module.
-current_module() === Main || error("$(@__FILE__) must be included into Main.")
+@__MODULE__() === Main || error("$(@__FILE__) must be included into Main.")
 
 # Modules `Mod` and `AutoDocs`
 module Mod
