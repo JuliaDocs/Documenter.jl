@@ -232,7 +232,7 @@ function splitexpr(x::Expr)
     isexpr(x, :.)         ? (x.args[1], x.args[2]) :
     error("Invalid @var syntax `$x`.")
 end
-splitexpr(s::Symbol) = :(current_module()), quot(s)
+splitexpr(s::Symbol) = :(@__MODULE__()), quot(s)
 splitexpr(other)     = error("Invalid @var syntax `$other`.")
 
 """
@@ -407,7 +407,7 @@ Check if we're running under cygwin. Useful when we need to translate cygwin pat
 windows paths.
 """
 function in_cygwin()
-    if is_windows()
+    if Sys.iswindows()
         try
             return success(`cygpath -h`)
         catch

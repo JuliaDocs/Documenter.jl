@@ -28,7 +28,7 @@ type Globals
     mod  :: Module
     meta :: Dict{Symbol, Any}
 end
-Globals() = Globals(current_module(), Dict())
+Globals() = Globals(@__MODULE__(), Dict())
 
 """
 Represents a single markdown file.
@@ -376,7 +376,7 @@ end
 ## Utilities.
 
 function buildnode(T::Type, block, doc, page)
-    mod  = get(page.globals.meta, :CurrentModule, current_module())
+    mod  = get(page.globals.meta, :CurrentModule, @__MODULE__())
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
     for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)

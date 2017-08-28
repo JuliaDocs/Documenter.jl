@@ -127,7 +127,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
             return
         end
     end
-    local mod = get(meta, :CurrentModule, current_module())
+    local mod = get(meta, :CurrentModule, @__MODULE__())
 
     # Find binding and type signature associated with the link.
     local binding

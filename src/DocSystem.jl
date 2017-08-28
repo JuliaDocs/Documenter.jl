@@ -31,18 +31,18 @@ binding(any::Any) = throw(ArgumentError("cannot convert `$any` to a `Binding`.")
 binding(b::Docs.Binding) = binding(b.mod, b.var)
 binding(d::DataType)     = binding(d.name.module, d.name.name)
 binding(m::Module)       = binding(m, module_name(m))
-binding(s::Symbol)       = binding(current_module(), s)
+binding(s::Symbol)       = binding(@__MODULE__(), s)
 
 #
 # In `0.4` some functions aren't generic, hence the `isgeneric` check here.
-# We punt on using `current_module` in when not generic, which may cause
+# We punt on using `@__MODULE__` in when not generic, which may cause
 # trouble when calling this function with a qualified name.
 #
 if VERSION < v"0.5.0-dev"
     binding(f::Function) =
         isgeneric(f) ?
             binding(f.env.module, f.env.name) :
-            binding(current_module(), f.env)
+            binding(@__MODULE__(), f.env)
 else
     binding(f::Function) = binding(typeof(f).name.module, typeof(f).name.mt.name)
 end

@@ -135,7 +135,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         local sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
         local sandbox = get!(page.globals.meta, sym) do
             newmod = Module(sym)
-            eval(newmod, :(eval(x) = Core.eval(current_module(), x)))
+            eval(newmod, :(eval(x) = Core.eval(@__MODULE__(), x)))
             eval(newmod, :(eval(m, x) = Core.eval(m, x)))
             newmod
         end
