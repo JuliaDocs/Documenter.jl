@@ -7,7 +7,7 @@ import Documenter: Documents, Builder
 import Documenter.Documents: NavNode
 
 mutable struct FakeDocumentInternal
-    pages   :: Dict{Compat.String, Void}
+    pages   :: Dict{String, Void}
     navlist :: Vector{NavNode}
     FakeDocumentInternal() = new(Dict(), [])
 end

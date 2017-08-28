@@ -95,7 +95,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # over as well, since they're assumed to be images, data files etc.
     # Markdown files, however, get added to the document and also stored into
     # `mdpages`, to be used later.
-    mdpages = Compat.String[]
+    mdpages = String[]
     for (root, dirs, files) in walkdir(source)
         for dir in dirs
             d = normpath(joinpath(build, relpath(root, source), dir))
@@ -165,12 +165,12 @@ function walk_navpages(hps::Tuple, parent, doc)
     walk_navpages(hps..., parent, doc)
 end
 
-walk_navpages(title::Compat.String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
-walk_navpages(title::Compat.String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
+walk_navpages(title::String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
+walk_navpages(title::String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
 
 walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
 walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
-walk_navpages(src::Compat.String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
+walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 
 function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)

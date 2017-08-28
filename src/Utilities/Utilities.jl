@@ -418,9 +418,9 @@ function url(repo, file)
         _, path = split(file, root; limit = 2)
         repo = replace(repo, "{commit}", commit)
         repo = replace(repo, "{path}", path)
-        Nullable{Compat.String}(repo)
+        Nullable{String}(repo)
     else
-        Nullable{Compat.String}()
+        Nullable{String}()
     end
 end
 
@@ -429,7 +429,7 @@ url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], l
 # Correct file and line info only available from this version onwards.
 function url(remote, repo, mod, file, linerange)
     remote = getremote(dirname(file))
-    isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
+    isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{String}()
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
     # Format the line range.
@@ -440,7 +440,7 @@ function url(remote, repo, mod, file, linerange)
     if inbase(mod) || !isabspath(file)
         base = "https://github.com/JuliaLang/julia/tree"
         dest = "base/$file#$line"
-        Nullable{Compat.String}(
+        Nullable{String}(
             if isempty(Base.GIT_VERSION_INFO.commit)
                 "$base/v$VERSION/$dest"
             else
@@ -464,9 +464,9 @@ function url(remote, repo, mod, file, linerange)
             repo = replace(repo, "{commit}", commit)
             repo = replace(repo, "{path}", path)
             repo = replace(repo, "{line}", line)
-            Nullable{Compat.String}(repo)
+            Nullable{String}(repo)
         else
-            Nullable{Compat.String}()
+            Nullable{String}()
         end
     end
 end
@@ -579,7 +579,7 @@ function withoutput(f)
             append!(output, readavailable(pipe))
             close(pipe)
         end
-    return result, success, backtrace, chomp(Compat.String(output))
+    return result, success, backtrace, chomp(String(output))
 end
 
 

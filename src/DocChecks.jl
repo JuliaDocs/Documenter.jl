@@ -177,10 +177,10 @@ end
 # Doctest evaluation.
 
 mutable struct Result
-    code   :: Compat.String # The entire code block that is being tested.
-    input  :: Compat.String # Part of `code` representing the current input.
-    output :: Compat.String # Part of `code` representing the current expected output.
-    file   :: Compat.String # File in which the doctest is written. Either `.md` or `.jl`.
+    code   :: String # The entire code block that is being tested.
+    input  :: String # Part of `code` representing the current input.
+    output :: String # Part of `code` representing the current expected output.
+    file   :: String # File in which the doctest is written. Either `.md` or `.jl`.
     value  :: Any        # The value returned when evaluating `input`.
     hide   :: Bool       # Semi-colon suppressing the output?
     stdout :: IOBuffer   # Redirected STDOUT/STDERR gets sent here.
@@ -368,8 +368,8 @@ const SOURCE_REGEX = r"^       (.*)$"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
-    input  = Compat.String[]
-    output = Compat.String[]
+    input  = String[]
+    output = String[]
     buffer = IOBuffer()
     while !isempty(lines)
         line = shift!(lines)
@@ -422,10 +422,10 @@ if isdefined(Base.Markdown, :Footnote)
         #
         # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
         # footnote references and a single footnote body.
-        local footnotes = Dict{Documents.Page, Dict{Compat.String, Tuple{Int, Int}}}()
+        local footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
         for (src, page) in doc.internal.pages
             empty!(page.globals.meta)
-            local orphans = Dict{Compat.String, Tuple{Int, Int}}()
+            local orphans = Dict{String, Tuple{Int, Int}}()
             for element in page.elements
                 Walkers.walk(page.globals.meta, page.mapping[element]) do block
                     footnote(block, orphans)

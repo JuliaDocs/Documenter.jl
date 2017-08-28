@@ -19,7 +19,7 @@ using Compat
 mutable struct Context{I <: IO} <: IO
     io::I
     in_header::Bool
-    footnotes::Dict{Compat.String, Int}
+    footnotes::Dict{String, Int}
     depth::Int
     filename::String # currently active source file
 end
@@ -551,6 +551,6 @@ function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
     files!(out, p.second, depth)
 end
 
-files(v::Vector) = files!(Tuple{Compat.String, Compat.String, Int}[], v, 0)
+files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)
 
 end

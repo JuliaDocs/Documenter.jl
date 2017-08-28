@@ -24,8 +24,8 @@ Stores an arbitrary object called `.object` and it's location within a document.
 mutable struct Anchor
     object :: Any
     order  :: Int
-    file   :: Compat.String
-    id     :: Compat.String
+    file   :: String
+    id     :: String
     nth    :: Int
     Anchor(object) = new(object, 0, "", "", 1)
 end
@@ -40,7 +40,7 @@ Tree structure representating anchors in a document and their relationships with
 Each `id` maps to a `file` which in turn maps to a vector of `Anchor` objects.
 """
 mutable struct AnchorMap
-    map   :: Dict{Compat.String, Dict{Compat.String, Vector{Anchor}}}
+    map   :: Dict{String, Dict{String, Vector{Anchor}}}
     count :: Int
     AnchorMap() = new(Dict(), 0)
 end
@@ -57,7 +57,7 @@ Either an actual [`Anchor`](@ref) object may be provided or any other object whi
 automatically wrapped in an [`Anchor`](@ref) before being added to the [`AnchorMap`](@ref).
 """
 function add!(m::AnchorMap, anchor::Anchor, id, file)
-    filemap = get!(m.map, id, Dict{Compat.String, Vector{Anchor}}())
+    filemap = get!(m.map, id, Dict{String, Vector{Anchor}}())
     anchors = get!(filemap, file, Anchor[])
     push!(anchors, anchor)
     anchor.order = m.count += 1

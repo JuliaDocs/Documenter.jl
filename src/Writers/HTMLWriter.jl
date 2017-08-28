@@ -75,14 +75,14 @@ other recursive functions.
 """
 mutable struct HTMLContext
     doc :: Documents.Document
-    logo :: Compat.String
-    scripts :: Vector{Compat.String}
-    documenter_js :: Compat.String
-    search_js :: Compat.String
+    logo :: String
+    scripts :: Vector{String}
+    documenter_js :: String
+    search_js :: String
     search_index :: IOBuffer
-    search_index_js :: Compat.String
+    search_index_js :: String
     search_navnode :: Documents.NavNode
-    local_assets :: Vector{Compat.String}
+    local_assets :: Vector{String}
 end
 HTMLContext(doc) = HTMLContext(doc, "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
 
@@ -477,12 +477,12 @@ end
 
 mutable struct SearchIndexBuffer
     ctx :: HTMLContext
-    src :: Compat.String
+    src :: String
     page :: Documents.Page
-    loc :: Compat.String
+    loc :: String
     category :: Symbol
-    title :: Compat.String
-    page_title :: Compat.String
+    title :: String
+    page_title :: String
     buffer :: IOBuffer
     function SearchIndexBuffer(ctx, navnode)
         page_title = mdflatten(pagetitle(ctx, navnode))
