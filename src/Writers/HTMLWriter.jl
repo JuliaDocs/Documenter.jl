@@ -632,7 +632,7 @@ function domify(ctx, navnode, node::Documents.DocsNode)
 end
 
 function domify_doc(ctx, navnode, md::Markdown.MD)
-    @tags a br
+    @tags a
     if haskey(md.meta, :results)
         # The `:results` field contains a vector of `Docs.DocStr` objects associated with
         # each markdown object. The `DocStr` contains data such as file and line info that
@@ -643,7 +643,6 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             # When a source link is available then print the link.
             Utilities.unwrap(Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)) do url
                 push!(ret, a[".source-link", :target=>"_blank", :href=>url]("source"))
-                push!(ret, br())
             end
             ret
         end
