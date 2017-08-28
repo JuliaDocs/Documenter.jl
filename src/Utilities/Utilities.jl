@@ -426,7 +426,6 @@ end
 
 url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
 
-# Correct file and line info only available from this version onwards.
 function url(remote, repo, mod, file, linerange)
     remote = getremote(dirname(file))
     isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{String}()
