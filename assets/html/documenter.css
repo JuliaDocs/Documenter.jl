@@ -49,6 +49,12 @@ body {
 h1 {
     font-size: 1.75em;
 }
+
+/* Unless the <h1> the is very first thing on the page (i.e. the second element
+ * in the <article>, * after the <header>, we add some additional styling to it
+ * to make it stand out a bit more. This way we get a reasonable fallback if CSS3
+ * selectors are not supported in the browser.
+ */
 article > h1:not(:nth-child(2)) {
     margin: 2.5em 0 0;
     padding-bottom: 0.30em;
@@ -69,7 +75,8 @@ h5 { font-size: 1.10em; }
 h6 { font-size: 1em; }
 
 h4, h5, h6 {
-    margin: 1em 0;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
 }
 
 img {
