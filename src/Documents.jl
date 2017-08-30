@@ -24,7 +24,7 @@ import Compat: String
 """
 [`Page`](@ref)-local values such as current module that are shared between nodes in a page.
 """
-type Globals
+mutable struct Globals
     mod  :: Module
     meta :: Dict{Symbol, Any}
 end
@@ -33,9 +33,9 @@ Globals() = Globals(current_module(), Dict())
 """
 Represents a single markdown file.
 """
-immutable Page
-    source   :: Compat.String
-    build    :: Compat.String
+struct Page
+    source   :: String
+    build    :: String
     """
     Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
     should be considered immutable.
@@ -59,7 +59,7 @@ end
 
 ## IndexNode.
 
-immutable IndexNode
+struct IndexNode
     pages    :: Vector{String} # Which pages to include in the index? Set by user.
     modules  :: Vector{Module} # Which modules to include? Set by user.
     order    :: Vector{Symbol} # What order should docs be listed in? Set by user.
@@ -83,7 +83,7 @@ end
 
 ## ContentsNode.
 
-immutable ContentsNode
+struct ContentsNode
     pages    :: Vector{String} # Which pages should be included in contents? Set by user.
     depth    :: Int            # Down to which level should headers be displayed? Set by user.
     build    :: String         # Same as for `IndexNode`s.
@@ -103,38 +103,38 @@ end
 
 ## Other nodes
 
-immutable MetaNode
+struct MetaNode
     dict :: Dict{Symbol, Any}
 end
 
-immutable MethodNode
+struct MethodNode
     method  :: Method
     visible :: Bool
 end
 
-immutable DocsNode
+struct DocsNode
     docstr  :: Any
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
     page    :: Documents.Page
 end
 
-immutable DocsNodes
+struct DocsNodes
     nodes :: Vector{DocsNode}
 end
 
-immutable EvalNode
+struct EvalNode
     code   :: Base.Markdown.Code
     result :: Any
 end
 
-immutable RawHTML
+struct RawHTML
     code::String
 end
 
-immutable RawNode
+struct RawNode
     name::Symbol
-    text::Compat.String
+    text::String
 end
 
 # Navigation
@@ -144,17 +144,17 @@ end
 Element in the navigation tree of a document, containing navigation references
 to other page, reference to the [`Page`](@ref) object etc.
 """
-type NavNode
+mutable struct NavNode
     """
     `null` if the `NavNode` is a non-page node of the navigation tree, otherwise
     the string should be a valid key in `doc.internal.pages`
     """
-    page           :: Nullable{Compat.String}
+    page           :: Nullable{String}
     """
     If not `null`, specifies the text that should be displayed in navigation
     links etc. instead of the automatically determined text.
     """
-    title_override :: Nullable{Compat.String}
+    title_override :: Nullable{String}
     parent         :: Nullable{NavNode}
     children       :: Vector{NavNode}
     visible        :: Bool
@@ -178,10 +178,10 @@ navpath(navnode::NavNode) = isnull(navnode.parent) ? [navnode] :
 """
 User-specified values used to control the generation process.
 """
-immutable User
-    root    :: Compat.String  # An absolute path to the root directory of the document.
-    source  :: Compat.String  # Parent directory is `.root`. Where files are read from.
-    build   :: Compat.String  # Parent directory is also `.root`. Where files are written to.
+struct User
+    root    :: String  # An absolute path to the root directory of the document.
+    source  :: String  # Parent directory is `.root`. Where files are read from.
+    build   :: String  # Parent directory is also `.root`. Where files are written to.
     format  :: Vector{Symbol} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Bool           # Run doctests?
@@ -191,22 +191,22 @@ immutable User
     strict::Bool              # Throw an exception when any warnings are encountered.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
-    assets  :: Vector{Compat.String}
-    repo    :: Compat.String  # Template for URL to source code repo
-    sitename:: Compat.String
-    authors :: Compat.String
-    analytics::Compat.String
-    version :: Compat.String # version string used in the version selector by default
+    assets  :: Vector{String}
+    repo    :: String  # Template for URL to source code repo
+    sitename:: String
+    authors :: String
+    analytics::String
+    version :: String # version string used in the version selector by default
     html_prettyurls :: Bool # Use pretty URLs in the HTML build?
 end
 
 """
 Private state used to control the generation process.
 """
-immutable Internal
-    assets  :: Compat.String             # Path where asset files will be copied to.
-    remote  :: Compat.String             # The remote repo on github where this package is hosted.
-    pages   :: Dict{Compat.String, Page} # Markdown files only.
+struct Internal
+    assets  :: String             # Path where asset files will be copied to.
+    remote  :: String             # The remote repo on github where this package is hosted.
+    pages   :: Dict{String, Page} # Markdown files only.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
@@ -215,7 +215,7 @@ immutable Internal
     objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
-    locallinks :: Dict{Base.Markdown.Link, Compat.String}
+    locallinks :: Dict{Base.Markdown.Link, String}
     errors::Set{Symbol}
 end
 
@@ -225,7 +225,7 @@ end
 """
 Represents an entire document.
 """
-immutable Document
+struct Document
     user     :: User     # Set by the user via `makedocs`.
     internal :: Internal # Computed values.
 end
@@ -243,7 +243,7 @@ function Document(;
         strict::Bool                 = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
-        assets   :: Vector           = Compat.String[],
+        assets   :: Vector           = String[],
         repo     :: AbstractString   = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
@@ -285,7 +285,7 @@ function Document(;
     internal = Internal(
         Utilities.assetsdir(),
         Utilities.getremote(root),
-        Dict{Compat.String, Page}(),
+        Dict{String, Page}(),
         [],
         [],
         Anchors.AnchorMap(),
@@ -294,7 +294,7 @@ function Document(;
         ObjectIdDict(),
         [],
         [],
-        Dict{Base.Markdown.Link, Compat.String}(),
+        Dict{Base.Markdown.Link, String}(),
         Set{Symbol}(),
     )
     Document(user, internal)

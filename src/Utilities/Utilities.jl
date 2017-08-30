@@ -206,18 +206,11 @@ end
 
 import Base.Docs: Binding
 
-if VERSION < v"0.5.0-dev"
-    @eval function Base.call(::Type{Binding}, m::Module, v::Symbol)
-        m = module_name(m) === v ? module_parent(m) : m
-        m = Base.binding_module(m, v)
-        $(Expr(:new, :Binding, :m, :v))
-    end
-end
 
 """
 Represents an object stored in the docsystem by its binding and signature.
 """
-immutable Object
+struct Object
     binding   :: Binding
     signature :: Type
 
@@ -274,15 +267,9 @@ Returns an expression that, when evaluated, returns the docstrings associated wi
 function docs end
 
 # Macro representation changed between 0.4 and 0.5.
-if VERSION < v"0.5-"
-    function docs(ex::Union{Symbol, Expr}, str::AbstractString)
-        :(Base.Docs.@doc $ex)
-    end
-else
-    function docs(ex::Union{Symbol, Expr}, str::AbstractString)
-        isexpr(ex, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(rstrip(str), "()") && (ex = quot(ex))
-        :(Base.Docs.@doc $ex)
-    end
+function docs(ex::Union{Symbol, Expr}, str::AbstractString)
+    isexpr(ex, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(rstrip(str), "()") && (ex = quot(ex))
+    :(Base.Docs.@doc $ex)
 end
 docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
 
@@ -362,13 +349,9 @@ Does the given docstring represent actual documentation or a no docs error messa
 nodocs(x)      = contains(stringmime("text/plain", x), "No documentation found.")
 nodocs(::Void) = false
 
-header_level{N}(::Markdown.Header{N}) = N
+header_level(::Markdown.Header{N}) where {N} = N
 
-if VERSION < v"0.6.0-dev.1254"
-    takebuf_str(b) = takebuf_string(b)
-else
-    takebuf_str(b) = String(take!(b))
-end
+takebuf_str(b) = String(take!(b))
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
 #
@@ -435,63 +418,56 @@ function url(repo, file)
         _, path = split(file, root; limit = 2)
         repo = replace(repo, "{commit}", commit)
         repo = replace(repo, "{path}", path)
-        Nullable{Compat.String}(repo)
+        Nullable{String}(repo)
     else
-        Nullable{Compat.String}()
+        Nullable{String}()
     end
 end
 
 url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
 
-# Correct file and line info only available from this version onwards.
-if VERSION >= v"0.5.0-dev+3442"
-    function url(remote, repo, mod, file, linerange)
-        remote = getremote(dirname(file))
-        isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
-        # Replace any backslashes in links, if building the docs on Windows
-        file = replace(file, '\\', '/')
-        # Format the line range.
-        line = format_line(linerange)
-        # Macro-generated methods such as those produced by `@deprecate` list their file as
-        # `deprecated.jl` since that is where the macro is defined. Use that to help
-        # determine the correct URL.
-        if inbase(mod) || !isabspath(file)
-            base = "https://github.com/JuliaLang/julia/tree"
-            dest = "base/$file#$line"
-            Nullable{Compat.String}(
-                if isempty(Base.GIT_VERSION_INFO.commit)
-                    "$base/v$VERSION/$dest"
-                else
-                    commit = Base.GIT_VERSION_INFO.commit
-                    "$base/$commit/$dest"
-                end
-            )
-        else
-            commit, root = cd(dirname(file)) do
-                toplevel = readchomp(`git rev-parse --show-toplevel`)
-                if in_cygwin()
-                    toplevel = readchomp(`cygpath -m "$toplevel"`)
-                end
-                readchomp(`git rev-parse HEAD`), toplevel
-            end
-            if startswith(file, root)
-                if isempty(repo)
-                    repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
-                end
-
-                _, path = split(file, root; limit = 2)
-                repo = replace(repo, "{commit}", commit)
-                repo = replace(repo, "{path}", path)
-                repo = replace(repo, "{line}", line)
-
-                Nullable{Compat.String}(repo)
+function url(remote, repo, mod, file, linerange)
+    remote = getremote(dirname(file))
+    isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{String}()
+    # Replace any backslashes in links, if building the docs on Windows
+    file = replace(file, '\\', '/')
+    # Format the line range.
+    line = format_line(linerange)
+    # Macro-generated methods such as those produced by `@deprecate` list their file as
+    # `deprecated.jl` since that is where the macro is defined. Use that to help
+    # determine the correct URL.
+    if inbase(mod) || !isabspath(file)
+        base = "https://github.com/JuliaLang/julia/tree"
+        dest = "base/$file#$line"
+        Nullable{String}(
+            if isempty(Base.GIT_VERSION_INFO.commit)
+                "$base/v$VERSION/$dest"
             else
-                Nullable{Compat.String}()
+                commit = Base.GIT_VERSION_INFO.commit
+                "$base/$commit/$dest"
             end
+        )
+    else
+        commit, root = cd(dirname(file)) do
+            toplevel = readchomp(`git rev-parse --show-toplevel`)
+            if in_cygwin()
+                toplevel = readchomp(`cygpath -m "$toplevel"`)
+            end
+            readchomp(`git rev-parse HEAD`), toplevel
+        end
+        if startswith(file, root)
+            if isempty(repo)
+                repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
+            end
+            _, path = split(file, root; limit = 2)
+            repo = replace(repo, "{commit}", commit)
+            repo = replace(repo, "{path}", path)
+            repo = replace(repo, "{line}", line)
+            Nullable{String}(repo)
+        else
+            Nullable{String}()
         end
     end
-else
-    url(remote, repo, mod, file, line) = Nullable{Compat.String}()
 end
 
 function getremote(dir::AbstractString)
@@ -602,7 +578,7 @@ function withoutput(f)
             append!(output, readavailable(pipe))
             close(pipe)
         end
-    return result, success, backtrace, chomp(Compat.String(output))
+    return result, success, backtrace, chomp(String(output))
 end
 
 

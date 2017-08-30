@@ -73,16 +73,16 @@ const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1
 [`HTMLWriter`](@ref)-specific globals that are passed to [`domify`](@ref) and
 other recursive functions.
 """
-type HTMLContext
+mutable struct HTMLContext
     doc :: Documents.Document
-    logo :: Compat.String
-    scripts :: Vector{Compat.String}
-    documenter_js :: Compat.String
-    search_js :: Compat.String
+    logo :: String
+    scripts :: Vector{String}
+    documenter_js :: String
+    search_js :: String
     search_index :: IOBuffer
-    search_index_js :: Compat.String
+    search_index_js :: String
     search_navnode :: Documents.NavNode
-    local_assets :: Vector{Compat.String}
+    local_assets :: Vector{String}
 end
 HTMLContext(doc) = HTMLContext(doc, "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
 
@@ -475,14 +475,14 @@ function domify(ctx, navnode)
     ret
 end
 
-type SearchIndexBuffer
+mutable struct SearchIndexBuffer
     ctx :: HTMLContext
-    src :: Compat.String
+    src :: String
     page :: Documents.Page
-    loc :: Compat.String
+    loc :: String
     category :: Symbol
-    title :: Compat.String
-    page_title :: Compat.String
+    title :: String
+    page_title :: String
     buffer :: IOBuffer
     function SearchIndexBuffer(ctx, navnode)
         page_title = mdflatten(pagetitle(ctx, navnode))
@@ -551,7 +551,7 @@ function domify(ctx, navnode, anchor::Anchors.Anchor)
 end
 
 
-immutable ListBuilder
+struct ListBuilder
     es::Vector
 end
 ListBuilder() = ListBuilder([])
@@ -830,7 +830,7 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
 
-mdconvert{N}(h::Markdown.Header{N}, parent; kwargs...) = DOM.Tag(Symbol("h$N"))(mdconvert(h.text, h; kwargs...))
+mdconvert(h::Markdown.Header{N}, parent; kwargs...) where {N} = DOM.Tag(Symbol("h$N"))(mdconvert(h.text, h; kwargs...))
 
 mdconvert(::Markdown.HorizontalRule, parent; kwargs...) = Tag(:hr)()
 

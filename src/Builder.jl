@@ -30,38 +30,38 @@ The default document processing "pipeline", which consists of the following acti
 - [`RenderDocument`](@ref)
 
 """
-@compat abstract type DocumentPipeline <: Selectors.AbstractSelector end
+abstract type DocumentPipeline <: Selectors.AbstractSelector end
 
 """
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
-@compat abstract type SetupBuildDirectory <: DocumentPipeline end
+abstract type SetupBuildDirectory <: DocumentPipeline end
 
 """
 Executes a sequence of actions on each node of the parsed markdown files in turn.
 """
-@compat abstract type ExpandTemplates <: DocumentPipeline end
+abstract type ExpandTemplates <: DocumentPipeline end
 
 """
 Finds and sets URLs for each `@ref` link in the document to the correct destinations.
 """
-@compat abstract type CrossReferences <: DocumentPipeline end
+abstract type CrossReferences <: DocumentPipeline end
 
 """
 Checks that all documented objects are included in the document and runs doctests on all
 valid Julia code blocks.
 """
-@compat abstract type CheckDocument <: DocumentPipeline end
+abstract type CheckDocument <: DocumentPipeline end
 
 """
 Populates the `ContentsNode`s and `IndexNode`s with links.
 """
-@compat abstract type Populate <: DocumentPipeline end
+abstract type Populate <: DocumentPipeline end
 
 """
 Writes the document tree to the `build` directory.
 """
-@compat abstract type RenderDocument <: DocumentPipeline end
+abstract type RenderDocument <: DocumentPipeline end
 
 Selectors.order(::Type{SetupBuildDirectory})   = 1.0
 Selectors.order(::Type{ExpandTemplates})       = 2.0
@@ -70,9 +70,9 @@ Selectors.order(::Type{CheckDocument})         = 4.0
 Selectors.order(::Type{Populate})              = 5.0
 Selectors.order(::Type{RenderDocument})        = 6.0
 
-Selectors.matcher{T <: DocumentPipeline}(::Type{T}, doc::Documents.Document) = true
+Selectors.matcher(::Type{T}, doc::Documents.Document) where {T <: DocumentPipeline} = true
 
-Selectors.strict{T <: DocumentPipeline}(::Type{T}) = false
+Selectors.strict(::Type{T}) where {T <: DocumentPipeline} = false
 
 function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     Utilities.log(doc, "setting up build directory.")
@@ -95,7 +95,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # over as well, since they're assumed to be images, data files etc.
     # Markdown files, however, get added to the document and also stored into
     # `mdpages`, to be used later.
-    mdpages = Compat.String[]
+    mdpages = String[]
     for (root, dirs, files) in walkdir(source)
         for dir in dirs
             d = normpath(joinpath(build, relpath(root, source), dir))
@@ -165,12 +165,12 @@ function walk_navpages(hps::Tuple, parent, doc)
     walk_navpages(hps..., parent, doc)
 end
 
-walk_navpages(title::Compat.String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
-walk_navpages(title::Compat.String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
+walk_navpages(title::String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
+walk_navpages(title::String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
 
 walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
 walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
-walk_navpages(src::Compat.String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
+walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 
 function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)

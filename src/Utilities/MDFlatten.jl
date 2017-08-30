@@ -40,7 +40,7 @@ function mdflatten(io, vec::Vector, parent::MD)
 end
 
 # Block level MD nodes
-mdflatten{N}(io, h::Header{N}, parent) = mdflatten(io, h.text, h)
+mdflatten(io, h::Header{N}, parent) where {N} = mdflatten(io, h.text, h)
 mdflatten(io, p::Paragraph, parent) = mdflatten(io, p.content, p)
 mdflatten(io, bq::BlockQuote, parent) = mdflatten(io, bq.content, bq)
 mdflatten(io, ::HorizontalRule, parent) = nothing

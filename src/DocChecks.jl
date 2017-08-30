@@ -176,11 +176,11 @@ end
 
 # Doctest evaluation.
 
-type Result
-    code   :: Compat.String # The entire code block that is being tested.
-    input  :: Compat.String # Part of `code` representing the current input.
-    output :: Compat.String # Part of `code` representing the current expected output.
-    file   :: Compat.String # File in which the doctest is written. Either `.md` or `.jl`.
+mutable struct Result
+    code   :: String # The entire code block that is being tested.
+    input  :: String # Part of `code` representing the current input.
+    output :: String # Part of `code` representing the current expected output.
+    file   :: String # File in which the doctest is written. Either `.md` or `.jl`.
     value  :: Any        # The value returned when evaluating `input`.
     hide   :: Bool       # Semi-colon suppressing the output?
     stdout :: IOBuffer   # Redirected STDOUT/STDERR gets sent here.
@@ -284,11 +284,7 @@ function result_to_string(buf, value)
     sanitise(buf)
 end
 
-if VERSION < v"0.5.0-dev+4305"
-    text_display(buf) = TextDisplay(buf)
-else
-    text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
-end
+text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
 
 funcsym() = CAN_INLINE[] ? :disable_color : :eval
 
@@ -372,8 +368,8 @@ const SOURCE_REGEX = r"^       (.*)$"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
-    input  = Compat.String[]
-    output = Compat.String[]
+    input  = String[]
+    output = String[]
     buffer = IOBuffer()
     while !isempty(lines)
         line = shift!(lines)
@@ -426,10 +422,10 @@ if isdefined(Base.Markdown, :Footnote)
         #
         # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
         # footnote references and a single footnote body.
-        local footnotes = Dict{Documents.Page, Dict{Compat.String, Tuple{Int, Int}}}()
+        local footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
         for (src, page) in doc.internal.pages
             empty!(page.globals.meta)
-            local orphans = Dict{Compat.String, Tuple{Int, Int}}()
+            local orphans = Dict{String, Tuple{Int, Int}}()
             for element in page.elements
                 Walkers.walk(page.globals.meta, page.mapping[element]) do block
                     footnote(block, orphans)
