@@ -39,7 +39,7 @@ parseUri.options = {
 requirejs.config({
     paths: {
         'jquery': 'https://code.jquery.com/jquery-3.1.0.js?',
-        'lunr': 'https://cdnjs.cloudflare.com/ajax/libs/lunr.js/0.7.1/lunr.min',
+        'lunr': 'https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.3/lunr.min',
     }
 });
 
@@ -48,13 +48,15 @@ var currentScript = document.currentScript;
 require(["jquery", "lunr"], function($, lunr) {
     var index = lunr(function () {
         this.ref('location')
-        this.field('title', {boost: 10})
+        this.field('title')
         this.field('text')
+        documenterSearchIndex['docs'].forEach(function(e) {
+            this.add(e)
+        }, this)
     })
     var store = {}
 
     documenterSearchIndex['docs'].forEach(function(e) {
-        index.add(e)
         store[e.location] = e
     })
 
