@@ -38,7 +38,7 @@ parseUri.options = {
 
 requirejs.config({
     paths: {
-        'jquery': 'https://code.jquery.com/jquery-3.1.0.js?',
+        'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min',
         'lunr': 'https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.3/lunr.min',
     }
 });
