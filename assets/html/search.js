@@ -84,8 +84,9 @@ require(["jquery", "lunr"], function($, lunr) {
         $('#search-query').keyup(update_search_box)
         $('#search-query').change(update_search_box)
 
-        search_query = parseUri(window.location).queryKey["q"]
-        if(search_query !== undefined) {
+        search_query_uri = parseUri(window.location).queryKey["q"]
+        if(search_query_uri !== undefined) {
+            search_query = decodeURIComponent(search_query_uri.replace(/\+/g, '%20'))
             $("#search-query").val(search_query)
         }
         update_search_box();
