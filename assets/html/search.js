@@ -57,7 +57,7 @@ require(["jquery", "lunr"], function($, lunr) {
     var store = {}
 
     documenterSearchIndex['docs'].forEach(function(e) {
-        store[e.location] = e
+        store[e.location] = {title: e.title, category: e.category}
     })
 
     $(function(){
