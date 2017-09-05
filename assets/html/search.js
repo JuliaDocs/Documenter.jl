@@ -46,6 +46,10 @@ requirejs.config({
 var currentScript = document.currentScript;
 
 require(["jquery", "lunr"], function($, lunr) {
+    // add . as a separator, because otherwise "title": "Documenter.Anchors.add!"
+    // would not find anything if searching for "add!", only for the entire qualification
+    lunr.tokenizer.separator = /[\s\-\.]+/
+
     // custom trimmer that doesn't strip @ and !, which are used in julia macro and function names
     lunr.trimmer = function (token) {
         return token.update(function (s) {
