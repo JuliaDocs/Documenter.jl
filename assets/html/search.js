@@ -46,6 +46,15 @@ requirejs.config({
 var currentScript = document.currentScript;
 
 require(["jquery", "lunr"], function($, lunr) {
+    // custom trimmer that doesn't strip @ and !, which are used in julia macro and function names
+    lunr.trimmer = function (token) {
+        return token.update(function (s) {
+            return s.replace(/^[^a-zA-Z0-9@!]+/, '').replace(/[^a-zA-Z0-9@!]+$/, '')
+        })
+    }
+
+    lunr.Pipeline.registerFunction(lunr.trimmer, 'juliatrimmer')
+
     var index = lunr(function () {
         this.ref('location')
         this.field('title')
