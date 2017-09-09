@@ -155,7 +155,10 @@ examples_html_doc = makedocs(
     build = "builds/html-pretty-urls",
     format   = :html,
     html_prettyurls = true,
-    assets = ["assets/custom.css"],
+    assets = [
+        "assets/favicon.ico",
+        "assets/custom.css"
+    ],
     sitename = "Documenter example",
     pages    = Any[
         "Home" => "index.md",
