@@ -403,8 +403,10 @@ function render_article(ctx, navnode)
         host = "BitBucket"
         logo = "\uf171"
     end
-    Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
-        push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
+    if !ctx.doc.user.html_disable_git
+        Utilities.unwrap(Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)) do url
+            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
+        end
     end
     art_header = header(topnav, hr(), render_topbar(ctx, navnode))
 
@@ -644,8 +646,10 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             markdown, result = md
             ret = Any[domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))]
             # When a source link is available then print the link.
-            Utilities.unwrap(Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)) do url
-                push!(ret, a[".source-link", :target=>"_blank", :href=>url]("source"))
+            if !ctx.doc.user.html_disable_git
+                Utilities.unwrap(Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)) do url
+                    push!(ret, a[".source-link", :target=>"_blank", :href=>url]("source"))
+                end
             end
             ret
         end

@@ -396,16 +396,12 @@ end
 
 function relpath_from_repo_root(file)
     cd(dirname(file)) do
-        stdout = Pipe()
-        p = spawn(pipeline(`git rev-parse --show-toplevel`, stdout=stdout, stderr=DevNull))
-        close(stdout.in)
-        if success(p)
-            root = readstring(stdout)
-            if in_cygwin()
-                root = readchomp(`cygpath -m "$root"`)
-            end
-            path = relpath(file, root)
-            Nullable{Compat.String}(path)
+        root = readchomp(`git rev-parse --show-toplevel`)
+        if in_cygwin()
+            root = readchomp(`cygpath -m "$root"`)
+        end
+        if startswith(file, root)
+            Nullable{Compat.String}(relpath(file, root))
         else
             Nullable{Compat.String}()
         end
@@ -414,14 +410,7 @@ end
 
 function repo_commit(file)
     cd(dirname(file)) do
-        stdout = Pipe()
-        p = spawn(pipeline(`git rev-parse HEAD`, stdout=stdout, stderr=DevNull))
-        close(stdout.in)
-        if success(p)
-            Nullable{Compat.String}(readstring(stdout))
-        else
-            Nullable{Compat.String}()
-        end
+        readchomp(`git rev-parse HEAD`)
     end
 end
 
@@ -432,11 +421,10 @@ function url(repo, file)
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
     path = relpath_from_repo_root(file)
-    commit = repo_commit(file)
-    if isnull(path) || isnull(commit)
+    if isnull(path)
         Nullable{String}()
     else
-        repo = replace(repo, "{commit}", get(commit))
+        repo = replace(repo, "{commit}", repo_commit(file))
         repo = replace(repo, "{path}", string("/", get(path)))
         Nullable{String}(repo)
     end
@@ -467,14 +455,13 @@ function url(remote, repo, mod, file, linerange)
         )
     else
         path = relpath_from_repo_root(file)
-        commit = repo_commit(file)
         if isempty(repo)
             repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
         end
-        if isnull(path) || isnull(commit)
+        if isnull(path)
             Nullable{String}()
         else
-            repo = replace(repo, "{commit}", get(commit))
+            repo = replace(repo, "{commit}", repo_commit(file))
             repo = replace(repo, "{path}", string("/", get(path)))
             repo = replace(repo, "{line}", line)
             Nullable{String}(repo)
