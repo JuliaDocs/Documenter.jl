@@ -394,26 +394,51 @@ function in_cygwin()
     end
 end
 
+function relpath_from_repo_root(file)
+    cd(dirname(file)) do
+        stdout = Pipe()
+        p = spawn(pipeline(`git rev-parse --show-toplevel`, stdout=stdout, stderr=DevNull))
+        close(stdout.in)
+        if success(p)
+            root = readstring(stdout)
+            if in_cygwin()
+                root = readchomp(`cygpath -m "$root"`)
+            end
+            path = relpath(file, root)
+            Nullable{Compat.String}(path)
+        else
+            Nullable{Compat.String}()
+        end
+    end
+end
+
+function repo_commit(file)
+    cd(dirname(file)) do
+        stdout = Pipe()
+        p = spawn(pipeline(`git rev-parse HEAD`, stdout=stdout, stderr=DevNull))
+        close(stdout.in)
+        if success(p)
+            Nullable{Compat.String}(readstring(stdout))
+        else
+            Nullable{Compat.String}()
+        end
+    end
+end
+
 function url(repo, file)
     file = abspath(file)
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/tree/{commit}{path}")
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
-    commit, root = cd(dirname(file)) do
-        toplevel = readchomp(`git rev-parse --show-toplevel`)
-        if in_cygwin()
-            toplevel = readchomp(`cygpath -m "$toplevel"`)
-        end
-        readchomp(`git rev-parse HEAD`), toplevel
-    end
-    if startswith(file, root)
-        _, path = split(file, root; limit = 2)
-        repo = replace(repo, "{commit}", commit)
-        repo = replace(repo, "{path}", path)
-        Nullable{String}(repo)
-    else
+    path = relpath_from_repo_root(file)
+    commit = repo_commit(file)
+    if isnull(path) || isnull(commit)
         Nullable{String}()
+    else
+        repo = replace(repo, "{commit}", get(commit))
+        repo = replace(repo, "{path}", string("/", get(path)))
+        Nullable{String}(repo)
     end
 end
 
@@ -441,24 +466,18 @@ function url(remote, repo, mod, file, linerange)
             end
         )
     else
-        commit, root = cd(dirname(file)) do
-            toplevel = readchomp(`git rev-parse --show-toplevel`)
-            if in_cygwin()
-                toplevel = readchomp(`cygpath -m "$toplevel"`)
-            end
-            readchomp(`git rev-parse HEAD`), toplevel
+        path = relpath_from_repo_root(file)
+        commit = repo_commit(file)
+        if isempty(repo)
+            repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
         end
-        if startswith(file, root)
-            if isempty(repo)
-                repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
-            end
-            _, path = split(file, root; limit = 2)
-            repo = replace(repo, "{commit}", commit)
-            repo = replace(repo, "{path}", path)
+        if isnull(path) || isnull(commit)
+            Nullable{String}()
+        else
+            repo = replace(repo, "{commit}", get(commit))
+            repo = replace(repo, "{path}", string("/", get(path)))
             repo = replace(repo, "{line}", line)
             Nullable{String}(repo)
-        else
-            Nullable{String}()
         end
     end
 end
