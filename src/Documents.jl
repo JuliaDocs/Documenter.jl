@@ -196,6 +196,7 @@ struct User
     analytics::String
     version :: String # version string used in the version selector by default
     html_prettyurls :: Bool # Use pretty URLs in the HTML build?
+    html_disable_git :: Bool # Don't call git when exporting HTML
 end
 
 """
@@ -248,6 +249,7 @@ function Document(;
         analytics :: AbstractString = "",
         version :: AbstractString = "",
         html_prettyurls :: Bool = false,
+        html_disable_git :: Bool = false,
         others...
     )
     Utilities.check_kwargs(others)
@@ -279,6 +281,7 @@ function Document(;
         analytics,
         version,
         html_prettyurls,
+        html_disable_git,
     )
     internal = Internal(
         Utilities.assetsdir(),
