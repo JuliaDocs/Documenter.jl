@@ -40,11 +40,12 @@ the subdirectories of `assets/` are not linked).
 For the **logo**, Documenter checks for the existence of `assets/logo.png`.
 If that's present, it gets displayed in the navigation bar.
 
-Additional JS and CSS assets can be included in the generated pages using the `assets`
-keyword for `makedocs`. `assets` must be a `Vector{String}` and will include each listed
-asset in the `<head>` of every page in the order in which they are listed. The type of
-the asset (i.e. whether it is going to be included with a `<script>` or a `<link>` tag)
-is determined by the file's extension -- either `.js` or `.css`.
+Additional JS, ICO, and CSS assets can be included in the generated pages using the
+`assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
+each listed asset in the `<head>` of every page in the order in which they are listed.
+The type of the asset (i.e. whether it is going to be included with a `<script>` or a
+`<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
+Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 """
 module HTMLWriter
 
@@ -224,6 +225,7 @@ function asset_links(src::AbstractString, assets::Vector)
         local ext = splitext(each)[end]
         local url = relhref(src, each)
         local node =
+            ext == ".ico" ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
             ext == ".css" ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
             ext == ".js"  ? script[:src => url] : continue # Skip non-js/css files.
         push!(links, node)
