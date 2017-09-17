@@ -257,7 +257,12 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         # Replace a standalone module name with `Main`.
         str = replace(str, Regex(string(sandbox)), "Main")
         output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
-        strip(str) == output || report(result, str, doc)
+        expected = strip(str)
+        if !isnull(doc.user.pattern_ignore)
+            expected = replace(expected, get(doc.user.pattern_ignore), "")
+            output   = replace(output,   get(doc.user.pattern_ignore), "")
+        end
+        expected == output || report(result, str, doc)
     end
     return nothing
 end

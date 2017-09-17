@@ -189,6 +189,7 @@ struct User
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     strict::Bool              # Throw an exception when any warnings are encountered.
+    pattern_ignore::Nullable{Regex}  # Ignore differences that match this pattern in doctests.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     assets  :: Vector{String}
@@ -241,6 +242,7 @@ function Document(;
         linkcheck_ignore :: Vector   = [],
         checkdocs::Symbol            = :all,
         strict::Bool                 = false,
+        pattern_ignore::Union{Regex,Void} = nothing,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         assets   :: Vector           = String[],
@@ -272,6 +274,7 @@ function Document(;
         linkcheck_ignore,
         checkdocs,
         strict,
+        pattern_ignore,
         Utilities.submodules(modules),
         pages,
         assets,
