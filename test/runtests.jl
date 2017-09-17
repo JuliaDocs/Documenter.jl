@@ -7,6 +7,9 @@ include("examples/make.jl")
 # Test missing docs
 include("missingdocs/make.jl")
 
+# Test ignoring stacktraces in doctests
+include("doctest_stacktrace/make.jl")
+
 # Primary @testset
 
 using Base.Test

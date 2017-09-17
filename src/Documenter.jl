@@ -174,6 +174,9 @@ ignored.
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
 
+**`doctest_stacktraces`** -- [`makedocs`](@ref) do not consider an erronous stacktrace
+for a doctest as a doctest failure.
+
 ## Non-MkDocs builds
 
 Documenter also has (experimental) support for native HTML and LaTeX builds.

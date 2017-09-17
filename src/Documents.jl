@@ -185,6 +185,7 @@ struct User
     format  :: Vector{Symbol} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Bool           # Run doctests?
+    doctest_stacktraces::Bool # Check stacktraces in doctests
     linkcheck::Bool           # Check external links..
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
@@ -237,6 +238,7 @@ function Document(;
         format   :: Any              = :markdown,
         clean    :: Bool             = true,
         doctest  :: Bool             = true,
+        doctest_stacktraces::Bool    = true,
         linkcheck:: Bool             = false,
         linkcheck_ignore :: Vector   = [],
         checkdocs::Symbol            = :all,
@@ -268,6 +270,7 @@ function Document(;
         fmt,
         clean,
         doctest,
+        doctest_stacktraces,
         linkcheck,
         linkcheck_ignore,
         checkdocs,

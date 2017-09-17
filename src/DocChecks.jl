@@ -245,6 +245,12 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
         head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex, "")
+        # Sometimes we want to show backtraces in doctests but not make the build fail
+        # if the stacktrace in the doctest is no longer correct (for example to run doctests in CI
+        # on Base Julia).
+        if !doc.user.doctest_stacktraces
+            head = split(result.output, "\nStacktrace:\n [1] ";)[1]
+        end
         str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
