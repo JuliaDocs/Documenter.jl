@@ -802,13 +802,13 @@ const external_dir = "DOCUMENTER_EXTERNAL"
 """
 A file outside of the documentation directory.
 """
-immutable ExternalPage
+struct ExternalPage
     path::AbstractString
     root::Nullable{AbstractString}
 end
 
 """
-    external(path; root=nothing)
+    external(path; root=nothing) -> ExternalPage
 
 Mark `path` as an external page. This allows us to use files outside of the documentation
 directory in [`makedocs`](@ref). If `root` is not set, then it will be assumed that
@@ -830,21 +830,17 @@ function external(path::AbstractString; root::Union{AbstractString, Void} = noth
 end
 
 """
-    source(page, default)
+    source(page, default) -> String
 
 Return the absolute path to `page` by joining `page.path` to `page.root` if it is set,
 or a given default root path otherwise.
 """
 function source(page::ExternalPage, default::AbstractString)
-    return try
-        joinpath(get(page.root), page.path)
-    catch
-        joinpath(default, page.path)
-    end
+    return joinpath(isnull(page.root) ? default : get(page.root), page.path)
 end
 
 """
-    destination(page, root, source)
+    destination(page, root, source) -> String
 
 Return `page`'s final destination in the documentation directory, relative to the
 root of the documentation directory.
@@ -852,7 +848,7 @@ root of the documentation directory.
 destination(page::ExternalPage) = joinpath(external_dir, page.path)
 
 """
-    copy_external(pages, root, source)
+    copy_external(pages, root, source) -> Vector
 
 Copy all external files in an array into a new directory inside the documentation source
 directory. Returns the array of pages, with any external paths replaced with their new
