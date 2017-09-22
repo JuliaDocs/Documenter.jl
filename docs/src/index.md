@@ -15,7 +15,7 @@ A package for building documentation from docstrings and markdown files.
 
 - Write all your documentation in [Markdown](https://en.wikipedia.org/wiki/Markdown).
 - Minimal configuration.
-- Supports Julia `0.5`, `0.6` and `0.7-dev`.
+- Supports Julia `0.6` and `0.7-dev`.
 - Doctests Julia code blocks.
 - Cross references for docs and section headers.
 - [``\LaTeX`` syntax](@ref latex_syntax) support.
