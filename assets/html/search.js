@@ -74,8 +74,13 @@ require(["jquery", "lunr"], function($, lunr) {
     })
 
     $(function(){
-        function update_search(query) {
-            results = index.search(query)
+        function update_search(querystring) {
+            tokens = lunr.tokenizer(querystring)
+            results = index.query(function (q) {
+                tokens.forEach(function (t) {
+                    q.term(t.toString())
+                })
+            })
             $('#search-info').text("Number of results: " + results.length)
             $('#search-results').empty()
             results.forEach(function(result) {
@@ -90,8 +95,8 @@ require(["jquery", "lunr"], function($, lunr) {
         }
 
         function update_search_box() {
-            query = $('#search-query').val()
-            update_search(query)
+            querystring = $('#search-query').val()
+            update_search(querystring)
         }
 
         $('#search-query').keyup(update_search_box)
