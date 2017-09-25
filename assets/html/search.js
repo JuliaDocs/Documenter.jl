@@ -79,7 +79,18 @@ require(["jquery", "lunr"], function($, lunr) {
             results = index.query(function (q) {
                 tokens.forEach(function (t) {
                     q.term(t.toString(), {
-                        editDistance: 2
+                        fields: ["title"],
+                        boost: 10,
+                        usePipeline: false,
+                        editDistance: 2,
+                        wildcard: lunr.Query.wildcard.NONE
+                    })
+                    q.term(t.toString(), {
+                        fields: ["text"],
+                        boost: 1,
+                        usePipeline: true,
+                        editDistance: 2,
+                        wildcard: lunr.Query.wildcard.NONE
                     })
                 })
             })
