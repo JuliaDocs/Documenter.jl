@@ -78,7 +78,9 @@ require(["jquery", "lunr"], function($, lunr) {
             tokens = lunr.tokenizer(querystring)
             results = index.query(function (q) {
                 tokens.forEach(function (t) {
-                    q.term(t.toString())
+                    q.term(t.toString(), {
+                        editDistance: 2
+                    })
                 })
             })
             $('#search-info').text("Number of results: " + results.length)
