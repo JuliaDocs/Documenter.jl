@@ -315,7 +315,7 @@ function render_navmenu(ctx, navnode)
         push!(navmenu.nodes, version_selector)
     end
     push!(navmenu.nodes,
-        form[".search", :action => navhref(ctx, ctx.search_navnode, navnode)](
+        form[".search#search-form", :action => navhref(ctx, ctx.search_navnode, navnode)](
             input[
                 "#search-query",
                 :name => "q",

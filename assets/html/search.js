@@ -46,6 +46,10 @@ requirejs.config({
 var currentScript = document.currentScript;
 
 require(["jquery", "lunr"], function($, lunr) {
+    $("#search-form").submit(function(e) {
+        e.preventDefault()
+    })
+
     // list below is the lunr 2.1.3 list minus the intersect with names(Base)
     // (all, any, get, in, is, which) and (do, else, for, let, where, while, with)
     // ideally we'd just filter the original list but it's not available as a variable
