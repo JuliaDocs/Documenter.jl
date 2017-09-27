@@ -1,11 +1,6 @@
 module UtilitiesTests
 
-if VERSION >= v"0.5.0-dev+7720"
-    using Base.Test
-else
-    using BaseTestNext
-    const Test = BaseTestNext
-end
+using Base.Test
 
 import Documenter
 
@@ -21,8 +16,8 @@ module UnitTests
         end
     end
 
-    type T end
-    type S{T} end
+    mutable struct T end
+    mutable struct S{T} end
 
     "Documenter unit tests."
     Base.length(::T) = 1
@@ -84,6 +79,28 @@ end
     @test Documenter.Utilities.doccat(UnitTests.S) == "Type"
     @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
     @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
+
+    import Documenter.Documents: Document, Page, Globals
+    let page = Page("source", "build", [], ObjectIdDict(), Globals()), doc = Document()
+        code = """
+        x += 3
+        γγγ_γγγ
+        γγγ
+        """
+        exprs = Documenter.Utilities.parseblock(code, doc, page)
+
+        @test isa(exprs, Vector)
+        @test length(exprs) === 3
+
+        @test isa(exprs[1][1], Expr)
+        @test exprs[1][1].head === :+=
+        @test exprs[1][2] == "x += 3\n"
+
+        @test exprs[2][2] == "γγγ_γγγ\n"
+
+        @test exprs[3][1] === :γγγ
+        @test exprs[3][2] == "γγγ\n"
+    end
 end
 
 end

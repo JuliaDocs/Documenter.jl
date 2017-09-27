@@ -48,26 +48,26 @@ function splitby(reg::Regex, text::AbstractString)
         push!(out, SubString(text, last, each.match.offset + each.match.endof))
         last = each.match.endof + each.offset
     end
-    local laststr = SubString(text, last, length(text))
+    local laststr = SubString(text, last)
     isempty(laststr) || push!(out, laststr)
     return out
 end
 
 # Diff Type.
 
-immutable Lines end
-immutable Words end
+struct Lines end
+struct Words end
 
 splitter(::Type{Lines}) = r"\n"
 splitter(::Type{Words}) = r"\s+"
 
-immutable Diff{T}
+struct Diff{T}
     old_tokens::Vector{SubString{Str}}
     new_tokens::Vector{SubString{Str}}
     weights::Matrix{Int}
     diff::Vector{Pair{Symbol, SubString{Str}}}
 
-    function (::Type{Diff{T}}){T}(old_text::AbstractString, new_text::AbstractString)
+    function Diff{T}(old_text::AbstractString, new_text::AbstractString) where T
         local reg = splitter(T)
         local old_tokens = splitby(reg, old_text)
         local new_tokens = splitby(reg, new_text)

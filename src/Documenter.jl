@@ -149,6 +149,45 @@ For example if you are using GitLab.com, you could use
 makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")
 ```
 
+# Experimental keywords
+
+In addition to standard arguments there is a set of non-finalized experimental keyword
+arguments. The behaviour of these may change or they may be removed without deprecation
+when a minor version changes (i.e. except in patch releases).
+
+**`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
+defined in the `modules` keyword that have a docstring attached have the docstring also
+listed in the manual (e.g. there's a `@docs` blocks with that docstring). Possible values
+are `:all` (check all names) and `:exports` (check only exported names). The default value
+is `:none`, in which case no checks are performed. If `strict` is also enabled then the
+build will fail if any missing docstrings are encountered.
+
+**`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
+of external-pointing links, to make sure that they are up-to-date. The links and their
+status codes are printed to the standard output. If `strict` is also enabled then the build
+will fail if there are any broken (400+ status code) links. Default: `false`.
+
+**`linkcheck_ignore`** allows certain URLs to be ignored in `linkcheck`. The values should
+be a list of strings (which get matched exactly) or `Regex` objects. By default nothing is
+ignored.
+
+**`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
+any errors with the document in the previous build phases.
+
+## Non-MkDocs builds
+
+Documenter also has (experimental) support for native HTML and LaTeX builds.
+These can be enabled using the `format` keyword and they generally require additional
+keywords be defined, depending on the format. These keywords are also currently considered
+experimental.
+
+**`format`** allows the output format to be specified. Possible values are `:html`, `:latex`
+and `:markdown` (default).
+
+Other keywords related to non-MkDocs builds (**`assets`**, **`sitename`**, **`analytics`**,
+**`authors`**, **`pages`**, **`version`**) should be documented at the respective `*Writer`
+modules ([`Writers.HTMLWriter`](@ref), [`Writers.LaTeXWriter`](@ref)).
+
 # See Also
 
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
@@ -249,15 +288,15 @@ default value is `"site"`.
 
 **`repo`** is the remote repository where generated HTML content should be pushed to. Do not
 specify any protocol - "https://" or "git@" should not be present. This keyword *must*
-be set and will throw an error when left undefined. For example this package uses the 
+be set and will throw an error when left undefined. For example this package uses the
 following `repo` value:
 
 ```julia
 repo = "github.com/JuliaDocs/Documenter.jl.git"
 ```
 
-**`branch`** is the branch where the generated documentation is pushed. By default this
-value is set to `"gh-pages"`.
+**`branch`** is the branch where the generated documentation is pushed. If the branch does
+not exist, a new orphaned branch is created automatically. It defaults to `"gh-pages"`.
 
 **`latest`** is the branch that "tracks" the latest generated documentation. By default this
 value is set to `"master"`.
@@ -402,7 +441,7 @@ function deploydocs(;
                 target_dir = abspath(target)
 
                 # The upstream URL to which we push new content and the ssh decryption commands.
-                write(keyfile, Compat.String(base64decode(documenter_key)))
+                write(keyfile, String(base64decode(documenter_key)))
                 chmod(keyfile, 0o600)
                 upstream = "git@$(replace(repo, "github.com/", "github.com:"))"
 
@@ -428,21 +467,32 @@ function deploydocs(;
                         success(`git fetch upstream`) ||
                             error("could not fetch from remote.")
 
-                        success(`git checkout -b $branch upstream/$branch`) ||
-                            error("could not checkout remote branch.")
+                        branch_exists = success(`git checkout -b $branch upstream/$branch`)
+
+                        if !branch_exists
+                            Utilities.log("assuming $branch doesn't exist yet; creating a new one.")
+                            success(`git checkout --orphan $branch`) ||
+                                error("could not create new empty branch.")
+                            success(`git commit --allow-empty -m "Initial empty commit for docs"`) ||
+                                error("could not commit to new branch $branch")
+                        end
 
                         # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
                         if isempty(travis_tag)
-                            cp(target_dir, latest_dir; remove_destination = true)
+                            gitrm_copy(target_dir, latest_dir)
+                            Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
                         else
-                            cp(target_dir, stable_dir; remove_destination = true)
-                            cp(target_dir, tagged_dir; remove_destination = true)
+                            gitrm_copy(target_dir, stable_dir)
+                            Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
+                            gitrm_copy(target_dir, tagged_dir)
+                            Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, travis_tag)
                             # Build a `release-*.*` folder as well when the travis tag is
                             # valid, which it *should* always be anyway.
                             if ismatch(Base.VERSION_REGEX, travis_tag)
                                 local version = VersionNumber(travis_tag)
                                 local release = "release-$(version.major).$(version.minor)"
-                                cp(target_dir, joinpath(dirname, release); remove_destination = true)
+                                gitrm_copy(target_dir, joinpath(dirname, release))
+                                Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
                             end
                         end
 
@@ -468,6 +518,22 @@ function deploydocs(;
             skipping docs deployment.
               You can set DOCUMENTER_DEBUG to "true" in Travis to see more information.""")
     end
+end
+
+"""
+    gitrm_copy(src, dst)
+
+Uses `git rm -r` to remove `dst` and then copies `src` to `dst`. Assumes that the working
+directory is within the git repository of `dst` is when the function is called.
+
+This is to get around [#507](https://github.com/JuliaDocs/Documenter.jl/issues/507) on
+filesystems that are case-insensitive (e.g. on OS X, Windows). Without doing a `git rm`
+first, `git add -A` will not detect case changes in filenames.
+"""
+function gitrm_copy(src, dst)
+    # --ignore-unmatch so that we wouldn't get errors if dst does not exist
+    run(`git rm -rf --ignore-unmatch $(dst)`)
+    cp(src, dst)
 end
 
 function withfile(func, file::AbstractString, contents::AbstractString)

@@ -148,7 +148,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         end
         if ismatch(r"^julia> "m, code)
             eval_repl(code, sandbox, meta, doc, page)
-            block.language = "jlcon"
+            block.language = "julia-repl"
         elseif ismatch(r"^# output$"m, code)
             eval_script(code, sandbox, meta, doc, page)
             block.language = "julia"
@@ -176,11 +176,11 @@ end
 
 # Doctest evaluation.
 
-type Result
-    code   :: Compat.String # The entire code block that is being tested.
-    input  :: Compat.String # Part of `code` representing the current input.
-    output :: Compat.String # Part of `code` representing the current expected output.
-    file   :: Compat.String # File in which the doctest is written. Either `.md` or `.jl`.
+mutable struct Result
+    code   :: String # The entire code block that is being tested.
+    input  :: String # Part of `code` representing the current input.
+    output :: String # Part of `code` representing the current expected output.
+    file   :: String # File in which the doctest is written. Either `.md` or `.jl`.
     value  :: Any        # The value returned when evaluating `input`.
     hide   :: Bool       # Semi-colon suppressing the output?
     stdout :: IOBuffer   # Redirected STDOUT/STDERR gets sent here.
@@ -284,11 +284,7 @@ function result_to_string(buf, value)
     sanitise(buf)
 end
 
-if VERSION < v"0.5.0-dev+4305"
-    text_display(buf) = TextDisplay(buf)
-else
-    text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
-end
+text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
 
 funcsym() = CAN_INLINE[] ? :disable_color : :eval
 
@@ -372,8 +368,8 @@ const SOURCE_REGEX = r"^       (.*)$"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
-    input  = Compat.String[]
-    output = Compat.String[]
+    input  = String[]
+    output = String[]
     buffer = IOBuffer()
     while !isempty(lines)
         line = shift!(lines)
@@ -426,10 +422,10 @@ if isdefined(Base.Markdown, :Footnote)
         #
         # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
         # footnote references and a single footnote body.
-        local footnotes = Dict{Documents.Page, Dict{Compat.String, Tuple{Int, Int}}}()
+        local footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
         for (src, page) in doc.internal.pages
             empty!(page.globals.meta)
-            local orphans = Dict{Compat.String, Tuple{Int, Int}}()
+            local orphans = Dict{String, Tuple{Int, Int}}()
             for element in page.elements
                 Walkers.walk(page.globals.meta, page.mapping[element]) do block
                     footnote(block, orphans)
@@ -503,6 +499,16 @@ function linkcheck(doc::Documents.Document)
 end
 
 function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
+    local INDENT = " "^6
+
+    # first, make sure we're not supposed to ignore this link
+    for r in doc.user.linkcheck_ignore
+        if linkcheck_ismatch(r, link.url)
+            print_with_color(:normal, INDENT, "--- ", link.url, "\n")
+            return false
+        end
+    end
+
     if !haskey(doc.internal.locallinks, link)
         local result
         try
@@ -512,7 +518,6 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
             Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")
             return false
         end
-        local INDENT = " "^6
         local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
         if ismatch(STATUS_REGEX, result)
             local status = parse(Int, match(STATUS_REGEX, result).captures[1])
@@ -539,6 +544,9 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
     return false
 end
 linkcheck(other, doc::Documents.Document) = true
+
+linkcheck_ismatch(r::String, url) = (url == r)
+linkcheck_ismatch(r::Regex, url) = ismatch(r, url)
 
 function disable_color(func)
     orig = setcolor!(false)

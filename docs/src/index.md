@@ -7,7 +7,7 @@ A package for building documentation from docstrings and markdown files.
 !!! note
 
     Please read through the
-    [Documentation](http://docs.julialang.org/en/latest/manual/documentation.html) section
+    [Documentation](https://docs.julialang.org/en/latest/manual/documentation.html) section
     of the main Julia manual if this is your first time using Julia's documentation system.
     Once you've read through how to write documentation for your code then come back here.
 
@@ -15,7 +15,7 @@ A package for building documentation from docstrings and markdown files.
 
 - Write all your documentation in [Markdown](https://en.wikipedia.org/wiki/Markdown).
 - Minimal configuration.
-- Supports Julia `0.4` and `0.5-dev`.
+- Supports Julia `0.5`, `0.6` and `0.7-dev`.
 - Doctests Julia code blocks.
 - Cross references for docs and section headers.
 - [``\LaTeX`` syntax](@ref latex_syntax) support.

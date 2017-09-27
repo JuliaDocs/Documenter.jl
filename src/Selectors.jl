@@ -81,7 +81,7 @@ abstract type First  <: MySelector end
 abstract type Second <: MySelector end
 ```
 """
-@compat abstract type AbstractSelector end
+abstract type AbstractSelector end
 
 """
 Define the precedence of each case in a selector, i.e.
@@ -142,7 +142,7 @@ Selectors.matcher(::Type{Debug}, x) = true
 Selectors.runner(::Type{Debug}, x) = @show x
 ```
 """
-strict{T <: AbstractSelector}(::Type{T}) = true
+strict(::Type{T}) where {T <: AbstractSelector} = true
 
 """
 Disable a particular case in a selector so that it is never used.
@@ -151,7 +151,7 @@ Disable a particular case in a selector so that it is never used.
 Selectors.disable(::Type{Debug}) = true
 ```
 """
-disable{T <: AbstractSelector}(::Type{T}) = false
+disable(::Type{T}) where {T <: AbstractSelector} = false
 
 """
 Generated function that builds a specialised selector for each selector type provided, i.e.
@@ -160,7 +160,7 @@ Generated function that builds a specialised selector for each selector type pro
 Selectors.dispatch(MySelector, 1)
 ```
 """
-@generated function dispatch{T <: AbstractSelector}(::Type{T}, x...)
+@generated function dispatch(::Type{T}, x...) where T <: AbstractSelector
     out = map(sort(subtypes(T); by = order)) do t
         ret = strict(t) ? :(@goto END) : nothing
         disable(t) ? nothing : :($(matcher)($t, x...) && ($(runner)($t, x...); $ret))

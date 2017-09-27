@@ -14,7 +14,7 @@ Links:
 - [`f(::Any, ::Any, ::Any)`](@ref)
 
 """
-type T end
+mutable struct T end
 
 
 """

@@ -16,10 +16,10 @@ import ...Documenter:
 using Compat
 
 
-type Context{I <: IO} <: IO
+mutable struct Context{I <: IO} <: IO
     io::I
     in_header::Bool
-    footnotes::Dict{Compat.String, Int}
+    footnotes::Dict{String, Int}
     depth::Int
     filename::String # currently active source file
 end
@@ -244,7 +244,7 @@ function latex(io::IO, content::Vector)
     end
 end
 
-function latex{N}(io::IO, h::Markdown.Header{N})
+function latex(io::IO, h::Markdown.Header{N}) where N
     local tag = DOCUMENT_STRUCTURE[min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))]
     _print(io, "\\", tag, "{")
     io.in_header = true
@@ -260,9 +260,23 @@ const LEXER = Set([
 ])
 
 function latex(io::IO, code::Markdown.Code)
-    if code.language in LEXER
+    language = if isempty(code.language)
+          "none"
+    elseif first(split(code.language)) == "jldoctest"
+        # When the doctests are not being run, Markdown.Code blocks will have jldoctest as
+        # the language attribute. The check here to determine if it is a REPL-type or
+        # script-type doctest should match the corresponding one in DocChecks.jl. This makes
+        # sure that doctests get highlighted the same way independent of whether they're
+        # being run or not.
+        ismatch(r"^julia> "m, code.code) ? "julia-repl" : "julia"
+    else
+        code.language
+    end
+    # the julia-repl is called "jlcon" in Pygments
+    language = (language == "julia-repl") ? "jlcon" : language
+    if language in LEXER
         _print(io, "\n\\begin{minted}")
-        _println(io, "{", code.language, "}")
+        _println(io, "{", language, "}")
         _println(io, code.code)
         _println(io, "\\end{minted}\n")
     else
@@ -443,8 +457,8 @@ function latexinline(io::IO, md::Markdown.Link)
     if io.in_header
         latexinline(io, md.text)
     else
-        if contains(md.url, ".tex#")
-            file, target = split(md.url, ".tex#"; limit = 2)
+        if contains(md.url, ".md#")
+            file, target = split(md.url, ".md#"; limit = 2)
             local id = string(hash(target))
             wrapinline(io, "hyperlink") do
                 _print(io, id)
@@ -528,15 +542,15 @@ end
 
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))
 
-function files!{S <: AbstractString, T <: AbstractString}(out, p::Pair{S, T}, depth)
+function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: AbstractString}
     push!(out, (p.first, p.second, depth))
 end
 
-function files!{S <: AbstractString, V}(out, p::Pair{S, V}, depth)
+function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
     push!(out, (p.first, "", depth))
     files!(out, p.second, depth)
 end
 
-files(v::Vector) = files!(Tuple{Compat.String, Compat.String, Int}[], v, 0)
+files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)
 
 end

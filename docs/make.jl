@@ -4,6 +4,7 @@ makedocs(
     modules = [Documenter],
     clean = false,
     format = :html,
+    assets = ["assets/favicon.ico"],
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     analytics = "UA-89508993-1",
@@ -28,6 +29,7 @@ makedocs(
                 "lib/internals/cross-references.md",
                 "lib/internals/docchecks.md",
                 "lib/internals/docsystem.md",
+                "lib/internals/documenter.md",
                 "lib/internals/documents.md",
                 "lib/internals/dom.md",
                 "lib/internals/expanders.md",
@@ -40,7 +42,9 @@ makedocs(
                 "lib/internals/writers.md",
             ])
         ]
-    ]
+    ],
+    # Use clean URLs, unless built as a "local" build
+    html_prettyurls = !("local" in ARGS),
 )
 
 deploydocs(

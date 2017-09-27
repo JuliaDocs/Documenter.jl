@@ -10,12 +10,7 @@ elseif current_module() !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
-if VERSION >= v"0.5.0-dev+7720"
-    using Base.Test
-else
-    using BaseTestNext
-    const Test = BaseTestNext
-end
+using Base.Test
 
 using Compat
 
@@ -41,6 +36,7 @@ using Compat
             @test isfile(joinpath(build_dir, "lib", "functions.md"))
             @test isfile(joinpath(build_dir, "man", "tutorial.md"))
             @test isfile(joinpath(build_dir, "man", "data.csv"))
+            @test isfile(joinpath(build_dir, "man", "julia.svg"))
 
             @test (==)(
                 readstring(joinpath(source_dir, "man", "data.csv")),
@@ -78,7 +74,7 @@ using Compat
             end
         end
 
-        @test length(doc.internal.objects) == 37
+        @test length(doc.internal.objects) == 38
     end
 
     @testset "HTML" begin
@@ -87,5 +83,13 @@ using Compat
         @test isa(doc, Documenter.Documents.Document)
 
         # TODO: test the HTML build
+    end
+
+    @testset "HTML: html-pretty-urls" begin
+        local doc = Main.examples_html_doc
+
+        @test isa(doc, Documenter.Documents.Document)
+
+        # TODO: test the HTML build with pretty URLs
     end
 end

@@ -49,13 +49,13 @@ The default node expander "pipeline", which consists of the following expanders:
 - [`REPLBlocks`](@ref)
 
 """
-@compat abstract type ExpanderPipeline <: Selectors.AbstractSelector end
+abstract type ExpanderPipeline <: Selectors.AbstractSelector end
 
 """
 Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
 [`Anchors.Anchor`](@ref) object for each one.
 """
-@compat abstract type TrackHeaders <: ExpanderPipeline end
+abstract type TrackHeaders <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@meta` and evaluates the key/value pairs found
@@ -70,7 +70,7 @@ end
 ```
 ````
 """
-@compat abstract type MetaBlocks <: ExpanderPipeline end
+abstract type MetaBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@docs` and evaluates the expressions found
@@ -84,7 +84,7 @@ deploydocs
 ```
 ````
 """
-@compat abstract type DocsBlocks <: ExpanderPipeline end
+abstract type DocsBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@autodocs` and replaces it with all the
@@ -97,7 +97,7 @@ Order   = [:function, :type]
 ```
 ````
 """
-@compat abstract type AutoDocsBlocks <: ExpanderPipeline end
+abstract type AutoDocsBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@eval` and evaluates it's content. Replaces
@@ -115,9 +115,9 @@ Markdown.parse("![Plot](plot.svg)")
 ```
 ````
 """
-@compat abstract type EvalBlocks <: ExpanderPipeline end
+abstract type EvalBlocks <: ExpanderPipeline end
 
-@compat abstract type RawBlocks <: ExpanderPipeline end
+abstract type RawBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@index` and replaces it with an index of all
@@ -130,7 +130,7 @@ Pages = ["foo.md", "bar.md"]
 ```
 ````
 """
-@compat abstract type IndexBlocks <: ExpanderPipeline end
+abstract type IndexBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@contents` and replaces it with a nested list
@@ -145,7 +145,7 @@ Depth = 1
 ````
 The default `Depth` value is `2`.
 """
-@compat abstract type ContentsBlocks <: ExpanderPipeline end
+abstract type ContentsBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@example` and evaluates the parsed Julia code
@@ -160,18 +160,18 @@ a + b
 ```
 ````
 """
-@compat abstract type ExampleBlocks <: ExpanderPipeline end
+abstract type ExampleBlocks <: ExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
 toplevel expression in the final document.
 """
-@compat abstract type REPLBlocks <: ExpanderPipeline end
+abstract type REPLBlocks <: ExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
 """
-@compat abstract type SetupBlocks <: ExpanderPipeline end
+abstract type SetupBlocks <: ExpanderPipeline end
 
 Selectors.order(::Type{TrackHeaders})   = 1.0
 Selectors.order(::Type{MetaBlocks})     = 2.0
@@ -507,7 +507,6 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             end
         end
         result = value
-        print(out, text)
         local output = if success
             hide = Documenter.DocChecks.ends_with_semicolon(input)
             Documenter.DocChecks.result_to_string(buffer, hide ? nothing : value)
@@ -515,13 +514,14 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             Documenter.DocChecks.error_to_string(buffer, value, [])
         end
         isempty(input) || println(out, prepend_prompt(input))
+        print(out, text)
         if isempty(input) || isempty(output)
             println(out)
         else
             println(out, output, "\n")
         end
     end
-    page.mapping[x] = Base.Markdown.Code("julia", rstrip(Utilities.takebuf_str(out)))
+    page.mapping[x] = Base.Markdown.Code("julia-repl", rstrip(Utilities.takebuf_str(out)))
 end
 
 # @setup

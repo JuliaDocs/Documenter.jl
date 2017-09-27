@@ -23,7 +23,7 @@ module Mod
 
     [`func(x)`](@ref)
     """
-    type T end
+    mutable struct T end
 end
 
 "`AutoDocs` module."
@@ -43,7 +43,7 @@ module AutoDocs
     const K = 1
 
     "Type `T`."
-    type T end
+    mutable struct T end
 
     "Macro `@m`."
     macro m() end
@@ -57,7 +57,7 @@ module AutoDocs
         const K = 1
 
         "Type `B.T`."
-        type T end
+        mutable struct T end
 
         "Macro `B.@m`."
         macro m() end
@@ -72,7 +72,7 @@ module AutoDocs
         const K = 1
 
         "Type `B.T`."
-        type T end
+        mutable struct T end
 
         "Macro `B.@m`."
         macro m() end
@@ -81,7 +81,7 @@ end
 
 module Issue398
 
-immutable TestType{T} end
+struct TestType{T} end
 
 function _show end
 Base.show(io::IO, t::TestType) = _show(io, t)
@@ -96,6 +96,14 @@ end
 
 export @define_show_and_make_object
 
+end # module
+
+module InlineSVG
+export SVG
+mutable struct SVG
+    code :: String
+end
+Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
 end # module
 
 # Build example docs
@@ -134,5 +142,39 @@ examples_html_doc = makedocs(
             "hidden/y.md",
             "hidden/z.md",
         ])
-    ]
+    ],
+
+    linkcheck = true,
+    linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+)
+
+info("Building mock package docs: HTMLWriter with pretty URLs")
+examples_html_doc = makedocs(
+    debug = true,
+    root  = examples_root,
+    build = "builds/html-pretty-urls",
+    format   = :html,
+    html_prettyurls = true,
+    assets = [
+        "assets/favicon.ico",
+        "assets/custom.css"
+    ],
+    sitename = "Documenter example",
+    pages    = Any[
+        "Home" => "index.md",
+        "Manual" => [
+            "man/tutorial.md",
+        ],
+        hide("hidden.md"),
+        "Library" => [
+            "lib/functions.md",
+            "lib/autodocs.md",
+        ],
+        hide("Hidden Pages" => "hidden/index.md", Any[
+            "Page X" => "hidden/x.md",
+            "hidden/y.md",
+            "hidden/z.md",
+        ])
+    ],
+    doctest = false,
 )

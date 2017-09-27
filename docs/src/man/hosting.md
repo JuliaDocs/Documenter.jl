@@ -77,10 +77,10 @@ Follow the instructions that are printed out, namely:
     Check **`Allow write access`** to allow Documenter to commit the generated documentation
     to the repo.
 
- 2. Next add the long private key to the Travis settings page using the provided link. In
-    the **`Environment Variables`** section add a key with the name `DOCUMENTER_KEY` and the
-    value that was printed out. **Do not** set the variable to be displayed in the build
-    log. Then click **`Add`**.
+ 2. Next add the long private key to the Travis settings page using the provided link. Again
+    note that you should include **no whitespace** when copying the key. In the **`Environment
+    Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
+    out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
 
     !!! warning "Security warning"
 
@@ -122,7 +122,7 @@ deploydocs(
 ```
 
 where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names. Note that `repo`
-should not specify any protocol, i.e. it should not begin with `https://` or `git@`. 
+should not specify any protocol, i.e. it should not begin with `https://` or `git@`.
 
 By default `deploydocs` will deploy the documentation from the `nightly` Julia build for
 Linux. This can be changed using the `julia` and `osname` keywords as follows:
@@ -169,7 +169,7 @@ extra_css:
   - assets/Documenter.css
 
 extra_javascript:
-  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML
   - assets/mathjaxhelper.js
 
 markdown_extensions:
@@ -200,9 +200,13 @@ These are needed to avoid committing generated content to your repository.
 
 ## `gh-pages` Branch
 
-Create a new branch called `gh-pages` and push it to GitHub. If this branch already exists
-then you can skip this step, but do note that the generated content is automatically pushed
-to this branch from Travis.
+By default, Documenter pushes documentation to the `gh-pages` branch. If the branch does not
+exist it will be created automatically by [`deploydocs`](@ref). If does exist then
+Documenter simply adds an additional commit with the built documentation. You should be
+aware that Documenter may overwrite existing content without warning.
+
+If you wish to create the `gh-pages` branch manually the that can be done following
+[these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
 ## Documentation Versions
 
@@ -213,6 +217,13 @@ When documentation is generated it is stored in one of the following folders:
 - `stable` stores the most recent documentation from a tagged commit. Older tagged versions
   are stored in directories named after their tags. These tagged directories are persistent
   and must be manually removed from the `gh-pages` branch if necessary.
+
+Unless a custom domain is being used, the `stable` and `latest` pages are found at:
+
+```markdown
+https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
+https://USER_NAME.github.io/PACKAGE_NAME.jl/latest
+```
 
 Once your documentation has been pushed to the `gh-pages` branch you should add links to
 your `README.md` pointing to the `stable` and `latest` documentation URLs. It is common

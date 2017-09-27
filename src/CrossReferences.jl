@@ -95,7 +95,6 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
             # Replace the `@ref` url with a path to the referenced header.
             anchor   = get(Anchors.anchor(headers, slug))
             path     = relpath(anchor.file, dirname(page.build))
-            path     = Formats.extension(doc.user.format[1], path) # TODO: handle multiple formats.
             link.url = string(path, '#', slug, '-', anchor.nth)
         else
             push!(doc.internal.errors, :cross_references)
@@ -156,7 +155,6 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
-        path     = Formats.extension(doc.user.format[1], path) # TODO: handle multiple formats.
         slug     = Utilities.slugify(object)
         link.url = string(path, '#', slug)
     else
@@ -218,13 +216,7 @@ find_object(other, binding, typesig) = Utilities.Object(binding, typesig)
 
 _method_exists(f, t) = method_exists(f, t)
 
-if VERSION < v"0.5.0-dev"
-    _method_exists(d::DataType, t) = false
-    getsig(f::Function, typesig) = which(f, typesig).sig
-    getsig(d::DataType, typesig) = Base.tuple_type_tail(which(d, typesig).sig)
-else
-    getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
-end
+getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
 
 
 # Issues/PRs cross referencing.

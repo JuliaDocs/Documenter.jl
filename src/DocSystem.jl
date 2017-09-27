@@ -38,14 +38,7 @@ binding(s::Symbol)       = binding(current_module(), s)
 # We punt on using `current_module` in when not generic, which may cause
 # trouble when calling this function with a qualified name.
 #
-if VERSION < v"0.5.0-dev"
-    binding(f::Function) =
-        isgeneric(f) ?
-            binding(f.env.module, f.env.name) :
-            binding(current_module(), f.env)
-else
-    binding(f::Function) = binding(typeof(f).name.module, typeof(f).name.mt.name)
-end
+binding(f::Function) = binding(typeof(f).name.module, typeof(f).name.mt.name)
 
 #
 # We need a lookup table for `IntrinsicFunction`s since they do not track their
@@ -88,10 +81,7 @@ binding(m::Module, λ::Any) = binding(λ)
 
 function signature(x, str::AbstractString)
     ts = Base.Docs.signature(x)
-    (Meta.isexpr(x, :macrocall, 1) && !endswith(strip(str), "()")) ? :(Union{}) : ts
-end
-if VERSION < v"0.5.0-dev"
-    Base.Docs.signature(::Any) = :(Union{})
+    (Meta.isexpr(x, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(strip(str), "()")) ? :(Union{}) : ts
 end
 
 ## Docstring containers. ##
@@ -104,7 +94,7 @@ end
 if isdefined(Base.Docs, :MultiDoc)
     import Base.Docs: MultiDoc
 else
-    immutable MultiDoc
+    struct MultiDoc
         order :: Vector{Type}
         docs  :: ObjectIdDict
     end
@@ -175,7 +165,7 @@ end
 if isdefined(Base.Docs, :DocStr)
     import Base.Docs: DocStr
 else
-    type DocStr
+    mutable struct DocStr
         text   :: SimpleVector
         object :: Nullable
         data   :: Dict{Symbol, Any}
@@ -383,6 +373,9 @@ function category(b::Docs.Binding)
 end
 category(::Function) = :function
 category(::DataType) = :type
+if isdefined(Base, :UnionAll)
+    category(x::UnionAll) = category(Base.unwrap_unionall(x))
+end
 category(::Module) = :module
 category(::Any) = :constant
 

@@ -150,7 +150,83 @@ f(0.01)
 div(1, 0)
 ```
 
+Make sure that STDOUT is in the right place (#484):
+
+```@repl 1
+println("---") === nothing
+versioninfo()
+```
+
 ```@eval
 1 + 2
 nothing
+```
+
+## Including images with `MIME`
+
+If `show(io, ::MIME"image/svg+xml", x)` is overloaded for a particular type
+then `@example` blocks will show the SVG image in the output. Assuming the following type
+and method live in the `InlineSVG` module
+
+```julia
+type SVG
+    code :: String
+end
+Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
+```
+
+.. then we we can invoke and show them with an `@example` block:
+
+```@example
+using InlineSVG
+SVG("""
+<svg width="82" height="76">
+  <g style="stroke-width: 3">
+    <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+    <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+  </g>
+</svg>
+""")
+```
+
+_Note: we can't define the `show` method in the `@example` block due to the world age
+counter in Julia 0.6 (Documenter's `makedocs` is not aware of any of the new method
+definitions happening in `eval`s)._
+
+
+## Interacting with external files
+
+You can also write output files and then refer to them in the document:
+
+```@example
+open("julia.svg", "w") do io
+    write(io, """
+    <svg width="82" height="76" xmlns="http://www.w3.org/2000/svg">
+      <g style="stroke-width: 3">
+        <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
+        <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+        <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+      </g>
+    </svg>
+    """)
+end
+```
+
+![Julia circles](julia.svg)
+
+Dowload [`data.csv`](data.csv).
+
+
+## [Links](../index.md) in headers
+
+... are dropped in the navigation links.
+
+
+## Embedding raw HTML
+
+Below is a nicely rendered version of `^D`:
+
+```@raw html
+<kbd>Ctrl</kbd> + <kbd>D</kbd>
 ```
