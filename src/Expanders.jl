@@ -17,10 +17,10 @@ import .Documents:
     DocsNode,
     DocsNodes,
     EvalNode,
-    MetaNode
+    MetaNode,
+    RawNode
 
 using Compat
-
 
 function expand(doc::Documents.Document)
     for (src, page) in doc.internal.pages
@@ -30,7 +30,6 @@ function expand(doc::Documents.Document)
         end
     end
 end
-
 
 # Expander Pipeline.
 # ------------------
@@ -472,10 +471,14 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     content = []
     input   = droplines(x.code)
 
-    # Special-case support for displaying SVG graphics. TODO: make this more general.
-    output = mimewritable(MIME"image/svg+xml"(), result) ?
-        Documents.RawHTML(stringmime(MIME"image/svg+xml"(), result)) :
-        Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
+    if isa(result, Documenter.Documents.RawHTML)
+         output = result
+      else
+        # Special-case support for displaying SVG graphics. TODO: make this more general.
+        output = mimewritable(MIME"image/svg+xml"(), result) ?
+            Documents.RawHTML(stringmime(MIME"image/svg+xml"(), result)) :
+            Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
+    end
 
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))

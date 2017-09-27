@@ -52,6 +52,14 @@ type T end
 t = T()
 ```
 
+```@example
+import Documenter.Utilities.DOM: DOM, Tag, @tags
+import Documenter.Documents.RawHTML
+a =  Tag(:div)[:class=>"example"]( " RawHTML example ")
+RawHTML(string(a))
+```
+
+
 ## Foo
 
 ```@example 3
