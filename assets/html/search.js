@@ -40,12 +40,13 @@ requirejs.config({
     paths: {
         'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min',
         'lunr': 'https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.3/lunr.min',
+        'lodash': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min',
     }
 });
 
 var currentScript = document.currentScript;
 
-require(["jquery", "lunr"], function($, lunr) {
+require(["jquery", "lunr", "lodash"], function($, lunr, _) {
     $("#search-form").submit(function(e) {
         e.preventDefault()
     })
@@ -229,7 +230,7 @@ require(["jquery", "lunr"], function($, lunr) {
             update_search(querystring)
         }
 
-        $('#search-query').keyup(update_search_box)
+        $('#search-query').keyup(_.debounce(update_search_box, 250))
         $('#search-query').change(update_search_box)
 
         search_query_uri = parseUri(window.location).queryKey["q"]
