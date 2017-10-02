@@ -18,35 +18,23 @@ module Documenter
 
 using Compat, DocStringExtensions
 
-#
 # Submodules
-#
-# All submodules of this package are declared in the following loop.
-#
-# They can either be a single file in the "modules" folder or a subfolder of
-# "modules" containing a file with the same name. Large submodules should be
-# split into several files in a subfolder.
-#
-for mod in [
-    "Utilities",
-    "DocSystem",
-    "Selectors",
-    "Formats",
-    "Anchors",
-    "Documents",
-    "Builder",
-    "Expanders",
-    "Walkers",
-    "CrossReferences",
-    "DocChecks",
-    "Writers",
-    "Deps",
-    "Generator",
-]
-    dir = dirname(@__FILE__)
-    file = joinpath(dir, mod * ".jl")
-    isfile(file) ? include(file) : include(joinpath(dir, mod, mod * ".jl"))
-end
+# ----------
+
+include("Utilities/Utilities.jl")
+include("DocSystem.jl")
+include("Selectors.jl")
+include("Formats.jl")
+include("Anchors.jl")
+include("Documents.jl")
+include("Builder.jl")
+include("Expanders.jl")
+include("Walkers.jl")
+include("CrossReferences.jl")
+include("DocChecks.jl")
+include("Writers/Writers.jl")
+include("Deps.jl")
+include("Generator.jl")
 
 
 # User Interface.
