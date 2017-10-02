@@ -288,32 +288,16 @@ text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
 
 funcsym() = CAN_INLINE[] ? :disable_color : :eval
 
-if isdefined(Base.REPL, :ip_matches_func)
-    function error_to_string(buf, er, bt)
-        local fs = funcsym()
-        # Remove unimportant backtrace info.
-        local index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
-        # Print a REPL-like error message.
-        disable_color() do
-            print(buf, "ERROR: ")
-            showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
-        end
-        sanitise(buf)
+function error_to_string(buf, er, bt)
+    local fs = funcsym()
+    # Remove unimportant backtrace info.
+    local index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
+    # Print a REPL-like error message.
+    disable_color() do
+        print(buf, "ERROR: ")
+        showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
     end
-else
-    # Compat for Julia 0.4.
-    function error_to_string(buf, er, bt)
-        local fs = funcsym()
-        disable_color() do
-            print(buf, "ERROR: ")
-            try
-                Base.showerror(buf, er)
-            finally
-                Base.show_backtrace(buf, fs, bt, 1:typemax(Int))
-            end
-        end
-        sanitise(buf)
-    end
+    sanitise(buf)
 end
 
 # Strip trailing whitespace and remove terminal colors.

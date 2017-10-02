@@ -73,10 +73,8 @@ const alias_of_getdocs = DocSystem.getdocs # NOTE: won't get docstrings if in a 
     end
 
     ## `UnionAll`
-    if isdefined(Base, :UnionAll)
-        let b = DocSystem.binding(current_module(), parse("f(x::T) where T"))
-            @test b.var == :f
-        end
+    let b = DocSystem.binding(current_module(), parse("f(x::T) where T"))
+        @test b.var == :f
     end
 end
 

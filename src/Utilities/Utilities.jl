@@ -293,9 +293,7 @@ doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
-if isdefined(Base, :UnionAll)
-    doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
-end
+doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
 doccat(::Module)   = "Module"
 doccat(::Any)      = "Constant"
 

@@ -16,8 +16,6 @@ import ..Documenter:
 
 using Compat, DocStringExtensions
 
-import Compat: String
-
 # Pages.
 # ------
 

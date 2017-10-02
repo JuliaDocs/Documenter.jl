@@ -373,9 +373,7 @@ function category(b::Docs.Binding)
 end
 category(::Function) = :function
 category(::DataType) = :type
-if isdefined(Base, :UnionAll)
-    category(x::UnionAll) = category(Base.unwrap_unionall(x))
-end
+category(x::UnionAll) = category(Base.unwrap_unionall(x))
 category(::Module) = :module
 category(::Any) = :constant
 

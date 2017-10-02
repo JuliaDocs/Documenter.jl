@@ -2,8 +2,6 @@ module TextDiff
 
 using Compat
 
-const Str = all(s -> isdefined(Core, s), (:String, :AbstractString)) ? String : UTF8String
-
 # Utilities.
 
 function lcs(old_tokens::Vector, new_tokens::Vector)
@@ -20,7 +18,7 @@ end
 function makediff(weights::Matrix, old_tokens::Vector, new_tokens::Vector)
     local m = length(old_tokens)
     local n = length(new_tokens)
-    local diff = Vector{Pair{Symbol, SubString{Str}}}()
+    local diff = Vector{Pair{Symbol, SubString{String}}}()
     makediff!(diff, weights, old_tokens, new_tokens, m + 1, n + 1)
     return diff
 end
@@ -42,7 +40,7 @@ function makediff!(out, weights, X, Y, i, j)
 end
 
 function splitby(reg::Regex, text::AbstractString)
-    local out = SubString{Str}[]
+    local out = SubString{String}[]
     local last = 1
     for each in eachmatch(reg, text)
         push!(out, SubString(text, last, each.match.offset + each.match.endof))
@@ -62,10 +60,10 @@ splitter(::Type{Lines}) = r"\n"
 splitter(::Type{Words}) = r"\s+"
 
 struct Diff{T}
-    old_tokens::Vector{SubString{Str}}
-    new_tokens::Vector{SubString{Str}}
+    old_tokens::Vector{SubString{String}}
+    new_tokens::Vector{SubString{String}}
     weights::Matrix{Int}
-    diff::Vector{Pair{Symbol, SubString{Str}}}
+    diff::Vector{Pair{Symbol, SubString{String}}}
 
     function Diff{T}(old_text::AbstractString, new_text::AbstractString) where T
         local reg = splitter(T)
