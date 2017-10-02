@@ -4,6 +4,7 @@ Provides a collection of utility functions and types that are used in other subm
 module Utilities
 
 using Base.Meta, Compat
+import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 
 # Logging output.
@@ -194,17 +195,11 @@ function submodules(root::Module, seen = Set{Module}())
     return seen
 end
 
-# Compat for `isdeprecated` which does not exist in Julia 0.4.
-if isdefined(Base, :isdeprecated)
-    isdeprecated(m, s) = Base.isdeprecated(m, s)
-else
-    isdeprecated(m, s) = ccall(:jl_is_binding_deprecated, Cint, (Any, Any), m, s) != 0
-end
+
 
 ## objects
 ## =======
 
-import Base.Docs: Binding
 
 
 """
@@ -475,8 +470,7 @@ function getremote(dir::AbstractString)
         catch err
             ""
         end
-    match  = Utilities.nullmatch(isdefined(Base, :LibGit2) ?
-        Base.LibGit2.GITHUB_REGEX : Pkg.Git.GITHUB_REGEX, remote)
+    match  = Utilities.nullmatch(Base.LibGit2.GITHUB_REGEX, remote)
     if isnull(match)
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis

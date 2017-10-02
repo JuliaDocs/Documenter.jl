@@ -50,6 +50,7 @@ Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 module HTMLWriter
 
 using Compat
+import Base.Markdown: isordered
 
 import ...Documenter:
     Anchors,
@@ -788,8 +789,8 @@ end
 # ------------------------------------------------------------------------------
 
 const md_block_nodes = [Markdown.MD, Markdown.BlockQuote]
-fieldtype(Markdown.List, :ordered) == Int && push!(md_block_nodes, Markdown.List)
-if isdefined(Base.Markdown, :Admonition) push!(md_block_nodes, Markdown.Admonition) end
+push!(md_block_nodes, Markdown.List)
+push!(md_block_nodes, Markdown.Admonition)
 
 """
 [`MDBlockContext`](@ref) is a union of all the Markdown nodes whose children should
@@ -861,32 +862,21 @@ mdconvert(t::Markdown.Table, parent; kwargs...) = Tag(:table)(
 
 mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 
-# Only available on Julia 0.5.
-if isdefined(Base.Markdown, :Footnote)
-    mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
-    footnote(id, text::Void, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
-    function footnote(id, text, parent; kwargs...)
-        Tag(:div)[".footnote#footnote-$(id)"](
-            Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
-            mdconvert(text, parent; kwargs...),
-        )
-    end
+mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
+footnote(id, text::Void, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
+function footnote(id, text, parent; kwargs...)
+    Tag(:div)[".footnote#footnote-$(id)"](
+        Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
+        mdconvert(text, parent; kwargs...),
+    )
 end
 
-if isdefined(Base.Markdown, :Admonition)
-    function mdconvert(a::Markdown.Admonition, parent; kwargs...)
-        @tags div
-        div[".admonition.$(a.category)"](
-            div[".admonition-title"](a.title),
-            div[".admonition-text"](mdconvert(a.content, a; kwargs...))
-        )
-    end
-end
-
-if isdefined(Base.Markdown, :isordered)
-    import Base.Markdown: isordered
-else
-    isordered(a::Markdown.List) = a.ordered::Bool
+function mdconvert(a::Markdown.Admonition, parent; kwargs...)
+    @tags div
+    div[".admonition.$(a.category)"](
+        div[".admonition-title"](a.title),
+        div[".admonition-text"](mdconvert(a.content, a; kwargs...))
+    )
 end
 
 mdconvert(html::Documents.RawHTML, parent; kwargs...) = Tag(Symbol("#RAW#"))(html.code)

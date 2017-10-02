@@ -576,9 +576,7 @@ using Compat, DocStringExtensions
 
 export genkeys
 
-
-const GITHUB_REGEX = isdefined(Base, :LibGit2) ?
-    Base.LibGit2.GITHUB_REGEX : Base.Pkg.Git.GITHUB_REGEX
+import Base.LibGit2.GITHUB_REGEX
 
 
 """
