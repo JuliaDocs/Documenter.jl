@@ -1,6 +1,6 @@
 module UtilitiesTests
 
-using Base.Test
+using Test
 
 import Documenter
 

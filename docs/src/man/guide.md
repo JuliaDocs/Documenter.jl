@@ -167,8 +167,7 @@ When we next run `make.jl` the docstring for `Example.func(x)` should appear in 
 the `@docs` block in `build/index.md`. Note that *more than one* object can be referenced
 inside a `@docs` block -- just place each one on a separate line.
 
-Note that the module in which a `@docs` block is evaluated is determined by
-`current_module()` and so will more than likely be `Main`. This means that each object
+Note that the module in which a `@docs` block is evaluated in `Main`. This means that each object
 listed in the block must be visible there. The module can be changed to something else on
 a per-page basis with a `@meta` block as in the following
 
@@ -188,10 +187,10 @@ func(x)
 
 In some cases you may want to include a docstring for a `Method` that extends a
 `Function` from a different module -- such as `Base`. In the following example we extend
-`Base.length` with a new definition for type `T` and also add a docstring:
+`Base.length` with a new definition for the struct `T` and also add a docstring:
 
 ```julia
-type T
+struct T
     # ...
 end
 

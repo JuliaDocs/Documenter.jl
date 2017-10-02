@@ -122,7 +122,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
         sandbox = get!(page.globals.meta, sym) do
             newmod = Module(sym)
-            eval(newmod, :(eval(x) = Core.eval(current_module(), x)))
+            eval(newmod, :(eval(x) = Core.eval($newmod, x)))
             eval(newmod, :(eval(m, x) = Core.eval(m, x)))
             newmod
         end
@@ -226,13 +226,15 @@ end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
 function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
-    mod_regex = Regex("(Symbol\\(\"$(sandbox)\"\\)|$(sandbox))[,.]")
+    sandbox_name = module_name(sandbox)
+    mod_regex = Regex("(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
         head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex, "")
         str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
+        str = replace(str, Regex(string(sandbox_name)), "Main")
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
         if isempty(head) || !startswith(str, head)
@@ -242,7 +244,7 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         value = result.hide ? nothing : result.value # `;` hides output.
         str = replace(result_to_string(result.stdout, value), mod_regex, "")
         # Replace a standalone module name with `Main`.
-        str = replace(str, Regex(string(sandbox)), "Main")
+        str = replace(str, Regex(string(sandbox_name)), "Main")
         output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
         strip(str) == output || report(result, str, doc)
     end
@@ -466,7 +468,7 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
     if !haskey(doc.internal.locallinks, link)
         local result
         try
-            result = readstring(`curl -sI $(link.url)`)
+            result = read(`curl -sI $(link.url)`, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
             Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")

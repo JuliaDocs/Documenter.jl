@@ -211,7 +211,7 @@ function splitexpr(x::Expr)
     isexpr(x, :.)         ? (x.args[1], x.args[2]) :
     error("Invalid @var syntax `$x`.")
 end
-splitexpr(s::Symbol) = :(current_module()), quot(s)
+splitexpr(s::Symbol) = :(Main), quot(s)
 splitexpr(other)     = error("Invalid @var syntax `$other`.")
 
 """
@@ -374,7 +374,7 @@ Check if we're running under cygwin. Useful when we need to translate cygwin pat
 windows paths.
 """
 function in_cygwin()
-    if is_windows()
+    if Compat.Sys.iswindows()
         try
             return success(`cygpath -h`)
         catch
@@ -505,7 +505,7 @@ function linerange(text, from)
     return lines > 0 ? (from:(from + lines + 1)) : (from:from)
 end
 
-function format_line(range::Range)
+function format_line(range::AbstractRange)
     top = format_line(first(range))
     return length(range) <= 1 ? top : string(top, '-', format_line(last(range)))
 end

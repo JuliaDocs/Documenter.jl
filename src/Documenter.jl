@@ -526,7 +526,7 @@ end
 
 function withfile(func, file::AbstractString, contents::AbstractString)
     hasfile = isfile(file)
-    original = hasfile ? readstring(file) : ""
+    original = hasfile ? read(file, String) : ""
     open(file, "w") do stream
         print(stream, contents)
         flush(stream) # Make sure file is written before continuing.
@@ -631,7 +631,7 @@ function genkeys(package; remote="origin")
         # Prompt user to add public key to github then remove the public key.
         let url = "https://github.com/$user/$repo/settings/keys"
             info("add the public key below to $url with read/write access:")
-            println("\n", readstring("$filename.pub"))
+            println("\n", read("$filename.pub", String))
             rm("$filename.pub")
         end
 
@@ -640,7 +640,7 @@ function genkeys(package; remote="origin")
         # copy/paste it over to travis without having to worry about whitespace.
         let url = "https://travis-ci.org/$user/$repo/settings"
             info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
-            println("\n", base64encode(readstring(".documenter")), "\n")
+            println("\n", base64encode(read(".documenter", String)), "\n")
             rm(filename)
         end
     end

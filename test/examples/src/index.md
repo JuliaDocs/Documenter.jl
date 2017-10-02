@@ -122,13 +122,10 @@ julia> a + 1
 # Sanitise module names
 
 ```jldoctest
-julia> type T end
+julia> struct T end
 
 julia> t = T()
 T()
-
-julia> fullname(current_module())
-()
 
 julia> fullname(Base.Pkg)
 (:Base, :Pkg)
@@ -137,7 +134,6 @@ julia> current_module()
 Main
 ```
 
-# Issue398
 
 ```@meta
 DocTestSetup = quote

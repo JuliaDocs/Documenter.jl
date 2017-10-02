@@ -1,6 +1,6 @@
 module LaTeXFormatTests
 
-using Base.Test
+using Test
 
 using Documenter
 

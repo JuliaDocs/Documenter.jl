@@ -628,7 +628,7 @@ function domify(ctx, navnode, node::Documents.DocsNode)
     sib = SearchIndexBuffer(ctx, navnode)
     sib.loc = node.anchor.id
     sib.title = string(node.object.binding)
-    sib.category = Utilities.doccat(node.object)
+    sib.category = Symbol(Utilities.doccat(node.object))
     mdflatten(sib.buffer, node.docstr)
     search_flush(sib)
 
@@ -911,7 +911,7 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     startswith(link.url, '#') && return
 
     s = split(link.url, "#", limit = 2)
-    if is_windows() && ':' in first(s)
+    if Compat.Sys.iswindows() && ':' in first(s)
         Utilities.warn("Invalid local link: colons not allowed in paths on Windows\n    '$(link.url)' in $(navnode.page)")
         return
     end
@@ -936,7 +936,7 @@ end
 function fixlinks!(ctx, navnode, img::Markdown.Image)
     Utilities.isabsurl(img.url) && return
 
-    if is_windows() && ':' in img.url
+    if Compat.Sys.iswindows() && ':' in img.url
         Utilities.warn("Invalid local image: colons not allowed in paths on Windows\n    '$(img.url)' in $(navnode.page)")
         return
     end

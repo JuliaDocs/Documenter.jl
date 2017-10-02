@@ -75,7 +75,7 @@ julia> # First definition.
        #
        # Second definition.
        #
-       type T
+       struct T
            x
        end
 
@@ -169,7 +169,7 @@ then `@example` blocks will show the SVG image in the output. Assuming the follo
 and method live in the `InlineSVG` module
 
 ```julia
-type SVG
+struct SVG
     code :: String
 end
 Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
