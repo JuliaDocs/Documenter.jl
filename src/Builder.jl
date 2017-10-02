@@ -197,7 +197,7 @@ function Selectors.runner(::Type{Populate}, doc::Documents.Document)
 end
 
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
-    local count = length(doc.internal.errors)
+    count = length(doc.internal.errors)
     if doc.user.strict && count > 0
         error("`makedocs` encountered $(count > 1 ? "errors" : "an error"). Terminating build")
     else

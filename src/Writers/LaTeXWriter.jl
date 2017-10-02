@@ -47,21 +47,21 @@ function render(doc::Documents.Document)
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
-            local file = replace("$(doc.user.sitename).tex", " ", "")
+            file = replace("$(doc.user.sitename).tex", " ", "")
             open(file, "w") do io
-                local context = Context(io)
+                context = Context(io)
                 writeheader(context, doc)
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
                     empty!(context.footnotes)
                     if 1 <= depth <= length(DOCUMENT_STRUCTURE)
-                        local header_type = DOCUMENT_STRUCTURE[depth]
-                        local header_text = "\n\\$(header_type){$(title)}\n"
+                        header_type = DOCUMENT_STRUCTURE[depth]
+                        header_text = "\n\\$(header_type){$(title)}\n"
                         if isempty(filename)
                             _println(context, header_text)
                         else
-                            local path = normpath(filename)
-                            local page = doc.internal.pages[path]
+                            path = normpath(filename)
+                            page = doc.internal.pages[path]
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
@@ -74,8 +74,8 @@ function render(doc::Documents.Document)
             end
             cp(STYLE, "documenter.sty")
             if hastex()
-                local outdir = joinpath(doc.user.root, doc.user.build)
-                local pdf = replace("$(doc.user.sitename).pdf", " ", "")
+                outdir = joinpath(doc.user.root, doc.user.build)
+                pdf = replace("$(doc.user.sitename).pdf", " ", "")
                 try
                     run(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $file`)
                 catch err
@@ -91,7 +91,7 @@ function render(doc::Documents.Document)
 end
 
 function writeheader(io::IO, doc::Documents.Document)
-    local custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
+    custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; remove_destination = true) : touch("custom.sty")
     preamble =
         """
@@ -132,7 +132,7 @@ function latex(io::IO, vec::Vector, page, doc)
 end
 
 function latex(io::IO, anchor::Anchors.Anchor, page, doc)
-    local id = string(hash(string(anchor.id, "-", anchor.nth)))
+    id = string(hash(string(anchor.id, "-", anchor.nth)))
     _println(io, "\n\\hypertarget{", id, "}{}\n")
     latex(io, anchor.object, page, doc)
 end
@@ -147,7 +147,7 @@ function latex(io::IO, node::Documents.DocsNodes, page, doc)
 end
 
 function latex(io::IO, node::Documents.DocsNode, page, doc)
-    local id = string(hash(string(node.anchor.id)))
+    id = string(hash(string(node.anchor.id)))
     # Docstring header based on the name of the binding and it's category.
     _println(io, "\\hypertarget{", id, "}{} ")
     _print(io, "\\hyperlink{", id, "}{\\texttt{")
@@ -191,8 +191,8 @@ end
 function latex(io::IO, index::Documents.IndexNode, page, doc)
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
-        local id = string(hash(string(Utilities.slugify(object))))
-        local text = string(object.binding)
+        id = string(hash(string(Utilities.slugify(object))))
+        text = string(object.binding)
         _print(io, "\\item \\hyperlink{")
         _print(io, id, "}{\\texttt{")
         latexesc(io, text)
@@ -202,13 +202,13 @@ function latex(io::IO, index::Documents.IndexNode, page, doc)
 end
 
 function latex(io::IO, contents::Documents.ContentsNode, page, doc)
-    local depth = 1
-    local needs_end = false
+    depth = 1
+    needs_end = false
     _println(io, "\\begin{itemize}")
     for (count, path, anchor) in contents.elements
-        local header = anchor.object
-        local level = Utilities.header_level(header)
-        local id = string(hash(string(anchor.id, "-", anchor.nth)))
+        header = anchor.object
+        level = Utilities.header_level(header)
+        id = string(hash(string(anchor.id, "-", anchor.nth)))
         level < depth && _println(io, "\\end{itemize}")
         level > depth && (_println(io, "\\begin{itemize}"); needs_end = true)
         _print(io, "\\item \\hyperlink{", id, "}{")
@@ -245,7 +245,7 @@ function latex(io::IO, content::Vector)
 end
 
 function latex(io::IO, h::Markdown.Header{N}) where N
-    local tag = DOCUMENT_STRUCTURE[min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))]
+    tag = DOCUMENT_STRUCTURE[min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))]
     _print(io, "\\", tag, "{")
     io.in_header = true
     latexinline(io, h.text)
@@ -319,7 +319,7 @@ end
 
 if isdefined(Markdown, :Footnote)
     function latex(io::IO, f::Markdown.Footnote)
-        local id = get(io.footnotes, f.id, 1)
+        id = get(io.footnotes, f.id, 1)
         _print(io, "\\footnotetext[", id, "]{")
         latex(io, f.text)
         _println(io, "}")
@@ -448,7 +448,7 @@ end
 
 if isdefined(Markdown, :Footnote)
     function latexinline(io::IO, f::Markdown.Footnote)
-        local id = get!(io.footnotes, f.id, length(io.footnotes) + 1)
+        id = get!(io.footnotes, f.id, length(io.footnotes) + 1)
         _print(io, "\\footnotemark[", id, "]")
     end
 end
@@ -459,7 +459,7 @@ function latexinline(io::IO, md::Markdown.Link)
     else
         if contains(md.url, ".md#")
             file, target = split(md.url, ".md#"; limit = 2)
-            local id = string(hash(target))
+            id = string(hash(target))
             wrapinline(io, "hyperlink") do
                 _print(io, id)
             end

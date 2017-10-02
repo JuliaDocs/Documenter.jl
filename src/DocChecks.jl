@@ -63,8 +63,8 @@ end
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
         isa(obj, ObjectIdDict) && continue
-        local name = nameof(obj)
-        local isexported = Base.isexported(mod, name)
+        name = nameof(obj)
+        isexported = Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
             out[Utilities.Binding(mod, name)] = Set(sigs(doc))
         end
@@ -128,19 +128,19 @@ function __ans__!(m::Module, value)
 end
 
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
-    local matched = Utilities.nullmatch(r"jldoctest[ ]?(.*)$", block.language)
+    matched = Utilities.nullmatch(r"jldoctest[ ]?(.*)$", block.language)
     if !isnull(matched)
         # Define new module or reuse an old one from this page if we have a named doctest.
-        local name = Utilities.getmatch(matched, 1)
-        local sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        local sandbox = get!(page.globals.meta, sym) do
+        name = Utilities.getmatch(matched, 1)
+        sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
+        sandbox = get!(page.globals.meta, sym) do
             newmod = Module(sym)
             eval(newmod, :(eval(x) = Core.eval(current_module(), x)))
             eval(newmod, :(eval(m, x) = Core.eval(m, x)))
             newmod
         end
         # Normalise line endings.
-        local code = replace(block.code, "\r\n", "\n")
+        code = replace(block.code, "\r\n", "\n")
         if haskey(meta, :DocTestSetup)
             expr = meta[:DocTestSetup]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
@@ -239,7 +239,7 @@ end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
 function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
-    local mod_regex = Regex("(Symbol\\(\"$(sandbox)\"\\)|$(sandbox))[,.]")
+    mod_regex = Regex("(Symbol\\(\"$(sandbox)\"\\)|$(sandbox))[,.]")
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
@@ -289,9 +289,9 @@ text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
 funcsym() = CAN_INLINE[] ? :disable_color : :eval
 
 function error_to_string(buf, er, bt)
-    local fs = funcsym()
+    fs = funcsym()
     # Remove unimportant backtrace info.
-    local index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
+    index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
     # Print a REPL-like error message.
     disable_color() do
         print(buf, "ERROR: ")
@@ -312,7 +312,7 @@ end
 import .Utilities.TextDiff
 
 function report(result::Result, str, doc::Documents.Document)
-    local buffer = IOBuffer()
+    buffer = IOBuffer()
     println(buffer, "=====[Test Error]", "="^30)
     println(buffer)
     print_with_color(:cyan, buffer, "> File: ", result.file, "\n")
@@ -324,9 +324,9 @@ function report(result::Result, str, doc::Documents.Document)
         print_with_color(:cyan, buffer, "\n> Subexpression:\n")
         print_indented(buffer, result.input; indent = 4)
     end
-    local warning = Base.have_color ? "" : " (REQUIRES COLOR)"
+    warning = Base.have_color ? "" : " (REQUIRES COLOR)"
     print_with_color(:cyan, buffer, "\n> Output Diff", warning, ":\n\n")
-    local diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
+    diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     Utilities.TextDiff.showdiff(buffer, diff)
     println(buffer, "\n\n", "=====[End Error]=", "="^30)
     push!(doc.internal.errors, :doctest)
@@ -406,10 +406,10 @@ if isdefined(Base.Markdown, :Footnote)
         #
         # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
         # footnote references and a single footnote body.
-        local footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
+        footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
         for (src, page) in doc.internal.pages
             empty!(page.globals.meta)
-            local orphans = Dict{String, Tuple{Int, Int}}()
+            orphans = Dict{String, Tuple{Int, Int}}()
             for element in page.elements
                 Walkers.walk(page.globals.meta, page.mapping[element]) do block
                     footnote(block, orphans)
@@ -483,7 +483,7 @@ function linkcheck(doc::Documents.Document)
 end
 
 function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
-    local INDENT = " "^6
+    INDENT = " "^6
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
@@ -504,13 +504,13 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
         end
         local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
         if ismatch(STATUS_REGEX, result)
-            local status = parse(Int, match(STATUS_REGEX, result).captures[1])
+            status = parse(Int, match(STATUS_REGEX, result).captures[1])
             if status < 300
                 print_with_color(:green, INDENT, "$(status) ", link.url, "\n")
             elseif status < 400
-                local LOCATION_REGEX = r"^Location: (.+)$"m
+                LOCATION_REGEX = r"^Location: (.+)$"m
                 if ismatch(LOCATION_REGEX, result)
-                    local location = strip(match(LOCATION_REGEX, result).captures[1])
+                    location = strip(match(LOCATION_REGEX, result).captures[1])
                     print_with_color(:yellow, INDENT, "$(status) ", link.url, "\n")
                     print_with_color(:yellow, INDENT, " -> ", location, "\n\n")
                 else

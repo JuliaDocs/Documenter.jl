@@ -252,7 +252,7 @@ function Document(;
     )
     Utilities.check_kwargs(others)
 
-    local fmt = Formats.fmt(format)
+    fmt = Formats.fmt(format)
     @assert !isempty(fmt) "No formats provided."
 
     if version == "git-commit"

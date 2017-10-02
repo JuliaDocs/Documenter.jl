@@ -248,7 +248,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, current_module())
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        local binding = try
+        binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
             push!(doc.internal.errors, :docs_block)
@@ -263,9 +263,9 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
             failed = true
             continue
         end
-        local typesig = eval(curmod, Documenter.DocSystem.signature(ex, str))
+        typesig = eval(curmod, Documenter.DocSystem.signature(ex, str))
 
-        local object = Utilities.Object(binding, typesig)
+        object = Utilities.Object(binding, typesig)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
             push!(doc.internal.errors, :docs_block)
@@ -275,7 +275,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         end
 
         # Find the docs matching `binding` and `typesig`. Only search within the provided modules.
-        local docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.user.modules)
+        docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.user.modules)
 
         # Include only docstrings from user-provided modules if provided.
         if !isempty(doc.user.modules)
@@ -291,13 +291,13 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         end
 
         # Concatenate found docstrings into a single `MD` object.
-        local docstr = Base.Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
+        docstr = Base.Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
         docstr.meta[:results] = docs
 
         # Generate a unique name to be used in anchors and links for the docstring.
-        local slug = Utilities.slugify(object)
-        local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
-        local docsnode = DocsNode(docstr, anchor, object, page)
+        slug = Utilities.slugify(object)
+        anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
+        docsnode = DocsNode(docstr, anchor, object, page)
 
         # Track the order of insertion of objects per-binding.
         push!(get!(doc.internal.bindings, binding, Utilities.Object[]), object)
@@ -330,23 +330,23 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     end
     if haskey(fields, :Modules)
         # Gather and filter docstrings.
-        local modules = fields[:Modules]
-        local order = get(fields, :Order, AUTODOCS_DEFAULT_ORDER)
-        local pages = get(fields, :Pages, [])
-        local public = get(fields, :Public, true)
-        local private = get(fields, :Private, true)
-        local results = []
+        modules = fields[:Modules]
+        order = get(fields, :Order, AUTODOCS_DEFAULT_ORDER)
+        pages = get(fields, :Pages, [])
+        public = get(fields, :Public, true)
+        private = get(fields, :Private, true)
+        results = []
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
                 # Which bindings should be included?
-                local isexported = Base.isexported(mod, binding.var)
-                local included = (isexported && public) || (!isexported && private)
+                isexported = Base.isexported(mod, binding.var)
+                included = (isexported && public) || (!isexported && private)
                 # What category does the binding belong to?
-                local category = Documenter.DocSystem.category(binding)
+                category = Documenter.DocSystem.category(binding)
                 if category in order && included
                     for (typesig, docstr) in multidoc.docs
-                        local path = docstr.data[:path]
-                        local object = Utilities.Object(binding, typesig)
+                        path = docstr.data[:path]
+                        object = Utilities.Object(binding, typesig)
                         if isempty(pages)
                             push!(results, (mod, path, category, object, isexported, docstr))
                         else
@@ -363,10 +363,10 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         end
 
         # Sort docstrings.
-        local modulemap = Documents.precedence(modules)
-        local pagesmap = Documents.precedence(pages)
-        local ordermap = Documents.precedence(order)
-        local comparison = function (a, b)
+        modulemap = Documents.precedence(modules)
+        pagesmap = Documents.precedence(pages)
+        ordermap = Documents.precedence(order)
+        comparison = function (a, b)
             local t
             (t = Documents._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
             a[5] == b[5] || return a[5] > b[5] # exported bindings before unexported ones.
@@ -384,11 +384,11 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 Utilities.warn(page.source, "Duplicate docs found for '$(object.binding)'.")
                 continue
             end
-            local markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
+            markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
             markdown.meta[:results] = [docstr]
-            local slug = Utilities.slugify(object)
-            local anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
-            local docsnode = DocsNode(markdown, anchor, object, page)
+            slug = Utilities.slugify(object)
+            anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
+            docsnode = DocsNode(markdown, anchor, object, page)
 
             # Track the order of insertion of objects per-binding.
             push!(get!(doc.internal.bindings, object.binding, Utilities.Object[]), object)
@@ -504,7 +504,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             end
         end
         result = value
-        local output = if success
+        output = if success
             hide = Documenter.DocChecks.ends_with_semicolon(input)
             Documenter.DocChecks.result_to_string(buffer, hide ? nothing : value)
         else
@@ -552,7 +552,7 @@ end
 # ----
 
 function Selectors.runner(::Type{RawBlocks}, x, page, doc)
-    local matched = Utilities.nullmatch(r"@raw[ ](.+)$", x.language)
+    matched = Utilities.nullmatch(r"@raw[ ](.+)$", x.language)
     isnull(matched) && error("invalid '@raw <name>' syntax: $(x.language)")
     page.mapping[x] = Documents.RawNode(Symbol(Utilities.getmatch(matched, 1)), x.code)
 end
