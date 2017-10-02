@@ -13,7 +13,8 @@ import ..Utilities
 
 import Base.Markdown:
     MD, BlockQuote, Bold, Code, Header, HorizontalRule,
-    Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table
+    Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table,
+    Footnote, Admonition
 
 """
 Convert a Markdown object to a `String` of only text (i.e. not formatting info).
@@ -78,23 +79,16 @@ mdflatten(io, c::Code, parent) = print(io, c.code)
 # Special (inline) "node" -- due to JuliaMark's interpolations
 mdflatten(io, expr::Union{Symbol,Expr}, parent) = print(io, expr)
 
-# Only available on Julia 0.5.
-if isdefined(Base.Markdown, :Footnote)
-    import Base.Markdown: Footnote
-    mdflatten(io, f::Footnote, parent) = footnote(io, f.id, f.text, f)
-    footnote(io, id, text::Void, parent) = print(io, "[$id]")
-    function footnote(io, id, text, parent)
-        print(io, "[$id]: ")
-        mdflatten(io, text, parent)
-    end
+mdflatten(io, f::Footnote, parent) = footnote(io, f.id, f.text, f)
+footnote(io, id, text::Void, parent) = print(io, "[$id]")
+function footnote(io, id, text, parent)
+    print(io, "[$id]: ")
+    mdflatten(io, text, parent)
 end
 
-if isdefined(Base.Markdown, :Admonition)
-    import Base.Markdown: Admonition
-    function mdflatten(io, a::Admonition, parent)
-        println(io, "$(a.category): $(a.title)")
-        mdflatten(io, a.content, a)
-    end
+function mdflatten(io, a::Admonition, parent)
+    println(io, "$(a.category): $(a.title)")
+    mdflatten(io, a.content, a)
 end
 
 end

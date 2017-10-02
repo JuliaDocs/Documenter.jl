@@ -14,7 +14,7 @@ import ...Documenter:
     Writers
 
 using Compat
-
+import Base.Markdown: isordered
 
 mutable struct Context{I <: IO} <: IO
     io::I
@@ -305,63 +305,47 @@ function latex(io::IO, md::Markdown.BlockQuote)
     end
 end
 
-if isdefined(Markdown, :Admonition)
-    function latex(io::IO, md::Markdown.Admonition)
-        wrapblock(io, "quote") do
-            wrapinline(io, "textbf") do
-                _print(io, md.title)
-            end
-            _println(io, "\n")
-            latex(io, md.content)
+function latex(io::IO, md::Markdown.Admonition)
+    wrapblock(io, "quote") do
+        wrapinline(io, "textbf") do
+            _print(io, md.title)
+        end
+        _println(io, "\n")
+        latex(io, md.content)
+    end
+end
+
+function latex(io::IO, f::Markdown.Footnote)
+    id = get(io.footnotes, f.id, 1)
+    _print(io, "\\footnotetext[", id, "]{")
+    latex(io, f.text)
+    _println(io, "}")
+end
+
+function latex(io::IO, md::Markdown.List)
+    # `\begin{itemize}` is used here for both ordered and unordered lists since providing
+    # custom starting numbers for enumerated lists is simpler to do by manually assigning
+    # each number to `\item` ourselves rather than using `\setcounter{enumi}{<start>}`.
+    #
+    # For an ordered list starting at 5 the following will be generated:
+    #
+    # \begin{itemize}
+    #   \item[5. ] ...
+    #   \item[6. ] ...
+    #   ...
+    # \end{itemize}
+    #
+    pad = ndigits(md.ordered + length(md.items)) + 2
+    fmt = n -> (isordered(md) ? "[$(rpad("$(n + md.ordered - 1).", pad))]" : "")
+    wrapblock(io, "itemize") do
+        for (n, item) in enumerate(md.items)
+            _print(io, "\\item$(fmt(n)) ")
+            latex(io, item)
+            n < length(md.items) && _println(io)
         end
     end
 end
 
-if isdefined(Markdown, :Footnote)
-    function latex(io::IO, f::Markdown.Footnote)
-        id = get(io.footnotes, f.id, 1)
-        _print(io, "\\footnotetext[", id, "]{")
-        latex(io, f.text)
-        _println(io, "}")
-    end
-end
-
-if isdefined(Base.Markdown, :isordered)
-    function latex(io::IO, md::Markdown.List)
-        # `\begin{itemize}` is used here for both ordered and unordered lists since providing
-        # custom starting numbers for enumerated lists is simpler to do by manually assigning
-        # each number to `\item` ourselves rather than using `\setcounter{enumi}{<start>}`.
-        #
-        # For an ordered list starting at 5 the following will be generated:
-        #
-        # \begin{itemize}
-        #   \item[5. ] ...
-        #   \item[6. ] ...
-        #   ...
-        # \end{itemize}
-        #
-        pad = ndigits(md.ordered + length(md.items)) + 2
-        fmt = n -> (isordered(md) ? "[$(rpad("$(n + md.ordered - 1).", pad))]" : "")
-        wrapblock(io, "itemize") do
-            for (n, item) in enumerate(md.items)
-                _print(io, "\\item$(fmt(n)) ")
-                latex(io, item)
-                n < length(md.items) && _println(io)
-            end
-        end
-    end
-else
-    function latex(io::IO, md::Markdown.List)
-        env = md.ordered ? "enumerate" : "itemize"
-        wrapblock(io, env) do
-            for item in md.items
-                _print(io, "\\item ")
-                latexinline(io, item)
-                _println(io)
-            end
-        end
-    end
-end
 
 function latex(io::IO, hr::Markdown.HorizontalRule)
     _println(io, "{\\rule{\\textwidth}{1pt}}")
@@ -446,11 +430,9 @@ function latexinline(io::IO, md::Markdown.Image)
     end
 end
 
-if isdefined(Markdown, :Footnote)
-    function latexinline(io::IO, f::Markdown.Footnote)
-        id = get!(io.footnotes, f.id, length(io.footnotes) + 1)
-        _print(io, "\\footnotemark[", id, "]")
-    end
+function latexinline(io::IO, f::Markdown.Footnote)
+    id = get!(io.footnotes, f.id, length(io.footnotes) + 1)
+    _print(io, "\\footnotemark[", id, "]")
 end
 
 function latexinline(io::IO, md::Markdown.Link)
@@ -524,12 +506,6 @@ function wrapinline(f, io, cmd)
     _print(io, "\\", cmd, "{")
     f()
     _print(io, "}")
-end
-
-if isdefined(Markdown, :isordered)
-    isordered(x) = Markdown.isordered(x)
-else
-    isordered(list::Markdown.List) = false
 end
 
 

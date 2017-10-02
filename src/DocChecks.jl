@@ -72,27 +72,14 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Bindin
     out
 end
 
-if isdefined(Base.Docs, :META′) # 0.4
-    meta(m) = isdefined(m, Docs.META′) ? Docs.meta(m) : ObjectIdDict()
-else # 0.5
-    meta(m) = Docs.meta(m)
-end
+meta(m) = Docs.meta(m)
 
-if isleaftype(Function) # 0.4
-    nameof(x::Function) = x.env.name
-else # 0.5
-    nameof(x::Function) = typeof(x).name.mt.name
-end
+nameof(x::Function)          = typeof(x).name.mt.name
 nameof(b::Base.Docs.Binding) = b.var
 nameof(x::DataType)          = x.name.name
 nameof(m::Module)            = module_name(m)
 
-if isdefined(Base.Docs, :MultiDoc) # 0.5
-    sigs(x::Base.Docs.MultiDoc) = x.order
-else # 0.4
-    sigs(x::Base.Docs.FuncDoc) = x.order
-    sigs(x::Base.Docs.TypeDoc) = x.order
-end
+sigs(x::Base.Docs.MultiDoc) = x.order
 sigs(::Any) = Type[Union{}]
 
 # Julia code block testing.
@@ -398,64 +385,59 @@ end
 # Footnote checks.
 # ----------------
 
-if isdefined(Base.Markdown, :Footnote)
-    function footnotes(doc::Documents.Document)
-        println(" > checking footnote links.")
-        # A mapping of footnote ids to a tuple counter of how many footnote references and
-        # footnote bodies have been found.
-        #
-        # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
-        # footnote references and a single footnote body.
-        footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
-        for (src, page) in doc.internal.pages
-            empty!(page.globals.meta)
-            orphans = Dict{String, Tuple{Int, Int}}()
-            for element in page.elements
-                Walkers.walk(page.globals.meta, page.mapping[element]) do block
-                    footnote(block, orphans)
-                end
+function footnotes(doc::Documents.Document)
+    println(" > checking footnote links.")
+    # A mapping of footnote ids to a tuple counter of how many footnote references and
+    # footnote bodies have been found.
+    #
+    # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
+    # footnote references and a single footnote body.
+    footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
+    for (src, page) in doc.internal.pages
+        empty!(page.globals.meta)
+        orphans = Dict{String, Tuple{Int, Int}}()
+        for element in page.elements
+            Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                footnote(block, orphans)
             end
-            footnotes[page] = orphans
         end
-        for (page, orphans) in footnotes
-            for (id, (ids, bodies)) in orphans
-                # Multiple footnote bodies.
-                if bodies > 1
-                    push!(doc.internal.errors, :footnote)
-                    Utilities.warn(page.source, "Footnote '$id' has $bodies bodies.")
-                end
-                # No footnote references for an id.
-                if ids === 0
-                    push!(doc.internal.errors, :footnote)
-                    Utilities.warn(page.source, "Unused footnote named '$id'.")
-                end
-                # No footnote bodies for an id.
-                if bodies === 0
-                    push!(doc.internal.errors, :footnote)
-                    Utilities.warn(page.source, "No footnotes found for '$id'.")
-                end
+        footnotes[page] = orphans
+    end
+    for (page, orphans) in footnotes
+        for (id, (ids, bodies)) in orphans
+            # Multiple footnote bodies.
+            if bodies > 1
+                push!(doc.internal.errors, :footnote)
+                Utilities.warn(page.source, "Footnote '$id' has $bodies bodies.")
+            end
+            # No footnote references for an id.
+            if ids === 0
+                push!(doc.internal.errors, :footnote)
+                Utilities.warn(page.source, "Unused footnote named '$id'.")
+            end
+            # No footnote bodies for an id.
+            if bodies === 0
+                push!(doc.internal.errors, :footnote)
+                Utilities.warn(page.source, "No footnotes found for '$id'.")
             end
         end
     end
-
-    function footnote(fn::Markdown.Footnote, orphans::Dict)
-        ids, bodies = get(orphans, fn.id, (0, 0))
-        if fn.text === nothing
-            # Footnote references: syntax `[^1]`.
-            orphans[fn.id] = (ids + 1, bodies)
-            return false # No more footnotes inside footnote references.
-        else
-            # Footnote body: syntax `[^1]:`.
-            orphans[fn.id] = (ids, bodies + 1)
-            return true # Might be footnotes inside footnote bodies.
-        end
-    end
-
-    footnote(other, orphans::Dict) = true
-else
-    footnotes(doc::Documents.Document) = nothing
 end
 
+function footnote(fn::Markdown.Footnote, orphans::Dict)
+    ids, bodies = get(orphans, fn.id, (0, 0))
+    if fn.text === nothing
+        # Footnote references: syntax `[^1]`.
+        orphans[fn.id] = (ids + 1, bodies)
+        return false # No more footnotes inside footnote references.
+    else
+        # Footnote body: syntax `[^1]:`.
+        orphans[fn.id] = (ids, bodies + 1)
+        return true # Might be footnotes inside footnote bodies.
+    end
+end
+
+footnote(other, orphans::Dict) = true
 
 # Link Checks.
 # ------------
