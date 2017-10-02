@@ -119,6 +119,47 @@ julia> a + 1
 2
 ```
 
+# Filtered doctests
+
+## Global
+
+```jldoctest
+julia> print("Ptr{0x123456}")
+Ptr{0x654321}
+```
+
+## Local
+```@meta
+DocTestFilters = [r"foo[a-z]+"]
+```
+
+```jldoctest
+julia> print("foobar")
+foobuu
+```
+
+```@meta
+DocTestFilters = []
+```
+
+## Errors
+
+```@meta
+DocTestFilters = [r"Stacktrace:\n \[1\][\s\S]+"]
+```
+
+```jldoctest
+julia> error()
+ERROR:
+Stacktrace:
+ [1] error() at ./thisfiledoesnotexist.jl:123456789
+```
+
+```@meta
+DocTestFilters = []
+```
+
+
 # Sanitise module names
 
 ```jldoctest
