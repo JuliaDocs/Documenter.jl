@@ -74,11 +74,7 @@ end
 
 meta(m) = Docs.meta(m)
 
-if isleaftype(Function) # 0.4
-    nameof(x::Function) = x.env.name
-else # 0.5
-    nameof(x::Function) = typeof(x).name.mt.name
-end
+nameof(x::Function)          = typeof(x).name.mt.name
 nameof(b::Base.Docs.Binding) = b.var
 nameof(x::DataType)          = x.name.name
 nameof(m::Module)            = module_name(m)
