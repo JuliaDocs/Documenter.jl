@@ -61,15 +61,6 @@ function warn(doc, page, msg, err)
     print_with_color(:red, STDOUT, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n")
 end
 
-# Nullable regex matches.
-
-wrapnothing(T, ::Void) = Nullable{T}()
-wrapnothing(T, value)  = Nullable(value)
-
-nullmatch(r::Regex, str::AbstractString) = wrapnothing(RegexMatch, match(r, str))
-
-getmatch(n::Nullable{RegexMatch}, i) = get(n)[i]
-
 # Directory paths.
 
 """
@@ -300,41 +291,41 @@ Remove docstrings from the markdown object, `doc`, that are not from one of `mod
 function filterdocs(doc::Markdown.MD, modules::Set{Module})
     if isempty(modules)
         # When no modules are specified in `makedocs` then don't filter anything.
-        Nullable(doc)
+        doc
     else
         if haskey(doc.meta, :module)
-            doc.meta[:module] ∈ modules ? Nullable(doc) : Nullable{Markdown.MD}()
+            doc.meta[:module] ∈ modules ? doc : nothing
         else
             if haskey(doc.meta, :results)
                 out = []
                 results = []
                 for (each, result) in zip(doc.content, doc.meta[:results])
                     r = filterdocs(each, modules)
-                    if !isnull(r)
-                        push!(out, get(r))
+                    if r !== nothing
+                        push!(out, r)
                         push!(results, result)
                     end
                 end
                 if isempty(out)
-                    Nullable{Markdown.MD}()
+                    nothing
                 else
                     md = Markdown.MD(out)
                     md.meta[:results] = results
-                    Nullable(md)
+                    md
                 end
             else
                 out = []
                 for each in doc.content
                     r = filterdocs(each, modules)
-                    isnull(r) || push!(out, get(r))
+                    r === nothing || push!(out, r)
                 end
-                isempty(out) ? Nullable{Markdown.MD}() : Nullable(Markdown.MD(out))
+                isempty(out) ? nothing : Markdown.MD(out)
             end
         end
     end
 end
 # Non-markdown docs won't have a `.meta` field so always just accept those.
-filterdocs(other, modules::Set{Module}) = Nullable(other)
+filterdocs(other, modules::Set{Module}) = other
 
 """
 Does the given docstring represent actual documentation or a no docs error message?
@@ -421,12 +412,12 @@ function url(repo, file)
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
     path = relpath_from_repo_root(file)
-    if isnull(path)
-        Nullable{String}()
+    if path === nothing
+        nothing
     else
         repo = replace(repo, "{commit}", repo_commit(file))
         repo = replace(repo, "{path}", string("/", get(path)))
-        Nullable{String}(repo)
+        repo
     end
 end
 
@@ -434,7 +425,7 @@ url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], l
 
 function url(remote, repo, mod, file, linerange)
     remote = getremote(dirname(file))
-    isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{String}()
+    isabspath(file) && isempty(remote) && isempty(repo) && return nothing
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
     # Format the line range.
@@ -445,26 +436,24 @@ function url(remote, repo, mod, file, linerange)
     if inbase(mod) || !isabspath(file)
         base = "https://github.com/JuliaLang/julia/tree"
         dest = "base/$file#$line"
-        Nullable{String}(
-            if isempty(Base.GIT_VERSION_INFO.commit)
-                "$base/v$VERSION/$dest"
-            else
-                commit = Base.GIT_VERSION_INFO.commit
-                "$base/$commit/$dest"
-            end
-        )
+        if isempty(Base.GIT_VERSION_INFO.commit)
+            "$base/v$VERSION/$dest"
+        else
+            commit = Base.GIT_VERSION_INFO.commit
+            "$base/$commit/$dest"
+        end
     else
         path = relpath_from_repo_root(file)
         if isempty(repo)
             repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
         end
-        if isnull(path)
-            Nullable{String}()
+        if path === nothing
+            nothing
         else
             repo = replace(repo, "{commit}", repo_commit(file))
             repo = replace(repo, "{path}", string("/", get(path)))
             repo = replace(repo, "{line}", line)
-            Nullable{String}(repo)
+            repo
         end
     end
 end
@@ -476,12 +465,12 @@ function getremote(dir::AbstractString)
         catch err
             ""
         end
-    match  = Utilities.nullmatch(Base.LibGit2.GITHUB_REGEX, remote)
-    if isnull(match)
+    m = match(Base.LibGit2.GITHUB_REGEX, remote)
+    if m === nothing
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis
     else
-        getmatch(match, 1)
+        m[1]
     end
 end
 
@@ -525,8 +514,6 @@ format_line(line::Integer) = string('L', line)
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
 
-
-unwrap(f, x::Nullable) = isnull(x) ? nothing : f(get(x))
 
 # Output redirection.
 # -------------------

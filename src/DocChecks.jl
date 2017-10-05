@@ -115,10 +115,10 @@ function __ans__!(m::Module, value)
 end
 
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
-    matched = Utilities.nullmatch(r"jldoctest[ ]?(.*)$", block.language)
-    if !isnull(matched)
+    m = match(r"jldoctest[ ]?(.*)$", block.language)
+    if m !== nothing
         # Define new module or reuse an old one from this page if we have a named doctest.
-        name = Utilities.getmatch(matched, 1)
+        name = m[1]
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
         sandbox = get!(page.globals.meta, sym) do
             newmod = Module(sym)
@@ -335,19 +335,19 @@ function repl_splitter(code)
         # REPL code blocks may contain leading lines with comments. Drop them.
         # TODO: handle multiline comments?
         startswith(line, '#') && continue
-        prompt = Utilities.nullmatch(PROMPT_REGEX, line)
-        if isnull(prompt)
-            source = Utilities.nullmatch(SOURCE_REGEX, line)
-            if isnull(source)
+        prompt = match(PROMPT_REGEX, line)
+        if prompt === nothing
+            source = match(SOURCE_REGEX, line)
+            if source === nothing
                 savebuffer!(input, buffer)
                 println(buffer, line)
                 takeuntil!(PROMPT_REGEX, buffer, lines)
             else
-                println(buffer, Utilities.getmatch(source, 1))
+                println(buffer, source[1])
             end
         else
             savebuffer!(output, buffer)
-            println(buffer, Utilities.getmatch(prompt, 1))
+            println(buffer, prompt[1])
         end
     end
     savebuffer!(output, buffer)
@@ -362,7 +362,7 @@ end
 function takeuntil!(r, buf, lines)
     while !isempty(lines)
         line = lines[1]
-        if isnull(Utilities.nullmatch(r, line))
+        if !ismatch(r, line)
             println(buf, shift!(lines))
         else
             break

@@ -41,13 +41,13 @@ end
         c = Documenter.Utilities.filterdocs(doc, Set{Module}([Base]))
         d = Documenter.Utilities.filterdocs(doc, Set{Module}([UtilitiesTests]))
 
-        @test !isnull(a)
-        @test get(a) === doc
-        @test !isnull(b)
-        @test contains(stringmime("text/plain", get(b)), "Documenter unit tests.")
-        @test !isnull(c)
-        @test !contains(stringmime("text/plain", get(c)), "Documenter unit tests.")
-        @test isnull(d)
+        @test a !== nothing
+        @test a === doc
+        @test b !== nothing
+        @test contains(stringmime("text/plain", b), "Documenter unit tests.")
+        @test c !== nothing
+        @test !contains(stringmime("text/plain", c), "Documenter unit tests.")
+        @test d === nothing
     end
 
     # Documenter.Utilities.issubmodule

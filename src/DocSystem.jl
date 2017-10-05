@@ -124,7 +124,7 @@ function docstr(md::Markdown.MD; kws...)
         :module => md.meta[:module],
         :linenumber => 0,
     )
-    doc = DocStr(Core.svec(), Nullable(md), data)
+    doc = DocStr(Core.svec(), md, data)
     for (key, value) in kws
         doc.data[key] = value
     end
