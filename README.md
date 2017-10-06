@@ -23,7 +23,7 @@ julia> Pkg.add("Documenter")
 
 ## Project Status
 
-The package is tested against Julia `0.5`, `0.6` and *current* `0.7-dev` on Linux, OS X, and Windows.
+The package is tested against Julia `0.6` and *current* `0.7-dev` on Linux, OS X, and Windows.
 
 ## Contributing and Questions
 
