@@ -474,7 +474,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
 
     # Special-case support for displaying SVG graphics. TODO: make this more general.
     output = mimewritable(MIME"image/svg+xml"(), result) ?
-        Documents.RawHTML(stringmime(MIME"image/svg+xml"(), result)) :
+        Documents.RawHTML(Base.invokelatest(stringmime, MIME"image/svg+xml"(), result)) :
         Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
 
     # Only add content when there's actually something to add.
