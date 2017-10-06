@@ -79,33 +79,6 @@ module AutoDocs
     end
 end
 
-module Issue398
-
-struct TestType{T} end
-
-function _show end
-Base.show(io::IO, t::TestType) = _show(io, t)
-
-macro define_show_and_make_object(x, y)
-    z = Expr(:quote, x)
-    esc(quote
-        $(Issue398)._show(io::IO, t::$(Issue398).TestType{$z}) = print(io, $y)
-        const $x = $(Issue398).TestType{$z}()
-    end)
-end
-
-export @define_show_and_make_object
-
-end # module
-
-module InlineSVG
-export SVG
-mutable struct SVG
-    code :: String
-end
-Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
-end # module
-
 # Build example docs
 using Documenter
 

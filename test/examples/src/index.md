@@ -141,13 +141,36 @@ Main
 
 ```@meta
 DocTestSetup = quote
-    using Issue398
+    module Issue398
+
+    struct TestType{T} end
+
+    function _show end
+    Base.show(io::IO, t::TestType) = _show(io, t)
+
+    macro define_show_and_make_object(x, y)
+        z = Expr(:quote, x)
+        esc(quote
+            $(Issue398)._show(io::IO, t::$(Issue398).TestType{$z}) = print(io, $y)
+            const $x = $(Issue398).TestType{$z}()
+        end)
+    end
+
+    export @define_show_and_make_object
+
+    end # module
+
+    using .Issue398
 end
 ```
 
 ```jldoctest
 julia> @define_show_and_make_object q "abcd"
 abcd
+```
+
+```@meta
+DocTestSetup = nothing
 ```
 
 # Issue418
