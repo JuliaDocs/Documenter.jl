@@ -177,8 +177,18 @@ Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
 
 .. then we we can invoke and show them with an `@example` block:
 
-```@example
-using InlineSVG
+```@setup inlinesvg
+module InlineSVG
+export SVG
+mutable struct SVG
+    code :: String
+end
+Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
+end # module
+```
+
+```@example inlinesvg
+using .InlineSVG
 SVG("""
 <svg width="82" height="76">
   <g style="stroke-width: 3">
