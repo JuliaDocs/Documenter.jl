@@ -5,12 +5,18 @@ A module for rendering `Document` objects to HTML.
 
 [`HTMLWriter`](@ref) uses the following additional keyword arguments that can be passed to
 [`Documenter.makedocs`](@ref): `assets`, `sitename`, `analytics`, `authors`, `pages`,
-`version`, `html_prettyurls`.
+`version`, `html_prettyurls`, `html_disable_git`.
 
 **`version`** specifies the version string of the current version which will be the
 selected option in the version selector. If this is left empty (default) the version
 selector will be hidden. The special value `git-commit` sets the value in the output to
 `git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
+
+**`html_disable_git`** can be used to disable calls to `git` when the document is not
+in a Git-controlled repository. Without setting this to `true`, Documenter will throw
+an error and exit if any of the Git commands fail. The calls to Git are mainly used to
+gather information about the current commit hash and file paths, necessary for constructing
+the links to the remote repository.
 
 # Page outline
 
