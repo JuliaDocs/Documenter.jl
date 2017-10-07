@@ -50,7 +50,7 @@ const DEPRECATION_MAPPING = Dict(
     HTML     => :html,
 )
 function _fmt(f::Format)
-    local s = DEPRECATION_MAPPING[f]
+    s = DEPRECATION_MAPPING[f]
     Base.depwarn("`$(f)` is deprecated use `:$(s)` for `format = ...`.", :fmt)
     return s
 end

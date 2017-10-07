@@ -7,7 +7,7 @@ module Deps
 
 export pip
 
-using DocStringExtensions
+using Compat, DocStringExtensions
 
 """
 $(SIGNATURES)
@@ -33,8 +33,8 @@ pip(deps...) = () -> run(`pip install --user $(deps...)`)
 
 
 function localbin()
-    is_linux() ? joinpath(homedir(), ".local", "bin") :
-    is_apple() ? joinpath(homedir(), "Library", "Python", "2.7", "bin") : ""
+    Compat.Sys.islinux() ? joinpath(homedir(), ".local", "bin") :
+    Compat.Sys.isapple() ? joinpath(homedir(), "Library", "Python", "2.7", "bin") : ""
 end
 
 function updatepath!(p = localbin())
@@ -43,11 +43,6 @@ function updatepath!(p = localbin())
     else
         ENV["PATH"] = "$p:$(ENV["PATH"])"
     end
-end
-
-if isdefined(:OS_NAME) && !isdefined(:is_linux) && !isdefined(:is_apple) # compat
-    is_linux() = OS_NAME === :Linux
-    is_apple() = OS_NAME === :Apple || OS_NAME === :Darwin
 end
 
 end

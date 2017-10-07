@@ -4,6 +4,7 @@ Provides a collection of utility functions and types that are used in other subm
 module Utilities
 
 using Base.Meta, Compat
+import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 
 # Logging output.
@@ -124,14 +125,14 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
     # Check whether we have windows-style line endings.
-    local offset = contains(code, "\n\r") ? 2 : 1
-    local endofstr = endof(code)
-    local results = []
-    local cursor = 1
+    offset = contains(code, "\n\r") ? 2 : 1
+    endofstr = endof(code)
+    results = []
+    cursor = 1
     while cursor < endofstr
         # Check for keywords first since they will throw parse errors if we `parse` them.
-        local line = match(r"^(.+)$"m, SubString(code, cursor)).captures[1]
-        local keyword = Symbol(strip(line))
+        line = match(r"^(.+)$"m, SubString(code, cursor)).captures[1]
+        keyword = Symbol(strip(line))
         (ex, ncursor) =
             if keywords && haskey(Docs.keywords, keyword)
                 # adding offset below should be OK, as `\n` and `\r` are single byte
@@ -194,17 +195,11 @@ function submodules(root::Module, seen = Set{Module}())
     return seen
 end
 
-# Compat for `isdeprecated` which does not exist in Julia 0.4.
-if isdefined(Base, :isdeprecated)
-    isdeprecated(m, s) = Base.isdeprecated(m, s)
-else
-    isdeprecated(m, s) = ccall(:jl_is_binding_deprecated, Cint, (Any, Any), m, s) != 0
-end
+
 
 ## objects
 ## =======
 
-import Base.Docs: Binding
 
 
 """
@@ -293,9 +288,7 @@ doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
 doccat(::DataType) = "Type"
-if isdefined(Base, :UnionAll)
-    doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
-end
+doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
 doccat(::Module)   = "Module"
 doccat(::Any)      = "Constant"
 
@@ -477,8 +470,7 @@ function getremote(dir::AbstractString)
         catch err
             ""
         end
-    match  = Utilities.nullmatch(isdefined(Base, :LibGit2) ?
-        Base.LibGit2.GITHUB_REGEX : Pkg.Git.GITHUB_REGEX, remote)
+    match  = Utilities.nullmatch(Base.LibGit2.GITHUB_REGEX, remote)
     if isnull(match)
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis
@@ -519,7 +511,7 @@ function linerange(text, from)
 end
 
 function format_line(range::Range)
-    local top = format_line(first(range))
+    top = format_line(first(range))
     return length(range) <= 1 ? top : string(top, '-', format_line(last(range)))
 end
 format_line(line::Integer) = string('L', line)
@@ -549,17 +541,17 @@ where
 """
 function withoutput(f)
     # Save the default output streams.
-    local stdout = STDOUT
-    local stderr = STDERR
+    stdout = STDOUT
+    stderr = STDERR
 
     # Redirect both the `STDOUT` and `STDERR` streams to a single `Pipe` object.
-    local pipe = Pipe()
+    pipe = Pipe()
     Base.link_pipe(pipe; julia_only_read = true, julia_only_write = true)
     redirect_stdout(pipe.in)
     redirect_stderr(pipe.in)
 
     # Bytes written to the `pipe` are captured in `output` and converted to a `String`.
-    local output = UInt8[]
+    output = UInt8[]
 
     # Run the function `f`, capturing all output that it might have generated.
     # Success signals whether the function `f` did or did not throw an exception.

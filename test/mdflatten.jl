@@ -59,15 +59,12 @@ using Documenter.Utilities.MDFlatten
     # linebreaks
     @test mdflatten(Markdown.parse("A\\\nB")) == "A\nB\n\n"
 
-    # Only available on Julia 0.5.
-    if isdefined(Base.Markdown, :Footnote)
-        @test mdflatten(Markdown.parse("[^name]")) == "[name]\n\n"
-        @test mdflatten(Markdown.parse("[^name]:**Strong** text.")) == "[name]: Strong text.\n\n"
-    end
+    # footnotes
+    @test mdflatten(Markdown.parse("[^name]")) == "[name]\n\n"
+    @test mdflatten(Markdown.parse("[^name]:**Strong** text.")) == "[name]: Strong text.\n\n"
 
-    if isdefined(Base.Markdown, :Admonition)
-        @test mdflatten(Markdown.parse("!!! note \"Admonition Title\"\n    Test")) == "note: Admonition Title\nTest\n\n"
-    end
+    # admonitions
+    @test mdflatten(Markdown.parse("!!! note \"Admonition Title\"\n    Test")) == "note: Admonition Title\nTest\n\n"
 end
 
 end

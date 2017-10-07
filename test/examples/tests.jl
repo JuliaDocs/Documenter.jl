@@ -16,7 +16,7 @@ using Compat
 
 @testset "Examples" begin
     @testset "Markdown" begin
-        local doc = Main.examples_markdown_doc
+        doc = Main.examples_markdown_doc
 
         @test isa(doc, Documenter.Documents.Document)
 
@@ -78,7 +78,7 @@ using Compat
     end
 
     @testset "HTML" begin
-        local doc = Main.examples_html_doc
+        doc = Main.examples_html_doc
 
         @test isa(doc, Documenter.Documents.Document)
 
@@ -86,7 +86,7 @@ using Compat
     end
 
     @testset "HTML: html-pretty-urls" begin
-        local doc = Main.examples_html_doc
+        doc = Main.examples_html_doc
 
         @test isa(doc, Documenter.Documents.Document)
 
