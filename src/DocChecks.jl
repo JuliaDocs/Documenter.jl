@@ -183,7 +183,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
         result = Result(code, input, output, meta[:CurrentFile])
         for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
             # Input containing a semi-colon gets suppressed in the final output.
-            result.hide = ends_with_semicolon(str)
+            result.hide = Base.REPL.ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
                 disable_color() do
                     Core.eval(sandbox, ex)
@@ -247,18 +247,6 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         strip(str) == output || report(result, str, doc)
     end
     return nothing
-end
-
-# from base/REPL.jl
-function ends_with_semicolon(line)
-    match = rsearch(line, ';')
-    if match != 0
-        for c in line[(match+1):end]
-            isspace(c) || return c == '#'
-        end
-        return true
-    end
-    return false
 end
 
 # Display doctesting results.
