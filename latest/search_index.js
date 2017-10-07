@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Package Features",
     "category": "section",
-    "text": "Write all your documentation in Markdown.\nMinimal configuration.\nSupports Julia 0.5, 0.6 and 0.7-dev.\nDoctests Julia code blocks.\nCross references for docs and section headers.\nLaTeX syntax support.\nChecks for missing docstrings and incorrect cross references.\nGenerates tables of contents and docstring indexes.\nUse git push to automatically build and deploy docs from Travis to GitHub Pages.The Package Guide provides a tutorial explaining how to get started using Documenter.Some examples of packages using Documenter can be found on the Examples page.See the Index for the complete list of documented functions and types."
+    "text": "Write all your documentation in Markdown.\nMinimal configuration.\nSupports Julia 0.6 and 0.7-dev.\nDoctests Julia code blocks.\nCross references for docs and section headers.\nLaTeX syntax support.\nChecks for missing docstrings and incorrect cross references.\nGenerates tables of contents and docstring indexes.\nUse git push to automatically build and deploy docs from Travis to GitHub Pages.The Package Guide provides a tutorial explaining how to get started using Documenter.Some examples of packages using Documenter can be found on the Examples page.See the Index for the complete list of documented functions and types."
 },
 
 {
