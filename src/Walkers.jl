@@ -44,35 +44,25 @@ const MDContentElements = Union{
 }
 walk(f, meta, block::MDContentElements) = f(block) ? walk(f, meta, block.content) : nothing
 
-walk(f, meta, block::Anchors.Anchor) = walk(f, meta, block.object)
-
+walk(f, meta, block::Anchors.Anchor)      = walk(f, meta, block.object)
 walk(f, meta, block::Expanders.DocsNodes) = walk(f, meta, block.nodes)
 walk(f, meta, block::Expanders.DocsNode)  = walk(f, meta, block.docstr)
+walk(f, meta, block::Expanders.EvalNode)  = walk(f, meta, block.result)
+walk(f, meta, block::Expanders.MetaNode)  = (merge!(meta, block.dict); nothing)
+walk(f, meta, block::Documents.RawHTML)   = nothing
 
-walk(f, meta, block::Expanders.EvalNode) = walk(f, meta, block.result)
-
-walk(f, meta, block::Documents.RawHTML) = nothing
-
-walk(f, meta, block::Expanders.MetaNode) = (merge!(meta, block.dict); nothing)
 
 const MDTextElements = Union{
     Markdown.Bold,
     Markdown.Header,
     Markdown.Italic,
 }
-walk(f, meta, block::MDTextElements) = f(block) ? walk(f, meta, block.text)  : nothing
-
-if isdefined(Base.Markdown, :Footnote)
-    walk(f, meta, block::Markdown.Footnote) = f(block) ? walk(f, meta, block.text) : nothing
-end
-
-if isdefined(Base.Markdown, :Admonition)
-    walk(f, meta, block::Markdown.Admonition) = f(block) ? walk(f, meta, block.content) : nothing
-end
-
-walk(f, meta, block::Markdown.Image) = f(block) ? walk(f, meta, block.alt)   : nothing
-walk(f, meta, block::Markdown.Table) = f(block) ? walk(f, meta, block.rows)  : nothing
-walk(f, meta, block::Markdown.List)  = f(block) ? walk(f, meta, block.items) : nothing
-walk(f, meta, block::Markdown.Link)  = f(block) ? walk(f, meta, block.text)  : nothing
+walk(f, meta, block::MDTextElements)      = f(block) ? walk(f, meta, block.text)    : nothing
+walk(f, meta, block::Markdown.Footnote)   = f(block) ? walk(f, meta, block.text)    : nothing
+walk(f, meta, block::Markdown.Admonition) = f(block) ? walk(f, meta, block.content) : nothing
+walk(f, meta, block::Markdown.Image)      = f(block) ? walk(f, meta, block.alt)     : nothing
+walk(f, meta, block::Markdown.Table)      = f(block) ? walk(f, meta, block.rows)    : nothing
+walk(f, meta, block::Markdown.List)       = f(block) ? walk(f, meta, block.items)   : nothing
+walk(f, meta, block::Markdown.Link)       = f(block) ? walk(f, meta, block.text)    : nothing
 
 end

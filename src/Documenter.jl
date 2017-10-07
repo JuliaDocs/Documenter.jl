@@ -489,8 +489,8 @@ function deploydocs(;
                             # Build a `release-*.*` folder as well when the travis tag is
                             # valid, which it *should* always be anyway.
                             if ismatch(Base.VERSION_REGEX, travis_tag)
-                                local version = VersionNumber(travis_tag)
-                                local release = "release-$(version.major).$(version.minor)"
+                                version = VersionNumber(travis_tag)
+                                release = "release-$(version.major).$(version.minor)"
                                 gitrm_copy(target_dir, joinpath(dirname, release))
                                 Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
                             end
@@ -537,8 +537,8 @@ function gitrm_copy(src, dst)
 end
 
 function withfile(func, file::AbstractString, contents::AbstractString)
-    local hasfile = isfile(file)
-    local original = hasfile ? readstring(file) : ""
+    hasfile = isfile(file)
+    original = hasfile ? readstring(file) : ""
     open(file, "w") do stream
         print(stream, contents)
         flush(stream) # Make sure file is written before continuing.
@@ -576,9 +576,7 @@ using Compat, DocStringExtensions
 
 export genkeys
 
-
-const GITHUB_REGEX = isdefined(Base, :LibGit2) ?
-    Base.LibGit2.GITHUB_REGEX : Base.Pkg.Git.GITHUB_REGEX
+import Base.LibGit2.GITHUB_REGEX
 
 
 """
@@ -620,7 +618,7 @@ function genkeys(package; remote="origin")
     directory = "docs"
     filename  = ".documenter"
 
-    local path = isdir(package) ? package : Pkg.dir(package, directory)
+    path = isdir(package) ? package : Pkg.dir(package, directory)
     isdir(path) || error("`$path` not found. Provide a package name or directory.")
 
     cd(path) do

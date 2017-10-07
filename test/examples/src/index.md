@@ -131,7 +131,7 @@ julia> fullname(current_module())
 ()
 
 julia> fullname(Base.Pkg)
-(:Base,:Pkg)
+(:Base, :Pkg)
 
 julia> current_module()
 Main

@@ -50,6 +50,7 @@ Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 module HTMLWriter
 
 using Compat
+import Base.Markdown: isordered
 
 import ...Documenter:
     Anchors,
@@ -220,11 +221,11 @@ end
 
 function asset_links(src::AbstractString, assets::Vector)
     @tags link script
-    local links = DOM.Node[]
+    links = DOM.Node[]
     for each in assets
-        local ext = splitext(each)[end]
-        local url = relhref(src, each)
-        local node =
+        ext = splitext(each)[end]
+        url = relhref(src, each)
+        node =
             ext == ".ico" ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
             ext == ".css" ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
             ext == ".js"  ? script[:src => url] : continue # Skip non-js/css files.
@@ -434,9 +435,9 @@ function render_topbar(ctx, navnode)
 end
 
 function generate_version_file(dir::AbstractString)
-    local named_folders = []
-    local release_folders = []
-    local tag_folders = []
+    named_folders = []
+    release_folders = []
+    tag_folders = []
     for each in readdir(dir)
         each in ("stable", "latest")        ? push!(named_folders,   each) :
         ismatch(r"release\-\d+\.\d+", each) ? push!(release_folders, each) :
@@ -770,13 +771,13 @@ function collect_subsections(page::Documents.Page)
     title_found = false
     for element in page.elements
         if isa(element, Base.Markdown.Header) && Utilities.header_level(element) < 3
-            local toplevel = Utilities.header_level(element) === 1
+            toplevel = Utilities.header_level(element) === 1
             # Don't include the first header if it is `h1`.
             if toplevel && isempty(sections) && !title_found
                 title_found = true
                 continue
             end
-            local anchor = page.mapping[element]
+            anchor = page.mapping[element]
             push!(sections, (toplevel, "#$(anchor.id)-$(anchor.nth)", element.text))
         end
     end
@@ -788,8 +789,8 @@ end
 # ------------------------------------------------------------------------------
 
 const md_block_nodes = [Markdown.MD, Markdown.BlockQuote]
-fieldtype(Markdown.List, :ordered) == Int && push!(md_block_nodes, Markdown.List)
-if isdefined(Base.Markdown, :Admonition) push!(md_block_nodes, Markdown.Admonition) end
+push!(md_block_nodes, Markdown.List)
+push!(md_block_nodes, Markdown.Admonition)
 
 """
 [`MDBlockContext`](@ref) is a union of all the Markdown nodes whose children should
@@ -861,32 +862,21 @@ mdconvert(t::Markdown.Table, parent; kwargs...) = Tag(:table)(
 
 mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 
-# Only available on Julia 0.5.
-if isdefined(Base.Markdown, :Footnote)
-    mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
-    footnote(id, text::Void, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
-    function footnote(id, text, parent; kwargs...)
-        Tag(:div)[".footnote#footnote-$(id)"](
-            Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
-            mdconvert(text, parent; kwargs...),
-        )
-    end
+mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
+footnote(id, text::Void, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
+function footnote(id, text, parent; kwargs...)
+    Tag(:div)[".footnote#footnote-$(id)"](
+        Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
+        mdconvert(text, parent; kwargs...),
+    )
 end
 
-if isdefined(Base.Markdown, :Admonition)
-    function mdconvert(a::Markdown.Admonition, parent; kwargs...)
-        @tags div
-        div[".admonition.$(a.category)"](
-            div[".admonition-title"](a.title),
-            div[".admonition-text"](mdconvert(a.content, a; kwargs...))
-        )
-    end
-end
-
-if isdefined(Base.Markdown, :isordered)
-    import Base.Markdown: isordered
-else
-    isordered(a::Markdown.List) = a.ordered::Bool
+function mdconvert(a::Markdown.Admonition, parent; kwargs...)
+    @tags div
+    div[".admonition.$(a.category)"](
+        div[".admonition-title"](a.title),
+        div[".admonition-text"](mdconvert(a.content, a; kwargs...))
+    )
 end
 
 mdconvert(html::Documents.RawHTML, parent; kwargs...) = Tag(Symbol("#RAW#"))(html.code)

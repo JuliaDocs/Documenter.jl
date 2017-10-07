@@ -113,7 +113,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[link] = link.url
     # Parse the link text and find current module.
-    local keyword = Symbol(strip(code))
+    keyword = Symbol(strip(code))
     local ex
     if haskey(Docs.keywords, keyword)
         ex = QuoteNode(keyword)
@@ -127,7 +127,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
             return
         end
     end
-    local mod = get(meta, :CurrentModule, current_module())
+    mod = get(meta, :CurrentModule, current_module())
 
     # Find binding and type signature associated with the link.
     local binding
@@ -149,7 +149,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
     end
 
     # Try to find a valid object that we can cross-reference.
-    local nullobject = find_object(doc, binding, typesig)
+    nullobject = find_object(doc, binding, typesig)
     if !isnull(nullobject)
         object = get(nullobject)
         # Replace the `@ref` url with a path to the referenced docs.
@@ -171,12 +171,12 @@ heuristic isn't too picky about what matches and will only fail when no `Binding
 `binding` have been included.
 """
 function find_object(doc::Documents.Document, binding, typesig)
-    local object = Utilities.Object(binding, typesig)
+    object = Utilities.Object(binding, typesig)
     if haskey(doc.internal.objects, object)
         # Exact object matching the requested one.
         return Nullable(object)
     else
-        local objects = get(doc.internal.bindings, binding, Utilities.Object[])
+        objects = get(doc.internal.bindings, binding, Utilities.Object[])
         if isempty(objects)
             # No bindings match the requested object == FAILED.
             return Nullable{Utilities.Object}()
@@ -184,7 +184,7 @@ function find_object(doc::Documents.Document, binding, typesig)
             # Only one possible choice. Use it even if the signature doesn't match.
             return Nullable(objects[1])
         else
-            local candidate = find_object(binding, typesig)
+            candidate = find_object(binding, typesig)
             if candidate in objects
                 # We've found an actual match out of the possible choices! Use it.
                 return Nullable(candidate)
@@ -205,7 +205,7 @@ function find_object(binding, typesig)
 end
 function find_object(λ::Union{Function, DataType}, binding, typesig)
     if _method_exists(λ, typesig)
-        local signature = getsig(λ, typesig)
+        signature = getsig(λ, typesig)
         return Utilities.Object(binding, signature)
     else
         return Utilities.Object(binding, typesig)

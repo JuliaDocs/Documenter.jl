@@ -80,7 +80,7 @@ julia> # First definition.
        end
 
 julia> isdefined(:f), isdefined(:T) # Check for both definitions.
-(true,true)
+(true, true)
 
 julia> import Base
 
