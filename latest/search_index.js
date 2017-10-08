@@ -773,7 +773,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Anchors",
     "title": "Documenter.Anchors.anchor",
     "category": "Method",
-    "text": "anchor(m, id)\n\n\nReturns the Anchor object matching id. file and n may also be provided. A Nullable{Anchor} is returned which must be unwrapped with isnull and get before use.\n\n\n\n"
+    "text": "anchor(m, id)\n\n\nReturns the Anchor object matching id. file and n may also be provided. An Anchor is returned, or nothing in case of no match.\n\n\n\n"
 },
 
 {
@@ -1865,7 +1865,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,AbstractString}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.get_url",
     "category": "Method",
@@ -1901,7 +1901,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navhref",
     "category": "Method",
-    "text": "Get the relative hyperlink between two Documents.NavNodes. Assumes that both Documents.NavNodes have an associated Documents.Page (i.e. .page is not null).\n\n\n\n"
+    "text": "Get the relative hyperlink between two Documents.NavNodes. Assumes that both Documents.NavNodes have an associated Documents.Page (i.e. .page is not nothing).\n\n\n\n"
 },
 
 {
@@ -1925,11 +1925,11 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pagetitle",
     "category": "Method",
-    "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents of the first <h1> on a page as a Nullable (nulled if the algorithm was unable to find any <h1> headers).\n\n\n\n"
+    "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents of the first <h1> on a page (or nothing if the algorithm was unable to find any <h1> headers).\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.pretty_url-Tuple{Any,Any}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.pretty_url-Tuple{Any,AbstractString}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pretty_url",
     "category": "Method",
