@@ -227,7 +227,7 @@ end
 # Regex used here to replace gensym'd module names could probably use improvements.
 function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
     sandbox_name = module_name(sandbox)
-    mod_regex = Regex("(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
+    mod_regex = Regex("(?:Main\\.)?(?:((Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]))")
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
