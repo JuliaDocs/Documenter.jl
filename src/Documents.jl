@@ -144,20 +144,20 @@ to other page, reference to the [`Page`](@ref) object etc.
 """
 mutable struct NavNode
     """
-    `null` if the `NavNode` is a non-page node of the navigation tree, otherwise
+    `nothing` if the `NavNode` is a non-page node of the navigation tree, otherwise
     the string should be a valid key in `doc.internal.pages`
     """
-    page           :: Nullable{String}
+    page           :: Union{String, Void}
     """
-    If not `null`, specifies the text that should be displayed in navigation
+    If not `nothing`, specifies the text that should be displayed in navigation
     links etc. instead of the automatically determined text.
     """
-    title_override :: Nullable{String}
-    parent         :: Nullable{NavNode}
+    title_override :: Union{String, Void}
+    parent         :: Union{NavNode, Void}
     children       :: Vector{NavNode}
     visible        :: Bool
-    prev           :: Nullable{NavNode}
-    next           :: Nullable{NavNode}
+    prev           :: Union{NavNode, Void}
+    next           :: Union{NavNode, Void}
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
 
@@ -166,8 +166,8 @@ Constructs a list of the ancestors of the `navnode` (inclding the `navnode` itse
 ordered so that the root of the navigation tree is the first and `navnode` itself
 is the last item.
 """
-navpath(navnode::NavNode) = isnull(navnode.parent) ? [navnode] :
-    push!(navpath(get(navnode.parent)), navnode)
+navpath(navnode::NavNode) = navnode.parent === nothing ? [navnode] :
+    push!(navpath(navnode.parent), navnode)
 
 
 # Inner Document Fields.

@@ -445,10 +445,10 @@ end
 # --------
 
 function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
-    matched = Utilities.nullmatch(r"^@example[ ]?(.*)$", x.language)
-    isnull(matched) && error("invalid '@example' syntax: $(x.language)")
+    matched = match(r"^@example[ ]?(.*)$", x.language)
+    matched === nothing && error("invalid '@example' syntax: $(x.language)")
     # The sandboxed module -- either a new one or a cached one from this page.
-    name = Utilities.getmatch(matched, 1)
+    name = matched[1]
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
@@ -488,9 +488,9 @@ end
 # -----
 
 function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
-    matched = Utilities.nullmatch(r"^@repl[ ]?(.*)$", x.language)
-    isnull(matched) && error("invalid '@repl' syntax: $(x.language)")
-    name = Utilities.getmatch(matched, 1)
+    matched = match(r"^@repl[ ]?(.*)$", x.language)
+    matched === nothing && error("invalid '@repl' syntax: $(x.language)")
+    name = matched[1]
     sym  = isempty(name) ? gensym("repl-") : Symbol("repl-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     code = split(x.code, '\n'; limit = 2)[end]
@@ -525,10 +525,10 @@ end
 # ------
 
 function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
-    matched = Utilities.nullmatch(r"^@setup[ ](.+)$", x.language)
-    isnull(matched) && error("invalid '@setup <name>' syntax: $(x.language)")
+    matched = match(r"^@setup[ ](.+)$", x.language)
+    matched === nothing && error("invalid '@setup <name>' syntax: $(x.language)")
     # The sandboxed module -- either a new one or a cached one from this page.
-    name = Utilities.getmatch(matched, 1)
+    name = matched[1]
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
 
@@ -552,9 +552,9 @@ end
 # ----
 
 function Selectors.runner(::Type{RawBlocks}, x, page, doc)
-    matched = Utilities.nullmatch(r"@raw[ ](.+)$", x.language)
-    isnull(matched) && error("invalid '@raw <name>' syntax: $(x.language)")
-    page.mapping[x] = Documents.RawNode(Symbol(Utilities.getmatch(matched, 1)), x.code)
+    m = match(r"@raw[ ](.+)$", x.language)
+    m === nothing && error("invalid '@raw <name>' syntax: $(x.language)")
+    page.mapping[x] = Documents.RawNode(Symbol(m[1]), x.code)
 end
 
 # Utilities.

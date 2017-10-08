@@ -127,11 +127,11 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
 
     # Finally we populate the .next and .prev fields of the navnodes that point
     # to actual pages.
-    local prev::Nullable{Documents.NavNode} = nothing
+    local prev::Union{Documents.NavNode, Void} = nothing
     for navnode in doc.internal.navlist
         navnode.prev = prev
-        Utilities.unwrap(prev) do prevnode
-            prevnode.next = navnode
+        if prev !== nothing
+            prev.next = navnode
         end
         prev = navnode
     end

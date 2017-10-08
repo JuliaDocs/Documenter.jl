@@ -93,7 +93,7 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
     if Anchors.exists(headers, slug)
         if Anchors.isunique(headers, slug)
             # Replace the `@ref` url with a path to the referenced header.
-            anchor   = get(Anchors.anchor(headers, slug))
+            anchor   = Anchors.anchor(headers, slug)
             path     = relpath(anchor.file, dirname(page.build))
             link.url = string(path, '#', slug, '-', anchor.nth)
         else
@@ -149,9 +149,8 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
     end
 
     # Try to find a valid object that we can cross-reference.
-    nullobject = find_object(doc, binding, typesig)
-    if !isnull(nullobject)
-        object = get(nullobject)
+    object = find_object(doc, binding, typesig)
+    if object !== nothing
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
@@ -174,23 +173,23 @@ function find_object(doc::Documents.Document, binding, typesig)
     object = Utilities.Object(binding, typesig)
     if haskey(doc.internal.objects, object)
         # Exact object matching the requested one.
-        return Nullable(object)
+        return object
     else
         objects = get(doc.internal.bindings, binding, Utilities.Object[])
         if isempty(objects)
             # No bindings match the requested object == FAILED.
-            return Nullable{Utilities.Object}()
+            return nothing
         elseif length(objects) == 1
             # Only one possible choice. Use it even if the signature doesn't match.
-            return Nullable(objects[1])
+            return objects[1]
         else
             candidate = find_object(binding, typesig)
             if candidate in objects
                 # We've found an actual match out of the possible choices! Use it.
-                return Nullable(candidate)
+                return candidate
             else
                 # No match in the possible choices. Use the one that was first included.
-                return Nullable(objects[1])
+                return objects[1]
             end
         end
     end

@@ -38,7 +38,7 @@ end
 
     @test length(navlist) == 6
     for (i,navnode) in enumerate(navlist)
-        @test get(navnode.page) == "page$i.md"
+        @test navnode.page == "page$i.md"
     end
 
     @test isa(navtree, Vector{NavNode})
@@ -48,8 +48,8 @@ end
     @test navtree[4] === navlist[6]
 
     section = navtree[3]
-    @test get(section.title_override) == "Section"
-    @test isnull(section.page)
+    @test section.title_override == "Section"
+    @test section.page === nothing
     @test length(section.children) == 3
 
     navpath = Documents.navpath(navlist[5])

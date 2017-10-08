@@ -105,23 +105,23 @@ end
 """
 $(SIGNATURES)
 
-Returns the [`Anchor`](@ref) object matching `id`. `file` and `n` may also be provided. A
-`Nullable{Anchor}` is returned which must be unwrapped with `isnull` and `get` before use.
+Returns the [`Anchor`](@ref) object matching `id`. `file` and `n` may also be provided. An
+`Anchor` is returned, or `nothing` in case of no match.
 """
 function anchor(m::AnchorMap, id)
     isunique(m, id) ?
         anchor(m, id, first(first(m.map[id])), 1) :
-        Nullable{Anchor}()
+        nothing
 end
 function anchor(m::AnchorMap, id, file)
     isunique(m, id, file) ?
         anchor(m, id, file, 1) :
-        Nullable{Anchor}()
+        nothing
 end
 function anchor(m::AnchorMap, id, file, n)
     exists(m, id, file, n) ?
-        Nullable(m.map[id][file][n]) :
-        Nullable{Anchor}()
+        m.map[id][file][n]   :
+        nothing
 end
 
 end
