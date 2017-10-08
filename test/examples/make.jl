@@ -121,6 +121,8 @@ examples_html_doc = makedocs(
 
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+
+    html_edit_branch = nothing,
 )
 
 info("Building mock package docs: HTMLWriter with pretty URLs")

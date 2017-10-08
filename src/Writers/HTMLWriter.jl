@@ -18,6 +18,9 @@ an error and exit if any of the Git commands fail. The calls to Git are mainly u
 gather information about the current commit hash and file paths, necessary for constructing
 the links to the remote repository.
 
+**`html_edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
+point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
+
 # Page outline
 
 The [`HTMLWriter`](@ref) makes use of the page outline that is determined by the
@@ -410,7 +413,7 @@ function render_article(ctx, navnode)
         logo = "\uf171"
     end
     if !ctx.doc.user.html_disable_git
-        url = Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source)
+        url = Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source, commit=ctx.doc.user.html_edit_branch)
         if url !== nothing
             push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
         end

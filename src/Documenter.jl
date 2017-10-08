@@ -127,7 +127,7 @@ a different host, you can use this option to tell Documenter how URLs should be
 generated. The following placeholders will be replaced with the respective
 value of the generated link:
 
-  - `{commit}` Git commit id
+  - `{commit}` Git branch or tag name, or commit hash
   - `{path}` Path to the file in the repository
   - `{line}` Line (or range of lines) in the source file
 
