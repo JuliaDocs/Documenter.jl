@@ -391,11 +391,7 @@ function relpath_from_repo_root(file)
         if in_cygwin()
             root = readchomp(`cygpath -m "$root"`)
         end
-        if startswith(file, root)
-            Nullable{Compat.String}(relpath(file, root))
-        else
-            Nullable{Compat.String}()
-        end
+        startswith(file, root) ? relpath(file, root) : nothing
     end
 end
 
@@ -416,7 +412,7 @@ function url(repo, file)
         nothing
     else
         repo = replace(repo, "{commit}", repo_commit(file))
-        repo = replace(repo, "{path}", string("/", get(path)))
+        repo = replace(repo, "{path}", string("/", path))
         repo
     end
 end
@@ -451,7 +447,7 @@ function url(remote, repo, mod, file, linerange)
             nothing
         else
             repo = replace(repo, "{commit}", repo_commit(file))
-            repo = replace(repo, "{path}", string("/", get(path)))
+            repo = replace(repo, "{path}", string("/", path))
             repo = replace(repo, "{line}", line)
             repo
         end
