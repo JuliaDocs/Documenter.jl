@@ -255,6 +255,13 @@ Possible fix, define
   g(::Float64, ::Float64)
 ```
 
+# Anonymous function declaration
+
+```jldoc
+julia> x->x # ignore error on 0.7
+#1 (generic function with 1 method)
+```
+
 # Bad links (Windows)
 
 * [Colons not allowed on Windows -- `some:path`](some:path)

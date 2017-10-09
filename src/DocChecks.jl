@@ -328,6 +328,7 @@ remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")
 
 const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
+const ANON_FUNC_DECLARATION = r"#[0-9]+ \(generic function with [0-9]+ method(s)?\)"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
@@ -338,7 +339,9 @@ function repl_splitter(code)
         line = shift!(lines)
         # REPL code blocks may contain leading lines with comments. Drop them.
         # TODO: handle multiline comments?
-        startswith(line, '#') && continue
+        # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
+        # TODO: Remove this special case and just disallow lines with comments?
+        startswith(line, '#') && !ismatch(ANON_FUNC_DECLARATION, line) && continue
         prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
