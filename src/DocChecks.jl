@@ -227,14 +227,16 @@ end
 # Regex used here to replace gensym'd module names could probably use improvements.
 function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
     sandbox_name = module_name(sandbox)
-    mod_regex = Regex("(?:Main\\.)?(?:((Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]))")
+    mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
+    mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
         head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex, "")
+        head = replace(head, mod_regex_nodot, "Main")
         str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
-        str = replace(str, Regex(string(sandbox_name)), "Main")
+        str  = replace(str, mod_regex_nodot, "Main")
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
         if isempty(head) || !startswith(str, head)
@@ -244,7 +246,7 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         value = result.hide ? nothing : result.value # `;` hides output.
         str = replace(result_to_string(result.stdout, value), mod_regex, "")
         # Replace a standalone module name with `Main`.
-        str = replace(str, Regex(string(sandbox_name)), "Main")
+        str = replace(str, mod_regex_nodot, "Main")
         output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
         strip(str) == output || report(result, str, doc)
     end
