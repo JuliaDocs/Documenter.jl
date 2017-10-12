@@ -186,6 +186,7 @@ struct User
     linkcheck::Bool           # Check external links..
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
+    doctestfilters::Vector{Regex} # Filtering for doctests
     strict::Bool              # Throw an exception when any warnings are encountered.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
@@ -240,6 +241,7 @@ function Document(;
         linkcheck:: Bool             = false,
         linkcheck_ignore :: Vector   = [],
         checkdocs::Symbol            = :all,
+        doctestfilters::Vector{Regex}= Regex[],
         strict::Bool                 = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
@@ -247,10 +249,10 @@ function Document(;
         repo     :: AbstractString   = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
-        analytics :: AbstractString = "",
-        version :: AbstractString = "",
-        html_prettyurls :: Bool = false,
-        html_disable_git :: Bool = false,
+        analytics :: AbstractString  = "",
+        version :: AbstractString    = "",
+        html_prettyurls  :: Bool     = false,
+        html_disable_git :: Bool     = false,
         html_edit_branch :: Union{String, Void} = "master",
         others...
     )
@@ -273,6 +275,7 @@ function Document(;
         linkcheck,
         linkcheck_ignore,
         checkdocs,
+        doctestfilters,
         strict,
         Utilities.submodules(modules),
         pages,

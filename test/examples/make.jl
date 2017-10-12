@@ -100,6 +100,7 @@ examples_html_doc = makedocs(
     root  = examples_root,
     build = "builds/html",
     format   = :html,
+    doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = ["assets/custom.css"],
     sitename = "Documenter example",
     pages    = Any[
@@ -132,6 +133,7 @@ examples_html_doc = makedocs(
     build = "builds/html-pretty-urls",
     format   = :html,
     html_prettyurls = true,
+    doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = [
         "assets/favicon.ico",
         "assets/custom.css"

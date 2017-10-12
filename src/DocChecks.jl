@@ -198,7 +198,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
                 result.bt = backtrace
             end
         end
-        checkresult(sandbox, result, doc)
+        checkresult(sandbox, result, meta, doc)
     end
 end
 
@@ -221,11 +221,21 @@ function eval_script(code, sandbox, meta::Dict, doc::Documents.Document, page)
             break
         end
     end
-    checkresult(sandbox, result, doc)
+    checkresult(sandbox, result, meta, doc)
+end
+
+function filter_doctests(strings::NTuple{2, AbstractString},
+                         doc::Documents.Document, meta::Dict)
+    local_filters = get(meta, :DocTestFilters, [])
+    local_filters == nothing && local_filters == []
+    for r in [doc.user.doctestfilters; local_filters]
+        strings = replace.(strings, r, "")
+    end
+    return strings
 end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
-function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
+function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents.Document)
     sandbox_name = module_name(sandbox)
     mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
@@ -237,6 +247,8 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         head = replace(head, mod_regex_nodot, "Main")
         str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
         str  = replace(str, mod_regex_nodot, "Main")
+
+        str, head = filter_doctests((str, head), doc, meta)
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
         if isempty(head) || !startswith(str, head)
@@ -244,11 +256,12 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
+        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
         str = replace(result_to_string(result.stdout, value), mod_regex, "")
         # Replace a standalone module name with `Main`.
-        str = replace(str, mod_regex_nodot, "Main")
-        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
-        strip(str) == output || report(result, str, doc)
+        str = strip(replace(str, mod_regex_nodot, "Main"))
+        str, output = filter_doctests((str, output), doc, meta)
+        str == output || report(result, str, doc)
     end
     return nothing
 end

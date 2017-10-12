@@ -205,7 +205,7 @@ Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
 ## `@meta` block
 
 This block type is used to define metadata key/value pairs that can be used elsewhere in the
-page. Currently `CurrentModule` and `DocTestSetup` are the only recognised keys.
+page. Currently `CurrentModule`, `DocTestSetup` and `DocTestFilters` are the only recognised keys.
 
 ````markdown
 ```@meta
@@ -213,6 +213,7 @@ CurrentModule = FooBar
 DocTestSetup  = quote
     using MyPackage
 end
+DocTestFilters = [r"Stacktrace:[\s\S]+"]
 ```
 ````
 

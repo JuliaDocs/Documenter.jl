@@ -191,6 +191,37 @@ help avoid unintentional definitions in following doctest blocks.
     The `DocTestSetup` value is **re-evaluated** at the start of *each* doctest block
     and no state is shared between any code blocks.
 
+## Filtering Doctests
+
+A part of the output of a doctest might be non-deterministic, e.g. pointer addresses and timings.
+It is therefore possible to filter a doctest so that the deterministic part can still be tested.
+
+A filter takes the form of a regular expression.
+In a doctest, each match in the expected output and the actual output is removed before the two outputs are compared.
+Filters are added globally, i.e. applied to all doctests in the documentation, by passing a list of regular expressions to
+`makedocs` with the keyword `doctestfilters`.
+
+For more fine grained control, a list of regular expressions can also be assigned inside a `@meta` block by assigning to the variable `DocTestFilters`.
+The global filters and the filters defined in the `@meta` block are both applied to each doctest.
+
+An example is given below where some of the non-deterministic output from `@time` is filered.
+
+````markdown
+```@meta
+DocTestFilters = [r"[0-9\.]+ seconds \(.*\)"]
+```
+
+```jldoctest
+julia> @time [1,2,3,4]
+  0.000003 seconds (5 allocations: 272 bytes)
+4-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+```
+````
+
 ## Skipping Doctests
 
 Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
