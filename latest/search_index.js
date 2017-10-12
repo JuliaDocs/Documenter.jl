@@ -229,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Syntax",
     "title": "@meta block",
     "category": "section",
-    "text": "This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently CurrentModule and DocTestSetup are the only recognised keys.```@meta\nCurrentModule = FooBar\nDocTestSetup  = quote\n    using MyPackage\nend\n```Note that @meta blocks are always evaluated in Main.See Setup Code section of the Doctests page for an explanation of DocTestSetup."
+    "text": "This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently CurrentModule, DocTestSetup and DocTestFilters are the only recognised keys.```@meta\nCurrentModule = FooBar\nDocTestSetup  = quote\n    using MyPackage\nend\nDocTestFilters = [r\"Stacktrace:[\\s\\S]+\"]\n```Note that @meta blocks are always evaluated in Main.See Setup Code section of the Doctests page for an explanation of DocTestSetup."
 },
 
 {
@@ -334,6 +334,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Setup Code",
     "category": "section",
     "text": "Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. For this purpose a @meta block containing a DocTestSetup = ... value can be used. In the example below, the function foo is defined inside a @meta block. This block will be evaluated at the start of the following doctest blocks:```@meta\nDocTestSetup = quote\n    function foo(x)\n        return x^2\n    end\nend\n```\n\n```jldoctest\njulia> foo(2)\n4\n```\n\n```@meta\nDocTestSetup = nothing\n```The DocTestSetup = nothing is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions in following doctest blocks.note: Note\nThe DocTestSetup value is re-evaluated at the start of each doctest block and no state is shared between any code blocks."
+},
+
+{
+    "location": "man/doctests/#Filtering-Doctests-1",
+    "page": "Doctests",
+    "title": "Filtering Doctests",
+    "category": "section",
+    "text": "A part of the output of a doctest might be non-deterministic, e.g. pointer addresses and timings. It is therefore possible to filter a doctest so that the deterministic part can still be tested.A filter takes the form of a regular expression. In a doctest, each match in the expected output and the actual output is removed before the two outputs are compared. Filters are added globally, i.e. applied to all doctests in the documentation, by passing a list of regular expressions to makedocs with the keyword doctestfilters.For more fine grained control, a list of regular expressions can also be assigned inside a @meta block by assigning to the variable DocTestFilters. The global filters and the filters defined in the @meta block are both applied to each doctest.An example is given below where some of the non-deterministic output from @time is filered.```@meta\nDocTestFilters = [r\"[0-9\\.]+ seconds \\(.*\\)\"]\n```\n\n```jldoctest\njulia> @time [1,2,3,4]\n  0.000003 seconds (5 allocations: 272 bytes)\n4-element Array{Int64,1}:\n 1\n 2\n 3\n 4\n```"
 },
 
 {
