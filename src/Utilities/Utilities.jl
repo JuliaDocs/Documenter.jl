@@ -391,11 +391,7 @@ function relpath_from_repo_root(file)
         if in_cygwin()
             root = readchomp(`cygpath -m "$root"`)
         end
-        if startswith(file, root)
-            Nullable{Compat.String}(relpath(file, root))
-        else
-            Nullable{Compat.String}()
-        end
+        startswith(file, root) ? relpath(file, root) : nothing
     end
 end
 
@@ -405,18 +401,18 @@ function repo_commit(file)
     end
 end
 
-function url(repo, file)
+function url(repo, file; commit=nothing)
     file = abspath(file)
     remote = getremote(dirname(file))
-    isempty(repo) && (repo = "https://github.com/$remote/tree/{commit}{path}")
+    isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
     path = relpath_from_repo_root(file)
     if path === nothing
         nothing
     else
-        repo = replace(repo, "{commit}", repo_commit(file))
-        repo = replace(repo, "{path}", string("/", get(path)))
+        repo = replace(repo, "{commit}", commit === nothing ? repo_commit(file) : commit)
+        repo = replace(repo, "{path}", string("/", path))
         repo
     end
 end
@@ -434,7 +430,7 @@ function url(remote, repo, mod, file, linerange)
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
     if inbase(mod) || !isabspath(file)
-        base = "https://github.com/JuliaLang/julia/tree"
+        base = "https://github.com/JuliaLang/julia/blob"
         dest = "base/$file#$line"
         if isempty(Base.GIT_VERSION_INFO.commit)
             "$base/v$VERSION/$dest"
@@ -445,13 +441,13 @@ function url(remote, repo, mod, file, linerange)
     else
         path = relpath_from_repo_root(file)
         if isempty(repo)
-            repo = "https://github.com/$remote/tree/{commit}{path}#{line}"
+            repo = "https://github.com/$remote/blob/{commit}{path}#{line}"
         end
         if path === nothing
             nothing
         else
             repo = replace(repo, "{commit}", repo_commit(file))
-            repo = replace(repo, "{path}", string("/", get(path)))
+            repo = replace(repo, "{path}", string("/", path))
             repo = replace(repo, "{line}", line)
             repo
         end
