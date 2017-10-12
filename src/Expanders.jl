@@ -230,7 +230,7 @@ function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
-                meta[ex.args[1]] = eval(current_module(), ex.args[2])
+                meta[ex.args[1]] = eval(Main, ex.args[2])
             catch err
                 push!(doc.internal.errors, :meta_block)
                 Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@meta` block.", err)
@@ -246,7 +246,7 @@ end
 function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     failed = false
     nodes  = DocsNode[]
-    curmod = get(page.globals.meta, :CurrentModule, current_module())
+    curmod = get(page.globals.meta, :CurrentModule, Main)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
@@ -316,7 +316,7 @@ end
 const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 
 function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
-    curmod = get(page.globals.meta, :CurrentModule, current_module())
+    curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
@@ -536,7 +536,7 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     page.mapping[x] =
     try
         cd(dirname(page.build)) do
-            eval(mod, :(include_string($(x.code))))
+            include_string(mod, x.code)
         end
         Markdown.MD([])
     catch err

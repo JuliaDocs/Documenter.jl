@@ -1,18 +1,17 @@
+using Test
+using Compat
+
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl
 # has to be expected in the context of the Main module.
-if current_module() === Main && !isdefined(:examples_root)
+if (@__MODULE__) === Main && !@isdefined examples_root
     include("make.jl")
-elseif current_module() !== Main && isdefined(Main, :examples_root)
+elseif (@__MODULE__) !== Main && isdefined(Main, :examples_root)
     using Documenter
     const examples_root = Main.examples_root
-elseif current_module() !== Main && !isdefined(Main, :examples_root)
+elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
-
-using Base.Test
-
-using Compat
 
 @testset "Examples" begin
     @testset "Markdown" begin
@@ -39,8 +38,8 @@ using Compat
             @test isfile(joinpath(build_dir, "man", "julia.svg"))
 
             @test (==)(
-                readstring(joinpath(source_dir, "man", "data.csv")),
-                readstring(joinpath(build_dir,  "man", "data.csv")),
+                read(joinpath(source_dir, "man", "data.csv"), String),
+                read(joinpath(build_dir,  "man", "data.csv"), String),
             )
         end
 

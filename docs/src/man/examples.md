@@ -22,7 +22,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 
 - [Augmentor.jl](https://evizero.github.io/Augmentor.jl/)
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/latest/)
-- [Bio.jl](https://biojulia.github.io/Bio.jl/latest/)
+- [Bio.jl](http://biojulia.net/Bio.jl/latest/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
 - [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)

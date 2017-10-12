@@ -122,7 +122,7 @@ julia> a + 1
 # Sanitise module names
 
 ```jldoctest
-julia> type T end
+julia> struct T end
 
 julia> t = T()
 T()
@@ -217,6 +217,49 @@ julia> a = 1
 
 julia> ans
 1
+```
+
+# Filtering of `Main.`
+
+```jldoctest
+julia> struct Point end;
+
+julia> println(Point)
+Point
+
+julia> sqrt(100)
+10.0
+
+julia> sqrt = 4
+ERROR: cannot assign variable Base.sqrt from module Main
+```
+
+```jldoctest
+julia> g(x::Float64, y) = 2x + y
+g (generic function with 1 method)
+
+julia> g(x, y::Float64) = x + 2y
+g (generic function with 2 methods)
+
+julia> g(2.0, 3)
+7.0
+
+julia> g(2, 3.0)
+8.0
+
+julia> g(2.0, 3.0)
+ERROR: MethodError: g(::Float64, ::Float64) is ambiguous. Candidates:
+  g(x, y::Float64) in Main at none:1
+  g(x::Float64, y) in Main at none:1
+Possible fix, define
+  g(::Float64, ::Float64)
+```
+
+# Anonymous function declaration
+
+```jldoc
+julia> x->x # ignore error on 0.7
+#1 (generic function with 1 method)
 ```
 
 # Bad links (Windows)

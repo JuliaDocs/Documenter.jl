@@ -30,6 +30,6 @@ mutable struct T_1 end
 mutable struct T_2 end
 
 "T_3"
-immutable T_3{T} end
+struct T_3{T} end
 
 end

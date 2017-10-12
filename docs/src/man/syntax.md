@@ -19,7 +19,7 @@ deploydocs
 ````
 
 This block type is evaluated within the `CurrentModule` module if defined, otherwise within
-`current_module()`, and so each object listed in the block should be visible from that
+`Main`, and so each object listed in the block should be visible from that
 module. Undefined objects will raise warnings during documentation generation and cause the
 code block to be rendered in the final document unchanged.
 
@@ -216,8 +216,7 @@ end
 ```
 ````
 
-Note that `@meta` blocks are always evaluated with the `current_module()`, which is
-typically `Main`.
+Note that `@meta` blocks are always evaluated in `Main`.
 
 See [Setup Code](@ref) section of the Doctests page for an explanation of `DocTestSetup`.
 

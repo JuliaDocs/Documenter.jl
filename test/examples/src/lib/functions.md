@@ -48,7 +48,7 @@ println(x, y)
 ```
 
 ```@example 3
-type T end
+struct T end
 t = T()
 ```
 
@@ -99,7 +99,7 @@ a = 1
 println(a)
 b = 2
 a + b
-type T
+struct T
     x :: Int
     y :: Vector
 end

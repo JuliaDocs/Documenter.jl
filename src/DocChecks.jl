@@ -122,7 +122,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
         sandbox = get!(page.globals.meta, sym) do
             newmod = Module(sym)
-            eval(newmod, :(eval(x) = Core.eval(current_module(), x)))
+            eval(newmod, :(eval(x) = Core.eval($newmod, x)))
             eval(newmod, :(eval(m, x) = Core.eval(m, x)))
             newmod
         end
@@ -226,13 +226,17 @@ end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
 function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
-    mod_regex = Regex("(Symbol\\(\"$(sandbox)\"\\)|$(sandbox))[,.]")
+    sandbox_name = module_name(sandbox)
+    mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
+    mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
         head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex, "")
+        head = replace(head, mod_regex_nodot, "Main")
         str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
+        str  = replace(str, mod_regex_nodot, "Main")
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
         if isempty(head) || !startswith(str, head)
@@ -242,7 +246,7 @@ function checkresult(sandbox::Module, result::Result, doc::Documents.Document)
         value = result.hide ? nothing : result.value # `;` hides output.
         str = replace(result_to_string(result.stdout, value), mod_regex, "")
         # Replace a standalone module name with `Main`.
-        str = replace(str, Regex(string(sandbox)), "Main")
+        str = replace(str, mod_regex_nodot, "Main")
         output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
         strip(str) == output || report(result, str, doc)
     end
@@ -324,6 +328,7 @@ remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")
 
 const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
+const ANON_FUNC_DECLARATION = r"#[0-9]+ \(generic function with [0-9]+ method(s)?\)"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
@@ -334,7 +339,9 @@ function repl_splitter(code)
         line = shift!(lines)
         # REPL code blocks may contain leading lines with comments. Drop them.
         # TODO: handle multiline comments?
-        startswith(line, '#') && continue
+        # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
+        # TODO: Remove this special case and just disallow lines with comments?
+        startswith(line, '#') && !ismatch(ANON_FUNC_DECLARATION, line) && continue
         prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
@@ -466,7 +473,7 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
     if !haskey(doc.internal.locallinks, link)
         local result
         try
-            result = readstring(`curl -sI $(link.url)`)
+            result = read(`curl -sI $(link.url)`, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
             Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")

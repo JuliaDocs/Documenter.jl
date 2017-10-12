@@ -26,7 +26,7 @@ mutable struct Globals
     mod  :: Module
     meta :: Dict{Symbol, Any}
 end
-Globals() = Globals(current_module(), Dict())
+Globals() = Globals(Main, Dict())
 
 """
 Represents a single markdown file.
@@ -48,7 +48,7 @@ struct Page
     globals  :: Globals
 end
 function Page(source::AbstractString, build::AbstractString)
-    elements = Base.Markdown.parse(readstring(source)).content
+    elements = Base.Markdown.parse(read(source, String)).content
     Page(source, build, elements, ObjectIdDict(), Globals())
 end
 
@@ -377,7 +377,7 @@ end
 ## Utilities.
 
 function buildnode(T::Type, block, doc, page)
-    mod  = get(page.globals.meta, :CurrentModule, current_module())
+    mod  = get(page.globals.meta, :CurrentModule, Main)
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
     for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)

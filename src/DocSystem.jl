@@ -32,14 +32,8 @@ binding(any::Any) = throw(ArgumentError("cannot convert `$any` to a `Binding`.")
 binding(b::Docs.Binding) = binding(b.mod, b.var)
 binding(d::DataType)     = binding(d.name.module, d.name.name)
 binding(m::Module)       = binding(m, module_name(m))
-binding(s::Symbol)       = binding(current_module(), s)
-
-#
-# In `0.4` some functions aren't generic, hence the `isgeneric` check here.
-# We punt on using `current_module` in when not generic, which may cause
-# trouble when calling this function with a qualified name.
-#
-binding(f::Function) = binding(typeof(f).name.module, typeof(f).name.mt.name)
+binding(s::Symbol)       = binding(Main, s)
+binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name)
 
 #
 # We need a lookup table for `IntrinsicFunction`s since they do not track their

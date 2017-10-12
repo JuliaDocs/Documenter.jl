@@ -166,7 +166,7 @@ end
 ```
 """
 macro tags(args...) esc(tags(args)) end
-tags(s) = :(const ($(s...),) = $(map(Tag, s)))
+tags(s) = :(($(s...),) = $(map(Tag, s)))
 
 const Attributes = Vector{Pair{Symbol, String}}
 
