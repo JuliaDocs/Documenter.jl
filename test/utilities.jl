@@ -80,6 +80,25 @@ end
     @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
     @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
 
+    # line range
+    let
+        repo = "https://github.com/something"
+        lineRange = 2:5
+        expectedString = "L2-L5"
+
+        formatting = Documenter.Utilities.LineRangeFormatting(repo)
+        @test Documenter.Utilities.format_line(lineRange, formatting) == expectedString
+    end
+
+    let
+        repo = "https://bitbucket.org/something"
+        lineRange = 2:5
+        expectedString = "2:5"
+
+        formatting = Documenter.Utilities.LineRangeFormatting(repo)
+        @test Documenter.Utilities.format_line(lineRange, formatting) == expectedString
+    end
+
     import Documenter.Documents: Document, Page, Globals
     let page = Page("source", "build", [], ObjectIdDict(), Globals()), doc = Document()
         code = """
