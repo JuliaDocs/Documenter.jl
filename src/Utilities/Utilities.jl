@@ -425,7 +425,7 @@ function url(remote, repo, mod, file, linerange)
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
     # Format the line range.
-    line = format_line(linerange, LineRangeFormatting(repo))
+    line = format_line(linerange, LineRangeFormatting(repo_host_from_url(repo)))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
@@ -491,6 +491,26 @@ function inbase(m::Module)
     end
 end
 
+# Repository hosts
+#   RepoUnknown denotes that the repository type could not be determined automatically
+@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoUnknown
+
+# Repository host from repository url
+# i.e. "https://github.com/something" => RepoGithub
+#      "https://bitbucket.org/xxx" => RepoBitbucket
+# If no match, returns RepoUnknown
+function repo_host_from_url(repoURL::String)
+    if contains(repoURL, "bitbucket.org")
+        return RepoBitbucket
+    elseif contains(repoURL, "github.com")
+        return RepoGithub
+    elseif contains(repoURL, "gitlab.com")
+        return RepoGitlab
+    else
+        return RepoUnknown
+    end
+end
+
 # Find line numbers.
 # ------------------
 
@@ -505,8 +525,8 @@ struct LineRangeFormatting
     prefix::String
     separator::String
 
-    function LineRangeFormatting(repoURL::String)
-        if (startswith(repoURL, "https://bitbucket.org") || startswith(repoURL, "http://bitbucket.org"))
+    function LineRangeFormatting(host::RepoHost)
+        if host == RepoBitbucket
             new("", ":")
         else
             # default is github-style

@@ -80,22 +80,31 @@ end
     @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
     @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
 
+    # repo type
+    @test Documenter.Utilities.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
+    @test Documenter.Utilities.repo_host_from_url("https://www.bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
+    @test Documenter.Utilities.repo_host_from_url("http://bitbucket.org/somethingelse") == Documenter.Utilities.RepoBitbucket
+    @test Documenter.Utilities.repo_host_from_url("http://github.com/Whatever") == Documenter.Utilities.RepoGithub
+    @test Documenter.Utilities.repo_host_from_url("https://github.com/Whatever") == Documenter.Utilities.RepoGithub
+    @test Documenter.Utilities.repo_host_from_url("https://www.github.com/Whatever") == Documenter.Utilities.RepoGithub
+    @test Documenter.Utilities.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.Utilities.RepoGitlab
+
     # line range
     let
-        repo = "https://github.com/something"
+        repoType = Documenter.Utilities.RepoGithub
         lineRange = 2:5
         expectedString = "L2-L5"
 
-        formatting = Documenter.Utilities.LineRangeFormatting(repo)
+        formatting = Documenter.Utilities.LineRangeFormatting(repoType)
         @test Documenter.Utilities.format_line(lineRange, formatting) == expectedString
     end
 
     let
-        repo = "https://bitbucket.org/something"
+        repoType = Documenter.Utilities.RepoBitbucket
         lineRange = 2:5
         expectedString = "2:5"
 
-        formatting = Documenter.Utilities.LineRangeFormatting(repo)
+        formatting = Documenter.Utilities.LineRangeFormatting(repoType)
         @test Documenter.Utilities.format_line(lineRange, formatting) == expectedString
     end
 
