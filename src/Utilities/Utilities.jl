@@ -500,11 +500,11 @@ end
 #      "https://bitbucket.org/xxx" => RepoBitbucket
 # If no match, returns RepoUnknown
 function repo_host_from_url(repoURL::String)
-    if contains(repoURL, "bitbucket.org")
+    if contains(repoURL, "bitbucket")
         return RepoBitbucket
-    elseif contains(repoURL, "github.com")
+    elseif contains(repoURL, "github")
         return RepoGithub
-    elseif contains(repoURL, "gitlab.com")
+    elseif contains(repoURL, "gitlab")
         return RepoGitlab
     else
         return RepoUnknown
