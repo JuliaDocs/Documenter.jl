@@ -80,6 +80,34 @@ end
     @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
     @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
 
+    # repo type
+    @test Documenter.Utilities.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
+    @test Documenter.Utilities.repo_host_from_url("https://www.bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
+    @test Documenter.Utilities.repo_host_from_url("http://bitbucket.org/somethingelse") == Documenter.Utilities.RepoBitbucket
+    @test Documenter.Utilities.repo_host_from_url("http://github.com/Whatever") == Documenter.Utilities.RepoGithub
+    @test Documenter.Utilities.repo_host_from_url("https://github.com/Whatever") == Documenter.Utilities.RepoGithub
+    @test Documenter.Utilities.repo_host_from_url("https://www.github.com/Whatever") == Documenter.Utilities.RepoGithub
+    @test Documenter.Utilities.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.Utilities.RepoGitlab
+
+    # line range
+    let
+        repo_type = Documenter.Utilities.RepoGithub
+        line_range = 2:5
+        expected_string = "L2-L5"
+
+        formatting = Documenter.Utilities.LineRangeFormatting(repo_type)
+        @test Documenter.Utilities.format_line(line_range, formatting) == expected_string
+    end
+
+    let
+        repo_type = Documenter.Utilities.RepoBitbucket
+        line_range = 2:5
+        expected_string = "2:5"
+
+        formatting = Documenter.Utilities.LineRangeFormatting(repo_type)
+        @test Documenter.Utilities.format_line(line_range, formatting) == expected_string
+    end
+
     import Documenter.Documents: Document, Page, Globals
     let page = Page("source", "build", [], ObjectIdDict(), Globals()), doc = Document()
         code = """
