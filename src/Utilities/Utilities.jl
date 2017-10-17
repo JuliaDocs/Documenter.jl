@@ -535,7 +535,7 @@ struct LineRangeFormatting
     end
 end
 
-function format_line(range::Range, format::LineRangeFormatting)
+function format_line(range::Compat.AbstractRange, format::LineRangeFormatting)
     local top = format_line(first(range), format.prefix)
     return length(range) <= 1 ? top : string(top, format.separator, format_line(last(range), format.prefix))
 end
