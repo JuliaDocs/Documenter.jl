@@ -91,21 +91,21 @@ end
 
     # line range
     let
-        repoType = Documenter.Utilities.RepoGithub
-        lineRange = 2:5
-        expectedString = "L2-L5"
+        repo_type = Documenter.Utilities.RepoGithub
+        line_range = 2:5
+        expected_string = "L2-L5"
 
-        formatting = Documenter.Utilities.LineRangeFormatting(repoType)
-        @test Documenter.Utilities.format_line(lineRange, formatting) == expectedString
+        formatting = Documenter.Utilities.LineRangeFormatting(repo_type)
+        @test Documenter.Utilities.format_line(line_range, formatting) == expected_string
     end
 
     let
-        repoType = Documenter.Utilities.RepoBitbucket
-        lineRange = 2:5
-        expectedString = "2:5"
+        repo_type = Documenter.Utilities.RepoBitbucket
+        line_range = 2:5
+        expected_string = "2:5"
 
-        formatting = Documenter.Utilities.LineRangeFormatting(repoType)
-        @test Documenter.Utilities.format_line(lineRange, formatting) == expectedString
+        formatting = Documenter.Utilities.LineRangeFormatting(repo_type)
+        @test Documenter.Utilities.format_line(line_range, formatting) == expected_string
     end
 
     import Documenter.Documents: Document, Page, Globals

@@ -406,11 +406,11 @@ function render_article(ctx, navnode)
     host = "GitHub"
     logo = "\uf09b"
 
-    hostType = Utilities.repo_host_from_url(ctx.doc.user.repo)
-    if hostType == Utilities.RepoGitlab
+    host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
+    if host_type == Utilities.RepoGitlab
         host = "GitLab"
         logo = "\uf296"
-    elseif hostType == Utilities.RepoBitbucket
+    elseif host_type == Utilities.RepoBitbucket
         host = "BitBucket"
         logo = "\uf171"
     end
