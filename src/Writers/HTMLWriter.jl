@@ -405,13 +405,16 @@ function render_article(ctx, navnode)
     # Set the logo and name for the "Edit on.." button. We assume GitHub as a host.
     host = "GitHub"
     logo = "\uf09b"
-    if contains(ctx.doc.user.repo, "gitlab")
+
+    host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
+    if host_type == Utilities.RepoGitlab
         host = "GitLab"
         logo = "\uf296"
-    elseif contains(ctx.doc.user.repo, "bitbucket")
+    elseif host_type == Utilities.RepoBitbucket
         host = "BitBucket"
         logo = "\uf171"
     end
+
     if !ctx.doc.user.html_disable_git
         url = Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source, commit=ctx.doc.user.html_edit_branch)
         if url !== nothing
