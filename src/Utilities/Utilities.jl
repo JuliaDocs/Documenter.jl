@@ -425,7 +425,7 @@ function url(remote, repo, mod, file, linerange)
     # Replace any backslashes in links, if building the docs on Windows
     file = replace(file, '\\', '/')
     # Format the line range.
-    line = format_line(linerange)
+    line = format_line(linerange, LineRangeFormatting(repo_host_from_url(repo)))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
@@ -491,6 +491,26 @@ function inbase(m::Module)
     end
 end
 
+# Repository hosts
+#   RepoUnknown denotes that the repository type could not be determined automatically
+@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoUnknown
+
+# Repository host from repository url
+# i.e. "https://github.com/something" => RepoGithub
+#      "https://bitbucket.org/xxx" => RepoBitbucket
+# If no match, returns RepoUnknown
+function repo_host_from_url(repoURL::String)
+    if contains(repoURL, "bitbucket")
+        return RepoBitbucket
+    elseif contains(repoURL, "github")
+        return RepoGithub
+    elseif contains(repoURL, "gitlab")
+        return RepoGitlab
+    else
+        return RepoUnknown
+    end
+end
+
 # Find line numbers.
 # ------------------
 
@@ -501,11 +521,25 @@ function linerange(text, from)
     return lines > 0 ? (from:(from + lines + 1)) : (from:from)
 end
 
-function format_line(range::AbstractRange)
-    top = format_line(first(range))
-    return length(range) <= 1 ? top : string(top, '-', format_line(last(range)))
+struct LineRangeFormatting
+    prefix::String
+    separator::String
+
+    function LineRangeFormatting(host::RepoHost)
+        if host == RepoBitbucket
+            new("", ":")
+        else
+            # default is github-style
+            new("L", "-")
+        end
+    end
 end
-format_line(line::Integer) = string('L', line)
+
+function format_line(range::Compat.AbstractRange, format::LineRangeFormatting)
+    local top = format_line(first(range), format.prefix)
+    return length(range) <= 1 ? top : string(top, format.separator, format_line(last(range), format.prefix))
+end
+format_line(line::Integer, prefix::String) = string(prefix, line)
 
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
