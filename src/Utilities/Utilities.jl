@@ -415,7 +415,7 @@ function in_cygwin()
 end
 
 function url(repo, file)
-    file = abspath(file)
+    file = realpath(abspath(file))
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/tree/{commit}{path}")
     # Replace any backslashes in links, if building the docs on Windows
@@ -444,6 +444,12 @@ if VERSION >= v"0.5.0-dev+3442"
     function url(remote, repo, mod, file, linerange)
         remote = getremote(dirname(file))
         isabspath(file) && isempty(remote) && isempty(repo) && return Nullable{Compat.String}()
+
+        # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
+        if isfile(file)
+            file = realpath(abspath(file))
+        end
+
         # Replace any backslashes in links, if building the docs on Windows
         file = replace(file, '\\', '/')
         # Format the line range.
