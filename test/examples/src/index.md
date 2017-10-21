@@ -155,6 +155,14 @@ Stacktrace:
  [1] error() at ./thisfiledoesnotexist.jl:123456789
 ```
 
+
+```jldoctest
+julia> error()
+ERROR:
+Stacktrace:
+[...]
+```
+
 ```@meta
 DocTestFilters = []
 ```
