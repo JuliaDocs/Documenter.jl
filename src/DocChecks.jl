@@ -229,7 +229,9 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     local_filters = get(meta, :DocTestFilters, [])
     local_filters == nothing && local_filters == []
     for r in [doc.user.doctestfilters; local_filters]
-        strings = replace.(strings, r, "")
+        if all(ismatch.(r, strings))
+            strings = replace.(strings, r, "")
+        end
     end
     return strings
 end
