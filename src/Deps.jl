@@ -29,7 +29,11 @@ deploydocs(
 )
 ```
 """
-pip(deps...) = () -> run(`pip install --user $(deps...)`)
+function pip(deps...)
+    for dep in deps
+        run(`pip install --user $(dep)`)
+    end
+end
 
 
 function localbin()
