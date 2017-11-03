@@ -133,7 +133,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                     parse(code, cursor)
                 catch err
                     push!(doc.internal.errors, :parse_error)
-                    Utilities.warn(doc, page, "Failed to parse expression.", err)
+                    Utilities.warn(doc, page, "Failed to parse expression:", sprint(Base.showerror, err))
                     break
                 end
             end
