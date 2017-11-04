@@ -136,8 +136,28 @@ examples_html_local_doc = makedocs(
     doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = ["assets/custom.css"],
     sitename = "Documenter example",
-    pages = htmlbuild_pages,
-
+    pages    = Any[
+        "Home" => "index.md",
+        "Manual" => [
+            "man/tutorial.md",
+        ],
+        hide("hidden.md"),
+        "Library" => [
+            "lib/functions.md",
+            "lib/autodocs.md",
+        ],
+        external("examples/pages/a.md"; target="external1.md"),
+        "External2" => external("examples/pages/b.md"),
+        "External3" => Any[
+            external("examples/pages/c.md"),
+            external("examples/pages/d.md"),
+        ],
+        hide("Hidden Pages" => "hidden/index.md", Any[
+            "Page X" => "hidden/x.md",
+            "hidden/y.md",
+            "hidden/z.md",
+        ])
+    ],
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
     Documenter.HTML(
