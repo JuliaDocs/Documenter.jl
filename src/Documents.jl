@@ -55,6 +55,14 @@ function Page(source::AbstractString, build::AbstractString)
     Page(source, build, elements, IdDict{Any,Any}(), Globals())
 end
 
+"""
+A file outside of the documentation directory.
+"""
+struct ExternalPage
+    path::AbstractString
+    target::Nullable{AbstractString}
+end
+
 # Document Nodes.
 # ---------------
 
