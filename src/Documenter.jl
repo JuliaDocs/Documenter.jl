@@ -1051,6 +1051,13 @@ function copy_external!(pages::Vector, repo_root::AbstractString, dest_dir::Abst
         elseif isa(page, Pair) && isa(page.second, Documents.ExternalPage)
             pages[i] = pages[i].first => copypage(page.second)
             push!(externals, pages[i].second)
+        elseif isa(page, Pair) && isa(page.second, Vector)
+            for (j, el) in enumerate(page.second)
+                if isa(el, Documents.ExternalPage)
+                    pages[i].second[j] = copypage(el)
+                    push!(externals, pages[i].second[j])
+                end
+            end
         end
     end
     return externals
