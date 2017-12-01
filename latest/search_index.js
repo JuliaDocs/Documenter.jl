@@ -69,7 +69,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Installation",
     "category": "section",
-    "text": "Documenter is a registered package and so can be installed via Pkg.add.Pkg.add(\"Documenter\")This package supports Julia 0.4 and 0.5."
+    "text": "Documenter is a registered package and so can be installed via Pkg.add.Pkg.add(\"Documenter\")This package supports Julia 0.6 and 0.7-dev."
 },
 
 {
