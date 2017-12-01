@@ -17,6 +17,7 @@ $(EXPORTS)
 module Documenter
 
 using Compat, DocStringExtensions
+import Compat.Base64: base64decode, base64encode
 
 # Submodules
 # ----------
