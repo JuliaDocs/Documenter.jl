@@ -26,6 +26,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
 - [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
+- [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
