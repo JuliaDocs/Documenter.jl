@@ -456,7 +456,13 @@ function deploydocs(;
                         success(`git fetch upstream`) ||
                             error("could not fetch from remote.")
 
-                        branch_exists = success(`git checkout -b $branch upstream/$branch`)
+                        branch_exists = try
+                                run(`git checkout -b $branch upstream/$branch`)
+                                true
+                            catch ex
+                                warn(ex)
+                                false
+                            end
 
                         if !branch_exists
                             Utilities.log("assuming $branch doesn't exist yet; creating a new one.")
@@ -468,6 +474,8 @@ function deploydocs(;
 
                         # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
                         if isempty(travis_tag)
+                            run(`ls -al $dirname`)
+                            run(`git status`)
                             gitrm_copy(target_dir, latest_dir)
                             Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
                         else
