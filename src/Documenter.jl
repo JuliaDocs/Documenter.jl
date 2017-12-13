@@ -530,7 +530,7 @@ first, `git add -A` will not detect case changes in filenames.
 function gitrm_copy(src, dst)
     # --ignore-unmatch so that we wouldn't get errors if dst does not exist
     run(`git rm -rf --ignore-unmatch $(dst)`)
-    cp(src, dst)
+    cp(src, dst; remove_destination=true)
 end
 
 function withfile(func, file::AbstractString, contents::AbstractString)
