@@ -444,68 +444,57 @@ function deploydocs(;
                     """
                 ) do
                     cd(temp) do
-                        # Setup git.
-                        run(`git init`)
-                        run(`git config user.name "autodocs"`)
-                        run(`git config user.email "autodocs"`)
+                        try
+                            # Setup git.
+                            run(`git init`)
+                            run(`git config user.name "autodocs"`)
+                            run(`git config user.email "autodocs"`)
 
-                        # Fetch from remote and checkout the branch.
-                        success(`git remote add upstream $upstream`) ||
-                            error("could not add new remote repo.")
+                            # Fetch from remote and checkout the branch.
+                            run(`git remote add upstream $upstream`)
+                            run(`git fetch upstream`)
 
-                        success(`git fetch upstream`) ||
-                            error("could not fetch from remote.")
-
-                        branch_exists = try
+                            try
                                 run(`git checkout -b $branch upstream/$branch`)
-                                true
-                            catch ex
-                                warn(ex)
-                                false
+                            catch e
+                                Utilities.log("Checking out $branch failed with error: $e")
+                                Utilities.log("Creating a new local $branch branch.")
+                                run(`git checkout --orphan $branch`)
+                                run(`git commit --allow-empty -m "Initial empty commit for docs"`)
                             end
 
-                        if !branch_exists
-                            Utilities.log("assuming $branch doesn't exist yet; creating a new one.")
-                            success(`git checkout --orphan $branch`) ||
-                                error("could not create new empty branch.")
-                            success(`git commit --allow-empty -m "Initial empty commit for docs"`) ||
-                                error("could not commit to new branch $branch")
-                        end
-
-                        # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
-                        if isempty(travis_tag)
-                            run(`ls -al $dirname`)
-                            run(`git status`)
-                            gitrm_copy(target_dir, latest_dir)
-                            Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
-                        else
-                            gitrm_copy(target_dir, stable_dir)
-                            Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
-                            gitrm_copy(target_dir, tagged_dir)
-                            Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, travis_tag)
-                            # Build a `release-*.*` folder as well when the travis tag is
-                            # valid, which it *should* always be anyway.
-                            if ismatch(Base.VERSION_REGEX, travis_tag)
-                                version = VersionNumber(travis_tag)
-                                release = "release-$(version.major).$(version.minor)"
-                                gitrm_copy(target_dir, joinpath(dirname, release))
-                                Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
+                            # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
+                            if isempty(travis_tag)
+                                gitrm_copy(target_dir, latest_dir)
+                                Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
+                            else
+                                gitrm_copy(target_dir, stable_dir)
+                                Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
+                                gitrm_copy(target_dir, tagged_dir)
+                                Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, travis_tag)
+                                # Build a `release-*.*` folder as well when the travis tag is
+                                # valid, which it *should* always be anyway.
+                                if ismatch(Base.VERSION_REGEX, travis_tag)
+                                    version = VersionNumber(travis_tag)
+                                    release = "release-$(version.major).$(version.minor)"
+                                    gitrm_copy(target_dir, joinpath(dirname, release))
+                                    Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
+                                end
                             end
+
+                            # Create the versions.js file containing a list of all docs
+                            # versions. This must always happen after the folder copying.
+                            Writers.HTMLWriter.generate_version_file(dirname)
+
+                            # Add, commit, and push the docs to the remote.
+                            run(`git add -A .`)
+                            try run(`git commit -m "build based on $sha"`) end
+
+                            run(`git push -q upstream HEAD:$branch`)
+                        finally
+                            # Remove the unencrypted private key.
+                            isfile(keyfile) && rm(keyfile)
                         end
-
-                        # Create the versions.js file containing a list of all docs
-                        # versions. This must always happen after the folder copying.
-                        Writers.HTMLWriter.generate_version_file(dirname)
-
-                        # Add, commit, and push the docs to the remote.
-                        run(`git add -A .`)
-                        try run(`git commit -m "build based on $sha"`) end
-
-                        success(`git push -q upstream HEAD:$branch`) ||
-                            error("could not push to remote repo.")
-
-                        # Remove the unencrypted private key.
-                        isfile(keyfile) && rm(keyfile)
                     end
                 end
             end
