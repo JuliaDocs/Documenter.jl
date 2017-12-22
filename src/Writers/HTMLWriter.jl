@@ -882,7 +882,7 @@ mdconvert(t::Markdown.Table, parent; kwargs...) = Tag(:table)(
 mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 
 mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
-footnote(id, text::Void, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
+footnote(id, text::Nothing, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
 function footnote(id, text, parent; kwargs...)
     Tag(:div)[".footnote#footnote-$(id)"](
         Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
