@@ -129,6 +129,17 @@ end
         @test exprs[3][1] === :γγγ
         @test exprs[3][2] == "γγγ\n"
     end
+
+    @testset "TextDiff" begin
+        import Documenter.Utilities.TextDiff: splitby
+        @test splitby(r"\s+", "X Y  Z") == ["X ", "Y  ", "Z"]
+        @test splitby(r"[~]", "X~Y~Z") == ["X~", "Y~", "Z"]
+        @test splitby(r"[▶]", "X▶Y▶Z") == ["X▶", "Y▶", "Z"]
+        @test splitby(r"[▶]+", "X▶▶Y▶Z▶") == ["X▶▶", "Y▶", "Z▶"]
+        @test splitby(r"[▶]+", "▶▶Y▶Z▶") == ["▶▶", "Y▶", "Z▶"]
+        @test splitby(r"[▶]+", "Ω▶▶Y▶Z▶") == ["Ω▶▶", "Y▶", "Z▶"]
+        @test splitby(r"[▶]+", "Ω▶▶Y▶Z▶κ") == ["Ω▶▶", "Y▶", "Z▶", "κ"]
+    end
 end
 
 end
