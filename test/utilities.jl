@@ -1,6 +1,6 @@
 module UtilitiesTests
 
-using Test
+using Compat.Test
 
 import Documenter
 
