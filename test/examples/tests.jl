@@ -49,7 +49,7 @@ end
         @test doc.user.clean  == true
         @test doc.user.format == [:markdown]
 
-        @test doc.internal.assets == normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
+        @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
         @test length(doc.internal.pages) == 10
 
