@@ -1,5 +1,12 @@
-using Test
+using Compat.Test
 using Compat
+
+# Compat for Julia 0.6
+if !isdefined(Base, Symbol("@isdefined"))
+    macro isdefined(x)
+        :(isdefined($(esc(QuoteNode(x)))))
+    end
+end
 
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl
@@ -49,7 +56,7 @@ end
         @test doc.user.clean  == true
         @test doc.user.format == [:markdown]
 
-        @test doc.internal.assets == normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
+        @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
         @test length(doc.internal.pages) == 10
 

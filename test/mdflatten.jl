@@ -1,6 +1,6 @@
 module MDFlattenTests
 
-using Test
+using Compat.Test
 
 using Base.Markdown
 using Documenter.Utilities.MDFlatten

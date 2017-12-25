@@ -15,6 +15,7 @@ import ..Documenter:
     Utilities
 
 using Compat, DocStringExtensions
+using Compat.Unicode
 
 # Pages.
 # ------
@@ -147,17 +148,17 @@ mutable struct NavNode
     `nothing` if the `NavNode` is a non-page node of the navigation tree, otherwise
     the string should be a valid key in `doc.internal.pages`
     """
-    page           :: Union{String, Void}
+    page           :: Union{String, Nothing}
     """
     If not `nothing`, specifies the text that should be displayed in navigation
     links etc. instead of the automatically determined text.
     """
-    title_override :: Union{String, Void}
-    parent         :: Union{NavNode, Void}
+    title_override :: Union{String, Nothing}
+    parent         :: Union{NavNode, Nothing}
     children       :: Vector{NavNode}
     visible        :: Bool
-    prev           :: Union{NavNode, Void}
-    next           :: Union{NavNode, Void}
+    prev           :: Union{NavNode, Nothing}
+    next           :: Union{NavNode, Nothing}
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
 
@@ -198,7 +199,7 @@ struct User
     version :: String # version string used in the version selector by default
     html_prettyurls :: Bool # Use pretty URLs in the HTML build?
     html_disable_git :: Bool # Don't call git when exporting HTML
-    html_edit_branch :: Union{String, Void} # Change how the "Edit on GitHub" links are handled
+    html_edit_branch :: Union{String, Nothing} # Change how the "Edit on GitHub" links are handled
 end
 
 """
@@ -253,7 +254,7 @@ function Document(;
         version :: AbstractString    = "",
         html_prettyurls  :: Bool     = false,
         html_disable_git :: Bool     = false,
-        html_edit_branch :: Union{String, Void} = "master",
+        html_edit_branch :: Union{String, Nothing} = "master",
         others...
     )
     Utilities.check_kwargs(others)

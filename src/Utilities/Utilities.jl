@@ -331,7 +331,7 @@ filterdocs(other, modules::Set{Module}) = other
 Does the given docstring represent actual documentation or a no docs error message?
 """
 nodocs(x)      = contains(stringmime("text/plain", x), "No documentation found.")
-nodocs(::Void) = false
+nodocs(::Nothing) = false
 
 header_level(::Markdown.Header{N}) where {N} = N
 
@@ -564,7 +564,7 @@ where
   * `result` is the value returned from calling function `f`.
   * `success` signals whether `f` has thrown an error, in which case `result` stores the
     `Exception` that was raised.
-  * `backtrace` a `Vector{Ptr{Void}}` produced by `catch_backtrace()` if an error is thrown.
+  * `backtrace` a `Vector{Ptr{Cvoid}}` produced by `catch_backtrace()` if an error is thrown.
   * `output` is the combined output of `STDOUT` and `STDERR` during execution of `f`.
 
 """
@@ -586,7 +586,7 @@ function withoutput(f)
     # Success signals whether the function `f` did or did not throw an exception.
     result, success, backtrace =
         try
-            f(), true, Vector{Ptr{Void}}()
+            f(), true, Vector{Ptr{Cvoid}}()
         catch err
             err, false, catch_backtrace()
         finally

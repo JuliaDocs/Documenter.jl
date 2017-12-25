@@ -1,6 +1,6 @@
 module DOMTests
 
-using Test
+using Compat.Test
 using Compat
 
 import Documenter.Utilities.DOM: DOM, @tags, HTMLDocument

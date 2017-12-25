@@ -1,6 +1,6 @@
 module MarkdownFormatTests
 
-using Test
+using Compat.Test
 
 using Documenter
 
