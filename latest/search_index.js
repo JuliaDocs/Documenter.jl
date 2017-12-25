@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
 },
 
 {
@@ -1561,6 +1561,30 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/textdiff/#",
+    "page": "TextDiff",
+    "title": "TextDiff",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "lib/internals/textdiff/#Documenter.Utilities.TextDiff.splitby-Tuple{Regex,AbstractString}",
+    "page": "TextDiff",
+    "title": "Documenter.Utilities.TextDiff.splitby",
+    "category": "Method",
+    "text": "splitby(reg, text)\n\n\nSplits text at regex matches, returning an array of substrings. The parts of the string that match the regular expression are also included at the ends of the returned strings.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/textdiff/#TextDiff-1",
+    "page": "TextDiff",
+    "title": "TextDiff",
+    "category": "section",
+    "text": "Modules = [Documenter.Utilities.TextDiff]"
+},
+
+{
     "location": "lib/internals/utilities/#",
     "page": "Utilities",
     "title": "Utilities",
@@ -1741,7 +1765,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Utilities",
     "title": "Documenter.Utilities.withoutput",
     "category": "Method",
-    "text": "Call a function and capture all STDOUT and STDERR output.\n\nwithoutput(f) --> (result, success, backtrace, output)\n\nwhere\n\nresult is the value returned from calling function f.\nsuccess signals whether f has thrown an error, in which case result stores the Exception that was raised.\nbacktrace a Vector{Ptr{Void}} produced by catch_backtrace() if an error is thrown.\noutput is the combined output of STDOUT and STDERR during execution of f.\n\n\n\n"
+    "text": "Call a function and capture all STDOUT and STDERR output.\n\nwithoutput(f) --> (result, success, backtrace, output)\n\nwhere\n\nresult is the value returned from calling function f.\nsuccess signals whether f has thrown an error, in which case result stores the Exception that was raised.\nbacktrace a Vector{Ptr{Cvoid}} produced by catch_backtrace() if an error is thrown.\noutput is the combined output of STDOUT and STDERR during execution of f.\n\n\n\n"
 },
 
 {
