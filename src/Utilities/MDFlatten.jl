@@ -11,6 +11,8 @@ export mdflatten
 
 import ..Utilities
 
+using Compat
+
 import Base.Markdown:
     MD, BlockQuote, Bold, Code, Header, HorizontalRule,
     Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table,
@@ -80,7 +82,7 @@ mdflatten(io, c::Code, parent) = print(io, c.code)
 mdflatten(io, expr::Union{Symbol,Expr}, parent) = print(io, expr)
 
 mdflatten(io, f::Footnote, parent) = footnote(io, f.id, f.text, f)
-footnote(io, id, text::Void, parent) = print(io, "[$id]")
+footnote(io, id, text::Nothing, parent) = print(io, "[$id]")
 function footnote(io, id, text, parent)
     print(io, "[$id]: ")
     mdflatten(io, text, parent)

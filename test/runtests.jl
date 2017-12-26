@@ -1,13 +1,4 @@
-if VERSION < v"0.7.0-DEV.2004"
-    const Test = Base.Test
-end
-using Test
-
-if !isdefined(Base, Symbol("@isdefined"))
-    macro isdefined(x)
-        :(isdefined($(esc(QuoteNode(x)))))
-    end
-end
+using Compat.Test
 
 # Build the real docs first.
 include("../docs/make.jl")

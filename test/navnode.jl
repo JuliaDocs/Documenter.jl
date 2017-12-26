@@ -1,13 +1,13 @@
 module NavNodeTests
 
-using Test
+using Compat.Test
 
 using Compat
 import Documenter: Documents, Builder
 import Documenter.Documents: NavNode
 
 mutable struct FakeDocumentInternal
-    pages   :: Dict{String, Void}
+    pages   :: Dict{String, Nothing}
     navlist :: Vector{NavNode}
     FakeDocumentInternal() = new(Dict(), [])
 end
