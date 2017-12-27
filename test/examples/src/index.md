@@ -311,6 +311,12 @@ julia> x->x # ignore error on 0.7
 #1 (generic function with 1 method)
 ```
 
+# Assigning symbols example
+
+```@example
+r = :a
+```
+
 # Bad links (Windows)
 
 * [Colons not allowed on Windows -- `some:path`](some:path)
