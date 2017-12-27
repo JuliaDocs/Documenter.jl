@@ -419,90 +419,113 @@ function deploydocs(;
             end
             Utilities.log("pushing new documentation to remote: $repo:$branch.")
             mktempdir() do temp
-                dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
-                isdir(dirname) || mkpath(dirname)
-                # Versioned docs directories.
-                latest_dir = joinpath(dirname, "latest")
-                stable_dir = joinpath(dirname, "stable")
-                tagged_dir = joinpath(dirname, travis_tag)
-
-                keyfile = abspath(joinpath(root, ".documenter"))
-                target_dir = abspath(target)
-
-                # The upstream URL to which we push new content and the ssh decryption commands.
-                write(keyfile, String(base64decode(documenter_key)))
-                chmod(keyfile, 0o600)
-                upstream = "git@$(replace(repo, "github.com/", "github.com:"))"
-
-                # Use a custom SSH config file to avoid overwriting the default user config.
-                withfile(joinpath(homedir(), ".ssh", "config"),
-                    """
-                    Host github.com
-                        StrictHostKeyChecking no
-                        HostName github.com
-                        IdentityFile $keyfile
-                    """
-                ) do
-                    cd(temp) do
-                        try
-                            # Setup git.
-                            run(`git init`)
-                            run(`git config user.name "autodocs"`)
-                            run(`git config user.email "autodocs"`)
-
-                            # Fetch from remote and checkout the branch.
-                            run(`git remote add upstream $upstream`)
-                            run(`git fetch upstream`)
-
-                            try
-                                run(`git checkout -b $branch upstream/$branch`)
-                            catch e
-                                Utilities.log("Checking out $branch failed with error: $e")
-                                Utilities.log("Creating a new local $branch branch.")
-                                run(`git checkout --orphan $branch`)
-                                run(`git commit --allow-empty -m "Initial empty commit for docs"`)
-                            end
-
-                            # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
-                            if isempty(travis_tag)
-                                gitrm_copy(target_dir, latest_dir)
-                                Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
-                            else
-                                gitrm_copy(target_dir, stable_dir)
-                                Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
-                                gitrm_copy(target_dir, tagged_dir)
-                                Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, travis_tag)
-                                # Build a `release-*.*` folder as well when the travis tag is
-                                # valid, which it *should* always be anyway.
-                                if ismatch(Base.VERSION_REGEX, travis_tag)
-                                    version = VersionNumber(travis_tag)
-                                    release = "release-$(version.major).$(version.minor)"
-                                    gitrm_copy(target_dir, joinpath(dirname, release))
-                                    Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
-                                end
-                            end
-
-                            # Create the versions.js file containing a list of all docs
-                            # versions. This must always happen after the folder copying.
-                            Writers.HTMLWriter.generate_version_file(dirname)
-
-                            # Add, commit, and push the docs to the remote.
-                            run(`git add -A .`)
-                            try run(`git commit -m "build based on $sha"`) end
-
-                            run(`git push -q upstream HEAD:$branch`)
-                        finally
-                            # Remove the unencrypted private key.
-                            isfile(keyfile) && rm(keyfile)
-                        end
-                    end
-                end
+                git_push(
+                    root, temp, repo;
+                    branch=branch, dirname=dirname, target=target,
+                    tag=travis_tag, key=documenter_key, sha=sha
+                )
             end
         end
     else
         Utilities.log("""
             skipping docs deployment.
               You can set DOCUMENTER_DEBUG to "true" in Travis to see more information.""")
+    end
+end
+
+"""
+    git_push(
+        root, tmp, repo;
+        branch="gh-pages", dirname="", target="site", tag="", key="", sha=""
+    )
+
+Handles pushing changes to the remote documentation branch.
+"""
+function git_push(
+        root, temp, repo;
+        branch="gh-pages", dirname="", target="site", tag="", key="", sha=""
+    )
+    dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
+    isdir(dirname) || mkpath(dirname)
+    # Versioned docs directories.
+    latest_dir = joinpath(dirname, "latest")
+    stable_dir = joinpath(dirname, "stable")
+    tagged_dir = joinpath(dirname, tag)
+
+    keyfile = abspath(joinpath(root, ".documenter"))
+    target_dir = abspath(target)
+
+    upstream = "git@$(replace(repo, "github.com/", "github.com:"))"
+
+    # The upstream URL to which we push new content and the ssh decryption commands.
+    write(keyfile, String(base64decode(key)))
+    chmod(keyfile, 0o600)
+
+    try
+        # Use a custom SSH config file to avoid overwriting the default user config.
+        withfile(joinpath(homedir(), ".ssh", "config"),
+            """
+            Host github.com
+                StrictHostKeyChecking no
+                HostName github.com
+                IdentityFile $keyfile
+            """
+        ) do
+            cd(temp) do
+                # Setup git.
+                run(`git init`)
+                run(`git config user.name "autodocs"`)
+                run(`git config user.email "autodocs"`)
+
+                # Fetch from remote and checkout the branch.
+                run(`git remote add upstream $upstream`)
+                run(`git fetch upstream`)
+
+                try
+                    run(`git checkout -b $branch upstream/$branch`)
+                catch e
+                    Utilities.log("Checking out $branch failed with error: $e")
+                    Utilities.log("Creating a new local $branch branch.")
+                    run(`git checkout --orphan $branch`)
+                    run(`git commit --allow-empty -m "Initial empty commit for docs"`)
+                end
+
+                # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
+                if isempty(tag)
+                    gitrm_copy(target_dir, latest_dir)
+                    Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
+                else
+                    gitrm_copy(target_dir, stable_dir)
+                    Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
+                    gitrm_copy(target_dir, tagged_dir)
+                    Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
+                    # Build a `release-*.*` folder as well when the travis tag is
+                    # valid, which it *should* always be anyway.
+                    if ismatch(Base.VERSION_REGEX, tag)
+                        version = VersionNumber(tag)
+                        release = "release-$(version.major).$(version.minor)"
+                        gitrm_copy(target_dir, joinpath(dirname, release))
+                        Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
+                    end
+                end
+
+                # Create the versions.js file containing a list of all docs
+                # versions. This must always happen after the folder copying.
+                Writers.HTMLWriter.generate_version_file(dirname)
+
+                # Add, commit, and push the docs to the remote.
+                run(`git add -A .`)
+                if !success(`git diff --cached --exit-code`)
+                    run(`git commit -m "build based on $sha"`)
+                    run(`git push -q upstream HEAD:$branch`)
+                else
+                    Utilities.log("New docs identical to the old -- not committing nor pushing.")
+                end
+            end
+        end
+    finally
+        # Remove the unencrypted private key.
+        isfile(keyfile) && rm(keyfile)
     end
 end
 
