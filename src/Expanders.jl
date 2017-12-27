@@ -456,7 +456,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         (value, success, backtrace, text) = Utilities.withoutput() do
             cd(dirname(page.build)) do
-                eval(mod, :(ans = $(eval(mod, ex))))
+                eval(mod, Expr(:(=), :ans, ex))
             end
         end
         result = value
