@@ -1561,6 +1561,30 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/textdiff/#",
+    "page": "TextDiff",
+    "title": "TextDiff",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "lib/internals/textdiff/#Documenter.Utilities.TextDiff.splitby-Tuple{Regex,AbstractString}",
+    "page": "TextDiff",
+    "title": "Documenter.Utilities.TextDiff.splitby",
+    "category": "Method",
+    "text": "splitby(reg, text)\n\n\nSplits text at regex matches, returning an array of substrings. The parts of the string that match the regular expression are also included at the ends of the returned strings.\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/textdiff/#TextDiff-1",
+    "page": "TextDiff",
+    "title": "TextDiff",
+    "category": "section",
+    "text": "Modules = [Documenter.Utilities.TextDiff]"
+},
+
+{
     "location": "lib/internals/utilities/#",
     "page": "Utilities",
     "title": "Utilities",
