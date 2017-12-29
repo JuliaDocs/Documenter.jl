@@ -15,6 +15,7 @@ import ..Documenter:
     Utilities
 
 using Compat, DocStringExtensions
+using Compat.Unicode
 
 # Pages.
 # ------
