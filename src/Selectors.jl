@@ -160,12 +160,15 @@ Generated function that builds a specialised selector for each selector type pro
 Selectors.dispatch(MySelector, 1)
 ```
 """
-@generated function dispatch(::Type{T}, x...) where T <: AbstractSelector
-    out = map(sort(subtypes(T); by = order)) do t
-        ret = strict(t) ? :(@goto END) : nothing
-        disable(t) ? nothing : :($(matcher)($t, x...) && ($(runner)($t, x...); $ret))
+function dispatch(::Type{T}, x...) where T <: AbstractSelector
+    for t in (sort(subtypes(T); by = order))
+        if !disable(t) && matcher(t, x...)
+            runner(t, x...)
+            strict(t) && @goto END
+        end
     end
-    Expr(:block, out..., :($(runner)($T, x...); @label END))
+    runner(T, x...)
+    @label END
 end
 
 end
