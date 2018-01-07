@@ -455,9 +455,9 @@ function git_push(
     keyfile = abspath(joinpath(root, ".documenter"))
     target_dir = abspath(target)
 
+    # The upstream URL to which we push new content and the ssh decryption commands.
     upstream = "git@$(replace(repo, "github.com/", "github.com:"))"
 
-    # The upstream URL to which we push new content and the ssh decryption commands.
     write(keyfile, String(base64decode(key)))
     chmod(keyfile, 0o600)
 
