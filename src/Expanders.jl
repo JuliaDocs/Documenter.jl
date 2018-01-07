@@ -491,7 +491,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     matched = match(r"^@repl[ ]?(.*)$", x.language)
     matched === nothing && error("invalid '@repl' syntax: $(x.language)")
     name = matched[1]
-    sym  = isempty(name) ? gensym("repl-") : Symbol("repl-", name)
+    sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
     code = split(x.code, '\n'; limit = 2)[end]
     result, out = nothing, IOBuffer()
