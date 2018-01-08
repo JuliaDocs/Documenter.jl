@@ -157,3 +157,35 @@ examples_html_doc = makedocs(
     ],
     doctest = false,
 )
+info("Building mock package docs: HTMLWriter with pretty URLs and canonical links")
+examples_html_doc = makedocs(
+    debug = true,
+    root  = examples_root,
+    build = "builds/html-pretty-urls",
+    format   = :html,
+    html_prettyurls = true,
+    html_canonical = "https://example.com/stable",
+    doctestfilters = [r"Ptr{0x[0-9]+}"],
+    assets = [
+        "assets/favicon.ico",
+        "assets/custom.css"
+    ],
+    sitename = "Documenter example",
+    pages    = Any[
+        "Home" => "index.md",
+        "Manual" => [
+            "man/tutorial.md",
+        ],
+        hide("hidden.md"),
+        "Library" => [
+            "lib/functions.md",
+            "lib/autodocs.md",
+        ],
+        hide("Hidden Pages" => "hidden/index.md", Any[
+            "Page X" => "hidden/x.md",
+            "hidden/y.md",
+            "hidden/z.md",
+        ])
+    ],
+    doctest = false,
+)
