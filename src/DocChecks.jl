@@ -133,10 +133,10 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             eval(sandbox, expr)
         end
-        if ismatch(r"^julia> "m, code)
+        if contains(code, r"^julia> "m)
             eval_repl(code, sandbox, meta, doc, page)
             block.language = "julia-repl"
-        elseif ismatch(r"^# output$"m, code)
+        elseif contains(code, r"^# output$"m)
             eval_script(code, sandbox, meta, doc, page)
             block.language = "julia"
         else
@@ -356,7 +356,7 @@ function repl_splitter(code)
         # TODO: handle multiline comments?
         # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
         # TODO: Remove this special case and just disallow lines with comments?
-        startswith(line, '#') && !ismatch(ANON_FUNC_DECLARATION, line) && continue
+        startswith(line, '#') && !contains(line, ANON_FUNC_DECLARATION) && continue
         prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
@@ -384,7 +384,7 @@ end
 function takeuntil!(r, buf, lines)
     while !isempty(lines)
         line = lines[1]
-        if !ismatch(r, line)
+        if !contains(line, r)
             println(buf, shift!(lines))
         else
             break
@@ -495,13 +495,13 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
             return false
         end
         local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
-        if ismatch(STATUS_REGEX, result)
+        if contains(result, STATUS_REGEX)
             status = parse(Int, match(STATUS_REGEX, result).captures[1])
             if status < 300
                 print_with_color(:green, INDENT, "$(status) ", link.url, "\n")
             elseif status < 400
                 LOCATION_REGEX = r"^Location: (.+)$"m
-                if ismatch(LOCATION_REGEX, result)
+                if contains(result, LOCATION_REGEX)
                     location = strip(match(LOCATION_REGEX, result).captures[1])
                     print_with_color(:yellow, INDENT, "$(status) ", link.url, "\n")
                     print_with_color(:yellow, INDENT, " -> ", location, "\n\n")
@@ -522,7 +522,7 @@ end
 linkcheck(other, doc::Documents.Document) = true
 
 linkcheck_ismatch(r::String, url) = (url == r)
-linkcheck_ismatch(r::Regex, url) = ismatch(r, url)
+linkcheck_ismatch(r::Regex, url) = contains(url, r)
 
 function disable_color(func)
     orig = setcolor!(false)

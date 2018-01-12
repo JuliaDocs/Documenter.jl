@@ -624,7 +624,7 @@ end
 
 Checks whether `url` is an absolute URL (as opposed to a relative one).
 """
-isabsurl(url) = ismatch(ABSURL_REGEX, url)
+isabsurl(url) = contains(url, ABSURL_REGEX)
 const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 include("DOM.jl")

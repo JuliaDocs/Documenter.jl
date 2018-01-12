@@ -269,7 +269,7 @@ function latex(io::IO, code::Markdown.Code)
         # script-type doctest should match the corresponding one in DocChecks.jl. This makes
         # sure that doctests get highlighted the same way independent of whether they're
         # being run or not.
-        ismatch(r"^julia> "m, code.code) ? "julia-repl" : "julia"
+        contains(code.code, r"^julia> "m) ? "julia-repl" : "julia"
     else
         code.language
     end

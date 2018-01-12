@@ -501,7 +501,7 @@ function git_push(
                     Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
                     # Build a `release-*.*` folder as well when the travis tag is
                     # valid, which it *should* always be anyway.
-                    if ismatch(Base.VERSION_REGEX, tag)
+                    if contains(tag, Base.VERSION_REGEX)
                         version = VersionNumber(tag)
                         release = "release-$(version.major).$(version.minor)"
                         gitrm_copy(target_dir, joinpath(dirname, release))
@@ -567,7 +567,7 @@ end
 
 function getenv(regex::Regex)
     for (key, value) in ENV
-        ismatch(regex, key) && return value
+        contains(key, regex) && return value
     end
     error("could not find key/iv pair.")
 end
