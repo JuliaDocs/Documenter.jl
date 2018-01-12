@@ -351,7 +351,7 @@ function repl_splitter(code)
     output = String[]
     buffer = IOBuffer()
     while !isempty(lines)
-        line = shift!(lines)
+        line = popfirst!(lines)
         # REPL code blocks may contain leading lines with comments. Drop them.
         # TODO: handle multiline comments?
         # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
@@ -385,7 +385,7 @@ function takeuntil!(r, buf, lines)
     while !isempty(lines)
         line = lines[1]
         if !contains(line, r)
-            println(buf, shift!(lines))
+            println(buf, popfirst!(lines))
         else
             break
         end
