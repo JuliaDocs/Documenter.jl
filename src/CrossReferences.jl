@@ -119,9 +119,9 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         ex = QuoteNode(keyword)
     else
         try
-            ex = parse(code)
+            ex = Meta.parse(code)
         catch err
-            !isa(err, ParseError) && rethrow(err)
+            !isa(err, Meta.ParseError) && rethrow(err)
             push!(doc.internal.errors, :cross_references)
             Utilities.warn(page.source, "Unable to parse the reference '[`$code`](@ref)'.")
             return

@@ -130,7 +130,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                 (QuoteNode(keyword), cursor + endof(line) + offset)
             else
                 try
-                    parse(code, cursor)
+                    Meta.parse(code, cursor)
                 catch err
                     push!(doc.internal.errors, :parse_error)
                     Utilities.warn(doc, page, "Failed to parse expression.", err)

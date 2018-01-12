@@ -75,7 +75,7 @@ PACKAGES_LOADED_MAIN = VERSION < v"0.7.0-DEV.1877"
     end
 
     ## `UnionAll`
-    let b = DocSystem.binding(@__MODULE__, parse("f(x::T) where T"))
+    let b = DocSystem.binding(@__MODULE__, Meta.parse("f(x::T) where T"))
         @test b.var == :f
     end
 end
