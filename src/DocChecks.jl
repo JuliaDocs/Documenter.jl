@@ -127,7 +127,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             newmod
         end
         # Normalise line endings.
-        code = replace(block.code, "\r\n", "\n")
+        code = replace(block.code, "\r\n" => "\n")
         if haskey(meta, :DocTestSetup)
             expr = meta[:DocTestSetup]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
@@ -230,7 +230,7 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     local_filters == nothing && local_filters == []
     for r in [doc.user.doctestfilters; local_filters]
         if all(ismatch.(r, strings))
-            strings = replace.(strings, r, "")
+            strings = replace.(strings, r => "")
         end
     end
     return strings
@@ -245,10 +245,10 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
-        head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex, "")
-        head = replace(head, mod_regex_nodot, "Main")
-        str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
-        str  = replace(str, mod_regex_nodot, "Main")
+        head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex  => "")
+        head = replace(head, mod_regex_nodot => "Main")
+        str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex => "")
+        str  = replace(str, mod_regex_nodot => "Main")
 
         str, head = filter_doctests((str, head), doc, meta)
         # Since checking for the prefix of an error won't catch the empty case we need
@@ -258,10 +258,10 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
-        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
-        str = replace(result_to_string(result.stdout, value), mod_regex, "")
+        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex => "")
+        str = replace(result_to_string(result.stdout, value), mod_regex => "")
         # Replace a standalone module name with `Main`.
-        str = strip(replace(str, mod_regex_nodot, "Main"))
+        str = strip(replace(str, mod_regex_nodot => "Main"))
         str, output = filter_doctests((str, output), doc, meta)
         str == output || report(result, str, doc)
     end
@@ -337,7 +337,7 @@ end
 # Remove terminal colors.
 
 const TERM_COLOR_REGEX = r"\e\[[0-9;]*m"
-remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")
+remove_term_colors(s) = replace(s, TERM_COLOR_REGEX => "")
 
 # REPL doctest splitter.
 

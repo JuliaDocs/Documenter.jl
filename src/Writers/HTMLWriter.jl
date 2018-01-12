@@ -167,7 +167,7 @@ function copy_asset(file, doc)
     end
     assetpath = normpath(joinpath("assets", file))
     # Replace any backslashes in links, if building the docs on Windows
-    return replace(assetpath, '\\', '/')
+    return replace(assetpath, '\\' => '/')
 end
 
 # Page
@@ -548,7 +548,7 @@ search_append(sib, node) = mdflatten(sib.buffer, node)
 
 function search_flush(sib)
     # Replace any backslashes in links, if building the docs on Windows
-    src = replace(sib.src, '\\', '/')
+    src = replace(sib.src, '\\' => '/')
     ref = "$(src)#$(sib.loc)"
     text = Utilities.takebuf_str(sib.buffer)
     println(sib.ctx.search_index, """
@@ -563,9 +563,9 @@ function search_flush(sib)
 end
 
 function jsonescape(s)
-    s = replace(s, '\\', "\\\\")
-    s = replace(s, '\n', "\\n")
-    replace(s, '"', "\\\"")
+    s = replace(s, '\\' => "\\\\")
+    s = replace(s, '\n' => "\\n")
+    replace(s, '"' => "\\\"")
 end
 
 function domify(ctx, navnode, node)
@@ -732,7 +732,7 @@ function relhref(from, to)
     pagedir = dirname(from)
     # The regex separator replacement is necessary since otherwise building the docs on
     # Windows will result in paths that have `//` separators which break asset inclusion.
-    replace(relpath(to, isempty(pagedir) ? "." : pagedir), r"[/\\]+", "/")
+    replace(relpath(to, isempty(pagedir) ? "." : pagedir), r"[/\\]+" => "/")
 end
 
 """
@@ -954,7 +954,7 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     end
 
     # Replace any backslashes in links, if building the docs on Windows
-    path = replace(path, '\\', '/')
+    path = replace(path, '\\' => '/')
     link.url = (length(s) > 1) ? "$path#$(last(s))" : String(path)
 end
 
@@ -970,7 +970,7 @@ function fixlinks!(ctx, navnode, img::Markdown.Image)
     if isfile(joinpath(ctx.doc.user.build, path))
         path = relhref(get_url(ctx, navnode), path)
         # Replace any backslashes in links, if building the docs on Windows
-        img.url = replace(path, '\\', '/')
+        img.url = replace(path, '\\' => '/')
     else
         Utilities.warn("Invalid local image: unresolved path\n    '$(img.url)' in `$(navnode.page)`")
     end
