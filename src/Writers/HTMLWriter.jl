@@ -21,6 +21,12 @@ the links to the remote repository.
 **`html_edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
 point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
 
+**`html_canonical`** specifies the canonical URL for your documentation. We recommend
+you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
+This allows search engines to know which version to send their users to. [See
+wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
+Default is `nothing`, in which case no canonical link is set.
+
 # Page outline
 
 The [`HTMLWriter`](@ref) makes use of the page outline that is determined by the
@@ -209,6 +215,8 @@ function render_head(ctx, navnode)
 
         analytics_script(ctx.doc.user.analytics),
 
+        canonical_link_element(ctx.doc.user.html_canonical, src),
+
         # Stylesheets.
         map(css_links) do each
             link[:href => each, :rel => "stylesheet", :type => "text/css"]
@@ -255,6 +263,17 @@ analytics_script(tracking_id::AbstractString) =
         ga('send', 'pageview');
         """
     )
+
+function canonical_link_element(canonical_link, src)
+   @tags link
+   if canonical_link === nothing
+      return Tag(Symbol("#RAW#"))("")
+   else
+      canonical_link_stripped = rstrip(canonical_link, '/')
+      href = "$canonical_link_stripped/$src"
+      return link[:rel => "canonical", :href => href]
+   end
+end
 
 ## Search page
 # ------------

@@ -126,13 +126,14 @@ examples_html_doc = makedocs(
     html_edit_branch = nothing,
 )
 
-info("Building mock package docs: HTMLWriter with pretty URLs")
+info("Building mock package docs: HTMLWriter with pretty URLs and canonical links")
 examples_html_doc = makedocs(
     debug = true,
     root  = examples_root,
     build = "builds/html-pretty-urls",
     format   = :html,
     html_prettyurls = true,
+    html_canonical = "https://example.com/stable",
     doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = [
         "assets/favicon.ico",

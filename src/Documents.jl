@@ -200,6 +200,7 @@ struct User
     html_prettyurls :: Bool # Use pretty URLs in the HTML build?
     html_disable_git :: Bool # Don't call git when exporting HTML
     html_edit_branch :: Union{String, Nothing} # Change how the "Edit on GitHub" links are handled
+    html_canonical   :: Union{String, Nothing} # Set a canonical url, if desired (https://en.wikipedia.org/wiki/Canonical_link_element)
 end
 
 """
@@ -255,6 +256,7 @@ function Document(;
         html_prettyurls  :: Bool     = false,
         html_disable_git :: Bool     = false,
         html_edit_branch :: Union{String, Nothing} = "master",
+        html_canonical   :: Union{String, Nothing} = nothing,
         others...
     )
     Utilities.check_kwargs(others)
@@ -289,6 +291,7 @@ function Document(;
         html_prettyurls,
         html_disable_git,
         html_edit_branch,
+        html_canonical,
     )
     internal = Internal(
         Utilities.assetsdir(),
