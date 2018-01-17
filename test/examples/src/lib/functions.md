@@ -92,7 +92,8 @@ b = ans
 ```
 
 ```@repl
-srand(1); # hide
+using Documenter # hide
+Documenter.Random.srand(1); # hide
 nothing
 rand()
 a = 1

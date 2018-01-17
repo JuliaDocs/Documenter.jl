@@ -289,7 +289,7 @@ function error_to_string(buf, er, bt)
     # Print a REPL-like error message.
     disable_color() do
         print(buf, "ERROR: ")
-        showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
+        showerror(buf, er, (index != nothing && index > 0) ? bt[1:(index - 1)] : bt)
     end
     sanitise(buf)
 end
