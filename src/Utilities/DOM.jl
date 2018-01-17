@@ -284,7 +284,7 @@ string is constructed with the characters escaped. The returned object should
 always be treated as an immutable copy and compared using `==` rather than `===`.
 """
 function escapehtml(text::AbstractString)
-    if ismatch(r"[<>&'\"]", text)
+    if contains(text, r"[<>&'\"]")
         buffer = IOBuffer()
         for char in text
             char === '<'  ? write(buffer, "&lt;")   :

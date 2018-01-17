@@ -47,7 +47,7 @@ function render(doc::Documents.Document)
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
-            file = replace("$(doc.user.sitename).tex", " ", "")
+            file = replace("$(doc.user.sitename).tex", " " => "")
             open(file, "w") do io
                 context = Context(io)
                 writeheader(context, doc)
@@ -75,7 +75,7 @@ function render(doc::Documents.Document)
             cp(STYLE, "documenter.sty")
             if hastex()
                 outdir = joinpath(doc.user.root, doc.user.build)
-                pdf = replace("$(doc.user.sitename).pdf", " ", "")
+                pdf = replace("$(doc.user.sitename).pdf", " " => "")
                 try
                     run(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $file`)
                 catch err
@@ -269,7 +269,7 @@ function latex(io::IO, code::Markdown.Code)
         # script-type doctest should match the corresponding one in DocChecks.jl. This makes
         # sure that doctests get highlighted the same way independent of whether they're
         # being run or not.
-        ismatch(r"^julia> "m, code.code) ? "julia-repl" : "julia"
+        contains(code.code, r"^julia> "m) ? "julia-repl" : "julia"
     else
         code.language
     end

@@ -127,16 +127,16 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             newmod
         end
         # Normalise line endings.
-        code = replace(block.code, "\r\n", "\n")
+        code = replace(block.code, "\r\n" => "\n")
         if haskey(meta, :DocTestSetup)
             expr = meta[:DocTestSetup]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             eval(sandbox, expr)
         end
-        if ismatch(r"^julia> "m, code)
+        if contains(code, r"^julia> "m)
             eval_repl(code, sandbox, meta, doc, page)
             block.language = "julia-repl"
-        elseif ismatch(r"^# output$"m, code)
+        elseif contains(code, r"^# output$"m)
             eval_script(code, sandbox, meta, doc, page)
             block.language = "julia"
         else
@@ -230,7 +230,7 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     local_filters == nothing && local_filters == []
     for r in [doc.user.doctestfilters; local_filters]
         if all(ismatch.(r, strings))
-            strings = replace.(strings, r, "")
+            strings = replace.(strings, r => "")
         end
     end
     return strings
@@ -245,10 +245,10 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
-        head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex, "")
-        head = replace(head, mod_regex_nodot, "Main")
-        str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex, "")
-        str  = replace(str, mod_regex_nodot, "Main")
+        head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex  => "")
+        head = replace(head, mod_regex_nodot => "Main")
+        str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex => "")
+        str  = replace(str, mod_regex_nodot => "Main")
 
         str, head = filter_doctests((str, head), doc, meta)
         # Since checking for the prefix of an error won't catch the empty case we need
@@ -258,10 +258,10 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
-        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex, "")
-        str = replace(result_to_string(result.stdout, value), mod_regex, "")
+        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex => "")
+        str = replace(result_to_string(result.stdout, value), mod_regex => "")
         # Replace a standalone module name with `Main`.
-        str = strip(replace(str, mod_regex_nodot, "Main"))
+        str = strip(replace(str, mod_regex_nodot => "Main"))
         str, output = filter_doctests((str, output), doc, meta)
         str == output || report(result, str, doc)
     end
@@ -289,7 +289,7 @@ function error_to_string(buf, er, bt)
     # Print a REPL-like error message.
     disable_color() do
         print(buf, "ERROR: ")
-        showerror(buf, er, index == 0 ? bt : bt[1:(index - 1)])
+        showerror(buf, er, (index != nothing && index > 0) ? bt[1:(index - 1)] : bt)
     end
     sanitise(buf)
 end
@@ -337,7 +337,7 @@ end
 # Remove terminal colors.
 
 const TERM_COLOR_REGEX = r"\e\[[0-9;]*m"
-remove_term_colors(s) = replace(s, TERM_COLOR_REGEX, "")
+remove_term_colors(s) = replace(s, TERM_COLOR_REGEX => "")
 
 # REPL doctest splitter.
 
@@ -351,12 +351,12 @@ function repl_splitter(code)
     output = String[]
     buffer = IOBuffer()
     while !isempty(lines)
-        line = shift!(lines)
+        line = popfirst!(lines)
         # REPL code blocks may contain leading lines with comments. Drop them.
         # TODO: handle multiline comments?
         # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
         # TODO: Remove this special case and just disallow lines with comments?
-        startswith(line, '#') && !ismatch(ANON_FUNC_DECLARATION, line) && continue
+        startswith(line, '#') && !contains(line, ANON_FUNC_DECLARATION) && continue
         prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
@@ -384,8 +384,8 @@ end
 function takeuntil!(r, buf, lines)
     while !isempty(lines)
         line = lines[1]
-        if !ismatch(r, line)
-            println(buf, shift!(lines))
+        if !contains(line, r)
+            println(buf, popfirst!(lines))
         else
             break
         end
@@ -495,13 +495,13 @@ function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
             return false
         end
         local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
-        if ismatch(STATUS_REGEX, result)
+        if contains(result, STATUS_REGEX)
             status = parse(Int, match(STATUS_REGEX, result).captures[1])
             if status < 300
                 print_with_color(:green, INDENT, "$(status) ", link.url, "\n")
             elseif status < 400
                 LOCATION_REGEX = r"^Location: (.+)$"m
-                if ismatch(LOCATION_REGEX, result)
+                if contains(result, LOCATION_REGEX)
                     location = strip(match(LOCATION_REGEX, result).captures[1])
                     print_with_color(:yellow, INDENT, "$(status) ", link.url, "\n")
                     print_with_color(:yellow, INDENT, " -> ", location, "\n\n")
@@ -522,7 +522,7 @@ end
 linkcheck(other, doc::Documents.Document) = true
 
 linkcheck_ismatch(r::String, url) = (url == r)
-linkcheck_ismatch(r::Regex, url) = ismatch(r, url)
+linkcheck_ismatch(r::Regex, url) = contains(url, r)
 
 function disable_color(func)
     orig = setcolor!(false)

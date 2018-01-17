@@ -19,6 +19,12 @@ module Documenter
 using Compat, DocStringExtensions
 import Compat.Base64: base64decode, base64encode
 
+@static if VERSION < v"0.7.0-DEV.3406"
+    import Base.Random
+else
+    import Random
+end
+
 # Submodules
 # ----------
 
@@ -456,7 +462,7 @@ function git_push(
     target_dir = abspath(target)
 
     # The upstream URL to which we push new content and the ssh decryption commands.
-    upstream = "git@$(replace(repo, "github.com/", "github.com:"))"
+    upstream = "git@$(replace(repo, "github.com/" => "github.com:"))"
 
     write(keyfile, String(base64decode(key)))
     chmod(keyfile, 0o600)
@@ -501,7 +507,7 @@ function git_push(
                     Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
                     # Build a `release-*.*` folder as well when the travis tag is
                     # valid, which it *should* always be anyway.
-                    if ismatch(Base.VERSION_REGEX, tag)
+                    if contains(tag, Base.VERSION_REGEX)
                         version = VersionNumber(tag)
                         release = "release-$(version.major).$(version.minor)"
                         gitrm_copy(target_dir, joinpath(dirname, release))
@@ -567,7 +573,7 @@ end
 
 function getenv(regex::Regex)
     for (key, value) in ENV
-        ismatch(regex, key) && return value
+        contains(key, regex) && return value
     end
     error("could not find key/iv pair.")
 end

@@ -38,7 +38,8 @@ a + b
 ```@meta
 DocTestSetup =
     quote
-        srand(1)
+        using Documenter
+        Documenter.Random.srand(1)
     end
 ```
 

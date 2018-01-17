@@ -92,11 +92,11 @@ srcpath(source, root, file) = normpath(joinpath(relpath(root, source), file))
 Slugify a string into a suitable URL.
 """
 function slugify(s::AbstractString)
-    s = replace(s, r"\s+", "-")
-    s = replace(s, r"^\d+", "")
-    s = replace(s, r"&", "-and-")
-    s = replace(s, r"[^\p{L}\p{P}\d\-]+", "")
-    s = strip(replace(s, r"\-\-+", "-"), '-')
+    s = replace(s, r"\s+" => "-")
+    s = replace(s, r"^\d+" => "")
+    s = replace(s, r"&" => "-and-")
+    s = replace(s, r"[^\p{L}\p{P}\d\-]+" => "")
+    s = strip(replace(s, r"\-\-+" => "-"), '-')
 end
 slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 
@@ -130,7 +130,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                 (QuoteNode(keyword), cursor + endof(line) + offset)
             else
                 try
-                    parse(code, cursor)
+                    Meta.parse(code, cursor)
                 catch err
                     push!(doc.internal.errors, :parse_error)
                     Utilities.warn(doc, page, "Failed to parse expression.", err)
@@ -406,13 +406,13 @@ function url(repo, file; commit=nothing)
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
     # Replace any backslashes in links, if building the docs on Windows
-    file = replace(file, '\\', '/')
+    file = replace(file, '\\' => '/')
     path = relpath_from_repo_root(file)
     if path === nothing
         nothing
     else
-        repo = replace(repo, "{commit}", commit === nothing ? repo_commit(file) : commit)
-        repo = replace(repo, "{path}", string("/", path))
+        repo = replace(repo, "{commit}" => commit === nothing ? repo_commit(file) : commit)
+        repo = replace(repo, "{path}" => string("/", path))
         repo
     end
 end
@@ -429,7 +429,7 @@ function url(remote, repo, mod, file, linerange)
     end
 
     # Replace any backslashes in links, if building the docs on Windows
-    file = replace(file, '\\', '/')
+    file = replace(file, '\\' => '/')
     # Format the line range.
     line = format_line(linerange, LineRangeFormatting(repo_host_from_url(repo)))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
@@ -452,9 +452,9 @@ function url(remote, repo, mod, file, linerange)
         if path === nothing
             nothing
         else
-            repo = replace(repo, "{commit}", repo_commit(file))
-            repo = replace(repo, "{path}", string("/", path))
-            repo = replace(repo, "{line}", line)
+            repo = replace(repo, "{commit}" => repo_commit(file))
+            repo = replace(repo, "{path}" => string("/", path))
+            repo = replace(repo, "{line}" => line)
             repo
         end
     end
@@ -624,7 +624,7 @@ end
 
 Checks whether `url` is an absolute URL (as opposed to a relative one).
 """
-isabsurl(url) = ismatch(ABSURL_REGEX, url)
+isabsurl(url) = contains(url, ABSURL_REGEX)
 const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 include("DOM.jl")
