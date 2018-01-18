@@ -9,7 +9,8 @@ import ..Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Walkers
+    Walkers,
+    IdDict
 
 using Compat, DocStringExtensions
 
@@ -62,7 +63,7 @@ end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
-        isa(obj, ObjectIdDict) && continue
+        isa(obj, IdDict) && continue
         name = nameof(obj)
         isexported = Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)

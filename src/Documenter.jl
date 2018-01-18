@@ -25,6 +25,12 @@ else
     import Random
 end
 
+@static if VERSION < v"0.7.0-DEV.3439"
+    const IdDict = Base.ObjectIdDict
+else
+    const IdDict = Base.IdDict{Any,Any}
+end
+
 # Submodules
 # ----------
 
