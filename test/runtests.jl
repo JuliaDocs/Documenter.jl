@@ -1,4 +1,5 @@
 using Compat.Test
+using Compat: @info
 
 # Build the real docs first.
 include("../docs/make.jl")
@@ -13,9 +14,9 @@ include("missingdocs/make.jl")
 
 # Error reporting.
 println("="^50)
-info("The following errors are expected output.")
+@info("The following errors are expected output.")
 include(joinpath("errors", "make.jl"))
-info("END of expected error output.")
+@info("END of expected error output.")
 println("="^50)
 
 @testset "Documenter" begin

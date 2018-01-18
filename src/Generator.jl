@@ -4,6 +4,7 @@ Provides the functions related to generating documentation stubs.
 module Generator
 
 using DocStringExtensions
+using Compat: @info
 
 """
 $(SIGNATURES)
@@ -17,7 +18,7 @@ then subdirectories will be created automatically.
 function savefile(f, root, filename)
     filepath = joinpath(root, filename)
     if ispath(filepath) error("$(filepath) already exists") end
-    info("Generating $filename at $filepath")
+    @info("Generating $filename at $filepath")
     mkpath(dirname(filepath))
     open(f,filepath,"w")
 end
