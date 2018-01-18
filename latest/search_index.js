@@ -1001,7 +1001,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem/#Documenter.DocSystem.convertmeta-Tuple{ObjectIdDict}",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.convertmeta-Tuple{IdDict{Any,Any}}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.convertmeta",
     "category": "Method",
