@@ -39,7 +39,8 @@ a + b
 DocTestSetup =
     quote
         using Documenter
-        Documenter.Random.srand(1)
+        using Compat.Random
+        srand(1)
     end
 ```
 
