@@ -18,11 +18,12 @@ module Documenter
 
 using Compat, DocStringExtensions
 import Compat.Base64: base64decode, base64encode
+import Compat: @info
 
-@static if VERSION < v"0.7.0-DEV.3406"
-    import Base.Random
+@static if VERSION < v"0.7.0-DEV.3439"
+    const IdDict = Base.ObjectIdDict
 else
-    import Random
+    const IdDict = Base.IdDict{Any,Any}
 end
 
 # Submodules
@@ -738,7 +739,7 @@ function generate(pkgname::AbstractString; dir=nothing)
 
     # deploy the stub
     try
-        info("Deploying documentation to $(docroot)")
+        @info("Deploying documentation to $(docroot)")
         mkdir(docroot)
 
         # create the root doc files

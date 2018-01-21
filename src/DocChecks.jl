@@ -9,7 +9,8 @@ import ..Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Walkers
+    Walkers,
+    IdDict
 
 using Compat, DocStringExtensions
 
@@ -62,7 +63,7 @@ end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
-        isa(obj, ObjectIdDict) && continue
+        isa(obj, IdDict) && continue
         name = nameof(obj)
         isexported = Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
@@ -229,7 +230,7 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     local_filters = get(meta, :DocTestFilters, [])
     local_filters == nothing && local_filters == []
     for r in [doc.user.doctestfilters; local_filters]
-        if all(ismatch.(r, strings))
+        if all(contains.(strings, r))
             strings = replace.(strings, r => "")
         end
     end

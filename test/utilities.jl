@@ -3,6 +3,7 @@ module UtilitiesTests
 using Compat.Test
 
 import Documenter
+import Documenter: IdDict
 
 module UnitTests
     module SubModule end
@@ -109,7 +110,7 @@ end
     end
 
     import Documenter.Documents: Document, Page, Globals
-    let page = Page("source", "build", [], ObjectIdDict(), Globals()), doc = Document()
+    let page = Page("source", "build", [], IdDict(), Globals()), doc = Document()
         code = """
         x += 3
         γγγ_γγγ

@@ -1,11 +1,12 @@
 module MarkdownFormatTests
 
 using Compat.Test
+using Compat: @info
 
 using Documenter
 
 # Documenter package docs
-info("Building Documenter's docs with Markdown.")
+@info("Building Documenter's docs with Markdown.")
 const Documenter_root = normpath(joinpath(dirname(@__FILE__), "..", "..", "docs"))
 doc = makedocs(
     debug   = true,

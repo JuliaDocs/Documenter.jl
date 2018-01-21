@@ -12,7 +12,8 @@ module Documents
 import ..Documenter:
     Anchors,
     Formats,
-    Utilities
+    Utilities,
+    IdDict
 
 using Compat, DocStringExtensions
 using Compat.Unicode
@@ -45,12 +46,12 @@ struct Page
     element does not need expanding or some other object, such as a `DocsNode` in the case
     of `@docs` code blocks.
     """
-    mapping  :: ObjectIdDict
+    mapping  :: IdDict
     globals  :: Globals
 end
 function Page(source::AbstractString, build::AbstractString)
     elements = Base.Markdown.parse(read(source, String)).content
-    Page(source, build, elements, ObjectIdDict(), Globals())
+    Page(source, build, elements, IdDict(), Globals())
 end
 
 # Document Nodes.
@@ -214,8 +215,8 @@ struct Internal
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
-    bindings:: ObjectIdDict              # Tracks insertion order of object per-binding.
-    objects :: ObjectIdDict              # Tracks which `Utilities.Objects` are included in the `Document`.
+    bindings:: IdDict                    # Tracks insertion order of object per-binding.
+    objects :: IdDict                    # Tracks which `Utilities.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
     locallinks :: Dict{Base.Markdown.Link, String}
@@ -301,8 +302,8 @@ function Document(;
         [],
         Anchors.AnchorMap(),
         Anchors.AnchorMap(),
-        ObjectIdDict(),
-        ObjectIdDict(),
+        IdDict(),
+        IdDict(),
         [],
         [],
         Dict{Base.Markdown.Link, String}(),
