@@ -505,7 +505,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         end
         result = value
         output = if success
-            hide = Base.REPL.ends_with_semicolon(input)
+            hide = Documenter.REPL.ends_with_semicolon(input)
             Documenter.DocChecks.result_to_string(buffer, hide ? nothing : value)
         else
             Documenter.DocChecks.error_to_string(buffer, value, [])
