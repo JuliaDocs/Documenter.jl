@@ -26,6 +26,14 @@ else
     const IdDict = Base.IdDict{Any,Any}
 end
 
+@static if VERSION < v"0.7.0-DEV.3500"
+    import Base.REPL
+    using Base.REPL: ip_matches_func
+else
+    import REPL
+    using Base: ip_matches_func
+end
+
 # Submodules
 # ----------
 

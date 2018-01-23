@@ -4,6 +4,7 @@ Provides two functions, [`missingdocs`](@ref) and [`doctest`](@ref), for checkin
 module DocChecks
 
 import ..Documenter:
+    Documenter,
     Builder,
     Documents,
     Expanders,
@@ -184,7 +185,7 @@ function eval_repl(code, sandbox, meta::Dict, doc::Documents.Document, page)
         result = Result(code, input, output, meta[:CurrentFile])
         for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
             # Input containing a semi-colon gets suppressed in the final output.
-            result.hide = Base.REPL.ends_with_semicolon(str)
+            result.hide = Documenter.REPL.ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
                 disable_color() do
                     Core.eval(sandbox, ex)
@@ -286,7 +287,7 @@ funcsym() = CAN_INLINE[] ? :disable_color : :eval
 function error_to_string(buf, er, bt)
     fs = funcsym()
     # Remove unimportant backtrace info.
-    index = findlast(ptr -> Base.REPL.ip_matches_func(ptr, fs), bt)
+    index = findlast(ptr -> Documenter.ip_matches_func(ptr, fs), bt)
     # Print a REPL-like error message.
     disable_color() do
         print(buf, "ERROR: ")
