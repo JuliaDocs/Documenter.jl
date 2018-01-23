@@ -9,10 +9,11 @@ module Builder
 
 import ..Documenter:
     Anchors,
-    Selectors,
     Documents,
     Documenter,
     Utilities
+
+import .Utilities: Selectors
 
 using Compat, DocStringExtensions
 

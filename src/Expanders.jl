@@ -5,7 +5,6 @@ module Expanders
 
 import ..Documenter:
     Anchors,
-    Selectors,
     Builder,
     Documents,
     Formats,
@@ -18,6 +17,8 @@ import .Documents:
     DocsNodes,
     EvalNode,
     MetaNode
+
+import .Utilities: Selectors
 
 using Compat
 import Compat.Markdown
