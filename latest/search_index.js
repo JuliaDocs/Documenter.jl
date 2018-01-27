@@ -1009,7 +1009,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem/#Documenter.DocSystem.docstr-Tuple{Base.Markdown.MD}",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.docstr-Tuple{Markdown.MD}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.docstr",
     "category": "Method",
@@ -1649,7 +1649,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities/#Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.filterdocs-Tuple{Markdown.MD,Set{Module}}",
     "page": "Utilities",
     "title": "Documenter.Utilities.filterdocs",
     "category": "Method",
@@ -1889,7 +1889,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Base.Markdown.Link}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Markdown.Link}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.fixlinks!",
     "category": "Method",
