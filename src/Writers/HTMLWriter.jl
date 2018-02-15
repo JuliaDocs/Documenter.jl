@@ -556,7 +556,7 @@ function search_flush(sib)
         "location": "$(jsonescape(ref))",
         "page": "$(jsonescape(sib.page_title))",
         "title": "$(jsonescape(sib.title))",
-        "category": "$(jsonescape(string(sib.category)))",
+        "category": "$(jsonescape(lowercase(string(sib.category))))",
         "text": "$(jsonescape(text))"
     },
     """)
