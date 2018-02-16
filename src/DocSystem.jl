@@ -33,7 +33,7 @@ binding(any::Any) = throw(ArgumentError("cannot convert `$any` to a `Binding`.")
 #
 binding(b::Docs.Binding) = binding(b.mod, b.var)
 binding(d::DataType)     = binding(d.name.module, d.name.name)
-binding(m::Module)       = binding(m, module_name(m))
+binding(m::Module)       = binding(m, nameof(m))
 binding(s::Symbol)       = binding(Main, s)
 binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name)
 
@@ -53,7 +53,7 @@ end
 # This is done within the `Binding` constructor on `0.5`, but not on `0.4`.
 #
 function binding(m::Module, v::Symbol)
-    m = module_name(m) === v ? module_parent(m) : m
+    m = nameof(m) === v ? module_parent(m) : m
     Docs.Binding(m, v)
 end
 

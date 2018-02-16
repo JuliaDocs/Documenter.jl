@@ -202,7 +202,7 @@ struct Object
     signature :: Type
 
     function Object(b::Binding, signature::Type)
-        m = module_name(b.mod) === b.var ? module_parent(b.mod) : b.mod
+        m = nameof(b.mod) === b.var ? module_parent(b.mod) : b.mod
         new(Binding(m, b.var), signature)
     end
 end

@@ -80,7 +80,7 @@ meta(m) = Docs.meta(m)
 nameof(x::Function)          = typeof(x).name.mt.name
 nameof(b::Base.Docs.Binding) = b.var
 nameof(x::DataType)          = x.name.name
-nameof(m::Module)            = module_name(m)
+nameof(m::Module)            = Compat.nameof(m)
 
 sigs(x::Base.Docs.MultiDoc) = x.order
 sigs(::Any) = Type[Union{}]
@@ -241,7 +241,7 @@ end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
 function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents.Document)
-    sandbox_name = module_name(sandbox)
+    sandbox_name = nameof(sandbox)
     mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
