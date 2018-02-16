@@ -176,7 +176,7 @@ function submodules(modules::Vector{Module})
 end
 function submodules(root::Module, seen = Set{Module}())
     push!(seen, root)
-    for name in names(root, true)
+    for name in Compat.names(root, all=true)
         if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
             if isa(object, Module) && !(object in seen)

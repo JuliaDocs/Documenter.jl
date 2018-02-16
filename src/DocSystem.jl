@@ -43,7 +43,7 @@ binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name
 #
 # Note that `IntrinsicFunction` is exported from `Base` in `0.4`, but not in `0.5`.
 #
-let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, true)))
+let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, Compat.names(Core.Intrinsics, all=true)))
     binding(i::Core.IntrinsicFunction) = binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
 end
 
