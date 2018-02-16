@@ -468,7 +468,7 @@ function getremote(dir::AbstractString)
         catch err
             ""
         end
-    m = match(Base.LibGit2.GITHUB_REGEX, remote)
+    m = match(Compat.LibGit2.GITHUB_REGEX, remote)
     if m === nothing
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis
