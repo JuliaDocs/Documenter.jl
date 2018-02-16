@@ -312,22 +312,22 @@ function report(result::Result, str, doc::Documents.Document)
     buffer = IOBuffer()
     println(buffer, "=====[Test Error]", "="^30)
     println(buffer)
-    print_with_color(:cyan, buffer, "> File: ", result.file, "\n")
-    print_with_color(:cyan, buffer, "\n> Code block:\n")
+    printstyled(buffer, "> File: ", result.file, "\n", color=:cyan)
+    printstyled(buffer, "\n> Code block:\n", color=:cyan)
     println(buffer, "\n```jldoctest")
     println(buffer, result.code)
     println(buffer, "```")
     if !isempty(result.input)
-        print_with_color(:cyan, buffer, "\n> Subexpression:\n")
+        printstyled(buffer, "\n> Subexpression:\n", color=:cyan)
         print_indented(buffer, result.input; indent = 4)
     end
     warning = Base.have_color ? "" : " (REQUIRES COLOR)"
-    print_with_color(:cyan, buffer, "\n> Output Diff", warning, ":\n\n")
+    printstyled(buffer, "\n> Output Diff", warning, ":\n\n", color=:cyan)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     Utilities.TextDiff.showdiff(buffer, diff)
     println(buffer, "\n\n", "=====[End Error]=", "="^30)
     push!(doc.internal.errors, :doctest)
-    print_with_color(:normal, Utilities.takebuf_str(buffer))
+    printstyled(Utilities.takebuf_str(buffer), color=:normal)
 end
 
 function print_indented(buffer::IO, str::AbstractString; indent = 4)
@@ -483,7 +483,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
         if linkcheck_ismatch(r, link.url)
-            print_with_color(:normal, INDENT, "--- ", link.url, "\n")
+            printstyled(INDENT, "--- ", link.url, "\n", color=:normal)
             return false
         end
     end
@@ -501,19 +501,19 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
         if contains(result, STATUS_REGEX)
             status = parse(Int, match(STATUS_REGEX, result).captures[1])
             if status < 300
-                print_with_color(:green, INDENT, "$(status) ", link.url, "\n")
+                printstyled(INDENT, "$(status) ", link.url, "\n", color=:green)
             elseif status < 400
                 LOCATION_REGEX = r"^Location: (.+)$"m
                 if contains(result, LOCATION_REGEX)
                     location = strip(match(LOCATION_REGEX, result).captures[1])
-                    print_with_color(:yellow, INDENT, "$(status) ", link.url, "\n")
-                    print_with_color(:yellow, INDENT, " -> ", location, "\n\n")
+                    printstyled(INDENT, "$(status) ", link.url, "\n", color=:yellow)
+                    printstyled(INDENT, " -> ", location, "\n\n", color=:yellow)
                 else
-                    print_with_color(:yellow, INDENT, "$(status) ", link.url, "\n")
+                    printstyled(INDENT, "$(status) ", link.url, "\n", color=:yellow)
                 end
             else
                 push!(doc.internal.errors, :linkcheck)
-                print_with_color(:red, INDENT, "$(status) ", link.url, "\n")
+                printstyled(INDENT, "$(status) ", link.url, "\n", color=:red)
             end
         else
             push!(doc.internal.errors, :linkcheck)

@@ -90,12 +90,12 @@ prefix(::Diff{Words}, ::Symbol) = ""
 
 function showdiff(io::IO, diff::Diff)
     for (color, text) in diff.diff
-        print_with_color(color, io, prefix(diff, color), text)
+        printstyled(io, prefix(diff, color), text, color=color)
     end
 end
 
 function Base.show(io::IO, diff::Diff)
-    print_with_color(:normal, io) # Reset colors.
+    printstyled(io, color=:normal) # Reset colors.
     showdiff(io, diff)
 end
 
