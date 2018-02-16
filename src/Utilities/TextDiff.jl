@@ -50,7 +50,7 @@ function splitby(reg::Regex, text::AbstractString)
     out = SubString{String}[]
     token_first = 1
     for each in eachmatch(reg, text)
-        token_last = each.offset + endof(each.match) - 1
+        token_last = each.offset + lastindex(each.match) - 1
         push!(out, SubString(text, token_first, token_last))
         token_first = nextind(text, token_last)
     end

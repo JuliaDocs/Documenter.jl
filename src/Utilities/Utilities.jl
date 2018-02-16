@@ -118,7 +118,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
     code = last(split(code, '\n', limit = skip + 1))
     # Check whether we have windows-style line endings.
     offset = contains(code, "\n\r") ? 2 : 1
-    endofstr = endof(code)
+    endofstr = lastindex(code)
     results = []
     cursor = 1
     while cursor < endofstr
@@ -128,7 +128,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
         (ex, ncursor) =
             if keywords && haskey(Docs.keywords, keyword)
                 # adding offset below should be OK, as `\n` and `\r` are single byte
-                (QuoteNode(keyword), cursor + endof(line) + offset)
+                (QuoteNode(keyword), cursor + lastindex(line) + offset)
             else
                 try
                     Meta.parse(code, cursor)
