@@ -202,7 +202,7 @@ struct Object
     signature :: Type
 
     function Object(b::Binding, signature::Type)
-        m = nameof(b.mod) === b.var ? module_parent(b.mod) : b.mod
+        m = nameof(b.mod) === b.var ? parentmodule(b.mod) : b.mod
         new(Binding(m, b.var), signature)
     end
 end
@@ -493,7 +493,7 @@ function inbase(m::Module)
     if m ≡ Base
         true
     else
-        parent = module_parent(m)
+        parent = parentmodule(m)
         parent ≡ m ? false : inbase(parent)
     end
 end
@@ -617,7 +617,7 @@ function issubmodule(sub, mod)
     if (sub === Main) && (mod !== Main)
         return false
     end
-    (sub === mod) || issubmodule(module_parent(sub), mod)
+    (sub === mod) || issubmodule(parentmodule(sub), mod)
 end
 
 """

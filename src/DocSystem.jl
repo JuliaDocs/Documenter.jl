@@ -53,7 +53,7 @@ end
 # This is done within the `Binding` constructor on `0.5`, but not on `0.4`.
 #
 function binding(m::Module, v::Symbol)
-    m = nameof(m) === v ? module_parent(m) : m
+    m = nameof(m) === v ? parentmodule(m) : m
     Docs.Binding(m, v)
 end
 
