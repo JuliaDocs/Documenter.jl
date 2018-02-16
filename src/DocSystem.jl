@@ -5,6 +5,7 @@ docsystem in both `0.4` and `0.5`.
 module DocSystem
 
 using Compat, DocStringExtensions
+import Compat.Markdown
 import Base.Docs: MultiDoc, parsedoc, formatdoc, DocStr
 import ..IdDict
 

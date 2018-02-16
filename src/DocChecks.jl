@@ -14,6 +14,7 @@ import ..Documenter:
     IdDict
 
 using Compat, DocStringExtensions
+import Compat.Markdown
 
 # Missing docstrings.
 # -------------------
@@ -476,7 +477,7 @@ function linkcheck(doc::Documents.Document)
     return nothing
 end
 
-function linkcheck(link::Base.Markdown.Link, doc::Documents.Document)
+function linkcheck(link::Markdown.Link, doc::Documents.Document)
     INDENT = " "^6
 
     # first, make sure we're not supposed to ignore this link

@@ -6,6 +6,7 @@ module Utilities
 using Base.Meta, Compat
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
+import Compat.Markdown
 
 # Logging output.
 

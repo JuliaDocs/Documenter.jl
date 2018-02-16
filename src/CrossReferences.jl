@@ -14,6 +14,7 @@ import ..Documenter:
     Walkers
 
 using Compat, DocStringExtensions
+import Compat.Markdown
 
 """
 $(SIGNATURES)
@@ -49,7 +50,7 @@ end
 xref(other, meta, page, doc) = true # Continue to `walk` through element `other`.
 
 function basicxref(link::Markdown.Link, meta, page, doc)
-    if length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
+    if length(link.text) === 1 && isa(link.text[1], Markdown.Code)
         docsxref(link, link.text[1].code, meta, page, doc)
     elseif isa(link.text, Vector)
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
@@ -76,7 +77,7 @@ function namedxref(link::Markdown.Link, meta, page, doc)
     else
         if Anchors.exists(doc.internal.headers, slug)
             namedxref(link, slug, meta, page, doc)
-        elseif length(link.text) === 1 && isa(link.text[1], Base.Markdown.Code)
+        elseif length(link.text) === 1 && isa(link.text[1], Markdown.Code)
             docsxref(link, slug, meta, page, doc)
         else
             namedxref(link, slug, meta, page, doc)

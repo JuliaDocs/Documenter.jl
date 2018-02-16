@@ -16,6 +16,7 @@ import ..Documenter:
     IdDict
 
 using Compat, DocStringExtensions
+import Compat.Markdown
 using Compat.Unicode
 
 # Pages.
@@ -50,7 +51,7 @@ struct Page
     globals  :: Globals
 end
 function Page(source::AbstractString, build::AbstractString)
-    elements = Base.Markdown.parse(read(source, String)).content
+    elements = Markdown.parse(read(source, String)).content
     Page(source, build, elements, IdDict(), Globals())
 end
 
@@ -124,7 +125,7 @@ struct DocsNodes
 end
 
 struct EvalNode
-    code   :: Base.Markdown.Code
+    code   :: Markdown.Code
     result :: Any
 end
 
@@ -219,7 +220,7 @@ struct Internal
     objects :: IdDict                    # Tracks which `Utilities.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
-    locallinks :: Dict{Base.Markdown.Link, String}
+    locallinks :: Dict{Markdown.Link, String}
     errors::Set{Symbol}
 end
 
@@ -306,7 +307,7 @@ function Document(;
         IdDict(),
         [],
         [],
-        Dict{Base.Markdown.Link, String}(),
+        Dict{Markdown.Link, String}(),
         Set{Symbol}(),
     )
     Document(user, internal)
