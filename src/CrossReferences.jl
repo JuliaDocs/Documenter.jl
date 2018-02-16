@@ -204,7 +204,7 @@ function find_object(binding, typesig)
     end
 end
 function find_object(λ::Union{Function, DataType}, binding, typesig)
-    if _method_exists(λ, typesig)
+    if hasmethod(λ, typesig)
         signature = getsig(λ, typesig)
         return Utilities.Object(binding, signature)
     else
@@ -213,8 +213,6 @@ function find_object(λ::Union{Function, DataType}, binding, typesig)
 end
 find_object(::Union{Function, DataType}, binding, ::Union{Union,Type{Union{}}}) = Utilities.Object(binding, Union{})
 find_object(other, binding, typesig) = Utilities.Object(binding, typesig)
-
-_method_exists(f, t) = method_exists(f, t)
 
 getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
 
