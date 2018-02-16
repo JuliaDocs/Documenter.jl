@@ -380,7 +380,7 @@ function repl_splitter(code)
 end
 
 function savebuffer!(out, buf)
-    n = nb_available(seekstart(buf))
+    n = bytesavailable(seekstart(buf))
     n > 0 ? push!(out, rstrip(Utilities.takebuf_str(buf))) : out
 end
 
