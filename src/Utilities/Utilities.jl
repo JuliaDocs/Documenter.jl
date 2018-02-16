@@ -570,8 +570,8 @@ where
 """
 function withoutput(f)
     # Save the default output streams.
-    stdout = STDOUT
-    stderr = STDERR
+    default_stdout = STDOUT
+    default_stderr = STDERR
 
     # Redirect both the `STDOUT` and `STDERR` streams to a single `Pipe` object.
     pipe = Pipe()
@@ -593,8 +593,8 @@ function withoutput(f)
             # Force at least a single write to `pipe`, otherwise `readavailable` blocks.
             println()
             # Restore the original output streams.
-            redirect_stdout(stdout)
-            redirect_stderr(stderr)
+            redirect_stdout(default_stdout)
+            redirect_stderr(default_stderr)
             # NOTE: `close` must always be called *after* `readavailable`.
             append!(output, readavailable(pipe))
             close(pipe)
