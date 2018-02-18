@@ -553,19 +553,51 @@ function search_flush(sib)
     text = Utilities.takebuf_str(sib.buffer)
     println(sib.ctx.search_index, """
     {
-        "location": "$(jsonescape(ref))",
-        "page": "$(jsonescape(sib.page_title))",
-        "title": "$(jsonescape(sib.title))",
-        "category": "$(jsonescape(string(sib.category)))",
-        "text": "$(jsonescape(text))"
+        "location": "$(jsescape(ref))",
+        "page": "$(jsescape(sib.page_title))",
+        "title": "$(jsescape(sib.title))",
+        "category": "$(jsescape(string(sib.category)))",
+        "text": "$(jsescape(text))"
     },
     """)
 end
 
-function jsonescape(s)
-    s = replace(s, '\\' => "\\\\")
-    s = replace(s, '\n' => "\\n")
-    replace(s, '"' => "\\\"")
+"""
+Replaces some of the characters in the string with escape sequences so that the strings
+would be valid JS string literals, as per the
+[ECMAScript® 2017 standard](https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals).
+
+Note that it always escapes both potential `"` and `'` closing quotes.
+"""
+function jsescape(s)
+    b = IOBuffer()
+    # From the ECMAScript® 2017 standard:
+    #
+    # > All code points may appear literally in a string literal except for the closing
+    # > quote code points, U+005C (REVERSE SOLIDUS), U+000D (CARRIAGE RETURN), U+2028 (LINE
+    # > SEPARATOR), U+2029 (PARAGRAPH SEPARATOR), and U+000A (LINE FEED).
+    #
+    # https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals
+    for c in s
+        if c === '\u000a'     # LINE FEED,       i.e. \n
+            write(b, "\\n")
+        elseif c === '\u000d' # CARRIAGE RETURN, i.e. \r
+            write(b, "\\r")
+        elseif c === '\u005c' # REVERSE SOLIDUS, i.e. \
+            write(b, "\\\\")
+        elseif c === '\u0022' # QUOTATION MARK,  i.e. "
+            write(b, "\\\"")
+        elseif c === '\u0027' # APOSTROPHE,      i.e. '
+            write(b, "\\'")
+        elseif c === '\u2028' # LINE SEPARATOR
+            write(b, "\\u2028")
+        elseif c === '\u2029' # PARAGRAPH SEPARATOR
+            write(b, "\\u2029")
+        else
+            write(b, c)
+        end
+    end
+    String(take!(b))
 end
 
 function domify(ctx, navnode, node)

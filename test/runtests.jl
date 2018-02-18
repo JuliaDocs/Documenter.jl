@@ -35,6 +35,9 @@ println("="^50)
     # MDFlatten tests.
     include("mdflatten.jl")
 
+    # HTMLWriter
+    include("htmlwriter.jl")
+
     # Mock package docs.
     include("examples/tests.jl")
 
