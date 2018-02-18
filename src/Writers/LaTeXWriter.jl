@@ -14,7 +14,7 @@ import ...Documenter:
     Writers
 
 using Compat
-import Base.Markdown: isordered
+import Compat.Markdown
 
 mutable struct Context{I <: IO} <: IO
     io::I
@@ -337,7 +337,7 @@ function latex(io::IO, md::Markdown.List)
     # \end{itemize}
     #
     pad = ndigits(md.ordered + length(md.items)) + 2
-    fmt = n -> (isordered(md) ? "[$(rpad("$(n + md.ordered - 1).", pad))]" : "")
+    fmt = n -> (Markdown.isordered(md) ? "[$(rpad("$(n + md.ordered - 1).", pad))]" : "")
     wrapblock(io, "itemize") do
         for (n, item) in enumerate(md.items)
             _print(io, "\\item$(fmt(n)) ")

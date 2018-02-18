@@ -13,7 +13,7 @@ import ..Utilities
 
 using Compat
 
-import Base.Markdown:
+import Compat.Markdown:
     MD, BlockQuote, Bold, Code, Header, HorizontalRule,
     Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table,
     Footnote, Admonition

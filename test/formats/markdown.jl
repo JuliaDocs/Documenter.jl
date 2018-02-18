@@ -1,6 +1,7 @@
 module MarkdownFormatTests
 
 using Compat.Test
+using Compat.Random
 using Compat: @info
 
 using Documenter

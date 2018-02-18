@@ -65,7 +65,7 @@ Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 module HTMLWriter
 
 using Compat
-import Base.Markdown: isordered
+import Compat.Markdown
 
 import ...Documenter:
     Anchors,
@@ -498,7 +498,7 @@ end
 # ------------
 
 """
-Converts recursively a [`Documents.Page`](@ref), `Base.Markdown` or Documenter
+Converts recursively a [`Documents.Page`](@ref), `Markdown` or Documenter
 `*Node` objects into HTML DOM.
 """
 function domify(ctx, navnode)
@@ -602,7 +602,7 @@ end
 
 function domify(ctx, navnode, node)
     fixlinks!(ctx, navnode, node)
-    mdconvert(node, Base.Markdown.MD())
+    mdconvert(node, Markdown.MD())
 end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
@@ -811,7 +811,7 @@ was unable to find any `<h1>` headers).
 function pagetitle(page::Documents.Page)
     title = nothing
     for element in page.elements
-        if isa(element, Base.Markdown.Header{1})
+        if isa(element, Markdown.Header{1})
             title = element.text
             break
         end
@@ -840,7 +840,7 @@ function collect_subsections(page::Documents.Page)
     sections = []
     title_found = false
     for element in page.elements
-        if isa(element, Base.Markdown.Header) && Utilities.header_level(element) < 3
+        if isa(element, Markdown.Header) && Utilities.header_level(element) < 3
             toplevel = Utilities.header_level(element) === 1
             # Don't include the first header if it is `h1`.
             if toplevel && isempty(sections) && !title_found
@@ -921,7 +921,7 @@ function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
     droplinks ? link_text : Tag(:a)[:href => link.url](link_text)
 end
 
-mdconvert(list::Markdown.List, parent; kwargs...) = (isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
+mdconvert(list::Markdown.List, parent; kwargs...) = (Markdown.isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
 
 mdconvert(paragraph::Markdown.Paragraph, parent; kwargs...) = Tag(:p)(mdconvert(paragraph.content, paragraph; kwargs...))
 

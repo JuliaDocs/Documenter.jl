@@ -38,11 +38,11 @@ PACKAGES_LOADED_MAIN = VERSION < v"0.7.0-DEV.1877"
 
     ## `MultiDoc` object.
     @test isdefined(DocSystem, :MultiDoc)
-    @test fieldnames(DocSystem.MultiDoc) == [:order, :docs]
+    @test (fieldnames(DocSystem.MultiDoc)...,) == (:order, :docs)
 
     ## `DocStr` object.
     @test isdefined(DocSystem, :DocStr)
-    @test fieldnames(DocSystem.DocStr) == [:text, :object, :data]
+    @test (fieldnames(DocSystem.DocStr)...,) == (:text, :object, :data)
     ## `getdocs`.
     let b   = DocSystem.binding(DocSystem, :getdocs),
         d_0 = DocSystem.getdocs(b, Tuple{}),

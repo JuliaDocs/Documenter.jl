@@ -20,6 +20,7 @@ import .Documents:
     MetaNode
 
 using Compat
+import Compat.Markdown
 
 
 function expand(doc::Documents.Document)
@@ -291,7 +292,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         end
 
         # Concatenate found docstrings into a single `MD` object.
-        docstr = Base.Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
+        docstr = Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
         docstr.meta[:results] = docs
 
         # Generate a unique name to be used in anchors and links for the docstring.
@@ -518,7 +519,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             println(out, output, "\n")
         end
     end
-    page.mapping[x] = Base.Markdown.Code("julia-repl", rstrip(Utilities.takebuf_str(out)))
+    page.mapping[x] = Markdown.Code("julia-repl", rstrip(Utilities.takebuf_str(out)))
 end
 
 # @setup
