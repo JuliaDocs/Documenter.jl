@@ -6,6 +6,7 @@ module Utilities
 using Base.Meta, Compat
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
+import Compat.Markdown
 
 # Logging output.
 
@@ -20,15 +21,15 @@ logging(flag::Bool) = __log__[] = flag
 """
 Format and print a message to the user.
 """
-log(msg) = __log__[] ? print_with_color(:magenta, STDOUT, "Documenter: ", msg, "\n") : nothing
+log(msg) = __log__[] ? printstyled(STDOUT, "Documenter: ", msg, "\n", color=:magenta) : nothing
 
 # Print logging output to the "real" STDOUT.
 function log(doc, msg)
-    __log__[] && print_with_color(:magenta, STDOUT, "Documenter: ", msg, "\n")
+    __log__[] && printstyled(STDOUT, "Documenter: ", msg, "\n", color=:magenta)
     return nothing
 end
 
-debug(msg) = print_with_color(:green, " ?? ", msg, "\n")
+debug(msg) = printstyled(" ?? ", msg, "\n", color=:green)
 
 """
     warn(file, msg)
@@ -40,17 +41,17 @@ where the warning was raised.
 function warn(file, msg)
     if __log__[]
         msg = string(" !! ", msg, " [", file, "]\n")
-        print_with_color(:red, STDOUT, msg)
+        printstyled(STDOUT, msg, color=:red)
     else
         nothing
     end
 end
-warn(msg) = __log__[] ? print_with_color(:red, STDOUT, " !! ", msg, "\n") : nothing
+warn(msg) = __log__[] ? printstyled(STDOUT, " !! ", msg, "\n", color=:red) : nothing
 
 function warn(file, msg, err, ex, mod)
     if __log__[]
         warn(file, msg)
-        print_with_color(:red, STDOUT, "\nERROR: $err\n\nexpression '$ex' in module '$mod'\n\n")
+        printstyled(STDOUT, "\nERROR: $err\n\nexpression '$ex' in module '$mod'\n\n", color=:red)
     else
         nothing
     end
@@ -58,7 +59,7 @@ end
 
 function warn(doc, page, msg, err)
     file = page.source
-    print_with_color(:red, STDOUT, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n")
+    printstyled(STDOUT, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n", color=:red)
 end
 
 # Directory paths.
@@ -117,7 +118,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
     code = last(split(code, '\n', limit = skip + 1))
     # Check whether we have windows-style line endings.
     offset = contains(code, "\n\r") ? 2 : 1
-    endofstr = endof(code)
+    endofstr = lastindex(code)
     results = []
     cursor = 1
     while cursor < endofstr
@@ -127,7 +128,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
         (ex, ncursor) =
             if keywords && haskey(Docs.keywords, keyword)
                 # adding offset below should be OK, as `\n` and `\r` are single byte
-                (QuoteNode(keyword), cursor + endof(line) + offset)
+                (QuoteNode(keyword), cursor + lastindex(line) + offset)
             else
                 try
                     Meta.parse(code, cursor)
@@ -175,7 +176,7 @@ function submodules(modules::Vector{Module})
 end
 function submodules(root::Module, seen = Set{Module}())
     push!(seen, root)
-    for name in names(root, true)
+    for name in Compat.names(root, all=true)
         if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
             if isa(object, Module) && !(object in seen)
@@ -201,7 +202,7 @@ struct Object
     signature :: Type
 
     function Object(b::Binding, signature::Type)
-        m = module_name(b.mod) === b.var ? module_parent(b.mod) : b.mod
+        m = nameof(b.mod) === b.var ? parentmodule(b.mod) : b.mod
         new(Binding(m, b.var), signature)
     end
 end
@@ -467,7 +468,7 @@ function getremote(dir::AbstractString)
         catch err
             ""
         end
-    m = match(Base.LibGit2.GITHUB_REGEX, remote)
+    m = match(Compat.LibGit2.GITHUB_REGEX, remote)
     if m === nothing
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis
@@ -492,7 +493,7 @@ function inbase(m::Module)
     if m ≡ Base
         true
     else
-        parent = module_parent(m)
+        parent = parentmodule(m)
         parent ≡ m ? false : inbase(parent)
     end
 end
@@ -616,7 +617,7 @@ function issubmodule(sub, mod)
     if (sub === Main) && (mod !== Main)
         return false
     end
-    (sub === mod) || issubmodule(module_parent(sub), mod)
+    (sub === mod) || issubmodule(parentmodule(sub), mod)
 end
 
 """

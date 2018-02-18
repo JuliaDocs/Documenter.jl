@@ -5,6 +5,7 @@ docsystem in both `0.4` and `0.5`.
 module DocSystem
 
 using Compat, DocStringExtensions
+import Compat.Markdown
 import Base.Docs: MultiDoc, parsedoc, formatdoc, DocStr
 import ..IdDict
 
@@ -32,7 +33,7 @@ binding(any::Any) = throw(ArgumentError("cannot convert `$any` to a `Binding`.")
 #
 binding(b::Docs.Binding) = binding(b.mod, b.var)
 binding(d::DataType)     = binding(d.name.module, d.name.name)
-binding(m::Module)       = binding(m, module_name(m))
+binding(m::Module)       = binding(m, nameof(m))
 binding(s::Symbol)       = binding(Main, s)
 binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name)
 
@@ -42,7 +43,7 @@ binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name
 #
 # Note that `IntrinsicFunction` is exported from `Base` in `0.4`, but not in `0.5`.
 #
-let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, true)))
+let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, Compat.names(Core.Intrinsics, all=true)))
     binding(i::Core.IntrinsicFunction) = binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
 end
 
@@ -52,7 +53,7 @@ end
 # This is done within the `Binding` constructor on `0.5`, but not on `0.4`.
 #
 function binding(m::Module, v::Symbol)
-    m = module_name(m) === v ? module_parent(m) : m
+    m = nameof(m) === v ? parentmodule(m) : m
     Docs.Binding(m, v)
 end
 

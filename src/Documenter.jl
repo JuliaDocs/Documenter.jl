@@ -600,7 +600,7 @@ using Compat, DocStringExtensions
 
 export genkeys
 
-import Base.LibGit2.GITHUB_REGEX
+import Compat.LibGit2.GITHUB_REGEX
 
 
 """

@@ -12,6 +12,8 @@ import ...Documenter:
     Documenter,
     Utilities
 
+import Compat.Markdown
+
 function render(doc::Documents.Document)
     copy_assets(doc)
     mime = Formats.mimetype(:markdown)
