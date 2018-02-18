@@ -1885,7 +1885,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.domify",
     "category": "Method",
-    "text": "Converts recursively a Documents.Page, Base.Markdown or Documenter *Node objects into HTML DOM.\n\n\n\n\n\n"
+    "text": "Converts recursively a Documents.Page, Markdown or Documenter *Node objects into HTML DOM.\n\n\n\n\n\n"
 },
 
 {
