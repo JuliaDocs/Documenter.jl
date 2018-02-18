@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Documenter.jl",
     "category": "section",
-    "text": "A documentation generator for Julia.A package for building documentation from docstrings and markdown files.note: Note\nPlease read through the Documentation section of the main Julia manual if this is your first time using Julia's documentation system. Once you've read through how to write documentation for your code then come back here."
+    "text": "A documentation generator for Julia.A package for building documentation from docstrings and markdown files.note: Note\nPlease read through the Documentation section of the main Julia manual if this is your first time using Julia\'s documentation system. Once you\'ve read through how to write documentation for your code then come back here."
 },
 
 {
@@ -77,7 +77,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Usage",
     "category": "section",
-    "text": "Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document."
+    "text": "Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia\'s docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document."
 },
 
 {
@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Setting up the folder structure",
     "category": "section",
-    "text": "Firstly, we need a Julia module to document. This could be a package generated via PkgDev.generate or a single .jl script accessible via Julia's LOAD_PATH. For this guide we'll be using a package called Example.jl that has the following directory layout:Example/\n    src/\n        Example.jl\n    ...Note that the ... just represent unimportant files and folders.We must decide on a location where we'd like to store the documentation for this package. It's recommended to use a folder named docs/ in the toplevel of the package, like soExample/\n    docs/\n        ...\n    src/\n        Example.jl\n    ...Inside the docs/ folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommendeddocs/\n    src/\n    make.jl"
+    "text": "Firstly, we need a Julia module to document. This could be a package generated via PkgDev.generate or a single .jl script accessible via Julia\'s LOAD_PATH. For this guide we\'ll be using a package called Example.jl that has the following directory layout:Example/\n    src/\n        Example.jl\n    ...Note that the ... just represent unimportant files and folders.We must decide on a location where we\'d like to store the documentation for this package. It\'s recommended to use a folder named docs/ in the toplevel of the package, like soExample/\n    docs/\n        ...\n    src/\n        Example.jl\n    ...Inside the docs/ folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommendeddocs/\n    src/\n    make.jl"
 },
 
 {
@@ -93,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Building an empty document",
     "category": "section",
-    "text": "With our docs/ directory now setup we're going to build our first document. It'll just be a single empty file at the moment, but we'll be adding to it later on.Add the following to your make.jl fileusing Documenter, Example\n\nmakedocs()This assumes you've installed Documenter as discussed in Installation and that your Example.jl package can be found by Julia.note: Note\nIf your source directory is not accessible through Julia's LOAD_PATH, you might wish to add the following line at the top of make.jlpush!(LOAD_PATH,\"../src/\")Now add an index.md file to the src/ directory. The name has no particular significance though and you may name it whatever you like. We'll stick to index.md for this guide.Leave the newly added file empty and then run the following command from the docs/ directory$ julia make.jlNote that $ just represents the prompt character. You don't need to type that.If you'd like to see the output from this command in color use$ julia --color=yes make.jlWhen you run that you should see the following outputDocumenter: setting up build directory.\nDocumenter: expanding markdown templates.\nDocumenter: building cross-references.\nDocumenter: running document checks.\nDocumenter: rendering document.\nDocumenter: populating indices.\nDocumenter: copying assets to build directory.The docs/ folder should contain a new directory – called build/. It's structure should look like the followingbuild/\n    assets/\n        Documenter.css\n        mathjaxhelper.js\n    index.mdwarning: Warning\nNever git commit the contents of build (or any other content generated by Documenter) to your repository's master branch. Always commit generated files to the gh-pages branch of your repository. This helps to avoid including unnecessary changes for anyone reviewing commits that happen to include documentation changes.See the Hosting Documentation section for details regarding how you should go about setting this up correctly.At the moment build/index.md should be empty since src/index.md is empty.At this point you can add some text to src/index.md and rerun the make.jl file to see the changes if you'd like to."
+    "text": "With our docs/ directory now setup we\'re going to build our first document. It\'ll just be a single empty file at the moment, but we\'ll be adding to it later on.Add the following to your make.jl fileusing Documenter, Example\n\nmakedocs()This assumes you\'ve installed Documenter as discussed in Installation and that your Example.jl package can be found by Julia.note: Note\nIf your source directory is not accessible through Julia\'s LOAD_PATH, you might wish to add the following line at the top of make.jlpush!(LOAD_PATH,\"../src/\")Now add an index.md file to the src/ directory. The name has no particular significance though and you may name it whatever you like. We\'ll stick to index.md for this guide.Leave the newly added file empty and then run the following command from the docs/ directory$ julia make.jlNote that $ just represents the prompt character. You don\'t need to type that.If you\'d like to see the output from this command in color use$ julia --color=yes make.jlWhen you run that you should see the following outputDocumenter: setting up build directory.\nDocumenter: expanding markdown templates.\nDocumenter: building cross-references.\nDocumenter: running document checks.\nDocumenter: rendering document.\nDocumenter: populating indices.\nDocumenter: copying assets to build directory.The docs/ folder should contain a new directory – called build/. It\'s structure should look like the followingbuild/\n    assets/\n        Documenter.css\n        mathjaxhelper.js\n    index.mdwarning: Warning\nNever git commit the contents of build (or any other content generated by Documenter) to your repository\'s master branch. Always commit generated files to the gh-pages branch of your repository. This helps to avoid including unnecessary changes for anyone reviewing commits that happen to include documentation changes.See the Hosting Documentation section for details regarding how you should go about setting this up correctly.At the moment build/index.md should be empty since src/index.md is empty.At this point you can add some text to src/index.md and rerun the make.jl file to see the changes if you\'d like to."
 },
 
 {
@@ -101,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Adding some docstrings",
     "category": "section",
-    "text": "Next we'll splice a docstring defined in the Example module into the index.md file. To do this first document a function in that module:module Example\n\nexport func\n\n\"\"\"\n    func(x)\n\nReturns double the number `x` plus `1`.\n\"\"\"\nfunc(x) = 2x + 1\n\nendThen in the src/index.md file add the following# Example.jl Documentation\n\n```@docs\nfunc(x)\n```When we next run make.jl the docstring for Example.func(x) should appear in place of the @docs block in build/index.md. Note that more than one object can be referenced inside a @docs block – just place each one on a separate line.Note that a @docs block is evaluated in the Main module. This means that each object listed in the block must be visible there. The module can be changed to something else on a per-page basis with a @meta block as in the following# Example.jl Documentation\n\n```@meta\nCurrentModule = Example\n```\n\n```@docs\nfunc(x)\n```"
+    "text": "Next we\'ll splice a docstring defined in the Example module into the index.md file. To do this first document a function in that module:module Example\n\nexport func\n\n\"\"\"\n    func(x)\n\nReturns double the number `x` plus `1`.\n\"\"\"\nfunc(x) = 2x + 1\n\nendThen in the src/index.md file add the following# Example.jl Documentation\n\n```@docs\nfunc(x)\n```When we next run make.jl the docstring for Example.func(x) should appear in place of the @docs block in build/index.md. Note that more than one object can be referenced inside a @docs block – just place each one on a separate line.Note that a @docs block is evaluated in the Main module. This means that each object listed in the block must be visible there. The module can be changed to something else on a per-page basis with a @meta block as in the following# Example.jl Documentation\n\n```@meta\nCurrentModule = Example\n```\n\n```@docs\nfunc(x)\n```"
 },
 
 {
@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Cross Referencing",
     "category": "section",
-    "text": "It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of src/index.md with the following# Example.jl Documentation\n\n```@docs\nfunc(x)\n```\n\n- link to [Example.jl Documentation](@ref)\n- link to [`func(x)`](@ref)So we just have to replace each link's url with @ref and write the name of the thing we'd link to cross-reference. For document headers it's just plain text that matches the name of the header and for docstrings enclose the object in backticks.This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document."
+    "text": "It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter\'s cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of src/index.md with the following# Example.jl Documentation\n\n```@docs\nfunc(x)\n```\n\n- link to [Example.jl Documentation](@ref)\n- link to [`func(x)`](@ref)So we just have to replace each link\'s url with @ref and write the name of the thing we\'d link to cross-reference. For document headers it\'s just plain text that matches the name of the header and for docstrings enclose the object in backticks.This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document."
 },
 
 {
@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Navigation",
     "category": "section",
-    "text": "Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our index.md file from the previous sections. Add the following to that file# Example.jl Documentation\n\n```@contents\n```\n\n## Functions\n\n```@docs\nfunc(x)\n```\n\n## Index\n\n```@index\n```The @contents block will generate a nested list of links to all the section headers in the document. By default it will gather all the level 1 and 2 headers from every page in the document, but this can be adjusted using Pages and Depth settings as in the following```@contents\nPages = [\"foo.md\", \"bar.md\"]\nDepth = 3\n```The @index block will generate a flat list of links to all the docs that that have been spliced into the document using @docs blocks. As with the @contents block the pages to be included can be set with a Pages = [...] line. Since the list is not nested Depth is not supported for @index."
+    "text": "Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We\'ll illustrate these features using our index.md file from the previous sections. Add the following to that file# Example.jl Documentation\n\n```@contents\n```\n\n## Functions\n\n```@docs\nfunc(x)\n```\n\n## Index\n\n```@index\n```The @contents block will generate a nested list of links to all the section headers in the document. By default it will gather all the level 1 and 2 headers from every page in the document, but this can be adjusted using Pages and Depth settings as in the following```@contents\nPages = [\"foo.md\", \"bar.md\"]\nDepth = 3\n```The @index block will generate a flat list of links to all the docs that that have been spliced into the document using @docs blocks. As with the @contents block the pages to be included can be set with a Pages = [...] line. Since the list is not nested Depth is not supported for @index."
 },
 
 {
@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Output formats",
     "category": "section",
-    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring MkDocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = :html option to makedocs. It also requires the pages and sitename options. make.jl should then look something likemakedocs(\n    ...,\n    format = :html,\n    sitename = \"Package name\",\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)\n\ndeploydocs(\n    repo   = \"github.com/USER/PKG.jl.git\",\n    target = \"build\",\n    deps   = nothing,\n    make   = nothing\n)Since Documenter's docs are already built using HTML output, a fully working example of the configuration can be found in docs/make.jl. Note that with this configuration, mkdocs.yml is not required.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl's issue tracker.Additional makedocs options for HTML outputsitename is the site's title displayed in the title bar and at the top of the navigation menu.pages defines the hierarchy of the navigation menu."
+    "text": "Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based MkDocs is usually used to convert the Markdown files into a set of HTML pages. See Hosting Documentation for further information on configuring MkDocs for Documenter.note: Native HTML output\nThere is experimental support for native HTML output in Documenter. It can be enabled by passing the format = :html option to makedocs. It also requires the pages and sitename options. make.jl should then look something likemakedocs(\n    ...,\n    format = :html,\n    sitename = \"Package name\",\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)\n\ndeploydocs(\n    repo   = \"github.com/USER/PKG.jl.git\",\n    target = \"build\",\n    deps   = nothing,\n    make   = nothing\n)Since Documenter\'s docs are already built using HTML output, a fully working example of the configuration can be found in docs/make.jl. Note that with this configuration, mkdocs.yml is not required.It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to Documenter.jl\'s issue tracker.Additional makedocs options for HTML outputsitename is the site\'s title displayed in the title bar and at the top of the navigation menu.pages defines the hierarchy of the navigation menu."
 },
 
 {
@@ -293,7 +293,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "Doctests",
     "category": "section",
-    "text": "Documenter will, by default, try to run jldoctest code blocks that it finds in the generated documentation. This can help to avoid documentation examples from becoming outdated, incorrect, or misleading. It's recommended that as many of a package's examples be runnable by Documenter's doctest.This section of the manual outlines how to go about enabling doctests for code blocks in your package's documentation."
+    "text": "Documenter will, by default, try to run jldoctest code blocks that it finds in the generated documentation. This can help to avoid documentation examples from becoming outdated, incorrect, or misleading. It\'s recommended that as many of a package\'s examples be runnable by Documenter\'s doctest.This section of the manual outlines how to go about enabling doctests for code blocks in your package\'s documentation."
 },
 
 {
@@ -301,7 +301,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "\"Script\" Examples",
     "category": "section",
-    "text": "The first, of two, types of doctests is the \"script\" code block. To make Documenter detect this kind of code block the following format must be used:```jldoctest\na = 1\nb = 2\na + b\n\n# output\n\n3\n```The code block's \"language\" must be jldoctest and must include a line containing the text # output. The text before this line is the contents of the script which is run. The text that appears after # output is the textual representation that would be shown in the Julia REPL if the script had been included.The actual output produced by running the \"script\" is compared to the expected result and any difference will result in makedocs throwing an error and terminating.Note that the amount of whitespace appearing above and below the # output line is not significant and can be increased or decreased if desired."
+    "text": "The first, of two, types of doctests is the \"script\" code block. To make Documenter detect this kind of code block the following format must be used:```jldoctest\na = 1\nb = 2\na + b\n\n# output\n\n3\n```The code block\'s \"language\" must be jldoctest and must include a line containing the text # output. The text before this line is the contents of the script which is run. The text that appears after # output is the textual representation that would be shown in the Julia REPL if the script had been included.The actual output produced by running the \"script\" is compared to the expected result and any difference will result in makedocs throwing an error and terminating.Note that the amount of whitespace appearing above and below the # output line is not significant and can be increased or decreased if desired."
 },
 
 {
@@ -309,7 +309,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "REPL Examples",
     "category": "section",
-    "text": "The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:```jldoctest\njulia> a = 1\n1\n\njulia> b = 2;\n\njulia> c = 3;  # comment\n\njulia> a + b + c\n6\n```As with script doctests, the code block must have it's language set to jldoctest. When a code block contains one or more julia> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, ;, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.Note that not all features of the REPL are supported such as shell and help modes."
+    "text": "The other kind of doctest is a simulated Julia REPL session. The following format is detected by Documenter as a REPL doctest:```jldoctest\njulia> a = 1\n1\n\njulia> b = 2;\n\njulia> c = 3;  # comment\n\njulia> a + b + c\n6\n```As with script doctests, the code block must have it\'s language set to jldoctest. When a code block contains one or more julia> at the start of a line then it is assumed to be a REPL doctest. Semi-colons, ;, at the end of a line works in the same way as in the Julia REPL and will suppress the output, although the line is still evaluated.Note that not all features of the REPL are supported such as shell and help modes."
 },
 
 {
@@ -349,7 +349,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "Skipping Doctests",
     "category": "section",
-    "text": "Doctesting can be disabled by setting the makedocs keyword doctest = false. This should only be done when initially laying out the structure of a package's documentation, after which it's encouraged to always run doctests when building docs."
+    "text": "Doctesting can be disabled by setting the makedocs keyword doctest = false. This should only be done when initially laying out the structure of a package\'s documentation, after which it\'s encouraged to always run doctests when building docs."
 },
 
 {
@@ -365,7 +365,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "Hosting Documentation",
     "category": "section",
-    "text": "After going through the Package Guide and Doctests page you will need to host the generated documentation somewhere for potential users to read. This guide will describe how to setup automatic updates for your package docs using the Travis build service and GitHub Pages. This is the same approach used by this package to host its own docs – the docs you're currently reading.note: Note\nFollowing this guide should be the final step you take after you are comfortable with the syntax and build process used by Documenter.jl. Only proceed with the steps outlined on this page once you have successfully used mkdocs locally to build your documentation.  mkdocs can typically be installed using pip install mkdocs in your terminal.This guide assumes that you already have GitHub and Travis accounts setup. If not then go set those up first and then return here."
+    "text": "After going through the Package Guide and Doctests page you will need to host the generated documentation somewhere for potential users to read. This guide will describe how to setup automatic updates for your package docs using the Travis build service and GitHub Pages. This is the same approach used by this package to host its own docs – the docs you\'re currently reading.note: Note\nFollowing this guide should be the final step you take after you are comfortable with the syntax and build process used by Documenter.jl. Only proceed with the steps outlined on this page once you have successfully used mkdocs locally to build your documentation.  mkdocs can typically be installed using pip install mkdocs in your terminal.This guide assumes that you already have GitHub and Travis accounts setup. If not then go set those up first and then return here."
 },
 
 {
@@ -381,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "SSH Deploy Keys",
     "category": "section",
-    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.Open a Julia REPL and import Documenter.julia> using DocumenterThen call the Travis.genkeys function as follows:julia> Travis.genkeys(\"MyPackage\")where \"MyPackage\" is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named 'DOCUMENTER_KEY' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field.  Note that you should include no whitespace when copying the key. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
+    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.Open a Julia REPL and import Documenter.julia> using DocumenterThen call the Travis.genkeys function as follows:julia> Travis.genkeys(\"MyPackage\")where \"MyPackage\" is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named \'DOCUMENTER_KEY\' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field.  Note that you should include no whitespace when copying the key. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
 },
 
 {
@@ -389,7 +389,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": ".travis.yml Configuration",
     "category": "section",
-    "text": "In the after_success section of the .travis.yml file, where code coverage is processed, run your docs/make.jl file:after_success:\n  - julia -e 'Pkg.add(\"Documenter\")'\n  - julia -e 'cd(Pkg.dir(\"PACKAGE_NAME\")); include(joinpath(\"docs\", \"make.jl\"))'"
+    "text": "In the after_success section of the .travis.yml file, where code coverage is processed, run your docs/make.jl file:after_success:\n  - julia -e \'Pkg.add(\"Documenter\")\'\n  - julia -e \'cd(Pkg.dir(\"PACKAGE_NAME\")); include(joinpath(\"docs\", \"make.jl\"))\'"
 },
 
 {
@@ -397,7 +397,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "The deploydocs Function",
     "category": "section",
-    "text": "At the moment your docs/make.jl file probably only containsusing Documenter, PACKAGE_NAME\n\nmakedocs()We'll need to add an additional call to this file after makedocs. Add the following at the end of the file:deploydocs(\n    repo = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\"\n)where USER_NAME and PACKAGE_NAME must be set to the appropriate names. Note that repo should not specify any protocol, i.e. it should not begin with https:// or git@.By default deploydocs will deploy the documentation from the nightly Julia build for Linux. This can be changed using the julia and osname keywords as follows:deploydocs(\n    deps   = Deps.pip(\"mkdocs\", \"python-markdown-math\"),\n    repo   = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia  = \"0.4\",\n    osname = \"osx\"\n)This will deploy the docs from the OSX Julia 0.4 Travis build bot.The keyword deps serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies mkdocs and python-markdown-math. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the mdx_math markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.See the deploydocs function documentation for more details."
+    "text": "At the moment your docs/make.jl file probably only containsusing Documenter, PACKAGE_NAME\n\nmakedocs()We\'ll need to add an additional call to this file after makedocs. Add the following at the end of the file:deploydocs(\n    repo = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\"\n)where USER_NAME and PACKAGE_NAME must be set to the appropriate names. Note that repo should not specify any protocol, i.e. it should not begin with https:// or git@.By default deploydocs will deploy the documentation from the nightly Julia build for Linux. This can be changed using the julia and osname keywords as follows:deploydocs(\n    deps   = Deps.pip(\"mkdocs\", \"python-markdown-math\"),\n    repo   = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia  = \"0.4\",\n    osname = \"osx\"\n)This will deploy the docs from the OSX Julia 0.4 Travis build bot.The keyword deps serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies mkdocs and python-markdown-math. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the mdx_math markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.See the deploydocs function documentation for more details."
 },
 
 {
@@ -405,7 +405,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "The MkDocs mkdocs.yml File",
     "category": "section",
-    "text": "We'll be using MkDocs to convert the markdown files generated by Documenter to HTML. (This, of course, is not the only option you have for this step. Any markdown to HTML converter should work fine with some amount of setting up.)Add an mkdocs.yml file to your docs/ directory with the following content:site_name:        PACKAGE_NAME.jl\nrepo_url:         https://github.com/USER_NAME/PACKAGE_NAME.jl\nsite_description: Description...\nsite_author:      USER_NAME\n\ntheme: readthedocs\n\nextra_css:\n  - assets/Documenter.css\n\nextra_javascript:\n  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML\n  - assets/mathjaxhelper.js\n\nmarkdown_extensions:\n  - extra\n  - tables\n  - fenced_code\n  - mdx_math\n\ndocs_dir: 'build'\n\npages:\n  - Home: index.mdThis is only a basic skeleton. Read through the MkDocs documentation if you would like to know more about the available settings."
+    "text": "We\'ll be using MkDocs to convert the markdown files generated by Documenter to HTML. (This, of course, is not the only option you have for this step. Any markdown to HTML converter should work fine with some amount of setting up.)Add an mkdocs.yml file to your docs/ directory with the following content:site_name:        PACKAGE_NAME.jl\nrepo_url:         https://github.com/USER_NAME/PACKAGE_NAME.jl\nsite_description: Description...\nsite_author:      USER_NAME\n\ntheme: readthedocs\n\nextra_css:\n  - assets/Documenter.css\n\nextra_javascript:\n  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML\n  - assets/mathjaxhelper.js\n\nmarkdown_extensions:\n  - extra\n  - tables\n  - fenced_code\n  - mdx_math\n\ndocs_dir: \'build\'\n\npages:\n  - Home: index.mdThis is only a basic skeleton. Read through the MkDocs documentation if you would like to know more about the available settings."
 },
 
 {
@@ -413,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": ".gitignore",
     "category": "section",
-    "text": "Add the following to your package's .gitignore filedocs/build/\ndocs/site/These are needed to avoid committing generated content to your repository."
+    "text": "Add the following to your package\'s .gitignore filedocs/build/\ndocs/site/These are needed to avoid committing generated content to your repository."
 },
 
 {
@@ -429,7 +429,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "Documentation Versions",
     "category": "section",
-    "text": "When documentation is generated it is stored in one of the following folders:latest stores the most recent documentation that is committed to the master branch.\nstable stores the most recent documentation from a tagged commit. Older tagged versions are stored in directories named after their tags. These tagged directories are persistent and must be manually removed from the gh-pages branch if necessary.Unless a custom domain is being used, the stable and latest pages are found at:https://USER_NAME.github.io/PACKAGE_NAME.jl/stable\nhttps://USER_NAME.github.io/PACKAGE_NAME.jl/latestOnce your documentation has been pushed to the gh-pages branch you should add links to your README.md pointing to the stable and latest documentation URLs. It is common practice to make use of \"badges\" similar to those used for Travis and AppVeyor build statuses or code coverage. Adding the following to your package README.md should be all that is necessary:[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)\n[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)PACKAGE_NAME and USER_NAME should be replaced with their appropriate values. The colour and text of the image can be changed by altering docs-stable-blue as described on shields.io, though it is recommended that package authors follow this standard to make it easier for potential users to find documentation links across multiple package README files.Final RemarksThat should be all that is needed to enable automatic documentation building. Pushing new commits to your master branch should trigger doc builds. Note that other branches do not trigger these builds and neither do pull requests by potential contributors.If you would like to see a more complete example of how this process is setup then take a look at this package's repository for some inspiration."
+    "text": "When documentation is generated it is stored in one of the following folders:latest stores the most recent documentation that is committed to the master branch.\nstable stores the most recent documentation from a tagged commit. Older tagged versions are stored in directories named after their tags. These tagged directories are persistent and must be manually removed from the gh-pages branch if necessary.Unless a custom domain is being used, the stable and latest pages are found at:https://USER_NAME.github.io/PACKAGE_NAME.jl/stable\nhttps://USER_NAME.github.io/PACKAGE_NAME.jl/latestOnce your documentation has been pushed to the gh-pages branch you should add links to your README.md pointing to the stable and latest documentation URLs. It is common practice to make use of \"badges\" similar to those used for Travis and AppVeyor build statuses or code coverage. Adding the following to your package README.md should be all that is necessary:[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)\n[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)PACKAGE_NAME and USER_NAME should be replaced with their appropriate values. The colour and text of the image can be changed by altering docs-stable-blue as described on shields.io, though it is recommended that package authors follow this standard to make it easier for potential users to find documentation links across multiple package README files.Final RemarksThat should be all that is needed to enable automatic documentation building. Pushing new commits to your master branch should trigger doc builds. Note that other branches do not trigger these builds and neither do pull requests by potential contributors.If you would like to see a more complete example of how this process is setup then take a look at this package\'s repository for some inspiration."
 },
 
 {
@@ -461,7 +461,7 @@ var documenterSearchIndex = {"docs": [
     "page": "LaTeX syntax",
     "title": "Inline equations",
     "category": "section",
-    "text": "Surround inline equations and mathematical symbols in $ characters, i.e.Here's some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.which will be displayed asHere's some inline maths: sqrtn1 + x + x^2 + ldots."
+    "text": "Surround inline equations and mathematical symbols in $ characters, i.e.Here\'s some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.which will be displayed asHere\'s some inline maths: sqrtn1 + x + x^2 + ldots."
 },
 
 {
@@ -469,7 +469,7 @@ var documenterSearchIndex = {"docs": [
     "page": "LaTeX syntax",
     "title": "Display equations",
     "category": "section",
-    "text": "Use the same single $ characters to wrap the equation, but also add a newline above and below it, i.e.Here's an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.which will be displayed asHere's an equation:fracnk(n - k) = binomnkThis is the binomial coefficient."
+    "text": "Use the same single $ characters to wrap the equation, but also add a newline above and below it, i.e.Here\'s an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.which will be displayed asHere\'s an equation:fracnk(n - k) = binomnkThis is the binomial coefficient."
 },
 
 {
@@ -477,7 +477,7 @@ var documenterSearchIndex = {"docs": [
     "page": "LaTeX syntax",
     "title": "Escaping characters in docstrings",
     "category": "section",
-    "text": "Since some characters used in LaTeX syntax are treated differently in docstrings they need to be escaped using a \\ character as in the following example:\"\"\"\nHere's some inline maths: \\$\\\\sqrt[n]{1 + x + x^2 + \\\\ldots}\\$.\n\nHere's an equation:\n\n\\$\\\\frac{n!}{k!(n - k)!} = \\\\binom{n}{k}\\$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ...To avoid needing to escape the special characters the doc\"\" string macro can be used:doc\"\"\"\nHere's some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.\n\nHere's an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ..."
+    "text": "Since some characters used in LaTeX syntax are treated differently in docstrings they need to be escaped using a \\ character as in the following example:\"\"\"\nHere\'s some inline maths: \\$\\\\sqrt[n]{1 + x + x^2 + \\\\ldots}\\$.\n\nHere\'s an equation:\n\n\\$\\\\frac{n!}{k!(n - k)!} = \\\\binom{n}{k}\\$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ...To avoid needing to escape the special characters the doc\"\" string macro can be used:doc\"\"\"\nHere\'s some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.\n\nHere\'s an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ..."
 },
 
 {
@@ -493,7 +493,7 @@ var documenterSearchIndex = {"docs": [
     "page": "LaTeX syntax",
     "title": "Inline equations",
     "category": "section",
-    "text": "Here's some inline maths: ``\\sqrt[n]{1 + x + x^2 + \\ldots}``.which will be displayed asHere's some inline maths: sqrtn1 + x + x^2 + ldots."
+    "text": "Here\'s some inline maths: ``\\sqrt[n]{1 + x + x^2 + \\ldots}``.which will be displayed asHere\'s some inline maths: sqrtn1 + x + x^2 + ldots."
 },
 
 {
@@ -501,7 +501,7 @@ var documenterSearchIndex = {"docs": [
     "page": "LaTeX syntax",
     "title": "Display equations",
     "category": "section",
-    "text": "Here's an equation:\n\n```math\n\\frac{n!}{k!(n - k)!} = \\binom{n}{k}\n```\n\nThis is the binomial coefficient.which will be displayed asHere's an equation:fracnk(n - k) = binomnkThis is the binomial coefficient."
+    "text": "Here\'s an equation:\n\n```math\n\\frac{n!}{k!(n - k)!} = \\binom{n}{k}\n```\n\nThis is the binomial coefficient.which will be displayed asHere\'s an equation:fracnk(n - k) = binomnkThis is the binomial coefficient."
 },
 
 {
@@ -581,7 +581,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Contributing",
     "title": "Julia",
     "category": "section",
-    "text": "4-space indentation;\nmodules spanning entire files should not be indented, but modules that have surrounding code should;\nno blank lines at the start or end of files;\ndo not manually align syntax such as = or :: over adjacent lines;\nuse local to define new local variables so that they are easier to locate;\nuse function ... end when a method definition contains more than one toplevel expression;\nrelated short-form method definitions don't need a new line between them;\nunrelated or long-form method definitions must have a blank line separating each one;\nsurround all binary operators with whitespace except for ::, ^, and :;\nfiles containing a single module ... end must be named after the module;\nmethod arguments should be ordered based on the amount of usage within the method body;\nmethods extended from other modules must follow their inherited argument order, not the above rule;\nexplicit return should be preferred except in short-form method definitions;\navoid dense expressions where possible e.g. prefer nested ifs over complex nested ?s;\ninclude a trailing , in vectors, tuples, or method calls that span several lines;\ndo not use multiline comments (#= and =#);\nwrap long lines as near to 92 characters as possible, this includes docstrings;\nfollow the standard naming conventions used in Base."
+    "text": "4-space indentation;\nmodules spanning entire files should not be indented, but modules that have surrounding code should;\nno blank lines at the start or end of files;\ndo not manually align syntax such as = or :: over adjacent lines;\nuse local to define new local variables so that they are easier to locate;\nuse function ... end when a method definition contains more than one toplevel expression;\nrelated short-form method definitions don\'t need a new line between them;\nunrelated or long-form method definitions must have a blank line separating each one;\nsurround all binary operators with whitespace except for ::, ^, and :;\nfiles containing a single module ... end must be named after the module;\nmethod arguments should be ordered based on the amount of usage within the method body;\nmethods extended from other modules must follow their inherited argument order, not the above rule;\nexplicit return should be preferred except in short-form method definitions;\navoid dense expressions where possible e.g. prefer nested ifs over complex nested ?s;\ninclude a trailing , in vectors, tuples, or method calls that span several lines;\ndo not use multiline comments (#= and =#);\nwrap long lines as near to 92 characters as possible, this includes docstrings;\nfollow the standard naming conventions used in Base."
 },
 
 {
@@ -605,7 +605,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Public Documentation",
     "category": "section",
-    "text": "Documentation for Documenter.jl's public interface.See Internal Documentation for internal package docs covering all submodules."
+    "text": "Documentation for Documenter.jl\'s public interface.See Internal Documentation for internal package docs covering all submodules."
 },
 
 {
@@ -637,7 +637,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.makedocs",
     "category": "Function",
-    "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = Pkg.dir(\"MyPackage\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it's encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter's make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git branch or tag name, or commit hash\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")\n\nExperimental keywords\n\nIn addition to standard arguments there is a set of non-finalized experimental keyword arguments. The behaviour of these may change or they may be removed without deprecation when a minor version changes (i.e. except in patch releases).\n\ncheckdocs instructs makedocs to check whether all names within the modules defined in the modules keyword that have a docstring attached have the docstring also listed in the manual (e.g. there's a @docs blocks with that docstring). Possible values are :all (check all names) and :exports (check only exported names). The default value is :none, in which case no checks are performed. If strict is also enabled then the build will fail if any missing docstrings are encountered.\n\nlinkcheck – if set to true makedocs uses curl to check the status codes of external-pointing links, to make sure that they are up-to-date. The links and their status codes are printed to the standard output. If strict is also enabled then the build will fail if there are any broken (400+ status code) links. Default: false.\n\nlinkcheck_ignore allows certain URLs to be ignored in linkcheck. The values should be a list of strings (which get matched exactly) or Regex objects. By default nothing is ignored.\n\nstrict – makedocs fails the build right before rendering if it encountered any errors with the document in the previous build phases.\n\nNon-MkDocs builds\n\nDocumenter also has (experimental) support for native HTML and LaTeX builds. These can be enabled using the format keyword and they generally require additional keywords be defined, depending on the format. These keywords are also currently considered experimental.\n\nformat allows the output format to be specified. Possible values are :html, :latex and :markdown (default).\n\nOther keywords related to non-MkDocs builds (assets, sitename, analytics, authors, pages, version) should be documented at the respective *Writer modules (Writers.HTMLWriter, Writers.LaTeXWriter).\n\nSee Also\n\nA guide detailing how to document a package using Documenter's makedocs is provided in the Usage section of the manual.\n\n\n\n\n\n"
+    "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = Pkg.dir(\"MyPackage\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it\'s encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter\'s make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git branch or tag name, or commit hash\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")\n\nExperimental keywords\n\nIn addition to standard arguments there is a set of non-finalized experimental keyword arguments. The behaviour of these may change or they may be removed without deprecation when a minor version changes (i.e. except in patch releases).\n\ncheckdocs instructs makedocs to check whether all names within the modules defined in the modules keyword that have a docstring attached have the docstring also listed in the manual (e.g. there\'s a @docs blocks with that docstring). Possible values are :all (check all names) and :exports (check only exported names). The default value is :none, in which case no checks are performed. If strict is also enabled then the build will fail if any missing docstrings are encountered.\n\nlinkcheck – if set to true makedocs uses curl to check the status codes of external-pointing links, to make sure that they are up-to-date. The links and their status codes are printed to the standard output. If strict is also enabled then the build will fail if there are any broken (400+ status code) links. Default: false.\n\nlinkcheck_ignore allows certain URLs to be ignored in linkcheck. The values should be a list of strings (which get matched exactly) or Regex objects. By default nothing is ignored.\n\nstrict – makedocs fails the build right before rendering if it encountered any errors with the document in the previous build phases.\n\nNon-MkDocs builds\n\nDocumenter also has (experimental) support for native HTML and LaTeX builds. These can be enabled using the format keyword and they generally require additional keywords be defined, depending on the format. These keywords are also currently considered experimental.\n\nformat allows the output format to be specified. Possible values are :html, :latex and :markdown (default).\n\nOther keywords related to non-MkDocs builds (assets, sitename, analytics, authors, pages, version) should be documented at the respective *Writer modules (Writers.HTMLWriter, Writers.LaTeXWriter).\n\nSee Also\n\nA guide detailing how to document a package using Documenter\'s makedocs is provided in the Usage section of the manual.\n\n\n\n\n\n"
 },
 
 {
@@ -653,7 +653,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.deploydocs",
     "category": "Function",
-    "text": "deploydocs(\n    root   = \"<current-directory>\",\n    target = \"site\",\n    repo   = \"<required>\",\n    branch = \"gh-pages\",\n    latest = \"master\",\n    osname = \"linux\",\n    julia  = \"nightly\",\n    deps   = <Function>,\n    make   = <Function>,\n)\n\nConverts markdown files generated by makedocs to HTML and pushes them to repo. This function should be called from within a package's docs/make.jl file after the call to makedocs, like so\n\nusing Documenter, PACKAGE_NAME\nmakedocs(\n    # options...\n)\ndeploydocs(\n    repo = \"github.com/...\"\n)\n\nKeywords\n\nroot has the same purpose as the root keyword for makedocs.\n\ntarget is the directory, relative to root, where generated HTML content should be written to. This directory must be added to the repository's .gitignore file. The default value is \"site\".\n\nrepo is the remote repository where generated HTML content should be pushed to. Do not specify any protocol - \"https://\" or \"git@\" should not be present. This keyword must be set and will throw an error when left undefined. For example this package uses the following repo value:\n\nrepo = \"github.com/JuliaDocs/Documenter.jl.git\"\n\nbranch is the branch where the generated documentation is pushed. If the branch does not exist, a new orphaned branch is created automatically. It defaults to \"gh-pages\".\n\nlatest is the branch that \"tracks\" the latest generated documentation. By default this value is set to \"master\".\n\nosname is the operating system which will be used to deploy generated documentation. This defaults to \"linux\". This value must be one of those specified in the os: section of the .travis.yml configuration file.\n\njulia is the version of Julia that will be used to deploy generated documentation. This defaults to \"nightly\". This value must be one of those specified in the julia: section of the .travis.yml configuration file.\n\ndeps is the function used to install any dependencies needed to build the documentation. By default this function installs pygments and mkdocs using the Deps.pip function:\n\ndeps = Deps.pip(\"pygments\", \"mkdocs\")\n\nmake is the function used to convert the markdown files to HTML. By default this just runs mkdocs build which populates the target directory.\n\nSee Also\n\nThe Hosting Documentation section of the manual provides a step-by-step guide to using the deploydocs function to automatically generate docs and push then to GitHub.\n\n\n\n\n\n"
+    "text": "deploydocs(\n    root   = \"<current-directory>\",\n    target = \"site\",\n    repo   = \"<required>\",\n    branch = \"gh-pages\",\n    latest = \"master\",\n    osname = \"linux\",\n    julia  = \"nightly\",\n    deps   = <Function>,\n    make   = <Function>,\n)\n\nConverts markdown files generated by makedocs to HTML and pushes them to repo. This function should be called from within a package\'s docs/make.jl file after the call to makedocs, like so\n\nusing Documenter, PACKAGE_NAME\nmakedocs(\n    # options...\n)\ndeploydocs(\n    repo = \"github.com/...\"\n)\n\nKeywords\n\nroot has the same purpose as the root keyword for makedocs.\n\ntarget is the directory, relative to root, where generated HTML content should be written to. This directory must be added to the repository\'s .gitignore file. The default value is \"site\".\n\nrepo is the remote repository where generated HTML content should be pushed to. Do not specify any protocol - \"https://\" or \"git@\" should not be present. This keyword must be set and will throw an error when left undefined. For example this package uses the following repo value:\n\nrepo = \"github.com/JuliaDocs/Documenter.jl.git\"\n\nbranch is the branch where the generated documentation is pushed. If the branch does not exist, a new orphaned branch is created automatically. It defaults to \"gh-pages\".\n\nlatest is the branch that \"tracks\" the latest generated documentation. By default this value is set to \"master\".\n\nosname is the operating system which will be used to deploy generated documentation. This defaults to \"linux\". This value must be one of those specified in the os: section of the .travis.yml configuration file.\n\njulia is the version of Julia that will be used to deploy generated documentation. This defaults to \"nightly\". This value must be one of those specified in the julia: section of the .travis.yml configuration file.\n\ndeps is the function used to install any dependencies needed to build the documentation. By default this function installs pygments and mkdocs using the Deps.pip function:\n\ndeps = Deps.pip(\"pygments\", \"mkdocs\")\n\nmake is the function used to convert the markdown files to HTML. By default this just runs mkdocs build which populates the target directory.\n\nSee Also\n\nThe Hosting Documentation section of the manual provides a step-by-step guide to using the deploydocs function to automatically generate docs and push then to GitHub.\n\n\n\n\n\n"
 },
 
 {
@@ -757,7 +757,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Anchors",
     "title": "Documenter.Anchors.Anchor",
     "category": "Type",
-    "text": "Stores an arbitrary object called .object and it's location within a document.\n\nFields\n\nobject – the stored object.\norder  – ordering of object within the entire document.\nfile   – the destination file, in build, where the object will be written to.\nid     – the generated \"slug\" identifying the object.\nnth    – integer that unique-ifies anchors with the same id.\n\n\n\n\n\n"
+    "text": "Stores an arbitrary object called .object and it\'s location within a document.\n\nFields\n\nobject – the stored object.\norder  – ordering of object within the entire document.\nfile   – the destination file, in build, where the object will be written to.\nid     – the generated \"slug\" identifying the object.\nnth    – integer that unique-ifies anchors with the same id.\n\n\n\n\n\n"
 },
 
 {
@@ -885,7 +885,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Builder",
     "title": "Documenter.Builder.walk_navpages",
     "category": "Method",
-    "text": "walk_navpages(visible, title, src, children, parent, doc)\n\n\nRecursively walks through the Documents.Document's .user.pages field, generating Documents.NavNodes and related data structures in the process.\n\nThis implementation is the de facto specification for the .user.pages field.\n\n\n\n\n\n"
+    "text": "walk_navpages(visible, title, src, children, parent, doc)\n\n\nRecursively walks through the Documents.Document\'s .user.pages field, generating Documents.NavNodes and related data structures in the process.\n\nThis implementation is the de facto specification for the .user.pages field.\n\n\n\n\n\n"
 },
 
 {
@@ -925,7 +925,7 @@ var documenterSearchIndex = {"docs": [
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences.find_object",
     "category": "Method",
-    "text": "find_object(doc, binding, typesig)\n\n\nFind the included Object in the doc matching binding and typesig. The matching heuristic isn't too picky about what matches and will only fail when no Bindings matching binding have been included.\n\n\n\n\n\n"
+    "text": "find_object(doc, binding, typesig)\n\n\nFind the included Object in the doc matching binding and typesig. The matching heuristic isn\'t too picky about what matches and will only fail when no Bindings matching binding have been included.\n\n\n\n\n\n"
 },
 
 {
@@ -1009,19 +1009,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/docsystem/#Documenter.DocSystem.docstr-Tuple{Base.Markdown.MD}",
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.docstr-Tuple{Markdown.MD}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.docstr",
     "category": "Method",
-    "text": "docstr(md; kws...)\n\n\nConstruct a DocStr object from a Markdown.MD object.\n\nThe optional keyword arguments are used to add new data to the DocStr's .data dictionary.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/docsystem/#Documenter.DocSystem.getdocs",
-    "page": "DocSystem",
-    "title": "Documenter.DocSystem.getdocs",
-    "category": "Function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
+    "text": "docstr(md; kws...)\n\n\nConstruct a DocStr object from a Markdown.MD object.\n\nThe optional keyword arguments are used to add new data to the DocStr\'s .data dictionary.\n\n\n\n\n\n"
 },
 
 {
@@ -1030,6 +1022,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.DocSystem.getdocs",
     "category": "Function",
     "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/docsystem/#Documenter.DocSystem.getdocs",
+    "page": "DocSystem",
+    "title": "Documenter.DocSystem.getdocs",
+    "category": "Function",
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
 },
 
 {
@@ -1213,7 +1213,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.escapehtml",
     "category": "Method",
-    "text": "Escape characters in the provided string. This converts the following characters:\n\n< to &lt;\n> to &gt;\n& to &amp;\n' to &#39;\n\" to &quot;\n\nWhen no escaping is needed then the same object is returned, otherwise a new string is constructed with the characters escaped. The returned object should always be treated as an immutable copy and compared using == rather than ===.\n\n\n\n\n\n"
+    "text": "Escape characters in the provided string. This converts the following characters:\n\n< to &lt;\n> to &gt;\n& to &amp;\n\' to &#39;\n\" to &quot;\n\nWhen no escaping is needed then the same object is returned, otherwise a new string is constructed with the characters escaped. The returned object should always be treated as an immutable copy and compared using == rather than ===.\n\n\n\n\n\n"
 },
 
 {
@@ -1277,7 +1277,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Expanders",
     "title": "Documenter.Expanders.EvalBlocks",
     "category": "Type",
-    "text": "Parses each code block where the language is @eval and evaluates it's content. Replaces the block with the value resulting from the evaluation. This can be useful for inserting generated content into a document such as plots.\n\n```@eval\nusing PyPlot\nx = linspace(-π, π)\ny = sin(x)\nplot(x, y, color = \"red\")\nsavefig(\"plot.svg\")\nMarkdown.parse(\"![Plot](plot.svg)\")\n```\n\n\n\n\n\n"
+    "text": "Parses each code block where the language is @eval and evaluates it\'s content. Replaces the block with the value resulting from the evaluation. This can be useful for inserting generated content into a document such as plots.\n\n```@eval\nusing PyPlot\nx = linspace(-π, π)\ny = sin(x)\nplot(x, y, color = \"red\")\nsavefig(\"plot.svg\")\nMarkdown.parse(\"![Plot](plot.svg)\")\n```\n\n\n\n\n\n"
 },
 
 {
@@ -1649,7 +1649,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities/#Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}",
+    "location": "lib/internals/utilities/#Documenter.Utilities.filterdocs-Tuple{Markdown.MD,Set{Module}}",
     "page": "Utilities",
     "title": "Documenter.Utilities.filterdocs",
     "category": "Method",
@@ -1669,7 +1669,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Utilities",
     "title": "Documenter.Utilities.in_cygwin",
     "category": "Method",
-    "text": "in_cygwin()\n\nCheck if we're running under cygwin. Useful when we need to translate cygwin paths to windows paths.\n\n\n\n\n\n"
+    "text": "in_cygwin()\n\nCheck if we\'re running under cygwin. Useful when we need to translate cygwin paths to windows paths.\n\n\n\n\n\n"
 },
 
 {
@@ -1845,7 +1845,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
     "category": "Module",
-    "text": "A module for rendering Document objects to HTML.\n\nKeywords\n\nHTMLWriter uses the following additional keyword arguments that can be passed to Documenter.makedocs: assets, sitename, analytics, authors, pages, version, html_prettyurls, html_disable_git.\n\nversion specifies the version string of the current version which will be the selected option in the version selector. If this is left empty (default) the version selector will be hidden. The special value git-commit sets the value in the output to git:{commit}, where {commit} is the first few characters of the current commit hash.\n\nhtml_disable_git can be used to disable calls to git when the document is not in a Git-controlled repository. Without setting this to true, Documenter will throw an error and exit if any of the Git commands fail. The calls to Git are mainly used to gather information about the current commit hash and file paths, necessary for constructing the links to the remote repository.\n\nhtml_edit_branch specifies which branch, tag or commit the \"Edit on GitHub\" links point to. It defaults to master. If it set to nothing, the current commit will be used.\n\nhtml_canonical specifies the canonical URL for your documentation. We recommend you set this to the base url of your stable documentation, e.g. https://juliadocs.github.io/Documenter.jl/stable. This allows search engines to know which version to send their users to. See wikipedia for more information. Default is nothing, in which case no canonical link is set.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site's assets/ directory, unless the user already had a file with the same name, in which case the user's files overrides the Documenter's file. This could, in principle, be used for customizing the site's style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that's present, it gets displayed in the navigation bar.\n\nAdditional JS, ICO, and CSS assets can be included in the generated pages using the assets keyword for makedocs. assets must be a Vector{String} and will include each listed asset in the <head> of every page in the order in which they are listed. The type of the asset (i.e. whether it is going to be included with a <script> or a <link> tag) is determined by the file's extension – either .js, .ico, or .css. Adding an ICO asset is primarilly useful for setting a custom favicon.\n\n\n\n\n\n"
+    "text": "A module for rendering Document objects to HTML.\n\nKeywords\n\nHTMLWriter uses the following additional keyword arguments that can be passed to Documenter.makedocs: assets, sitename, analytics, authors, pages, version, html_prettyurls, html_disable_git.\n\nversion specifies the version string of the current version which will be the selected option in the version selector. If this is left empty (default) the version selector will be hidden. The special value git-commit sets the value in the output to git:{commit}, where {commit} is the first few characters of the current commit hash.\n\nhtml_disable_git can be used to disable calls to git when the document is not in a Git-controlled repository. Without setting this to true, Documenter will throw an error and exit if any of the Git commands fail. The calls to Git are mainly used to gather information about the current commit hash and file paths, necessary for constructing the links to the remote repository.\n\nhtml_edit_branch specifies which branch, tag or commit the \"Edit on GitHub\" links point to. It defaults to master. If it set to nothing, the current commit will be used.\n\nhtml_canonical specifies the canonical URL for your documentation. We recommend you set this to the base url of your stable documentation, e.g. https://juliadocs.github.io/Documenter.jl/stable. This allows search engines to know which version to send their users to. See wikipedia for more information. Default is nothing, in which case no canonical link is set.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site\'s assets/ directory, unless the user already had a file with the same name, in which case the user\'s files overrides the Documenter\'s file. This could, in principle, be used for customizing the site\'s style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that\'s present, it gets displayed in the navigation bar.\n\nAdditional JS, ICO, and CSS assets can be included in the generated pages using the assets keyword for makedocs. assets must be a Vector{String} and will include each listed asset in the <head> of every page in the order in which they are listed. The type of the asset (i.e. whether it is going to be included with a <script> or a <link> tag) is determined by the file\'s extension – either .js, .ico, or .css. Adding an ICO asset is primarilly useful for setting a custom favicon.\n\n\n\n\n\n"
 },
 
 {
@@ -1885,11 +1885,11 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.domify",
     "category": "Method",
-    "text": "Converts recursively a Documents.Page, Base.Markdown or Documenter *Node objects into HTML DOM.\n\n\n\n\n\n"
+    "text": "Converts recursively a Documents.Page, Markdown or Documenter *Node objects into HTML DOM.\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Base.Markdown.Link}",
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Markdown.Link}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.fixlinks!",
     "category": "Method",
@@ -1921,6 +1921,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.jsescape-Tuple{Any}",
+    "page": "Writers",
+    "title": "Documenter.Writers.HTMLWriter.jsescape",
+    "category": "Method",
+    "text": "Replaces some of the characters in the string with escape sequences so that the strings would be valid JS string literals, as per the ECMAScript® 2017 standard.\n\nNote that it always escapes both potential \" and \' closing quotes.\n\n\n\n\n\n"
+},
+
+{
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.mdconvert",
@@ -1941,7 +1949,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navitem",
     "category": "Method",
-    "text": "navitem returns the lists and list items of the navigation menu. It gets called recursively to construct the whole tree.\n\nIt always returns a DOM.Node. If there's nothing to display (e.g. the node is set to be invisible), it returns an empty text node (DOM.Node(\"\")).\n\n\n\n\n\n"
+    "text": "navitem returns the lists and list items of the navigation menu. It gets called recursively to construct the whole tree.\n\nIt always returns a DOM.Node. If there\'s nothing to display (e.g. the node is set to be invisible), it returns an empty text node (DOM.Node(\"\")).\n\n\n\n\n\n"
 },
 
 {
