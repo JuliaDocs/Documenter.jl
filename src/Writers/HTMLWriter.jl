@@ -65,7 +65,7 @@ Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 module HTMLWriter
 
 using Compat
-import Base.Markdown: isordered
+import Compat.Markdown
 
 import ...Documenter:
     Anchors,
@@ -498,7 +498,7 @@ end
 # ------------
 
 """
-Converts recursively a [`Documents.Page`](@ref), `Base.Markdown` or Documenter
+Converts recursively a [`Documents.Page`](@ref), `Markdown` or Documenter
 `*Node` objects into HTML DOM.
 """
 function domify(ctx, navnode)
@@ -553,24 +553,56 @@ function search_flush(sib)
     text = Utilities.takebuf_str(sib.buffer)
     println(sib.ctx.search_index, """
     {
-        "location": "$(jsonescape(ref))",
-        "page": "$(jsonescape(sib.page_title))",
-        "title": "$(jsonescape(sib.title))",
-        "category": "$(jsonescape(lowercase(string(sib.category))))",
-        "text": "$(jsonescape(text))"
+        "location": "$(jsescape(ref))",
+        "page": "$(jsescape(sib.page_title))",
+        "title": "$(jsescape(sib.title))",
+        "category": "$(jsescape(lowercase(string(sib.category))))",
+        "text": "$(jsescape(text))"
     },
     """)
 end
 
-function jsonescape(s)
-    s = replace(s, '\\' => "\\\\")
-    s = replace(s, '\n' => "\\n")
-    replace(s, '"' => "\\\"")
+"""
+Replaces some of the characters in the string with escape sequences so that the strings
+would be valid JS string literals, as per the
+[ECMAScript® 2017 standard](https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals).
+
+Note that it always escapes both potential `"` and `'` closing quotes.
+"""
+function jsescape(s)
+    b = IOBuffer()
+    # From the ECMAScript® 2017 standard:
+    #
+    # > All code points may appear literally in a string literal except for the closing
+    # > quote code points, U+005C (REVERSE SOLIDUS), U+000D (CARRIAGE RETURN), U+2028 (LINE
+    # > SEPARATOR), U+2029 (PARAGRAPH SEPARATOR), and U+000A (LINE FEED).
+    #
+    # https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals
+    for c in s
+        if c === '\u000a'     # LINE FEED,       i.e. \n
+            write(b, "\\n")
+        elseif c === '\u000d' # CARRIAGE RETURN, i.e. \r
+            write(b, "\\r")
+        elseif c === '\u005c' # REVERSE SOLIDUS, i.e. \
+            write(b, "\\\\")
+        elseif c === '\u0022' # QUOTATION MARK,  i.e. "
+            write(b, "\\\"")
+        elseif c === '\u0027' # APOSTROPHE,      i.e. '
+            write(b, "\\'")
+        elseif c === '\u2028' # LINE SEPARATOR
+            write(b, "\\u2028")
+        elseif c === '\u2029' # PARAGRAPH SEPARATOR
+            write(b, "\\u2029")
+        else
+            write(b, c)
+        end
+    end
+    String(take!(b))
 end
 
 function domify(ctx, navnode, node)
     fixlinks!(ctx, navnode, node)
-    mdconvert(node, Base.Markdown.MD())
+    mdconvert(node, Markdown.MD())
 end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
@@ -779,7 +811,7 @@ was unable to find any `<h1>` headers).
 function pagetitle(page::Documents.Page)
     title = nothing
     for element in page.elements
-        if isa(element, Base.Markdown.Header{1})
+        if isa(element, Markdown.Header{1})
             title = element.text
             break
         end
@@ -808,7 +840,7 @@ function collect_subsections(page::Documents.Page)
     sections = []
     title_found = false
     for element in page.elements
-        if isa(element, Base.Markdown.Header) && Utilities.header_level(element) < 3
+        if isa(element, Markdown.Header) && Utilities.header_level(element) < 3
             toplevel = Utilities.header_level(element) === 1
             # Don't include the first header if it is `h1`.
             if toplevel && isempty(sections) && !title_found
@@ -889,7 +921,7 @@ function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
     droplinks ? link_text : Tag(:a)[:href => link.url](link_text)
 end
 
-mdconvert(list::Markdown.List, parent; kwargs...) = (isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
+mdconvert(list::Markdown.List, parent; kwargs...) = (Markdown.isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
 
 mdconvert(paragraph::Markdown.Paragraph, parent; kwargs...) = Tag(:p)(mdconvert(paragraph.content, paragraph; kwargs...))
 

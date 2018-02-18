@@ -2,7 +2,7 @@ module MDFlattenTests
 
 using Compat.Test
 
-using Base.Markdown
+import Compat.Markdown
 using Documenter.Utilities.MDFlatten
 
 @testset "MDFlatten" begin
