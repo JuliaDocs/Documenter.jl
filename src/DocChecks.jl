@@ -288,11 +288,11 @@ funcsym() = CAN_INLINE[] ? :disable_color : :eval
 function error_to_string(buf, er, bt)
     fs = funcsym()
     # Remove unimportant backtrace info.
-    index = findlast(ptr -> Documenter.ip_matches_func(ptr, fs), bt)
+    index = Compat.findlast(ptr -> Documenter.ip_matches_func(ptr, fs), bt)
     # Print a REPL-like error message.
     disable_color() do
         print(buf, "ERROR: ")
-        showerror(buf, er, (index != nothing && index > 0) ? bt[1:(index - 1)] : bt)
+        showerror(buf, er, index === nothing ? bt : bt[1:(index - 1)])
     end
     sanitise(buf)
 end
