@@ -70,6 +70,7 @@ The module provides the following interface for creating selectors:
 module Selectors
 
 using Compat
+import Compat.InteractiveUtils: subtypes
 
 """
 Root selector type. Each user-defined selector must subtype from this, i.e.
