@@ -19,6 +19,7 @@ module Documenter
 using Compat, DocStringExtensions
 import Compat.Base64: base64decode, base64encode
 import Compat: @info
+import Compat.Pkg
 
 @static if VERSION < v"0.7.0-DEV.3439"
     const IdDict = Base.ObjectIdDict
@@ -597,6 +598,7 @@ $(EXPORTS)
 module Travis
 
 using Compat, DocStringExtensions
+import Compat.Pkg
 
 export genkeys
 
