@@ -51,7 +51,7 @@ function missingdocs(doc::Documents.Document)
             end
         end
         push!(doc.internal.errors, :missing_docs)
-        Utilities.warn(Utilities.takebuf_str(b))
+        Utilities.warn(String(take!(b)))
     end
 end
 
@@ -303,7 +303,7 @@ function sanitise(buffer)
     for line in eachline(seekstart(buffer))
         println(out, rstrip(line))
     end
-    remove_term_colors(rstrip(Utilities.takebuf_str(out), '\n'))
+    remove_term_colors(rstrip(String(take!(out)), '\n'))
 end
 
 import .Utilities.TextDiff
@@ -327,7 +327,7 @@ function report(result::Result, str, doc::Documents.Document)
     Utilities.TextDiff.showdiff(buffer, diff)
     println(buffer, "\n\n", "=====[End Error]=", "="^30)
     push!(doc.internal.errors, :doctest)
-    printstyled(Utilities.takebuf_str(buffer), color=:normal)
+    printstyled(String(take!(buffer)), color=:normal)
 end
 
 function print_indented(buffer::IO, str::AbstractString; indent = 4)
@@ -381,7 +381,7 @@ end
 
 function savebuffer!(out, buf)
     n = bytesavailable(seekstart(buf))
-    n > 0 ? push!(out, rstrip(Utilities.takebuf_str(buf))) : out
+    n > 0 ? push!(out, rstrip(String(take!(buf)))) : out
 end
 
 function takeuntil!(r, buf, lines)

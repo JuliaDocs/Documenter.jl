@@ -138,7 +138,7 @@ function render(doc::Documents.Document)
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\": [\n")
-        write(io, Utilities.takebuf_str(ctx.search_index))
+        write(io, String(take!(ctx.search_index)))
         println(io, "]}")
     end
 end
@@ -550,7 +550,7 @@ function search_flush(sib)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(sib.src, '\\' => '/')
     ref = "$(src)#$(sib.loc)"
-    text = Utilities.takebuf_str(sib.buffer)
+    text = String(take!(sib.buffer))
     println(sib.ctx.search_index, """
     {
         "location": "$(jsescape(ref))",

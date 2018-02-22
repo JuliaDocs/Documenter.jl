@@ -157,7 +157,7 @@ function check_kwargs(kws)
     for (k, v) in kws
         println(out, "  ", k, " = ", v)
     end
-    warn(Utilities.takebuf_str(out))
+    warn(String(take!(out)))
 end
 
 # Finding submodules.
@@ -335,8 +335,6 @@ nodocs(x)      = contains(stringmime("text/plain", x), "No documentation found."
 nodocs(::Nothing) = false
 
 header_level(::Markdown.Header{N}) where {N} = N
-
-takebuf_str(b) = String(take!(b))
 
 # Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
 #
