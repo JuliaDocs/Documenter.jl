@@ -234,8 +234,8 @@ function attributes!(out, s::AbstractString)
     for x in eachmatch(r"[#|\.]([\w\-]+)", s)
         print(startswith(x.match, '.') ? class : id, x.captures[1], ' ')
     end
-    position(class) === 0 || push!(out, tostr(:class => rstrip(Utilities.takebuf_str(class))))
-    position(id)    === 0 || push!(out, tostr(:id    => rstrip(Utilities.takebuf_str(id))))
+    position(class) === 0 || push!(out, tostr(:class => rstrip(String(take!(class)))))
+    position(id)    === 0 || push!(out, tostr(:id    => rstrip(String(take!(id)))))
     return out
 end
 attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
@@ -293,7 +293,7 @@ function escapehtml(text::AbstractString)
             char === '\'' ? write(buffer, "&#39;")  :
             char === '"'  ? write(buffer, "&quot;") : write(buffer, char)
         end
-        Utilities.takebuf_str(buffer)
+        String(take!(buffer))
     else
         text
     end

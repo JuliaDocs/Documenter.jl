@@ -51,7 +51,7 @@ function missingdocs(doc::Documents.Document)
             end
         end
         push!(doc.internal.errors, :missing_docs)
-        Utilities.warn(Utilities.takebuf_str(b))
+        Utilities.warn(String(take!(b)))
     end
 end
 
@@ -303,31 +303,32 @@ function sanitise(buffer)
     for line in eachline(seekstart(buffer))
         println(out, rstrip(line))
     end
-    remove_term_colors(rstrip(Utilities.takebuf_str(out), '\n'))
+    remove_term_colors(rstrip(String(take!(out)), '\n'))
 end
 
 import .Utilities.TextDiff
 
 function report(result::Result, str, doc::Documents.Document)
-    buffer = IOBuffer()
-    println(buffer, "=====[Test Error]", "="^30)
-    println(buffer)
-    printstyled(buffer, "> File: ", result.file, "\n", color=:cyan)
-    printstyled(buffer, "\n> Code block:\n", color=:cyan)
-    println(buffer, "\n```jldoctest")
-    println(buffer, result.code)
-    println(buffer, "```")
+    iob = IOBuffer()
+    ioc = IOContext(iob, :color => Base.have_color)
+    println(ioc, "=====[Test Error]", "="^30)
+    println(ioc)
+    printstyled(ioc, "> File: ", result.file, "\n", color=:cyan)
+    printstyled(ioc, "\n> Code block:\n", color=:cyan)
+    println(ioc, "\n```jldoctest")
+    println(ioc, result.code)
+    println(ioc, "```")
     if !isempty(result.input)
-        printstyled(buffer, "\n> Subexpression:\n", color=:cyan)
-        print_indented(buffer, result.input; indent = 4)
+        printstyled(ioc, "\n> Subexpression:\n", color=:cyan)
+        print_indented(ioc, result.input; indent = 4)
     end
     warning = Base.have_color ? "" : " (REQUIRES COLOR)"
-    printstyled(buffer, "\n> Output Diff", warning, ":\n\n", color=:cyan)
+    printstyled(ioc, "\n> Output Diff", warning, ":\n\n", color=:cyan)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
-    Utilities.TextDiff.showdiff(buffer, diff)
-    println(buffer, "\n\n", "=====[End Error]=", "="^30)
+    Utilities.TextDiff.showdiff(ioc, diff)
+    println(ioc, "\n\n", "=====[End Error]=", "="^30)
     push!(doc.internal.errors, :doctest)
-    printstyled(Utilities.takebuf_str(buffer), color=:normal)
+    printstyled(String(take!(iob)), color=:normal)
 end
 
 function print_indented(buffer::IO, str::AbstractString; indent = 4)
@@ -381,7 +382,7 @@ end
 
 function savebuffer!(out, buf)
     n = bytesavailable(seekstart(buf))
-    n > 0 ? push!(out, rstrip(Utilities.takebuf_str(buf))) : out
+    n > 0 ? push!(out, rstrip(String(take!(buf)))) : out
 end
 
 function takeuntil!(r, buf, lines)

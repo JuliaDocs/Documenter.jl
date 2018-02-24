@@ -28,7 +28,7 @@ then be used as input for search engines.
 function mdflatten(md)
     io = IOBuffer()
     mdflatten(io, md)
-    Utilities.takebuf_str(io)
+    String(take!(io))
 end
 
 mdflatten(io, md) = mdflatten(io, md, md)
