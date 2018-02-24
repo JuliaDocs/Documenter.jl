@@ -628,7 +628,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter",
     "page": "Public",
     "title": "Documenter",
-    "category": "Module",
+    "category": "module",
     "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nAdditionally it provides the unexported Documenter.generate, which can be used to generate documentation stubs for new packages.\n\nDeps\nTravis\ndeploydocs\nhide\nmakedocs\n\n\n\n\n\n"
 },
 
@@ -636,7 +636,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.makedocs",
     "page": "Public",
     "title": "Documenter.makedocs",
-    "category": "Function",
+    "category": "function",
     "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = Pkg.dir(\"MyPackage\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it\'s encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter\'s make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git branch or tag name, or commit hash\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")\n\nExperimental keywords\n\nIn addition to standard arguments there is a set of non-finalized experimental keyword arguments. The behaviour of these may change or they may be removed without deprecation when a minor version changes (i.e. except in patch releases).\n\ncheckdocs instructs makedocs to check whether all names within the modules defined in the modules keyword that have a docstring attached have the docstring also listed in the manual (e.g. there\'s a @docs blocks with that docstring). Possible values are :all (check all names) and :exports (check only exported names). The default value is :none, in which case no checks are performed. If strict is also enabled then the build will fail if any missing docstrings are encountered.\n\nlinkcheck – if set to true makedocs uses curl to check the status codes of external-pointing links, to make sure that they are up-to-date. The links and their status codes are printed to the standard output. If strict is also enabled then the build will fail if there are any broken (400+ status code) links. Default: false.\n\nlinkcheck_ignore allows certain URLs to be ignored in linkcheck. The values should be a list of strings (which get matched exactly) or Regex objects. By default nothing is ignored.\n\nstrict – makedocs fails the build right before rendering if it encountered any errors with the document in the previous build phases.\n\nNon-MkDocs builds\n\nDocumenter also has (experimental) support for native HTML and LaTeX builds. These can be enabled using the format keyword and they generally require additional keywords be defined, depending on the format. These keywords are also currently considered experimental.\n\nformat allows the output format to be specified. Possible values are :html, :latex and :markdown (default).\n\nOther keywords related to non-MkDocs builds (assets, sitename, analytics, authors, pages, version) should be documented at the respective *Writer modules (Writers.HTMLWriter, Writers.LaTeXWriter).\n\nSee Also\n\nA guide detailing how to document a package using Documenter\'s makedocs is provided in the Usage section of the manual.\n\n\n\n\n\n"
 },
 
@@ -644,7 +644,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.hide",
     "page": "Public",
     "title": "Documenter.hide",
-    "category": "Function",
+    "category": "function",
     "text": "hide(page)\n\n\nAllows a page to be hidden in the navigation menu. It will only show up if it happens to be the current page. The hidden page will still be present in the linear page list that can be accessed via the previous and next page links. The title of the hidden page can be overriden using the => operator as usual.\n\nUsage\n\nmakedocs(\n    ...,\n    pages = [\n        ...,\n        hide(\"page1.md\"),\n        hide(\"Title\" => \"page2.md\")\n    ]\n)\n\n\n\n\n\nhide(root, children)\n\n\nAllows a subsection of pages to be hidden from the navigation menu. root will be linked to in the navigation menu, with the title determined as usual. children should be a list of pages (note that it can not be hierarchical).\n\nUsage\n\nmakedocs(\n    ...,\n    pages = [\n        ...,\n        hide(\"Hidden section\" => \"hidden_index.md\", [\n            \"hidden1.md\",\n            \"Hidden 2\" => \"hidden2.md\"\n        ]),\n        hide(\"hidden_index.md\", [...])\n    ]\n)\n\n\n\n\n\n"
 },
 
@@ -652,7 +652,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.deploydocs",
     "page": "Public",
     "title": "Documenter.deploydocs",
-    "category": "Function",
+    "category": "function",
     "text": "deploydocs(\n    root   = \"<current-directory>\",\n    target = \"site\",\n    repo   = \"<required>\",\n    branch = \"gh-pages\",\n    latest = \"master\",\n    osname = \"linux\",\n    julia  = \"nightly\",\n    deps   = <Function>,\n    make   = <Function>,\n)\n\nConverts markdown files generated by makedocs to HTML and pushes them to repo. This function should be called from within a package\'s docs/make.jl file after the call to makedocs, like so\n\nusing Documenter, PACKAGE_NAME\nmakedocs(\n    # options...\n)\ndeploydocs(\n    repo = \"github.com/...\"\n)\n\nKeywords\n\nroot has the same purpose as the root keyword for makedocs.\n\ntarget is the directory, relative to root, where generated HTML content should be written to. This directory must be added to the repository\'s .gitignore file. The default value is \"site\".\n\nrepo is the remote repository where generated HTML content should be pushed to. Do not specify any protocol - \"https://\" or \"git@\" should not be present. This keyword must be set and will throw an error when left undefined. For example this package uses the following repo value:\n\nrepo = \"github.com/JuliaDocs/Documenter.jl.git\"\n\nbranch is the branch where the generated documentation is pushed. If the branch does not exist, a new orphaned branch is created automatically. It defaults to \"gh-pages\".\n\nlatest is the branch that \"tracks\" the latest generated documentation. By default this value is set to \"master\".\n\nosname is the operating system which will be used to deploy generated documentation. This defaults to \"linux\". This value must be one of those specified in the os: section of the .travis.yml configuration file.\n\njulia is the version of Julia that will be used to deploy generated documentation. This defaults to \"nightly\". This value must be one of those specified in the julia: section of the .travis.yml configuration file.\n\ndeps is the function used to install any dependencies needed to build the documentation. By default this function installs pygments and mkdocs using the Deps.pip function:\n\ndeps = Deps.pip(\"pygments\", \"mkdocs\")\n\nmake is the function used to convert the markdown files to HTML. By default this just runs mkdocs build which populates the target directory.\n\nSee Also\n\nThe Hosting Documentation section of the manual provides a step-by-step guide to using the deploydocs function to automatically generate docs and push then to GitHub.\n\n\n\n\n\n"
 },
 
@@ -660,7 +660,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.generate",
     "page": "Public",
     "title": "Documenter.generate",
-    "category": "Function",
+    "category": "function",
     "text": "generate(pkgname; dir)\n\n\nCreates a documentation stub for a package called pkgname. The location of the documentation is assumed to be <package directory>/docs, but this can be overriden with the keyword argument dir.\n\nIt creates the following files\n\ndocs/\n    .gitignore\n    src/index.md\n    make.jl\n    mkdocs.yml\n\nArguments\n\npkgname is the name of the package (without .jl). It is used to determine the location of the documentation if dir is not provided.\n\nKeywords\n\ndir defines the directory where the documentation will be generated. It defaults to <package directory>/docs. The directory must not exist.\n\nExamples\n\njulia> using Documenter\n\njulia> Documenter.generate(\"MyPackageName\")\n[ ... output ... ]\n\n\n\n\n\n"
 },
 
@@ -668,7 +668,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.Travis",
     "page": "Public",
     "title": "Documenter.Travis",
-    "category": "Module",
+    "category": "module",
     "text": "Package functions for interacting with Travis.\n\ngenkeys\n\n\n\n\n\n"
 },
 
@@ -676,7 +676,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.Travis.genkeys",
     "page": "Public",
     "title": "Documenter.Travis.genkeys",
-    "category": "Function",
+    "category": "function",
     "text": "genkeys(package; remote)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. package can be either the name of a package or a path. Providing a path allows keys to be generated for non-packages or packages that are not found in the Julia LOAD_PATH. Use the remote keyword to specify the user and repository values.\n\nThis function requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"MyPackageName\", remote=\"organization\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"/path/to/target/directory\")\n[ ... output ... ]\n\n\n\n\n\n"
 },
 
@@ -684,7 +684,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.Deps",
     "page": "Public",
     "title": "Documenter.Deps",
-    "category": "Module",
+    "category": "module",
     "text": "Exported module that provides build and deploy dependencies and related functions.\n\nCurrently only pip is implemented.\n\n\n\n\n\n"
 },
 
@@ -692,7 +692,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/public/#Documenter.Deps.pip",
     "page": "Public",
     "title": "Documenter.Deps.pip",
-    "category": "Function",
+    "category": "function",
     "text": "pip(deps)\n\n\nInstalls (as non-root user) all python packages listed in deps.\n\nExamples\n\nusing Documenter\n\nmakedocs(\n    # ...\n)\n\ndeploydocs(\n    deps = Deps.pip(\"pygments\", \"mkdocs\", \"mkdocs-material\"),\n    # ...\n)\n\n\n\n\n\n"
 },
 
@@ -748,7 +748,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/anchors/#Documenter.Anchors",
     "page": "Anchors",
     "title": "Documenter.Anchors",
-    "category": "Module",
+    "category": "module",
     "text": "Defines the Anchor and AnchorMap types.\n\nAnchors and AnchorMaps are used to represent links between objects within a document.\n\n\n\n\n\n"
 },
 
@@ -756,7 +756,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/anchors/#Documenter.Anchors.Anchor",
     "page": "Anchors",
     "title": "Documenter.Anchors.Anchor",
-    "category": "Type",
+    "category": "type",
     "text": "Stores an arbitrary object called .object and it\'s location within a document.\n\nFields\n\nobject – the stored object.\norder  – ordering of object within the entire document.\nfile   – the destination file, in build, where the object will be written to.\nid     – the generated \"slug\" identifying the object.\nnth    – integer that unique-ifies anchors with the same id.\n\n\n\n\n\n"
 },
 
@@ -764,7 +764,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/anchors/#Documenter.Anchors.AnchorMap",
     "page": "Anchors",
     "title": "Documenter.Anchors.AnchorMap",
-    "category": "Type",
+    "category": "type",
     "text": "Tree structure representating anchors in a document and their relationships with eachother.\n\nObject Hierarchy\n\nid -> file -> anchors\n\nEach id maps to a file which in turn maps to a vector of Anchor objects.\n\n\n\n\n\n"
 },
 
@@ -772,7 +772,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/anchors/#Documenter.Anchors.add!-Tuple{Documenter.Anchors.AnchorMap,Documenter.Anchors.Anchor,Any,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.add!",
-    "category": "Method",
+    "category": "method",
     "text": "add!(m, anchor, id, file)\n\n\nAdds a new Anchor to the AnchorMap for a given id and file.\n\nEither an actual Anchor object may be provided or any other object which is automatically wrapped in an Anchor before being added to the AnchorMap.\n\n\n\n\n\n"
 },
 
@@ -780,7 +780,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/anchors/#Documenter.Anchors.anchor-Tuple{Documenter.Anchors.AnchorMap,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.anchor",
-    "category": "Method",
+    "category": "method",
     "text": "anchor(m, id)\n\n\nReturns the Anchor object matching id. file and n may also be provided. An Anchor is returned, or nothing in case of no match.\n\n\n\n\n\n"
 },
 
@@ -788,7 +788,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/anchors/#Documenter.Anchors.exists-Tuple{Documenter.Anchors.AnchorMap,Any,Any,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.exists",
-    "category": "Method",
+    "category": "method",
     "text": "exists(m, id, file, n)\n\n\nDoes the given id exist within the AnchorMap? A file and integer n may also be provided to narrow the search for existance.\n\n\n\n\n\n"
 },
 
@@ -796,7 +796,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/anchors/#Documenter.Anchors.isunique-Tuple{Documenter.Anchors.AnchorMap,Any}",
     "page": "Anchors",
     "title": "Documenter.Anchors.isunique",
-    "category": "Method",
+    "category": "method",
     "text": "isunique(m, id)\n\n\nIs the id unique within the given AnchorMap? May also specify the file.\n\n\n\n\n\n"
 },
 
@@ -820,7 +820,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder",
     "page": "Builder",
     "title": "Documenter.Builder",
-    "category": "Module",
+    "category": "module",
     "text": "Defines the Documenter.jl build \"pipeline\" named DocumentPipeline.\n\nEach stage of the pipeline performs an action on a Documents.Document object. These actions may involve creating directory structures, expanding templates, running doctests, etc.\n\n\n\n\n\n"
 },
 
@@ -828,7 +828,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.CheckDocument",
     "page": "Builder",
     "title": "Documenter.Builder.CheckDocument",
-    "category": "Type",
+    "category": "type",
     "text": "Checks that all documented objects are included in the document and runs doctests on all valid Julia code blocks.\n\n\n\n\n\n"
 },
 
@@ -836,7 +836,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.CrossReferences",
     "page": "Builder",
     "title": "Documenter.Builder.CrossReferences",
-    "category": "Type",
+    "category": "type",
     "text": "Finds and sets URLs for each @ref link in the document to the correct destinations.\n\n\n\n\n\n"
 },
 
@@ -844,7 +844,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.DocumentPipeline",
     "page": "Builder",
     "title": "Documenter.Builder.DocumentPipeline",
-    "category": "Type",
+    "category": "type",
     "text": "The default document processing \"pipeline\", which consists of the following actions:\n\nSetupBuildDirectory\nExpandTemplates\nCrossReferences\nCheckDocument\nPopulate\nRenderDocument\n\n\n\n\n\n"
 },
 
@@ -852,7 +852,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.ExpandTemplates",
     "page": "Builder",
     "title": "Documenter.Builder.ExpandTemplates",
-    "category": "Type",
+    "category": "type",
     "text": "Executes a sequence of actions on each node of the parsed markdown files in turn.\n\n\n\n\n\n"
 },
 
@@ -860,7 +860,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.Populate",
     "page": "Builder",
     "title": "Documenter.Builder.Populate",
-    "category": "Type",
+    "category": "type",
     "text": "Populates the ContentsNodes and IndexNodes with links.\n\n\n\n\n\n"
 },
 
@@ -868,7 +868,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.RenderDocument",
     "page": "Builder",
     "title": "Documenter.Builder.RenderDocument",
-    "category": "Type",
+    "category": "type",
     "text": "Writes the document tree to the build directory.\n\n\n\n\n\n"
 },
 
@@ -876,7 +876,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.SetupBuildDirectory",
     "page": "Builder",
     "title": "Documenter.Builder.SetupBuildDirectory",
-    "category": "Type",
+    "category": "type",
     "text": "Creates the correct directory layout within the build folder and parses markdown files.\n\n\n\n\n\n"
 },
 
@@ -884,7 +884,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/builder/#Documenter.Builder.walk_navpages-NTuple{6,Any}",
     "page": "Builder",
     "title": "Documenter.Builder.walk_navpages",
-    "category": "Method",
+    "category": "method",
     "text": "walk_navpages(visible, title, src, children, parent, doc)\n\n\nRecursively walks through the Documents.Document\'s .user.pages field, generating Documents.NavNodes and related data structures in the process.\n\nThis implementation is the de facto specification for the .user.pages field.\n\n\n\n\n\n"
 },
 
@@ -908,7 +908,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/cross-references/#Documenter.CrossReferences",
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences",
-    "category": "Module",
+    "category": "module",
     "text": "Provides the crossref function used to automatically calculate link URLs.\n\n\n\n\n\n"
 },
 
@@ -916,7 +916,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/cross-references/#Documenter.CrossReferences.crossref-Tuple{Documenter.Documents.Document}",
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences.crossref",
-    "category": "Method",
+    "category": "method",
     "text": "crossref(doc)\n\n\nTraverses a Documents.Document and replaces links containg @ref URLs with their real URLs.\n\n\n\n\n\n"
 },
 
@@ -924,7 +924,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/cross-references/#Documenter.CrossReferences.find_object-Tuple{Documenter.Documents.Document,Any,Any}",
     "page": "CrossReferences",
     "title": "Documenter.CrossReferences.find_object",
-    "category": "Method",
+    "category": "method",
     "text": "find_object(doc, binding, typesig)\n\n\nFind the included Object in the doc matching binding and typesig. The matching heuristic isn\'t too picky about what matches and will only fail when no Bindings matching binding have been included.\n\n\n\n\n\n"
 },
 
@@ -948,7 +948,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docchecks/#Documenter.DocChecks",
     "page": "DocChecks",
     "title": "Documenter.DocChecks",
-    "category": "Module",
+    "category": "module",
     "text": "Provides two functions, missingdocs and doctest, for checking docs.\n\n\n\n\n\n"
 },
 
@@ -956,7 +956,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docchecks/#Documenter.DocChecks.doctest-Tuple{Documenter.Documents.Document}",
     "page": "DocChecks",
     "title": "Documenter.DocChecks.doctest",
-    "category": "Method",
+    "category": "method",
     "text": "doctest(doc)\n\n\nTraverses the document tree and tries to run each Julia code block encountered. Will abort the document generation when an error is thrown. Use doctest = false keyword in Documenter.makedocs to disable doctesting.\n\n\n\n\n\n"
 },
 
@@ -964,7 +964,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docchecks/#Documenter.DocChecks.missingdocs-Tuple{Documenter.Documents.Document}",
     "page": "DocChecks",
     "title": "Documenter.DocChecks.missingdocs",
-    "category": "Method",
+    "category": "method",
     "text": "missingdocs(doc)\n\n\nChecks that a Documents.Document contains all available docstrings that are defined in the modules keyword passed to Documenter.makedocs.\n\nPrints out the name of each object that has not had its docs spliced into the document.\n\n\n\n\n\n"
 },
 
@@ -988,7 +988,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docsystem/#Documenter.DocSystem",
     "page": "DocSystem",
     "title": "Documenter.DocSystem",
-    "category": "Module",
+    "category": "module",
     "text": "Provides a consistent interface to retreiving DocStr objects from the Julia docsystem in both 0.4 and 0.5.\n\n\n\n\n\n"
 },
 
@@ -996,7 +996,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docsystem/#Documenter.DocSystem.binding-Tuple{Any}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.binding",
-    "category": "Method",
+    "category": "method",
     "text": "Converts an object to a Base.Docs.Binding object.\n\nbinding(any)\n\n\nSupported inputs are:\n\nBinding\nDataType\nFunction\nModule\nSymbol\n\nNote that unsupported objects will throw an ArgumentError.\n\n\n\n\n\n"
 },
 
@@ -1004,7 +1004,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docsystem/#Documenter.DocSystem.convertmeta-Tuple{IdDict{Any,Any}}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.convertmeta",
-    "category": "Method",
+    "category": "method",
     "text": "convertmeta(meta)\n\n\nConverts a 0.4-style docstring cache into a 0.5 one.\n\nThe original docstring cache is not modified.\n\n\n\n\n\n"
 },
 
@@ -1012,7 +1012,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docsystem/#Documenter.DocSystem.docstr-Tuple{Markdown.MD}",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.docstr",
-    "category": "Method",
+    "category": "method",
     "text": "docstr(md; kws...)\n\n\nConstruct a DocStr object from a Markdown.MD object.\n\nThe optional keyword arguments are used to add new data to the DocStr\'s .data dictionary.\n\n\n\n\n\n"
 },
 
@@ -1020,7 +1020,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docsystem/#Documenter.DocSystem.getdocs",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
-    "category": "Function",
+    "category": "function",
     "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
 },
 
@@ -1028,7 +1028,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docsystem/#Documenter.DocSystem.getdocs",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
-    "category": "Function",
+    "category": "function",
     "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
 },
 
@@ -1036,7 +1036,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/docsystem/#Documenter.DocSystem.multidoc",
     "page": "DocSystem",
     "title": "Documenter.DocSystem.multidoc",
-    "category": "Function",
+    "category": "function",
     "text": "Construct a MultiDoc object from the provided argument.\n\nValid inputs are:\n\nMarkdown.MD\nDocs.FuncDoc\nDocs.TypeDoc\n\n\n\n\n\n"
 },
 
@@ -1060,7 +1060,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documenter/#Documenter.gitrm_copy",
     "page": "Documenter",
     "title": "Documenter.gitrm_copy",
-    "category": "Function",
+    "category": "function",
     "text": "gitrm_copy(src, dst)\n\nUses git rm -r to remove dst and then copies src to dst. Assumes that the working directory is within the git repository of dst is when the function is called.\n\nThis is to get around #507 on filesystems that are case-insensitive (e.g. on OS X, Windows). Without doing a git rm first, git add -A will not detect case changes in filenames.\n\n\n\n\n\n"
 },
 
@@ -1084,7 +1084,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents",
     "page": "Documents",
     "title": "Documenter.Documents",
-    "category": "Module",
+    "category": "module",
     "text": "Defines Document and its supporting types\n\nPage\nUser\nInternal\nGlobals\n\n\n\n\n\n"
 },
 
@@ -1092,7 +1092,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.Document",
     "page": "Documents",
     "title": "Documenter.Documents.Document",
-    "category": "Type",
+    "category": "type",
     "text": "Represents an entire document.\n\n\n\n\n\n"
 },
 
@@ -1100,7 +1100,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.Globals",
     "page": "Documents",
     "title": "Documenter.Documents.Globals",
-    "category": "Type",
+    "category": "type",
     "text": "Page-local values such as current module that are shared between nodes in a page.\n\n\n\n\n\n"
 },
 
@@ -1108,7 +1108,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.Internal",
     "page": "Documents",
     "title": "Documenter.Documents.Internal",
-    "category": "Type",
+    "category": "type",
     "text": "Private state used to control the generation process.\n\n\n\n\n\n"
 },
 
@@ -1116,7 +1116,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.NavNode",
     "page": "Documents",
     "title": "Documenter.Documents.NavNode",
-    "category": "Type",
+    "category": "type",
     "text": "Element in the navigation tree of a document, containing navigation references to other page, reference to the Page object etc.\n\n\n\n\n\n"
 },
 
@@ -1124,7 +1124,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.Page",
     "page": "Documents",
     "title": "Documenter.Documents.Page",
-    "category": "Type",
+    "category": "type",
     "text": "Represents a single markdown file.\n\n\n\n\n\n"
 },
 
@@ -1132,7 +1132,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.User",
     "page": "Documents",
     "title": "Documenter.Documents.User",
-    "category": "Type",
+    "category": "type",
     "text": "User-specified values used to control the generation process.\n\n\n\n\n\n"
 },
 
@@ -1140,7 +1140,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.navpath-Tuple{Documenter.Documents.NavNode}",
     "page": "Documents",
     "title": "Documenter.Documents.navpath",
-    "category": "Method",
+    "category": "method",
     "text": "Constructs a list of the ancestors of the navnode (inclding the navnode itself), ordered so that the root of the navigation tree is the first and navnode itself is the last item.\n\n\n\n\n\n"
 },
 
@@ -1148,7 +1148,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/documents/#Documenter.Documents.populate!-Tuple{Documenter.Documents.Document}",
     "page": "Documents",
     "title": "Documenter.Documents.populate!",
-    "category": "Method",
+    "category": "method",
     "text": "populate!(document)\n\n\nPopulates the ContentsNodes and IndexNodes of the document with links.\n\nThis can only be done after all the blocks have been expanded (and nodes constructed), because the items have to exist before we can gather the links to those items.\n\n\n\n\n\n"
 },
 
@@ -1172,7 +1172,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/dom/#Documenter.Utilities.DOM",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM",
-    "category": "Module",
+    "category": "module",
     "text": "Provides a domain specific language for representing HTML documents.\n\nExamples\n\nusing Documenter.Utilities.DOM\n\n# `DOM` does not export any HTML tags. Define the ones we actually need.\n@tags div p em strong ul li\n\ndiv(\n    p(\"This \", em(\"is\"), \" a \", strong(\"paragraph.\"),\n    p(\"And this is \", strong(\"another\"), \" one\"),\n    ul(\n        li(\"and\"),\n        li(\"an\"),\n        li(\"unordered\"),\n        li(\"list\")\n    )\n)\n\nNotes\n\nAll the arguments passed to a node are flattened into a single vector rather than preserving any nested structure. This means that passing two vectors of nodes to a div will result in a div node with a single vector of children (the concatenation of the two vectors) rather than two vector children. The only arguments that are not flattened are nested nodes.\n\nString arguments are automatically converted into text nodes. Text nodes do not have any children or attributes and when displayed the string is escaped using escapehtml.\n\nAttributes\n\nAs well as plain nodes shown in the previous example, nodes can have attributes added to them using the following syntax.\n\ndiv[\".my-class\"](\n    img[:src => \"foo.jpg\"],\n    input[\"#my-id\", :disabled]\n)\n\nIn the above example we add a class = \"my-class\" attribute to the div node, a src = \"foo.jpg\" to the img, and id = \"my-id\" disabled attributes to the input node.\n\nThe following syntax is supported within [...]:\n\ntag[\"#id\"]\ntag[\".class\"]\ntag[\".class#id\"]\ntag[:disabled]\ntag[:src => \"foo.jpg\"]\n# ... or any combination of the above arguments.\n\nInternal Representation\n\nThe @tags macro defines named Tag objects as follows\n\n@tags div p em strong\n\nexpands to\n\nconst div, p, em, strong = Tag(:div), Tag(:p), Tag(:em), Tag(:strong)\n\nThese Tag objects are lightweight representations of empty HTML elements without any attributes and cannot be used to represent a complete document. To create an actual tree of HTML elements that can be rendered we need to add some attributes and/or child elements using getindex or call syntax. Applying either to a Tag object will construct a new Node object.\n\ntag(...)      # No attributes.\ntag[...]      # No children.\ntag[...](...) # Has both attributes and children.\n\nAll three of the above syntaxes return a new Node object. Printing of Node objects is defined using the standard Julia display functions, so only needs a call to print to print out a valid HTML document with all nessesary text escaped.\n\n\n\n\n\n"
 },
 
@@ -1180,7 +1180,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/dom/#Documenter.Utilities.DOM.@tags-Tuple",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.@tags",
-    "category": "Macro",
+    "category": "macro",
     "text": "Define a collection of Tag objects and bind them to constants with the same names.\n\nExamples\n\nDefined globally within a module:\n\n@tags div ul li\n\nDefined within the scope of a function to avoid cluttering the global namespace:\n\nfunction template(args...)\n    @tags div ul li\n    # ...\nend\n\n\n\n\n\n"
 },
 
@@ -1188,7 +1188,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/dom/#Documenter.Utilities.DOM.HTMLDocument",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.HTMLDocument",
-    "category": "Type",
+    "category": "type",
     "text": "A HTML node that wraps around the root node of the document and adds a DOCTYPE to it.\n\n\n\n\n\n"
 },
 
@@ -1196,7 +1196,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/dom/#Documenter.Utilities.DOM.Node",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.Node",
-    "category": "Type",
+    "category": "type",
     "text": "Represents an element within an HTML document including any textual content, children Nodes, and attributes.\n\nThis type should not be constructed directly, but instead via (...) and [...] applied to a Tag or another Node object.\n\n\n\n\n\n"
 },
 
@@ -1204,7 +1204,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/dom/#Documenter.Utilities.DOM.Tag",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.Tag",
-    "category": "Type",
+    "category": "type",
     "text": "Represents a empty and attribute-less HTML element.\n\nUse @tags to define instances of this type rather than manually creating them via Tag(:tagname).\n\n\n\n\n\n"
 },
 
@@ -1212,7 +1212,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/dom/#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.escapehtml",
-    "category": "Method",
+    "category": "method",
     "text": "Escape characters in the provided string. This converts the following characters:\n\n< to &lt;\n> to &gt;\n& to &amp;\n\' to &#39;\n\" to &quot;\n\nWhen no escaping is needed then the same object is returned, otherwise a new string is constructed with the characters escaped. The returned object should always be treated as an immutable copy and compared using == rather than ===.\n\n\n\n\n\n"
 },
 
@@ -1220,7 +1220,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/dom/#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString, Symbol, Documenter.Utilities.DOM.Node, Pair}}",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.flatten!",
-    "category": "Method",
+    "category": "method",
     "text": "Signatures\n\nflatten!(f!, out, x::Atom)\nflatten!(f!, out, xs)\n\nFlatten the contents the third argument into the second after applying the function f! to the element.\n\n\n\n\n\n"
 },
 
@@ -1244,7 +1244,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders",
     "page": "Expanders",
     "title": "Documenter.Expanders",
-    "category": "Module",
+    "category": "module",
     "text": "Defines node \"expanders\" that transform nodes from the parsed markdown files.\n\n\n\n\n\n"
 },
 
@@ -1252,7 +1252,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.AutoDocsBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.AutoDocsBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Parses each code block where the language is @autodocs and replaces it with all the docstrings that match the provided key/value pairs Modules = ... and Order = ....\n\n```@autodocs\nModules = [Foo, Bar]\nOrder   = [:function, :type]\n```\n\n\n\n\n\n"
 },
 
@@ -1260,7 +1260,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.ContentsBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.ContentsBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Parses each code block where the language is @contents and replaces it with a nested list of all Header nodes in the generated document. The pages and depth of the list can be set using Pages = [...] and Depth = N where N is and integer.\n\n```@contents\nPages = [\"foo.md\", \"bar.md\"]\nDepth = 1\n```\n\nThe default Depth value is 2.\n\n\n\n\n\n"
 },
 
@@ -1268,7 +1268,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.DocsBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.DocsBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Parses each code block where the language is @docs and evaluates the expressions found within the block. Replaces the block with the docstrings associated with each expression.\n\n```@docs\nDocumenter\nmakedocs\ndeploydocs\n```\n\n\n\n\n\n"
 },
 
@@ -1276,7 +1276,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.EvalBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.EvalBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Parses each code block where the language is @eval and evaluates it\'s content. Replaces the block with the value resulting from the evaluation. This can be useful for inserting generated content into a document such as plots.\n\n```@eval\nusing PyPlot\nx = linspace(-π, π)\ny = sin(x)\nplot(x, y, color = \"red\")\nsavefig(\"plot.svg\")\nMarkdown.parse(\"![Plot](plot.svg)\")\n```\n\n\n\n\n\n"
 },
 
@@ -1284,7 +1284,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.ExampleBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.ExampleBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Parses each code block where the language is @example and evaluates the parsed Julia code found within. The resulting value is then inserted into the final document after the source code.\n\n```@example\na = 1\nb = 2\na + b\n```\n\n\n\n\n\n"
 },
 
@@ -1292,7 +1292,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.ExpanderPipeline",
     "page": "Expanders",
     "title": "Documenter.Expanders.ExpanderPipeline",
-    "category": "Type",
+    "category": "type",
     "text": "The default node expander \"pipeline\", which consists of the following expanders:\n\nTrackHeaders\nMetaBlocks\nDocsBlocks\nAutoDocsBlocks\nEvalBlocks\nIndexBlocks\nContentsBlocks\nExampleBlocks\nSetupBlocks\nREPLBlocks\n\n\n\n\n\n"
 },
 
@@ -1300,7 +1300,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.IndexBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.IndexBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Parses each code block where the language is @index and replaces it with an index of all docstrings spliced into the document. The pages that are included can be set using a key/value pair Pages = [...] such as\n\n```@index\nPages = [\"foo.md\", \"bar.md\"]\n```\n\n\n\n\n\n"
 },
 
@@ -1308,7 +1308,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.MetaBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.MetaBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Parses each code block where the language is @meta and evaluates the key/value pairs found within the block, i.e.\n\n```@meta\nCurrentModule = Documenter\nDocTestSetup  = quote\n    using Documenter\nend\n```\n\n\n\n\n\n"
 },
 
@@ -1316,7 +1316,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.REPLBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.REPLBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Similar to the ExampleBlocks expander, but inserts a Julia REPL prompt before each toplevel expression in the final document.\n\n\n\n\n\n"
 },
 
@@ -1324,7 +1324,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.SetupBlocks",
     "page": "Expanders",
     "title": "Documenter.Expanders.SetupBlocks",
-    "category": "Type",
+    "category": "type",
     "text": "Similar to the ExampleBlocks expander, but hides all output in the final document.\n\n\n\n\n\n"
 },
 
@@ -1332,7 +1332,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/expanders/#Documenter.Expanders.TrackHeaders",
     "page": "Expanders",
     "title": "Documenter.Expanders.TrackHeaders",
-    "category": "Type",
+    "category": "type",
     "text": "Tracks all Markdown.Header nodes found in the parsed markdown files and stores an Anchors.Anchor object for each one.\n\n\n\n\n\n"
 },
 
@@ -1356,7 +1356,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/formats/#Documenter.Formats",
     "page": "Formats",
     "title": "Documenter.Formats",
-    "category": "Module",
+    "category": "module",
     "text": "Filetypes used to decide which rendering methods in Documenter.Writers are called.\n\nThe only supported format is currently Markdown.\n\n\n\n\n\n"
 },
 
@@ -1364,7 +1364,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/formats/#Documenter.Formats.Format",
     "page": "Formats",
     "title": "Documenter.Formats.Format",
-    "category": "Type",
+    "category": "type",
     "text": "Represents the output format. Possible values are Markdown, LaTeX, and HTML.\n\n\n\n\n\n"
 },
 
@@ -1372,7 +1372,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/formats/#Documenter.Formats.mimetype-Tuple{Symbol}",
     "page": "Formats",
     "title": "Documenter.Formats.mimetype",
-    "category": "Method",
+    "category": "method",
     "text": "mimetype(f)\n\n\nConverts a Format value to a MIME type.\n\n\n\n\n\n"
 },
 
@@ -1396,7 +1396,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/generator/#Documenter.Generator",
     "page": "Generator",
     "title": "Documenter.Generator",
-    "category": "Module",
+    "category": "module",
     "text": "Provides the functions related to generating documentation stubs.\n\n\n\n\n\n"
 },
 
@@ -1404,7 +1404,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/generator/#Documenter.Generator.gitignore-Tuple{}",
     "page": "Generator",
     "title": "Documenter.Generator.gitignore",
-    "category": "Method",
+    "category": "method",
     "text": "gitignore()\n\n\nContents of the default .gitignore file.\n\n\n\n\n\n"
 },
 
@@ -1412,7 +1412,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/generator/#Documenter.Generator.index-Tuple{Any}",
     "page": "Generator",
     "title": "Documenter.Generator.index",
-    "category": "Method",
+    "category": "method",
     "text": "index(pkgname)\n\n\nContents of the default src/index.md file.\n\n\n\n\n\n"
 },
 
@@ -1420,7 +1420,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/generator/#Documenter.Generator.make-Tuple{Any}",
     "page": "Generator",
     "title": "Documenter.Generator.make",
-    "category": "Method",
+    "category": "method",
     "text": "make(pkgname)\n\n\nContents of the default make.jl file.\n\n\n\n\n\n"
 },
 
@@ -1428,7 +1428,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/generator/#Documenter.Generator.mkdocs-Tuple{Any}",
     "page": "Generator",
     "title": "Documenter.Generator.mkdocs",
-    "category": "Method",
+    "category": "method",
     "text": "mkdocs(pkgname; description, author, url)\n\n\nContents of the default mkdocs.yml file.\n\n\n\n\n\n"
 },
 
@@ -1436,7 +1436,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/generator/#Documenter.Generator.savefile-Tuple{Any,Any,Any}",
     "page": "Generator",
     "title": "Documenter.Generator.savefile",
-    "category": "Method",
+    "category": "method",
     "text": "savefile(f, root, filename)\n\n\nAttempts to save a file at $(root)/$(filename). f will be called with file stream (see open).\n\nfilename can also be a file in a subdirectory (e.g. src/index.md), and then then subdirectories will be created automatically.\n\n\n\n\n\n"
 },
 
@@ -1460,7 +1460,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/mdflatten/#Documenter.Utilities.MDFlatten",
     "page": "MDFlatten",
     "title": "Documenter.Utilities.MDFlatten",
-    "category": "Module",
+    "category": "module",
     "text": "Provides the mdflatten function that can \"flatten\" Markdown objects into a string, with formatting etc. stripped.\n\nNote that the tests in test/mdflatten.jl should be considered to be the spec for the output (number of newlines, indents, formatting, etc.).\n\n\n\n\n\n"
 },
 
@@ -1468,7 +1468,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/mdflatten/#Documenter.Utilities.MDFlatten.mdflatten-Tuple{Any}",
     "page": "MDFlatten",
     "title": "Documenter.Utilities.MDFlatten.mdflatten",
-    "category": "Method",
+    "category": "method",
     "text": "Convert a Markdown object to a String of only text (i.e. not formatting info).\n\nIt drop most of the extra information (e.g. language of a code block, URLs) and formatting (e.g. emphasis, headers). This \"flattened\" representation can then be used as input for search engines.\n\n\n\n\n\n"
 },
 
@@ -1492,7 +1492,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors",
     "page": "Selectors",
     "title": "Documenter.Selectors",
-    "category": "Module",
+    "category": "module",
     "text": "An extensible code selection interface.\n\nThe Selectors module provides an extensible way to write code that has to dispatch on different predicates without hardcoding the control flow into a single chain of if statements.\n\nIn the following example a selector for a simple condition is implemented and the generated selector code is described:\n\nabstract type MySelector <: Selectors.AbstractSelector end\n\n# The different cases we want to test.\nabstract type One    <: MySelector end\nabstract type NotOne <: MySelector end\n\n# The order in which to test the cases.\nSelectors.order(::Type{One})    = 0.0\nSelectors.order(::Type{NotOne}) = 1.0\n\n# The predicate to test against.\nSelectors.matcher(::Type{One}, x)    = x === 1\nSelectors.matcher(::Type{NotOne}, x) = x !== 1\n\n# What to do when a test is successful.\nSelectors.runner(::Type{One}, x)    = println(\"found one\")\nSelectors.runner(::Type{NotOne}, x) = println(\"not found\")\n\n# Test our selector with some numbers.\nfor i in 0:5\n    Selectors.dispatch(MySelector, i)\nend\n\nSelectors.dispatch(Selector, i) will behave equivalent to the following:\n\nfunction dispatch(::Type{MySelector}, i::Int)\n    if matcher(One, i)\n        runner(One, i)\n    elseif matcher(NotOne, i)\n        runner(NotOne, i)\n    end\nend\n\nand further to\n\nfunction dispatch(::Type{MySelector}, i::Int)\n    if i === 1\n        println(\"found one\")\n    elseif i !== 1\n        println(\"not found\")\n    end\nend\n\nThe module provides the following interface for creating selectors:\n\norder\nmatcher\nrunner\nstrict\ndisable\ndispatch\n\n\n\n\n\n"
 },
 
@@ -1500,7 +1500,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.AbstractSelector",
-    "category": "Type",
+    "category": "type",
     "text": "Root selector type. Each user-defined selector must subtype from this, i.e.\n\nabstract type MySelector <: Selectors.AbstractSelector end\n\nabstract type First  <: MySelector end\nabstract type Second <: MySelector end\n\n\n\n\n\n"
 },
 
@@ -1508,7 +1508,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors.disable-Union{Tuple{Type{T}}, Tuple{T}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.disable",
-    "category": "Method",
+    "category": "method",
     "text": "Disable a particular case in a selector so that it is never used.\n\nSelectors.disable(::Type{Debug}) = true\n\n\n\n\n\n"
 },
 
@@ -1516,7 +1516,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors.dispatch-Union{Tuple{T}, Tuple{Type{T},Vararg{Any,N} where N}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.dispatch",
-    "category": "Method",
+    "category": "method",
     "text": "Call Selectors.runner(T, args...) where T is a subtype of MySelector for which matcher(T, args...) is true.\n\nSelectors.dispatch(MySelector, args...)\n\n\n\n\n\n"
 },
 
@@ -1524,7 +1524,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors.matcher",
     "page": "Selectors",
     "title": "Documenter.Selectors.matcher",
-    "category": "Function",
+    "category": "function",
     "text": "Define the matching test for each case in a selector, i.e.\n\nSelectors.matcher(::Type{First}, x)  = x == 1\nSelectors.matcher(::Type{Second}, x) = true\n\nNote that the return type must be Bool.\n\nTo match against multiple cases use the Selectors.strict function.\n\n\n\n\n\n"
 },
 
@@ -1532,7 +1532,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors.order",
     "page": "Selectors",
     "title": "Documenter.Selectors.order",
-    "category": "Function",
+    "category": "function",
     "text": "Define the precedence of each case in a selector, i.e.\n\nSelectors.order(::Type{First})  = 1.0\nSelectors.order(::Type{Second}) = 2.0\n\nNote that the return type must be Float64. Defining multiple case types to have the same order will result in undefined behaviour.\n\n\n\n\n\n"
 },
 
@@ -1540,7 +1540,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors.runner",
     "page": "Selectors",
     "title": "Documenter.Selectors.runner",
-    "category": "Function",
+    "category": "function",
     "text": "Define the code that will run when a particular Selectors.matcher test returns true, i.e.\n\nSelectors.runner(::Type{First}, x)  = println(\"`x` is equal to `1`.\")\nSelectors.runner(::Type{Second}, x) = println(\"`x` is not equal to `1`.\")\n\n\n\n\n\n"
 },
 
@@ -1548,7 +1548,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/selectors/#Documenter.Selectors.strict-Union{Tuple{Type{T}}, Tuple{T}} where T<:Documenter.Selectors.AbstractSelector",
     "page": "Selectors",
     "title": "Documenter.Selectors.strict",
-    "category": "Method",
+    "category": "method",
     "text": "Define whether a selector case will \"fallthrough\" or not when successfully matched against. By default matching is strict and does not fallthrough to subsequent selector cases.\n\n# Adding a debugging selector case.\nabstract type Debug <: MySelector end\n\n# Insert prior to all other cases.\nSelectors.order(::Type{Debug}) = 0.0\n\n# Fallthrough to the next case on success.\nSelectors.strict(::Type{Debug}) = false\n\n# We always match, regardless of the value of `x`.\nSelectors.matcher(::Type{Debug}, x) = true\n\n# Print some debugging info.\nSelectors.runner(::Type{Debug}, x) = @show x\n\n\n\n\n\n"
 },
 
@@ -1572,7 +1572,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/textdiff/#Documenter.Utilities.TextDiff.splitby-Tuple{Regex,AbstractString}",
     "page": "TextDiff",
     "title": "Documenter.Utilities.TextDiff.splitby",
-    "category": "Method",
+    "category": "method",
     "text": "splitby(reg, text)\n\n\nSplits text at regex matches, returning an array of substrings. The parts of the string that match the regular expression are also included at the ends of the returned strings.\n\n\n\n\n\n"
 },
 
@@ -1596,7 +1596,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities",
     "page": "Utilities",
     "title": "Documenter.Utilities",
-    "category": "Module",
+    "category": "module",
     "text": "Provides a collection of utility functions and types that are used in other submodules.\n\n\n\n\n\n"
 },
 
@@ -1604,7 +1604,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.Object",
     "page": "Utilities",
     "title": "Documenter.Utilities.Object",
-    "category": "Type",
+    "category": "type",
     "text": "Represents an object stored in the docsystem by its binding and signature.\n\n\n\n\n\n"
 },
 
@@ -1612,7 +1612,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.assetsdir-Tuple{}",
     "page": "Utilities",
     "title": "Documenter.Utilities.assetsdir",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the path to the Documenter assets directory.\n\n\n\n\n\n"
 },
 
@@ -1620,7 +1620,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.check_kwargs-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.check_kwargs",
-    "category": "Method",
+    "category": "method",
     "text": "Prints a formatted warning to the user listing unrecognised keyword arguments.\n\n\n\n\n\n"
 },
 
@@ -1628,7 +1628,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.currentdir-Tuple{}",
     "page": "Utilities",
     "title": "Documenter.Utilities.currentdir",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the current directory.\n\n\n\n\n\n"
 },
 
@@ -1636,7 +1636,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.doccat-Tuple{Documenter.Utilities.Object}",
     "page": "Utilities",
     "title": "Documenter.Utilities.doccat",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the category name of the provided Object.\n\n\n\n\n\n"
 },
 
@@ -1644,7 +1644,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.docs",
     "page": "Utilities",
     "title": "Documenter.Utilities.docs",
-    "category": "Function",
+    "category": "function",
     "text": "docs(ex, str)\n\nReturns an expression that, when evaluated, returns the docstrings associated with ex.\n\n\n\n\n\n"
 },
 
@@ -1652,7 +1652,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.filterdocs-Tuple{Markdown.MD,Set{Module}}",
     "page": "Utilities",
     "title": "Documenter.Utilities.filterdocs",
-    "category": "Method",
+    "category": "method",
     "text": "filterdocs(doc, modules)\n\nRemove docstrings from the markdown object, doc, that are not from one of modules.\n\n\n\n\n\n"
 },
 
@@ -1660,7 +1660,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.get_commit_short-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.get_commit_short",
-    "category": "Method",
+    "category": "method",
     "text": "get_commit_short(dir)\n\n\nReturns the first 5 characters of the current git commit hash of the directory dir.\n\n\n\n\n\n"
 },
 
@@ -1668,7 +1668,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.in_cygwin-Tuple{}",
     "page": "Utilities",
     "title": "Documenter.Utilities.in_cygwin",
-    "category": "Method",
+    "category": "method",
     "text": "in_cygwin()\n\nCheck if we\'re running under cygwin. Useful when we need to translate cygwin paths to windows paths.\n\n\n\n\n\n"
 },
 
@@ -1676,7 +1676,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.isabsurl-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.isabsurl",
-    "category": "Method",
+    "category": "method",
     "text": "isabsurl(url)\n\nChecks whether url is an absolute URL (as opposed to a relative one).\n\n\n\n\n\n"
 },
 
@@ -1684,7 +1684,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.issubmodule-Tuple{Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.issubmodule",
-    "category": "Method",
+    "category": "method",
     "text": "issubmodule(sub, mod)\n\nChecks whether sub is a submodule of mod. A module is also considered to be its own submodule.\n\nE.g. A.B.C is a submodule of A, A.B and A.B.C, but it is not a submodule of D, A.D nor A.B.C.D.\n\n\n\n\n\n"
 },
 
@@ -1692,7 +1692,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.log-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.log",
-    "category": "Method",
+    "category": "method",
     "text": "Format and print a message to the user.\n\n\n\n\n\n"
 },
 
@@ -1700,7 +1700,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.logging-Tuple{Bool}",
     "page": "Utilities",
     "title": "Documenter.Utilities.logging",
-    "category": "Method",
+    "category": "method",
     "text": "logging(flag::Bool)\n\nEnable or disable logging output for log and warn.\n\n\n\n\n\n"
 },
 
@@ -1708,7 +1708,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.nodocs-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.nodocs",
-    "category": "Method",
+    "category": "method",
     "text": "Does the given docstring represent actual documentation or a no docs error message?\n\n\n\n\n\n"
 },
 
@@ -1716,7 +1716,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.object-Tuple{Union{Expr, Symbol},AbstractString}",
     "page": "Utilities",
     "title": "Documenter.Utilities.object",
-    "category": "Method",
+    "category": "method",
     "text": "object(ex, str)\n\nReturns a expression that, when evaluated, returns an Object representing ex.\n\n\n\n\n\n"
 },
 
@@ -1724,7 +1724,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.parseblock-Tuple{AbstractString,Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.parseblock",
-    "category": "Method",
+    "category": "method",
     "text": "Returns a vector of parsed expressions and their corresponding raw strings.\n\nReturns a Vector of tuples (expr, code), where expr is the corresponding expression (e.g. a Expr or Symbol object) and code is the string of code the expression was parsed from.\n\nThe keyword argument skip = N drops the leading N lines from the input string.\n\n\n\n\n\n"
 },
 
@@ -1732,7 +1732,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.slugify-Tuple{AbstractString}",
     "page": "Utilities",
     "title": "Documenter.Utilities.slugify",
-    "category": "Method",
+    "category": "method",
     "text": "Slugify a string into a suitable URL.\n\n\n\n\n\n"
 },
 
@@ -1740,7 +1740,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.srcpath-Tuple{Any,Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.srcpath",
-    "category": "Method",
+    "category": "method",
     "text": "Find the path of a file relative to the source directory. root is the path to the directory containing the file file.\n\nIt is meant to be used with walkdir(source).\n\n\n\n\n\n"
 },
 
@@ -1748,7 +1748,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.submodules-Tuple{Array{Module,1}}",
     "page": "Utilities",
     "title": "Documenter.Utilities.submodules",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the set of submodules of a given root module/s.\n\n\n\n\n\n"
 },
 
@@ -1756,7 +1756,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.warn-Tuple{Any,Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.warn",
-    "category": "Method",
+    "category": "method",
     "text": "warn(file, msg)\nwarn(msg)\n\nFormat and print a warning message to the user. Passing a file will include the filename where the warning was raised.\n\n\n\n\n\n"
 },
 
@@ -1764,7 +1764,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/utilities/#Documenter.Utilities.withoutput-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.withoutput",
-    "category": "Method",
+    "category": "method",
     "text": "Call a function and capture all STDOUT and STDERR output.\n\nwithoutput(f) --> (result, success, backtrace, output)\n\nwhere\n\nresult is the value returned from calling function f.\nsuccess signals whether f has thrown an error, in which case result stores the Exception that was raised.\nbacktrace a Vector{Ptr{Cvoid}} produced by catch_backtrace() if an error is thrown.\noutput is the combined output of STDOUT and STDERR during execution of f.\n\n\n\n\n\n"
 },
 
@@ -1788,7 +1788,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/walkers/#Documenter.Walkers",
     "page": "Walkers",
     "title": "Documenter.Walkers",
-    "category": "Module",
+    "category": "module",
     "text": "Provides the walk function.\n\n\n\n\n\n"
 },
 
@@ -1796,7 +1796,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/walkers/#Documenter.Walkers.walk-Tuple{Any,Any,Any}",
     "page": "Walkers",
     "title": "Documenter.Walkers.walk",
-    "category": "Method",
+    "category": "method",
     "text": "walk(f, meta, element)\n\n\nCalls f on element and any of its child elements. meta is a Dict containing metadata such as current module.\n\n\n\n\n\n"
 },
 
@@ -1820,7 +1820,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers",
     "page": "Writers",
     "title": "Documenter.Writers",
-    "category": "Module",
+    "category": "module",
     "text": "A module that provides several renderers for Document objects. The supported formats are currently:\n\n:markdown – the default format.\n:html – generates a complete HTML site with navigation and search included.\n:latex – generates a PDF using LuaLaTeX.\n\n\n\n\n\n"
 },
 
@@ -1828,7 +1828,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.render-Tuple{Documenter.Documents.Document}",
     "page": "Writers",
     "title": "Documenter.Writers.render",
-    "category": "Method",
+    "category": "method",
     "text": "Writes a Documents.Document object to .user.build directory in the formats specified in the .user.format vector.\n\nAdding additional formats requires adding new Selector definitions as follows:\n\nabstract type CustomFormat <: FormatSelector end\n\nSelectors.order(::Type{CustomFormat}) = 4.0 # or a higher number.\nSelectors.matcher(::Type{CustomFormat}, fmt, _) = fmt === :custom\nSelectors.runner(::Type{CustomFormat}, _, doc) = CustomWriter.render(doc)\n\n# Definition of `CustomWriter` module below...\n\n\n\n\n\n"
 },
 
@@ -1836,7 +1836,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.MarkdownWriter",
     "page": "Writers",
     "title": "Documenter.Writers.MarkdownWriter",
-    "category": "Module",
+    "category": "module",
     "text": "A module for rendering Document objects to markdown.\n\n\n\n\n\n"
 },
 
@@ -1844,7 +1844,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter",
-    "category": "Module",
+    "category": "module",
     "text": "A module for rendering Document objects to HTML.\n\nKeywords\n\nHTMLWriter uses the following additional keyword arguments that can be passed to Documenter.makedocs: assets, sitename, analytics, authors, pages, version, html_prettyurls, html_disable_git.\n\nversion specifies the version string of the current version which will be the selected option in the version selector. If this is left empty (default) the version selector will be hidden. The special value git-commit sets the value in the output to git:{commit}, where {commit} is the first few characters of the current commit hash.\n\nhtml_disable_git can be used to disable calls to git when the document is not in a Git-controlled repository. Without setting this to true, Documenter will throw an error and exit if any of the Git commands fail. The calls to Git are mainly used to gather information about the current commit hash and file paths, necessary for constructing the links to the remote repository.\n\nhtml_edit_branch specifies which branch, tag or commit the \"Edit on GitHub\" links point to. It defaults to master. If it set to nothing, the current commit will be used.\n\nhtml_canonical specifies the canonical URL for your documentation. We recommend you set this to the base url of your stable documentation, e.g. https://juliadocs.github.io/Documenter.jl/stable. This allows search engines to know which version to send their users to. See wikipedia for more information. Default is nothing, in which case no canonical link is set.\n\nPage outline\n\nThe HTMLWriter makes use of the page outline that is determined by the headings. It is assumed that if the very first block of a page is a level 1 heading, then it is intended as the page title. This has two consequences:\n\nIt is then used to automatically determine the page title in the navigation menu and in the <title> tag, unless specified in the .pages option.\nIf the first heading is interpreted as being the page title, it is not displayed in the navigation sidebar.\n\nDefault and custom assets\n\nDocumenter copies all files under the source directory (e.g. /docs/src/) over to the compiled site. It also copies a set of default assets from /assets/html/ to the site\'s assets/ directory, unless the user already had a file with the same name, in which case the user\'s files overrides the Documenter\'s file. This could, in principle, be used for customizing the site\'s style and scripting.\n\nThe HTML output also links certain custom assets to the generated HTML documents, specfically a logo and additional javascript files. The asset files that should be linked must be placed in assets/, under the source directory (e.g /docs/src/assets) and must be on the top level (i.e. files in the subdirectories of assets/ are not linked).\n\nFor the logo, Documenter checks for the existence of assets/logo.png. If that\'s present, it gets displayed in the navigation bar.\n\nAdditional JS, ICO, and CSS assets can be included in the generated pages using the assets keyword for makedocs. assets must be a Vector{String} and will include each listed asset in the <head> of every page in the order in which they are listed. The type of the asset (i.e. whether it is going to be included with a <script> or a <link> tag) is determined by the file\'s extension – either .js, .ico, or .css. Adding an ICO asset is primarilly useful for setting a custom favicon.\n\n\n\n\n\n"
 },
 
@@ -1852,7 +1852,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.MDBlockContext",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.MDBlockContext",
-    "category": "Constant",
+    "category": "constant",
     "text": "MDBlockContext is a union of all the Markdown nodes whose children should be blocks. It can be used to dispatch on all the block-context nodes at once.\n\n\n\n\n\n"
 },
 
@@ -1860,7 +1860,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.HTMLContext",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.HTMLContext",
-    "category": "Type",
+    "category": "type",
     "text": "HTMLWriter-specific globals that are passed to domify and other recursive functions.\n\n\n\n\n\n"
 },
 
@@ -1868,7 +1868,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.collect_subsections-Tuple{Documenter.Documents.Page}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.collect_subsections",
-    "category": "Method",
+    "category": "method",
     "text": "Returns an ordered list of tuples, (toplevel, anchor, text), corresponding to level 1 and 2 headings on the page. Note that if the first header on the page is a level 1 header then it is not included – it is assumed to be the page title and so does not need to be included in the navigation menu twice.\n\n\n\n\n\n"
 },
 
@@ -1876,7 +1876,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.copy_asset-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.copy_asset",
-    "category": "Method",
+    "category": "method",
     "text": "Copies an asset from Documenters assets/html/ directory to doc.user.build. Returns the path of the copied asset relative to .build.\n\n\n\n\n\n"
 },
 
@@ -1884,7 +1884,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.domify-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.domify",
-    "category": "Method",
+    "category": "method",
     "text": "Converts recursively a Documents.Page, Markdown or Documenter *Node objects into HTML DOM.\n\n\n\n\n\n"
 },
 
@@ -1892,7 +1892,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.fixlinks!-Tuple{Any,Any,Markdown.Link}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.fixlinks!",
-    "category": "Method",
+    "category": "method",
     "text": "Replaces URLs in Markdown.Link elements (if they point to a local .md page) with the actual URLs.\n\n\n\n\n\n"
 },
 
@@ -1900,7 +1900,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,AbstractString}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.get_url",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the full path corresponding to a path of a .md page file. The the input and output paths are assumed to be relative to src/.\n\n\n\n\n\n"
 },
 
@@ -1908,7 +1908,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.get_url-Tuple{Any,Documenter.Documents.NavNode}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.get_url",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the full path of a Documents.NavNode relative to src/.\n\n\n\n\n\n"
 },
 
@@ -1916,7 +1916,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.getpage-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.getpage",
-    "category": "Method",
+    "category": "method",
     "text": "Returns a page (as a Documents.Page object) using the HTMLContext.\n\n\n\n\n\n"
 },
 
@@ -1924,7 +1924,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.jsescape-Tuple{Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.jsescape",
-    "category": "Method",
+    "category": "method",
     "text": "Replaces some of the characters in the string with escape sequences so that the strings would be valid JS string literals, as per the ECMAScript® 2017 standard.\n\nNote that it always escapes both potential \" and \' closing quotes.\n\n\n\n\n\n"
 },
 
@@ -1932,7 +1932,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.mdconvert-Tuple{Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.mdconvert",
-    "category": "Method",
+    "category": "method",
     "text": "Convert a markdown object to a DOM.Node object.\n\nThe parent argument is passed to allow for context-dependant conversions.\n\n\n\n\n\n"
 },
 
@@ -1940,7 +1940,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.navhref-Tuple{Any,Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navhref",
-    "category": "Method",
+    "category": "method",
     "text": "Get the relative hyperlink between two Documents.NavNodes. Assumes that both Documents.NavNodes have an associated Documents.Page (i.e. .page is not nothing).\n\n\n\n\n\n"
 },
 
@@ -1948,7 +1948,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.navitem-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.navitem",
-    "category": "Method",
+    "category": "method",
     "text": "navitem returns the lists and list items of the navigation menu. It gets called recursively to construct the whole tree.\n\nIt always returns a DOM.Node. If there\'s nothing to display (e.g. the node is set to be invisible), it returns an empty text node (DOM.Node(\"\")).\n\n\n\n\n\n"
 },
 
@@ -1956,7 +1956,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.open_output-Tuple{Any,Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.open_output",
-    "category": "Method",
+    "category": "method",
     "text": "Opens the output file of the navnode in write node. If necessary, the path to the output file is created before opening the file.\n\n\n\n\n\n"
 },
 
@@ -1964,7 +1964,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.pagetitle-Tuple{Documenter.Documents.Page}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pagetitle",
-    "category": "Method",
+    "category": "method",
     "text": "Tries to guess the page title by looking at the <h1> headers and returns the header contents of the first <h1> on a page (or nothing if the algorithm was unable to find any <h1> headers).\n\n\n\n\n\n"
 },
 
@@ -1972,7 +1972,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.pretty_url-Tuple{Any,AbstractString}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.pretty_url",
-    "category": "Method",
+    "category": "method",
     "text": "If html_prettyurls is enabled, returns a \"pretty\" version of the path which can then be used in links in the resulting HTML file.\n\n\n\n\n\n"
 },
 
@@ -1980,7 +1980,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.relhref-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.relhref",
-    "category": "Method",
+    "category": "method",
     "text": "Calculates a relative HTML link from one path to another.\n\n\n\n\n\n"
 },
 
@@ -1988,7 +1988,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.HTMLWriter.render_page-Tuple{Any,Any}",
     "page": "Writers",
     "title": "Documenter.Writers.HTMLWriter.render_page",
-    "category": "Method",
+    "category": "method",
     "text": "Constructs and writes the page referred to by the navnode to .build.\n\n\n\n\n\n"
 },
 
@@ -1996,7 +1996,7 @@ var documenterSearchIndex = {"docs": [
     "location": "lib/internals/writers/#Documenter.Writers.LaTeXWriter",
     "page": "Writers",
     "title": "Documenter.Writers.LaTeXWriter",
-    "category": "Module",
+    "category": "module",
     "text": "A module for rendering Document objects to LaTeX and PDF.\n\n\n\n\n\n"
 },
 
