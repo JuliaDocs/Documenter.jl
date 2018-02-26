@@ -281,6 +281,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "man/syntax/#@raw-format-block-1",
+    "page": "Syntax",
+    "title": "@raw <format> block",
+    "category": "section",
+    "text": "Allows code to be inserted into the final document verbatim. E.g. to insert custom HTML or LaTeX code into the output.The format argument is mandatory and Documenter uses it to determine whether a particular block should be copied over to the output or not. Currently supported formats are html and latex, used by the respective writers. A @raw block whose format is not recognized is usually ignored, so it is possible to have a raw block for each output format without the blocks being duplicated in the output.The following example shows how SVG code with custom styling can be included into documents using the @raw block.```@raw html\n<svg style=\"display: block; margin: 0 auto;\" width=\"5em\" heigth=\"5em\">\n	<circle cx=\"2.5em\" cy=\"2.5em\" r=\"2em\" stroke=\"black\" stroke-width=\".1em\" fill=\"red\" />\n</svg>\n```It will show up as follows, with code having been copied over verbatim to the HTML file.<svg style=\"display: block; margin: 0 auto;\" width=\"5em\" heigth=\"5em\">\n	<circle cx=\"2.5em\" cy=\"2.5em\" r=\"2em\" stroke=\"black\" stroke-width=\".1em\" fill=\"red\" />\n    (SVG)\n</svg>"
+},
+
+{
     "location": "man/doctests/#",
     "page": "Doctests",
     "title": "Doctests",
@@ -521,22 +529,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/internals/#",
-    "page": "Package Internals",
-    "title": "Package Internals",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "man/internals/#Package-Internals-1",
-    "page": "Package Internals",
-    "title": "Package Internals",
-    "category": "section",
-    "text": ""
-},
-
-{
     "location": "man/contributing/#",
     "page": "Contributing",
     "title": "Contributing",
@@ -569,6 +561,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "man/contributing/#release-*-branches-1",
+    "page": "Contributing",
+    "title": "release-* branches",
+    "category": "section",
+    "text": "Each new minor version x.y.0 gets a branch called release-x.y (a protected branch).\nNew versions are usually tagged only from the release-x.y branches.\nFor patch releases, changes get backported to the release-x.y branch via a single PR with the standard name \"Backports for x.y.z\" and label \"Type: Backport\". The PR message links to all the PRs that are providing commits to the backport. The PR gets merged as a merge commit (i.e. not squashed).\nThe old release-* branches may be removed once they have outlived their usefulness.\nPatch version milestones are used to keep track of which PRs get backported etc."
+},
+
+{
     "location": "man/contributing/#Style-Guide-1",
     "page": "Contributing",
     "title": "Style Guide",
@@ -581,7 +581,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Contributing",
     "title": "Julia",
     "category": "section",
-    "text": "4-space indentation;\nmodules spanning entire files should not be indented, but modules that have surrounding code should;\nno blank lines at the start or end of files;\ndo not manually align syntax such as = or :: over adjacent lines;\nuse local to define new local variables so that they are easier to locate;\nuse function ... end when a method definition contains more than one toplevel expression;\nrelated short-form method definitions don\'t need a new line between them;\nunrelated or long-form method definitions must have a blank line separating each one;\nsurround all binary operators with whitespace except for ::, ^, and :;\nfiles containing a single module ... end must be named after the module;\nmethod arguments should be ordered based on the amount of usage within the method body;\nmethods extended from other modules must follow their inherited argument order, not the above rule;\nexplicit return should be preferred except in short-form method definitions;\navoid dense expressions where possible e.g. prefer nested ifs over complex nested ?s;\ninclude a trailing , in vectors, tuples, or method calls that span several lines;\ndo not use multiline comments (#= and =#);\nwrap long lines as near to 92 characters as possible, this includes docstrings;\nfollow the standard naming conventions used in Base."
+    "text": "4-space indentation;\nmodules spanning entire files should not be indented, but modules that have surrounding code should;\nno blank lines at the start or end of files;\ndo not manually align syntax such as = or :: over adjacent lines;\nuse function ... end when a method definition contains more than one toplevel expression;\nrelated short-form method definitions don\'t need a new line between them;\nunrelated or long-form method definitions must have a blank line separating each one;\nsurround all binary operators with whitespace except for ::, ^, and :;\nfiles containing a single module ... end must be named after the module;\nmethod arguments should be ordered based on the amount of usage within the method body;\nmethods extended from other modules must follow their inherited argument order, not the above rule;\nexplicit return should be preferred except in short-form method definitions;\navoid dense expressions where possible e.g. prefer nested ifs over complex nested ?s;\ninclude a trailing , in vectors, tuples, or method calls that span several lines;\ndo not use multiline comments (#= and =#);\nwrap long lines as near to 92 characters as possible, this includes docstrings;\nfollow the standard naming conventions used in Base."
 },
 
 {
