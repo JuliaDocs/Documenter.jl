@@ -18,7 +18,6 @@ makedocs(
             "man/doctests.md",
             "man/hosting.md",
             "man/latex.md",
-            "man/internals.md",
             "man/contributing.md",
         ],
         "Library" => Any[

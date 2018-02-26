@@ -10,7 +10,7 @@
 
 ## Installation
 
-The package is registered in `METADATA.jl` and so can be installed with `Pkg.add`.
+The package is registered in `METADATA.jl` and can be installed with `Pkg.add`.
 
 ```julia
 julia> Pkg.add("Documenter")
@@ -25,15 +25,17 @@ julia> Pkg.add("Documenter")
 
 The package is tested against Julia `0.6` and *current* `0.7-dev` on Linux, OS X, and Windows.
 
-## Contributing and Questions
+Support for Julia `0.4` and `0.5` has been dropped in the latest version, but older versions of Documenter may still work with those Julia versions (the `0.8` and `0.11` branches for either Julia version, respectively).
 
-Contributions are very welcome, as are feature requests and suggestions. The [contributing][contrib-url] page details the guidelines that should be followed when opening pull requests.
+## Questions and Contributions
 
-Please open an [issue][issues-url] if you encounter any problems. If you have a question then feel free to ask for help in the [Gitter chat room][gitter-url].
+Usage questions can be posted on the [Julia Discourse forum][discourse-tag-url] under the `documenter` tag, and/or in the [JuliaDocs Gitter chat room][gitter-url].
 
-[gitter-url]: https://gitter.im/juliadocs/users
+Contributions are very welcome, as are feature requests and suggestions. Please open an [issue][issues-url] if you encounter any problems. The [contributing page][contrib-url] has a few guidelines that should be followed when opening pull requests and contributing code.
 
 [contrib-url]: https://juliadocs.github.io/Documenter.jl/latest/man/contributing/
+[discourse-tag-url]: https://discourse.julialang.org/tags/documenter
+[gitter-url]: https://gitter.im/juliadocs/users
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [docs-latest-url]: https://juliadocs.github.io/Documenter.jl/latest
