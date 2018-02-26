@@ -319,7 +319,7 @@ Note that appending `# hide` to every line in an `@example` block will result in
 being hidden in the rendered document. The results block will still be rendered though.
 `@setup` blocks are a convenient shorthand for hiding an entire block, including the output.
 
-**`STDOUT` and `STDERR`**
+**`stdout` and `stderr`**
 
 The Julia output streams are redirected to the results block when evaluating `@example`
 blocks in the same way as when running doctest code blocks.
@@ -328,7 +328,7 @@ blocks in the same way as when running doctest code blocks.
 
 When the `@example` block evaluates to `nothing` then the second block is not displayed.
 Only the source code block will be shown in the rendered document. Note that if any output
-from either `STDOUT` or `STDERR` is captured then the results block will be displayed even
+from either `stdout` or `stderr` is captured then the results block will be displayed even
 if `nothing` is returned.
 
 **Named `@example` Blocks**

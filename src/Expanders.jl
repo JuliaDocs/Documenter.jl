@@ -452,7 +452,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     name = matched[1]
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
-    # Evaluate the code block. We redirect STDOUT/STDERR to `buffer`.
+    # Evaluate the code block. We redirect stdout/stderr to `buffer`.
     result, buffer = nothing, IOBuffer()
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         (value, success, backtrace, text) = Utilities.withoutput() do

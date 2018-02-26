@@ -21,11 +21,11 @@ logging(flag::Bool) = __log__[] = flag
 """
 Format and print a message to the user.
 """
-log(msg) = __log__[] ? printstyled(STDOUT, "Documenter: ", msg, "\n", color=:magenta) : nothing
+log(msg) = __log__[] ? printstyled(stdout, "Documenter: ", msg, "\n", color=:magenta) : nothing
 
-# Print logging output to the "real" STDOUT.
+# Print logging output to the "real" stdout.
 function log(doc, msg)
-    __log__[] && printstyled(STDOUT, "Documenter: ", msg, "\n", color=:magenta)
+    __log__[] && printstyled(stdout, "Documenter: ", msg, "\n", color=:magenta)
     return nothing
 end
 
@@ -41,17 +41,17 @@ where the warning was raised.
 function warn(file, msg)
     if __log__[]
         msg = string(" !! ", msg, " [", file, "]\n")
-        printstyled(STDOUT, msg, color=:red)
+        printstyled(stdout, msg, color=:red)
     else
         nothing
     end
 end
-warn(msg) = __log__[] ? printstyled(STDOUT, " !! ", msg, "\n", color=:red) : nothing
+warn(msg) = __log__[] ? printstyled(stdout, " !! ", msg, "\n", color=:red) : nothing
 
 function warn(file, msg, err, ex, mod)
     if __log__[]
         warn(file, msg)
-        printstyled(STDOUT, "\nERROR: $err\n\nexpression '$ex' in module '$mod'\n\n", color=:red)
+        printstyled(stdout, "\nERROR: $err\n\nexpression '$ex' in module '$mod'\n\n", color=:red)
     else
         nothing
     end
@@ -59,7 +59,7 @@ end
 
 function warn(doc, page, msg, err)
     file = page.source
-    printstyled(STDOUT, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n", color=:red)
+    printstyled(stdout, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n", color=:red)
 end
 
 # Directory paths.
@@ -554,7 +554,7 @@ newlines(other) = 0
 # -------------------
 
 """
-Call a function and capture all `STDOUT` and `STDERR` output.
+Call a function and capture all `stdout` and `stderr` output.
 
     withoutput(f) --> (result, success, backtrace, output)
 
@@ -564,15 +564,15 @@ where
   * `success` signals whether `f` has thrown an error, in which case `result` stores the
     `Exception` that was raised.
   * `backtrace` a `Vector{Ptr{Cvoid}}` produced by `catch_backtrace()` if an error is thrown.
-  * `output` is the combined output of `STDOUT` and `STDERR` during execution of `f`.
+  * `output` is the combined output of `stdout` and `stderr` during execution of `f`.
 
 """
 function withoutput(f)
     # Save the default output streams.
-    default_stdout = STDOUT
-    default_stderr = STDERR
+    default_stdout = stdout
+    default_stderr = stderr
 
-    # Redirect both the `STDOUT` and `STDERR` streams to a single `Pipe` object.
+    # Redirect both the `stdout` and `stderr` streams to a single `Pipe` object.
     pipe = Pipe()
     Base.link_pipe(pipe; julia_only_read = true, julia_only_write = true)
     redirect_stdout(pipe.in)

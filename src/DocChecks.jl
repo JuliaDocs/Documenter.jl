@@ -173,7 +173,7 @@ mutable struct Result
     file   :: String # File in which the doctest is written. Either `.md` or `.jl`.
     value  :: Any        # The value returned when evaluating `input`.
     hide   :: Bool       # Semi-colon suppressing the output?
-    stdout :: IOBuffer   # Redirected STDOUT/STDERR gets sent here.
+    stdout :: IOBuffer   # Redirected stdout/stderr gets sent here.
     bt     :: Vector     # Backtrace when an error is thrown.
 
     function Result(code, input, output, file)
