@@ -139,6 +139,24 @@ foobuu
 ```
 
 ```@meta
+DocTestFilters = [r"foo[a-z]+", r"foo[0-9]+"]
+```
+
+```jldoctest
+julia> print("foobar123")
+foobuu456
+```
+
+```@meta
+DocTestFilters = r"foo[a-z]+"
+```
+
+```jldoctest
+julia> print("foobar")
+foobuu
+```
+
+```@meta
 DocTestFilters = []
 ```
 
@@ -165,6 +183,55 @@ Stacktrace:
 
 ```@meta
 DocTestFilters = []
+```
+
+# Doctest keyword arguments
+
+```jldoctest; setup = :(f(x) = x^2; g(x) = x)
+julia> f(2)
+4
+
+julia> g(2)
+2
+```
+```jldoctest
+julia> f(2)
+ERROR: UndefVarError: f not defined
+```
+
+```jldoctest PR650; setup = :(f(x) = x^2; g(x) = x)
+julia> f(2)
+4
+
+julia> g(2)
+2
+```
+```jldoctest PR650
+julia> f(2)
+4
+
+julia> g(2)
+2
+```
+
+```jldoctest; filter = [r"foo[a-z]+"]
+julia> print("foobar")
+foobuu
+```
+
+```jldoctest; filter = [r"foo[a-z]+", r"foo[0-9]+"]
+julia> print("foobar123")
+foobuu456
+```
+
+```jldoctest; filter = r"foo[a-z]+"
+julia> print("foobar")
+foobuu
+```
+
+```jldoctest; filter = r"foo[a-z]+", setup = :(f() = print("foobar"))
+julia> f()
+foobuu
 ```
 
 
