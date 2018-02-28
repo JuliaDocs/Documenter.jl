@@ -152,7 +152,7 @@ f(0.01)
 div(1, 0)
 ```
 
-Make sure that STDOUT is in the right place (#484):
+Make sure that stdout is in the right place (#484):
 
 ```@repl 1
 println("---") === nothing
