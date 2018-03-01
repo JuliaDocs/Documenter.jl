@@ -222,6 +222,28 @@ abcd
 DocTestSetup = nothing
 ```
 
+# Issue653
+
+```jldoctest
+julia> struct MyException <: Exception
+           msg::AbstractString
+       end
+
+julia> function Base.showerror(io::IO, err::MyException)
+           print(io, "MyException: ")
+           print(io, err.msg)
+       end
+
+julia> err = MyException("test exception")
+MyException("test exception")
+
+julia> sprint(showerror, err)
+"MyException: test exception"
+
+julia> throw(MyException("test exception"))
+ERROR: MyException: test exception
+```
+
 # Issue418
 
 ```jldoctest
