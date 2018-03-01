@@ -292,7 +292,7 @@ function error_to_string(buf, er, bt)
     # Print a REPL-like error message.
     disable_color() do
         print(buf, "ERROR: ")
-        showerror(buf, er, index === nothing ? bt : bt[1:(index - 1)])
+        Base.invokelatest(showerror, buf, er, index === nothing ? bt : bt[1:(index - 1)])
     end
     sanitise(buf)
 end
