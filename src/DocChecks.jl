@@ -118,10 +118,10 @@ function __ans__!(m::Module, value)
 end
 
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
-    m = match(r"jldoctest[ ]?(.*)$", block.language)
-    if m !== nothing
+    lang = block.language
+    if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
-        name = m[1]
+        name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
         sandbox = get!(page.globals.meta, sym) do
             newmod = Module(sym)
@@ -129,10 +129,36 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             eval(newmod, :(eval(m, x) = Core.eval(m, x)))
             newmod
         end
+
         # Normalise line endings.
         code = replace(block.code, "\r\n" => "\n")
-        if haskey(meta, :DocTestSetup)
-            expr = meta[:DocTestSetup]
+
+        # parse keyword arguments to doctest
+        d = Dict()
+        idx = Compat.findfirst(equalto(';'), lang)
+        if idx !== nothing
+            kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
+            for kwarg in kwargs.args
+                if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
+                    Utilities.warn(
+                        """
+                        Invalid syntax for doctest keyword arguments, use
+                        ```jldoctest name; key1 = value1, key2 = value2
+                        in '$(meta[:CurrentFile])'
+
+                        ```$(lang)
+                        $(code)
+                        ```
+                        """
+                        )
+                    return false
+                end
+                d[kwarg.args[1]] = eval(sandbox, kwarg.args[2])
+            end
+        end
+        meta[:LocalDocTestArguments] = d
+
+        for expr in [get(meta, :DocTestSetup, []); get(meta[:LocalDocTestArguments], :setup, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             eval(sandbox, expr)
         end
@@ -148,12 +174,13 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
                 """
                 Invalid doctest block. Requires `julia> ` or `# output` in '$(meta[:CurrentFile])'
 
-                ```jldoctest
+                ```$(lang)
                 $(code)
                 ```
                 """
             )
         end
+       delete!(meta, :LocalDocTestArguments)
     end
     false
 end
@@ -229,9 +256,10 @@ end
 
 function filter_doctests(strings::NTuple{2, AbstractString},
                          doc::Documents.Document, meta::Dict)
-    local_filters = get(meta, :DocTestFilters, [])
-    local_filters == nothing && local_filters == []
-    for r in [doc.user.doctestfilters; local_filters]
+    meta_block_filters = get(meta, :DocTestFilters, [])
+    meta_block_filters == nothing && meta_block_filters == []
+    doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
+    for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
         if all(contains.(strings, r))
             strings = replace.(strings, r => "")
         end

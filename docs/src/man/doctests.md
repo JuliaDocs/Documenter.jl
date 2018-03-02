@@ -186,10 +186,21 @@ DocTestSetup = nothing
 The `DocTestSetup = nothing` is not strictly necessary, but good practice nonetheless to
 help avoid unintentional definitions in following doctest blocks.
 
+Another option is to use the `setup` keyword argument, which is convenient for short definitions,
+and for setups needed in inline docstrings.
+
+````markdown
+```jldoctest; setup = :(foo(x) = x^2)
+julia> foo(2)
+4
+```
+````
+
 !!! note
 
-    The `DocTestSetup` value is **re-evaluated** at the start of *each* doctest block
+    The `DocTestSetup` and the `setup` values are **re-evaluated** at the start of *each* doctest block
     and no state is shared between any code blocks.
+    To preserve definitions see [Preserving definitions between blocks](@ref).
 
 ## Filtering Doctests
 
@@ -201,14 +212,15 @@ In a doctest, each match in the expected output and the actual output is removed
 Filters are added globally, i.e. applied to all doctests in the documentation, by passing a list of regular expressions to
 `makedocs` with the keyword `doctestfilters`.
 
-For more fine grained control, a list of regular expressions can also be assigned inside a `@meta` block by assigning to the variable `DocTestFilters`.
-The global filters and the filters defined in the `@meta` block are both applied to each doctest.
+For more fine grained control it is possible to define filters in `@meta` blocks by assigning them
+to the `DocTestFilters` variable, either as a single regular expression (`DocTestFilters = [r"foo"]`)
+or as a vector of several regex (`DocTestFilters = [r"foo", r"bar"]`).
 
-An example is given below where some of the non-deterministic output from `@time` is filered.
+An example is given below where some of the non-deterministic output from `@time` is filtered.
 
 ````markdown
 ```@meta
-DocTestFilters = [r"[0-9\.]+ seconds \(.*\)"]
+DocTestFilters = r"[0-9\.]+ seconds \(.*\)"
 ```
 
 ```jldoctest
@@ -220,7 +232,37 @@ julia> @time [1,2,3,4]
  3
  4
 ```
+
+```@meta
+DocTestFilters = nothing
+```
 ````
+
+The `DocTestFilters = nothing` is not strictly necessary, but good practice nonetheless to
+help avoid unintentional filtering in following doctest blocks.
+
+Another option is to use the `filter` keyword argument. This defines a doctest-local filter
+which is only active for the specific doctest. Note that such filters are not shared between
+named doctests either. It is possible to define a filter by a single regex (filter = r"foo")
+or as a list of regex (filter = [r"foo", r"bar"]). Example:
+
+````markdown
+```jldoctest; filter = r"[0-9\.]+ seconds \(.*\)"
+julia> @time [1,2,3,4]
+  0.000003 seconds (5 allocations: 272 bytes)
+4-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+```
+````
+
+!!! note
+
+    The global filters, filters defined in `@meta` blocks, and filters defined with the `filter`
+    keyword argument are all applied to each doctest.
+
 
 ## Skipping Doctests
 
