@@ -5,50 +5,7 @@ documentation. There are some differences between Julia `0.4` and `0.5` that nee
 taken into account when reading this section of the manual. These differences are outlined
 in the next two sections.
 
-## Julia `0.4`
-
-### Inline equations
-
-Surround inline equations and mathematical symbols in `$` characters, i.e.
-
-```markdown
-Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.
-```
-
-which will be displayed as
-
----
-
-Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.
-
----
-
-### Display equations
-
-Use the same single `$` characters to wrap the equation, but also add a newline above and
-below it, i.e.
-
-```markdown
-Here's an equation:
-
-$\frac{n!}{k!(n - k)!} = \binom{n}{k}$
-
-This is the binomial coefficient.
-```
-
-which will be displayed as
-
----
-
-Here's an equation:
-
-$\frac{n!}{k!(n - k)!} = \binom{n}{k}$
-
-This is the binomial coefficient.
-
----
-
-### Escaping characters in docstrings
+## Escaping characters in docstrings
 
 Since some characters used in ``\LaTeX`` syntax are treated differently in docstrings they
 need to be escaped using a `\` character as in the following example:
@@ -81,13 +38,7 @@ This is the binomial coefficient.
 func(x) = # ...
 ```
 
-## Julia `0.5`
-
-The syntax from above, using `$`s, will still work in `0.5`, but it is recommended, if
-possible, to use the following double backtick syntax instead since it avoids overloading
-the meaning of the `$` character within docstrings.
-
-### Inline equations
+## Inline equations
 
 ```markdown
 Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
@@ -101,7 +52,7 @@ Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
 
 ---
 
-### Display equations
+## Display equations
 
 ````markdown
 Here's an equation:
@@ -126,10 +77,6 @@ Here's an equation:
 This is the binomial coefficient.
 
 ---
-
-### Escaping characters in docstrings
-
-In the same way as in Julia `0.4` `\` characters in docstrings must be escaped using a `\`.
 
 ## MkDocs and MathJax
 
