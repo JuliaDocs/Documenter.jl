@@ -457,30 +457,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex/#Julia-0.4-1",
-    "page": "LaTeX syntax",
-    "title": "Julia 0.4",
-    "category": "section",
-    "text": ""
-},
-
-{
-    "location": "man/latex/#Inline-equations-1",
-    "page": "LaTeX syntax",
-    "title": "Inline equations",
-    "category": "section",
-    "text": "Surround inline equations and mathematical symbols in $ characters, i.e.Here\'s some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.which will be displayed asHere\'s some inline maths: sqrtn1 + x + x^2 + ldots."
-},
-
-{
-    "location": "man/latex/#Display-equations-1",
-    "page": "LaTeX syntax",
-    "title": "Display equations",
-    "category": "section",
-    "text": "Use the same single $ characters to wrap the equation, but also add a newline above and below it, i.e.Here\'s an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.which will be displayed asHere\'s an equation:fracnk(n - k) = binomnkThis is the binomial coefficient."
-},
-
-{
     "location": "man/latex/#Escaping-characters-in-docstrings-1",
     "page": "LaTeX syntax",
     "title": "Escaping characters in docstrings",
@@ -489,15 +465,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex/#Julia-0.5-1",
-    "page": "LaTeX syntax",
-    "title": "Julia 0.5",
-    "category": "section",
-    "text": "The syntax from above, using $s, will still work in 0.5, but it is recommended, if possible, to use the following double backtick syntax instead since it avoids overloading the meaning of the $ character within docstrings."
-},
-
-{
-    "location": "man/latex/#Inline-equations-2",
+    "location": "man/latex/#Inline-equations-1",
     "page": "LaTeX syntax",
     "title": "Inline equations",
     "category": "section",
@@ -505,19 +473,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/latex/#Display-equations-2",
+    "location": "man/latex/#Display-equations-1",
     "page": "LaTeX syntax",
     "title": "Display equations",
     "category": "section",
     "text": "Here\'s an equation:\n\n```math\n\\frac{n!}{k!(n - k)!} = \\binom{n}{k}\n```\n\nThis is the binomial coefficient.which will be displayed asHere\'s an equation:fracnk(n - k) = binomnkThis is the binomial coefficient."
-},
-
-{
-    "location": "man/latex/#Escaping-characters-in-docstrings-2",
-    "page": "LaTeX syntax",
-    "title": "Escaping characters in docstrings",
-    "category": "section",
-    "text": "In the same way as in Julia 0.4 \\ characters in docstrings must be escaped using a \\."
 },
 
 {
