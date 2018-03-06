@@ -553,6 +553,12 @@ newlines(other) = 0
 
 # Output redirection.
 # -------------------
+@static if VERSION < v"0.7.0-DEV.3951"
+    link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true) =
+        Base.link_pipe(pipe, julia_only_read = reader_supports_async, julia_only_write = writer_supports_async)
+else
+    import Base: link_pipe!
+end
 
 """
 Call a function and capture all `stdout` and `stderr` output.
@@ -575,7 +581,7 @@ function withoutput(f)
 
     # Redirect both the `stdout` and `stderr` streams to a single `Pipe` object.
     pipe = Pipe()
-    Base.link_pipe(pipe; julia_only_read = true, julia_only_write = true)
+    link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true)
     redirect_stdout(pipe.in)
     redirect_stderr(pipe.in)
 
