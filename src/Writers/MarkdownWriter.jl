@@ -12,6 +12,7 @@ import ...Documenter:
     Documenter,
     Utilities
 
+import Compat
 import Compat.Markdown
 
 function render(doc::Documents.Document)
@@ -37,7 +38,7 @@ function copy_assets(doc::Documents.Document)
             src = joinpath(assets, each)
             dst = joinpath(builddir, each)
             ispath(dst) && Utilities.warn("Overwriting '$dst'.")
-            cp(src, dst; remove_destination = true)
+            Compat.cp(src, dst; force = true)
         end
     else
         error("assets directory '$(abspath(assets))' is missing.")
