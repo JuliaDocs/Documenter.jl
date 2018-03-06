@@ -65,6 +65,7 @@ julia> a / b
 ```
 
 ```@eval
+import Compat.Markdown
 code = string(sprint(Base.banner), "julia>")
 Markdown.Code(code)
 ```
