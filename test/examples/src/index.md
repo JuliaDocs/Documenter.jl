@@ -246,8 +246,8 @@ T()
 julia> fullname(current_module())
 ()
 
-julia> fullname(Base.Pkg)
-(:Base, :Pkg)
+julia> fullname(Base.Broadcast)
+(:Base, :Broadcast)
 
 julia> current_module()
 Main
