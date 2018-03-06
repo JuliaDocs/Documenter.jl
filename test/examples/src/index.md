@@ -139,7 +139,7 @@ foobuu
 ```
 
 ```@meta
-DocTestFilters = [r"foo[a-z]+", r"foo[0-9]+"]
+DocTestFilters = [r"foo[a-z]+", r"[0-9]+"]
 ```
 
 ```jldoctest
@@ -219,7 +219,7 @@ julia> print("foobar")
 foobuu
 ```
 
-```jldoctest; filter = [r"foo[a-z]+", r"foo[0-9]+"]
+```jldoctest; filter = [r"foo[a-z]+", r"[0-9]+"]
 julia> print("foobar123")
 foobuu456
 ```
