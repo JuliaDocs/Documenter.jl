@@ -21,6 +21,7 @@ import .Documents:
 
 using Compat
 import Compat.Markdown
+import Compat.Base64: stringmime
 
 
 function expand(doc::Documents.Document)

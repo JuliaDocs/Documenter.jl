@@ -7,6 +7,7 @@ using Base.Meta, Compat
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Compat.Markdown
+import Compat.Base64: stringmime
 
 # Logging output.
 
