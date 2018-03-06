@@ -68,12 +68,6 @@ bar
 baz
 ```
 
-```jldoctest
-julia> info("...")
-INFO: ...
-
-```
-
   * `one` two three
   * four `five` six
 

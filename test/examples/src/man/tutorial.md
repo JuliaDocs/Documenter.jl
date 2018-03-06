@@ -108,30 +108,22 @@ julia> for i = 1:5
 julia> println("Printing with semi-comma ending.");
 Printing with semi-comma ending.
 
-julia> warn("...");
-WARNING: ...
-
 julia> div(1, 0)
 ERROR: DivideError: integer division error
 [...]
 
-julia> info("...")   # ...
-       println("a"); # Semi-colons *not* on the last expression shouldn't suppress output.
+julia> println("a"); # Semi-colons *not* on the last expression shouldn't suppress output.
        println(1)    # ...
        2             # ...
-INFO: ...
 a
 1
 2
 
-julia> info("...")   # ...
-       println("a"); # Semi-colons *not* on the last expression shouldn't suppress output.
+julia> println("a"); # Semi-colons *not* on the last expression shouldn't suppress output.
        println(1)    # ...
        2;            # Only those in the last expression.
-INFO: ...
 a
 1
-
 ```
 
 ```jldoctest
