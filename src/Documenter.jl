@@ -668,7 +668,7 @@ function genkeys(package; remote="origin")
 
         # Prompt user to add public key to github then remove the public key.
         let url = "https://github.com/$user/$repo/settings/keys"
-            info("add the public key below to $url with read/write access:")
+            Compat.@info("add the public key below to $url with read/write access:")
             println("\n", read("$filename.pub", String))
             rm("$filename.pub")
         end
@@ -677,7 +677,7 @@ function genkeys(package; remote="origin")
         # *not* encoded for the sake of security, but instead to make it easier to
         # copy/paste it over to travis without having to worry about whitespace.
         let url = "https://travis-ci.org/$user/$repo/settings"
-            info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
+            Compat.@info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
             println("\n", base64encode(read(".documenter", String)), "\n")
             rm(filename)
         end
