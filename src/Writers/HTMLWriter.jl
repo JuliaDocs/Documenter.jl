@@ -163,7 +163,7 @@ function copy_asset(file, doc)
     else
         ispath(dirname(dst)) || mkpath(dirname(dst))
         ispath(dst) && Utilities.warn("Overwriting '$dst'.")
-        cp(src, dst, remove_destination=true)
+        Compat.cp(src, dst, force=true)
     end
     assetpath = normpath(joinpath("assets", file))
     # Replace any backslashes in links, if building the docs on Windows

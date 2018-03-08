@@ -1,6 +1,7 @@
 module UtilitiesTests
 
 using Compat.Test
+import Compat.Base64: stringmime
 
 import Documenter
 import Documenter: IdDict

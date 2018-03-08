@@ -558,7 +558,7 @@ first, `git add -A` will not detect case changes in filenames.
 function gitrm_copy(src, dst)
     # --ignore-unmatch so that we wouldn't get errors if dst does not exist
     run(`git rm -rf --ignore-unmatch $(dst)`)
-    cp(src, dst; remove_destination=true)
+    Compat.cp(src, dst; force=true)
 end
 
 function withfile(func, file::AbstractString, contents::AbstractString)
@@ -668,7 +668,7 @@ function genkeys(package; remote="origin")
 
         # Prompt user to add public key to github then remove the public key.
         let url = "https://github.com/$user/$repo/settings/keys"
-            info("add the public key below to $url with read/write access:")
+            Compat.@info("add the public key below to $url with read/write access:")
             println("\n", read("$filename.pub", String))
             rm("$filename.pub")
         end
@@ -677,7 +677,7 @@ function genkeys(package; remote="origin")
         # *not* encoded for the sake of security, but instead to make it easier to
         # copy/paste it over to travis without having to worry about whitespace.
         let url = "https://travis-ci.org/$user/$repo/settings"
-            info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
+            Compat.@info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
             println("\n", base64encode(read(".documenter", String)), "\n")
             rm(filename)
         end

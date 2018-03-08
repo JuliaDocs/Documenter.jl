@@ -68,12 +68,6 @@ bar
 baz
 ```
 
-```jldoctest
-julia> info("...")
-INFO: ...
-
-```
-
   * `one` two three
   * four `five` six
 
@@ -139,7 +133,7 @@ foobuu
 ```
 
 ```@meta
-DocTestFilters = [r"foo[a-z]+", r"foo[0-9]+"]
+DocTestFilters = [r"foo[a-z]+", r"[0-9]+"]
 ```
 
 ```jldoctest
@@ -219,7 +213,7 @@ julia> print("foobar")
 foobuu
 ```
 
-```jldoctest; filter = [r"foo[a-z]+", r"foo[0-9]+"]
+```jldoctest; filter = [r"foo[a-z]+", r"[0-9]+"]
 julia> print("foobar123")
 foobuu456
 ```
@@ -246,8 +240,8 @@ T()
 julia> fullname(current_module())
 ()
 
-julia> fullname(Base.Pkg)
-(:Base, :Pkg)
+julia> fullname(Base.Broadcast)
+(:Base, :Broadcast)
 
 julia> current_module()
 Main

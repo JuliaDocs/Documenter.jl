@@ -108,7 +108,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
                 push!(mdpages, Utilities.srcpath(source, root, file))
                 Documents.addpage!(doc, src, dst)
             else
-                cp(src, dst; remove_destination = true)
+                Compat.cp(src, dst; force = true)
             end
         end
     end

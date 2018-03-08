@@ -21,6 +21,7 @@ import .Documents:
 
 using Compat
 import Compat.Markdown
+import Compat.Base64: stringmime
 
 
 function expand(doc::Documents.Document)
@@ -474,7 +475,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     input   = droplines(x.code)
 
     # Special-case support for displaying SVG graphics. TODO: make this more general.
-    output = mimewritable(MIME"image/svg+xml"(), result) ?
+    output = showable(MIME"image/svg+xml"(), result) ?
         Documents.RawHTML(Base.invokelatest(stringmime, MIME"image/svg+xml"(), result)) :
         Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
 
