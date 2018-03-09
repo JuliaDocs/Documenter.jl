@@ -337,60 +337,18 @@ nodocs(::Nothing) = false
 
 header_level(::Markdown.Header{N}) where {N} = N
 
-# Finding URLs -- based partially on code from the main Julia repo in `base/methodshow.jl`.
-#
-# Paths on Windows contain backslashes, so the `url` function needs to take care of them.
-# However, the exact formatting is not consistent and depends on whether Julia runs
-# separately or in Cygwin.
-#
-# We get paths from Julia's docsystem, e.g.
-#     Docs.docstr(Docs.Binding(Documenter,:Documenter)).data[:path]
-# and from git
-#     git rev-parse --show-toplevel
-#
-# * Ordinary Windows binaries (both Julia and git)
-#   In this case the paths from the docsystem are Windows-like with backslashes, e.g.:
-#       C:\Users\<user>\.julia\v0.6\Documenter\src\Documenter.jl
-#   But the paths from git have forward slashes, e.g.:
-#       C:/Users/<user>julia/v0.6/Documenter
-#
-# * Running under Cygwin
-#   The paths from the docsystem are the same as before, e.g.:
-#       C:\Users\<user>\.julia\v0.6\Documenter\src\Documenter.jl
-#   However, git returns UNIX-y paths using a /cygdrive mount, e.g.:
-#       /cygdrive/c/<user>/.julia/v0.6/Documenter
-#   We can fix that with `cygpath -m <path>` to get a Windows-like path with forward
-#   slashes, e.g.:
-#       C:/Users/<user>/.julia/v0.6/Documenter)
-#
-# In the docsystem paths we replace the backslashes with forward slashes before we start
-# comparing paths with the ones from git.
-#
-
-"""
-    in_cygwin()
-
-Check if we're running under cygwin. Useful when we need to translate cygwin paths to
-windows paths.
-"""
-function in_cygwin()
-    if Compat.Sys.iswindows()
-        try
-            return success(`cygpath -h`)
-        catch
-            return false
-        end
-    else
-        return false
+function repo_root(file; dbdir=".git")
+    parent_dir, parent_dir_last = dirname(abspath(file)), ""
+    while parent_dir !== parent_dir_last
+        isdir(joinpath(parent_dir, dbdir)) && return parent_dir
+        parent_dir, parent_dir_last = dirname(parent_dir), parent_dir
     end
+    return nothing
 end
 
 function relpath_from_repo_root(file)
     cd(dirname(file)) do
-        root = readchomp(`git rev-parse --show-toplevel`)
-        if in_cygwin()
-            root = readchomp(`cygpath -m "$root"`)
-        end
+        root = repo_root(file)
         startswith(file, root) ? relpath(file, root) : nothing
     end
 end
@@ -405,14 +363,14 @@ function url(repo, file; commit=nothing)
     file = realpath(abspath(file))
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
-    # Replace any backslashes in links, if building the docs on Windows
-    file = replace(file, '\\' => '/')
     path = relpath_from_repo_root(file)
     if path === nothing
         nothing
     else
         repo = replace(repo, "{commit}" => commit === nothing ? repo_commit(file) : commit)
-        repo = replace(repo, "{path}" => string("/", path))
+        # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
+        repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
+        repo = replace(repo, "{line}" => "")
         repo
     end
 end
@@ -428,14 +386,13 @@ function url(remote, repo, mod, file, linerange)
         file = realpath(abspath(file))
     end
 
-    # Replace any backslashes in links, if building the docs on Windows
-    file = replace(file, '\\' => '/')
     # Format the line range.
     line = format_line(linerange, LineRangeFormatting(repo_host_from_url(repo)))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
     if inbase(mod) || !isabspath(file)
+        file = replace(file, '\\' => '/')
         base = "https://github.com/JuliaLang/julia/blob"
         dest = "base/$file#$line"
         if isempty(Base.GIT_VERSION_INFO.commit)
@@ -453,7 +410,8 @@ function url(remote, repo, mod, file, linerange)
             nothing
         else
             repo = replace(repo, "{commit}" => repo_commit(file))
-            repo = replace(repo, "{path}" => string("/", path))
+            # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
+            repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
             repo = replace(repo, "{line}" => line)
             repo
         end

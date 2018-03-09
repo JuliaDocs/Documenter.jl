@@ -1,5 +1,6 @@
 module UtilitiesTests
 
+import Compat
 using Compat.Test
 import Compat.Base64: stringmime
 
@@ -109,6 +110,19 @@ end
         formatting = Documenter.Utilities.LineRangeFormatting(repo_type)
         @test Documenter.Utilities.format_line(line_range, formatting) == expected_string
     end
+
+    # URL building
+    filepath = string(first(methods(Documenter.Utilities.url)).file)
+    Compat.Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
+    let expected_filepath = "Documenter/src/Utilities/Utilities.jl"
+        Compat.Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
+        @test endswith(filepath, expected_filepath)
+        @show filepath expected_filepath
+    end
+    commit = Documenter.Utilities.repo_commit(filepath)
+
+    @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/Utilities/Utilities.jl#"
+    @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/Utilities/Utilities.jl#L10-L20"
 
     import Documenter.Documents: Document, Page, Globals
     let page = Page("source", "build", [], IdDict(), Globals()), doc = Document()
