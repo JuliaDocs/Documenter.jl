@@ -492,18 +492,22 @@ struct LineRangeFormatting
     function LineRangeFormatting(host::RepoHost)
         if host == RepoBitbucket
             new("", ":")
+        elseif host == RepoGitlab
+            new("L", "-")
         else
             # default is github-style
-            new("L", "-")
+            new("L", "-L")
         end
     end
 end
 
 function format_line(range::Compat.AbstractRange, format::LineRangeFormatting)
-    local top = format_line(first(range), format.prefix)
-    return length(range) <= 1 ? top : string(top, format.separator, format_line(last(range), format.prefix))
+    if length(range) <= 1
+        string(format.prefix, first(range))
+    else
+        string(format.prefix, first(range), format.separator, last(range))
+    end
 end
-format_line(line::Integer, prefix::String) = string(prefix, line)
 
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0

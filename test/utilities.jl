@@ -100,6 +100,13 @@ end
         @test Documenter.Utilities.format_line(100:9999, formatting) == "L100-L9999"
     end
 
+    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoGitlab)
+        @test Documenter.Utilities.format_line(1:1, formatting) == "L1"
+        @test Documenter.Utilities.format_line(123:123, formatting) == "L123"
+        @test Documenter.Utilities.format_line(2:5, formatting) == "L2-5"
+        @test Documenter.Utilities.format_line(100:9999, formatting) == "L100-9999"
+    end
+
     let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoBitbucket)
         @test Documenter.Utilities.format_line(1:1, formatting) == "1"
         @test Documenter.Utilities.format_line(123:123, formatting) == "123"
