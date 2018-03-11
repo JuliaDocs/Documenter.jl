@@ -453,7 +453,7 @@ var documenterSearchIndex = {"docs": [
     "page": "LaTeX syntax",
     "title": "LaTeX syntax",
     "category": "section",
-    "text": "The following section describes how to add equations written using LaTeX to your documentation. There are some differences between Julia 0.4 and 0.5 that need to be taken into account when reading this section of the manual. These differences are outlined in the next two sections."
+    "text": "The following section describes how to add equations written using LaTeX to your documentation."
 },
 
 {
