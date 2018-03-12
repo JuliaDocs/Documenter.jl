@@ -263,6 +263,26 @@ julia> @time [1,2,3,4]
     The global filters, filters defined in `@meta` blocks, and filters defined with the `filter`
     keyword argument are all applied to each doctest.
 
+## Fixing outdated Doctests
+
+To fix outdated doctests, the `doctest` flag to [`makedocs`](@ref) can be set to
+`doctest = :fix`. This will run the doctests, and overwrite the old results with
+the new output.
+
+!!! note
+
+    The :fix option currently only works for LF line endings (`'\n'`)
+
+!!! note
+
+    It is recommended to `git commit` any code changes before running the doctest fixing.
+    That way it is simple to restore to the previous state if the the fixing goes wrong.
+
+!!! note
+
+    There are some corner cases where the fixing algorithm may replace the wrong code snippet.
+    It is therefore recommended to manually inspect the result of the fixing before committing.
+
 
 ## Skipping Doctests
 
