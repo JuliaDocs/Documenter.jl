@@ -58,3 +58,7 @@ Int64[1, 2, 3, 4] * 2
  3
  4
 ```
+```jldoctest; filter = r"foo"
+julia> println("  foobar")
+  foobaz
+```
