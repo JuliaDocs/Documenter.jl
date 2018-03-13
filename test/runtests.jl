@@ -29,6 +29,9 @@ println("="^50)
     # DocSystem unit tests.
     include("docsystem.jl")
 
+    # DocTest unit tests.
+    include("doctests/doctests.jl")
+
     # DOM Tests.
     include("dom.jl")
 

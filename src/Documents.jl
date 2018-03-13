@@ -185,7 +185,7 @@ struct User
     build   :: String  # Parent directory is also `.root`. Where files are written to.
     format  :: Vector{Symbol} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
-    doctest :: Bool           # Run doctests?
+    doctest :: Union{Bool,Symbol} # Run doctests?
     linkcheck::Bool           # Check external links..
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
@@ -241,7 +241,7 @@ function Document(;
         build    :: AbstractString   = "build",
         format   :: Any              = :markdown,
         clean    :: Bool             = true,
-        doctest  :: Bool             = true,
+        doctest  :: Union{Bool,Symbol} = true,
         linkcheck:: Bool             = false,
         linkcheck_ignore :: Vector   = [],
         checkdocs::Symbol            = :all,
