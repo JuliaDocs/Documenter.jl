@@ -581,7 +581,7 @@ end
 function droplines(code; skip = 0)
     buffer = IOBuffer()
     for line in split(code, '\n')[(skip + 1):end]
-        contains(line, r"^(.*)# hide$") && continue
+        contains(line, r"^(.*)#\s*hide$") && continue
         println(buffer, rstrip(line))
     end
     strip(String(take!(buffer)), '\n')
