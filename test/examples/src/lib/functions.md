@@ -52,6 +52,16 @@ struct T end
 t = T()
 ```
 
+```@example hide-all-the-things
+a = 1#hide
+b = 2# hide
+c = 3#  hide
+d = 4 #hide
+e = 5 # hide
+f = 6 #  hide
+a + b + c + d + e + f
+```
+
 ## Foo
 
 ```@example 3
