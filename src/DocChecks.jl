@@ -135,7 +135,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
 
         # parse keyword arguments to doctest
         d = Dict()
-        idx = Compat.findfirst(equalto(';'), lang)
+        idx = Compat.findfirst(c -> c == ';', lang)
         if idx !== nothing
             kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
             for kwarg in kwargs.args
