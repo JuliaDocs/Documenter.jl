@@ -271,12 +271,12 @@ the new output.
 
 !!! note
 
-    The :fix option currently only works for LF line endings (`'\n'`)
+    The `:fix` option currently only works for LF line endings (`'\n'`)
 
 !!! note
 
     It is recommended to `git commit` any code changes before running the doctest fixing.
-    That way it is simple to restore to the previous state if the the fixing goes wrong.
+    That way it is simple to restore to the previous state if the fixing goes wrong.
 
 !!! note
 

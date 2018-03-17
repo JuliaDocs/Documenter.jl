@@ -135,7 +135,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
 
         # parse keyword arguments to doctest
         d = Dict()
-        idx = Compat.findfirst(equalto(';'), lang)
+        idx = Compat.findfirst(c -> c == ';', lang)
         if idx !== nothing
             kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
             for kwarg in kwargs.args
@@ -295,12 +295,12 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
-        output = replace(strip(sanitise(IOBuffer(result.output))), mod_regex => "")
+        output = replace(rstrip(sanitise(IOBuffer(result.output))), mod_regex => "")
         str = replace(result_to_string(result.stdout, value), mod_regex => "")
         # Replace a standalone module name with `Main`.
-        str = strip(replace(str, mod_regex_nodot => "Main"))
-        str, output = filter_doctests((str, output), doc, meta)
-        if str != output
+        str = rstrip(replace(str, mod_regex_nodot => "Main"))
+        filteredstr, filteredoutput = filter_doctests((str, output), doc, meta)
+        if filteredstr != filteredoutput
             if doc.user.doctest === :fix
                 fix_doctest(result, str, doc)
             else
