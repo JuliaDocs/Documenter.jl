@@ -88,6 +88,20 @@ sigs(::Any) = Type[Union{}]
 # Julia code block testing.
 # -------------------------
 
+# helper to display linerange for error printing
+function find_codeblock_in_file(code, file)
+    content = read(Base.find_source_file(file), String)
+    content = replace(content, "\r\n" => "\n")
+    blockidx = Compat.findfirst(code, content)
+    if blockidx !== nothing
+        startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
+        endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
+        return ":$(startline)-$(endline)"
+    else
+        return ""
+    end
+end
+
 """
 $(SIGNATURES)
 
@@ -140,11 +154,12 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
+                    file = meta[:CurrentFile]
+                    lines = find_codeblock_in_file(block.code, file)
                     Utilities.warn(
                         """
-                        Invalid syntax for doctest keyword arguments, use
-                        ```jldoctest name; key1 = value1, key2 = value2
-                        in '$(meta[:CurrentFile])'
+                        Invalid syntax for doctest keyword arguments in $(file)$(lines)
+                        Use ```jldoctest name; key1 = value1, key2 = value2
 
                         ```$(lang)
                         $(block.code)
@@ -170,9 +185,12 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             block.language = "julia"
         else
             push!(doc.internal.errors, :doctest)
+            file = meta[:CurrentFile]
+            lines = find_codeblock_in_file(block.code, file)
             Utilities.warn(
                 """
-                Invalid doctest block. Requires `julia> ` or `# output` in '$(meta[:CurrentFile])'
+                Invalid doctest block in $(file)$(lines)
+                Requires `julia> ` or `# output`
 
                 ```$(lang)
                 $(block.code)
@@ -353,8 +371,9 @@ function report(result::Result, str, doc::Documents.Document)
     ioc = IOContext(iob, :color => Base.have_color)
     println(ioc, "=====[Test Error]", "="^30)
     println(ioc)
-    printstyled(ioc, "> File: ", result.file, "\n", color=:cyan)
-    printstyled(ioc, "\n> Code block:\n", color=:cyan)
+    printstyled(ioc, "> Location: ", result.file, color=:cyan)
+    printstyled(ioc, find_codeblock_in_file(result.block.code, result.file), color=:cyan)
+    printstyled(ioc, "\n\n> Code block:\n", color=:cyan)
     println(ioc, "\n```$(result.block.language)")
     println(ioc, result.block.code)
     println(ioc, "```")
@@ -382,7 +401,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     code = result.block.code
     filename = Base.find_source_file(result.file)
     # read the file containing the code block
-    content = open(f -> read(f, String), filename)
+    content = read(filename, String)
     # output stream
     io = Compat.IOBuffer(sizehint = sizeof(content))
     # first look for the entire code block
@@ -411,7 +430,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     # write rest of the file
     write(io, content[nextind(content, last(codeidx)):end])
     # write to file
-    open(f -> write(f, seekstart(io)), filename, "w")
+    write(filename, seekstart(io))
     return
 end
 

@@ -16,10 +16,10 @@ mktempdir(@__DIR__) do dir
     # test that strict = true works
     makedocs(modules = [Foo], source = srcdir, build = builddir, strict = true)
     # also test that we obtain the expected output
-    @test open(f -> read(f, String), joinpath(srcdir, "index.md")) ==
-          open(f -> read(f, String), joinpath(@__DIR__, "fixed.md"))
-    @test open(f -> read(f, String), joinpath(srcdir, "src.jl")) ==
-          open(f -> read(f, String), joinpath(@__DIR__, "fixed.jl"))
+    @test read(joinpath(srcdir, "index.md"), String) ==
+          read(joinpath(@__DIR__, "fixed.md"), String)
+    @test read(joinpath(srcdir, "src.jl"), String) ==
+          read(joinpath(@__DIR__, "fixed.jl"), String)
 end
 @info("Done testing `doctest = :fix`")
 println("="^50)
