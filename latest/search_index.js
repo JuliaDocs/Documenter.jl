@@ -357,7 +357,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "Fixing outdated Doctests",
     "category": "section",
-    "text": "To fix outdated doctests, the doctest flag to makedocs can be set to doctest = :fix. This will run the doctests, and overwrite the old results with the new output.note: Note\nThe :fix option currently only works for LF line endings (\'\\n\')note: Note\nIt is recommended to git commit any code changes before running the doctest fixing. That way it is simple to restore to the previous state if the the fixing goes wrong.note: Note\nThere are some corner cases where the fixing algorithm may replace the wrong code snippet. It is therefore recommended to manually inspect the result of the fixing before committing."
+    "text": "To fix outdated doctests, the doctest flag to makedocs can be set to doctest = :fix. This will run the doctests, and overwrite the old results with the new output.note: Note\nThe :fix option currently only works for LF line endings (\'\\n\')note: Note\nIt is recommended to git commit any code changes before running the doctest fixing. That way it is simple to restore to the previous state if the fixing goes wrong.note: Note\nThere are some corner cases where the fixing algorithm may replace the wrong code snippet. It is therefore recommended to manually inspect the result of the fixing before committing."
 },
 
 {
@@ -989,7 +989,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
 },
 
 {
@@ -997,7 +997,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
 },
 
 {
