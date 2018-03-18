@@ -152,7 +152,7 @@ value of the generated link:
 For example if you are using GitLab.com, you could use
 
 ```julia
-makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#L{line}\")
+makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
 ```
 
 # Experimental keywords
