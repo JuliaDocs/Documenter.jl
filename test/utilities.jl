@@ -2,6 +2,7 @@ module UtilitiesTests
 
 import Compat
 using Compat.Test
+import Compat: occursin
 import Compat.Base64: stringmime
 
 import Documenter
@@ -47,9 +48,9 @@ end
         @test a !== nothing
         @test a === doc
         @test b !== nothing
-        @test contains(stringmime("text/plain", b), "Documenter unit tests.")
+        @test occursin("Documenter unit tests.", stringmime("text/plain", b))
         @test c !== nothing
-        @test !contains(stringmime("text/plain", c), "Documenter unit tests.")
+        @test !occursin("Documenter unit tests.", stringmime("text/plain", c))
         @test d === nothing
     end
 

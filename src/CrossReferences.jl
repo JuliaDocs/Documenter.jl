@@ -44,7 +44,7 @@ const NAMED_XREF = r"^@ref (.+)$"
 
 function xref(link::Markdown.Link, meta, page, doc)
     link.url == "@ref"             ? basicxref(link, meta, page, doc) :
-    contains(link.url, NAMED_XREF) ? namedxref(link, meta, page, doc) : nothing
+    occursin(NAMED_XREF, link.url) ? namedxref(link, meta, page, doc) : nothing
     return false # Stop `walk`ing down this `link` element.
 end
 xref(other, meta, page, doc) = true # Continue to `walk` through element `other`.
@@ -55,7 +55,7 @@ function basicxref(link::Markdown.Link, meta, page, doc)
     elseif isa(link.text, Vector)
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
-        if contains(text, r"#[0-9]+")
+        if occursin(r"#[0-9]+", text)
             issue_xref(link, lstrip(text, '#'), meta, page, doc)
         else
             name = Utilities.slugify(text)

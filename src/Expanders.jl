@@ -562,7 +562,7 @@ end
 # Utilities.
 # ----------
 
-iscode(x::Markdown.Code, r::Regex) = contains(x.language, r)
+iscode(x::Markdown.Code, r::Regex) = occursin(r, x.language)
 iscode(x::Markdown.Code, lang)     = x.language == lang
 iscode(x, lang)                    = false
 
@@ -571,7 +571,7 @@ const NAMEDHEADER_REGEX = r"^@id (.+)$"
 function namedheader(h::Markdown.Header)
     if isa(h.text, Vector) && length(h.text) === 1 && isa(h.text[1], Markdown.Link)
         url = h.text[1].url
-        contains(url, NAMEDHEADER_REGEX)
+        occursin(NAMEDHEADER_REGEX, url)
     else
         false
     end
@@ -581,7 +581,7 @@ end
 function droplines(code; skip = 0)
     buffer = IOBuffer()
     for line in split(code, '\n')[(skip + 1):end]
-        contains(line, r"^(.*)#\s*hide$") && continue
+        occursin(r"^(.*)#\s*hide$", line) && continue
         println(buffer, rstrip(line))
     end
     strip(String(take!(buffer)), '\n')

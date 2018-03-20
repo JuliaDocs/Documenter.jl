@@ -42,7 +42,7 @@ function localbin()
 end
 
 function updatepath!(p = localbin())
-    if contains(ENV["PATH"], p)
+    if occursin(p, ENV["PATH"])
         ENV["PATH"]
     else
         ENV["PATH"] = "$p:$(ENV["PATH"])"

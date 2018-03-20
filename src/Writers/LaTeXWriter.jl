@@ -269,7 +269,7 @@ function latex(io::IO, code::Markdown.Code)
         # script-type doctest should match the corresponding one in DocChecks.jl. This makes
         # sure that doctests get highlighted the same way independent of whether they're
         # being run or not.
-        contains(code.code, r"^julia> "m) ? "julia-repl" : "julia"
+        occursin(r"^julia> "m, code.code) ? "julia-repl" : "julia"
     else
         code.language
     end
@@ -440,7 +440,7 @@ function latexinline(io::IO, md::Markdown.Link)
     if io.in_header
         latexinline(io, md.text)
     else
-        if contains(md.url, ".md#")
+        if occursin(".md#", md.url)
             file, target = split(md.url, ".md#"; limit = 2)
             id = string(hash(target))
             wrapinline(io, "hyperlink") do

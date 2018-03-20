@@ -118,7 +118,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
     # Check whether we have windows-style line endings.
-    offset = contains(code, "\n\r") ? 2 : 1
+    offset = occursin("\n\r", code) ? 2 : 1
     endofstr = lastindex(code)
     results = []
     cursor = 1
@@ -332,7 +332,7 @@ filterdocs(other, modules::Set{Module}) = other
 """
 Does the given docstring represent actual documentation or a no docs error message?
 """
-nodocs(x)      = contains(stringmime("text/plain", x), "No documentation found.")
+nodocs(x) = occursin("No documentation found.", stringmime("text/plain", x))
 nodocs(::Nothing) = false
 
 header_level(::Markdown.Header{N}) where {N} = N
@@ -464,11 +464,11 @@ end
 #      "https://bitbucket.org/xxx" => RepoBitbucket
 # If no match, returns RepoUnknown
 function repo_host_from_url(repoURL::String)
-    if contains(repoURL, "bitbucket")
+    if occursin("bitbucket", repoURL)
         return RepoBitbucket
-    elseif contains(repoURL, "github")
+    elseif occursin("github", repoURL)
         return RepoGithub
-    elseif contains(repoURL, "gitlab")
+    elseif occursin("gitlab", repoURL)
         return RepoGitlab
     else
         return RepoUnknown
@@ -592,7 +592,7 @@ end
 
 Checks whether `url` is an absolute URL (as opposed to a relative one).
 """
-isabsurl(url) = contains(url, ABSURL_REGEX)
+isabsurl(url) = occursin(ABSURL_REGEX, url)
 const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 include("DOM.jl")
