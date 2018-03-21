@@ -177,10 +177,10 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             eval(sandbox, expr)
         end
-        if contains(block.code, r"^julia> "m)
+        if occursin(r"^julia> "m, block.code)
             eval_repl(block, sandbox, meta, doc, page)
             block.language = "julia-repl"
-        elseif contains(block.code, r"^# output$"m)
+        elseif occursin(r"^# output$"m, block.code)
             eval_script(block, sandbox, meta, doc, page)
             block.language = "julia"
         else
@@ -280,7 +280,7 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     meta_block_filters == nothing && meta_block_filters == []
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
     for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
-        if all(contains.(strings, r))
+        if all(occursin.(r, strings))
             strings = replace.(strings, r => "")
         end
     end
@@ -456,7 +456,7 @@ function repl_splitter(code)
         # TODO: handle multiline comments?
         # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
         # TODO: Remove this special case and just disallow lines with comments?
-        startswith(line, '#') && !contains(line, ANON_FUNC_DECLARATION) && continue
+        startswith(line, '#') && !occursin(ANON_FUNC_DECLARATION, line) && continue
         prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
@@ -484,7 +484,7 @@ end
 function takeuntil!(r, buf, lines)
     while !isempty(lines)
         line = lines[1]
-        if !contains(line, r)
+        if !occursin(r, line)
             println(buf, popfirst!(lines))
         else
             break
@@ -595,13 +595,13 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
             return false
         end
         local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
-        if contains(result, STATUS_REGEX)
+        if occursin(STATUS_REGEX, result)
             status = parse(Int, match(STATUS_REGEX, result).captures[1])
             if status < 300
                 printstyled(INDENT, "$(status) ", link.url, "\n", color=:green)
             elseif status < 400
                 LOCATION_REGEX = r"^Location: (.+)$"m
-                if contains(result, LOCATION_REGEX)
+                if occursin(LOCATION_REGEX, result)
                     location = strip(match(LOCATION_REGEX, result).captures[1])
                     printstyled(INDENT, "$(status) ", link.url, "\n", color=:yellow)
                     printstyled(INDENT, " -> ", location, "\n\n", color=:yellow)
@@ -622,7 +622,7 @@ end
 linkcheck(other, doc::Documents.Document) = true
 
 linkcheck_ismatch(r::String, url) = (url == r)
-linkcheck_ismatch(r::Regex, url) = contains(url, r)
+linkcheck_ismatch(r::Regex, url) = occursin(r, url)
 
 function disable_color(func)
     orig = setcolor!(false)

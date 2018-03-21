@@ -474,8 +474,8 @@ function generate_version_file(dir::AbstractString)
     tag_folders = []
     for each in readdir(dir)
         each in ("stable", "latest")         ? push!(named_folders,   each) :
-        contains(each, r"release\-\d+\.\d+") ? push!(release_folders, each) :
-        contains(each, Base.VERSION_REGEX)   ? push!(tag_folders,     each) : nothing
+        occursin(r"release\-\d+\.\d+", each) ? push!(release_folders, each) :
+        occursin(Base.VERSION_REGEX, each)   ? push!(tag_folders,     each) : nothing
     end
     open(joinpath(dir, "versions.js"), "w") do buf
         println(buf, "var DOC_VERSIONS = [")
@@ -895,7 +895,7 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
         # script-type doctest should match the corresponding one in DocChecks.jl. This makes
         # sure that doctests get highlighted the same way independent of whether they're
         # being run or not.
-        contains(c.code, r"^julia> "m) ? "julia-repl" : "julia"
+        occursin(r"^julia> "m, c.code) ? "julia-repl" : "julia"
     else
         c.language
     end

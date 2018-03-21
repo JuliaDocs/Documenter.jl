@@ -376,13 +376,13 @@ function deploydocs(;
     if !isa(julia, AbstractString)
         error("julia must be a string, got $julia ($(typeof(julia)))")
     end
-    if !isempty(travis_repo_slug) && !contains(repo, travis_repo_slug)
+    if !isempty(travis_repo_slug) && !occursin(travis_repo_slug, repo)
         warn("repo $repo does not match $travis_repo_slug")
     end
 
     # When should a deploy be attempted?
     should_deploy =
-        contains(repo, travis_repo_slug) &&
+        occursin(travis_repo_slug, repo) &&
         travis_pull_request == "false"   &&
         travis_osname == osname &&
         travis_julia  == julia  &&
@@ -518,7 +518,7 @@ function git_push(
                     Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
                     # Build a `release-*.*` folder as well when the travis tag is
                     # valid, which it *should* always be anyway.
-                    if contains(tag, Base.VERSION_REGEX)
+                    if occursin(Base.VERSION_REGEX, tag)
                         version = VersionNumber(tag)
                         release = "release-$(version.major).$(version.minor)"
                         gitrm_copy(target_dir, joinpath(dirname, release))
@@ -584,7 +584,7 @@ end
 
 function getenv(regex::Regex)
     for (key, value) in ENV
-        contains(key, regex) && return value
+        occursin(regex, key) && return value
     end
     error("could not find key/iv pair.")
 end
