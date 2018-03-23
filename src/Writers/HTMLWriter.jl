@@ -925,6 +925,12 @@ mdconvert(list::Markdown.List, parent; kwargs...) = (Markdown.isordered(list) ? 
 
 mdconvert(paragraph::Markdown.Paragraph, parent; kwargs...) = Tag(:p)(mdconvert(paragraph.content, paragraph; kwargs...))
 
+const list_has_loose_field = :loose in fieldnames(Markdown.List)
+function mdconvert(paragraph::Markdown.Paragraph, parent::Markdown.List; kwargs...)
+    content = mdconvert(paragraph.content, paragraph; kwargs...)
+    return (list_has_loose_field && !parent.loose) ? content : Tag(:p)(content)
+end
+
 mdconvert(t::Markdown.Table, parent; kwargs...) = Tag(:table)(
     Tag(:tr)(map(x -> Tag(:th)(mdconvert(x, t; kwargs...)), t.rows[1])),
     map(x -> Tag(:tr)(map(y -> Tag(:td)(mdconvert(y, x; kwargs...)), x)), t.rows[2:end])
