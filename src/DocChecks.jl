@@ -285,8 +285,8 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     meta_block_filters == nothing && meta_block_filters == []
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
     for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
-        if all(occursin.(r, strings))
-            strings = replace.(strings, r => "")
+        if all(occursin.((r,), strings))
+            strings = replace.(strings, (r => "",))
         end
     end
     return strings
