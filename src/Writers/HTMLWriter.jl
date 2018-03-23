@@ -925,6 +925,7 @@ mdconvert(list::Markdown.List, parent; kwargs...) = (Markdown.isordered(list) ? 
 
 mdconvert(paragraph::Markdown.Paragraph, parent; kwargs...) = Tag(:p)(mdconvert(paragraph.content, paragraph; kwargs...))
 
+# For compatibility with versions before Markdown.List got the `loose field, Julia PR #26598
 const list_has_loose_field = :loose in fieldnames(Markdown.List)
 function mdconvert(paragraph::Markdown.Paragraph, parent::Markdown.List; kwargs...)
     content = mdconvert(paragraph.content, paragraph; kwargs...)
