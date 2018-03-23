@@ -88,11 +88,16 @@ sigs(::Any) = Type[Union{}]
 # Julia code block testing.
 # -------------------------
 
+# escape characters that has a meaning in regex
+regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
+
 # helper to display linerange for error printing
 function find_codeblock_in_file(code, file)
     content = read(Base.find_source_file(file), String)
     content = replace(content, "\r\n" => "\n")
-    blockidx = Compat.findfirst(code, content)
+    # make a regex of the code that matches leading whitespace
+    rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
+    blockidx = Compat.findfirst(Regex(rcode), content)
     if blockidx !== nothing
         startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
         endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
@@ -405,27 +410,37 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     # output stream
     io = Compat.IOBuffer(sizehint = sizeof(content))
     # first look for the entire code block
-    codeidx = Compat.findnext(code, content, 1)
+    # make a regex of the code that matches leading whitespace
+    rcode = "(\\h*)" * replace(regex_escape(code), "\\n" => "\\n\\h*")
+    r = Regex(rcode)
+    codeidx = Compat.findfirst(r, content)
     if codeidx === nothing
         Utilities.warn("Could not find code block in source file")
         return
     end
+    # use the capture group to identify indentation
+    indent = match(r, content).captures[1]
     # write everything up until the code block
     write(io, content[1:prevind(content, first(codeidx))])
     # next look for the particular input string in the given code block
-    inputidx = Compat.findnext(result.input, code, 1)
+    # make a regex of the input that matches leading whitespace (for multiline input)
+    rinput = "\\h*" * replace(regex_escape(result.input), "\\n" => "\\n\\h*")
+    r = Regex(rinput)
+    inputidx = Compat.findfirst(r, code)
     if inputidx === nothing
         Utilities.warn("Could not find input line in code block")
         return
     end
-    # write everything up until the input string
-    write(io, code[1:last(inputidx)])
-    # replace old output with new output
-    newcode = replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
-    # replace internal code block too, needed if we come back
+    # construct the new code-snippet (without indent)
+    # first part: everything up until the last index of the input string
+    newcode = code[1:last(inputidx)]
+    # second part: the rest, with the old output replaced with the new one
+    newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+    # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
     result.block.code = newcode
-    # write the rest of the code block, with replaced output
+    # write the new code snippet to the stream, with indent
+    newcode = replace(newcode, r"^(.+)$"m => Base.SubstitutionString(indent * "\\1"))
     write(io, newcode)
     # write rest of the file
     write(io, content[nextind(content, last(codeidx)):end])
