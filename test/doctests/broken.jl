@@ -46,6 +46,16 @@ julia> Int64[1, 2, 3, 4] * 2
  4
 ```
 ```jldoctest
+julia> begin
+          Int64[1, 2, 3, 4] * 2
+       end
+4-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+```
+```jldoctest
 Int64[1, 2, 3, 4] * 2
 
 # output
@@ -62,5 +72,24 @@ julia> println("  foobar")
 ```
 """
 foo() = 1
+
+    """
+    ```jldoctest
+    julia> begin
+              Int64[1, 2, 3, 4] * 2
+           end
+    4-element Array{Int64,1}:
+     1
+     2
+     3
+     4
+    ```
+    ```jldoctest
+    julia> println(); println("foo")
+
+    bar
+    ```
+    """
+    foo(x) = 1
 
 end # module
