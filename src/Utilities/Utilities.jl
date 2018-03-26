@@ -522,6 +522,13 @@ newlines(other) = 0
 else
     import Base: link_pipe!
 end
+@static if isdefined(Base, :with_logger)
+    using Logging
+else # make things a no-op since warnings/info already print to stdout
+    struct ConsoleLogger end
+    ConsoleLogger(io) = ConsoleLogger()
+    with_logger(f, logger) = f()
+end
 
 """
 Call a function and capture all `stdout` and `stderr` output.
@@ -547,13 +554,15 @@ function withoutput(f)
     link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true)
     redirect_stdout(pipe.in)
     redirect_stderr(pipe.in)
+    # Also redirect logging stream to the same pipe
+    logger = ConsoleLogger(pipe.in)
 
     # Bytes written to the `pipe` are captured in `output` and converted to a `String`.
     output = UInt8[]
 
     # Run the function `f`, capturing all output that it might have generated.
     # Success signals whether the function `f` did or did not throw an exception.
-    result, success, backtrace =
+    result, success, backtrace = with_logger(logger) do
         try
             f(), true, Vector{Ptr{Cvoid}}()
         catch err
@@ -568,6 +577,7 @@ function withoutput(f)
             append!(output, readavailable(pipe))
             close(pipe)
         end
+    end
     return result, success, backtrace, chomp(String(output))
 end
 
