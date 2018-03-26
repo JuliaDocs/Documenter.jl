@@ -160,6 +160,18 @@ end
         @test splitby(r"[▶]+", "Ω▶▶Y▶Z▶") == ["Ω▶▶", "Y▶", "Z▶"]
         @test splitby(r"[▶]+", "Ω▶▶Y▶Z▶κ") == ["Ω▶▶", "Y▶", "Z▶", "κ"]
     end
+
+    @static if isdefined(Base, :with_logger)
+        @testset "withoutput" begin
+            _, _, _, output = Documenter.Utilities.withoutput() do
+                println("println")
+                @info "@info"
+                f() = (Base.depwarn("depwarn", :f); nothing)
+                f()
+            end
+            @test startswith(output, "println\n[ Info: @info\n┌ Warning: depwarn\n")
+        end
+    end
 end
 
 end
