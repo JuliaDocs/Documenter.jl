@@ -334,7 +334,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         # Gather and filter docstrings.
         modules = fields[:Modules]
         order = get(fields, :Order, AUTODOCS_DEFAULT_ORDER)
-        pages = get(fields, :Pages, [])
+        pages = map(normpath, get(fields, :Pages, []))
         public = get(fields, :Public, true)
         private = get(fields, :Private, true)
         results = []
@@ -347,7 +347,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 category = Documenter.DocSystem.category(binding)
                 if category in order && included
                     for (typesig, docstr) in multidoc.docs
-                        path = docstr.data[:path]
+                        path = normpath(docstr.data[:path])
                         object = Utilities.Object(binding, typesig)
                         if isempty(pages)
                             push!(results, (mod, path, category, object, isexported, docstr))
