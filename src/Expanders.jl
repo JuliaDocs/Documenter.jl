@@ -447,28 +447,42 @@ end
 # --------
 
 function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
-    matched = match(r"^@example[ ]?(.*)$", x.language)
-    matched === nothing && error("invalid '@example' syntax: $(x.language)")
     # The sandboxed module -- either a new one or a cached one from this page.
-    name = matched[1]
+    name = match(r"^@example[ ]?(.*)$", first(split(x.language, ';', limit = 2)))[1]
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(page.globals.meta, sym, Module(sym))::Module
+
+    # "parse" keyword arguments to example (we only need to look for continued = true)
+    continued = occursin(r"continued\s*=\s*true", x.language)
+
     # Evaluate the code block. We redirect stdout/stderr to `buffer`.
     result, buffer = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        (value, success, backtrace, text) = Utilities.withoutput() do
-            cd(dirname(page.build)) do
-                eval(mod, Expr(:(=), :ans, ex))
+    if !continued # run the code
+        # check if there is any code wating
+        if haskey(page.globals.meta, :ContinuedCode)
+            code = page.globals.meta[:ContinuedCode] * "\n" * x.code
+            delete!(page.globals.meta, :ContinuedCode)
+        else
+            code = x.code
+        end
+        for (ex, str) in Utilities.parseblock(code, doc, page)
+            (value, success, backtrace, text) = Utilities.withoutput() do
+                cd(dirname(page.build)) do
+                    eval(mod, Expr(:(=), :ans, ex))
+                end
+            end
+            result = value
+            print(buffer, text)
+            if !success
+                push!(doc.internal.errors, :example_block)
+                Utilities.warn(page.source, "failed to run code block.\n\n$(value)")
+                page.mapping[x] = x
+                return
             end
         end
-        result = value
-        print(buffer, text)
-        if !success
-            push!(doc.internal.errors, :example_block)
-            Utilities.warn(page.source, "failed to run code block.\n\n$(value)")
-            page.mapping[x] = x
-            return
-        end
+    else # store the continued code
+        page.globals.meta[:ContinuedCode] =
+            get(page.globals.meta, :ContinuedCode, "") * '\n' * x.code
     end
     # Splice the input and output into the document.
     content = []

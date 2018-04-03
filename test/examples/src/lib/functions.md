@@ -93,6 +93,13 @@ f(1), g(1)
 @which T()
 ```
 
+```@example half-loop; continued = true
+for i in 1:3
+```
+```@example half-loop
+end
+```
+
 #### Foo
 
 ```@example
