@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nExtractMacro.jl\nEzXML.jl\nGadfly.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
 },
 
 {
@@ -989,7 +989,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
 },
 
 {
@@ -997,7 +997,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
 },
 
 {
