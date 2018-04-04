@@ -30,6 +30,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
+- [Gadfly.jl](http://gadflyjl.org/stable/)
 - [GeoStats.jl](http://juliohm.github.io/GeoStats.jl/latest/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
 - [IntervalConstraintProgramming.jl](https://juliaintervals.github.io/IntervalConstraintProgramming.jl/latest/)
