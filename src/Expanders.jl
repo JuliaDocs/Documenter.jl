@@ -30,6 +30,15 @@ function expand(doc::Documents.Document)
         for element in page.elements
             Selectors.dispatch(ExpanderPipeline, element, page, doc)
         end
+        pagecheck(page)
+    end
+end
+
+# run some checks after expanding the page
+function pagecheck(page)
+    # make sure there is no "continued code" lingering around
+    if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
+        Utilities.warn(page.source, "Code from a continued @example block unused.")
     end
 end
 
@@ -459,9 +468,9 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     result, buffer = nothing, IOBuffer()
     if !continued # run the code
         # check if there is any code wating
-        if haskey(page.globals.meta, :ContinuedCode)
-            code = page.globals.meta[:ContinuedCode] * "\n" * x.code
-            delete!(page.globals.meta, :ContinuedCode)
+        if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
+            code = page.globals.meta[:ContinuedCode][sym] * '\n' * x.code
+            delete!(page.globals.meta[:ContinuedCode], sym)
         else
             code = x.code
         end
@@ -481,8 +490,8 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             end
         end
     else # store the continued code
-        page.globals.meta[:ContinuedCode] =
-            get(page.globals.meta, :ContinuedCode, "") * '\n' * x.code
+        CC = get!(page.globals.meta, :ContinuedCode, Dict())
+        CC[sym] = get(CC, sym, "") * '\n' * x.code
     end
     # Splice the input and output into the document.
     content = []

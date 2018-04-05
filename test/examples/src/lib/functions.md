@@ -93,11 +93,23 @@ f(1), g(1)
 @which T()
 ```
 
-```@example half-loop; continued = true
+```@example continued-code
+A = 1
+```
+```@example continued-code; continued = true
 for i in 1:3
 ```
-```@example half-loop
+```@example
+A = 2
+```
+```@example continued-code; continued = true
+    println(A + i)
+```
+```@example continued-code
 end
+```
+```@example continued-code
+A + 1
 ```
 
 #### Foo
