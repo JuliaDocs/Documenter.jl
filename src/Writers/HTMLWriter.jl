@@ -435,7 +435,8 @@ function render_article(ctx, navnode)
     end
 
     if !ctx.doc.user.html_disable_git
-        url = Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source, commit=ctx.doc.user.html_edit_branch)
+        url = get(getpage(ctx, navnode).globals.meta, :EditURL,
+            Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source, commit=ctx.doc.user.html_edit_branch))
         if url !== nothing
             push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
         end

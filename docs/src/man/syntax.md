@@ -205,7 +205,8 @@ Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
 ## `@meta` block
 
 This block type is used to define metadata key/value pairs that can be used elsewhere in the
-page. Currently `CurrentModule`, `DocTestSetup` and `DocTestFilters` are the only recognised keys.
+page. Currently `CurrentModule`, [`DocTestSetup`](@ref Setup-Code),
+[`DocTestFilters`](@ref Filtering-Doctests) and `EditURL` are the only recognised keys.
 
 ````markdown
 ```@meta
@@ -214,12 +215,11 @@ DocTestSetup  = quote
     using MyPackage
 end
 DocTestFilters = [r"Stacktrace:[\s\S]+"]
+EditURL = "https://link-to-where-this-page-can-be-edited.org/"
 ```
 ````
 
 Note that `@meta` blocks are always evaluated in `Main`.
-
-See [Setup Code](@ref) section of the Doctests page for an explanation of `DocTestSetup`.
 
 ## `@index` block
 
