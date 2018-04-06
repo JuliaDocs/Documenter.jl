@@ -205,8 +205,18 @@ Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
 ## `@meta` block
 
 This block type is used to define metadata key/value pairs that can be used elsewhere in the
-page. Currently `CurrentModule`, [`DocTestSetup`](@ref Setup-Code),
-[`DocTestFilters`](@ref Filtering-Doctests) and `EditURL` are the only recognised keys.
+page. Currently recognised keys:
+- `CurrentModule`: module where Documenter evaluates, for example, [`@docs`-block](@ref)
+  and [`@ref`-link](@ref)s.
+- `DocTestSetup`: code to be evaluated before a doctest, see the [Setup Code](@ref)
+  section under [Doctests](@ref).
+- `DocTestFilters`: filters to deal with, for example, unpredictable output from doctests,
+  see the [Filtering Doctests](@ref) section under [Doctests](@ref).
+- `EditURL`: link to where the page can be edited. This defaults to the `.md` page itself,
+  but if the source is something else (for example if the `.md` page is generated as part of
+  the doc build) this can be set, either as a local link, or an absolute url.
+
+Example:
 
 ````markdown
 ```@meta
@@ -215,7 +225,7 @@ DocTestSetup  = quote
     using MyPackage
 end
 DocTestFilters = [r"Stacktrace:[\s\S]+"]
-EditURL = "https://link-to-where-this-page-can-be-edited.org/"
+EditURL = "link/to/source/file"
 ```
 ````
 
