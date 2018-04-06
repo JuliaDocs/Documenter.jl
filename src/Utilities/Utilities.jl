@@ -340,7 +340,17 @@ header_level(::Markdown.Header{N}) where {N} = N
 function repo_root(file; dbdir=".git")
     parent_dir, parent_dir_last = dirname(abspath(file)), ""
     while parent_dir !== parent_dir_last
-        isdir(joinpath(parent_dir, dbdir)) && return parent_dir
+        dbdir_path = joinpath(parent_dir, dbdir)
+        isdir(dbdir_path) && return parent_dir
+        # Let's see if this is a worktree checkout
+        if isfile(dbdir_path)
+            contents = chomp(read(dbdir_path, String))
+            if startswith(contents, "gitdir: ")
+                if isdir(contents[9:end])
+                    return parent_dir
+                end
+            end
+        end
         parent_dir, parent_dir_last = dirname(parent_dir), parent_dir
     end
     return nothing
