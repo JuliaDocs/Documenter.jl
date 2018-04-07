@@ -401,6 +401,29 @@ draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 ![](plot.svg)
 ````
 
+**Delayed Execution of `@example` Blocks**
+
+`@example` blocks accept a keyword argument `continued` which can be set to `true` or `false`
+(defaults to `false`). When `continued = true` the execution of the code is delayed until the
+next `continued = false` `@example`-block. This is needed for example when the expression in
+a block is not complete. Example:
+
+````markdown
+```@example half-loop; continued = true
+for i in 1:3
+    j = i^2
+```
+Some text explaining what we should do with `j`
+```@example half-loop
+    println(j)
+end
+```
+````
+
+Here the first block is not complete -- the loop is missing the `end`. Thus, by setting
+`continued = true` here we delay the evaluation of the first block, until we reach the
+second block. A block with `continued = true` does not have any output.
+
 ## `@repl` block
 
 These are similar to `@example` blocks, but adds a `julia> ` prompt before each toplevel
