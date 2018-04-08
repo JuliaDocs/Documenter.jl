@@ -229,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Syntax",
     "title": "@meta block",
     "category": "section",
-    "text": "This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently CurrentModule, DocTestSetup and DocTestFilters are the only recognised keys.```@meta\nCurrentModule = FooBar\nDocTestSetup  = quote\n    using MyPackage\nend\nDocTestFilters = [r\"Stacktrace:[\\s\\S]+\"]\n```Note that @meta blocks are always evaluated in Main.See Setup Code section of the Doctests page for an explanation of DocTestSetup."
+    "text": "This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently recognised keys:CurrentModule: module where Documenter evaluates, for example, @docs-block and @ref-links.\nDocTestSetup: code to be evaluated before a doctest, see the Setup Code section under Doctests.\nDocTestFilters: filters to deal with, for example, unpredictable output from doctests, see the Filtering Doctests section under Doctests.\nEditURL: link to where the page can be edited. This defaults to the .md page itself, but if the source is something else (for example if the .md page is generated as part of the doc build) this can be set, either as a local link, or an absolute url.Example:```@meta\nCurrentModule = FooBar\nDocTestSetup  = quote\n    using MyPackage\nend\nDocTestFilters = [r\"Stacktrace:[\\s\\S]+\"]\nEditURL = \"link/to/source/file\"\n```Note that @meta blocks are always evaluated in Main."
 },
 
 {
@@ -989,7 +989,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "function",
-    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
+    "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
 },
 
 {
@@ -997,7 +997,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocSystem",
     "title": "Documenter.DocSystem.getdocs",
     "category": "function",
-    "text": "getdocs(binding)\ngetdocs(binding, typesig; compare, modules, aliases)\n\n\nFind all DocStr objects that match the provided arguments:\n\nbinding: the name of the object.\ntypesig: the signature of the object. Default: Union{}.\ncompare: how to compare signatures? Exact (==) or subtypes (<:). Default: <:.\nmodules: which modules to search through. Default: all modules.\naliases: check aliases of binding when nothing is found. Default: true.\n\nReturns a Vector{DocStr} ordered by definition order in 0.5 and by type_morespecific in 0.4.\n\n\n\n\n\n"
+    "text": "getdocs(object)\ngetdocs(object, typesig; kws...)\n\n\nAccepts objects of any type and tries to convert them to Bindings before searching for the Binding in the docsystem.\n\nNote that when conversion fails this method returns an empty Vector{DocStr}.\n\n\n\n\n\n"
 },
 
 {
