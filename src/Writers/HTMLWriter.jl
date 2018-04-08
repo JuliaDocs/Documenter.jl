@@ -435,7 +435,16 @@ function render_article(ctx, navnode)
     end
 
     if !ctx.doc.user.html_disable_git
-        url = Utilities.url(ctx.doc.user.repo, getpage(ctx, navnode).source, commit=ctx.doc.user.html_edit_branch)
+        pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
+        if Utilities.isabsurl(pageurl)
+            url = pageurl
+        else
+            if !(pageurl == getpage(ctx, navnode).source)
+                # need to set users path relative the page itself
+                pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
+            end
+            url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.doc.user.html_edit_branch)
+        end
         if url !== nothing
             push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
         end
