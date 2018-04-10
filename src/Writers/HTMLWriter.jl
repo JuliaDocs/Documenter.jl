@@ -833,8 +833,10 @@ function pagetitle(ctx, navnode::Documents.NavNode)
         # parse title_override as markdown
         md = Markdown.parse(navnode.title_override)
         # Markdown.parse results in a paragraph so we need to strip that
-        title = md.content[1].content
-        return title
+        if !(length(md.content) === 1 && isa(first(md.content), Markdown.Paragraph))
+            error("Bad Markdown provided for page title: '$(navnode.title_override)'")
+        end
+        return first(md.content).content
     end
 
     if navnode.page !== nothing
