@@ -858,10 +858,12 @@ function collect_subsections(page::Documents.Page)
             toplevel = Utilities.header_level(element) === 1
             # don't include the "title header", either first `h1' (if present), or first `h2`.
             if !title_found
-                if any(x -> isa(x, Markdown.Header) && Utilities.header_level(x) === 1, page.elements) && Utilities.header_level(element) === 1
+                if any(x -> isa(x, Markdown.Header) && Utilities.header_level(x) === 1, page.elements) &&
+                        Utilities.header_level(element) === 1
                     title_found = true
                     continue
-                elseif any(x -> isa(x, Markdown.Header) && Utilities.header_level(x) === 2, page.elements) && Utilities.header_level(element) === 2
+                elseif any(x -> isa(x, Markdown.Header) && Utilities.header_level(x) === 2, page.elements) &&
+                        Utilities.header_level(element) === 2
                     title_found = true
                     continue
                 end
