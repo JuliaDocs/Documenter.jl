@@ -30,13 +30,14 @@ Default is `nothing`, in which case no canonical link is set.
 # Page outline
 
 The [`HTMLWriter`](@ref) makes use of the page outline that is determined by the
-headings. It is assumed that if the very first block of a page is a level 1 heading,
-then it is intended as the page title. This has two consequences:
+headings. If the page contains a level 1 heading this is interpreted as the page
+title. If there are no level 1 headings, the first level 2 heading is interpreted
+as the title. This has two consequences:
 
-1. It is then used to automatically determine the page title in the navigation menu
-   and in the `<title>` tag, unless specified in the `.pages` option.
-2. If the first heading is interpreted as being the page title, it is not displayed
-   in the navigation sidebar.
+1. The page title is used for the navigation menu and the `<title>` tag, unless
+   specified in the `.pages` option.
+2. The heading which are interpreted as the page title (level 1 or 2)
+   is not displayed in the navigation sidebar.
 
 # Default and custom assets
 
@@ -390,7 +391,7 @@ function navitem(ctx, current, nn::Documents.NavNode)
     end
     item = (nn === current) ? li[".current"](link) : li(link)
 
-    # add the subsections (2nd level headings) from the page
+    # add the subsections (1st and 2nd level headings) from the page
     if (nn === current) && current.page !== nothing
         subs = collect_subsections(ctx.doc.internal.pages[current.page])
         internal_links = map(subs) do s
@@ -813,19 +814,17 @@ function pretty_url(ctx, path::AbstractString)
 end
 
 """
-Tries to guess the page title by looking at the `<h1>` headers and returns the
-header contents of the first `<h1>` on a page (or `nothing` if the algorithm
-was unable to find any `<h1>` headers).
+Tries to guess the page title by first looking at the `<h1>` headers and next at `<h2>`
+headers. Returns the contents of the first `<h1>`/`<h2>` on the page.
+If no `<h1>` or `<h2>` headings are found we fall back to the filename of the page.
 """
 function pagetitle(page::Documents.Page)
-    title = nothing
-    for element in page.elements
-        if isa(element, Markdown.Header{1})
-            title = element.text
-            break
-        end
-    end
-    title
+    elements = page.elements
+    idx = Compat.findfirst(x -> isa(x, Markdown.Header{1}), elements)
+    idx !== nothing && return elements[idx].text
+    idx = Compat.findfirst(x -> isa(x, Markdown.Header{2}), elements)
+    idx !== nothing && return elements[idx].text
+    return basename(page.source)
 end
 
 function pagetitle(ctx, navnode::Documents.NavNode)
@@ -839,18 +838,17 @@ function pagetitle(ctx, navnode::Documents.NavNode)
         return first(md.content).content
     end
 
-    if navnode.page !== nothing
-        title = pagetitle(getpage(ctx, navnode))
-        title === nothing || return title
-    end
+    # this can only happen if navnode.title_override is set,
+    # and that title would be picked up by the if statement above.
+    navnode.page === nothing && error("could not identify title of the page")
 
-    "-"
+    return pagetitle(getpage(ctx, navnode))
 end
 
 """
 Returns an ordered list of tuples, `(toplevel, anchor, text)`, corresponding to level 1 and 2
-headings on the `page`. Note that if the first header on the `page` is a level 1 header then
-it is not included -- it is assumed to be the page title and so does not need to be included
+headings on the `page`. Note that the "title header" (i.e. the first level 1 (if present) or
+the first level 2) is assumed to be the page title and so does not need to be included
 in the navigation menu twice.
 """
 function collect_subsections(page::Documents.Page)
@@ -859,10 +857,17 @@ function collect_subsections(page::Documents.Page)
     for element in page.elements
         if isa(element, Markdown.Header) && Utilities.header_level(element) < 3
             toplevel = Utilities.header_level(element) === 1
-            # Don't include the first header if it is `h1`.
-            if toplevel && isempty(sections) && !title_found
-                title_found = true
-                continue
+            # don't include the "title header", either first `h1' (if present), or first `h2`.
+            if !title_found
+                if any(x -> isa(x, Markdown.Header) && Utilities.header_level(x) === 1, page.elements) &&
+                        Utilities.header_level(element) === 1
+                    title_found = true
+                    continue
+                elseif any(x -> isa(x, Markdown.Header) && Utilities.header_level(x) === 2, page.elements) &&
+                        Utilities.header_level(element) === 2
+                    title_found = true
+                    continue
+                end
             end
             anchor = page.mapping[element]
             push!(sections, (toplevel, "#$(anchor.id)-$(anchor.nth)", element.text))
