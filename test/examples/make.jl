@@ -105,7 +105,7 @@ examples_html_doc = makedocs(
     assets = ["assets/custom.css"],
     sitename = "Documenter example",
     pages    = Any[
-        "Home" => "index.md",
+        "**Home**" => "index.md",
         "Manual" => [
             "man/tutorial.md",
         ],

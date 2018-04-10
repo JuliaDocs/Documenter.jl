@@ -829,7 +829,13 @@ function pagetitle(page::Documents.Page)
 end
 
 function pagetitle(ctx, navnode::Documents.NavNode)
-    navnode.title_override === nothing || return navnode.title_override
+    if navnode.title_override !== nothing
+        # parse title_override as markdown
+        md = Markdown.parse(navnode.title_override)
+        # Markdown.parse results in a paragraph so we need to strip that
+        title = md.content[1].content
+        return title
+    end
 
     if navnode.page !== nothing
         title = pagetitle(getpage(ctx, navnode))
