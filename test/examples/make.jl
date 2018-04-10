@@ -95,6 +95,24 @@ examples_markdown_doc = makedocs(
     doctest = false,
 )
 
+
+htmlbuild_pages = Any[
+    "**Home**" => "index.md",
+    "Manual" => [
+        "man/tutorial.md",
+    ],
+    hide("hidden.md"),
+    "Library" => [
+        "lib/functions.md",
+        "lib/autodocs.md",
+    ],
+    hide("Hidden Pages" => "hidden/index.md", Any[
+        "Page X" => "hidden/x.md",
+        "hidden/y.md",
+        "hidden/z.md",
+    ])
+]
+
 @info("Building mock package docs: HTMLWriter")
 examples_html_doc = makedocs(
     debug = true,
@@ -104,22 +122,7 @@ examples_html_doc = makedocs(
     doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = ["assets/custom.css"],
     sitename = "Documenter example",
-    pages    = Any[
-        "Home" => "index.md",
-        "Manual" => [
-            "man/tutorial.md",
-        ],
-        hide("hidden.md"),
-        "Library" => [
-            "lib/functions.md",
-            "lib/autodocs.md",
-        ],
-        hide("Hidden Pages" => "hidden/index.md", Any[
-            "Page X" => "hidden/x.md",
-            "hidden/y.md",
-            "hidden/z.md",
-        ])
-    ],
+    pages = htmlbuild_pages,
 
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
@@ -141,21 +144,6 @@ examples_html_doc = makedocs(
         "assets/custom.css"
     ],
     sitename = "Documenter example",
-    pages    = Any[
-        "Home" => "index.md",
-        "Manual" => [
-            "man/tutorial.md",
-        ],
-        hide("hidden.md"),
-        "Library" => [
-            "lib/functions.md",
-            "lib/autodocs.md",
-        ],
-        hide("Hidden Pages" => "hidden/index.md", Any[
-            "Page X" => "hidden/x.md",
-            "hidden/y.md",
-            "hidden/z.md",
-        ])
-    ],
+    pages = htmlbuild_pages,
     doctest = false,
 )
