@@ -30,13 +30,14 @@ Default is `nothing`, in which case no canonical link is set.
 # Page outline
 
 The [`HTMLWriter`](@ref) makes use of the page outline that is determined by the
-headings. It is assumed that if the very first block of a page is a level 1 heading,
-then it is intended as the page title. This has two consequences:
+headings. If the page contains a level 1 heading this is interpreted as the page
+title. If there are no level 1 headings, the first level 2 heading is interpreted
+as the title. This has two consequences:
 
-1. It is then used to automatically determine the page title in the navigation menu
-   and in the `<title>` tag, unless specified in the `.pages` option.
-2. If the first heading is interpreted as being the page title, it is not displayed
-   in the navigation sidebar.
+1. The page title is used for the navigation menu and the `<title>` tag, unless
+   specified in the `.pages` option.
+2. The heading which are interpreted as the page title (level 1 or 2)
+   is not displayed in the navigation sidebar.
 
 # Default and custom assets
 
