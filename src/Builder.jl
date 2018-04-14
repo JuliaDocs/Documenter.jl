@@ -187,7 +187,7 @@ end
 function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
     Utilities.log(doc, "running document checks.")
     Documenter.DocChecks.missingdocs(doc)
-    Documenter.DocChecks.doctest(doc)
+    Documenter.DocTests.doctest(doc)
     Documenter.DocChecks.footnotes(doc)
     Documenter.DocChecks.linkcheck(doc)
 end

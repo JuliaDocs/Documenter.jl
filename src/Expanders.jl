@@ -510,7 +510,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     elseif showable(MIME"image/jpeg"(), result)
         Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", Base.invokelatest(stringmime, MIME"image/jpeg"(), result), "\" />"))
     else
-        Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
+        Markdown.Code(Documenter.DocTests.result_to_string(buffer, result))
     end
 
     # Only add content when there's actually something to add.
@@ -542,9 +542,9 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         result = value
         output = if success
             hide = Documenter.REPL.ends_with_semicolon(input)
-            Documenter.DocChecks.result_to_string(buffer, hide ? nothing : value)
+            Documenter.DocTests.result_to_string(buffer, hide ? nothing : value)
         else
-            Documenter.DocChecks.error_to_string(buffer, value, [])
+            Documenter.DocTests.error_to_string(buffer, value, [])
         end
         isempty(input) || println(out, prepend_prompt(input))
         print(out, text)
