@@ -377,7 +377,7 @@ function deploydocs(;
         error("julia must be a string, got $julia ($(typeof(julia)))")
     end
     if !isempty(travis_repo_slug) && !occursin(travis_repo_slug, repo)
-        warn("repo $repo does not match $travis_repo_slug")
+        Compat.@warn("repo $repo does not match $travis_repo_slug")
     end
 
     # When should a deploy be attempted?
@@ -391,9 +391,15 @@ function deploydocs(;
             travis_tag    != ""
         )
 
+    # check that the tag is valid
+    if should_deploy && !isempty(travis_tag) && !occursin(Base.VERSION_REGEX, travis_tag)
+        Compat.@warn("tag `$(travis_tag)` is not a valid VersionNumber")
+        should_deploy = false
+    end
+
     # check DOCUMENTER_KEY only if the branch, Julia version etc. check out
     if should_deploy && isempty(documenter_key)
-        warn("""
+        Compat.@warn("""
             DOCUMENTER_KEY environment variable missing, unable to deploy.
               Note that in Documenter v0.9.0 old deprecated authentication methods were removed.
               DOCUMENTER_KEY is now the only option. See the documentation for more information.""")
@@ -512,24 +518,21 @@ function git_push(
                     gitrm_copy(target_dir, latest_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
                 else
+                    @assert occursin(Base.VERSION_REGEX, tag) # checked in deploydocs
+                    version = VersionNumber(tag)
                     # only push to stable if this is the latest stable release
                     versions = filter!(x -> occursin(Base.VERSION_REGEX, x), readdir(dirname))
                     maxver = mapreduce(x -> VersionNumber(x), max, v"0.0.0", versions)
-                    vtag = VersionNumber(tag)
-                    if v >= maxver && vtag.prerelease == () # don't deploy to stable for prereleases
+                    if version >= maxver && version.prerelease == () # don't deploy to stable for prereleases
                         gitrm_copy(target_dir, stable_dir)
                         Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
                     end
                     gitrm_copy(target_dir, tagged_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
-                    # Build a `release-*.*` folder as well when the travis tag is
-                    # valid, which it *should* always be anyway.
-                    if occursin(Base.VERSION_REGEX, tag)
-                        version = VersionNumber(tag)
-                        release = "release-$(version.major).$(version.minor)"
-                        gitrm_copy(target_dir, joinpath(dirname, release))
-                        Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
-                    end
+                    # Build a `release-*.*` folder as well
+                    release = "release-$(version.major).$(version.minor)"
+                    gitrm_copy(target_dir, joinpath(dirname, release))
+                    Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
                 end
 
                 # Create the versions.js file containing a list of all docs
