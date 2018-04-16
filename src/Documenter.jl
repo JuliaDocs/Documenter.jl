@@ -512,8 +512,13 @@ function git_push(
                     gitrm_copy(target_dir, latest_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
                 else
-                    gitrm_copy(target_dir, stable_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
+                    # only push to stable if this is the latest stable release
+                    versions = filter!(x -> occursin(Base.VERSION_REGEX, x), readdir(dirname))
+                    maxver = mapreduce(x -> VersionNumber(x), max, v"0.0.0", versions)
+                    if VersionNumber(tag) >= maxver
+                        gitrm_copy(target_dir, stable_dir)
+                        Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
+                    end
                     gitrm_copy(target_dir, tagged_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
                     # Build a `release-*.*` folder as well when the travis tag is
