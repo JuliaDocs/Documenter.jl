@@ -495,7 +495,7 @@ function generate_version_file(dir::AbstractString)
     sort!(release_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
     open(joinpath(dir, "versions.js"), "w") do buf
         println(buf, "var DOC_VERSIONS = [")
-        for group in (named_folders, release_folders, tag_folders)
+        for group in (named_folders, tag_folders, release_folders)
             for folder in group
                 println(buf, "  \"", folder, "\",")
             end

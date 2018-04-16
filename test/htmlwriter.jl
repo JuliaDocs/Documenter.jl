@@ -21,7 +21,7 @@ import Documenter.Writers.HTMLWriter: jsescape, generate_version_file
     @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
 
     mktempdir() do tmpdir
-        versions = ["stable", "latest", "release-0.2", "release-0.1", "v0.2.6", "v0.1.1", "v0.1.0"]
+        versions = ["stable", "latest", "v0.2.6", "v0.1.1", "v0.1.0", "release-0.2", "release-0.1"]
         cd(tmpdir) do
             mkdir("foobar")
             for version in versions
