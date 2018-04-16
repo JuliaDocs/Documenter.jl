@@ -515,7 +515,8 @@ function git_push(
                     # only push to stable if this is the latest stable release
                     versions = filter!(x -> occursin(Base.VERSION_REGEX, x), readdir(dirname))
                     maxver = mapreduce(x -> VersionNumber(x), max, v"0.0.0", versions)
-                    if VersionNumber(tag) >= maxver
+                    vtag = VersionNumber(tag)
+                    if v >= maxver && vtag.prerelease == () # don't deploy to stable for prereleases
                         gitrm_copy(target_dir, stable_dir)
                         Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
                     end
