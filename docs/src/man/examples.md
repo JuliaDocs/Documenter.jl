@@ -28,6 +28,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest/)
+- [EvolvingGraphs.jl](https://etymoio.github.io/EvolvingGraphs.jl/latest/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
 - [Gadfly.jl](http://gadflyjl.org/stable/)
