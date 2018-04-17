@@ -479,23 +479,18 @@ end
 
 function generate_version_file(dir::AbstractString)
     named_folders = []
-    release_folders = []
     tag_folders = []
     for each in readdir(dir)
         each in ("stable", "latest")         ? push!(named_folders,   each) :
-        occursin(r"release\-\d+\.\d+", each) ? push!(release_folders, each) :
         occursin(Base.VERSION_REGEX, each)   ? push!(tag_folders,     each) : nothing
     end
     # put stable before latest
     sort!(named_folders, rev = true)
     # sort tags by version number
     sort!(tag_folders, lt = (x, y) -> VersionNumber(x) < VersionNumber(y), rev = true)
-    # sort release- folders by version number
-    vnum(x) = VersionNumber(match(r"release\-(\d+\.\d+)", x)[1])
-    sort!(release_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
     open(joinpath(dir, "versions.js"), "w") do buf
         println(buf, "var DOC_VERSIONS = [")
-        for group in (named_folders, tag_folders, release_folders)
+        for group in (named_folders, tag_folders)
             for folder in group
                 println(buf, "  \"", folder, "\",")
             end
