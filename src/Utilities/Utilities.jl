@@ -576,6 +576,10 @@ function withoutput(f)
         try
             f(), true, Vector{Ptr{Cvoid}}()
         catch err
+            # InterruptException should never happen during normal doc-testing
+            # and not being able to abort the doc-build is annoying (#687).
+            isa(err, InterruptException) && rethrow(err)
+
             err, false, catch_backtrace()
         finally
             # Force at least a single write to `pipe`, otherwise `readavailable` blocks.
