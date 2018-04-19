@@ -51,6 +51,7 @@ makedocs(
 deploydocs(
     repo = "github.com/JuliaDocs/Documenter.jl.git",
     target = "build",
+    julia = "nightly",
     deps = nothing,
     make = nothing,
 )
