@@ -47,9 +47,6 @@ println("="^50)
     # Documenter package docs with other formats.
     include("formats/markdown.jl")
     include("formats/latex.jl")
-
-    # Deployment
-    include("errors/deploydocs.jl")
 end
 
 # Additional tests

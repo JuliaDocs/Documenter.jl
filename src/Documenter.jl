@@ -265,7 +265,7 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
         branch = "gh-pages",
         latest = "master",
         osname = "linux",
-        julia  = "nightly",
+        julia  = "<required>",
         deps   = <Function>,
         make   = <Function>,
     )
@@ -284,13 +284,11 @@ deploydocs(
 )
 ```
 
-# Keywords
+# Required keyword arguments
 
-**`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
-
-**`target`** is the directory, relative to `root`, where generated HTML content should be
-written to. This directory **must** be added to the repository's `.gitignore` file. The
-default value is `"site"`.
+**`julia`** is the version of Julia that will be used to deploy generated documentation.
+This value must be one of those specified in the `julia:`
+section of the `.travis.yml` configuration file.
 
 **`repo`** is the remote repository where generated HTML content should be pushed to. Do not
 specify any protocol - "https://" or "git@" should not be present. This keyword *must*
@@ -301,6 +299,14 @@ following `repo` value:
 repo = "github.com/JuliaDocs/Documenter.jl.git"
 ```
 
+# Optional keyword arguments
+
+**`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
+
+**`target`** is the directory, relative to `root`, where generated HTML content should be
+written to. This directory **must** be added to the repository's `.gitignore` file. The
+default value is `"site"`.
+
 **`branch`** is the branch where the generated documentation is pushed. If the branch does
 not exist, a new orphaned branch is created automatically. It defaults to `"gh-pages"`.
 
@@ -310,10 +316,6 @@ value is set to `"master"`.
 **`osname`** is the operating system which will be used to deploy generated documentation.
 This defaults to `"linux"`. This value must be one of those specified in the `os:` section
 of the `.travis.yml` configuration file.
-
-**`julia`** is the version of Julia that will be used to deploy generated documentation.
-This defaults to `"nightly"`. This value must be one of those specified in the `julia:`
-section of the `.travis.yml` configuration file.
 
 **`deps`** is the function used to install any dependencies needed to build the
 documentation. By default this function installs `pygments` and `mkdocs` using the
@@ -342,11 +344,21 @@ function deploydocs(;
         latest = "master",
 
         osname = "linux",
-        julia  = "nightly",
+        julia::Union{AbstractString,Nothing} = nothing,
 
         deps   = Deps.pip("pygments", "mkdocs"),
         make   = () -> run(`mkdocs build`),
     )
+    # deprecation of julia defaulting to "nightly"
+    if julia === nothing
+        Base.depwarn("""
+            `julia` keyword to `Documenter.deploydocs()` not specified.
+            In the future `julia` will be a required keyword argument
+            instead of defaulting to `"nightly"`.
+            """, :deploydocs)
+        julia = "nightly"
+    end
+
     # Get environment variables.
     documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
     travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
@@ -373,9 +385,6 @@ function deploydocs(;
     end
 
     # Sanity checks
-    if !isa(julia, AbstractString)
-        error("julia must be a string, got $julia ($(typeof(julia)))")
-    end
     if !isempty(travis_repo_slug) && !occursin(travis_repo_slug, repo)
         Compat.@warn("repo $repo does not match $travis_repo_slug")
     end
