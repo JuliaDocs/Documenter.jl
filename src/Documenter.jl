@@ -331,7 +331,7 @@ runs `mkdocs build` which populates the `target` directory.
 # See Also
 
 The [Hosting Documentation](@ref) section of the manual provides a step-by-step guide to
-using the [`deploydocs`](@ref) function to automatically generate docs and push then to
+using the [`deploydocs`](@ref) function to automatically generate docs and push them to
 GitHub.
 """
 function deploydocs(;
