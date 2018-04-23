@@ -112,31 +112,40 @@ using Documenter, PACKAGE_NAME
 makedocs()
 ```
 
-We'll need to add an additional call to this file after [`makedocs`](@ref). Add the
-following at the end of the file:
+We'll need to add an additional function call to this file after [`makedocs`](@ref) which
+would perform the deployment of the docs to the `gh-pages` branch.
+Add the following at the end of the file:
 
 ```julia
 deploydocs(
-    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git"
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    julia = "0.6"
 )
 ```
 
-where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names. Note that `repo`
-should not specify any protocol, i.e. it should not begin with `https://` or `git@`.
+where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names.
+Note that `repo` should not specify any protocol, i.e. it should not begin with `https://`
+or `git@`.
 
-By default `deploydocs` will deploy the documentation from the `nightly` Julia build for
-Linux. This can be changed using the `julia` and `osname` keywords as follows:
+Since you are probably testing your package on against multiple Julia versions and on
+multiple operating systems, you need to specify which of those builds should be used for
+deployment. This is to avoid deploying the same docs multiple times.
+
+The mandatory `julia` keyword argument specifies the Julia version and must be one from
+the `julia:` section of your `.travis.yml`.
+The operating system defaults to Linux, but can be changed using the `osname` keyword
+as follows:
 
 ```julia
 deploydocs(
     deps   = Deps.pip("mkdocs", "python-markdown-math"),
     repo   = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-    julia  = "0.4",
+    julia  = "nightly",
     osname = "osx"
 )
 ```
 
-This will deploy the docs from the OSX Julia 0.4 Travis build bot.
+This will deploy the docs from the OSX Julia nightly Travis build bot.
 
 The keyword `deps` serves to provide the required dependencies to deploy
 the documentation. In the example above we include the dependencies
