@@ -11,9 +11,5 @@ julia:
 notifications:
   email: false
 
-# https://github.com/travis-ci/travis-ci/issues/4942 workaround
-git:
-  depth: 99999
-
 after_success:
   - julia -e 'cd(Pkg.dir("Documenter", "test")); include("coverage.jl")'
