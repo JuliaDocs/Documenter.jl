@@ -47,6 +47,9 @@ println("="^50)
     # Documenter package docs with other formats.
     include("formats/markdown.jl")
     include("formats/latex.jl")
+
+    # A simple build outside of a Git repository
+    include("nongit/tests.jl")
 end
 
 # Additional tests

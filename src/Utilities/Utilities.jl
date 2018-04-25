@@ -349,7 +349,7 @@ contents is checked under the assumption that it is a Git worktree.
 """
 function repo_root(file; dbdir=".git")
     parent_dir, parent_dir_last = dirname(abspath(file)), ""
-    while parent_dir !== parent_dir_last
+    while parent_dir != parent_dir_last
         dbdir_path = joinpath(parent_dir, dbdir)
         isdir(dbdir_path) && return parent_dir
         # Let's see if this is a worktree checkout
