@@ -1697,6 +1697,22 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/utilities/#Documenter.Utilities.relpath_from_repo_root-Tuple{Any}",
+    "page": "Utilities",
+    "title": "Documenter.Utilities.relpath_from_repo_root",
+    "category": "method",
+    "text": "relpath_from_repo_root(file)\n\n\nReturns the path of file, relative to the root of the Git repository, or nothing if the file is not in a Git repository.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/utilities/#Documenter.Utilities.repo_root-Tuple{Any}",
+    "page": "Utilities",
+    "title": "Documenter.Utilities.repo_root",
+    "category": "method",
+    "text": "repo_root(file; dbdir=\".git\")\n\nTries to determine the root directory of the repository containing file. If the file is not in a repository, the function returns nothing.\n\nThe dbdir keyword argument specifies the name of the directory we are searching for to determine if this is a repostory or not. If there is a file called dbdir, then it\'s contents is checked under the assumption that it is a Git worktree.\n\n\n\n\n\n"
+},
+
+{
     "location": "lib/internals/utilities/#Documenter.Utilities.slugify-Tuple{AbstractString}",
     "page": "Utilities",
     "title": "Documenter.Utilities.slugify",
