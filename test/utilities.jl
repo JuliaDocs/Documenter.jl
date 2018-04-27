@@ -128,6 +128,14 @@ end
     @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/Utilities/Utilities.jl#"
     @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/Utilities/Utilities.jl#L10-L20"
 
+    # repo_root & relpath_from_repo_root
+    @test Documenter.Utilities.repo_root(@__FILE__) == dirname(abspath(joinpath(@__DIR__, ".."))) # abspath() keeps trailing /, hence dirname()
+    @test Documenter.Utilities.repo_root(@__FILE__; dbdir=".svn") == nothing
+    @test Documenter.Utilities.relpath_from_repo_root(@__FILE__) == joinpath("test", "utilities.jl")
+    # We assume that a temporary file is not in a repo
+    @test Documenter.Utilities.repo_root(tempname()) == nothing
+    @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+
     import Documenter.Documents: Document, Page, Globals
     let page = Page("source", "build", [], IdDict(), Globals()), doc = Document()
         code = """

@@ -4,6 +4,7 @@
 
 test/examples/builds/
 test/missingdocs/build/
+test/nongit/build/
 test/errors/build/
 docs/build/
 docs/site/

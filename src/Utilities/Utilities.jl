@@ -337,9 +337,19 @@ nodocs(::Nothing) = false
 
 header_level(::Markdown.Header{N}) where {N} = N
 
+"""
+    repo_root(file; dbdir=".git")
+
+Tries to determine the root directory of the repository containing `file`. If the file is
+not in a repository, the function returns `nothing`.
+
+The `dbdir` keyword argument specifies the name of the directory we are searching for to
+determine if this is a repostory or not. If there is a file called `dbdir`, then it's
+contents is checked under the assumption that it is a Git worktree.
+"""
 function repo_root(file; dbdir=".git")
     parent_dir, parent_dir_last = dirname(abspath(file)), ""
-    while parent_dir !== parent_dir_last
+    while parent_dir != parent_dir_last
         dbdir_path = joinpath(parent_dir, dbdir)
         isdir(dbdir_path) && return parent_dir
         # Let's see if this is a worktree checkout
@@ -356,10 +366,16 @@ function repo_root(file; dbdir=".git")
     return nothing
 end
 
+"""
+    $(SIGNATURES)
+
+Returns the path of `file`, relative to the root of the Git repository, or `nothing` if the
+file is not in a Git repository.
+"""
 function relpath_from_repo_root(file)
     cd(dirname(file)) do
         root = repo_root(file)
-        startswith(file, root) ? relpath(file, root) : nothing
+        root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
     end
 end
 
