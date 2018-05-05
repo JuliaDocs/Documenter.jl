@@ -386,6 +386,26 @@ function populate!(contents::ContentsNode, document::Document)
     return contents
 end
 
+# some replacements for jldoctest blocks
+function doctest_replace!(doc::Documents.Document)
+    for (src, page) in doc.internal.pages
+        empty!(page.globals.meta)
+        for element in page.elements
+            page.globals.meta[:CurrentFile] = page.source
+            walk(page.globals.meta, page.mapping[element]) do block
+                doctest_replace!(block)
+            end
+        end
+    end
+end
+function doctest_replace!(block::Markdown.Code)
+    startswith(block.language, "jldoctest") || return false
+    # correct the language field
+    block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
+    return false
+end
+doctest_replace!(block) = true
+
 ## Utilities.
 
 function buildnode(T::Type, block, doc, page)
