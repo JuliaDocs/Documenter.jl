@@ -912,18 +912,7 @@ mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, 
 
 function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
-    language = if isempty(c.language)
-        "none"
-    elseif first(split(c.language)) == "jldoctest"
-        # When the doctests are not being run, Markdown.Code blocks will have jldoctest as
-        # the language attribute. The check here to determine if it is a REPL-type or
-        # script-type doctest should match the corresponding one in DocChecks.jl. This makes
-        # sure that doctests get highlighted the same way independent of whether they're
-        # being run or not.
-        occursin(r"^julia> "m, c.code) ? "julia-repl" : "julia"
-    else
-        c.language
-    end
+    language = isempty(c.language) ? "none" : c.language
     pre(code[".language-$(language)"](c.code))
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)

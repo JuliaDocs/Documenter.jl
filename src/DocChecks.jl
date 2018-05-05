@@ -183,10 +183,8 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         end
         if occursin(r"^julia> "m, block.code)
             eval_repl(block, sandbox, meta, doc, page)
-            block.language = "julia-repl"
         elseif occursin(r"^# output$"m, block.code)
             eval_script(block, sandbox, meta, doc, page)
-            block.language = "julia"
         else
             push!(doc.internal.errors, :doctest)
             file = meta[:CurrentFile]
