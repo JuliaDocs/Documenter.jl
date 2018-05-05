@@ -408,6 +408,13 @@ function doctest_replace!(block::Markdown.Code)
         occursin(r"^(.*)#\s*hide$", line) || print(io, line)
     end
     block.code = String(take!(io))
+    # remove empty # output
+    if occursin(r"^# output$"m, block.code)
+        input, output = split(block.code, "# output\n", limit = 2)
+        if isempty(strip(output))
+            block.code = rstrip(input)
+        end
+    end
     return false
 end
 doctest_replace!(block) = true

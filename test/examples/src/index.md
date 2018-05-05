@@ -240,6 +240,16 @@ A
 2
 ```
 
+## Remove empty output
+
+```jldoctest
+A = 1
+nothing # hide
+
+# output
+
+```
+
 
 # Sanitise module names
 
