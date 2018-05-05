@@ -402,6 +402,12 @@ function doctest_replace!(block::Markdown.Code)
     startswith(block.language, "jldoctest") || return false
     # correct the language field
     block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
+    # remove "# hide" lines
+    io = IOBuffer()
+    for line in eachline(IOBuffer(block.code); chomp=false)
+        occursin(r"^(.*)#\s*hide$", line) || print(io, line)
+    end
+    block.code = String(take!(io))
     return false
 end
 doctest_replace!(block) = true

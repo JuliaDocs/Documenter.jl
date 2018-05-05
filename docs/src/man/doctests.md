@@ -33,8 +33,11 @@ if the script had been `include`d.
 The actual output produced by running the "script" is compared to the expected result and
 any difference will result in [`makedocs`](@ref) throwing an error and terminating.
 
-Note that the amount of whitespace appearing above and below the `# output` line is not
-significant and can be increased or decreased if desired.
+As with [`@example`-block](@ref)s you can hide source code by appending `# hide` to the line.
+
+!!! note
+    The amount of whitespace appearing above and below the `# output` line is not
+    significant and can be increased or decreased if desired.
 
 ## REPL Examples
 

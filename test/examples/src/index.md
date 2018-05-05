@@ -228,6 +228,18 @@ julia> f()
 foobuu
 ```
 
+## Hiding source lines in doctests
+
+```jldoctest
+A = 1
+A += 1 # hide
+A
+
+# output
+
+2
+```
+
 
 # Sanitise module names
 
