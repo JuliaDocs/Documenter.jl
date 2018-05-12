@@ -446,7 +446,8 @@ function render_article(ctx, navnode)
             url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.doc.user.html_edit_branch)
         end
         if url !== nothing
-            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " Edit on $host"))
+            edit_verb = (ctx.doc.user.html_edit_branch === nothing) ? "View" : "Edit"
+            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " $(edit_verb) on $host"))
         end
     end
     art_header = header(topnav, hr(), render_topbar(ctx, navnode))
