@@ -409,4 +409,7 @@ _compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
 _isvalid(x, xs) = isempty(xs) || x in xs
 precedence(vec) = Dict(zip(vec, 1:length(vec)))
 
+# add a method to Utilities.walk
+Utilities.walk(f, meta, block::Documents.RawHTML) = nothing
+
 end

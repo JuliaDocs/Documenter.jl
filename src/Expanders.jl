@@ -621,4 +621,10 @@ function prepend_prompt(input)
     rstrip(String(take!(out)))
 end
 
+# add methods to Utilities.walk
+Utilities.walk(f, meta, block::Expanders.DocsNodes) = Utilities.walk(f, meta, block.nodes)
+Utilities.walk(f, meta, block::Expanders.DocsNode)  = Utilities.walk(f, meta, block.docstr)
+Utilities.walk(f, meta, block::Expanders.EvalNode)  = Utilities.walk(f, meta, block.result)
+Utilities.walk(f, meta, block::Expanders.MetaNode)  = (merge!(meta, block.dict); nothing)
+
 end

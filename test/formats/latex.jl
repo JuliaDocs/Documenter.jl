@@ -44,7 +44,6 @@ doc = makedocs(
                 "lib/internals/mdflatten.md",
                 "lib/internals/selectors.md",
                 "lib/internals/utilities.md",
-                "lib/internals/walkers.md",
                 "lib/internals/writers.md",
             ]
         ]

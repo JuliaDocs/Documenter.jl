@@ -10,8 +10,7 @@ import ..Documenter:
     Expanders,
     Formats,
     Documenter,
-    Utilities,
-    Walkers
+    Utilities
 
 using Compat, DocStringExtensions
 import Compat.Markdown
@@ -32,7 +31,7 @@ function crossref(doc::Documents.Document)
 end
 
 function crossref(elem, page, doc)
-    Walkers.walk(page.globals.meta, elem) do link
+    Utilities.walk(page.globals.meta, elem) do link
         xref(link, page.globals.meta, page, doc)
     end
 end
