@@ -10,7 +10,6 @@ import ..Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Walkers,
     IdDict
 
 using Compat, DocStringExtensions
@@ -121,7 +120,7 @@ function doctest(doc::Documents.Document)
             empty!(page.globals.meta)
             for element in page.elements
                 page.globals.meta[:CurrentFile] = page.source
-                Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                Documents.walk(page.globals.meta, page.mapping[element]) do block
                     doctest(block, page.globals.meta, doc, page)
                 end
             end
@@ -522,7 +521,7 @@ function footnotes(doc::Documents.Document)
         empty!(page.globals.meta)
         orphans = Dict{String, Tuple{Int, Int}}()
         for element in page.elements
-            Walkers.walk(page.globals.meta, page.mapping[element]) do block
+            Documents.walk(page.globals.meta, page.mapping[element]) do block
                 footnote(block, orphans)
             end
         end
@@ -576,7 +575,7 @@ function linkcheck(doc::Documents.Document)
             for (src, page) in doc.internal.pages
                 println("   - ", src)
                 for element in page.elements
-                    Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                    Documents.walk(page.globals.meta, page.mapping[element]) do block
                         linkcheck(block, doc)
                     end
                 end
