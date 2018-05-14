@@ -28,13 +28,17 @@ a + b
 The code block's "language" must be `jldoctest` and must include a line containing the text `#
 output`. The text before this line is the contents of the script which is run. The text that
 appears after `# output` is the textual representation that would be shown in the Julia REPL
-if the script had been `include`d.
+if the script had been `include`d. If the output is empty the `# output` comment will not
+be displayed in the rendered documentation.
 
 The actual output produced by running the "script" is compared to the expected result and
 any difference will result in [`makedocs`](@ref) throwing an error and terminating.
 
-Note that the amount of whitespace appearing above and below the `# output` line is not
-significant and can be increased or decreased if desired.
+As with [`@example`-block](@ref)s you can hide source code by appending `# hide` to the line.
+
+!!! note
+    The amount of whitespace appearing above and below the `# output` line is not
+    significant and can be increased or decreased if desired.
 
 ## REPL Examples
 

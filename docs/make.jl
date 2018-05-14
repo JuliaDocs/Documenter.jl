@@ -38,7 +38,6 @@ makedocs(
                 "lib/internals/selectors.md",
                 "lib/internals/textdiff.md",
                 "lib/internals/utilities.md",
-                "lib/internals/walkers.md",
                 "lib/internals/writers.md",
             ])
         ]

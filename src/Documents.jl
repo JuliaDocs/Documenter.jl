@@ -386,6 +386,39 @@ function populate!(contents::ContentsNode, document::Document)
     return contents
 end
 
+# some replacements for jldoctest blocks
+function doctest_replace!(doc::Documents.Document)
+    for (src, page) in doc.internal.pages
+        empty!(page.globals.meta)
+        for element in page.elements
+            page.globals.meta[:CurrentFile] = page.source
+            Utilities.walk(page.globals.meta, page.mapping[element]) do block
+                doctest_replace!(block)
+            end
+        end
+    end
+end
+function doctest_replace!(block::Markdown.Code)
+    startswith(block.language, "jldoctest") || return false
+    # correct the language field
+    block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
+    # remove "# hide" lines
+    io = IOBuffer()
+    for line in eachline(IOBuffer(block.code); chomp=false)
+        occursin(r"^(.*)#\s*hide$", line) || print(io, line)
+    end
+    block.code = String(take!(io))
+    # remove empty # output
+    if occursin(r"^# output$"m, block.code)
+        input, output = split(block.code, "# output\n", limit = 2)
+        if isempty(strip(output))
+            block.code = rstrip(input)
+        end
+    end
+    return false
+end
+doctest_replace!(block) = true
+
 ## Utilities.
 
 function buildnode(T::Type, block, doc, page)
@@ -408,5 +441,8 @@ end
 _compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
 _isvalid(x, xs) = isempty(xs) || x in xs
 precedence(vec) = Dict(zip(vec, 1:length(vec)))
+
+# add a method to Utilities.walk
+Utilities.walk(f, meta, block::Documents.RawHTML) = nothing
 
 end

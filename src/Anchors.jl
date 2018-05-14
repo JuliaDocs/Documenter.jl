@@ -124,4 +124,9 @@ function anchor(m::AnchorMap, id, file, n)
         nothing
 end
 
+
+# add a method to Utilities.walk
+import ..Documenter.Utilities
+Utilities.walk(f, meta, block::Anchors.Anchor) = Utilities.walk(f, meta, block.object)
+
 end

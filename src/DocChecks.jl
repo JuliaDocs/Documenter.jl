@@ -10,7 +10,6 @@ import ..Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Walkers,
     IdDict
 
 using Compat, DocStringExtensions
@@ -121,7 +120,7 @@ function doctest(doc::Documents.Document)
             empty!(page.globals.meta)
             for element in page.elements
                 page.globals.meta[:CurrentFile] = page.source
-                Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                Utilities.walk(page.globals.meta, page.mapping[element]) do block
                     doctest(block, page.globals.meta, doc, page)
                 end
             end
@@ -184,10 +183,8 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         end
         if occursin(r"^julia> "m, block.code)
             eval_repl(block, sandbox, meta, doc, page)
-            block.language = "julia-repl"
         elseif occursin(r"^# output$"m, block.code)
             eval_script(block, sandbox, meta, doc, page)
-            block.language = "julia"
         else
             push!(doc.internal.errors, :doctest)
             file = meta[:CurrentFile]
@@ -522,7 +519,7 @@ function footnotes(doc::Documents.Document)
         empty!(page.globals.meta)
         orphans = Dict{String, Tuple{Int, Int}}()
         for element in page.elements
-            Walkers.walk(page.globals.meta, page.mapping[element]) do block
+            Utilities.walk(page.globals.meta, page.mapping[element]) do block
                 footnote(block, orphans)
             end
         end
@@ -576,7 +573,7 @@ function linkcheck(doc::Documents.Document)
             for (src, page) in doc.internal.pages
                 println("   - ", src)
                 for element in page.elements
-                    Walkers.walk(page.globals.meta, page.mapping[element]) do block
+                    Utilities.walk(page.globals.meta, page.mapping[element]) do block
                         linkcheck(block, doc)
                     end
                 end

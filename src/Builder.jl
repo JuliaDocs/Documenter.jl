@@ -193,6 +193,7 @@ end
 
 function Selectors.runner(::Type{Populate}, doc::Documents.Document)
     Utilities.log("populating indices.")
+    Documents.doctest_replace!(doc)
     Documents.populate!(doc)
 end
 
