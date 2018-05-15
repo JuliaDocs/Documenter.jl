@@ -141,7 +141,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
 
     local typesig
     try
-        typesig = eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
+        typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         push!(doc.internal.errors, :cross_references)
         Utilities.warn(page.source, "Unable to evaluate the type signature for '[`$code`](@ref)'.", err, ex, mod)
