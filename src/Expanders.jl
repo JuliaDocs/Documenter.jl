@@ -241,7 +241,7 @@ function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
-                meta[ex.args[1]] = eval(Main, ex.args[2])
+                meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
                 push!(doc.internal.errors, :meta_block)
                 Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@meta` block.", err)
@@ -274,7 +274,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
             failed = true
             continue
         end
-        typesig = eval(curmod, Documenter.DocSystem.signature(ex, str))
+        typesig = Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
 
         object = Utilities.Object(binding, typesig)
         # We can't include the same object more than once in a document.
@@ -332,7 +332,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
-                fields[ex.args[1]] = eval(curmod, ex.args[2])
+                fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
             catch err
                 push!(doc.internal.errors, :autodocs_block)
                 Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@autodocs` block.", err)
@@ -424,7 +424,7 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
         result = nothing
         for (ex, str) in Utilities.parseblock(x.code, doc, page)
             try
-                result = eval(sandbox, ex)
+                result = Core.eval(sandbox, ex)
             catch err
                 push!(doc.internal.errors, :eval_block)
                 Utilities.warn(doc, page, "Failed to evaluate `@eval` block.", err)
@@ -477,7 +477,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         for (ex, str) in Utilities.parseblock(code, doc, page)
             (value, success, backtrace, text) = Utilities.withoutput() do
                 cd(dirname(page.build)) do
-                    eval(mod, Expr(:(=), :ans, ex))
+                    Core.eval(mod, Expr(:(=), :ans, ex))
                 end
             end
             result = value
@@ -525,7 +525,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         input  = droplines(str)
         (value, success, backtrace, text) = Utilities.withoutput() do
             cd(dirname(page.build)) do
-                eval(mod, :(ans = $(eval(mod, ex))))
+                Core.eval(mod, :(ans = $(Core.eval(mod, ex))))
             end
         end
         result = value

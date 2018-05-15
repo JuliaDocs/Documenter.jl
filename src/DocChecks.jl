@@ -131,8 +131,8 @@ function doctest(doc::Documents.Document)
 end
 
 function __ans__!(m::Module, value)
-    isdefined(m, :__ans__!) || eval(m, :(__ans__!(value) = global ans = value))
-    return eval(m, Expr(:call, () -> m.__ans__!(value)))
+    isdefined(m, :__ans__!) || Core.eval(m, :(__ans__!(value) = global ans = value))
+    return Core.eval(m, Expr(:call, () -> m.__ans__!(value)))
 end
 
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
@@ -143,8 +143,8 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
         sandbox = get!(page.globals.meta, sym) do
             newmod = Module(sym)
-            eval(newmod, :(eval(x) = Core.eval($newmod, x)))
-            eval(newmod, :(eval(m, x) = Core.eval(m, x)))
+            # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
+            Core.eval(newmod, :(eval(x) = Core.eval($newmod, x)))
             newmod
         end
 
@@ -172,14 +172,14 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
                         )
                     return false
                 end
-                d[kwarg.args[1]] = eval(sandbox, kwarg.args[2])
+                d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
             end
         end
         meta[:LocalDocTestArguments] = d
 
         for expr in [get(meta, :DocTestSetup, []); get(meta[:LocalDocTestArguments], :setup, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
-            eval(sandbox, expr)
+            Core.eval(sandbox, expr)
         end
         if occursin(r"^julia> "m, block.code)
             eval_repl(block, sandbox, meta, doc, page)
@@ -336,7 +336,7 @@ end
 function result_to_string(buf, value)
     dis = text_display(buf)
     value === nothing || disable_color() do
-        eval(Expr(:call, display, dis, QuoteNode(value)))
+        Core.eval(Main, Expr(:call, display, dis, QuoteNode(value)))
     end
     sanitise(buf)
 end
@@ -647,7 +647,7 @@ end
 
 const CAN_INLINE = Ref(true)
 function __init__()
-    global setcolor! = eval(Base, :(x -> (y = have_color; global have_color = x; y)))
+    global setcolor! = Core.eval(Base, :(x -> (y = have_color; global have_color = x; y)))
     CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
 end
 

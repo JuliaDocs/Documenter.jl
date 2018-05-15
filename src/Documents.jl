@@ -419,7 +419,7 @@ function buildnode(T::Type, block, doc, page)
     for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)
             cd(dirname(page.source)) do
-                dict[ex.args[1]] = eval(mod, ex.args[2])
+                dict[ex.args[1]] = Core.eval(mod, ex.args[2])
             end
         end
     end
