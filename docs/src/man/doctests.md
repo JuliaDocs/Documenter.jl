@@ -36,6 +36,25 @@ any difference will result in [`makedocs`](@ref) throwing an error and terminati
 Note that the amount of whitespace appearing above and below the `# output` line is not
 significant and can be increased or decreased if desired.
 
+It is possible to suppress the output from the doctest by setting the `output` keyword
+argument to `false`, for example
+
+````markdown
+```jldoctest; output = false
+a = 1
+b = 2
+a + b
+
+# output
+
+3
+```
+````
+
+Note that the output of the script will still be compared to the expected result,
+i.e. what is `# output` section, but the `# output` section will be suppressed in
+the rendered documentation.
+
 ## REPL Examples
 
 The other kind of doctest is a simulated Julia REPL session. The following format is

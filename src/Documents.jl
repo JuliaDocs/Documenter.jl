@@ -400,6 +400,11 @@ function doctest_replace!(doc::Documents.Document)
 end
 function doctest_replace!(block::Markdown.Code)
     startswith(block.language, "jldoctest") || return false
+    # suppress output for `#output`-style doctests with `output=false` kwarg
+    if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.language)
+        input = first(split(block.code, "# output\n", limit = 2))
+        block.code = rstrip(input)
+    end
     # correct the language field
     block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
     return false
