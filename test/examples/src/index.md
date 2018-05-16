@@ -228,6 +228,15 @@ julia> f()
 foobuu
 ```
 
+```jldoctest; output = false
+foo(a, b) = a * b
+foo(2, 3)
+
+# output
+
+5
+```
+
 
 # Sanitise module names
 

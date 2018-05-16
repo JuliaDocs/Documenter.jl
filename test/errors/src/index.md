@@ -80,3 +80,20 @@ julia> 1+1
 julia> 1+1
 2
 ```
+
+```jldoctest; output = false
+foo(a, b) = a * b
+foo(2, 3)
+
+# output
+
+1
+```
+```jldoctest; output = true
+foo(a, b) = a * b
+foo(2, 3)
+
+# output
+
+1
+```
