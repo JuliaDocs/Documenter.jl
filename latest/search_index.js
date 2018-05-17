@@ -309,7 +309,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "\"Script\" Examples",
     "category": "section",
-    "text": "The first, of two, types of doctests is the \"script\" code block. To make Documenter detect this kind of code block the following format must be used:```jldoctest\na = 1\nb = 2\na + b\n\n# output\n\n3\n```The code block\'s \"language\" must be jldoctest and must include a line containing the text # output. The text before this line is the contents of the script which is run. The text that appears after # output is the textual representation that would be shown in the Julia REPL if the script had been included.The actual output produced by running the \"script\" is compared to the expected result and any difference will result in makedocs throwing an error and terminating.Note that the amount of whitespace appearing above and below the # output line is not significant and can be increased or decreased if desired."
+    "text": "The first, of two, types of doctests is the \"script\" code block. To make Documenter detect this kind of code block the following format must be used:```jldoctest\na = 1\nb = 2\na + b\n\n# output\n\n3\n```The code block\'s \"language\" must be jldoctest and must include a line containing the text # output. The text before this line is the contents of the script which is run. The text that appears after # output is the textual representation that would be shown in the Julia REPL if the script had been included.The actual output produced by running the \"script\" is compared to the expected result and any difference will result in makedocs throwing an error and terminating.Note that the amount of whitespace appearing above and below the # output line is not significant and can be increased or decreased if desired.It is possible to suppress the output from the doctest by setting the output keyword argument to false, for example```jldoctest; output = false\na = 1\nb = 2\na + b\n\n# output\n\n3\n```Note that the output of the script will still be compared to the expected result, i.e. what is # output section, but the # output section will be suppressed in the rendered documentation."
 },
 
 {
@@ -1129,6 +1129,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/documents/#Documenter.Documents.walk-Tuple{Any,Any,Any}",
+    "page": "Documents",
+    "title": "Documenter.Documents.walk",
+    "category": "method",
+    "text": "walk(f, meta, element)\n\n\nCalls f on element and any of its child elements. meta is a Dict containing metadata such as current module.\n\n\n\n\n\n"
+},
+
+{
     "location": "lib/internals/documents/#Documents-1",
     "page": "Documents",
     "title": "Documents",
@@ -1758,38 +1766,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Utilities",
     "category": "section",
     "text": "Modules = [Documenter.Utilities]"
-},
-
-{
-    "location": "lib/internals/walkers/#",
-    "page": "Walkers",
-    "title": "Walkers",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "lib/internals/walkers/#Documenter.Walkers",
-    "page": "Walkers",
-    "title": "Documenter.Walkers",
-    "category": "module",
-    "text": "Provides the walk function.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/walkers/#Documenter.Walkers.walk-Tuple{Any,Any,Any}",
-    "page": "Walkers",
-    "title": "Documenter.Walkers.walk",
-    "category": "method",
-    "text": "walk(f, meta, element)\n\n\nCalls f on element and any of its child elements. meta is a Dict containing metadata such as current module.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/walkers/#Walkers-1",
-    "page": "Walkers",
-    "title": "Walkers",
-    "category": "section",
-    "text": "Modules = [Documenter.Walkers]"
 },
 
 {
