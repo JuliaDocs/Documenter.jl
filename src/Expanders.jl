@@ -607,7 +607,7 @@ function droplines(code; skip = 0)
         occursin(r"^(.*)#\s*hide$", line) && continue
         println(buffer, rstrip(line))
     end
-    strip(String(take!(buffer)), '\n')
+    strip(isequal('\n'), String(take!(buffer)))
 end
 
 function prepend_prompt(input)

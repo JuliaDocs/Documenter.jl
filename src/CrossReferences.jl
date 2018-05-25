@@ -55,7 +55,7 @@ function basicxref(link::Markdown.Link, meta, page, doc)
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         text = strip(sprint(Markdown.plain, Markdown.Paragraph(link.text)))
         if occursin(r"#[0-9]+", text)
-            issue_xref(link, lstrip(text, '#'), meta, page, doc)
+            issue_xref(link, lstrip(isequal('#'), text), meta, page, doc)
         else
             name = Utilities.slugify(text)
             namedxref(link, name, meta, page, doc)

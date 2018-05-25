@@ -269,7 +269,7 @@ function canonical_link_element(canonical_link, src)
    if canonical_link === nothing
       return Tag(Symbol("#RAW#"))("")
    else
-      canonical_link_stripped = rstrip(canonical_link, '/')
+      canonical_link_stripped = rstrip(isequal('/'), canonical_link)
       href = "$canonical_link_stripped/$src"
       return link[:rel => "canonical", :href => href]
    end
