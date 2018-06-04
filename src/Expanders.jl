@@ -497,10 +497,14 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     content = []
     input   = droplines(x.code)
 
-    # Special-case support for displaying SVG graphics. TODO: make this more general.
-    output = showable(MIME"image/svg+xml"(), result) ?
-        Documents.RawHTML(Base.invokelatest(stringmime, MIME"image/svg+xml"(), result)) :
+    # Special-case support for displaying SVG and PNG graphics. TODO: make this more general.
+    output = if showable(MIME"image/svg+xml"(), result)
+        Documents.RawHTML(Base.invokelatest(stringmime, MIME"image/svg+xml"(), result))
+    elseif showable(MIME"image/png"(), result)
+        Documents.RawHTML(string("<img src=\"data:image/png;base64,", Base.invokelatest(stringmime, MIME"image/png"(), result), "\" />"))
+    else
         Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
+    end
 
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))
