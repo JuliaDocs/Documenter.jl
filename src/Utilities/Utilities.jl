@@ -98,7 +98,7 @@ function slugify(s::AbstractString)
     s = replace(s, r"^\d+" => "")
     s = replace(s, r"&" => "-and-")
     s = replace(s, r"[^\p{L}\p{P}\d\-]+" => "")
-    s = strip(replace(s, r"\-\-+" => "-"), '-')
+    s = strip(isequal('-'), replace(s, r"\-\-+" => "-"))
 end
 slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 

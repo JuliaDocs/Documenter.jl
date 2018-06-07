@@ -405,7 +405,7 @@ function latexinline(io::IO, md::Markdown.Image)
             md.url
         elseif startswith(md.url, '/')
             # URLs starting with a / are assumed to be relative to the document's root
-            normpath(lstrip(md.url, '/'))
+            normpath(lstrip(isequal('/'), md.url))
         else
             normpath(joinpath(dirname(io.filename), md.url))
         end
