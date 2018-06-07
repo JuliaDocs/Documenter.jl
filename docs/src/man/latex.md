@@ -36,6 +36,14 @@ This is the binomial coefficient.
 func(x) = # ...
 ```
 
+A related issue is how to add dollar signs to a docstring. They need to be
+double-escaped as follows:
+```julia
+"""
+The cost was \\\$1.
+"""
+```
+
 ## Inline equations
 
 ```markdown
