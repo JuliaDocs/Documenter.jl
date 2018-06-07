@@ -21,6 +21,7 @@ should give a good overview of what this package is currently able to do.
 Packages that have tagged versions available in `METADATA.jl`.
 
 - [Augmentor.jl](https://evizero.github.io/Augmentor.jl/)
+- [BanditOpt.jl](https://v-i-s-h.github.io/BanditOpt.jl/latest/)
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/latest/)
 - [Bio.jl](https://biojulia.net/Bio.jl/latest/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
