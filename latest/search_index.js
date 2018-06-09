@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nEvolvingGraphs.jl\nExtractMacro.jl\nEzXML.jl\nGadfly.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBanditOpt.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nEvolvingGraphs.jl\nExtractMacro.jl\nEzXML.jl\nGadfly.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
 },
 
 {
@@ -469,7 +469,7 @@ var documenterSearchIndex = {"docs": [
     "page": "LaTeX syntax",
     "title": "Escaping characters in docstrings",
     "category": "section",
-    "text": "Since some characters used in LaTeX syntax are treated differently in docstrings they need to be escaped using a \\ character as in the following example:\"\"\"\nHere\'s some inline maths: \\$\\\\sqrt[n]{1 + x + x^2 + \\\\ldots}\\$.\n\nHere\'s an equation:\n\n\\$\\\\frac{n!}{k!(n - k)!} = \\\\binom{n}{k}\\$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ...To avoid needing to escape the special characters the doc\"\" string macro can be used:doc\"\"\"\nHere\'s some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.\n\nHere\'s an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ..."
+    "text": "Since some characters used in LaTeX syntax are treated differently in docstrings they need to be escaped using a \\ character as in the following example:\"\"\"\nHere\'s some inline maths: \\$\\\\sqrt[n]{1 + x + x^2 + \\\\ldots}\\$.\n\nHere\'s an equation:\n\n\\$\\\\frac{n!}{k!(n - k)!} = \\\\binom{n}{k}\\$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ...To avoid needing to escape the special characters the doc\"\" string macro can be used:doc\"\"\"\nHere\'s some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.\n\nHere\'s an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ...A related issue is how to add dollar signs to a docstring. They need to be double-escaped as follows:\"\"\"\nThe cost was \\\\\\$1.\n\"\"\""
 },
 
 {

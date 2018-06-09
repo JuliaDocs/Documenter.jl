@@ -24,7 +24,9 @@ $\frac{n!}{k!(n - k)!} = \binom{n}{k}$
 
 This is the binomial coefficient.
 &quot;&quot;&quot;
-func(x) = # ...</code></pre><h2><a class="nav-anchor" id="Inline-equations-1" href="#Inline-equations-1">Inline equations</a></h2><pre><code class="language-markdown">Here&#39;s some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.</code></pre><p>which will be displayed as</p><hr/><p>Here&#39;s some inline maths: <span>$\sqrt[n]{1 + x + x^2 + \ldots}$</span>.</p><hr/><h2><a class="nav-anchor" id="Display-equations-1" href="#Display-equations-1">Display equations</a></h2><pre><code class="language-markdown">Here&#39;s an equation:
+func(x) = # ...</code></pre><p>A related issue is how to add dollar signs to a docstring. They need to be double-escaped as follows:</p><pre><code class="language-julia">&quot;&quot;&quot;
+The cost was \\\$1.
+&quot;&quot;&quot;</code></pre><h2><a class="nav-anchor" id="Inline-equations-1" href="#Inline-equations-1">Inline equations</a></h2><pre><code class="language-markdown">Here&#39;s some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.</code></pre><p>which will be displayed as</p><hr/><p>Here&#39;s some inline maths: <span>$\sqrt[n]{1 + x + x^2 + \ldots}$</span>.</p><hr/><h2><a class="nav-anchor" id="Display-equations-1" href="#Display-equations-1">Display equations</a></h2><pre><code class="language-markdown">Here&#39;s an equation:
 
 ```math
 \frac{n!}{k!(n - k)!} = \binom{n}{k}
