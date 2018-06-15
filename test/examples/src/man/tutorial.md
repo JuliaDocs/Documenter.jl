@@ -159,9 +159,11 @@ nothing
 
 ## Including images with `MIME`
 
-If `show(io, ::MIME"image/svg+xml", x)` is overloaded for a particular type
-then `@example` blocks will show the SVG image in the output. Assuming the following type
-and method live in the `InlineSVG` module
+If `show(io, ::MIME"image/svg+xml", x)` or `show(io, ::MIME"image/png", x)`
+is overloaded for a particular type then `@example` blocks will show the
+SVG or PNG image in the output.
+
+Assuming the following type and method live in the `InlineSVG` module
 
 ```julia
 struct SVG
@@ -198,6 +200,33 @@ SVG("""
 _Note: we can't define the `show` method in the `@example` block due to the world age
 counter in Julia 0.6 (Documenter's `makedocs` is not aware of any of the new method
 definitions happening in `eval`s)._
+
+The same mechanism also works for PNG files. Assuming again the following
+type and method live in the `InlinePNG` module
+
+```julia
+struct PNG
+    filename::String
+end
+Base.show(io, ::MIME"image/png", png::PNG) = write(io, read(png.filename))
+```
+
+.. then we can invoke and show them with an `@example` block:
+
+```@setup inlinepng
+module InlinePNG
+export PNG
+mutable struct PNG
+    filename::String
+end
+Base.show(io, ::MIME"image/png", png::PNG) = write(io, read(png.filename))
+end # module
+```
+
+```@example inlinepng
+using .InlinePNG
+PNG(joinpath(Pkg.dir("Documenter"), "docs", "src", "assets", "logo.png"))
+```
 
 
 ## Interacting with external files
