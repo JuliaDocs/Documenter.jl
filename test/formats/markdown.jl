@@ -36,21 +36,6 @@ doc = makedocs(
     @test doc.user.source == "src"
     @test doc.user.build  == build_dir_relpath
     @test doc.user.clean  == true
-
-    mktempdir() do root
-        let path = joinpath(root, "docs")
-            Documenter.generate("DocumenterTestPackage", dir = path)
-            @test isdir(path)
-            @test isfile(joinpath(path, "mkdocs.yml"))
-            @test isfile(joinpath(path, ".gitignore"))
-            @test isfile(joinpath(path, "make.jl"))
-            @test isdir(joinpath(path, "src"))
-            @test isfile(joinpath(path, "src", "index.md"))
-        end
-    end
-
-    @test_throws ErrorException Documenter.generate("Documenter")
-    @test_throws ErrorException Documenter.generate(randstring())
 end
 
 end
