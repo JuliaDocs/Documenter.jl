@@ -118,7 +118,7 @@ end
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)
     Compat.Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
-    let expected_filepath = "Documenter/src/Utilities/Utilities.jl"
+    let expected_filepath = "/src/Utilities/Utilities.jl"
         Compat.Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
         @test endswith(filepath, expected_filepath)
         @show filepath expected_filepath
