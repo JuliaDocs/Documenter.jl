@@ -32,6 +32,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [EvolvingGraphs.jl](https://etymoio.github.io/EvolvingGraphs.jl/latest/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/latest/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/latest/)
+- [FourierFlows.jl](https://FourierFlows.github.io/FourierFlows.jl/latest/)
 - [Gadfly.jl](http://gadflyjl.org/stable/)
 - [GeoStats.jl](http://juliohm.github.io/GeoStats.jl/latest/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/latest/)
