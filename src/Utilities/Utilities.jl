@@ -52,7 +52,7 @@ warn(msg) = __log__[] ? printstyled(stdout, " !! ", msg, "\n", color=:red) : not
 function warn(file, msg, err, ex, mod)
     if __log__[]
         warn(file, msg)
-        printstyled(stdout, "\nERROR: $err\n\nexpression '$ex' in module '$mod'\n\n", color=:red)
+        printstyled(stdout, "\nERROR: $err\n\nexpression '$(repr(ex))' in module '$mod'\n\n", color=:red)
     else
         nothing
     end
