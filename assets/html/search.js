@@ -198,7 +198,7 @@ require(["jquery", "lunr", "lodash"], function($, lunr, _) {
                 tokens.forEach(function (t) {
                     q.term(t.toString(), {
                         fields: ["title"],
-                        boost: 15,
+                        boost: 100,
                         usePipeline: false,
                         editDistance: 0,
                         wildcard: lunr.Query.wildcard.NONE
