@@ -225,9 +225,44 @@ end # module
 
 ```@example inlinepng
 using .InlinePNG
-PNG(joinpath(Pkg.dir("Documenter"), "docs", "src", "assets", "logo.png"))
+PNG(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.png"))
 ```
 
+
+.. and JPEG, GIF and WebP files:
+
+```@setup inlinewebpgifjpeg
+module InlineWEBPGIFJPEG
+export WEBP, GIF, JPEG
+mutable struct WEBP
+    filename :: String
+end
+Base.show(io, ::MIME"image/webp", image::WEBP) = write(io, read(image.filename))
+mutable struct GIF
+    filename :: String
+end
+Base.show(io, ::MIME"image/gif", image::GIF) = write(io, read(image.filename))
+mutable struct JPEG
+    filename :: String
+end
+Base.show(io, ::MIME"image/jpeg", image::JPEG) = write(io, read(image.filename))
+end # module
+```
+
+```@example inlinewebpgifjpeg
+using .InlineWEBPGIFJPEG
+WEBP(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.webp"))
+```
+
+```@example inlinewebpgifjpeg
+using .InlineWEBPGIFJPEG
+GIF(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.gif"))
+```
+
+```@example inlinewebpgifjpeg
+using .InlineWEBPGIFJPEG
+JPEG(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.jpg"))
+```
 
 ## Interacting with external files
 
