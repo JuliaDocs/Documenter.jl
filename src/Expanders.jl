@@ -502,6 +502,12 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         Documents.RawHTML(Base.invokelatest(stringmime, MIME"image/svg+xml"(), result))
     elseif showable(MIME"image/png"(), result)
         Documents.RawHTML(string("<img src=\"data:image/png;base64,", Base.invokelatest(stringmime, MIME"image/png"(), result), "\" />"))
+    elseif showable(MIME"image/webp"(), result)
+        Documents.RawHTML(string("<img src=\"data:image/webp;base64,", Base.invokelatest(stringmime, MIME"image/webp"(), result), "\" />"))
+    elseif showable(MIME"image/gif"(), result)
+        Documents.RawHTML(string("<img src=\"data:image/gif;base64,", Base.invokelatest(stringmime, MIME"image/gif"(), result), "\" />"))
+    elseif showable(MIME"image/jpeg"(), result)
+        Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", Base.invokelatest(stringmime, MIME"image/jpeg"(), result), "\" />"))
     else
         Markdown.Code(Documenter.DocChecks.result_to_string(buffer, result))
     end
