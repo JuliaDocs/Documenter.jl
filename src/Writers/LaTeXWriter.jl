@@ -506,6 +506,14 @@ function files!(out::Vector, v::Vector, depth)
     return out
 end
 
+# Tuples comde from `hide(page)` with either
+# (visible, nothing,    page,         children) or
+# (visible, page.first, pages.second, children)
+function files!(out::Vector, v::Tuple, depth)
+    files!(out, v[2] == nothing ? v[3] : v[2] => v[3], depth)
+    files!(out, v[4], depth)
+end
+
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))
 
 function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: AbstractString}
