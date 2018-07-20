@@ -506,7 +506,7 @@ function files!(out::Vector, v::Vector, depth)
     return out
 end
 
-# Tuples comde from `hide(page)` with either
+# Tuples come from `hide(page)` with either
 # (visible, nothing,    page,         children) or
 # (visible, page.first, pages.second, children)
 function files!(out::Vector, v::Tuple, depth)
