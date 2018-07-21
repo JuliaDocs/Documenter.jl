@@ -25,7 +25,7 @@ doc = makedocs(
             "man/doctests.md",
             "man/hosting.md",
             "man/latex.md",
-            "man/contributing.md",
+            hide("man/contributing.md"), # test hiding
         ],
         "Library" => Any[
             "Public" => "lib/public.md",
