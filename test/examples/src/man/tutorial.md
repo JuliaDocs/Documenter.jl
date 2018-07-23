@@ -159,9 +159,7 @@ nothing
 
 ## Including images with `MIME`
 
-If `show(io, ::MIME"image/svg+xml", x)` or `show(io, ::MIME"image/png", x)`
-is overloaded for a particular type then `@example` blocks will show the
-SVG or PNG image in the output.
+If `show(io, ::MIME, x)` is overloaded for a particular type then `@example` blocks can show the SVG, HTML/JS/CSS, PNG, JPEG, GIF or WebP image as appropriate in the output.
 
 Assuming the following type and method live in the `InlineSVG` module
 
@@ -200,6 +198,45 @@ SVG("""
 _Note: we can't define the `show` method in the `@example` block due to the world age
 counter in Julia 0.6 (Documenter's `makedocs` is not aware of any of the new method
 definitions happening in `eval`s)._
+
+We can also show SVG images with interactivity via the `text/html` MIME to display output that combines HTML, JS and CSS. Assume the following type and method live in the `InlineHTML` modeul
+
+```julia
+struct HTML
+    code::String
+end
+Base.show(io, ::MIME"text/html", html::HTML) = write(io, read(html.code))
+```
+
+.. then we can invoke and show them with an `@example` block (try mousing over the circles to see the applied style):
+
+```@setup inlinehtml
+module InlineHTML
+mutable struct HTML
+    code::String
+end
+Base.show(io, ::MIME"text/html", html::HTML) = write(io, html.code)
+end # module
+```
+
+```@example inlinehtml
+using .InlineHTML
+InlineHTML.HTML("""
+<script>
+  function showStyle(e) {
+    document.querySelector("#inline-html-style").innerHTML = e.getAttribute('style');
+  }
+</script>
+<svg width="100%" height="76">
+  <g style="stroke-width: 3">
+    <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" onmouseover="showStyle(this)"/>
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" onmouseover="showStyle(this)"/>
+    <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" onmouseover="showStyle(this)"/>
+    <text id="inline-html-style" x="90", y="20"></text>
+  </g>
+</svg>
+""")
+```
 
 The same mechanism also works for PNG files. Assuming again the following
 type and method live in the `InlinePNG` module
