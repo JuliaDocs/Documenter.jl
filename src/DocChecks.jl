@@ -606,9 +606,9 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
             Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")
             return false
         end
-        local STATUS_REGEX   = r"^HTTP/1.1 (\d+) (.+)$"m
+        local STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
         if occursin(STATUS_REGEX, result)
-            status = parse(Int, match(STATUS_REGEX, result).captures[1])
+            status = parse(Int, match(STATUS_REGEX, result).captures[2])
             if status < 300
                 printstyled(INDENT, "$(status) ", link.url, "\n", color=:green)
             elseif status < 400
