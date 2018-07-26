@@ -78,7 +78,7 @@ function genkeys(package; remote="origin")
                 end
 
             # Generate the ssh key pair.
-            success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
+            success(`$shell_executable --login -i -c "ssh-keygen -N \"\" -f $filename"`) || error("failed to generated ssh key pair.")
         else
             success(`git status`) || error("'Travis.genkey' only works with git repositories.")
 
@@ -90,8 +90,8 @@ function genkeys(package; remote="origin")
                     m[2], m[3]
                 end
 
-            # Generate the ssh key pair.
-            success(`$shell_executable --login -i -c "ssh-keygen -N \"\" -f $filename"`) || error("failed to generated ssh key pair.")
+                # Generate the ssh key pair.
+                success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
         end
 
         # Prompt user to add public key to github then remove the public key.
