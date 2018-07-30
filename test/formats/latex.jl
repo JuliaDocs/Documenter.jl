@@ -1,6 +1,6 @@
 module LaTeXFormatTests
 
-using Compat.Test
+using Test
 using Compat: @info
 
 using Documenter

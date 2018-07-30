@@ -1,4 +1,4 @@
-using Compat.Test
+using Test
 using Compat: @info
 
 # Build the real docs first.

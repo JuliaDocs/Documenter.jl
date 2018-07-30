@@ -1,4 +1,4 @@
-using Compat.Test
+using Test
 using Compat
 
 # Compat for Julia 0.6

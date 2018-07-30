@@ -16,7 +16,7 @@ import ..Documenter:
     IdDict
 
 using Compat, DocStringExtensions
-import Compat.Markdown
+import Markdown
 using Compat.Unicode
 
 # Pages.

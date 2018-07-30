@@ -1,6 +1,6 @@
 module HTMLWriterTests
 
-using Compat.Test
+using Test
 using Compat
 
 import Documenter.Writers.HTMLWriter: jsescape, generate_version_file

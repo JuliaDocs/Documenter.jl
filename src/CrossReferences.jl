@@ -13,7 +13,7 @@ import ..Documenter:
     Utilities
 
 using Compat, DocStringExtensions
-import Compat.Markdown
+import Markdown
 
 """
 $(SIGNATURES)

@@ -6,7 +6,7 @@ module Utilities
 using Base.Meta, Compat
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
-import Compat.Markdown
+import Markdown
 import Compat.Base64: stringmime
 
 # Logging output.
@@ -528,7 +528,7 @@ struct LineRangeFormatting
     end
 end
 
-function format_line(range::Compat.AbstractRange, format::LineRangeFormatting)
+function format_line(range::AbstractRange, format::LineRangeFormatting)
     if length(range) <= 1
         string(format.prefix, first(range))
     else
@@ -542,12 +542,7 @@ newlines(other) = 0
 
 # Output redirection.
 # -------------------
-@static if VERSION < v"0.7.0-DEV.3951"
-    link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true) =
-        Base.link_pipe(pipe, julia_only_read = reader_supports_async, julia_only_write = writer_supports_async)
-else
-    import Base: link_pipe!
-end
+import Base: link_pipe!
 @static if isdefined(Base, :with_logger)
     using Logging
 else # make things a no-op since warnings/info already print to stdout

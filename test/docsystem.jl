@@ -1,13 +1,13 @@
 module DocSystemTests
 
-using Compat.Test
+using Test
 using Compat
 
 import Documenter: Documenter, DocSystem
 
 const alias_of_getdocs = DocSystem.getdocs # NOTE: won't get docstrings if in a @testset
 
-PACKAGES_LOADED_MAIN = VERSION < v"0.7.0-DEV.1877"
+PACKAGES_LOADED_MAIN = false
 
 @testset "DocSystem" begin
     ## Bindings.

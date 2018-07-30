@@ -65,7 +65,7 @@ Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 module HTMLWriter
 
 using Compat
-import Compat.Markdown
+import Markdown
 
 import ...Documenter:
     Anchors,
@@ -330,7 +330,7 @@ function render_navmenu(ctx, navnode)
         )
     end
     push!(navmenu.nodes, h1(ctx.doc.user.sitename))
-    let version_selector = select["#version-selector", :onChange => "window.location.href=this.value"]()
+    let version_selector = partialsort["#version-selector", :onChange => "window.location.href=this.value"]()
         if isempty(ctx.doc.user.version)
             push!(version_selector.attributes, :style => "visibility: hidden")
         else
@@ -989,7 +989,7 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     startswith(link.url, '#') && return
 
     s = split(link.url, "#", limit = 2)
-    if Compat.Sys.iswindows() && ':' in first(s)
+    if Sys.iswindows() && ':' in first(s)
         Utilities.warn("Invalid local link: colons not allowed in paths on Windows\n    '$(link.url)' in $(navnode.page)")
         return
     end
@@ -1014,7 +1014,7 @@ end
 function fixlinks!(ctx, navnode, img::Markdown.Image)
     Utilities.isabsurl(img.url) && return
 
-    if Compat.Sys.iswindows() && ':' in img.url
+    if Sys.iswindows() && ':' in img.url
         Utilities.warn("Invalid local image: colons not allowed in paths on Windows\n    '$(img.url)' in $(navnode.page)")
         return
     end

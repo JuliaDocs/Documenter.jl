@@ -14,7 +14,7 @@ import ...Documenter:
     Writers
 
 using Compat
-import Compat.Markdown
+import Markdown
 
 mutable struct Context{I <: IO} <: IO
     io::I
