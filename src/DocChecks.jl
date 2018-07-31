@@ -13,7 +13,7 @@ import ..Documenter:
     IdDict
 
 using Compat, DocStringExtensions
-import Compat.Markdown
+import Markdown
 
 # Missing docstrings.
 # -------------------
@@ -79,7 +79,7 @@ meta(m) = Docs.meta(m)
 nameof(x::Function)          = typeof(x).name.mt.name
 nameof(b::Base.Docs.Binding) = b.var
 nameof(x::DataType)          = x.name.name
-nameof(m::Module)            = Compat.nameof(m)
+nameof(m::Module)            = nameof(m)
 
 sigs(x::Base.Docs.MultiDoc) = x.order
 sigs(::Any) = Type[Union{}]

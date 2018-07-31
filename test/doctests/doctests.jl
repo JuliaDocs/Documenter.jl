@@ -1,5 +1,5 @@
 module DocTestsTest
-using Documenter, Compat.Test
+using Documenter, Test
 using Compat: @info
 
 println("="^50)

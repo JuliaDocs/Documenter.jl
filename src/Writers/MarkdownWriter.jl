@@ -13,7 +13,7 @@ import ...Documenter:
     Utilities
 
 import Compat
-import Compat.Markdown
+import Markdown
 
 function render(doc::Documents.Document)
     copy_assets(doc)

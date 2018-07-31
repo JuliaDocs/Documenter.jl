@@ -20,7 +20,7 @@ import .Documents:
     MetaNode
 
 using Compat
-import Compat.Markdown
+import Markdown
 import Compat.Base64: stringmime
 
 
