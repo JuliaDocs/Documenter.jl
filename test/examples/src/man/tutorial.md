@@ -159,9 +159,11 @@ nothing
 
 ## Including images with `MIME`
 
-If `show(io, ::MIME"image/svg+xml", x)` is overloaded for a particular type
-then `@example` blocks will show the SVG image in the output. Assuming the following type
-and method live in the `InlineSVG` module
+If `show(io, ::MIME"image/svg+xml", x)` or `show(io, ::MIME"image/png", x)`
+is overloaded for a particular type then `@example` blocks will show the
+SVG or PNG image in the output.
+
+Assuming the following type and method live in the `InlineSVG` module
 
 ```julia
 struct SVG
@@ -199,6 +201,68 @@ _Note: we can't define the `show` method in the `@example` block due to the worl
 counter in Julia 0.6 (Documenter's `makedocs` is not aware of any of the new method
 definitions happening in `eval`s)._
 
+The same mechanism also works for PNG files. Assuming again the following
+type and method live in the `InlinePNG` module
+
+```julia
+struct PNG
+    filename::String
+end
+Base.show(io, ::MIME"image/png", png::PNG) = write(io, read(png.filename))
+```
+
+.. then we can invoke and show them with an `@example` block:
+
+```@setup inlinepng
+module InlinePNG
+export PNG
+mutable struct PNG
+    filename::String
+end
+Base.show(io, ::MIME"image/png", png::PNG) = write(io, read(png.filename))
+end # module
+```
+
+```@example inlinepng
+using .InlinePNG
+PNG(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.png"))
+```
+
+
+.. and JPEG, GIF and WebP files:
+
+```@setup inlinewebpgifjpeg
+module InlineWEBPGIFJPEG
+export WEBP, GIF, JPEG
+mutable struct WEBP
+    filename :: String
+end
+Base.show(io, ::MIME"image/webp", image::WEBP) = write(io, read(image.filename))
+mutable struct GIF
+    filename :: String
+end
+Base.show(io, ::MIME"image/gif", image::GIF) = write(io, read(image.filename))
+mutable struct JPEG
+    filename :: String
+end
+Base.show(io, ::MIME"image/jpeg", image::JPEG) = write(io, read(image.filename))
+end # module
+```
+
+```@example inlinewebpgifjpeg
+using .InlineWEBPGIFJPEG
+WEBP(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.webp"))
+```
+
+```@example inlinewebpgifjpeg
+using .InlineWEBPGIFJPEG
+GIF(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.gif"))
+```
+
+```@example inlinewebpgifjpeg
+using .InlineWEBPGIFJPEG
+JPEG(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.jpg"))
+```
 
 ## Interacting with external files
 

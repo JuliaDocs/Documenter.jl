@@ -3,6 +3,7 @@
 *.jl.mem
 
 test/examples/builds/
+test/formats/builds/
 test/missingdocs/build/
 test/nongit/build/
 test/errors/build/

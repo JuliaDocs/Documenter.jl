@@ -26,7 +26,7 @@ Supported inputs are:
 
 Note that unsupported objects will throw an `ArgumentError`.
 """
-binding(any::Any) = throw(ArgumentError("cannot convert `$any` to a `Binding`."))
+binding(any::Any) = throw(ArgumentError("cannot convert `$(repr(any))` to a `Binding`."))
 
 #
 # The simple definitions.
