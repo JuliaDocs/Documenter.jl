@@ -1201,7 +1201,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/dom/#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString, Symbol, Documenter.Utilities.DOM.Node, Pair}}",
+    "location": "lib/internals/dom/#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString, Symbol, Node, Pair}}",
     "page": "DOM",
     "title": "Documenter.Utilities.DOM.flatten!",
     "category": "method",
