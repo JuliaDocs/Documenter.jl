@@ -45,7 +45,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [POMDPs.jl](http://juliapomdp.github.io/POMDPs.jl/latest/)
 - [PhyloNetworks.jl](http://crsl4.github.io/PhyloNetworks.jl/latest/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/latest/)
-- [Query.jl](http://www.david-anthoff.com/Query.jl/stable/)
+- [Query.jl](http://www.queryverse.org/Query.jl/stable/)
 - [TaylorSeries.jl](http://www.juliadiff.org/TaylorSeries.jl/latest/)
 - [Weave.jl](http://weavejl.mpastell.com/stable/)
 
