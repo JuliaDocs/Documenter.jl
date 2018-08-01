@@ -40,7 +40,7 @@ function missingdocs(doc::Documents.Document)
             end
         end
     end
-    n = reduce(+, 0, map(length, values(bindings)))
+    n = Compat.reduce(+, map(length, values(bindings)), init=0)
     if n > 0
         b = IOBuffer()
         println(b, "$n docstring$(n ≡ 1 ? "" : "s") potentially missing:\n")
