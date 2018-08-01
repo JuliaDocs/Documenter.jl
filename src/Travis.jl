@@ -7,6 +7,7 @@ module Travis
 
 using Compat, DocStringExtensions
 import Compat.Pkg
+import WinReg
 
 export genkeys
 
@@ -44,10 +45,12 @@ julia> Travis.genkeys("/path/to/target/directory")
 ```
 """
 function genkeys(package; remote="origin")
-    # Error checking. Do the required programs exist?
-    success(`which which`)      || error("'which' not found.")
-    success(`which git`)        || error("'git' not found.")
-    success(`which ssh-keygen`) || error("'ssh-keygen' not found.")
+    if !is_windows()
+        # Error checking. Do the required programs exist?
+        success(`which which`)      || error("'which' not found.")
+        success(`which git`)        || error("'git' not found.")
+        success(`which ssh-keygen`) || error("'ssh-keygen' not found.")
+    end
 
     directory = "docs"
     filename  = ".documenter"
@@ -61,18 +64,35 @@ function genkeys(package; remote="origin")
             error("$package already has an ssh key. Remove it and try again.")
 
         # Are we in a git repo?
-        success(`git status`) || error("'Travis.genkey' only works with git repositories.")
+        if is_windows()
+            git_path = WinReg.querykey(WinReg.HKEY_LOCAL_MACHINE, "SOFTWARE\\GitForWindows", "InstallPath")
+            shell_executable = "$git_path\\bin\\sh.exe"
+            success(`$shell_executable --login -i -c "git status"`) || error("'Travis.genkey' only works with git repositories.")
 
-        # Find the GitHub repo org and name.
-        user, repo =
-            let r = readchomp(`git config --get remote.$remote.url`)
-                m = match(GITHUB_REGEX, r)
-                m === nothing && error("no remote repo named '$remote' found.")
-                m[2], m[3]
-            end
+            # Find the GitHub repo org and name.
+            user, repo =
+                let r = readchomp(`$shell_executable --login -i -c "git config --get remote.$remote.url"`)
+                    m = match(Compat.LibGit2.GITHUB_REGEX, r)
+                    m === nothing && error("no remote repo named '$remote' found.")
+                    m[2], m[3]
+                end
 
-        # Generate the ssh key pair.
-        success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
+            # Generate the ssh key pair.
+            success(`$shell_executable --login -i -c "ssh-keygen -N \"\" -f $filename"`) || error("failed to generated ssh key pair.")
+        else
+            success(`git status`) || error("'Travis.genkey' only works with git repositories.")
+
+            # Find the GitHub repo org and name.
+            user, repo =
+                let r = readchomp(`git config --get remote.$remote.url`)
+                    m = match(GITHUB_REGEX, r)
+                    m === nothing && error("no remote repo named '$remote' found.")
+                    m[2], m[3]
+                end
+
+                # Generate the ssh key pair.
+                success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
+        end
 
         # Prompt user to add public key to github then remove the public key.
         let url = "https://github.com/$user/$repo/settings/keys"
