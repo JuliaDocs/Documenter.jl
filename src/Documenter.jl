@@ -17,7 +17,7 @@ $(EXPORTS)
 module Documenter
 
 using Compat, DocStringExtensions
-import Compat.Base64: base64decode, base64encode
+import Compat.Base64: base64decode
 import Compat: @info
 import Compat.Pkg
 
@@ -530,7 +530,7 @@ function git_push(
                     version = VersionNumber(tag)
                     # only push to stable if this is the latest stable release
                     versions = filter!(x -> occursin(Base.VERSION_REGEX, x), readdir(dirname))
-                    maxver = mapreduce(x -> VersionNumber(x), max, v"0.0.0", versions)
+                    maxver = Compat.mapreduce(x -> VersionNumber(x), max, versions; init=v"0.0.0")
                     if version >= maxver && version.prerelease == () # don't deploy to stable for prereleases
                         gitrm_copy(target_dir, stable_dir)
                         Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")

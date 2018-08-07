@@ -296,7 +296,7 @@ not supported for `@index`.
 Documenter produces a set of Markdown files, which then have to be converted into a
 user-readable format for distribution.
 While in principle any Markdown parser would do (as long as it supports the required
-Markdown extensions), the Python-based [MkDocs](http://www.mkdocs.org/) is usually used
+Markdown extensions), the Python-based [MkDocs](https://www.mkdocs.org/) is usually used
 to convert the Markdown files into a set of HTML pages.
 See [Hosting Documentation](@ref) for further information on configuring MkDocs for Documenter.
 
