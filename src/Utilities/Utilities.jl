@@ -8,6 +8,7 @@ import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown
 import Base64: stringmime
+import LibGit2: GITHUB_REGEX
 
 # Logging output.
 
