@@ -542,19 +542,8 @@ newlines(other) = 0
 
 # Output redirection.
 # -------------------
-@static if VERSION < v"0.7.0-DEV.3951"
-    link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true) =
-        Base.link_pipe(pipe, julia_only_read = reader_supports_async, julia_only_write = writer_supports_async)
-else
-    import Base: link_pipe!
-end
-@static if isdefined(Base, :with_logger)
-    using Logging
-else # make things a no-op since warnings/info already print to stdout
-    struct ConsoleLogger end
-    ConsoleLogger(io) = ConsoleLogger()
-    with_logger(f, logger) = f()
-end
+import Base: link_pipe!
+using Logging
 
 """
 Call a function and capture all `stdout` and `stderr` output.
