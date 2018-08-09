@@ -1,5 +1,4 @@
-using Compat.Test
-using Compat: @info
+using Test
 
 # Build the real docs first.
 include("../docs/make.jl")

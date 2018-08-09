@@ -19,8 +19,6 @@ import ..Documenter:
     Documenter,
     Utilities
 
-using Compat
-
 #
 # Format selector definitions.
 #

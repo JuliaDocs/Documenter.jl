@@ -5,13 +5,12 @@ $(EXPORTS)
 """
 module Travis
 
-using Compat, DocStringExtensions
-import Compat.Pkg
-import Compat.Base64: base64encode
+using DocStringExtensions
+import Base64: base64encode
 
 export genkeys
 
-import Compat.LibGit2.GITHUB_REGEX
+import LibGit2: GITHUB_REGEX
 
 
 """
@@ -53,8 +52,13 @@ function genkeys(package; remote="origin")
     directory = "docs"
     filename  = ".documenter"
 
-    path = isdir(package) ? package : Pkg.dir(package, directory)
-    isdir(path) || error("`$path` not found. Provide a package name or directory.")
+    path = if package isa Module
+        joinpath(pathof(package), "..", "..", directory)
+    elseif isdir(package)
+        package
+    else
+        error("`$path` not found. Provide a package binding or directory.")
+    end
 
     cd(path) do
         # Check for old '$filename.enc' and terminate.
@@ -77,7 +81,7 @@ function genkeys(package; remote="origin")
 
         # Prompt user to add public key to github then remove the public key.
         let url = "https://github.com/$user/$repo/settings/keys"
-            Compat.@info("add the public key below to $url with read/write access:")
+            @info("add the public key below to $url with read/write access:")
             println("\n", read("$filename.pub", String))
             rm("$filename.pub")
         end
@@ -86,7 +90,7 @@ function genkeys(package; remote="origin")
         # *not* encoded for the sake of security, but instead to make it easier to
         # copy/paste it over to travis without having to worry about whitespace.
         let url = "https://travis-ci.org/$user/$repo/settings"
-            Compat.@info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
+            @info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
             println("\n", base64encode(read(".documenter", String)), "\n")
             rm(filename)
         end

@@ -1,12 +1,9 @@
 module UtilitiesTests
 
-import Compat
-using Compat.Test
-import Compat: occursin
-import Compat.Base64: stringmime
+using Test
+import Base64: stringmime
 
 import Documenter
-import Documenter: IdDict
 
 module UnitTests
     module SubModule end
@@ -117,9 +114,9 @@ end
 
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)
-    Compat.Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
+    Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
     let expected_filepath = "/src/Utilities/Utilities.jl"
-        Compat.Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
+        Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
         @test endswith(filepath, expected_filepath)
         @show filepath expected_filepath
     end

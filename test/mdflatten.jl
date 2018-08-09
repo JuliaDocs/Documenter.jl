@@ -1,8 +1,8 @@
 module MDFlattenTests
 
-using Compat.Test
+using Test
 
-import Compat.Markdown
+import Markdown
 using Documenter.Utilities.MDFlatten
 
 @testset "MDFlatten" begin
