@@ -77,7 +77,7 @@ binding(m::Module, λ::Any) = binding(λ)
 
 function signature(x, str::AbstractString)
     ts = Base.Docs.signature(x)
-    (Meta.isexpr(x, :macrocall, 1 + macros_have_sourceloc) && !endswith(strip(str), "()")) ? :(Union{}) : ts
+    (Meta.isexpr(x, :macrocall, 2) && !endswith(strip(str), "()")) ? :(Union{}) : ts
 end
 
 ## Docstring containers. ##

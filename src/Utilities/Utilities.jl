@@ -224,7 +224,7 @@ Returns a expression that, when evaluated, returns an [`Object`](@ref) represent
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
     binding   = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
     signature = Base.Docs.signature(ex)
-    isexpr(ex, :macrocall, 1 + macros_have_sourceloc) && !endswith(str, "()") && (signature = :(Union{}))
+    isexpr(ex, :macrocall, 2) && !endswith(str, "()") && (signature = :(Union{}))
     Expr(:call, Object, binding, signature)
 end
 
@@ -256,7 +256,7 @@ function docs end
 
 # Macro representation changed between 0.4 and 0.5.
 function docs(ex::Union{Symbol, Expr}, str::AbstractString)
-    isexpr(ex, :macrocall, 1 + macros_have_sourceloc) && !endswith(rstrip(str), "()") && (ex = quot(ex))
+    isexpr(ex, :macrocall, 2) && !endswith(rstrip(str), "()") && (ex = quot(ex))
     :(Base.Docs.@doc $ex)
 end
 docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
