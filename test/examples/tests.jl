@@ -1,12 +1,4 @@
-using Compat.Test
-using Compat
-
-# Compat for Julia 0.6
-if !isdefined(Base, Symbol("@isdefined"))
-    macro isdefined(x)
-        :(isdefined($(esc(QuoteNode(x)))))
-    end
-end
+using Test
 
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl

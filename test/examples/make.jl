@@ -1,6 +1,3 @@
-using Compat
-using Compat: @info
-
 # Defines the modules referred to in the example docs (under src/) and then builds them.
 # It can be called separately to build the examples/, or as part of the test suite.
 #

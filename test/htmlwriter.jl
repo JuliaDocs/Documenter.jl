@@ -1,7 +1,6 @@
 module HTMLWriterTests
 
-using Compat.Test
-using Compat
+using Test
 
 import Documenter.Writers.HTMLWriter: jsescape, generate_version_file
 
@@ -39,7 +38,7 @@ import Documenter.Writers.HTMLWriter: jsescape, generate_version_file
         # let's make sure they're in the right order -- they should be sorted in the output file
         last = 0:0
         for version in versions
-            this = Compat.findfirst(version, contents)
+            this = findfirst(version, contents)
             @test this !== nothing
             @test first(last) < first(this)
             last = this

@@ -5,7 +5,7 @@ Defines the [`Anchor`](@ref) and [`AnchorMap`](@ref) types.
 """
 module Anchors
 
-using Compat, DocStringExtensions
+using DocStringExtensions
 
 # Types.
 # ------

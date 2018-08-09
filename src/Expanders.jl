@@ -19,9 +19,8 @@ import .Documents:
     EvalNode,
     MetaNode
 
-using Compat
-import Compat.Markdown
-import Compat.Base64: stringmime
+import Markdown
+import Base64: stringmime
 
 
 function expand(doc::Documents.Document)

@@ -5,12 +5,12 @@ os:
   - osx
 
 julia:
-  - 0.6
   - 0.7
+  - 1.0
   - nightly
 
 notifications:
   email: false
 
 after_success:
-  - julia -e 'cd(Pkg.dir("Documenter", "test")); include("coverage.jl")'
+  - julia -e 'import Documenter; cd(joinpath(pathof(Documenter), "..", "..", "tests")); include("coverage.jl")'

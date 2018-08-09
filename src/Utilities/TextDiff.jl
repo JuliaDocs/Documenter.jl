@@ -1,6 +1,5 @@
 module TextDiff
 
-using Compat
 using DocStringExtensions
 
 # Utilities.

@@ -14,7 +14,7 @@ import ..Documenter:
     Documenter,
     Utilities
 
-using Compat, DocStringExtensions
+using DocStringExtensions
 
 # Document Pipeline.
 # ------------------
@@ -108,7 +108,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
                 push!(mdpages, Utilities.srcpath(source, root, file))
                 Documents.addpage!(doc, src, dst)
             else
-                Compat.cp(src, dst; force = true)
+                cp(src, dst; force = true)
             end
         end
     end
