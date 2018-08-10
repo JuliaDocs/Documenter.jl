@@ -431,6 +431,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     # construct the new code-snippet (without indent)
     # first part: everything up until the last index of the input string
     newcode = code[1:last(inputidx)]
+    isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
     newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
     # replace internal code block with the non-indented new code, needed if we come back

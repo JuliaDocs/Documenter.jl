@@ -72,3 +72,8 @@ Int64[1, 2, 3, 4] * 2
 julia> println("  foobar")
   foobaz
 ```
+```jldoctest
+julia> 1 + 2
+
+julia> 3 + 4
+```
