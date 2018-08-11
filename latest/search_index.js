@@ -917,15 +917,7 @@ var documenterSearchIndex = {"docs": [
     "page": "DocChecks",
     "title": "Documenter.DocChecks",
     "category": "module",
-    "text": "Provides two functions, missingdocs and doctest, for checking docs.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/docchecks/#Documenter.DocChecks.doctest-Tuple{Documenter.Documents.Document}",
-    "page": "DocChecks",
-    "title": "Documenter.DocChecks.doctest",
-    "category": "method",
-    "text": "doctest(doc)\n\n\nTraverses the document tree and tries to run each Julia code block encountered. Will abort the document generation when an error is thrown. Use doctest = false keyword in Documenter.makedocs to disable doctesting.\n\n\n\n\n\n"
+    "text": "Provides the missingdocs, footnotes and linkcheck functions for checking docs.\n\n\n\n\n\n"
 },
 
 {
@@ -1014,6 +1006,38 @@ var documenterSearchIndex = {"docs": [
     "title": "DocSystem",
     "category": "section",
     "text": "Modules = [Documenter.DocSystem]"
+},
+
+{
+    "location": "lib/internals/doctests/#",
+    "page": "DocTests",
+    "title": "DocTests",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "lib/internals/doctests/#Documenter.DocTests",
+    "page": "DocTests",
+    "title": "Documenter.DocTests",
+    "category": "module",
+    "text": "Provides the doctest function that makes sure that the jldoctest code blocks in the documents and docstrings run and are up to date.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/doctests/#Documenter.DocTests.doctest-Tuple{Documenter.Documents.Document}",
+    "page": "DocTests",
+    "title": "Documenter.DocTests.doctest",
+    "category": "method",
+    "text": "doctest(doc)\n\n\nTraverses the document tree and tries to run each Julia code block encountered. Will abort the document generation when an error is thrown. Use doctest = false keyword in Documenter.makedocs to disable doctesting.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/doctests/#DocTests-1",
+    "page": "DocTests",
+    "title": "DocTests",
+    "category": "section",
+    "text": "Modules = [Documenter.DocTests]"
 },
 
 {
@@ -1473,65 +1497,65 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors",
     "page": "Selectors",
-    "title": "Documenter.Selectors",
+    "title": "Documenter.Utilities.Selectors",
     "category": "module",
     "text": "An extensible code selection interface.\n\nThe Selectors module provides an extensible way to write code that has to dispatch on different predicates without hardcoding the control flow into a single chain of if statements.\n\nIn the following example a selector for a simple condition is implemented and the generated selector code is described:\n\nabstract type MySelector <: Selectors.AbstractSelector end\n\n# The different cases we want to test.\nabstract type One    <: MySelector end\nabstract type NotOne <: MySelector end\n\n# The order in which to test the cases.\nSelectors.order(::Type{One})    = 0.0\nSelectors.order(::Type{NotOne}) = 1.0\n\n# The predicate to test against.\nSelectors.matcher(::Type{One}, x)    = x === 1\nSelectors.matcher(::Type{NotOne}, x) = x !== 1\n\n# What to do when a test is successful.\nSelectors.runner(::Type{One}, x)    = println(\"found one\")\nSelectors.runner(::Type{NotOne}, x) = println(\"not found\")\n\n# Test our selector with some numbers.\nfor i in 0:5\n    Selectors.dispatch(MySelector, i)\nend\n\nSelectors.dispatch(Selector, i) will behave equivalent to the following:\n\nfunction dispatch(::Type{MySelector}, i::Int)\n    if matcher(One, i)\n        runner(One, i)\n    elseif matcher(NotOne, i)\n        runner(NotOne, i)\n    end\nend\n\nand further to\n\nfunction dispatch(::Type{MySelector}, i::Int)\n    if i === 1\n        println(\"found one\")\n    elseif i !== 1\n        println(\"not found\")\n    end\nend\n\nThe module provides the following interface for creating selectors:\n\norder\nmatcher\nrunner\nstrict\ndisable\ndispatch\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors.AbstractSelector",
     "page": "Selectors",
-    "title": "Documenter.Selectors.AbstractSelector",
+    "title": "Documenter.Utilities.Selectors.AbstractSelector",
     "category": "type",
     "text": "Root selector type. Each user-defined selector must subtype from this, i.e.\n\nabstract type MySelector <: Selectors.AbstractSelector end\n\nabstract type First  <: MySelector end\nabstract type Second <: MySelector end\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors.disable-Union{Tuple{Type{T}}, Tuple{T}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors.disable-Union{Tuple{Type{T}}, Tuple{T}} where T<:Documenter.Utilities.Selectors.AbstractSelector",
     "page": "Selectors",
-    "title": "Documenter.Selectors.disable",
+    "title": "Documenter.Utilities.Selectors.disable",
     "category": "method",
     "text": "Disable a particular case in a selector so that it is never used.\n\nSelectors.disable(::Type{Debug}) = true\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors.dispatch-Union{Tuple{T}, Tuple{Type{T},Vararg{Any,N} where N}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors.dispatch-Union{Tuple{T}, Tuple{Type{T},Vararg{Any,N} where N}} where T<:Documenter.Utilities.Selectors.AbstractSelector",
     "page": "Selectors",
-    "title": "Documenter.Selectors.dispatch",
+    "title": "Documenter.Utilities.Selectors.dispatch",
     "category": "method",
     "text": "Call Selectors.runner(T, args...) where T is a subtype of MySelector for which matcher(T, args...) is true.\n\nSelectors.dispatch(MySelector, args...)\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors.matcher",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors.matcher",
     "page": "Selectors",
-    "title": "Documenter.Selectors.matcher",
+    "title": "Documenter.Utilities.Selectors.matcher",
     "category": "function",
     "text": "Define the matching test for each case in a selector, i.e.\n\nSelectors.matcher(::Type{First}, x)  = x == 1\nSelectors.matcher(::Type{Second}, x) = true\n\nNote that the return type must be Bool.\n\nTo match against multiple cases use the Selectors.strict function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors.order",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors.order",
     "page": "Selectors",
-    "title": "Documenter.Selectors.order",
+    "title": "Documenter.Utilities.Selectors.order",
     "category": "function",
     "text": "Define the precedence of each case in a selector, i.e.\n\nSelectors.order(::Type{First})  = 1.0\nSelectors.order(::Type{Second}) = 2.0\n\nNote that the return type must be Float64. Defining multiple case types to have the same order will result in undefined behaviour.\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors.runner",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors.runner",
     "page": "Selectors",
-    "title": "Documenter.Selectors.runner",
+    "title": "Documenter.Utilities.Selectors.runner",
     "category": "function",
     "text": "Define the code that will run when a particular Selectors.matcher test returns true, i.e.\n\nSelectors.runner(::Type{First}, x)  = println(\"`x` is equal to `1`.\")\nSelectors.runner(::Type{Second}, x) = println(\"`x` is not equal to `1`.\")\n\n\n\n\n\n"
 },
 
 {
-    "location": "lib/internals/selectors/#Documenter.Selectors.strict-Union{Tuple{Type{T}}, Tuple{T}} where T<:Documenter.Selectors.AbstractSelector",
+    "location": "lib/internals/selectors/#Documenter.Utilities.Selectors.strict-Union{Tuple{Type{T}}, Tuple{T}} where T<:Documenter.Utilities.Selectors.AbstractSelector",
     "page": "Selectors",
-    "title": "Documenter.Selectors.strict",
+    "title": "Documenter.Utilities.Selectors.strict",
     "category": "method",
     "text": "Define whether a selector case will \"fallthrough\" or not when successfully matched against. By default matching is strict and does not fallthrough to subsequent selector cases.\n\n# Adding a debugging selector case.\nabstract type Debug <: MySelector end\n\n# Insert prior to all other cases.\nSelectors.order(::Type{Debug}) = 0.0\n\n# Fallthrough to the next case on success.\nSelectors.strict(::Type{Debug}) = false\n\n# We always match, regardless of the value of `x`.\nSelectors.matcher(::Type{Debug}, x) = true\n\n# Print some debugging info.\nSelectors.runner(::Type{Debug}, x) = @show x\n\n\n\n\n\n"
 },
