@@ -15,9 +15,10 @@ import ..Documenter:
     Documents,
     Expanders,
     Formats,
-    Selectors,
     Documenter,
     Utilities
+
+import .Utilities: Selectors
 
 using Compat
 

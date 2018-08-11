@@ -28,6 +28,7 @@ makedocs(
                 "lib/internals/cross-references.md",
                 "lib/internals/docchecks.md",
                 "lib/internals/docsystem.md",
+                "lib/internals/doctests.md",
                 "lib/internals/documenter.md",
                 "lib/internals/documents.md",
                 "lib/internals/dom.md",
