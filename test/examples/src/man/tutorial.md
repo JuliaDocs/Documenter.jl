@@ -40,7 +40,11 @@ DocTestSetup =
     quote
         using Documenter
         using Compat.Random
-        srand(1)
+        @static if VERSION < v"1.0.0-"
+            srand(1)
+        else
+            Random.seed!(1)
+        end
     end
 ```
 

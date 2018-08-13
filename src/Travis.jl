@@ -7,6 +7,7 @@ module Travis
 
 using Compat, DocStringExtensions
 import Compat.Pkg
+import Compat.Base64: base64encode
 
 export genkeys
 
