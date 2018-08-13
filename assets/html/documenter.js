@@ -94,6 +94,9 @@ require(['jquery'], function($) {
         if ($('#version-selector > option').length > 0) {
             version_selector.css("visibility", "visible");
         }
+
+        // Scroll the navigation bar to the currently selected menu item
+        $(".toc").get(0).scrollTop = $(".current").get(0).offsetTop;
     })
 
 })
