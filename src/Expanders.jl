@@ -499,7 +499,9 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     input   = droplines(x.code)
 
     # Special-case support for displaying SVG and PNG graphics. TODO: make this more general.
-    output = if showable(MIME"image/svg+xml"(), result)
+    output = if showable(MIME"text/html"(), result)
+        Documents.RawHTML(Base.invokelatest(stringmime, MIME"text/html"(), result))
+    elseif showable(MIME"image/svg+xml"(), result)
         Documents.RawHTML(Base.invokelatest(stringmime, MIME"image/svg+xml"(), result))
     elseif showable(MIME"image/png"(), result)
         Documents.RawHTML(string("<img src=\"data:image/png;base64,", Base.invokelatest(stringmime, MIME"image/png"(), result), "\" />"))
