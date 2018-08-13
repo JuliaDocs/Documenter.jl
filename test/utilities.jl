@@ -180,6 +180,20 @@ end
             @test startswith(output, "println\n[ Info: @info\n┌ Warning: depwarn\n")
         end
     end
+
+    @testset "issue #749, #790" begin
+        let parse(x) = Documenter.Utilities.parseblock(x, nothing, nothing)
+            for LE in ("\r\n", "\n")
+                l1, l2, l3 = parse("x = Int[]$(LE)$(LE)push!(x, 1)$(LE)")
+                @test l1[1] == :(x = Int[])
+                @test l1[2] == "x = Int[]$(LE)"
+                @test l2[1] == QuoteNode(Symbol(""))
+                @test l2[2] == "$(LE)"
+                @test l3[1] == :(push!(x, 1))
+                @test l3[2] == "push!(x, 1)$(LE)"
+            end
+        end
+    end
 end
 
 end
