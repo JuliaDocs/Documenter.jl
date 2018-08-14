@@ -329,7 +329,7 @@ function render_navmenu(ctx, navnode)
         )
     end
     push!(navmenu.nodes, h1(ctx.doc.user.sitename))
-    let version_selector = select["#version-selector", :onChange => "window.location.href=this.value"]()
+    let version_selector = partialsort["#version-selector", :onChange => "window.location.href=this.value"]()
         if isempty(ctx.doc.user.version)
             push!(version_selector.attributes, :style => "visibility: hidden")
         else
