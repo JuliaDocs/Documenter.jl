@@ -117,19 +117,17 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
-    # Check whether we have windows-style line endings.
-    offset = occursin("\n\r", code) ? 2 : 1
     endofstr = lastindex(code)
     results = []
     cursor = 1
     while cursor < endofstr
         # Check for keywords first since they will throw parse errors if we `parse` them.
-        line = match(r"^(.+)$"m, SubString(code, cursor)).captures[1]
+        line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
         keyword = Symbol(strip(line))
         (ex, ncursor) =
-            if keywords && haskey(Docs.keywords, keyword)
-                # adding offset below should be OK, as `\n` and `\r` are single byte
-                (QuoteNode(keyword), cursor + lastindex(line) + offset)
+            # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
+            if keywords && (haskey(Docs.keywords, keyword) || keyword == Symbol(""))
+                (QuoteNode(keyword), cursor + lastindex(line))
             else
                 try
                     Meta.parse(code, cursor)
