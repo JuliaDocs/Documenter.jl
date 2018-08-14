@@ -3,16 +3,18 @@
 
 *A documentation generator for Julia.*
 
-| **Documentation**                                                               | **PackageEvaluator**                                                                            | **Build Status**                                                                                |
-|:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.6-img]][pkg-0.6-url] [![][pkg-0.7-img]][pkg-0.7-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+| **Documentation**                                                               | **Build Status**                                                                                |
+|:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
+| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 
 
 ## Installation
 
-The package is registered in `METADATA.jl` and can be installed with `Pkg.add`.
+The package can be installed with Julias package manager:
 
 ```julia
+julia> import Pkg
+
 julia> Pkg.add("Documenter")
 ```
 
@@ -23,9 +25,9 @@ julia> Pkg.add("Documenter")
 
 ## Project Status
 
-The package is tested against Julia `0.6` and *current* `0.7-dev` on Linux, OS X, and Windows.
+The package is tested against Julia `0.7`, `1.0` and *current* `1.1-dev` on Linux, OS X, and Windows.
 
-Support for Julia `0.4` and `0.5` has been dropped in the latest version, but older versions of Documenter may still work with those Julia versions (the `0.8` and `0.11` branches for either Julia version, respectively).
+Support for Julia `0.4`, `0.5` and `0.6` has been dropped in the latest version, but older versions of Documenter may still work with those Julia versions (the `0.8`, `0.11` and `0.19` branches for Julia versions `0.4`, `0.5` and `0.6`, respectively).
 
 ## Questions and Contributions
 
@@ -53,8 +55,3 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl
 
 [issues-url]: https://github.com/JuliaDocs/Documenter.jl/issues
-
-[pkg-0.6-img]: http://pkg.julialang.org/badges/Documenter_0.6.svg
-[pkg-0.6-url]: http://pkg.julialang.org/?pkg=Documenter&ver=0.6
-[pkg-0.7-img]: http://pkg.julialang.org/badges/Documenter_0.7.svg
-[pkg-0.7-url]: http://pkg.julialang.org/?pkg=Documenter&ver=0.7
