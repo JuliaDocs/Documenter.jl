@@ -96,7 +96,7 @@ require(['jquery'], function($) {
         }
 
         // Scroll the navigation bar to the currently selected menu item
-        $("nav.toc > ul").get(0).scrollTop = $(".current").get(0).offsetTop;
+        $("nav.toc > ul").get(0).scrollTop = $(".current").get(0).offsetTop - $("nav.toc > ul").get(0).offsetTop;
     })
 
 })
