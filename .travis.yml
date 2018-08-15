@@ -13,4 +13,4 @@ notifications:
   email: false
 
 after_success:
-  - julia -e 'cd(Pkg.dir("Documenter", "test")); include("coverage.jl")'
+  - julia -e 'cd("test"); include("coverage.jl")'

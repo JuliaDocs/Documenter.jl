@@ -41,10 +41,18 @@ Deploy keys provide push access to a *single* repository, to allow secure deploy
     They are `which`, `git`, and `ssh-keygen`. Make sure these are installed before you
     begin this section.
 
-Open a Julia REPL and import [`Documenter`](@ref).
+SSH keys can be generated with the `Travis.genkeys` from the `DocumenterTools.jl` package.
+DocumenterTools can be added using the Julia package manager. From the REPL, type `]`
+to enter the Pkg REPL mode and run
+
+```
+pkg> add DocumenterTools
+```
+
+DocumenterTools can now be loaded as
 
 ```jlcon
-julia> using Documenter
+julia> using DocumenterTools
 ```
 
 Then call the [`Travis.genkeys`](@ref) function as follows:
@@ -119,7 +127,7 @@ Add the following at the end of the file:
 ```julia
 deploydocs(
     repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-    julia = "0.6"
+    julia = "1.0"
 )
 ```
 

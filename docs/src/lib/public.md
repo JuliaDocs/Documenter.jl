@@ -23,9 +23,6 @@ Documenter
 makedocs
 hide
 deploydocs
-Documenter.generate
-Travis
-Travis.genkeys
 Deps
 Deps.pip
 ```
