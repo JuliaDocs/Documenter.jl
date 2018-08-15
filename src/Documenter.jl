@@ -1,5 +1,3 @@
-__precompile__(true)
-
 """
 Main module for `Documenter.jl` -- a documentation generation package for Julia.
 
