@@ -4,7 +4,6 @@ Provides the functions related to generating documentation stubs.
 module Generator
 
 using DocStringExtensions
-using Compat: @info
 
 """
 $(SIGNATURES)

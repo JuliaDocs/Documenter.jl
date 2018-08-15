@@ -1,5 +1,4 @@
-using Compat.Test
-using Compat
+using Test
 
 # Compat for Julia 0.6
 if !isdefined(Base, Symbol("@isdefined"))

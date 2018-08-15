@@ -13,8 +13,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using Compat
-import Compat.Markdown
+import Markdown
 
 mutable struct Context{I <: IO} <: IO
     io::I
@@ -80,9 +79,9 @@ function render(doc::Documents.Document)
                     run(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $file`)
                 catch err
                     Utilities.warn("failed to compile. Check generated LaTeX file.")
-                    Compat.cp(file, joinpath(outdir, file); force = true)
+                    cp(file, joinpath(outdir, file); force = true)
                 end
-                Compat.cp(pdf, joinpath(outdir, pdf); force = true)
+                cp(pdf, joinpath(outdir, pdf); force = true)
             else
                 Utilities.warn("`latexmk` and `lualatex` required for PDF generation.")
             end
@@ -92,7 +91,7 @@ end
 
 function writeheader(io::IO, doc::Documents.Document)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
-    isfile(custom) ? Compat.cp(custom, "custom.sty"; force = true) : touch("custom.sty")
+    isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
     preamble =
         """
         \\documentclass{memoir}

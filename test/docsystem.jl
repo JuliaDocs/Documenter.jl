@@ -1,13 +1,10 @@
 module DocSystemTests
 
-using Compat.Test
-using Compat
+using Test
 
 import Documenter: Documenter, DocSystem
 
 const alias_of_getdocs = DocSystem.getdocs # NOTE: won't get docstrings if in a @testset
-
-PACKAGES_LOADED_MAIN = VERSION < v"0.7.0-DEV.1877"
 
 @testset "DocSystem" begin
     ## Bindings.
@@ -20,7 +17,7 @@ PACKAGES_LOADED_MAIN = VERSION < v"0.7.0-DEV.1877"
         @test b.var === :Document
     end
     let b = DocSystem.binding(Documenter)
-        @test b.mod === (PACKAGES_LOADED_MAIN ? Main : Documenter)
+        @test b.mod === (Documenter)
         @test b.var === :Documenter
     end
     let b = DocSystem.binding(:Main)
@@ -32,7 +29,7 @@ PACKAGES_LOADED_MAIN = VERSION < v"0.7.0-DEV.1877"
         @test b.var === :binding
     end
     let b = DocSystem.binding(Documenter, :Documenter)
-        @test b.mod === (PACKAGES_LOADED_MAIN ? Main : Documenter)
+        @test b.mod === (Documenter)
         @test b.var === :Documenter
     end
 

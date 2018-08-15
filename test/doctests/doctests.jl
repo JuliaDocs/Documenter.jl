@@ -1,6 +1,5 @@
 module DocTestsTest
-using Documenter, Compat.Test
-using Compat: @info
+using Documenter, Test
 
 println("="^50)
 @info("Testing `doctest = :fix`")

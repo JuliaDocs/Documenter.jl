@@ -1,8 +1,7 @@
 module NavNodeTests
 
-using Compat.Test
+using Test
 
-using Compat
 import Documenter: Documents, Builder
 import Documenter.Documents: NavNode
 

@@ -20,8 +20,6 @@ import ..Documenter:
 
 import .Utilities: Selectors
 
-using Compat
-
 #
 # Format selector definitions.
 #
