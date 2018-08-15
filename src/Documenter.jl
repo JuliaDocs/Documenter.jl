@@ -20,12 +20,6 @@ using DocStringExtensions
 import Base64: base64decode
 import Pkg
 
-@static if VERSION < v"0.7.0-DEV.3439"
-    const IdDict = Base.ObjectIdDict
-else
-    const IdDict = Base.IdDict{Any,Any}
-end
-
 @static if VERSION < v"0.7.0-DEV.3500"
     import Base.REPL
     using Base.REPL: ip_matches_func

@@ -6,8 +6,7 @@ module DocChecks
 
 import ..Documenter:
     Documents,
-    Utilities,
-    IdDict
+    Utilities
 
 using DocStringExtensions
 import Markdown
@@ -61,7 +60,7 @@ end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
-        isa(obj, IdDict) && continue
+        isa(obj, IdDict{Any,Any}) && continue
         name = nameof(obj)
         isexported = Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)

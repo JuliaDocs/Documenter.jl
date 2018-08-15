@@ -4,7 +4,6 @@ using Test
 import Base64: stringmime
 
 import Documenter
-import Documenter: IdDict
 
 module UnitTests
     module SubModule end
@@ -135,7 +134,7 @@ end
     @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
 
     import Documenter.Documents: Document, Page, Globals
-    let page = Page("source", "build", [], IdDict(), Globals()), doc = Document()
+    let page = Page("source", "build", [], IdDict{Any,Any}(), Globals()), doc = Document()
         code = """
         x += 3
         γγγ_γγγ

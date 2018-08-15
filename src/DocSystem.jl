@@ -7,7 +7,6 @@ module DocSystem
 using DocStringExtensions
 import Markdown
 import Base.Docs: MultiDoc, parsedoc, formatdoc, DocStr
-import ..IdDict
 
 ## Bindings ##
 
@@ -143,19 +142,19 @@ Converts a `0.4`-style docstring cache into a `0.5` one.
 
 The original docstring cache is not modified.
 """
-function convertmeta(meta::IdDict)
+function convertmeta(meta::IdDict{Any,Any})
     if !haskey(CACHED, meta)
-        docs = IdDict()
+        docs = IdDict{Any,Any}()
         for (k, v) in meta
-            if !isa(k, Union{Number, AbstractString, IdDict})
+            if !isa(k, Union{Number, AbstractString, IdDict{Any,Any}})
                 docs[binding(k)] = multidoc(v)
             end
         end
         CACHED[meta] = docs
     end
-    CACHED[meta]::IdDict
+    CACHED[meta]::IdDict{Any,Any}
 end
-const CACHED = IdDict()
+const CACHED = IdDict{Any,Any}()
 
 
 ## Get docs from modules.

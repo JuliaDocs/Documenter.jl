@@ -8,8 +8,7 @@ using DocStringExtensions
 import ..Documenter:
     Documenter,
     Documents,
-    Utilities,
-    IdDict
+    Utilities
 
 import Markdown
 
