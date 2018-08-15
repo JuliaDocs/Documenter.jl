@@ -20,7 +20,7 @@ import .Documents:
 
 import .Utilities: Selectors
 
-import Markdown
+import Markdown, REPL
 import Base64: stringmime
 
 
@@ -542,7 +542,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         end
         result = value
         output = if success
-            hide = Documenter.REPL.ends_with_semicolon(input)
+            hide = REPL.ends_with_semicolon(input)
             Documenter.DocTests.result_to_string(buffer, hide ? nothing : value)
         else
             Documenter.DocTests.error_to_string(buffer, value, [])
