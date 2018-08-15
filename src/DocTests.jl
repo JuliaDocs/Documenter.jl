@@ -98,7 +98,14 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
 
         for expr in [get(meta, :DocTestSetup, []); get(meta[:LocalDocTestArguments], :setup, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
-            Core.eval(sandbox, expr)
+            try
+                Core.eval(sandbox, expr)
+            catch e
+                push!(doc.internal.errors, :doctest)
+                @error("could not evaluate expression from doctest setup.",
+                    expression = expr, exception = e)
+                return false
+            end
         end
         if occursin(r"^julia> "m, block.code)
             eval_repl(block, sandbox, meta, doc, page)
