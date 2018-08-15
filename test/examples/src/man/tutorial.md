@@ -40,11 +40,7 @@ DocTestSetup =
     quote
         using Documenter
         using Random
-        @static if VERSION < v"1.0.0-"
-            srand(1)
-        else
-            Random.seed!(1)
-        end
+        Random.seed!(1)
     end
 ```
 

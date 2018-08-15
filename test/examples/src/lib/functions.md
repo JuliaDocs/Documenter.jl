@@ -121,8 +121,8 @@ b = ans
 ```
 
 ```@repl
-using Random # hide
-@static if VERSION < v"1.0.0-" srand(1) else Random.seed!(1) end; # hide
+using Random    # hide
+Random.seed!(1) # hide
 nothing
 rand()
 a = 1

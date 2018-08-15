@@ -317,8 +317,8 @@ Code blocks may have some content that does not need to be displayed in the fina
 
 ````markdown
 ```@example
-using Random # hide
-srand(1) # hide
+import Random # hide
+Random.seed!(1) # hide
 A = rand(3, 3)
 b = [1, 2, 3]
 A \ b
