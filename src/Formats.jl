@@ -7,7 +7,7 @@ module Formats
 
 import ..Documenter
 
-using Compat, DocStringExtensions
+using DocStringExtensions
 
 """
 Represents the output format. Possible values are `Markdown`, `LaTeX`, and `HTML`.

@@ -5,13 +5,13 @@ $(EXPORTS)
 """
 module Travis
 
-using Compat, DocStringExtensions
-import Compat.Pkg
-import Compat.Base64: base64encode
+using DocStringExtensions
+import Pkg
+import Base64: base64encode
 
 export genkeys
 
-import Compat.LibGit2.GITHUB_REGEX
+import LibGit2.GITHUB_REGEX
 
 
 """
@@ -77,7 +77,7 @@ function genkeys(package; remote="origin")
 
         # Prompt user to add public key to github then remove the public key.
         let url = "https://github.com/$user/$repo/settings/keys"
-            Compat.@info("add the public key below to $url with read/write access:")
+            @info("add the public key below to $url with read/write access:")
             println("\n", read("$filename.pub", String))
             rm("$filename.pub")
         end
@@ -86,7 +86,7 @@ function genkeys(package; remote="origin")
         # *not* encoded for the sake of security, but instead to make it easier to
         # copy/paste it over to travis without having to worry about whitespace.
         let url = "https://travis-ci.org/$user/$repo/settings"
-            Compat.@info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
+            @info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
             println("\n", base64encode(read(".documenter", String)), "\n")
             rm(filename)
         end

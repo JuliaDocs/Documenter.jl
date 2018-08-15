@@ -6,11 +6,10 @@ module DocChecks
 
 import ..Documenter:
     Documents,
-    Utilities,
-    IdDict
+    Utilities
 
-using Compat, DocStringExtensions
-import Compat: Markdown
+using DocStringExtensions
+import Markdown
 
 # Missing docstrings.
 # -------------------
@@ -37,7 +36,7 @@ function missingdocs(doc::Documents.Document)
             end
         end
     end
-    n = Compat.reduce(+, map(length, values(bindings)), init=0)
+    n = reduce(+, map(length, values(bindings)), init=0)
     if n > 0
         b = IOBuffer()
         println(b, "$n docstring$(n ≡ 1 ? "" : "s") potentially missing:\n")
@@ -61,7 +60,7 @@ end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
-        isa(obj, IdDict) && continue
+        isa(obj, IdDict{Any,Any}) && continue
         name = nameof(obj)
         isexported = Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
@@ -76,7 +75,7 @@ meta(m) = Docs.meta(m)
 nameof(x::Function)          = typeof(x).name.mt.name
 nameof(b::Base.Docs.Binding) = b.var
 nameof(x::DataType)          = x.name.name
-nameof(m::Module)            = Compat.nameof(m)
+nameof(m::Module)            = nameof(m)
 
 sigs(x::Base.Docs.MultiDoc) = x.order
 sigs(::Any) = Type[Union{}]

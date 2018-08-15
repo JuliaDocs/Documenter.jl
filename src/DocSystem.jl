@@ -4,10 +4,9 @@ docsystem in both `0.4` and `0.5`.
 """
 module DocSystem
 
-using Compat, DocStringExtensions
-import Compat.Markdown
+using DocStringExtensions
+import Markdown
 import Base.Docs: MultiDoc, parsedoc, formatdoc, DocStr
-import ..IdDict
 
 ## Bindings ##
 
@@ -43,7 +42,7 @@ binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name
 #
 # Note that `IntrinsicFunction` is exported from `Base` in `0.4`, but not in `0.5`.
 #
-let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, Compat.names(Core.Intrinsics, all=true)))
+let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all=true)))
     global binding(i::Core.IntrinsicFunction) = binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
 end
 
@@ -78,7 +77,7 @@ binding(m::Module, λ::Any) = binding(λ)
 
 function signature(x, str::AbstractString)
     ts = Base.Docs.signature(x)
-    (Meta.isexpr(x, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(strip(str), "()")) ? :(Union{}) : ts
+    (Meta.isexpr(x, :macrocall, 2) && !endswith(strip(str), "()")) ? :(Union{}) : ts
 end
 
 ## Docstring containers. ##
@@ -143,19 +142,19 @@ Converts a `0.4`-style docstring cache into a `0.5` one.
 
 The original docstring cache is not modified.
 """
-function convertmeta(meta::IdDict)
+function convertmeta(meta::IdDict{Any,Any})
     if !haskey(CACHED, meta)
-        docs = IdDict()
+        docs = IdDict{Any,Any}()
         for (k, v) in meta
-            if !isa(k, Union{Number, AbstractString, IdDict})
+            if !isa(k, Union{Number, AbstractString, IdDict{Any,Any}})
                 docs[binding(k)] = multidoc(v)
             end
         end
         CACHED[meta] = docs
     end
-    CACHED[meta]::IdDict
+    CACHED[meta]::IdDict{Any,Any}
 end
-const CACHED = IdDict()
+const CACHED = IdDict{Any,Any}()
 
 
 ## Get docs from modules.

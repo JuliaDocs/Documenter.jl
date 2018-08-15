@@ -1,5 +1,3 @@
-__precompile__(true)
-
 """
 Main module for `Documenter.jl` -- a documentation generation package for Julia.
 
@@ -16,24 +14,9 @@ $(EXPORTS)
 """
 module Documenter
 
-using Compat, DocStringExtensions
-import Compat.Base64: base64decode
-import Compat: @info
-import Compat.Pkg
-
-@static if VERSION < v"0.7.0-DEV.3439"
-    const IdDict = Base.ObjectIdDict
-else
-    const IdDict = Base.IdDict{Any,Any}
-end
-
-@static if VERSION < v"0.7.0-DEV.3500"
-    import Base.REPL
-    using Base.REPL: ip_matches_func
-else
-    import REPL
-    using Base: ip_matches_func
-end
+using DocStringExtensions
+import Base64: base64decode
+import Pkg
 
 # Submodules
 # ----------
@@ -387,7 +370,7 @@ function deploydocs(;
 
     # Sanity checks
     if !isempty(travis_repo_slug) && !occursin(travis_repo_slug, repo)
-        Compat.@warn("repo $repo does not match $travis_repo_slug")
+        @warn("repo $repo does not match $travis_repo_slug")
     end
 
     # When should a deploy be attempted?
@@ -403,13 +386,13 @@ function deploydocs(;
 
     # check that the tag is valid
     if should_deploy && !isempty(travis_tag) && !occursin(Base.VERSION_REGEX, travis_tag)
-        Compat.@warn("tag `$(travis_tag)` is not a valid VersionNumber")
+        @warn("tag `$(travis_tag)` is not a valid VersionNumber")
         should_deploy = false
     end
 
     # check DOCUMENTER_KEY only if the branch, Julia version etc. check out
     if should_deploy && isempty(documenter_key)
-        Compat.@warn("""
+        @warn("""
             DOCUMENTER_KEY environment variable missing, unable to deploy.
               Note that in Documenter v0.9.0 old deprecated authentication methods were removed.
               DOCUMENTER_KEY is now the only option. See the documentation for more information.""")
@@ -532,7 +515,7 @@ function git_push(
                     version = VersionNumber(tag)
                     # only push to stable if this is the latest stable release
                     versions = filter!(x -> occursin(Base.VERSION_REGEX, x), readdir(dirname))
-                    maxver = Compat.mapreduce(x -> VersionNumber(x), max, versions; init=v"0.0.0")
+                    maxver = mapreduce(x -> VersionNumber(x), max, versions; init=v"0.0.0")
                     if version >= maxver && version.prerelease == () # don't deploy to stable for prereleases
                         gitrm_copy(target_dir, stable_dir)
                         Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
@@ -578,7 +561,7 @@ first, `git add -A` will not detect case changes in filenames.
 function gitrm_copy(src, dst)
     # --ignore-unmatch so that we wouldn't get errors if dst does not exist
     run(`git rm -rf --ignore-unmatch $(dst)`)
-    Compat.cp(src, dst; force=true)
+    cp(src, dst; force=true)
 end
 
 function withfile(func, file::AbstractString, contents::AbstractString)
