@@ -177,7 +177,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
     if !haskey(doc.internal.locallinks, link)
         local result
         try
-            result = read(`curl -sI $(link.url)`, String)
+            result = read(`curl -sI $(link.url) --max-time 10`, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
             Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")
