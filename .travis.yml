@@ -13,4 +13,6 @@ notifications:
   email: false
 
 after_success:
+  - julia --project=docs -e 'using Pkg; Pkg.instantiate()'
+  - julia --project=docs docs/make.jl
   - julia -e 'cd("test"); include("coverage.jl")'

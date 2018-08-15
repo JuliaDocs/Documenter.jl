@@ -2,13 +2,12 @@
 
 ## Installation
 
-Documenter is a registered package and so can be installed via `Pkg.add`.
+Documenter can be installed using the Julia package manager.
+From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 
-```julia
-Pkg.add("Documenter")
 ```
-
-This package supports Julia `0.6` and `0.7-dev`.
+pkg> add Documenter
+```
 
 ## Usage
 
@@ -17,6 +16,10 @@ Julia's docsystem into a single inter-linked document. What follows is a step-by
 to creating a simple document.
 
 ### Setting up the folder structure
+
+!!! note
+    The function [`DocumenterTools.generate`](@ref) from the `DocumenterTools` package
+    can generate the basic structure that Documenters expects.
 
 Firstly, we need a Julia module to document. This could be a package generated via
 `PkgDev.generate` or a single `.jl` script accessible via Julia's `LOAD_PATH`. For this

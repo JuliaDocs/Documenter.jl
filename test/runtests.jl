@@ -1,8 +1,5 @@
 using Test
 
-# Build the real docs first.
-include("../docs/make.jl")
-
 # Build the example docs
 include("examples/make.jl")
 

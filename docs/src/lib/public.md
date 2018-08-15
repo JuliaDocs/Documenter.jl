@@ -26,3 +26,10 @@ deploydocs
 Deps
 Deps.pip
 ```
+
+## DocumenterTools
+
+```@docs
+DocumenterTools.generate
+DocumenterTools.Travis.genkeys
+```

@@ -6,9 +6,6 @@ Two functions are exported from this module for public use:
 - [`makedocs`](@ref). Generates documentation from docstrings and templated markdown files.
 - [`deploydocs`](@ref). Deploys generated documentation from *Travis-CI* to *GitHub Pages*.
 
-Additionally it provides the unexported [`Documenter.generate`](@ref), which can be used to
-generate documentation stubs for new packages.
-
 $(EXPORTS)
 
 """
@@ -17,14 +14,6 @@ module Documenter
 using DocStringExtensions
 import Base64: base64decode
 import Pkg
-
-# Deprecations
-# ------------
-Base.@deprecate_moved generate "DocumenterTools" false
-module Travis
-    Base.@deprecate_moved genkeys "DocumenterTools" false
-end
-export Travis
 
 # Submodules
 # ----------
