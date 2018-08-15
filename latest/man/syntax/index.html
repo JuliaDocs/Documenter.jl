@@ -90,8 +90,8 @@ a + b
 ```
 3
 ```</code></pre><p>Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace on each line is also removed.</p><p><strong>Hiding Source Code</strong></p><p>Code blocks may have some content that does not need to be displayed in the final document. <code># hide</code> comments can be appended to lines that should not be rendered, i.e.</p><pre><code class="language-markdown">```@example
-using Compat.Random # hide
-srand(1) # hide
+import Random # hide
+Random.seed!(1) # hide
 A = rand(3, 3)
 b = [1, 2, 3]
 A \ b
