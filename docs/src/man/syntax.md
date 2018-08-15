@@ -317,7 +317,7 @@ Code blocks may have some content that does not need to be displayed in the fina
 
 ````markdown
 ```@example
-using Compat.Random # hide
+using Random # hide
 srand(1) # hide
 A = rand(3, 3)
 b = [1, 2, 3]

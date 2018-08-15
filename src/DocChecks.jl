@@ -9,8 +9,8 @@ import ..Documenter:
     Utilities,
     IdDict
 
-using Compat, DocStringExtensions
-import Compat: Markdown
+using DocStringExtensions
+import Markdown
 
 # Missing docstrings.
 # -------------------
@@ -37,7 +37,7 @@ function missingdocs(doc::Documents.Document)
             end
         end
     end
-    n = Compat.reduce(+, map(length, values(bindings)), init=0)
+    n = reduce(+, map(length, values(bindings)), init=0)
     if n > 0
         b = IOBuffer()
         println(b, "$n docstring$(n ≡ 1 ? "" : "s") potentially missing:\n")
@@ -76,7 +76,7 @@ meta(m) = Docs.meta(m)
 nameof(x::Function)          = typeof(x).name.mt.name
 nameof(b::Base.Docs.Binding) = b.var
 nameof(x::DataType)          = x.name.name
-nameof(m::Module)            = Compat.nameof(m)
+nameof(m::Module)            = nameof(m)
 
 sigs(x::Base.Docs.MultiDoc) = x.order
 sigs(::Any) = Type[Union{}]

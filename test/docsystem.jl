@@ -1,7 +1,6 @@
 module DocSystemTests
 
-using Compat.Test
-using Compat
+using Test
 
 import Documenter: Documenter, DocSystem
 

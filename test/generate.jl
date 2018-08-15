@@ -1,7 +1,7 @@
 module GenerateTests
 
-using Compat.Test
-import Compat.Random: randstring
+using Test
+import Random: randstring
 using Documenter
 
 @testset "Generate" begin

@@ -96,8 +96,6 @@ module DOM
 
 import ..Utilities
 
-using Compat
-
 tostr(p::Pair) = p
 
 export @tags

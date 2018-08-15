@@ -3,7 +3,6 @@ Provides the [`doctest`](@ref) function that makes sure that the `jldoctest` cod
 in the documents and docstrings run and are up to date.
 """
 module DocTests
-using Compat
 using DocStringExtensions
 
 import ..Documenter:
@@ -12,7 +11,7 @@ import ..Documenter:
     Utilities,
     IdDict
 
-import Compat: Markdown
+import Markdown
 
 # Julia code block testing.
 # -------------------------
@@ -26,7 +25,7 @@ function find_codeblock_in_file(code, file)
     content = replace(content, "\r\n" => "\n")
     # make a regex of the code that matches leading whitespace
     rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
-    blockidx = Compat.findfirst(Regex(rcode), content)
+    blockidx = findfirst(Regex(rcode), content)
     if blockidx !== nothing
         startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
         endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
@@ -78,7 +77,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
 
         # parse keyword arguments to doctest
         d = Dict()
-        idx = Compat.findfirst(c -> c == ';', lang)
+        idx = findfirst(c -> c == ';', lang)
         if idx !== nothing
             kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
             for kwarg in kwargs.args
@@ -278,7 +277,7 @@ funcsym() = CAN_INLINE[] ? :disable_color : :eval
 function error_to_string(buf, er, bt)
     fs = funcsym()
     # Remove unimportant backtrace info.
-    index = Compat.findlast(ptr -> Documenter.ip_matches_func(ptr, fs), bt)
+    index = findlast(ptr -> Documenter.ip_matches_func(ptr, fs), bt)
     # Print a REPL-like error message.
     disable_color() do
         print(buf, "ERROR: ")
@@ -335,12 +334,12 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     # read the file containing the code block
     content = read(filename, String)
     # output stream
-    io = Compat.IOBuffer(sizehint = sizeof(content))
+    io = IOBuffer(sizehint = sizeof(content))
     # first look for the entire code block
     # make a regex of the code that matches leading whitespace
     rcode = "(\\h*)" * replace(regex_escape(code), "\\n" => "\\n\\h*")
     r = Regex(rcode)
-    codeidx = Compat.findfirst(r, content)
+    codeidx = findfirst(r, content)
     if codeidx === nothing
         Utilities.warn("Could not find code block in source file")
         return
@@ -353,7 +352,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     # make a regex of the input that matches leading whitespace (for multiline input)
     rinput = "\\h*" * replace(regex_escape(result.input), "\\n" => "\\n\\h*")
     r = Regex(rinput)
-    inputidx = Compat.findfirst(r, code)
+    inputidx = findfirst(r, code)
     if inputidx === nothing
         Utilities.warn("Could not find input line in code block")
         return

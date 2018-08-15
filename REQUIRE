@@ -1,3 +1,2 @@
 julia 0.7
-Compat 0.70.0 # reduce(; init=...) / Compat#590
 DocStringExtensions 0.2

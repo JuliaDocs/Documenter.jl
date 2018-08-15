@@ -12,8 +12,8 @@ import ..Documenter:
     Documenter,
     Utilities
 
-using Compat, DocStringExtensions
-import Compat.Markdown
+using DocStringExtensions
+import Markdown
 
 """
 $(SIGNATURES)

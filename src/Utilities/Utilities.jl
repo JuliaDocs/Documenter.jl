@@ -3,11 +3,11 @@ Provides a collection of utility functions and types that are used in other subm
 """
 module Utilities
 
-using Base.Meta, Compat
+using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
-import Compat.Markdown
-import Compat.Base64: stringmime
+import Markdown, LibGit2
+import Base64: stringmime
 
 # Logging output.
 
@@ -175,7 +175,7 @@ function submodules(modules::Vector{Module})
 end
 function submodules(root::Module, seen = Set{Module}())
     push!(seen, root)
-    for name in Compat.names(root, all=true)
+    for name in names(root, all=true)
         if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
             if isa(object, Module) && !(object in seen)
@@ -222,7 +222,7 @@ Returns a expression that, when evaluated, returns an [`Object`](@ref) represent
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
     binding   = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
     signature = Base.Docs.signature(ex)
-    isexpr(ex, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(str, "()") && (signature = :(Union{}))
+    isexpr(ex, :macrocall, 2) && !endswith(str, "()") && (signature = :(Union{}))
     Expr(:call, Object, binding, signature)
 end
 
@@ -254,7 +254,7 @@ function docs end
 
 # Macro representation changed between 0.4 and 0.5.
 function docs(ex::Union{Symbol, Expr}, str::AbstractString)
-    isexpr(ex, :macrocall, 1 + Compat.macros_have_sourceloc) && !endswith(rstrip(str), "()") && (ex = quot(ex))
+    isexpr(ex, :macrocall, 2) && !endswith(rstrip(str), "()") && (ex = quot(ex))
     :(Base.Docs.@doc $ex)
 end
 docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
@@ -450,7 +450,7 @@ function getremote(dir::AbstractString)
         catch err
             ""
         end
-    m = match(Compat.LibGit2.GITHUB_REGEX, remote)
+    m = match(LibGit2.GITHUB_REGEX, remote)
     if m === nothing
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis
@@ -526,7 +526,7 @@ struct LineRangeFormatting
     end
 end
 
-function format_line(range::Compat.AbstractRange, format::LineRangeFormatting)
+function format_line(range::AbstractRange, format::LineRangeFormatting)
     if length(range) <= 1
         string(format.prefix, first(range))
     else

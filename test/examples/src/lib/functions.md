@@ -121,7 +121,7 @@ b = ans
 ```
 
 ```@repl
-using Compat.Random # hide
+using Random # hide
 @static if VERSION < v"1.0.0-" srand(1) else Random.seed!(1) end; # hide
 nothing
 rand()

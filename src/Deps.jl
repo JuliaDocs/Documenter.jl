@@ -7,7 +7,7 @@ module Deps
 
 export pip
 
-using Compat, DocStringExtensions
+using DocStringExtensions
 
 """
 $(SIGNATURES)
@@ -37,8 +37,8 @@ end
 
 
 function localbin()
-    Compat.Sys.islinux() ? joinpath(homedir(), ".local", "bin") :
-    Compat.Sys.isapple() ? joinpath(homedir(), "Library", "Python", "2.7", "bin") : ""
+    Sys.islinux() ? joinpath(homedir(), ".local", "bin") :
+    Sys.isapple() ? joinpath(homedir(), "Library", "Python", "2.7", "bin") : ""
 end
 
 function updatepath!(p = localbin())

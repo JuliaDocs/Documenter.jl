@@ -39,7 +39,7 @@ a + b
 DocTestSetup =
     quote
         using Documenter
-        using Compat.Random
+        using Random
         @static if VERSION < v"1.0.0-"
             srand(1)
         else
@@ -69,7 +69,7 @@ julia> a / b
 ```
 
 ```@eval
-import Compat.Markdown
+import Markdown
 code = string(sprint(Base.banner), "julia>")
 Markdown.Code(code)
 ```

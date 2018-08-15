@@ -15,9 +15,9 @@ import ..Documenter:
     Utilities,
     IdDict
 
-using Compat, DocStringExtensions
-import Compat.Markdown
-using Compat.Unicode
+using DocStringExtensions
+import Markdown
+using Unicode
 
 # Pages.
 # ------
