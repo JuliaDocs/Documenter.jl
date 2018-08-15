@@ -17,14 +17,14 @@ using Documenter
         end
     end
 
-    # TODO: these tests should be reviewed. Documenter.generate() does not really
-    # support Pkg3 / Julia 0.7 at the moment.
-    @test_throws ErrorException Documenter.generate("Documenter")
-    if VERSION < v"0.7.0-"
-        @test_throws ErrorException Documenter.generate(randstring())
-    else
-        @test_throws MethodError Documenter.generate(randstring())
-    end
+    # # TODO: these tests should be reviewed. Documenter.generate() does not really
+    # # support Pkg3 / Julia 0.7 at the moment.
+    # @test_throws ErrorException Documenter.generate("Documenter")
+    # if VERSION < v"0.7.0-"
+    #     @test_throws ErrorException Documenter.generate(randstring())
+    # else
+    #     @test_throws MethodError Documenter.generate(randstring())
+    # end
 end
 
 end
