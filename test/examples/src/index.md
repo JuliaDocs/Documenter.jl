@@ -341,6 +341,37 @@ julia> eval(ex)
 3
 ```
 
+```@repl
+ex = :(1 + 5)
+eval(ex)
+```
+
+```@example
+ex = :(1 + 5)
+eval(ex)
+```
+
+# Issue #793
+```jldoctest
+julia> write("issue793.jl", "\"Hello!\"");
+
+julia> include("issue793.jl")
+"Hello!"
+
+julia> rm("issue793.jl");
+```
+```@repl
+write("issue793.jl", "\"Hello!\"")
+include("issue793.jl")
+rm("issue793.jl")
+```
+```@example
+write("issue793.jl", "\"Hello!\"")
+r = include("issue793.jl")
+rm("issue793.jl")
+r
+```
+
 
 ```jldoctest
 julia> a = 1

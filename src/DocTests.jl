@@ -8,6 +8,7 @@ using DocStringExtensions
 import ..Documenter:
     Documenter,
     Documents,
+    Expanders,
     Utilities
 
 import Markdown, REPL
@@ -64,12 +65,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        sandbox = get!(page.globals.meta, sym) do
-            newmod = Module(sym)
-            # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-            Core.eval(newmod, :(eval(x) = Core.eval($newmod, x)))
-            newmod
-        end
+        sandbox = get!(() -> Expanders.get_new_sandbox(sym), page.globals.meta, sym)
 
         # Normalise line endings.
         block.code = replace(block.code, "\r\n" => "\n")
