@@ -5,6 +5,7 @@ for checking docs.
 module DocChecks
 
 import ..Documenter:
+    Documenter,
     Documents,
     Utilities
 
@@ -83,7 +84,11 @@ sigs(::Any) = Type[Union{}]
 
 # Footnote checks.
 # ----------------
+"""
+$(SIGNATURES)
 
+Checks footnote links in a [`Documents.Document`](@ref).
+"""
 function footnotes(doc::Documents.Document)
     println(" > checking footnote links.")
     # A mapping of footnote ids to a tuple counter of how many footnote references and
@@ -143,6 +148,11 @@ footnote(other, orphans::Dict) = true
 
 hascurl() = (try; success(`curl --version`); catch err; false; end)
 
+"""
+$(SIGNATURES)
+
+Checks external links using curl.
+"""
 function linkcheck(doc::Documents.Document)
     if doc.user.linkcheck
         if hascurl()

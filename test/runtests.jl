@@ -1,8 +1,5 @@
 using Test
 
-# Build the real docs first.
-include("../docs/make.jl")
-
 # Build the example docs
 include("examples/make.jl")
 
@@ -49,9 +46,6 @@ println("="^50)
 
     # A simple build outside of a Git repository
     include("nongit/tests.jl")
-
-    # Tests for Documenter.generate().
-    include("generate.jl")
 end
 
 # Additional tests
