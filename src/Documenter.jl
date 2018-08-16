@@ -265,7 +265,7 @@ deploydocs(
 ```
 
 When building the docs for a tag (i.e. a release) the documentation is deployed to
-a directory with the tag name (i.e. `vX.Y.Z`) and to the `stable` directory.
+a directory with the tag name (i.e. `vX.Y.Z`).
 Otherwise the docs are deployed to the `latest` directory.
 
 # Required keyword arguments
@@ -457,8 +457,7 @@ end
 
 Handles pushing changes to the remote documentation branch.
 When `tag` is empty the docs are deployed to the `latest` directory,
-and when building docs for a tag they are deployed to a `vX.Y.Z` directory,
-and also to the `stable` directory.
+and when building docs for a tag they are deployed to a `vX.Y.Z` directory.
 """
 function git_push(
         root, temp, repo;
@@ -468,7 +467,6 @@ function git_push(
     isdir(dirname) || mkpath(dirname)
     # Versioned docs directories.
     latest_dir = joinpath(dirname, "latest")
-    stable_dir = joinpath(dirname, "stable")
     tagged_dir = joinpath(dirname, tag)
 
     keyfile = abspath(joinpath(root, ".documenter"))
@@ -509,20 +507,12 @@ function git_push(
                     run(`git commit --allow-empty -m "Initial empty commit for docs"`)
                 end
 
-                # Copy docs to `latest`, or `stable`, `<release>`, and `<version>` directories.
+                # Copy docs to `latest`, or `<version>` directories.
                 if isempty(tag)
                     gitrm_copy(target_dir, latest_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(latest_dir, "latest")
                 else
                     @assert occursin(Base.VERSION_REGEX, tag) # checked in deploydocs
-                    version = VersionNumber(tag)
-                    # only push to stable if this is the latest stable release
-                    versions = filter!(x -> occursin(Base.VERSION_REGEX, x), readdir(dirname))
-                    maxver = mapreduce(x -> VersionNumber(x), max, versions; init=v"0.0.0")
-                    if version >= maxver && version.prerelease == () # don't deploy to stable for prereleases
-                        gitrm_copy(target_dir, stable_dir)
-                        Writers.HTMLWriter.generate_siteinfo_file(stable_dir, "stable")
-                    end
                     gitrm_copy(target_dir, tagged_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
                 end

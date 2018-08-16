@@ -45,7 +45,7 @@ makedocs(
     ],
     # Use clean URLs, unless built as a "local" build
     html_prettyurls = !("local" in ARGS),
-    html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
+    html_canonical = "https://juliadocs.github.io/Documenter.jl/v0/",
 )
 
 deploydocs(

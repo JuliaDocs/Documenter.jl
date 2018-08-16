@@ -22,7 +22,8 @@ the links to the remote repository.
 point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
 
 **`html_canonical`** specifies the canonical URL for your documentation. We recommend
-you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
+you set this to the base url of the documentation of you latest major release,
+e.g. `https://juliadocs.github.io/Documenter.jl/v0`.
 This allows search engines to know which version to send their users to. [See
 wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
 Default is `nothing`, in which case no canonical link is set.
@@ -481,16 +482,14 @@ function generate_version_file(dir::AbstractString)
     named_folders = []
     tag_folders = []
     for each in readdir(dir)
-        each in ("stable", "latest")         ? push!(named_folders,   each) :
-        occursin(Base.VERSION_REGEX, each)   ? push!(tag_folders,     each) : nothing
+        each == "latest"                   ? push!(named_folders,   each) :
+        occursin(Base.VERSION_REGEX, each) ? push!(tag_folders,     each) : nothing
     end
-    # put stable before latest
-    sort!(named_folders, rev = true)
     # sort tags by version number
     sort!(tag_folders, lt = (x, y) -> VersionNumber(x) < VersionNumber(y), rev = true)
     open(joinpath(dir, "versions.js"), "w") do buf
         println(buf, "var DOC_VERSIONS = [")
-        for group in (named_folders, tag_folders)
+        for group in (tag_folders, named_folders)
             for folder in group
                 println(buf, "  \"", folder, "\",")
             end
