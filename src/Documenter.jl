@@ -264,6 +264,10 @@ deploydocs(
 )
 ```
 
+When building the docs for a tag (i.e. a release) the documentation is deployed to
+a directory with the tag name (i.e. `vX.Y.Z`) and to the `stable` directory.
+Otherwise the docs are deployed to the `latest` directory.
+
 # Required keyword arguments
 
 **`julia`** is the version of Julia that will be used to deploy generated documentation.
@@ -452,6 +456,9 @@ end
     )
 
 Handles pushing changes to the remote documentation branch.
+When `tag` is empty the docs are deployed to the `latest` directory,
+and when building docs for a tag they are deployed to a `vX.Y.Z` directory,
+and also to the `stable` directory.
 """
 function git_push(
         root, temp, repo;
@@ -518,10 +525,6 @@ function git_push(
                     end
                     gitrm_copy(target_dir, tagged_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
-                    # Build a `release-*.*` folder as well
-                    release = "release-$(version.major).$(version.minor)"
-                    gitrm_copy(target_dir, joinpath(dirname, release))
-                    Writers.HTMLWriter.generate_siteinfo_file(joinpath(dirname, release), release)
                 end
 
                 # Create the versions.js file containing a list of all docs
