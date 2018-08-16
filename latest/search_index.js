@@ -69,7 +69,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Installation",
     "category": "section",
-    "text": "Documenter is a registered package and so can be installed via Pkg.add.Pkg.add(\"Documenter\")This package supports Julia 0.6 and 0.7-dev."
+    "text": "Documenter can be installed using the Julia package manager. From the Julia REPL, type ] to enter the Pkg REPL mode and runpkg> add Documenter"
 },
 
 {
@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Setting up the folder structure",
     "category": "section",
-    "text": "Firstly, we need a Julia module to document. This could be a package generated via PkgDev.generate or a single .jl script accessible via Julia\'s LOAD_PATH. For this guide we\'ll be using a package called Example.jl that has the following directory layout:Example/\n    src/\n        Example.jl\n    ...Note that the ... just represent unimportant files and folders.We must decide on a location where we\'d like to store the documentation for this package. It\'s recommended to use a folder named docs/ in the toplevel of the package, like soExample/\n    docs/\n        ...\n    src/\n        Example.jl\n    ...Inside the docs/ folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommendeddocs/\n    src/\n    make.jl"
+    "text": "note: Note\nThe function DocumenterTools.generate from the DocumenterTools package can generate the basic structure that Documenters expects.Firstly, we need a Julia module to document. This could be a package generated via PkgDev.generate or a single .jl script accessible via Julia\'s LOAD_PATH. For this guide we\'ll be using a package called Example.jl that has the following directory layout:Example/\n    src/\n        Example.jl\n    ...Note that the ... just represent unimportant files and folders.We must decide on a location where we\'d like to store the documentation for this package. It\'s recommended to use a folder named docs/ in the toplevel of the package, like soExample/\n    docs/\n        ...\n    src/\n        Example.jl\n    ...Inside the docs/ folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommendeddocs/\n    src/\n    make.jl"
 },
 
 {
@@ -397,7 +397,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "SSH Deploy Keys",
     "category": "section",
-    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.Open a Julia REPL and import Documenter.julia> using DocumenterThen call the Travis.genkeys function as follows:julia> Travis.genkeys(\"MyPackage\")where \"MyPackage\" is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named \'DOCUMENTER_KEY\' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field.  Note that you should include no whitespace when copying the key. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
+    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.SSH keys can be generated with the Travis.genkeys from the DocumenterTools package. Install and load it aspkg> add DocumenterToolsjulia> using DocumenterToolsThen call the Travis.genkeys function as follows:julia> Travis.genkeys(\"MyPackage\")where \"MyPackage\" is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named \'DOCUMENTER_KEY\' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field.  Note that you should include no whitespace when copying the key. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
 },
 
 {
@@ -413,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "The deploydocs Function",
     "category": "section",
-    "text": "At the moment your docs/make.jl file probably only containsusing Documenter, PACKAGE_NAME\n\nmakedocs()We\'ll need to add an additional function call to this file after makedocs which would perform the deployment of the docs to the gh-pages branch. Add the following at the end of the file:deploydocs(\n    repo = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia = \"0.6\"\n)where USER_NAME and PACKAGE_NAME must be set to the appropriate names. Note that repo should not specify any protocol, i.e. it should not begin with https:// or git@.Since you are probably testing your package on against multiple Julia versions and on multiple operating systems, you need to specify which of those builds should be used for deployment. This is to avoid deploying the same docs multiple times.The mandatory julia keyword argument specifies the Julia version and must be one from the julia: section of your .travis.yml. The operating system defaults to Linux, but can be changed using the osname keyword as follows:deploydocs(\n    deps   = Deps.pip(\"mkdocs\", \"python-markdown-math\"),\n    repo   = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia  = \"nightly\",\n    osname = \"osx\"\n)This will deploy the docs from the OSX Julia nightly Travis build bot.The keyword deps serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies mkdocs and python-markdown-math. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the mdx_math markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.See the deploydocs function documentation for more details."
+    "text": "At the moment your docs/make.jl file probably only containsusing Documenter, PACKAGE_NAME\n\nmakedocs()We\'ll need to add an additional function call to this file after makedocs which would perform the deployment of the docs to the gh-pages branch. Add the following at the end of the file:deploydocs(\n    repo = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia = \"1.0\"\n)where USER_NAME and PACKAGE_NAME must be set to the appropriate names. Note that repo should not specify any protocol, i.e. it should not begin with https:// or git@.Since you are probably testing your package on against multiple Julia versions and on multiple operating systems, you need to specify which of those builds should be used for deployment. This is to avoid deploying the same docs multiple times.The mandatory julia keyword argument specifies the Julia version and must be one from the julia: section of your .travis.yml. The operating system defaults to Linux, but can be changed using the osname keyword as follows:deploydocs(\n    deps   = Deps.pip(\"mkdocs\", \"python-markdown-math\"),\n    repo   = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    julia  = \"nightly\",\n    osname = \"osx\"\n)This will deploy the docs from the OSX Julia nightly Travis build bot.The keyword deps serves to provide the required dependencies to deploy the documentation. In the example above we include the dependencies mkdocs and python-markdown-math. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the mdx_math markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here.See the deploydocs function documentation for more details."
 },
 
 {
@@ -597,7 +597,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter",
     "category": "module",
-    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nAdditionally it provides the unexported Documenter.generate, which can be used to generate documentation stubs for new packages.\n\nDeps\nTravis\ndeploydocs\nhide\nmakedocs\n\n\n\n\n\n"
+    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nDeps\ndeploydocs\nhide\nmakedocs\n\n\n\n\n\n"
 },
 
 {
@@ -625,30 +625,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/public/#Documenter.generate",
-    "page": "Public",
-    "title": "Documenter.generate",
-    "category": "function",
-    "text": "generate(pkgname; dir)\n\n\nCreates a documentation stub for a package called pkgname. The location of the documentation is assumed to be <package directory>/docs, but this can be overriden with the keyword argument dir.\n\nIt creates the following files\n\ndocs/\n    .gitignore\n    src/index.md\n    make.jl\n    mkdocs.yml\n\nArguments\n\npkgname is the name of the package (without .jl). It is used to determine the location of the documentation if dir is not provided.\n\nKeywords\n\ndir defines the directory where the documentation will be generated. It defaults to <package directory>/docs. The directory must not exist.\n\nExamples\n\njulia> using Documenter\n\njulia> Documenter.generate(\"MyPackageName\")\n[ ... output ... ]\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/public/#Documenter.Travis",
-    "page": "Public",
-    "title": "Documenter.Travis",
-    "category": "module",
-    "text": "Package functions for interacting with Travis.\n\ngenkeys\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/public/#Documenter.Travis.genkeys",
-    "page": "Public",
-    "title": "Documenter.Travis.genkeys",
-    "category": "function",
-    "text": "genkeys(package; remote)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. package can be either the name of a package or a path. Providing a path allows keys to be generated for non-packages or packages that are not found in the Julia LOAD_PATH. Use the remote keyword to specify the user and repository values.\n\nThis function requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"MyPackageName\", remote=\"organization\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"/path/to/target/directory\")\n[ ... output ... ]\n\n\n\n\n\n"
-},
-
-{
     "location": "lib/public/#Documenter.Deps",
     "page": "Public",
     "title": "Documenter.Deps",
@@ -669,7 +645,31 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Public Interface",
     "category": "section",
-    "text": "Documenter\nmakedocs\nhide\ndeploydocs\nDocumenter.generate\nTravis\nTravis.genkeys\nDeps\nDeps.pip"
+    "text": "Documenter\nmakedocs\nhide\ndeploydocs\nDeps\nDeps.pip"
+},
+
+{
+    "location": "lib/public/#DocumenterTools.generate",
+    "page": "Public",
+    "title": "DocumenterTools.generate",
+    "category": "function",
+    "text": "generate(pkg; dir)\n\n\nCreates a documentation stub for a package called pkgname. The location of the documentation is assumed to be <package directory>/docs, but this can be overriden with the keyword argument dir.\n\nIt creates the following files\n\ndocs/\n    .gitignore\n    src/index.md\n    make.jl\n    mkdocs.yml\n\nArguments\n\npkgname is the name of the package (without .jl). It is used to determine the location of the documentation if dir is not provided.\n\nKeywords\n\ndir defines the directory where the documentation will be generated. It defaults to <package directory>/docs. The directory must not exist.\n\nExamples\n\njulia> using DocumenterTools\n\njulia> using MyPackage\n\njulia> Documenter.generate(MyPackage)\n[ ... output ... ]\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/public/#DocumenterTools.Travis.genkeys",
+    "page": "Public",
+    "title": "DocumenterTools.Travis.genkeys",
+    "category": "function",
+    "text": "genkeys(package; remote)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. package can be either the name of a package or a path. Providing a path allows keys to be generated for non-packages or packages that are not found in the Julia LOAD_PATH. Use the remote keyword to specify the user and repository values.\n\nThis function requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"MyPackageName\", remote=\"organization\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"/path/to/target/directory\")\n[ ... output ... ]\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/public/#DocumenterTools-1",
+    "page": "Public",
+    "title": "DocumenterTools",
+    "category": "section",
+    "text": "DocumenterTools.generate\nDocumenterTools.Travis.genkeys"
 },
 
 {
@@ -918,6 +918,22 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.DocChecks",
     "category": "module",
     "text": "Provides the missingdocs, footnotes and linkcheck functions for checking docs.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/docchecks/#Documenter.DocChecks.footnotes-Tuple{Documenter.Documents.Document}",
+    "page": "DocChecks",
+    "title": "Documenter.DocChecks.footnotes",
+    "category": "method",
+    "text": "footnotes(doc)\n\n\nChecks footnote links in a Documents.Document.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/docchecks/#Documenter.DocChecks.linkcheck-Tuple{Documenter.Documents.Document}",
+    "page": "DocChecks",
+    "title": "Documenter.DocChecks.linkcheck",
+    "category": "method",
+    "text": "linkcheck(doc)\n\n\nChecks external links using curl.\n\n\n\n\n\n"
 },
 
 {
