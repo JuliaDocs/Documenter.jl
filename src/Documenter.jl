@@ -328,20 +328,11 @@ function deploydocs(;
         latest = "master",
 
         osname = "linux",
-        julia::Union{AbstractString,Nothing} = nothing,
+        julia  = error("no 'julia' keyword provided."),
 
         deps   = Deps.pip("pygments", "mkdocs"),
         make   = () -> run(`mkdocs build`),
     )
-    # deprecation of julia defaulting to "nightly"
-    if julia === nothing
-        Base.depwarn("""
-            `julia` keyword to `Documenter.deploydocs()` not specified.
-            In the future `julia` will be a required keyword argument
-            instead of defaulting to `"nightly"`.
-            """, :deploydocs)
-        julia = "nightly"
-    end
 
     # Get environment variables.
     documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
