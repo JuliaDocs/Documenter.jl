@@ -420,18 +420,22 @@ function render_article(ctx, navnode)
 
     topnav = nav(ul(header_links))
 
-    # Set the logo and name for the "Edit on.." button. We assume GitHub as a host.
-    host = "GitHub"
-    logo = "\uf09b"
-
+    # Set the logo and name for the "Edit on.." button.
     host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
     if host_type == Utilities.RepoGitlab
         host = "GitLab"
         logo = "\uf296"
+    elseif host_type == Utilities.RepoGithub
+        host = "GitHub"
+        logo = "\uf09b"
     elseif host_type == Utilities.RepoBitbucket
         host = "BitBucket"
         logo = "\uf171"
+    else
+        host = ""
+        logo = "\uf15c"
     end
+    hoststring = isempty(host) ? " source" : " on $(host)"
 
     if !ctx.doc.user.html_disable_git
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
@@ -446,7 +450,7 @@ function render_article(ctx, navnode)
         end
         if url !== nothing
             edit_verb = (ctx.doc.user.html_edit_branch === nothing) ? "View" : "Edit"
-            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " $(edit_verb) on $host"))
+            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " $(edit_verb)$hoststring"))
         end
     end
     art_header = header(topnav, hr(), render_topbar(ctx, navnode))

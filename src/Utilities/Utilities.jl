@@ -491,7 +491,7 @@ end
 function repo_host_from_url(repoURL::String)
     if occursin("bitbucket", repoURL)
         return RepoBitbucket
-    elseif occursin("github", repoURL)
+    elseif occursin("github", repoURL) || isempty(repoURL)
         return RepoGithub
     elseif occursin("gitlab", repoURL)
         return RepoGitlab
