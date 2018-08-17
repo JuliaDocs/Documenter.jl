@@ -13,7 +13,8 @@ notifications:
   email: false
 
 after_success:
-  - julia -e 'cd("test"); include("coverage.jl")'
+  - julia --project=coverage/ -e 'using Pkg; Pkg.instantiate()'
+  - julia --project=coverage/ coverage/coverage.jl
 
 jobs:
   include:
