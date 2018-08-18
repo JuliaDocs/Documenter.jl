@@ -13,6 +13,16 @@ notifications:
   email: false
 
 after_success:
-  - julia --project=docs -e 'using Pkg; Pkg.instantiate()'
-  - julia --project=docs docs/make.jl
-  - julia -e 'cd("test"); include("coverage.jl")'
+  - julia --project=coverage/ -e 'using Pkg; Pkg.instantiate()'
+  - julia --project=coverage/ coverage/coverage.jl
+
+jobs:
+  include:
+    - stage: "Deploy docs"
+      julia: 1.0
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg; Pkg.instantiate()'
+        - julia --project=docs/ -e 'using Pkg; Pkg.add(PackageSpec(path=pwd()))'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip
