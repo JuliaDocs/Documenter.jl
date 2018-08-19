@@ -437,17 +437,17 @@ function takeuntil!(r, buf, lines)
 end
 
 function disable_color(func)
-    orig = setcolor!(false)
+    color = Base.have_color
     try
+        @eval Base have_color = false
         func()
     finally
-        setcolor!(orig)
+        @eval Base have_color = $color
     end
 end
 
 const CAN_INLINE = Ref(true)
 function __init__()
-    global setcolor! = Core.eval(Base, :(x -> (y = have_color; global have_color = x; y)))
     CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
 end
 
