@@ -478,22 +478,23 @@ function render_topbar(ctx, navnode)
 end
 
 function generate_version_file(dir::AbstractString)
-    named_folders = []
-    tag_folders = []
-    for each in readdir(dir)
-        each in ("stable", "latest")         ? push!(named_folders,   each) :
-        occursin(Base.VERSION_REGEX, each)   ? push!(tag_folders,     each) : nothing
+    all_folders = readdir(dir)
+    folders = []
+
+    for each in all_folders
+        occursin(Base.VERSION_REGEX, each) && push!(folders, each)
     end
-    # put stable before latest
-    sort!(named_folders, rev = true)
     # sort tags by version number
-    sort!(tag_folders, lt = (x, y) -> VersionNumber(x) < VersionNumber(y), rev = true)
+    sort!(folders, lt = (x, y) -> VersionNumber(x) < VersionNumber(y), rev = true)
+
+    # include stable first, then dev
+    "dev"    in all_folders && pushfirst!(folders, "dev")
+    "stable" in all_folders && pushfirst!(folders, "stable")
+
     open(joinpath(dir, "versions.js"), "w") do buf
         println(buf, "var DOC_VERSIONS = [")
-        for group in (named_folders, tag_folders)
-            for folder in group
-                println(buf, "  \"", folder, "\",")
-            end
+        for folder in folders
+            println(buf, "  \"", folder, "\",")
         end
         println(buf, "];")
     end
