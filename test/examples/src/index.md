@@ -234,7 +234,7 @@ foo(2, 3)
 
 # output
 
-5
+6
 ```
 
 
@@ -246,13 +246,13 @@ julia> struct T end
 julia> t = T()
 T()
 
-julia> fullname(current_module())
-()
+julia> fullname(@__MODULE__)
+(:Main,)
 
 julia> fullname(Base.Broadcast)
 (:Base, :Broadcast)
 
-julia> current_module()
+julia> @__MODULE__
 Main
 ```
 
