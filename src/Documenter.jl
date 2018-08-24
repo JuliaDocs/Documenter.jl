@@ -30,7 +30,6 @@ include("DocTests.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
 include("Deps.jl")
-include("Generator.jl")
 
 import .Utilities: Selectors
 
