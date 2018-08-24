@@ -1417,54 +1417,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/generator/#Documenter.Generator",
-    "page": "Generator",
-    "title": "Documenter.Generator",
-    "category": "module",
-    "text": "Provides the functions related to generating documentation stubs.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/generator/#Documenter.Generator.gitignore-Tuple{}",
-    "page": "Generator",
-    "title": "Documenter.Generator.gitignore",
-    "category": "method",
-    "text": "gitignore()\n\n\nContents of the default .gitignore file.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/generator/#Documenter.Generator.index-Tuple{Any}",
-    "page": "Generator",
-    "title": "Documenter.Generator.index",
-    "category": "method",
-    "text": "index(pkgname)\n\n\nContents of the default src/index.md file.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/generator/#Documenter.Generator.make-Tuple{Any}",
-    "page": "Generator",
-    "title": "Documenter.Generator.make",
-    "category": "method",
-    "text": "make(pkgname)\n\n\nContents of the default make.jl file.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/generator/#Documenter.Generator.mkdocs-Tuple{Any}",
-    "page": "Generator",
-    "title": "Documenter.Generator.mkdocs",
-    "category": "method",
-    "text": "mkdocs(pkgname; description, author, url)\n\n\nContents of the default mkdocs.yml file.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/generator/#Documenter.Generator.savefile-Tuple{Any,Any,Any}",
-    "page": "Generator",
-    "title": "Documenter.Generator.savefile",
-    "category": "method",
-    "text": "savefile(f, root, filename)\n\n\nAttempts to save a file at $(root)/$(filename). f will be called with file stream (see open).\n\nfilename can also be a file in a subdirectory (e.g. src/index.md), and then then subdirectories will be created automatically.\n\n\n\n\n\n"
-},
-
-{
     "location": "lib/internals/generator/#Generator-1",
     "page": "Generator",
     "title": "Generator",
