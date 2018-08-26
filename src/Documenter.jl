@@ -551,9 +551,17 @@ function git_push(
                 # This must always happen after the folder copying.
                 Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
 
-                # generate the symlinks
+                # generate the symlinks, make sure we don't overwrite devurl
                 cd(dirname) do
-                    foreach(kv -> rm_and_add_symlink(kv.second, kv.first), symlinks)
+                    for kv in symlinks
+                        i = findfirst(x -> x.first == devurl, symlinks)
+                        if i === nothing
+                            rm_and_add_symlink(kv.second, kv.first)
+                        else
+                            throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
+                                "`devurl = $(devurl)` with the same name.")))
+                        end
+                    end
                 end
 
                 # Add, commit, and push the docs to the remote.
@@ -573,9 +581,10 @@ function git_push(
 end
 
 function rm_and_add_symlink(target, link)
-    # If `link` is an old symlink, remove it,
-    # if `link` is something else we let symlink throw.
-    islink(link) && rm(link)
+    if ispath(link)
+        @warn "removing `$(link)` and linking `$(link)` to `$(target)`."
+        rm(link; force = true, recursive = true)
+    end
     symlink(target, link)
 end
 
