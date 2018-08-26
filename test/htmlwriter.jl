@@ -2,7 +2,18 @@ module HTMLWriterTests
 
 using Test
 
-import Documenter.Writers.HTMLWriter: jsescape, generate_version_file
+import Documenter.Writers.HTMLWriter: jsescape, generate_version_file, expand_versions
+
+function verify_version_file(versionfile, entries)
+    @test isfile(versionfile)
+    content = read(versionfile, String)
+    idx = 1
+    for entry in entries
+        i = findnext(entry, content, idx)
+        @test i !== nothing
+        idx = last(i)
+    end
+end
 
 @testset "HTMLWriter" begin
     @test jsescape("abc123") == "abc123"
@@ -21,28 +32,54 @@ import Documenter.Writers.HTMLWriter: jsescape, generate_version_file
     @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
 
     mktempdir() do tmpdir
-        versions = ["stable", "dev", "v0.2.6", "v0.1.1", "v0.1.0"]
+        versionfile = joinpath(tmpdir, "versions.js")
+        versions = ["stable", "dev",
+                    "2.1.1", "v2.1.0", "v2.0.1", "v2.0.0",
+                    "1.1.1", "v1.1.0", "v1.0.1", "v1.0.0",
+                    "0.1.1", "v0.1.0"] # note no `v` on first ones
         cd(tmpdir) do
-            mkdir("foobar")
             for version in versions
                 mkdir(version)
             end
         end
 
-        generate_version_file(tmpdir)
+        # expanding versions
+        versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
+        entries, symlinks = expand_versions(tmpdir, versions)
+        @test entries == ["stable", "v2.1", "v2.0", "v1.1", "v1.0", "v0.1", "dev"]
+        @test symlinks == ["stable"=>"2.1.1", "v2.1"=>"2.1.1", "v2.0"=>"v2.0.1",
+                           "v1.1"=>"1.1.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1",
+                           "v2"=>"2.1.1", "v1"=>"1.1.1", "v2.1.1"=>"2.1.1",
+                           "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
 
-        versions_file = joinpath(tmpdir, "versions.js")
-        @test isfile(versions_file)
-        contents = String(read(versions_file))
-        @test !occursin("foobar", contents) # only specific directories end up in the versions file
-        # let's make sure they're in the right order -- they should be sorted in the output file
-        last = 0:0
-        for version in versions
-            this = findfirst(version, contents)
-            @test this !== nothing
-            @test first(last) < first(this)
-            last = this
-        end
+        versions = ["v#"]
+        entries, symlinks = expand_versions(tmpdir, versions)
+        @test entries == ["v2.1", "v1.1"]
+        @test symlinks == ["v2.1"=>"2.1.1", "v1.1"=>"1.1.1", "v2"=>"2.1.1", "v1"=>"1.1.1",
+                           "v2.0"=>"v2.0.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1",
+                           "v2.1.1"=>"2.1.1", "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
+
+        versions = ["v#.#.#"]
+        entries, symlinks = expand_versions(tmpdir, versions)
+        @test entries == ["v2.1.1", "v2.1.0", "v2.0.1", "v2.0.0", "v1.1.1", "v1.1.0",
+                          "v1.0.1", "v1.0.0", "v0.1.1", "v0.1.0"]
+        @test symlinks == ["v2.1.1"=>"2.1.1", "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1",
+                           "v2"=>"2.1.1", "v1"=>"1.1.1", "v2.1"=>"2.1.1",
+                           "v2.0"=>"v2.0.1", "v1.1"=>"1.1.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1"]
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
+
+        versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
+        entries, symlinks = expand_versions(tmpdir, versions)
+        @test entries == ["v2.1", "devel"]
+        @test ("v2.1" => "2.1.1") in symlinks
+        @test ("devel" => "dev") in symlinks
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
     end
 end
 
