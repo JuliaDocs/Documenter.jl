@@ -481,23 +481,96 @@ function render_topbar(ctx, navnode)
     return div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
 end
 
-function generate_version_file(dir::AbstractString)
-    named_folders = []
-    tag_folders = []
-    for each in readdir(dir)
-        each in ("stable", "latest")         ? push!(named_folders,   each) :
-        occursin(Base.VERSION_REGEX, each)   ? push!(tag_folders,     each) : nothing
-    end
-    # put stable before latest
-    sort!(named_folders, rev = true)
-    # sort tags by version number
-    sort!(tag_folders, lt = (x, y) -> VersionNumber(x) < VersionNumber(y), rev = true)
-    open(joinpath(dir, "versions.js"), "w") do buf
-        println(buf, "var DOC_VERSIONS = [")
-        for group in (named_folders, tag_folders)
-            for folder in group
-                println(buf, "  \"", folder, "\",")
+# expand the versions argument from the user
+# and return entries and needed symlinks
+function expand_versions(dir, versions)
+    # output: entries and symlinks
+    entries = String[]
+    symlinks = Pair{String,String}[]
+
+    # read folders and filter out symlinks
+    available_folders = readdir(dir)
+    cd(() -> filter!(!islink, available_folders), dir)
+
+    # filter and sort release folders
+    vnum(x) = VersionNumber(x)
+    version_folders = [x for x in available_folders if occursin(Base.VERSION_REGEX, x)]
+    sort!(version_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
+    release_folders = filter(x -> (v = vnum(x); v.prerelease == () && v.build == ()), version_folders)
+    # pre_release_folders = filter(x -> (v = vnum(x); v.prerelease != () || v.build != ()), version_folders)
+    major_folders = filter!(x -> (v = vnum(x); v.major != 0),
+                            unique(x -> (v = vnum(x); v.major), release_folders))
+    minor_folders = filter!(x -> (v = vnum(x); !(v.major == 0 && v.minor == 0)),
+                            unique(x -> (v = vnum(x); (v.major, v.minor)), release_folders))
+    patch_folders = unique(x -> (v = vnum(x); (v.major, v.minor, v.patch)), release_folders)
+
+    filter!(x -> vnum(x) !== 0, major_folders)
+
+    # populate output
+    for entry in versions
+        if entry == "v#" # one doc per major release
+            for x in major_folders
+                vstr = "v$(vnum(x).major).$(vnum(x).minor)"
+                push!(entries, vstr)
+                push!(symlinks, vstr => x)
             end
+        elseif entry == "v#.#" # one doc per minor release
+            for x in minor_folders
+                vstr = "v$(vnum(x).major).$(vnum(x).minor)"
+                push!(entries, vstr)
+                push!(symlinks, vstr => x)
+            end
+        elseif entry == "v#.#.#" # one doc per patch release
+            for x in patch_folders
+                vstr = "v$(vnum(x).major).$(vnum(x).minor).$(vnum(x).patch)"
+                push!(entries, vstr)
+                push!(symlinks, vstr => x)
+            end
+        elseif entry == "v^" || (entry isa Pair && entry.second == "v^")
+            if !isempty(release_folders)
+                x = first(release_folders)
+                vstr = isa(entry, Pair) ? entry.first : "v$(vnum(x).major).$(vnum(x).minor)"
+                push!(entries, vstr)
+                push!(symlinks, vstr => x)
+            end
+        elseif entry isa Pair
+            k, v = entry
+            i = findfirst(==(v), available_folders)
+            if i === nothing
+                @info("no match for `versions` entry `$(repr(entry))`")
+            else
+                push!(entries, k)
+                push!(symlinks, k => v)
+            end
+        else
+            @info("no match for `versions` entry `$(repr(entry))`")
+        end
+    end
+    unique!(entries) # remove any duplicates
+
+    # generate remaining symlinks
+    foreach(x -> push!(symlinks, "v$(vnum(x).major)" => x), major_folders)
+    foreach(x -> push!(symlinks, "v$(vnum(x).major).$(vnum(x).minor)" => x), minor_folders)
+    foreach(x -> push!(symlinks, "v$(vnum(x).major).$(vnum(x).minor).$(vnum(x).patch)" => x), patch_folders)
+    filter!(x -> x.first != x.second, unique!(symlinks))
+
+    # assert that none of the links point to another link
+    for link in symlinks
+        i = findfirst(x -> link.first == x.second, symlinks)
+        if i !== nothing
+            throw(ArgumentError("link `$(link)` incompatible with link `$(symlinks[i])`."))
+        end
+    end
+
+    return entries, symlinks
+end
+
+# write version file
+function generate_version_file(versionfile::AbstractString, entries)
+    open(versionfile, "w") do buf
+        println(buf, "var DOC_VERSIONS = [")
+        for folder in entries
+            println(buf, "  \"", folder, "\",")
         end
         println(buf, "];")
     end

@@ -33,7 +33,7 @@ a = 1
 ...
 
 ```@example
-isdefined(:a)
+@isdefined a
 ```
 
 ```@example 1
@@ -65,8 +65,8 @@ a + b + c + d + e + f
 ## Foo
 
 ```@example 3
-isdefined(:T)
-@show isdefined(:t) # hide
+@isdefined T
+@show @isdefined t # hide
 @show typeof(T)
 typeof(t) # hide
 ```
@@ -90,6 +90,7 @@ f(1), g(1)
 ```
 
 ```@example 3
+using InteractiveUtils
 @which T()
 ```
 
