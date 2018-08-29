@@ -80,6 +80,9 @@ end
         @test ("devel" => "dev") in symlinks
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+
+        versions = ["stable" => "v^", "dev" => "stable"]
+        @test_throws ArgumentError expand_versions(tmpdir, versions)
     end
 end
 

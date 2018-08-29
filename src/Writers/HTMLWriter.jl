@@ -550,6 +550,14 @@ function expand_versions(dir, versions)
     foreach(x -> push!(symlinks, "v$(vnum(x).major).$(vnum(x).minor).$(vnum(x).patch)" => x), patch_folders)
     filter!(x -> x.first != x.second, unique!(symlinks))
 
+    # assert that none of the links point to another link
+    for link in symlinks
+        i = findfirst(x -> link.first == x.second, symlinks)
+        if i !== nothing
+            throw(ArgumentError("link `$(link)` incompatible with link `$(symlinks[i])`."))
+        end
+    end
+
     return entries, symlinks
 end
 
