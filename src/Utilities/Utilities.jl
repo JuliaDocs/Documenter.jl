@@ -137,7 +137,10 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                     break
                 end
             end
-        push!(results, (ex, SubString(code, cursor, prevind(code, ncursor))))
+        str = SubString(code, cursor, prevind(code, ncursor))
+        if !isempty(strip(str))
+            push!(results, (ex, str))
+        end
         cursor = ncursor
     end
     results
@@ -491,7 +494,7 @@ end
 function repo_host_from_url(repoURL::String)
     if occursin("bitbucket", repoURL)
         return RepoBitbucket
-    elseif occursin("github", repoURL)
+    elseif occursin("github", repoURL) || isempty(repoURL)
         return RepoGithub
     elseif occursin("gitlab", repoURL)
         return RepoGitlab

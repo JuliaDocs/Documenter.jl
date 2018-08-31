@@ -234,7 +234,7 @@ foo(2, 3)
 
 # output
 
-5
+6
 ```
 
 
@@ -246,13 +246,13 @@ julia> struct T end
 julia> t = T()
 T()
 
-julia> fullname(current_module())
-()
+julia> fullname(@__MODULE__)
+(:Main,)
 
 julia> fullname(Base.Broadcast)
 (:Base, :Broadcast)
 
-julia> current_module()
+julia> @__MODULE__
 Main
 ```
 
@@ -339,6 +339,37 @@ julia> ex = :(a + b)
 
 julia> eval(ex)
 3
+```
+
+```@repl
+ex = :(1 + 5)
+eval(ex)
+```
+
+```@example
+ex = :(1 + 5)
+eval(ex)
+```
+
+# Issue #793
+```jldoctest
+julia> write("issue793.jl", "\"Hello!\"");
+
+julia> include("issue793.jl")
+"Hello!"
+
+julia> rm("issue793.jl");
+```
+```@repl
+write("issue793.jl", "\"Hello!\"")
+include("issue793.jl")
+rm("issue793.jl")
+```
+```@example
+write("issue793.jl", "\"Hello!\"")
+r = include("issue793.jl")
+rm("issue793.jl")
+r
 ```
 
 

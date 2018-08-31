@@ -82,7 +82,7 @@ julia> # First definition.
            x
        end
 
-julia> isdefined(:f), isdefined(:T) # Check for both definitions.
+julia> @isdefined(f), @isdefined(T) # Check for both definitions.
 (true, true)
 
 julia> import Base
@@ -261,8 +261,9 @@ end # module
 ```
 
 ```@example inlinepng
+using Documenter
 using .InlinePNG
-PNG(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.png"))
+PNG(joinpath(dirname(pathof(Documenter)), "..", "test", "examples", "images", "logo.png"))
 ```
 
 
@@ -287,18 +288,17 @@ end # module
 ```
 
 ```@example inlinewebpgifjpeg
+using Documenter
 using .InlineWEBPGIFJPEG
-WEBP(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.webp"))
+WEBP(joinpath(dirname(pathof(Documenter)), "..", "test", "examples", "images", "logo.webp"))
 ```
 
 ```@example inlinewebpgifjpeg
-using .InlineWEBPGIFJPEG
-GIF(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.gif"))
+GIF(joinpath(dirname(pathof(Documenter)), "..", "test", "examples", "images", "logo.gif"))
 ```
 
 ```@example inlinewebpgifjpeg
-using .InlineWEBPGIFJPEG
-JPEG(joinpath(Pkg.dir("Documenter"), "test", "examples", "images", "logo.jpg"))
+JPEG(joinpath(dirname(pathof(Documenter)), "..", "test", "examples", "images", "logo.jpg"))
 ```
 
 ## Interacting with external files

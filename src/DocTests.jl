@@ -8,6 +8,7 @@ using DocStringExtensions
 import ..Documenter:
     Documenter,
     Documents,
+    Expanders,
     Utilities
 
 import Markdown, REPL
@@ -64,12 +65,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        sandbox = get!(page.globals.meta, sym) do
-            newmod = Module(sym)
-            # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-            Core.eval(newmod, :(eval(x) = Core.eval($newmod, x)))
-            newmod
-        end
+        sandbox = get!(() -> Expanders.get_new_sandbox(sym), page.globals.meta, sym)
 
         # Normalise line endings.
         block.code = replace(block.code, "\r\n" => "\n")
@@ -102,7 +98,14 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
 
         for expr in [get(meta, :DocTestSetup, []); get(meta[:LocalDocTestArguments], :setup, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
-            Core.eval(sandbox, expr)
+            try
+                Core.eval(sandbox, expr)
+            catch e
+                push!(doc.internal.errors, :doctest)
+                @error("could not evaluate expression from doctest setup.",
+                    expression = expr, exception = e)
+                return false
+            end
         end
         if occursin(r"^julia> "m, block.code)
             eval_repl(block, sandbox, meta, doc, page)
@@ -434,17 +437,17 @@ function takeuntil!(r, buf, lines)
 end
 
 function disable_color(func)
-    orig = setcolor!(false)
+    color = Base.have_color
     try
+        @eval Base have_color = false
         func()
     finally
-        setcolor!(orig)
+        @eval Base have_color = $color
     end
 end
 
 const CAN_INLINE = Ref(true)
 function __init__()
-    global setcolor! = Core.eval(Base, :(x -> (y = have_color; global have_color = x; y)))
     CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
 end
 

@@ -1,7 +1,7 @@
-using Documenter
+using Documenter, DocumenterTools
 
 makedocs(
-    modules = [Documenter],
+    modules = [Documenter, DocumenterTools],
     clean = false,
     format = :html,
     assets = ["assets/favicon.ico"],
@@ -51,7 +51,7 @@ makedocs(
 deploydocs(
     repo = "github.com/JuliaDocs/Documenter.jl.git",
     target = "build",
-    julia = "nightly",
+    julia = "1.0",
     deps = nothing,
     make = nothing,
 )
