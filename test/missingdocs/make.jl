@@ -17,7 +17,6 @@ for sym in [:none, :exports]
         build = joinpath("build", string(sym)),
         modules = MissingDocs,
         checkdocs = sym,
-        format = :html,
         sitename = "MissingDocs Checks",
     )
 end

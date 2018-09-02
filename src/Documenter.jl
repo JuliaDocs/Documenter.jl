@@ -159,19 +159,24 @@ ignored.
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
 
-## Non-MkDocs builds
+## Output formats
 
-Documenter also has (experimental) support for native HTML and LaTeX builds.
-These can be enabled using the `format` keyword and they generally require additional
-keywords be defined, depending on the format. These keywords are also currently considered
-experimental.
+**`format`** allows the output format to be specified. Possible values are `:html` (default),
+`:latex` and `:markdown`.
 
-**`format`** allows the output format to be specified. Possible values are `:html`, `:latex`
-and `:markdown` (default).
+Documenter is designed to support multiple output formats. By default it is creates a set of
+HTML files, but the output format can be controlled with the `format` keyword. The different
+output formats may require additional keywords to be specified. The keywords for the default
+HTML output are documented at the [`Writers.HTMLWriter`](@ref) module.
 
-Other keywords related to non-MkDocs builds (**`assets`**, **`sitename`**, **`analytics`**,
-**`authors`**, **`pages`**, **`version`**) should be documented at the respective `*Writer`
-modules ([`Writers.HTMLWriter`](@ref), [`Writers.LaTeXWriter`](@ref)).
+Documenter also has (experimental) support for Markdown and LaTeX / PDF outputs. See the
+[Other outputs](@ref) for more information.
+
+!!! warning
+
+    The Markdown and LaTeX output formats will be moved to a separate package in future
+    versions of Documenter. Automatic documentation deployments should not rely on it unless
+    they fix Documenter to a minor version.
 
 # See Also
 
@@ -239,11 +244,11 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
 """
     deploydocs(
         root   = "<current-directory>",
-        target = "site",
+        target = "build",
         repo   = "<required>",
         branch = "gh-pages",
-        deps   = <Function>,
-        make   = <Function>,
+        deps   = nothing | <Function>,
+        make   = nothing | <Function>,
         devbranch = "master",
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl]
@@ -282,23 +287,25 @@ repo = "github.com/JuliaDocs/Documenter.jl.git"
 
 **`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
 
-**`target`** is the directory, relative to `root`, where generated HTML content should be
-written to. This directory **must** be added to the repository's `.gitignore` file. The
-default value is `"site"`.
+**`target`** is the directory, relative to `root`, where generated content that should be
+deployed to `gh-pages` is written to. written to. It should generally be the same as
+[`makedocs`](@ref)'s `build` and defaults to `"build"`.
 
 **`branch`** is the branch where the generated documentation is pushed. If the branch does
 not exist, a new orphaned branch is created automatically. It defaults to `"gh-pages"`.
 
-**`deps`** is the function used to install any dependencies needed to build the
-documentation. By default this function installs `pygments` and `mkdocs` using the
-[`Deps.pip`](@ref) function:
+**`deps`** is the function used to install any additional dependencies needed to build the
+documentation. By default nothing is installed.
+
+It can be used e.g. for a Markdown build. The following example installed the `pygments` and
+`mkdocs` Python packages using the [`Deps.pip`](@ref) function:
 
 ```julia
 deps = Deps.pip("pygments", "mkdocs")
 ```
 
-**`make`** is the function used to convert the markdown files to HTML. By default this just
-runs `mkdocs build` which populates the `target` directory.
+**`make`** is the function used to specify an additonal build phase. By default, nothing gets
+executed.
 
 **`devbranch`** is the branch that "tracks" the in-development version of the  generated
 documentation. By default this value is set to `"master"`.
@@ -328,7 +335,7 @@ GitHub.
 """
 function deploydocs(;
         root   = Utilities.currentdir(),
-        target = "site",
+        target = "build",
         dirname = "",
 
         repo   = error("no 'repo' keyword provided."),
@@ -338,8 +345,8 @@ function deploydocs(;
         osname::Union{String,Nothing} = nothing, # deprecated
         julia::Union{String,Nothing} = nothing, # deprecated
 
-        deps   = Deps.pip("pygments", "mkdocs"),
-        make   = () -> run(`mkdocs build`),
+        deps   = nothing,
+        make   = nothing,
 
         devbranch = "master",
         devurl = "dev",

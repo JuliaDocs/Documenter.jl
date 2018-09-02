@@ -238,7 +238,7 @@ function Document(;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
-        format   :: Any              = :markdown,
+        format   :: Any              = :html,
         clean    :: Bool             = true,
         doctest  :: Union{Bool,Symbol} = true,
         linkcheck:: Bool             = false,

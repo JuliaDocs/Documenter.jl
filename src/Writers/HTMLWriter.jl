@@ -7,6 +7,18 @@ A module for rendering `Document` objects to HTML.
 [`Documenter.makedocs`](@ref): `assets`, `sitename`, `analytics`, `authors`, `pages`,
 `version`, `html_prettyurls`, `html_disable_git`.
 
+**`sitename`** is the site's title displayed in the title bar and at the top of the
+*navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
+
+**`pages`** defines the hierarchy of the navigation menu.
+
+**`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
+for more information.
+
+# Experimental keywords
+
+**`analytics`** can be used specify the Google Analytics tracking ID.
+
 **`version`** specifies the version string of the current version which will be the
 selected option in the version selector. If this is left empty (default) the version
 selector will be hidden. The special value `git-commit` sets the value in the output to

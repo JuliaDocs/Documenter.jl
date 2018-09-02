@@ -66,7 +66,7 @@ Add the following to your `make.jl` file
 ```julia
 using Documenter, Example
 
-makedocs()
+makedocs(sitename="My Documentation")
 ```
 
 This assumes you've installed Documenter as discussed in [Installation](@ref) and that your
@@ -105,9 +105,11 @@ Documenter: setting up build directory.
 Documenter: expanding markdown templates.
 Documenter: building cross-references.
 Documenter: running document checks.
-Documenter: rendering document.
+ > checking for missing docstrings.
+ > running doctests.
+ > checking footnote links.
 Documenter: populating indices.
-Documenter: copying assets to build directory.
+Documenter: rendering document.
 ```
 
 The `docs/` folder should contain a new directory -- called `build/`. It's structure should
@@ -116,9 +118,13 @@ look like the following
 ```
 build/
     assets/
-        Documenter.css
-        mathjaxhelper.js
-    index.md
+        arrow.svg
+        documenter.css
+        documenter.js
+        search.js
+    index.html
+    search.html
+    search_index.js
 ```
 
 !!! warning
@@ -131,10 +137,9 @@ build/
     See the [Hosting Documentation](@ref) section for details regarding how you should go
     about setting this up correctly.
 
-At the moment `build/index.md` should be empty since `src/index.md` is empty.
-
-At this point you can add some text to `src/index.md` and rerun the `make.jl` file to see
-the changes if you'd like to.
+At this point `build/index.html` should be an empty page since `src/index.md` is empty. You
+can try adding some text to `src/index.md` and re-running the `make.jl` file to see the
+changes.
 
 ### Adding some docstrings
 
@@ -294,56 +299,24 @@ spliced into the document using `@docs` blocks. As with the `@contents` block th
 be included can be set with a `Pages = [...]` line. Since the list is not nested `Depth` is
 not supported for `@index`.
 
-## Output formats
+### Pages in the sidebar
 
-Documenter produces a set of Markdown files, which then have to be converted into a
-user-readable format for distribution.
-While in principle any Markdown parser would do (as long as it supports the required
-Markdown extensions), the Python-based [MkDocs](https://www.mkdocs.org/) is usually used
-to convert the Markdown files into a set of HTML pages.
-See [Hosting Documentation](@ref) for further information on configuring MkDocs for Documenter.
+By default all the pages (`.md` files) in your source directory get added to the sidebar,
+sorted by their filenames. However, in most cases you want to use the `pages` argument to
+[`makedocs`](@ref) to control how the sidebar looks like. The basic usage is as follows:
 
-!!! note "Native HTML output"
-
-    There is experimental support for native HTML output in Documenter. It can be enabled by
-    passing the `format = :html` option to [`makedocs`](@ref). It also requires the `pages`
-    and `sitename` options. `make.jl` should then look something like
-
-    ```julia
-    makedocs(
-        ...,
-        format = :html,
-        sitename = "Package name",
-        pages = [
-            "page.md",
-            "Page title" => "page2.md",
-            "Subsection" => [
-                ...
-            ]
+```julia
+makedocs(
+    ...,
+    pages = [
+        "page.md",
+        "Page title" => "page2.md",
+        "Subsection" => [
+            ...
         ]
-    )
+    ]
+)
+```
 
-    deploydocs(
-        repo   = "github.com/USER/PKG.jl.git",
-        target = "build",
-        deps   = nothing,
-        make   = nothing
-    )
-    ```
-
-    Since Documenter's docs are already built using HTML output, a
-    fully working example of the configuration can be found in
-    `docs/make.jl`. Note that with this configuration, `mkdocs.yml` is
-    not required.
-
-    It is still under development, may contain bugs, and undergo changes.
-    However, any feedback is very welcome and early adopters are encouraged to try it out.
-    Issues and suggestions should be posted to
-    [Documenter.jl's issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues).
-
-    # Additional `makedocs` options for HTML output
-
-    **`sitename`** is the site's title displayed in the title bar and at the top
-    of the navigation menu.
-
-    **`pages`** defines the hierarchy of the navigation menu.
+Using the `pages` argument you can organize your pages into subsections and hide some pages
+from the sidebar with the help of the [`hide`](@ref) functions.

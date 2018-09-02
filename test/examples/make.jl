@@ -86,6 +86,7 @@ const examples_root = dirname(@__FILE__)
 
 @info("Building mock package docs: MarkdownWriter")
 examples_markdown_doc = makedocs(
+    format = :markdown,
     debug = true,
     root  = examples_root,
     build = "builds/markdown",
@@ -115,7 +116,6 @@ examples_html_doc = makedocs(
     debug = true,
     root  = examples_root,
     build = "builds/html",
-    format   = :html,
     doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = ["assets/custom.css"],
     sitename = "Documenter example",
@@ -132,7 +132,6 @@ examples_html_doc = makedocs(
     debug = true,
     root  = examples_root,
     build = "builds/html-pretty-urls",
-    format   = :html,
     html_prettyurls = true,
     html_canonical = "https://example.com/stable",
     doctestfilters = [r"Ptr{0x[0-9]+}"],
