@@ -1,9 +1,9 @@
-# [``\LaTeX`` syntax](@id latex_syntax)
+# [``\LaTeX`` Syntax](@id latex_syntax)
 
 The following section describes how to add equations written using ``\LaTeX`` to your
 documentation.
 
-## Escaping characters in docstrings
+## Escaping Characters in Docstrings
 
 Since some characters used in ``\LaTeX`` syntax are treated differently in docstrings they
 need to be escaped using a `\` character as in the following example:
@@ -44,7 +44,7 @@ The cost was \\\$1.
 """
 ```
 
-## Inline equations
+## Inline Equations
 
 ```markdown
 Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
@@ -58,7 +58,7 @@ Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
 
 ---
 
-## Display equations
+## Display Equations
 
 ````markdown
 Here's an equation:

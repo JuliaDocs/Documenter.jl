@@ -1,7 +1,7 @@
-# Other outputs
+# Other Output Formats
 
 In addition to the default native HTML output, plugin packages enable Documenter to generate
-output in other formats. Once the corresponding package is loadded, the output format can be
+output in other formats. Once the corresponding package is loaded, the output format can be
 specified using the `format` option in [`makedocs`](@ref).
 
 
@@ -28,7 +28,7 @@ work fine with some amount of setting up.
     Markdown output used to be the default option (i.e. when leaving the `format` option
     unspecified). The default now is the HTML output.
 
-### The MkDocs `mkdocs.yml` File
+### The MkDocs `mkdocs.yml` file
 
 A MkDocs build is controlled by the `mkdocs.yml` configuration file. Add the file with the
 following content to the `docs/` directory:
@@ -147,7 +147,7 @@ enable properly rendered mathematical equations within your documentation both l
 when built and deployed using the Travis built service.
 
 
-## PDF output via LaTeX
+## PDF Output via LaTeX
 
 LaTeX/PDF output requires the [`DocumenterLaTeX`](https://github.com/JuliaDocs/DocumenterLaTeX.jl)
 package to be available and loaded in `make.jl` with

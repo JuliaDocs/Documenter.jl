@@ -1,5 +1,10 @@
 # Package Guide
 
+Documenter is designed to do one thing -- combine markdown files and inline docstrings from
+Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide
+to creating a simple document.
+
+
 ## Installation
 
 Documenter can be installed using the Julia package manager.
@@ -9,17 +14,12 @@ From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 pkg> add Documenter
 ```
 
-## Usage
 
-Documenter is designed to do one thing -- combine markdown files and inline docstrings from
-Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide
-to creating a simple document.
-
-### Setting up the folder structure
+## Setting up the Folder Structure
 
 !!! note
     The function [`DocumenterTools.generate`](@ref) from the `DocumenterTools` package
-    can generate the basic structure that Documenters expects.
+    can generate the basic structure that Documenter expects.
 
 Firstly, we need a Julia module to document. This could be a package generated via
 `PkgDev.generate` or a single `.jl` script accessible via Julia's `LOAD_PATH`. For this
@@ -56,7 +56,8 @@ docs/
     make.jl
 ```
 
-### Building an empty document
+
+## Building an Empty Document
 
 With our `docs/` directory now setup we're going to build our first document. It'll just be
 a single empty file at the moment, but we'll be adding to it later on.
@@ -141,7 +142,8 @@ At this point `build/index.html` should be an empty page since `src/index.md` is
 can try adding some text to `src/index.md` and re-running the `make.jl` file to see the
 changes.
 
-### Adding some docstrings
+
+## Adding Some Docstrings
 
 Next we'll splice a docstring defined in the `Example` module into the `index.md` file. To
 do this first document a function in that module:
@@ -191,7 +193,7 @@ func(x)
 ```
 ````
 
-#### Filtering Included Docstrings
+### Filtering included docstrings
 
 In some cases you may want to include a docstring for a `Method` that extends a
 `Function` from a different module -- such as `Base`. In the following example we extend
@@ -234,7 +236,8 @@ makedocs(
 )
 ```
 
-### Cross Referencing
+
+## Cross Referencing
 
 It may be necessary to refer to a particular docstring or section of your document from
 elsewhere in the document. To do this we can make use of Documenter's cross-referencing
@@ -259,7 +262,8 @@ the header and for docstrings enclose the object in backticks.
 This also works across different pages in the same way. Note that these sections and
 docstrings must be unique within a document.
 
-### Navigation
+
+## Navigation
 
 Documenter can auto-generate tables of contents and docstring indexes for your document with
 the following syntax. We'll illustrate these features using our `index.md` file from the
@@ -299,7 +303,8 @@ spliced into the document using `@docs` blocks. As with the `@contents` block th
 be included can be set with a `Pages = [...]` line. Since the list is not nested `Depth` is
 not supported for `@index`.
 
-### Pages in the sidebar
+
+## Pages in the Sidebar
 
 By default all the pages (`.md` files) in your source directory get added to the sidebar,
 sorted by their filenames. However, in most cases you want to use the `pages` argument to

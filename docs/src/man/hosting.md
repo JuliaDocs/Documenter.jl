@@ -9,55 +9,59 @@ the docs you're currently reading.
 !!! note
 
     Following this guide should be the *final* step you take after you are comfortable with
-    the syntax and build process used by `Documenter.jl`. Only proceed with the steps
-    outlined on this page once you have successfully used `mkdocs` locally to build your
-    documentation.  `mkdocs` can typically be installed using `pip install mkdocs` in your
-    terminal.
+    the syntax and build process used by `Documenter.jl`. It is recommended that you only
+    proceed with the steps outlined here once you have successfully managed to build your
+    documentation locally with Documenter.
 
-    This guide assumes that you already have GitHub and Travis accounts setup. If not then
-    go set those up first and then return here.
+    This guide assumes that you already have [GitHub](https://github.com/) and
+    [Travis](https://travis-ci.com/) accounts setup. If not then go set those up first and
+    then return here.
+
 
 ## Overview
 
-Once setup correctly the following will happen each time you push new updates to your
+Once set up correctly, the following will happen each time you push new updates to your
 package repository:
 
-- Travis buildbots startup and run your tests in a test stage;
-- after the test stage a single bot will start a new "deploy docs" stage;
-- if the building is successful the bot will try to push the generated
-  docs back to GitHub.
+- Travis buildbots will start up and run your package tests in a "Test" stage.
+- After the Test stage completes, a single bot will run a new "Documentation" stage, which
+  will build the documentation.
+- If the documentation is built successfully, the bot will attempt to push the generated
+  HTML pages back to GitHub.
 
-Note that the hosted documentation does not update when you make pull
-requests; you see updates only when you merge to `master` or push new tags.
+Note that the hosted documentation does not update when you make pull requests; you see
+updates only when you merge to `master` or push new tags.
 
 The following sections outline how to enable this for your own package.
 
+
 ## SSH Deploy Keys
 
-Deploy keys provide push access to a *single* repository, to allow secure deployment of generated documentation from Travis to GitHub.
+Deploy keys provide push access to a *single* repository, to allow secure deployment of
+generated documentation from Travis to GitHub. The SSH keys can be generated with the
+`Travis.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl)
+package.
 
 !!! note
 
-    You will need several command line programs installed for the following steps to work.
-    They are `which`, `git`, and `ssh-keygen`. Make sure these are installed before you
-    begin this section.
+    You will need several command line programs (`which`, `git` and `ssh-keygen`) to be
+    installed for the following steps to work. If DocumenterTools fails, please see the the
+    [SSH Deploy Keys Walkthrough](@ref) section for instruction on how to generate the keys
+    manually (including in Windows).
 
-    If you don't have them installed, go read [SSH Deploy Keys - the walkthrough](@ref)
-    for a manual walk-through.
 
-SSH keys can be generated with the `Travis.genkeys` from the `DocumenterTools` package.
-Install and load it as
+Install and load DocumenterTools with
 
 ```
 pkg> add DocumenterTools
 ```
-```jlcon
+```julia-repl
 julia> using DocumenterTools
 ```
 
 Then call the [`Travis.genkeys`](@ref) function as follows:
 
-```jlcon
+```julia-repl
 julia> using MyPackage
 julia> Travis.genkeys(MyPackage)
 ```
@@ -99,10 +103,15 @@ Follow the instructions that are printed out, namely:
         expose this variable in your tests, nor merge any code that does. You can read more
         about Travis environment variables in [Travis User Documentation](https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings).
 
+!!! note
+
+    There are more explicit instructions for adding the keys to GitHub and Travis in the
+    [SSH Deploy Keys Walkthrough](@ref) section of the manual.
+
 ## `.travis.yml` Configuration
 
-To tell Travis that we want a new build stage we can add the following to the
-`.travis.yml` file:
+To tell Travis that we want a new build stage we can add the following to the `.travis.yml`
+file:
 
 ```yaml
 jobs:
@@ -117,28 +126,35 @@ jobs:
       after_success: skip
 ```
 
-where the `julia:` and `os:` entries decide the worker from which the docs
-are built and deployed. In the example above we will thus build and deploy
-the documentation from a linux worker running Julia 1.0.
-For more information on how to setup a build stage,
-see the Travis manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
+where the `julia:` and `os:` entries decide the worker from which the docs are built and
+deployed. In the example above we will thus build and deploy the documentation from a linux
+worker running Julia 1.0. For more information on how to setup a build stage, see the Travis
+manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
-The three lines in the `script:` section does the following:
+The three lines in the `script:` section do the following:
+
  1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
  2. Install your package in the doc-build environment.
  3. Run the docs/make.jl script, which builds and deploys the documentation.
 
-The doc-build environment `docs/Project.toml` includes Documenter
-and other doc-build dependencies your package might have.
-If Documenter is the only dependency, then the `Project.toml`
-should include the following:
+The doc-build environment `docs/Project.toml` includes Documenter and other doc-build
+dependencies your package might have. If Documenter is the only dependency, then the
+`Project.toml` should include the following:
+
 ```toml
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
 [compat]
-Documenter = "0.20"
+Documenter = "~0.20"
 ```
+
+Note that it is recommended that you have a `[compat]` section, like the one above, in your
+`Project.toml` file, which would restrict Documenter's version that gets installed when the
+build runs. This is to make sure that your builds do not start failing suddenly due to a new
+major release of Documenter, which may include breaking changes. However, it also means that
+you will not get updates to Documenter automatically, and hence need to upgrade Documenter's
+major version yourself.
 
 
 ## The `deploydocs` Function
