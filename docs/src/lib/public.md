@@ -32,4 +32,5 @@ Deps.pip
 ```@docs
 DocumenterTools.generate
 DocumenterTools.Travis.genkeys
+DocumenterTools.Travis
 ```
