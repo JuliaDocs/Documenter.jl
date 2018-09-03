@@ -242,8 +242,6 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
         target = "site",
         repo   = "<required>",
         branch = "gh-pages",
-        osname = "linux",
-        julia  = "<required>",
         deps   = <Function>,
         make   = <Function>,
         devbranch = "master",
@@ -271,10 +269,6 @@ Otherwise the docs are deployed to the directory determined by the `devurl` argu
 
 # Required keyword arguments
 
-**`julia`** is the version of Julia that will be used to deploy generated documentation.
-This value must be one of those specified in the `julia:`
-section of the `.travis.yml` configuration file.
-
 **`repo`** is the remote repository where generated HTML content should be pushed to. Do not
 specify any protocol - "https://" or "git@" should not be present. This keyword *must*
 be set and will throw an error when left undefined. For example this package uses the
@@ -294,10 +288,6 @@ default value is `"site"`.
 
 **`branch`** is the branch where the generated documentation is pushed. If the branch does
 not exist, a new orphaned branch is created automatically. It defaults to `"gh-pages"`.
-
-**`osname`** is the operating system which will be used to deploy generated documentation.
-This defaults to `"linux"`. This value must be one of those specified in the `os:` section
-of the `.travis.yml` configuration file.
 
 **`deps`** is the function used to install any dependencies needed to build the
 documentation. By default this function installs `pygments` and `mkdocs` using the
@@ -345,8 +335,8 @@ function deploydocs(;
         branch = "gh-pages",
         latest::Union{String,Nothing} = nothing, # deprecated
 
-        osname = "linux",
-        julia  = error("no 'julia' keyword provided."),
+        osname::Union{String,Nothing} = nothing, # deprecated
+        julia::Union{String,Nothing} = nothing, # deprecated
 
         deps   = Deps.pip("pygments", "mkdocs"),
         make   = () -> run(`mkdocs build`),
@@ -361,6 +351,21 @@ function deploydocs(;
         devbranch = latest
         @info("setting `devbranch` to `$(devbranch)`.")
     end
+    # deprecation/removal of `julia` and `osname` kwargs
+    if julia !== nothing
+        Base.depwarn("the `julia` keyword argument to `Documenter.deploydocs` is " *
+            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
+            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
+        @info("skipping docs deployment.")
+        return
+    end
+    if osname !== nothing
+        Base.depwarn("the `osname` keyword argument to `Documenter.deploydocs` is " *
+            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
+            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
+        @info("skipping docs deployment.")
+        return
+    end
 
     # Get environment variables.
     documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
@@ -368,8 +373,7 @@ function deploydocs(;
     travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
     travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
     travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_osname       = get(ENV, "TRAVIS_OS_NAME",       "")
-    travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
+
 
     # Other variables.
     sha = cd(root) do
@@ -396,8 +400,6 @@ function deploydocs(;
     should_deploy =
         occursin(travis_repo_slug, repo) &&
         travis_pull_request == "false"   &&
-        travis_osname == osname &&
-        travis_julia  == julia  &&
         (
             travis_branch == devbranch ||
             travis_tag    != ""
@@ -423,10 +425,6 @@ function deploydocs(;
         Utilities.debug("  should match \"$repo\" (kwarg: repo)")
         Utilities.debug("TRAVIS_PULL_REQUEST    = \"$travis_pull_request\"")
         Utilities.debug("  deploying if equal to \"false\"")
-        Utilities.debug("TRAVIS_OS_NAME         = \"$travis_osname\"")
-        Utilities.debug("  deploying if equal to \"$osname\" (kwarg: osname)")
-        Utilities.debug("TRAVIS_JULIA_VERSION   = \"$travis_julia\"")
-        Utilities.debug("  deploying if equal to \"$julia\" (kwarg: julia)")
         Utilities.debug("TRAVIS_BRANCH          = \"$travis_branch\"")
         Utilities.debug("TRAVIS_TAG             = \"$travis_tag\"")
         Utilities.debug("  deploying if branch equal to \"$devbranch\" (kwarg: devbranch) or tag is set")
