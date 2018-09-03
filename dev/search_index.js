@@ -653,7 +653,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "DocumenterTools.generate",
     "category": "function",
-    "text": "generate(pkg; dir)\n\n\nCreates a documentation stub for a package called pkgname. The location of the documentation is assumed to be <package directory>/docs, but this can be overriden with the keyword argument dir.\n\nIt creates the following files\n\ndocs/\n    .gitignore\n    src/index.md\n    make.jl\n    mkdocs.yml\n\nArguments\n\npkgname is the name of the package (without .jl). It is used to determine the location of the documentation if dir is not provided.\n\nKeywords\n\ndir defines the directory where the documentation will be generated. It defaults to <package directory>/docs. The directory must not exist.\n\nExamples\n\njulia> using DocumenterTools\n\njulia> using MyPackage\n\njulia> Documenter.generate(MyPackage)\n[ ... output ... ]\n\n\n\n\n\n"
+    "text": "DocumenterTools.generate(path::String; name = nothing)\n\nCreate a documentation stub in path, which is usually a sub folder in the package root. The name of the package is determined automatically, but can be given with the name keyword argument.\n\ngenerate creates the following files in path:\n\n.gitignore\nsrc/index.md\nmake.jl\nmkdocs.yml\nProject.toml\n\nArguments\n\npath file path to the documentation directory.\n\nKeywords Arguments\n\nname is the name of the package (without .jl). If name is not given generate tries to detect it automatically.\n\nExamples\n\njulia> using DocumenterTools\n\njulia> Documenter.generate(\"path/to/MyPackage/docs\")\n[ ... output ... ]\n\n\n\n\n\nDocumenterTools.generate(pkg::Module; dir = \"docs\")\n\nSame as generate(path::String) but the path and name is determined automatically from the module.\n\nnote: Note\nThe package must be in development mode. Make sure you run pkg> develop pkg from the Pkg REPL, or Pkg.develop(\"pkg\") before generating docs.\n\nExamples\n\njulia> using DocumenterTools\n\njulia> using MyPackage\n\njulia> DocumenterTools.generate(MyPackage)\n[ ... output ... ]\n\n\n\n\n\n"
 },
 
 {
@@ -661,7 +661,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "DocumenterTools.Travis.genkeys",
     "category": "function",
-    "text": "genkeys(package; remote)\n\n\nGenerate ssh keys for package package to automatically deploy docs from Travis to GitHub pages. package can be either the name of a package or a path. Providing a path allows keys to be generated for non-packages or packages that are not found in the Julia LOAD_PATH. Use the remote keyword to specify the user and repository values.\n\nThis function requires the following command lines programs to be installed:\n\nwhich\ngit\ntravis\nssh-keygen\n\nExamples\n\njulia> using Documenter\n\njulia> Travis.genkeys(\"MyPackageName\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"MyPackageName\", remote=\"organization\")\n[ ... output ... ]\n\njulia> Travis.genkeys(\"/path/to/target/directory\")\n[ ... output ... ]\n\n\n\n\n\n"
+    "text": "genkeys(; user=\"$USER\", repo=\"$REPO\")\n\nGenerates the SSH keys necessary for the automatic deployment of documentation with Documenter from Travis to GitHub Pages.\n\nBy default the links in the instructions need to be modified to correspond to actual URLs. The optional user and repo keyword arguments can be specified so that the URLs in the printed instructions could be copied directly. They should be the name of the GitHub user or organization where the repository is hosted and the full name of the repository, respectively.\n\nThis method of genkeys requires the following command lines programs to be installed:\n\nwhich\nssh-keygen\n\nExamples\n\njulia> using DocumenterTools\n\njulia> Travis.genkeys()\n[ Info: add the public key below to https://github.com/$USER/$REPO/settings/keys with read/write access:\n\nssh-rsa AAAAB3NzaC2yc2EAAAaDAQABAAABAQDrNsUZYBWJtXYUk21wxZbX3KxcH8EqzR3ZdTna0Wgk...jNmUiGEMKrr0aqQMZEL2BG7 username@hostname\n\n[ Info: add a secure environment variable named \'DOCUMENTER_KEY\' to https://travis-ci.org/$USER/$REPO/settings with value:\n\nLS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBNnpiRkdXQVZpYlIy...QkVBRWFjY3BxaW9uNjFLaVdOcDU5T2YrUkdmCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==\n\n\njulia> Travis.genkeys(user=\"JuliaDocs\", repo=\"DocumenterTools.jl\")\n[Info: add the public key below to https://github.com/JuliaDocs/DocumenterTools.jl/settings/keys with read/write access:\n\nssh-rsa AAAAB3NzaC2yc2EAAAaDAQABAAABAQDrNsUZYBWJtXYUk21wxZbX3KxcH8EqzR3ZdTna0Wgk...jNmUiGEMKrr0aqQMZEL2BG7 username@hostname\n\n[ Info: add a secure environment variable named \'DOCUMENTER_KEY\' to https://travis-ci.org/JuliaDocs/DocumenterTools.jl/settings with value:\n\nLS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBNnpiRkdXQVZpYlIy...QkVBRWFjY3BxaW9uNjFLaVdOcDU5T2YrUkdmCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==\n\n\n\n\n\ngenkeys(package::Module; remote=\"origin\")\n\nLike the other method, this generates the SSH keys necessary for the automatic deployment of documentation with Documenter from Travis to GitHub Pages, but attempts to guess the package URLs from the Git remote.\n\npackage needs to be the top level module of the package. The remote keyword argument can be used to specify which Git remote is used for guessing the repository\'s GitHub URL.\n\nThis method requires the following command lines programs to be installed:\n\nwhich\ngit\nssh-keygen\n\nnote: Note\nThe package must be in development mode. Make sure you run pkg> develop pkg from the Pkg REPL, or Pkg.develop(\"pkg\") before generating the SSH keys.\n\nExamples\n\njulia> using DocumenterTools\n\njulia> Travis.genkeys(DocumenterTools)\n[Info: add the public key below to https://github.com/JuliaDocs/DocumenterTools.jl/settings/keys with read/write access:\n\nssh-rsa AAAAB3NzaC2yc2EAAAaDAQABAAABAQDrNsUZYBWJtXYUk21wxZbX3KxcH8EqzR3ZdTna0Wgk...jNmUiGEMKrr0aqQMZEL2BG7 username@hostname\n\n[ Info: add a secure environment variable named \'DOCUMENTER_KEY\' to https://travis-ci.org/JuliaDocs/DocumenterTools.jl/settings with value:\n\nLS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBNnpiRkdXQVZpYlIy...QkVBRWFjY3BxaW9uNjFLaVdOcDU5T2YrUkdmCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/public/#DocumenterTools.Travis",
+    "page": "Public",
+    "title": "DocumenterTools.Travis",
+    "category": "module",
+    "text": "Package functions for interacting with Travis.\n\ngenkeys\n\n\n\n\n\n"
 },
 
 {
@@ -669,7 +677,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "DocumenterTools",
     "category": "section",
-    "text": "DocumenterTools.generate\nDocumenterTools.Travis.genkeys"
+    "text": "DocumenterTools.generate\nDocumenterTools.Travis.genkeys\nDocumenterTools.Travis"
 },
 
 {
@@ -1089,6 +1097,94 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/documentertools/#",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.package_devpath",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.package_devpath",
+    "category": "function",
+    "text": "package_devpath(pkg)\n\n\nReturns the path to the top level directory of a devved out package source tree. The package is identified by its top level module pkg.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools-1",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools",
+    "category": "section",
+    "text": "DocumenterTools.package_devpath"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.Generator",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.Generator",
+    "category": "module",
+    "text": "Provides the functions related to generating documentation stubs.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.Generator.gitignore-Tuple{}",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.Generator.gitignore",
+    "category": "method",
+    "text": "gitignore()\n\n\nContents of the default .gitignore file.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.Generator.index-Tuple{Any}",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.Generator.index",
+    "category": "method",
+    "text": "index(pkgname)\n\n\nContents of the default src/index.md file.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.Generator.make-Tuple{Any}",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.Generator.make",
+    "category": "method",
+    "text": "make(pkgname)\n\n\nContents of the default make.jl file.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.Generator.mkdocs-Tuple{Any}",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.Generator.mkdocs",
+    "category": "method",
+    "text": "mkdocs(pkgname; description, author, url)\n\n\nContents of the default mkdocs.yml file.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.Generator.project-Tuple{}",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.Generator.project",
+    "category": "method",
+    "text": "project()\n\n\nContents of the default Project.toml file.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#DocumenterTools.Generator.savefile-Tuple{Any,Any,Any}",
+    "page": "DocumenterTools",
+    "title": "DocumenterTools.Generator.savefile",
+    "category": "method",
+    "text": "savefile(f, root, filename)\n\n\nAttempts to save a file at $(root)/$(filename). f will be called with file stream (see open).\n\nfilename can also be a file in a subdirectory (e.g. src/index.md), and then then subdirectories will be created automatically.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/documentertools/#Generator-1",
+    "page": "DocumenterTools",
+    "title": "Generator",
+    "category": "section",
+    "text": "Modules = [DocumenterTools.Generator]"
+},
+
+{
     "location": "lib/internals/documents/#",
     "page": "Documents",
     "title": "Documents",
@@ -1406,22 +1502,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Formats",
     "category": "section",
     "text": "Modules = [Documenter.Formats]"
-},
-
-{
-    "location": "lib/internals/generator/#",
-    "page": "Generator",
-    "title": "Generator",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "lib/internals/generator/#Generator-1",
-    "page": "Generator",
-    "title": "Generator",
-    "category": "section",
-    "text": "Modules = [Documenter.Generator]"
 },
 
 {
