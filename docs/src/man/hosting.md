@@ -22,9 +22,10 @@ the docs you're currently reading.
 Once setup correctly the following will happen each time you push new updates to your
 package repository:
 
-- travis buildbots startup and run your tests;
-- each buildbot will build the package docs using your `docs/make.jl` script;
-- a single buildbot will then try to push the generated docs back to GitHub.
+- Travis buildbots startup and run your tests in a test stage;
+- after the test stage a single bot will start a new "deploy docs" stage;
+- if the building is successful the bot will try to push the generated
+  docs back to GitHub.
 
 Note that the hosted documentation does not update when you make pull
 requests; you see updates only when you merge to `master` or push new tags.
@@ -97,14 +98,45 @@ Follow the instructions that are printed out, namely:
 
 ## `.travis.yml` Configuration
 
-In the `after_success` section of the `.travis.yml` file, where code coverage is processed,
-run your `docs/make.jl` file:
+To tell Travis that we want a new build stage we can add the following to the
+`.travis.yml` file:
 
 ```yaml
-after_success:
-  - julia -e 'Pkg.add("Documenter")'
-  - julia -e 'cd(Pkg.dir("PACKAGE_NAME")); include(joinpath("docs", "make.jl"))'
+jobs:
+  include:
+    - stage: "Documentation"
+      julia: 1.0
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg; Pkg.instantiate()'
+        - julia --project=docs/ -e 'using Pkg; Pkg.add(PackageSpec(path=pwd()))'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip
 ```
+
+where the `julia:` and `os:` entries decide the worker from which the docs
+are built and deployed. In the example above we will thus build and deploy
+the documentation from a linux worker running Julia 1.0.
+For more information on how to setup a build stage,
+see the Travis manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
+
+The three lines in the `script:` section does the following:
+ 1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
+ 2. Install your package in the doc-build environment.
+ 3. Run the docs/make.jl script, which builds and deploys the documentation.
+
+The doc-build environment `docs/Project.toml` includes Documenter
+and other doc-build dependencies your package might have.
+If Documenter is the only dependency, then the `Project.toml`
+should include the following:
+```toml
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+Documenter = "0.20"
+```
+
 
 ## The `deploydocs` Function
 
@@ -123,7 +155,6 @@ Add the following at the end of the file:
 ```julia
 deploydocs(
     repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-    julia = "1.0"
 )
 ```
 
@@ -131,29 +162,17 @@ where `USER_NAME` and `PACKAGE_NAME` must be set to the appropriate names.
 Note that `repo` should not specify any protocol, i.e. it should not begin with `https://`
 or `git@`.
 
-Since you are probably testing your package on against multiple Julia versions and on
-multiple operating systems, you need to specify which of those builds should be used for
-deployment. This is to avoid deploying the same docs multiple times.
-
-The mandatory `julia` keyword argument specifies the Julia version and must be one from
-the `julia:` section of your `.travis.yml`.
-The operating system defaults to Linux, but can be changed using the `osname` keyword
-as follows:
+The keyword `deps` serves to provide the required dependencies to deploy
+the documentation:
 
 ```julia
 deploydocs(
     deps   = Deps.pip("mkdocs", "python-markdown-math"),
     repo   = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
-    julia  = "nightly",
-    osname = "osx"
 )
 ```
 
-This will deploy the docs from the OSX Julia nightly Travis build bot.
-
-The keyword `deps` serves to provide the required dependencies to deploy
-the documentation. In the example above we include the dependencies
-[mkdocs](https://www.mkdocs.org)
+In the example above we include the dependencies [mkdocs](https://www.mkdocs.org)
 and [`python-markdown-math`](https://github.com/mitya57/python-markdown-math).
 The former makes sure that MkDocs is installed to deploy the documentation,
 and the latter provides the `mdx_math` markdown extension to exploit MathJax
