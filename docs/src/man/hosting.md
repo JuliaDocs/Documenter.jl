@@ -79,9 +79,8 @@ Follow the instructions that are printed out, namely:
  1. Add the public ssh key to your settings page for the GitHub repository that you are
     setting up by following the `.../settings/key` link provided. Click on **`Add deploy
     key`**, enter the name **`documenter`** as the title, and copy the public key into the
-    **`Key`** field.  Note that you should include **no whitespace** when copying the key.
-    Check **`Allow write access`** to allow Documenter to commit the generated documentation
-    to the repo.
+    **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
+    generated documentation to the repo.
 
  2. Next add the long private key to the Travis settings page using the provided link. Again
     note that you should include **no whitespace** when copying the key. In the **`Environment
