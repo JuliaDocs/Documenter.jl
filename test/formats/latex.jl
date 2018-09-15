@@ -22,9 +22,9 @@ doc = makedocs(
             "man/examples.md",
             "man/syntax.md",
             "man/doctests.md",
-            "man/hosting.md",
             "man/latex.md",
-            "man/contributing.md",
+            "man/hosting.md",
+            "man/other-formats.md",
         ],
         "Library" => Any[
             "Public" => "lib/public.md",
@@ -47,7 +47,8 @@ doc = makedocs(
                 "lib/internals/utilities.md",
                 "lib/internals/writers.md",
             ])
-        ]
+        ],
+        "contributing.md",
     ]
 )
 

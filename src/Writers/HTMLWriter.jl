@@ -7,10 +7,29 @@ A module for rendering `Document` objects to HTML.
 [`Documenter.makedocs`](@ref): `assets`, `sitename`, `analytics`, `authors`, `pages`,
 `version`, `html_prettyurls`, `html_disable_git`.
 
+**`sitename`** is the site's title displayed in the title bar and at the top of the
+*navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
+
+**`pages`** defines the hierarchy of the navigation menu.
+
+**`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
+for more information.
+
+# Experimental keywords
+
+**`analytics`** can be used specify the Google Analytics tracking ID.
+
 **`version`** specifies the version string of the current version which will be the
 selected option in the version selector. If this is left empty (default) the version
 selector will be hidden. The special value `git-commit` sets the value in the output to
 `git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
+
+**`html_prettyurls`** (default `true`) -- allows disabling the pretty URLs feature, which
+generates an output directory structre that hides the `.html` suffixes from the URLs (e.g.
+by default `src/foo.md` becomes `src/foo/index.html`). This does not work when browsing
+documentation in local files since browsers do not resolve `foo/` to `foo/index.html`
+for local files. If `html_prettyurls = false`, then Documenter generate `src/foo.html`
+instead and sets up the internal links accordingly, suitable for local documentation builds.
 
 **`html_disable_git`** can be used to disable calls to `git` when the document is not
 in a Git-controlled repository. Without setting this to `true`, Documenter will throw

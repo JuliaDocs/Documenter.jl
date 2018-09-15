@@ -1,5 +1,16 @@
 """
 A module for rendering `Document` objects to LaTeX and PDF.
+
+# Keywords
+
+[`LaTeXWriter`](@ref) uses the following additional keyword arguments that can be passed to
+[`Documenter.makedocs`](@ref): `authors`, `sitename`.
+
+**`sitename`** is the site's title displayed in the title bar and at the top of the
+navigation menu. It goes into the `\\title` LaTeX command.
+
+**`authors`** can be used to specify the authors of. It goes into the `\\author` LaTeX command.
+
 """
 module LaTeXWriter
 
