@@ -254,7 +254,7 @@ function Document(;
         authors  :: AbstractString   = "",
         analytics :: AbstractString  = "",
         version :: AbstractString    = "",
-        html_prettyurls  :: Bool     = false,
+        html_prettyurls  :: Bool     = true,
         html_disable_git :: Bool     = false,
         html_edit_branch :: Union{String, Nothing} = "master",
         html_canonical   :: Union{String, Nothing} = nothing,
