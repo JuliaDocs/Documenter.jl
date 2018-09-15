@@ -62,7 +62,7 @@ function render(doc::Documents.Document)
     # Render each format. Additional formats must define an `order`, `matcher`, `runner`, as
     # well as their own rendering methods in a separate module.
     for each in doc.user.format
-        if each === :markdown
+        if each === :markdown && !backends_enabled[:markdown]
             @warn """Deprecated format value :markdown
 
             The Markdown/MkDocs backend must now be imported from a separate package.
@@ -77,7 +77,7 @@ function render(doc::Documents.Document)
 
             See the Output Backends section in the manual for more information.
             """
-        elseif each === :latex
+        elseif each === :latex && !backends_enabled[:latex]
             @warn """Deprecated format value :markdown
 
             The LaTeX/PDF backend must now be imported from a separate package.
