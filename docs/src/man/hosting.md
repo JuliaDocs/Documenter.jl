@@ -55,10 +55,11 @@ julia> using DocumenterTools
 Then call the [`Travis.genkeys`](@ref) function as follows:
 
 ```jlcon
-julia> Travis.genkeys("MyPackage")
+julia> using MyPackage
+julia> Travis.genkeys(MyPackage)
 ```
 
-where `"MyPackage"` is the name of the package you would like to create deploy keys for. The
+where `MyPackage` is the name of the package you would like to create deploy keys for. The
 output will look similar to the text below:
 
 ```
