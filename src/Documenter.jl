@@ -468,7 +468,7 @@ function deploydocs(;
             end
         end
     else
-        Utilities.log("skipping docs deployment."
+        Utilities.log("skipping docs deployment.")
         if get(ENV, "DOCUMENTER_DEBUG", "") != "true"
               Utilities.log("You can set DOCUMENTER_DEBUG to "true" in Travis to see more information.")
         end
