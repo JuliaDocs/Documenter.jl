@@ -429,7 +429,7 @@ function deploydocs(;
 
     if get(ENV, "DOCUMENTER_DEBUG", "") == "true"
         Utilities.debug("TRAVIS_REPO_SLUG       = \"$travis_repo_slug\"")
-        Utilities.debug("  should match \"$repo\" (kwarg: repo)")
+        Utilities.debug("  should occur in \"$repo\" (kwarg: repo)")
         Utilities.debug("TRAVIS_PULL_REQUEST    = \"$travis_pull_request\"")
         Utilities.debug("  deploying if equal to \"false\"")
         Utilities.debug("TRAVIS_BRANCH          = \"$travis_branch\"")
@@ -468,9 +468,10 @@ function deploydocs(;
             end
         end
     else
-        Utilities.log("""
-            skipping docs deployment.
-              You can set DOCUMENTER_DEBUG to "true" in Travis to see more information.""")
+        Utilities.log("skipping docs deployment.")
+        if get(ENV, "DOCUMENTER_DEBUG", "") != "true"
+              Utilities.log("You can set DOCUMENTER_DEBUG to \"true\" in Travis to see more information.")
+        end
     end
 end
 
