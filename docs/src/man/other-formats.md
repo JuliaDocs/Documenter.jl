@@ -1,13 +1,24 @@
 # Other outputs
 
-In addition to the default native HTML output, Documenter can also generate output in other
-formats. The output format can be specified using the `format` option in [`makedocs`](@ref).
+In addition to the default native HTML output, plugin packages enable Documenter to generate
+output in other formats. Once the corresponding package is loadded, the output format can be
+specified using the `format` option in [`makedocs`](@ref).
+
 
 ## Markdown & MkDocs
 
-By specifying `format = :markdown` in [`makedocs`](@ref), Documenter will output a set of
-Markdown files to the `build` directory that can then further be processed with
-[MkDocs](https://www.mkdocs.org/) into HTML pages.
+Markdown output requires the [`DocumenterMarkdown`](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
+package to be available and loaded.
+For Travis setups, add the package to the `docs/Project.toml` environment as a dependency.
+You also need to import the package in `make.jl`:
+
+```
+using DocumenterMarkdown
+```
+
+When `DocumenterMarkdown` is loaded, you can specify `format = :markdown` in [`makedocs`](@ref).
+Documenter will then output a set of Markdown files to the `build` directory that can then
+further be processed with [MkDocs](https://www.mkdocs.org/) into HTML pages.
 
 MkDocs, of course, is not the only option you have -- any markdown to HTML converter should
 work fine with some amount of setting up.
@@ -16,12 +27,6 @@ work fine with some amount of setting up.
 
     Markdown output used to be the default option (i.e. when leaving the `format` option
     unspecified). The default now is the HTML output.
-
-!!! warning
-
-    Markdown output will be moved to a separate package in future versions of Documenter.
-    Automatic documentation deployments should not rely on it unless they fix Documenter to a
-    minor version.
 
 ### The MkDocs `mkdocs.yml` File
 
@@ -142,10 +147,17 @@ enable properly rendered mathematical equations within your documentation both l
 when built and deployed using the Travis built service.
 
 
-## LaTeX
+## PDF output via LaTeX
 
-By setting `format = :latex`, you can use LaTeX to generate a PDF version of your
-documentation.
+LaTeX/PDF output requires the [`DocumenterLaTeX`](https://github.com/JuliaDocs/DocumenterLaTeX.jl)
+package to be available and loaded in `make.jl` with
+
+```
+using DocumenterLaTeX
+```
+
+When `DocumenterLaTeX` is loaded, you can set `format = :latex` in [`makedocs`](@ref),
+and Documenter will generate a PDF version of the documentation using LaTeX.
 
 * You need `pdflatex` command to be installed and available to Documenter.
 * You need the [minted](https://ctan.org/pkg/minted) LaTeX package and its backend source
@@ -155,9 +167,3 @@ documentation.
 
 You should also specify the `sitename` and `authors` keywords for `makedocs` when using the
 LaTeX output.
-
-!!! warning
-
-    The LaTeX output will be moved to a separate package in future versions of Documenter.
-    Automatic documentation deployments should not rely on it unless they fix Documenter to a
-    minor version.

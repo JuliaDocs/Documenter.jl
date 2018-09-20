@@ -62,6 +62,37 @@ function render(doc::Documents.Document)
     # Render each format. Additional formats must define an `order`, `matcher`, `runner`, as
     # well as their own rendering methods in a separate module.
     for each in doc.user.format
+        if each === :markdown && !backends_enabled[:markdown]
+            @warn """Deprecated format value :markdown
+
+            The Markdown/MkDocs backend must now be imported from a separate package.
+            Add DocumenterMarkdown to your documentation dependencies and add
+
+                using DocumenterMarkdown
+
+            to your make.jl script.
+
+            Built-in support for format=:markdown will be removed completely in a future
+            Documenter version, causing builds to fail completely.
+
+            See the Output Backends section in the manual for more information.
+            """
+        elseif each === :latex && !backends_enabled[:latex]
+            @warn """Deprecated format value :markdown
+
+            The LaTeX/PDF backend must now be imported from a separate package.
+            Add DocumenterLaTeX to your documentation dependencies and add
+
+                using DocumenterLaTeX
+
+            to your make.jl script.
+
+            Built-in support for format=:latex will be removed completely in a future
+            Documenter version, causing builds to fail completely.
+
+            See the Output Backends section in the manual for more information.
+            """
+        end
         Selectors.dispatch(FormatSelector, each, doc)
     end
     # Revert all local links to their original URLs.
@@ -73,5 +104,29 @@ end
 include("MarkdownWriter.jl")
 include("HTMLWriter.jl")
 include("LaTeXWriter.jl")
+
+# This is hack to enable shell packages that would behave as in the supplementary Writer
+# modules have been moved out of Documenter.
+#
+# External packages DocumenterMarkdown and DocumenterLaTeX can use the enable_backend
+# function to mark that a certain backend is loaded in backends_enabled. That is used to
+# determine whether a deprecation warning should be printed in the render method above.
+#
+# enable_backend() is not part of the API and will be removed as soon as LaTeXWriter and
+# MarkdownWriter are actually moved out into a separate module (TODO).
+backends_enabled = Dict(
+    :markdown => false,
+    :latex => false
+)
+
+function enable_backend(backend::Symbol)
+    global backends_enabled
+    if backend in keys(backends_enabled)
+        backends_enabled[backend] = true
+    else
+        @error "Unknown backend. Expected one of:" keys(backends_enabled)
+        throw(ArgumentError("Unknown backend $backend."))
+    end
+end
 
 end
