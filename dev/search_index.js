@@ -493,7 +493,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Other outputs",
     "title": "Other outputs",
     "category": "section",
-    "text": "In addition to the default native HTML output, Documenter can also generate output in other formats. The output format can be specified using the format option in makedocs."
+    "text": "In addition to the default native HTML output, plugin packages enable Documenter to generate output in other formats. Once the corresponding package is loadded, the output format can be specified using the format option in makedocs."
 },
 
 {
@@ -501,7 +501,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Other outputs",
     "title": "Markdown & MkDocs",
     "category": "section",
-    "text": "By specifying format = :markdown in makedocs, Documenter will output a set of Markdown files to the build directory that can then further be processed with MkDocs into HTML pages.MkDocs, of course, is not the only option you have – any markdown to HTML converter should work fine with some amount of setting up.note: Note\nMarkdown output used to be the default option (i.e. when leaving the format option unspecified). The default now is the HTML output.warning: Warning\nMarkdown output will be moved to a separate package in future versions of Documenter. Automatic documentation deployments should not rely on it unless they fix Documenter to a minor version."
+    "text": "Markdown output requires the DocumenterMarkdown package to be available and loaded. For Travis setups, add the package to the docs/Project.toml environment as a dependency. You also need to import the package in make.jl:using DocumenterMarkdownWhen DocumenterMarkdown is loaded, you can specify format = :markdown in makedocs. Documenter will then output a set of Markdown files to the build directory that can then further be processed with MkDocs into HTML pages.MkDocs, of course, is not the only option you have – any markdown to HTML converter should work fine with some amount of setting up.note: Note\nMarkdown output used to be the default option (i.e. when leaving the format option unspecified). The default now is the HTML output."
 },
 
 {
@@ -529,11 +529,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/other-formats/#LaTeX-1",
+    "location": "man/other-formats/#PDF-output-via-LaTeX-1",
     "page": "Other outputs",
-    "title": "LaTeX",
+    "title": "PDF output via LaTeX",
     "category": "section",
-    "text": "By setting format = :latex, you can use LaTeX to generate a PDF version of your documentation.You need pdflatex command to be installed and available to Documenter.\nYou need the minted LaTeX package and its backend source highlighter Pygments installed.\nYou need the Lato and Roboto Mono fonts installed.You should also specify the sitename and authors keywords for makedocs when using the LaTeX output.warning: Warning\nThe LaTeX output will be moved to a separate package in future versions of Documenter. Automatic documentation deployments should not rely on it unless they fix Documenter to a minor version."
+    "text": "LaTeX/PDF output requires the DocumenterLaTeX package to be available and loaded in make.jl withusing DocumenterLaTeXWhen DocumenterLaTeX is loaded, you can set format = :latex in makedocs, and Documenter will generate a PDF version of the documentation using LaTeX.You need pdflatex command to be installed and available to Documenter.\nYou need the minted LaTeX package and its backend source highlighter Pygments installed.\nYou need the Lato and Roboto Mono fonts installed.You should also specify the sitename and authors keywords for makedocs when using the LaTeX output."
 },
 
 {
