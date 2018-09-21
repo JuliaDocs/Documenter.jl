@@ -24,7 +24,30 @@ The private key should look something like
 -----END RSA PRIVATE KEY-----
 ```
 
-### Windows
+### If you do have ssh-keygen
+
+If you have `ssh-keygen` installed, but `Travis.genkeys()` didn't work, you can
+generate an SSH key as follows.
+First, generate a key using `ssh-keygen` and save it to the file `privatekey`:
+```julia
+shell> ssh-keygen -N "" -f privatekey
+```
+
+Next, we need to encode the private key in Base64. Run the following command:
+```julia
+julia> read("privatekey", String) |> base64encode |>  println
+```
+Copy and paste the output somewhere. This is your *private key* and is required
+for the step [Add the private key to Travis](@ref).
+
+Now we need to get the public key. Run the following command:
+```julia
+julia> read("privatekey.pub", String) |> println
+```
+Copy and paste the output somewhere. This is your *public key* and is
+required for the step [Add the public key to Github](@ref).
+
+### If you don't have ssh-keygen
 
 If you're using Windows, you probably don't have `ssh-keygen` installed.
 Instead, we're going to use a program called PuTTY. The first step in the
