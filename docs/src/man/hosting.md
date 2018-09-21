@@ -42,6 +42,9 @@ Deploy keys provide push access to a *single* repository, to allow secure deploy
     They are `which`, `git`, and `ssh-keygen`. Make sure these are installed before you
     begin this section.
 
+    If you don't have them installed, go read [SSH Deploy Keys - the walkthrough](@ref)
+    for a manual walk-through.
+
 SSH keys can be generated with the `Travis.genkeys` from the `DocumenterTools` package.
 Install and load it as
 
