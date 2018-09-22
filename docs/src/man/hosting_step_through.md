@@ -58,7 +58,7 @@ process to generate a new SSH key is to download PuTTY:
 PuTTY is actually a collection of a few different programs. We need to use
 PuTTYgen. Open it, and you should get a window that looks like:
 
-![](https://user-images.githubusercontent.com/8177701/45131792-a09a6b80-b1e2-11e8-885b-499237651c29.png)
+![](hosting/puttygen.png)
 
 Now we need to generate a key.
 
@@ -67,7 +67,7 @@ Now we need to generate a key.
 
 Once you've moved the mouse enough, the window should look like:
 
-![](https://user-images.githubusercontent.com/8177701/45131800-a728e300-b1e2-11e8-8d40-dbb4fa383ff5.png)
+![](hosting/puttygen-generated.png)
 
 Now we need to save the public key somewhere.
 
@@ -81,7 +81,7 @@ Finally, we need to save the private key somewhere.
   file somewhere. That file is your *private key* and is required for the step
   [Add the private key to Travis](@ref)
 
-![](https://user-images.githubusercontent.com/8177701/45131813-b4de6880-b1e2-11e8-82bd-ec8ceb44a976.png)
+![](hosting/puttygen-export-private-key.png)
 
 !!! info
     Don't save your key via the `Save private key` button as this will save the
@@ -99,7 +99,7 @@ haven't done this, go read [Generate a key](@ref).
 - Go to [https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys]()
   and click `Add deploy key`. You should get to a page that looks like:
 
-![](https://user-images.githubusercontent.com/8177701/45131985-4fd74280-b1e3-11e8-9d95-46539845ee3a.png)
+![](hosting/github-add-deploy-key.png)
 
 Now we need to fill in three pieces of information.
 
