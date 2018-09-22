@@ -437,7 +437,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "SSH Deploy Keys",
     "category": "section",
-    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.SSH keys can be generated with the Travis.genkeys from the DocumenterTools package. Install and load it aspkg> add DocumenterToolsjulia> using DocumenterToolsThen call the Travis.genkeys function as follows:julia> using MyPackage\njulia> Travis.genkeys(MyPackage)where MyPackage is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named \'DOCUMENTER_KEY\' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field.  Note that you should include no whitespace when copying the key. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
+    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.If you don\'t have them installed, go read SSH Deploy Keys - the walkthrough for a manual walk-through.SSH keys can be generated with the Travis.genkeys from the DocumenterTools package. Install and load it aspkg> add DocumenterToolsjulia> using DocumenterToolsThen call the Travis.genkeys function as follows:julia> using MyPackage\njulia> Travis.genkeys(MyPackage)where MyPackage is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named \'DOCUMENTER_KEY\' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
 },
 
 {
@@ -478,6 +478,62 @@ var documenterSearchIndex = {"docs": [
     "title": "Documentation Versions",
     "category": "section",
     "text": "When documentation is generated it is stored in one of the following folders:latest stores the most recent documentation that is committed to the master branch.\nstable stores the most recent documentation from a tagged commit. Older tagged versions are stored in directories named after their tags. These tagged directories are persistent and must be manually removed from the gh-pages branch if necessary.Unless a custom domain is being used, the stable and latest pages are found at:https://USER_NAME.github.io/PACKAGE_NAME.jl/stable\nhttps://USER_NAME.github.io/PACKAGE_NAME.jl/latestOnce your documentation has been pushed to the gh-pages branch you should add links to your README.md pointing to the stable and latest documentation URLs. It is common practice to make use of \"badges\" similar to those used for Travis and AppVeyor build statuses or code coverage. Adding the following to your package README.md should be all that is necessary:[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)\n[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)PACKAGE_NAME and USER_NAME should be replaced with their appropriate values. The colour and text of the image can be changed by altering docs-stable-blue as described on shields.io, though it is recommended that package authors follow this standard to make it easier for potential users to find documentation links across multiple package README files.Final RemarksThat should be all that is needed to enable automatic documentation building. Pushing new commits to your master branch should trigger doc builds. Note that other branches do not trigger these builds and neither do pull requests by potential contributors.If you would like to see a more complete example of how this process is setup then take a look at this package\'s repository for some inspiration."
+},
+
+{
+    "location": "man/hosting_step_through/#",
+    "page": "SSH Deploy Keys - the walkthrough",
+    "title": "SSH Deploy Keys - the walkthrough",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "man/hosting_step_through/#SSH-Deploy-Keys-the-walkthrough-1",
+    "page": "SSH Deploy Keys - the walkthrough",
+    "title": "SSH Deploy Keys - the walkthrough",
+    "category": "section",
+    "text": "If the instructions in SSH Deploy Keys did not work for you (for example, ssh-keygen is not installed), don\'t worry! This walkthrough will guide you through the process. There are three main stepsGenerate a key\nAdd the public key to Github\nAdd the private key to Travis"
+},
+
+{
+    "location": "man/hosting_step_through/#Generate-a-key-1",
+    "page": "SSH Deploy Keys - the walkthrough",
+    "title": "Generate a key",
+    "category": "section",
+    "text": "The first step is to generate an SSH key. The SSH key is made up of two components: a public key, which can be shared publicly, and a private key, which you should  ensure is never shared publicly.The public key should look something likessh-rsa [lots of characters]== [optional comment]The private key should look something like-----BEGIN RSA PRIVATE KEY-----\n ... lots of lines of characters ...\n-----END RSA PRIVATE KEY-----"
+},
+
+{
+    "location": "man/hosting_step_through/#If-you-do-have-ssh-keygen-1",
+    "page": "SSH Deploy Keys - the walkthrough",
+    "title": "If you do have ssh-keygen",
+    "category": "section",
+    "text": "If you have ssh-keygen installed, but Travis.genkeys() didn\'t work, you can generate an SSH key as follows. First, generate a key using ssh-keygen and save it to the file privatekey:shell> ssh-keygen -N \"\" -f privatekeyNext, we need to encode the private key in Base64. Run the following command:julia> read(\"privatekey\", String) |> base64encode |>  printlnCopy and paste the output somewhere. This is your private key and is required for the step Add the private key to Travis.Now we need to get the public key. Run the following command:julia> read(\"privatekey.pub\", String) |> printlnCopy and paste the output somewhere. This is your public key and is required for the step Add the public key to Github."
+},
+
+{
+    "location": "man/hosting_step_through/#If-you-don\'t-have-ssh-keygen-1",
+    "page": "SSH Deploy Keys - the walkthrough",
+    "title": "If you don\'t have ssh-keygen",
+    "category": "section",
+    "text": "If you\'re using Windows, you probably don\'t have ssh-keygen installed. Instead, we\'re going to use a program called PuTTY. The first step in the process to generate a new SSH key is to download PuTTY:Download and install PuTTYPuTTY is actually a collection of a few different programs. We need to use PuTTYgen. Open it, and you should get a window that looks like:(Image: )Now we need to generate a key.Click the Generate button, then follow the instructions and move the mouse around to create randomness.Once you\'ve moved the mouse enough, the window should look like:(Image: )Now we need to save the public key somewhere.Copy the text in the box titled Public key for pasting into OpenSSH authorized_keys file and paste it somewhere for later. This is your public key and is required for the step Add the public key to GithubFinally, we need to save the private key somewhere.Click the Conversions tab, and then click Export OpenSSH key. Save that file somewhere. That file is your private key and is required for the step Add the private key to Travis(Image: )info: Info\nDon\'t save your key via the Save private key button as this will save the key in the wrong format.If you made it this far, congratulations! We now have the private and public keys needed by Documenter. The next step is to add the public key to Github."
+},
+
+{
+    "location": "man/hosting_step_through/#Add-the-public-key-to-Github-1",
+    "page": "SSH Deploy Keys - the walkthrough",
+    "title": "Add the public key to Github",
+    "category": "section",
+    "text": "In this section, we explain how to upload a public SSH key to Github. By this point, you should have generated a public key and saved it to a file. If you haven\'t done this, go read Generate a key.Go to https://github.com/[YOURUSERNAME]/[YOURREPONAME]/settings/keys and click Add deploy key. You should get to a page that looks like:(Image: )Now we need to fill in three pieces of information.Make the Title documenter.\nCopy and paste the public key that we generated in the Generate a key step into the Key field.\nMake sure that the Allow write access box is checked.Once you\'re done, click Add key. Congratulations! You\'ve added the public key to Github. The next step is to add the private key to Travis."
+},
+
+{
+    "location": "man/hosting_step_through/#Add-the-private-key-to-Travis-1",
+    "page": "SSH Deploy Keys - the walkthrough",
+    "title": "Add the private key to Travis",
+    "category": "section",
+    "text": "In this section, we explain how to upload a private SSH key to Travis. By this point, you should have generated a private key and saved it to a file. If you haven\'t done this, go read Generate a key.First, we need to Base64 encode the private key. Open Julia, and run the commandjulia> read(\"path/to/private/key\", String) |> Documenter.base64encode |> printlnCopy the resulting output.Next, go to https://travis-ci.org/[YOURUSERNAME]/[YOURREPONAME]/settings. Scroll down to the Environment Variables section. It looks like this:(Image: )Now, add a new environment variable. Set the name to DOCUMENTER_KEY, and the value of the environment variable to the output from the Julia command above (make sure to remove the surrounding quotes).Finally, check that the \"Display value in build log\" is switched off and then click Add. Congratulations! You\'ve added the private key to Travis.You should be able to continue on with the Hosting Documentation."
 },
 
 {
