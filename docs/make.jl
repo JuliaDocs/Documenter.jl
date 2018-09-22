@@ -16,7 +16,7 @@ makedocs(
             "man/syntax.md",
             "man/doctests.md",
             "man/latex.md",
-            "man/hosting.md",
+            "Hosting" => Any["man/hosting.md", "man/hosting_step_through.md"],
             "man/other-formats.md",
         ],
         "Library" => Any[

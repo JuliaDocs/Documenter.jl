@@ -42,6 +42,9 @@ Deploy keys provide push access to a *single* repository, to allow secure deploy
     They are `which`, `git`, and `ssh-keygen`. Make sure these are installed before you
     begin this section.
 
+    If you don't have them installed, go read [SSH Deploy Keys - the walkthrough](@ref)
+    for a manual walk-through.
+
 SSH keys can be generated with the `Travis.genkeys` from the `DocumenterTools` package.
 Install and load it as
 
@@ -79,9 +82,8 @@ Follow the instructions that are printed out, namely:
  1. Add the public ssh key to your settings page for the GitHub repository that you are
     setting up by following the `.../settings/key` link provided. Click on **`Add deploy
     key`**, enter the name **`documenter`** as the title, and copy the public key into the
-    **`Key`** field.  Note that you should include **no whitespace** when copying the key.
-    Check **`Allow write access`** to allow Documenter to commit the generated documentation
-    to the repo.
+    **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
+    generated documentation to the repo.
 
  2. Next add the long private key to the Travis settings page using the provided link. Again
     note that you should include **no whitespace** when copying the key. In the **`Environment
