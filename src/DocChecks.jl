@@ -73,10 +73,8 @@ end
 
 meta(m) = Docs.meta(m)
 
-nameof(x::Function)          = typeof(x).name.mt.name
 nameof(b::Base.Docs.Binding) = b.var
-nameof(x::DataType)          = x.name.name
-nameof(m::Module)            = nameof(m)
+nameof(x) = Base.nameof(x)
 
 sigs(x::Base.Docs.MultiDoc) = x.order
 sigs(::Any) = Type[Union{}]
