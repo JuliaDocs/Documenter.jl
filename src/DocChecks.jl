@@ -73,7 +73,8 @@ end
 
 meta(m) = Docs.meta(m)
 
-Base.nameof(b::Base.Docs.Binding) = b.var
+nameof(b::Base.Docs.Binding) = b.var
+nameof(x) = Base.nameof(x)
 
 sigs(x::Base.Docs.MultiDoc) = x.order
 sigs(::Any) = Type[Union{}]
