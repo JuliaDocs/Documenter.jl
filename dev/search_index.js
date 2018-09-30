@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Package Features",
     "category": "section",
-    "text": "Write all your documentation in Markdown.\nMinimal configuration.\nSupports Julia 0.6 and 0.7-dev.\nDoctests Julia code blocks.\nCross references for docs and section headers.\nLaTeX syntax support.\nChecks for missing docstrings and incorrect cross references.\nGenerates tables of contents and docstring indexes.\nUse git push to automatically build and deploy docs from Travis to GitHub Pages.The Package Guide provides a tutorial explaining how to get started using Documenter.Some examples of packages using Documenter can be found on the Examples page.See the Index for the complete list of documented functions and types."
+    "text": "Write all your documentation in Markdown.\nMinimal configuration.\nSupports Julia 0.7 and 1.0.\nDoctests Julia code blocks.\nCross references for docs and section headers.\nLaTeX syntax support.\nChecks for missing docstrings and incorrect cross references.\nGenerates tables of contents and docstring indexes.\nAutomatically builds and deploys docs from Travis to GitHub Pages.The Package Guide provides a tutorial explaining how to get started using Documenter.Some examples of packages using Documenter can be found on the Examples page.See the Index for the complete list of documented functions and types."
 },
 
 {
@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Guide",
     "title": "Package Guide",
     "category": "section",
-    "text": ""
+    "text": "Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia\'s docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document."
 },
 
 {
@@ -73,41 +73,33 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide/#Usage-1",
+    "location": "man/guide/#Setting-up-the-Folder-Structure-1",
     "page": "Guide",
-    "title": "Usage",
+    "title": "Setting up the Folder Structure",
     "category": "section",
-    "text": "Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia\'s docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document."
+    "text": "note: Note\nThe function DocumenterTools.generate from the DocumenterTools package can generate the basic structure that Documenter expects.Firstly, we need a Julia module to document. This could be a package generated via PkgDev.generate or a single .jl script accessible via Julia\'s LOAD_PATH. For this guide we\'ll be using a package called Example.jl that has the following directory layout:Example/\n    src/\n        Example.jl\n    ...Note that the ... just represent unimportant files and folders.We must decide on a location where we\'d like to store the documentation for this package. It\'s recommended to use a folder named docs/ in the toplevel of the package, like soExample/\n    docs/\n        ...\n    src/\n        Example.jl\n    ...Inside the docs/ folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommendeddocs/\n    src/\n    make.jl"
 },
 
 {
-    "location": "man/guide/#Setting-up-the-folder-structure-1",
+    "location": "man/guide/#Building-an-Empty-Document-1",
     "page": "Guide",
-    "title": "Setting up the folder structure",
-    "category": "section",
-    "text": "note: Note\nThe function DocumenterTools.generate from the DocumenterTools package can generate the basic structure that Documenters expects.Firstly, we need a Julia module to document. This could be a package generated via PkgDev.generate or a single .jl script accessible via Julia\'s LOAD_PATH. For this guide we\'ll be using a package called Example.jl that has the following directory layout:Example/\n    src/\n        Example.jl\n    ...Note that the ... just represent unimportant files and folders.We must decide on a location where we\'d like to store the documentation for this package. It\'s recommended to use a folder named docs/ in the toplevel of the package, like soExample/\n    docs/\n        ...\n    src/\n        Example.jl\n    ...Inside the docs/ folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommendeddocs/\n    src/\n    make.jl"
-},
-
-{
-    "location": "man/guide/#Building-an-empty-document-1",
-    "page": "Guide",
-    "title": "Building an empty document",
+    "title": "Building an Empty Document",
     "category": "section",
     "text": "With our docs/ directory now setup we\'re going to build our first document. It\'ll just be a single empty file at the moment, but we\'ll be adding to it later on.Add the following to your make.jl fileusing Documenter, Example\n\nmakedocs(sitename=\"My Documentation\")This assumes you\'ve installed Documenter as discussed in Installation and that your Example.jl package can be found by Julia.note: Note\nIf your source directory is not accessible through Julia\'s LOAD_PATH, you might wish to add the following line at the top of make.jlpush!(LOAD_PATH,\"../src/\")Now add an index.md file to the src/ directory. The name has no particular significance though and you may name it whatever you like. We\'ll stick to index.md for this guide.Leave the newly added file empty and then run the following command from the docs/ directory$ julia make.jlNote that $ just represents the prompt character. You don\'t need to type that.If you\'d like to see the output from this command in color use$ julia --color=yes make.jlWhen you run that you should see the following outputDocumenter: setting up build directory.\nDocumenter: expanding markdown templates.\nDocumenter: building cross-references.\nDocumenter: running document checks.\n > checking for missing docstrings.\n > running doctests.\n > checking footnote links.\nDocumenter: populating indices.\nDocumenter: rendering document.The docs/ folder should contain a new directory – called build/. It\'s structure should look like the followingbuild/\n    assets/\n        arrow.svg\n        documenter.css\n        documenter.js\n        search.js\n    index.html\n    search.html\n    search_index.jswarning: Warning\nNever git commit the contents of build (or any other content generated by Documenter) to your repository\'s master branch. Always commit generated files to the gh-pages branch of your repository. This helps to avoid including unnecessary changes for anyone reviewing commits that happen to include documentation changes.See the Hosting Documentation section for details regarding how you should go about setting this up correctly.At this point build/index.html should be an empty page since src/index.md is empty. You can try adding some text to src/index.md and re-running the make.jl file to see the changes."
 },
 
 {
-    "location": "man/guide/#Adding-some-docstrings-1",
+    "location": "man/guide/#Adding-Some-Docstrings-1",
     "page": "Guide",
-    "title": "Adding some docstrings",
+    "title": "Adding Some Docstrings",
     "category": "section",
     "text": "Next we\'ll splice a docstring defined in the Example module into the index.md file. To do this first document a function in that module:module Example\n\nexport func\n\n\"\"\"\n    func(x)\n\nReturns double the number `x` plus `1`.\n\"\"\"\nfunc(x) = 2x + 1\n\nendThen in the src/index.md file add the following# Example.jl Documentation\n\n```@docs\nfunc(x)\n```When we next run make.jl the docstring for Example.func(x) should appear in place of the @docs block in build/index.md. Note that more than one object can be referenced inside a @docs block – just place each one on a separate line.Note that a @docs block is evaluated in the Main module. This means that each object listed in the block must be visible there. The module can be changed to something else on a per-page basis with a @meta block as in the following# Example.jl Documentation\n\n```@meta\nCurrentModule = Example\n```\n\n```@docs\nfunc(x)\n```"
 },
 
 {
-    "location": "man/guide/#Filtering-Included-Docstrings-1",
+    "location": "man/guide/#Filtering-included-docstrings-1",
     "page": "Guide",
-    "title": "Filtering Included Docstrings",
+    "title": "Filtering included docstrings",
     "category": "section",
     "text": "In some cases you may want to include a docstring for a Method that extends a Function from a different module – such as Base. In the following example we extend Base.length with a new definition for the struct T and also add a docstring:struct T\n    # ...\nend\n\n\"\"\"\nCustom `length` docs for `T`.\n\"\"\"\nBase.length(::T) = 1When trying to include this docstring with```@docs\nlength\n```all the docs for length will be included – even those from other modules. There are two ways to solve this problem. Either include the type in the signature with```@docs\nlength(::T)\n```or declare the specific modules that makedocs should include withmakedocs(\n    # options\n    modules = [MyModule]\n)"
 },
@@ -129,9 +121,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/guide/#Pages-in-the-sidebar-1",
+    "location": "man/guide/#Pages-in-the-Sidebar-1",
     "page": "Guide",
-    "title": "Pages in the sidebar",
+    "title": "Pages in the Sidebar",
     "category": "section",
     "text": "By default all the pages (.md files) in your source directory get added to the sidebar, sorted by their filenames. However, in most cases you want to use the pages argument to makedocs to control how the sidebar looks like. The basic usage is as follows:makedocs(\n    ...,\n    pages = [\n        \"page.md\",\n        \"Page title\" => \"page2.md\",\n        \"Subsection\" => [\n            ...\n        ]\n    ]\n)Using the pages argument you can organize your pages into subsections and hide some pages from the sidebar with the help of the hide functions."
 },
@@ -157,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBanditOpt.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nEvolvingGraphs.jl\nExtractMacro.jl\nEzXML.jl\nFourierFlows.jl\nGadfly.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBanditOpt.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nEvolvingGraphs.jl\nExtractMacro.jl\nEzXML.jl\nFourierFlows.jl\nGadfly.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOhMyREPL.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
 },
 
 {
@@ -165,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Unregistered",
     "category": "section",
-    "text": "Packages that are not available in METADATA.jl and may be works-in-progress. Please do take that into consideration when browsing this list.AnonymousTypes.jl\nOhMyREPL.jl"
+    "text": "Packages that are not available in METADATA.jl and may be works-in-progress. Please do take that into consideration when browsing this list.AnonymousTypes.jl"
 },
 
 {
@@ -329,9 +321,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests/#Preserving-definitions-between-blocks-1",
+    "location": "man/doctests/#Preserving-Definitions-Between-Blocks-1",
     "page": "Doctests",
-    "title": "Preserving definitions between blocks",
+    "title": "Preserving Definitions Between Blocks",
     "category": "section",
     "text": "Every doctest block is evaluated inside its own module. This means that definitions (types, variables, functions etc.) from a block can not be used in the next block. For example:```jldoctest\njulia> foo = 42\n42\n```The variable foo will not be defined in the next block:```jldoctest\njulia> println(foo)\nERROR: UndefVarError: foo not defined\n```To preserve definitions it is possible to label blocks in order to collect several blocks into the same module. All blocks with the same label (in the same file) will be evaluated in the same module, and hence share scope. This can be useful if the same definitions are used in more than one block, with for example text, or other doctest blocks, in between. Example:```jldoctest mylabel\njulia> foo = 42\n42\n```Now, since the block below has the same label as the block above, the variable foo can be used:```jldoctest mylabel\njulia> println(foo)\n42\n```note: Note\nLabeled doctest blocks does not need to be consecutive (as in the example above) to be included in the same module. They can be interspaced with unlabeled blocks or blocks with another label."
 },
@@ -341,7 +333,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Doctests",
     "title": "Setup Code",
     "category": "section",
-    "text": "Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. For this purpose a @meta block containing a DocTestSetup = ... value can be used. In the example below, the function foo is defined inside a @meta block. This block will be evaluated at the start of the following doctest blocks:```@meta\nDocTestSetup = quote\n    function foo(x)\n        return x^2\n    end\nend\n```\n\n```jldoctest\njulia> foo(2)\n4\n```\n\n```@meta\nDocTestSetup = nothing\n```The DocTestSetup = nothing is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions in following doctest blocks.Another option is to use the setup keyword argument, which is convenient for short definitions, and for setups needed in inline docstrings.```jldoctest; setup = :(foo(x) = x^2)\njulia> foo(2)\n4\n```note: Note\nThe DocTestSetup and the setup values are re-evaluated at the start of each doctest block and no state is shared between any code blocks. To preserve definitions see Preserving definitions between blocks."
+    "text": "Doctests may require some setup code that must be evaluated prior to that of the actual example, but that should not be displayed in the final documentation. For this purpose a @meta block containing a DocTestSetup = ... value can be used. In the example below, the function foo is defined inside a @meta block. This block will be evaluated at the start of the following doctest blocks:```@meta\nDocTestSetup = quote\n    function foo(x)\n        return x^2\n    end\nend\n```\n\n```jldoctest\njulia> foo(2)\n4\n```\n\n```@meta\nDocTestSetup = nothing\n```The DocTestSetup = nothing is not strictly necessary, but good practice nonetheless to help avoid unintentional definitions in following doctest blocks.Another option is to use the setup keyword argument, which is convenient for short definitions, and for setups needed in inline docstrings.```jldoctest; setup = :(foo(x) = x^2)\njulia> foo(2)\n4\n```note: Note\nThe DocTestSetup and the setup values are re-evaluated at the start of each doctest block and no state is shared between any code blocks. To preserve definitions see Preserving Definitions Between Blocks."
 },
 
 {
@@ -353,9 +345,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/doctests/#Fixing-outdated-Doctests-1",
+    "location": "man/doctests/#Fixing-Outdated-Doctests-1",
     "page": "Doctests",
-    "title": "Fixing outdated Doctests",
+    "title": "Fixing Outdated Doctests",
     "category": "section",
     "text": "To fix outdated doctests, the doctest flag to makedocs can be set to doctest = :fix. This will run the doctests, and overwrite the old results with the new output.note: Note\nThe :fix option currently only works for LF line endings (\'\\n\')note: Note\nIt is recommended to git commit any code changes before running the doctest fixing. That way it is simple to restore to the previous state if the fixing goes wrong.note: Note\nThere are some corner cases where the fixing algorithm may replace the wrong code snippet. It is therefore recommended to manually inspect the result of the fixing before committing."
 },
@@ -370,40 +362,40 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "man/latex/#",
-    "page": "LaTeX syntax",
-    "title": "LaTeX syntax",
+    "page": "LaTeX Syntax",
+    "title": "LaTeX Syntax",
     "category": "page",
     "text": ""
 },
 
 {
     "location": "man/latex/#latex_syntax-1",
-    "page": "LaTeX syntax",
-    "title": "LaTeX syntax",
+    "page": "LaTeX Syntax",
+    "title": "LaTeX Syntax",
     "category": "section",
     "text": "The following section describes how to add equations written using LaTeX to your documentation."
 },
 
 {
-    "location": "man/latex/#Escaping-characters-in-docstrings-1",
-    "page": "LaTeX syntax",
-    "title": "Escaping characters in docstrings",
+    "location": "man/latex/#Escaping-Characters-in-Docstrings-1",
+    "page": "LaTeX Syntax",
+    "title": "Escaping Characters in Docstrings",
     "category": "section",
     "text": "Since some characters used in LaTeX syntax are treated differently in docstrings they need to be escaped using a \\ character as in the following example:\"\"\"\nHere\'s some inline maths: \\$\\\\sqrt[n]{1 + x + x^2 + \\\\ldots}\\$.\n\nHere\'s an equation:\n\n\\$\\\\frac{n!}{k!(n - k)!} = \\\\binom{n}{k}\\$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ...To avoid needing to escape the special characters the doc\"\" string macro can be used:doc\"\"\"\nHere\'s some inline maths: $\\sqrt[n]{1 + x + x^2 + \\ldots}$.\n\nHere\'s an equation:\n\n$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}$\n\nThis is the binomial coefficient.\n\"\"\"\nfunc(x) = # ...A related issue is how to add dollar signs to a docstring. They need to be double-escaped as follows:\"\"\"\nThe cost was \\\\\\$1.\n\"\"\""
 },
 
 {
-    "location": "man/latex/#Inline-equations-1",
-    "page": "LaTeX syntax",
-    "title": "Inline equations",
+    "location": "man/latex/#Inline-Equations-1",
+    "page": "LaTeX Syntax",
+    "title": "Inline Equations",
     "category": "section",
     "text": "Here\'s some inline maths: ``\\sqrt[n]{1 + x + x^2 + \\ldots}``.which will be displayed asHere\'s some inline maths: sqrtn1 + x + x^2 + ldots."
 },
 
 {
-    "location": "man/latex/#Display-equations-1",
-    "page": "LaTeX syntax",
-    "title": "Display equations",
+    "location": "man/latex/#Display-Equations-1",
+    "page": "LaTeX Syntax",
+    "title": "Display Equations",
     "category": "section",
     "text": "Here\'s an equation:\n\n```math\n\\frac{n!}{k!(n - k)!} = \\binom{n}{k}\n```\n\nThis is the binomial coefficient.which will be displayed asHere\'s an equation:fracnk(n - k) = binomnkThis is the binomial coefficient."
 },
@@ -421,7 +413,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "Hosting Documentation",
     "category": "section",
-    "text": "After going through the Package Guide and Doctests page you will need to host the generated documentation somewhere for potential users to read. This guide will describe how to setup automatic updates for your package docs using the Travis build service and GitHub Pages. This is the same approach used by this package to host its own docs – the docs you\'re currently reading.note: Note\nFollowing this guide should be the final step you take after you are comfortable with the syntax and build process used by Documenter.jl. Only proceed with the steps outlined on this page once you have successfully used mkdocs locally to build your documentation.  mkdocs can typically be installed using pip install mkdocs in your terminal.This guide assumes that you already have GitHub and Travis accounts setup. If not then go set those up first and then return here."
+    "text": "After going through the Package Guide and Doctests page you will need to host the generated documentation somewhere for potential users to read. This guide will describe how to setup automatic updates for your package docs using the Travis build service and GitHub Pages. This is the same approach used by this package to host its own docs – the docs you\'re currently reading.note: Note\nFollowing this guide should be the final step you take after you are comfortable with the syntax and build process used by Documenter.jl. It is recommended that you only proceed with the steps outlined here once you have successfully managed to build your documentation locally with Documenter.This guide assumes that you already have GitHub and Travis accounts setup. If not then go set those up first and then return here."
 },
 
 {
@@ -429,7 +421,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "Overview",
     "category": "section",
-    "text": "Once setup correctly the following will happen each time you push new updates to your package repository:Travis buildbots startup and run your tests in a test stage;\nafter the test stage a single bot will start a new \"deploy docs\" stage;\nif the building is successful the bot will try to push the generated docs back to GitHub.Note that the hosted documentation does not update when you make pull requests; you see updates only when you merge to master or push new tags.The following sections outline how to enable this for your own package."
+    "text": "Once set up correctly, the following will happen each time you push new updates to your package repository:Travis buildbots will start up and run your package tests in a \"Test\" stage.\nAfter the Test stage completes, a single bot will run a new \"Documentation\" stage, which will build the documentation.\nIf the documentation is built successfully, the bot will attempt to push the generated HTML pages back to GitHub.Note that the hosted documentation does not update when you make pull requests; you see updates only when you merge to master or push new tags.The following sections outline how to enable this for your own package."
 },
 
 {
@@ -437,7 +429,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": "SSH Deploy Keys",
     "category": "section",
-    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub.note: Note\nYou will need several command line programs installed for the following steps to work. They are which, git, and ssh-keygen. Make sure these are installed before you begin this section.If you don\'t have them installed, go read SSH Deploy Keys - the walkthrough for a manual walk-through.SSH keys can be generated with the Travis.genkeys from the DocumenterTools package. Install and load it aspkg> add DocumenterToolsjulia> using DocumenterToolsThen call the Travis.genkeys function as follows:julia> using MyPackage\njulia> Travis.genkeys(MyPackage)where MyPackage is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named \'DOCUMENTER_KEY\' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation."
+    "text": "Deploy keys provide push access to a single repository, to allow secure deployment of generated documentation from Travis to GitHub. The SSH keys can be generated with the Travis.genkeys from the DocumenterTools package.note: Note\nYou will need several command line programs (which, git and ssh-keygen) to be installed for the following steps to work. If DocumenterTools fails, please see the the SSH Deploy Keys Walkthrough section for instruction on how to generate the keys manually (including in Windows).Install and load DocumenterTools withpkg> add DocumenterToolsjulia> using DocumenterToolsThen call the Travis.genkeys function as follows:julia> using MyPackage\njulia> Travis.genkeys(MyPackage)where MyPackage is the name of the package you would like to create deploy keys for. The output will look similar to the text below:INFO: add the public key below to https://github.com/USER/REPO/settings/keys\n      with read/write access:\n\n[SSH PUBLIC KEY HERE]\n\nINFO: add a secure environment variable named \'DOCUMENTER_KEY\' to\n      https://travis-ci.org/USER/REPO/settings with value:\n\n[LONG BASE64 ENCODED PRIVATE KEY]Follow the instructions that are printed out, namely:Add the public ssh key to your settings page for the GitHub repository that you are setting up by following the .../settings/key link provided. Click on Add deploy key, enter the name documenter as the title, and copy the public key into the Key field. Check Allow write access to allow Documenter to commit the generated documentation to the repo.\nNext add the long private key to the Travis settings page using the provided link. Again note that you should include no whitespace when copying the key. In the Environment Variables section add a key with the name DOCUMENTER_KEY and the value that was printed out. Do not set the variable to be displayed in the build log. Then click Add.\nwarning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation.note: Note\nThere are more explicit instructions for adding the keys to GitHub and Travis in the SSH Deploy Keys Walkthrough section of the manual."
 },
 
 {
@@ -445,7 +437,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Hosting Documentation",
     "title": ".travis.yml Configuration",
     "category": "section",
-    "text": "To tell Travis that we want a new build stage we can add the following to the .travis.yml file:jobs:\n  include:\n    - stage: \"Documentation\"\n      julia: 1.0\n      os: linux\n      script:\n        - julia --project=docs/ -e \'using Pkg; Pkg.instantiate();\n                                    Pkg.develop(PackageSpec(path=pwd()))\'\n        - julia --project=docs/ docs/make.jl\n      after_success: skipwhere the julia: and os: entries decide the worker from which the docs are built and deployed. In the example above we will thus build and deploy the documentation from a linux worker running Julia 1.0. For more information on how to setup a build stage, see the Travis manual for Build Stages.The three lines in the script: section does the following:Instantiate the doc-building environment (i.e. docs/Project.toml, see below).\nInstall your package in the doc-build environment.\nRun the docs/make.jl script, which builds and deploys the documentation.The doc-build environment docs/Project.toml includes Documenter and other doc-build dependencies your package might have. If Documenter is the only dependency, then the Project.toml should include the following:[deps]\nDocumenter = \"e30172f5-a6a5-5a46-863b-614d45cd2de4\"\n\n[compat]\nDocumenter = \"0.20\""
+    "text": "To tell Travis that we want a new build stage we can add the following to the .travis.yml file:jobs:\n  include:\n    - stage: \"Documentation\"\n      julia: 1.0\n      os: linux\n      script:\n        - julia --project=docs/ -e \'using Pkg; Pkg.instantiate();\n                                    Pkg.develop(PackageSpec(path=pwd()))\'\n        - julia --project=docs/ docs/make.jl\n      after_success: skipwhere the julia: and os: entries decide the worker from which the docs are built and deployed. In the example above we will thus build and deploy the documentation from a linux worker running Julia 1.0. For more information on how to setup a build stage, see the Travis manual for Build Stages.The three lines in the script: section do the following:Instantiate the doc-building environment (i.e. docs/Project.toml, see below).\nInstall your package in the doc-build environment.\nRun the docs/make.jl script, which builds and deploys the documentation.The doc-build environment docs/Project.toml includes Documenter and other doc-build dependencies your package might have. If Documenter is the only dependency, then the Project.toml should include the following:[deps]\nDocumenter = \"e30172f5-a6a5-5a46-863b-614d45cd2de4\"\n\n[compat]\nDocumenter = \"~0.20\"Note that it is recommended that you have a [compat] section, like the one above, in your Project.toml file, which would restrict Documenter\'s version that gets installed when the build runs. This is to make sure that your builds do not start failing suddenly due to a new major release of Documenter, which may include breaking changes. However, it also means that you will not get updates to Documenter automatically, and hence need to upgrade Documenter\'s major version yourself."
 },
 
 {
@@ -481,96 +473,96 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/hosting_step_through/#",
-    "page": "SSH Deploy Keys - the walkthrough",
-    "title": "SSH Deploy Keys - the walkthrough",
+    "location": "man/hosting/walkthrough/#",
+    "page": "SSH Deploy Keys Walkthrough",
+    "title": "SSH Deploy Keys Walkthrough",
     "category": "page",
     "text": ""
 },
 
 {
-    "location": "man/hosting_step_through/#SSH-Deploy-Keys-the-walkthrough-1",
-    "page": "SSH Deploy Keys - the walkthrough",
-    "title": "SSH Deploy Keys - the walkthrough",
+    "location": "man/hosting/walkthrough/#SSH-Deploy-Keys-Walkthrough-1",
+    "page": "SSH Deploy Keys Walkthrough",
+    "title": "SSH Deploy Keys Walkthrough",
     "category": "section",
-    "text": "If the instructions in SSH Deploy Keys did not work for you (for example, ssh-keygen is not installed), don\'t worry! This walkthrough will guide you through the process. There are three main stepsGenerate a key\nAdd the public key to Github\nAdd the private key to Travis"
+    "text": "If the instructions in SSH Deploy Keys did not work for you (for example, ssh-keygen is not installed), don\'t worry! This walkthrough will guide you through the process. There are three main steps:Generating an SSH Key\nAdding the Public Key to GitHub\nAdding the Private Key to Travis"
 },
 
 {
-    "location": "man/hosting_step_through/#Generate-a-key-1",
-    "page": "SSH Deploy Keys - the walkthrough",
-    "title": "Generate a key",
+    "location": "man/hosting/walkthrough/#Generating-an-SSH-Key-1",
+    "page": "SSH Deploy Keys Walkthrough",
+    "title": "Generating an SSH Key",
     "category": "section",
-    "text": "The first step is to generate an SSH key. The SSH key is made up of two components: a public key, which can be shared publicly, and a private key, which you should  ensure is never shared publicly.The public key should look something likessh-rsa [lots of characters]== [optional comment]The private key should look something like-----BEGIN RSA PRIVATE KEY-----\n ... lots of lines of characters ...\n-----END RSA PRIVATE KEY-----"
+    "text": "The first step is to generate an SSH key. An SSH key is made up of two components: a public key, which can be shared publicly, and a private key, which you should ensure is never shared publicly.The public key usually looks something like thisssh-rsa [base64-encoded-key] [optional-comment]And the private key usually look something like this-----BEGIN RSA PRIVATE KEY-----\n ... base64-encoded key over several lines ...\n-----END RSA PRIVATE KEY-----"
 },
 
 {
-    "location": "man/hosting_step_through/#If-you-do-have-ssh-keygen-1",
-    "page": "SSH Deploy Keys - the walkthrough",
-    "title": "If you do have ssh-keygen",
+    "location": "man/hosting/walkthrough/#If-you-have-ssh-keygen-installed-1",
+    "page": "SSH Deploy Keys Walkthrough",
+    "title": "If you have ssh-keygen installed",
     "category": "section",
-    "text": "If you have ssh-keygen installed, but Travis.genkeys() didn\'t work, you can generate an SSH key as follows. First, generate a key using ssh-keygen and save it to the file privatekey:shell> ssh-keygen -N \"\" -f privatekeyNext, we need to encode the private key in Base64. Run the following command:julia> read(\"privatekey\", String) |> base64encode |>  printlnCopy and paste the output somewhere. This is your private key and is required for the step Add the private key to Travis.Now we need to get the public key. Run the following command:julia> read(\"privatekey.pub\", String) |> printlnCopy and paste the output somewhere. This is your public key and is required for the step Add the public key to Github."
+    "text": "If you have ssh-keygen installed, but Travis.genkeys() didn\'t work, you can generate an SSH key as follows. First, generate a key using ssh-keygen and save it to the file privatekey:shell> ssh-keygen -N \"\" -f privatekeyNext, we need to encode the private key in Base64. Run the following command:julia> read(\"privatekey\", String) |> base64encode |>  printlnCopy and paste the output somewhere. This is your private key and is required for the step Adding the Private Key to Travis.Now we need to get the public key. Run the following command:julia> read(\"privatekey.pub\", String) |> printlnCopy and paste the output somewhere. This is your public key and is required for the step Adding the Public Key to GitHub."
 },
 
 {
-    "location": "man/hosting_step_through/#If-you-don\'t-have-ssh-keygen-1",
-    "page": "SSH Deploy Keys - the walkthrough",
-    "title": "If you don\'t have ssh-keygen",
+    "location": "man/hosting/walkthrough/#If-you-do-not-have-ssh-keygen-1",
+    "page": "SSH Deploy Keys Walkthrough",
+    "title": "If you do not have ssh-keygen",
     "category": "section",
-    "text": "If you\'re using Windows, you probably don\'t have ssh-keygen installed. Instead, we\'re going to use a program called PuTTY. The first step in the process to generate a new SSH key is to download PuTTY:Download and install PuTTYPuTTY is actually a collection of a few different programs. We need to use PuTTYgen. Open it, and you should get a window that looks like:(Image: )Now we need to generate a key.Click the Generate button, then follow the instructions and move the mouse around to create randomness.Once you\'ve moved the mouse enough, the window should look like:(Image: )Now we need to save the public key somewhere.Copy the text in the box titled Public key for pasting into OpenSSH authorized_keys file and paste it somewhere for later. This is your public key and is required for the step Add the public key to GithubFinally, we need to save the private key somewhere.Click the Conversions tab, and then click Export OpenSSH key. Save that file somewhere. That file is your private key and is required for the step Add the private key to Travis(Image: )info: Info\nDon\'t save your key via the Save private key button as this will save the key in the wrong format.If you made it this far, congratulations! We now have the private and public keys needed by Documenter. The next step is to add the public key to Github."
+    "text": "If you\'re using Windows, you probably don\'t have ssh-keygen installed. Instead, we\'re going to use a program called PuTTY. The first step in the process to generate a new SSH key is to download PuTTY:Download and install PuTTYPuTTY is actually a collection of a few different programs. We need to use PuTTYgen. Open it, and you should get a window that looks like:(Image: )Now we need to generate a key.Click the \"Generate\" button, then follow the instructions and move the mouse around to create randomness.Once you\'ve moved the mouse enough, the window should look like:(Image: )Now we need to save the public key somewhere.Copy the text in the box titled \"Public key for pasting into OpenSSH authorized_keys file\" and paste it somewhere for later. This is your public key and is required for the step Adding the Public Key to GitHubFinally, we need to save the private key somewhere.Click the \"Conversions\" tab, and then click \"Export OpenSSH key\". Save that file somewhere. That file is your private key and is required for the Adding the Private Key to Travis step.\n(Image: )\nnote: Note\nDon\'t save your key via the \"Save private key\" button as this will save the key in the wrong format.If you made it this far, congratulations! You now have the private and public keys needed to set up automatic deployment of your documentation. The next steps are to add the keys to GitHub and Travis."
 },
 
 {
-    "location": "man/hosting_step_through/#Add-the-public-key-to-Github-1",
-    "page": "SSH Deploy Keys - the walkthrough",
-    "title": "Add the public key to Github",
+    "location": "man/hosting/walkthrough/#Adding-the-Public-Key-to-GitHub-1",
+    "page": "SSH Deploy Keys Walkthrough",
+    "title": "Adding the Public Key to GitHub",
     "category": "section",
-    "text": "In this section, we explain how to upload a public SSH key to Github. By this point, you should have generated a public key and saved it to a file. If you haven\'t done this, go read Generate a key.Go to https://github.com/[YOURUSERNAME]/[YOURREPONAME]/settings/keys and click Add deploy key. You should get to a page that looks like:(Image: )Now we need to fill in three pieces of information.Make the Title documenter.\nCopy and paste the public key that we generated in the Generate a key step into the Key field.\nMake sure that the Allow write access box is checked.Once you\'re done, click Add key. Congratulations! You\'ve added the public key to Github. The next step is to add the private key to Travis."
+    "text": "In this section, we explain how to upload a public SSH key to GitHub. By this point, you should have generated a public key and saved it to a file. If you haven\'t done this, go read Generating an SSH Key.Go to https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys and click \"Add deploy key\". You should get to a page that looks like:(Image: )Now we need to fill in three pieces of information.Have \"Title\" be e.g. \"Documenter\".\nCopy and paste the public key that we generated in the Generating an SSH Key step into the \"Key\" field.\nMake sure that the \"Allow write access\" box is checked.Once you\'re done, click \"Add key\". Congratulations! You\'ve added the public key to GitHub. The next step is to add the private key to Travis."
 },
 
 {
-    "location": "man/hosting_step_through/#Add-the-private-key-to-Travis-1",
-    "page": "SSH Deploy Keys - the walkthrough",
-    "title": "Add the private key to Travis",
+    "location": "man/hosting/walkthrough/#Adding-the-Private-Key-to-Travis-1",
+    "page": "SSH Deploy Keys Walkthrough",
+    "title": "Adding the Private Key to Travis",
     "category": "section",
-    "text": "In this section, we explain how to upload a private SSH key to Travis. By this point, you should have generated a private key and saved it to a file. If you haven\'t done this, go read Generate a key.First, we need to Base64 encode the private key. Open Julia, and run the commandjulia> read(\"path/to/private/key\", String) |> Documenter.base64encode |> printlnCopy the resulting output.Next, go to https://travis-ci.org/[YOURUSERNAME]/[YOURREPONAME]/settings. Scroll down to the Environment Variables section. It looks like this:(Image: )Now, add a new environment variable. Set the name to DOCUMENTER_KEY, and the value of the environment variable to the output from the Julia command above (make sure to remove the surrounding quotes).Finally, check that the \"Display value in build log\" is switched off and then click Add. Congratulations! You\'ve added the private key to Travis.You should be able to continue on with the Hosting Documentation."
+    "text": "In this section, we explain how to upload a private SSH key to Travis. By this point, you should have generated a private key and saved it to a file. If you haven\'t done this, go read Generating an SSH Key.First, we need to Base64 encode the private key. Open Julia, and run the commandjulia> read(\"path/to/private/key\", String) |> Documenter.base64encode |> printlnCopy the resulting output.Next, go to https://travis-ci.org/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings. Scroll down to the \"Environment Variables\" section. It should look like this:(Image: )Now, add a new environment variable called DOCUMENTER_KEY, and set its value to the output from the Julia command above (make sure to remove the surrounding quotes).Finally, check that the \"Display value in build log\" is switched off and then click \"Add\". Congratulations! You\'ve added the private key to Travis.warning: Security warning\nTo reiterate: make sure that the \"Display value in build log\" option is OFF for the variable, so that it does not get printed when the tests run. This base64-encoded string contains the unencrypted private key that gives full write access to your repository, so it must be kept safe.  Also, make sure that you never expose this variable in your tests, nor merge any code that does. You can read more about Travis environment variables in Travis User Documentation.Final RemarksYou should now be able to continue on with the Hosting Documentation."
 },
 
 {
     "location": "man/other-formats/#",
-    "page": "Other outputs",
-    "title": "Other outputs",
+    "page": "Other Output Formats",
+    "title": "Other Output Formats",
     "category": "page",
     "text": ""
 },
 
 {
-    "location": "man/other-formats/#Other-outputs-1",
-    "page": "Other outputs",
-    "title": "Other outputs",
+    "location": "man/other-formats/#Other-Output-Formats-1",
+    "page": "Other Output Formats",
+    "title": "Other Output Formats",
     "category": "section",
-    "text": "In addition to the default native HTML output, plugin packages enable Documenter to generate output in other formats. Once the corresponding package is loadded, the output format can be specified using the format option in makedocs."
+    "text": "In addition to the default native HTML output, plugin packages enable Documenter to generate output in other formats. Once the corresponding package is loaded, the output format can be specified using the format option in makedocs."
 },
 
 {
     "location": "man/other-formats/#Markdown-and-MkDocs-1",
-    "page": "Other outputs",
+    "page": "Other Output Formats",
     "title": "Markdown & MkDocs",
     "category": "section",
     "text": "Markdown output requires the DocumenterMarkdown package to be available and loaded. For Travis setups, add the package to the docs/Project.toml environment as a dependency. You also need to import the package in make.jl:using DocumenterMarkdownWhen DocumenterMarkdown is loaded, you can specify format = :markdown in makedocs. Documenter will then output a set of Markdown files to the build directory that can then further be processed with MkDocs into HTML pages.MkDocs, of course, is not the only option you have – any markdown to HTML converter should work fine with some amount of setting up.note: Note\nMarkdown output used to be the default option (i.e. when leaving the format option unspecified). The default now is the HTML output."
 },
 
 {
-    "location": "man/other-formats/#The-MkDocs-mkdocs.yml-File-1",
-    "page": "Other outputs",
-    "title": "The MkDocs mkdocs.yml File",
+    "location": "man/other-formats/#The-MkDocs-mkdocs.yml-file-1",
+    "page": "Other Output Formats",
+    "title": "The MkDocs mkdocs.yml file",
     "category": "section",
     "text": "A MkDocs build is controlled by the mkdocs.yml configuration file. Add the file with the following content to the docs/ directory:site_name:        PACKAGE_NAME.jl\nrepo_url:         https://github.com/USER_NAME/PACKAGE_NAME.jl\nsite_description: Description...\nsite_author:      USER_NAME\n\ntheme: readthedocs\n\nextra_css:\n  - assets/Documenter.css\n\nextra_javascript:\n  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML\n  - assets/mathjaxhelper.js\n\nmarkdown_extensions:\n  - extra\n  - tables\n  - fenced_code\n  - mdx_math\n\ndocs_dir: \'build\'\n\npages:\n  - Home: index.mdIf you have run Documenter and it has generated a build/ directory, you can now try running mkdocs build – this should now generate the site/ directory. You should also add the docs/site/ directory into your .gitignore file, which should now look like:docs/build/\ndocs/site/This is only a basic skeleton. Read through the MkDocs documentation if you would like to know more about the available settings."
 },
 
 {
     "location": "man/other-formats/#Deployment-with-MkDocs-1",
-    "page": "Other outputs",
+    "page": "Other Output Formats",
     "title": "Deployment with MkDocs",
     "category": "section",
     "text": "To deploy MkDocs on Travis, you also need to provide additional keyword arguments to deploydocs. Your deploydocs call should look something likedeploydocs(\n    repo   = \"github.com/USER_NAME/PACKAGE_NAME.jl.git\",\n    deps   = Deps.pip(\"mkdocs\", \"pygments\", \"python-markdown-math\"),\n    make   = () -> run(`mkdocs build`)\n    target = \"site\"\n)deps serves to provide the required Python dependencies to build the documentation\nmake specifies the function that calls mkdocs to perform the second build step\ntarget, which specified which files get copied to gh-pages, needs to point to the site/ directoryIn the example above we include the dependencies mkdocs and python-markdown-math. The former makes sure that MkDocs is installed to deploy the documentation, and the latter provides the mdx_math markdown extension to exploit MathJax rendering of latex equations in markdown. Other dependencies should be included here."
@@ -578,16 +570,16 @@ var documenterSearchIndex = {"docs": [
 
 {
     "location": "man/other-formats/#\\LaTeX:-MkDocs-and-MathJax-1",
-    "page": "Other outputs",
+    "page": "Other Output Formats",
     "title": "LaTeX: MkDocs and MathJax",
     "category": "section",
     "text": "To get MkDocs to display LaTeX equations correctly we need to update several of this configuration files described in the Package Guide.docs/make.jl should add the python-markdown-math dependency to allow for equations to be rendered correctly.# ...\n\ndeploydocs(\n    deps = Deps.pip(\"pygments\", \"mkdocs\", \"python-markdown-math\"),\n    # ...\n)This package should also be installed locally so that you can preview the generated documentation prior to pushing new commits to a repository.$ pip install python-markdown-mathThe docs/mkdocs.yml file must add the python-markdown-math extension, called mdx_math, as well as two MathJax JavaScript files:# ...\nmarkdown_extensions:\n  - mdx_math\n  # ...\n\nextra_javascript:\n  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML\n  - assets/mathjaxhelper.js\n# ...Final RemarksFollowing this guide and adding the necessary changes to the configuration files should enable properly rendered mathematical equations within your documentation both locally and when built and deployed using the Travis built service."
 },
 
 {
-    "location": "man/other-formats/#PDF-output-via-LaTeX-1",
-    "page": "Other outputs",
-    "title": "PDF output via LaTeX",
+    "location": "man/other-formats/#PDF-Output-via-LaTeX-1",
+    "page": "Other Output Formats",
+    "title": "PDF Output via LaTeX",
     "category": "section",
     "text": "LaTeX/PDF output requires the DocumenterLaTeX package to be available and loaded in make.jl withusing DocumenterLaTeXWhen DocumenterLaTeX is loaded, you can set format = :latex in makedocs, and Documenter will generate a PDF version of the documentation using LaTeX.You need pdflatex command to be installed and available to Documenter.\nYou need the minted LaTeX package and its backend source highlighter Pygments installed.\nYou need the Lato and Roboto Mono fonts installed.You should also specify the sitename and authors keywords for makedocs when using the LaTeX output."
 },
@@ -629,7 +621,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter",
     "category": "module",
-    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nDeps\ndeploydocs\nhide\nmakedocs\n\n\n\n\n\n"
+    "text": "Main module for Documenter.jl – a documentation generation package for Julia.\n\nTwo functions are exported from this module for public use:\n\nmakedocs. Generates documentation from docstrings and templated markdown files.\ndeploydocs. Deploys generated documentation from Travis-CI to GitHub Pages.\n\nExports\n\nDeps\ndeploydocs\nhide\nmakedocs\n\n\n\n\n\n"
 },
 
 {
@@ -637,7 +629,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.makedocs",
     "category": "function",
-    "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = Pkg.dir(\"MyPackage\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it\'s encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter\'s make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git branch or tag name, or commit hash\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")\n\nExperimental keywords\n\nIn addition to standard arguments there is a set of non-finalized experimental keyword arguments. The behaviour of these may change or they may be removed without deprecation when a minor version changes (i.e. except in patch releases).\n\ncheckdocs instructs makedocs to check whether all names within the modules defined in the modules keyword that have a docstring attached have the docstring also listed in the manual (e.g. there\'s a @docs blocks with that docstring). Possible values are :all (check all names) and :exports (check only exported names). The default value is :none, in which case no checks are performed. If strict is also enabled then the build will fail if any missing docstrings are encountered.\n\nlinkcheck – if set to true makedocs uses curl to check the status codes of external-pointing links, to make sure that they are up-to-date. The links and their status codes are printed to the standard output. If strict is also enabled then the build will fail if there are any broken (400+ status code) links. Default: false.\n\nlinkcheck_ignore allows certain URLs to be ignored in linkcheck. The values should be a list of strings (which get matched exactly) or Regex objects. By default nothing is ignored.\n\nstrict – makedocs fails the build right before rendering if it encountered any errors with the document in the previous build phases.\n\nOutput formats\n\nformat allows the output format to be specified. Possible values are :html (default), :latex and :markdown.\n\nDocumenter is designed to support multiple output formats. By default it is creates a set of HTML files, but the output format can be controlled with the format keyword. The different output formats may require additional keywords to be specified. The keywords for the default HTML output are documented at the Writers.HTMLWriter module.\n\nDocumenter also has (experimental) support for Markdown and LaTeX / PDF outputs. See the Other outputs for more information.\n\nwarning: Warning\nThe Markdown and LaTeX output formats will be moved to a separate package in future versions of Documenter. Automatic documentation deployments should not rely on it unless they fix Documenter to a minor version.\n\nSee Also\n\nA guide detailing how to document a package using Documenter\'s makedocs is provided in the Usage section of the manual.\n\n\n\n\n\n"
+    "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = Pkg.dir(\"MyPackage\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it\'s encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter\'s make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git branch or tag name, or commit hash\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")\n\nExperimental keywords\n\nIn addition to standard arguments there is a set of non-finalized experimental keyword arguments. The behaviour of these may change or they may be removed without deprecation when a minor version changes (i.e. except in patch releases).\n\ncheckdocs instructs makedocs to check whether all names within the modules defined in the modules keyword that have a docstring attached have the docstring also listed in the manual (e.g. there\'s a @docs blocks with that docstring). Possible values are :all (check all names) and :exports (check only exported names). The default value is :none, in which case no checks are performed. If strict is also enabled then the build will fail if any missing docstrings are encountered.\n\nlinkcheck – if set to true makedocs uses curl to check the status codes of external-pointing links, to make sure that they are up-to-date. The links and their status codes are printed to the standard output. If strict is also enabled then the build will fail if there are any broken (400+ status code) links. Default: false.\n\nlinkcheck_ignore allows certain URLs to be ignored in linkcheck. The values should be a list of strings (which get matched exactly) or Regex objects. By default nothing is ignored.\n\nstrict – makedocs fails the build right before rendering if it encountered any errors with the document in the previous build phases.\n\nOutput formats\n\nformat allows the output format to be specified. Possible values are :html (default), :latex and :markdown.\n\nDocumenter is designed to support multiple output formats. By default it is creates a set of HTML files, but the output format can be controlled with the format keyword. The different output formats may require additional keywords to be specified. The keywords for the default HTML output are documented at the Writers.HTMLWriter module.\n\nDocumenter also has (experimental) support for Markdown and LaTeX / PDF outputs. See the Other Output Formats for more information.\n\nwarning: Warning\nThe Markdown and LaTeX output formats will be moved to a separate package in future versions of Documenter. Automatic documentation deployments should not rely on it unless they fix Documenter to a minor version.\n\nSee Also\n\nA guide detailing how to document a package using Documenter\'s makedocs is provided in the setup guide in the manual.\n\n\n\n\n\n"
 },
 
 {
