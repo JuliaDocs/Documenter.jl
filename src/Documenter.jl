@@ -6,6 +6,8 @@ Two functions are exported from this module for public use:
 - [`makedocs`](@ref). Generates documentation from docstrings and templated markdown files.
 - [`deploydocs`](@ref). Deploys generated documentation from *Travis-CI* to *GitHub Pages*.
 
+# Exports
+
 $(EXPORTS)
 
 """
@@ -170,7 +172,7 @@ output formats may require additional keywords to be specified. The keywords for
 HTML output are documented at the [`Writers.HTMLWriter`](@ref) module.
 
 Documenter also has (experimental) support for Markdown and LaTeX / PDF outputs. See the
-[Other outputs](@ref) for more information.
+[Other Output Formats](@ref) for more information.
 
 !!! warning
 
@@ -181,7 +183,7 @@ Documenter also has (experimental) support for Markdown and LaTeX / PDF outputs.
 # See Also
 
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
-in the [Usage](@ref) section of the manual.
+in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(; debug = false, args...)
     document = Documents.Document(; args...)

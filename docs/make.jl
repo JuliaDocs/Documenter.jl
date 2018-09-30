@@ -16,7 +16,9 @@ makedocs(
             "man/syntax.md",
             "man/doctests.md",
             "man/latex.md",
-            "Hosting" => Any["man/hosting.md", "man/hosting_step_through.md"],
+            hide("man/hosting.md", [
+                "man/hosting/walkthrough.md"
+            ]),
             "man/other-formats.md",
         ],
         "Library" => Any[
