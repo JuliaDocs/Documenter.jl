@@ -356,7 +356,7 @@ function deploydocs(;
     )
     # deprecation of latest kwarg (renamed to devbranch)
     if latest !== nothing
-        Base.depwarn("The `latest` keyword argument has been renamed to `devbranch`.")
+        Base.depwarn("The `latest` keyword argument has been renamed to `devbranch`.", :deploydocs)
         devbranch = latest
         @info("setting `devbranch` to `$(devbranch)`.")
     end
