@@ -410,6 +410,7 @@ article section.docstring a.source-link {
 .admonition {
     border-radius: 3px;
     background-color: #eeeeee;
+    margin: 1em 0;
 }
 
 .admonition-title {

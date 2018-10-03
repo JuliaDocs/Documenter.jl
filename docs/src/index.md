@@ -15,13 +15,13 @@ A package for building documentation from docstrings and markdown files.
 
 - Write all your documentation in [Markdown](https://en.wikipedia.org/wiki/Markdown).
 - Minimal configuration.
-- Supports Julia `0.6` and `0.7-dev`.
+- Supports Julia `0.7` and `1.0`.
 - Doctests Julia code blocks.
 - Cross references for docs and section headers.
 - [``\LaTeX`` syntax](@ref latex_syntax) support.
 - Checks for missing docstrings and incorrect cross references.
 - Generates tables of contents and docstring indexes.
-- Use `git push` to automatically build and deploy docs from Travis to GitHub Pages.
+- Automatically builds and deploys docs from Travis to GitHub Pages.
 
 The [Package Guide](@ref) provides a tutorial explaining how to get started using Documenter.
 

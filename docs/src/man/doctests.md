@@ -124,7 +124,7 @@ ERROR: DivideError: integer division error
 ```
 ````
 
-## Preserving definitions between blocks
+## Preserving Definitions Between Blocks
 
 Every doctest block is evaluated inside its own `module`. This means that definitions
 (types, variables, functions etc.) from a block can *not* be used in the next block.
@@ -219,7 +219,7 @@ julia> foo(2)
 
     The `DocTestSetup` and the `setup` values are **re-evaluated** at the start of *each* doctest block
     and no state is shared between any code blocks.
-    To preserve definitions see [Preserving definitions between blocks](@ref).
+    To preserve definitions see [Preserving Definitions Between Blocks](@ref).
 
 ## Filtering Doctests
 
@@ -282,7 +282,7 @@ julia> @time [1,2,3,4]
     The global filters, filters defined in `@meta` blocks, and filters defined with the `filter`
     keyword argument are all applied to each doctest.
 
-## Fixing outdated Doctests
+## Fixing Outdated Doctests
 
 To fix outdated doctests, the `doctest` flag to [`makedocs`](@ref) can be set to
 `doctest = :fix`. This will run the doctests, and overwrite the old results with

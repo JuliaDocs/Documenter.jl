@@ -225,13 +225,14 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
     sandbox_name = nameof(sandbox)
     mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
+    outio = IOContext(result.stdout, :module => sandbox)
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
         head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex  => "")
         head = replace(head, mod_regex_nodot => "Main")
-        str  = replace(error_to_string(result.stdout, result.value, result.bt), mod_regex => "")
+        str  = replace(error_to_string(outio, result.value, result.bt), mod_regex => "")
         str  = replace(str, mod_regex_nodot => "Main")
 
         str, head = filter_doctests((str, head), doc, meta)
@@ -247,7 +248,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
     else
         value = result.hide ? nothing : result.value # `;` hides output.
         output = replace(rstrip(sanitise(IOBuffer(result.output))), mod_regex => "")
-        str = replace(result_to_string(result.stdout, value), mod_regex => "")
+        str = replace(result_to_string(outio, value), mod_regex => "")
         # Replace a standalone module name with `Main`.
         str = rstrip(replace(str, mod_regex_nodot => "Main"))
         filteredstr, filteredoutput = filter_doctests((str, output), doc, meta)
@@ -291,7 +292,7 @@ end
 # Strip trailing whitespace and remove terminal colors.
 function sanitise(buffer)
     out = IOBuffer()
-    for line in eachline(seekstart(buffer))
+    for line in eachline(seekstart(Base.unwrapcontext(buffer)[1]))
         println(out, rstrip(line))
     end
     remove_term_colors(rstrip(String(take!(out)), '\n'))

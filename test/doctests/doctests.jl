@@ -11,9 +11,9 @@ mktempdir(@__DIR__) do dir
     include(joinpath(srcdir, "src.jl"))
     @eval using .Foo
     # fix up
-    makedocs(modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
+    makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
     # test that strict = true works
-    makedocs(modules = [Foo], source = srcdir, build = builddir, strict = true)
+    makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, strict = true)
     # also test that we obtain the expected output
     @test read(joinpath(srcdir, "index.md"), String) ==
           read(joinpath(@__DIR__, "fixed.md"), String)

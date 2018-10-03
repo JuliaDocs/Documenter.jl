@@ -6,6 +6,8 @@ Two functions are exported from this module for public use:
 - [`makedocs`](@ref). Generates documentation from docstrings and templated markdown files.
 - [`deploydocs`](@ref). Deploys generated documentation from *Travis-CI* to *GitHub Pages*.
 
+# Exports
+
 $(EXPORTS)
 
 """
@@ -159,24 +161,29 @@ ignored.
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
 
-## Non-MkDocs builds
+## Output formats
 
-Documenter also has (experimental) support for native HTML and LaTeX builds.
-These can be enabled using the `format` keyword and they generally require additional
-keywords be defined, depending on the format. These keywords are also currently considered
-experimental.
+**`format`** allows the output format to be specified. Possible values are `:html` (default),
+`:latex` and `:markdown`.
 
-**`format`** allows the output format to be specified. Possible values are `:html`, `:latex`
-and `:markdown` (default).
+Documenter is designed to support multiple output formats. By default it is creates a set of
+HTML files, but the output format can be controlled with the `format` keyword. The different
+output formats may require additional keywords to be specified. The keywords for the default
+HTML output are documented at the [`Writers.HTMLWriter`](@ref) module.
 
-Other keywords related to non-MkDocs builds (**`assets`**, **`sitename`**, **`analytics`**,
-**`authors`**, **`pages`**, **`version`**) should be documented at the respective `*Writer`
-modules ([`Writers.HTMLWriter`](@ref), [`Writers.LaTeXWriter`](@ref)).
+Documenter also has (experimental) support for Markdown and LaTeX / PDF outputs. See the
+[Other Output Formats](@ref) for more information.
+
+!!! warning
+
+    The Markdown and LaTeX output formats will be moved to a separate package in future
+    versions of Documenter. Automatic documentation deployments should not rely on it unless
+    they fix Documenter to a minor version.
 
 # See Also
 
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
-in the [Usage](@ref) section of the manual.
+in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(; debug = false, args...)
     document = Documents.Document(; args...)
@@ -239,13 +246,11 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
 """
     deploydocs(
         root   = "<current-directory>",
-        target = "site",
+        target = "build",
         repo   = "<required>",
         branch = "gh-pages",
-        osname = "linux",
-        julia  = "<required>",
-        deps   = <Function>,
-        make   = <Function>,
+        deps   = nothing | <Function>,
+        make   = nothing | <Function>,
         devbranch = "master",
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl]
@@ -271,10 +276,6 @@ Otherwise the docs are deployed to the directory determined by the `devurl` argu
 
 # Required keyword arguments
 
-**`julia`** is the version of Julia that will be used to deploy generated documentation.
-This value must be one of those specified in the `julia:`
-section of the `.travis.yml` configuration file.
-
 **`repo`** is the remote repository where generated HTML content should be pushed to. Do not
 specify any protocol - "https://" or "git@" should not be present. This keyword *must*
 be set and will throw an error when left undefined. For example this package uses the
@@ -288,27 +289,25 @@ repo = "github.com/JuliaDocs/Documenter.jl.git"
 
 **`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
 
-**`target`** is the directory, relative to `root`, where generated HTML content should be
-written to. This directory **must** be added to the repository's `.gitignore` file. The
-default value is `"site"`.
+**`target`** is the directory, relative to `root`, where generated content that should be
+deployed to `gh-pages` is written to. written to. It should generally be the same as
+[`makedocs`](@ref)'s `build` and defaults to `"build"`.
 
 **`branch`** is the branch where the generated documentation is pushed. If the branch does
 not exist, a new orphaned branch is created automatically. It defaults to `"gh-pages"`.
 
-**`osname`** is the operating system which will be used to deploy generated documentation.
-This defaults to `"linux"`. This value must be one of those specified in the `os:` section
-of the `.travis.yml` configuration file.
+**`deps`** is the function used to install any additional dependencies needed to build the
+documentation. By default nothing is installed.
 
-**`deps`** is the function used to install any dependencies needed to build the
-documentation. By default this function installs `pygments` and `mkdocs` using the
-[`Deps.pip`](@ref) function:
+It can be used e.g. for a Markdown build. The following example installed the `pygments` and
+`mkdocs` Python packages using the [`Deps.pip`](@ref) function:
 
 ```julia
 deps = Deps.pip("pygments", "mkdocs")
 ```
 
-**`make`** is the function used to convert the markdown files to HTML. By default this just
-runs `mkdocs build` which populates the `target` directory.
+**`make`** is the function used to specify an additonal build phase. By default, nothing gets
+executed.
 
 **`devbranch`** is the branch that "tracks" the in-development version of the  generated
 documentation. By default this value is set to `"master"`.
@@ -338,18 +337,18 @@ GitHub.
 """
 function deploydocs(;
         root   = Utilities.currentdir(),
-        target = "site",
+        target = "build",
         dirname = "",
 
         repo   = error("no 'repo' keyword provided."),
         branch = "gh-pages",
         latest::Union{String,Nothing} = nothing, # deprecated
 
-        osname = "linux",
-        julia  = error("no 'julia' keyword provided."),
+        osname::Union{String,Nothing} = nothing, # deprecated
+        julia::Union{String,Nothing} = nothing, # deprecated
 
-        deps   = Deps.pip("pygments", "mkdocs"),
-        make   = () -> run(`mkdocs build`),
+        deps   = nothing,
+        make   = nothing,
 
         devbranch = "master",
         devurl = "dev",
@@ -357,9 +356,24 @@ function deploydocs(;
     )
     # deprecation of latest kwarg (renamed to devbranch)
     if latest !== nothing
-        Base.depwarn("The `latest` keyword argument has been renamed to `devbranch`.")
+        Base.depwarn("The `latest` keyword argument has been renamed to `devbranch`.", :deploydocs)
         devbranch = latest
         @info("setting `devbranch` to `$(devbranch)`.")
+    end
+    # deprecation/removal of `julia` and `osname` kwargs
+    if julia !== nothing
+        Base.depwarn("the `julia` keyword argument to `Documenter.deploydocs` is " *
+            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
+            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
+        @info("skipping docs deployment.")
+        return
+    end
+    if osname !== nothing
+        Base.depwarn("the `osname` keyword argument to `Documenter.deploydocs` is " *
+            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
+            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
+        @info("skipping docs deployment.")
+        return
     end
 
     # Get environment variables.
@@ -368,8 +382,7 @@ function deploydocs(;
     travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
     travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
     travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_osname       = get(ENV, "TRAVIS_OS_NAME",       "")
-    travis_julia        = get(ENV, "TRAVIS_JULIA_VERSION", "")
+
 
     # Other variables.
     sha = cd(root) do
@@ -396,8 +409,6 @@ function deploydocs(;
     should_deploy =
         occursin(travis_repo_slug, repo) &&
         travis_pull_request == "false"   &&
-        travis_osname == osname &&
-        travis_julia  == julia  &&
         (
             travis_branch == devbranch ||
             travis_tag    != ""
@@ -420,13 +431,9 @@ function deploydocs(;
 
     if get(ENV, "DOCUMENTER_DEBUG", "") == "true"
         Utilities.debug("TRAVIS_REPO_SLUG       = \"$travis_repo_slug\"")
-        Utilities.debug("  should match \"$repo\" (kwarg: repo)")
+        Utilities.debug("  should occur in \"$repo\" (kwarg: repo)")
         Utilities.debug("TRAVIS_PULL_REQUEST    = \"$travis_pull_request\"")
         Utilities.debug("  deploying if equal to \"false\"")
-        Utilities.debug("TRAVIS_OS_NAME         = \"$travis_osname\"")
-        Utilities.debug("  deploying if equal to \"$osname\" (kwarg: osname)")
-        Utilities.debug("TRAVIS_JULIA_VERSION   = \"$travis_julia\"")
-        Utilities.debug("  deploying if equal to \"$julia\" (kwarg: julia)")
         Utilities.debug("TRAVIS_BRANCH          = \"$travis_branch\"")
         Utilities.debug("TRAVIS_TAG             = \"$travis_tag\"")
         Utilities.debug("  deploying if branch equal to \"$devbranch\" (kwarg: devbranch) or tag is set")
@@ -463,9 +470,10 @@ function deploydocs(;
             end
         end
     else
-        Utilities.log("""
-            skipping docs deployment.
-              You can set DOCUMENTER_DEBUG to "true" in Travis to see more information.""")
+        Utilities.log("skipping docs deployment.")
+        if get(ENV, "DOCUMENTER_DEBUG", "") != "true"
+              Utilities.log("You can set DOCUMENTER_DEBUG to \"true\" in Travis to see more information.")
+        end
     end
 end
 

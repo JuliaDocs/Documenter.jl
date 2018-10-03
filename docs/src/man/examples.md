@@ -41,6 +41,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest/)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest/)
+- [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
 - [OnlineStats.jl](http://joshday.github.io/OnlineStats.jl/latest/)
 - [POMDPs.jl](http://juliapomdp.github.io/POMDPs.jl/latest/)
 - [PhyloNetworks.jl](http://crsl4.github.io/PhyloNetworks.jl/latest/)
@@ -55,4 +56,3 @@ Packages that are not available in `METADATA.jl` and may be works-in-progress.
 Please do take that into consideration when browsing this list.
 
 - [AnonymousTypes.jl](https://michaelhatherly.github.io/AnonymousTypes.jl/latest/)
-- [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)

@@ -10,6 +10,7 @@ using Documenter
 const Documenter_root = normpath(joinpath(@__DIR__, "..", "..", "docs"))
 build_dir_relpath = relpath(joinpath(@__DIR__, "builds/markdown"), Documenter_root)
 doc = makedocs(
+    format = :markdown,
     debug   = true,
     root    = Documenter_root,
     modules = Documenter,

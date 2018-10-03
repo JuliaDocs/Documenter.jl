@@ -3,7 +3,6 @@ using Documenter, DocumenterTools
 makedocs(
     modules = [Documenter, DocumenterTools],
     clean = false,
-    format = :html,
     assets = ["assets/favicon.ico"],
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
@@ -16,9 +15,11 @@ makedocs(
             "man/examples.md",
             "man/syntax.md",
             "man/doctests.md",
-            "man/hosting.md",
             "man/latex.md",
-            "man/contributing.md",
+            hide("man/hosting.md", [
+                "man/hosting/walkthrough.md"
+            ]),
+            "man/other-formats.md",
         ],
         "Library" => Any[
             "Public" => "lib/public.md",
@@ -30,18 +31,19 @@ makedocs(
                 "lib/internals/docsystem.md",
                 "lib/internals/doctests.md",
                 "lib/internals/documenter.md",
+                "lib/internals/documentertools.md",
                 "lib/internals/documents.md",
                 "lib/internals/dom.md",
                 "lib/internals/expanders.md",
                 "lib/internals/formats.md",
-                "lib/internals/generator.md",
                 "lib/internals/mdflatten.md",
                 "lib/internals/selectors.md",
                 "lib/internals/textdiff.md",
                 "lib/internals/utilities.md",
                 "lib/internals/writers.md",
             ])
-        ]
+        ],
+        "contributing.md",
     ],
     # Use clean URLs, unless built as a "local" build
     html_prettyurls = !("local" in ARGS),
@@ -51,7 +53,4 @@ makedocs(
 deploydocs(
     repo = "github.com/JuliaDocs/Documenter.jl.git",
     target = "build",
-    julia = "1.0",
-    deps = nothing,
-    make = nothing,
 )

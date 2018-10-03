@@ -1,5 +1,10 @@
 # Package Guide
 
+Documenter is designed to do one thing -- combine markdown files and inline docstrings from
+Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide
+to creating a simple document.
+
+
 ## Installation
 
 Documenter can be installed using the Julia package manager.
@@ -9,17 +14,12 @@ From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 pkg> add Documenter
 ```
 
-## Usage
 
-Documenter is designed to do one thing -- combine markdown files and inline docstrings from
-Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide
-to creating a simple document.
-
-### Setting up the folder structure
+## Setting up the Folder Structure
 
 !!! note
     The function [`DocumenterTools.generate`](@ref) from the `DocumenterTools` package
-    can generate the basic structure that Documenters expects.
+    can generate the basic structure that Documenter expects.
 
 Firstly, we need a Julia module to document. This could be a package generated via
 `PkgDev.generate` or a single `.jl` script accessible via Julia's `LOAD_PATH`. For this
@@ -56,7 +56,8 @@ docs/
     make.jl
 ```
 
-### Building an empty document
+
+## Building an Empty Document
 
 With our `docs/` directory now setup we're going to build our first document. It'll just be
 a single empty file at the moment, but we'll be adding to it later on.
@@ -66,7 +67,7 @@ Add the following to your `make.jl` file
 ```julia
 using Documenter, Example
 
-makedocs()
+makedocs(sitename="My Documentation")
 ```
 
 This assumes you've installed Documenter as discussed in [Installation](@ref) and that your
@@ -105,9 +106,11 @@ Documenter: setting up build directory.
 Documenter: expanding markdown templates.
 Documenter: building cross-references.
 Documenter: running document checks.
-Documenter: rendering document.
+ > checking for missing docstrings.
+ > running doctests.
+ > checking footnote links.
 Documenter: populating indices.
-Documenter: copying assets to build directory.
+Documenter: rendering document.
 ```
 
 The `docs/` folder should contain a new directory -- called `build/`. It's structure should
@@ -116,9 +119,13 @@ look like the following
 ```
 build/
     assets/
-        Documenter.css
-        mathjaxhelper.js
-    index.md
+        arrow.svg
+        documenter.css
+        documenter.js
+        search.js
+    index.html
+    search.html
+    search_index.js
 ```
 
 !!! warning
@@ -131,12 +138,12 @@ build/
     See the [Hosting Documentation](@ref) section for details regarding how you should go
     about setting this up correctly.
 
-At the moment `build/index.md` should be empty since `src/index.md` is empty.
+At this point `build/index.html` should be an empty page since `src/index.md` is empty. You
+can try adding some text to `src/index.md` and re-running the `make.jl` file to see the
+changes.
 
-At this point you can add some text to `src/index.md` and rerun the `make.jl` file to see
-the changes if you'd like to.
 
-### Adding some docstrings
+## Adding Some Docstrings
 
 Next we'll splice a docstring defined in the `Example` module into the `index.md` file. To
 do this first document a function in that module:
@@ -186,7 +193,7 @@ func(x)
 ```
 ````
 
-#### Filtering Included Docstrings
+### Filtering included docstrings
 
 In some cases you may want to include a docstring for a `Method` that extends a
 `Function` from a different module -- such as `Base`. In the following example we extend
@@ -229,7 +236,8 @@ makedocs(
 )
 ```
 
-### Cross Referencing
+
+## Cross Referencing
 
 It may be necessary to refer to a particular docstring or section of your document from
 elsewhere in the document. To do this we can make use of Documenter's cross-referencing
@@ -254,7 +262,8 @@ the header and for docstrings enclose the object in backticks.
 This also works across different pages in the same way. Note that these sections and
 docstrings must be unique within a document.
 
-### Navigation
+
+## Navigation
 
 Documenter can auto-generate tables of contents and docstring indexes for your document with
 the following syntax. We'll illustrate these features using our `index.md` file from the
@@ -294,56 +303,25 @@ spliced into the document using `@docs` blocks. As with the `@contents` block th
 be included can be set with a `Pages = [...]` line. Since the list is not nested `Depth` is
 not supported for `@index`.
 
-## Output formats
 
-Documenter produces a set of Markdown files, which then have to be converted into a
-user-readable format for distribution.
-While in principle any Markdown parser would do (as long as it supports the required
-Markdown extensions), the Python-based [MkDocs](https://www.mkdocs.org/) is usually used
-to convert the Markdown files into a set of HTML pages.
-See [Hosting Documentation](@ref) for further information on configuring MkDocs for Documenter.
+## Pages in the Sidebar
 
-!!! note "Native HTML output"
+By default all the pages (`.md` files) in your source directory get added to the sidebar,
+sorted by their filenames. However, in most cases you want to use the `pages` argument to
+[`makedocs`](@ref) to control how the sidebar looks like. The basic usage is as follows:
 
-    There is experimental support for native HTML output in Documenter. It can be enabled by
-    passing the `format = :html` option to [`makedocs`](@ref). It also requires the `pages`
-    and `sitename` options. `make.jl` should then look something like
-
-    ```julia
-    makedocs(
-        ...,
-        format = :html,
-        sitename = "Package name",
-        pages = [
-            "page.md",
-            "Page title" => "page2.md",
-            "Subsection" => [
-                ...
-            ]
+```julia
+makedocs(
+    ...,
+    pages = [
+        "page.md",
+        "Page title" => "page2.md",
+        "Subsection" => [
+            ...
         ]
-    )
+    ]
+)
+```
 
-    deploydocs(
-        repo   = "github.com/USER/PKG.jl.git",
-        target = "build",
-        deps   = nothing,
-        make   = nothing
-    )
-    ```
-
-    Since Documenter's docs are already built using HTML output, a
-    fully working example of the configuration can be found in
-    `docs/make.jl`. Note that with this configuration, `mkdocs.yml` is
-    not required.
-
-    It is still under development, may contain bugs, and undergo changes.
-    However, any feedback is very welcome and early adopters are encouraged to try it out.
-    Issues and suggestions should be posted to
-    [Documenter.jl's issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues).
-
-    # Additional `makedocs` options for HTML output
-
-    **`sitename`** is the site's title displayed in the title bar and at the top
-    of the navigation menu.
-
-    **`pages`** defines the hierarchy of the navigation menu.
+Using the `pages` argument you can organize your pages into subsections and hide some pages
+from the sidebar with the help of the [`hide`](@ref) functions.

@@ -75,16 +75,16 @@ end
         @test length(doc.internal.objects) == 38
     end
 
-    @testset "HTML" begin
-        doc = Main.examples_html_doc
+    @testset "HTML: local" begin
+        doc = Main.examples_html_local_doc
 
         @test isa(doc, Documenter.Documents.Document)
 
         # TODO: test the HTML build
     end
 
-    @testset "HTML: html-pretty-urls" begin
-        doc = Main.examples_html_doc
+    @testset "HTML: deploy" begin
+        doc = Main.examples_html_deploy_doc
 
         @test isa(doc, Documenter.Documents.Document)
 
