@@ -39,6 +39,53 @@ which will cause any unlisted docstrings to raise warnings when [`makedocs`](@re
 called. If `modules` is not defined then no warnings are printed, even if a document has
 missing docstrings.
 
+### Filtering docstrings of specific methods
+It is also possible to tell the `@docs` block to display only the documentation string of a 
+_specific_ method, instead of collecting all documentation strings from all methods of a
+given function name. This is especially useful when one overloads an existing name or simply
+uses multiple dispatch for different usages of the same name (each with its own docstring).
+
+To do this you simply declare the types used in your method:
+````markdown
+```@docs
+f(::Type1)
+f(::Type2, ::Real)
+```
+````
+
+Be careful to use _exactly_ the types that you use in your dispatch declaration. For example
+overloading e.g. a name `plot` like
+```julia
+"""
+this is the docstring of my plot extention!
+Call it like `plot(t::MyType, color)`
+"""
+plot(t::MyType, color) = ...
+```
+and doing
+````markdown
+```@docs
+plot(::MyType)
+```
+````
+will not work and will display all docstrings of `plot`. There are two work-arounds. 
+Either do
+````markdown
+```@docs
+plot(::MyType, ::Any)
+```
+````
+or define your docstring like:
+```julia
+"""
+this is the docstring of my plot extention!
+Call it like `plot(t::MyType, color)`
+"""
+function plot(::MyType) end
+
+plot(t::MyType, color) = ...
+```
+
 ## `@autodocs` block
 
 Automatically splices all docstrings from the provided modules in place of the code block.
