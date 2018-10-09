@@ -181,7 +181,7 @@ function submodules(root::Module, seen = Set{Module}())
     for name in names(root, all=true)
         if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
-            if isa(object, Module) && !(object in seen)
+            if isa(object, Module) && !(object in seen) && parentmodule(object::Module) == root
                 submodules(object, seen)
             end
         end

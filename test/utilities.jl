@@ -35,6 +35,17 @@ export OuterModule
 end
 end
 
+module ModuleWithAlias
+using LinearAlgebra
+const LA = LinearAlgebra
+module A
+    module B
+    using Random
+    const R = Random
+    end
+end
+end
+
 @testset "Utilities" begin
     let doc = @doc(length)
         a = Documenter.Utilities.filterdocs(doc, Set{Module}())
@@ -66,6 +77,7 @@ end
     @test OuterModule in Documenter.Utilities.submodules(OuterModule)
     @test OuterModule.InnerModule in Documenter.Utilities.submodules(OuterModule)
     @test length(Documenter.Utilities.submodules(OuterModule)) == 2
+    @test Documenter.Utilities.submodules(ModuleWithAlias) == Set([ModuleWithAlias, ModuleWithAlias.A, ModuleWithAlias.A.B])
 
     @test Documenter.Utilities.isabsurl("file.md") === false
     @test Documenter.Utilities.isabsurl("../file.md") === false
