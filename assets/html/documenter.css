@@ -170,8 +170,10 @@ nav.toc {
     left: 0;
     bottom: 0;
     width: 20em;
+    display: flex;
+    flex-flow: column nowrap;
     overflow-y: auto;
-    padding: 1em 0;
+    padding: 1em 0 0 0;
     background-color: #fcfcfc;
     box-shadow: inset -14px 0px 5px -12px rgb(210,210,210);
 }
@@ -237,6 +239,16 @@ nav.toc input {
 
 nav.toc > ul * {
     margin: 0;
+}
+
+nav.toc > ul {
+    min-height: 2em;
+    overflow-y: auto;
+    margin: 0;
+}
+
+nav.toc > ul > li:last-child {
+    padding-bottom: 1em;
 }
 
 nav.toc ul {
