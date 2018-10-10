@@ -75,7 +75,9 @@
 
 * ![Enhancement][badge-enhancement] The at-blocks now support `MIME"text/html"` rendering of objects (e.g. for interactive plots). I.e. if a type has `show(io, ::MIME"text/html", x)` defined, Documenter now uses that when rendering the objects in the document. ([#764][github-764])
 
-* ![Enhancement][badge-enhancement] Minor style enhancements. ([#841][github-841])
+* ![Enhancement][badge-enhancement] Enhancements to the sidebar. When loading a page, the sidebar will jump to the current page now. Also, the scrollbar in WebKit-based browsers look less intrusive now. ([#792][github-792], [#854][github-854])
+
+* ![Enhancement][badge-enhancement] Minor style enhancements to admonitions. ([#841][github-841])
 
 * ![Bugfix][badge-bugfix] The at-blocks that execute code can now handle `include` statements. ([#793][github-793], [#794][github-794])
 
@@ -84,6 +86,7 @@
 [github-706]: https://github.com/JuliaDocs/Documenter.jl/pull/706
 [github-764]: https://github.com/JuliaDocs/Documenter.jl/pull/764
 [github-789]: https://github.com/JuliaDocs/Documenter.jl/pull/789
+[github-792]: https://github.com/JuliaDocs/Documenter.jl/pull/792
 [github-793]: https://github.com/JuliaDocs/Documenter.jl/pull/793
 [github-794]: https://github.com/JuliaDocs/Documenter.jl/pull/794
 [github-795]: https://github.com/JuliaDocs/Documenter.jl/pull/795
@@ -97,6 +100,7 @@
 [github-826]: https://github.com/JuliaDocs/Documenter.jl/pull/826
 [github-833]: https://github.com/JuliaDocs/Documenter.jl/pull/833
 [github-841]: https://github.com/JuliaDocs/Documenter.jl/pull/841
+[github-854]: https://github.com/JuliaDocs/Documenter.jl/pull/854
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
