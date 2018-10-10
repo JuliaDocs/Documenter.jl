@@ -317,6 +317,21 @@ nav.toc li.current > .toctext {
     background-color: white;
 }
 
+nav.toc ul::-webkit-scrollbar {
+    width: .4em;
+    background: none;
+}
+
+nav.toc ul::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: #c9c9c9;
+}
+
+nav.toc ul::-webkit-scrollbar-thumb:hover {
+    border-radius: 5px;
+    background: #aaaaaa;
+}
+
 article {
     margin-left: 20em;
     min-width: 20em;
