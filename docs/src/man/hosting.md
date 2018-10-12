@@ -207,30 +207,41 @@ If you wish to create the `gh-pages` branch manually the that can be done follow
 
 ## Documentation Versions
 
-When documentation is generated it is stored in one of the following folders:
+The documentation is deployed as follows:
 
-- `latest` stores the most recent documentation that is committed to the `master` branch.
+- Documentation built for a tag `vX.Y.Z` will be stored in a folder `vX.Y.Z`.
 
-- `stable` stores the most recent documentation from a tagged commit. Older tagged versions
-  are stored in directories named after their tags. These tagged directories are persistent
-  and must be manually removed from the `gh-pages` branch if necessary.
+- Documentation built from the `devbranch` branch (`master` by default) is stored a folder
+  determined by the `devurl` keyword to [`deploydocs`](@ref) (`dev` by default).
 
-Unless a custom domain is being used, the `stable` and `latest` pages are found at:
+Which versions that will show up in the version selector is determined by the
+`versions` argument to [`deploydocs`](@ref).
+
+Unless a custom domain is being used, the pages are found at:
+
+```
+https://USER_NAME.github.io/PACKAGE_NAME.jl/vX.Y.Z
+https://USER_NAME.github.io/PACKAGE_NAME.jl/dev
+```
+
+By default Documenter will create a link called `stable` that points to the latest release
 
 ```
 https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
-https://USER_NAME.github.io/PACKAGE_NAME.jl/latest
 ```
 
+It is recommended to use this link, rather then the versioned links, since it will be updated
+with new releases.
+
 Once your documentation has been pushed to the `gh-pages` branch you should add links to
-your `README.md` pointing to the `stable` and `latest` documentation URLs. It is common
+your `README.md` pointing to the `stable` (and perhaps `dev`) documentation URLs. It is common
 practice to make use of "badges" similar to those used for Travis and AppVeyor build
 statuses or code coverage. Adding the following to your package `README.md` should be all
 that is necessary:
 
 ```markdown
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/dev)
 ```
 
 `PACKAGE_NAME` and `USER_NAME` should be replaced with their appropriate values. The colour
