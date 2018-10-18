@@ -194,6 +194,7 @@ nav.toc h1 {
 nav.toc select {
     display: block;
     height: 2em;
+    flex-shrink: 0;
     padding: 0 1.6em 0 1em;
     min-width: 7em;
     max-width: 90%;
