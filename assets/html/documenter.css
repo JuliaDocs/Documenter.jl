@@ -564,7 +564,7 @@ article section.docstring a.source-link {
     }
 
     article > header div#topbar span {
-        position: fixed;
+        position: relative;
         width: 80%;
         height: 1.5em;
         margin-top: -0.1em;
