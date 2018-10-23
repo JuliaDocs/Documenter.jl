@@ -178,8 +178,8 @@ support multiple output formats. Via plugin packages, Documenter also supports e
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
-function makedocs(; debug = false, args...)
-    document = Documents.Document(; args...)
+function makedocs(components...; debug = false, kwargs...)
+    document = Documents.Document(components; kwargs...)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end

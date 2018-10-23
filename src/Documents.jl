@@ -10,6 +10,7 @@ Defines [`Document`](@ref) and its supporting types
 module Documents
 
 import ..Documenter:
+    Documenter,
     Anchors,
     Formats,
     Utilities
@@ -198,10 +199,6 @@ struct User
     authors :: String
     analytics::String
     version :: String # version string used in the version selector by default
-    html_prettyurls :: Bool # Use pretty URLs in the HTML build?
-    html_disable_git :: Bool # Don't call git when exporting HTML
-    html_edit_branch :: Union{String, Nothing} # Change how the "Edit on GitHub" links are handled
-    html_canonical   :: Union{String, Nothing} # Set a canonical url, if desired (https://en.wikipedia.org/wiki/Canonical_link_element)
 end
 
 """
@@ -223,6 +220,8 @@ struct Internal
     errors::Set{Symbol}
 end
 
+abstract type DocumenterPlugin end
+
 # Document.
 # ---------
 
@@ -232,9 +231,10 @@ Represents an entire document.
 struct Document
     user     :: User     # Set by the user via `makedocs`.
     internal :: Internal # Computed values.
+    plugins  :: Dict{DataType, DocumenterPlugin}
 end
 
-function Document(;
+function Document(plugins;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
@@ -253,14 +253,9 @@ function Document(;
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         analytics :: AbstractString  = "",
-        version :: AbstractString    = "",
-        html_prettyurls  :: Bool     = true,
-        html_disable_git :: Bool     = false,
-        html_edit_branch :: Union{String, Nothing} = "master",
-        html_canonical   :: Union{String, Nothing} = nothing,
-        others...
+        version :: AbstractString    = ""
     )
-    Utilities.check_kwargs(others)
+    # Utilities.check_kwargs(others)
 
     fmt = Formats.fmt(format)
     @assert !isempty(fmt) "No formats provided."
@@ -288,11 +283,7 @@ function Document(;
         sitename,
         authors,
         analytics,
-        version,
-        html_prettyurls,
-        html_disable_git,
-        html_edit_branch,
-        html_canonical,
+        version
     )
     internal = Internal(
         Utilities.assetsdir(),
@@ -307,9 +298,28 @@ function Document(;
         [],
         [],
         Dict{Markdown.Link, String}(),
-        Set{Symbol}(),
+        Set{Symbol}()
     )
-    Document(user, internal)
+
+    plugin_dict = Dict{DataType, DocumenterPlugin}()
+    for plugin in plugins
+        plugin isa DocumenterPlugin ||
+            throw("$(typeof(plugin)) is not a subtype of `DocumenterPlugin`.")
+        haskey(plugin_dict, typeof(plugin)) &&
+            throw("only one copy of $(typeof(plugin)) may be passed.")
+        plugin_dict[typeof(plugin)] = plugin
+    end
+
+    Document(user, internal, plugin_dict)
+end
+
+function plugin_settings(doc::Document, type::DataType)
+    @assert type <: DocumenterPlugin
+    if !haskey(doc.plugins, type)
+        doc.plugins[type] = type()
+    end
+
+    doc.plugins[type]
 end
 
 ## Methods

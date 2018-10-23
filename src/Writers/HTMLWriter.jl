@@ -98,6 +98,24 @@ import ...Documenter:
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
+export HTML
+
+# TODO: Document this
+struct HTML <: Documents.DocumenterPlugin
+    prettyurls::Bool
+    disable_git:: Bool
+    edit_branch:: Union{String, Nothing}
+    canonical:: Union{String, Nothing}
+
+    function HTML(;
+        prettyurls::Bool = true,
+        disable_git::Bool = false,
+        edit_branch::Union{String, Nothing} = "master",
+        canonical::Union{String, Nothing} = nothing)
+        new(prettyurls, disable_git, edit_branch, canonical)
+    end
+end
+
 const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
 const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
 const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
@@ -110,6 +128,7 @@ other recursive functions.
 """
 mutable struct HTMLContext
     doc :: Documents.Document
+    settings :: HTML
     logo :: String
     scripts :: Vector{String}
     documenter_js :: String
@@ -119,7 +138,7 @@ mutable struct HTMLContext
     search_navnode :: Documents.NavNode
     local_assets :: Vector{String}
 end
-HTMLContext(doc) = HTMLContext(doc, "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc) = HTMLContext(doc, Documents.plugin_settings(doc, HTML), "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
 
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
@@ -233,7 +252,7 @@ function render_head(ctx, navnode)
 
         analytics_script(ctx.doc.user.analytics),
 
-        canonical_link_element(ctx.doc.user.html_canonical, src),
+        canonical_link_element(ctx.settings.canonical, src),
 
         # Stylesheets.
         map(css_links) do each
@@ -456,7 +475,7 @@ function render_article(ctx, navnode)
     end
     hoststring = isempty(host) ? " source" : " on $(host)"
 
-    if !ctx.doc.user.html_disable_git
+    if !ctx.settings.disable_git
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
         if Utilities.isabsurl(pageurl)
             url = pageurl
@@ -465,10 +484,10 @@ function render_article(ctx, navnode)
                 # need to set users path relative the page itself
                 pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
             end
-            url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.doc.user.html_edit_branch)
+            url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.settings.edit_branch)
         end
         if url !== nothing
-            edit_verb = (ctx.doc.user.html_edit_branch === nothing) ? "View" : "Edit"
+            edit_verb = (ctx.settings.edit_branch === nothing) ? "View" : "Edit"
             push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " $(edit_verb)$hoststring"))
         end
     end
@@ -817,7 +836,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             markdown, result = md
             ret = Any[domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))]
             # When a source link is available then print the link.
-            if !ctx.doc.user.html_disable_git
+            if !ctx.settings.disable_git
                 url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
                 if url !== nothing
                     push!(ret, a[".source-link", :target=>"_blank", :href=>url]("source"))
@@ -879,7 +898,7 @@ Returns the full path corresponding to a path of a `.md` page file. The the inpu
 paths are assumed to be relative to `src/`.
 """
 function get_url(ctx, path::AbstractString)
-    if ctx.doc.user.html_prettyurls
+    if ctx.settings.prettyurls
         d = if basename(path) == "index.md"
             dirname(path)
         else
@@ -901,7 +920,7 @@ If `html_prettyurls` is enabled, returns a "pretty" version of the `path` which 
 used in links in the resulting HTML file.
 """
 function pretty_url(ctx, path::AbstractString)
-    if ctx.doc.user.html_prettyurls
+    if ctx.settings.prettyurls
         dir, file = splitdir(path)
         if file == "index.html"
             return length(dir) == 0 ? "" : "$(dir)/"
