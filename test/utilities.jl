@@ -138,6 +138,8 @@ end
             # Create a simple mock repo in a temporary directory with a single file.
             @show path pwd()
             @test pipeline(`git init`, stdout=stdout, stderr=stdout) |> success
+            @test success(`git config user.email "tester@example.com"`)
+            @test success(`git config user.name "Test Committer"`)
             @test pipeline(`git remote add origin git@github.com:JuliaDocs/Documenter.jl.git`, stdout=stdout, stderr=stdout) |> success
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
