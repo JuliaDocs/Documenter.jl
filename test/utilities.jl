@@ -132,18 +132,33 @@ end
         @test endswith(filepath, expected_filepath)
         @show filepath expected_filepath
     end
-    # commit = Documenter.Utilities.repo_commit(filepath)
-    #
-    # @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/Utilities/Utilities.jl#"
-    # @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/Utilities/Utilities.jl#L10-L20"
-    #
-    # # repo_root & relpath_from_repo_root
-    # @test Documenter.Utilities.repo_root(@__FILE__) == dirname(abspath(joinpath(@__DIR__, ".."))) # abspath() keeps trailing /, hence dirname()
-    # @test Documenter.Utilities.repo_root(@__FILE__; dbdir=".svn") == nothing
-    # @test Documenter.Utilities.relpath_from_repo_root(@__FILE__) == joinpath("test", "utilities.jl")
-    # # We assume that a temporary file is not in a repo
-    # @test Documenter.Utilities.repo_root(tempname()) == nothing
-    # @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+
+    mktempdir() do path
+        cd(path) do
+            # Create a simple mock repo in a temporary directory with a single file.
+            @test success(`git init`)
+            @test success(`git remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
+            mkpath("src")
+            filepath = abspath(joinpath("src", "SourceFile.jl"))
+            write(filepath, "X")
+            @test success(`git add -A`)
+            @test success(`git commit -m"Initial commit."`)
+
+            # Run tests
+            commit = Documenter.Utilities.repo_commit(filepath)
+
+            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+
+            # repo_root & relpath_from_repo_root
+            @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
+            @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
+            # We assume that a temporary file is not in a repo
+            @test Documenter.Utilities.repo_root(tempname()) == nothing
+            @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+        end
+    end
 
     import Documenter.Documents: Document, Page, Globals
     let page = Page("source", "build", [], IdDict{Any,Any}(), Globals()), doc = Document()
