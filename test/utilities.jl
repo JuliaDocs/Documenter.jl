@@ -136,13 +136,14 @@ end
     mktempdir() do path
         cd(path) do
             # Create a simple mock repo in a temporary directory with a single file.
-            @test success(`git init`)
-            @test success(`git remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
+            @show path pwd()
+            @test pipeline(`git init`, stdout=stdout, stderr=stdout) |> success
+            @test pipeline(`git remote add origin git@github.com:JuliaDocs/Documenter.jl.git`, stdout=stdout, stderr=stdout) |> success
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             write(filepath, "X")
-            @test success(`git add -A`)
-            @test success(`git commit -m"Initial commit."`)
+            @test pipeline(`git add -A`, stdout=stdout, stderr=stdout) |> success
+            @test pipeline(`git commit -m"Initial commit"`, stdout=stdout, stderr=stdout) |> success
 
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
