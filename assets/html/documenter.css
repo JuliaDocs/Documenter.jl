@@ -515,10 +515,6 @@ article section.docstring a.source-link {
         box-shadow: 5px 0px 5px 0px rgb(210,210,210);
     }
 
-    nav.toc > ul {
-        overflow-y: scroll;
-    }
-
     nav.toc.show {
         left: 0;
     }
@@ -564,7 +560,6 @@ article section.docstring a.source-link {
     }
 
     article > header div#topbar span {
-        position: relative;
         width: 80%;
         height: 1.5em;
         margin-top: -0.1em;
