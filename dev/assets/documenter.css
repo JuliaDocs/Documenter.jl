@@ -502,7 +502,6 @@ article section.docstring a.source-link {
 @media only screen and (max-width: 768px) {
     nav.toc {
         position: fixed;
-        overflow-y: scroll;
         width: 16em;
         left: -16em;
         -webkit-overflow-scrolling: touch;
@@ -513,6 +512,7 @@ article section.docstring a.source-link {
         -webkit-transition-timing-function: ease-out; /* Safari */
         transition-timing-function: ease-out;
         z-index: 2;
+        box-shadow: 5px 0px 5px 0px rgb(210,210,210);
     }
 
     nav.toc.show {
@@ -560,7 +560,6 @@ article section.docstring a.source-link {
     }
 
     article > header div#topbar span {
-        position: fixed;
         width: 80%;
         height: 1.5em;
         margin-top: -0.1em;
