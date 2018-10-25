@@ -149,7 +149,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Examples",
     "title": "Registered",
     "category": "section",
-    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBanditOpt.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDifferentialEquations.jl\nDiscretePredictors.jl\nDocumenter.jl\nEvolvingGraphs.jl\nExtractMacro.jl\nEzXML.jl\nFourierFlows.jl\nGadfly.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOhMyREPL.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+    "text": "Packages that have tagged versions available in METADATA.jl.Augmentor.jl\nBanditOpt.jl\nBeaData.jl\nBio.jl\nControlSystems.jl\nCurrencies.jl\nDiscretePredictors.jl\nDocumenter.jl\nEvolvingGraphs.jl\nExtractMacro.jl\nEzXML.jl\nFourierFlows.jl\nGadfly.jl\nGeoStats.jl\nHighlights.jl\nIntervalConstraintProgramming.jl\nLuxor.jl\nMergedMethods.jl\nMimi.jl\nNumericSuffixes.jl\nOhMyREPL.jl\nOnlineStats.jl\nPOMDPs.jl\nPhyloNetworks.jl\nPrivateModules.jl\nQuery.jl\nTaylorSeries.jl\nWeave.jl"
+},
+
+{
+    "location": "man/examples/#Documentation-repositories-1",
+    "page": "Examples",
+    "title": "Documentation repositories",
+    "category": "section",
+    "text": "Some projects or organizations maintain dedicated documentation repositories that are separate from specific packages.DifferentialEquations.jl\nJuliaDocs landing page\nJuliaMusic\nPlots.jl"
 },
 
 {
