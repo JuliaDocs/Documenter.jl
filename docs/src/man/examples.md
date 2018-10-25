@@ -26,7 +26,6 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [Bio.jl](https://biojulia.net/Bio.jl/latest/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/latest/)
 - [Currencies.jl](https://juliafinance.github.io/Currencies.jl/latest/)
-- [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/latest/)
 - [EvolvingGraphs.jl](https://etymoio.github.io/EvolvingGraphs.jl/latest/)
@@ -49,6 +48,16 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [Query.jl](http://www.queryverse.org/Query.jl/stable/)
 - [TaylorSeries.jl](http://www.juliadiff.org/TaylorSeries.jl/latest/)
 - [Weave.jl](http://weavejl.mpastell.com/stable/)
+
+## Documentation repositories
+
+Some projects or organizations maintain dedicated documentation repositories that are
+separate from specific packages.
+
+- [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
+- [JuliaDocs landing page](https://juliadocs.github.io/latest/)
+- [JuliaMusic](https://juliamusic.github.io/JuliaMusic_documentation.jl/latest/)
+- [Plots.jl](https://docs.juliaplots.org/latest/)
 
 ## Unregistered
 
