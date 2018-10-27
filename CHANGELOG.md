@@ -1,6 +1,6 @@
 # Documenter.jl changelog
 
-## Version `v0.20`
+## Version `v0.20.0`
 
 * Documenter v0.20 requires at least Julia v0.7. ([#795][github-795])
 
