@@ -163,22 +163,16 @@ any errors with the document in the previous build phases.
 
 ## Output formats
 
-**`format`** allows the output format to be specified. Possible values are `:html` (default),
-`:latex` and `:markdown`.
+**`format`** allows the output format to be specified. The default value is `:html`, but
+additional values are supported via plugins (see below).
 
-Documenter is designed to support multiple output formats. By default it is creates a set of
-HTML files, but the output format can be controlled with the `format` keyword. The different
-output formats may require additional keywords to be specified. The keywords for the default
-HTML output are documented at the [`Writers.HTMLWriter`](@ref) module.
+The different output formats may require additional keywords to be specified. The
+format-specific keywords for the default HTML output are documented at the
+[`Writers.HTMLWriter`](@ref) module.
 
-Documenter also has (experimental) support for Markdown and LaTeX / PDF outputs. See the
-[Other Output Formats](@ref) for more information.
-
-!!! warning
-
-    The Markdown and LaTeX output formats will be moved to a separate package in future
-    versions of Documenter. Automatic documentation deployments should not rely on it unless
-    they fix Documenter to a minor version.
+The default `:html` output format creates a set of HTML files, but Documenter is designed to
+support multiple output formats. Via plugin packages, Documenter also supports e.g. Markdown
+/ MkDocs and LaTeX / PDF outputs. See the [Other Output Formats](@ref) for more information.
 
 # See Also
 
