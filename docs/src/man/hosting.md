@@ -156,11 +156,6 @@ major release of Documenter, which may include breaking changes. However, it als
 you will not get updates to Documenter automatically, and hence need to upgrade Documenter's
 major version yourself.
 
-!!! note
-While testing your `doc/make.jl` script, you may need to add it as a dependency to the 
-`docs/Project.toml` environment, which can cause the travis-CI documentation step to fail.
-Make sure, therefore, that the `docs/Project.toml` you commit does not contain your 
-`PACKAGE_NAME` as a dependency.
 
 ## The `deploydocs` Function
 
