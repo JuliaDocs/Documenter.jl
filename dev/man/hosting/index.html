@@ -21,8 +21,8 @@ INFO: add a secure environment variable named &#39;DOCUMENTER_KEY&#39; to
       julia: 1.0
       os: linux
       script:
-        - julia --project=docs/ -e &#39;using Pkg; Pkg.instantiate();
-                                    Pkg.develop(PackageSpec(path=pwd()))&#39;
+        - julia --project=docs/ -e &#39;using Pkg; Pkg.develop(PackageSpec(path=pwd()));
+                                               Pkg.instantiate()&#39;
         - julia --project=docs/ docs/make.jl
       after_success: skip</code></pre><p>where the <code>julia:</code> and <code>os:</code> entries decide the worker from which the docs are built and deployed. In the example above we will thus build and deploy the documentation from a linux worker running Julia 1.0. For more information on how to setup a build stage, see the Travis manual for <a href="https://docs.travis-ci.com/user/build-stages">Build Stages</a>.</p><p>The three lines in the <code>script:</code> section do the following:</p><ol><li>Instantiate the doc-building environment (i.e. <code>docs/Project.toml</code>, see below).</li><li>Install your package in the doc-build environment.</li><li>Run the docs/make.jl script, which builds and deploys the documentation.</li></ol><p>The doc-build environment <code>docs/Project.toml</code> includes Documenter and other doc-build dependencies your package might have. If Documenter is the only dependency, then the <code>Project.toml</code> should include the following:</p><pre><code class="language-toml">[deps]
 Documenter = &quot;e30172f5-a6a5-5a46-863b-614d45cd2de4&quot;
