@@ -15,7 +15,6 @@ module Documenter
 
 using DocStringExtensions
 import Base64: base64decode
-import Pkg
 
 # Submodules
 # ----------
@@ -81,7 +80,7 @@ The folder structure that [`makedocs`](@ref) expects looks like:
 this keyword does not need to be set. It is, for the most part, needed when repeatedly
 running `makedocs` from the Julia REPL like so:
 
-    julia> makedocs(root = Pkg.dir("MyPackage", "docs"))
+    julia> makedocs(root = joinpath(pathof(MyModule), "..", "..", "docs"))
 
 **`source`** is the directory, relative to `root`, where the markdown source files are read
 from. By convention this folder is called `src`. Note that any non-markdown files stored
