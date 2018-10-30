@@ -98,6 +98,8 @@ by default `src/foo.md` becomes `src/foo/index.html`). This does not work when b
 documentation in local files since browsers do not resolve `foo/` to `foo/index.html`
 for local files. If `html_prettyurls = false`, then Documenter generate `src/foo.html`
 instead and sets up the internal links accordingly, suitable for local documentation builds.
+To disable pretty URLs in local builds, but still have it enabled for deployment,
+you can set `prettyurls = get(ENV, "CI", nothing) == "true"`.
 
 **`disable_git`** can be used to disable calls to `git` when the document is not
 in a Git-controlled repository. Without setting this to `true`, Documenter will throw
