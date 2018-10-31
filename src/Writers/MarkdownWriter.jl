@@ -28,7 +28,7 @@ function render(doc::Documents.Document)
 end
 
 function copy_assets(doc::Documents.Document)
-    Utilities.log(doc, "copying assets to build directory.")
+    @debug "copying assets to build directory."
     assets = joinpath(doc.internal.assets, "mkdocs")
     if isdir(assets)
         builddir = joinpath(doc.user.build, "assets")
@@ -36,7 +36,7 @@ function copy_assets(doc::Documents.Document)
         for each in readdir(assets)
             src = joinpath(assets, each)
             dst = joinpath(builddir, each)
-            ispath(dst) && Utilities.warn("Overwriting '$dst'.")
+            ispath(dst) && @warn "Documenter: overwriting '$dst'."
             cp(src, dst; force = true)
         end
     else

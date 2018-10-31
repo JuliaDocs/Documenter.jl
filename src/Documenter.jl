@@ -351,21 +351,21 @@ function deploydocs(;
     if latest !== nothing
         Base.depwarn("The `latest` keyword argument has been renamed to `devbranch`.", :deploydocs)
         devbranch = latest
-        @info("setting `devbranch` to `$(devbranch)`.")
+        @info "setting `devbranch` to `$(devbranch)`."
     end
     # deprecation/removal of `julia` and `osname` kwargs
     if julia !== nothing
         Base.depwarn("the `julia` keyword argument to `Documenter.deploydocs` is " *
             "removed. Use Travis Build Stages for determining from where to deploy instead. " *
             "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
-        @info("skipping docs deployment.")
+        @info "skipping docs deployment."
         return
     end
     if osname !== nothing
         Base.depwarn("the `osname` keyword argument to `Documenter.deploydocs` is " *
             "removed. Use Travis Build Stages for determining from where to deploy instead. " *
             "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
-        @info("skipping docs deployment.")
+        @info "skipping docs deployment."
         return
     end
 
@@ -393,66 +393,42 @@ function deploydocs(;
         end
     end
 
-    # Sanity checks
-    if !isempty(travis_repo_slug) && !occursin(travis_repo_slug, repo)
-        @warn("repo $repo does not match $travis_repo_slug")
-    end
+    repo_ok = occursin(travis_repo_slug, repo)
+    pr_ok = travis_pull_request == "false"
+    tag_ok = !isempty(travis_tag) && occursin(Base.VERSION_REGEX, travis_tag)
+    branch_ok = isempty(travis_tag) && travis_branch == devbranch
+    key_ok = !isempty(documenter_key)
+    should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok
 
-    # When should a deploy be attempted?
-    should_deploy =
-        occursin(travis_repo_slug, repo) &&
-        travis_pull_request == "false"   &&
-        (
-            travis_branch == devbranch ||
-            travis_tag    != ""
-        )
-
-    # check that the tag is valid
-    if should_deploy && !isempty(travis_tag) && !occursin(Base.VERSION_REGEX, travis_tag)
-        @warn("tag `$(travis_tag)` is not a valid VersionNumber")
-        should_deploy = false
-    end
-
-    # check DOCUMENTER_KEY only if the branch, Julia version etc. check out
-    if should_deploy && isempty(documenter_key)
-        @warn("""
-            DOCUMENTER_KEY environment variable missing, unable to deploy.
-              Note that in Documenter v0.9.0 old deprecated authentication methods were removed.
-              DOCUMENTER_KEY is now the only option. See the documentation for more information.""")
-        should_deploy = false
-    end
-
-    if get(ENV, "DOCUMENTER_DEBUG", "") == "true"
-        Utilities.debug("TRAVIS_REPO_SLUG       = \"$travis_repo_slug\"")
-        Utilities.debug("  should occur in \"$repo\" (kwarg: repo)")
-        Utilities.debug("TRAVIS_PULL_REQUEST    = \"$travis_pull_request\"")
-        Utilities.debug("  deploying if equal to \"false\"")
-        Utilities.debug("TRAVIS_BRANCH          = \"$travis_branch\"")
-        Utilities.debug("TRAVIS_TAG             = \"$travis_tag\"")
-        Utilities.debug("  deploying if branch equal to \"$devbranch\" (kwarg: devbranch) or tag is set")
-        Utilities.debug("git commit SHA         = $sha")
-        Utilities.debug("DOCUMENTER_KEY exists  = $(!isempty(documenter_key))")
-        Utilities.debug("should_deploy          = $should_deploy")
-    end
+    marker(x) = x ? "✔" : "✘"
+    @info """Deployment criteria:
+    - ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)" $(marker(repo_ok))
+    - ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false" $(marker(pr_ok))
+    - ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber $(marker(tag_ok))
+    - ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch)" $(marker(branch_ok))
+    - ENV["DOCUMENTER_KEY"] exists $(marker(key_ok))
+    Deploying: $(marker(should_deploy))
+    """
 
     if should_deploy
+        @info "deploying docs."
         # Add local bin path if needed.
         Deps.updatepath!()
         # Install dependencies when applicable.
         if deps !== nothing
-            Utilities.log("installing dependencies.")
+            @debug "installing dependencies."
             deps()
         end
         # Change to the root directory and try to deploy the docs.
         cd(root) do
-            Utilities.log("setting up target directory.")
+            @debug "setting up target directory."
             isdir(target) || mkpath(target)
             # Run extra build steps defined in `make` if required.
             if make !== nothing
-                Utilities.log("running extra build steps.")
+                @debug "running extra build steps."
                 make()
             end
-            Utilities.log("pushing new documentation to remote: $repo:$branch.")
+            @debug "pushing new documentation to remote: '$repo:$branch'."
             mktempdir() do temp
                 git_push(
                     root, temp, repo;
@@ -463,10 +439,7 @@ function deploydocs(;
             end
         end
     else
-        Utilities.log("skipping docs deployment.")
-        if get(ENV, "DOCUMENTER_DEBUG", "") != "true"
-              Utilities.log("You can set DOCUMENTER_DEBUG to \"true\" in Travis to see more information.")
-        end
+        @info "skipping docs deployment."
     end
 end
 
@@ -520,8 +493,8 @@ function git_push(
                 try
                     run(`git checkout -b $branch upstream/$branch`)
                 catch e
-                    Utilities.log("Checking out $branch failed with error: $e")
-                    Utilities.log("Creating a new local $branch branch.")
+                    @debug "checking out $branch failed with error: $e"
+                    @debug "creating a new local $branch branch."
                     run(`git checkout --orphan $branch`)
                     run(`git commit --allow-empty -m "Initial empty commit for docs"`)
                 end
@@ -571,7 +544,7 @@ function git_push(
                     run(`git commit -m "build based on $sha"`)
                     run(`git push -q upstream HEAD:$branch`)
                 else
-                    Utilities.log("New docs identical to the old -- not committing nor pushing.")
+                    @debug "new docs identical to the old -- not committing nor pushing."
                 end
             end
         end

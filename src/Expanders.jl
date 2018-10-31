@@ -38,7 +38,7 @@ end
 function pagecheck(page)
     # make sure there is no "continued code" lingering around
     if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
-        Utilities.warn(page.source, "Code from a continued @example block unused.")
+        @warn "code from a continued @example block unused in $(Utilities.locrepr(page.source))."
     end
 end
 
@@ -244,7 +244,7 @@ function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
                 push!(doc.internal.errors, :meta_block)
-                Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@meta` block.", err)
+                @warn "failed to evaluate `$(strip(str))` in `@meta` block in $(Utilities.locrepr(page.source))" exception = err
             end
         end
     end
@@ -263,14 +263,14 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
             Documenter.DocSystem.binding(curmod, ex)
         catch err
             push!(doc.internal.errors, :docs_block)
-            Utilities.warn(page.source, "Unable to get the binding for '$(strip(str))'.", err, ex, curmod)
+            @warn "unable to get the binding for '$(strip(str))' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(curmod)" exception = err
             failed = true
             continue
         end
         # Undefined `Bindings` get discarded.
         if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
             push!(doc.internal.errors, :docs_block)
-            Utilities.warn(page.source, "Undefined binding '$(binding)'.")
+            @warn "undefined binding '$(binding)' in $(Utilities.locrepr(page.source))."
             failed = true
             continue
         end
@@ -280,7 +280,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
             push!(doc.internal.errors, :docs_block)
-            Utilities.warn(page.source, "Duplicate docs found for '$(strip(str))'.")
+            @warn "duplicate docs found for '$(strip(str))' in $(Utilities.locrepr(page.source))."
             failed = true
             continue
         end
@@ -296,7 +296,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         # Check that we aren't printing an empty docs list. Skip block when empty.
         if isempty(docs)
             push!(doc.internal.errors, :docs_block)
-            Utilities.warn(page.source, "No docs found for '$(strip(str))'.")
+            @warn "no docs found for '$(strip(str))' in $(Utilities.locrepr(page.source))."
             failed = true
             continue
         end
@@ -335,7 +335,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
             catch err
                 push!(doc.internal.errors, :autodocs_block)
-                Utilities.warn(doc, page, "Failed to evaluate `$(strip(str))` in `@autodocs` block.", err)
+                @warn "failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source))" exception = err
             end
         end
     end
@@ -392,7 +392,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         for (mod, path, category, object, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
                 push!(doc.internal.errors, :autodocs_block)
-                Utilities.warn(page.source, "Duplicate docs found for '$(object.binding)'.")
+                @warn "duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source)).."
                 continue
             end
             markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
@@ -410,7 +410,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         page.mapping[x] = DocsNodes(nodes)
     else
         push!(doc.internal.errors, :autodocs_block)
-        Utilities.warn(page.source, "'@autodocs' missing 'Modules = ...'.")
+        @warn "'@autodocs' missing 'Modules = ...' in $(Utilities.locrepr(page.source)).."
         page.mapping[x] = x
     end
 end
@@ -427,7 +427,7 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
                 result = Core.eval(sandbox, ex)
             catch err
                 push!(doc.internal.errors, :eval_block)
-                Utilities.warn(doc, page, "Failed to evaluate `@eval` block.", err)
+                @warn "failed to evaluate `@eval` block in $(Utilities.locrepr(page.source))" exception = err
             end
         end
         page.mapping[x] = EvalNode(x, result)
@@ -484,7 +484,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             print(buffer, text)
             if !success
                 push!(doc.internal.errors, :example_block)
-                Utilities.warn(page.source, "failed to run code block.\n\n$(value)")
+                @warn "failed to run code block in $(Utilities.locrepr(page.source)):" value
                 page.mapping[x] = x
                 return
             end
@@ -578,7 +578,7 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
         Markdown.MD([])
     catch err
         push!(doc.internal.errors, :setup_block)
-        Utilities.warn(page.source, "failed to run `@setup` block.\n\n$(err)")
+        @warn "failed to run `@setup` block in $(Utilities.locrepr(page.source)):" exception=err
         x
     end
     # ... and finally map the original code block to the newly generated ones.

@@ -89,12 +89,12 @@ function render(doc::Documents.Document)
                 try
                     run(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $file`)
                 catch err
-                    Utilities.warn("failed to compile. Check generated LaTeX file.")
+                    @warn "failed to compile. Check generated LaTeX file."
                     cp(file, joinpath(outdir, file); force = true)
                 end
                 cp(pdf, joinpath(outdir, pdf); force = true)
             else
-                Utilities.warn("`latexmk` and `lualatex` required for PDF generation.")
+                @warn "`latexmk` and `lualatex` required for PDF generation."
             end
         end
     end
@@ -408,7 +408,7 @@ function latexinline(io::IO, md::Markdown.Image)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
         url = if Utilities.isabsurl(md.url)
-            Utilities.warn("Images with absolute URLs not supported in LaTeX output.\n     in $(io.filename)\n     url: $(md.url)")
+            @warn "images with absolute URLs not supported in LaTeX output in $(Utilities.locrepr(io.filename))" url = md.url
             # We nevertheless output an \includegraphics with the URL. The LaTeX build will
             # then give an error, indicating to the user that something wrong. Only the
             # warning would be drowned by all the output from LaTeX.

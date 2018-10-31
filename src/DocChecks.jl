@@ -25,7 +25,7 @@ Prints out the name of each object that has not had its docs spliced into the do
 """
 function missingdocs(doc::Documents.Document)
     doc.user.checkdocs === :none && return
-    println(" > checking for missing docstrings.")
+    @debug "checking for missing docstrings."
     bindings = allbindings(doc.user.checkdocs, doc.user.modules)
     for object in keys(doc.internal.objects)
         if haskey(bindings, object.binding)
@@ -47,7 +47,7 @@ function missingdocs(doc::Documents.Document)
             end
         end
         push!(doc.internal.errors, :missing_docs)
-        Utilities.warn(String(take!(b)))
+        @warn String(take!(b))
     end
 end
 
@@ -88,7 +88,7 @@ $(SIGNATURES)
 Checks footnote links in a [`Documents.Document`](@ref).
 """
 function footnotes(doc::Documents.Document)
-    println(" > checking footnote links.")
+    @debug "checking footnote links."
     # A mapping of footnote ids to a tuple counter of how many footnote references and
     # footnote bodies have been found.
     #
@@ -110,17 +110,17 @@ function footnotes(doc::Documents.Document)
             # Multiple footnote bodies.
             if bodies > 1
                 push!(doc.internal.errors, :footnote)
-                Utilities.warn(page.source, "Footnote '$id' has $bodies bodies.")
+                @warn "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source))."
             end
             # No footnote references for an id.
             if ids === 0
                 push!(doc.internal.errors, :footnote)
-                Utilities.warn(page.source, "Unused footnote named '$id'.")
+                @warn "unused footnote named '$id' in $(Utilities.locrepr(page.source))."
             end
             # No footnote bodies for an id.
             if bodies === 0
                 push!(doc.internal.errors, :footnote)
-                Utilities.warn(page.source, "No footnotes found for '$id'.")
+                @warn "no footnotes found for '$id' in $(Utilities.locrepr(page.source))."
             end
         end
     end
@@ -154,9 +154,7 @@ Checks external links using curl.
 function linkcheck(doc::Documents.Document)
     if doc.user.linkcheck
         if hascurl()
-            println(" > checking external URLs:")
             for (src, page) in doc.internal.pages
-                println("   - ", src)
                 for element in page.elements
                     Documents.walk(page.globals.meta, page.mapping[element]) do block
                         linkcheck(block, doc)
@@ -165,19 +163,18 @@ function linkcheck(doc::Documents.Document)
             end
         else
             push!(doc.internal.errors, :linkcheck)
-            Utilities.warn("linkcheck requires `curl`.")
+            @warn "linkcheck requires `curl`."
         end
     end
     return nothing
 end
 
 function linkcheck(link::Markdown.Link, doc::Documents.Document)
-    INDENT = " "^6
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
         if linkcheck_ismatch(r, link.url)
-            printstyled(INDENT, "--- ", link.url, "\n", color=:normal)
+            @debug "linkcheck '$(link.url)': ignored."
             return false
         end
     end
@@ -188,30 +185,29 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
             result = read(`curl -sI $(link.url) --max-time 10`, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
-            Utilities.warn("`curl -sI $(link.url)` failed:\n\n$(err)")
+            @warn "`curl -sI $(link.url)` failed:" exception = err
             return false
         end
         local STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
         if occursin(STATUS_REGEX, result)
             status = parse(Int, match(STATUS_REGEX, result).captures[2])
             if status < 300
-                printstyled(INDENT, "$(status) ", link.url, "\n", color=:green)
+                @debug "linkcheck '$(link.url)' status: $(status)."
             elseif status < 400
                 LOCATION_REGEX = r"^Location: (.+)$"m
                 if occursin(LOCATION_REGEX, result)
                     location = strip(match(LOCATION_REGEX, result).captures[1])
-                    printstyled(INDENT, "$(status) ", link.url, "\n", color=:yellow)
-                    printstyled(INDENT, " -> ", location, "\n\n", color=:yellow)
+                    @warn "linkcheck '$(link.url)' status: $(status), redirects to $(location)."
                 else
-                    printstyled(INDENT, "$(status) ", link.url, "\n", color=:yellow)
+                    @warn "linkcheck '$(link.url)' status: $(status)."
                 end
             else
                 push!(doc.internal.errors, :linkcheck)
-                printstyled(INDENT, "$(status) ", link.url, "\n", color=:red)
+                @error "linkcheck '$(link.url)' status: $(status)."
             end
         else
             push!(doc.internal.errors, :linkcheck)
-            Utilities.warn("invalid result returned by `curl -sI $(link.url)`:\n\n$(result)")
+            @warn "invalid result returned by `curl -sI $(link.url)`:" result
         end
     end
     return false
