@@ -116,7 +116,6 @@ examples_html_local_doc = makedocs(
     debug = true,
     root  = examples_root,
     build = "builds/html-local",
-    html_prettyurls = false,
     doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = ["assets/custom.css"],
     sitename = "Documenter example",
@@ -124,8 +123,10 @@ examples_html_local_doc = makedocs(
 
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
-
-    html_edit_branch = nothing,
+    Documenter.HTML(
+        prettyurls = false,
+        edit_branch = nothing,
+    ),
 )
 
 # Build with pretty URLs and canonical links
@@ -134,8 +135,6 @@ examples_html_deploy_doc = makedocs(
     debug = true,
     root  = examples_root,
     build = "builds/html-deploy",
-    html_prettyurls = true,
-    html_canonical = "https://example.com/stable",
     doctestfilters = [r"Ptr{0x[0-9]+}"],
     assets = [
         "assets/favicon.ico",
@@ -144,4 +143,8 @@ examples_html_deploy_doc = makedocs(
     sitename = "Documenter example",
     pages = htmlbuild_pages,
     doctest = false,
+    Documenter.HTML(
+        prettyurls = true,
+        canonical = "https://example.com/stable",
+    )
 )

@@ -112,7 +112,6 @@ function check_kwargs(kws)
     for (k, v) in kws
         println(out, "  ", k, " = ", v)
     end
-    println(out, "It is possible that the specified format will use these arguments.")
     warn(String(take!(out)))
 end
 

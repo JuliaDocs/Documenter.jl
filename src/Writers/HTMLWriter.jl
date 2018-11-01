@@ -5,7 +5,9 @@ A module for rendering `Document` objects to HTML.
 
 [`HTMLWriter`](@ref) uses the following additional keyword arguments that can be passed to
 [`Documenter.makedocs`](@ref): `assets`, `sitename`, `analytics`, `authors`, `pages`,
-`version`, `html_prettyurls`, `html_disable_git`.
+`version`. The behavior of [`HTMLWriter`](@ref) can be further customized by passing
+[`Documenter.makedocs`](@ref) a [`HTML`](@ref), which accepts the following keyword
+arguments: `prettyurls`, `disable_git`, `edit_branch`, `canonical`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 *navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
@@ -24,27 +26,10 @@ selected option in the version selector. If this is left empty (default) the ver
 selector will be hidden. The special value `git-commit` sets the value in the output to
 `git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
 
-**`html_prettyurls`** (default `true`) -- allows disabling the pretty URLs feature, which
-generates an output directory structre that hides the `.html` suffixes from the URLs (e.g.
-by default `src/foo.md` becomes `src/foo/index.html`). This does not work when browsing
-documentation in local files since browsers do not resolve `foo/` to `foo/index.html`
-for local files. If `html_prettyurls = false`, then Documenter generate `src/foo.html`
-instead and sets up the internal links accordingly, suitable for local documentation builds.
+# `HTML` `Plugin` options
 
-**`html_disable_git`** can be used to disable calls to `git` when the document is not
-in a Git-controlled repository. Without setting this to `true`, Documenter will throw
-an error and exit if any of the Git commands fail. The calls to Git are mainly used to
-gather information about the current commit hash and file paths, necessary for constructing
-the links to the remote repository.
-
-**`html_edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
-point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
-
-**`html_canonical`** specifies the canonical URL for your documentation. We recommend
-you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
-This allows search engines to know which version to send their users to. [See
-wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
-Default is `nothing`, in which case no canonical link is set.
+The [`HTML`](@ref) [`Documenter.Plugin`](@ref) provides additional customization options
+for the [`HTMLWriter`](@ref). For more information, see the [`HTML`](@ref) documentation.
 
 # Page outline
 
@@ -100,8 +85,37 @@ using ...Utilities.MDFlatten
 
 export HTML
 
-# TODO: Document this
-struct HTML <: Documents.DocumenterPlugin
+"""
+    HTML(kwargs...)
+
+Sets the behavior of [`HTMLWriter`](@ref).
+
+# Keyword arguments
+
+**`prettyurls`** (default `true`) -- allows disabling the pretty URLs feature, which
+generates an output directory structre that hides the `.html` suffixes from the URLs (e.g.
+by default `src/foo.md` becomes `src/foo/index.html`). This does not work when browsing
+documentation in local files since browsers do not resolve `foo/` to `foo/index.html`
+for local files. If `html_prettyurls = false`, then Documenter generate `src/foo.html`
+instead and sets up the internal links accordingly, suitable for local documentation builds.
+
+**`disable_git`** can be used to disable calls to `git` when the document is not
+in a Git-controlled repository. Without setting this to `true`, Documenter will throw
+an error and exit if any of the Git commands fail. The calls to Git are mainly used to
+gather information about the current commit hash and file paths, necessary for constructing
+the links to the remote repository.
+
+**`edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
+point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
+
+**`canonical`** specifies the canonical URL for your documentation. We recommend
+you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
+This allows search engines to know which version to send their users to. [See
+wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
+Default is `nothing`, in which case no canonical link is set.
+
+"""
+struct HTML <: Documenter.Plugin
     prettyurls::Bool
     disable_git:: Bool
     edit_branch:: Union{String, Nothing}
@@ -138,7 +152,7 @@ mutable struct HTMLContext
     search_navnode :: Documents.NavNode
     local_assets :: Vector{String}
 end
-HTMLContext(doc) = HTMLContext(doc, Documents.plugin_settings(doc, HTML), "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc) = HTMLContext(doc, Documents.getplugin(doc, HTML), "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
 
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).

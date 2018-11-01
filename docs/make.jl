@@ -45,9 +45,11 @@ makedocs(
         ],
         "contributing.md",
     ],
-    # Use clean URLs, unless built as a "local" build
-    html_prettyurls = !("local" in ARGS),
-    html_canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
+    Documenter.HTML(
+        # Use clean URLs, unless built as a "local" build
+        prettyurls = !("local" in ARGS),
+        canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
+    ),
 )
 
 deploydocs(

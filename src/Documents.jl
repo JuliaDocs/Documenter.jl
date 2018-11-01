@@ -13,7 +13,8 @@ import ..Documenter:
     Documenter,
     Anchors,
     Formats,
-    Utilities
+    Utilities,
+    Plugin
 
 using DocStringExtensions
 import Markdown
@@ -220,8 +221,6 @@ struct Internal
     errors::Set{Symbol}
 end
 
-abstract type DocumenterPlugin end
-
 # Document.
 # ---------
 
@@ -231,9 +230,10 @@ Represents an entire document.
 struct Document
     user     :: User     # Set by the user via `makedocs`.
     internal :: Internal # Computed values.
-    plugins  :: Dict{DataType, DocumenterPlugin}
+    plugins  :: Dict{DataType, Plugin}
 end
 
+Document(; kwargs...) = Document(nothing; kwargs...)
 function Document(plugins;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
@@ -253,9 +253,14 @@ function Document(plugins;
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         analytics :: AbstractString  = "",
-        version :: AbstractString    = ""
+        version :: AbstractString    = "",
+        html_prettyurls  :: Union{Bool, Nothing}   = nothing, # deprecated
+        html_disable_git :: Union{Bool, Nothing}   = nothing, # deprecated
+        html_edit_branch :: Union{String, Nothing} = nothing, # deprecated
+        html_canonical   :: Union{String, Nothing} = nothing, # deprecated
+        others...
     )
-    # Utilities.check_kwargs(others)
+    Utilities.check_kwargs(others)
 
     fmt = Formats.fmt(format)
     @assert !isempty(fmt) "No formats provided."
@@ -301,20 +306,91 @@ function Document(plugins;
         Set{Symbol}()
     )
 
-    plugin_dict = Dict{DataType, DocumenterPlugin}()
-    for plugin in plugins
-        plugin isa DocumenterPlugin ||
-            throw("$(typeof(plugin)) is not a subtype of `DocumenterPlugin`.")
-        haskey(plugin_dict, typeof(plugin)) &&
-            throw("only one copy of $(typeof(plugin)) may be passed.")
-        plugin_dict[typeof(plugin)] = plugin
+    plugin_dict = Dict{DataType, Plugin}()
+    if plugins !== nothing
+        for plugin in plugins
+            plugin isa Plugin ||
+                throw("$(typeof(plugin)) is not a subtype of `Documenter.Plugin`.")
+            haskey(plugin_dict, typeof(plugin)) &&
+                throw("only one copy of $(typeof(plugin)) may be passed.")
+            plugin_dict[typeof(plugin)] = plugin
+        end
+    end
+
+    # html keywords depreciation
+    html_keywords = Dict()
+    if html_prettyurls !== nothing
+        Base.depwarn("""The `html_prettyurls` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_prettyurls = ...,
+            ```
+            with
+            ```
+                HTML(prettyurls = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:prettyurls] = html_prettyurls
+    end
+    if html_disable_git !== nothing
+        Base.depwarn("""The `html_disable_git` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_disable_git = ...,
+            ```
+            with
+            ```
+                HTML(disable_git = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:disable_git] = html_disable_git
+    end
+    if html_edit_branch !== nothing
+        Base.depwarn("""The `html_edit_branch` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_edit_branch = ...,
+            ```
+            with
+            ```
+                HTML(edit_branch = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:edit_branch] = html_edit_branch
+    end
+    if html_canonical !== nothing
+        Base.depwarn("""The `html_canonical` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_canonical = ...,
+            ```
+            with
+            ```
+                HTML(canonical = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:canonical] = html_canonical
+    end
+    if !isempty(html_keywords)
+        if Documenter.Writers.HTMLWriter.HTML in keys(plugin_dict)
+            throw("Documenter received both an `HTML` plugin and `html_*` keywords.")
+        end
+
+        plugin_dict[Documenter.Writers.HTMLWriter.HTML] =
+            Documenter.Writers.HTMLWriter.HTML(; html_keywords...)
     end
 
     Document(user, internal, plugin_dict)
 end
 
-function plugin_settings(doc::Document, type::DataType)
-    @assert type <: DocumenterPlugin
+"""
+    getplugin(doc::Document, T)
+
+Retrieves the [`Plugin`](@ref) type for `T` stored in `doc`. If `T` was passed to
+[`makedocs`](@ref), the passed type will be returned. Otherwise, a new `T` object
+will be created using the default constructor `T()`.
+"""
+function getplugin(doc::Document, type::Type{T}) where T <: Plugin
     if !haskey(doc.plugins, type)
         doc.plugins[type] = type()
     end

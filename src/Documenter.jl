@@ -16,6 +16,19 @@ module Documenter
 using DocStringExtensions
 import Base64: base64decode
 
+"""
+Any plugin that needs to either solicit user input or store information in a
+[`Documents.Document`](@ref) should create a subtype of [`Plugin`](@ref). The
+subtype, `T <: Documenter.Plugin`, must have an empty constructor `T()` that
+initialized `T` with the appropriate default values.
+
+To retrieve the values stored in `T`, the plugin can call [`Documents.getplugin`](@ref).
+If `T` was passed to [`makedocs`](@ref), the passed type will be returned. Otherwise,
+a new `T` object will be created.
+"""
+abstract type Plugin end
+
+
 # Submodules
 # ----------
 
@@ -33,13 +46,13 @@ include("Writers/Writers.jl")
 include("Deps.jl")
 
 import .Utilities: Selectors
+import .Writers.HTMLWriter: HTML
 
 
 # User Interface.
 # ---------------
 
 export Deps, makedocs, deploydocs, hide
-
 """
     makedocs(
         root    = "<current-directory>",
@@ -161,13 +174,14 @@ ignored.
 any errors with the document in the previous build phases.
 
 ## Output formats
+**`format`** allows the output format to be specified. The default value is `:html`. Other
+formats can be enabled by using other packages. For examples, see the `DocumenterMarkdown`
+and `DocumenterLaTeX` packages.
 
-**`format`** allows the output format to be specified. The default value is `:html`, but
-additional values are supported via plugins (see below).
-
-The different output formats may require additional keywords to be specified. The
-format-specific keywords for the default HTML output are documented at the
-[`Writers.HTMLWriter`](@ref) module.
+Documenter is designed to support multiple output formats. By default it is creates a set of
+HTML files, but the output format can be controlled with the `format` keyword. The different
+output formats may require additional keywords to be specified via plugins. The keywords for
+the default HTML output are documented for the [`Writers.HTMLWriter.HTML`](@ref) type.
 
 The default `:html` output format creates a set of HTML files, but Documenter is designed to
 support multiple output formats. Via plugin packages, Documenter also supports e.g. Markdown
