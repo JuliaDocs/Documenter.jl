@@ -66,7 +66,7 @@ same name, in which case the user's files overrides the Documenter's file.
 This could, in principle, be used for customizing the site's style and scripting.
 
 The HTML output also links certain custom assets to the generated HTML documents,
-specfically a logo and additional javascript files.
+specifically a logo and additional javascript files.
 The asset files that should be linked must be placed in `assets/`, under the source
 directory (e.g `/docs/src/assets`) and must be on the top level (i.e. files in
 the subdirectories of `assets/` are not linked).
