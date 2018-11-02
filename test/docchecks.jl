@@ -22,6 +22,13 @@ using Documenter.Documents
             @test doc.internal.errors == Set{Symbol}()
             result
         end
+
+        src = Markdown.parse("[FILE failure](file://$(@__FILE__))")
+        doc = Documents.Document(; linkcheck=true)
+        Documents.walk(Dict{Symbol, Any}(), src) do block
+            linkcheck(block, doc)
+        end
+        @test doc.internal.errors == Set{Symbol}([:linkcheck])
     end
 end
 
