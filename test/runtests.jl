@@ -19,6 +19,9 @@ println("="^50)
     # Unit tests for module internals.
     include("utilities.jl")
 
+    # DocChecks tests
+    include("docchecks.jl")
+
     # NavNode tests.
     include("navnode.jl")
 

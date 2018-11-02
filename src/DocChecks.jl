@@ -146,6 +146,8 @@ footnote(other, orphans::Dict) = true
 
 hascurl() = (try; success(`curl --version`); catch err; false; end)
 
+const CURL_OPTS = "-sI --proto =http,https,ftp,ftps"
+
 """
 $(SIGNATURES)
 
@@ -188,9 +190,10 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
             @warn "`curl -sI $(link.url)` failed:" exception = err
             return false
         end
-        local STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
-        if occursin(STATUS_REGEX, result)
-            status = parse(Int, match(STATUS_REGEX, result).captures[2])
+        HTTP_STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
+        FTP_STATUS_REGEX = r"^Last-Modified: (.+)\r\nContent-Length: (\d+)(?:\r\n(.*))?$"s
+        if occursin(HTTP_STATUS_REGEX, result)
+            status = parse(Int, match(HTTP_STATUS_REGEX, result).captures[2])
             if status < 300
                 @debug "linkcheck '$(link.url)' status: $(status)."
             elseif status < 400
@@ -205,6 +208,9 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
                 push!(doc.internal.errors, :linkcheck)
                 @error "linkcheck '$(link.url)' status: $(status)."
             end
+        elseif occursin(FTP_STATUS_REGEX, result)
+            # this regex is matched iff success
+            @debug "linkcheck '$(link.url)': FTP success"
         else
             push!(doc.internal.errors, :linkcheck)
             @warn "invalid result returned by `curl -sI $(link.url)`:" result
