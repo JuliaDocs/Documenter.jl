@@ -393,25 +393,30 @@ function deploydocs(;
         end
     end
 
+    # Check criteria for deployment
+    ## The deploydocs' repo should match TRAVIS_REPO_SLUG
     repo_ok = occursin(travis_repo_slug, repo)
+    ## Do not deploy for PRs
     pr_ok = travis_pull_request == "false"
-    tag_ok = !isempty(travis_tag) && occursin(Base.VERSION_REGEX, travis_tag)
-    branch_ok = isempty(travis_tag) && travis_branch == devbranch
+    ## If a tag exist it should be a valid VersionNumber
+    tag_ok = isempty(travis_tag) || occursin(Base.VERSION_REGEX, travis_tag)
+    ## If no tag exists deploydocs' devbranch should match TRAVIS_BRANCH
+    branch_ok = !isempty(travis_tag) || travis_branch == devbranch
+    ## DOCUMENTER_KEY should exist
     key_ok = !isempty(documenter_key)
     should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok
 
     marker(x) = x ? "✔" : "✘"
     @info """Deployment criteria:
-    - ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)" $(marker(repo_ok))
-    - ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false" $(marker(pr_ok))
-    - ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber $(marker(tag_ok))
-    - ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch)" $(marker(branch_ok))
-    - ENV["DOCUMENTER_KEY"] exists $(marker(key_ok))
+    - $(marker(repo_ok)) ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)"
+    - $(marker(pr_ok)) ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false"
+    - $(marker(tag_ok)) ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber
+    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch) (if tag is empty)
+    - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
     Deploying: $(marker(should_deploy))
     """
 
     if should_deploy
-        @info "deploying docs."
         # Add local bin path if needed.
         Deps.updatepath!()
         # Install dependencies when applicable.
@@ -438,8 +443,6 @@ function deploydocs(;
                 )
             end
         end
-    else
-        @info "skipping docs deployment."
     end
 end
 
