@@ -44,7 +44,7 @@ the document generation when an error is thrown. Use `doctest = false` keyword i
 """
 function doctest(doc::Documents.Document)
     if doc.user.doctest === :fix || doc.user.doctest
-        println(" > running doctests.")
+        @debug "running doctests."
         for (src, page) in doc.internal.pages
             empty!(page.globals.meta)
             for element in page.elements
@@ -55,7 +55,7 @@ function doctest(doc::Documents.Document)
             end
         end
     else
-        Utilities.warn("Skipped doctesting.")
+        @debug "skipped doctesting."
     end
 end
 
@@ -79,16 +79,14 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
                     file = meta[:CurrentFile]
                     lines = find_codeblock_in_file(block.code, file)
-                    Utilities.warn(
-                        """
-                        Invalid syntax for doctest keyword arguments in $(file)$(lines)
+                    @warn("""
+                        invalid syntax for doctest keyword arguments in $(Utilities.locrepr(file, lines))
                         Use ```jldoctest name; key1 = value1, key2 = value2
 
                         ```$(lang)
                         $(block.code)
                         ```
-                        """
-                        )
+                        """)
                     return false
                 end
                 d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
@@ -115,16 +113,14 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             push!(doc.internal.errors, :doctest)
             file = meta[:CurrentFile]
             lines = find_codeblock_in_file(block.code, file)
-            Utilities.warn(
-                """
-                Invalid doctest block in $(file)$(lines)
+            @warn("""
+                invalid doctest block in $(Utilities.locrepr(file, lines))
                 Requires `julia> ` or `# output`
 
                 ```$(lang)
                 $(block.code)
                 ```
-                """
-            )
+                """)
         end
        delete!(meta, :LocalDocTestArguments)
     end
@@ -344,7 +340,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     r = Regex(rcode)
     codeidx = findfirst(r, content)
     if codeidx === nothing
-        Utilities.warn("Could not find code block in source file")
+        @warn "could not find code block in source file"
         return
     end
     # use the capture group to identify indentation
@@ -357,7 +353,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     r = Regex(rinput)
     inputidx = findfirst(r, code)
     if inputidx === nothing
-        Utilities.warn("Could not find input line in code block")
+        @warn "could not find input line in code block"
         return
     end
     # construct the new code-snippet (without indent)

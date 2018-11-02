@@ -9,58 +9,11 @@ using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
 
-# Logging output.
-
-const __log__ = Ref(true)
-"""
-    logging(flag::Bool)
-
-Enable or disable logging output for [`log`](@ref) and [`warn`](@ref).
-"""
-logging(flag::Bool) = __log__[] = flag
-
-"""
-Format and print a message to the user.
-"""
-log(msg) = __log__[] ? printstyled(stdout, "Documenter: ", msg, "\n", color=:magenta) : nothing
-
-# Print logging output to the "real" stdout.
-function log(doc, msg)
-    __log__[] && printstyled(stdout, "Documenter: ", msg, "\n", color=:magenta)
-    return nothing
-end
-
-debug(msg) = printstyled(" ?? ", msg, "\n", color=:green)
-
-"""
-    warn(file, msg)
-    warn(msg)
-
-Format and print a warning message to the user. Passing a `file` will include the filename
-where the warning was raised.
-"""
-function warn(file, msg)
-    if __log__[]
-        msg = string(" !! ", msg, " [", file, "]\n")
-        printstyled(stdout, msg, color=:red)
-    else
-        nothing
-    end
-end
-warn(msg) = __log__[] ? printstyled(stdout, " !! ", msg, "\n", color=:red) : nothing
-
-function warn(file, msg, err, ex, mod)
-    if __log__[]
-        warn(file, msg)
-        printstyled(stdout, "\nERROR: $err\n\nexpression '$(repr(ex))' in module '$mod'\n\n", color=:red)
-    else
-        nothing
-    end
-end
-
-function warn(doc, page, msg, err)
-    file = page.source
-    printstyled(stdout, " !! Warning in $(file):\n\n$(msg)\n\nERROR: $(err)\n\n", color=:red)
+# Pretty-printing locations
+function locrepr(file, line=nothing)
+    str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
+    line !== nothing && (str = str * ":$(line)")
+    return "`$(str)`"
 end
 
 # Directory paths.
@@ -133,7 +86,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                     Meta.parse(code, cursor)
                 catch err
                     push!(doc.internal.errors, :parse_error)
-                    Utilities.warn(doc, page, "Failed to parse expression.", err)
+                    @warn "failed to parse exception in $(Utilities.locrepr(page.source))" exception = err
                     break
                 end
             end

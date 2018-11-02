@@ -72,7 +72,7 @@ function namedxref(link::Markdown.Link, meta, page, doc)
     if isempty(slug)
         text = sprint(Markdown.plaininline, link)
         push!(doc.internal.errors, :cross_references)
-        Utilities.warn(page.source, "'$text' missing a name after '#'.")
+        @warn "'$text' missing a name after '#' in $(Utilities.locrepr(page.source))."
     else
         if Anchors.exists(doc.internal.headers, slug)
             namedxref(link, slug, meta, page, doc)
@@ -98,11 +98,11 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
             link.url = string(path, '#', slug, '-', anchor.nth)
         else
             push!(doc.internal.errors, :cross_references)
-            Utilities.warn(page.source, "'$slug' is not unique.")
+            @warn "'$slug' is not unique in $(Utilities.locrepr(page.source))."
         end
     else
         push!(doc.internal.errors, :cross_references)
-        Utilities.warn(page.source, "Reference for '$slug' could not be found.")
+        @warn "reference for '$slug' could not be found in $(Utilities.locrepr(page.source))."
     end
 end
 
@@ -123,7 +123,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         catch err
             !isa(err, Meta.ParseError) && rethrow(err)
             push!(doc.internal.errors, :cross_references)
-            Utilities.warn(page.source, "Unable to parse the reference '[`$code`](@ref)'.")
+            @warn "unable to parse the reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source))."
             return
         end
     end
@@ -135,7 +135,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         binding = Documenter.DocSystem.binding(mod, ex)
     catch err
         push!(doc.internal.errors, :cross_references)
-        Utilities.warn(page.source, "Unable to get the binding for '[`$code`](@ref)'.", err, ex, mod)
+        @warn "unable to get the binding for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)" exception = err
         return
     end
 
@@ -144,7 +144,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         push!(doc.internal.errors, :cross_references)
-        Utilities.warn(page.source, "Unable to evaluate the type signature for '[`$code`](@ref)'.", err, ex, mod)
+        @warn "unable to evaluate the type signature for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)" exception = err
         return
     end
 
@@ -158,7 +158,7 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         link.url = string(path, '#', slug)
     else
         push!(doc.internal.errors, :cross_references)
-        Utilities.warn(page.source, "No doc found for reference '[`$code`](@ref)'.")
+        @warn "no doc found for reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source))."
     end
 end
 
