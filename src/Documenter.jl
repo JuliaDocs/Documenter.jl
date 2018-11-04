@@ -486,8 +486,8 @@ function git_push(
             cd(temp) do
                 # Setup git.
                 run(`git init`)
-                run(`git config user.name "autodocs"`)
-                run(`git config user.email "autodocs"`)
+                run(`git config user.name "zeptodoctor"`)
+                run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
 
                 # Fetch from remote and checkout the branch.
                 run(`git remote add upstream $upstream`)
