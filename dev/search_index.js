@@ -1769,22 +1769,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/utilities/#Documenter.Utilities.log-Tuple{Any}",
-    "page": "Utilities",
-    "title": "Documenter.Utilities.log",
-    "category": "method",
-    "text": "Format and print a message to the user.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/utilities/#Documenter.Utilities.logging-Tuple{Bool}",
-    "page": "Utilities",
-    "title": "Documenter.Utilities.logging",
-    "category": "method",
-    "text": "logging(flag::Bool)\n\nEnable or disable logging output for log and warn.\n\n\n\n\n\n"
-},
-
-{
     "location": "lib/internals/utilities/#Documenter.Utilities.nodocs-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.nodocs",
@@ -1846,14 +1830,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.Utilities.submodules",
     "category": "method",
     "text": "Returns the set of submodules of a given root module/s.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/utilities/#Documenter.Utilities.warn-Tuple{Any,Any}",
-    "page": "Utilities",
-    "title": "Documenter.Utilities.warn",
-    "category": "method",
-    "text": "warn(file, msg)\nwarn(msg)\n\nFormat and print a warning message to the user. Passing a file will include the filename where the warning was raised.\n\n\n\n\n\n"
 },
 
 {
