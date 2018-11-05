@@ -146,8 +146,6 @@ footnote(other, orphans::Dict) = true
 
 hascurl() = (try; success(`curl --version`); catch err; false; end)
 
-const CURL_CMD = "curl -sI --proto =http,https,ftp,ftps"
-
 """
 $(SIGNATURES)
 
@@ -182,13 +180,15 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
     end
 
     if !haskey(doc.internal.locallinks, link)
+        cmd = `curl -sI --proto =http,https,ftp,ftps $(link.url) --max-time 10`
+
         local result
         try
             # interpolating into backticks escapes spaces so constructing a Cmd is necessary
-            result = read(Cmd(String[split(CURL_CMD)..., link.url, "--max-time", "10"]), String)
+            result = read(cmd, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
-            @warn "`$CURL_CMD $(link.url)` failed:" exception = err
+            @warn "$cmd failed:" exception = err
             return false
         end
         HTTP_STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
@@ -214,7 +214,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
             @debug "linkcheck '$(link.url)': FTP success"
         else
             push!(doc.internal.errors, :linkcheck)
-            @warn "invalid result returned by `$CURL_CMD $(link.url)`:" result
+            @warn "invalid result returned by $cmd:" result
         end
     end
     return false
