@@ -184,7 +184,8 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
     if !haskey(doc.internal.locallinks, link)
         local result
         try
-            result = read(`curl -sI --proto =http,https,ftp,ftps $(link.url) --max-time 10`, String)
+            # interpolating into backticks escapes spaces so constructing a Cmd is necessary
+            result = read(Cmd(String[split(CURL_CMD)..., link.url, "--max-time", "10"]), String)
         catch err
             push!(doc.internal.errors, :linkcheck)
             @warn "`$CURL_CMD $(link.url)` failed:" exception = err
