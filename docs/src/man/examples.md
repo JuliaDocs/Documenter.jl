@@ -40,6 +40,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/latest/)
 - [Mimi.jl](http://anthofflab.berkeley.edu/Mimi.jl/stable/)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/latest/)
+- [NLOptControl.jl](https://juliampc.github.io/MPCDocs.jl/latest/)
 - [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
 - [OnlineStats.jl](http://joshday.github.io/OnlineStats.jl/latest/)
 - [POMDPs.jl](http://juliapomdp.github.io/POMDPs.jl/latest/)
