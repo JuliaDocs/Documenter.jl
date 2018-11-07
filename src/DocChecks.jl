@@ -180,17 +180,21 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
     end
 
     if !haskey(doc.internal.locallinks, link)
+        cmd = `curl -sI --proto =http,https,ftp,ftps $(link.url) --max-time 10`
+
         local result
         try
-            result = read(`curl -sI $(link.url) --max-time 10`, String)
+            # interpolating into backticks escapes spaces so constructing a Cmd is necessary
+            result = read(cmd, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
-            @warn "`curl -sI $(link.url)` failed:" exception = err
+            @warn "$cmd failed:" exception = err
             return false
         end
-        local STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
-        if occursin(STATUS_REGEX, result)
-            status = parse(Int, match(STATUS_REGEX, result).captures[2])
+        HTTP_STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
+        FTP_STATUS_REGEX = r"^Last-Modified: (.+)\r\nContent-Length: (\d+)(?:\r\n(.*))?$"s
+        if occursin(HTTP_STATUS_REGEX, result)
+            status = parse(Int, match(HTTP_STATUS_REGEX, result).captures[2])
             if status < 300
                 @debug "linkcheck '$(link.url)' status: $(status)."
             elseif status < 400
@@ -205,9 +209,12 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
                 push!(doc.internal.errors, :linkcheck)
                 @error "linkcheck '$(link.url)' status: $(status)."
             end
+        elseif occursin(FTP_STATUS_REGEX, result)
+            # this regex is matched iff success
+            @debug "linkcheck '$(link.url)': FTP success"
         else
             push!(doc.internal.errors, :linkcheck)
-            @warn "invalid result returned by `curl -sI $(link.url)`:" result
+            @warn "invalid result returned by $cmd:" result
         end
     end
     return false
