@@ -390,12 +390,12 @@ Retrieves the [`Plugin`](@ref) type for `T` stored in `doc`. If `T` was passed t
 [`makedocs`](@ref), the passed type will be returned. Otherwise, a new `T` object
 will be created using the default constructor `T()`.
 """
-function getplugin(doc::Document, type::Type{T}) where T <: Plugin
-    if !haskey(doc.plugins, type)
-        doc.plugins[type] = type()
+function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
+    if !haskey(doc.plugins, plugin_type)
+        doc.plugins[plugin_type] = plugin_type()
     end
 
-    doc.plugins[type]
+    doc.plugins[plugin_type]
 end
 
 ## Methods
