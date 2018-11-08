@@ -332,7 +332,11 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
-                fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
+                if ex.args[1] == :Filter
+                    fields[ex.args[1]] = Core.eval(Main, ex.args[2])
+                else
+                    fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
+                end
             catch err
                 push!(doc.internal.errors, :autodocs_block)
                 @warn "failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source))" exception = err
@@ -346,15 +350,17 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         pages = map(normpath, get(fields, :Pages, []))
         public = get(fields, :Public, true)
         private = get(fields, :Private, true)
+        filterfunc = get(fields, :Filter, x -> true)
         results = []
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
                 # Which bindings should be included?
                 isexported = Base.isexported(mod, binding.var)
                 included = (isexported && public) || (!isexported && private)
+                filtered = filterfunc(Core.eval(binding.mod, binding.var))
                 # What category does the binding belong to?
                 category = Documenter.DocSystem.category(binding)
-                if category in order && included
+                if category in order && included && filtered
                     for (typesig, docstr) in multidoc.docs
                         path = normpath(docstr.data[:path])
                         object = Utilities.Object(binding, typesig)
