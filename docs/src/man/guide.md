@@ -124,9 +124,42 @@ build/
         documenter.js
         search.js
     index.html
-    search.html
+    search/index.html
     search_index.js
 ```
+
+!!! note
+
+    By default, Documenter has pretty URLs enabled, which means that `src/foo.md` is turned
+    into `src/foo/index.html`, instead of simply `src/foo.html`, which is the preferred way
+    when creating a set of HTML to be hosted on a web server.
+
+    However, this can be a hindrance when browsing the documentation locally as browsers do
+    not resolve directory URLs like `foo/` to `foo/index.html` for local files. You have two
+    options:
+
+    1. You can run a local web server out of the `docs/build` directory. If you have Python
+       installed, you can simple start one with `python3 -m http.server --bind localhost`
+       (or `python -m SimpleHTTPServer` with Python 2).
+
+    2. You can disable the pretty URLs feature by passing `prettyurls = false` with the
+       [`Documenter.HTML`](@ref) plugin:
+
+       ```julia
+       makedocs(..., Documenter.HTML(prettyurls = false))
+       ```
+
+       Alternatively, if your goal is to eventually set up automatic documentation deployment
+       with Travis CI (see [Hosting Documentation](@ref)), you can also use their environment
+       variables to determine Documenter's behavior in `make.jl` on the fly:
+
+       ```julia
+       makedocs(...,
+           Documenter.HTML(
+               prettyurls = get(ENV, "CI", nothing) == "true"
+           )
+       )
+       ```
 
 !!! warning
 

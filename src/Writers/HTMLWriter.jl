@@ -92,14 +92,22 @@ Sets the behavior of [`HTMLWriter`](@ref).
 
 # Keyword arguments
 
-**`prettyurls`** (default `true`) -- allows disabling the pretty URLs feature, which
-generates an output directory structre that hides the `.html` suffixes from the URLs (e.g.
-by default `src/foo.md` becomes `src/foo/index.html`). This does not work when browsing
-documentation in local files since browsers do not resolve `foo/` to `foo/index.html`
-for local files. If `html_prettyurls = false`, then Documenter generate `src/foo.html`
-instead and sets up the internal links accordingly, suitable for local documentation builds.
-To disable pretty URLs in local builds, but still have it enabled for deployment,
-you can set `prettyurls = get(ENV, "CI", nothing) == "true"`.
+**`prettyurls`** (default `true`) -- allows toggling the pretty URLs feature.
+
+By default (i.e. when `prettyurls` is set to `true`), Documenter creates a directory
+structure that hides the `.html` suffixes from the URLs (e.g. by default `src/foo.md`
+becomes `src/foo/index.html`, but can be accessed with via `src/foo/` in the browser). This
+structure is preferred when publishing the generate HTML files as a website (e.g. on GitHub
+Pages), which is Documenter's primary use case.
+
+If `prettyurls = false`, then Documenter generates `src/foo.html` instead, suitable for
+local documentation builds, as browsers do not normally resolve `foo/` to `foo/index.html`
+for local files.
+
+To have pretty URLs disabled in local builds, but still have them enabled for the automatic
+CI deployment builds, you can set `prettyurls = get(ENV, "CI", nothing) == "true"` (the
+specific environment variable you will need to check may depend on the CI system you are
+using, but this will work on Travis CI).
 
 **`disable_git`** can be used to disable calls to `git` when the document is not
 in a Git-controlled repository. Without setting this to `true`, Documenter will throw
