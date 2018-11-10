@@ -10,9 +10,11 @@ Defines [`Document`](@ref) and its supporting types
 module Documents
 
 import ..Documenter:
+    Documenter,
     Anchors,
     Formats,
-    Utilities
+    Utilities,
+    Plugin
 
 using DocStringExtensions
 import Markdown
@@ -198,10 +200,6 @@ struct User
     authors :: String
     analytics::String
     version :: String # version string used in the version selector by default
-    html_prettyurls :: Bool # Use pretty URLs in the HTML build?
-    html_disable_git :: Bool # Don't call git when exporting HTML
-    html_edit_branch :: Union{String, Nothing} # Change how the "Edit on GitHub" links are handled
-    html_canonical   :: Union{String, Nothing} # Set a canonical url, if desired (https://en.wikipedia.org/wiki/Canonical_link_element)
 end
 
 """
@@ -232,9 +230,11 @@ Represents an entire document.
 struct Document
     user     :: User     # Set by the user via `makedocs`.
     internal :: Internal # Computed values.
+    plugins  :: Dict{DataType, Plugin}
 end
 
-function Document(;
+Document(; kwargs...) = Document(nothing; kwargs...)
+function Document(plugins;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
@@ -254,10 +254,10 @@ function Document(;
         authors  :: AbstractString   = "",
         analytics :: AbstractString  = "",
         version :: AbstractString    = "",
-        html_prettyurls  :: Bool     = true,
-        html_disable_git :: Bool     = false,
-        html_edit_branch :: Union{String, Nothing} = "master",
-        html_canonical   :: Union{String, Nothing} = nothing,
+        html_prettyurls  :: Union{Bool, Nothing}   = nothing, # deprecated
+        html_disable_git :: Union{Bool, Nothing}   = nothing, # deprecated
+        html_edit_branch :: Union{String, Nothing} = nothing, # deprecated
+        html_canonical   :: Union{String, Nothing} = nothing, # deprecated
         others...
     )
     Utilities.check_kwargs(others)
@@ -288,11 +288,7 @@ function Document(;
         sitename,
         authors,
         analytics,
-        version,
-        html_prettyurls,
-        html_disable_git,
-        html_edit_branch,
-        html_canonical,
+        version
     )
     internal = Internal(
         Utilities.assetsdir(),
@@ -307,9 +303,99 @@ function Document(;
         [],
         [],
         Dict{Markdown.Link, String}(),
-        Set{Symbol}(),
+        Set{Symbol}()
     )
-    Document(user, internal)
+
+    plugin_dict = Dict{DataType, Plugin}()
+    if plugins !== nothing
+        for plugin in plugins
+            plugin isa Plugin ||
+                throw("$(typeof(plugin)) is not a subtype of `Documenter.Plugin`.")
+            haskey(plugin_dict, typeof(plugin)) &&
+                throw("only one copy of $(typeof(plugin)) may be passed.")
+            plugin_dict[typeof(plugin)] = plugin
+        end
+    end
+
+    # html keywords depreciation
+    html_keywords = Dict()
+    if html_prettyurls !== nothing
+        Base.depwarn("""The `html_prettyurls` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_prettyurls = ...,
+            ```
+            with
+            ```
+                HTML(prettyurls = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:prettyurls] = html_prettyurls
+    end
+    if html_disable_git !== nothing
+        Base.depwarn("""The `html_disable_git` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_disable_git = ...,
+            ```
+            with
+            ```
+                HTML(disable_git = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:disable_git] = html_disable_git
+    end
+    if html_edit_branch !== nothing
+        Base.depwarn("""The `html_edit_branch` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_edit_branch = ...,
+            ```
+            with
+            ```
+                HTML(edit_branch = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:edit_branch] = html_edit_branch
+    end
+    if html_canonical !== nothing
+        Base.depwarn("""The `html_canonical` keyword argument has been moved to the
+            `HTML` plugin. To fix this warning, replace
+            ```
+                html_canonical = ...,
+            ```
+            with
+            ```
+                HTML(canonical = ...),
+            ```
+            """, :deploydocs)
+        html_keywords[:canonical] = html_canonical
+    end
+    if !isempty(html_keywords)
+        if Documenter.Writers.HTMLWriter.HTML in keys(plugin_dict)
+            throw("Documenter received both an `HTML` plugin and `html_*` keywords.")
+        end
+
+        plugin_dict[Documenter.Writers.HTMLWriter.HTML] =
+            Documenter.Writers.HTMLWriter.HTML(; html_keywords...)
+    end
+
+    Document(user, internal, plugin_dict)
+end
+
+"""
+    getplugin(doc::Document, T)
+
+Retrieves the [`Plugin`](@ref) type for `T` stored in `doc`. If `T` was passed to
+[`makedocs`](@ref), the passed type will be returned. Otherwise, a new `T` object
+will be created using the default constructor `T()`.
+"""
+function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
+    if !haskey(doc.plugins, plugin_type)
+        doc.plugins[plugin_type] = plugin_type()
+    end
+
+    doc.plugins[plugin_type]
 end
 
 ## Methods
