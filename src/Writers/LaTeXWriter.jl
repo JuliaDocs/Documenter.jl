@@ -220,7 +220,7 @@ function latex(io::IO, contents::Documents.ContentsNode, page, doc)
         header = anchor.object
         level = Utilities.header_level(header)
         id = string(hash(string(anchor.id, "-", anchor.nth)))
-        level < depth && _println(io, "\\end{itemize}")
+        level < depth && (_println(io, "\\end{itemize}"); needs_end = false)
         level > depth && (_println(io, "\\begin{itemize}"); needs_end = true)
         _print(io, "\\item \\hyperlink{", id, "}{")
         latexinline(io, header.text)
