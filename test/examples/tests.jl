@@ -72,7 +72,7 @@ end
             end
         end
 
-        @test length(doc.internal.objects) == 38
+        @test length(doc.internal.objects) == 41
     end
 
     @testset "HTML: local" begin

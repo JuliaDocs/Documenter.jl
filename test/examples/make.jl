@@ -77,6 +77,17 @@ module AutoDocs
         "Macro `B.@m`."
         macro m() end
     end
+
+    module Filter
+        "abstract super type"
+        abstract type Major end
+
+        "abstract sub type 1"
+        abstract type Minor1 <: Major end
+
+        "abstract sub type 2"
+        abstract type Minor2 <: Major end
+    end
 end
 
 # Build example docs
