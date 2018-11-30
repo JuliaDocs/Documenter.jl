@@ -130,7 +130,7 @@ Order = [:type]
 
 !!! note
 
-    When more complex sorting and filtering is needed then use `@docs` to define it
+    When more complex sorting is needed then use `@docs` to define it
     explicitly.
 
 ## `@ref` link
