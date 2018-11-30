@@ -85,6 +85,27 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
+To filter out certain docstrings by your own criteria, you can provide function with them
+`Filter` keyword:
+
+````markdown
+```@autodocs
+Modules = [Foo]
+Filter =  t -> t <: Foo.C
+```
+````
+
+In the given example, only the docstrings of the subtypes of `Foo.C` are shown. Instead
+of an [anonymous function](https://docs.julialang.org/en/v1/manual/functions/index.html#man-anonymous-functions-1)
+you can give the name of a function you defined beforehand, too:
+
+````markdown
+```@autodocs
+Modules = [Foo]
+Filter =  myCustomFilterFunction
+```
+````
+
 To include only the exported names from the modules listed in `Modules` use `Private = false`.
 In a similar way `Public = false` can be used to only show the unexported names. By
 default both of these are set to `true` so that all names will be shown.
