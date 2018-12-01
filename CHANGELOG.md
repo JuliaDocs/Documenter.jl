@@ -6,7 +6,20 @@
 
   - `html_prettyurls`, `html_canonical`, `html_disable_git` and `html_edit_branch` arguments to `makedocs` have been deprecated.
 
-    **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead (e.g. `makedocs(html_prettyurls = ..., ...)` ⟶  `makedocs(Documenter.HTML(prettyurls = ...), ...)`)
+    **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead. E.g. instead of
+    ```
+    makedocs(
+        html_prettyurls = ...,
+        ...
+    )
+    ```
+    you should have
+    ```
+    makedocs(
+        Documenter.HTML(prettyurls = ...),
+        ...
+    )
+    ```
 
   - Packages extending Documenter can now define subtypes of `Documenter.Plugin`, which can be passed to `makedocs` as positional arguments to pass options to the extensions.
 
