@@ -57,8 +57,9 @@ function render(doc::Documents.Document)
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
-            file = replace("$(doc.user.sitename).tex", " " => "")
-            open(file, "w") do io
+            texfile = replace("$(doc.user.sitename).tex", " " => "")
+            pdffile = replace("$(doc.user.sitename).pdf", " " => "")
+            open(texfile, "w") do io
                 context = Context(io)
                 writeheader(context, doc)
                 for (title, filename, depth) in files(doc.user.pages)
@@ -83,21 +84,62 @@ function render(doc::Documents.Document)
                 writefooter(context, doc)
             end
             cp(STYLE, "documenter.sty")
-            if hastex()
-                outdir = joinpath(doc.user.root, doc.user.build)
-                pdf = replace("$(doc.user.sitename).pdf", " " => "")
-                try
-                    run(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $file`)
-                catch err
-                    @warn "failed to compile. Check generated LaTeX file."
-                    cp(file, joinpath(outdir, file); force = true)
-                end
-                cp(pdf, joinpath(outdir, pdf); force = true)
-            else
-                @warn "`latexmk` and `lualatex` required for PDF generation."
-            end
+
+            # compile .tex and copy over the .pdf file if compile_tex return true
+            status = compile_tex(texfile)
+            status && cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
         end
     end
+end
+
+const DOCKER_IMAGE_TAG = "0.1"
+
+function compile_tex(texfile)
+    engine = get(ENV, "DOCUMENTER_LATEX_ENGINE", "latexmk") # TODO: make this configurable from makedocs
+    if engine == "latexmk"
+        Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
+        @info "LaTeXWriter: using latexmk to compile tex."
+        try
+            piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $texfile`)
+            return true
+        catch err
+            logs = cp(pwd(), mktempdir(); force=true)
+            @error "LaTeXWriter: failed to compile tex with latexmk. " *
+                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+            return false
+        end
+    elseif engine == "docker"
+        Sys.which("docker") === nothing && (@error "LaTeXWriter: docker command not found."; return false)
+        @info "LaTeXWriter: using docker to compile tex."
+        script = """
+            mkdir /home/zeptodoctor/build
+            cd /home/zeptodoctor/build
+            cp -r /mnt/. .
+            latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $texfile
+            """
+        try
+            piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`)
+            piperun(`docker exec -u zeptodoctor latex-container bash -c $(script)`)
+            piperun(`docker cp latex-container:/home/zeptodoctor/build/. .`)
+            return true
+        catch err
+            logs = cp(pwd(), mktempdir(); force=true)
+            @error "LaTeXWriter: failed to compile tex with docker. " *
+                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+            return false
+        finally
+            try; piperun(`docker stop latex-container`); catch; end
+        end
+    else
+        @error "LaTeXWriter: unrecognized engine: $(engine)"
+        return false
+    end
+end
+
+function piperun(cmd)
+    verbose = "--verbose" in ARGS
+    run(pipeline(cmd, stdout = verbose ? stdout : "LaTeXWriter.stdout",
+                      stderr = verbose ? stderr : "LaTeXWriter.stderr"))
 end
 
 function writeheader(io::IO, doc::Documents.Document)
