@@ -10,6 +10,8 @@
 
   - Packages extending Documenter can now define subtypes of `Documenter.Plugin`, which can be passed to `makedocs` as positional arguments to pass options to the extensions.
 
+* ![Feature][badge-feature] at-autodocs blocks now support the `Filter` keyword, which allows passing a user-defined function that will filter the methods spliced in by the at-autodocs block. ([#885][github-885])
+
 * ![Enhancement][badge-enhancement] `linkcheck` now supports checking URLs using the FTP protocol. ([#879][github-879])
 
 * ![Enhancement][badge-enhancement] Build output logging has been improved and switched to the logging macros from `Base`. ([#876][github-876])
@@ -119,6 +121,7 @@
 [github-864]: https://github.com/JuliaDocs/Documenter.jl/pull/864
 [github-876]: https://github.com/JuliaDocs/Documenter.jl/pull/876
 [github-879]: https://github.com/JuliaDocs/Documenter.jl/pull/879
+[github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
