@@ -62,5 +62,6 @@ in that order.
 
 ```@autodocs
 Modules = [AutoDocs.Filter]
+Order = [:type]
 Filter =  t -> t <: AutoDocs.Filter.Major
 ```

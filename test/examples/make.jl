@@ -87,6 +87,12 @@ module AutoDocs
 
         "abstract sub type 2"
         abstract type Minor2 <: Major end
+
+        "random constant"
+        qq = 3.14
+
+        "random function"
+        function qqq end
     end
 end
 
