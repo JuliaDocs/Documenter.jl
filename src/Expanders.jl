@@ -357,20 +357,25 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 # Which bindings should be included?
                 isexported = Base.isexported(mod, binding.var)
                 included = (isexported && public) || (!isexported && private)
-                filtered = Base.invokelatest(filterfunc, Core.eval(binding.mod, binding.var))
                 # What category does the binding belong to?
                 category = Documenter.DocSystem.category(binding)
-                if category in order && included && filtered
-                    for (typesig, docstr) in multidoc.docs
-                        path = normpath(docstr.data[:path])
-                        object = Utilities.Object(binding, typesig)
-                        if isempty(pages)
-                            push!(results, (mod, path, category, object, isexported, docstr))
-                        else
-                            for p in pages
-                                if endswith(path, p)
-                                    push!(results, (mod, p, category, object, isexported, docstr))
-                                    break
+                if category in order && included
+                    # filter the elements after category/order has been evaluated
+                    # to ensure that e.g. when `Order = [:type]` is given, the filter
+                    # function really receives only types
+                    filtered = Base.invokelatest(filterfunc, Core.eval(binding.mod, binding.var))
+                    if filtered
+                        for (typesig, docstr) in multidoc.docs
+                            path = normpath(docstr.data[:path])
+                            object = Utilities.Object(binding, typesig)
+                            if isempty(pages)
+                                push!(results, (mod, path, category, object, isexported, docstr))
+                            else
+                                for p in pages
+                                    if endswith(path, p)
+                                        push!(results, (mod, p, category, object, isexported, docstr))
+                                        break
+                                    end
                                 end
                             end
                         end
