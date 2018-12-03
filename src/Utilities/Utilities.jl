@@ -112,7 +112,7 @@ function check_kwargs(kws)
     for (k, v) in kws
         println(out, "  ", k, " = ", v)
     end
-    warn(String(take!(out)))
+    @warn(String(take!(out)))
 end
 
 # Finding submodules.

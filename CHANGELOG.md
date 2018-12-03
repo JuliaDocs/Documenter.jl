@@ -29,6 +29,8 @@
 
 * ![Enhancement][badge-enhancement] Build output logging has been improved and switched to the logging macros from `Base`. ([#876][github-876])
 
+* ![Enhancement][badge-enhancement] The default `documenter.sty` LaTeX preamble now include `\usepackage{graphicx}` ([#898][github-898]).
+
 ## Version `v0.20.0`
 
 * Documenter v0.20 requires at least Julia v0.7. ([#795][github-795])
@@ -135,6 +137,7 @@
 [github-876]: https://github.com/JuliaDocs/Documenter.jl/pull/876
 [github-879]: https://github.com/JuliaDocs/Documenter.jl/pull/879
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
+[github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg

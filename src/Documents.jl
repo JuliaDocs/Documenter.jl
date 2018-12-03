@@ -386,8 +386,8 @@ end
 """
     getplugin(doc::Document, T)
 
-Retrieves the [`Plugin`](@ref) type for `T` stored in `doc`. If `T` was passed to
-[`makedocs`](@ref), the passed type will be returned. Otherwise, a new `T` object
+Retrieves the [`Plugin`](@ref Documenter.Plugin) type for `T` stored in `doc`. If `T` was passed to
+[`makedocs`](@ref Documenter.makedocs), the passed type will be returned. Otherwise, a new `T` object
 will be created using the default constructor `T()`.
 """
 function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
