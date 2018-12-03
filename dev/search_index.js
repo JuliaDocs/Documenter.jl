@@ -161,14 +161,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "man/examples/#Unregistered-1",
-    "page": "Examples",
-    "title": "Unregistered",
-    "category": "section",
-    "text": "Packages that are not available in METADATA.jl and may be works-in-progress. Please do take that into consideration when browsing this list.AnonymousTypes.jl"
-},
-
-{
     "location": "man/syntax/#",
     "page": "Syntax",
     "title": "Syntax",
@@ -2057,11 +2049,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/writers/#Documenter.Plugin",
+    "page": "Writers",
+    "title": "Documenter.Plugin",
+    "category": "type",
+    "text": "abstract type Plugin end\n\nAny plugin that needs to either solicit user input or store information in a Documents.Document should create a subtype of Plugin. The subtype, T <: Documenter.Plugin, must have an empty constructor T() that initialized T with the appropriate default values.\n\nTo retrieve the values stored in T, the plugin can call Documents.getplugin. If T was passed to makedocs, the passed type will be returned. Otherwise, a new T object will be created.\n\n\n\n\n\n"
+},
+
+{
     "location": "lib/internals/writers/#Writers-1",
     "page": "Writers",
     "title": "Writers",
     "category": "section",
-    "text": "Modules = [\n    Documenter.Writers,\n    Documenter.Writers.MarkdownWriter,\n    Documenter.Writers.HTMLWriter,\n    Documenter.Writers.LaTeXWriter,\n]"
+    "text": "Modules = [\n    Documenter.Writers,\n    Documenter.Writers.MarkdownWriter,\n    Documenter.Writers.HTMLWriter,\n    Documenter.Writers.LaTeXWriter,\n]Documenter.Plugin"
 },
 
 {
