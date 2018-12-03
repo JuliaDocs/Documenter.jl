@@ -137,6 +137,11 @@ The three lines in the `script:` section do the following:
  2. Install your package in the doc-build environment.
  3. Run the docs/make.jl script, which builds and deploys the documentation.
 
+!!! note
+    If your package has a build script you should call
+    `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
+    sure the package is built properly.
+
 The doc-build environment `docs/Project.toml` includes Documenter and other doc-build
 dependencies your package might have. If Documenter is the only dependency, then the
 `Project.toml` should include the following:

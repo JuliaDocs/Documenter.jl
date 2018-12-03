@@ -5,31 +5,31 @@ documentation.
 
 ## Escaping Characters in Docstrings
 
-Since some characters used in ``\LaTeX`` syntax are treated differently in docstrings they
+Since some characters used in ``\LaTeX`` syntax, such as `$` and `\`, are treated differently in docstrings. They
 need to be escaped using a `\` character as in the following example:
 
 ```julia
 """
-Here's some inline maths: \$\\sqrt[n]{1 + x + x^2 + \\ldots}\$.
+Here's some inline maths: ``\\sqrt[n]{1 + x + x^2 + \\ldots}``.
 
 Here's an equation:
 
-\$\\frac{n!}{k!(n - k)!} = \\binom{n}{k}\$
+``\\frac{n!}{k!(n - k)!} = \\binom{n}{k}``
 
 This is the binomial coefficient.
 """
 func(x) = # ...
 ```
 
-To avoid needing to escape the special characters the `doc""` string macro can be used:
+To avoid needing to escape the special characters the `raw""` string macro can be used, combined with `@doc`:
 
 ```julia
-doc"""
-Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.
+@doc raw"""
+Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
 
 Here's an equation:
 
-$\frac{n!}{k!(n - k)!} = \binom{n}{k}$
+``\frac{n!}{k!(n - k)!} = \binom{n}{k}``
 
 This is the binomial coefficient.
 """

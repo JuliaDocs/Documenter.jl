@@ -5,7 +5,9 @@ A module for rendering `Document` objects to HTML.
 
 [`HTMLWriter`](@ref) uses the following additional keyword arguments that can be passed to
 [`Documenter.makedocs`](@ref): `assets`, `sitename`, `analytics`, `authors`, `pages`,
-`version`, `html_prettyurls`, `html_disable_git`.
+`version`. The behavior of [`HTMLWriter`](@ref) can be further customized by passing
+[`Documenter.makedocs`](@ref) a [`HTML`](@ref), which accepts the following keyword
+arguments: `prettyurls`, `disable_git`, `edit_branch`, `canonical`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 *navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
@@ -24,27 +26,10 @@ selected option in the version selector. If this is left empty (default) the ver
 selector will be hidden. The special value `git-commit` sets the value in the output to
 `git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
 
-**`html_prettyurls`** (default `true`) -- allows disabling the pretty URLs feature, which
-generates an output directory structre that hides the `.html` suffixes from the URLs (e.g.
-by default `src/foo.md` becomes `src/foo/index.html`). This does not work when browsing
-documentation in local files since browsers do not resolve `foo/` to `foo/index.html`
-for local files. If `html_prettyurls = false`, then Documenter generate `src/foo.html`
-instead and sets up the internal links accordingly, suitable for local documentation builds.
+# `HTML` `Plugin` options
 
-**`html_disable_git`** can be used to disable calls to `git` when the document is not
-in a Git-controlled repository. Without setting this to `true`, Documenter will throw
-an error and exit if any of the Git commands fail. The calls to Git are mainly used to
-gather information about the current commit hash and file paths, necessary for constructing
-the links to the remote repository.
-
-**`html_edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
-point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
-
-**`html_canonical`** specifies the canonical URL for your documentation. We recommend
-you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
-This allows search engines to know which version to send their users to. [See
-wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
-Default is `nothing`, in which case no canonical link is set.
+The [`HTML`](@ref) [`Documenter.Plugin`](@ref) provides additional customization options
+for the [`HTMLWriter`](@ref). For more information, see the [`HTML`](@ref) documentation.
 
 # Page outline
 
@@ -98,6 +83,63 @@ import ...Documenter:
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
+export HTML
+
+"""
+    HTML(kwargs...)
+
+Sets the behavior of [`HTMLWriter`](@ref).
+
+# Keyword arguments
+
+**`prettyurls`** (default `true`) -- allows toggling the pretty URLs feature.
+
+By default (i.e. when `prettyurls` is set to `true`), Documenter creates a directory
+structure that hides the `.html` suffixes from the URLs (e.g. by default `src/foo.md`
+becomes `src/foo/index.html`, but can be accessed with via `src/foo/` in the browser). This
+structure is preferred when publishing the generate HTML files as a website (e.g. on GitHub
+Pages), which is Documenter's primary use case.
+
+If `prettyurls = false`, then Documenter generates `src/foo.html` instead, suitable for
+local documentation builds, as browsers do not normally resolve `foo/` to `foo/index.html`
+for local files.
+
+To have pretty URLs disabled in local builds, but still have them enabled for the automatic
+CI deployment builds, you can set `prettyurls = get(ENV, "CI", nothing) == "true"` (the
+specific environment variable you will need to check may depend on the CI system you are
+using, but this will work on Travis CI).
+
+**`disable_git`** can be used to disable calls to `git` when the document is not
+in a Git-controlled repository. Without setting this to `true`, Documenter will throw
+an error and exit if any of the Git commands fail. The calls to Git are mainly used to
+gather information about the current commit hash and file paths, necessary for constructing
+the links to the remote repository.
+
+**`edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
+point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
+
+**`canonical`** specifies the canonical URL for your documentation. We recommend
+you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
+This allows search engines to know which version to send their users to. [See
+wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
+Default is `nothing`, in which case no canonical link is set.
+
+"""
+struct HTML <: Documenter.Plugin
+    prettyurls::Bool
+    disable_git:: Bool
+    edit_branch:: Union{String, Nothing}
+    canonical:: Union{String, Nothing}
+
+    function HTML(;
+        prettyurls::Bool = true,
+        disable_git::Bool = false,
+        edit_branch::Union{String, Nothing} = "master",
+        canonical::Union{String, Nothing} = nothing)
+        new(prettyurls, disable_git, edit_branch, canonical)
+    end
+end
+
 const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
 const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
 const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
@@ -110,6 +152,7 @@ other recursive functions.
 """
 mutable struct HTMLContext
     doc :: Documents.Document
+    settings :: HTML
     logo :: String
     scripts :: Vector{String}
     documenter_js :: String
@@ -119,7 +162,7 @@ mutable struct HTMLContext
     search_navnode :: Documents.NavNode
     local_assets :: Vector{String}
 end
-HTMLContext(doc) = HTMLContext(doc, "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc) = HTMLContext(doc, Documents.getplugin(doc, HTML), "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
 
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
@@ -233,7 +276,7 @@ function render_head(ctx, navnode)
 
         analytics_script(ctx.doc.user.analytics),
 
-        canonical_link_element(ctx.doc.user.html_canonical, src),
+        canonical_link_element(ctx.settings.canonical, src),
 
         # Stylesheets.
         map(css_links) do each
@@ -456,7 +499,7 @@ function render_article(ctx, navnode)
     end
     hoststring = isempty(host) ? " source" : " on $(host)"
 
-    if !ctx.doc.user.html_disable_git
+    if !ctx.settings.disable_git
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
         if Utilities.isabsurl(pageurl)
             url = pageurl
@@ -465,10 +508,10 @@ function render_article(ctx, navnode)
                 # need to set users path relative the page itself
                 pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
             end
-            url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.doc.user.html_edit_branch)
+            url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.settings.edit_branch)
         end
         if url !== nothing
-            edit_verb = (ctx.doc.user.html_edit_branch === nothing) ? "View" : "Edit"
+            edit_verb = (ctx.settings.edit_branch === nothing) ? "View" : "Edit"
             push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " $(edit_verb)$hoststring"))
         end
     end
@@ -817,7 +860,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             markdown, result = md
             ret = Any[domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))]
             # When a source link is available then print the link.
-            if !ctx.doc.user.html_disable_git
+            if !ctx.settings.disable_git
                 url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
                 if url !== nothing
                     push!(ret, a[".source-link", :target=>"_blank", :href=>url]("source"))
@@ -879,7 +922,7 @@ Returns the full path corresponding to a path of a `.md` page file. The the inpu
 paths are assumed to be relative to `src/`.
 """
 function get_url(ctx, path::AbstractString)
-    if ctx.doc.user.html_prettyurls
+    if ctx.settings.prettyurls
         d = if basename(path) == "index.md"
             dirname(path)
         else
@@ -901,7 +944,7 @@ If `html_prettyurls` is enabled, returns a "pretty" version of the `path` which 
 used in links in the resulting HTML file.
 """
 function pretty_url(ctx, path::AbstractString)
-    if ctx.doc.user.html_prettyurls
+    if ctx.settings.prettyurls
         dir, file = splitdir(path)
         if file == "index.html"
             return length(dir) == 0 ? "" : "$(dir)/"
