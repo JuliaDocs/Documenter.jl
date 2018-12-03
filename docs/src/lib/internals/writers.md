@@ -8,3 +8,6 @@ Modules = [
     Documenter.Writers.LaTeXWriter,
 ]
 ```
+```@docs
+Documenter.Plugin
+```

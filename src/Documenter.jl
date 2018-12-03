@@ -17,8 +17,10 @@ using DocStringExtensions
 import Base64: base64decode
 
 """
+    abstract type Plugin end
+
 Any plugin that needs to either solicit user input or store information in a
-[`Documents.Document`](@ref) should create a subtype of [`Plugin`](@ref). The
+[`Documents.Document`](@ref) should create a subtype of `Plugin`. The
 subtype, `T <: Documenter.Plugin`, must have an empty constructor `T()` that
 initialized `T` with the appropriate default values.
 
