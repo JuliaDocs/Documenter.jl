@@ -91,7 +91,7 @@ To filter out certain docstrings by your own criteria, you can provide function 
 ````markdown
 ```@autodocs
 Modules = [Foo]
-Filter =  t -> t <: Foo.C
+Filter =  typeof(t) === DataType && t -> t <: Foo.C
 ```
 ````
 
