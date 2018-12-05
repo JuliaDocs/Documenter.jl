@@ -332,7 +332,11 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
-                fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
+                if ex.args[1] == :Filter
+                    fields[ex.args[1]] = Core.eval(Main, ex.args[2])
+                else
+                    fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
+                end
             catch err
                 push!(doc.internal.errors, :autodocs_block)
                 @warn "failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source))" exception = err
@@ -346,6 +350,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         pages = map(normpath, get(fields, :Pages, []))
         public = get(fields, :Public, true)
         private = get(fields, :Private, true)
+        filterfunc = get(fields, :Filter, x -> true)
         results = []
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
@@ -355,16 +360,22 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 # What category does the binding belong to?
                 category = Documenter.DocSystem.category(binding)
                 if category in order && included
-                    for (typesig, docstr) in multidoc.docs
-                        path = normpath(docstr.data[:path])
-                        object = Utilities.Object(binding, typesig)
-                        if isempty(pages)
-                            push!(results, (mod, path, category, object, isexported, docstr))
-                        else
-                            for p in pages
-                                if endswith(path, p)
-                                    push!(results, (mod, p, category, object, isexported, docstr))
-                                    break
+                    # filter the elements after category/order has been evaluated
+                    # to ensure that e.g. when `Order = [:type]` is given, the filter
+                    # function really receives only types
+                    filtered = Base.invokelatest(filterfunc, Core.eval(binding.mod, binding.var))
+                    if filtered
+                        for (typesig, docstr) in multidoc.docs
+                            path = normpath(docstr.data[:path])
+                            object = Utilities.Object(binding, typesig)
+                            if isempty(pages)
+                                push!(results, (mod, path, category, object, isexported, docstr))
+                            else
+                                for p in pages
+                                    if endswith(path, p)
+                                        push!(results, (mod, p, category, object, isexported, docstr))
+                                        break
+                                    end
                                 end
                             end
                         end

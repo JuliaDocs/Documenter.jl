@@ -50,3 +50,18 @@ Modules = [AutoDocs.Pages.E]
 Order = [:type]
 ```
 
+## Filtering
+
+Should include docs for
+
+  * [`AutoDocs.Filter.Major`](@ref)
+  * [`AutoDocs.Filter.Minor1`](@ref)
+  * [`AutoDocs.Filter.Minor2`](@ref)
+
+in that order.
+
+```@autodocs
+Modules = [AutoDocs.Filter]
+Order = [:type]
+Filter =  t -> t <: AutoDocs.Filter.Major
+```
