@@ -13,6 +13,25 @@ navigation menu. It goes into the `\\title` LaTeX command.
 
 """
 module LaTeXWriter
+import ...Documenter: Documenter
+
+"""
+    LaTeXWriter.LaTeX(; kwargs...)
+
+Sets the behavior of [`LaTeXWriter`](@ref).
+
+# Keyword arguments
+
+**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default) or `"docker"`.
+See [Other Output Formats](@ref) for more information.
+"""
+struct LaTeX <: Documenter.Plugin
+    platform::String
+    function LaTeX(; platform = "native")
+        platform ∈ ("native", "docker") || throw(ArgumentError("unknown platform: $platform"))
+        return new(platform)
+    end
+end
 
 import ...Documenter:
     Anchors,
@@ -53,7 +72,7 @@ const DOCUMENT_STRUCTURE = (
     "subparagraph",
 )
 
-function render(doc::Documents.Document)
+function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
@@ -86,7 +105,7 @@ function render(doc::Documents.Document)
             cp(STYLE, "documenter.sty")
 
             # compile .tex and copy over the .pdf file if compile_tex return true
-            status = compile_tex(texfile)
+            status = compile_tex(doc, settings, texfile)
             status && cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
         end
     end
@@ -94,9 +113,8 @@ end
 
 const DOCKER_IMAGE_TAG = "0.1"
 
-function compile_tex(texfile)
-    engine = get(ENV, "DOCUMENTER_LATEX_ENGINE", "latexmk") # TODO: make this configurable from makedocs
-    if engine == "latexmk"
+function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
+    if settings.platform == "native"
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
@@ -108,7 +126,7 @@ function compile_tex(texfile)
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
         end
-    elseif engine == "docker"
+    elseif settings.platform == "docker"
         Sys.which("docker") === nothing && (@error "LaTeXWriter: docker command not found."; return false)
         @info "LaTeXWriter: using docker to compile tex."
         script = """
@@ -130,14 +148,11 @@ function compile_tex(texfile)
         finally
             try; piperun(`docker stop latex-container`); catch; end
         end
-    else
-        @error "LaTeXWriter: unrecognized engine: $(engine)"
-        return false
     end
 end
 
 function piperun(cmd)
-    verbose = "--verbose" in ARGS
+    verbose = "--verbose" in ARGS || get(ENV, "DOCUMENTER_VERBOSE", "false") == "true"
     run(pipeline(cmd, stdout = verbose ? stdout : "LaTeXWriter.stdout",
                       stderr = verbose ? stderr : "LaTeXWriter.stderr"))
 end

@@ -46,7 +46,7 @@ end
         @test doc.user.source == "src"
         @test doc.user.build  == "builds/markdown"
         @test doc.user.clean  == true
-        @test doc.user.format == [:markdown]
+        @test doc.user.format == [Documenter.Writers.MarkdownWriter.Markdown()]
 
         @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 

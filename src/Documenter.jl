@@ -176,26 +176,93 @@ ignored.
 any errors with the document in the previous build phases.
 
 ## Output formats
-**`format`** allows the output format to be specified. The default value is `:html`. Other
-formats can be enabled by using other packages. For examples, see the `DocumenterMarkdown`
-and `DocumenterLaTeX` packages.
+**`format`** allows the output format to be specified. The default format is
+[`Documenter.HTML`](@ref) which creates a set of HTML files.
 
-Documenter is designed to support multiple output formats. By default it is creates a set of
-HTML files, but the output format can be controlled with the `format` keyword. The different
-output formats may require additional keywords to be specified via plugins. The keywords for
-the default HTML output are documented for the [`Writers.HTMLWriter.HTML`](@ref) type.
-
-The default `:html` output format creates a set of HTML files, but Documenter is designed to
-support multiple output formats. Via plugin packages, Documenter also supports e.g. Markdown
-/ MkDocs and LaTeX / PDF outputs. See the [Other Output Formats](@ref) for more information.
+There are other possible formats that are enabled by using other addon-packages.
+For examples, the `DocumenterMarkdown` package define the `DocumenterMarkdown.Markdown()`
+format for use with e.g. MkDocs, and the `DocumenterLaTeX` package define the
+`DocumenterLaTeX.LaTeX()` format for LaTeX / PDF output.
+See the [Other Output Formats](@ref) for more information.
 
 # See Also
 
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
-function makedocs(components...; debug = false, kwargs...)
-    document = Documents.Document(components; kwargs...)
+function makedocs(components...; debug = false, format = HTML(),
+                  html_prettyurls::Union{Bool, Nothing} = nothing, # deprecated
+                  html_disable_git::Union{Bool, Nothing} = nothing, # deprecated
+                  html_edit_branch::Union{String, Nothing} = nothing, # deprecated
+                  html_canonical::Union{String, Nothing} = nothing, # deprecated
+                  kwargs...)
+    # html_ keywords deprecation
+    html_keywords = Dict()
+    function html_warn(kw)
+        Base.depwarn("""
+        The `$kw` keyword argument should now be specified in the
+        `Documenter.HTML()` format specifier. To fix this warning replace
+        ```
+        $kw = ...
+        ```
+        with
+        ```
+        format = Documenter.HTML($kw = ...)
+        ```
+        """, :makedocs)
+    end
+    if html_prettyurls !== nothing
+        html_warn("html_prettyurls")
+        html_keywords[:prettyurls] = html_prettyurls
+    end
+    if html_disable_git !== nothing
+        html_warn("html_disable_git")
+        html_keywords[:disable_git] = html_disable_git
+    end
+    if html_edit_branch !== nothing
+        html_warn("html_edit_branch")
+        html_keywords[:edit_branch] = html_edit_branch
+    end
+    if html_canonical !== nothing
+        html_warn("html_canonical")
+        html_keywords[:canonical] = html_canonical
+    end
+
+    # deprecation of format as Symbols
+    function fmt(f)
+        if format === :html
+            Base.depwarn("`format = :html` is deprecated, use `format = Documenter.HTML()` instead.", :makedocs)
+            return Writers.HTMLWriter.HTML(; html_keywords...)
+        elseif format === :latex
+            Base.depwarn("`format = :latex` is deprecated, use `format = LaTeX()` from " *
+                "the DocumenterLaTeX package instead.", :makedocs)
+            return Writers.LaTeXWriter.LaTeX()
+        elseif format === :markdown
+            Base.depwarn("`format = :markdown` is deprecated, use `format = Markdown()` " *
+                "from the DocumenterMarkdown package instead.", :makedocs)
+            return Writers.MarkdownWriter.Markdown()
+        end
+    end
+    if isa(format, AbstractVector{<:Symbol})
+        format = fmt.(format)
+    elseif isa(format, Symbol)
+        format = fmt(format)
+    end
+    # overwrite some stuff in HTML() if outer html_ kwargs have been set
+    # seems ok since the depwarns will still be there.
+    overwrite(x) = x
+    function overwrite(html::HTML)
+        d = Dict(x => getfield(html, x) for x in fieldnames(HTML))
+        d = merge!(d, html_keywords)
+        return HTML(; d...)
+    end
+    if isa(format, HTML)
+        format = overwrite(format)
+    elseif format isa AbstractVector
+        format = overwrite.(format)
+    end
+
+    document = Documents.Document(components; format=format, kwargs...)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end

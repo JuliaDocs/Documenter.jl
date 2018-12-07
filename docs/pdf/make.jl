@@ -1,18 +1,18 @@
-using Documenter, DocumenterTools
+using Documenter, DocumenterTools, DocumenterLaTeX
+using Test
 
-makedocs(
+const ROOT = joinpath(@__DIR__, "..")
+
+# Documenter package docs
+doc = makedocs(
+    debug = true,
+    root = ROOT,
+    build = "pdf/build",
     modules = [Documenter, DocumenterTools],
-    format = Documenter.HTML(
-        # Use clean URLs, unless built as a "local" build
-        prettyurls = !("local" in ARGS),
-        canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
-    ),
     clean = false,
-    assets = ["assets/favicon.ico"],
+    format = LaTeX(platform = "docker"),
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
-    analytics = "UA-89508993-1",
-    linkcheck = !("skiplinks" in ARGS),
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
@@ -48,10 +48,18 @@ makedocs(
             ])
         ],
         "contributing.md",
-    ],
-)
+    ]
+);
+
+# hack to only deploy the actual pdf-file
+mkpath(joinpath(ROOT, "pdf", "build", "pdfdir"))
+mv(joinpath(ROOT, "pdf", "build", "Documenter.jl.pdf"),
+   joinpath(ROOT, "pdf", "build", "pdfdir", "Documenter.jl.pdf"))
+
 
 deploydocs(
     repo = "github.com/JuliaDocs/Documenter.jl.git",
-    target = "build",
+    root = ROOT,
+    target = "pdf/build/pdfdir",
+    branch = "gh-pages-pdf",
 )

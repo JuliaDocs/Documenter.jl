@@ -162,7 +162,7 @@ mutable struct HTMLContext
     search_navnode :: Documents.NavNode
     local_assets :: Vector{String}
 end
-HTMLContext(doc) = HTMLContext(doc, Documents.getplugin(doc, HTML), "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
 
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
@@ -171,10 +171,10 @@ getpage(ctx, path) = ctx.doc.internal.pages[path]
 getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 
 
-function render(doc::Documents.Document)
+function render(doc::Documents.Document, settings::HTML=HTML())
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
 
-    ctx = HTMLContext(doc)
+    ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
 
     copy_asset("arrow.svg", doc)

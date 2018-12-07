@@ -10,16 +10,6 @@ import ..Documenter
 using DocStringExtensions
 
 """
-Represents the output format. Possible values are `Markdown`, `LaTeX`, and `HTML`.
-"""
-@enum(
-    Format,
-    Markdown,
-    LaTeX,
-    HTML,
-)
-
-"""
 $(SIGNATURES)
 
 Converts a [`Format`](@ref) value to a `MIME` type.
@@ -42,21 +32,5 @@ function extension(f::Symbol)
     f ≡ :html     ? ".html" :
         error("unexpected format.")
 end
-
-# `fmt` -- convert a format spec to a vector of symbols.
-const DEPRECATION_MAPPING = Dict(
-    Markdown => :markdown,
-    LaTeX    => :latex,
-    HTML     => :html,
-)
-function _fmt(f::Format)
-    s = DEPRECATION_MAPPING[f]
-    Base.depwarn("`$(f)` is deprecated use `:$(s)` for `format = ...`.", :fmt)
-    return s
-end
-fmt(f::Format) = [_fmt(f)]
-fmt(v::Vector{Format}) = map(_fmt, v)
-fmt(s::Symbol) = [s]
-fmt(v::Vector{Symbol}) = v
 
 end

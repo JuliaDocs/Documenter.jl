@@ -16,7 +16,7 @@ You also need to import the package in `make.jl`:
 using DocumenterMarkdown
 ```
 
-When `DocumenterMarkdown` is loaded, you can specify `format = :markdown` in [`makedocs`](@ref).
+When `DocumenterMarkdown` is loaded, you can specify `format = Markdown()` in [`makedocs`](@ref).
 Documenter will then output a set of Markdown files to the `build` directory that can then
 further be processed with [MkDocs](https://www.mkdocs.org/) into HTML pages.
 
@@ -156,8 +156,14 @@ package to be available and loaded in `make.jl` with
 using DocumenterLaTeX
 ```
 
-When `DocumenterLaTeX` is loaded, you can set `format = :latex` in [`makedocs`](@ref),
+When `DocumenterLaTeX` is loaded, you can set `format = LaTeX()` in [`makedocs`](@ref),
 and Documenter will generate a PDF version of the documentation using LaTeX.
+You should also specify the `sitename` and `authors` keywords for `makedocs` when using the
+LaTeX output.
+
+### Compiling using natively installed latex
+
+The following is required to build the documentation:
 
 * You need `pdflatex` command to be installed and available to Documenter.
 * You need the [minted](https://ctan.org/pkg/minted) LaTeX package and its backend source
@@ -165,5 +171,27 @@ and Documenter will generate a PDF version of the documentation using LaTeX.
 * You need the [Lato](http://www.latofonts.com/lato-free-fonts/) and
   [Roboto Mono](https://fonts.google.com/specimen/Roboto+Mono) fonts installed.
 
-You should also specify the `sitename` and `authors` keywords for `makedocs` when using the
-LaTeX output.
+### Compiling using docker image
+
+It is also possible to use a prebuilt [docker image](https://hub.docker.com/r/juliadocs/documenter-latex/)
+to compile the `.tex` file. The image contains all of the required installs described in the section
+above. The only requirement for using the image is that `docker` is installed and available for
+the builder to call. You also need to tell Documenter to use the docker image, instead of natively
+installed tex which is the default. This is done with the `LaTeX` specifier:
+
+```
+using DocumenterLaTeX
+makedocs(
+    format = LaTeX(platform = "docker"),
+    ...
+)
+```
+
+If you build the documentation on Travis you need to add
+
+```
+services:
+  - docker
+```
+
+to your `.travis.yml` file.

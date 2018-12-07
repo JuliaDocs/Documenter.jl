@@ -184,7 +184,7 @@ struct User
     root    :: String  # An absolute path to the root directory of the document.
     source  :: String  # Parent directory is `.root`. Where files are read from.
     build   :: String  # Parent directory is also `.root`. Where files are written to.
-    format  :: Vector{Symbol} # What format to render the final document with?
+    format  :: Vector{Plugin} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Union{Bool,Symbol} # Run doctests?
     linkcheck::Bool           # Check external links..
@@ -233,12 +233,11 @@ struct Document
     plugins  :: Dict{DataType, Plugin}
 end
 
-Document(; kwargs...) = Document(nothing; kwargs...)
-function Document(plugins;
+function Document(plugins = nothing;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
-        format   :: Any              = :html,
+        format   :: Any              = Documenter.HTML(),
         clean    :: Bool             = true,
         doctest  :: Union{Bool,Symbol} = true,
         linkcheck:: Bool             = false,
@@ -254,16 +253,13 @@ function Document(plugins;
         authors  :: AbstractString   = "",
         analytics :: AbstractString  = "",
         version :: AbstractString    = "",
-        html_prettyurls  :: Union{Bool, Nothing}   = nothing, # deprecated
-        html_disable_git :: Union{Bool, Nothing}   = nothing, # deprecated
-        html_edit_branch :: Union{String, Nothing} = nothing, # deprecated
-        html_canonical   :: Union{String, Nothing} = nothing, # deprecated
         others...
     )
     Utilities.check_kwargs(others)
 
-    fmt = Formats.fmt(format)
-    @assert !isempty(fmt) "No formats provided."
+    if !isa(format, AbstractVector)
+        format = Plugin[format]
+    end
 
     if version == "git-commit"
         version = "git:$(Utilities.get_commit_short(root))"
@@ -273,7 +269,7 @@ function Document(plugins;
         root,
         source,
         build,
-        fmt,
+        format,
         clean,
         doctest,
         linkcheck,
@@ -315,69 +311,6 @@ function Document(plugins;
                 throw("only one copy of $(typeof(plugin)) may be passed.")
             plugin_dict[typeof(plugin)] = plugin
         end
-    end
-
-    # html keywords depreciation
-    html_keywords = Dict()
-    if html_prettyurls !== nothing
-        Base.depwarn("""The `html_prettyurls` keyword argument has been moved to the
-            `HTML` plugin. To fix this warning, replace
-            ```
-                html_prettyurls = ...,
-            ```
-            with
-            ```
-                HTML(prettyurls = ...),
-            ```
-            """, :deploydocs)
-        html_keywords[:prettyurls] = html_prettyurls
-    end
-    if html_disable_git !== nothing
-        Base.depwarn("""The `html_disable_git` keyword argument has been moved to the
-            `HTML` plugin. To fix this warning, replace
-            ```
-                html_disable_git = ...,
-            ```
-            with
-            ```
-                HTML(disable_git = ...),
-            ```
-            """, :deploydocs)
-        html_keywords[:disable_git] = html_disable_git
-    end
-    if html_edit_branch !== nothing
-        Base.depwarn("""The `html_edit_branch` keyword argument has been moved to the
-            `HTML` plugin. To fix this warning, replace
-            ```
-                html_edit_branch = ...,
-            ```
-            with
-            ```
-                HTML(edit_branch = ...),
-            ```
-            """, :deploydocs)
-        html_keywords[:edit_branch] = html_edit_branch
-    end
-    if html_canonical !== nothing
-        Base.depwarn("""The `html_canonical` keyword argument has been moved to the
-            `HTML` plugin. To fix this warning, replace
-            ```
-                html_canonical = ...,
-            ```
-            with
-            ```
-                HTML(canonical = ...),
-            ```
-            """, :deploydocs)
-        html_keywords[:canonical] = html_canonical
-    end
-    if !isempty(html_keywords)
-        if Documenter.Writers.HTMLWriter.HTML in keys(plugin_dict)
-            throw("Documenter received both an `HTML` plugin and `html_*` keywords.")
-        end
-
-        plugin_dict[Documenter.Writers.HTMLWriter.HTML] =
-            Documenter.Writers.HTMLWriter.HTML(; html_keywords...)
     end
 
     Document(user, internal, plugin_dict)
