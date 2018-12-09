@@ -2,28 +2,50 @@
 
 ## Version `v0.21.0`
 
-* ![Enhancement][badge-enhancement] ![Deprecation][badge-deprecation] The options to `HTMLWriter` should now be passed using the `Documenter.HTML` plugin. ([#864][github-864])
+* ![Deprecation][badge-deprecation] The `format` argument to `makedocs`
+  have changed from `:html`/`:markdown`/`:latex` to instances of the `Documenter.HTML`/`Markdown`/`LaTeX`
+  structs, where `Markdown` and `LaTeX` are exported from `DocumenterMarkdown` and `DocumenterLaTeX`
+  respectively. HTML output is still the default. ([#891][github-891])
+
+  **For upgrading:** If you don't specify `format` (i.e. you rely on the default) you don't have to do anything.
+  Otherwise update calls to `makedocs` to use struct instances instead of symbols, e.g.
+  ```
+  makedocs(
+      format = :markdown
+  )
+  ```
+  should be changed to
+  ```
+  using DocumenterMarkdown
+  makedocs(
+      format = Markdown()
+  )
+  ```
+
+* ![Enhancement][badge-enhancement] ![Deprecation][badge-deprecation] The options to `HTMLWriter` should now be
+  passed to the `Documenter.HTML` format specifier instead. ([#864][github-864], [#891][github-891])
 
   - `html_prettyurls`, `html_canonical`, `html_disable_git` and `html_edit_branch` arguments to `makedocs` have been deprecated.
 
     **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead. E.g. instead of
     ```
     makedocs(
-        html_prettyurls = ...,
+        html_prettyurls = ..., html_canonical = ...,
         ...
     )
     ```
     you should have
     ```
     makedocs(
-        Documenter.HTML(prettyurls = ...),
+        format = Documenter.HTML(prettyurls = ..., canonical = ...),
         ...
     )
     ```
 
-  - Packages extending Documenter can now define subtypes of `Documenter.Plugin`, which can be passed to `makedocs` as positional arguments to pass options to the extensions.
+* ![Feature][badge-feature] Packages extending Documenter can now define subtypes of `Documenter.Plugin`,
+  which can be passed to `makedocs` as positional arguments to pass options to the extensions. ([#864][github-864])
 
-* ![Feature][badge-feature] at-autodocs blocks now support the `Filter` keyword, which allows passing a user-defined function that will filter the methods spliced in by the at-autodocs block. ([#885][github-885])
+* ![Feature][badge-feature] `@autodocs` blocks now support the `Filter` keyword, which allows passing a user-defined function that will filter the methods spliced in by the at-autodocs block. ([#885][github-885])
 
 * ![Enhancement][badge-enhancement] `linkcheck` now supports checking URLs using the FTP protocol. ([#879][github-879])
 
@@ -137,6 +159,7 @@
 [github-876]: https://github.com/JuliaDocs/Documenter.jl/pull/876
 [github-879]: https://github.com/JuliaDocs/Documenter.jl/pull/879
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
+[github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 
 

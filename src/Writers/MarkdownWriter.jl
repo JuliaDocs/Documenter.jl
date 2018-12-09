@@ -12,9 +12,16 @@ import ...Documenter:
     Documenter,
     Utilities
 
-import Markdown
+# import Markdown as MarkdownStdlib
+module _Markdown
+    import Markdown
+end
+const MarkdownStdlib = _Markdown.Markdown
 
-function render(doc::Documents.Document)
+struct Markdown <: Documenter.Plugin
+end
+
+function render(doc::Documents.Document, settings::Markdown=Markdown())
     copy_assets(doc)
     mime = Formats.mimetype(:markdown)
     for (src, page) in doc.internal.pages
@@ -73,7 +80,7 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.DocsNode, page, 
     renderdoc(io, mime, node.docstr, page, doc)
 end
 
-function renderdoc(io::IO, mime::MIME"text/plain", md::Markdown.MD, page, doc)
+function renderdoc(io::IO, mime::MIME"text/plain", md::MarkdownStdlib.MD, page, doc)
     if haskey(md.meta, :results)
         # The `:results` field contains a vector of `Docs.DocStr` objects associated with
         # each markdown object. The `DocStr` contains data such as file and line info that
@@ -116,10 +123,10 @@ function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, pa
         path = Formats.extension(:markdown, path)
         header = anchor.object
         url    = string(path, '#', anchor.id, '-', anchor.nth)
-        link   = Markdown.Link(header.text, url)
+        link   = MarkdownStdlib.Link(header.text, url)
         level  = Utilities.header_level(header)
         print(io, "    "^(level - 1), "- ")
-        Markdown.plaininline(io, link)
+        MarkdownStdlib.plaininline(io, link)
         println(io)
     end
     println(io)
@@ -134,7 +141,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", other, page, doc)
     println(io)
-    Markdown.plain(io, other)
+    MarkdownStdlib.plain(io, other)
     println(io)
 end
 
@@ -154,13 +161,13 @@ end
 # Remove all header nodes from a markdown object and replace them with bold font.
 # Only for use in `text/plain` output, since we'll use some css to make these less obtrusive
 # in the HTML rendering instead of using this hack.
-function dropheaders(md::Markdown.MD)
-    out = Markdown.MD()
+function dropheaders(md::MarkdownStdlib.MD)
+    out = MarkdownStdlib.MD()
     out.meta = md.meta
     out.content = map(dropheaders, md.content)
     out
 end
-dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
+dropheaders(h::MarkdownStdlib.Header) = MarkdownStdlib.Paragraph([MarkdownStdlib.Bold(h.text)])
 dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 

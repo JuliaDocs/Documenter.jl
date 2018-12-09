@@ -34,13 +34,13 @@ Selectors.order(::Type{MarkdownFormat}) = 1.0
 Selectors.order(::Type{LaTeXFormat})    = 2.0
 Selectors.order(::Type{HTMLFormat})     = 3.0
 
-Selectors.matcher(::Type{MarkdownFormat}, fmt, _) = fmt === :markdown
-Selectors.matcher(::Type{LaTeXFormat},    fmt, _) = fmt === :latex
-Selectors.matcher(::Type{HTMLFormat},     fmt, _) = fmt === :html
+Selectors.matcher(::Type{MarkdownFormat}, fmt, _) = isa(fmt, MarkdownWriter.Markdown)
+Selectors.matcher(::Type{LaTeXFormat},    fmt, _) = isa(fmt, LaTeXWriter.LaTeX)
+Selectors.matcher(::Type{HTMLFormat},     fmt, _) = isa(fmt, HTMLWriter.HTML)
 
-Selectors.runner(::Type{MarkdownFormat}, _, doc) = MarkdownWriter.render(doc)
-Selectors.runner(::Type{LaTeXFormat},    _, doc) = LaTeXWriter.render(doc)
-Selectors.runner(::Type{HTMLFormat},     _, doc) = HTMLWriter.render(doc)
+Selectors.runner(::Type{MarkdownFormat}, fmt, doc) = MarkdownWriter.render(doc, fmt)
+Selectors.runner(::Type{LaTeXFormat},    fmt, doc) = LaTeXWriter.render(doc, fmt)
+Selectors.runner(::Type{HTMLFormat},     fmt, doc) = HTMLWriter.render(doc, fmt)
 
 """
 Writes a [`Documents.Document`](@ref) object to `.user.build` directory in
@@ -62,32 +62,44 @@ function render(doc::Documents.Document)
     # Render each format. Additional formats must define an `order`, `matcher`, `runner`, as
     # well as their own rendering methods in a separate module.
     for each in doc.user.format
-        if each === :markdown && !backends_enabled[:markdown]
-            @warn """Deprecated format value :markdown
+        if isa(each, MarkdownWriter.Markdown) && !backends_enabled[:markdown]
+            @warn """Deprecated format
 
             The Markdown/MkDocs backend must now be imported from a separate package.
             Add DocumenterMarkdown to your documentation dependencies and add
 
                 using DocumenterMarkdown
 
-            to your make.jl script.
+            to your make.jl script, and use
 
-            Built-in support for format=:markdown will be removed completely in a future
+                makedocs(
+                    format = Markdown(),
+                    ...
+                )
+
+            in the call to `makedocs`.
+            Built-in support for markdown outpu will be removed completely in a future
             Documenter version, causing builds to fail completely.
 
             See the Output Backends section in the manual for more information.
             """
-        elseif each === :latex && !backends_enabled[:latex]
-            @warn """Deprecated format value :markdown
+        elseif isa(each, LaTeXWriter.LaTeX) && !backends_enabled[:latex]
+            @warn """Deprecated format
 
             The LaTeX/PDF backend must now be imported from a separate package.
             Add DocumenterLaTeX to your documentation dependencies and add
 
                 using DocumenterLaTeX
 
-            to your make.jl script.
+            to your make.jl script, and use
 
-            Built-in support for format=:latex will be removed completely in a future
+                makedocs(
+                    format = LaTeX(),
+                    ...
+                )
+
+            in the call to `makedocs`.
+            Built-in support for LaTeX/PDF output will be removed completely in a future
             Documenter version, causing builds to fail completely.
 
             See the Output Backends section in the manual for more information.
