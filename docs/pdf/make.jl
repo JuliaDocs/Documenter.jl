@@ -53,8 +53,14 @@ doc = makedocs(
 
 # hack to only deploy the actual pdf-file
 mkpath(joinpath(ROOT, "pdf", "build", "pdfdir"))
-mv(joinpath(ROOT, "pdf", "build", "Documenter.jl.pdf"),
-   joinpath(ROOT, "pdf", "build", "pdfdir", "Documenter.jl.pdf"))
+let files = readdir(joinpath(ROOT, "pdf", "build"))
+    for f in files
+        if startswith(f, "Documenter.jl") && endswith(f, ".pdf")
+            mv(joinpath(ROOT, "pdf", "build", f),
+               joinpath(ROOT, "pdf", "build", "pdfdir", f))
+        end
+    end
+end
 
 
 deploydocs(
