@@ -549,7 +549,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Other Output Formats",
     "title": "Markdown & MkDocs",
     "category": "section",
-    "text": "Markdown output requires the DocumenterMarkdown package to be available and loaded. For Travis setups, add the package to the docs/Project.toml environment as a dependency. You also need to import the package in make.jl:using DocumenterMarkdownWhen DocumenterMarkdown is loaded, you can specify format = :markdown in makedocs. Documenter will then output a set of Markdown files to the build directory that can then further be processed with MkDocs into HTML pages.MkDocs, of course, is not the only option you have – any markdown to HTML converter should work fine with some amount of setting up.note: Note\nMarkdown output used to be the default option (i.e. when leaving the format option unspecified). The default now is the HTML output."
+    "text": "Markdown output requires the DocumenterMarkdown package to be available and loaded. For Travis setups, add the package to the docs/Project.toml environment as a dependency. You also need to import the package in make.jl:using DocumenterMarkdownWhen DocumenterMarkdown is loaded, you can specify format = Markdown() in makedocs. Documenter will then output a set of Markdown files to the build directory that can then further be processed with MkDocs into HTML pages.MkDocs, of course, is not the only option you have – any markdown to HTML converter should work fine with some amount of setting up.note: Note\nMarkdown output used to be the default option (i.e. when leaving the format option unspecified). The default now is the HTML output."
 },
 
 {
@@ -581,7 +581,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Other Output Formats",
     "title": "PDF Output via LaTeX",
     "category": "section",
-    "text": "LaTeX/PDF output requires the DocumenterLaTeX package to be available and loaded in make.jl withusing DocumenterLaTeXWhen DocumenterLaTeX is loaded, you can set format = :latex in makedocs, and Documenter will generate a PDF version of the documentation using LaTeX.You need pdflatex command to be installed and available to Documenter.\nYou need the minted LaTeX package and its backend source highlighter Pygments installed.\nYou need the Lato and Roboto Mono fonts installed.You should also specify the sitename and authors keywords for makedocs when using the LaTeX output."
+    "text": "LaTeX/PDF output requires the DocumenterLaTeX package to be available and loaded in make.jl withusing DocumenterLaTeXWhen DocumenterLaTeX is loaded, you can set format = LaTeX() in makedocs, and Documenter will generate a PDF version of the documentation using LaTeX. You should also specify the sitename and authors keywords for makedocs when using the LaTeX output."
+},
+
+{
+    "location": "man/other-formats/#Compiling-using-natively-installed-latex-1",
+    "page": "Other Output Formats",
+    "title": "Compiling using natively installed latex",
+    "category": "section",
+    "text": "The following is required to build the documentation:You need pdflatex command to be installed and available to Documenter.\nYou need the minted LaTeX package and its backend source highlighter Pygments installed.\nYou need the Lato and Roboto Mono fonts installed."
+},
+
+{
+    "location": "man/other-formats/#Compiling-using-docker-image-1",
+    "page": "Other Output Formats",
+    "title": "Compiling using docker image",
+    "category": "section",
+    "text": "It is also possible to use a prebuilt docker image to compile the .tex file. The image contains all of the required installs described in the section above. The only requirement for using the image is that docker is installed and available for the builder to call. You also need to tell Documenter to use the docker image, instead of natively installed tex which is the default. This is done with the LaTeX specifier:using DocumenterLaTeX\nmakedocs(\n    format = LaTeX(platform = \"docker\"),\n    ...\n)If you build the documentation on Travis you need to addservices:\n  - dockerto your .travis.yml file."
 },
 
 {
@@ -629,7 +645,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Documenter.makedocs",
     "category": "function",
-    "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = joinpath(pathof(MyModule), \"..\", \"..\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it\'s encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter\'s make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git branch or tag name, or commit hash\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")\n\nExperimental keywords\n\nIn addition to standard arguments there is a set of non-finalized experimental keyword arguments. The behaviour of these may change or they may be removed without deprecation when a minor version changes (i.e. except in patch releases).\n\ncheckdocs instructs makedocs to check whether all names within the modules defined in the modules keyword that have a docstring attached have the docstring also listed in the manual (e.g. there\'s a @docs blocks with that docstring). Possible values are :all (check all names) and :exports (check only exported names). The default value is :none, in which case no checks are performed. If strict is also enabled then the build will fail if any missing docstrings are encountered.\n\nlinkcheck – if set to true makedocs uses curl to check the status codes of external-pointing links, to make sure that they are up-to-date. The links and their status codes are printed to the standard output. If strict is also enabled then the build will fail if there are any broken (400+ status code) links. Default: false.\n\nlinkcheck_ignore allows certain URLs to be ignored in linkcheck. The values should be a list of strings (which get matched exactly) or Regex objects. By default nothing is ignored.\n\nstrict – makedocs fails the build right before rendering if it encountered any errors with the document in the previous build phases.\n\nOutput formats\n\nformat allows the output format to be specified. The default value is :html. Other formats can be enabled by using other packages. For examples, see the DocumenterMarkdown and DocumenterLaTeX packages.\n\nDocumenter is designed to support multiple output formats. By default it is creates a set of HTML files, but the output format can be controlled with the format keyword. The different output formats may require additional keywords to be specified via plugins. The keywords for the default HTML output are documented for the Writers.HTMLWriter.HTML type.\n\nThe default :html output format creates a set of HTML files, but Documenter is designed to support multiple output formats. Via plugin packages, Documenter also supports e.g. Markdown / MkDocs and LaTeX / PDF outputs. See the Other Output Formats for more information.\n\nSee Also\n\nA guide detailing how to document a package using Documenter\'s makedocs is provided in the setup guide in the manual.\n\n\n\n\n\n"
+    "text": "makedocs(\n    root    = \"<current-directory>\",\n    source  = \"src\",\n    build   = \"build\",\n    clean   = true,\n    doctest = true,\n    modules = Module[],\n    repo    = \"\",\n)\n\nCombines markdown files and inline docstrings into an interlinked document. In most cases makedocs should be run from a make.jl file:\n\nusing Documenter\nmakedocs(\n    # keywords...\n)\n\nwhich is then run from the command line with:\n\n$ julia make.jl\n\nThe folder structure that makedocs expects looks like:\n\ndocs/\n    build/\n    src/\n    make.jl\n\nKeywords\n\nroot is the directory from which makedocs should run. When run from a make.jl file this keyword does not need to be set. It is, for the most part, needed when repeatedly running makedocs from the Julia REPL like so:\n\njulia> makedocs(root = joinpath(pathof(MyModule), \"..\", \"..\", \"docs\"))\n\nsource is the directory, relative to root, where the markdown source files are read from. By convention this folder is called src. Note that any non-markdown files stored in source are copied over to the build directory when makedocs is run.\n\nbuild is the directory, relative to root, into which generated files and folders are written when makedocs is run. The name of the build directory is, by convention, called build, though, like with source, users are free to change this to anything else to better suit their project needs.\n\nclean tells makedocs whether to remove all the content from the build folder prior to generating new content from source. By default this is set to true.\n\ndoctest instructs makedocs on whether to try to test Julia code blocks that are encountered in the generated document. By default this keyword is set to true. Doctesting should only ever be disabled when initially setting up a newly developed package where the developer is just trying to get their package and documentation structure correct. After that, it\'s encouraged to always make sure that documentation examples are runnable and produce the expected results. See the Doctests manual section for details about running doctests.\n\nmodules specifies a vector of modules that should be documented in source. If any inline docstrings from those modules are seen to be missing from the generated content then a warning will be printed during execution of makedocs. By default no modules are passed to modules and so no warnings will appear. This setting can be used as an indicator of the \"coverage\" of the generated documentation. For example Documenter\'s make.jl file contains:\n\nmakedocs(\n    modules = [Documenter],\n    # ...\n)\n\nand so any docstring from the module Documenter that is not spliced into the generated documentation in build will raise a warning.\n\nrepo specifies a template for the \"link to source\" feature. If you are using GitHub, this is automatically generated from the remote. If you are using a different host, you can use this option to tell Documenter how URLs should be generated. The following placeholders will be replaced with the respective value of the generated link:\n\n{commit} Git branch or tag name, or commit hash\n{path} Path to the file in the repository\n{line} Line (or range of lines) in the source file\n\nFor example if you are using GitLab.com, you could use\n\nmakedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")\n\nExperimental keywords\n\nIn addition to standard arguments there is a set of non-finalized experimental keyword arguments. The behaviour of these may change or they may be removed without deprecation when a minor version changes (i.e. except in patch releases).\n\ncheckdocs instructs makedocs to check whether all names within the modules defined in the modules keyword that have a docstring attached have the docstring also listed in the manual (e.g. there\'s a @docs blocks with that docstring). Possible values are :all (check all names) and :exports (check only exported names). The default value is :none, in which case no checks are performed. If strict is also enabled then the build will fail if any missing docstrings are encountered.\n\nlinkcheck – if set to true makedocs uses curl to check the status codes of external-pointing links, to make sure that they are up-to-date. The links and their status codes are printed to the standard output. If strict is also enabled then the build will fail if there are any broken (400+ status code) links. Default: false.\n\nlinkcheck_ignore allows certain URLs to be ignored in linkcheck. The values should be a list of strings (which get matched exactly) or Regex objects. By default nothing is ignored.\n\nstrict – makedocs fails the build right before rendering if it encountered any errors with the document in the previous build phases.\n\nOutput formats\n\nformat allows the output format to be specified. The default format is Documenter.HTML which creates a set of HTML files.\n\nThere are other possible formats that are enabled by using other addon-packages. For examples, the DocumenterMarkdown package define the DocumenterMarkdown.Markdown() format for use with e.g. MkDocs, and the DocumenterLaTeX package define the DocumenterLaTeX.LaTeX() format for LaTeX / PDF output. See the Other Output Formats for more information.\n\nSee Also\n\nA guide detailing how to document a package using Documenter\'s makedocs is provided in the setup guide in the manual.\n\n\n\n\n\n"
 },
 
 {
@@ -1497,46 +1513,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "lib/internals/formats/#",
-    "page": "Formats",
-    "title": "Formats",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "lib/internals/formats/#Documenter.Formats",
-    "page": "Formats",
-    "title": "Documenter.Formats",
-    "category": "module",
-    "text": "Filetypes used to decide which rendering methods in Documenter.Writers are called.\n\nThe only supported format is currently Markdown.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/formats/#Documenter.Formats.Format",
-    "page": "Formats",
-    "title": "Documenter.Formats.Format",
-    "category": "type",
-    "text": "Represents the output format. Possible values are Markdown, LaTeX, and HTML.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/formats/#Documenter.Formats.mimetype-Tuple{Symbol}",
-    "page": "Formats",
-    "title": "Documenter.Formats.mimetype",
-    "category": "method",
-    "text": "mimetype(f)\n\n\nConverts a Format value to a MIME type.\n\n\n\n\n\n"
-},
-
-{
-    "location": "lib/internals/formats/#Formats-1",
-    "page": "Formats",
-    "title": "Formats",
-    "category": "section",
-    "text": "Modules = [Documenter.Formats]"
-},
-
-{
     "location": "lib/internals/mdflatten/#",
     "page": "MDFlatten",
     "title": "MDFlatten",
@@ -2046,6 +2022,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Documenter.Writers.LaTeXWriter",
     "category": "module",
     "text": "A module for rendering Document objects to LaTeX and PDF.\n\nKeywords\n\nLaTeXWriter uses the following additional keyword arguments that can be passed to Documenter.makedocs: authors, sitename.\n\nsitename is the site\'s title displayed in the title bar and at the top of the navigation menu. It goes into the \\title LaTeX command.\n\nauthors can be used to specify the authors of. It goes into the \\author LaTeX command.\n\n\n\n\n\n"
+},
+
+{
+    "location": "lib/internals/writers/#Documenter.Writers.LaTeXWriter.LaTeX",
+    "page": "Writers",
+    "title": "Documenter.Writers.LaTeXWriter.LaTeX",
+    "category": "type",
+    "text": "LaTeXWriter.LaTeX(; kwargs...)\n\nSets the behavior of LaTeXWriter.\n\nKeyword arguments\n\nplatform sets the platform where the tex-file is compiled, either \"native\" (default) or \"docker\". See Other Output Formats for more information.\n\n\n\n\n\n"
 },
 
 {
