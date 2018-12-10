@@ -53,6 +53,8 @@
 
 * ![Enhancement][badge-enhancement] The default `documenter.sty` LaTeX preamble now include `\usepackage{graphicx}` ([#898][github-898]).
 
+* ![Enhancement][badge-enhancement] `deploydocs` is now more helpful when it fails to interpret `DOCUMENTER_KEY`. It now also uses the `BatchMode` SSH option and throws an error instead of asking for a passphrase and timing out the Travis build when `DOCUMENTER_KEY` is broken. ([#697][github-697], [#907][github-907])
+
 * ![Enhancement][badge-enhancement] `deploydocs` now have a `forcepush` keyword argument that can be used to
   force-push the built documentation instead of adding a new commit. ([#905][github-905]).
 
@@ -139,6 +141,7 @@
 
 * ![Bugfix][badge-bugfix] At-docs blocks no longer give an error when containing empty lines. ([#823][github-823], [#824][github-824])
 
+[github-697]: https://github.com/JuliaDocs/Documenter.jl/pull/697
 [github-706]: https://github.com/JuliaDocs/Documenter.jl/pull/706
 [github-764]: https://github.com/JuliaDocs/Documenter.jl/pull/764
 [github-789]: https://github.com/JuliaDocs/Documenter.jl/pull/789
@@ -165,6 +168,7 @@
 [github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
+[github-907]: https://github.com/JuliaDocs/Documenter.jl/pull/907
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
