@@ -24,7 +24,7 @@
   )
   ```
 
-* ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The `html_prettyurls`, `html_canonical`, `html_disable_git` and `html_edit_branch` arguments to `makedocs` in favor of the corresponding arguments of the `Documenter.HTML` format specifier. ([#864][github-864], [#891][github-891])
+* ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The `html_prettyurls`, `html_canonical`, `html_disable_git` and `html_edit_branch` arguments to `makedocs` have been deprecated in favor of the corresponding arguments of the `Documenter.HTML` format plugin. ([#864][github-864], [#891][github-891])
 
   **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead. E.g. instead of
 
@@ -43,6 +43,8 @@
       ...
   )
   ```
+  
+  _**Note:** It is technically possible to specify the same argument twice with different values by passing both variants. In that case the value to the deprecated `html_*` variant takes precedence._
 
 * ![Feature][badge-feature] Packages extending Documenter can now define subtypes of `Documenter.Plugin`,
   which can be passed to `makedocs` as positional arguments to pass options to the extensions. ([#864][github-864])
