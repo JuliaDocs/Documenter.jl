@@ -547,13 +547,22 @@ function git_push(
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
 
-    keyfile = abspath(joinpath(root, ".documenter"))
     target_dir = abspath(target)
 
     # The upstream URL to which we push new content and the ssh decryption commands.
     upstream = "git@$(replace(repo, "github.com/" => "github.com:"))"
 
-    write(keyfile, String(base64decode(key)))
+    keyfile = abspath(joinpath(root, ".documenter"))
+    try
+        write(keyfile, String(base64decode(key)))
+    catch e
+        @error """
+        Documenter failed to decode the DOCUMENTER_KEY environment variable.
+        Make sure that the environment variable is properly set up as a Base64-encoded string
+        of the SSH private key. You may need to re-generate the keys with DocumenterTools.
+        """
+        rethrow(e)
+    end
     chmod(keyfile, 0o600)
 
     try
@@ -564,6 +573,7 @@ function git_push(
                 StrictHostKeyChecking no
                 HostName github.com
                 IdentityFile $keyfile
+                BatchMode yes
             """
         ) do
             cd(temp) do
@@ -574,7 +584,17 @@ function git_push(
 
                 # Fetch from remote and checkout the branch.
                 run(`git remote add upstream $upstream`)
-                run(`git fetch upstream`)
+                try
+                    run(`git fetch upstream`)
+                catch e
+                    @error """
+                    Git failed to fetch $upstream
+                    This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
+                    Make sure that the environment variable is properly set up as a Base64-encoded string
+                    of the SSH private key. You may need to re-generate the keys with DocumenterTools.
+                    """
+                    rethrow(e)
+                end
 
                 try
                     run(`git checkout -b $branch upstream/$branch`)
