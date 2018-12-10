@@ -581,7 +581,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Other Output Formats",
     "title": "PDF Output via LaTeX",
     "category": "section",
-    "text": "LaTeX/PDF output requires the DocumenterLaTeX package to be available and loaded in make.jl withusing DocumenterLaTeXWhen DocumenterLaTeX is loaded, you can set format = LaTeX() in makedocs, and Documenter will generate a PDF version of the documentation using LaTeX. You should also specify the sitename and authors keywords for makedocs when using the LaTeX output."
+    "text": "LaTeX/PDF output requires the DocumenterLaTeX package to be available and loaded in make.jl withusing DocumenterLaTeXWhen DocumenterLaTeX is loaded, you can set format = LaTeX() in makedocs, and Documenter will generate a PDF version of the documentation using LaTeX. The makedocs argument sitename will be used for the \\\\title field in the tex document, and if the build is for a release tag (i.e. when the \"TRAVIS_TAG\" environment variable is set) the version number will be appended to the title. The makedocs argument authors should also be specified, it will be used for the \\\\authors field in the tex document."
 },
 
 {
@@ -2029,7 +2029,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Writers",
     "title": "Documenter.Writers.LaTeXWriter.LaTeX",
     "category": "type",
-    "text": "LaTeXWriter.LaTeX(; kwargs...)\n\nSets the behavior of LaTeXWriter.\n\nKeyword arguments\n\nplatform sets the platform where the tex-file is compiled, either \"native\" (default) or \"docker\". See Other Output Formats for more information.\n\n\n\n\n\n"
+    "text": "LaTeXWriter.LaTeX(; kwargs...)\n\nOutput format specifier that results in LaTeX/PDF output. Used together with makedocs, e.g.\n\nmakedocs(\n    format = LaTeX()\n)\n\nThe makedocs argument sitename will be used for the \\title field in the tex document, and if the build is for a release tag (i.e. when the \"TRAVIS_TAG\" environment variable is set) the version number will be appended to the title. The makedocs argument authors should also be specified, it will be used for the \\authors field in the tex document.\n\nKeyword arguments\n\nplatform sets the platform where the tex-file is compiled, either \"native\" (default) or \"docker\". See Other Output Formats for more information.\n\n\n\n\n\n"
 },
 
 {
