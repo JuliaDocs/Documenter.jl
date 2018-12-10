@@ -62,4 +62,5 @@ deploydocs(
     root = ROOT,
     target = "pdf/build/pdfdir",
     branch = "gh-pages-pdf",
+    forcepush = true,
 )
