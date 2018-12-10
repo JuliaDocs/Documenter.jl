@@ -2,19 +2,21 @@
 
 ## Version `v0.21.0`
 
-* ![Deprecation][badge-deprecation] The `format` argument to `makedocs`
-  have changed from `:html`/`:markdown`/`:latex` to instances of the `Documenter.HTML`/`Markdown`/`LaTeX`
-  structs, where `Markdown` and `LaTeX` are exported from `DocumenterMarkdown` and `DocumenterLaTeX`
+* ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The symbol values to the `format` argument of `makedocs` (`:html`, `:markdown`, `:latex`) have been deprecated in favor of the `Documenter.HTML`, `Markdown` and `LaTeX`
+  objects. The `Markdown` and `LaTeX` types are exported from `DocumenterMarkdown` and `DocumenterLaTeX`,
   respectively. HTML output is still the default. ([#891][github-891])
 
   **For upgrading:** If you don't specify `format` (i.e. you rely on the default) you don't have to do anything.
   Otherwise update calls to `makedocs` to use struct instances instead of symbols, e.g.
+  
   ```
   makedocs(
       format = :markdown
   )
   ```
+  
   should be changed to
+  
   ```
   using DocumenterMarkdown
   makedocs(
@@ -22,25 +24,25 @@
   )
   ```
 
-* ![Enhancement][badge-enhancement] ![Deprecation][badge-deprecation] The options to `HTMLWriter` should now be
-  passed to the `Documenter.HTML` format specifier instead. ([#864][github-864], [#891][github-891])
+* ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The `html_prettyurls`, `html_canonical`, `html_disable_git` and `html_edit_branch` arguments to `makedocs` in favor of the corresponding arguments of the `Documenter.HTML` format specifier. ([#864][github-864], [#891][github-891])
 
-  - `html_prettyurls`, `html_canonical`, `html_disable_git` and `html_edit_branch` arguments to `makedocs` have been deprecated.
+  **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead. E.g. instead of
 
-    **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead. E.g. instead of
-    ```
-    makedocs(
-        html_prettyurls = ..., html_canonical = ...,
-        ...
-    )
-    ```
-    you should have
-    ```
-    makedocs(
-        format = Documenter.HTML(prettyurls = ..., canonical = ...),
-        ...
-    )
-    ```
+  ```
+  makedocs(
+      html_prettyurls = ..., html_canonical = ...,
+      ...
+  )
+  ```
+
+  you should have
+
+  ```
+  makedocs(
+      format = Documenter.HTML(prettyurls = ..., canonical = ...),
+      ...
+  )
+  ```
 
 * ![Feature][badge-feature] Packages extending Documenter can now define subtypes of `Documenter.Plugin`,
   which can be passed to `makedocs` as positional arguments to pass options to the extensions. ([#864][github-864])
@@ -51,12 +53,12 @@
 
 * ![Enhancement][badge-enhancement] Build output logging has been improved and switched to the logging macros from `Base`. ([#876][github-876])
 
-* ![Enhancement][badge-enhancement] The default `documenter.sty` LaTeX preamble now include `\usepackage{graphicx}` ([#898][github-898]).
+* ![Enhancement][badge-enhancement] The default `documenter.sty` LaTeX preamble now include `\usepackage{graphicx}`. ([#898][github-898])
 
 * ![Enhancement][badge-enhancement] `deploydocs` is now more helpful when it fails to interpret `DOCUMENTER_KEY`. It now also uses the `BatchMode` SSH option and throws an error instead of asking for a passphrase and timing out the Travis build when `DOCUMENTER_KEY` is broken. ([#697][github-697], [#907][github-907])
 
 * ![Enhancement][badge-enhancement] `deploydocs` now have a `forcepush` keyword argument that can be used to
-  force-push the built documentation instead of adding a new commit. ([#905][github-905]).
+  force-push the built documentation instead of adding a new commit. ([#905][github-905])
 
 ## Version `v0.20.0`
 
