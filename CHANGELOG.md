@@ -3,7 +3,7 @@
 ## Version `v0.21.0`
 
 * ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The symbol values to the `format` argument of `makedocs` (`:html`, `:markdown`, `:latex`) have been deprecated in favor of the `Documenter.HTML`, `Markdown` and `LaTeX`
-  objects. The `Markdown` and `LaTeX` types are exported from `DocumenterMarkdown` and `DocumenterLaTeX`,
+  objects. The `Markdown` and `LaTeX` types are exported from the [DocumenterMarkdown][documentermarkdown] and [DocumenterLaTeX][documenterlatex] packages,
   respectively. HTML output is still the default. ([#891][github-891])
 
   **For upgrading:** If you don't specify `format` (i.e. you rely on the default) you don't have to do anything.
@@ -173,6 +173,9 @@
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
 [github-907]: https://github.com/JuliaDocs/Documenter.jl/pull/907
+
+[documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
+[documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
