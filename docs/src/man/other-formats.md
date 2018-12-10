@@ -158,8 +158,11 @@ using DocumenterLaTeX
 
 When `DocumenterLaTeX` is loaded, you can set `format = LaTeX()` in [`makedocs`](@ref),
 and Documenter will generate a PDF version of the documentation using LaTeX.
-You should also specify the `sitename` and `authors` keywords for `makedocs` when using the
-LaTeX output.
+The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document,
+and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment variable is set)
+the version number will be appended to the title.
+The `makedocs` argument `authors` should also be specified, it will be used for the
+`\\authors` field in the tex document.
 
 ### Compiling using natively installed latex
 
