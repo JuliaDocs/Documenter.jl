@@ -392,7 +392,7 @@ documentation. By default this value is set to `"master"`.
 Defaults to `"dev"`.
 
 **`forcepush`** a boolean that specifies the behavior of the git-deployment.
-The default (`forcepush = true`) is to push a new commit, but when
+The default (`forcepush = false`) is to push a new commit, but when
 `forcepush = true` the changes will be combined with the previous commit and
 force pushed.
 
