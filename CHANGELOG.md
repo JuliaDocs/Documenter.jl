@@ -53,6 +53,9 @@
 
 * ![Enhancement][badge-enhancement] The default `documenter.sty` LaTeX preamble now include `\usepackage{graphicx}` ([#898][github-898]).
 
+* ![Enhancement][badge-enhancement] `deploydocs` now have a `forcepush` keyword argument that can be used to
+  force-push the built documentation instead of adding a new commit. ([#905][github-905]).
+
 ## Version `v0.20.0`
 
 * Documenter v0.20 requires at least Julia v0.7. ([#795][github-795])
@@ -161,6 +164,7 @@
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
 [github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
+[github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
