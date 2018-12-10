@@ -18,7 +18,20 @@ import ...Documenter: Documenter
 """
     LaTeXWriter.LaTeX(; kwargs...)
 
-Sets the behavior of [`LaTeXWriter`](@ref).
+Output format specifier that results in LaTeX/PDF output.
+Used together with [`makedocs`](@ref), e.g.
+
+```julia
+makedocs(
+    format = LaTeX()
+)
+```
+
+The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document,
+and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment variable is set)
+the version number will be appended to the title.
+The `makedocs` argument `authors` should also be specified, it will be used for the
+`\\authors` field in the tex document.
 
 # Keyword arguments
 
