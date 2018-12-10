@@ -76,8 +76,16 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
-            texfile = replace("$(doc.user.sitename).tex", " " => "")
-            pdffile = replace("$(doc.user.sitename).pdf", " " => "")
+            name = doc.user.sitename
+            let tag = get(ENV, "TRAVIS_TAG", "")
+                if occursin(Base.VERSION_REGEX, tag)
+                    v = VersionNumber(tag)
+                    name *= "-$(v.major).$(v.minor).$(v.patch)"
+                end
+            end
+            name = replace(name, " " => "")
+            texfile = name * ".tex"
+            pdffile = name * ".pdf"
             open(texfile, "w") do io
                 context = Context(io)
                 writeheader(context, doc)
@@ -167,7 +175,10 @@ function writeheader(io::IO, doc::Documents.Document)
         \\usepackage{./documenter}
         \\usepackage{./custom}
 
-        \\title{$(doc.user.sitename)}
+        \\title{
+            {\\HUGE $(doc.user.sitename)}\\\\
+            {\\Large $(get(ENV, "TRAVIS_TAG", ""))}
+        }
         \\author{$(doc.user.authors)}
 
         \\begin{document}

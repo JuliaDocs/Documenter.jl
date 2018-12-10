@@ -391,6 +391,11 @@ documentation. By default this value is set to `"master"`.
 **`devurl`** the folder that in-development version of the docs will be deployed.
 Defaults to `"dev"`.
 
+**`forcepush`** a boolean that specifies the behavior of the git-deployment.
+The default (`forcepush = false`) is to push a new commit, but when
+`forcepush = true` the changes will be combined with the previous commit and
+force pushed, erasing the Git history on the deployment branch.
+
 **`versions`** determines content and order of the resulting version selector in
 the generated html. The following entries are valied in the `versions` vector:
  - `"v#"`: includes links to the latest documentation for each major release cycle
@@ -428,7 +433,8 @@ function deploydocs(;
 
         devbranch = "master",
         devurl = "dev",
-        versions = ["stable" => "v^", "v#.#", devurl => devurl]
+        versions = ["stable" => "v^", "v#.#", devurl => devurl],
+        forcepush::Bool = false,
     )
     # deprecation of latest kwarg (renamed to devbranch)
     if latest !== nothing
@@ -522,7 +528,7 @@ function deploydocs(;
                     root, temp, repo;
                     branch=branch, dirname=dirname, target=target,
                     tag=travis_tag, key=documenter_key, sha=sha,
-                    devurl = devurl, versions = versions,
+                    devurl = devurl, versions = versions, forcepush = forcepush,
                 )
             end
         end
@@ -542,7 +548,7 @@ and when building docs for a tag they are deployed to a `vX.Y.Z` directory.
 function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", tag="", key="", sha="", devurl="dev",
-        versions
+        versions, forcepush=false,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -647,8 +653,13 @@ function git_push(
                 # Add, commit, and push the docs to the remote.
                 run(`git add -A .`)
                 if !success(`git diff --cached --exit-code`)
-                    run(`git commit -m "build based on $sha"`)
-                    run(`git push -q upstream HEAD:$branch`)
+                    if forcepush
+                        run(`git commit --amend --date=now -m "build based on $sha"`)
+                        run(`git push -fq upstream HEAD:$branch`)
+                    else
+                        run(`git commit -m "build based on $sha"`)
+                        run(`git push -q upstream HEAD:$branch`)
+                    end
                 else
                     @debug "new docs identical to the old -- not committing nor pushing."
                 end

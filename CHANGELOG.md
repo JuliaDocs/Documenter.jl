@@ -55,6 +55,9 @@
 
 * ![Enhancement][badge-enhancement] `deploydocs` is now more helpful when it fails to interpret `DOCUMENTER_KEY`. It now also uses the `BatchMode` SSH option and throws an error instead of asking for a passphrase and timing out the Travis build when `DOCUMENTER_KEY` is broken. ([#697][github-697], [#907][github-907])
 
+* ![Enhancement][badge-enhancement] `deploydocs` now have a `forcepush` keyword argument that can be used to
+  force-push the built documentation instead of adding a new commit. ([#905][github-905]).
+
 ## Version `v0.20.0`
 
 * Documenter v0.20 requires at least Julia v0.7. ([#795][github-795])
@@ -164,6 +167,7 @@
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
 [github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
+[github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
 [github-907]: https://github.com/JuliaDocs/Documenter.jl/pull/907
 
 
