@@ -394,7 +394,7 @@ Defaults to `"dev"`.
 **`forcepush`** a boolean that specifies the behavior of the git-deployment.
 The default (`forcepush = false`) is to push a new commit, but when
 `forcepush = true` the changes will be combined with the previous commit and
-force pushed.
+force pushed, erasing the Git history on the deployment branch.
 
 **`versions`** determines content and order of the resulting version selector in
 the generated html. The following entries are valied in the `versions` vector:
