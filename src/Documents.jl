@@ -12,7 +12,6 @@ module Documents
 import ..Documenter:
     Documenter,
     Anchors,
-    Formats,
     Utilities,
     Plugin
 

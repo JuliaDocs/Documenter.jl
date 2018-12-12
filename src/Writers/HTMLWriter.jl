@@ -75,7 +75,6 @@ import ...Documenter:
     Builder,
     Documents,
     Expanders,
-    Formats,
     Documenter,
     Utilities,
     Writers
@@ -930,7 +929,8 @@ function get_url(ctx, path::AbstractString)
         end
         isempty(d) ? "index.html" : "$d/index.html"
     else
-        Formats.extension(:html, path)
+        # change extension to .html
+        string(splitext(path)[1], ".html")
     end
 end
 

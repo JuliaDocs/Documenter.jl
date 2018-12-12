@@ -7,7 +7,6 @@ import ..Documenter:
     Anchors,
     Builder,
     Documents,
-    Formats,
     Documenter,
     Utilities
 

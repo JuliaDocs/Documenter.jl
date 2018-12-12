@@ -8,7 +8,6 @@ import ...Documenter:
     Builder,
     Documents,
     Expanders,
-    Formats,
     Documenter,
     Utilities
 
@@ -21,11 +20,14 @@ const MarkdownStdlib = _Markdown.Markdown
 struct Markdown <: Documenter.Plugin
 end
 
+# return the same file with the extension changed to .md
+mdext(f) = string(splitext(f)[1], ".md")
+
 function render(doc::Documents.Document, settings::Markdown=Markdown())
     copy_assets(doc)
-    mime = Formats.mimetype(:markdown)
+    mime = MIME"text/plain"()
     for (src, page) in doc.internal.pages
-        open(Formats.extension(:markdown, page.build), "w") do io
+        open(mdext(page.build), "w") do io
             for elem in page.elements
                 node = page.mapping[elem]
                 render(io, mime, node, page, doc)
@@ -111,7 +113,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", index::Documents.IndexNode, page, doc)
     for (object, _, page, mod, cat) in index.elements
-        page = Formats.extension(:markdown, page)
+        page = mdext(page)
         url = string(page, "#", Utilities.slugify(object))
         println(io, "- [`", object.binding, "`](", url, ")")
     end
@@ -120,7 +122,7 @@ end
 
 function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, page, doc)
     for (count, path, anchor) in contents.elements
-        path = Formats.extension(:markdown, path)
+        path = mdext(path)
         header = anchor.object
         url    = string(path, '#', anchor.id, '-', anchor.nth)
         link   = MarkdownStdlib.Link(header.text, url)

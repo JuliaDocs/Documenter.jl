@@ -8,7 +8,6 @@ import ..Documenter:
     Builder,
     Documents,
     Expanders,
-    Formats,
     Documenter,
     Utilities
 

@@ -36,7 +36,6 @@ abstract type Plugin end
 
 include("Utilities/Utilities.jl")
 include("DocSystem.jl")
-include("Formats.jl")
 include("Anchors.jl")
 include("Documents.jl")
 include("Builder.jl")
