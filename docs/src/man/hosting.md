@@ -63,11 +63,19 @@ Then call the [`Travis.genkeys`](@ref) function as follows:
 
 ```julia-repl
 julia> using MyPackage
+julia> Travis.genkeys(user="MyUser", repo="git@github.com:MyUser/MyPackage.jl.git")
+```
+
+where `MyPackage` is the name of the package you would like to create deploy keys for and `MyUser` is your GitHub username. Note that the keyword arguments are optional and can be omitted.
+
+If the package is checked out in development mode with `] dev MyPackage`, you can also use `Travis.genkeys` as follows:
+
+```julia-repl
+julia> using MyPackage
 julia> Travis.genkeys(MyPackage)
 ```
 
-where `MyPackage` is the name of the package you would like to create deploy keys for. The
-output will look similar to the text below:
+where `MyPackage` is the package you would like to create deploy keys for. The output will look similar to the text below:
 
 ```
 INFO: add the public key below to https://github.com/USER/REPO/settings/keys
