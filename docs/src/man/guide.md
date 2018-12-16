@@ -146,7 +146,7 @@ build/
        [`Documenter.HTML`](@ref) plugin:
 
        ```julia
-       makedocs(..., Documenter.HTML(prettyurls = false))
+       makedocs(..., format = Documenter.HTML(prettyurls = false))
        ```
 
        Alternatively, if your goal is to eventually set up automatic documentation deployment
@@ -155,7 +155,7 @@ build/
 
        ```julia
        makedocs(...,
-           Documenter.HTML(
+           format = Documenter.HTML(
                prettyurls = get(ENV, "CI", nothing) == "true"
            )
        )
