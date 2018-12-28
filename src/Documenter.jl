@@ -419,7 +419,7 @@ of which are specific to the [Travis CI platform](https://travis-ci.com/).
  - **`TRAVIS_PULL_REQUEST`**: must be set to `false`.
 
    This avoids deployment on pull request builds. Note that there is no way to _safely_
-   enable builds on pull requests, since that would expose the SSH private key.
+   enable builds on pull requests, since that would expose the SSH private key
    (`DOCUMENTER_KEY`), giving anyone opening a pull request full write access to the repository.
 
  - **`TRAVIS_REPO_SLUG`**: must match the value of the `repo` keyword.
@@ -430,13 +430,13 @@ of which are specific to the [Travis CI platform](https://travis-ci.com/).
    cron job.
 
  - **`TRAVIS_BRANCH`**: unless `TRAVIS_TAG` is non-empty, this must have the same value as the
-   `devbranch` keyword
+   `devbranch` keyword.
 
    This makes sure that only the development branch (commonly, the `master` branch) will deploy
    the "dev" documentation (deployed into a directory specified by the `devurl` keyword).
 
  - **`TRAVIS_TAG`**: if set, a tagged version deployment is performed instead; the value must be
-   a valid version number (i.e. match `Base.VERSION_REGEX`)
+   a valid version number (i.e. match `Base.VERSION_REGEX`).
 
    The documentation for a package version tag gets deployed to a directory named after the
    version number in `TRAVIS_TAG` instead.
