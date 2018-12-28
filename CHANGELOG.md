@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.22.0`
+
+* ![Enhancement][badge-enhancement] Documentation is no longer deployed on Travis CI cron jobs. ([#917][github-917])
+
 ## Version `v0.21.0`
 
 * ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The symbol values to the `format` argument of `makedocs` (`:html`, `:markdown`, `:latex`) have been deprecated in favor of the `Documenter.HTML`, `Markdown` and `LaTeX`
