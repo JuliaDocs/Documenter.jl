@@ -409,6 +409,43 @@ the generated html. The following entries are valied in the `versions` vector:
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
 
+# Environment variables
+
+[`deploydocs`](@ref)'s behavior is influenced by the following environment variables, many
+of which are specific to the [Travis CI platform](https://travis-ci.com/).
+
+ - **`DOCUMENTER_KEY`**: must contain the Base64-encoded SSH private key for the repository.
+
+ - **`TRAVIS_PULL_REQUEST`**: must be set to `false`.
+
+   This avoids deployment on pull request builds. Note that there is no way to _safely_
+   enable builds on pull requests, since that would expose the SSH private key
+   (`DOCUMENTER_KEY`), giving anyone opening a pull request full write access to the repository.
+
+ - **`TRAVIS_REPO_SLUG`**: must match the value of the `repo` keyword.
+
+ - **`TRAVIS_EVENT_TYPE`**: may not be set to `cron`.
+
+   This avoids the re-deployment of existing docs on builds that were triggered by a Travis
+   cron job.
+
+ - **`TRAVIS_BRANCH`**: unless `TRAVIS_TAG` is non-empty, this must have the same value as the
+   `devbranch` keyword.
+
+   This makes sure that only the development branch (commonly, the `master` branch) will deploy
+   the "dev" documentation (deployed into a directory specified by the `devurl` keyword).
+
+ - **`TRAVIS_TAG`**: if set, a tagged version deployment is performed instead; the value must be
+   a valid version number (i.e. match `Base.VERSION_REGEX`).
+
+   The documentation for a package version tag gets deployed to a directory named after the
+   version number in `TRAVIS_TAG` instead.
+
+The `TRAVIS_*` variables are set automatically on Travis, but could be set manually to
+appropriate values as well to run [`deploydocs`](@ref) locally or on other CI platforms.
+More information on how Travis sets the `TRAVIS_*` variables can be found in the
+[Travis documentation](https://docs.travis-ci.com/user/environment-variables/#default-environment-variables).
+
 # See Also
 
 The [Hosting Documentation](@ref) section of the manual provides a step-by-step guide to
