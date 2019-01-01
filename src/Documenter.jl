@@ -608,12 +608,6 @@ the generated html. The following entries are valied in the `versions` vector:
 Travis ([`TRAVIS`](@ref)).  Other options are [`GITLAB_CI`](@ref), [`CIRRUS_CI`](@ref),
 [`DRONE`](@ref), and [`APPVEYOR`](@ref).
 
-**tag** provides a specific tag, if you want one to be set.  Providing an empty string (if
-building manually) will make the documentation build as if there was no tag; but, if run on
-CI, it will read the appropriate environment variable to determine if a tag exists or not;
-if there is a provided tag, then that will take precedence over the environment variable,
-which will take precedence over the empty string.
-
 # Environment variables
 
 - **`DOCUMENTER_KEY`**: must contain the Base64-encoded SSH private key for the repository.
@@ -677,8 +671,7 @@ function deploydocs(;
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
-        uploader::CI_SYSTEM = TRAVIS,
-        tag = ""
+        uploader::CI_SYSTEM = TRAVIS
     )
     # deprecation of latest kwarg (renamed to devbranch)
     if latest !== nothing
@@ -702,21 +695,21 @@ function deploydocs(;
         return
     end
 
-    local cibranch, pull_request, repo_slug, localtag, event_type, finaldeploy
+    local cibranch, pull_request, repo_slug, tag, event_type, finaldeploy
 
     if haskey(ENV, "CI")
-        cibranch, pull_request, repo_slug, citag, event_type, finaldeploy = read_ci_env(true, uploader=uploader)
-        localtag = isempty(tag) ? citag : tag
+        cibranch, pull_request, repo_slug, tag, event_type, finaldeploy = read_ci_env(true, uploader=uploader)
     else
-        cibranch = devbranch
-        pull_request = false
-        repo_slug = repo
-        localtag = isempty(tag) ? read_ci_env()[:tag] : tag
-        event_type = "manual"
-        finaldeploy = haskey(ENV, "DOCUMENTER_KEY")
+        # TODO add a better way to manually deploy
+        @error """
+                You seem to be deploying manually, but ENV[\"CI\"] is not set.
+                Please set the appropriate environment variables before you try to deploy.
+                These environment variables can be seen in the documentation for `deploydocs`,
+                which can be accessed by `?deploydocs` in the REPL.
+               """
     end
 
-    # Get environment variables.
+    # Get authentication key.
     documenter_key = get(ENV, "DOCUMENTER_KEY",       "")
 
 
@@ -743,7 +736,7 @@ function deploydocs(;
     ## Do not deploy for PRs
     pr_ok = pull_request in ("false", "False") # Appveyor env vars are capitalized on Windows
     ## If a tag exists, it should be a valid VersionNumber
-    tag_ok = isempty(localtag) || occursin(Base.VERSION_REGEX, tag)
+    tag_ok = isempty(tag) || occursin(Base.VERSION_REGEX, tag)
     ## If no tag exists deploydocs' devbranch should match the CI branch
     branch_ok = !isempty(tag) || cibranch == devbranch
     ## DOCUMENTER_KEY should exist
@@ -767,13 +760,7 @@ function deploydocs(;
         - $(marker(finaldeploy)) CI service is $uploader
         Deploying: $(marker(should_deploy))
         """
-    else
-        @info """
-        Deploying manually.
-        Deployment criteria:
-        - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
-        Deploying: $(marker(should_deploy))
-        """
+    # TODO add a better way to manually deploy
     end
 
     if should_deploy
