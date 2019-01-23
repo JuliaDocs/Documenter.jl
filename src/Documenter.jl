@@ -206,7 +206,7 @@ function makedocs(components...; debug = false, format = HTML(),
         ```
         with
         ```
-        format = Documenter.HTML($kw = ...)
+        format = Documenter.HTML($(kw[6:end]) = ...)
         ```
         """, :makedocs)
     end
