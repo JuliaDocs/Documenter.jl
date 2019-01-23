@@ -351,6 +351,11 @@ ex = :(1 + 5)
 eval(ex)
 ```
 
+```@example
+a = 1
+:(a + 1)
+```
+
 # Issue #793
 ```jldoctest
 julia> write("issue793.jl", "\"Hello!\"");

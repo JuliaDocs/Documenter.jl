@@ -4,6 +4,9 @@
 
 * ![Enhancement][badge-enhancement] Documentation is no longer deployed on Travis CI cron jobs. ([#917][github-917])
 
+* ![Bugfix][badge-bugfix] `@repl` blocks now work correctly together with quoted
+  expressions. ([#923][github-923], [#926][github-926])
+
 ## Version `v0.21.0`
 
 * ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The symbol values to the `format` argument of `makedocs` (`:html`, `:markdown`, `:latex`) have been deprecated in favor of the `Documenter.HTML`, `Markdown` and `LaTeX`
@@ -12,15 +15,15 @@
 
   **For upgrading:** If you don't specify `format` (i.e. you rely on the default) you don't have to do anything.
   Otherwise update calls to `makedocs` to use struct instances instead of symbols, e.g.
-  
+
   ```
   makedocs(
       format = :markdown
   )
   ```
-  
+
   should be changed to
-  
+
   ```
   using DocumenterMarkdown
   makedocs(
@@ -47,7 +50,7 @@
       ...
   )
   ```
-  
+
   _**Note:** It is technically possible to specify the same argument twice with different values by passing both variants. In that case the value to the deprecated `html_*` variant takes precedence._
 
 * ![Feature][badge-feature] Packages extending Documenter can now define subtypes of `Documenter.Plugin`,
@@ -177,6 +180,8 @@
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
 [github-907]: https://github.com/JuliaDocs/Documenter.jl/pull/907
+[github-923]: https://github.com/JuliaDocs/Documenter.jl/pull/923
+[github-926]: https://github.com/JuliaDocs/Documenter.jl/pull/926
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
