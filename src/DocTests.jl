@@ -16,25 +16,6 @@ import Markdown, REPL
 # Julia code block testing.
 # -------------------------
 
-# escape characters that has a meaning in regex
-regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
-
-# helper to display linerange for error printing
-function find_codeblock_in_file(code, file)
-    content = read(Base.find_source_file(file), String)
-    content = replace(content, "\r\n" => "\n")
-    # make a regex of the code that matches leading whitespace
-    rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
-    blockidx = findfirst(Regex(rcode), content)
-    if blockidx !== nothing
-        startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
-        endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
-        return ":$(startline)-$(endline)"
-    else
-        return ""
-    end
-end
-
 """
 $(SIGNATURES)
 
@@ -78,7 +59,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
                     file = meta[:CurrentFile]
-                    lines = find_codeblock_in_file(block.code, file)
+                    lines = Utilities.find_block_in_file(block.code, file)
                     @warn("""
                         invalid syntax for doctest keyword arguments in $(Utilities.locrepr(file, lines))
                         Use ```jldoctest name; key1 = value1, key2 = value2
@@ -112,7 +93,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
         else
             push!(doc.internal.errors, :doctest)
             file = meta[:CurrentFile]
-            lines = find_codeblock_in_file(block.code, file)
+            lines = Utilities.find_block_in_file(block.code, file)
             @warn("""
                 invalid doctest block in $(Utilities.locrepr(file, lines))
                 Requires `julia> ` or `# output`
@@ -294,7 +275,7 @@ function report(result::Result, str, doc::Documents.Document)
     println(ioc, "=====[Test Error]", "="^30)
     println(ioc)
     printstyled(ioc, "> Location: ", result.file, color=:cyan)
-    printstyled(ioc, find_codeblock_in_file(result.block.code, result.file), color=:cyan)
+    printstyled(ioc, Utilities.find_block_in_file(result.block.code, result.file), color=:cyan)
     printstyled(ioc, "\n\n> Code block:\n", color=:cyan)
     println(ioc, "\n```$(result.block.language)")
     println(ioc, result.block.code)
@@ -328,7 +309,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     io = IOBuffer(sizehint = sizeof(content))
     # first look for the entire code block
     # make a regex of the code that matches leading whitespace
-    rcode = "(\\h*)" * replace(regex_escape(code), "\\n" => "\\n\\h*")
+    rcode = "(\\h*)" * replace(Utilities.regex_escape(code), "\\n" => "\\n\\h*")
     r = Regex(rcode)
     codeidx = findfirst(r, content)
     if codeidx === nothing
@@ -341,7 +322,7 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     write(io, content[1:prevind(content, first(codeidx))])
     # next look for the particular input string in the given code block
     # make a regex of the input that matches leading whitespace (for multiline input)
-    rinput = "\\h*" * replace(regex_escape(result.input), "\\n" => "\\n\\h*")
+    rinput = "\\h*" * replace(Utilities.regex_escape(result.input), "\\n" => "\\n\\h*")
     r = Regex(rinput)
     inputidx = findfirst(r, code)
     if inputidx === nothing
