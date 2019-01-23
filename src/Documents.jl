@@ -121,7 +121,7 @@ struct DocsNode
 end
 
 struct DocsNodes
-    nodes :: Vector{DocsNode}
+    nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
 end
 
 struct EvalNode
