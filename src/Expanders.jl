@@ -433,7 +433,7 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     cd(dirname(page.build)) do
         result = nothing
-        for (ex, str) in Utilities.parseblock(x.code, doc, page)
+        for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
             try
                 result = Core.eval(sandbox, ex)
             catch err
@@ -485,7 +485,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         else
             code = x.code
         end
-        for (ex, str) in Utilities.parseblock(code, doc, page)
+        for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
             (value, success, backtrace, text) = Utilities.withoutput() do
                 cd(dirname(page.build)) do
                     Core.eval(mod, Expr(:(=), :ans, ex))
@@ -543,7 +543,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     mod  = get!(() -> get_new_sandbox(sym), page.globals.meta, sym)
     code = split(x.code, '\n'; limit = 2)[end]
     result, out = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code, doc, page)
+    for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
         buffer = IOBuffer()
         input  = droplines(str)
         (value, success, backtrace, text) = Utilities.withoutput() do
