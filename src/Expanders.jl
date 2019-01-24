@@ -547,7 +547,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         input  = droplines(str)
         (value, success, backtrace, text) = Utilities.withoutput() do
             cd(dirname(page.build)) do
-                Core.eval(mod, :(ans = $(Core.eval(mod, ex))))
+                Core.eval(mod, Expr(:(=), :ans, ex))
             end
         end
         result = value
