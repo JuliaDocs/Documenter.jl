@@ -82,8 +82,11 @@ This assumes you've installed Documenter as discussed in [Installation](@ref) an
     push!(LOAD_PATH,"../src/")
     ```
 
-Now add an `index.md` file to the `src/` directory. The name has no particular significance
-though and you may name it whatever you like. We'll stick to `index.md` for this guide.
+Now add an `index.md` file to the `src/` directory.
+
+!!! note
+    If you use Documenter's default html format the name `index.md` is mandatory.
+    This file will be the main page of the rendered html documentation.
 
 Leave the newly added file empty and then run the following command from the `docs/` directory
 
