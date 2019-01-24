@@ -4,6 +4,10 @@
 
 * ![Enhancement][badge-enhancement] Documentation is no longer deployed on Travis CI cron jobs. ([#917][github-917])
 
+* ![Enhancement][badge-enhancement] Log messages from failed `@meta`, `@docs`, `@autodocs`,
+  `@eval`, `@example` and `@setup` blocks now include information about the source location
+  of the block. ([#929][github-929])
+
 * ![Bugfix][badge-bugfix] `@repl` blocks now work correctly together with quoted
   expressions. ([#923][github-923], [#926][github-926])
 
@@ -180,8 +184,10 @@
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
 [github-907]: https://github.com/JuliaDocs/Documenter.jl/pull/907
+[github-917]: https://github.com/JuliaDocs/Documenter.jl/pull/917
 [github-923]: https://github.com/JuliaDocs/Documenter.jl/pull/923
 [github-926]: https://github.com/JuliaDocs/Documenter.jl/pull/926
+[github-929]: https://github.com/JuliaDocs/Documenter.jl/pull/929
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

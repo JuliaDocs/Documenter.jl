@@ -9,10 +9,29 @@ using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
 
+# escape characters that has a meaning in regex
+regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
+
+# helper to display linerange for error printing
+function find_block_in_file(code, file)
+    content = read(Base.find_source_file(file), String)
+    content = replace(content, "\r\n" => "\n")
+    # make a regex of the code that matches leading whitespace
+    rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
+    blockidx = findfirst(Regex(rcode), content)
+    if blockidx !== nothing
+        startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
+        endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
+        return ":$(startline)-$(endline)"
+    else
+        return ""
+    end
+end
+
 # Pretty-printing locations
 function locrepr(file, line=nothing)
     str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
-    line !== nothing && (str = str * ":$(line)")
+    line !== nothing && (str = str * "$(line)")
     return "`$(str)`"
 end
 

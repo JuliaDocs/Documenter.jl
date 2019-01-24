@@ -237,13 +237,19 @@ end
 
 function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     meta = page.globals.meta
+    lines = Utilities.find_block_in_file(x.code, page.source)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
                 push!(doc.internal.errors, :meta_block)
-                @warn "failed to evaluate `$(strip(str))` in `@meta` block in $(Utilities.locrepr(page.source))" exception = err
+                @warn("""
+                    failed to evaluate `$(strip(str))` in `@meta` block in $(Utilities.locrepr(page.source, lines))
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    """, exception = err)
             end
         end
     end
@@ -257,19 +263,31 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     failed = false
     nodes  = DocsNode[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
+    lines = Utilities.find_block_in_file(x.code, page.source)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
             push!(doc.internal.errors, :docs_block)
-            @warn "unable to get the binding for '$(strip(str))' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(curmod)" exception = err
+            @warn("""
+                unable to get the binding for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
+                ```$(x.language)
+                $(x.code)
+                ```
+                """,
+                exception = err)
             failed = true
             continue
         end
         # Undefined `Bindings` get discarded.
         if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
             push!(doc.internal.errors, :docs_block)
-            @warn "undefined binding '$(binding)' in $(Utilities.locrepr(page.source))."
+            @warn("""
+                undefined binding '$(binding)' in `@docs` block in $(Utilities.locrepr(page.source, lines))
+                ```$(x.language)
+                $(x.code)
+                ```
+                """)
             failed = true
             continue
         end
@@ -279,7 +297,12 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
             push!(doc.internal.errors, :docs_block)
-            @warn "duplicate docs found for '$(strip(str))' in $(Utilities.locrepr(page.source))."
+            @warn("""
+                duplicate docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
+                ```$(x.language)
+                $(x.code)
+                ```
+                """)
             failed = true
             continue
         end
@@ -295,7 +318,12 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         # Check that we aren't printing an empty docs list. Skip block when empty.
         if isempty(docs)
             push!(doc.internal.errors, :docs_block)
-            @warn "no docs found for '$(strip(str))' in $(Utilities.locrepr(page.source))."
+            @warn("""
+                no docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
+                ```$(x.language)
+                $(x.code)
+                ```
+                """)
             failed = true
             continue
         end
@@ -328,6 +356,7 @@ const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
+    lines = Utilities.find_block_in_file(x.code, page.source)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
@@ -338,7 +367,12 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 end
             catch err
                 push!(doc.internal.errors, :autodocs_block)
-                @warn "failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source))" exception = err
+                @warn("""
+                    failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source, lines))
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    """, exception = err)
             end
         end
     end
@@ -402,7 +436,12 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         for (mod, path, category, object, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
                 push!(doc.internal.errors, :autodocs_block)
-                @warn "duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source)).."
+                @warn("""
+                    duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source, lines))
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    """)
                 continue
             end
             markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
@@ -420,7 +459,12 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         page.mapping[x] = DocsNodes(nodes)
     else
         push!(doc.internal.errors, :autodocs_block)
-        @warn "'@autodocs' missing 'Modules = ...' in $(Utilities.locrepr(page.source)).."
+        @warn("""
+            '@autodocs' missing 'Modules = ...' in $(Utilities.locrepr(page.source, lines))
+            ```$(x.language)
+            $(x.code)
+            ```
+            """)
         page.mapping[x] = x
     end
 end
@@ -430,6 +474,7 @@ end
 
 function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)
+    lines = Utilities.find_block_in_file(x.code, page.source)
     cd(dirname(page.build)) do
         result = nothing
         for (ex, str) in Utilities.parseblock(x.code, doc, page)
@@ -437,7 +482,12 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
                 result = Core.eval(sandbox, ex)
             catch err
                 push!(doc.internal.errors, :eval_block)
-                @warn "failed to evaluate `@eval` block in $(Utilities.locrepr(page.source))" exception = err
+                @warn("""
+                    failed to evaluate `@eval` block in $(Utilities.locrepr(page.source))
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    """, exception = err)
             end
         end
         page.mapping[x] = EvalNode(x, result)
@@ -470,6 +520,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     name = match(r"^@example[ ]?(.*)$", first(split(x.language, ';', limit = 2)))[1]
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
     mod  = get!(() -> get_new_sandbox(sym), page.globals.meta, sym)
+    lines = Utilities.find_block_in_file(x.code, page.source)
 
     # "parse" keyword arguments to example (we only need to look for continued = true)
     continued = occursin(r"continued\s*=\s*true", x.language)
@@ -494,7 +545,12 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             print(buffer, text)
             if !success
                 push!(doc.internal.errors, :example_block)
-                @warn "failed to run code block in $(Utilities.locrepr(page.source)):" value
+                @warn("""
+                    failed to run `@example` block in $(Utilities.locrepr(page.source, lines))
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    """, value)
                 page.mapping[x] = x
                 return
             end
@@ -588,7 +644,12 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
         Markdown.MD([])
     catch err
         push!(doc.internal.errors, :setup_block)
-        @warn "failed to run `@setup` block in $(Utilities.locrepr(page.source)):" exception=err
+        @warn("""
+            failed to run `@setup` block in $(Utilities.locrepr(page.source))
+            ```$(x.language)
+            $(x.code)
+            ```
+            """, exception=err)
         x
     end
     # ... and finally map the original code block to the newly generated ones.
