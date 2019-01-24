@@ -158,25 +158,17 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             result.hide = REPL.ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
                 disable_color() do
-                    Core.eval(sandbox, ex)
+                    Core.eval(sandbox, Expr(:(=), :ans, ex))
                 end
             end
             result.value = value
             print(result.stdout, text)
-            if success
-                # Redefine the magic `ans` binding available in the REPL.
-                __ans__!(sandbox, result.value)
-            else
+            if !success
                 result.bt = backtrace
             end
         end
         checkresult(sandbox, result, meta, doc)
     end
-end
-
-function __ans__!(m::Module, value)
-    isdefined(m, :__ans__!) || Core.eval(m, :(__ans__!(value) = global ans = value))
-    return Core.eval(m, Expr(:call, () -> m.__ans__!(value)))
 end
 
 function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
