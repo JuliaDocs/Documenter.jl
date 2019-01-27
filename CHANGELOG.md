@@ -8,6 +8,8 @@
   `@eval`, `@example` and `@setup` blocks now include information about the source location
   of the block. ([#929][github-929])
 
+## Version `v0.21.1`
+
 * ![Bugfix][badge-bugfix] `@repl` blocks now work correctly together with quoted
   expressions. ([#923][github-923], [#926][github-926])
 
