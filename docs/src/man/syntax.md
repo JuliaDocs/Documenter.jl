@@ -534,12 +534,16 @@ nothing
 ````
 
 Another example is to generate markdown tables from machine readable data formats such as CSV or JSON.
+
+````markdown
 ```@eval
 using CSV
 using Latexify
 df = CSV.read("table.csv")
 mdtable(df,latex=false)
 ```
+````
+
 Which will generate a markdown version of the CSV file table.csv and render it in the output format.
 
 Note that each `@eval` block evaluates its contents within a separate module. When
