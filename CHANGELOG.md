@@ -1,5 +1,13 @@
 # Documenter.jl changelog
 
+## Version `v0.21.1`
+
+* ![Bugfix][badge-bugfix] `@repl` blocks now work correctly together with quoted
+  expressions. ([#923][github-923], [#926][github-926])
+
+* ![Bugfix][badge-bugfix] `@example`, `@repl` and `@eval` blocks now handle reserved words,
+  e.g. `try`/`catch`, correctly. ([#886][github-886], [#927][github-927])
+
 ## Version `v0.21.0`
 
 * ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The symbol values to the `format` argument of `makedocs` (`:html`, `:markdown`, `:latex`) have been deprecated in favor of the `Documenter.HTML`, `Markdown` and `LaTeX`
@@ -169,10 +177,14 @@
 [github-876]: https://github.com/JuliaDocs/Documenter.jl/pull/876
 [github-879]: https://github.com/JuliaDocs/Documenter.jl/pull/879
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
+[github-886]: https://github.com/JuliaDocs/Documenter.jl/pull/886
 [github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
 [github-907]: https://github.com/JuliaDocs/Documenter.jl/pull/907
+[github-923]: https://github.com/JuliaDocs/Documenter.jl/pull/923
+[github-926]: https://github.com/JuliaDocs/Documenter.jl/pull/926
+[github-927]: https://github.com/JuliaDocs/Documenter.jl/pull/927
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
