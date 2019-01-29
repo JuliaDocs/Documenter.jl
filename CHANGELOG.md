@@ -8,6 +8,9 @@
   `@eval`, `@example` and `@setup` blocks now include information about the source location
   of the block. ([#929][github-929])
 
+* ![Enhancement][badge-enhancement] Docstrings from `@docs`-blocks are now included in the
+  rendered docs even if some part(s) of the block failed. ([#928][github-928])
+
 ## Version `v0.21.1`
 
 * ![Bugfix][badge-bugfix] `@repl` blocks now work correctly together with quoted
@@ -194,6 +197,7 @@
 [github-923]: https://github.com/JuliaDocs/Documenter.jl/pull/923
 [github-926]: https://github.com/JuliaDocs/Documenter.jl/pull/926
 [github-927]: https://github.com/JuliaDocs/Documenter.jl/pull/927
+[github-928]: https://github.com/JuliaDocs/Documenter.jl/pull/928
 [github-929]: https://github.com/JuliaDocs/Documenter.jl/pull/929
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl

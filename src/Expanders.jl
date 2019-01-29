@@ -260,11 +260,12 @@ end
 # -----
 
 function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
-    failed = false
-    nodes  = DocsNode[]
+    nodes  = Union{DocsNode,Markdown.Admonition}[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
     lines = Utilities.find_block_in_file(x.code, page.source)
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
+        admonition = Markdown.Admonition("warning", "Missing docstring.",
+            Any[Markdown.Paragraph(["Missing docstring for `$(strip(str))`. Check Documenter's build log for details."])])
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
@@ -276,7 +277,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
                 ```
                 """,
                 exception = err)
-            failed = true
+            push!(nodes, admonition)
             continue
         end
         # Undefined `Bindings` get discarded.
@@ -288,7 +289,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
                 $(x.code)
                 ```
                 """)
-            failed = true
+            push!(nodes, admonition)
             continue
         end
         typesig = Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
@@ -303,7 +304,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
                 $(x.code)
                 ```
                 """)
-            failed = true
+            push!(nodes, admonition)
             continue
         end
 
@@ -324,7 +325,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
                 $(x.code)
                 ```
                 """)
-            failed = true
+            push!(nodes, admonition)
             continue
         end
 
@@ -343,9 +344,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         doc.internal.objects[object] = docsnode
         push!(nodes, docsnode)
     end
-    # When a `@docs` block fails we need to remove the `.language` since some markdown
-    # parsers have trouble rendering it correctly.
-    page.mapping[x] = failed ? (x.language = ""; x) : DocsNodes(nodes)
+    page.mapping[x] = DocsNodes(nodes)
 end
 
 # @autodocs
