@@ -181,7 +181,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
 
     if !haskey(doc.internal.locallinks, link)
         null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
-        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(link.url) --max-time 10 -o $null_file --write-out "%{scheme} %{http_code} %{redirect_url}"`
+        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(link.url) --max-time 10 -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result
         try
@@ -192,11 +192,12 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
             @warn "$cmd failed:" exception = err
             return false
         end
-        STATUS_REGEX = r"^(\w+) (\d+) (.+)?$"m
+        STATUS_REGEX = r"^(\d+) (\w+)://(?:\S+) (\S+)?$"m
         matched = match(STATUS_REGEX, result)
         if matched !== nothing
-            scheme, status, location = matched.captures
+            status, scheme, location = matched.captures
             status = parse(Int, status)
+            scheme = uppercase(scheme)
             protocol = startswith(scheme, "HTTP") ? :HTTP :
                 startswith(scheme, "FTP") ? :FTP : :UNKNOWN
 
