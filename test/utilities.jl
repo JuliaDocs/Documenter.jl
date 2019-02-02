@@ -4,6 +4,7 @@ using Test
 import Base64: stringmime
 
 import Documenter
+import Markdown
 
 module UnitTests
     module SubModule end
@@ -217,6 +218,39 @@ end
                 @test l2[2] == "push!(x, 1)$(LE)"
             end
         end
+    end
+
+    @testset "mdparse" begin
+        mdparse = Documenter.Utilities.mdparse
+
+        @test_throws ArgumentError mdparse("", mode=:foo)
+
+        mdparse("") isa Markdown.Paragraph
+        @test mdparse("foo bar") isa Markdown.Paragraph
+        let md = mdparse("", mode=:span)
+            @test md isa Vector{Any}
+            @test length(md) == 1
+        end
+        let md = mdparse("", mode=:blocks)
+            @test md isa Vector{Any}
+            @test length(md) == 0
+        end
+
+        @test mdparse("!!! adm"; mode=:single) isa Markdown.Admonition
+        let md = mdparse("!!! adm", mode=:blocks)
+            @test md isa Vector{Any}
+            @test length(md) == 1
+        end
+        let md = mdparse("x\n\ny", mode=:blocks)
+            @test md isa Vector{Any}
+            @test length(md) == 2
+        end
+
+        @info "Expected error output:"
+        @test_throws ArgumentError mdparse("!!! adm", mode=:span)
+        @test_throws ArgumentError mdparse("x\n\ny")
+        @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
+        @info ".. end of expected error output."
     end
 end
 
