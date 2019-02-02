@@ -1745,6 +1745,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "lib/internals/utilities/#Documenter.Utilities.mdparse-Tuple{AbstractString}",
+    "page": "Utilities",
+    "title": "Documenter.Utilities.mdparse",
+    "category": "method",
+    "text": "mdparse(s::AbstractString; mode=:single)\n\nParses the given string as Markdown using Markdown.parse, but strips away the surrounding layers, such as the outermost Markdown.MD. What exactly is returned depends on the mode keyword.\n\nThe mode keyword argument can be one of the following:\n\n:single (default) – returns a single block-level object (e.g. Markdown.Paragraph or Markdown.Admonition) and errors if the string parses into multiple blocks.\n:blocks – the function returns a Vector{Any} of Markdown blocks.\n:span – Returns a Vector{Any} of span-level items, stripping away the outer block. This requires the string to parse into a single Markdown.Paragraph, the contents of which gets returned.\n\n\n\n\n\n"
+},
+
+{
     "location": "lib/internals/utilities/#Documenter.Utilities.nodocs-Tuple{Any}",
     "page": "Utilities",
     "title": "Documenter.Utilities.nodocs",
