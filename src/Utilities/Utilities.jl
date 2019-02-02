@@ -620,7 +620,7 @@ function mdparse(s::AbstractString; mode=:single)
         md.content
     elseif length(md.content) == 0
         # case where s == "". We'll just return an empty string / paragraph.
-        (mode == :single) ? Markdown.Paragraph("") : Any[""]
+        (mode == :single) ? Markdown.Paragraph(Any[""]) : Any[""]
     elseif (mode == :single || mode == :span) && length(md.content) > 1
         @error "mode == :$(mode) requires the Markdown string to parse into a single block" s md.content
         throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
