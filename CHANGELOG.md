@@ -9,7 +9,7 @@
   of the block. ([#929][github-929])
 
 * ![Enhancement][badge-enhancement] Docstrings from `@docs`-blocks are now included in the
-  rendered docs even if some part(s) of the block failed. ([#928][github-928])
+  rendered docs even if some part(s) of the block failed. ([#928][github-928], [#935][github-935])
 
 ## Version `v0.21.1`
 
@@ -199,6 +199,7 @@
 [github-927]: https://github.com/JuliaDocs/Documenter.jl/pull/927
 [github-928]: https://github.com/JuliaDocs/Documenter.jl/pull/928
 [github-929]: https://github.com/JuliaDocs/Documenter.jl/pull/929
+[github-935]: https://github.com/JuliaDocs/Documenter.jl/pull/935
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
