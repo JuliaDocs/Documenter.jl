@@ -138,6 +138,49 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.EvalNode, page, 
     node.result === nothing ? nothing : render(io, mime, node.result, page, doc)
 end
 
+# Select the "best" representation for Markdown output.
+using Base64: base64decode
+function render(io::IO, mime::MIME"text/plain", d::Documents.MultiOutput, page, doc)
+    foreach(x -> Base.invokelatest(render, io, mime, x, page, doc), d.content)
+end
+function render(io::IO, mime::MIME"text/plain", d::Dict{MIME,Any}, page, doc)
+    filename = String(rand('a':'z', 7))
+    if haskey(d, MIME"text/html"())
+        println(io, d[MIME"text/html"()])
+    elseif haskey(d, MIME"image/svg+xml"())
+        # NOTE: It seems that we can't simply save the SVG images as a file and include them
+        # as browsers seem to need to have the xmlns attribute set in the <svg> tag if you
+        # want to include it with <img>. However, setting that attribute is up to the code
+        # creating the SVG image.
+        println(io, d[MIME"image/svg+xml"()])
+    elseif haskey(d, MIME"image/png"())
+        write(joinpath(dirname(page.build), "$(filename).png"), base64decode(d[MIME"image/png"()]))
+        println(io, """
+            ![]($(filename).png)
+            """)
+    elseif haskey(d, MIME"image/webp"())
+        write(joinpath(dirname(page.build), "$(filename).webp"), base64decode(d[MIME"image/webp"()]))
+        println(io, """
+            ![]($(filename).webp)
+            """)
+    elseif haskey(d, MIME"image/jpeg"())
+        write(joinpath(dirname(page.build), "$(filename).jpeg"), base64decode(d[MIME"image/jpeg"()]))
+        println(io, """
+            ![]($(filename).jpeg)
+            """)
+    elseif haskey(d, MIME"image/gif"())
+        write(joinpath(dirname(page.build), "$(filename).gif"), base64decode(d[MIME"image/gif"()]))
+        println(io, """
+            ![]($(filename).gif)
+            """)
+    elseif haskey(d, MIME"text/plain"())
+        render(io, mime, MarkdownStdlib.Code(d[MIME"text/plain"()]), page, doc)
+    else
+        error("this should never happen.")
+    end
+    return nothing
+end
+
 
 ## Basic Nodes. AKA: any other content that hasn't been handled yet.
 
