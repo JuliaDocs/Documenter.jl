@@ -23,7 +23,7 @@ extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML
   - assets/mathjaxhelper.js
 
-docs_dir: 'build'
+docs_dir: 'builds/markdown'
 
 pages:
 - Home: index.md
