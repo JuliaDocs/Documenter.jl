@@ -14,6 +14,7 @@ using Documenter.Documents
             [FTP success](ftp://ftp.iana.org/tz/data/etcetera)
             [FTP (no proto) success](ftp.iana.org/tz/data/etcetera)
             [Redirect success](google.com)
+            [HEAD fail GET success](https://codecov.io/gh/invenia/LibPQ.jl)
             """
 
         Documents.walk(Dict{Symbol, Any}(), src) do block

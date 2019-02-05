@@ -169,7 +169,7 @@ function linkcheck(doc::Documents.Document)
     return nothing
 end
 
-function linkcheck(link::Markdown.Link, doc::Documents.Document)
+function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=:HEAD)
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
@@ -180,7 +180,8 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
     end
 
     if !haskey(doc.internal.locallinks, link)
-        cmd = `curl -sI --proto =http,https,ftp,ftps $(link.url) --max-time 10`
+        null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
+        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(link.url) --max-time 10 -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result
         try
@@ -191,27 +192,32 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document)
             @warn "$cmd failed:" exception = err
             return false
         end
-        HTTP_STATUS_REGEX   = r"^HTTP/(1.1|2) (\d+) (.+)$"m
-        FTP_STATUS_REGEX = r"^Last-Modified: (.+)\r\nContent-Length: (\d+)(?:\r\n(.*))?$"s
-        if occursin(HTTP_STATUS_REGEX, result)
-            status = parse(Int, match(HTTP_STATUS_REGEX, result).captures[2])
-            if status < 300
+        STATUS_REGEX = r"^(\d+) (\w+)://(?:\S+) (\S+)?$"m
+        matched = match(STATUS_REGEX, result)
+        if matched !== nothing
+            status, scheme, location = matched.captures
+            status = parse(Int, status)
+            scheme = uppercase(scheme)
+            protocol = startswith(scheme, "HTTP") ? :HTTP :
+                startswith(scheme, "FTP") ? :FTP : :UNKNOWN
+
+            if (protocol === :HTTP && status < 300) ||
+                (protocol === :FTP && (200 <= status < 300 || status == 350))
                 @debug "linkcheck '$(link.url)' status: $(status)."
-            elseif status < 400
-                LOCATION_REGEX = r"^Location: (.+)$"m
-                if occursin(LOCATION_REGEX, result)
-                    location = strip(match(LOCATION_REGEX, result).captures[1])
+            elseif protocol === :HTTP && status < 400
+                if location !== nothing
                     @warn "linkcheck '$(link.url)' status: $(status), redirects to $(location)."
                 else
                     @warn "linkcheck '$(link.url)' status: $(status)."
                 end
+            elseif protocol === :HTTP && status == 405 && method === :HEAD
+                # when a server doesn't support HEAD requests, fallback to GET
+                @debug "linkcheck '$(link.url)' status: $(status), retrying without `-I`"
+                return linkcheck(link, doc; method=:GET)
             else
                 push!(doc.internal.errors, :linkcheck)
                 @error "linkcheck '$(link.url)' status: $(status)."
             end
-        elseif occursin(FTP_STATUS_REGEX, result)
-            # this regex is matched iff success
-            @debug "linkcheck '$(link.url)': FTP success"
         else
             push!(doc.internal.errors, :linkcheck)
             @warn "invalid result returned by $cmd:" result
