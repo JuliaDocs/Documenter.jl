@@ -11,6 +11,11 @@
 * ![Enhancement][badge-enhancement] Docstrings from `@docs`-blocks are now included in the
   rendered docs even if some part(s) of the block failed. ([#928][github-928], [#935][github-935])
 
+## Version `v0.21.2`
+
+* ![Bugfix][badge-bugfix] `linkcheck` now handles servers that do not support `HEAD` requests
+  and properly checks for status codes of FTP responses. ([#934][github-934])
+
 ## Version `v0.21.1`
 
 * ![Bugfix][badge-bugfix] `@repl` blocks now work correctly together with quoted
@@ -199,6 +204,7 @@
 [github-927]: https://github.com/JuliaDocs/Documenter.jl/pull/927
 [github-928]: https://github.com/JuliaDocs/Documenter.jl/pull/928
 [github-929]: https://github.com/JuliaDocs/Documenter.jl/pull/929
+[github-934]: https://github.com/JuliaDocs/Documenter.jl/pull/934
 [github-935]: https://github.com/JuliaDocs/Documenter.jl/pull/935
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
