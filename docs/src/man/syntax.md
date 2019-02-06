@@ -331,6 +331,10 @@ a + b
 Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace
 on each line is also removed.
 
+!!! note
+    The working directory, `pwd`, is set to the directory in `build` where the file
+    will be written to, and the paths in `include` calls are interpreted to be relative to `pwd`.
+
 **Hiding Source Code**
 
 Code blocks may have some content that does not need to be displayed in the final document.
@@ -486,6 +490,10 @@ julia> a + b
 
 Named `@repl <name>` blocks behave in the same way as named `@example <name>` blocks.
 
+!!! note
+    The working directory, `pwd`, is set to the directory in `build` where the file
+    will be written to, and the paths in `include` calls are interpreted to be relative to `pwd`.
+
 ## `@setup <name>` block
 
 These are similar to `@example` blocks, but both the input and output are hidden from the
@@ -548,7 +556,8 @@ Which will generate a markdown version of the CSV file table.csv and render it i
 
 Note that each `@eval` block evaluates its contents within a separate module. When
 evaluating each block the present working directory, `pwd`, is set to the directory in
-`build` where the file will be written to.
+`build` where the file will be written to, and the paths in `include` calls are interpreted
+to be relative to `pwd`.
 
 Also, instead of returning `nothing` in the example above we could have returned a new
 `Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
