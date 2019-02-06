@@ -1,5 +1,10 @@
 # Documenter.jl changelog
 
+## Version `v0.21.2`
+
+* ![Bugfix][badge-bugfix] `linkcheck` now handles servers that do not support `HEAD` requests
+  and properly checks for status codes of FTP responses. ([#934][github-934])
+
 ## Version `v0.21.1`
 
 * ![Bugfix][badge-bugfix] `@repl` blocks now work correctly together with quoted
@@ -16,15 +21,15 @@
 
   **For upgrading:** If you don't specify `format` (i.e. you rely on the default) you don't have to do anything.
   Otherwise update calls to `makedocs` to use struct instances instead of symbols, e.g.
-  
+
   ```
   makedocs(
       format = :markdown
   )
   ```
-  
+
   should be changed to
-  
+
   ```
   using DocumenterMarkdown
   makedocs(
@@ -51,7 +56,7 @@
       ...
   )
   ```
-  
+
   _**Note:** It is technically possible to specify the same argument twice with different values by passing both variants. In that case the value to the deprecated `html_*` variant takes precedence._
 
 * ![Feature][badge-feature] Packages extending Documenter can now define subtypes of `Documenter.Plugin`,
