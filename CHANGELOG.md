@@ -14,6 +14,10 @@
 * ![Enhancement][badge-enhancement] The Markdown and LaTeX output writers can now handle multimedia
   output, such as images, from `@example` blocks. ([#938][github-938])
 
+* ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
+  blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
+  resulting file. ([#941][github-941])
+
 ## Version `v0.21.2`
 
 * ![Bugfix][badge-bugfix] `linkcheck` now handles servers that do not support `HEAD` requests
@@ -210,6 +214,7 @@
 [github-934]: https://github.com/JuliaDocs/Documenter.jl/pull/934
 [github-935]: https://github.com/JuliaDocs/Documenter.jl/pull/935
 [github-938]: https://github.com/JuliaDocs/Documenter.jl/pull/938
+[github-941]: https://github.com/JuliaDocs/Documenter.jl/pull/941
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

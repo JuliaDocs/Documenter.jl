@@ -694,7 +694,7 @@ function get_new_sandbox(name::Symbol)
     # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
     Core.eval(m, :(eval(x) = Core.eval($m, x)))
     # modules created with Module() does not have include defined
-    Core.eval(m, :(include(x) = Base.include($m, x)))
+    Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
     return m
 end
 
