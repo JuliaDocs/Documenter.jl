@@ -138,6 +138,10 @@ struct RawNode
     text::String
 end
 
+struct MultiOutput
+    content::Vector
+end
+
 # Navigation
 # ----------------------
 

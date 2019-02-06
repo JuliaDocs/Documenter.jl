@@ -11,6 +11,9 @@
 * ![Enhancement][badge-enhancement] Docstrings from `@docs`-blocks are now included in the
   rendered docs even if some part(s) of the block failed. ([#928][github-928], [#935][github-935])
 
+* ![Enhancement][badge-enhancement] The Markdown and LaTeX output writers can now handle multimedia
+  output, such as images, from `@example` blocks. ([#938][github-938])
+
 ## Version `v0.21.2`
 
 * ![Bugfix][badge-bugfix] `linkcheck` now handles servers that do not support `HEAD` requests
@@ -206,6 +209,7 @@
 [github-929]: https://github.com/JuliaDocs/Documenter.jl/pull/929
 [github-934]: https://github.com/JuliaDocs/Documenter.jl/pull/934
 [github-935]: https://github.com/JuliaDocs/Documenter.jl/pull/935
+[github-938]: https://github.com/JuliaDocs/Documenter.jl/pull/938
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

@@ -1105,6 +1105,31 @@ end
 
 mdconvert(html::Documents.RawHTML, parent; kwargs...) = Tag(Symbol("#RAW#"))(html.code)
 
+# Select the "best" representation for HTML output.
+mdconvert(mo::Documents.MultiOutput, parent; kwargs...) =
+    Base.invokelatest(mdconvert, mo.content, parent; kwargs...)
+function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
+    if haskey(d, MIME"text/html"())
+        out = Documents.RawHTML(d[MIME"text/html"()])
+    elseif haskey(d, MIME"image/svg+xml"())
+        out = Documents.RawHTML(d[MIME"image/svg+xml"()])
+    elseif haskey(d, MIME"image/png"())
+        out = Documents.RawHTML(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
+    elseif haskey(d, MIME"image/webp"())
+        out = Documents.RawHTML(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
+    elseif haskey(d, MIME"image/gif"())
+        out = Documents.RawHTML(string("<img src=\"data:image/gif;base64,", d[MIME"image/gif"()], "\" />"))
+    elseif haskey(d, MIME"image/jpeg"())
+        out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
+    elseif haskey(d, MIME"text/latex"())
+        out = Utilities.mdparse(d[MIME"text/latex"()]; mode = :single)
+    elseif haskey(d, MIME"text/plain"())
+        out = Markdown.Code(d[MIME"text/plain"()])
+    else
+        error("this should never happen.")
+    end
+    return mdconvert(out, parent; kwargs...)
+end
 
 # fixlinks!
 # ------------------------------------------------------------------------------

@@ -316,6 +316,39 @@ function latex(io::IO, node::Documents.EvalNode, page, doc)
     node.result === nothing ? nothing : latex(io, node.result, page, doc)
 end
 
+# Select the "best" representation for LaTeX output.
+using Base64: base64decode
+function latex(io::IO, mo::Documents.MultiOutput)
+    foreach(x->Base.invokelatest(latex, io, x), mo.content)
+end
+function latex(io::IO, d::Dict{MIME,Any})
+    filename = String(rand('a':'z', 7))
+    if haskey(d, MIME"image/png"())
+        write("$(filename).png", base64decode(d[MIME"image/png"()]))
+        _println(io, """
+        \\begin{figure}[H]
+        \\centering
+        \\includegraphics{$(filename)}
+        \\end{figure}
+        """)
+    elseif haskey(d, MIME"image/jpeg"())
+        write("$(filename).jpeg", base64decode(d[MIME"image/jpeg"()]))
+        _println(io, """
+        \\begin{figure}[H]
+        \\centering
+        \\includegraphics{$(filename)}
+        \\end{figure}
+        """)
+    elseif haskey(d, MIME"text/latex"())
+        latex(io, Utilities.mdparse(d[MIME"text/latex"()]; mode = :single))
+    elseif haskey(d, MIME"text/plain"())
+        latex(io, Markdown.Code(d[MIME"text/plain"()]))
+    else
+        error("this should never happen.")
+    end
+    return nothing
+end
+
 
 ## Basic Nodes. AKA: any other content that hasn't been handled yet.
 
