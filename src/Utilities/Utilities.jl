@@ -643,7 +643,7 @@ function display_dict(x)
     out[MIME"text/plain"()] = stringmime(MIME"text/plain"(), x)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
               MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
-              MIME"text/latex"()]
+              MIME"text/latex"(), MIME"text/markdown"()]
         showable(m, x) && (out[m] = stringmime(m, x))
     end
     return out
