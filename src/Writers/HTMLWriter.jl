@@ -1123,6 +1123,8 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
     elseif haskey(d, MIME"text/latex"())
         out = Utilities.mdparse(d[MIME"text/latex"()]; mode = :single)
+    elseif haskey(d, MIME"text/markdown"())
+        out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
         out = Markdown.Code(d[MIME"text/plain"()])
     else

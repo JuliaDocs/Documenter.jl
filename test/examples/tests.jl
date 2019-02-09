@@ -81,6 +81,12 @@ end
         @test isa(doc, Documenter.Documents.Document)
 
         # TODO: test the HTML build
+
+        let build_dir = joinpath(examples_root, "builds", "html-local")
+
+            index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
+        end
     end
 
     @testset "HTML: deploy" begin

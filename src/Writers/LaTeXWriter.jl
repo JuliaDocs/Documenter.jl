@@ -341,6 +341,8 @@ function latex(io::IO, d::Dict{MIME,Any})
         """)
     elseif haskey(d, MIME"text/latex"())
         latex(io, Utilities.mdparse(d[MIME"text/latex"()]; mode = :single))
+    elseif haskey(d, MIME"text/markdown"())
+        latex(io, Markdown.parse(d[MIME"text/markdown"()]))
     elseif haskey(d, MIME"text/plain"())
         latex(io, Markdown.Code(d[MIME"text/plain"()]))
     else
