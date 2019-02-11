@@ -450,3 +450,16 @@ r = :a
 * [Colons not allowed on Windows -- `some:path`](some:path)
 * [No "drive" -- `:path`](:path)
 * [Absolute Windows paths -- `X:\some\path`](X:\some\path)
+
+# Rendering text/markdown
+
+```@example
+struct MarkdownOnly
+    value::String
+end
+Base.show(io::IO, ::MIME"text/markdown", mo::MarkdownOnly) = print(io, mo.value)
+
+MarkdownOnly("""
+**bold** output from MarkdownOnly
+""")
+```

@@ -145,7 +145,9 @@ function render(io::IO, mime::MIME"text/plain", d::Documents.MultiOutput, page, 
 end
 function render(io::IO, mime::MIME"text/plain", d::Dict{MIME,Any}, page, doc)
     filename = String(rand('a':'z', 7))
-    if haskey(d, MIME"text/html"())
+    if haskey(d, MIME"text/markdown"())
+        println(io, d[MIME"text/markdown"()])
+    elseif haskey(d, MIME"text/html"())
         println(io, d[MIME"text/html"()])
     elseif haskey(d, MIME"image/svg+xml"())
         # NOTE: It seems that we can't simply save the SVG images as a file and include them
