@@ -178,9 +178,11 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     copy_asset("arrow.svg", doc)
 
-    let logo = joinpath("assets", "logo.png")
+    for logoext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
+        logo = joinpath("assets", "logo.$(logoext)")
         if isfile(joinpath(doc.user.build, logo))
             ctx.logo = logo
+            break
         end
     end
 

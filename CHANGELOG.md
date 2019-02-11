@@ -15,6 +15,8 @@
   output, such as images, from `@example` blocks. All the writers now also handle `text/markdown`
   output, which is preferred over `text/plain` if available. ([#938][github-938], [#948][github-948])
 
+* ![Enhancement][badge-enhancement] The HTML output now also supports SVG, WebP, GIF and JPEG logos. ([#953][github-953])
+
 * ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
@@ -223,6 +225,7 @@
 [github-941]: https://github.com/JuliaDocs/Documenter.jl/pull/941
 [github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
 [github-948]: https://github.com/JuliaDocs/Documenter.jl/pull/948
+[github-953]: https://github.com/JuliaDocs/Documenter.jl/pull/953
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
