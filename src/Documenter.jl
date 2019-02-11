@@ -539,7 +539,7 @@ function deploydocs(;
     - $(marker(repo_ok)) ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)"
     - $(marker(pr_ok)) ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false"
     - $(marker(tag_ok)) ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber
-    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch) (if tag is empty)
+    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch)" (if tag is empty)
     - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
     - $(marker(type_ok)) ENV["TRAVIS_EVENT_TYPE"]="$(travis_event_type)" is not "cron"
     Deploying: $(marker(should_deploy))
