@@ -6,12 +6,12 @@ makedocs(
         # Use clean URLs, unless built as a "local" build
         prettyurls = !("local" in ARGS),
         canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
+        assets = ["assets/favicon.ico"],
+        analytics = "UA-89508993-1",
     ),
     clean = false,
-    assets = ["assets/favicon.ico"],
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
-    analytics = "UA-89508993-1",
     linkcheck = !("skiplinks" in ARGS),
     pages = [
         "Home" => "index.md",

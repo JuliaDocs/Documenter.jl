@@ -2,6 +2,28 @@
 
 ## Version `v0.22.0`
 
+* ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The `assets` and `analytics` arguments to `makedocs` have been deprecated in favor of the corresponding arguments of the `Documenter.HTML` format plugin. ([#953][github-953])
+
+  **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead. E.g. instead of
+
+  ```
+  makedocs(
+      assets = ..., analytics = ...,
+      ...
+  )
+  ```
+
+  you should have
+
+  ```
+  makedocs(
+      format = Documenter.HTML(assets = ..., analytics = ...),
+      ...
+  )
+  ```
+
+  _**Note:** It is technically possible to specify the same argument twice with different values by passing both variants. In that case the value passed to `makedocs` takes precedence._
+
 * ![Enhancement][badge-enhancement] Documentation is no longer deployed on Travis CI cron jobs. ([#917][github-917])
 
 * ![Enhancement][badge-enhancement] Log messages from failed `@meta`, `@docs`, `@autodocs`,
