@@ -12,11 +12,17 @@
   rendered docs even if some part(s) of the block failed. ([#928][github-928], [#935][github-935])
 
 * ![Enhancement][badge-enhancement] The Markdown and LaTeX output writers can now handle multimedia
-  output, such as images, from `@example` blocks. ([#938][github-938])
+  output, such as images, from `@example` blocks. All the writers now also handle `text/markdown`
+  output, which is preferred over `text/plain` if available. ([#938][github-938], [#948][github-948])
 
 * ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
+
+## Version `v0.21.3`
+
+* ![Security][badge-security] The lunr.js and lodash JavaScript dependencies have been updated to their latest patch versions (from 2.3.1 to 2.3.5 and 4.17.4 to 4.17.11, respectively).
+  This is in response to a vulnerability in lodash <4.17.11 ([CVE-2018-16487](https://nvd.nist.gov/vuln/detail/CVE-2018-16487)). ([#946][github-946])
 
 ## Version `v0.21.2`
 
@@ -215,6 +221,8 @@
 [github-935]: https://github.com/JuliaDocs/Documenter.jl/pull/935
 [github-938]: https://github.com/JuliaDocs/Documenter.jl/pull/938
 [github-941]: https://github.com/JuliaDocs/Documenter.jl/pull/941
+[github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
+[github-948]: https://github.com/JuliaDocs/Documenter.jl/pull/948
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
@@ -225,6 +233,7 @@
 [badge-feature]: https://img.shields.io/badge/feature-green.svg
 [badge-enhancement]: https://img.shields.io/badge/enhancement-blue.svg
 [badge-bugfix]: https://img.shields.io/badge/bugfix-purple.svg
+[badge-security]: https://img.shields.io/badge/security-black.svg
 
 <!--
 # Badges
@@ -234,4 +243,5 @@
 ![Feature][badge-feature]
 ![Enhancement][badge-enhancement]
 ![Bugfix][badge-bugfix]
+![Security][badge-security]
 -->
