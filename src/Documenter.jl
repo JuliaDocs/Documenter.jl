@@ -194,11 +194,14 @@ function makedocs(components...; debug = false, format = HTML(),
                   html_disable_git::Union{Bool, Nothing} = nothing, # deprecated
                   html_edit_branch::Union{String, Nothing} = nothing, # deprecated
                   html_canonical::Union{String, Nothing} = nothing, # deprecated
+                  assets::Union{Vector{<:AbstractString}, Nothing} = nothing, # deprecated
+                  analytics::Union{<:AbstractString, Nothing} = nothing, # deprecated
                   kwargs...)
     # html_ keywords deprecation
     html_keywords = Dict()
     function html_warn(kw)
-        Base.depwarn("""
+        replace_with = startswith(kw, "html_") ? kw[6:end] : kw
+        @warn """
         The `$kw` keyword argument should now be specified in the
         `Documenter.HTML()` format specifier. To fix this warning replace
         ```
@@ -206,9 +209,9 @@ function makedocs(components...; debug = false, format = HTML(),
         ```
         with
         ```
-        format = Documenter.HTML($(kw[6:end]) = ...)
+        format = Documenter.HTML($(replace_with) = ...)
         ```
-        """, :makedocs)
+        """
     end
     if html_prettyurls !== nothing
         html_warn("html_prettyurls")
@@ -225,6 +228,14 @@ function makedocs(components...; debug = false, format = HTML(),
     if html_canonical !== nothing
         html_warn("html_canonical")
         html_keywords[:canonical] = html_canonical
+    end
+    if assets !== nothing
+        html_warn("assets")
+        html_keywords[:assets] = assets
+    end
+    if analytics !== nothing
+        html_warn("analytics")
+        html_keywords[:analytics] = analytics
     end
 
     # deprecation of format as Symbols

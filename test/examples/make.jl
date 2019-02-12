@@ -146,22 +146,46 @@ examples_html_local_doc = makedocs(
     ),
 )
 
-# Build with pretty URLs and canonical links
+# Build with pretty URLs and canonical links and a PNG logo
 @info("Building mock package docs: HTMLWriter / deployment build")
-examples_html_deploy_doc = makedocs(
-    debug = true,
-    root  = examples_root,
-    build = "builds/html-deploy",
-    doctestfilters = [r"Ptr{0x[0-9]+}"],
-    assets = [
-        "assets/favicon.ico",
-        "assets/custom.css"
-    ],
-    sitename = "Documenter example",
-    pages = htmlbuild_pages,
-    doctest = false,
-    Documenter.HTML(
-        prettyurls = true,
-        canonical = "https://example.com/stable",
+
+function withassets(f, assets...)
+    src(asset) = joinpath(@__DIR__, asset)
+    dst(asset) = joinpath(@__DIR__, "src/assets/$(basename(asset))")
+    for asset in assets
+        isfile(src(asset)) || error("$(asset) is missing")
+    end
+    for asset in assets
+        cp(src(asset), dst(asset))
+    end
+    rv = try
+        f()
+    catch exception
+        @warn "f() threw an exception" exception
+        nothing
+    end
+    for asset in assets
+        rm(dst(asset))
+    end
+    return rv
+end
+
+examples_html_deploy_doc = withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
+    makedocs(
+        debug = true,
+        root  = examples_root,
+        build = "builds/html-deploy",
+        doctestfilters = [r"Ptr{0x[0-9]+}"],
+        assets = [
+            "assets/favicon.ico",
+            "assets/custom.css"
+        ],
+        sitename = "Documenter example",
+        pages = htmlbuild_pages,
+        doctest = false,
+        Documenter.HTML(
+            prettyurls = true,
+            canonical = "https://example.com/stable",
+        )
     )
-)
+end

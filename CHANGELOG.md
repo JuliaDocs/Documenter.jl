@@ -2,6 +2,28 @@
 
 ## Version `v0.22.0`
 
+* ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The `assets` and `analytics` arguments to `makedocs` have been deprecated in favor of the corresponding arguments of the `Documenter.HTML` format plugin. ([#953][github-953])
+
+  **For upgrading:** pass the corresponding arguments with the `Documenter.HTML` plugin instead. E.g. instead of
+
+  ```
+  makedocs(
+      assets = ..., analytics = ...,
+      ...
+  )
+  ```
+
+  you should have
+
+  ```
+  makedocs(
+      format = Documenter.HTML(assets = ..., analytics = ...),
+      ...
+  )
+  ```
+
+  _**Note:** It is technically possible to specify the same argument twice with different values by passing both variants. In that case the value passed to `makedocs` takes precedence._
+
 * ![Enhancement][badge-enhancement] Documentation is no longer deployed on Travis CI cron jobs. ([#917][github-917])
 
 * ![Enhancement][badge-enhancement] Log messages from failed `@meta`, `@docs`, `@autodocs`,
@@ -14,6 +36,8 @@
 * ![Enhancement][badge-enhancement] The Markdown and LaTeX output writers can now handle multimedia
   output, such as images, from `@example` blocks. All the writers now also handle `text/markdown`
   output, which is preferred over `text/plain` if available. ([#938][github-938], [#948][github-948])
+
+* ![Enhancement][badge-enhancement] The HTML output now also supports SVG, WebP, GIF and JPEG logos. ([#953][github-953])
 
 * ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
@@ -223,6 +247,7 @@
 [github-941]: https://github.com/JuliaDocs/Documenter.jl/pull/941
 [github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
 [github-948]: https://github.com/JuliaDocs/Documenter.jl/pull/948
+[github-953]: https://github.com/JuliaDocs/Documenter.jl/pull/953
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

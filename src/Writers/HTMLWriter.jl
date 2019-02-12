@@ -4,22 +4,18 @@ A module for rendering `Document` objects to HTML.
 # Keywords
 
 [`HTMLWriter`](@ref) uses the following additional keyword arguments that can be passed to
-[`Documenter.makedocs`](@ref): `assets`, `sitename`, `analytics`, `authors`, `pages`,
-`version`. The behavior of [`HTMLWriter`](@ref) can be further customized by passing
-[`Documenter.makedocs`](@ref) a [`HTML`](@ref), which accepts the following keyword
-arguments: `prettyurls`, `disable_git`, `edit_branch`, `canonical`.
+[`Documenter.makedocs`](@ref): `authors`, `pages`, `sitename`, `version`.
+The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
+keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
+keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_branch` and
+`prettyurls`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 *navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
 
 **`pages`** defines the hierarchy of the navigation menu.
 
-**`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
-for more information.
-
 # Experimental keywords
-
-**`analytics`** can be used specify the Google Analytics tracking ID.
 
 **`version`** specifies the version string of the current version which will be the
 selected option in the version selector. If this is left empty (default) the version
@@ -41,30 +37,6 @@ then it is intended as the page title. This has two consequences:
    and in the `<title>` tag, unless specified in the `.pages` option.
 2. If the first heading is interpreted as being the page title, it is not displayed
    in the navigation sidebar.
-
-# Default and custom assets
-
-Documenter copies all files under the source directory (e.g. `/docs/src/`) over
-to the compiled site. It also copies a set of default assets from `/assets/html/`
-to the site's `assets/` directory, unless the user already had a file with the
-same name, in which case the user's files overrides the Documenter's file.
-This could, in principle, be used for customizing the site's style and scripting.
-
-The HTML output also links certain custom assets to the generated HTML documents,
-specifically a logo and additional javascript files.
-The asset files that should be linked must be placed in `assets/`, under the source
-directory (e.g `/docs/src/assets`) and must be on the top level (i.e. files in
-the subdirectories of `assets/` are not linked).
-
-For the **logo**, Documenter checks for the existence of `assets/logo.png`.
-If that's present, it gets displayed in the navigation bar.
-
-Additional JS, ICO, and CSS assets can be included in the generated pages using the
-`assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
-each listed asset in the `<head>` of every page in the order in which they are listed.
-The type of the asset (i.e. whether it is going to be included with a `<script>` or a
-`<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
-Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 """
 module HTMLWriter
 
@@ -123,19 +95,51 @@ This allows search engines to know which version to send their users to. [See
 wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
 Default is `nothing`, in which case no canonical link is set.
 
+**`analytics`** can be used specify the Google Analytics tracking ID.
+
+**`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
+for more information.
+
+# Default and custom assets
+
+Documenter copies all files under the source directory (e.g. `/docs/src/`) over
+to the compiled site. It also copies a set of default assets from `/assets/html/`
+to the site's `assets/` directory, unless the user already had a file with the
+same name, in which case the user's files overrides the Documenter's file.
+This could, in principle, be used for customizing the site's style and scripting.
+
+The HTML output also links certain custom assets to the generated HTML documents,
+specifically a logo and additional javascript files.
+The asset files that should be linked must be placed in `assets/`, under the source
+directory (e.g `/docs/src/assets`) and must be on the top level (i.e. files in
+the subdirectories of `assets/` are not linked).
+
+For the **logo**, Documenter checks for the existence of `assets/logo.{svg,png,webp,gif,jpg,jpeg}`,
+in this order. The first one it finds gets displayed at the top of the navigation sidebar.
+
+Additional JS, ICO, and CSS assets can be included in the generated pages using the
+`assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
+each listed asset in the `<head>` of every page in the order in which they are listed.
+The type of the asset (i.e. whether it is going to be included with a `<script>` or a
+`<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
+Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 """
 struct HTML <: Documenter.Plugin
-    prettyurls::Bool
-    disable_git:: Bool
-    edit_branch:: Union{String, Nothing}
-    canonical:: Union{String, Nothing}
+    prettyurls  :: Bool
+    disable_git :: Bool
+    edit_branch :: Union{String, Nothing}
+    canonical   :: Union{String, Nothing}
+    assets      :: Vector{String}
+    analytics   :: String
 
     function HTML(;
         prettyurls::Bool = true,
         disable_git::Bool = false,
         edit_branch::Union{String, Nothing} = "master",
-        canonical::Union{String, Nothing} = nothing)
-        new(prettyurls, disable_git, edit_branch, canonical)
+        canonical::Union{String, Nothing} = nothing,
+        assets::Vector{String} = String[],
+        analytics::String = "")
+        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics)
     end
 end
 
@@ -178,9 +182,11 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     copy_asset("arrow.svg", doc)
 
-    let logo = joinpath("assets", "logo.png")
+    for logoext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
+        logo = joinpath("assets", "logo.$(logoext)")
         if isfile(joinpath(doc.user.build, logo))
             ctx.logo = logo
+            break
         end
     end
 
@@ -188,7 +194,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx.search_js = copy_asset("search.js", doc)
 
     push!(ctx.local_assets, copy_asset("documenter.css", doc))
-    append!(ctx.local_assets, doc.user.assets)
+    append!(ctx.local_assets, settings.assets)
 
     for navnode in doc.internal.navlist
         render_page(ctx, navnode)
@@ -273,7 +279,7 @@ function render_head(ctx, navnode)
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
         title(page_title),
 
-        analytics_script(ctx.doc.user.analytics),
+        analytics_script(ctx.settings.analytics),
 
         canonical_link_element(ctx.settings.canonical, src),
 
