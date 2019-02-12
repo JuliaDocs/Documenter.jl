@@ -138,9 +138,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = REPL.ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
-                disable_color() do
-                    Core.eval(sandbox, Expr(:(=), :ans, ex))
-                end
+                Core.eval(sandbox, Expr(:(=), :ans, ex))
             end
             result.value = value
             print(result.stdout, text)
@@ -235,36 +233,26 @@ end
 # Display doctesting results.
 
 function result_to_string(buf, value)
-    dis = text_display(buf)
-    value === nothing || disable_color() do
-        Core.eval(Main, Expr(:call, display, dis, QuoteNode(value)))
-    end
-    sanitise(buf)
+    value === nothing || show(IOContext(buf, :limit => true), MIME"text/plain"(), value)
+    return sanitise(buf)
 end
-
-text_display(buf) = TextDisplay(IOContext(buf, :limit => true))
-
-funcsym() = CAN_INLINE[] ? :disable_color : :eval
 
 function error_to_string(buf, er, bt)
-    fs = funcsym()
     # Remove unimportant backtrace info.
-    index = findlast(ptr -> Base.ip_matches_func(ptr, fs), bt)
+    index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
     # Print a REPL-like error message.
-    disable_color() do
-        print(buf, "ERROR: ")
-        Base.invokelatest(showerror, buf, er, index === nothing ? bt : bt[1:(index - 1)])
-    end
-    sanitise(buf)
+    print(buf, "ERROR: ")
+    Base.invokelatest(showerror, buf, er, index === nothing ? bt : bt[1:(index - 1)])
+    return sanitise(buf)
 end
 
-# Strip trailing whitespace and remove terminal colors.
+# Strip trailing whitespace from each line and return resulting string
 function sanitise(buffer)
     out = IOBuffer()
     for line in eachline(seekstart(Base.unwrapcontext(buffer)[1]))
         println(out, rstrip(line))
     end
-    remove_term_colors(rstrip(String(take!(out)), '\n'))
+    return rstrip(String(take!(out)), '\n')
 end
 
 import .Utilities.TextDiff
@@ -348,11 +336,6 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     return
 end
 
-# Remove terminal colors.
-
-const TERM_COLOR_REGEX = r"\e\[[0-9;]*m"
-remove_term_colors(s) = replace(s, TERM_COLOR_REGEX => "")
-
 # REPL doctest splitter.
 
 const PROMPT_REGEX = r"^julia> (.*)$"
@@ -404,21 +387,6 @@ function takeuntil!(r, buf, lines)
             break
         end
     end
-end
-
-function disable_color(func)
-    color = Base.have_color
-    try
-        @eval Base have_color = false
-        func()
-    finally
-        @eval Base have_color = $color
-    end
-end
-
-const CAN_INLINE = Ref(true)
-function __init__()
-    CAN_INLINE[] = Base.JLOptions().can_inline == 0 ? false : true
 end
 
 end
