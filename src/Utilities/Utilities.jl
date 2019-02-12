@@ -639,6 +639,7 @@ end
 import Base64: stringmime
 function display_dict(x)
     out = Dict{MIME,Any}()
+    x === nothing && return out
     # Always generate text/plain
     out[MIME"text/plain"()] = stringmime(MIME"text/plain"(), x)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
