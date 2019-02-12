@@ -1,5 +1,10 @@
 # Documenter.jl changelog
 
+## Version `v0.21.3`
+
+* ![Security][badge-security] The lunr.js and lodash JavaScript dependencies have been updated to their latest patch versions (from 2.3.1 to 2.3.5 and 4.17.4 to 4.17.11, respectively).
+  This is in response to a vulnerability in lodash <4.17.11 ([CVE-2018-16487](https://nvd.nist.gov/vuln/detail/CVE-2018-16487)). ([#946][github-946])
+
 ## Version `v0.21.2`
 
 * ![Bugfix][badge-bugfix] `linkcheck` now handles servers that do not support `HEAD` requests
@@ -190,6 +195,8 @@
 [github-923]: https://github.com/JuliaDocs/Documenter.jl/pull/923
 [github-926]: https://github.com/JuliaDocs/Documenter.jl/pull/926
 [github-927]: https://github.com/JuliaDocs/Documenter.jl/pull/927
+[github-934]: https://github.com/JuliaDocs/Documenter.jl/pull/934
+[github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
@@ -200,6 +207,7 @@
 [badge-feature]: https://img.shields.io/badge/feature-green.svg
 [badge-enhancement]: https://img.shields.io/badge/enhancement-blue.svg
 [badge-bugfix]: https://img.shields.io/badge/bugfix-purple.svg
+[badge-security]: https://img.shields.io/badge/security-black.svg
 
 <!--
 # Badges
@@ -209,4 +217,5 @@
 ![Feature][badge-feature]
 ![Enhancement][badge-enhancement]
 ![Bugfix][badge-bugfix]
+![Security][badge-security]
 -->
