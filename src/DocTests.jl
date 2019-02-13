@@ -258,34 +258,28 @@ end
 import .Utilities.TextDiff
 
 function report(result::Result, str, doc::Documents.Document)
-    iob = IOBuffer()
-    ioc = IOContext(iob, :color => Base.have_color)
-    println(ioc, "=====[Test Error]", "="^30)
-    println(ioc)
-    printstyled(ioc, "> Location: ", result.file, color=:cyan)
-    printstyled(ioc, Utilities.find_block_in_file(result.block.code, result.file), color=:cyan)
-    printstyled(ioc, "\n\n> Code block:\n", color=:cyan)
-    println(ioc, "\n```$(result.block.language)")
-    println(ioc, result.block.code)
-    println(ioc, "```")
-    if !isempty(result.input)
-        printstyled(ioc, "\n> Subexpression:\n", color=:cyan)
-        print_indented(ioc, result.input; indent = 4)
-    end
-    warning = Base.have_color ? "" : " (REQUIRES COLOR)"
-    printstyled(ioc, "\n> Output Diff", warning, ":\n\n", color=:cyan)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
-    Utilities.TextDiff.showdiff(ioc, diff)
-    println(ioc, "\n\n", "=====[End Error]=", "="^30)
-    push!(doc.internal.errors, :doctest)
-    printstyled(String(take!(iob)), color=:normal)
-end
+    lines = Utilities.find_block_in_file(result.block.code, result.file)
+    @error("""
+        doctest failure in $(Utilities.locrepr(result.file, lines))
 
-function print_indented(buffer::IO, str::AbstractString; indent = 4)
-    println(buffer)
-    for line in split(str, '\n')
-        println(buffer, " "^indent, line)
-    end
+        ```$(result.block.language)
+        $(result.block.code)
+        ```
+
+        Subexpression:
+
+        $(result.input)
+
+        Output:
+
+        $(result.output)
+
+        Expected output:
+
+        $(rstrip(str))
+
+        """, diff)
 end
 
 function fix_doctest(result::Result, str, doc::Documents.Document)
