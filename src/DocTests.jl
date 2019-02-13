@@ -138,8 +138,9 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = REPL.ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
-                Core.eval(sandbox, Expr(:(=), :ans, ex))
+                Core.eval(sandbox, ex)
             end
+            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
             result.value = value
             print(result.stdout, text)
             if !success
