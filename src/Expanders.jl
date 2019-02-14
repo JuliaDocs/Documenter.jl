@@ -488,9 +488,10 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
             (value, success, backtrace, text) = Utilities.withoutput() do
                 cd(dirname(page.build)) do
-                    Core.eval(mod, Expr(:(=), :ans, ex))
+                    Core.eval(mod, ex)
                 end
             end
+            Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
             result = value
             print(buffer, text)
             if !success
@@ -548,9 +549,10 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         input  = droplines(str)
         (value, success, backtrace, text) = Utilities.withoutput() do
             cd(dirname(page.build)) do
-                Core.eval(mod, Expr(:(=), :ans, ex))
+                Core.eval(mod, ex)
             end
         end
+        Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
         result = value
         output = if success
             hide = REPL.ends_with_semicolon(input)

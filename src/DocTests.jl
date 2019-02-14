@@ -158,9 +158,10 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             result.hide = REPL.ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
                 disable_color() do
-                    Core.eval(sandbox, Expr(:(=), :ans, ex))
+                    Core.eval(sandbox, ex)
                 end
             end
+            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
             result.value = value
             print(result.stdout, text)
             if !success
