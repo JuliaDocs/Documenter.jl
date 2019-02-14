@@ -39,6 +39,9 @@
 
 * ![Enhancement][badge-enhancement] The HTML output now also supports SVG, WebP, GIF and JPEG logos. ([#953][github-953])
 
+* ![Enhancement][badge-enhancement] Reporting of failed doctests are now using the logging
+  system to be consistent with the rest of Documenter's output. ([#958][github-958])
+
 * ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
@@ -248,6 +251,7 @@
 [github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
 [github-948]: https://github.com/JuliaDocs/Documenter.jl/pull/948
 [github-953]: https://github.com/JuliaDocs/Documenter.jl/pull/953
+[github-958]: https://github.com/JuliaDocs/Documenter.jl/pull/958
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

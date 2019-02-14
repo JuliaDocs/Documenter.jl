@@ -87,15 +87,11 @@ end
 prefix(::Diff{Lines}, s::Symbol) = s === :green ? "+ " : s === :red  ? "- " : "  "
 prefix(::Diff{Words}, ::Symbol) = ""
 
-function showdiff(io::IO, diff::Diff)
+function Base.show(io::IO, diff::Diff)
+    get(io, :color, false) || println(io, "Warning: Diff output requires color.")
     for (color, text) in diff.diff
         printstyled(io, prefix(diff, color), text, color=color)
     end
-end
-
-function Base.show(io::IO, diff::Diff)
-    printstyled(io, color=:normal) # Reset colors.
-    showdiff(io, diff)
 end
 
 end

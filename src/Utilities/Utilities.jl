@@ -32,7 +32,7 @@ end
 function locrepr(file, line=nothing)
     str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
     line !== nothing && (str = str * "$(line)")
-    return "`$(str)`"
+    return str
 end
 
 # Directory paths.
