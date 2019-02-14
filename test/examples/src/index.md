@@ -386,6 +386,14 @@ julia> ans
 1
 ```
 
+```jldoctest issue959
+julia> "hello"; "world"
+"world"
+
+julia> ans
+"world"
+```
+
 # Issue513
 
 ```jldoctest named
