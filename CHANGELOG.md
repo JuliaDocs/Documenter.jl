@@ -46,6 +46,11 @@
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
 
+## Version `v0.21.4`
+
+* ![Bugfix][badge-bugfix] A bug in `jldoctest`-blocks that, in rare cases, resulted in
+  wrong output has been fixed. ([#959][github-959], [#960][github-960])
+
 ## Version `v0.21.3`
 
 * ![Security][badge-security] The lunr.js and lodash JavaScript dependencies have been updated to their latest patch versions (from 2.3.1 to 2.3.5 and 4.17.4 to 4.17.11, respectively).
@@ -252,6 +257,8 @@
 [github-948]: https://github.com/JuliaDocs/Documenter.jl/pull/948
 [github-953]: https://github.com/JuliaDocs/Documenter.jl/pull/953
 [github-958]: https://github.com/JuliaDocs/Documenter.jl/pull/958
+[github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
+[github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
