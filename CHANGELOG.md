@@ -1,5 +1,10 @@
 # Documenter.jl changelog
 
+## Version `v0.21.4`
+
+* ![Bugfix][badge-bugfix] A bug in `jldoctest`-blocks that, in rare cases, resulted in
+  wrong output has been fixed. ([#959][github-959], [#960][github-960])
+
 ## Version `v0.21.3`
 
 * ![Security][badge-security] The lunr.js and lodash JavaScript dependencies have been updated to their latest patch versions (from 2.3.1 to 2.3.5 and 4.17.4 to 4.17.11, respectively).
@@ -197,6 +202,8 @@
 [github-927]: https://github.com/JuliaDocs/Documenter.jl/pull/927
 [github-934]: https://github.com/JuliaDocs/Documenter.jl/pull/934
 [github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
+[github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
+[github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
