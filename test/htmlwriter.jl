@@ -2,7 +2,8 @@ module HTMLWriterTests
 
 using Test
 
-import Documenter.Writers.HTMLWriter: jsescape, generate_version_file, expand_versions
+import JSON
+import Documenter.Writers.HTMLWriter: generate_version_file, expand_versions
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
@@ -16,21 +17,6 @@ function verify_version_file(versionfile, entries)
 end
 
 @testset "HTMLWriter" begin
-    @test jsescape("abc123") == "abc123"
-    @test jsescape("▶αβγ") == "▶αβγ"
-    @test jsescape("") == ""
-
-    @test jsescape("a\nb") == "a\\nb"
-    @test jsescape("\r\n") == "\\r\\n"
-    @test jsescape("\\") == "\\\\"
-
-    @test jsescape("\"'") == "\\\"\\'"
-
-    # Ref: #639
-    @test jsescape("\u2028") == "\\u2028"
-    @test jsescape("\u2029") == "\\u2029"
-    @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
-
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")
         versions = ["stable", "dev",
