@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.21.5`
+
+* ![Bugfix][badge-bugfix] Deprecation warnings for `format` now get printed correctly when multiple formats are passed as a `Vector`. ([#967][github-967])
+
 ## Version `v0.21.4`
 
 * ![Bugfix][badge-bugfix] A bug in `jldoctest`-blocks that, in rare cases, resulted in
@@ -204,6 +208,7 @@
 [github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
 [github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
 [github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
+[github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

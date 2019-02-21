@@ -230,14 +230,14 @@ function makedocs(components...; debug = false, format = HTML(),
 
     # deprecation of format as Symbols
     function fmt(f)
-        if format === :html
+        if f === :html
             Base.depwarn("`format = :html` is deprecated, use `format = Documenter.HTML()` instead.", :makedocs)
             return Writers.HTMLWriter.HTML(; html_keywords...)
-        elseif format === :latex
+        elseif f === :latex
             Base.depwarn("`format = :latex` is deprecated, use `format = LaTeX()` from " *
                 "the DocumenterLaTeX package instead.", :makedocs)
             return Writers.LaTeXWriter.LaTeX()
-        elseif format === :markdown
+        elseif f === :markdown
             Base.depwarn("`format = :markdown` is deprecated, use `format = Markdown()` " *
                 "from the DocumenterMarkdown package instead.", :makedocs)
             return Writers.MarkdownWriter.Markdown()
