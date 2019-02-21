@@ -46,6 +46,10 @@
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
 
+## Version `v0.21.5`
+
+* ![Bugfix][badge-bugfix] Deprecation warnings for `format` now get printed correctly when multiple formats are passed as a `Vector`. ([#967][github-967])
+
 ## Version `v0.21.4`
 
 * ![Bugfix][badge-bugfix] A bug in `jldoctest`-blocks that, in rare cases, resulted in
@@ -259,6 +263,7 @@
 [github-958]: https://github.com/JuliaDocs/Documenter.jl/pull/958
 [github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
 [github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
+[github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
