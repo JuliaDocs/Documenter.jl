@@ -1,7 +1,7 @@
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
-/Manifest.toml
+Manifest.toml
 
 test/examples/builds/
 test/formats/builds/
@@ -11,4 +11,3 @@ test/errors/build/
 docs/build/
 docs/pdf/build/
 docs/site/
-docs/Manifest.toml
