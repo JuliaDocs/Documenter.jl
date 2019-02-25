@@ -606,8 +606,11 @@ function git_push(
 
     target_dir = abspath(target)
 
+    # Extract host from repo as everything up to first ':' or '/' character
+    host = match(r"(.*?)[:\/]", repo)[1]
+
     # The upstream URL to which we push new content and the ssh decryption commands.
-    upstream = "git@$(replace(repo, "github.com/" => "github.com:"))"
+    upstream = "git@$(replace(repo, "$host/" => "$host:"))"
 
     keyfile = abspath(joinpath(root, ".documenter"))
     try
@@ -626,9 +629,9 @@ function git_push(
         # Use a custom SSH config file to avoid overwriting the default user config.
         withfile(joinpath(homedir(), ".ssh", "config"),
             """
-            Host github.com
+            Host $host
                 StrictHostKeyChecking no
-                HostName github.com
+                HostName $host
                 IdentityFile $keyfile
                 BatchMode yes
             """
