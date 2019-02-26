@@ -750,6 +750,10 @@ function gitrm_copy(src, dst)
 end
 
 function withfile(func, file::AbstractString, contents::AbstractString)
+    dir = dirname(file)
+    hasdir = isdir(dir)
+    hasdir || mkpath(dir)
+
     hasfile = isfile(file)
     original = hasfile ? read(file, String) : ""
     open(file, "w") do stream
@@ -765,6 +769,11 @@ function withfile(func, file::AbstractString, contents::AbstractString)
             end
         else
             rm(file)
+        end
+
+        if !hasdir
+            # dir should be empty now as the only file inside was deleted
+            rm(dir, recursive=true)
         end
     end
 end
