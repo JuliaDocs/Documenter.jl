@@ -632,7 +632,7 @@ function git_push(
             Host $host
                 StrictHostKeyChecking no
                 HostName $host
-                IdentityFile $keyfile
+                IdentityFile "$keyfile"
                 BatchMode yes
             """
         ) do
