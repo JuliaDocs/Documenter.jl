@@ -257,8 +257,12 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
-        JSON.print(io, ctx.search_index)
-        println(io, "\n}")
+        # convert Vector{SearchRecord} to a JSON string, and escape two Unicode
+        # characters since JSON is not a JS subset, and we want JS here
+        # ref http://timelessrepo.com/json-isnt-a-javascript-subset
+        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
+        js = reduce(replace, escapes, init=JSON.json(ctx.search_index))
+        println(io, js, "\n}")
     end
 end
 
