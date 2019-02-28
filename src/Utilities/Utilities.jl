@@ -636,12 +636,16 @@ function mdparse(s::AbstractString; mode=:single)
 end
 
 # Capturing output in different representations similar to IJulia.jl
-import Base64: stringmime
+function limitstringmime(m::MIME"text/plain", x)
+    io = IOBuffer()
+    show(IOContext(io, :limit=> true), m, x)
+    return String(take!(io))
+end
 function display_dict(x)
     out = Dict{MIME,Any}()
     x === nothing && return out
     # Always generate text/plain
-    out[MIME"text/plain"()] = stringmime(MIME"text/plain"(), x)
+    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
               MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
               MIME"text/latex"(), MIME"text/markdown"()]
