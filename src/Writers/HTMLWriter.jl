@@ -41,6 +41,7 @@ then it is intended as the page title. This has two consequences:
 module HTMLWriter
 
 import Markdown
+import JSON
 
 import ...Documenter:
     Anchors,
@@ -149,6 +150,16 @@ const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
 const fontawesome_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
 const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
 
+struct SearchRecord
+    src :: String
+    page :: Documents.Page
+    loc :: String
+    category :: String
+    title :: String
+    page_title :: String
+    text :: String
+end
+
 """
 [`HTMLWriter`](@ref)-specific globals that are passed to [`domify`](@ref) and
 other recursive functions.
@@ -160,12 +171,54 @@ mutable struct HTMLContext
     scripts :: Vector{String}
     documenter_js :: String
     search_js :: String
-    search_index :: IOBuffer
+    search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
     local_assets :: Vector{String}
 end
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, "", [], "", "", IOBuffer(), "", Documents.NavNode("search", "Search", nothing), [])
+
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, "", [], "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+
+function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
+    page_title = mdflatten(pagetitle(ctx, navnode))
+    if title === nothing
+        title = page_title
+    end
+    SearchRecord(
+        pretty_url(ctx, get_url(ctx, navnode.page)),
+        getpage(ctx, navnode),
+        loc,
+        lowercase(category),
+        title,
+        page_title,
+        text
+    )
+end
+
+function SearchRecord(ctx::HTMLContext, navnode, node::Markdown.Header)
+    a = getpage(ctx, navnode).mapping[node]
+    SearchRecord(ctx, navnode;
+        loc="$(a.id)-$(a.nth)",
+        title=mdflatten(node),
+        category="section")
+end
+
+function SearchRecord(ctx, navnode, node)
+    SearchRecord(ctx, navnode; text=mdflatten(node))
+end
+
+function JSON.lower(rec::SearchRecord)
+    # Replace any backslashes in links, if building the docs on Windows
+    src = replace(rec.src, '\\' => '/')
+    ref = string(src, '#', rec.loc)
+    Dict{String, String}(
+        "location" => ref,
+        "page" => rec.page_title,
+        "title" => rec.title,
+        "category" => rec.category,
+        "text" => rec.text
+    )
+end
 
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
@@ -203,9 +256,13 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     render_search(ctx)
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
-        println(io, "var documenterSearchIndex = {\"docs\": [\n")
-        write(io, String(take!(ctx.search_index)))
-        println(io, "]}")
+        println(io, "var documenterSearchIndex = {\"docs\":")
+        # convert Vector{SearchRecord} to a JSON string, and escape two Unicode
+        # characters since JSON is not a JS subset, and we want JS here
+        # ref http://timelessrepo.com/json-isnt-a-javascript-subset
+        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
+        js = reduce(replace, escapes, init=JSON.json(ctx.search_index))
+        println(io, js, "\n}")
     end
 end
 
@@ -658,101 +715,11 @@ Converts recursively a [`Documents.Page`](@ref), `Markdown` or Documenter
 """
 function domify(ctx, navnode)
     page = getpage(ctx, navnode)
-    sib = SearchIndexBuffer(ctx, navnode)
-    ret = map(page.elements) do elem
-        search_append(sib, elem)
+    map(page.elements) do elem
+        rec = SearchRecord(ctx, navnode, elem)
+        push!(ctx.search_index, rec)
         domify(ctx, navnode, page.mapping[elem])
     end
-    search_flush(sib)
-    ret
-end
-
-mutable struct SearchIndexBuffer
-    ctx :: HTMLContext
-    src :: String
-    page :: Documents.Page
-    loc :: String
-    category :: Symbol
-    title :: String
-    page_title :: String
-    buffer :: IOBuffer
-    function SearchIndexBuffer(ctx, navnode)
-        page_title = mdflatten(pagetitle(ctx, navnode))
-        new(
-            ctx,
-            pretty_url(ctx, get_url(ctx, navnode.page)),
-            getpage(ctx, navnode),
-            "",
-            :page,
-            page_title,
-            page_title,
-            IOBuffer()
-        )
-    end
-end
-
-function search_append(sib, node::Markdown.Header)
-    search_flush(sib)
-    sib.category = :section
-    sib.title = mdflatten(node)
-    a = sib.page.mapping[node]
-    sib.loc = "$(a.id)-$(a.nth)"
-end
-
-search_append(sib, node) = mdflatten(sib.buffer, node)
-
-function search_flush(sib)
-    # Replace any backslashes in links, if building the docs on Windows
-    src = replace(sib.src, '\\' => '/')
-    ref = "$(src)#$(sib.loc)"
-    text = String(take!(sib.buffer))
-    println(sib.ctx.search_index, """
-    {
-        "location": "$(jsescape(ref))",
-        "page": "$(jsescape(sib.page_title))",
-        "title": "$(jsescape(sib.title))",
-        "category": "$(jsescape(lowercase(string(sib.category))))",
-        "text": "$(jsescape(text))"
-    },
-    """)
-end
-
-"""
-Replaces some of the characters in the string with escape sequences so that the strings
-would be valid JS string literals, as per the
-[ECMAScript® 2017 standard](https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals).
-
-Note that it always escapes both potential `"` and `'` closing quotes.
-"""
-function jsescape(s)
-    b = IOBuffer()
-    # From the ECMAScript® 2017 standard:
-    #
-    # > All code points may appear literally in a string literal except for the closing
-    # > quote code points, U+005C (REVERSE SOLIDUS), U+000D (CARRIAGE RETURN), U+2028 (LINE
-    # > SEPARATOR), U+2029 (PARAGRAPH SEPARATOR), and U+000A (LINE FEED).
-    #
-    # https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals
-    for c in s
-        if c === '\u000a'     # LINE FEED,       i.e. \n
-            write(b, "\\n")
-        elseif c === '\u000d' # CARRIAGE RETURN, i.e. \r
-            write(b, "\\r")
-        elseif c === '\u005c' # REVERSE SOLIDUS, i.e. \
-            write(b, "\\\\")
-        elseif c === '\u0022' # QUOTATION MARK,  i.e. "
-            write(b, "\\\"")
-        elseif c === '\u0027' # APOSTROPHE,      i.e. '
-            write(b, "\\'")
-        elseif c === '\u2028' # LINE SEPARATOR
-            write(b, "\\u2028")
-        elseif c === '\u2029' # PARAGRAPH SEPARATOR
-            write(b, "\\u2029")
-        else
-            write(b, c)
-        end
-    end
-    String(take!(b))
 end
 
 function domify(ctx, navnode, node)
@@ -837,12 +804,13 @@ function domify(ctx, navnode, node::Documents.DocsNode)
     @tags a code div section span
 
     # push to search index
-    sib = SearchIndexBuffer(ctx, navnode)
-    sib.loc = node.anchor.id
-    sib.title = string(node.object.binding)
-    sib.category = Symbol(Utilities.doccat(node.object))
-    mdflatten(sib.buffer, node.docstr)
-    search_flush(sib)
+    rec = SearchRecord(ctx, navnode;
+        loc=node.anchor.id,
+        title=string(node.object.binding),
+        category=Utilities.doccat(node.object),
+        text = mdflatten(node.docstr))
+
+    push!(ctx.search_index, rec)
 
     section[".docstring"](
         div[".docstring-header"](
