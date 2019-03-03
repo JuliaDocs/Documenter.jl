@@ -40,6 +40,7 @@ then it is intended as the page title. This has two consequences:
 """
 module HTMLWriter
 
+import Random
 import Markdown
 import JSON
 
@@ -132,6 +133,7 @@ struct HTML <: Documenter.Plugin
     canonical   :: Union{String, Nothing}
     assets      :: Vector{String}
     analytics   :: String
+    search      :: String
 
     function HTML(;
         prettyurls::Bool = true,
@@ -139,8 +141,9 @@ struct HTML <: Documenter.Plugin
         edit_branch::Union{String, Nothing} = "master",
         canonical::Union{String, Nothing} = nothing,
         assets::Vector{String} = String[],
-        analytics::String = "")
-        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics)
+        analytics::String = "",
+        search::String = "lunr")
+        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics, search)
     end
 end
 
@@ -231,7 +234,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
 
     ctx = HTMLContext(doc, settings)
-    ctx.search_index_js = "search_index.js"
 
     copy_asset("arrow.svg", doc)
 
@@ -244,7 +246,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     end
 
     ctx.documenter_js = copy_asset("documenter.js", doc)
-    ctx.search_js = copy_asset("search.js", doc)
 
     push!(ctx.local_assets, copy_asset("documenter.css", doc))
     append!(ctx.local_assets, settings.assets)
@@ -253,7 +254,24 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         render_page(ctx, navnode)
     end
 
-    render_search(ctx)
+    add_search(ctx, doc, settings)
+end
+
+function add_search(ctx::HTMLContext, doc::Documents.Document, settings::HTML)
+    search_options = ("lunr", "algolia")
+    if settings.search == "lunr"
+        add_search_lunr(ctx, doc, settings)
+    elseif settings.search == "algolia"
+        add_search_algolia(ctx, doc, settings)
+    else
+        throw(ArgumentError("HTML search option ($search) not one of $search_options"))
+    end
+end
+
+function add_search_lunr(ctx::HTMLContext, doc::Documents.Document, settings::HTML)
+    ctx.search_index_js = "search_index.js"
+    ctx.search_js = copy_asset("search.js", doc)
+    render_search(ctx, settings.search)
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
@@ -264,6 +282,11 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         js = reduce(replace, escapes, init=JSON.json(ctx.search_index))
         println(io, js, "\n}")
     end
+end
+
+function add_search_algolia(ctx::HTMLContext, doc::Documents.Document, settings::HTML)
+    render_search(ctx, settings.search)
+    upload_index(doc.user.sitename, ctx.search_index)
 end
 
 """
@@ -401,7 +424,7 @@ end
 ## Search page
 # ------------
 
-function render_search(ctx)
+function render_search(ctx::HTMLContext, search::String)
     @tags article body h1 header hr html li nav p span ul script
 
     src = get_url(ctx, ctx.search_navnode)
@@ -419,14 +442,25 @@ function render_search(ctx)
         ul["#search-results"]
     )
 
-    htmldoc = DOM.HTMLDocument(
-        html[:lang=>"en"](
-            head,
-            body(navmenu, article),
-            script[:src => relhref(src, ctx.search_index_js)],
-            script[:src => relhref(src, ctx.search_js)],
+    # search_index_js only set for lunr search
+    if search == "lunr"
+        htmldoc = DOM.HTMLDocument(
+            html[:lang=>"en"](
+                head,
+                body(navmenu, article),
+                script[:src => relhref(src, ctx.search_index_js)],
+                script[:src => relhref(src, ctx.search_js)],
+            )
         )
-    )
+    else
+        htmldoc = DOM.HTMLDocument(
+            html[:lang=>"en"](
+                head,
+                body(navmenu, article),
+                script[:src => "https://cdn.jsdelivr.net/algoliasearch/3/algoliasearchLite.min.js"],
+            )
+        )
+    end
     open_output(ctx, ctx.search_navnode) do io
         print(io, htmldoc)
     end
@@ -1183,4 +1217,172 @@ fixlinks!(ctx, navnode, md) = nothing
 # TODO: do some regex-magic in raw HTML blocks? Currently ignored.
 #fixlinks!(ctx, navnode, md::Documents.RawHTML) = ...
 
+# Algolia search
+# ------------------------------------------------------------------------------
+
+# TODO create better settings, now all defaults
+"""Customized Algolia settings for optimal results
+
+https://www.algolia.com/doc/api-reference/settings-api-parameters/
+"""
+const ALGOLIA_SETTINGS = Dict{String, Any}(
+    # "searchableAttributes" => Any["name", "email", "address"],
+    # "hitsPrPage" => 50,
+    # "customRanking" => Any["desc(population)", "asc(name)"],
+)
+
+# function from HTTP.jl https://github.com/JuliaWeb/HTTP.jl/blob/35eb73/src/URIs.jl#L314-L318
+# RFC3986 Unreserved Characters (and '~' Unsafe per RFC1738).
+@inline issafe(c::Char) = c == '-' ||
+                          c == '.' ||
+                          c == '_' ||
+                          (isascii(c) && (isletter(c) || isnumeric(c)))
+
+"""Create an index name based on sitename and version
+
+It is assumed that the
+
+### Example
+    indexname("Example.jl") => "example"
+    indexname("Example.jl"; temp=true) => "example_temp_ulnfknln"
+"""
+function indexname(sitename::AbstractString; temp::Bool=false)
+    # remove all except unreserved characters such that we don't need to
+    # URI encode the index name when we use it to call the REST API later on
+    simplesite = lowercase(join(issafe(c) ? c : "" for c in sitename))
+    if isempty(simplesite)
+        throw(ArgumentError("Use a non empty sitename: \"$sitename\""))
+    end
+    randstr = Random.randstring('a':'z', 8)
+    temp ? string(simplesite, "_temp_", randstr) : simplesite
 end
+
+"""Delete old temporary indexes
+
+This should normally speaking never find any, but in case a previous upload
+failed halfway we don't want to accumulate temporary indexes.
+"""
+function delete_old_indexes(index::AbstractString)
+    d = request_algolia("GET", "indexes")
+    for indexinfo in d["items"]
+        name = indexinfo["name"]
+        if occursin(Regex("^$(index)_temp_.*"), name)
+            if indexinfo["pendingTask"]
+                @info "Found temporary Algolia index with pending tasks, leaving it" indexinfo
+                continue
+            else
+                @info "Found temporary Algolia index, deleting it" indexinfo
+                request_algolia("DELETE", "indexes/$name")
+            end
+        end
+    end
+end
+
+"Check if the JSON indicates failure, if so throw, otherwise pass through"
+function checkstatus(d::AbstractDict)
+    # https://www.algolia.com/doc/rest-api/search/?language=javascript#error-handling
+    status = get(d, "status", nothing)
+    # check for 4xx HTTP error codes
+    if (status isa Int) && status ÷ 100 == 4
+        message = get(d, "message", "<no message provided>")
+        throw(ErrorException("Algolia HTTP Code $status: $message"))
+    end
+    return d
+end
+
+"""Do a request to the Algolia REST API
+
+For this to work two environment variables need to be set;
+`ALGOLIA_APPLICATION_ID` and `ALGOLIA_API_KEY`. Both can be found on the
+"API Keys" page of your application on the Algolia website. `ALGOLIA_API_KEY`
+refers to the Admin API Key, which is needed to create new indexes.
+
+### Example
+    request_algolia("GET", "indexes") => Dict{String, Any}(...)
+"""
+function request_algolia(verb::AbstractString, path::AbstractString,
+        data::Union{AbstractDict, Nothing}=nothing)
+
+    api_key = ENV["ALGOLIA_API_KEY"]
+    application_id = ENV["ALGOLIA_APPLICATION_ID"]
+    base_url = "https://$(application_id)-dsn.algolia.net"
+    api_version = "1"
+    url = "$base_url/$api_version/$path"
+    content_opt = data === nothing ? () : ("--data-binary", JSON.json(data))
+    c = `curl
+        --silent --show-error
+        --request $(uppercase(verb))
+        --header "Content-Type: application/json; charset=UTF-8"
+        --header "X-Algolia-API-Key: $api_key"
+        --header "X-Algolia-Application-Id: $application_id"
+        $content_opt
+        $url`
+    s = read(c, String)
+    dict = try
+        JSON.parse(s)
+    catch
+        throw(ErrorException("Algolia response not JSON: $s"))
+    end
+    checkstatus(dict)
+    return dict
+end
+
+"Create the JSON content Dict needed by the Algolia API"
+function prepare_batch(records::AbstractVector)
+    batch = Dict{String, Vector{Dict}}("requests" => [])
+    for record in records
+        request = Dict{String, Any}("action" => "addObject", "body" => record)
+        push!(batch["requests"], request)
+    end
+    return batch
+end
+
+"Upload the records in batches"
+function batch_write(index_temp::AbstractString, records::AbstractVector)
+    batch_size = 1000  # same batch size as the python client
+    for records_batch in Iterators.partition(records, batch_size)
+        batch = prepare_batch(records_batch)
+        request_algolia("POST", "indexes/$index_temp/batch", batch)
+    end
+end
+
+"""Use the Algolia REST API to upload the search index
+
+This creates a temporary index which at the end is moved over the one used in
+the generated documentation website. This approach will not give any downtime,
+and is inspired by `replace_all_objects()` from the Algolia Python client.
+
+Note that this approach is simple since it generates the full index from scratch,
+and is therefore not reliant on updating a pre-existing index. However since
+most search records are unlikely to change between each time this is run,
+it would be more efficient to somehow hash the records and corresponding
+Algolia object ID and only upload changes. Indexing operations count equally
+as search operations towards the number of operations per month.
+
+### Steps taken below
+1. Determine index name, including the temporary index name
+2. Delete any old temporary indexes with the same prefix and no pending tasks
+3. Create the temporary index and upload the settings
+4. Send the search records in batches to temporary index
+5. Move the temporary index over the index
+"""
+function upload_index(sitename::AbstractString, records::AbstractVector)
+
+    index = indexname(sitename)
+    index_temp = indexname(sitename; temp=true)
+
+    delete_old_indexes(index)
+
+    # push settings to the temporary index
+    # note that this automatically creates the temporary index
+    request_algolia("PUT", "indexes/$index_temp/settings", ALGOLIA_SETTINGS)
+
+    # upload the records in batches
+    batch_write(index_temp, records)
+
+    # move temporary index over the index
+    request_algolia("POST", "indexes/$index_temp/operation",
+        Dict("operation"=>"move", "destination"=>index))
+end
+
+end  # module HTMLWriter
