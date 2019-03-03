@@ -42,6 +42,8 @@
 * ![Enhancement][badge-enhancement] Reporting of failed doctests are now using the logging
   system to be consistent with the rest of Documenter's output. ([#958][github-958])
 
+* ![Enhancement][badge-enhancement] The construction of the search index in the HTML output has been refactored to make it easier to use with other search backends in the future. The structure of the generated search index has also been modified, which can yield slightly different search results. Documenter now depends on the lightweight [JSON.jl][json-jl] package. ([#966][github-966])
+
 * ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
@@ -265,11 +267,13 @@
 [github-958]: https://github.com/JuliaDocs/Documenter.jl/pull/958
 [github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
 [github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
+[github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
+[json-jl]: https://github.com/JuliaIO/JSON.jl
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
