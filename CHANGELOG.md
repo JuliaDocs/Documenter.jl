@@ -266,6 +266,7 @@
 [github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
 [github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
+[github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
