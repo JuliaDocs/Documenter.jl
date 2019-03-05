@@ -1221,7 +1221,8 @@ fixlinks!(ctx, navnode, md) = nothing
 # ------------------------------------------------------------------------------
 
 # TODO create better settings, now all defaults
-"""Customized Algolia settings for optimal results
+"""
+Customized Algolia settings for optimal results
 
 https://www.algolia.com/doc/api-reference/settings-api-parameters/
 """
@@ -1238,7 +1239,8 @@ const ALGOLIA_SETTINGS = Dict{String, Any}(
                           c == '_' ||
                           (isascii(c) && (isletter(c) || isnumeric(c)))
 
-"""Create an index name based on sitename and version
+"""
+Create an index name based on sitename and version
 
 It is assumed that the
 
@@ -1257,7 +1259,8 @@ function indexname(sitename::AbstractString; temp::Bool=false)
     temp ? string(simplesite, "_temp_", randstr) : simplesite
 end
 
-"""Delete old temporary indexes
+"""
+Delete old temporary indexes
 
 This should normally speaking never find any, but in case a previous upload
 failed halfway we don't want to accumulate temporary indexes.
@@ -1290,7 +1293,8 @@ function checkstatus(d::AbstractDict)
     return d
 end
 
-"""Do a request to the Algolia REST API
+"""
+Do a request to the Algolia REST API
 
 For this to work two environment variables need to be set;
 `ALGOLIA_APPLICATION_ID` and `ALGOLIA_API_KEY`. Both can be found on the
@@ -1346,7 +1350,8 @@ function batch_write(index_temp::AbstractString, records::AbstractVector)
     end
 end
 
-"""Use the Algolia REST API to upload the search index
+"""
+Use the Algolia REST API to upload the search index
 
 This creates a temporary index which at the end is moved over the one used in
 the generated documentation website. This approach will not give any downtime,
