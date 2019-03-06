@@ -448,25 +448,20 @@ function render_search(ctx::HTMLContext, search::String)
         ul["#search-results"]
     )
 
-    # search_index_js only set for lunr search
-    if search == "lunr"
-        htmldoc = DOM.HTMLDocument(
-            html[:lang=>"en"](
-                head,
-                body(navmenu, article),
-                script[:src => relhref(src, ctx.search_index_js)],
-                script[:src => relhref(src, ctx.search_js)],
-            )
-        )
+    # include the right JS for the used search method
+    search_scripts = if search == "lunr"
+        (script[:src => relhref(src, ctx.search_index_js)], script[:src => relhref(src, ctx.search_js)])
     else
-        htmldoc = DOM.HTMLDocument(
-            html[:lang=>"en"](
-                head,
-                body(navmenu, article),
-                script[:src => "https://cdn.jsdelivr.net/algoliasearch/3/algoliasearchLite.min.js"],
-            )
-        )
+        (script[:src => "https://cdn.jsdelivr.net/algoliasearch/3/algoliasearchLite.min.js"],)
     end
+
+    htmldoc = DOM.HTMLDocument(
+        html[:lang=>"en"](
+            head,
+            body(navmenu, article),
+            search_scripts...,
+        )
+    )
     open_output(ctx, ctx.search_navnode) do io
         print(io, htmldoc)
     end
