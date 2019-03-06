@@ -286,7 +286,13 @@ end
 
 function add_search_algolia(ctx::HTMLContext, doc::Documents.Document, settings::HTML)
     render_search(ctx, settings.search)
-    upload_index(doc.user.sitename, ctx.search_index)
+    ctx.search_index_js = "search_index.json"
+    # store a JSON that has all information needed by deploydocs(), which will
+    # upload the search index to Algolia
+    d = Dict("sitename" => doc.user.sitename, "records" => ctx.search_index)
+    open(joinpath(doc.user.root, ctx.search_index_js), "w") do io
+        JSON.print(io, d)
+    end
 end
 
 """

@@ -46,8 +46,9 @@ include("DocChecks.jl")
 include("Writers/Writers.jl")
 include("Deps.jl")
 
+import JSON
 import .Utilities: Selectors
-import .Writers.HTMLWriter: HTML
+import .Writers.HTMLWriter: HTML, upload_index
 
 
 # User Interface.
@@ -572,6 +573,14 @@ function deploydocs(;
             if make !== nothing
                 @debug "running extra build steps."
                 make()
+            end
+            search_index = "search_index.json"
+            has_algolia_envs = haskey(ENV, "ALGOLIA_API_KEY") && haskey(ENV, "ALGOLIA_APPLICATION_ID")
+            if isfile(search_index) && has_algolia_envs
+                @debug "uploading search index to Algolia"
+                d = JSON.parsefile(search_index)
+                upload_index(d["sitename"], d["records"])
+                rm(search_index)
             end
             @debug "pushing new documentation to remote: '$repo:$branch'."
             mktempdir() do temp
