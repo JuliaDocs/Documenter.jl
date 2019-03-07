@@ -333,6 +333,9 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         docstr = Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
         docstr.meta[:results] = docs
 
+        # If the first element of the docstring is a code block, make it Julia by default.
+        highlightsig!(docstr)
+
         # Generate a unique name to be used in anchors and links for the docstring.
         slug = Utilities.slugify(object)
         anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
@@ -445,6 +448,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
             end
             markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
             markdown.meta[:results] = [docstr]
+            highlightsig!(markdown)
             slug = Utilities.slugify(object)
             anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
             docsnode = DocsNode(markdown, anchor, object, page)
@@ -698,6 +702,16 @@ function get_new_sandbox(name::Symbol)
     # modules created with Module() does not have include defined
     Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
     return m
+end
+
+highlightsig!(x) = nothing
+function highlightsig!(md::Markdown.MD)
+    isempty(md.content) || highlightsig!(first(md.content))
+end
+function highlightsig!(code::Markdown.Code)
+    if isempty(code.language)
+        code.language = "julia"
+    end
 end
 
 end
