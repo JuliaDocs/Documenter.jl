@@ -53,16 +53,18 @@ import .Writers.HTMLWriter: HTML
 # User Interface.
 # ---------------
 
-export Deps, makedocs, deploydocs, hide
+export Deps, makedocs, deploydocs, hide, external
+
 """
     makedocs(
-        root    = "<current-directory>",
-        source  = "src",
-        build   = "build",
-        clean   = true,
-        doctest = true,
-        modules = Module[],
-        repo    = "",
+        root      = "<current-directory>",
+        repo_root = dirname(root),
+        source    = "src",
+        build     = "build",
+        clean     = true,
+        doctest   = true,
+        modules   = Module[],
+        repo      = "",
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -95,6 +97,9 @@ this keyword does not need to be set. It is, for the most part, needed when repe
 running `makedocs` from the Julia REPL like so:
 
     julia> makedocs(root = joinpath(pathof(MyModule), "..", "..", "docs"))
+
+**`repo_root`** is the top-level directory of the repository, assumed to be `root`'s
+parent. You only need to set this if you are making use of [`external`](@ref).
 
 **`source`** is the directory, relative to `root`, where the markdown source files are read
 from. By convention this folder is called `src`. Note that any non-markdown files stored
@@ -272,9 +277,23 @@ function makedocs(components...; debug = false, format = HTML(),
         format = overwrite.(format)
     end
 
+    if any(p -> isa(p.second, ExternalPage), pages)
+        external_path = copy_external(pages, root, source)
+        map!(
+            p -> isa(p.second, ExternalPage) ? (p.first => destination(p.second)) : p,
+            pages,
+            pages,
+        )
+    end
+
+    externals = copy_external!(pages, repo_root, joinpath(root, source))
     document = Documents.Document(components; format=format, kwargs...)
+    document = Documents.Document(; root = root, source = source, pages = pages, args...)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
+    end
+    cd(joinpath(root, source)) do
+        rm.(externals)
     end
     debug ? document : nothing
 end
@@ -785,4 +804,263 @@ function getenv(regex::Regex)
     error("could not find key/iv pair.")
 end
 
-end # module
+<<<<<<< HEAD
+const external_dir = "DOCUMENTER_EXTERNAL"
+=======
+export Travis
+
+"""
+Package functions for interacting with Travis.
+
+$(EXPORTS)
+"""
+module Travis
+
+using Compat, DocStringExtensions
+
+export genkeys
+
+import Base.LibGit2.GITHUB_REGEX
+
+
+"""
+$(SIGNATURES)
+
+Generate ssh keys for package `package` to automatically deploy docs from Travis to GitHub
+pages. `package` can be either the name of a package or a path. Providing a path allows keys
+to be generated for non-packages or packages that are not found in the Julia `LOAD_PATH`.
+Use the `remote` keyword to specify the user and repository values.
+
+This function requires the following command lines programs to be installed:
+
+- `which`
+- `git`
+- `travis`
+- `ssh-keygen`
+
+# Examples
+
+```jlcon
+julia> using Documenter
+
+julia> Travis.genkeys("MyPackageName")
+[ ... output ... ]
+
+julia> Travis.genkeys("MyPackageName", remote="organization")
+[ ... output ... ]
+
+julia> Travis.genkeys("/path/to/target/directory")
+[ ... output ... ]
+```
+"""
+function genkeys(package; remote="origin")
+    # Error checking. Do the required programs exist?
+    success(`which which`)      || error("'which' not found.")
+    success(`which git`)        || error("'git' not found.")
+    success(`which ssh-keygen`) || error("'ssh-keygen' not found.")
+
+    directory = "docs"
+    filename  = ".documenter"
+
+    path = isdir(package) ? package : Pkg.dir(package, directory)
+    isdir(path) || error("`$path` not found. Provide a package name or directory.")
+
+    cd(path) do
+        # Check for old '$filename.enc' and terminate.
+        isfile("$filename.enc") &&
+            error("$package already has an ssh key. Remove it and try again.")
+
+        # Are we in a git repo?
+        success(`git status`) || error("'Travis.genkey' only works with git repositories.")
+
+        # Find the GitHub repo org and name.
+        user, repo =
+            let r = readchomp(`git config --get remote.$remote.url`)
+                m = match(GITHUB_REGEX, r)
+                m === nothing && error("no remote repo named '$remote' found.")
+                m[2], m[3]
+            end
+
+        # Generate the ssh key pair.
+        success(`ssh-keygen -N "" -f $filename`) || error("failed to generated ssh key pair.")
+
+        # Prompt user to add public key to github then remove the public key.
+        let url = "https://github.com/$user/$repo/settings/keys"
+            info("add the public key below to $url with read/write access:")
+            println("\n", read("$filename.pub", String))
+            rm("$filename.pub")
+        end
+
+        # Base64 encode the private key and prompt user to add it to travis. The key is
+        # *not* encoded for the sake of security, but instead to make it easier to
+        # copy/paste it over to travis without having to worry about whitespace.
+        let url = "https://travis-ci.org/$user/$repo/settings"
+            info("add a secure environment variable named 'DOCUMENTER_KEY' to $url with value:")
+            println("\n", base64encode(read(".documenter", String)), "\n")
+            rm(filename)
+        end
+    end
+end
+
+end
+
+"""
+$(SIGNATURES)
+
+Creates a documentation stub for a package called `pkgname`. The location of
+the documentation is assumed to be `<package directory>/docs`, but this can
+be overriden with the keyword argument `dir`.
+
+It creates the following files
+
+```
+docs/
+    .gitignore
+    src/index.md
+    make.jl
+    mkdocs.yml
+```
+
+# Arguments
+
+**`pkgname`** is the name of the package (without `.jl`). It is used to
+determine the location of the documentation if `dir` is not provided.
+
+# Keywords
+
+**`dir`** defines the directory where the documentation will be generated.
+It defaults to `<package directory>/docs`. The directory must not exist.
+
+# Examples
+
+```jlcon
+julia> using Documenter
+
+julia> Documenter.generate("MyPackageName")
+[ ... output ... ]
+```
+"""
+function generate(pkgname::AbstractString; dir=nothing)
+    # TODO:
+    #   - set up deployment to `gh-pages`
+    #   - fetch url and username automatically (e.g from git remote.origin.url)
+
+    # Check the validity of the package name
+    if length(pkgname) == 0
+        error("Package name can not be an empty string.")
+    end
+    # Determine the root directory where we wish to generate the docs and
+    # check that it is a valid directory.
+    docroot = if dir === nothing
+        pkgdir = Pkg.dir(pkgname)
+        if !isdir(pkgdir)
+            error("Unable to find package $(pkgname).jl at $(pkgdir).")
+        end
+        joinpath(pkgdir, "docs")
+    else
+        dir
+    end
+
+    if ispath(docroot)
+        error("Directory $(docroot) already exists.")
+    end
+
+    # deploy the stub
+    try
+        info("Deploying documentation to $(docroot)")
+        mkdir(docroot)
+
+        # create the root doc files
+        Generator.savefile(docroot, ".gitignore") do io
+            write(io, Generator.gitignore())
+        end
+        Generator.savefile(docroot, "make.jl") do io
+            write(io, Generator.make(pkgname))
+        end
+        Generator.savefile(docroot, "mkdocs.yml") do io
+            write(io, Generator.mkdocs(pkgname))
+        end
+
+        # Create the default documentation source files
+        Generator.savefile(docroot, "src/index.md") do io
+            write(io, Generator.index(pkgname))
+        end
+    catch
+        rm(docroot, recursive=true)
+        rethrow()
+    end
+    nothing
+end
+>>>>>>> Rework external pages
+
+"""
+    external(path; target) -> ExternalPage
+
+Mark `path` as an external page. This allows us to use files outside of the documentation
+directory in [`makedocs`](@ref). Note that any relative links in these pages will end up
+broken.
+
+# Arguments
+- `path::AbstractString`: Path of the external file, relative to the `repo_root` keyword
+  argument to [`makedocs`](@ref).
+- `target::Union{AbstractString, Void}=nothing`: Destination of the external file, relative
+  to the docs source directory.
+
+# Usage
+```julia
+makedocs(;
+    ...,
+    pages=[
+        "Home" => external("README.md"; target="index.md"),
+    ],
+)
+```
+"""
+function external(path::AbstractString; target::Union{AbstractString, Void}=nothing)
+    if target == nothing && !endswith(path, ".md")
+        error("External file $path must have a Markdown extension or target must be set")
+    end
+    if target != nothing && !endswith(target, ".md")
+        error("External file target $target must have a Markdown extension")
+    end
+    return Documents.ExternalPage(path, target)
+end
+
+"""
+    copy_external!(pages, repo_root, dest_dir) -> Vector
+
+Copy all external files in `pages` into the documentation source directory and modify the
+input vector, replacing any [`Documents.ExternalPage`](@ref)s with their new paths.
+Returns the paths of any external pages to be deleted at the end of the build process.
+"""
+function copy_external!(pages::Vector, repo_root::AbstractString, dest_dir::AbstractString)
+    function copypage(page::Documents.ExternalPage)
+        source = joinpath(repo_root, page.path)
+        isfile(source) || error("External page $source was not found")
+        dest = joinpath(dest_dir, get(page.target, basename(page.path)))
+        isfile(dest) && error("A page called $(basename(dest)) already exists")
+        cp(source, dest)
+        return relpath(dest, dest_dir)
+    end
+
+    externals = String[]
+    for (i, page) in enumerate(pages)
+        if isa(page, Documents.ExternalPage)
+            pages[i] = copypage(page)
+            push!(externals, pages[i])
+        elseif isa(page, Pair) && isa(page.second, Documents.ExternalPage)
+            pages[i] = pages[i].first => copypage(page.second)
+            push!(externals, pages[i].second)
+        elseif isa(page, Pair) && isa(page.second, Vector)
+            for (j, el) in enumerate(page.second)
+                if isa(el, Documents.ExternalPage)
+                    pages[i].second[j] = copypage(el)
+                    push!(externals, pages[i].second[j])
+                end
+            end
+        end
+    end
+    return externals
+end
+
+end
