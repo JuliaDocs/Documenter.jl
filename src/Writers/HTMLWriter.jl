@@ -99,6 +99,13 @@ Default is `nothing`, in which case no canonical link is set.
 
 **`analytics`** can be used specify the Google Analytics tracking ID.
 
+**`search`** sets the method used for providing documentation search. It defaults to :lunr,
+which includes the search index in the website and uses the lunr.js library to do the
+searching in the client. The other option is :algolia, which uploads the search index
+to an Algolia server and uses their services to provide search results. For large
+projects, the default lunr.js search may result in relatively large downloads of the index,
+and slower search since the browser has to do all the work.
+
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
 
@@ -133,7 +140,7 @@ struct HTML <: Documenter.Plugin
     canonical   :: Union{String, Nothing}
     assets      :: Vector{String}
     analytics   :: String
-    search      :: String
+    search      :: Symbol
 
     function HTML(;
         prettyurls::Bool = true,
@@ -142,7 +149,7 @@ struct HTML <: Documenter.Plugin
         canonical::Union{String, Nothing} = nothing,
         assets::Vector{String} = String[],
         analytics::String = "",
-        search::String = "lunr")
+        search::Symbol = :lunr)
         new(prettyurls, disable_git, edit_branch, canonical, assets, analytics, search)
     end
 end
@@ -258,10 +265,10 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 end
 
 function add_search(ctx::HTMLContext, doc::Documents.Document, settings::HTML)
-    search_options = ("lunr", "algolia")
-    if settings.search == "lunr"
+    search_options = (:lunr, :algolia)
+    if settings.search == :lunr
         add_search_lunr(ctx, doc, settings)
-    elseif settings.search == "algolia"
+    elseif settings.search == :algolia
         add_search_algolia(ctx, doc, settings)
     else
         throw(ArgumentError("HTML search option ($search) not one of $search_options"))
@@ -430,7 +437,7 @@ end
 ## Search page
 # ------------
 
-function render_search(ctx::HTMLContext, search::String)
+function render_search(ctx::HTMLContext, search::Symbol)
     @tags article body h1 header hr html li nav p span ul script
 
     src = get_url(ctx, ctx.search_navnode)
@@ -449,7 +456,7 @@ function render_search(ctx::HTMLContext, search::String)
     )
 
     # include the right JS for the used search method
-    search_scripts = if search == "lunr"
+    search_scripts = if search == :lunr
         (script[:src => relhref(src, ctx.search_index_js)], script[:src => relhref(src, ctx.search_js)])
     else
         (script[:src => "https://cdn.jsdelivr.net/algoliasearch/3/algoliasearchLite.min.js"],)
