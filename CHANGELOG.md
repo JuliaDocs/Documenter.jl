@@ -44,6 +44,9 @@
 
 * ![Enhancement][badge-enhancement] The construction of the search index in the HTML output has been refactored to make it easier to use with other search backends in the future. The structure of the generated search index has also been modified, which can yield slightly different search results. Documenter now depends on the lightweight [JSON.jl][json-jl] package. ([#966][github-966])
 
+* ![Enhancement][badge-enhancement] Docstrings that begin with an indented code block (such as a function signature) now have that block highlighted as Julia code by default.
+  This behaviour can be disabled by passing `highlightsig=false` to `makedocs`. ([#980][github-980])
+
 * ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
@@ -270,6 +273,7 @@
 [github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
+[github-980]: https://github.com/JuliaDocs/Documenter.jl/pull/980
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
