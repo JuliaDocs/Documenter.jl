@@ -63,6 +63,7 @@ export Deps, makedocs, deploydocs, hide
         doctest = true,
         modules = Module[],
         repo    = "",
+        highlightsig = true,
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -148,6 +149,12 @@ For example if you are using GitLab.com, you could use
 ```julia
 makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
 ```
+
+**`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
+code blocks in docstrings (as Julia code). For example, if your docstring begins with an
+indented code block containing the function signature, then that block would be highlighted
+as if it were a labeled Julia code block. No other code blocks are affected. This feature
+is enabled by default.
 
 # Experimental keywords
 
