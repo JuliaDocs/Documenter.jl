@@ -171,7 +171,7 @@ julia> println(foo)
 
 !!! note
 
-    Labeled doctest blocks does not need to be consecutive (as in the example above) to be
+    Labeled doctest blocks do not need to be consecutive (as in the example above) to be
     included in the same module. They can be interspaced with unlabeled blocks or blocks
     with another label.
 
