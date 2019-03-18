@@ -15,7 +15,7 @@ Here&#39;s an equation:
 
 This is the binomial coefficient.
 &quot;&quot;&quot;
-func(x) = # ...</code></pre><p>To avoid needing to escape the special characters the <code>raw&quot;&quot;</code> string macro can be used, combined with <code>@doc</code>:</p><pre><code class="language-julia">@doc raw&quot;&quot;&quot;
+func(x) = # ...</code></pre><p>Note that for equations on the manual pages (in <code>.md</code> files) the escaping is not necessary. So, when moving equations between the manual and docstrings, the escaping <code>\</code> characters have to the appropriately added or removed.</p><p>To avoid needing to escape the special characters in docstrings the <code>raw&quot;&quot;</code> string macro can be used, combined with <code>@doc</code>:</p><pre><code class="language-julia">@doc raw&quot;&quot;&quot;
 Here&#39;s some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
 
 Here&#39;s an equation:
