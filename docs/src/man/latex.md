@@ -21,7 +21,10 @@ This is the binomial coefficient.
 func(x) = # ...
 ```
 
-To avoid needing to escape the special characters the `raw""` string macro can be used, combined with `@doc`:
+Note that for equations on the manual pages (in `.md` files) the escaping is not necessary. So, when moving equations
+between the manual and docstrings, the escaping `\` characters have to the appropriately added or removed.
+
+To avoid needing to escape the special characters in docstrings the `raw""` string macro can be used, combined with `@doc`:
 
 ```julia
 @doc raw"""
