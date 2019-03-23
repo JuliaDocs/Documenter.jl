@@ -572,7 +572,11 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
 
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))
-    isempty(output) || push!(content, output)
+    if result === nothing
+        push!(content, Markdown.Code(Documenter.DocTests.sanitise(buffer)))
+    elseif !isempty(output)
+        push!(content, output)
+    end
     # ... and finally map the original code block to the newly generated ones.
     page.mapping[x] = Documents.MultiOutput(content)
 end
