@@ -53,7 +53,7 @@
 
 * ![Bugfix][badge-bugfix] `deploydocs` and `git_push` now support non-github repos correctly and work when the `.ssh` directory does not already exist or the working directory contains spaces. ([#971][github-971])
 
-* ![Bugfix][badge-bugfix] Tables now honor colunm alignment in the HTML output. If a column does not explicitly specify its alignment it defaults to being right-aligned, whereas previously all cells were left-aligned. ([#511][github-511], [#989][github-989])
+* ![Bugfix][badge-bugfix] Tables now honor column alignment in the HTML output. If a column does not explicitly specify its alignment, the parser defaults to it being right-aligned, whereas previously all cells were left-aligned. ([#511][github-511], [#989][github-989])
 
 ## Version `v0.21.5`
 
