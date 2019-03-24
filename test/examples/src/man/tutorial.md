@@ -336,3 +336,17 @@ Below is a nicely rendered version of `^D`:
 ```@raw html
 <kbd>Ctrl</kbd> + <kbd>D</kbd>
 ```
+
+## Tables
+
+| object | implemented |      value |
+|--------|-------------|------------|
+| `A`    |      ✓      |      10.00 |
+| `BB`   |      ✓      | 1000000.00 |
+
+With explicit alignment.
+
+| object | implemented |      value |
+| :---   |    :---:    |       ---: |
+| `A`    |      ✓      |      10.00 |
+| `BB`   |      ✓      | 1000000.00 |
