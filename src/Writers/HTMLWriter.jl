@@ -1053,10 +1053,28 @@ function mdconvert(paragraph::Markdown.Paragraph, parent::Markdown.List; kwargs.
     return (list_has_loose_field && !parent.loose) ? content : Tag(:p)(content)
 end
 
-mdconvert(t::Markdown.Table, parent; kwargs...) = Tag(:table)(
-    Tag(:tr)(map(x -> Tag(:th)(mdconvert(x, t; kwargs...)), t.rows[1])),
-    map(x -> Tag(:tr)(map(y -> Tag(:td)(mdconvert(y, x; kwargs...)), x)), t.rows[2:end])
-)
+function mdconvert(t::Markdown.Table, parent; kwargs...)
+    @tags table tr th td
+    alignment_style = map(t.align) do align
+        if align == :r
+            "text-align: right"
+        elseif align == :c
+            "text-align: center"
+        else
+            "text-align: left"
+        end
+    end
+    table(
+        tr(map(enumerate(t.rows[1])) do (i, x)
+            th[:style => alignment_style[i]](mdconvert(x, t; kwargs...))
+        end),
+        map(t.rows[2:end]) do x
+            tr(map(enumerate(x)) do (i, y) # each cell in a row
+                td[:style => alignment_style[i]](mdconvert(y, x; kwargs...))
+            end)
+        end
+    )
+end
 
 mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 
