@@ -55,6 +55,8 @@
 
 * ![Bugfix][badge-bugfix] Tables now honor column alignment in the HTML output. If a column does not explicitly specify its alignment, the parser defaults to it being right-aligned, whereas previously all cells were left-aligned. ([#511][github-511], [#989][github-989])
 
+* ![Bugfix][badge-bugfix] Code lines ending with `# hide` are now properly hidden for CRLF inputs. ([#991][github-991])
+
 ## Version `v0.21.5`
 
 * ![Bugfix][badge-bugfix] Deprecation warnings for `format` now get printed correctly when multiple formats are passed as a `Vector`. ([#967][github-967])
@@ -278,6 +280,7 @@
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
 [github-980]: https://github.com/JuliaDocs/Documenter.jl/pull/980
 [github-989]: https://github.com/JuliaDocs/Documenter.jl/pull/989
+[github-991]: https://github.com/JuliaDocs/Documenter.jl/pull/991
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
