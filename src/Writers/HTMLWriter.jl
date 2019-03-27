@@ -228,6 +228,7 @@ getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 
 
 function render(doc::Documents.Document, settings::HTML=HTML())
+    @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
 
     ctx = HTMLContext(doc, settings)

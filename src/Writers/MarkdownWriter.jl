@@ -24,6 +24,7 @@ end
 mdext(f) = string(splitext(f)[1], ".md")
 
 function render(doc::Documents.Document, settings::Markdown=Markdown())
+    @info "MarkdownWriter: rendering Markdown pages."
     copy_assets(doc)
     mime = MIME"text/plain"()
     for (src, page) in doc.internal.pages
