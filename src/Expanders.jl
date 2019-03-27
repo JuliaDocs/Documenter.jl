@@ -677,7 +677,7 @@ end
 # Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
 function droplines(code; skip = 0)
     buffer = IOBuffer()
-    for line in split(code, '\n')[(skip + 1):end]
+    for line in split(code, r"\r?\n")[(skip + 1):end]
         occursin(r"^(.*)#\s*hide$", line) && continue
         println(buffer, rstrip(line))
     end
