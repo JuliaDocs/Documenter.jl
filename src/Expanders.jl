@@ -573,7 +573,8 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))
     if result === nothing
-        push!(content, Markdown.Code(Documenter.DocTests.sanitise(buffer)))
+        code = Documenter.DocTests.sanitise(buffer)
+        isempty(code) || push!(content, Markdown.Code(code))
     elseif !isempty(output)
         push!(content, output)
     end
