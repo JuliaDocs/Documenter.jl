@@ -2,7 +2,7 @@
 
 ## Version `v0.22.1`
 
-* ![Bugfix][badge-bugfix] Fixed a world-age related bug in doctests. ([#991][github-991])
+* ![Bugfix][badge-bugfix] Fixed a world-age related bug in doctests. ([#994][github-994])
 
 ## Version `v0.22.0`
 
@@ -285,6 +285,7 @@
 [github-980]: https://github.com/JuliaDocs/Documenter.jl/pull/980
 [github-989]: https://github.com/JuliaDocs/Documenter.jl/pull/989
 [github-991]: https://github.com/JuliaDocs/Documenter.jl/pull/991
+[github-991]: https://github.com/JuliaDocs/Documenter.jl/pull/994
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
