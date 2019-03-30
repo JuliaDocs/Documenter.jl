@@ -234,7 +234,7 @@ end
 # Display doctesting results.
 
 function result_to_string(buf, value)
-    value === nothing || show(IOContext(buf, :limit => true), MIME"text/plain"(), value)
+    value === nothing || Base.invokelatest(show, IOContext(buf, :limit => true), MIME"text/plain"(), value)
     return sanitise(buf)
 end
 

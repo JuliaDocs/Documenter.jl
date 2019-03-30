@@ -237,6 +237,14 @@ foo(2, 3)
 6
 ```
 
+## World age issue for show
+```jldoctest
+julia> @enum Color red blue green
+
+julia> instances(Color)
+(red, blue, green)
+```
+
 
 # Sanitise module names
 
