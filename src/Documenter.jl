@@ -64,6 +64,7 @@ export Deps, makedocs, deploydocs, hide
         modules = Module[],
         repo    = "",
         highlightsig = true,
+        sitename = "",
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -155,6 +156,8 @@ code blocks in docstrings (as Julia code). For example, if your docstring begins
 indented code block containing the function signature, then that block would be highlighted
 as if it were a labeled Julia code block. No other code blocks are affected. This feature
 is enabled by default.
+
+**`sitename`** is displayed in the title bar and/or the navigation menu when applicable.
 
 # Experimental keywords
 
