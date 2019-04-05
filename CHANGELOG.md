@@ -1,5 +1,11 @@
 # Documenter.jl changelog
 
+## Version `v0.22.2`
+
+* ![Bugfix][badge-bugfix] Error reporting for meta-blocks now handles missing files gracefully instead of throwing. ([#996][github-996])
+
+* ![Enhancement][badge-enhancement] The `sitename` keyword argument to `deploydocs`, which is required for the default HTML output, is now properly documented. ([#995][github-995])
+
 ## Version `v0.22.1`
 
 * ![Bugfix][badge-bugfix] Fixed a world-age related bug in doctests. ([#994][github-994])
@@ -286,6 +292,8 @@
 [github-989]: https://github.com/JuliaDocs/Documenter.jl/pull/989
 [github-991]: https://github.com/JuliaDocs/Documenter.jl/pull/991
 [github-994]: https://github.com/JuliaDocs/Documenter.jl/pull/994
+[github-995]: https://github.com/JuliaDocs/Documenter.jl/pull/995
+[github-996]: https://github.com/JuliaDocs/Documenter.jl/pull/996
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
