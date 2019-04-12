@@ -535,6 +535,7 @@ function latexinline(io::IO, md::Markdown.Image)
         else
             normpath(joinpath(dirname(io.filename), md.url))
         end
+        url = replace(url, "\\" => "/") # use / on Windows too.
         wrapinline(io, "includegraphics") do
             _print(io, url)
         end

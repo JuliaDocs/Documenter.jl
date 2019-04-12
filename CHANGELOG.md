@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.22.3`
+
+* ![Bugfix][badge-bugfix] Fixed filepaths for images included in the .tex file for PDF output on Windows. ([#999][github-999])
+
 ## Version `v0.22.2`
 
 * ![Bugfix][badge-bugfix] Error reporting for meta-blocks now handles missing files gracefully instead of throwing. ([#996][github-996])
@@ -294,6 +298,7 @@
 [github-994]: https://github.com/JuliaDocs/Documenter.jl/pull/994
 [github-995]: https://github.com/JuliaDocs/Documenter.jl/pull/995
 [github-996]: https://github.com/JuliaDocs/Documenter.jl/pull/996
+[github-999]: https://github.com/JuliaDocs/Documenter.jl/pull/999
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
