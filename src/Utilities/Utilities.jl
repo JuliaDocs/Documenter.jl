@@ -16,6 +16,20 @@ regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
 function find_block_in_file(code, file)
     source_file = Base.find_source_file(file)
     source_file === nothing && return nothing
+    if !isfile(source_file)
+        # TODO: but why is this happening sometimes in the first place?
+        @warn """Trying to find codeblock in $(source_file)
+        But the file does not exist. This may indicate that you are unintentionally including
+        a docstring from Julia standard libraries.
+
+        Code block:
+
+        ```
+        $(code)
+        ```
+        """ file
+        return nothing
+    end
     content = read(source_file, String)
     content = replace(content, "\r\n" => "\n")
     # make a regex of the code that matches leading whitespace
