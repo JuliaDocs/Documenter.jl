@@ -916,8 +916,8 @@ Returns the full path of a [`Documents.NavNode`](@ref) relative to `src/`.
 get_url(ctx, navnode::Documents.NavNode) = get_url(ctx, navnode.page)
 
 """
-If `prettyurls` for [`HTML`](@ref HTMLWriter.HTML) is enabled, returns a "pretty" version of the `path`
-which can then be used in links in the resulting HTML file.
+If `prettyurls` for [`HTML`](@ref Documenter.HTML) is enabled, returns a "pretty" version of
+the `path` which can then be used in links in the resulting HTML file.
 """
 function pretty_url(ctx, path::AbstractString)
     if ctx.settings.prettyurls
