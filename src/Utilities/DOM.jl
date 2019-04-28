@@ -166,7 +166,7 @@ end
 macro tags(args...) esc(tags(args)) end
 tags(s) = :(($(s...),) = $(map(Tag, s)))
 
-const Attributes = Vector{Pair{Symbol, String}}
+const Attributes = Vector{Pair{Symbol, Union{String,Nothing}}}
 
 """
 Represents an element within an HTML document including any textual content,
@@ -236,7 +236,7 @@ function attributes!(out, s::AbstractString)
     position(id)    === 0 || push!(out, tostr(:id    => rstrip(String(take!(id)))))
     return out
 end
-attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
+attributes!(out, s::Symbol) = push!(out, tostr(s => nothing))
 attributes!(out, p::Pair)   = push!(out, tostr(p))
 
 function Base.show(io::IO, n::Node)
@@ -248,7 +248,12 @@ function Base.show(io::IO, n::Node)
         print(io, '<', n.name)
         for (name, value) in n.attributes
             print(io, ' ', name)
-            isempty(value) || print(io, '=', repr(escapehtml(value)))
+            if isnothing(value)
+                @info "Node $(n.name) with nothing attribute $(name)"
+            elseif isempty(value)
+                @info "Node $(n.name) with empty attribute $(name)"
+            end
+            isnothing(value) || print(io, '=', repr(escapehtml(value)))
         end
         if n.name in VOID_ELEMENTS
             print(io, "/>")
