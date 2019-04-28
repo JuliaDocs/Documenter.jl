@@ -49,6 +49,8 @@ makedocs(
         ],
         "contributing.md",
     ],
+    # Can't run strict=true due to the Documenter.Documenter issue
+    #strict = true,
 )
 
 deploydocs(

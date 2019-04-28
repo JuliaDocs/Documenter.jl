@@ -4,7 +4,7 @@ A module for rendering `Document` objects to LaTeX and PDF.
 # Keywords
 
 [`LaTeXWriter`](@ref) uses the following additional keyword arguments that can be passed to
-[`Documenter.makedocs`](@ref): `authors`, `sitename`.
+[`makedocs`](@ref Documenter.makedocs): `authors`, `sitename`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 navigation menu. It goes into the `\\title` LaTeX command.
@@ -19,7 +19,7 @@ import ...Documenter: Documenter
     LaTeXWriter.LaTeX(; kwargs...)
 
 Output format specifier that results in LaTeX/PDF output.
-Used together with [`makedocs`](@ref), e.g.
+Used together with [`makedocs`](@ref Documenter.makedocs), e.g.
 
 ```julia
 makedocs(
