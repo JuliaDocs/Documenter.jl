@@ -131,7 +131,6 @@ end
     let expected_filepath = "/src/Utilities/Utilities.jl"
         Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
         @test endswith(filepath, expected_filepath)
-        @show filepath expected_filepath
     end
 
     mktempdir() do path
