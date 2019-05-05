@@ -318,7 +318,7 @@ not in a repository, the function returns `nothing`.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
 determine if this is a repostory or not. If there is a file called `dbdir`, then it's
-contents is checked under the assumption that it is a Git worktree.
+contents is checked under the assumption that it is a Git worktree or a submodule.
 """
 function repo_root(file; dbdir=".git")
     parent_dir, parent_dir_last = dirname(abspath(file)), ""
@@ -329,7 +329,7 @@ function repo_root(file; dbdir=".git")
         if isfile(dbdir_path)
             contents = chomp(read(dbdir_path, String))
             if startswith(contents, "gitdir: ")
-                if isdir(contents[9:end])
+                if isdir(joinpath(parent_dir, contents[9:end]))
                     return parent_dir
                 end
             end
