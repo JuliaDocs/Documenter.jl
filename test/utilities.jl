@@ -192,14 +192,10 @@ end
             @test success(`git init`)
             @test success(`git config user.email "tester@example.com"`)
             @test success(`git config user.name "Test Committer"`)
-            @info "path_repo=$(path_repo)"
-            #@test success(`git submodule add $(path_repo)`)
-            run(Cmd(`git check-ignore $(path_repo)`, ignorestatus=true))
-            run(Cmd(`git check-ignore repository`, ignorestatus=true))
             # NOTE: the target path in the `git submodule add` command is necessary for
             # Windows builds, since otherwise Git claims that the path is in a .gitignore
             # file.
-            run(Cmd(`git submodule add $(path_repo) repository`, ignorestatus=true))
+            @test success(`git submodule add $(path_repo) repository`)
             @test success(`git add -A`)
             @test success(`git commit -m"Initial commit."`)
         end
