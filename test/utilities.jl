@@ -194,8 +194,9 @@ end
             @test success(`git config user.name "Test Committer"`)
             @info "path_repo=$(path_repo)"
             #@test success(`git submodule add $(path_repo)`)
-            run(`git check-ignore $(path_repo)`)
-            run(`git submodule add $(path_repo)`)
+            run(Cmd(`git check-ignore $(path_repo)`, ignorestatus=true))
+            run(Cmd(`git check-ignore repository`, ignorestatus=true))
+            run(Cmd(`git submodule add $(path_repo)`, ignorestatus=true))
             @test success(`git add -A`)
             @test success(`git commit -m"Initial commit."`)
             exit(1)
