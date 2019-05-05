@@ -193,7 +193,7 @@ end
             @test success(`git config user.email "tester@example.com"`)
             @test success(`git config user.name "Test Committer"`)
             @info "path_repo=$(path_repo)"
-            @eval @test success(`git submodule add $(path_repo)`)
+            #@test success(`git submodule add $(path_repo)`)
             run(`git submodule add $(path_repo)`)
             @test success(`git add -A`)
             @test success(`git commit -m"Initial commit."`)
