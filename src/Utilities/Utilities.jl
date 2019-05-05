@@ -16,6 +16,7 @@ regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
 function find_block_in_file(code, file)
     source_file = Base.find_source_file(file)
     source_file === nothing && return nothing
+    isfile(source_file) || return nothing
     content = read(source_file, String)
     content = replace(content, "\r\n" => "\n")
     # make a regex of the code that matches leading whitespace

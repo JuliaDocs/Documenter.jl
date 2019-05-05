@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.22.4`
+
+* ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
+
 ## Version `v0.22.3`
 
 * ![Bugfix][badge-bugfix] Fixed filepaths for images included in the .tex file for PDF output on Windows. ([#999][github-999])
@@ -299,6 +303,7 @@
 [github-995]: https://github.com/JuliaDocs/Documenter.jl/pull/995
 [github-996]: https://github.com/JuliaDocs/Documenter.jl/pull/996
 [github-999]: https://github.com/JuliaDocs/Documenter.jl/pull/999
+[github-1002]: https://github.com/JuliaDocs/Documenter.jl/pull/1002
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
