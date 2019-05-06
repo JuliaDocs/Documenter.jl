@@ -28,10 +28,18 @@ function missingdocs(doc::Documents.Document)
     @debug "checking for missing docstrings."
     bindings = allbindings(doc.user.checkdocs, doc.user.modules)
     for object in keys(doc.internal.objects)
-        if haskey(bindings, object.binding)
-            signatures = bindings[object.binding]
+        # The module references in docs blocks can yield a binding like
+        # Docs.Binding(Mod, :SubMod) for a module SubMod, a submodule of Mod. However, the
+        # module bindings that come from Docs.meta() always appear to be of the form
+        # Docs.Binding(Mod.SubMod, :SubMod) (since Julia 0.7). We therefore "normalize"
+        # module bindings before we search in the list returned by allbindings().
+        binding = let b = object.binding, m = Docs.resolve(b)
+            isa(m, Module) && nameof(b.mod) != b.var ? Docs.Binding(m, nameof(m)) : b
+        end
+        if haskey(bindings, binding)
+            signatures = bindings[binding]
             if object.signature ≡ Union{} || length(signatures) ≡ 1
-                delete!(bindings, object.binding)
+                delete!(bindings, binding)
             elseif object.signature in signatures
                 delete!(signatures, object.signature)
             end
