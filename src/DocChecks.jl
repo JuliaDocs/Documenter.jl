@@ -33,8 +33,12 @@ function missingdocs(doc::Documents.Document)
         # module bindings that come from Docs.meta() always appear to be of the form
         # Docs.Binding(Mod.SubMod, :SubMod) (since Julia 0.7). We therefore "normalize"
         # module bindings before we search in the list returned by allbindings().
-        binding = let b = object.binding, m = Docs.resolve(b)
-            isa(m, Module) && nameof(b.mod) != b.var ? Docs.Binding(m, nameof(m)) : b
+        binding = if Documenter.DocSystem.defined(object.binding) && !Documenter.DocSystem.iskeyword(object.binding)
+            m = Documenter.DocSystem.resolve(object.binding)
+            isa(m, Module) && nameof(object.binding.mod) != object.binding.var ?
+                Docs.Binding(m, nameof(m)) : object.binding
+        else
+            object.binding
         end
         if haskey(bindings, binding)
             signatures = bindings[binding]
