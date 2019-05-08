@@ -159,7 +159,7 @@ dependencies your package might have. If Documenter is the only dependency, then
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
 [compat]
-Documenter = "~0.20"
+Documenter = "~0.22"
 ```
 
 Note that it is recommended that you have a `[compat]` section, like the one above, in your
