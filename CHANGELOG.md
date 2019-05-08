@@ -8,6 +8,8 @@
 
 * ![Bugfix][badge-bugfix] When checking for omitted docstrings, Documenter no longer gives "`Package.Package` missing" type false positives. ([#1009][github-1009])
 
+* ![Bugfix][badge-bugfix] `makedocs` again exits with an error if `strict=true` and there is a doctest failure. ([#1003][github-1003], [#1014][github-1014])
+
 ## Version `v0.22.3`
 
 * ![Bugfix][badge-bugfix] Fixed filepaths for images included in the .tex file for PDF output on Windows. ([#999][github-999])
@@ -309,8 +311,10 @@
 [github-999]: https://github.com/JuliaDocs/Documenter.jl/pull/999
 [github-1000]: https://github.com/JuliaDocs/Documenter.jl/issues/1000
 [github-1002]: https://github.com/JuliaDocs/Documenter.jl/pull/1002
+[github-1003]: https://github.com/JuliaDocs/Documenter.jl/issues/1003
 [github-1004]: https://github.com/JuliaDocs/Documenter.jl/pull/1004
 [github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
+[github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
