@@ -20,7 +20,6 @@ Pages = ["public.md"]
 
 ```@docs
 Documenter
-Documenter.Documenter
 makedocs
 hide
 deploydocs
