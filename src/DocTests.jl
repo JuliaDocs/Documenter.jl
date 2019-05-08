@@ -211,6 +211,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                push!(doc.internal.errors, :doctest)
             end
         end
     else
@@ -225,6 +226,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                push!(doc.internal.errors, :doctest)
             end
         end
     end
