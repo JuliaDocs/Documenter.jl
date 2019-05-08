@@ -6,6 +6,8 @@
 
 * ![Bugfix][badge-bugfix] URLs for files in the repository are now generated correctly when the repository is used as a Git submodule in another repository. ([#1000][github-1000], [#1004][github-1004])
 
+* ![Bugfix][badge-bugfix] When checking for omitted docstrings, Documenter no longer gives "`Package.Package` missing" type false positives. ([#1009][github-1009])
+
 ## Version `v0.22.3`
 
 * ![Bugfix][badge-bugfix] Fixed filepaths for images included in the .tex file for PDF output on Windows. ([#999][github-999])
@@ -308,6 +310,7 @@
 [github-1000]: https://github.com/JuliaDocs/Documenter.jl/issues/1000
 [github-1002]: https://github.com/JuliaDocs/Documenter.jl/pull/1002
 [github-1004]: https://github.com/JuliaDocs/Documenter.jl/pull/1004
+[github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
