@@ -4,6 +4,16 @@
 
 * ![Enhancement][badge-enhancement] The logo image in the HTML output will now always point to the first page in the navigation menu (as opposed to `index.html`, which may or may not exist). When using pretty URLs, the `index.html` part now omitted from the logo link URL. ([#1005][github-1005])
 
+## Version `v0.22.4`
+
+* ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
+
+* ![Bugfix][badge-bugfix] URLs for files in the repository are now generated correctly when the repository is used as a Git submodule in another repository. ([#1000][github-1000], [#1004][github-1004])
+
+* ![Bugfix][badge-bugfix] When checking for omitted docstrings, Documenter no longer gives "`Package.Package` missing" type false positives. ([#1009][github-1009])
+
+* ![Bugfix][badge-bugfix] `makedocs` again exits with an error if `strict=true` and there is a doctest failure. ([#1003][github-1003], [#1014][github-1014])
+
 ## Version `v0.22.3`
 
 * ![Bugfix][badge-bugfix] Fixed filepaths for images included in the .tex file for PDF output on Windows. ([#999][github-999])
@@ -304,6 +314,12 @@
 [github-996]: https://github.com/JuliaDocs/Documenter.jl/pull/996
 [github-999]: https://github.com/JuliaDocs/Documenter.jl/pull/999
 [github-1005]: https://github.com/JuliaDocs/Documenter.jl/pull/1005
+[github-1000]: https://github.com/JuliaDocs/Documenter.jl/issues/1000
+[github-1002]: https://github.com/JuliaDocs/Documenter.jl/pull/1002
+[github-1003]: https://github.com/JuliaDocs/Documenter.jl/issues/1003
+[github-1004]: https://github.com/JuliaDocs/Documenter.jl/pull/1004
+[github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
+[github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

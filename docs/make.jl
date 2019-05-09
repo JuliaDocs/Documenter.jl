@@ -49,6 +49,7 @@ makedocs(
         ],
         "contributing.md",
     ],
+    strict = true,
 )
 
 deploydocs(
