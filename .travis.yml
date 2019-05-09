@@ -5,16 +5,18 @@ os:
   - osx
 
 julia:
-  - 0.7
   - 1.0
+  - 1.1
   - nightly
 
 notifications:
   email: false
 
 after_success:
-  - julia --project=coverage/ -e 'using Pkg; Pkg.instantiate()'
-  - julia --project=coverage/ coverage/coverage.jl
+  - if [[ $TRAVIS_JULIA_VERSION = 1.1 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then
+      julia --project=coverage/ -e 'using Pkg; Pkg.instantiate();
+          using Coverage; Codecov.submit(Codecov.process_folder())';
+    fi
 
 jobs:
   include:
