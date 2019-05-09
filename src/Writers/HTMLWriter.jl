@@ -444,7 +444,8 @@ function render_navmenu(ctx, navnode)
     navmenu = nav[".toc"]
     if !isempty(ctx.logo)
         push!(navmenu.nodes,
-            a[:href => relhref(src, "index.html")](
+            # the logo will point to the first page in the navigation menu
+            a[:href => navhref(ctx, first(ctx.doc.internal.navlist), navnode)](
                 img[
                     ".logo",
                     :src => relhref(src, ctx.logo),
@@ -915,8 +916,8 @@ Returns the full path of a [`Documents.NavNode`](@ref) relative to `src/`.
 get_url(ctx, navnode::Documents.NavNode) = get_url(ctx, navnode.page)
 
 """
-If `html_prettyurls` is enabled, returns a "pretty" version of the `path` which can then be
-used in links in the resulting HTML file.
+If `prettyurls` for [`HTML`](@ref Documenter.HTML) is enabled, returns a "pretty" version of
+the `path` which can then be used in links in the resulting HTML file.
 """
 function pretty_url(ctx, path::AbstractString)
     if ctx.settings.prettyurls

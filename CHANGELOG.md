@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.23.0`
+
+* ![Enhancement][badge-enhancement] The logo image in the HTML output will now always point to the first page in the navigation menu (as opposed to `index.html`, which may or may not exist). When using pretty URLs, the `index.html` part now omitted from the logo link URL. ([#1005][github-1005])
+
 ## Version `v0.22.4`
 
 * ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
@@ -309,6 +313,7 @@
 [github-995]: https://github.com/JuliaDocs/Documenter.jl/pull/995
 [github-996]: https://github.com/JuliaDocs/Documenter.jl/pull/996
 [github-999]: https://github.com/JuliaDocs/Documenter.jl/pull/999
+[github-1005]: https://github.com/JuliaDocs/Documenter.jl/pull/1005
 [github-1000]: https://github.com/JuliaDocs/Documenter.jl/issues/1000
 [github-1002]: https://github.com/JuliaDocs/Documenter.jl/pull/1002
 [github-1003]: https://github.com/JuliaDocs/Documenter.jl/issues/1003
