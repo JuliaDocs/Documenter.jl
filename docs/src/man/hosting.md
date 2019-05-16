@@ -84,7 +84,7 @@ INFO: add the public key below to https://github.com/USER/REPO/settings/keys
 [SSH PUBLIC KEY HERE]
 
 INFO: add a secure environment variable named 'DOCUMENTER_KEY' to
-      https://travis-ci.org/USER/REPO/settings with value:
+      https://travis-ci.com/USER/REPO/settings with value:
 
 [LONG BASE64 ENCODED PRIVATE KEY]
 ```

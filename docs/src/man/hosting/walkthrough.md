@@ -138,7 +138,7 @@ julia> read("path/to/private/key", String) |> Documenter.base64encode |> println
 
 Copy the resulting output.
 
-Next, go to `https://travis-ci.org/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings`. Scroll down
+Next, go to `https://travis-ci.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings`. Scroll down
 to the "Environment Variables" section. It should look like this:
 
 ![](travis-variables.png)
