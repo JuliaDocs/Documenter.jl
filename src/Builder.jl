@@ -81,7 +81,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # Frequently used fields.
     build  = doc.user.build
     source = doc.user.source
-    source = doc.user.working_dir
+    working_dir = doc.user.working_dir
 
     # The .user.source directory must exist.
     isdir(source) || error("source directory '$(abspath(source))' is missing.")

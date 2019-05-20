@@ -350,7 +350,6 @@ end
 ## Methods
 
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
-    @info "Adding page" doc src dst wd
     page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
     name = normpath(relpath(src, doc.user.source))
