@@ -53,7 +53,7 @@ struct Page
 end
 function Page(source::AbstractString, build::AbstractString, working_dir::AbstractString)
     elements = Markdown.parse(read(source, String)).content
-    Page(source, build, elements, IdDict{Any,Any}(), Globals())
+    Page(source, build, working_dir, elements, IdDict{Any,Any}(), Globals())
 end
 
 # Document Nodes.
@@ -103,7 +103,7 @@ struct ContentsNode
             working_dir = error("missing value for `working_dir` in `ContentsNode`."),
             others...
         )
-        new(Pages, Depth, build, source, [])
+        new(Pages, Depth, build, source, working_dir, [])
     end
 end
 
@@ -350,6 +350,7 @@ end
 ## Methods
 
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
+    @info "Adding page" doc src dst wd
     page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
     name = normpath(relpath(src, doc.user.source))
