@@ -81,6 +81,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # Frequently used fields.
     build  = doc.user.build
     source = doc.user.source
+    source = doc.user.working_dir
 
     # The .user.source directory must exist.
     isdir(source) || error("source directory '$(abspath(source))' is missing.")
@@ -105,9 +106,10 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
         for file in files
             src = normpath(joinpath(root, file))
             dst = normpath(joinpath(build, relpath(root, source), file))
+            wd = normpath(joinpath(working_dir, relpath(root, source), file))
             if endswith(file, ".md")
                 push!(mdpages, Utilities.srcpath(source, root, file))
-                Documents.addpage!(doc, src, dst)
+                Documents.addpage!(doc, src, dst, wd)
             else
                 cp(src, dst; force = true)
             end

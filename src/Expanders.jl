@@ -540,7 +540,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         end
         for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
             (value, success, backtrace, text) = Utilities.withoutput() do
-                cd(dirname(page.build)) do
+                cd(dirname(page.working_dir)) do
                     Core.eval(mod, ex)
                 end
             end
