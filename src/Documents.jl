@@ -37,7 +37,7 @@ Represents a single markdown file.
 struct Page
     source      :: String
     build       :: String
-    working_dir :: String
+    working_dir :: Union{Symbol,String}
     """
     Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
     should be considered immutable.
@@ -67,7 +67,7 @@ struct IndexNode
     order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
     build       :: String         # Path to the file where this index will appear.
     source      :: String         # Path to the file where this index was written.
-    working_dir :: String
+    working_dir :: Union{Symbol,String}         # Path to the directory where code in this index is executed..
     elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
 
     function IndexNode(;
@@ -92,7 +92,7 @@ struct ContentsNode
     depth       :: Int            # Down to which level should headers be displayed? Set by user.
     build       :: String         # Same as for `IndexNode`s.
     source      :: String         # Same as for `IndexNode`s.
-    working_dir :: String         # Same as for `IndexNode`s.
+    working_dir :: Union{Symbol,String}         # Same as for `IndexNode`s.
     elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
 
     function ContentsNode(;
@@ -449,7 +449,7 @@ doctest_replace!(block) = true
 
 function buildnode(T::Type, block, doc, page)
     mod  = get(page.globals.meta, :CurrentModule, Main)
-    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
+    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build, :working_dir => page.working_dir)
     for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)
             cd(dirname(page.source)) do
