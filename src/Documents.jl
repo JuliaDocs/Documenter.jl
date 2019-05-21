@@ -279,6 +279,8 @@ function Document(plugins = nothing;
     elseif typeof(working_dir) <: Symbol
         # Maybe allow `:src` and `:root` as well?
         throw(ArgumentError("Unrecognized working directory option '$working_dir'"))
+    else
+        working_dir = normpath(relpath(root, working_dir))
     end
 
     user = User(

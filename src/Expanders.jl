@@ -478,7 +478,7 @@ end
 function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     lines = Utilities.find_block_in_file(x.code, page.source)
-    cd(dirname(page.build)) do
+    cd(dirname(page.working_dir)) do
         result = nothing
         for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
             try
@@ -597,7 +597,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         buffer = IOBuffer()
         input  = droplines(str)
         (value, success, backtrace, text) = Utilities.withoutput() do
-            cd(dirname(page.build)) do
+            cd(dirname(page.working_dir)) do
                 Core.eval(mod, ex)
             end
         end
@@ -634,7 +634,7 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     # Evaluate whole @setup block at once instead of piecewise
     page.mapping[x] =
     try
-        cd(dirname(page.build)) do
+        cd(dirname(page.working_dir)) do
             include_string(mod, x.code)
         end
         Markdown.MD([])
