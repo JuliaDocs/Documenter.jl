@@ -192,7 +192,7 @@ struct User
     root    :: String  # An absolute path to the root directory of the document.
     source  :: String  # Parent directory is `.root`. Where files are read from.
     build   :: String  # Parent directory is also `.root`. Where files are written to.
-    workdir ::String # Parent directory is also `.root`. Where code is executed from.
+    workdir :: Union{Symbol,String} # Parent directory is also `.root`. Where code is executed from.
     format  :: Vector{Plugin} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Union{Bool,Symbol} # Run doctests?
@@ -245,7 +245,7 @@ function Document(plugins = nothing;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
-        workdir::Union{Symbol, AbstractString}  = :build,
+        workdir  :: Union{Symbol, AbstractString}  = :build,
         format   :: Any              = Documenter.HTML(),
         clean    :: Bool             = true,
         doctest  :: Union{Bool,Symbol} = true,
@@ -271,16 +271,6 @@ function Document(plugins = nothing;
 
     if version == "git-commit"
         version = "git:$(Utilities.get_commit_short(root))"
-    end
-
-    if workdir == :build
-        # set working directory to be the same as `build`
-        workdir = build
-    elseif typeof(workdir) <: Symbol
-        # Maybe allow `:src` and `:root` as well?
-        throw(ArgumentError("Unrecognized working directory option '$workdir'"))
-    else
-        workdir = normpath(relpath(root, workdir))
     end
 
     user = User(
