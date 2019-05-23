@@ -67,7 +67,6 @@ struct IndexNode
     order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
     build       :: String         # Path to the file where this index will appear.
     source      :: String         # Path to the file where this index was written.
-    workdir :: Union{Symbol,String}         # Path to the directory where code in this index is executed..
     elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
 
     function IndexNode(;
@@ -78,10 +77,9 @@ struct IndexNode
             Order   = [:module, :constant, :type, :function, :macro],
             build   = error("missing value for `build` in `IndexNode`."),
             source  = error("missing value for `source` in `IndexNode`."),
-            workdir  = error("missing value for `workdir` in `IndexNode`."),
             others...
         )
-        new(Pages, Modules, Order, build, source, workdir, [])
+        new(Pages, Modules, Order, build, source, [])
     end
 end
 
@@ -92,7 +90,6 @@ struct ContentsNode
     depth       :: Int            # Down to which level should headers be displayed? Set by user.
     build       :: String         # Same as for `IndexNode`s.
     source      :: String         # Same as for `IndexNode`s.
-    workdir :: Union{Symbol,String}         # Same as for `IndexNode`s.
     elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
 
     function ContentsNode(;
@@ -100,10 +97,9 @@ struct ContentsNode
             Depth  = 2,
             build  = error("missing value for `build` in `ContentsNode`."),
             source = error("missing value for `source` in `ContentsNode`."),
-            workdir = error("missing value for `workdir` in `ContentsNode`."),
             others...
         )
-        new(Pages, Depth, build, source, workdir, [])
+        new(Pages, Depth, build, source, [])
     end
 end
 
