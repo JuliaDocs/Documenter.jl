@@ -2,6 +2,6 @@ using Documenter
 
 makedocs(
     sitename="Test",
-    pages = ["Home" => "test.md"],
-    workdir="../.."
+    pages = ["Home" => "index.md"],
+    workdir=".."
 )
