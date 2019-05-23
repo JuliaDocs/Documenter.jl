@@ -37,7 +37,7 @@ Represents a single markdown file.
 struct Page
     source      :: String
     build       :: String
-    working_dir :: Union{Symbol,String}
+    workdir :: Union{Symbol,String}
     """
     Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
     should be considered immutable.
@@ -51,9 +51,9 @@ struct Page
     mapping  :: IdDict{Any,Any}
     globals  :: Globals
 end
-function Page(source::AbstractString, build::AbstractString, working_dir::AbstractString)
+function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
     elements = Markdown.parse(read(source, String)).content
-    Page(source, build, working_dir, elements, IdDict{Any,Any}(), Globals())
+    Page(source, build, workdir, elements, IdDict{Any,Any}(), Globals())
 end
 
 # Document Nodes.
@@ -67,7 +67,7 @@ struct IndexNode
     order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
     build       :: String         # Path to the file where this index will appear.
     source      :: String         # Path to the file where this index was written.
-    working_dir :: Union{Symbol,String}         # Path to the directory where code in this index is executed..
+    workdir :: Union{Symbol,String}         # Path to the directory where code in this index is executed..
     elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
 
     function IndexNode(;
@@ -78,10 +78,10 @@ struct IndexNode
             Order   = [:module, :constant, :type, :function, :macro],
             build   = error("missing value for `build` in `IndexNode`."),
             source  = error("missing value for `source` in `IndexNode`."),
-            working_dir  = error("missing value for `working_dir` in `IndexNode`."),
+            workdir  = error("missing value for `workdir` in `IndexNode`."),
             others...
         )
-        new(Pages, Modules, Order, build, source, working_dir, [])
+        new(Pages, Modules, Order, build, source, workdir, [])
     end
 end
 
@@ -92,7 +92,7 @@ struct ContentsNode
     depth       :: Int            # Down to which level should headers be displayed? Set by user.
     build       :: String         # Same as for `IndexNode`s.
     source      :: String         # Same as for `IndexNode`s.
-    working_dir :: Union{Symbol,String}         # Same as for `IndexNode`s.
+    workdir :: Union{Symbol,String}         # Same as for `IndexNode`s.
     elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
 
     function ContentsNode(;
@@ -100,10 +100,10 @@ struct ContentsNode
             Depth  = 2,
             build  = error("missing value for `build` in `ContentsNode`."),
             source = error("missing value for `source` in `ContentsNode`."),
-            working_dir = error("missing value for `working_dir` in `ContentsNode`."),
+            workdir = error("missing value for `workdir` in `ContentsNode`."),
             others...
         )
-        new(Pages, Depth, build, source, working_dir, [])
+        new(Pages, Depth, build, source, workdir, [])
     end
 end
 
@@ -192,7 +192,7 @@ struct User
     root    :: String  # An absolute path to the root directory of the document.
     source  :: String  # Parent directory is `.root`. Where files are read from.
     build   :: String  # Parent directory is also `.root`. Where files are written to.
-    working_dir ::String # Parent directory is also `.root`. Where code is executed from.
+    workdir ::String # Parent directory is also `.root`. Where code is executed from.
     format  :: Vector{Plugin} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Union{Bool,Symbol} # Run doctests?
@@ -245,7 +245,7 @@ function Document(plugins = nothing;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
-        working_dir::Union{Symbol, AbstractString}  = :build,
+        workdir::Union{Symbol, AbstractString}  = :build,
         format   :: Any              = Documenter.HTML(),
         clean    :: Bool             = true,
         doctest  :: Union{Bool,Symbol} = true,
@@ -273,21 +273,21 @@ function Document(plugins = nothing;
         version = "git:$(Utilities.get_commit_short(root))"
     end
 
-    if working_dir == :build
+    if workdir == :build
         # set working directory to be the same as `build`
-        working_dir = build
-    elseif typeof(working_dir) <: Symbol
+        workdir = build
+    elseif typeof(workdir) <: Symbol
         # Maybe allow `:src` and `:root` as well?
-        throw(ArgumentError("Unrecognized working directory option '$working_dir'"))
+        throw(ArgumentError("Unrecognized working directory option '$workdir'"))
     else
-        working_dir = normpath(relpath(root, working_dir))
+        workdir = normpath(relpath(root, workdir))
     end
 
     user = User(
         root,
         source,
         build,
-        working_dir,
+        workdir,
         format,
         clean,
         doctest,
@@ -451,7 +451,7 @@ doctest_replace!(block) = true
 
 function buildnode(T::Type, block, doc, page)
     mod  = get(page.globals.meta, :CurrentModule, Main)
-    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build, :working_dir => page.working_dir)
+    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build, :workdir => page.workdir)
     for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)
             cd(dirname(page.source)) do
