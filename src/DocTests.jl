@@ -274,13 +274,13 @@ function report(result::Result, str, doc::Documents.Document)
 
         $(result.input)
 
-        Output:
+        Evaluated output:
 
-        $(result.output)
+        $(rstrip(str))
 
         Expected output:
 
-        $(rstrip(str))
+        $(result.output)
 
         """, diff)
 end
