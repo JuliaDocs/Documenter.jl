@@ -5,5 +5,5 @@ Here's a test
 ```@repl
 pwd()
 
-touch("root_index.txt")
+touch("subdir_index.txt")
 ```
