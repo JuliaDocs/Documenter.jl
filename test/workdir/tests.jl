@@ -29,8 +29,8 @@ end
     @test !isfile(joinpath(@__DIR__, "builds", "relative", "root_file.txt"))
     @test !isfile(joinpath(@__DIR__, "builds", "relative", "subdir", "subdir_index.txt"))
     @test !isfile(joinpath(@__DIR__, "builds", "relative", "subdir", "subdir_file.txt"))
-    @test_broken  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "root_index.txt"))
-    @test_broken  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "root_file.txt"))
-    @test_broken  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "subdir_index.txt"))
-    @test_broken  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "subdir_file.txt"))
+    @test  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "root_index.txt"))
+    @test  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "root_file.txt"))
+    @test  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "subdir_index.txt"))
+    @test  isfile(joinpath(@__DIR__, "builds", "relative-workdir", "subdir_file.txt"))
 end

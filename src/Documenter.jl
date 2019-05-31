@@ -107,6 +107,22 @@ written when [`makedocs`](@ref) is run. The name of the build directory is, by c
 called `build`, though, like with `source`, users are free to change this to anything else
 to better suit their project needs.
 
+**`workdir`** is the directory in which code from `@example` and `@repl` code blocks is
+executed. The default `:build` option executes code from the directory in which the
+resulting output file will be placed in the build directory. For example, a file in `src/`
+containing:
+
+````
+```@repl
+pwd()
+```
+````
+
+and using `workdir=:build` will have the output `/path/to/MyPackage/docs/build/`, while the
+same file in `src/subdir/` will have the output `/path/to/MyPackage/docs/build/`. It is
+recomended that absolute paths be used, such as `joinpath(@__DIR__, "../..")` to execute in
+the package root.
+
 **`clean`** tells [`makedocs`](@ref) whether to remove all the content from the `build`
 folder prior to generating new content from `source`. By default this is set to `true`.
 

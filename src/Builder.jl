@@ -111,11 +111,11 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
             if workdir == :build
                 # set working directory to be the same as `build`
                 wd = normpath(joinpath(build, relpath(root, source)))
-            elseif typeof(workdir) <: Symbol
+            elseif workdir isa Symbol
                 # Maybe allow `:src` and `:root` as well?
                 throw(ArgumentError("Unrecognized working directory option '$workdir'"))
             else
-                wd = normpath(joinpath(root, workdir))
+                wd = normpath(joinpath(doc.user.root, workdir))
             end
 
             if endswith(file, ".md")
