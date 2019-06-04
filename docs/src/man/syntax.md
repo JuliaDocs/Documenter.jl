@@ -334,7 +334,8 @@ on each line is also removed.
 
 !!! note
     The working directory, `pwd`, is set to the directory in `build` where the file
-    will be written to, and the paths in `include` calls are interpreted to be relative to `pwd`.
+    will be written to, and the paths in `include` calls are interpreted to be relative to
+    `pwd`. This can be customized with the `workdir` keyword of [`makedocs`](@ref).
 
 **Hiding Source Code**
 
@@ -493,7 +494,8 @@ Named `@repl <name>` blocks behave in the same way as named `@example <name>` bl
 
 !!! note
     The working directory, `pwd`, is set to the directory in `build` where the file
-    will be written to, and the paths in `include` calls are interpreted to be relative to `pwd`.
+    will be written to, and the paths in `include` calls are interpreted to be relative to
+    `pwd`.  This can be customized with the `workdir` keyword of [`makedocs`](@ref).
 
 ## `@setup <name>` block
 
