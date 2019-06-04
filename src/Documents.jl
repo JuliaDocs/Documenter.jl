@@ -197,6 +197,7 @@ struct User
     strict::Bool              # Throw an exception when any warnings are encountered.
     modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
+    expandfirst::Vector{String} # List of pages that get "expanded" before others
     repo    :: String  # Template for URL to source code repo
     sitename:: String
     authors :: String
@@ -249,6 +250,7 @@ function Document(plugins = nothing;
         strict::Bool                 = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
+        expandfirst :: Vector        = String[],
         repo     :: AbstractString   = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
@@ -280,6 +282,7 @@ function Document(plugins = nothing;
         strict,
         Utilities.submodules(modules),
         pages,
+        expandfirst,
         repo,
         sitename,
         authors,

@@ -4,6 +4,10 @@
 
 * Documenter v0.23 requires Julia v1.0. ([#1015][github-1015])
 
+* ![Feature][badge-feature] `makedocs` now accepts the `expandfirst` argument, which allows specifying a set of pages that should be evaluated before the other. ([#1027][github-1027], [#1029][github-1029])
+
+* ![Enhancement][badge-enhancement] The evaluation order of pages is now fixed (unless customized with `expandfirst`). The pages are evaluated in the alphabetical order of their file paths. ([#1027][github-1027], [#1029][github-1029])
+
 * ![Enhancement][badge-enhancement] The logo image in the HTML output will now always point to the first page in the navigation menu (as opposed to `index.html`, which may or may not exist). When using pretty URLs, the `index.html` part now omitted from the logo link URL. ([#1005][github-1005])
 
 * ![Enhancement][badge-enhancement] Minor changes to how doctesting errors are printed. ([#1028][github-1028])
@@ -325,7 +329,9 @@
 [github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
 [github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
 [github-1015]: https://github.com/JuliaDocs/Documenter.jl/pull/1015
+[github-1027]: https://github.com/JuliaDocs/Documenter.jl/issues/1027
 [github-1028]: https://github.com/JuliaDocs/Documenter.jl/pull/1028
+[github-1029]: https://github.com/JuliaDocs/Documenter.jl/pull/1029
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

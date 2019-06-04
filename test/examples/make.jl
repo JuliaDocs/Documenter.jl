@@ -101,6 +101,8 @@ using Documenter
 
 const examples_root = dirname(@__FILE__)
 
+expandfirst = ["expandorder/AA.md"]
+
 @info("Building mock package docs: MarkdownWriter")
 examples_markdown_doc = makedocs(
     format = :markdown,
@@ -108,6 +110,7 @@ examples_markdown_doc = makedocs(
     root  = examples_root,
     build = "builds/markdown",
     doctest = false,
+    expandfirst = expandfirst,
 )
 
 
@@ -125,7 +128,12 @@ htmlbuild_pages = Any[
         "Page X" => "hidden/x.md",
         "hidden/y.md",
         "hidden/z.md",
-    ])
+    ]),
+    "Expandorder" => [
+        "expandorder/00.md",
+        "expandorder/01.md",
+        "expandorder/AA.md",
+    ]
 ]
 
 @info("Building mock package docs: HTMLWriter / local build")
@@ -137,6 +145,7 @@ examples_html_local_doc = makedocs(
     assets = ["assets/custom.css"],
     sitename = "Documenter example",
     pages = htmlbuild_pages,
+    expandfirst = expandfirst,
 
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
@@ -182,6 +191,7 @@ examples_html_deploy_doc = withassets("images/logo.png", "images/logo.jpg", "ima
         ],
         sitename = "Documenter example",
         pages = htmlbuild_pages,
+        expandfirst = expandfirst,
         doctest = false,
         Documenter.HTML(
             prettyurls = true,
