@@ -437,7 +437,7 @@ doctest_replace!(block) = true
 
 function buildnode(T::Type, block, doc, page)
     mod  = get(page.globals.meta, :CurrentModule, Main)
-    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build, :workdir => page.workdir)
+    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
     for (ex, str) in Utilities.parseblock(block.code, doc, page)
         if Utilities.isassign(ex)
             cd(dirname(page.source)) do
