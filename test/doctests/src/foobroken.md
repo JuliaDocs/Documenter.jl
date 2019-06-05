@@ -1,0 +1,3 @@
+```@autodocs
+Modules = [DocTestsTests.FooBroken]
+```
