@@ -1,3 +1,4 @@
 [deps]
+CMark = "510bb3d4-7ace-11e9-09a6-63422760e49a"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
