@@ -59,8 +59,9 @@ end
 A file outside of the documentation directory.
 """
 struct ExternalPage
-    path::AbstractString
-    target::Nullable{AbstractString}
+    path   :: String
+    target :: Union{String,Nothing}
+    parser :: Any
 end
 
 # Document Nodes.
@@ -78,7 +79,7 @@ struct IndexNode
 
     function IndexNode(;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
-            #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
+            #       Perhaps deprecate    #walk_navpages(true, title, page, [], parent, doc) the uppercase versions? Same with `ContentsNode`.
             Pages   = [],
             Modules = [],
             Order   = [:module, :constant, :type, :function, :macro],
@@ -163,6 +164,7 @@ mutable struct NavNode
     the string should be a valid key in `doc.internal.pages`
     """
     page           :: Union{String, Nothing}
+    external       :: Union{Markdown.MD, Nothing}
     """
     If not `nothing`, specifies the text that should be displayed in navigation
     links etc. instead of the automatically determined text.
@@ -174,7 +176,7 @@ mutable struct NavNode
     prev           :: Union{NavNode, Nothing}
     next           :: Union{NavNode, Nothing}
 end
-NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
+NavNode(page, title_override, parent) = NavNode(page, nothing ,title_override, parent, [], true, nothing, nothing)
 
 """
 Constructs a list of the ancestors of the `navnode` (inclding the `navnode` itself),
@@ -210,6 +212,7 @@ struct User
     authors :: String
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
+    repo_root :: String
 end
 
 """
@@ -262,6 +265,7 @@ function Document(plugins = nothing;
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
+        repo_root :: String          = dirname(Utilities.currentdir()),
         others...
     )
     Utilities.check_kwargs(others)
@@ -292,7 +296,8 @@ function Document(plugins = nothing;
         sitename,
         authors,
         version,
-        highlightsig
+        highlightsig,
+        repo_root,
     )
     internal = Internal(
         Utilities.assetsdir(),

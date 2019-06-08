@@ -1,4 +1,5 @@
 using Documenter, DocumenterTools
+using CMark
 
 makedocs(
     modules = [Documenter, DocumenterTools],
@@ -15,6 +16,7 @@ makedocs(
     linkcheck = !("skiplinks" in ARGS),
     pages = [
         "Home" => "index.md",
+        "README" => external("README.md", parser=CMark.markdown),
         "Manual" => Any[
             "Guide" => "man/guide.md",
             "man/examples.md",
@@ -49,7 +51,7 @@ makedocs(
         ],
         "contributing.md",
     ],
-    strict = true,
+    # strict = true,
 )
 
 deploydocs(

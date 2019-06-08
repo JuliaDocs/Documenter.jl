@@ -13,6 +13,7 @@ import ..Documenter:
     Documenter,
     Utilities
 
+import .Documents: ExternalPage, Globals, Page # TODO: remove this
 import .Utilities: Selectors
 
 using DocStringExtensions
@@ -123,6 +124,15 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # We need the for loop because we can't assign to the fields of the immutable
     # doc.internal.
     for navnode in walk_navpages(userpages, nothing, doc)
+        if !isnothing(navnode.external)
+            @info "External page: $(navnode.page)"
+            page = Page(
+                "", navnode.page,
+                navnode.external.content,
+                IdDict{Any,Any}(), Globals()
+            )
+            doc.internal.pages[navnode.page] = page
+        end
         push!(doc.internal.navtree, navnode)
     end
 
@@ -172,6 +182,16 @@ walk_navpages(title::String, page, parent, doc) = walk_navpages(true, title, pag
 walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
 walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
+
+function walk_navpages(title::String, external::ExternalPage, parent, doc)
+    src = isnothing(external.target) ? basename(external.path) : external.target
+    nn = Documents.NavNode(src, title, parent)
+    external_source = joinpath(doc.user.repo_root, external.path)
+    s = String(read(external_source))
+    nn.external = isnothing(external.parser) ? Markdown.parse(s) : external.parser(s)
+    push!(doc.internal.navlist, nn)
+    return nn
+end
 
 
 function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)

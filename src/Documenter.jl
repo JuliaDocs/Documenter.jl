@@ -287,24 +287,24 @@ function makedocs(components...; debug = false, format = HTML(),
         format = overwrite.(format)
     end
 
-    if any(p -> isa(p.second, ExternalPage), pages)
-        external_path = copy_external(pages, root, source)
-        map!(
-            p -> isa(p.second, ExternalPage) ? (p.first => destination(p.second)) : p,
-            pages,
-            pages,
-        )
-    end
+    # if any(p -> isa(p.second, ExternalPage), pages)
+    #     external_path = copy_external(pages, root, source)
+    #     map!(
+    #         p -> isa(p.second, ExternalPage) ? (p.first => destination(p.second)) : p,
+    #         pages,
+    #         pages,
+    #     )
+    # end
 
-    externals = copy_external!(pages, repo_root, joinpath(root, source))
+    #externals = copy_external!(pages, repo_root, joinpath(root, source))
     document = Documents.Document(components; format=format, kwargs...)
-    document = Documents.Document(; root = root, source = source, pages = pages, args...)
+    #document = Documents.Document(; root = root, source = source, pages = pages, args...)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end
-    cd(joinpath(root, source)) do
-        rm.(externals)
-    end
+    # cd(joinpath(root, source)) do
+    #     rm.(externals)
+    # end
     debug ? document : nothing
 end
 
@@ -815,6 +815,7 @@ function getenv(regex::Regex)
 end
 
 const external_dir = "DOCUMENTER_EXTERNAL"
+import .Documents: ExternalPage
 
 """
     external(path; target) -> ExternalPage
@@ -839,25 +840,25 @@ makedocs(;
 )
 ```
 """
-function external(path::AbstractString; target::Union{AbstractString, Void}=nothing)
+function external(path::AbstractString; target::Union{AbstractString, Nothing}=nothing, parser=nothing)
     if target == nothing && !endswith(path, ".md")
         error("External file $path must have a Markdown extension or target must be set")
     end
     if target != nothing && !endswith(target, ".md")
         error("External file target $target must have a Markdown extension")
     end
-    return Documents.ExternalPage(path, target)
+    return ExternalPage(path, target, parser)
 end
 
 """
     copy_external!(pages, repo_root, dest_dir) -> Vector
 
 Copy all external files in `pages` into the documentation source directory and modify the
-input vector, replacing any [`Documents.ExternalPage`](@ref)s with their new paths.
+input vector, replacing any [`ExternalPage`](@ref)s with their new paths.
 Returns the paths of any external pages to be deleted at the end of the build process.
 """
 function copy_external!(pages::Vector, repo_root::AbstractString, dest_dir::AbstractString)
-    function copypage(page::Documents.ExternalPage)
+    function copypage(page::ExternalPage)
         source = joinpath(repo_root, page.path)
         isfile(source) || error("External page $source was not found")
         dest = joinpath(dest_dir, get(page.target, basename(page.path)))
@@ -868,15 +869,15 @@ function copy_external!(pages::Vector, repo_root::AbstractString, dest_dir::Abst
 
     externals = String[]
     for (i, page) in enumerate(pages)
-        if isa(page, Documents.ExternalPage)
+        if isa(page, ExternalPage)
             pages[i] = copypage(page)
             push!(externals, pages[i])
-        elseif isa(page, Pair) && isa(page.second, Documents.ExternalPage)
+        elseif isa(page, Pair) && isa(page.second, ExternalPage)
             pages[i] = pages[i].first => copypage(page.second)
             push!(externals, pages[i].second)
         elseif isa(page, Pair) && isa(page.second, Vector)
             for (j, el) in enumerate(page.second)
-                if isa(el, Documents.ExternalPage)
+                if isa(el, ExternalPage)
                     pages[i].second[j] = copypage(el)
                     push!(externals, pages[i].second[j])
                 end
