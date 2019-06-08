@@ -1,5 +1,37 @@
 # Documenter.jl changelog
 
+## Version `v0.23.0`
+
+* Documenter v0.23 requires Julia v1.0. ([#1015][github-1015])
+
+* ![Enhancement][badge-enhancement] The logo image in the HTML output will now always point to the first page in the navigation menu (as opposed to `index.html`, which may or may not exist). When using pretty URLs, the `index.html` part now omitted from the logo link URL. ([#1005][github-1005])
+
+* ![Enhancement][badge-enhancement] Minor changes to how doctesting errors are printed. ([#1028][github-1028])
+
+## Version `v0.22.4`
+
+* ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
+
+* ![Bugfix][badge-bugfix] URLs for files in the repository are now generated correctly when the repository is used as a Git submodule in another repository. ([#1000][github-1000], [#1004][github-1004])
+
+* ![Bugfix][badge-bugfix] When checking for omitted docstrings, Documenter no longer gives "`Package.Package` missing" type false positives. ([#1009][github-1009])
+
+* ![Bugfix][badge-bugfix] `makedocs` again exits with an error if `strict=true` and there is a doctest failure. ([#1003][github-1003], [#1014][github-1014])
+
+## Version `v0.22.3`
+
+* ![Bugfix][badge-bugfix] Fixed filepaths for images included in the .tex file for PDF output on Windows. ([#999][github-999])
+
+## Version `v0.22.2`
+
+* ![Bugfix][badge-bugfix] Error reporting for meta-blocks now handles missing files gracefully instead of throwing. ([#996][github-996])
+
+* ![Enhancement][badge-enhancement] The `sitename` keyword argument to `deploydocs`, which is required for the default HTML output, is now properly documented. ([#995][github-995])
+
+## Version `v0.22.1`
+
+* ![Bugfix][badge-bugfix] Fixed a world-age related bug in doctests. ([#994][github-994])
+
 ## Version `v0.22.0`
 
 * ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The `assets` and `analytics` arguments to `makedocs` have been deprecated in favor of the corresponding arguments of the `Documenter.HTML` format plugin. ([#953][github-953])
@@ -44,11 +76,18 @@
 
 * ![Enhancement][badge-enhancement] The construction of the search index in the HTML output has been refactored to make it easier to use with other search backends in the future. The structure of the generated search index has also been modified, which can yield slightly different search results. Documenter now depends on the lightweight [JSON.jl][json-jl] package. ([#966][github-966])
 
+* ![Enhancement][badge-enhancement] Docstrings that begin with an indented code block (such as a function signature) now have that block highlighted as Julia code by default.
+  This behaviour can be disabled by passing `highlightsig=false` to `makedocs`. ([#980][github-980])
+
 * ![Bugfix][badge-bugfix] Paths in `include` calls in `@eval`, `@example`, `@repl` and `jldoctest`
   blocks are now interpreted to be relative `pwd`, which is set to the output directory of the
   resulting file. ([#941][github-941])
 
 * ![Bugfix][badge-bugfix] `deploydocs` and `git_push` now support non-github repos correctly and work when the `.ssh` directory does not already exist or the working directory contains spaces. ([#971][github-971])
+
+* ![Bugfix][badge-bugfix] Tables now honor column alignment in the HTML output. If a column does not explicitly specify its alignment, the parser defaults to it being right-aligned, whereas previously all cells were left-aligned. ([#511][github-511], [#989][github-989])
+
+* ![Bugfix][badge-bugfix] Code lines ending with `# hide` are now properly hidden for CRLF inputs. ([#991][github-991])
 
 ## Version `v0.21.5`
 
@@ -222,6 +261,7 @@
 
 * ![Bugfix][badge-bugfix] At-docs blocks no longer give an error when containing empty lines. ([#823][github-823], [#824][github-824])
 
+[github-511]: https://github.com/JuliaDocs/Documenter.jl/pull/511
 [github-697]: https://github.com/JuliaDocs/Documenter.jl/pull/697
 [github-706]: https://github.com/JuliaDocs/Documenter.jl/pull/706
 [github-764]: https://github.com/JuliaDocs/Documenter.jl/pull/764
@@ -270,6 +310,22 @@
 [github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
+[github-980]: https://github.com/JuliaDocs/Documenter.jl/pull/980
+[github-989]: https://github.com/JuliaDocs/Documenter.jl/pull/989
+[github-991]: https://github.com/JuliaDocs/Documenter.jl/pull/991
+[github-994]: https://github.com/JuliaDocs/Documenter.jl/pull/994
+[github-995]: https://github.com/JuliaDocs/Documenter.jl/pull/995
+[github-996]: https://github.com/JuliaDocs/Documenter.jl/pull/996
+[github-999]: https://github.com/JuliaDocs/Documenter.jl/pull/999
+[github-1005]: https://github.com/JuliaDocs/Documenter.jl/pull/1005
+[github-1000]: https://github.com/JuliaDocs/Documenter.jl/issues/1000
+[github-1002]: https://github.com/JuliaDocs/Documenter.jl/pull/1002
+[github-1003]: https://github.com/JuliaDocs/Documenter.jl/issues/1003
+[github-1004]: https://github.com/JuliaDocs/Documenter.jl/pull/1004
+[github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
+[github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
+[github-1015]: https://github.com/JuliaDocs/Documenter.jl/pull/1015
+[github-1028]: https://github.com/JuliaDocs/Documenter.jl/pull/1028
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

@@ -84,7 +84,7 @@ INFO: add the public key below to https://github.com/USER/REPO/settings/keys
 [SSH PUBLIC KEY HERE]
 
 INFO: add a secure environment variable named 'DOCUMENTER_KEY' to
-      https://travis-ci.org/USER/REPO/settings with value:
+      https://travis-ci.com/USER/REPO/settings with value:
 
 [LONG BASE64 ENCODED PRIVATE KEY]
 ```
@@ -154,13 +154,21 @@ The doc-build environment `docs/Project.toml` includes Documenter and other doc-
 dependencies your package might have. If Documenter is the only dependency, then the
 `Project.toml` should include the following:
 
+````@eval
+import Documenter, Markdown
+m = match(r"^version = \"(\d+.\d+.\d+)\"$"m,
+    read(joinpath(dirname(dirname(pathof(Documenter))), "Project.toml"), String))
+v = VersionNumber(m.captures[1])
+Markdown.parse("""
 ```toml
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
 [compat]
-Documenter = "~0.20"
+Documenter = "~$(v.major).$(v.minor)"
 ```
+""")
+````
 
 Note that it is recommended that you have a `[compat]` section, like the one above, in your
 `Project.toml` file, which would restrict Documenter's version that gets installed when the

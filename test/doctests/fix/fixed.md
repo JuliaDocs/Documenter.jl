@@ -1,5 +1,5 @@
 ```@docs
-DocTestsTest.Foo.foo
+DocTestFixTest.Foo.foo
 ```
 
 ```jldoctest

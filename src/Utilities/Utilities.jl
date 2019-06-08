@@ -14,18 +14,18 @@ regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
 
 # helper to display linerange for error printing
 function find_block_in_file(code, file)
-    content = read(Base.find_source_file(file), String)
+    source_file = Base.find_source_file(file)
+    source_file === nothing && return nothing
+    isfile(source_file) || return nothing
+    content = read(source_file, String)
     content = replace(content, "\r\n" => "\n")
     # make a regex of the code that matches leading whitespace
     rcode = "\\h*" * replace(regex_escape(code), "\\n" => "\\n\\h*")
     blockidx = findfirst(Regex(rcode), content)
-    if blockidx !== nothing
-        startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
-        endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
-        return ":$(startline)-$(endline)"
-    else
-        return ""
-    end
+    blockidx === nothing && return nothing
+    startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
+    endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
+    return ":$(startline)-$(endline)"
 end
 
 # Pretty-printing locations
@@ -318,7 +318,7 @@ not in a repository, the function returns `nothing`.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
 determine if this is a repostory or not. If there is a file called `dbdir`, then it's
-contents is checked under the assumption that it is a Git worktree.
+contents is checked under the assumption that it is a Git worktree or a submodule.
 """
 function repo_root(file; dbdir=".git")
     parent_dir, parent_dir_last = dirname(abspath(file)), ""
@@ -329,7 +329,7 @@ function repo_root(file; dbdir=".git")
         if isfile(dbdir_path)
             contents = chomp(read(dbdir_path, String))
             if startswith(contents, "gitdir: ")
-                if isdir(contents[9:end])
+                if isdir(joinpath(parent_dir, contents[9:end]))
                     return parent_dir
                 end
             end

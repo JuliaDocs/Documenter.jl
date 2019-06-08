@@ -211,6 +211,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                push!(doc.internal.errors, :doctest)
             end
         end
     else
@@ -225,6 +226,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                push!(doc.internal.errors, :doctest)
             end
         end
     end
@@ -234,7 +236,7 @@ end
 # Display doctesting results.
 
 function result_to_string(buf, value)
-    value === nothing || show(IOContext(buf, :limit => true), MIME"text/plain"(), value)
+    value === nothing || Base.invokelatest(show, IOContext(buf, :limit => true), MIME"text/plain"(), value)
     return sanitise(buf)
 end
 
@@ -272,13 +274,13 @@ function report(result::Result, str, doc::Documents.Document)
 
         $(result.input)
 
-        Output:
+        Evaluated output:
 
-        $(result.output)
+        $(rstrip(str))
 
         Expected output:
 
-        $(rstrip(str))
+        $(result.output)
 
         """, diff)
 end

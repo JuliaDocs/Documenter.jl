@@ -131,11 +131,12 @@ end
     let expected_filepath = "/src/Utilities/Utilities.jl"
         Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
         @test endswith(filepath, expected_filepath)
-        @show filepath expected_filepath
     end
 
     mktempdir() do path
-        cd(path) do
+        path_repo = joinpath(path, "repository")
+        mkpath(path_repo)
+        cd(path_repo) do
             # Create a simple mock repo in a temporary directory with a single file.
             @test success(`git init`)
             @test success(`git config user.email "tester@example.com"`)
@@ -149,6 +150,63 @@ end
 
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
+
+            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+
+            # repo_root & relpath_from_repo_root
+            @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
+            @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
+            # We assume that a temporary file is not in a repo
+            @test Documenter.Utilities.repo_root(tempname()) == nothing
+            @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+        end
+
+        # Test worktree
+        path_worktree = joinpath(path, "worktree")
+        cd("$(path_repo)") do
+            @test success(`git worktree add $(path_worktree)`)
+        end
+        cd("$(path_worktree)") do
+            filepath = abspath(joinpath("src", "SourceFile.jl"))
+            # Run tests
+            commit = Documenter.Utilities.repo_commit(filepath)
+
+            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+
+            # repo_root & relpath_from_repo_root
+            @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
+            @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
+            # We assume that a temporary file is not in a repo
+            @test Documenter.Utilities.repo_root(tempname()) == nothing
+            @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+        end
+
+        # Test submodule
+        path_submodule = joinpath(path, "submodule")
+        mkpath(path_submodule)
+        cd(path_submodule) do
+            @test success(`git init`)
+            @test success(`git config user.email "tester@example.com"`)
+            @test success(`git config user.name "Test Committer"`)
+            # NOTE: the target path in the `git submodule add` command is necessary for
+            # Windows builds, since otherwise Git claims that the path is in a .gitignore
+            # file.
+            @test success(`git submodule add $(path_repo) repository`)
+            @test success(`git add -A`)
+            @test success(`git commit -m"Initial commit."`)
+        end
+        path_submodule_repo = joinpath(path, "submodule", "repository")
+        @test isdir(path_submodule_repo)
+        cd(path_submodule_repo) do
+            filepath = abspath(joinpath("src", "SourceFile.jl"))
+            # Run tests
+            commit = Documenter.Utilities.repo_commit(filepath)
+
+            @test isfile(filepath)
 
             @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
             @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"

@@ -209,6 +209,7 @@ struct User
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
+    highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
 end
 
 """
@@ -260,6 +261,7 @@ function Document(plugins = nothing;
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
+        highlightsig::Bool           = true,
         others...
     )
     Utilities.check_kwargs(others)
@@ -289,7 +291,8 @@ function Document(plugins = nothing;
         repo,
         sitename,
         authors,
-        version
+        version,
+        highlightsig
     )
     internal = Internal(
         Utilities.assetsdir(),

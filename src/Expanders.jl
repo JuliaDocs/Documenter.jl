@@ -333,6 +333,9 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         docstr = Markdown.MD(map(Documenter.DocSystem.parsedoc, docs))
         docstr.meta[:results] = docs
 
+        # If the first element of the docstring is a code block, make it Julia by default.
+        doc.user.highlightsig && highlightsig!(docstr)
+
         # Generate a unique name to be used in anchors and links for the docstring.
         slug = Utilities.slugify(object)
         anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
@@ -445,6 +448,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
             end
             markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
             markdown.meta[:results] = [docstr]
+            doc.user.highlightsig && highlightsig!(markdown)
             slug = Utilities.slugify(object)
             anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
             docsnode = DocsNode(markdown, anchor, object, page)
@@ -568,7 +572,12 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
 
     # Only add content when there's actually something to add.
     isempty(input)  || push!(content, Markdown.Code("julia", input))
-    isempty(output) || push!(content, output)
+    if result === nothing
+        code = Documenter.DocTests.sanitise(buffer)
+        isempty(code) || push!(content, Markdown.Code(code))
+    elseif !isempty(output)
+        push!(content, output)
+    end
     # ... and finally map the original code block to the newly generated ones.
     page.mapping[x] = Documents.MultiOutput(content)
 end
@@ -673,7 +682,7 @@ end
 # Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
 function droplines(code; skip = 0)
     buffer = IOBuffer()
-    for line in split(code, '\n')[(skip + 1):end]
+    for line in split(code, r"\r?\n")[(skip + 1):end]
         occursin(r"^(.*)#\s*hide$", line) && continue
         println(buffer, rstrip(line))
     end
@@ -698,6 +707,16 @@ function get_new_sandbox(name::Symbol)
     # modules created with Module() does not have include defined
     Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
     return m
+end
+
+highlightsig!(x) = nothing
+function highlightsig!(md::Markdown.MD)
+    isempty(md.content) || highlightsig!(first(md.content))
+end
+function highlightsig!(code::Markdown.Code)
+    if isempty(code.language)
+        code.language = "julia"
+    end
 end
 
 end

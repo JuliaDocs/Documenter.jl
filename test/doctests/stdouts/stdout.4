@@ -1,0 +1,28 @@
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+┌ Error: doctest failure in ~/Julia/JuliaDocs/Documenter/test/doctests2/src/FooBroken.jl:6-9
+│ 
+│ ```jldoctest
+│ julia> 2 + 2
+│ 42
+│ ```
+│ 
+│ Subexpression:
+│ 
+│ 2 + 2
+│ 
+│ Evaluated output:
+│ 
+│ 4
+│ 
+│ Expected output:
+│ 
+│ 42
+│ 
+│   diff =
+│    Warning: Diff output requires color.
+│    424
+└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:266
+[ Info: Populate: populating indices.
