@@ -97,15 +97,17 @@ module AutoDocs
 end
 
 # Build example docs
-using Documenter
+using Documenter, DocumenterMarkdown
 
-const examples_root = dirname(@__FILE__)
+const examples_root = @__DIR__
+const builds_directory = joinpath(examples_root, "builds")
+ispath(builds_directory) && rm(builds_directory, recursive=true)
 
 expandfirst = ["expandorder/AA.md"]
 
 @info("Building mock package docs: MarkdownWriter")
 examples_markdown_doc = makedocs(
-    format = :markdown,
+    format = Markdown(),
     debug = true,
     root  = examples_root,
     build = "builds/markdown",
@@ -142,7 +144,6 @@ examples_html_local_doc = makedocs(
     root  = examples_root,
     build = "builds/html-local",
     doctestfilters = [r"Ptr{0x[0-9]+}"],
-    assets = ["assets/custom.css"],
     sitename = "Documenter example",
     pages = htmlbuild_pages,
     expandfirst = expandfirst,
@@ -150,6 +151,7 @@ examples_html_local_doc = makedocs(
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
     Documenter.HTML(
+        assets = ["assets/custom.css"],
         prettyurls = false,
         edit_branch = nothing,
     ),
@@ -185,15 +187,15 @@ examples_html_deploy_doc = withassets("images/logo.png", "images/logo.jpg", "ima
         root  = examples_root,
         build = "builds/html-deploy",
         doctestfilters = [r"Ptr{0x[0-9]+}"],
-        assets = [
-            "assets/favicon.ico",
-            "assets/custom.css"
-        ],
         sitename = "Documenter example",
         pages = htmlbuild_pages,
         expandfirst = expandfirst,
         doctest = false,
         Documenter.HTML(
+            assets = [
+                "assets/favicon.ico",
+                "assets/custom.css"
+            ],
             prettyurls = true,
             canonical = "https://example.com/stable",
         )
