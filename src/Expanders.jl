@@ -24,7 +24,20 @@ import Base64: stringmime
 
 
 function expand(doc::Documents.Document)
-    for (src, page) in doc.internal.pages
+    priority_pages = filter(doc.user.expandfirst) do src
+        if src in keys(doc.internal.pages)
+            return true
+        else
+            @warn "$(src) in expandfirst does not exist"
+            return false
+        end
+    end
+    normal_pages = filter(src -> !(src in priority_pages), keys(doc.internal.pages))
+    normal_pages = sort([src for src in normal_pages])
+    @debug "pages" keys(doc.internal.pages) priority_pages normal_pages
+    for src in Iterators.flatten([priority_pages, normal_pages])
+        page = doc.internal.pages[src]
+        @debug "Running ExpanderPipeline on $src"
         empty!(page.globals.meta)
         for element in page.elements
             Selectors.dispatch(ExpanderPipeline, element, page, doc)

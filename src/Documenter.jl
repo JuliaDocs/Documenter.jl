@@ -65,6 +65,7 @@ export Deps, makedocs, deploydocs, hide
         repo    = "",
         highlightsig = true,
         sitename = "",
+        expandfirst = [],
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -158,6 +159,16 @@ as if it were a labeled Julia code block. No other code blocks are affected. Thi
 is enabled by default.
 
 **`sitename`** is displayed in the title bar and/or the navigation menu when applicable.
+
+**`expandfirst`** allows some of the pages to be _expanded_ (i.e. at-blocks evaluated etc.)
+before the others. Documenter normally evaluates the files in the alphabetic order of their
+file paths relative to `src`, but `expandfirst` allows some pages to be prioritized.
+
+For example, if you have `foo.md` and `bar.md`, `bar.md` would normally be evaluated before
+`foo.md`. But with `expandfirst = ["foo.md"]`, you can force `foo.md` to be evaluated first.
+
+Evaluation order among the `expandfirst` pages is according to the order they appear in the
+argument.
 
 # Experimental keywords
 
