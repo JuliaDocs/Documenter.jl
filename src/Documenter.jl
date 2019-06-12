@@ -65,7 +65,6 @@ export Deps, makedocs, deploydocs, hide
         repo    = "",
         highlightsig = true,
         sitename = "",
-        workdir = :build,
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
