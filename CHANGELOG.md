@@ -4,11 +4,11 @@
 
 * Documenter v0.23 requires Julia v1.0. ([#1015][github-1015])
 
-* ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. ([#1013][github-1013], [#1025][github-1025])
-
 * ![Enhancement][badge-enhancement] The logo image in the HTML output will now always point to the first page in the navigation menu (as opposed to `index.html`, which may or may not exist). When using pretty URLs, the `index.html` part now omitted from the logo link URL. ([#1005][github-1005])
 
 * ![Enhancement][badge-enhancement] Minor changes to how doctesting errors are printed. ([#1028][github-1028])
+
+* ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
 
 ## Version `v0.22.4`
 
@@ -342,6 +342,7 @@
 [badge-enhancement]: https://img.shields.io/badge/enhancement-blue.svg
 [badge-bugfix]: https://img.shields.io/badge/bugfix-purple.svg
 [badge-security]: https://img.shields.io/badge/security-black.svg
+[badge-experimental]: https://img.shields.io/badge/experimental-lightgrey.svg
 
 <!--
 # Badges
@@ -352,4 +353,5 @@
 ![Enhancement][badge-enhancement]
 ![Bugfix][badge-bugfix]
 ![Security][badge-security]
+![Experimental][badge-experimental]
 -->

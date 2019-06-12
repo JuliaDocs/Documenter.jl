@@ -108,20 +108,6 @@ written when [`makedocs`](@ref) is run. The name of the build directory is, by c
 called `build`, though, like with `source`, users are free to change this to anything else
 to better suit their project needs.
 
-**`workdir`** determines the working directory where `@example` and `@repl` code blocks are
-executed. It can be either a path or the special value `:build` (default).
-
-If the `workdir` is set to a path, the working directory is reset to that path for each code
-block being evaluated. Relative paths are taken to be relative to `root`, but using absolute
-paths is recommended (e.g. `workdir = joinpath(@__DIR__, "..")` for executing in the package
-root for the usual `docs/make.jl` setup).
-
-With the default `:build` option, the working directory is set to a subdirectory of `build`,
-determined from the source file path. E.g. for `src/foo.md` it is set to `build/`, for
-`src/foo/bar.md` it is set to `build/foo` etc.
-
-Note that `workdir` does not affect doctests.
-
 **`clean`** tells [`makedocs`](@ref) whether to remove all the content from the `build`
 folder prior to generating new content from `source`. By default this is set to `true`.
 
@@ -198,6 +184,20 @@ ignored.
 
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
+
+**`workdir`** determines the working directory where `@example` and `@repl` code blocks are
+executed. It can be either a path or the special value `:build` (default).
+
+If the `workdir` is set to a path, the working directory is reset to that path for each code
+block being evaluated. Relative paths are taken to be relative to `root`, but using absolute
+paths is recommended (e.g. `workdir = joinpath(@__DIR__, "..")` for executing in the package
+root for the usual `docs/make.jl` setup).
+
+With the default `:build` option, the working directory is set to a subdirectory of `build`,
+determined from the source file path. E.g. for `src/foo.md` it is set to `build/`, for
+`src/foo/bar.md` it is set to `build/foo` etc.
+
+Note that `workdir` does not affect doctests.
 
 ## Output formats
 **`format`** allows the output format to be specified. The default format is
