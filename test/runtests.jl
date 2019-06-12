@@ -30,6 +30,7 @@ println("="^50)
 
     # DocTest unit tests.
     include("doctests/doctests.jl")
+    include("doctests/fix/tests.jl")
 
     # DOM Tests.
     include("dom.jl")

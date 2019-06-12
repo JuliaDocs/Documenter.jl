@@ -3,6 +3,7 @@
 *.jl.mem
 Manifest.toml
 
+test/doctests/builds/
 test/examples/builds/
 test/formats/builds/
 test/missingdocs/build/
