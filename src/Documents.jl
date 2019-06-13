@@ -35,8 +35,9 @@ Globals() = Globals(Main, Dict())
 Represents a single markdown file.
 """
 struct Page
-    source   :: String
-    build    :: String
+    source      :: String
+    build       :: String
+    workdir :: Union{Symbol,String}
     """
     Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
     should be considered immutable.
@@ -50,9 +51,9 @@ struct Page
     mapping  :: IdDict{Any,Any}
     globals  :: Globals
 end
-function Page(source::AbstractString, build::AbstractString)
+function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
     elements = Markdown.parse(read(source, String)).content
-    Page(source, build, elements, IdDict{Any,Any}(), Globals())
+    Page(source, build, workdir, elements, IdDict{Any,Any}(), Globals())
 end
 
 # Document Nodes.
@@ -61,12 +62,12 @@ end
 ## IndexNode.
 
 struct IndexNode
-    pages    :: Vector{String} # Which pages to include in the index? Set by user.
-    modules  :: Vector{Module} # Which modules to include? Set by user.
-    order    :: Vector{Symbol} # What order should docs be listed in? Set by user.
-    build    :: String         # Path to the file where this index will appear.
-    source   :: String         # Path to the file where this index was written.
-    elements :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
+    pages       :: Vector{String} # Which pages to include in the index? Set by user.
+    modules     :: Vector{Module} # Which modules to include? Set by user.
+    order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
+    build       :: String         # Path to the file where this index will appear.
+    source      :: String         # Path to the file where this index was written.
+    elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
 
     function IndexNode(;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
@@ -85,11 +86,11 @@ end
 ## ContentsNode.
 
 struct ContentsNode
-    pages    :: Vector{String} # Which pages should be included in contents? Set by user.
-    depth    :: Int            # Down to which level should headers be displayed? Set by user.
-    build    :: String         # Same as for `IndexNode`s.
-    source   :: String         # Same as for `IndexNode`s.
-    elements :: Vector         # (order, page, anchor)-tuple for constructing links.
+    pages       :: Vector{String} # Which pages should be included in contents? Set by user.
+    depth       :: Int            # Down to which level should headers be displayed? Set by user.
+    build       :: String         # Same as for `IndexNode`s.
+    source      :: String         # Same as for `IndexNode`s.
+    elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
 
     function ContentsNode(;
             Pages  = [],
@@ -187,6 +188,7 @@ struct User
     root    :: String  # An absolute path to the root directory of the document.
     source  :: String  # Parent directory is `.root`. Where files are read from.
     build   :: String  # Parent directory is also `.root`. Where files are written to.
+    workdir :: Union{Symbol,String} # Parent directory is also `.root`. Where code is executed from.
     format  :: Vector{Plugin} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Union{Bool,Symbol} # Run doctests?
@@ -240,6 +242,7 @@ function Document(plugins = nothing;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
+        workdir  :: Union{Symbol, AbstractString}  = :build,
         format   :: Any              = Documenter.HTML(),
         clean    :: Bool             = true,
         doctest  :: Union{Bool,Symbol} = true,
@@ -272,6 +275,7 @@ function Document(plugins = nothing;
         root,
         source,
         build,
+        workdir,
         format,
         clean,
         doctest,
@@ -336,8 +340,8 @@ end
 
 ## Methods
 
-function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
-    page = Page(src, dst)
+function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
+    page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
     name = normpath(relpath(src, doc.user.source))
     doc.internal.pages[name] = page

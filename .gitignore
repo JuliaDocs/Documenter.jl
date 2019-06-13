@@ -9,6 +9,7 @@ test/formats/builds/
 test/missingdocs/build/
 test/nongit/build/
 test/errors/build/
+test/workdir/builds/
 docs/build/
 docs/pdf/build/
 docs/site/

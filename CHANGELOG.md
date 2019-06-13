@@ -12,6 +12,8 @@
 
 * ![Enhancement][badge-enhancement] Minor changes to how doctesting errors are printed. ([#1028][github-1028])
 
+* ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
+
 ## Version `v0.22.4`
 
 * ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
@@ -327,8 +329,10 @@
 [github-1003]: https://github.com/JuliaDocs/Documenter.jl/issues/1003
 [github-1004]: https://github.com/JuliaDocs/Documenter.jl/pull/1004
 [github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
+[github-1013]: https://github.com/JuliaDocs/Documenter.jl/issues/1013
 [github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
 [github-1015]: https://github.com/JuliaDocs/Documenter.jl/pull/1015
+[github-1025]: https://github.com/JuliaDocs/Documenter.jl/pull/1025
 [github-1027]: https://github.com/JuliaDocs/Documenter.jl/issues/1027
 [github-1028]: https://github.com/JuliaDocs/Documenter.jl/pull/1028
 [github-1029]: https://github.com/JuliaDocs/Documenter.jl/pull/1029
@@ -344,6 +348,7 @@
 [badge-enhancement]: https://img.shields.io/badge/enhancement-blue.svg
 [badge-bugfix]: https://img.shields.io/badge/bugfix-purple.svg
 [badge-security]: https://img.shields.io/badge/security-black.svg
+[badge-experimental]: https://img.shields.io/badge/experimental-lightgrey.svg
 
 <!--
 # Badges
@@ -354,4 +359,5 @@
 ![Enhancement][badge-enhancement]
 ![Bugfix][badge-bugfix]
 ![Security][badge-security]
+![Experimental][badge-experimental]
 -->

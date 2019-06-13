@@ -81,6 +81,8 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # Frequently used fields.
     build  = doc.user.build
     source = doc.user.source
+    workdir = doc.user.workdir
+
 
     # The .user.source directory must exist.
     isdir(source) || error("source directory '$(abspath(source))' is missing.")
@@ -105,9 +107,20 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
         for file in files
             src = normpath(joinpath(root, file))
             dst = normpath(joinpath(build, relpath(root, source), file))
+
+            if workdir == :build
+                # set working directory to be the same as `build`
+                wd = normpath(joinpath(build, relpath(root, source)))
+            elseif workdir isa Symbol
+                # Maybe allow `:src` and `:root` as well?
+                throw(ArgumentError("Unrecognized working directory option '$workdir'"))
+            else
+                wd = normpath(joinpath(doc.user.root, workdir))
+            end
+
             if endswith(file, ".md")
                 push!(mdpages, Utilities.srcpath(source, root, file))
-                Documents.addpage!(doc, src, dst)
+                Documents.addpage!(doc, src, dst, wd)
             else
                 cp(src, dst; force = true)
             end

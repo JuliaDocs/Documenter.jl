@@ -49,6 +49,9 @@ println("="^50)
 
     # A simple build outside of a Git repository
     include("nongit/tests.jl")
+
+    # A simple build evaluating code outside build directory
+    include("workdir/tests.jl")
 end
 
 # Additional tests
