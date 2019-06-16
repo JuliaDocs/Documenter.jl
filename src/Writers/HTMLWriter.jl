@@ -1033,7 +1033,7 @@ mdconvert(::Markdown.HorizontalRule, parent; kwargs...) = Tag(:hr)()
 function mdconvert(i::Markdown.Image, parent; kwargs...)
     @tags video img a
 
-    if occursin(r"(.webm|.mp4|.ogg|.ogm|.ogv|.avi)$", i.url)
+    if occursin(r"\.(webm|mp4|ogg|ogm|ogv|avi)$", i.url)
         video[:src => i.url, :controls => "true", :title => i.alt](
             a[:href => i.url](i.alt)
         )
