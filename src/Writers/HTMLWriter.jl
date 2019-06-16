@@ -1030,7 +1030,17 @@ mdconvert(h::Markdown.Header{N}, parent; kwargs...) where {N} = DOM.Tag(Symbol("
 
 mdconvert(::Markdown.HorizontalRule, parent; kwargs...) = Tag(:hr)()
 
-mdconvert(i::Markdown.Image, parent; kwargs...) = Tag(:img)[:src => i.url, :alt => i.alt]
+function mdconvert(i::Markdown.Image, parent; kwargs...)
+    @tags video img a
+
+    if occursin(r"\.(webm|mp4|ogg|ogm|ogv|avi)$", i.url)
+        video[:src => i.url, :controls => "true", :title => i.alt](
+            a[:href => i.url](i.alt)
+        )
+    else
+        img[:src => i.url, :alt => i.alt]
+    end
+end
 
 mdconvert(i::Markdown.Italic, parent; kwargs...) = Tag(:em)(mdconvert(i.text, i; kwargs...))
 
