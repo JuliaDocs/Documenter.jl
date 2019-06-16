@@ -12,6 +12,8 @@
 
 * ![Enhancement][badge-enhancement] Minor changes to how doctesting errors are printed. ([#1028][github-1028])
 
+* ![Enhancement][badge-enhancement] Videos can now be included in the HTML output using the image syntax (`![]()`) if the file extension matches a known format (`.webm`, `.mp4`, `.ogg`, `.ogm`, `.ogv`, `.avi`). ([#1034][github-1034])
+
 ## Version `v0.22.4`
 
 * ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
@@ -332,6 +334,7 @@
 [github-1027]: https://github.com/JuliaDocs/Documenter.jl/issues/1027
 [github-1028]: https://github.com/JuliaDocs/Documenter.jl/pull/1028
 [github-1029]: https://github.com/JuliaDocs/Documenter.jl/pull/1029
+[github-1034]: https://github.com/JuliaDocs/Documenter.jl/pull/1034
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
