@@ -136,7 +136,7 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
 
     run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], strict=true) do result, success, backtrace, output
         @test !success
-        @test_broken is_same_as_file(output, rfile("stdout.6"))
+        @test is_same_as_file(output, rfile("stdout.6"))
     end
 
     run_makedocs(["fooworking.md"]; modules=[FooWorking], strict=true) do result, success, backtrace, output
@@ -145,8 +145,8 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     end
 
     run_makedocs(["foobroken.md"]; modules=[FooBroken], strict=true) do result, success, backtrace, output
-        @test_broken !success
-        @test_broken is_same_as_file(output, rfile("stdout.8"))
+        @test !success
+        @test is_same_as_file(output, rfile("stdout.8"))
     end
 
     # Here we try the default (strict = false) -- output should say that doctest failed, but
