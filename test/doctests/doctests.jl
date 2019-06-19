@@ -160,6 +160,33 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test success
         @test is_same_as_file(output, rfile("stdout.12"))
     end
+
+    # Tests for doctest = :only. The outout should reflect that the docs themselves do not
+    # get built.
+    run_makedocs(["working.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
+        @test success
+        @test is_same_as_file(output, rfile("stdout.21"))
+    end
+
+    run_makedocs(["working.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
+        @test !success
+        @test is_same_as_file(output, rfile("stdout.22"))
+    end
+
+    run_makedocs(["broken.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
+        @test !success
+        @test is_same_as_file(output, rfile("stdout.23"))
+    end
+
+    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
+        @test !success
+        @test is_same_as_file(output, rfile("stdout.24"))
+    end
+    # strict gets ignored with doctest = :only
+    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, strict=false) do result, success, backtrace, output
+        @test !success
+        @test is_same_as_file(output, rfile("stdout.25"))
+    end
 end
 
 end # module
