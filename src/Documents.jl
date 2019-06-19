@@ -64,6 +64,8 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
     Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), md2ast)
 end
 
+# FIXME -- special overload for Utilities.parseblock
+Utilities.parseblock(code::AbstractString, doc, page::Documents.Page; kwargs...) = Utilities.parseblock(code, doc, page.source; kwargs...)
 
 # Document blueprints.
 # --------------------

@@ -25,6 +25,14 @@ mutable struct MutableMD2CodeBlock
 end
 MutableMD2CodeBlock(block :: Markdown2.CodeBlock) = MutableMD2CodeBlock(block.language, block.code)
 
+struct DocTestContext
+    file :: String
+    doc :: Documents.Document
+    meta :: Dict{Symbol, Any}
+
+    DocTestContext(file::String, doc::Documents.Document) = new(file, doc, Dict())
+end
+
 """
 $(SIGNATURES)
 
@@ -45,18 +53,19 @@ function doctest(blueprint::Documents.DocumentBlueprint, doc::Documents.Document
     for mod in blueprint.modules
         for (binding, multidoc) in DocSystem.getmeta(mod)
             for signature in multidoc.order
-                doctest(multidoc.docs[signature], doc)
+                doctest(multidoc.docs[signature], binding, doc)
             end
         end
     end
 end
 
 function doctest(page::Documents.Page, doc::Documents.Document)
-    page.globals.meta[:CurrentFile] = page.source
-    doctest(page.md2ast, page, doc)
+    ctx = DocTestContext(page.source, doc) # FIXME
+    ctx.meta[:CurrentFile] = page.source
+    doctest(ctx, page.md2ast)
 end
 
-function doctest(docstr::Docs.DocStr, doc::Documents.Document)
+function doctest(docstr::Docs.DocStr, binding::Docs.Binding, doc::Documents.Document)
     # Note: parsedocs / formatdoc in Base is weird.
     # Markdown.MD(Any[Markdown.parse(seekstart(buffer))])
     md = DocSystem.parsedoc(docstr)
@@ -65,20 +74,22 @@ function doctest(docstr::Docs.DocStr, doc::Documents.Document)
         md = first(md.content)
     end
     md2ast = Markdown2.convert(Markdown2.MD, md)
-    page = Documents.Page("", "", :build, [], IdDict(), Documents.Globals(), md2ast)
+    # page = Documents.Page("", "", :build, [], IdDict(), Documents.Globals(), md2ast)
+    ctx = DocTestContext("FIXME", doc) # FIXME
+    merge!(ctx.meta, getmeta(binding.mod))
     if :path in keys(docstr.data)
-        page.globals.meta[:CurrentFile] = docstr.data[:path]
+        ctx.meta[:CurrentFile] = docstr.data[:path]
     else
-        @debug "skipped doctesting."
-        page.globals.meta[:CurrentFile] = nothing
+        @debug "skipped doctesting." # ??? FIXME
+        ctx.meta[:CurrentFile] = nothing
     end
-    doctest(md2ast, page, doc)
+    doctest(ctx, md2ast)
 end
 
-function parse_metablock(block::Markdown2.CodeBlock, page, doc)
+function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
     @assert startswith(block.language, "@meta")
     meta = Dict{Symbol, Any}()
-    for (ex, str) in Utilities.parseblock(block.code, doc, page)
+    for (ex, str) in Utilities.parseblock(block.code, ctx.doc, ctx.file)
         if Utilities.isassign(ex)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
@@ -91,13 +102,13 @@ function parse_metablock(block::Markdown2.CodeBlock, page, doc)
     return meta
 end
 
-function doctest(md2ast::Markdown2.MD, page, doc::Documents.Document)
+function doctest(ctx::DocTestContext, md2ast::Markdown2.MD)
     Markdown2.walk(md2ast) do node
         isa(node, Markdown2.CodeBlock) || return true
         if startswith(node.language, "jldoctest")
-            doctest(node, page.globals.meta, doc, page)
+            doctest(ctx, node)
         elseif startswith(node.language, "@meta")
-            merge!(page.globals.meta, parse_metablock(node, page, doc))
+            merge!(ctx.meta, parse_metablock(ctx, node))
         else
             return true
         end
@@ -106,16 +117,17 @@ function doctest(md2ast::Markdown2.MD, page, doc::Documents.Document)
 end
 
 function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
+    @error "Is this used?"
     doctest(Markdown2._convert_block(block), meta, doc, page)
 end
 
-function doctest(block_immutable::Markdown2.CodeBlock, meta::Dict, doc::Documents.Document, page)
+function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
     lang = block_immutable.language
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        sandbox = get!(() -> Expanders.get_new_sandbox(sym), page.globals.meta, sym)
+        sandbox = get!(() -> Expanders.get_new_sandbox(sym), ctx.meta, sym)
 
         # Normalise line endings.
         block = MutableMD2CodeBlock(block_immutable)
@@ -128,7 +140,7 @@ function doctest(block_immutable::Markdown2.CodeBlock, meta::Dict, doc::Document
             kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
-                    file = meta[:CurrentFile]
+                    file = ctx.meta[:CurrentFile]
                     lines = Utilities.find_block_in_file(block.code, file)
                     @warn("""
                         invalid syntax for doctest keyword arguments in $(Utilities.locrepr(file, lines))
@@ -143,26 +155,26 @@ function doctest(block_immutable::Markdown2.CodeBlock, meta::Dict, doc::Document
                 d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
             end
         end
-        meta[:LocalDocTestArguments] = d
+        ctx.meta[:LocalDocTestArguments] = d
 
-        for expr in [get(meta, :DocTestSetup, []); get(meta[:LocalDocTestArguments], :setup, [])]
+        for expr in [get(ctx.meta, :DocTestSetup, []); get(ctx.meta[:LocalDocTestArguments], :setup, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             try
                 Core.eval(sandbox, expr)
             catch e
-                push!(doc.internal.errors, :doctest)
+                push!(ctx.doc.internal.errors, :doctest)
                 @error("could not evaluate expression from doctest setup.",
                     expression = expr, exception = e)
                 return false
             end
         end
         if occursin(r"^julia> "m, block.code)
-            eval_repl(block, sandbox, meta, doc, page)
+            eval_repl(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         elseif occursin(r"^# output$"m, block.code)
-            eval_script(block, sandbox, meta, doc, page)
+            eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         else
-            push!(doc.internal.errors, :doctest)
-            file = meta[:CurrentFile]
+            push!(ctx.doc.internal.errors, :doctest)
+            file = ctx.meta[:CurrentFile]
             lines = Utilities.find_block_in_file(block.code, file)
             @warn("""
                 invalid doctest block in $(Utilities.locrepr(file, lines))
@@ -173,13 +185,14 @@ function doctest(block_immutable::Markdown2.CodeBlock, meta::Dict, doc::Document
                 ```
                 """)
         end
-        delete!(meta, :LocalDocTestArguments)
+        delete!(ctx.meta, :LocalDocTestArguments)
     end
     false
 end
-doctest(block, meta::Dict, doc::Documents.Document, page) = true
+doctest(ctx::DocTestContext, block) = true
 
 function doctest(block::Markdown.MD, meta::Dict, doc::Documents.Document, page)
+    @error "Is this used?"
     haskey(block.meta, :path) && (meta[:CurrentFile] = block.meta[:path])
     return true
 end
@@ -455,5 +468,41 @@ function takeuntil!(r, buf, lines)
         end
     end
 end
+
+# Functions handling doctest meta information in modules
+# ------------------------------------------------------
+# This follows a similar pattern to how docstrings are handle in Base by the Base.Docs
+# module.
+const DOCTESTMETA = gensym(:doctestmeta)
+const DOCTESTMETA_modules = Module[]
+const DOCTESTMETA_type = Dict{Symbol,Any}
+
+function initmeta!(m::Module)
+    if !isdefined(m, DOCTESTMETA)
+        @info "New DOCTESTMETA in $m"
+        Core.eval(m, :(const $DOCTESTMETA = $(DOCTESTMETA_type())))
+        push!(DOCTESTMETA_modules, m)
+    else
+        @warn "Existing DOCTESTMETA in $m. Ignoring!"
+    end
+    return getfield(m, DOCTESTMETA)
+end
+getmeta(m::Module) = isdefined(m, DOCTESTMETA) ? getfield(m, DOCTESTMETA) : DOCTESTMETA_type()
+getmeta(m::Module, s::Symbol, default=nothing) = get(getmeta(m), s, default)
+
+function doctestsetup!(m::Module, expr::Union{Expr,Symbol})
+    isdefined(m, DOCTESTMETA) || initmeta!(m)
+    meta = getmeta(m)
+    if haskey(meta, :DocTestSetup)
+        @warn ":DocTestSetup already set for module $m. Overwriting!"
+    end
+    meta[:DocTestSetup] = expr
+    return nothing
+end
+
+# TODO:
+# macro doctestsetup!(expr)
+#     :(doctestsetup!(@__MODULE__, $expr))
+# end
 
 end

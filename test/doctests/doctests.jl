@@ -15,6 +15,7 @@ using Documenter.Utilities.TextDiff: Diff, Words
 
 include("src/FooWorking.jl")
 include("src/FooBroken.jl")
+include("src/NoMeta.jl")
 
 const builds_directory = joinpath(@__DIR__, "builds")
 ispath(builds_directory) && rm(builds_directory, recursive=true)
@@ -41,7 +42,7 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     ------------------------------------ output ------------------------------------
     $(output)
     --------------------------------------------------------------------------------
-    """ result backtrace builddir
+    """ result stacktrace(backtrace)
 
     f(result, success, backtrace, output)
 end
@@ -186,6 +187,18 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, strict=false) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile("stdout.25"))
+    end
+
+    # DocTestSetup in modules
+    run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
+        @test !success
+        @test is_same_as_file(output, rfile("stdout.31"))
+    end
+    # Now, let's use Documenter's APIs to add the necessary meta information
+    Documenter.DocTests.doctestsetup!(NoMeta, :(baz(x) = 2x))
+    run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
+        @test success
+        @test is_same_as_file(output, rfile("stdout.32"))
     end
 end
 
