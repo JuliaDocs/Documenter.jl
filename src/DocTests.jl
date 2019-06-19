@@ -26,7 +26,7 @@ the document generation when an error is thrown. Use `doctest = false` keyword i
 function doctest(doc::Documents.Document)
     if doc.user.doctest === :fix || doc.user.doctest
         @debug "running doctests."
-        for (src, page) in doc.internal.pages
+        for (src, page) in doc.blueprint.pages
             empty!(page.globals.meta)
             for element in page.elements
                 page.globals.meta[:CurrentFile] = page.source

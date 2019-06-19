@@ -165,7 +165,7 @@ function walk_navpages(visible, title, src, children, parent, doc)
     parent_visible = (parent === nothing) || parent.visible
     if src !== nothing
         src = normpath(src)
-        src in keys(doc.internal.pages) || error("'$src' is not an existing page!")
+        src in keys(doc.blueprint.pages) || error("'$src' is not an existing page!")
     end
     nn = Documents.NavNode(src, title, parent)
     (src === nothing) || push!(doc.internal.navlist, nn)

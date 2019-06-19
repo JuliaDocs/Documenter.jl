@@ -223,7 +223,7 @@ end
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
 """
-getpage(ctx, path) = ctx.doc.internal.pages[path]
+getpage(ctx, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 
 
@@ -517,7 +517,7 @@ function navitem(ctx, current, nn::Documents.NavNode)
 
     # add the subsections (2nd level headings) from the page
     if (nn === current) && current.page !== nothing
-        subs = collect_subsections(ctx.doc.internal.pages[current.page])
+        subs = collect_subsections(ctx.doc.blueprint.pages[current.page])
         internal_links = map(subs) do s
             istoplevel, anchor, text = s
             _li = istoplevel ? li[".toplevel"] : li[]
@@ -1159,7 +1159,7 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     end
     path = normpath(joinpath(dirname(navnode.page), first(s)))
 
-    if endswith(path, ".md") && path in keys(ctx.doc.internal.pages)
+    if endswith(path, ".md") && path in keys(ctx.doc.blueprint.pages)
         # make sure that links to different valid pages are correct
         path = pretty_url(ctx, relhref(get_url(ctx, navnode), get_url(ctx, path)))
     elseif isfile(joinpath(ctx.doc.user.build, path))
