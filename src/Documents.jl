@@ -55,7 +55,12 @@ struct Page
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
     mdpage = Markdown.parse(read(source, String))
-    md2ast = Markdown2.convert(Markdown2.MD, mdpage)
+    md2ast = try
+        Markdown2.convert(Markdown2.MD, mdpage)
+    catch e
+        @error "Markdown2.convert failed to convert $(source)"
+        rethrow(e)
+    end
     Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), md2ast)
 end
 

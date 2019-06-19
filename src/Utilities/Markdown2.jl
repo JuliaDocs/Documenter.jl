@@ -249,7 +249,12 @@ function _convert_inline(s::Markdown.Code)
 end
 _convert_inline(s::Markdown.Bold) = Strong(_convert_inline(s.text))
 _convert_inline(s::Markdown.Italic) = Emphasis(_convert_inline(s.text))
-_convert_inline(s::Markdown.Link) = Link(s.url, _convert_inline(s.text))
+function _convert_inline(s::Markdown.Link)
+    text = _convert_inline(s.text)
+    # Autolinks (the `<URL>` syntax) yield Link objects where .text is just a String
+    nodes = isa(text, AbstractVector) ? text : [text]
+    Link(s.url, nodes)
+end
 _convert_inline(s::Markdown.Image) = Image(s.url, s.alt)
 # struct InlineHTML <: MarkdownInlineNode end # the parser in Base does not support this currently
 _convert_inline(::Markdown.LineBreak) = LineBreak()
