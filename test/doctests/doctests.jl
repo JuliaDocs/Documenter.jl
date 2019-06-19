@@ -42,7 +42,15 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     ------------------------------------ output ------------------------------------
     $(output)
     --------------------------------------------------------------------------------
-    """ result stacktrace(backtrace)
+    """ result stacktrace(backtrace) dir
+
+    write(joinpath(dir, "output"), output)
+    write(joinpath(dir, "output.onormalize"), onormalize(output))
+    open(joinpath(dir, "result"), "w") do io
+        show(io, "text/plain", result)
+        println(io, "-"^80)
+        show(io, "text/plain", stacktrace(backtrace))
+    end
 
     f(result, success, backtrace, output)
 end
@@ -63,6 +71,9 @@ function onormalize(s)
     # Remove filesystem paths in doctests failures
     s = replace(s, r"(doctest failure in )(.*)$"m => s"\1{PATH}")
     s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
+
+    # Remove stacktraces
+    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)*" => s"\1\\n\3{STACKTRACE}")
 
     return s
 end

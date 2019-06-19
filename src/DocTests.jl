@@ -94,7 +94,7 @@ function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
-                push!(doc.internal.errors, :meta_block)
+                push!(ctx.doc.internal.errors, :meta_block)
                 @warn "Failed to evaluate `$(strip(str))` in `@meta` block." err
             end
         end
