@@ -40,6 +40,7 @@ makedocs(
                 "lib/internals/documents.md",
                 "lib/internals/dom.md",
                 "lib/internals/expanders.md",
+                "lib/internals/markdown2.md",
                 "lib/internals/mdflatten.md",
                 "lib/internals/selectors.md",
                 "lib/internals/textdiff.md",

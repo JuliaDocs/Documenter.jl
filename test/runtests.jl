@@ -18,6 +18,7 @@ println("="^50)
 @testset "Documenter" begin
     # Unit tests for module internals.
     include("utilities.jl")
+    include("markdown2.jl")
 
     # DocChecks tests
     include("docchecks.jl")
