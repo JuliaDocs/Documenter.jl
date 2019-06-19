@@ -149,8 +149,8 @@ import Documenter.Utilities: Markdown2
     end
 
     let md = Markdown.parse("""
-        !!! warn "HAHAHA"
-            Hellow
+        !!! warn "FOOBAR"
+            Hello World
 
             ``math
             x+1

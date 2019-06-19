@@ -103,3 +103,8 @@ module HighlightSig
         @test original == md
     end
 end
+
+@testset "Manual doctest" begin
+    push!(ARGS, "doctest-only")
+    include(joinpath(@__DIR__, "..", "docs", "make.jl"))
+end

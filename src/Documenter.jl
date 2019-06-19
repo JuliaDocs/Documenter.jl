@@ -119,6 +119,10 @@ After that, it's encouraged to always make sure that documentation examples are 
 produce the expected results. See the [Doctests](@ref) manual section for details about
 running doctests.
 
+Setting `doctest` to `:only` allows for doctesting without a full build. In this mode, most
+build stages are skipped and the `strict` keyword is ignore (a doctesting error will always
+make `makedocs` throw an error).
+
 **`modules`** specifies a vector of modules that should be documented in `source`. If any
 inline docstrings from those modules are seen to be missing from the generated content then
 a warning will be printed during execution of [`makedocs`](@ref). By default no modules are

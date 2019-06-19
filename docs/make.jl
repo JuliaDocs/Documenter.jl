@@ -51,6 +51,7 @@ makedocs(
         "contributing.md",
     ],
     strict = true,
+    doctest = ("doctest-only" in ARGS) ? :only : true,
 )
 
 deploydocs(

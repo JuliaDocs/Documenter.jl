@@ -41,7 +41,7 @@ Creates the correct directory layout within the `build` folder and parses markdo
 abstract type SetupBuildDirectory <: DocumentPipeline end
 
 """
-Populates the `.blueprint` field of the [`Documents.Document`](@ref) object.
+Runs all the doctests in all docstrings and Markdown files.
 """
 abstract type Doctest <: DocumentPipeline end
 

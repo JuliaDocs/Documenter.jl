@@ -286,6 +286,41 @@ julia> @time [1,2,3,4]
     The global filters, filters defined in `@meta` blocks, and filters defined with the `filter`
     keyword argument are all applied to each doctest.
 
+
+## Doctesting Without Building the Docs
+
+Passing `doctest = :only` to [`makedocs`](@ref) means that Documenter only runs doctests and
+skips most other build steps. This allows the doctests to be verified without having to run
+a potentially expensive full documentation build.
+
+This also makes it more practical to include doctests as part of the normal test suite of a
+package. One option to set it up is to make the `doctest` keyword depend on command line
+arguments passed to the `make.jl` script:
+
+```julia
+makedocs(...,
+    doctest = ("doctest-only" in ARGS) ? :only : true
+)
+```
+
+Now, the `make.jl` script can be run on the command line as `julia docs/make.jl
+doctest-only` and it will only run the doctests. On doctest failure, the `makedocs` throws
+an error and `julia` exits with a non-zero exit code.
+
+For running the doctests as part of the standard test suite, the  `docs/make.jl` can simply
+be `include`d in the `test/runtest.jl` file:
+
+```julia
+push!(ARGS, "doctest-only")
+include(joinpath(@__DIR__, "..", "docs", "make.jl"))
+```
+
+The `push!` to `ARGS` emulates the passing of the `doctest-only` command line argument.
+
+Note that you need to add Documenter and all the other packages that get loaded in `make.jl`
+or in the doctest as test dependencies.
+
+
 ## Fixing Outdated Doctests
 
 To fix outdated doctests, the `doctest` flag to [`makedocs`](@ref) can be set to
