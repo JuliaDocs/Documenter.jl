@@ -493,13 +493,24 @@ end
 getmeta(m::Module) = isdefined(m, DOCTESTMETA) ? getfield(m, DOCTESTMETA) : DOCTESTMETA_type()
 getmeta(m::Module, s::Symbol, default=nothing) = get(getmeta(m), s, default)
 
-function doctestsetup!(m::Module, expr::Union{Expr,Symbol})
+function doctestsetup!(m::Module, expr::Union{Expr,Symbol}; warn=true, recursive=false)
     isdefined(m, DOCTESTMETA) || initmeta!(m)
     meta = getmeta(m)
-    if haskey(meta, :DocTestSetup)
+    if warn && haskey(meta, :DocTestSetup)
         @warn ":DocTestSetup already set for module $m. Overwriting!"
     end
     meta[:DocTestSetup] = expr
+    if recursive
+        for name in names(m) # FIXME: use Utilities.submodules
+            submodule = getfield(m, name)
+            # most names are not modules
+            isa(submodule, Module) || continue
+            # modules contain themselves -- better not recurse infinitely
+            submodule === m && continue
+            # apply doctestsetup! to submodules
+            doctestsetup!(submodule, expr; warn=warn, recursive=true)
+        end
+    end
     return nothing
 end
 
