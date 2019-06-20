@@ -53,7 +53,7 @@ function doctest(blueprint::Documents.DocumentBlueprint, doc::Documents.Document
     for mod in blueprint.modules
         for (binding, multidoc) in DocSystem.getmeta(mod)
             for signature in multidoc.order
-                doctest(multidoc.docs[signature], binding, doc)
+                doctest(multidoc.docs[signature], mod, doc)
             end
         end
     end
@@ -65,7 +65,7 @@ function doctest(page::Documents.Page, doc::Documents.Document)
     doctest(ctx, page.md2ast)
 end
 
-function doctest(docstr::Docs.DocStr, binding::Docs.Binding, doc::Documents.Document)
+function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
     # Note: parsedocs / formatdoc in Base is weird.
     # Markdown.MD(Any[Markdown.parse(seekstart(buffer))])
     md = DocSystem.parsedoc(docstr)
@@ -76,7 +76,8 @@ function doctest(docstr::Docs.DocStr, binding::Docs.Binding, doc::Documents.Docu
     md2ast = Markdown2.convert(Markdown2.MD, md)
     # page = Documents.Page("", "", :build, [], IdDict(), Documents.Globals(), md2ast)
     ctx = DocTestContext("FIXME", doc) # FIXME
-    merge!(ctx.meta, getmeta(binding.mod))
+    ctx.meta[:DocstringModule] = mod # for debugging
+    merge!(ctx.meta, getmeta(mod))
     if :path in keys(docstr.data)
         ctx.meta[:CurrentFile] = docstr.data[:path]
     else
@@ -294,6 +295,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                @debug "Doctest metadata" meta
                 push!(doc.internal.errors, :doctest)
             end
         end
@@ -309,6 +311,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                @debug "Doctest metadata" meta
                 push!(doc.internal.errors, :doctest)
             end
         end
