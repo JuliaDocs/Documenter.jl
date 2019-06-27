@@ -249,10 +249,6 @@ julia> foo(2)
     and no state is shared between any code blocks.
     To preserve definitions see [Preserving Definitions Between Blocks](@ref).
 
-!!! note
-
-    If you rely on setup-code for doctests inside docstrings, included in the document with `@docs` or `@autodocs`, the `@meta` block must be in the markdown file that calls these macros and not within the docstrings themselves, otherwise they will be ignored.
-
 ## Filtering Doctests
 
 A part of the output of a doctest might be non-deterministic, e.g. pointer addresses and timings.
