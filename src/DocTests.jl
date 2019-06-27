@@ -30,7 +30,6 @@ struct DocTestContext
     file :: String
     doc :: Documents.Document
     meta :: Dict{Symbol, Any}
-
     DocTestContext(file::String, doc::Documents.Document) = new(file, doc, Dict())
 end
 
@@ -67,24 +66,17 @@ function doctest(page::Documents.Page, doc::Documents.Document)
 end
 
 function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
-    # Note: parsedocs / formatdoc in Base is weird.
-    # Markdown.MD(Any[Markdown.parse(seekstart(buffer))])
     md = DocSystem.parsedoc(docstr)
-    @assert isa(md, Markdown.MD)
+    # Note: parsedocs / formatdoc in Base is weird. It double-wraps the docstring Markdown
+    # in a Markdown.MD object..
+    @assert isa(md, Markdown.MD) # relying on Julia internals here
     if length(md.content) == 1 && isa(first(md.content), Markdown.MD)
         md = first(md.content)
     end
     md2ast = Markdown2.convert(Markdown2.MD, md)
-    # page = Documents.Page("", "", :build, [], IdDict(), Documents.Globals(), md2ast)
-    ctx = DocTestContext("FIXME", doc) # FIXME
-    ctx.meta[:DocstringModule] = mod # for debugging
+    ctx = DocTestContext(docstr.data[:path], doc)
     merge!(ctx.meta, DocMeta.getdocmeta(mod))
-    if :path in keys(docstr.data)
-        ctx.meta[:CurrentFile] = docstr.data[:path]
-    else
-        @debug "skipped doctesting." # ??? FIXME
-        ctx.meta[:CurrentFile] = nothing
-    end
+    ctx.meta[:CurrentFile] = get(docstr.data, :path, nothing)
     doctest(ctx, md2ast)
 end
 
@@ -116,11 +108,6 @@ function doctest(ctx::DocTestContext, md2ast::Markdown2.MD)
         end
         return false
     end
-end
-
-function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
-    @error "Is this used?"
-    doctest(Markdown2._convert_block(block), meta, doc, page)
 end
 
 function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
@@ -192,12 +179,6 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
     false
 end
 doctest(ctx::DocTestContext, block) = true
-
-function doctest(block::Markdown.MD, meta::Dict, doc::Documents.Document, page)
-    @error "Is this used?"
-    haskey(block.meta, :path) && (meta[:CurrentFile] = block.meta[:path])
-    return true
-end
 
 # Doctest evaluation.
 
