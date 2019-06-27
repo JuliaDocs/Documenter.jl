@@ -7,7 +7,7 @@ makedocs(
         prettyurls = !("local" in ARGS),
         canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
         assets = ["assets/favicon.ico"],
-        analytics = "UA-89508993-1",
+        analytics = "UA-136089579-2",
     ),
     clean = false,
     sitename = "Documenter.jl",

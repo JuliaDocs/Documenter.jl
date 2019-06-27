@@ -23,7 +23,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [Augmentor.jl](https://evizero.github.io/Augmentor.jl/)
 - [BanditOpt.jl](https://v-i-s-h.github.io/BanditOpt.jl/stable/)
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/stable/)
-- [Bio.jl](https://biojulia.net/Bio.jl/stable/)
+- [Bio.jl](http://biojulia.net/Bio.jl/stable/)
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/stable/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
