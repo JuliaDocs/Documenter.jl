@@ -35,6 +35,7 @@ abstract type Plugin end
 # ----------
 
 include("Utilities/Utilities.jl")
+include("DocMeta.jl")
 include("DocSystem.jl")
 include("Anchors.jl")
 include("Documents.jl")
@@ -52,8 +53,8 @@ import .Writers.HTMLWriter: HTML
 
 # User Interface.
 # ---------------
+export Deps, makedocs, deploydocs, hide, DocMeta
 
-export Deps, makedocs, deploydocs, hide
 """
     makedocs(
         root    = "<current-directory>",

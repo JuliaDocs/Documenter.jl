@@ -30,6 +30,7 @@ println("="^50)
     include("docsystem.jl")
 
     # DocTest unit tests.
+    include("doctests/docmeta.jl")
     include("doctests/doctests.jl")
     include("doctests/fix/tests.jl")
 

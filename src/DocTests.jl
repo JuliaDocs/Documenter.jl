@@ -7,6 +7,7 @@ using DocStringExtensions
 
 import ..Documenter:
     DocSystem,
+    DocMeta,
     Documenter,
     Documents,
     Expanders,
@@ -77,7 +78,7 @@ function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
     # page = Documents.Page("", "", :build, [], IdDict(), Documents.Globals(), md2ast)
     ctx = DocTestContext("FIXME", doc) # FIXME
     ctx.meta[:DocstringModule] = mod # for debugging
-    merge!(ctx.meta, getmeta(mod))
+    merge!(ctx.meta, DocMeta.getdocmeta(mod))
     if :path in keys(docstr.data)
         ctx.meta[:CurrentFile] = docstr.data[:path]
     else
@@ -471,52 +472,5 @@ function takeuntil!(r, buf, lines)
         end
     end
 end
-
-# Functions handling doctest meta information in modules
-# ------------------------------------------------------
-# This follows a similar pattern to how docstrings are handle in Base by the Base.Docs
-# module.
-const DOCTESTMETA = gensym(:doctestmeta)
-const DOCTESTMETA_modules = Module[]
-const DOCTESTMETA_type = Dict{Symbol,Any}
-
-function initmeta!(m::Module)
-    if !isdefined(m, DOCTESTMETA)
-        @info "New DOCTESTMETA in $m"
-        Core.eval(m, :(const $DOCTESTMETA = $(DOCTESTMETA_type())))
-        push!(DOCTESTMETA_modules, m)
-    else
-        @warn "Existing DOCTESTMETA in $m. Ignoring!"
-    end
-    return getfield(m, DOCTESTMETA)
-end
-getmeta(m::Module) = isdefined(m, DOCTESTMETA) ? getfield(m, DOCTESTMETA) : DOCTESTMETA_type()
-getmeta(m::Module, s::Symbol, default=nothing) = get(getmeta(m), s, default)
-
-function doctestsetup!(m::Module, expr::Union{Expr,Symbol}; warn=true, recursive=false)
-    isdefined(m, DOCTESTMETA) || initmeta!(m)
-    meta = getmeta(m)
-    if warn && haskey(meta, :DocTestSetup)
-        @warn ":DocTestSetup already set for module $m. Overwriting!"
-    end
-    meta[:DocTestSetup] = expr
-    if recursive
-        for name in names(m) # FIXME: use Utilities.submodules
-            submodule = getfield(m, name)
-            # most names are not modules
-            isa(submodule, Module) || continue
-            # modules contain themselves -- better not recurse infinitely
-            submodule === m && continue
-            # apply doctestsetup! to submodules
-            doctestsetup!(submodule, expr; warn=warn, recursive=true)
-        end
-    end
-    return nothing
-end
-
-# TODO:
-# macro doctestsetup!(expr)
-#     :(doctestsetup!(@__MODULE__, $expr))
-# end
 
 end

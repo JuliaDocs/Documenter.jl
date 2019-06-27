@@ -25,6 +25,10 @@ hide
 deploydocs
 Deps
 Deps.pip
+doctest
+DocMeta
+DocMeta.getdocmeta
+DocMeta.setdocmeta!
 ```
 
 ## DocumenterTools

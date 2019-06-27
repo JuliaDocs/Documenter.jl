@@ -115,7 +115,7 @@ end
 
 rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
 
-@testset "doctests" begin
+@testset "doctesting" begin
     # So, we have 4 doctests: 2 in a docstring, 2 in an .md file. One of either pair is
     # OK, other is broken. Here we first test all possible combinations of these doctest
     # with strict = true to make sure that the doctests are indeed failing.
@@ -206,7 +206,7 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("stdout.31"))
     end
     # Now, let's use Documenter's APIs to add the necessary meta information
-    Documenter.DocTests.doctestsetup!(NoMeta, :(baz(x) = 2x))
+    DocMeta.setdocmeta!(NoMeta, :DocTestSetup, :(baz(x) = 2x))
     run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("stdout.32"))

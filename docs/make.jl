@@ -33,6 +33,7 @@ makedocs(
                 "lib/internals/builder.md",
                 "lib/internals/cross-references.md",
                 "lib/internals/docchecks.md",
+                "lib/internals/docmeta.md",
                 "lib/internals/docsystem.md",
                 "lib/internals/doctests.md",
                 "lib/internals/documenter.md",
