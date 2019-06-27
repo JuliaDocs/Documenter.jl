@@ -31,6 +31,7 @@ println("="^50)
 
     # DocTest unit tests.
     include("doctests/docmeta.jl")
+    include("doctests/doctestapi.jl")
     include("doctests/doctests.jl")
     include("doctests/fix/tests.jl")
 

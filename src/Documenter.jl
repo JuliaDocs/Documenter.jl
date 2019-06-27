@@ -53,7 +53,7 @@ import .Writers.HTMLWriter: HTML
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, DocMeta
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta
 
 """
     makedocs(
@@ -823,6 +823,32 @@ function getenv(regex::Regex)
         occursin(regex, key) && return value
     end
     error("could not find key/iv pair.")
+end
+
+"""
+    doctest(modules::AbstractVector{Module}) -> Bool
+
+Runs all the doctests in the given modules. Returns `true` if the doctesting was successful
+and false if any error occurred.
+"""
+function doctest(modules::AbstractVector{Module})
+    dir = mktempdir()
+    @debug "Doctesting in temporary directory: $(dir)" modules
+    mkdir(joinpath(dir, "src"))
+    r = try
+        makedocs(
+            root = dir,
+            sitename = "",
+            doctest = :only,
+            modules = modules,
+        )
+        true
+    catch e
+        @error "Doctesting failed" e
+        false
+    end
+    rm(dir; recursive=true)
+    return r
 end
 
 end # module
