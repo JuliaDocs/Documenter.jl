@@ -4,6 +4,11 @@ This module provides APIs for handling documentation metadata in modules.
 The implementation is similar to how docstrings are handled in `Base` by the `Base.Docs`
 module — a special variable is created in each module that has documentation metadata.
 
+# Public API
+
+* [`DocMeta.getdocmeta`](@ref)
+* [`DocMeta.setdocmeta!`](@ref)
+
 # Supported metadata
 
 * `DocTestSetup`: contains the doctest setup code for doctests in the module.
