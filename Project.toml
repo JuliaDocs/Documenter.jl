@@ -4,6 +4,7 @@ version = "0.22.4"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
@@ -14,6 +15,7 @@ REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
+Compat = "2.1"
 DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8"
 JSON = "0.19, 0.20"
 julia = "1"

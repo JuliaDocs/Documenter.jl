@@ -42,6 +42,7 @@ module HTMLWriter
 
 import Markdown
 import JSON
+using Compat
 
 import ...Documenter:
     Anchors,
