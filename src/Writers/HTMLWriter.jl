@@ -252,7 +252,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     for page in keys(doc.internal.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
-        nn = isnothing(idx) ? Documents.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
+        nn = (idx === nothing) ? Documents.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
         render_page(ctx, nn)
     end
