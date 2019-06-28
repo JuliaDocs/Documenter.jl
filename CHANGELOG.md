@@ -6,17 +6,17 @@
 
 * ![BREAKING][badge-breaking] `DocTestSetup`s that are defined in `@meta` blocks no longer apply to doctests that are in docstrings. ([#774][github-774])
 
-  - Specifically, the pattern where and `@docs` or `@autodocs` blocks was surrounded by an `@meta` blocks setting up a shared `DocTestSetup` for many docstrings no longer works.
+  - Specifically, the pattern where `@docs` or `@autodocs` blocks were surrounded by `@meta` blocks, setting up a shared `DocTestSetup` for many docstrings, no longer works.
 
   - Documenter now exports the `DocMeta` module, which provides an alternative way to add `DocTestSetup` to docstrings.
 
-  **For upgrading:** Use `DocMeta.setdocmeta!` in `make.jl` to set up a `DocTestSetup` that applies to all the docstrings in a particular module instead. See the ["Setup code" section under "Doctesting"](https://juliadocs.github.io/Documenter.jl/v0.23.0/man/doctests/#Setup-Code-1) in the manual for more information.
+  **For upgrading:** Use `DocMeta.setdocmeta!` in `make.jl` to set up a `DocTestSetup` that applies to all the docstrings in a particular module instead and, if applicable, remove the now redundant `@meta` blocks. See the ["Setup code" section under "Doctesting"](https://juliadocs.github.io/Documenter.jl/v0.23.0/man/doctests/#Setup-Code-1) in the manual for more information.
 
-* ![Feature][badge-feature] `makedocs` now accepts the `doctest=:only` argument, which allows doctests to be run while most other build steps, such as rendering, are skipped. This can make it more feasible to run doctests as part of the test suite (see the manual for more information). ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
+* ![Feature][badge-feature] `makedocs` now accepts the `doctest = :only` keyword, which allows doctests to be run while most other build steps, such as rendering, are skipped. This makes it more feasible to run doctests as part of the test suite (see the manual for more information). ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
 
-* ![Feature][badge-feature] Documenter now exports the `doctest` functions, which doctests all the docstrings in a particular module. This can be used to verify docstring doctests as part of test suite. ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
+* ![Feature][badge-feature] Documenter now exports the `doctest` function, which verifies the doctests in all the docstrings of a given module. This can be used to verify docstring doctests as part of test suite. ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
 
-* ![Feature][badge-feature] `makedocs` now accepts the `expandfirst` argument, which allows specifying a set of pages that should be evaluated before the other. ([#1027][github-1027], [#1029][github-1029])
+* ![Feature][badge-feature] `makedocs` now accepts the `expandfirst` argument, which allows specifying a set of pages that should be evaluated before others. ([#1027][github-1027], [#1029][github-1029])
 
 * ![Enhancement][badge-enhancement] The evaluation order of pages is now fixed (unless customized with `expandfirst`). The pages are evaluated in the alphabetical order of their file paths. ([#1027][github-1027], [#1029][github-1029])
 
