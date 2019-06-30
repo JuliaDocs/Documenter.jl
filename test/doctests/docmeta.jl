@@ -1,6 +1,5 @@
 module DocMetaTests
 using Test
-using Compat
 using Documenter
 
 module TestMod
