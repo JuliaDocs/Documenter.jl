@@ -50,7 +50,7 @@ end
 
         @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-        @test length(doc.blueprint.pages) == 13
+        @test length(doc.blueprint.pages) == 14
 
         let headers = doc.internal.headers
             @test Documenter.Anchors.exists(headers, "Documentation")
@@ -86,6 +86,11 @@ end
 
             index_html = read(joinpath(build_dir, "index.html"), String)
             @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
+
+            @test isfile(joinpath(build_dir, "index.html"))
+            @test isfile(joinpath(build_dir, "omitted.html"))
+            @test isfile(joinpath(build_dir, "hidden.html"))
+            @test isfile(joinpath(build_dir, "lib", "autodocs.html"))
         end
     end
 
@@ -95,5 +100,12 @@ end
         @test isa(doc, Documenter.Documents.Document)
 
         # TODO: test the HTML build with pretty URLs
+
+        let build_dir = joinpath(examples_root, "builds", "html-deploy")
+            @test joinpath(build_dir, "index.html") |> isfile
+            @test joinpath(build_dir, "omitted", "index.html") |> isfile
+            @test joinpath(build_dir, "hidden", "index.html") |> isfile
+            @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
+        end
     end
 end

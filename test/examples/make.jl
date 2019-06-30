@@ -150,7 +150,7 @@ examples_html_local_doc = makedocs(
 
     linkcheck = true,
     linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
-    Documenter.HTML(
+    format = Documenter.HTML(
         assets = ["assets/custom.css"],
         prettyurls = false,
         edit_branch = nothing,
@@ -191,7 +191,7 @@ examples_html_deploy_doc = withassets("images/logo.png", "images/logo.jpg", "ima
         pages = htmlbuild_pages,
         expandfirst = expandfirst,
         doctest = false,
-        Documenter.HTML(
+        format = Documenter.HTML(
             assets = [
                 "assets/favicon.ico",
                 "assets/custom.css"
