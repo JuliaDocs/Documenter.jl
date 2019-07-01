@@ -250,7 +250,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     push!(ctx.local_assets, copy_asset("documenter.css", doc))
     append!(ctx.local_assets, settings.assets)
 
-    for page in keys(doc.internal.pages)
+    for page in keys(doc.blueprint.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
         nn = (idx === nothing) ? Documents.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
