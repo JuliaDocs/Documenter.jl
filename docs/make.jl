@@ -1,5 +1,14 @@
 using Documenter, DocumenterTools
 
+# The DOCSARGS environment variable can be used to pass additional arguments to make.jl.
+# This is useful on CI, if you need to change the behavior of the build slightly but you
+# can not change the .travis.yml or make.jl scripts any more (e.g. for a tag build).
+if haskey(ENV, "DOCSARGS")
+    for arg in split(ENV["DOCSARGS"])
+        push!(ARGS, arg)
+    end
+end
+
 makedocs(
     modules = [Documenter, DocumenterTools],
     format = Documenter.HTML(
@@ -51,8 +60,8 @@ makedocs(
         ],
         "contributing.md",
     ],
-    strict = true,
-    doctest = ("doctest-only" in ARGS) ? :only : true,
+    strict = !("strict=false" in ARGS),
+    doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
 deploydocs(
