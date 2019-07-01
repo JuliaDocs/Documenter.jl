@@ -112,7 +112,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                             _println(context, header_text)
                         else
                             path = normpath(filename)
-                            page = doc.internal.pages[path]
+                            page = doc.blueprint.pages[path]
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)

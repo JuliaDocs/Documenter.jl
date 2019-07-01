@@ -1,9 +1,9 @@
 # Doctests
 
-Documenter will, by default, try to run `jldoctest` code blocks that it finds in the generated
-documentation. This can help to avoid documentation examples from becoming outdated,
-incorrect, or misleading. It's recommended that as many of a package's examples be runnable
-by Documenter's doctest.
+Documenter will, by default, run `jldoctest` code blocks that it finds and makes sure that
+the actual output matches what's in the doctest. This can help to avoid documentation
+examples from becoming outdated, incorrect, or misleading. It's recommended that as many of
+a package's examples be runnable by Documenter's doctest.
 
 This section of the manual outlines how to go about enabling doctests for code blocks in
 your package's documentation.
@@ -178,10 +178,14 @@ julia> println(foo)
 ## Setup Code
 
 Doctests may require some setup code that must be evaluated prior to that of the actual
-example, but that should not be displayed in the final documentation. For this purpose a
-`@meta` block containing a `DocTestSetup = ...` value can be used. In the example below,
-the function `foo` is defined inside a `@meta` block. This block will be evaluated at
-the start of the following doctest blocks:
+example, but that should not be displayed in the final documentation. There are three ways
+to specify the setup code, each appropriate in a different situation.
+
+### `DocTestSetup` in `@meta` blocks
+
+For doctests in the Markdown source files, an `@meta` block containing a `DocTestSetup =
+...` value can be used. In the example below, the function `foo` is defined inside a `@meta`
+block. This block will be evaluated at the start of the following doctest blocks:
 
 ````markdown
 ```@meta
@@ -205,8 +209,32 @@ DocTestSetup = nothing
 The `DocTestSetup = nothing` is not strictly necessary, but good practice nonetheless to
 help avoid unintentional definitions in following doctest blocks.
 
-Another option is to use the `setup` keyword argument, which is convenient for short definitions,
-and for setups needed in inline docstrings.
+While technically the `@meta` blocks also work within docstrings, their use there is
+discouraged since the `@meta` blocks will show up when querying docstrings in the REPL.
+
+!!! note "Historic note"
+    It used to be that `DocTestSetup`s in `@meta` blocks in Markdown files that included
+    docstrings also affected the doctests in the docstrings. Since Documenter 0.23 that is
+    no longer the case. You should use [Module-level metadata](@ref) or [Block-level setup
+    code](@ref) instead.
+
+### Module-level metadata
+
+For doctests that are in docstrings, the exported [`DocMeta`](@ref) module provides an API
+to attach metadata that applies to all the docstrings in a particular module. Setting up the
+`DocTestSetup` metadata should be done before the [`makedocs`](@ref) or [`doctest`](@ref)
+call:
+
+```julia
+using MyPackage, Documenter
+DocMeta.setdocmeta!(MyPackage, :DocTestSetup, :(using MyPackage); recursive=true)
+makedocs(modules=[MyPackage], ...)
+```
+
+### Block-level setup code
+
+Yet another option is to use the `setup` keyword argument to the `jldoctest` block, which is
+convenient for short definitions, and for setups needed in inline docstrings.
 
 ````markdown
 ```jldoctest; setup = :(foo(x) = x^2)
@@ -220,10 +248,6 @@ julia> foo(2)
     The `DocTestSetup` and the `setup` values are **re-evaluated** at the start of *each* doctest block
     and no state is shared between any code blocks.
     To preserve definitions see [Preserving Definitions Between Blocks](@ref).
-
-!!! note
-
-    If you rely on setup-code for doctests inside docstrings, included in the document with `@docs` or `@autodocs`, the `@meta` block must be in the markdown file that calls these macros and not within the docstrings themselves, otherwise they will be ignored.
 
 ## Filtering Doctests
 
@@ -285,6 +309,63 @@ julia> @time [1,2,3,4]
 
     The global filters, filters defined in `@meta` blocks, and filters defined with the `filter`
     keyword argument are all applied to each doctest.
+
+
+## Doctesting Without Building the Docs
+
+Documenter has a few ways to verify the doctests without having to run a potentially
+expensive full documentation build.
+
+### Doctesting docstrings only
+
+An option for doctesting just the docstrings of a particular module (and all its submodules)
+is to use the [`doctest`](@ref) function. It takes a list of modules as an argument and runs
+all the doctests in all the docstrings it finds. This can be handy for quick tests when
+writing docstrings of a package.
+
+[`doctest`](@ref) will return `true` or `false`, depending on whether the doctests pass or
+not, making it easy to include a doctest of all the docstrings in the package test suite:
+
+```julia
+using MyPackage, Documenter, Test
+@test doctest([MyPackage])
+```
+
+Note that you still need to make sure that all the necessary [Module-level metadata](@ref)
+for the doctests is set up before [`doctest`](@ref) is called.
+
+### Doctesting without a full build
+
+An alternative, which also runs doctests on the manual pages, but still skips most other
+build steps, is to pass `doctest = :only` to [`makedocs`](@ref).
+
+This also makes it more practical to include doctests as part of the normal test suite of a
+package. One option to set it up is to make the `doctest` keyword depend on command line
+arguments passed to the `make.jl` script:
+
+```julia
+makedocs(...,
+    doctest = ("doctest-only" in ARGS) ? :only : true
+)
+```
+
+Now, the `make.jl` script can be run on the command line as `julia docs/make.jl
+doctest-only` and it will only run the doctests. On doctest failure, the `makedocs` throws
+an error and `julia` exits with a non-zero exit code.
+
+For running the doctests as part of the standard test suite, the  `docs/make.jl` can simply
+be `include`d in the `test/runtest.jl` file:
+
+```julia
+push!(ARGS, "doctest-only")
+include(joinpath(@__DIR__, "..", "docs", "make.jl"))
+```
+
+The `push!` to `ARGS` emulates the passing of the `doctest-only` command line argument.
+
+Note that, for this to work, you need to add Documenter and all the other packages that get
+loaded in `make.jl`, or in the doctest, as test dependencies.
+
 
 ## Fixing Outdated Doctests
 

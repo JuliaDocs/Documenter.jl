@@ -18,6 +18,7 @@ println("="^50)
 @testset "Documenter" begin
     # Unit tests for module internals.
     include("utilities.jl")
+    include("markdown2.jl")
 
     # DocChecks tests
     include("docchecks.jl")
@@ -29,6 +30,8 @@ println("="^50)
     include("docsystem.jl")
 
     # DocTest unit tests.
+    include("doctests/docmeta.jl")
+    include("doctests/doctestapi.jl")
     include("doctests/doctests.jl")
     include("doctests/fix/tests.jl")
 
@@ -101,4 +104,9 @@ module HighlightSig
         highlightsig!(md)
         @test original == md
     end
+end
+
+@testset "Manual doctest" begin
+    push!(ARGS, "doctest-only")
+    include(joinpath(@__DIR__, "..", "docs", "make.jl"))
 end

@@ -9,6 +9,7 @@ module Builder
 
 import ..Documenter:
     Anchors,
+    DocTests,
     Documents,
     Documenter,
     Utilities
@@ -24,6 +25,7 @@ using DocStringExtensions
 The default document processing "pipeline", which consists of the following actions:
 
 - [`SetupBuildDirectory`](@ref)
+- [`Doctest`](@ref)
 - [`ExpandTemplates`](@ref)
 - [`CrossReferences`](@ref)
 - [`CheckDocument`](@ref)
@@ -37,6 +39,11 @@ abstract type DocumentPipeline <: Selectors.AbstractSelector end
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
 abstract type SetupBuildDirectory <: DocumentPipeline end
+
+"""
+Runs all the doctests in all docstrings and Markdown files.
+"""
+abstract type Doctest <: DocumentPipeline end
 
 """
 Executes a sequence of actions on each node of the parsed markdown files in turn.
@@ -65,6 +72,7 @@ Writes the document tree to the `build` directory.
 abstract type RenderDocument <: DocumentPipeline end
 
 Selectors.order(::Type{SetupBuildDirectory})   = 1.0
+Selectors.order(::Type{Doctest})               = 1.1
 Selectors.order(::Type{ExpandTemplates})       = 2.0
 Selectors.order(::Type{CrossReferences})       = 3.0
 Selectors.order(::Type{CheckDocument})         = 4.0
@@ -165,7 +173,7 @@ function walk_navpages(visible, title, src, children, parent, doc)
     parent_visible = (parent === nothing) || parent.visible
     if src !== nothing
         src = normpath(src)
-        src in keys(doc.internal.pages) || error("'$src' is not an existing page!")
+        src in keys(doc.blueprint.pages) || error("'$src' is not an existing page!")
     end
     nn = Documents.NavNode(src, title, parent)
     (src === nothing) || push!(doc.internal.navlist, nn)
@@ -187,31 +195,48 @@ walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documen
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 
+function Selectors.runner(::Type{Doctest}, doc::Documents.Document)
+    if doc.user.doctest in [:fix, :only, true]
+        @info "Doctest: running doctests."
+        DocTests.doctest(doc.blueprint, doc)
+        num_errors = length(doc.internal.errors)
+        if (doc.user.doctest === :only || doc.user.strict) && num_errors > 0
+            error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")
+        end
+    else
+        @info "Doctest: skipped."
+    end
+end
+
 function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)
+    is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
     Documenter.Expanders.expand(doc)
 end
 
 function Selectors.runner(::Type{CrossReferences}, doc::Documents.Document)
+    is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
     Documenter.CrossReferences.crossref(doc)
 end
 
 function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
+    is_doctest_only(doc, "CheckDocument") && return
     @info "CheckDocument: running document checks."
     Documenter.DocChecks.missingdocs(doc)
-    Documenter.DocTests.doctest(doc)
     Documenter.DocChecks.footnotes(doc)
     Documenter.DocChecks.linkcheck(doc)
 end
 
 function Selectors.runner(::Type{Populate}, doc::Documents.Document)
+    is_doctest_only(doc, "Populate") && return
     @info "Populate: populating indices."
     Documents.doctest_replace!(doc)
     Documents.populate!(doc)
 end
 
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
+    is_doctest_only(doc, "RenderDocument") && return
     count = length(doc.internal.errors)
     if doc.user.strict && count > 0
         error("`makedocs` encountered $(count > 1 ? "errors" : "an error"). Terminating build")
@@ -222,5 +247,13 @@ function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
 end
 
 Selectors.runner(::Type{DocumentPipeline}, doc::Documents.Document) = nothing
+
+function is_doctest_only(doc, stepname)
+    if doc.user.doctest in [:fix, :only]
+        @info "Skipped $stepname step (doctest only)."
+        return true
+    end
+    return false
+end
 
 end

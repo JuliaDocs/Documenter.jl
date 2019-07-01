@@ -85,7 +85,7 @@ parsed from.
 
 The keyword argument `skip = N` drops the leading `N` lines from the input string.
 """
-function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
+function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
@@ -105,7 +105,7 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                     Meta.parse(code, cursor)
                 catch err
                     push!(doc.internal.errors, :parse_error)
-                    @warn "failed to parse exception in $(Utilities.locrepr(page.source))" exception = err
+                    @warn "failed to parse exception in $(Utilities.locrepr(file))" exception = err
                     break
                 end
             end
@@ -658,5 +658,6 @@ include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
 include("Selectors.jl")
+include("Markdown2.jl")
 
 end

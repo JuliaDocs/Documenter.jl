@@ -35,13 +35,14 @@ abstract type Plugin end
 # ----------
 
 include("Utilities/Utilities.jl")
+include("DocMeta.jl")
 include("DocSystem.jl")
 include("Anchors.jl")
 include("Documents.jl")
-include("Builder.jl")
 include("Expanders.jl")
-include("CrossReferences.jl")
 include("DocTests.jl")
+include("Builder.jl")
+include("CrossReferences.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
 include("Deps.jl")
@@ -52,8 +53,8 @@ import .Writers.HTMLWriter: HTML
 
 # User Interface.
 # ---------------
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta
 
-export Deps, makedocs, deploydocs, hide
 """
     makedocs(
         root    = "<current-directory>",
@@ -118,6 +119,10 @@ where the developer is just trying to get their package and documentation struct
 After that, it's encouraged to always make sure that documentation examples are runnable and
 produce the expected results. See the [Doctests](@ref) manual section for details about
 running doctests.
+
+Setting `doctest` to `:only` allows for doctesting without a full build. In this mode, most
+build stages are skipped and the `strict` keyword is ignore (a doctesting error will always
+make `makedocs` throw an error).
 
 **`modules`** specifies a vector of modules that should be documented in `source`. If any
 inline docstrings from those modules are seen to be missing from the generated content then
@@ -818,6 +823,32 @@ function getenv(regex::Regex)
         occursin(regex, key) && return value
     end
     error("could not find key/iv pair.")
+end
+
+"""
+    doctest(modules::AbstractVector{Module}) -> Bool
+
+Runs all the doctests in the given modules. Returns `true` if the doctesting was successful
+and false if any error occurred.
+"""
+function doctest(modules::AbstractVector{Module})
+    dir = mktempdir()
+    @debug "Doctesting in temporary directory: $(dir)" modules
+    mkdir(joinpath(dir, "src"))
+    r = try
+        makedocs(
+            root = dir,
+            sitename = "",
+            doctest = :only,
+            modules = modules,
+        )
+        true
+    catch e
+        @error "Doctesting failed" e
+        false
+    end
+    rm(dir; recursive=true)
+    return r
 end
 
 end # module

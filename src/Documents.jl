@@ -15,6 +15,7 @@ import ..Documenter:
     Utilities,
     Plugin
 
+import ..Documenter.Utilities.Markdown2
 using DocStringExtensions
 import Markdown
 using Unicode
@@ -50,11 +51,32 @@ struct Page
     """
     mapping  :: IdDict{Any,Any}
     globals  :: Globals
+    md2ast   :: Markdown2.MD
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
-    elements = Markdown.parse(read(source, String)).content
-    Page(source, build, workdir, elements, IdDict{Any,Any}(), Globals())
+    mdpage = Markdown.parse(read(source, String))
+    md2ast = try
+        Markdown2.convert(Markdown2.MD, mdpage)
+    catch e
+        @error "Markdown2.convert failed to convert $(source)"
+        rethrow(e)
+    end
+    Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), md2ast)
 end
+
+# FIXME -- special overload for Utilities.parseblock
+Utilities.parseblock(code::AbstractString, doc, page::Documents.Page; kwargs...) = Utilities.parseblock(code, doc, page.source; kwargs...)
+
+# Document blueprints.
+# --------------------
+
+# Should contain all the information that is necessary to build a document.
+# Currently has enough information to just run doctests.
+struct DocumentBlueprint
+    pages :: Dict{String, Page} # Markdown files only.
+    modules :: Set{Module} # Which modules to check for missing docs?
+end
+
 
 # Document Nodes.
 # ---------------
@@ -153,7 +175,7 @@ to other page, reference to the [`Page`](@ref) object etc.
 mutable struct NavNode
     """
     `nothing` if the `NavNode` is a non-page node of the navigation tree, otherwise
-    the string should be a valid key in `doc.internal.pages`
+    the string should be a valid key in `doc.blueprint.pages`
     """
     page           :: Union{String, Nothing}
     """
@@ -197,7 +219,6 @@ struct User
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
     strict::Bool              # Throw an exception when any warnings are encountered.
-    modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     expandfirst::Vector{String} # List of pages that get "expanded" before others
     repo    :: String  # Template for URL to source code repo
@@ -213,7 +234,6 @@ Private state used to control the generation process.
 struct Internal
     assets  :: String             # Path where asset files will be copied to.
     remote  :: String             # The remote repo on github where this package is hosted.
-    pages   :: Dict{String, Page} # Markdown files only.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
@@ -236,6 +256,7 @@ struct Document
     user     :: User     # Set by the user via `makedocs`.
     internal :: Internal # Computed values.
     plugins  :: Dict{DataType, Plugin}
+    blueprint :: DocumentBlueprint
 end
 
 function Document(plugins = nothing;
@@ -284,7 +305,6 @@ function Document(plugins = nothing;
         checkdocs,
         doctestfilters,
         strict,
-        Utilities.submodules(modules),
         pages,
         expandfirst,
         repo,
@@ -296,7 +316,6 @@ function Document(plugins = nothing;
     internal = Internal(
         Utilities.assetsdir(),
         Utilities.getremote(root),
-        Dict{String, Page}(),
         [],
         [],
         Anchors.AnchorMap(),
@@ -320,7 +339,11 @@ function Document(plugins = nothing;
         end
     end
 
-    Document(user, internal, plugin_dict)
+    blueprint = DocumentBlueprint(
+        Dict{String, Page}(),
+        Utilities.submodules(modules),
+    )
+    Document(user, internal, plugin_dict, blueprint)
 end
 
 """
@@ -344,7 +367,7 @@ function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::A
     page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
     name = normpath(relpath(src, doc.user.source))
-    doc.internal.pages[name] = page
+    doc.blueprint.pages[name] = page
 end
 
 """
@@ -413,7 +436,7 @@ end
 
 # some replacements for jldoctest blocks
 function doctest_replace!(doc::Documents.Document)
-    for (src, page) in doc.internal.pages
+    for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
         for element in page.elements
             page.globals.meta[:CurrentFile] = page.source

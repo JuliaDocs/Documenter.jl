@@ -5,14 +5,18 @@ using Test
 import Documenter: Documents, Builder
 import Documenter.Documents: NavNode
 
-mutable struct FakeDocumentInternal
+mutable struct FakeDocumentBlueprint
     pages   :: Dict{String, Nothing}
+    FakeDocumentBlueprint() = new(Dict())
+end
+mutable struct FakeDocumentInternal
     navlist :: Vector{NavNode}
-    FakeDocumentInternal() = new(Dict(), [])
+    FakeDocumentInternal() = new([])
 end
 mutable struct FakeDocument
-    internal :: FakeDocumentInternal
-    FakeDocument() = new(FakeDocumentInternal())
+    internal  :: FakeDocumentInternal
+    blueprint :: FakeDocumentBlueprint
+    FakeDocument() = new(FakeDocumentInternal(), FakeDocumentBlueprint())
 end
 
 @testset "NavNode" begin
@@ -31,7 +35,7 @@ end
         "page6.md",
     ]
     doc = FakeDocument()
-    doc.internal.pages = Dict(map(i -> "page$i.md" => nothing, 1:8))
+    doc.blueprint.pages = Dict(map(i -> "page$i.md" => nothing, 1:8))
     navtree = Builder.walk_navpages(pages, nothing, doc)
     navlist = doc.internal.navlist
 

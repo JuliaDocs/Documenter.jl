@@ -21,7 +21,7 @@ Traverses a [`Documents.Document`](@ref) and replaces links containg `@ref` URLs
 their real URLs.
 """
 function crossref(doc::Documents.Document)
-    for (src, page) in doc.internal.pages
+    for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
         for element in page.elements
             crossref(page.mapping[element], page, doc)

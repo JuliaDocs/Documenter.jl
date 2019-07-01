@@ -5,7 +5,6 @@ module Expanders
 
 import ..Documenter:
     Anchors,
-    Builder,
     Documents,
     Documenter,
     Utilities
@@ -25,18 +24,18 @@ import Base64: stringmime
 
 function expand(doc::Documents.Document)
     priority_pages = filter(doc.user.expandfirst) do src
-        if src in keys(doc.internal.pages)
+        if src in keys(doc.blueprint.pages)
             return true
         else
             @warn "$(src) in expandfirst does not exist"
             return false
         end
     end
-    normal_pages = filter(src -> !(src in priority_pages), keys(doc.internal.pages))
+    normal_pages = filter(src -> !(src in priority_pages), keys(doc.blueprint.pages))
     normal_pages = sort([src for src in normal_pages])
-    @debug "pages" keys(doc.internal.pages) priority_pages normal_pages
+    @debug "pages" keys(doc.blueprint.pages) priority_pages normal_pages
     for src in Iterators.flatten([priority_pages, normal_pages])
-        page = doc.internal.pages[src]
+        page = doc.blueprint.pages[src]
         @debug "Running ExpanderPipeline on $src"
         empty!(page.globals.meta)
         for element in page.elements
@@ -322,11 +321,11 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         end
 
         # Find the docs matching `binding` and `typesig`. Only search within the provided modules.
-        docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.user.modules)
+        docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.blueprint.modules)
 
         # Include only docstrings from user-provided modules if provided.
-        if !isempty(doc.user.modules)
-            filter!(d -> d.data[:module] in doc.user.modules, docs)
+        if !isempty(doc.blueprint.modules)
+            filter!(d -> d.data[:module] in doc.blueprint.modules, docs)
         end
 
         # Check that we aren't printing an empty docs list. Skip block when empty.
