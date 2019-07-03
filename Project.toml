@@ -11,6 +11,7 @@ LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
@@ -22,7 +23,6 @@ julia = "1"
 DocumenterMarkdown = "997ab1e6-3595-5248-9280-8efb232c3433"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Random", "DocumenterMarkdown", "DocumenterTools"]
+test = ["Random", "DocumenterMarkdown", "DocumenterTools"]

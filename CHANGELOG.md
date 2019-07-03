@@ -14,7 +14,7 @@
 
 * ![Feature][badge-feature] `makedocs` now accepts the `doctest = :only` keyword, which allows doctests to be run while most other build steps, such as rendering, are skipped. This makes it more feasible to run doctests as part of the test suite (see the manual for more information). ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
 
-* ![Feature][badge-feature] Documenter now exports the `doctest` function, which verifies the doctests in all the docstrings of a given module. This can be used to verify docstring doctests as part of test suite. ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
+* ![Feature][badge-feature] Documenter now exports the `doctest` function, which verifies the doctests in all the docstrings of a given module. This can be used to verify docstring doctests as part of test suite, or to fix doctests right in the REPL. ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774], [#1054][github-1054])
 
 * ![Feature][badge-feature] `makedocs` now accepts the `expandfirst` argument, which allows specifying a set of pages that should be evaluated before others. ([#1027][github-1027], [#1029][github-1029])
 
@@ -364,6 +364,7 @@
 [github-1034]: https://github.com/JuliaDocs/Documenter.jl/pull/1034
 [github-1037]: https://github.com/JuliaDocs/Documenter.jl/pull/1037
 [github-1047]: https://github.com/JuliaDocs/Documenter.jl/pull/1047
+[github-1054]: https://github.com/JuliaDocs/Documenter.jl/pull/1054
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
