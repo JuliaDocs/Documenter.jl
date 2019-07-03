@@ -30,6 +30,10 @@
 
 * ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
 
+## Version `v0.22.5`
+
+* ![Maintenance][badge-maintenance] Fix a test dependency problem revealed by a bugfix in Julia / Pkg. ([#1037][github-1037])
+
 ## Version `v0.22.4`
 
 * ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
@@ -358,6 +362,7 @@
 [github-1029]: https://github.com/JuliaDocs/Documenter.jl/pull/1029
 [github-1031]: https://github.com/JuliaDocs/Documenter.jl/issues/1031
 [github-1034]: https://github.com/JuliaDocs/Documenter.jl/pull/1034
+[github-1037]: https://github.com/JuliaDocs/Documenter.jl/pull/1037
 [github-1047]: https://github.com/JuliaDocs/Documenter.jl/pull/1047
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
@@ -372,6 +377,7 @@
 [badge-bugfix]: https://img.shields.io/badge/bugfix-purple.svg
 [badge-security]: https://img.shields.io/badge/security-black.svg
 [badge-experimental]: https://img.shields.io/badge/experimental-lightgrey.svg
+[badge-maintenance]: https://img.shields.io/badge/maintenance-gray.svg
 
 <!--
 # Badges
@@ -383,4 +389,5 @@
 ![Bugfix][badge-bugfix]
 ![Security][badge-security]
 ![Experimental][badge-experimental]
+![Maintenance][badge-maintenance]
 -->
