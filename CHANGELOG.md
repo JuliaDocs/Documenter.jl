@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.22.5`
+
+* ![Maintenance][badge-maintenance] Fix a test dependency problem revealed by a bugfix in Julia / Pkg. ([#1037][github-1037])
+
 ## Version `v0.22.4`
 
 * ![Bugfix][badge-bugfix] Documenter no longer crashes if the build includes doctests from docstrings that are defined in files that do not exist on the file system (e.g. if a Julia Base docstring is included when running a non-source Julia build). ([#1002][github-1002])
@@ -315,6 +319,7 @@
 [github-1004]: https://github.com/JuliaDocs/Documenter.jl/pull/1004
 [github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
 [github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
+[github-1037]: https://github.com/JuliaDocs/Documenter.jl/pull/1037
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
@@ -327,6 +332,7 @@
 [badge-enhancement]: https://img.shields.io/badge/enhancement-blue.svg
 [badge-bugfix]: https://img.shields.io/badge/bugfix-purple.svg
 [badge-security]: https://img.shields.io/badge/security-black.svg
+[badge-maintenance]: https://img.shields.io/badge/maintenance-gray.svg
 
 <!--
 # Badges
@@ -337,4 +343,5 @@
 ![Enhancement][badge-enhancement]
 ![Bugfix][badge-bugfix]
 ![Security][badge-security]
+![Maintenance][badge-maintenance]
 -->
