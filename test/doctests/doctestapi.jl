@@ -2,7 +2,7 @@
 #
 # If the tests are giving you trouble, you can run the tests with
 #
-#    JULIA_DEBUG=DocTestsTests julia doctests.jl
+#    JULIA_DEBUG=DocTestAPITests julia doctests.jl
 #
 # TODO: Combine the makedocs calls and stdout files. Also, allow running them one by one.
 #
@@ -14,7 +14,10 @@ using Documenter
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
     (result, success, backtrace, output) = Documenter.Utilities.withoutput() do
-        doctest(args...; kwargs...)
+        # Running inside a Task to make sure that the parent testsets do not interfere.
+        t = Task(() -> doctest(args...; kwargs...))
+        schedule(t)
+        fetch(t) # if an exception happens, it gets propagated
     end
 
     @debug """run_doctest($args;, $kwargs) -> $(success ? "success" : "fail")
@@ -96,45 +99,54 @@ end
 
 @testset "Documenter.doctest" begin
     # DocTest1
-    run_doctest([DocTest1]) do result, success, backtrace, output
-        @test result
+    run_doctest(nothing, [DocTest1]) do result, success, backtrace, output
+        @test success
+        @test result isa Test.DefaultTestSet
     end
 
     # DocTest2
-    run_doctest([DocTest2]) do result, success, backtrace, output
-        @test !result
+    run_doctest(nothing, [DocTest2]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
 
     # DocTest3
-    run_doctest([DocTest3]) do result, success, backtrace, output
-        @test !result
+    run_doctest(nothing, [DocTest3]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
     DocMeta.setdocmeta!(DocTest3, :DocTestSetup, :(x = 42))
-    run_doctest([DocTest3]) do result, success, backtrace, output
-        @test result
+    run_doctest(nothing, [DocTest3]) do result, success, backtrace, output
+        @test success
+        @test result isa Test.DefaultTestSet
     end
 
     # DocTest4
-    run_doctest([DocTest4]) do result, success, backtrace, output
-        @test !result
+    run_doctest(nothing, [DocTest4]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
     DocMeta.setdocmeta!(DocTest4, :DocTestSetup, :(x = 42))
-    run_doctest([DocTest4]) do result, success, backtrace, output
-        @test !result
+    run_doctest(nothing, [DocTest4]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
     DocMeta.setdocmeta!(DocTest4, :DocTestSetup, :(x = 42); recursive = true, warn = false)
-    run_doctest([DocTest4]) do result, success, backtrace, output
-        @test result
+    run_doctest(nothing, [DocTest4]) do result, success, backtrace, output
+        @test success
+        @test result isa Test.DefaultTestSet
     end
 
     # DocTest5
-    run_doctest([DocTest5]) do result, success, backtrace, output
-        @test !result
+    run_doctest(nothing, [DocTest5]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
     DocMeta.setdocmeta!(DocTest5, :DocTestSetup, :(x = 42))
     DocMeta.setdocmeta!(DocTest5.Submodule, :DocTestSetup, :(x = 4200))
-    run_doctest([DocTest5]) do result, success, backtrace, output
-        @test result
+    run_doctest(nothing, [DocTest5]) do result, success, backtrace, output
+        @test success
+        @test result isa Test.DefaultTestSet
     end
 end
 

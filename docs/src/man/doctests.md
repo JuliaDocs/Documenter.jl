@@ -311,81 +311,66 @@ julia> @time [1,2,3,4]
     keyword argument are all applied to each doctest.
 
 
-## Doctesting Without Building the Docs
+## Doctesting as Part of Testing
 
-Documenter has a few ways to verify the doctests without having to run a potentially
-expensive full documentation build.
+Documenter provides the [`doctest`](@ref) function which can be used to verify all doctests
+independently of manual builds. It behaves like a `@testset`, so it will return a testset
+if all the tests pass or throw a `TestSetException` if it does not.
 
-### Doctesting docstrings only
-
-An option for doctesting just the docstrings of a particular module (and all its submodules)
-is to use the [`doctest`](@ref) function. It takes a list of modules as an argument and runs
-all the doctests in all the docstrings it finds. This can be handy for quick tests when
-writing docstrings of a package.
-
-[`doctest`](@ref) will return `true` or `false`, depending on whether the doctests pass or
-not, making it easy to include a doctest of all the docstrings in the package test suite:
+For example, it can be used to verify doctests as part of the normal test suite by having
+e.g. the following in `runtests.jl`:
 
 ```julia
-using MyPackage, Documenter, Test
-@test doctest([MyPackage])
+using Test, Documenter, MyPackage
+doctest(MyPackage)
+```
+
+By default, it will also attempt to verify all the doctests on manual `.md` files, which it
+assumes are located under `docs/src`. This can be configured or disabled with the `manual`
+keyword (see [`doctest`](@ref) for more information).
+
+It can also be included in another testset, in which case it gets incorporated into the
+parent testset. So, as another example, to test a package that does have separate manual
+pages, just docstrings, and also collects all the tests into a single testset, the
+`runtests.jl` might look as follows:
+
+```julia
+using Test, Documenter, MyPackage
+@testset "MyPackage" begin
+    ... # other tests & testsets
+    doctest(MyPackage; manual = false)
+    ... # other tests & testsets
+end
 ```
 
 Note that you still need to make sure that all the necessary [Module-level metadata](@ref)
-for the doctests is set up before [`doctest`](@ref) is called.
-
-### Doctesting without a full build
-
-An alternative, which also runs doctests on the manual pages, but still skips most other
-build steps, is to pass `doctest = :only` to [`makedocs`](@ref).
-
-This also makes it more practical to include doctests as part of the normal test suite of a
-package. One option to set it up is to make the `doctest` keyword depend on command line
-arguments passed to the `make.jl` script:
-
-```julia
-makedocs(...,
-    doctest = ("doctest-only" in ARGS) ? :only : true
-)
-```
-
-Now, the `make.jl` script can be run on the command line as `julia docs/make.jl
-doctest-only` and it will only run the doctests. On doctest failure, the `makedocs` throws
-an error and `julia` exits with a non-zero exit code.
-
-For running the doctests as part of the standard test suite, the  `docs/make.jl` can simply
-be `include`d in the `test/runtest.jl` file:
-
-```julia
-push!(ARGS, "doctest-only")
-include(joinpath(@__DIR__, "..", "docs", "make.jl"))
-```
-
-The `push!` to `ARGS` emulates the passing of the `doctest-only` command line argument.
-
-Note that, for this to work, you need to add Documenter and all the other packages that get
-loaded in `make.jl`, or in the doctest, as test dependencies.
+for the doctests is set up before [`doctest`](@ref) is called. Also, you need to add
+Documenter and all the other packages you are loading in the doctests as test dependencies.
 
 
 ## Fixing Outdated Doctests
 
-To fix outdated doctests, the `doctest` flag to [`makedocs`](@ref) can be set to
-`doctest = :fix`. This will run the doctests, and overwrite the old results with
-the new output.
+To fix outdated doctests, the [`doctest`](@ref) function can be called with `fix = true`.
+This will run the doctests, and overwrite the old results with the new output. This can be
+done just in the REPL:
+
+```julia-repl
+julia> using Documenter, MyPackage
+julia> doctest(MyPackage, fix=true)
+```
+
+Alternatively, you can also pass the `doctest = :fix` keyword to [`makedocs`](@ref).
 
 !!! note
 
-    The `:fix` option currently only works for LF line endings (`'\n'`)
+    * The `:fix` option currently only works for LF line endings (`'\n'`)
 
-!!! note
+    * It is recommended to `git commit` any code changes before running the doctest fixing.
+      That way it is simple to restore to the previous state if the fixing goes wrong.
 
-    It is recommended to `git commit` any code changes before running the doctest fixing.
-    That way it is simple to restore to the previous state if the fixing goes wrong.
-
-!!! note
-
-    There are some corner cases where the fixing algorithm may replace the wrong code snippet.
-    It is therefore recommended to manually inspect the result of the fixing before committing.
+    * There are some corner cases where the fixing algorithm may replace the wrong code
+      snippet. It is therefore recommended to manually inspect the result of the fixing
+      before committing.
 
 
 ## Skipping Doctests

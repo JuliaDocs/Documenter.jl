@@ -14,7 +14,7 @@
 
 * ![Feature][badge-feature] `makedocs` now accepts the `doctest = :only` keyword, which allows doctests to be run while most other build steps, such as rendering, are skipped. This makes it more feasible to run doctests as part of the test suite (see the manual for more information). ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
 
-* ![Feature][badge-feature] Documenter now exports the `doctest` function, which verifies the doctests in all the docstrings of a given module. This can be used to verify docstring doctests as part of test suite. ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774])
+* ![Feature][badge-feature] Documenter now exports the `doctest` function, which verifies the doctests in all the docstrings of a given module. This can be used to verify docstring doctests as part of test suite, or to fix doctests right in the REPL. ([#198][github-198], [#535][github-535], [#756][github-756], [#774][github-774], [#1054][github-1054])
 
 * ![Feature][badge-feature] `makedocs` now accepts the `expandfirst` argument, which allows specifying a set of pages that should be evaluated before others. ([#1027][github-1027], [#1029][github-1029])
 
@@ -29,6 +29,10 @@
 * ![Bugfix][badge-bugfix] The HTML output now outputs HTML files for pages that are not referenced in the `pages` keyword too (Documenter finds them according to their extension). But they do exists outside of the standard navigation hierarchy (as defined by `pages`). This fixes a bug where these pages could still be referenced by `@ref` links and `@contents` blocks, but in the HTML output, the links ended up being broken. ([#1031][github-1031], [#1047][github-1047])
 
 * ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
+
+## Version `v0.22.5`
+
+* ![Maintenance][badge-maintenance] Fix a test dependency problem revealed by a bugfix in Julia / Pkg. ([#1037][github-1037])
 
 ## Version `v0.22.4`
 
@@ -358,7 +362,9 @@
 [github-1029]: https://github.com/JuliaDocs/Documenter.jl/pull/1029
 [github-1031]: https://github.com/JuliaDocs/Documenter.jl/issues/1031
 [github-1034]: https://github.com/JuliaDocs/Documenter.jl/pull/1034
+[github-1037]: https://github.com/JuliaDocs/Documenter.jl/pull/1037
 [github-1047]: https://github.com/JuliaDocs/Documenter.jl/pull/1047
+[github-1054]: https://github.com/JuliaDocs/Documenter.jl/pull/1054
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
@@ -372,6 +378,7 @@
 [badge-bugfix]: https://img.shields.io/badge/bugfix-purple.svg
 [badge-security]: https://img.shields.io/badge/security-black.svg
 [badge-experimental]: https://img.shields.io/badge/experimental-lightgrey.svg
+[badge-maintenance]: https://img.shields.io/badge/maintenance-gray.svg
 
 <!--
 # Badges
@@ -383,4 +390,5 @@
 ![Bugfix][badge-bugfix]
 ![Security][badge-security]
 ![Experimental][badge-experimental]
+![Maintenance][badge-maintenance]
 -->
