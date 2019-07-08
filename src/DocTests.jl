@@ -209,9 +209,12 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
             result.value = value
             print(result.stdout, text)
-            if !success
+            if isa(ex, Expr) && ex.head === :error
+                @assert !success
+                result.bt = []
+                break # don't evaluate further if there is a parse error
+            elseif !success
                 result.bt = backtrace
-                break # don't evaluate further if there is an error (e.g. a parse error)
             end
         end
         checkresult(sandbox, result, meta, doc)
@@ -234,7 +237,11 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
         end
         result.value = value
         print(result.stdout, text)
-        if !success
+        if isa(ex, Expr) && ex.head === :error
+            @assert !success
+            result.bt = []
+            break # don't evaluate further if there is a parse error
+        elseif !success
             result.bt = backtrace
             break
         end
