@@ -97,6 +97,49 @@ module DocTest5
     end
 end
 
+"""
+```jldoctest
+julia> map(tuple, 1/(i+j) for i=1:2, j=1:2, [1:4;])
+ERROR: syntax: invalid iteration specification
+```
+```jldoctest
+julia> 1.2.3
+ERROR: syntax: invalid numeric constant "1.2."
+```
+```jldoctest
+println(9.8.7)
+# output
+ERROR: syntax: invalid numeric constant "9.8."
+```
+```jldoctest
+julia> Meta.ParseError("foo")
+Base.Meta.ParseError("foo")
+
+julia> Meta.ParseError("foo") |> throw
+ERROR: Base.Meta.ParseError("foo")
+Stacktrace:
+[...]
+```
+"""
+module ParseErrorSuccess end
+
+"""
+```jldoctest
+julia> map(tuple, 1/(i+j) for i=1:2, j=1:2, [1:4;])
+ERROR: syntax: invalid iteration specificationX
+```
+"""
+module ParseErrorFail end
+
+"""
+```jldoctest
+println(9.8.7)
+# output
+ERROR: syntax: invalid numeric constant "1.2."
+```
+"""
+module ScriptParseErrorFail end
+
 @testset "Documenter.doctest" begin
     # DocTest1
     run_doctest(nothing, [DocTest1]) do result, success, backtrace, output
@@ -147,6 +190,20 @@ end
     run_doctest(nothing, [DocTest5]) do result, success, backtrace, output
         @test success
         @test result isa Test.DefaultTestSet
+    end
+
+    # Parse errors in doctests (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
+    run_doctest(nothing, [ParseErrorSuccess]) do result, success, backtrace, output
+        @test success
+        @test result isa Test.DefaultTestSet
+    end
+    run_doctest(nothing, [ParseErrorFail]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
+    end
+    run_doctest(nothing, [ScriptParseErrorFail]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
 end
 

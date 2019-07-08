@@ -200,7 +200,7 @@ end
 function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
     for (input, output) in repl_splitter(block.code)
         result = Result(block, input, output, meta[:CurrentFile])
-        for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
+        for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = REPL.ends_with_semicolon(str)
             (value, success, backtrace, text) = Utilities.withoutput() do
@@ -211,6 +211,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             print(result.stdout, text)
             if !success
                 result.bt = backtrace
+                break # don't evaluate further if there is an error (e.g. a parse error)
             end
         end
         checkresult(sandbox, result, meta, doc)
@@ -227,7 +228,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     input  = rstrip(input, '\n')
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
-    for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
+    for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
         (value, success, backtrace, text) = Utilities.withoutput() do
             Core.eval(sandbox, ex)
         end
