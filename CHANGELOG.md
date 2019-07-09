@@ -30,6 +30,8 @@
 
 * ![Bugfix][badge-bugfix] Doctesting now also handles doctests that contain invalid syntax and throw parsing errors. ([#487][github-487], [#1062][github-1062])
 
+* ![Bugfix][badge-bugfix] Stacktraces in doctests that throw an error are now filtered more thoroughly, fixing an issue where too much of the stacktrace was included when `doctest` or `makedocs` was called from a more complicated context. ([#1062][github-1062])
+
 * ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
 
 ## Version `v0.22.5`
