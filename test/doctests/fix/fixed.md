@@ -79,7 +79,3 @@ julia> 1 + 2
 julia> 3 + 4
 7
 ```
-```jldoctest
-julia> println(9.8.7)
-ERROR: syntax: invalid numeric constant "9.8."
-```
