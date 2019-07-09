@@ -38,7 +38,7 @@ The `makedocs` argument `authors` should also be specified, it will be used for 
 **`platform`** sets the platform where the tex-file is compiled, either `"native"` (default) or `"docker"`.
 See [Other Output Formats](@ref) for more information.
 """
-struct LaTeX <: Documenter.Plugin
+struct LaTeX <: Documenter.Writer
     platform::String
     function LaTeX(; platform = "native")
         platform ∈ ("native", "docker") || throw(ArgumentError("unknown platform: $platform"))

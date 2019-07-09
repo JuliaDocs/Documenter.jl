@@ -17,7 +17,7 @@ module _Markdown
 end
 const MarkdownStdlib = _Markdown.Markdown
 
-struct Markdown <: Documenter.Plugin
+struct Markdown <: Documenter.Writer
 end
 
 # return the same file with the extension changed to .md

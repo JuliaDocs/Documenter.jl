@@ -125,7 +125,7 @@ The type of the asset (i.e. whether it is going to be included with a `<script>`
 `<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
 Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 """
-struct HTML <: Documenter.Plugin
+struct HTML <: Documenter.Writer
     prettyurls  :: Bool
     disable_git :: Bool
     edit_branch :: Union{String, Nothing}

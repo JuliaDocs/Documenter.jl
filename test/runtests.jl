@@ -55,6 +55,9 @@ println("="^50)
 
     # A simple build evaluating code outside build directory
     include("workdir/tests.jl")
+
+    # Passing a writer positionally (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
+    @test_throws ArgumentError makedocs(sitename="", HTML())
 end
 
 # Additional tests
