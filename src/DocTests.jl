@@ -209,13 +209,11 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
             result.value = value
             print(result.stdout, text)
-            if isa(ex, Expr) && ex.head === :error
-                @assert !success
-                result.bt = []
-                break # don't evaluate further if there is a parse error
-            elseif !success
+            if !success
                 result.bt = backtrace
             end
+            # don't evaluate further if there is a parse error
+            isa(ex, Expr) && ex.head === :error && break
         end
         checkresult(sandbox, result, meta, doc)
     end
@@ -237,11 +235,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
         end
         result.value = value
         print(result.stdout, text)
-        if isa(ex, Expr) && ex.head === :error
-            @assert !success
-            result.bt = []
-            break # don't evaluate further if there is a parse error
-        elseif !success
+        if !success
             result.bt = backtrace
             break
         end
@@ -317,12 +311,32 @@ function result_to_string(buf, value)
 end
 
 function error_to_string(buf, er, bt)
-    # Remove unimportant backtrace info.
+    # Remove unimportant backtrace info. TODO: this backtrace handling should maybe be done
+    # by Utilities.withoutput() already.
+    bt = remove_common_backtrace(bt, backtrace())
+    # Remove everything below the last eval call (which should be the one in withoutput)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
+    bt = (index === nothing) ? bt : bt[1:(index - 1)]
     # Print a REPL-like error message.
     print(buf, "ERROR: ")
-    Base.invokelatest(showerror, buf, er, index === nothing ? bt : bt[1:(index - 1)])
+    Base.invokelatest(showerror, buf, er, bt)
     return sanitise(buf)
+end
+
+function remove_common_backtrace(bt, reference_bt)
+    cutoff = nothing
+    # We'll start from the top of the backtrace (end of the array) and go down, checking
+    # if the backtraces agree
+    for ridx in 1:length(bt)
+        # Cancel search if we run out the reference BT or find a non-matching one frames:
+        if ridx > length(reference_bt) || bt[length(bt) - ridx + 1] != reference_bt[length(reference_bt) - ridx + 1]
+            cutoff = length(bt) - ridx + 1
+            break
+        end
+    end
+    # It's possible that the loop does not find anything, i.e. that all BT elements are in
+    # the reference_BT too. In that case we'll just return an empty BT.
+    bt[1:(cutoff === nothing ? 0 : cutoff)]
 end
 
 # Strip trailing whitespace from each line and return resulting string
