@@ -31,6 +31,7 @@ a new `T` object will be created.
 """
 abstract type Plugin end
 
+abstract type Writer end
 
 # Submodules
 # ----------

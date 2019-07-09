@@ -13,7 +13,8 @@ import ..Documenter:
     Documenter,
     Anchors,
     Utilities,
-    Plugin
+    Plugin,
+    Writer
 
 import ..Documenter.Utilities.Markdown2
 using DocStringExtensions
@@ -211,7 +212,7 @@ struct User
     source  :: String  # Parent directory is `.root`. Where files are read from.
     build   :: String  # Parent directory is also `.root`. Where files are written to.
     workdir :: Union{Symbol,String} # Parent directory is also `.root`. Where code is executed from.
-    format  :: Vector{Plugin} # What format to render the final document with?
+    format  :: Vector{Writer} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Union{Bool,Symbol} # Run doctests?
     linkcheck::Bool           # Check external links..
@@ -285,7 +286,7 @@ function Document(plugins = nothing;
     Utilities.check_kwargs(others)
 
     if !isa(format, AbstractVector)
-        format = Plugin[format]
+        format = Writer[format]
     end
 
     if version == "git-commit"
@@ -332,9 +333,9 @@ function Document(plugins = nothing;
     if plugins !== nothing
         for plugin in plugins
             plugin isa Plugin ||
-                throw("$(typeof(plugin)) is not a subtype of `Documenter.Plugin`.")
+                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Documenter.Plugin`."))
             haskey(plugin_dict, typeof(plugin)) &&
-                throw("only one copy of $(typeof(plugin)) may be passed.")
+                throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
             plugin_dict[typeof(plugin)] = plugin
         end
     end
