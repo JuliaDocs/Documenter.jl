@@ -30,6 +30,10 @@
 
 * ![Bugfix][badge-bugfix] `makedocs` now throws an error when the format objects (`Documenter.HTML`, `LaTeX`, `Markdown`) get passed positionally. The format types are no longer subtypes of `Documenter.Plugin`. ([#1046][github-1046], [#1061][github-1061])
 
+* ![Bugfix][badge-bugfix] Doctesting now also handles doctests that contain invalid syntax and throw parsing errors. ([#487][github-487], [#1062][github-1062])
+
+* ![Bugfix][badge-bugfix] Stacktraces in doctests that throw an error are now filtered more thoroughly, fixing an issue where too much of the stacktrace was included when `doctest` or `makedocs` was called from a more complicated context. ([#1062][github-1062])
+
 * ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
 
 ## Version `v0.22.5`
@@ -290,6 +294,7 @@
 * ![Bugfix][badge-bugfix] At-docs blocks no longer give an error when containing empty lines. ([#823][github-823], [#824][github-824])
 
 [github-198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
+[github-487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
 [github-511]: https://github.com/JuliaDocs/Documenter.jl/pull/511
 [github-535]: https://github.com/JuliaDocs/Documenter.jl/issues/535
 [github-697]: https://github.com/JuliaDocs/Documenter.jl/pull/697
@@ -369,6 +374,7 @@
 [github-1047]: https://github.com/JuliaDocs/Documenter.jl/pull/1047
 [github-1054]: https://github.com/JuliaDocs/Documenter.jl/pull/1054
 [github-1061]: https://github.com/JuliaDocs/Documenter.jl/pull/1061
+[github-1062]: https://github.com/JuliaDocs/Documenter.jl/pull/1062
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

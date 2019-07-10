@@ -907,8 +907,9 @@ function doctest(
                 modules = modules,
             )
             true
-        catch e
-            @error "Doctesting failed" e
+        catch err
+            @error "Doctesting failed"
+            showerror(stdout, err, catch_backtrace())
             false
         finally
             rm(dir; recursive=true)

@@ -84,8 +84,12 @@ Returns a `Vector` of tuples `(expr, code)`, where `expr` is the corresponding e
 parsed from.
 
 The keyword argument `skip = N` drops the leading `N` lines from the input string.
+
+If `raise=false` is passed, the `Meta.parse` does not raise an exception on parse errors,
+but instead returns an expression that will raise an error when evaluated. `parseblock`
+returns this expression normally and it must be handled appropriately by the caller.
 """
-function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true)
+function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
@@ -102,7 +106,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true)
                 (QuoteNode(keyword), cursor + lastindex(line))
             else
                 try
-                    Meta.parse(code, cursor)
+                    Meta.parse(code, cursor; raise=raise)
                 catch err
                     push!(doc.internal.errors, :parse_error)
                     @warn "failed to parse exception in $(Utilities.locrepr(file))" exception = err
