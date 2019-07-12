@@ -171,8 +171,7 @@ The following is required to build the documentation:
 * You need `pdflatex` command to be installed and available to Documenter.
 * You need the [minted](https://ctan.org/pkg/minted) LaTeX package and its backend source
   highlighter [Pygments](http://pygments.org/) installed.
-* You need the [Lato](http://www.latofonts.com/lato-free-fonts/) and
-  [DejaVu Sans Mono](https://dejavu-fonts.github.io/) fonts installed.
+* You need the [_DejaVu Sans_ and _DejaVu Sans Mono_](https://dejavu-fonts.github.io/) fonts installed.
 
 ### Compiling using docker image
 
