@@ -547,13 +547,78 @@ function deploydocs(;
         return
     end
 
+    if haskey(ENV, "CI")
+
+        if haskey(ENV, "TRAVIS")
+
+            @info "Travis CI detected"
+
+            branch       = get(ENV, "TRAVIS_BRANCH",             "")
+            pull_request = get(ENV, "TRAVIS_PULL_REQUEST",       "")
+            repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",          "")
+            tag          = get(ENV, "TRAVIS_TAG",                "")
+            event_type   = get(ENV, "TRAVIS_EVENT_TYPE",         "")
+
+        elseif haskey(ENV, "GITLAB_CI")
+
+            @info "Gitlab CI detected"
+
+            branch       = get(ENV, "CI_COMMIT_REF_NAME",        "")
+            pull_request = get(ENV, "CI_MERGE_REQUEST_ID",  "false")
+            repo_slug    = get(ENV, "CI_PROJECT_PATH",           "")
+            tag          = get(ENV, "CI_COMMIT_TAG",             "")
+            event_type   = get(ENV, "CI_PIPELINE_SOURCE",        "")
+
+        elseif haskey(ENV, "DRONE")
+
+            @info "Drone CI detected"
+
+            branch       = get(ENV, "DRONE_COMMIT_BRANCH",       "")
+            pull_request = get(ENV, "DRONE_PULL_REQUEST",   "false")
+            repo_slug    = get(ENV, "DRONE_REPO_NAMESPACE",      "") * "/" * get(ENV, "DRONE_REPO_NAME", "")
+            tag          = get(ENV, "DRONE_TAG",                 "")
+            event_type   = get(ENV, "DRONE_BUILD_EVENT",         "")
+
+        elseif haskey(ENV, "CIRRUS_CI")
+
+            @info "Cirrus CI detected"
+
+            branch       = get(ENV, "CIRRUS_BRANCH",             "")
+            pull_request = get(ENV, "CIRRUS_PR",            "false")
+            repo_slug    = get(ENV, "CIRRUS_REPO_FULL_NAME",     "")
+            tag          = get(ENV, "CIRRUS_TAG",                "")
+            event_type   = "unknown" # Cirrus CI doesn't seem to provide the triggering event...
+
+        elseif haskey(ENV, "APPVEYOR") # the worst of them all
+
+            @info "AppVeyor CI detected"
+
+            pull_request = get(ENV, "APPVEYOR_PULL_REQUEST_NUMBER",  "false")
+            branch       = if haskey(ENV, "APPVEYOR_PULL_REQUEST_NUMBER"    )
+                                ENV["APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH"]
+                            else
+                                get(ENV, "APPVEYOR_REPO_BRANCH",          "")
+                            end
+            repo_slug    = get(ENV, "APPVEYOR_PROJECT_SLUG",              "")
+            tag          = get(ENV, "APPVEYOR_REPO_TAG_NAME",             "")
+            event_type   = "unknown" # Appveyor has four env vars for this...
+
+        else
+
+            error(
+                """
+                We don't recognize the CI service you're running, or haven't added support for it.
+                We currently support Travis-CI, Gitlab CI, Drone CI, Cirrus CI and AppVeyor.
+                """
+            )
+
+        end
+
+    end
+
     # Get environment variables.
-    documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
-    travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
-    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
-    travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
-    travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_event_type   = get(ENV, "TRAVIS_EVENT_TYPE",    "")
+    documenter_key = get(ENV, "DOCUMENTER_KEY",       "")
+
 
 
     # Other variables.
@@ -573,28 +638,29 @@ function deploydocs(;
     end
 
     # Check criteria for deployment
-    ## The deploydocs' repo should match TRAVIS_REPO_SLUG
-    repo_ok = occursin(travis_repo_slug, repo)
+    ## The deploydocs' repo should match the repo slug provided by CI
+    repo_ok = occursin(repo_slug, repo)
     ## Do not deploy for PRs
-    pr_ok = travis_pull_request == "false"
-    ## If a tag exist it should be a valid VersionNumber
-    tag_ok = isempty(travis_tag) || occursin(Base.VERSION_REGEX, travis_tag)
-    ## If no tag exists deploydocs' devbranch should match TRAVIS_BRANCH
-    branch_ok = !isempty(travis_tag) || travis_branch == devbranch
+    pr_ok = pull_request in ("false", "False") # Appveyor env vars are capitalized on Windows
+    ## If a tag exists, it should be a valid VersionNumber
+    tag_ok = isempty(tag) || occursin(Base.VERSION_REGEX, tag)
+    ## If no tag exists deploydocs' devbranch should match the CI branch
+    branch_ok = !isempty(tag) || branch == devbranch
     ## DOCUMENTER_KEY should exist
     key_ok = !isempty(documenter_key)
     ## Cron jobs should not deploy
-    type_ok = travis_event_type != "cron"
+    type_ok = event_type != "cron"
+
     should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok
 
     marker(x) = x ? "✔" : "✘"
     @info """Deployment criteria:
-    - $(marker(repo_ok)) ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)"
-    - $(marker(pr_ok)) ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false"
-    - $(marker(tag_ok)) ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber
-    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch)" (if tag is empty)
+    - $(marker(repo_ok)) CI repo slug = "$(repo_slug)" occurs in repo = "$(repo)"
+    - $(marker(pr_ok)) CI pull request indicator = "$(pull_request)" is "false"
+    - $(marker(tag_ok)) CI tag indicator = "$(tag)" is (i) empty or (ii) a valid VersionNumber
+    - $(marker(branch_ok)) CI branch = "$(branch)" matches devbranch="$(devbranch)" (if tag is empty)
     - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
-    - $(marker(type_ok)) ENV["TRAVIS_EVENT_TYPE"]="$(travis_event_type)" is not "cron"
+    - $(marker(type_ok)) CI event type = "$(event_type)" is not "cron"
     Deploying: $(marker(should_deploy))
     """
 
@@ -620,7 +686,7 @@ function deploydocs(;
                 git_push(
                     root, temp, repo;
                     branch=branch, dirname=dirname, target=target,
-                    tag=travis_tag, key=documenter_key, sha=sha,
+                    tag=tag, key=documenter_key, sha=sha,
                     devurl = devurl, versions = versions, forcepush = forcepush,
                 )
             end
