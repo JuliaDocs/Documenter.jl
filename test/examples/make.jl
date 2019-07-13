@@ -135,7 +135,8 @@ htmlbuild_pages = Any[
         "expandorder/00.md",
         "expandorder/01.md",
         "expandorder/AA.md",
-    ]
+    ],
+    "unicode.md",
 ]
 
 @info("Building mock package docs: HTMLWriter / local build")
