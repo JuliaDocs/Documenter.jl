@@ -462,12 +462,16 @@ the generated html. The following entries are valied in the `versions` vector:
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
 
+**uploader** determines _which_ CI service will upload the documentation.  Defaults to Travis
+(`"TRAVIS"`).  Other options are `"GITLAB_CI"`, `"CIRRUS_CI"`, `"DRONE"`, and `"APPVEYOR"`.
+
 # Environment variables
 
-[`deploydocs`](@ref)'s behavior is influenced by the following environment variables, many
-of which are specific to the [Travis CI platform](https://travis-ci.com/).
+- **`DOCUMENTER_KEY`**: must contain the Base64-encoded SSH private key for the repository.
 
- - **`DOCUMENTER_KEY`**: must contain the Base64-encoded SSH private key for the repository.
+[`deploydocs`](@ref)'s behavior is influenced by environment variables when in a CI environment.
+Please refer to the source to see what these variables are for each system; below is the description
+of the Travis CI environment variables that [`deploydocs`](@ref) parses.
 
  - **`TRAVIS_PULL_REQUEST`**: must be set to `false`.
 
@@ -495,7 +499,7 @@ of which are specific to the [Travis CI platform](https://travis-ci.com/).
    version number in `TRAVIS_TAG` instead.
 
 The `TRAVIS_*` variables are set automatically on Travis, but could be set manually to
-appropriate values as well to run [`deploydocs`](@ref) locally or on other CI platforms.
+appropriate values as well to run [`deploydocs`](@ref) locally.
 More information on how Travis sets the `TRAVIS_*` variables can be found in the
 [Travis documentation](https://docs.travis-ci.com/user/environment-variables/#default-environment-variables).
 
@@ -524,6 +528,7 @@ function deploydocs(;
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
+        uploader = "TRAVIS"
     )
     # deprecation of latest kwarg (renamed to devbranch)
     if latest !== nothing
@@ -547,6 +552,8 @@ function deploydocs(;
         return
     end
 
+    local finaldeploy
+
     if haskey(ENV, "CI")
 
         if haskey(ENV, "TRAVIS")
@@ -559,6 +566,8 @@ function deploydocs(;
             tag          = get(ENV, "TRAVIS_TAG",                "")
             event_type   = get(ENV, "TRAVIS_EVENT_TYPE",         "")
 
+            finaldeploy = uploader == "TRAVIS"
+
         elseif haskey(ENV, "GITLAB_CI")
 
             @info "Gitlab CI detected"
@@ -568,6 +577,8 @@ function deploydocs(;
             repo_slug    = get(ENV, "CI_PROJECT_PATH",           "")
             tag          = get(ENV, "CI_COMMIT_TAG",             "")
             event_type   = get(ENV, "CI_PIPELINE_SOURCE",        "")
+
+            finaldeploy = uploader == "GITLAB_CI"
 
         elseif haskey(ENV, "DRONE")
 
@@ -579,6 +590,8 @@ function deploydocs(;
             tag          = get(ENV, "DRONE_TAG",                 "")
             event_type   = get(ENV, "DRONE_BUILD_EVENT",         "")
 
+            finaldeploy = uploader == "DRONE"
+
         elseif haskey(ENV, "CIRRUS_CI")
 
             @info "Cirrus CI detected"
@@ -588,6 +601,8 @@ function deploydocs(;
             repo_slug    = get(ENV, "CIRRUS_REPO_FULL_NAME",     "")
             tag          = get(ENV, "CIRRUS_TAG",                "")
             event_type   = "unknown" # Cirrus CI doesn't seem to provide the triggering event...
+
+            finaldeploy = uploader == "CIRRUS_CI"
 
         elseif haskey(ENV, "APPVEYOR") # the worst of them all
 
@@ -602,6 +617,8 @@ function deploydocs(;
             repo_slug    = get(ENV, "APPVEYOR_PROJECT_SLUG",              "")
             tag          = get(ENV, "APPVEYOR_REPO_TAG_NAME",             "")
             event_type   = "unknown" # Appveyor has four env vars for this...
+
+            finaldeploy = uploader == "APPVEYOR"
 
         else
 
@@ -651,7 +668,7 @@ function deploydocs(;
     ## Cron jobs should not deploy
     type_ok = event_type != "cron"
 
-    should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok
+    should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok && finaldeploy
 
     marker(x) = x ? "✔" : "✘"
     @info """Deployment criteria:
@@ -661,6 +678,7 @@ function deploydocs(;
     - $(marker(branch_ok)) CI branch = "$(branch)" matches devbranch="$(devbranch)" (if tag is empty)
     - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
     - $(marker(type_ok)) CI event type = "$(event_type)" is not "cron"
+    - $(marker(finaldeploy)) CI service is $uploader
     Deploying: $(marker(should_deploy))
     """
 
