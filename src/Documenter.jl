@@ -581,7 +581,7 @@ function deploydocs(;
         return
     end
 
-    local branch, pull_request, repo_slug, tag, event_type, finaldeploy
+    local cibranch, pull_request, repo_slug, tag, event_type, finaldeploy
 
     if haskey(ENV, "CI")
 
@@ -589,7 +589,7 @@ function deploydocs(;
 
             @info "Travis CI detected"
 
-            branch       = get(ENV, "TRAVIS_BRANCH",             "")
+            cibranch     = get(ENV, "TRAVIS_BRANCH",             "")
             pull_request = get(ENV, "TRAVIS_PULL_REQUEST",       "")
             repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",          "")
             tag          = get(ENV, "TRAVIS_TAG",                "")
@@ -601,7 +601,7 @@ function deploydocs(;
 
             @info "Gitlab CI detected"
 
-            branch       = get(ENV, "CI_COMMIT_REF_NAME",        "")
+            cibranch     = get(ENV, "CI_COMMIT_REF_NAME",        "")
             pull_request = get(ENV, "CI_MERGE_REQUEST_ID",  "false")
             repo_slug    = get(ENV, "CI_PROJECT_PATH",           "")
             tag          = get(ENV, "CI_COMMIT_TAG",             "")
@@ -613,7 +613,7 @@ function deploydocs(;
 
             @info "Drone CI detected"
 
-            branch       = get(ENV, "DRONE_COMMIT_BRANCH",       "")
+            cibranch     = get(ENV, "DRONE_COMMIT_BRANCH",       "")
             pull_request = get(ENV, "DRONE_PULL_REQUEST",   "false")
             repo_slug    = get(ENV, "DRONE_REPO_NAMESPACE",      "") * "/" * get(ENV, "DRONE_REPO_NAME", "")
             tag          = get(ENV, "DRONE_TAG",                 "")
@@ -625,7 +625,7 @@ function deploydocs(;
 
             @info "Cirrus CI detected"
 
-            branch       = get(ENV, "CIRRUS_BRANCH",             "")
+            cibranch     = get(ENV, "CIRRUS_BRANCH",             "")
             pull_request = get(ENV, "CIRRUS_PR",            "false")
             repo_slug    = get(ENV, "CIRRUS_REPO_FULL_NAME",     "")
             tag          = get(ENV, "CIRRUS_TAG",                "")
@@ -638,7 +638,7 @@ function deploydocs(;
             @info "AppVeyor CI detected"
 
             pull_request = get(ENV, "APPVEYOR_PULL_REQUEST_NUMBER",  "false")
-            branch       = if haskey(ENV, "APPVEYOR_PULL_REQUEST_NUMBER"    )
+            cibranch     = if haskey(ENV, "APPVEYOR_PULL_REQUEST_NUMBER"    )
                                 ENV["APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH"]
                             else
                                 get(ENV, "APPVEYOR_REPO_BRANCH",          "")
@@ -691,7 +691,7 @@ function deploydocs(;
     ## If a tag exists, it should be a valid VersionNumber
     tag_ok = isempty(tag) || occursin(Base.VERSION_REGEX, tag)
     ## If no tag exists deploydocs' devbranch should match the CI branch
-    branch_ok = !isempty(tag) || branch == devbranch
+    branch_ok = !isempty(tag) || cibranch == devbranch
     ## DOCUMENTER_KEY should exist
     key_ok = !isempty(documenter_key)
     ## Cron jobs should not deploy
@@ -704,7 +704,7 @@ function deploydocs(;
     - $(marker(repo_ok)) CI repo slug = "$(repo_slug)" occurs in repo = "$(repo)"
     - $(marker(pr_ok)) CI pull request indicator = "$(pull_request)" is "false" or "False"
     - $(marker(tag_ok)) CI tag indicator = "$(tag)" is (i) empty or (ii) a valid VersionNumber
-    - $(marker(branch_ok)) CI branch = "$(branch)" matches devbranch="$(devbranch)" (if tag is empty)
+    - $(marker(branch_ok)) CI branch = "$(cibranch)" matches devbranch="$(devbranch)" (if tag is empty)
     - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
     - $(marker(type_ok)) CI event type = "$(event_type)" is not "cron"
     - $(marker(finaldeploy)) CI service is $uploader
