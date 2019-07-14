@@ -41,6 +41,8 @@ shell> ssh-keygen -N "" -f privatekey
 Next, we need to encode the private key in Base64. Run the following command:
 
 ```julia
+julia> using Base64
+
 julia> read("privatekey", String) |> base64encode |>  println
 ```
 
@@ -134,7 +136,7 @@ to do something else - consult your CI system's documentation.
 First, we need to Base64 encode the private key. Open Julia, and run the command
 
 ```julia
-julia> read("path/to/private/key", String) |> Documenter.base64encode |> println
+julia> read("path/to/private/key", String) |> base64encode |> println
 ```
 
 Copy the resulting output.
