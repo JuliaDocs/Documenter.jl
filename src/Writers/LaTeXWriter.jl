@@ -90,7 +90,27 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             name = doc.user.sitename
-            let tag = get(ENV, "TRAVIS_TAG", "")
+            let tag = if haskey(ENV, "CI")
+                        if haskey(ENV, "TRAVIS")
+                            @info "Travis CI detected"
+                            get(ENV, "TRAVIS_TAG",                "")
+                        elseif haskey(ENV, "GITLAB_CI")
+                            @info "Gitlab CI detected"
+                            get(ENV, "CI_COMMIT_TAG",             "")
+                        elseif haskey(ENV, "DRONE")
+                            @info "Drone CI detected"
+                            get(ENV, "DRONE_TAG",                 "")
+                        elseif haskey(ENV, "CIRRUS_CI")
+                            @info "Cirrus CI detected"
+                            get(ENV, "CIRRUS_TAG",                "")
+                        elseif haskey(ENV, "APPVEYOR")
+                            @info "AppVeyor CI detected"
+                            get(ENV, "APPVEYOR_REPO_TAG_NAME",    "")
+                        end
+                    else
+                        ""
+                    end
+
                 if occursin(Base.VERSION_REGEX, tag)
                     v = VersionNumber(tag)
                     name *= "-$(v.major).$(v.minor).$(v.patch)"
@@ -181,6 +201,28 @@ end
 function writeheader(io::IO, doc::Documents.Document)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
+
+    tag = if haskey(ENV, "CI")
+            if haskey(ENV, "TRAVIS")
+                @info "Travis CI detected"
+                get(ENV, "TRAVIS_TAG",                "")
+            elseif haskey(ENV, "GITLAB_CI")
+                @info "Gitlab CI detected"
+                get(ENV, "CI_COMMIT_TAG",             "")
+            elseif haskey(ENV, "DRONE")
+                @info "Drone CI detected"
+                get(ENV, "DRONE_TAG",                 "")
+            elseif haskey(ENV, "CIRRUS_CI")
+                @info "Cirrus CI detected"
+                get(ENV, "CIRRUS_TAG",                "")
+            elseif haskey(ENV, "APPVEYOR")
+                @info "AppVeyor CI detected"
+                get(ENV, "APPVEYOR_REPO_TAG_NAME",    "")
+            end
+            @info "No tag detected..."
+            else
+                ""
+            end
     preamble =
         """
         \\documentclass{memoir}
@@ -190,7 +232,7 @@ function writeheader(io::IO, doc::Documents.Document)
 
         \\title{
             {\\HUGE $(doc.user.sitename)}\\\\
-            {\\Large $(get(ENV, "TRAVIS_TAG", ""))}
+            {\\Large $tag}
         }
         \\author{$(doc.user.authors)}
 
