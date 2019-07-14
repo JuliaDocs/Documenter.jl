@@ -673,7 +673,7 @@ function deploydocs(;
     marker(x) = x ? "✔" : "✘"
     @info """Deployment criteria:
     - $(marker(repo_ok)) CI repo slug = "$(repo_slug)" occurs in repo = "$(repo)"
-    - $(marker(pr_ok)) CI pull request indicator = "$(pull_request)" is "false"
+    - $(marker(pr_ok)) CI pull request indicator = "$(pull_request)" is "false" or "False"
     - $(marker(tag_ok)) CI tag indicator = "$(tag)" is (i) empty or (ii) a valid VersionNumber
     - $(marker(branch_ok)) CI branch = "$(branch)" matches devbranch="$(devbranch)" (if tag is empty)
     - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
