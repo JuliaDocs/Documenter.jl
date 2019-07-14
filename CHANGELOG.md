@@ -36,6 +36,8 @@
 
 * ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
 
+* ![Experimental][badge-experimantal] ![Feature][badge-feature] `deploydocs` now reads the appropriate environment variables on Travis CI, Gitlab CI, Cirrus CI, Drone CI, and AppVeyor, as does `LaTeXWriter`.
+
 ## Version `v0.22.5`
 
 * ![Maintenance][badge-maintenance] Fix a test dependency problem revealed by a bugfix in Julia / Pkg. ([#1037][github-1037])

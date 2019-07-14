@@ -2,9 +2,16 @@
 
 After going through the [Package Guide](@ref) and [Doctests](@ref) page you will need to
 host the generated documentation somewhere for potential users to read. This guide will
-describe how to setup automatic updates for your package docs using the Travis build service
+describe how to setup automatic updates for your package docs using CI build services
 and GitHub Pages. This is the same approach used by this package to host its own docs --
 the docs you're currently reading.
+
+!!! warning
+
+    Documenter.jl only supports Travis CI, Gitlab CI, Cirrus CI, Drone CI, and AppVeyor.
+
+    If you want to use another CI service, please either [open an issue](https://github.com/JuliaDocs/Documenter.jl/issues/new)
+    or set the relevant environment variables yourself.
 
 !!! note
 
@@ -14,8 +21,8 @@ the docs you're currently reading.
     documentation locally with Documenter.
 
     This guide assumes that you already have [GitHub](https://github.com/) and
-    [Travis](https://travis-ci.com/) accounts setup. If not then go set those up first and
-    then return here.
+    a CI system, like [Travis](https://travis-ci.com/) accounts setup. If not,
+    then go set those up first and then return here.
 
 
 ## Overview
