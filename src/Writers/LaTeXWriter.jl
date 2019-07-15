@@ -203,26 +203,10 @@ function writeheader(io::IO, doc::Documents.Document)
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
 
     tag = if haskey(ENV, "CI")
-            if haskey(ENV, "TRAVIS")
-                @info "Travis CI detected"
-                get(ENV, "TRAVIS_TAG",                "")
-            elseif haskey(ENV, "GITLAB_CI")
-                @info "Gitlab CI detected"
-                get(ENV, "CI_COMMIT_TAG",             "")
-            elseif haskey(ENV, "DRONE")
-                @info "Drone CI detected"
-                get(ENV, "DRONE_TAG",                 "")
-            elseif haskey(ENV, "CIRRUS_CI")
-                @info "Cirrus CI detected"
-                get(ENV, "CIRRUS_TAG",                "")
-            elseif haskey(ENV, "APPVEYOR")
-                @info "AppVeyor CI detected"
-                get(ENV, "APPVEYOR_REPO_TAG_NAME",    "")
-            end
-            @info "No tag detected..."
-            else
-                ""
-            end
+            read_ci_env(false)[4]
+          else
+              ""
+          end
     preamble =
         """
         \\documentclass{memoir}
