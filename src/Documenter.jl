@@ -400,7 +400,7 @@ Values:
 end
 
 """
-    read_ci_env([returnfinaldeploy::Bool]; uploader::CISystem = TRAVIS)
+    read_ci_env([returnfinaldeploy::Bool]; uploader::CI_SYSTEM = TRAVIS)
 
 Read the CI environment variables, and return (always) an Array where the first
 five elements are, in order:
@@ -412,7 +412,7 @@ five elements are, in order:
 Furthermore, if `returnfinaldeploy` is true, the function will check whether the
 current CI provider matches `uploader` (set by default to Travis).
 """
-function read_ci_env(returnfinaldeploy=false; uploader::CISystem = TRAVIS)
+function read_ci_env(returnfinaldeploy=false; uploader::CI_SYSTEM = TRAVIS)
 
     arraylength = returnfinaldeploy ? 6 : 5
 
