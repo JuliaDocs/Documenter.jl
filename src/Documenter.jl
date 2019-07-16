@@ -386,23 +386,17 @@ Values:
 * `APPVEYOR`
 """
 @enum CI_SYSTEM begin
-
     TRAVIS
-
     GITLAB_CI
-
     CIRRUS_CI
-
     DRONE
-
     APPVEYOR
-
 end
 
 """
     read_ci_env([returnfinaldeploy::Bool]; uploader::CI_SYSTEM = TRAVIS)
 
-Read the CI environment variables, and return (always) an Array where the first
+Read the CI environment variables, and return (always) a NamedTuple where the first
 five elements are, in order:
     - `cibranch`: which branch is CI running on?
     - `pull_request`: is CI building a pull request?  Empty string if not.
@@ -411,12 +405,14 @@ five elements are, in order:
     - `event_type`: The event that triggered CI.
 Furthermore, if `returnfinaldeploy` is true, the function will check whether the
 current CI provider matches `uploader` (set by default to Travis).
+
+Returns a NamedTuple.
 """
 function read_ci_env(returnfinaldeploy=false; uploader::CI_SYSTEM = TRAVIS)
 
     arraylength = returnfinaldeploy ? 6 : 5
 
-    ret = Array{Union{String, Bool}}(undef, arraylength)
+    ret = nothing
 
     if haskey(ENV, "TRAVIS")
 
@@ -428,9 +424,9 @@ function read_ci_env(returnfinaldeploy=false; uploader::CI_SYSTEM = TRAVIS)
         tag          = get(ENV, "TRAVIS_TAG",                "")
         event_type   = get(ENV, "TRAVIS_EVENT_TYPE",         "")
 
-        ret[1:5] .= (cibranch, pull_request, repo_slug, tag, event_type)
+        ret = (cibranch = cibranch, pull_request = pull_request, repo_slug = repo_slug, tag = tag, event_type = event_type)
 
-        returnfinaldeploy && begin ret[6] = uploader == TRAVIS end
+        returnfinaldeploy && begin ret = (ret..., uploader = uploader == TRAVIS) end
 
     elseif haskey(ENV, "GITLAB_CI")
 
@@ -442,9 +438,9 @@ function read_ci_env(returnfinaldeploy=false; uploader::CI_SYSTEM = TRAVIS)
         tag          = get(ENV, "CI_COMMIT_TAG",             "")
         event_type   = get(ENV, "CI_PIPELINE_SOURCE",        "")
 
-        ret[1:5] .= (cibranch, pull_request, repo_slug, tag, event_type)
+        ret = (cibranch = cibranch, pull_request = pull_request, repo_slug = repo_slug, tag = tag, event_type = event_type)
 
-        returnfinaldeploy && begin ret[6] = uploader == GITLAB_CI end
+        returnfinaldeploy && begin ret = (ret..., uploader = uploader == GITLAB_CI) end
 
     elseif haskey(ENV, "DRONE")
 
@@ -456,9 +452,9 @@ function read_ci_env(returnfinaldeploy=false; uploader::CI_SYSTEM = TRAVIS)
         tag          = get(ENV, "DRONE_TAG",                 "")
         event_type   = get(ENV, "DRONE_BUILD_EVENT",         "")
 
-        ret[1:5] .= (cibranch, pull_request, repo_slug, tag, event_type)
+        ret = (cibranch = cibranch, pull_request = pull_request, repo_slug = repo_slug, tag = tag, event_type = event_type)
 
-        returnfinaldeploy && begin ret[6] = uploader == DRONE end
+        returnfinaldeploy && begin ret = (ret..., uploader = uploader == DRONE) end
 
     elseif haskey(ENV, "CIRRUS_CI")
 
@@ -488,18 +484,22 @@ function read_ci_env(returnfinaldeploy=false; uploader::CI_SYSTEM = TRAVIS)
         tag          = get(ENV, "APPVEYOR_REPO_TAG_NAME",             "")
         event_type   = "unknown" # Appveyor has four env vars for this...
 
-        ret[1:5] .= (cibranch, pull_request, repo_slug, tag, event_type)
+        ret = (cibranch = cibranch, pull_request = pull_request, repo_slug = repo_slug, tag = tag, event_type = event_type)
 
-        returnfinaldeploy && begin ret[6] = uploader == APPVEYOR end
+        returnfinaldeploy && begin ret = (ret..., uploader = uploader == APPVEYOR) end
 
     else
 
-        error(
+        warning(
             """
             We don't recognize the CI service you're running, or haven't added support for it.
             We currently support Travis CI, Gitlab CI, Drone CI, Cirrus CI and AppVeyor.
             """
         )
+
+        ret = (cibranch = nothing, pull_request = nothing, repo_slug = nothing, tag = nothing, event_type = nothing)
+
+        returnfinaldeploy && begin ret = (ret..., uploader = uploader == nothing) end
 
     end
 end
@@ -670,7 +670,8 @@ function deploydocs(;
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
-        uploader::CI_SYSTEM = TRAVIS
+        uploader::CI_SYSTEM = TRAVIS,
+        tag = ""
     )
     # deprecation of latest kwarg (renamed to devbranch)
     if latest !== nothing
@@ -697,12 +698,13 @@ function deploydocs(;
     local cibranch, pull_request, repo_slug, tag, event_type, finaldeploy
 
     if haskey(ENV, "CI")
-        cibranch, pull_request, repo_slug, tag, event_type, finaldeploy = read_ci_env(true, uploader=uploader)
+        cibranch, pull_request, repo_slug, citag, event_type, finaldeploy = read_ci_env(true, uploader=uploader)
+        tag = isempty(tag) ? citag : tag
     else
         cibranch = devbranch
         pull_request = false
         repo_slug = repo
-        tag = isempty(tag) && read_ci_env()[4]
+        tag = isempty(tag) ? read_ci_env()[:tag] : tag
         event_type = "manual"
         finaldeploy = haskey(ENV, "DOCUMENTER_KEY")
     end
@@ -745,7 +747,7 @@ function deploydocs(;
     should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok && finaldeploy
 
     marker(x) = x ? "✔" : "✘"
-    if HASKEY(ENV, "CI")
+    if haskey(ENV, "CI")
         @info """
         Deploying on CI.
         Deployment criteria:
@@ -836,9 +838,95 @@ function git_push(
     end
     chmod(keyfile, 0o600)
 
+    function _push()
+        cd(temp) do
+            # Setup git.
+            run(`git init`)
+            run(`git config user.name "zeptodoctor"`)
+            run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+
+            # Fetch from remote and checkout the branch.
+            run(`git remote add upstream $upstream`)
+            try
+                run(`git fetch upstream`)
+            catch e
+                @error """
+                Git failed to fetch $upstream
+                This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
+                Make sure that the environment variable is properly set up as a Base64-encoded string
+                of the SSH private key. You may need to re-generate the keys with DocumenterTools.
+                """
+                rethrow(e)
+            end
+
+            try
+                run(`git checkout -b $branch upstream/$branch`)
+            catch e
+                @debug "checking out $branch failed with error: $e"
+                @debug "creating a new local $branch branch."
+                run(`git checkout --orphan $branch`)
+                run(`git commit --allow-empty -m "Initial empty commit for docs"`)
+            end
+
+            # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
+            if isempty(tag)
+                devurl_dir = joinpath(dirname, devurl)
+                gitrm_copy(target_dir, devurl_dir)
+                Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
+                # symlink "latest" to devurl to preserve links (remove in some future release)
+                if devurl != "latest"
+                    rm(joinpath(dirname, "latest"); recursive = true, force = true)
+                    @warn(string("creating symlink from `latest` to `$(devurl)` for backwards ",
+                        "compatibility with old links. In future Documenter versions this symlink ",
+                        "will not be created. Please update any links that point to `latest`."))
+                    cd(dirname) do; rm_and_add_symlink(devurl, "latest"); end
+                end
+            else
+                tagged_dir = joinpath(dirname, tag)
+                gitrm_copy(target_dir, tagged_dir)
+                Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
+            end
+
+            # Expand the users `versions` vector
+            entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
+
+            # Create the versions.js file containing a list of `entries`.
+            # This must always happen after the folder copying.
+            Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
+
+            # generate the symlinks, make sure we don't overwrite devurl
+            cd(dirname) do
+                for kv in symlinks
+                    i = findfirst(x -> x.first == devurl, symlinks)
+                    if i === nothing
+                        rm_and_add_symlink(kv.second, kv.first)
+                    else
+                        throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
+                            "`devurl = $(devurl)` with the same name.")))
+                    end
+                end
+            end
+
+            # Add, commit, and push the docs to the remote.
+            run(`git add -A .`)
+            if !success(`git diff --cached --exit-code`)
+                if forcepush
+                    run(`git commit --amend --date=now -m "build based on $sha"`)
+                    run(`git push -fq upstream HEAD:$branch`)
+                else
+                    run(`git commit -m "build based on $sha"`)
+                    run(`git push -q upstream HEAD:$branch`)
+                end
+            else
+                @debug "new docs identical to the old -- not committing nor pushing."
+            end
+        end
+    end
+
     try
         # Use a custom SSH config file to avoid overwriting the default user config.
-        withfile(joinpath(homedir(), ".ssh", "config"),
+        if haskey(ENV, "CI")
+            withfile(_push, joinpath(homedir(), ".ssh", "config"),
             """
             Host $host
                 StrictHostKeyChecking no
@@ -846,89 +934,9 @@ function git_push(
                 IdentityFile "$keyfile"
                 BatchMode yes
             """
-        ) do
-            cd(temp) do
-                # Setup git.
-                run(`git init`)
-                run(`git config user.name "zeptodoctor"`)
-                run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
-
-                # Fetch from remote and checkout the branch.
-                run(`git remote add upstream $upstream`)
-                try
-                    run(`git fetch upstream`)
-                catch e
-                    @error """
-                    Git failed to fetch $upstream
-                    This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
-                    Make sure that the environment variable is properly set up as a Base64-encoded string
-                    of the SSH private key. You may need to re-generate the keys with DocumenterTools.
-                    """
-                    rethrow(e)
-                end
-
-                try
-                    run(`git checkout -b $branch upstream/$branch`)
-                catch e
-                    @debug "checking out $branch failed with error: $e"
-                    @debug "creating a new local $branch branch."
-                    run(`git checkout --orphan $branch`)
-                    run(`git commit --allow-empty -m "Initial empty commit for docs"`)
-                end
-
-                # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
-                if isempty(tag)
-                    devurl_dir = joinpath(dirname, devurl)
-                    gitrm_copy(target_dir, devurl_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
-                    # symlink "latest" to devurl to preserve links (remove in some future release)
-                    if devurl != "latest"
-                        rm(joinpath(dirname, "latest"); recursive = true, force = true)
-                        @warn(string("creating symlink from `latest` to `$(devurl)` for backwards ",
-                            "compatibility with old links. In future Documenter versions this symlink ",
-                            "will not be created. Please update any links that point to `latest`."))
-                        cd(dirname) do; rm_and_add_symlink(devurl, "latest"); end
-                    end
-                else
-                    tagged_dir = joinpath(dirname, tag)
-                    gitrm_copy(target_dir, tagged_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
-                end
-
-                # Expand the users `versions` vector
-                entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
-
-                # Create the versions.js file containing a list of `entries`.
-                # This must always happen after the folder copying.
-                Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
-
-                # generate the symlinks, make sure we don't overwrite devurl
-                cd(dirname) do
-                    for kv in symlinks
-                        i = findfirst(x -> x.first == devurl, symlinks)
-                        if i === nothing
-                            rm_and_add_symlink(kv.second, kv.first)
-                        else
-                            throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
-                                "`devurl = $(devurl)` with the same name.")))
-                        end
-                    end
-                end
-
-                # Add, commit, and push the docs to the remote.
-                run(`git add -A .`)
-                if !success(`git diff --cached --exit-code`)
-                    if forcepush
-                        run(`git commit --amend --date=now -m "build based on $sha"`)
-                        run(`git push -fq upstream HEAD:$branch`)
-                    else
-                        run(`git commit -m "build based on $sha"`)
-                        run(`git push -q upstream HEAD:$branch`)
-                    end
-                else
-                    @debug "new docs identical to the old -- not committing nor pushing."
-                end
-            end
+        )
+        else
+            _push()
         end
     finally
         # Remove the unencrypted private key.

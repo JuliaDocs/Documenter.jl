@@ -90,28 +90,9 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             name = doc.user.sitename
-            let tag = if haskey(ENV, "CI")
-                        if haskey(ENV, "TRAVIS")
-                            @info "Travis CI detected"
-                            get(ENV, "TRAVIS_TAG",                "")
-                        elseif haskey(ENV, "GITLAB_CI")
-                            @info "Gitlab CI detected"
-                            get(ENV, "CI_COMMIT_TAG",             "")
-                        elseif haskey(ENV, "DRONE")
-                            @info "Drone CI detected"
-                            get(ENV, "DRONE_TAG",                 "")
-                        elseif haskey(ENV, "CIRRUS_CI")
-                            @info "Cirrus CI detected"
-                            get(ENV, "CIRRUS_TAG",                "")
-                        elseif haskey(ENV, "APPVEYOR")
-                            @info "AppVeyor CI detected"
-                            get(ENV, "APPVEYOR_REPO_TAG_NAME",    "")
-                        end
-                    else
-                        ""
-                    end
+            let tag = read_ci_env()[:tag]
 
-                if occursin(Base.VERSION_REGEX, tag)
+                if occursin(Base.VERSION_REGEX, tag === nothing ? "" : tag)
                     v = VersionNumber(tag)
                     name *= "-$(v.major).$(v.minor).$(v.patch)"
                 end
@@ -202,11 +183,7 @@ function writeheader(io::IO, doc::Documents.Document)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
 
-    tag = if haskey(ENV, "CI")
-            read_ci_env(false)[4]
-          else
-              ""
-          end
+    tag = haskey(ENV, "CI") ? read_ci_env(false)[4] : ""
     preamble =
         """
         \\documentclass{memoir}
