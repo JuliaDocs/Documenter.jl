@@ -695,16 +695,16 @@ function deploydocs(;
         return
     end
 
-    local cibranch, pull_request, repo_slug, tag, event_type, finaldeploy
+    local cibranch, pull_request, repo_slug, localtag, event_type, finaldeploy
 
     if haskey(ENV, "CI")
         cibranch, pull_request, repo_slug, citag, event_type, finaldeploy = read_ci_env(true, uploader=uploader)
-        tag = isempty(tag) ? citag : tag
+        localtag = isempty(tag) ? citag : tag
     else
         cibranch = devbranch
         pull_request = false
         repo_slug = repo
-        tag = isempty(tag) ? read_ci_env()[:tag] : tag
+        localtag = isempty(tag) ? read_ci_env()[:tag] : tag
         event_type = "manual"
         finaldeploy = haskey(ENV, "DOCUMENTER_KEY")
     end
@@ -736,7 +736,7 @@ function deploydocs(;
     ## Do not deploy for PRs
     pr_ok = pull_request in ("false", "False") # Appveyor env vars are capitalized on Windows
     ## If a tag exists, it should be a valid VersionNumber
-    tag_ok = isempty(tag) || occursin(Base.VERSION_REGEX, tag)
+    tag_ok = isempty(localtag) || occursin(Base.VERSION_REGEX, tag)
     ## If no tag exists deploydocs' devbranch should match the CI branch
     branch_ok = !isempty(tag) || cibranch == devbranch
     ## DOCUMENTER_KEY should exist
@@ -753,7 +753,7 @@ function deploydocs(;
         Deployment criteria:
         - $(marker(repo_ok)) CI repo slug = "$(repo_slug)" occurs in repo = "$(repo)"
         - $(marker(pr_ok)) CI pull request indicator = "$(pull_request)" is "false" or "False"
-        - $(marker(tag_ok)) CI tag indicator = "$(tag)" is (i) empty or (ii) a valid VersionNumber
+        - $(marker(tag_ok)) CI tag indicator = "$(localtag)" is (i) empty or (ii) a valid VersionNumber
         - $(marker(branch_ok)) CI branch = "$(cibranch)" matches devbranch="$(devbranch)" (if tag is empty)
         - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
         - $(marker(type_ok)) CI event type = "$(event_type)" is not "cron"
