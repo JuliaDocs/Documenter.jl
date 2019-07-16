@@ -22,6 +22,7 @@ Pages = ["public.md"]
 Documenter
 makedocs
 hide
+CI_SYSTEM
 deploydocs
 Deps
 Deps.pip
