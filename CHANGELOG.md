@@ -28,6 +28,8 @@
 
 * ![Enhancement][badge-enhancement] `deploydocs` now reads the appropriate environment variables on Travis CI, Gitlab CI, Cirrus CI, Drone CI, and AppVeyor, as does `LaTeXWriter`. However, be aware that CI systems other than Travis CI have not received extensive testing. ([#1067][github-1067])
 
+* ![Enhancement][badge-enhancement] `deploydocs` can now be switched to tag building mode with the `tag` keyword, which overrides the tag information from CI environment variables. ([#1067][github-1067])
+
 * ![Bugfix][badge-bugfix] The HTML output now outputs HTML files for pages that are not referenced in the `pages` keyword too (Documenter finds them according to their extension). But they do exists outside of the standard navigation hierarchy (as defined by `pages`). This fixes a bug where these pages could still be referenced by `@ref` links and `@contents` blocks, but in the HTML output, the links ended up being broken. ([#1031][github-1031], [#1047][github-1047])
 
 * ![Bugfix][badge-bugfix] `makedocs` now throws an error when the format objects (`Documenter.HTML`, `LaTeX`, `Markdown`) get passed positionally. The format types are no longer subtypes of `Documenter.Plugin`. ([#1046][github-1046], [#1061][github-1061])
