@@ -500,16 +500,11 @@ function read_ci_env(returnfinaldeploy=false; uploader::CI_SYSTEM = TRAVIS)
         returnfinaldeploy && begin ret = (ret..., uploader = uploader == APPVEYOR) end
 
     else
-
-        warning(
-            """
+        @warn """
             We don't recognize the CI service you're running, or haven't added support for it.
             We currently support Travis CI, Gitlab CI, Drone CI, Cirrus CI and AppVeyor.
             """
-        )
-
         ret = (cibranch = nothing, pull_request = nothing, repo_slug = nothing, tag = nothing, event_type = nothing)
-
         returnfinaldeploy && begin ret = (ret..., uploader = uploader == nothing) end
 
     end
