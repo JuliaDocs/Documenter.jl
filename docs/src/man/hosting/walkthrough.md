@@ -47,7 +47,7 @@ julia> read("privatekey", String) |> base64encode |>  println
 ```
 
 Copy and paste the output somewhere. This is your *private key* and is required for the step
-[Adding the Private Key to CI](@ref).
+[Adding the Private Key to Travis](@ref).
 
 Now we need to get the public key. Run the following command:
 
