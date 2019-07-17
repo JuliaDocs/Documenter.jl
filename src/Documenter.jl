@@ -379,11 +379,11 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
 The supported CI systems to deploy docs from, using Documenter.jl.
 
 Values:
-* `TRAVIS`
-* `GITLAB_CI`
-* `CIRRUS_CI`
-* `DRONE`
-* `APPVEYOR`
+* [`TRAVIS`](@ref)
+* [`GITLAB_CI`](@ref)
+* [`CIRRUS_CI`](@ref)
+* [`DRONE`](@ref)
+* [`APPVEYOR`](@ref)
 """
 @enum CI_SYSTEM begin
     TRAVIS
@@ -392,6 +392,17 @@ Values:
     DRONE
     APPVEYOR
 end
+# docstrings for CI_SYSTEM values
+"Specialize [`deploydocs`](@ref) for [Travis CI](https://travis-ci.org/). See also [`Documenter.CI_SYSTEM`](@ref)."
+TRAVIS
+"Specialize [`deploydocs`](@ref) for [Appveyor](https://www.appveyor.com/). See also [`Documenter.CI_SYSTEM`](@ref)."
+APPVEYOR
+"Specialize [`deploydocs`](@ref) for [GitLab CI](https://about.gitlab.com/product/continuous-integration/). See also [`Documenter.CI_SYSTEM`](@ref)."
+GITLAB_CI
+"Specialize [`deploydocs`](@ref) for [Cirrus CI](https://cirrus-ci.org/). See also [`Documenter.CI_SYSTEM`](@ref)."
+CIRRUS_CI
+"Specialize [`deploydocs`](@ref) for [Drone](https://drone.io/). See also [`Documenter.CI_SYSTEM`](@ref)."
+DRONE
 
 """
     read_ci_env([returnfinaldeploy::Bool]; uploader::CI_SYSTEM = TRAVIS)
@@ -598,8 +609,9 @@ the generated html. The following entries are valied in the `versions` vector:
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
 
-**uploader** determines _which_ CI service will upload the documentation.  Defaults to Travis
-(`TRAVIS`).  Other options are `GITLAB_CI`, `CIRRUS_CI`, `DRONE`, and `APPVEYOR`.
+**uploader** determines _which_ CI service will upload the documentation.  Defaults to
+Travis ([`TRAVIS`](@ref)).  Other options are [`GITLAB_CI`](@ref), [`CIRRUS_CI`](@ref),
+[`DRONE`](@ref), and [`APPVEYOR`](@ref).
 
 **tag** provides a specific tag, if you want one to be set.  Providing an empty string (if
 building manually) will make the documentation build as if there was no tag; but, if run on

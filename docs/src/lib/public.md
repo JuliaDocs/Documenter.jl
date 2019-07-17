@@ -22,7 +22,6 @@ Pages = ["public.md"]
 Documenter
 makedocs
 hide
-CI_SYSTEM
 deploydocs
 Deps
 Deps.pip
@@ -30,6 +29,17 @@ doctest
 DocMeta
 DocMeta.getdocmeta
 DocMeta.setdocmeta!
+```
+
+### CI platforms supported by `deploydocs`
+
+```@docs
+Documenter.CI_SYSTEM
+TRAVIS
+GITLAB_CI
+CIRRUS_CI
+DRONE
+APPVEYOR
 ```
 
 ## DocumenterTools
