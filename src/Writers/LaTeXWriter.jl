@@ -128,6 +128,13 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             # compile .tex and copy over the .pdf file if compile_tex return true
             status = compile_tex(doc, settings, texfile)
             status && cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
+
+            # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
+            # source files over to a directory under doc.user.root.
+            if haskey(ENV, "DOCUMENTER_LATEX_DEBUG")
+                sources = cp(pwd(), mktempdir(doc.user.root), force=true)
+                @info "LaTeX sources copied for debugging to $(sources)"
+            end
         end
     end
 end
@@ -391,21 +398,36 @@ function latex(io::IO, code::Markdown.Code)
     # the julia-repl is called "jlcon" in Pygments
     language = (language == "julia-repl") ? "jlcon" : language
     if language in LEXER
-        _print(io, "\n\\begin{minted}")
+        _print(io, "\n\\begin{minted}[escapeinside=\\%\\%]")
         _println(io, "{", language, "}")
-        _println(io, code.code)
+        _print_code_escapes(io, code.code)
         _println(io, "\\end{minted}\n")
     else
-        _println(io, "\n\\begin{lstlisting}")
-        _println(io, code.code)
+        _println(io, "\n\\begin{lstlisting}[escapeinside=\\%\\%]")
+        _print_code_escapes(io, code.code)
         _println(io, "\\end{lstlisting}\n")
+    end
+end
+
+function _print_code_escapes(io, s::AbstractString)
+    for ch in s
+        ch === '%' ? _print(io, "%\\%%") :
+        ch === '⊻' ? _print(io, "%\\unicodeveebar%") :
+                     _print(io, ch)
     end
 end
 
 function latexinline(io::IO, code::Markdown.Code)
     _print(io, "\\texttt{")
-    latexesc(io, code.code)
+    _print_code_escapes_inline(io, code.code)
     _print(io, "}")
+end
+
+function _print_code_escapes_inline(io, s::AbstractString)
+    for ch in s
+        ch === '⊻' ? _print(io, "\\unicodeveebar{}") :
+                     latexesc(io, ch)
+    end
 end
 
 function latex(io::IO, md::Markdown.Paragraph)
@@ -605,9 +627,11 @@ for ch in "&%\$#_{}"
     _latexescape_chars[ch] = "\\$ch"
 end
 
+latexesc(io, ch::AbstractChar) = _print(io, get(_latexescape_chars, ch, ch))
+
 function latexesc(io, s::AbstractString)
     for ch in s
-        _print(io, get(_latexescape_chars, ch, ch))
+        latexesc(io, ch)
     end
 end
 

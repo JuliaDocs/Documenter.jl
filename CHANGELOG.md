@@ -26,6 +26,8 @@
 
 * ![Enhancement][badge-enhancement] Videos can now be included in the HTML output using the image syntax (`![]()`) if the file extension matches a known format (`.webm`, `.mp4`, `.ogg`, `.ogm`, `.ogv`, `.avi`). ([#1034][github-1034])
 
+* ![Enhancement][badge-enhancement] The PDF output now uses the DejaVu Sans  and DejaVu Sans Mono fonts to provide better Unicode coverage. ([#803][github-803], [#1066][github-1066])
+
 * ![Bugfix][badge-bugfix] The HTML output now outputs HTML files for pages that are not referenced in the `pages` keyword too (Documenter finds them according to their extension). But they do exists outside of the standard navigation hierarchy (as defined by `pages`). This fixes a bug where these pages could still be referenced by `@ref` links and `@contents` blocks, but in the HTML output, the links ended up being broken. ([#1031][github-1031], [#1047][github-1047])
 
 * ![Bugfix][badge-bugfix] `makedocs` now throws an error when the format objects (`Documenter.HTML`, `LaTeX`, `Markdown`) get passed positionally. The format types are no longer subtypes of `Documenter.Plugin`. ([#1046][github-1046], [#1061][github-1061])
@@ -308,6 +310,7 @@
 [github-794]: https://github.com/JuliaDocs/Documenter.jl/pull/794
 [github-795]: https://github.com/JuliaDocs/Documenter.jl/pull/795
 [github-802]: https://github.com/JuliaDocs/Documenter.jl/pull/802
+[github-803]: https://github.com/JuliaDocs/Documenter.jl/issues/803
 [github-804]: https://github.com/JuliaDocs/Documenter.jl/pull/804
 [github-813]: https://github.com/JuliaDocs/Documenter.jl/pull/813
 [github-816]: https://github.com/JuliaDocs/Documenter.jl/pull/816
@@ -375,6 +378,7 @@
 [github-1054]: https://github.com/JuliaDocs/Documenter.jl/pull/1054
 [github-1061]: https://github.com/JuliaDocs/Documenter.jl/pull/1061
 [github-1062]: https://github.com/JuliaDocs/Documenter.jl/pull/1062
+[github-1066]: https://github.com/JuliaDocs/Documenter.jl/pull/1066
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
