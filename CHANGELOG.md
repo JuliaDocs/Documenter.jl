@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.22.6`
+
+* ![Maintenance][badge-maintenance] Add DocStringExtensions 0.8 as an allowed dependency version. ([#1071][github-1071])
+
 ## Version `v0.22.5`
 
 * ![Maintenance][badge-maintenance] Fix a test dependency problem revealed by a bugfix in Julia / Pkg. ([#1037][github-1037])
@@ -320,6 +324,7 @@
 [github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
 [github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
 [github-1037]: https://github.com/JuliaDocs/Documenter.jl/pull/1037
+[github-1071]: https://github.com/JuliaDocs/Documenter.jl/pull/1071
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
