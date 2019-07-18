@@ -38,6 +38,10 @@
 
 * ![Experimental][badge-experimental] ![Feature][badge-feature] The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ ([#1013][github-1013], [#1025][github-1025])
 
+## Version `v0.22.6`
+
+* ![Maintenance][badge-maintenance] Add DocStringExtensions 0.8 as an allowed dependency version. ([#1071][github-1071])
+
 ## Version `v0.22.5`
 
 * ![Maintenance][badge-maintenance] Fix a test dependency problem revealed by a bugfix in Julia / Pkg. ([#1037][github-1037])
@@ -379,6 +383,7 @@
 [github-1061]: https://github.com/JuliaDocs/Documenter.jl/pull/1061
 [github-1062]: https://github.com/JuliaDocs/Documenter.jl/pull/1062
 [github-1066]: https://github.com/JuliaDocs/Documenter.jl/pull/1066
+[github-1071]: https://github.com/JuliaDocs/Documenter.jl/pull/1071
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
