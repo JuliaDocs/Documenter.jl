@@ -1,9 +1,14 @@
 % font settings
 \usepackage{fontspec, newunicodechar, polyglossia}
 
-\setsansfont{Lato}[Scale=MatchLowercase, Ligatures=TeX]
-\setmonofont{Roboto Mono}[Scale=MatchLowercase]
+\setsansfont{DejaVu Sans}[Scale=MatchLowercase, Ligatures=TeX]
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
 \renewcommand{\familydefault}{\sfdefault}
+% DejaVu Sans Mono does not have the xor symbol. So we hack around that by replacing all
+% instances of it with calls to \unicodeveebar, which prints this single character as with
+% DejaVu Sans instead.
+\newfontfamily\unicodeveebarfont{DejaVu Sans}[Scale=MatchLowercase]
+\newcommand\unicodeveebar{{\unicodeveebarfont ⊻}}
 %
 
 % colours
