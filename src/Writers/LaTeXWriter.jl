@@ -183,7 +183,7 @@ function writeheader(io::IO, doc::Documents.Document)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
 
-    tag = haskey(ENV, "CI") ? read_ci_env(false)[4] : ""
+    tag = haskey(ENV, "CI") ? read_ci_env(false)[:tag] : ""
     preamble =
         """
         \\documentclass{memoir}
