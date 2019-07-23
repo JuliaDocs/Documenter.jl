@@ -13,7 +13,7 @@ navigation menu. It goes into the `\\title` LaTeX command.
 
 """
 module LaTeXWriter
-import ...Documenter: Documenter
+import ...Documenter: Documenter, read_ci_env
 
 """
     LaTeXWriter.LaTeX(; kwargs...)
