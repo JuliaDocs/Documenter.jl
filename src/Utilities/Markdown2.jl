@@ -273,7 +273,7 @@ end
 
 # Fallback
 function _convert_inline(x)
-    @debug "Strage inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
+    @debug "Strange inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
     Text(repr(x))
 end
 
