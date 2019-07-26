@@ -242,7 +242,7 @@ _convert_block(b::Markdown.Admonition) = Admonition(b.category, b.title, _conver
 
 # Fallback
 function _convert_block(x)
-    @debug "Strage inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
+    @debug "Strange inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
     Paragraph([Text(repr(x))])
 end
 
