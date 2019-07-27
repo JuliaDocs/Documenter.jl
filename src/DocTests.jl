@@ -70,7 +70,7 @@ function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
     # Note: parsedocs / formatdoc in Base is weird. It double-wraps the docstring Markdown
     # in a Markdown.MD object..
     @assert isa(md, Markdown.MD) # relying on Julia internals here
-    if length(md.content) == 1 && isa(first(md.content), Markdown.MD)
+    while length(md.content) == 1 && isa(first(md.content), Markdown.MD)
         md = first(md.content)
     end
     md2ast = Markdown2.convert(Markdown2.MD, md)

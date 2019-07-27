@@ -140,6 +140,15 @@ ERROR: syntax: invalid numeric constant "1.2."
 """
 module ScriptParseErrorFail end
 
+module PR1075
+    "x \$(42) y"
+    function qux end
+    "..."
+    function foo end
+    @doc @doc(foo) function bar end
+    @doc @doc(bar) function baz end
+end
+
 @testset "Documenter.doctest" begin
     # DocTest1
     run_doctest(nothing, [DocTest1]) do result, success, backtrace, output
@@ -204,6 +213,12 @@ module ScriptParseErrorFail end
     run_doctest(nothing, [ScriptParseErrorFail]) do result, success, backtrace, output
         @test !success
         @test result isa TestSetException
+    end
+
+    # PR 1075
+    run_doctest(nothing, [PR1075]) do result, success, backtrace, output
+        @test success
+        @test result isa Test.DefaultTestSet
     end
 end
 
