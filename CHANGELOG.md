@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.23.1`
+
+* ![Bugfix][badge-bugfix] Documenter no longer throws an error if the provided `EditURL` argument is missing ([#1076](github-1076), [#1077](github-1077))
+
 ## Version `v0.23.0`
 
 * Documenter v0.23 requires Julia v1.0. ([#1015][github-1015])
@@ -384,6 +388,8 @@
 [github-1062]: https://github.com/JuliaDocs/Documenter.jl/pull/1062
 [github-1066]: https://github.com/JuliaDocs/Documenter.jl/pull/1066
 [github-1071]: https://github.com/JuliaDocs/Documenter.jl/pull/1071
+[github-1076]: https://github.com/JuliaDocs/Documenter.jl/issues/1076
+[github-1077]: https://github.com/JuliaDocs/Documenter.jl/pull/1077
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

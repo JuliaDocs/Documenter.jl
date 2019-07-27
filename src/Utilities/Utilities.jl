@@ -363,7 +363,12 @@ function repo_commit(file)
 end
 
 function url(repo, file; commit=nothing)
-    file = realpath(abspath(file))
+    file = abspath(file)
+    if !isfile(file)
+        @warn "couldn't find file \"$file\" when generating URL"
+        return nothing
+    end
+    file = realpath(file)
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
     path = relpath_from_repo_root(file)
