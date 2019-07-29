@@ -177,6 +177,29 @@ import Documenter.Utilities: Markdown2
 
         @test isa(md2.nodes[1], Markdown2.Table)
     end
+
+    # Issue 1073
+    let md = Markdown.parse(raw"""
+        $$
+        f
+        $$
+        """),
+        md2 = convert(Markdown2.MD, md)
+        @test isa(md2, Markdown2.MD)
+    end
+    let md = Markdown.parse(raw"""
+        X $(42) Y
+        """),
+        md2 = convert(Markdown2.MD, md)
+
+        @test isa(md2, Markdown2.MD)
+        @test length(md2) == 1
+        @test isa(md2.nodes[1], Markdown2.Paragraph)
+        let p = md2.nodes[1]
+            @test length(p.nodes) == 3
+            @test p.nodes[2] == Markdown2.Text("42")
+        end
+    end
 end
 
 end # module

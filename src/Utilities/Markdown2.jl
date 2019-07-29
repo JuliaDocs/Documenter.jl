@@ -240,6 +240,11 @@ function _convert_block(b::Markdown.Table)
 end
 _convert_block(b::Markdown.Admonition) = Admonition(b.category, b.title, _convert_block(b.content))
 
+# Fallback
+function _convert_block(x)
+    @debug "Strange inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
+    Paragraph([Text(repr(x))])
+end
 
 _convert_inline(xs::Vector) = MarkdownInlineNode[_convert_inline(x) for x in xs]
 _convert_inline(s::String) = Text(s)
@@ -264,6 +269,12 @@ _convert_inline(s::Markdown.LaTeX) = InlineMath(s.formula)
 function _convert_inline(s::Markdown.Footnote)
     @assert s.text === nothing # footnote references should not have any content, TODO: error
     FootnoteReference(s.id)
+end
+
+# Fallback
+function _convert_inline(x)
+    @debug "Strange inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
+    Text(repr(x))
 end
 
 

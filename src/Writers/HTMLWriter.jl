@@ -1140,6 +1140,12 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     return mdconvert(out, parent; kwargs...)
 end
 
+# Fallback
+function mdconvert(x, parent; kwargs...)
+    @debug "Strange inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
+    repr(x)
+end
+
 # fixlinks!
 # ------------------------------------------------------------------------------
 
