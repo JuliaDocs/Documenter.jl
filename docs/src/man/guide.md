@@ -27,9 +27,9 @@ guide we'll be using a package called `Example.jl` that has the following direct
 
 ```
 Example/
-    src/
-        Example.jl
-    ...
+├── src/
+│   └── Example.jl
+...
 ```
 
 Note that the `...` just represent unimportant files and folders.
@@ -39,11 +39,11 @@ It's recommended to use a folder named `docs/` in the toplevel of the package, l
 
 ```
 Example/
-    docs/
-        ...
-    src/
-        Example.jl
-    ...
+├── docs/
+│   └── ...
+├── src/
+│   └── Example.jl
+...
 ```
 
 Inside the `docs/` folder we need to add two things. A source folder which will contain the
@@ -52,8 +52,8 @@ be used to control the build process. The following names are recommended
 
 ```
 docs/
-    src/
-    make.jl
+├── src/
+└── make.jl
 ```
 
 
@@ -121,14 +121,14 @@ look like the following
 
 ```
 build/
-    assets/
-        arrow.svg
-        documenter.css
-        documenter.js
-        search.js
-    index.html
-    search/index.html
-    search_index.js
+├── assets/
+│   ├── arrow.svg
+│   ├── documenter.css
+│   ├── documenter.js
+│   └── search.js
+├── index.html
+├── search/index.html
+└── search_index.js
 ```
 
 !!! note
