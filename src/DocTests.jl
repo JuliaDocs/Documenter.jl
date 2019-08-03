@@ -73,7 +73,15 @@ function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
     while length(md.content) == 1 && isa(first(md.content), Markdown.MD)
         md = first(md.content)
     end
-    md2ast = Markdown2.convert(Markdown2.MD, md)
+    md2ast = try
+        Markdown2.convert(Markdown2.MD, md)
+    catch err
+        @error """
+            Markdown2 conversion error for a docstring in $(mod).
+            This is a bug — please report this on the Documenter issue tracker
+            """ docstr.data
+        rethrow(err)
+    end
     ctx = DocTestContext(docstr.data[:path], doc)
     merge!(ctx.meta, DocMeta.getdocmeta(mod))
     ctx.meta[:CurrentFile] = get(docstr.data, :path, nothing)

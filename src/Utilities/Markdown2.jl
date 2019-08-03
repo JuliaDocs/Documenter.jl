@@ -217,7 +217,12 @@ end
 
 _convert_block(xs::Vector) = MarkdownBlockNode[_convert_block(x) for x in xs]
 _convert_block(b::Markdown.HorizontalRule) = ThematicBreak()
-_convert_block(b::Markdown.Header{N}) where N = Heading(N, _convert_inline(b.text))
+function _convert_block(b::Markdown.Header{N}) where N
+    text = _convert_inline(b.text)
+    # Empty headings have just an empty String as text
+    nodes = isa(text, AbstractVector) ? text : MarkdownInlineNode[text]
+    Heading(N, nodes)
+end
 _convert_block(b::Markdown.Code) = CodeBlock(b.language, b.code)
 _convert_block(b::Markdown.Paragraph) = Paragraph(_convert_inline(b.content))
 _convert_block(b::Markdown.BlockQuote) = BlockQuote(_convert_block(b.content))

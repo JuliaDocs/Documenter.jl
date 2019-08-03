@@ -58,9 +58,12 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
     mdpage = Markdown.parse(read(source, String))
     md2ast = try
         Markdown2.convert(Markdown2.MD, mdpage)
-    catch e
-        @error "Markdown2.convert failed to convert $(source)"
-        rethrow(e)
+    catch err
+        @error """
+            Markdown2 conversion error on $(source).
+            This is a bug — please report this on the Documenter issue tracker
+            """
+        rethrow(err)
     end
     Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), md2ast)
 end
