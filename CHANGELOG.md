@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.23.2`
+
+* ![Bugfix][badge-bugfix] Empty Markdown headings no longer cause Documenter to crash. ([#1081](github-1081), [#1082](github-1082))
+
 ## Version `v0.23.1`
 
 * ![Bugfix][badge-bugfix] Documenter no longer throws an error if the provided `EditURL` argument is missing. ([#1076](github-1076), [#1077](github-1077))
@@ -396,6 +400,8 @@
 [github-1075]: https://github.com/JuliaDocs/Documenter.jl/pull/1075
 [github-1076]: https://github.com/JuliaDocs/Documenter.jl/issues/1076
 [github-1077]: https://github.com/JuliaDocs/Documenter.jl/pull/1077
+[github-1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
+[github-1082]: https://github.com/JuliaDocs/Documenter.jl/pull/1082
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
