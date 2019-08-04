@@ -479,3 +479,6 @@ MarkdownOnly("""
 **bold** output from MarkdownOnly
 """)
 ```
+
+# Empty heading
+##

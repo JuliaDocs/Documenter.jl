@@ -200,6 +200,19 @@ import Documenter.Utilities: Markdown2
             @test p.nodes[2] == Markdown2.Text("42")
         end
     end
+
+    # Issue 1081
+    let md = Markdown.parse(raw"""
+        #
+        """),
+        md2 = convert(Markdown2.MD, md)
+        @test isa(md2, Markdown2.MD)
+        @test length(md2) === 1
+        @test isa(md2.nodes[1], Markdown2.Heading)
+        @test length(md2.nodes[1].nodes) === 1
+        @test isa(md2.nodes[1].nodes[1], Markdown2.Text)
+        @test md2.nodes[1].nodes[1].text == ""
+    end
 end
 
 end # module
