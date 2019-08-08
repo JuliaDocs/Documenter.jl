@@ -40,6 +40,7 @@ then it is intended as the page title. This has two consequences:
 """
 module HTMLWriter
 
+using Dates: Dates, @dateformat_str, now
 import Markdown
 import JSON
 
@@ -56,6 +57,15 @@ import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
 export HTML
+
+"List of Documenter native themes."
+const THEMES = ["documenter-light", "documenter-dark"]
+"The root directory of the HTML assets."
+const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
+"The directory where all the Sass/SCSS files needed for theme building are."
+const ASSETS_SASS = joinpath(ASSETS, "scss")
+"Directory for the compiled CSS files of the themes."
+const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
 """
     HTML(kwargs...)
@@ -126,29 +136,37 @@ The type of the asset (i.e. whether it is going to be included with a `<script>`
 Adding an ICO asset is primarilly useful for setting a custom `favicon`.
 """
 struct HTML <: Documenter.Writer
-    prettyurls  :: Bool
-    disable_git :: Bool
-    edit_branch :: Union{String, Nothing}
-    canonical   :: Union{String, Nothing}
-    assets      :: Vector{String}
-    analytics   :: String
+    prettyurls    :: Bool
+    disable_git   :: Bool
+    edit_branch   :: Union{String, Nothing}
+    canonical     :: Union{String, Nothing}
+    assets        :: Vector{String}
+    analytics     :: String
+    collapselevel :: Int
 
     function HTML(;
-        prettyurls::Bool = true,
-        disable_git::Bool = false,
-        edit_branch::Union{String, Nothing} = "master",
-        canonical::Union{String, Nothing} = nothing,
-        assets::Vector{String} = String[],
-        analytics::String = "")
-        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics)
+            prettyurls    :: Bool = true,
+            disable_git   :: Bool = false,
+            edit_branch   :: Union{String, Nothing} = "master",
+            canonical     :: Union{String, Nothing} = nothing,
+            assets        :: Vector{String} = String[],
+            analytics     :: String = "",
+            collapselevel :: Integer = 2,
+        )
+        collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
+        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics, collapselevel)
     end
 end
 
 const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
-const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
 const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-const fontawesome_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
+const fontawesome_css = [
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/fontawesome.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/solid.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/brands.min.css",
+]
 const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
+const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
 
 struct SearchRecord
     src :: String
@@ -170,14 +188,16 @@ mutable struct HTMLContext
     logo :: String
     scripts :: Vector{String}
     documenter_js :: String
+    themeswap_js :: String
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
     local_assets :: Vector{String}
+    footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, "", [], "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, "", [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
 
 function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -234,8 +254,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
 
-    copy_asset("arrow.svg", doc)
-
     for logoext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
         logo = joinpath("assets", "logo.$(logoext)")
         if isfile(joinpath(doc.user.build, logo))
@@ -244,10 +262,13 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         end
     end
 
+    ctx.themeswap_js = copy_asset("themeswap.js", doc)
     ctx.documenter_js = copy_asset("documenter.js", doc)
     ctx.search_js = copy_asset("search.js", doc)
 
-    push!(ctx.local_assets, copy_asset("documenter.css", doc))
+    for theme in THEMES
+        copy_asset("themes/$(theme).css", doc)
+    end
     append!(ctx.local_assets, settings.assets)
 
     for page in keys(doc.blueprint.pages)
@@ -281,7 +302,7 @@ function copy_asset(file, doc)
     isfile(src) || error("Asset '$file' not found at $(abspath(src))")
 
     # Since user's alternative assets are already copied over in a previous build
-    # step and they should override documenter's original assets, we only actually
+    # step and they should override Documenter's original assets, we only actually
     # perform the copy if <source>/assets/<file> does not exist. Note that checking
     # the existence of <build>/assets/<file> is not sufficient since the <build>
     # directory might be dirty from a previous build.
@@ -300,28 +321,105 @@ end
 # Page
 # ------------------------------------------------------------------------------
 
+## Standard page
 """
 Constructs and writes the page referred to by the `navnode` to `.build`.
 """
 function render_page(ctx, navnode)
-    @tags html body
-
+    @tags html div body
     page = getpage(ctx, navnode)
-
     head = render_head(ctx, navnode)
-    navmenu = render_navmenu(ctx, navnode)
+    sidebar = render_sidebar(ctx, navnode)
+    navbar = render_navbar(ctx, navnode, true)
     article = render_article(ctx, navnode)
-
-    htmldoc = DOM.HTMLDocument(
-        html[:lang=>"en"](
-            head,
-            body(navmenu, article)
-        )
-    )
-
+    footer = render_footer(ctx, navnode)
+    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
     open_output(ctx, navnode) do io
         print(io, htmldoc)
     end
+end
+
+## Search page
+function render_search(ctx)
+    @tags article body h1 header hr html li nav p span ul script
+
+    src = get_url(ctx, ctx.search_navnode)
+
+    head = render_head(ctx, ctx.search_navnode)
+    sidebar = render_sidebar(ctx, ctx.search_navnode)
+    navbar = render_navbar(ctx, ctx.search_navnode, false)
+    article = article(
+        p["#documenter-search-info"]("Loading search..."),
+        ul["#documenter-search-results"]
+    )
+    footer = render_footer(ctx, ctx.search_navnode)
+    scripts = [
+        script[:src => relhref(src, ctx.search_index_js)],
+        script[:src => relhref(src, ctx.search_js)],
+    ]
+    htmldoc = render_html(ctx, ctx.search_navnode, head, sidebar, navbar, article, footer, scripts)
+    open_output(ctx, ctx.search_navnode) do io
+        print(io, htmldoc)
+    end
+end
+
+## Rendering HTML elements
+# ------------------------------------------------------------------------------
+
+"""
+Renders the main `<html>` tag.
+"""
+function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
+    @tags html body div
+    DOM.HTMLDocument(
+        html[:lang=>"en"](
+            head,
+            body(
+                div["#documenter"](
+                    sidebar,
+                    div[".docs-main"](navbar, article, footer),
+                    render_settings(ctx),
+                ),
+            ),
+            scripts...
+        )
+    )
+end
+
+"""
+Renders the modal settings dialog.
+"""
+function render_settings(ctx)
+    @tags div header section footer p button hr span select option label a
+
+    theme_selector = p(
+        label[".label"]("Theme"),
+        div[".select"](
+            select["#documenter-themepicker"](option[:value=>theme](theme) for theme in THEMES)
+        )
+    )
+
+    now_full, now_short = Dates.format(now(), dateformat"E d U Y HH:MM"), Dates.format(now(), dateformat"E d U Y")
+    buildinfo = p(
+        "Generated by ",
+        a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"),
+        " on ",
+        span[".colophon-date", :title => now_full](now_short),
+    )
+
+    div["#documenter-settings.modal"](
+        div[".modal-background"],
+        div[".modal-card"](
+            header[".modal-card-head"](
+                p[".modal-card-title"]("Settings"),
+                button[".delete"]()
+            ),
+            section[".modal-card-body"](
+                theme_selector, hr(), buildinfo
+            ),
+            footer[".modal-card-foot"]()
+        )
+    )
 end
 
 function render_head(ctx, navnode)
@@ -330,10 +428,10 @@ function render_head(ctx, navnode)
 
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
-        normalize_css,
         google_fonts,
-        fontawesome_css,
+        fontawesome_css...,
         highlightjs_css,
+        katex_css,
     ]
     head(
         meta[:charset=>"UTF-8"],
@@ -359,7 +457,19 @@ function render_head(ctx, navnode)
         script[:src => relhref(src, "../versions.js")],
 
         # Custom user-provided assets.
-        asset_links(src, ctx.local_assets)
+        asset_links(src, ctx.local_assets),
+        # Themes. Note: we reverse the make sure that the default theme (first in the array)
+        # comes as the last <link> tag.
+        map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
+            e = link[".docs-theme-link",
+                :rel => "stylesheet", :type => "text/css",
+                :href => relhref(src, "assets/themes/$(theme).css"),
+                Symbol("data-theme-name") => theme,
+            ]
+            (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
+            return e
+        end,
+        script[:src => relhref(src, ctx.themeswap_js)],
     )
 end
 
@@ -402,86 +512,67 @@ function canonical_link_element(canonical_link, src)
    end
 end
 
-## Search page
-# ------------
-
-function render_search(ctx)
-    @tags article body h1 header hr html li nav p span ul script
-
-    src = get_url(ctx, ctx.search_navnode)
-
-    head = render_head(ctx, ctx.search_navnode)
-    navmenu = render_navmenu(ctx, ctx.search_navnode)
-    article = article(
-        header(
-            nav(ul(li("Search"))),
-            hr(),
-            render_topbar(ctx, ctx.search_navnode),
-        ),
-        h1("Search"),
-        p["#search-info"]("Number of results: ", span["#search-results-number"]("loading...")),
-        ul["#search-results"]
-    )
-
-    htmldoc = DOM.HTMLDocument(
-        html[:lang=>"en"](
-            head,
-            body(navmenu, article),
-            script[:src => relhref(src, ctx.search_index_js)],
-            script[:src => relhref(src, ctx.search_js)],
-        )
-    )
-    open_output(ctx, ctx.search_navnode) do io
-        print(io, htmldoc)
-    end
-end
-
 # Navigation menu
 # ------------------------------------------------------------------------------
 
-function render_navmenu(ctx, navnode)
-    @tags a form h1 img input nav div select option
+struct NavMenuContext
+    htmlctx :: HTMLContext
+    current :: Documents.NavNode
+    idstack :: Vector{Int}
+end
+NavMenuContext(ctx::HTMLContext, current::Documents.NavNode) = NavMenuContext(ctx, current, [])
 
+function render_sidebar(ctx, navnode)
+    @tags a form img input nav div select option span
     src = get_url(ctx, navnode)
+    navmenu = nav[".docs-sidebar"]
 
-    navmenu = nav[".toc"]
+    # Logo and title
     if !isempty(ctx.logo)
+        # the logo will point to the first page in the navigation menu
+        href = navhref(ctx, first(ctx.doc.internal.navlist), navnode)
+        alt = isempty(ctx.doc.user.sitename) ? "Logo" : "$(ctx.doc.user.sitename) logo"
+        src = relhref(src, ctx.logo)
         push!(navmenu.nodes,
-            # the logo will point to the first page in the navigation menu
-            a[:href => navhref(ctx, first(ctx.doc.internal.navlist), navnode)](
-                img[
-                    ".logo",
-                    :src => relhref(src, ctx.logo),
-                    :alt => "$(ctx.doc.user.sitename) logo"
-                ]
-            )
+            a[".docs-logo", :href => href](img[:src => src, :alt => alt])
         )
     end
-    push!(navmenu.nodes, h1(ctx.doc.user.sitename))
-    let version_selector = select["#version-selector", :onChange => "window.location.href=this.value"]()
-        if isempty(ctx.doc.user.version)
-            push!(version_selector.attributes, :style => "visibility: hidden")
-        else
-            push!(version_selector.nodes,
-                option[
-                    :value => "#",
-                    :selected => "selected",
-                ](ctx.doc.user.version)
-            )
-        end
-        push!(navmenu.nodes, version_selector)
-    end
+    push!(navmenu.nodes, div[".docs-package-name"](
+        span[".docs-autofit"](ctx.doc.user.sitename)
+    ))
+
+    # Search box
     push!(navmenu.nodes,
-        form[".search#search-form", :action => navhref(ctx, ctx.search_navnode, navnode)](
+        form[".docs-search", :action => navhref(ctx, ctx.search_navnode, navnode)](
             input[
-                "#search-query",
+                "#documenter-search-query.docs-search-query",
                 :name => "q",
                 :type => "text",
                 :placeholder => "Search docs",
             ],
         )
     )
-    push!(navmenu.nodes, navitem(ctx, navnode))
+
+    # The menu itself
+    menu = navitem(NavMenuContext(ctx, navnode, ))
+    push!(menu.attributes, :class => "docs-menu")
+    push!(navmenu.nodes, menu)
+
+    # Version selector
+    let
+        vs_class = ".docs-version-selector.field.has-addons"
+        vs_label = span[".docs-label.button.is-static.is-size-7"]("Version")
+        vs_label = div[".control"](vs_label)
+        vs_select = select["#documenter-version-selector"]
+        if !isempty(ctx.doc.user.version)
+            vs_class = "$(vs_class).visible"
+            opt = option[:value => "#", :selected => "selected", ](ctx.doc.user.version)
+            vs_select = vs_select(opt)
+        end
+        vs_select = div[".select.is-fullwidth.is-size-7"](vs_select)
+        vs_select = div[".docs-selector.control.is-expanded"](vs_select)
+        push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
+    end
     navmenu
 end
 
@@ -492,31 +583,45 @@ It gets called recursively to construct the whole tree.
 It always returns a [`DOM.Node`](@ref). If there's nothing to display (e.g. the node is set
 to be invisible), it returns an empty text node (`DOM.Node("")`).
 """
-navitem(ctx, current) = navitem(ctx, current, ctx.doc.internal.navtree)
-function navitem(ctx, current, nns::Vector)
-    nodes = map(nn -> navitem(ctx, current, nn), nns)
-    filter!(node -> node.name !== DOM.TEXT, nodes)
-    isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)(nodes)
+navitem(nctx) = navitem(nctx, nctx.htmlctx.doc.internal.navtree)
+function navitem(nctx, nns::Vector)
+    push!(nctx.idstack, 0)
+    nodes = map(nns) do nn
+        nctx.idstack[end] = nctx.idstack[end] + 1
+        navitem(nctx, nn)
+    end
+    pop!(nctx.idstack)
+    filter!(node -> node.name !== DOM.TEXT, nodes) # FIXME: why?
+    ulclass = (length(nctx.idstack) >= nctx.htmlctx.settings.collapselevel) ? ".collapsed" : ""
+    isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)[ulclass](nodes)
 end
-function navitem(ctx, current, nn::Documents.NavNode)
-    @tags ul li span a
-
+function navitem(nctx, nn::Documents.NavNode)
+    @tags ul li span a input label i
+    ctx, current = nctx.htmlctx, nctx.current
     # We'll do the children first, primarily to determine if this node has any that are
     # visible. If it does not and it itself is not visible (including current), then
     # we'll hide this one as well, returning an empty string Node.
-    children = navitem(ctx, current, nn.children)
+    children = navitem(nctx, nn.children)
     if nn !== current && !nn.visible && children.name === DOM.TEXT
         return DOM.Node("")
     end
 
     # construct this item
     title = mdconvert(pagetitle(ctx, nn); droplinks=true)
-    link = if nn.page === nothing
-        span[".toctext"](title)
+    currentclass = (nn === current) ? ".is-active" : ""
+    item = if length(nctx.idstack) >= ctx.settings.collapselevel && children.name !== DOM.TEXT
+        menuid = "menuitem-$(join(nctx.idstack, '-'))"
+        input_attr = ["#$(menuid).collapse-toggle", :type => "checkbox"]
+        nn in Documents.navpath(nctx.current) && push!(input_attr, :checked)
+        li[currentclass](
+            input[input_attr...],
+            label[".tocitem", :for => menuid](span[".docs-label"](title), i[".docs-chevron"]),
+        )
+    elseif nn.page === nothing
+        li[currentclass](span[".tocitem"](title))
     else
-        a[".toctext", :href => navhref(ctx, nn, current)](title)
+        li[currentclass](a[".tocitem", :href => navhref(ctx, nn, current)](title))
     end
-    item = (nn === current) ? li[".current"](link) : li(link)
 
     # add the subsections (2nd level headings) from the page
     if (nn === current) && current.page !== nothing
@@ -524,9 +629,10 @@ function navitem(ctx, current, nn::Documents.NavNode)
         internal_links = map(subs) do s
             istoplevel, anchor, text = s
             _li = istoplevel ? li[".toplevel"] : li[]
-            _li(a[".toctext", :href => anchor](mdconvert(text; droplinks=true)))
+            _li(a[".tocitem", :href => anchor](span(mdconvert(text; droplinks=true))))
         end
-        push!(item.nodes, ul[".internal"](internal_links))
+        # Only create the ul.internal tag if there actually are in-page headers
+        length(internal_links) > 0 && push!(item.nodes, ul[".internal"](internal_links))
     end
 
     # add the visible subsections, if any, as a single list
@@ -535,79 +641,126 @@ function navitem(ctx, current, nn::Documents.NavNode)
     item
 end
 
+function render_navbar(ctx, navnode, edit_page_link::Bool)
+    @tags div header nav ul li a span
 
-# Article (page contents)
-# ------------------------------------------------------------------------------
-
-function render_article(ctx, navnode)
-    @tags article header footer nav ul li hr span a
-
-    header_links = map(Documents.navpath(navnode)) do nn
+    # The breadcrumb (navigation links on top)
+    navpath = Documents.navpath(navnode)
+    header_links = map(navpath) do nn
         title = mdconvert(pagetitle(ctx, nn); droplinks=true)
-        nn.page === nothing ? li(title) : li(a[:href => navhref(ctx, nn, navnode)](title))
+        nn.page === nothing ? li(a[".is-disabled"](title)) : li(a[:href => navhref(ctx, nn, navnode)](title))
     end
+    header_links[end] = header_links[end][".is-active"]
+    breadcrumb = nav[".breadcrumb"](
+        ul[".is-hidden-mobile"](header_links),
+        ul[".is-hidden-tablet"](header_links[end]) # when on mobile, we only show the page title, basically
+    )
 
-    topnav = nav(ul(header_links))
+    # The "Edit on GitHub" links and the hamburger to open the sidebar (on mobile) float right
+    navbar_right = div[".docs-right"]
 
     # Set the logo and name for the "Edit on.." button.
-    host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
-    if host_type == Utilities.RepoGitlab
-        host = "GitLab"
-        logo = "\uf296"
-    elseif host_type == Utilities.RepoGithub
-        host = "GitHub"
-        logo = "\uf09b"
-    elseif host_type == Utilities.RepoBitbucket
-        host = "BitBucket"
-        logo = "\uf171"
-    else
-        host = ""
-        logo = "\uf15c"
-    end
-    hoststring = isempty(host) ? " source" : " on $(host)"
+    if edit_page_link && !ctx.settings.disable_git
+        host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
+        if host_type == Utilities.RepoGitlab
+            host = "GitLab"
+            logo = "\uf296"
+        elseif host_type == Utilities.RepoGithub
+            host = "GitHub"
+            logo = "\uf09b"
+        elseif host_type == Utilities.RepoBitbucket
+            host = "BitBucket"
+            logo = "\uf171"
+        else
+            host = ""
+            logo = "\uf15c"
+        end
+        hoststring = isempty(host) ? " source" : " on $(host)"
 
-    if !ctx.settings.disable_git
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
-        if Utilities.isabsurl(pageurl)
-            url = pageurl
+        url = if Utilities.isabsurl(pageurl)
+            pageurl
         else
             if !(pageurl == getpage(ctx, navnode).source)
                 # need to set users path relative the page itself
                 pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
             end
-            url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.settings.edit_branch)
+            Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.settings.edit_branch)
         end
         if url !== nothing
             edit_verb = (ctx.settings.edit_branch === nothing) ? "View" : "Edit"
-            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " $(edit_verb)$hoststring"))
+            title = "$(edit_verb)$hoststring"
+            push!(navbar_right.nodes,
+                a[".docs-edit-link", :href => url, :title => title](
+                    span[".docs-icon.fab"](logo),
+                    span[".docs-label.is-hidden-touch"](title)
+                )
+            )
         end
     end
-    art_header = header(topnav, hr(), render_topbar(ctx, navnode))
 
-    # build the footer with nav links
-    art_footer = footer(hr())
-    if navnode.prev !== nothing
-        direction = span[".direction"]("Previous")
-        title = span[".title"](mdconvert(pagetitle(ctx, navnode.prev); droplinks=true))
-        link = a[".previous", :href => navhref(ctx, navnode.prev, navnode)](direction, title)
-        push!(art_footer.nodes, link)
-    end
+    # Settings cog
+    push!(navbar_right.nodes, a[
+        "#documenter-settings-button.docs-settings-button.fas.fa-cog",
+        :href => "#", :title => "Settings",
+    ])
 
-    if navnode.next !== nothing
-        direction = span[".direction"]("Next")
-        title = span[".title"](mdconvert(pagetitle(ctx, navnode.next); droplinks=true))
-        link = a[".next", :href => navhref(ctx, navnode.next, navnode)](direction, title)
-        push!(art_footer.nodes, link)
-    end
+    # Hamburger on mobile
+    push!(navbar_right.nodes, a[
+        "#documenter-sidebar-button.docs-sidebar-button.fa.fa-bars.is-hidden-desktop",
+        :href => "#"
+    ])
 
-    pagenodes = domify(ctx, navnode)
-    article["#docs"](art_header, pagenodes, art_footer)
+    # Construct the main <header> node that should be the first element in div.docs-main
+    header[".docs-navbar"](breadcrumb, navbar_right)
 end
 
-function render_topbar(ctx, navnode)
-    @tags a div span
-    page_title = string(mdflatten(pagetitle(ctx, navnode)))
-    return div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
+function render_footer(ctx, navnode)
+    @tags a div nav
+    # Navigation links (previous/next page), if there are any
+    navlinks = DOM.Node[]
+    if navnode.prev !== nothing
+        title = mdconvert(pagetitle(ctx, navnode.prev); droplinks=true)
+        link = a[".docs-footer-prevpage", :href => navhref(ctx, navnode.prev, navnode)]("« ", title)
+        push!(navlinks, link)
+    end
+    if navnode.next !== nothing
+        title = mdconvert(pagetitle(ctx, navnode.next); droplinks=true)
+        link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
+        push!(navlinks, link)
+    end
+    return isempty(navlinks) ? "" : nav[".docs-footer"](navlinks)
+end
+
+# Article (page contents)
+# ------------------------------------------------------------------------------
+
+function render_article(ctx, navnode)
+    @tags article section ul li hr span a div p
+
+    # Build the page itself (and collect any footnotes)
+    empty!(ctx.footnotes)
+    art_body = article["#documenter-page.content"](domify(ctx, navnode))
+    # Footnotes, if there are any
+    if !isempty(ctx.footnotes)
+        fnotes = map(ctx.footnotes) do f
+            fid = "footnote-$(f.id)"
+            citerefid = "citeref-$(f.id)"
+            if length(f.text) == 1 && first(f.text) isa Markdown.Paragraph
+                li["#$(fid).footnote"](
+                    a[".tag.is-link", :href => "#$(citerefid)"](f.id),
+                    mdconvert(f.text[1].content),
+                )
+            else
+                li["#$(fid).footnote"](
+                    a[".tag.is-link", :href => "#$(citerefid)"](f.id),
+                    mdconvert(f.text),
+                )
+            end
+        end
+        push!(art_body.nodes, section[".footnotes.is-size-7"](ul(fnotes)))
+    end
+    return art_body
 end
 
 # expand the versions argument from the user
@@ -729,7 +882,7 @@ end
 
 function domify(ctx, navnode, node)
     fixlinks!(ctx, navnode, node)
-    mdconvert(node, Markdown.MD())
+    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes)
 end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
@@ -738,8 +891,9 @@ function domify(ctx, navnode, anchor::Anchors.Anchor)
     if isa(anchor.object, Markdown.Header)
         h = anchor.object
         fixlinks!(ctx, navnode, h)
-        DOM.Tag(Symbol("h$(Utilities.header_level(h))"))(
-            a[".nav-anchor", :id => aid, :href => "#$aid"](mdconvert(h.text, h))
+        DOM.Tag(Symbol("h$(Utilities.header_level(h))"))[:id => aid](
+            mdconvert(h.text, h),
+            a[".docs-heading-anchor", :href => "#$aid", :title => "Permalink"]
         )
     else
         a[".nav-anchor", :id => aid, :href => "#$aid"](domify(ctx, navnode, anchor.object))
@@ -806,7 +960,7 @@ function domify(ctx, navnode, docs::Documents.DocsNodes)
 end
 
 function domify(ctx, navnode, node::Documents.DocsNode)
-    @tags a code div section span
+    @tags a code article header span
 
     # push to search index
     rec = SearchRecord(ctx, navnode;
@@ -817,8 +971,8 @@ function domify(ctx, navnode, node::Documents.DocsNode)
 
     push!(ctx.search_index, rec)
 
-    section[".docstring"](
-        div[".docstring-header"](
+    article[".docstring"](
+        header(
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
             span[".docstring-category"]("$(Utilities.doccat(node.object))"),
@@ -829,27 +983,27 @@ function domify(ctx, navnode, node::Documents.DocsNode)
 end
 
 function domify_doc(ctx, navnode, md::Markdown.MD)
-    @tags a
+    @tags a section footer div
     if haskey(md.meta, :results)
         # The `:results` field contains a vector of `Docs.DocStr` objects associated with
         # each markdown object. The `DocStr` contains data such as file and line info that
         # we need for generating correct source links.
         map(zip(md.content, md.meta[:results])) do md
             markdown, result = md
-            ret = Any[domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))]
+            ret = section(div(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
                 url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
                 if url !== nothing
-                    push!(ret, a[".source-link", :target=>"_blank", :href=>url]("source"))
+                    push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
                 end
             end
-            ret
+            return ret
         end
     else
         # Docstrings with no `:results` metadata won't contain source locations so we don't
         # try to print them out. Just print the basic docstring.
-        domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(md))
+        section(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(md)))
     end
 end
 
@@ -995,9 +1149,12 @@ end
 # mdconvert
 # ------------------------------------------------------------------------------
 
-const md_block_nodes = [Markdown.MD, Markdown.BlockQuote]
-push!(md_block_nodes, Markdown.List)
-push!(md_block_nodes, Markdown.Admonition)
+const md_block_nodes = [
+    Markdown.MD,
+    Markdown.BlockQuote,
+    Markdown.List,
+    Markdown.Admonition,
+]
 
 """
 [`MDBlockContext`](@ref) is a union of all the Markdown nodes whose children should
@@ -1016,7 +1173,7 @@ mdconvert(text::AbstractString, parent; kwargs...) = DOM.Node(text)
 
 mdconvert(vec::Vector, parent; kwargs...) = [mdconvert(x, parent; kwargs...) for x in vec]
 
-mdconvert(md::Markdown.MD, parent; kwargs...) = Tag(:div)(mdconvert(md.content, md; kwargs...))
+mdconvert(md::Markdown.MD, parent; kwargs...) = mdconvert(md.content, md; kwargs...)
 
 mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconvert(b.content, b; kwargs...))
 
@@ -1093,20 +1250,29 @@ end
 
 mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 
-mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
-footnote(id, text::Nothing, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
-function footnote(id, text, parent; kwargs...)
-    Tag(:div)[".footnote#footnote-$(id)"](
-        Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
-        mdconvert(text, parent; kwargs...),
-    )
+function mdconvert(f::Markdown.Footnote, parent; footnotes = nothing, kwargs...)
+    @tags sup a
+    if f.text === nothing # => Footnote link
+        return sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
+    elseif footnotes !== nothing # Footnote definition
+        push!(footnotes, f)
+    else # => Footnote definition, but nowhere to put it
+        @error "Bad footnote definition."
+    end
+    return []
 end
 
 function mdconvert(a::Markdown.Admonition, parent; kwargs...)
-    @tags div
-    div[".admonition.$(a.category)"](
-        div[".admonition-title"](a.title),
-        div[".admonition-text"](mdconvert(a.content, a; kwargs...))
+    @tags header div
+    colorclass =
+        (a.category == "danger")  ? "is-danger"  :
+        (a.category == "warning") ? "is-warning" :
+        (a.category == "note")    ? "is-info"    :
+        (a.category == "info")    ? "is-info"    :
+        (a.category == "tip")     ? "is-success" : ""
+    div[".admonition.$(colorclass)"](
+        header[".admonition-header"](a.title),
+        div[".admonition-body"](mdconvert(a.content, a; kwargs...))
     )
 end
 

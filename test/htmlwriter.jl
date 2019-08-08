@@ -1,9 +1,7 @@
 module HTMLWriterTests
 
 using Test
-
-import JSON
-import Documenter.Writers.HTMLWriter: generate_version_file, expand_versions
+using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
@@ -17,6 +15,15 @@ function verify_version_file(versionfile, entries)
 end
 
 @testset "HTMLWriter" begin
+    @test isdir(HTMLWriter.ASSETS)
+    @test isdir(HTMLWriter.ASSETS_SASS)
+    @test isdir(HTMLWriter.ASSETS_THEMES)
+
+    for theme in HTMLWriter.THEMES
+        @test isfile(joinpath(HTMLWriter.ASSETS_SASS, "$(theme).scss"))
+        @test isfile(joinpath(HTMLWriter.ASSETS_THEMES, "$(theme).css"))
+    end
+
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")
         versions = ["stable", "dev",
