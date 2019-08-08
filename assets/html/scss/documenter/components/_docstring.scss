@@ -1,0 +1,49 @@
+// The docstring element which reuses parts of the Bulma card component
+.docstring {
+  margin-bottom: 1em;
+  background-color: $documenter-docstring-background;
+  border: 1px solid $border;
+  box-shadow: $documenter-docstring-shadow;
+  max-width: 100%;
+
+  > header {
+    display: flex;
+    flex-grow: 1;
+    align-items: stretch;
+    padding: $card-header-padding;
+
+    background-color: $background;
+    box-shadow: $card-header-shadow;
+    box-shadow: none;
+    border-bottom: 1px solid $border;
+  }
+
+  > section {
+    position: relative;
+    padding: $card-content-padding;
+
+    border-bottom: 1px solid $border;
+    &:last-child {
+      border-bottom: none;
+    }
+
+    > a.docs-sourcelink {
+      transition: opacity 0.3s;
+      opacity: 0;
+      position: absolute;
+      right: $card-content-padding / 2;
+      bottom: $card-content-padding / 2;
+      @extend .tag;
+      @extend .is-primary;
+      @extend .is-size-7;
+    }
+  }
+
+  &:hover > section > a.docs-sourcelink {
+    opacity: 0.2;
+  }
+
+  & > section:hover a.docs-sourcelink {
+    opacity: 1;
+  }
+}

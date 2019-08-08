@@ -1,0 +1,64 @@
+// Variable definitions. Some are Documenter-specific, others are setting Bulma variables.
+
+
+// Colors
+// ------
+$primary: #4eb5de !default;
+// The inline <code> tags get rendered on various different backgrounds. Therefore, in order
+// to make sure it always renders nicely, we'll just use transparent black color to make the
+// background of the <code> elements slightly darker.
+$code-background: rgba(0, 0, 0, 0.05);
+
+$documenter-docstring-background: transparent !default;
+
+// Helper functions
+// ----------------
+// Declares the amount of lightness modifier used in the darken-color and lighten-color
+// functions. Setting this to a negative value is useful for dark themes.
+$lightness-unit: 8% !default;
+// Uses adjust-color to create a darker version of $color
+@function darken-color($color, $factor) {
+  @return adjust-color($color, $lightness: -$factor*$lightness-unit);
+}
+// Uses adjust-color to create a lighter version of $color
+@function lighten-color($color, $factor) {
+  @return adjust-color($color, $lightness: $factor*$lightness-unit);
+}
+
+
+// Fonts
+// -----
+// Declares the font family for the main text.
+$family-sans-serif: 'Lato', 'Helvetica Neue', Arial, sans-serif !default;
+// For monospace, we just use Bulma's default `font-family: monospace;`. This can be
+// overridden with the `$family-monospace` variable.
+//
+// Note: declaring a font family here does not necessarily mean that it will be available
+// for the user. For uncommon fonts it is up to the user to also provide the necessary font
+// assets, e.g. via a CDN, in the makedocs() call.
+
+
+// Shadows
+// -------
+// Shadows are used to visually elevate UI elements that are "floating" (e.g. the sidebar
+// on mobile layout).
+$shadow: #bbb !default;
+$shadow-size: 0.2rem !default;
+$shadow-blur: 0.4rem !default;
+
+
+// Layout
+// ------
+$body-overflow-x: auto !default;
+$body-size: 16px !default;
+$documenter-max-width: 50rem !default;
+$documenter-sidebar-width: 18rem !default;
+
+$documenter-main-padding-left: 1.3rem !default;
+$documenter-main-padding-right: 1rem !default;
+$documenter-main-padding: 1rem !default;
+
+// We'll override the Bulma $tablet width, which is the point at which the
+// layout switches between the mobile and tablet modes. Note: $tablet needs
+// to be in px, hence the unit conversion.
+$desktop: round($body-size * ($documenter-max-width + $documenter-sidebar-width + $documenter-main-padding-left + $documenter-main-padding-right - 5rem)/1rem) !default;
