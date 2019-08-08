@@ -134,19 +134,15 @@ define(["jquery"], function($) {
 });
 
 // require.js snippet
-requirejs(['jquery'], function($, dev) {
+requirejs(['jquery', 'devtools'], function($, dev) {
+  // Manages the "developer tools" widget. Can be opened by pressing Ctrl+y.
   $(document).ready(function() {
-    var settings = $('#documenter-settings');
-    $('#documenter-settings-button').click(function(){
-      settings.toggleClass('is-active');
-    });
-    // Close the dialog if X is clicked
-    $('#documenter-settings button.delete').click(function(){
-      settings.removeClass('is-active');
-    });
-    // Close dialog if ESC is pressed
-    $(document).keyup(function(e) {
-      if (e.keyCode == 27) settings.removeClass('is-active');
-    });
+    var devbox = dev.appendWidget($('body'));
+    devbox.registerThemeLink(document.getElementById('themecss'));
+  });
+  $(document).keypress(function(ev) {
+    if(ev.ctrlKey && ev.charCode == 25) {
+      $('jldebug-devtools').toggle();
+    }
   });
 });
