@@ -132,3 +132,21 @@ define(["jquery"], function($) {
     },
   }
 });
+
+// require.js snippet
+requirejs(['jquery'], function($, dev) {
+  $(document).ready(function() {
+    var settings = $('#documenter-settings');
+    $('#documenter-settings-button').click(function(){
+      settings.toggleClass('is-active');
+    });
+    // Close the dialog if X is clicked
+    $('#documenter-settings button.delete').click(function(){
+      settings.removeClass('is-active');
+    });
+    // Close dialog if ESC is pressed
+    $(document).keyup(function(e) {
+      if (e.keyCode == 27) settings.removeClass('is-active');
+    });
+  });
+});
