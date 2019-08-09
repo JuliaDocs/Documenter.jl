@@ -761,10 +761,10 @@ a.has-text-danger:hover, a.has-text-danger:focus {
   font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
 
 .is-family-monospace {
-  font-family: "Inconsolata", "Consolas", "Monaco", monospace !important; }
+  font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
 
 .is-family-code {
-  font-family: "Inconsolata", "Consolas", "Monaco", monospace !important; }
+  font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
 
 .is-block {
   display: block !important; }
@@ -1136,7 +1136,7 @@ html.theme--documenter-dark {
   html.theme--documenter-dark pre {
     -moz-osx-font-smoothing: auto;
     -webkit-font-smoothing: auto;
-    font-family: "Inconsolata", "Consolas", "Monaco", monospace; }
+    font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace; }
   html.theme--documenter-dark body {
     color: #fff;
     font-size: 1em;
