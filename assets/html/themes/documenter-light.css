@@ -7116,9 +7116,6 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
   font-size: 1rem; }
   .admonition strong {
     color: currentColor; }
-  .admonition a:not(.button):not(.tag):not(.dropdown-item) {
-    color: currentColor;
-    text-decoration: underline; }
   .admonition.is-small, #documenter .docs-sidebar form.docs-search > input.admonition {
     font-size: 0.75rem; }
   .admonition.is-medium {

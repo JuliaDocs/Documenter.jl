@@ -38,11 +38,6 @@ $admonition-header-color: () !default;
     color: currentColor;
   }
 
-  a:not(.button):not(.tag):not(.dropdown-item) {
-    color: currentColor;
-    text-decoration: underline;
-  }
-
   // Sizes
   &.is-small {
     font-size: $size-small;
@@ -101,8 +96,4 @@ $admonition-header-color: () !default;
   code {
     background-color: $code-background;
   }
-
-  // pre code {
-  //   background-color: $message-body-pre-code-background-color;
-  // }
 }

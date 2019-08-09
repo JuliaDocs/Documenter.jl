@@ -7208,9 +7208,6 @@ html.theme--documenter-dark {
     font-size: 15px; }
     html.theme--documenter-dark .admonition strong {
       color: currentColor; }
-    html.theme--documenter-dark .admonition a:not(.button):not(.tag):not(.dropdown-item) {
-      color: currentColor;
-      text-decoration: underline; }
     html.theme--documenter-dark .admonition.is-small, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.admonition {
       font-size: 0.85em; }
     html.theme--documenter-dark .admonition.is-medium {
