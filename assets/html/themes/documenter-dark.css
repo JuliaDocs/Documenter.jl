@@ -7199,6 +7199,8 @@ html.theme--documenter-dark {
       content: "\f0c1"; }
   html.theme--documenter-dark h1:hover .docs-heading-anchor, html.theme--documenter-dark h2:hover .docs-heading-anchor, html.theme--documenter-dark h3:hover .docs-heading-anchor, html.theme--documenter-dark h4:hover .docs-heading-anchor, html.theme--documenter-dark h5:hover .docs-heading-anchor, html.theme--documenter-dark h6:hover .docs-heading-anchor {
     visibility: visible; }
+  html.theme--documenter-dark .docs-light-only {
+    display: none !important; }
   html.theme--documenter-dark .admonition {
     background-color: #282f2f;
     border-style: solid;

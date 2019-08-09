@@ -12,8 +12,18 @@ h1, h2, h3, h4, h5, h6 {
       content: "\f0c1";
     }
   }
-  // the permalinks icon is only shown if the user hovers over the heading 
+  // the permalinks icon is only shown if the user hovers over the heading
   &:hover .docs-heading-anchor {
     visibility: visible;
+  }
+}
+
+@if $documenter-is-dark-theme {
+  .docs-light-only {
+    display: none !important;
+  }
+} @else {
+  .docs-dark-only {
+    display: none !important;
   }
 }

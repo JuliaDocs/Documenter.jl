@@ -58,14 +58,32 @@ using ...Utilities.MDFlatten
 
 export HTML
 
-"List of Documenter native themes."
-const THEMES = ["documenter-light", "documenter-dark"]
 "The root directory of the HTML assets."
 const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 "The directory where all the Sass/SCSS files needed for theme building are."
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
+
+struct Theme
+    "Name of the theme"
+    name :: String
+    "Path to the `.css` file"
+    path :: String
+    isdark :: Bool
+
+    function Theme(name; path = nothing, isdark = false)
+        match(THEME_REGEX, name) === nothing && throw(ArgumentError("Theme name ($name) must match $THEME_REGEX"))
+        path = (path === nothing) ? joinpath(ASSETS_THEMES, "$(name).css") : path
+        isfile(path) || throw(ArgumentError("Unable to find theme $(name) at $(path)"))
+        new(name, abspath(path), isdark)
+    end
+end
+
+"Defines the allowed theme names."
+const THEME_REGEX = r"^[A-Za-z0-9-]+$"
+"List of Documenter native themes."
+const THEMES = [Theme("documenter-light"), Theme("documenter-dark"; isdark=true)]
 
 """
     HTML(kwargs...)
@@ -254,20 +272,12 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
 
-    for logoext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
-        logo = joinpath("assets", "logo.$(logoext)")
-        if isfile(joinpath(doc.user.build, logo))
-            ctx.logo = logo
-            break
-        end
-    end
-
-    ctx.themeswap_js = copy_asset("themeswap.js", doc)
-    ctx.documenter_js = copy_asset("documenter.js", doc)
-    ctx.search_js = copy_asset("search.js", doc)
+    ctx.themeswap_js = copy_asset(doc, "themeswap.js")
+    ctx.documenter_js = copy_asset(doc, "documenter.js")
+    ctx.search_js = copy_asset(doc, "search.js")
 
     for theme in THEMES
-        copy_asset("themes/$(theme).css", doc)
+        copy_asset(doc, theme)
     end
     append!(ctx.local_assets, settings.assets)
 
@@ -295,8 +305,7 @@ end
 Copies an asset from Documenters `assets/html/` directory to `doc.user.build`.
 Returns the path of the copied asset relative to `.build`.
 """
-function copy_asset(file, doc)
-    src = joinpath(Utilities.assetsdir(), "html", file)
+function copy_asset(doc::Documents.Document, file; src=joinpath(Utilities.assetsdir(), "html", file))
     alt_src = joinpath(doc.user.source, "assets", file)
     dst = joinpath(doc.user.build, "assets", file)
     isfile(src) || error("Asset '$file' not found at $(abspath(src))")
@@ -317,6 +326,8 @@ function copy_asset(file, doc)
     # Replace any backslashes in links, if building the docs on Windows
     return replace(assetpath, '\\' => '/')
 end
+
+copy_asset(doc::Documents.Document, theme::Theme) = copy_asset(doc, "themes/$(theme.name).css"; src=theme.path)
 
 # Page
 # ------------------------------------------------------------------------------
@@ -395,7 +406,7 @@ function render_settings(ctx)
     theme_selector = p(
         label[".label"]("Theme"),
         div[".select"](
-            select["#documenter-themepicker"](option[:value=>theme](theme) for theme in THEMES)
+            select["#documenter-themepicker"](option[:value=>theme.name](theme.name) for theme in THEMES)
         )
     )
 
@@ -463,8 +474,8 @@ function render_head(ctx, navnode)
         map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
             e = link[".docs-theme-link",
                 :rel => "stylesheet", :type => "text/css",
-                :href => relhref(src, "assets/themes/$(theme).css"),
-                Symbol("data-theme-name") => theme,
+                :href => relhref(src, "assets/themes/$(theme.name).css"),
+                Symbol("data-theme-name") => theme.name,
             ]
             (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
             return e
@@ -527,16 +538,23 @@ function render_sidebar(ctx, navnode)
     src = get_url(ctx, navnode)
     navmenu = nav[".docs-sidebar"]
 
-    # Logo and title
-    if !isempty(ctx.logo)
+    # Logo
+    logo = find_image_asset(ctx, "logo")
+    logo_dark = find_image_asset(ctx, "logo-dark")
+    if logo !== nothing
         # the logo will point to the first page in the navigation menu
         href = navhref(ctx, first(ctx.doc.internal.navlist), navnode)
         alt = isempty(ctx.doc.user.sitename) ? "Logo" : "$(ctx.doc.user.sitename) logo"
-        src = relhref(src, ctx.logo)
-        push!(navmenu.nodes,
-            a[".docs-logo", :href => href](img[:src => src, :alt => alt])
-        )
+        logo_element = a[".docs-logo", :href => href]
+        if logo_dark === nothing
+            push!(logo_element.nodes, img[:src => relhref(src, logo), :alt => alt])
+        else
+            push!(logo_element.nodes, img[".docs-light-only", :src => relhref(src, logo), :alt => alt])
+            push!(logo_element.nodes, img[".docs-dark-only", :src => relhref(src, logo_dark), :alt => alt])
+        end
+        push!(navmenu.nodes, logo_element)
     end
+    # Sitename
     push!(navmenu.nodes, div[".docs-package-name"](
         span[".docs-autofit"](ctx.doc.user.sitename)
     ))
@@ -574,6 +592,14 @@ function render_sidebar(ctx, navnode)
         push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
     end
     navmenu
+end
+
+function find_image_asset(ctx, name)
+    for ext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
+        filename = joinpath("assets", "$(name).$(ext)")
+        isfile(joinpath(ctx.doc.user.build, filename)) && return filename
+    end
+    return nothing
 end
 
 """

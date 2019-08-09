@@ -7107,6 +7107,9 @@ h1 .docs-heading-anchor, h2 .docs-heading-anchor, h3 .docs-heading-anchor, h4 .d
 h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-heading-anchor, h4:hover .docs-heading-anchor, h5:hover .docs-heading-anchor, h6:hover .docs-heading-anchor {
   visibility: visible; }
 
+.docs-dark-only {
+  display: none !important; }
+
 .admonition {
   background-color: #b5b5b5;
   border-style: solid;
