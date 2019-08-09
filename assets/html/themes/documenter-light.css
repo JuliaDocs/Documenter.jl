@@ -318,7 +318,7 @@ pre {
   font-family: monospace; }
 
 body {
-  color: #4a4a4a;
+  color: #222222;
   font-size: 1em;
   font-weight: 400;
   line-height: 1.5; }
@@ -362,7 +362,7 @@ span {
   font-weight: inherit; }
 
 strong {
-  color: #363636;
+  color: #222222;
   font-weight: 700; }
 
 fieldset {
@@ -371,7 +371,7 @@ fieldset {
 pre {
   -webkit-overflow-scrolling: touch;
   background-color: whitesmoke;
-  color: #4a4a4a;
+  color: #222222;
   font-size: 0.875em;
   overflow-x: auto;
   padding: 1.25rem 1.5rem;
@@ -391,7 +391,7 @@ table th {
     text-align: left; }
 
 table th {
-  color: #363636; }
+  color: #222222; }
 
 .is-clearfix::after {
   clear: both;
@@ -1168,7 +1168,7 @@ a.has-text-danger:hover, a.has-text-danger:focus {
   background-color: white;
   border-radius: 6px;
   box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
-  color: #4a4a4a;
+  color: #222222;
   display: block;
   padding: 1.25rem; }
 
@@ -1219,14 +1219,14 @@ a.box:active {
   .button.is-text {
     background-color: transparent;
     border-color: transparent;
-    color: #4a4a4a;
+    color: #222222;
     text-decoration: underline; }
     .button.is-text:hover, .button.is-text.is-hovered, .button.is-text:focus, .button.is-text.is-focused {
       background-color: whitesmoke;
-      color: #363636; }
+      color: #222222; }
     .button.is-text:active, .button.is-text.is-active {
       background-color: #e8e8e8;
-      color: #363636; }
+      color: #222222; }
     .button.is-text[disabled],
     fieldset[disabled] .button.is-text {
       background-color: transparent;
@@ -2053,7 +2053,7 @@ a.box:active {
 .content h4,
 .content h5,
 .content h6 {
-  color: #363636;
+  color: #222222;
   font-weight: 600;
   line-height: 1.125; }
 
@@ -2153,17 +2153,17 @@ a.box:active {
     padding: 0.5em 0.75em;
     vertical-align: top; }
   .content table th {
-    color: #363636; }
+    color: #222222; }
     .content table th:not([align]) {
       text-align: left; }
   .content table thead td,
   .content table thead th {
     border-width: 0 0 2px;
-    color: #363636; }
+    color: #222222; }
   .content table tfoot td,
   .content table tfoot th {
     border-width: 2px 0 0;
-    color: #363636; }
+    color: #222222; }
   .content table tbody tr:last-child td,
   .content table tbody tr:last-child th {
     border-bottom-width: 0; }
@@ -2359,11 +2359,11 @@ a.box:active {
   .progress::-webkit-progress-bar {
     background-color: #dbdbdb; }
   .progress::-webkit-progress-value {
-    background-color: #4a4a4a; }
+    background-color: #222222; }
   .progress::-moz-progress-bar {
-    background-color: #4a4a4a; }
+    background-color: #222222; }
   .progress::-ms-fill {
-    background-color: #4a4a4a;
+    background-color: #222222;
     border: none; }
   .progress.is-white::-webkit-progress-value {
     background-color: white; }
@@ -2451,7 +2451,7 @@ a.box:active {
     animation-name: moveIndeterminate;
     animation-timing-function: linear;
     background-color: #dbdbdb;
-    background-image: linear-gradient(to right, #4a4a4a 30%, #dbdbdb 30%);
+    background-image: linear-gradient(to right, #222222 30%, #dbdbdb 30%);
     background-position: top left;
     background-repeat: no-repeat;
     background-size: 150% 150%; }
@@ -2545,7 +2545,7 @@ a.box:active {
       .table th.is-selected strong {
         color: currentColor; }
   .table th {
-    color: #363636; }
+    color: #222222; }
     .table th:not([align]) {
       text-align: left; }
   .table tr.is-selected {
@@ -2563,13 +2563,13 @@ a.box:active {
     .table thead td,
     .table thead th {
       border-width: 0 0 2px;
-      color: #363636; }
+      color: #222222; }
   .table tfoot {
     background-color: transparent; }
     .table tfoot td,
     .table tfoot th {
       border-width: 2px 0 0;
-      color: #363636; }
+      color: #222222; }
   .table tbody {
     background-color: transparent; }
     .table tbody tr:last-child td,
@@ -2643,7 +2643,7 @@ a.box:active {
   align-items: center;
   background-color: whitesmoke;
   border-radius: 4px;
-  color: #4a4a4a;
+  color: #222222;
   display: inline-flex;
   font-size: 0.75rem;
   height: 2em;
@@ -3693,7 +3693,7 @@ a.tag:hover, .docstring > section > a.docs-sourcelink:hover {
     .breadcrumb li:first-child a {
       padding-left: 0; }
     .breadcrumb li.is-active a {
-      color: #363636;
+      color: #222222;
       cursor: default;
       pointer-events: none; }
     .breadcrumb li + li::before {
@@ -3733,7 +3733,7 @@ a.tag:hover, .docstring > section > a.docs-sourcelink:hover {
 .card {
   background-color: white;
   box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
-  color: #4a4a4a;
+  color: #222222;
   max-width: 100%;
   position: relative; }
 
@@ -3745,7 +3745,7 @@ a.tag:hover, .docstring > section > a.docs-sourcelink:hover {
 
 .card-header-title {
   align-items: center;
-  color: #363636;
+  color: #222222;
   display: flex;
   flex-grow: 1;
   font-weight: 700;
@@ -3928,7 +3928,7 @@ button.dropdown-item {
   display: block;
   padding: 0.5em 1em; }
   .list-item:not(a) {
-    color: #4a4a4a; }
+    color: #222222; }
   .list-item:first-child {
     border-top-left-radius: 4px;
     border-top-right-radius: 4px; }
@@ -4005,12 +4005,12 @@ a.list-item {
   line-height: 1.25; }
   .menu-list a {
     border-radius: 2px;
-    color: #4a4a4a;
+    color: #222222;
     display: block;
     padding: 0.5em 0.75em; }
     .menu-list a:hover {
       background-color: whitesmoke;
-      color: #363636; }
+      color: #222222; }
     .menu-list a.is-active {
       background-color: #3273dc;
       color: #fff; }
@@ -4127,7 +4127,7 @@ a.list-item {
 
 .message-header {
   align-items: center;
-  background-color: #4a4a4a;
+  background-color: #222222;
   border-radius: 4px 4px 0 0;
   color: #fff;
   display: flex;
@@ -4150,7 +4150,7 @@ a.list-item {
   border-radius: 4px;
   border-style: solid;
   border-width: 0 0 0 4px;
-  color: #4a4a4a;
+  color: #222222;
   padding: 1.25em 1.5em; }
   .message-body code,
   .message-body pre {
@@ -4217,7 +4217,7 @@ a.list-item {
   border-top-right-radius: 6px; }
 
 .modal-card-title {
-  color: #363636;
+  color: #222222;
   flex-grow: 1;
   flex-shrink: 0;
   font-size: 1.5rem;
@@ -5207,7 +5207,7 @@ a.navbar-item,
 .panel-heading {
   background-color: whitesmoke;
   border-radius: 4px 4px 0 0;
-  color: #363636;
+  color: #222222;
   font-size: 1.25em;
   font-weight: 300;
   line-height: 1.25;
@@ -5227,13 +5227,13 @@ a.navbar-item,
       color: #363636; }
 
 .panel-list a {
-  color: #4a4a4a; }
+  color: #222222; }
   .panel-list a:hover {
     color: #3273dc; }
 
 .panel-block {
   align-items: center;
-  color: #363636;
+  color: #222222;
   display: flex;
   justify-content: flex-start;
   padding: 0.5em 0.75em; }
@@ -5286,15 +5286,15 @@ label.panel-block {
     border-bottom-color: #dbdbdb;
     border-bottom-style: solid;
     border-bottom-width: 1px;
-    color: #4a4a4a;
+    color: #222222;
     display: flex;
     justify-content: center;
     margin-bottom: -1px;
     padding: 0.5em 1em;
     vertical-align: top; }
     .tabs a:hover {
-      border-bottom-color: #363636;
-      color: #363636; }
+      border-bottom-color: #222222;
+      color: #222222; }
   .tabs li {
     display: block; }
     .tabs li.is-active a {
@@ -7178,7 +7178,7 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
   position: relative; }
 
 .admonition-body {
-  color: #4a4a4a;
+  color: #222222;
   padding: 1.25em 1.5em; }
   .admonition-body pre {
     background-color: whitesmoke; }
@@ -7234,7 +7234,7 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
   cursor: default;
   pointer-events: none; }
   .breadcrumb a.is-disabled, .breadcrumb a.is-disabled:hover {
-    color: #363636; }
+    color: #222222; }
 
 .hljs {
   background: initial !important;
