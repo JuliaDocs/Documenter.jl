@@ -6,8 +6,8 @@
   .docs-main {
     @include desktop {
       max-width: $documenter-max-width + 2*$documenter-main-padding;
-      margin-left: $documenter-sidebar-width;
-      padding: 0 $documenter-main-padding-right 0 $documenter-main-padding-right;
+      margin-left: $documenter-sidebar-width + $documenter-sidebar-main-gap;
+      padding-right: $documenter-main-padding-right;
     }
 
     @include touch {
