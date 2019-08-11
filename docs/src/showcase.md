@@ -85,6 +85,86 @@ Finally, admonitions for notes, warnings and such:
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class. This is a `code example`.
 
+### Lists
+
+Tight lists look as follows
+
+* Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+* Nulla quis venenatis justo.
+* In non _sodales_ eros.
+
+If the lists contain paragraphs or other block level elements, they look like this:
+
+* Morbi et varius nisl, eu semper orci.
+
+  Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+
+* Nulla molestie aliquet metus, a dapibus ligula.
+
+  Morbi pellentesque sodales sollicitudin. Fusce semper placerat suscipit. Aliquam semper tempus ex, non efficitur erat posuere in. Fusce at orci eu ex sagittis commodo.
+
+  > Fusce tempus scelerisque egestas. Pellentesque varius nulla a varius fringilla.
+
+  Fusce nec urna eu orci porta blandit.
+
+Numbered lists are also supported
+
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+2. Nulla quis venenatis justo.
+3. In non _sodales_ eros.
+
+As are nested lists
+
+* Morbi et varius nisl, eu semper orci.
+
+  Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+
+  - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  - Nulla quis venenatis justo.
+  - In non _sodales_ eros.
+
+* Nulla molestie aliquet metus, a dapibus ligula.
+
+  1. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  2. Nulla quis venenatis justo.
+  3. In non _sodales_ eros.
+
+  Fusce nec urna eu orci porta blandit.
+
+Lists can also be included in other blocks that can contain block level items
+
+!!! note "Bulleted lists in admonitions"
+
+    * Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    * Nulla quis venenatis justo.
+    * In non _sodales_ eros.
+
+!!! note "Large lists in admonitions"
+
+    * Morbi et varius nisl, eu semper orci.
+
+      Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+
+      - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      - Nulla quis venenatis justo.
+      - In non _sodales_ eros.
+
+    * Nulla molestie aliquet metus, a dapibus ligula.
+
+      1. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      2. Nulla quis venenatis justo.
+      3. In non _sodales_ eros.
+
+      Fusce nec urna eu orci porta blandit.
+
+> * Morbi et varius nisl, eu semper orci.
+>
+>   Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+>
+>   - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+>   - Nulla quis venenatis justo.
+>   - In non _sodales_ eros.
+
 ### Tables
 
 | object | implemented |      value |
