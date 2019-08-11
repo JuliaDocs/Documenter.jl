@@ -15,9 +15,11 @@ $info: #024c7d;
 $success: #008438;
 $warning: #ad8100;
 $danger: #9e1b0d;
+$purple: #663a78;
 
 $admonition-background: (
-  'default': $background, 'info': $background, 'success': $background, 'warning': $background, 'danger': $background
+  'default': $background, 'info': $background, 'success': $background, 'warning': $background,
+  'danger': $background, 'compat': $background
 );
 $admonition-header-background: ('default': $grey);
 

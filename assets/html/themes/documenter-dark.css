@@ -7239,6 +7239,11 @@ html.theme--documenter-dark {
       border-color: #9e1b0d; }
       html.theme--documenter-dark .admonition.is-danger > .admonition-header {
         background-color: #9e1b0d; }
+    html.theme--documenter-dark .admonition.is-compat {
+      background-color: #282f2f;
+      border-color: #663a78; }
+      html.theme--documenter-dark .admonition.is-compat > .admonition-header {
+        background-color: #663a78; }
   html.theme--documenter-dark .admonition-header {
     background-color: #5e6d6f;
     align-items: center;

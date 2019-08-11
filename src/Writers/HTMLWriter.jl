@@ -1269,7 +1269,8 @@ function mdconvert(a::Markdown.Admonition, parent; kwargs...)
         (a.category == "warning") ? "is-warning" :
         (a.category == "note")    ? "is-info"    :
         (a.category == "info")    ? "is-info"    :
-        (a.category == "tip")     ? "is-success" : ""
+        (a.category == "tip")     ? "is-success" :
+        (a.category == "compat")  ? "is-compat"  : ""
     div[".admonition.$(colorclass)"](
         header[".admonition-header"](a.title),
         div[".admonition-body"](mdconvert(a.content, a; kwargs...))

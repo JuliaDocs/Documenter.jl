@@ -1,7 +1,8 @@
 // This is a heavily customized version of Bulma's message component
 // Original copyright (c) 2019 Jeremy Thomas, The MIT License (MIT)
 $admonition-colors: (
-  'default': $grey-darker, 'info': $info, 'success': $success, 'warning': $warning, 'danger': $danger
+  'default': $grey-darker, 'info': $info, 'success': $success, 'warning': $warning,
+  'danger': $danger, 'compat': $purple
 ) !default;
 
 $admonition-background: () !default;

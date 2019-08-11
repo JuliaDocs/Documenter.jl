@@ -79,6 +79,9 @@ Finally, admonitions for notes, warnings and such:
 !!! danger "'danger' admonition"
     This is a `!!! danger`-type admonition.
 
+!!! compat "'compat' admonition"
+    This is a `!!! compat`-type admonition.
+
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class. This is a `code example`.
 

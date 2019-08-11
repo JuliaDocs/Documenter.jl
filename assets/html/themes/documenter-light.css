@@ -7162,6 +7162,14 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
       color: #fff; }
     .admonition.is-danger > .admonition-body {
       color: #fff; }
+  .admonition.is-compat {
+    background-color: #cd86e9;
+    border-color: #851fad; }
+    .admonition.is-compat > .admonition-header {
+      background-color: #851fad;
+      color: #fff; }
+    .admonition.is-compat > .admonition-body {
+      color: #fff; }
 
 .admonition-header {
   color: #fff;
