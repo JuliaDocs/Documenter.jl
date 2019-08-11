@@ -159,7 +159,6 @@
     a, label {
       &.tocitem:hover {
         background-color: $documenter-sidebar-menu-hover-background;
-        // color: $documenter-sidebar-menu-hover-color;
       }
     }
 
@@ -172,8 +171,6 @@
         &, &:hover {
           background-color: $documenter-sidebar-menu-active-background;
           color: $documenter-sidebar-menu-active-color;
-          // font-weight: $documenter-sidebar-menu-active-font-weight;
-          // color: $primary;
         }
       }
     }
@@ -187,30 +184,22 @@
     // In-page headings
     ul.internal {
       margin: 0 0.5rem 0.5rem;
-      // background-color: $documenter-sidebar-menu-internal-background;
       border-top: 1px solid $border;
       li {
         font-size: 0.85*$size-normal;
-        // border-left: 0.3em solid $documenter-sidebar-menu-internal-hover-background;
-        margin-left: 0;
         border-left: none;
+        margin-left: 0;
         margin-top: 0.5rem;
       }
 
       .tocitem {
-        display: flex;
         width: 100%;
-        color: gray;
+        color: $documenter-sidebar-menu-internal-color;
         padding: 0;
 
         &::before {
-          content: "#";
-          margin-right: 0.5em;
-        }
-
-        &:hover {
-          // background-color: $documenter-sidebar-menu-internal-hover-background;
-          // color: $documenter-sidebar-menu-internal-hover-color;
+          content: "⚬";
+          margin-right: 0.4em;
         }
       }
     }

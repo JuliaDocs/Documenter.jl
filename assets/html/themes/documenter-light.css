@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* Font Awesome 5 mixin. Can be included in any rule that should render Font Awesome icons. */
 @keyframes spinAround {
   from {
@@ -7453,17 +7454,16 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
       border-top: 1px solid #dbdbdb; }
       #documenter .docs-sidebar ul.docs-menu ul.internal li {
         font-size: 0.85rem;
-        margin-left: 0;
         border-left: none;
+        margin-left: 0;
         margin-top: 0.5rem; }
       #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem {
-        display: flex;
         width: 100%;
         color: gray;
         padding: 0; }
         #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem::before {
-          content: "#";
-          margin-right: 0.5em; }
+          content: "⚬";
+          margin-right: 0.4em; }
   #documenter .docs-sidebar form.docs-search {
     margin: auto;
     margin-top: 0.5rem;
