@@ -405,6 +405,8 @@ function render_settings(ctx)
         a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"),
         " on ",
         span[".colophon-date", :title => now_full](now_short),
+        ". ",
+        "Using Julia version $(Base.VERSION)."
     )
 
     div["#documenter-settings.modal"](
