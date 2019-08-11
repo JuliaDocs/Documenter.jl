@@ -102,7 +102,6 @@ requirejs(["jquery", "katex", "katex-auto-render"], function($, katex, renderMat
         ],
       }
     );
-    console.log("KaTeX loaded.. I think?")
   })
   // FIXME do we need this?
   // window.WebFontConfig = {
@@ -198,7 +197,6 @@ require(['jquery'], function($) {
 
     // Store the theme in localStorage
     if(typeof(window.localStorage) !== "undefined") {
-      console.log("Storing theme preference in local storage:", theme);
       window.localStorage.setItem("documenter-theme", theme);
     } else {
       console.error("Browser does not support window.localStorage");
