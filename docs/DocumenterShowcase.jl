@@ -4,6 +4,10 @@ This is the [`DocumenterShowcase`](@ref), which contains
 * [`DocumenterShowcase.foo`](@ref)
 * [`DocumenterShowcase.bar`](@ref)
 
+!!! compat "Documenter 0.24"
+
+    This showcase page is included in Documenter version 0.24.0 and above.
+
 # Contents
 
 Docstrings can contain admonitions and other block-level nodes.

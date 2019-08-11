@@ -6,7 +6,8 @@
 $primary: #4eb5de !default;
 $red: #da0b00 !default;
 $blue: #0b5bda !default;
-$purple: #851fad !default;
+$green: #22c35b !default;
+$turquoise: #1db5c9 !default;
 $text: #222222 !default;
 $text-strong: $text !default;
 // The inline <code> tags get rendered on various different backgrounds. Therefore, in order
@@ -65,3 +66,6 @@ $documenter-main-padding: 1rem !default;
 // layout switches between the mobile and tablet modes. Note: $tablet needs
 // to be in px, hence the unit conversion.
 $desktop: round($body-size * ($documenter-max-width + $documenter-sidebar-width + $documenter-main-padding-left + $documenter-main-padding-right - 5rem)/1rem) !default;
+
+// Admonitions
+$message-header-padding: 0.75em;

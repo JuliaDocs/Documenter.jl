@@ -4053,7 +4053,7 @@ html.theme--documenter-dark {
     font-weight: 700;
     justify-content: space-between;
     line-height: 1.25;
-    padding: 0.75em 1em;
+    padding: 0.75em;
     position: relative; }
     html.theme--documenter-dark .message-header .delete {
       flex-grow: 0;
@@ -7241,18 +7241,22 @@ html.theme--documenter-dark {
         background-color: #9e1b0d; }
     html.theme--documenter-dark .admonition.is-compat {
       background-color: #282f2f;
-      border-color: #663a78; }
+      border-color: #137886; }
       html.theme--documenter-dark .admonition.is-compat > .admonition-header {
-        background-color: #663a78; }
+        background-color: #137886; }
   html.theme--documenter-dark .admonition-header {
     background-color: #5e6d6f;
     align-items: center;
-    display: flex;
     font-weight: 700;
     justify-content: space-between;
     line-height: 1.25;
-    padding: 0.75em 1em;
+    padding: 0.75em;
     position: relative; }
+    html.theme--documenter-dark .admonition-header:before {
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-right: 0.75em;
+      content: "\f06a"; }
   html.theme--documenter-dark .admonition-body {
     color: #fff;
     padding: 1.25em 1.5em; }
