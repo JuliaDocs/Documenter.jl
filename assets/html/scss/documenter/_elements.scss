@@ -17,3 +17,13 @@ h1, h2, h3, h4, h5, h6 {
     visibility: visible;
   }
 }
+
+@if $documenter-is-dark-theme {
+  .docs-light-only {
+    display: none !important;
+  }
+} @else {
+  .docs-dark-only {
+    display: none !important;
+  }
+}

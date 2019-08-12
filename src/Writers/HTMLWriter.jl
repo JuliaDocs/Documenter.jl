@@ -131,6 +131,8 @@ the subdirectories of `assets/` are not linked).
 
 For the **logo**, Documenter checks for the existence of `assets/logo.{svg,png,webp,gif,jpg,jpeg}`,
 in this order. The first one it finds gets displayed at the top of the navigation sidebar.
+It will also check for `assets/logo-dark.{svg,png,webp,gif,jpg,jpeg}` and use that for dark
+themes.
 
 Additional JS, ICO, and CSS assets can be included in the generated pages using the
 `assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
@@ -192,7 +194,6 @@ other recursive functions.
 mutable struct HTMLContext
     doc :: Documents.Document
     settings :: HTML
-    logo :: String
     scripts :: Vector{String}
     documenter_js :: String
     themeswap_js :: String
@@ -204,7 +205,7 @@ mutable struct HTMLContext
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, "", [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
 
 function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -260,14 +261,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
-
-    for logoext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
-        logo = joinpath("assets", "logo.$(logoext)")
-        if isfile(joinpath(doc.user.build, logo))
-            ctx.logo = logo
-            break
-        end
-    end
 
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
     ctx.documenter_js = copy_asset("documenter.js", doc)
@@ -536,16 +529,23 @@ function render_sidebar(ctx, navnode)
     src = get_url(ctx, navnode)
     navmenu = nav[".docs-sidebar"]
 
-    # Logo and title
-    if !isempty(ctx.logo)
+    # Logo
+    logo = find_image_asset(ctx, "logo")
+    logo_dark = find_image_asset(ctx, "logo-dark")
+    if logo !== nothing
         # the logo will point to the first page in the navigation menu
         href = navhref(ctx, first(ctx.doc.internal.navlist), navnode)
         alt = isempty(ctx.doc.user.sitename) ? "Logo" : "$(ctx.doc.user.sitename) logo"
-        src = relhref(src, ctx.logo)
-        push!(navmenu.nodes,
-            a[".docs-logo", :href => href](img[:src => src, :alt => alt])
-        )
+        logo_element = a[".docs-logo", :href => href]
+        if logo_dark === nothing
+            push!(logo_element.nodes, img[:src => relhref(src, logo), :alt => alt])
+        else
+            push!(logo_element.nodes, img[".docs-light-only", :src => relhref(src, logo), :alt => alt])
+            push!(logo_element.nodes, img[".docs-dark-only", :src => relhref(src, logo_dark), :alt => alt])
+        end
+        push!(navmenu.nodes, logo_element)
     end
+    # Sitename
     if ctx.settings.sidebar_sitename
         push!(navmenu.nodes, div[".docs-package-name"](
             span[".docs-autofit"](ctx.doc.user.sitename)
@@ -585,6 +585,14 @@ function render_sidebar(ctx, navnode)
         push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
     end
     navmenu
+end
+
+function find_image_asset(ctx, name)
+    for ext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
+        filename = joinpath("assets", "$(name).$(ext)")
+        isfile(joinpath(ctx.doc.user.build, filename)) && return filename
+    end
+    return nothing
 end
 
 """
