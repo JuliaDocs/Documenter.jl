@@ -1,7 +1,5 @@
 # Documenter.jl
 
-#
-
 *A documentation generator for Julia.*
 
 A package for building documentation from docstrings and markdown files.

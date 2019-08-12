@@ -192,6 +192,9 @@ require(["jquery", "lunr", "lodash"], function($, lunr, _) {
     })
 
     $(function(){
+        searchresults = $('#documenter-search-results');
+				searchinfo = $('#documenter-search-info');
+				searchbox = $('#documenter-search-query');
         function update_search(querystring) {
             tokens = lunr.tokenizer(querystring)
             results = index.query(function (q) {
@@ -219,31 +222,30 @@ require(["jquery", "lunr", "lodash"], function($, lunr, _) {
                     })
                 })
             })
-            $('#search-info').text("Number of results: " + results.length)
-            $('#search-results').empty()
+            searchinfo.text("Number of results: " + results.length)
+            searchresults.empty()
             results.forEach(function(result) {
                 data = store[result.ref]
-                link = $('<a>')
-                link.text(data.title)
+                link = $('<a class="docs-label">'+data.title+'</a>')
                 link.attr('href', documenterBaseURL+'/'+result.ref)
-                cat = $('<span class="category">('+data.category+')</span>')
+                cat = $('<span class="docs-category">('+data.category+')</span>')
                 li = $('<li>').append(link).append(" ").append(cat)
-                $('#search-results').append(li)
+                searchresults.append(li)
             })
         }
 
         function update_search_box() {
-            querystring = $('#search-query').val()
+            querystring = searchbox.val()
             update_search(querystring)
         }
 
-        $('#search-query').keyup(_.debounce(update_search_box, 250))
-        $('#search-query').change(update_search_box)
+        searchbox.keyup(_.debounce(update_search_box, 250))
+        searchbox.change(update_search_box)
 
         search_query_uri = parseUri(window.location).queryKey["q"]
         if(search_query_uri !== undefined) {
             search_query = decodeURIComponent(search_query_uri.replace(/\+/g, '%20'))
-            $("#search-query").val(search_query)
+            searchbox.val(search_query)
         }
         update_search_box();
     })

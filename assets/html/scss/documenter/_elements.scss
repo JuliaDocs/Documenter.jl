@@ -1,0 +1,19 @@
+// Permalinks to page headings
+// Implemented as empty <a> tags inside the <hN> tags, showing up as chain icons
+h1, h2, h3, h4, h5, h6 {
+  .docs-heading-anchor {
+    visibility: hidden;
+    vertical-align: middle;
+    margin-left: 0.5em;
+    font-size: 0.7rem;
+
+    &::before {
+      @include font-awesome;
+      content: "\f0c1";
+    }
+  }
+  // the permalinks icon is only shown if the user hovers over the heading
+  &:hover .docs-heading-anchor {
+    visibility: visible;
+  }
+}

@@ -26,13 +26,15 @@ doc = makedocs(
             ]),
             "man/other-formats.md",
         ],
+        "showcase.md",
         "Library" => Any[
             "Public" => "lib/public.md",
-            hide("Internals" => "lib/internals.md", Any[
+            "Internals" => Any[
                 "lib/internals/anchors.md",
                 "lib/internals/builder.md",
                 "lib/internals/cross-references.md",
                 "lib/internals/docchecks.md",
+                "lib/internals/docmeta.md",
                 "lib/internals/docsystem.md",
                 "lib/internals/doctests.md",
                 "lib/internals/documenter.md",
@@ -40,15 +42,16 @@ doc = makedocs(
                 "lib/internals/documents.md",
                 "lib/internals/dom.md",
                 "lib/internals/expanders.md",
+                "lib/internals/markdown2.md",
                 "lib/internals/mdflatten.md",
                 "lib/internals/selectors.md",
                 "lib/internals/textdiff.md",
                 "lib/internals/utilities.md",
                 "lib/internals/writers.md",
-            ])
+            ],
         ],
         "contributing.md",
-    ]
+    ],
 );
 
 # hack to only deploy the actual pdf-file

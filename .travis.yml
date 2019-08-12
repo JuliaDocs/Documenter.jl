@@ -20,9 +20,11 @@ after_success:
 
 jobs:
   include:
+    - stage: "Themes"
+      script:
+        - julia --project=test/themes -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
+        - julia --project=test/themes test/themes/themes.jl
     - stage: "Documentation"
-      julia: 1.0
-      os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl

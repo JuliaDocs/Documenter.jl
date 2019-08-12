@@ -1,16 +1,17 @@
 using Documenter, DocumenterTools
+include("DocumenterShowcase.jl")
 
 # The DOCSARGS environment variable can be used to pass additional arguments to make.jl.
 # This is useful on CI, if you need to change the behavior of the build slightly but you
 # can not change the .travis.yml or make.jl scripts any more (e.g. for a tag build).
 if haskey(ENV, "DOCSARGS")
     for arg in split(ENV["DOCSARGS"])
-        push!(ARGS, arg)
+        (arg in ARGS) || push!(ARGS, arg)
     end
 end
 
 makedocs(
-    modules = [Documenter, DocumenterTools],
+    modules = [Documenter, DocumenterTools, DocumenterShowcase],
     format = Documenter.HTML(
         # Use clean URLs, unless built as a "local" build
         prettyurls = !("local" in ARGS),
@@ -35,9 +36,10 @@ makedocs(
             ]),
             "man/other-formats.md",
         ],
+        "showcase.md",
         "Library" => Any[
             "Public" => "lib/public.md",
-            hide("Internals" => "lib/internals.md", Any[
+            "Internals" => Any[
                 "lib/internals/anchors.md",
                 "lib/internals/builder.md",
                 "lib/internals/cross-references.md",
@@ -56,7 +58,7 @@ makedocs(
                 "lib/internals/textdiff.md",
                 "lib/internals/utilities.md",
                 "lib/internals/writers.md",
-            ])
+            ],
         ],
         "contributing.md",
     ],
