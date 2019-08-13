@@ -311,6 +311,10 @@ end
         @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
         @info ".. end of expected error output."
     end
+
+    @testset "JSDeps" begin
+        @test 1 == 1
+    end
 end
 
 end
