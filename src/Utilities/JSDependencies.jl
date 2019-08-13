@@ -122,6 +122,7 @@ function writejs(io::IO, r::RequireJS)
         args = join(s.args, ", ") # FIXME: escapes
         deps = join(("\'$(d)\'" for d in s.deps), ", ") # FIXME: escapes
         write(io, """
+        $("/"^80)
         require([$(deps)], function($(args)) {
         $(s.js)
         })
