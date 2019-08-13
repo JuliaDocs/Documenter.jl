@@ -198,6 +198,8 @@ const jslibraries = [
         "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/languages/julia-repl.min",
         deps = ["highlight"],
     ),
+    RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js"),
+    RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"),
 ]
 
 struct SearchRecord
@@ -220,7 +222,6 @@ mutable struct HTMLContext
     scripts :: Vector{String}
     documenter_js :: String
     themeswap_js :: String
-    search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
@@ -228,7 +229,7 @@ mutable struct HTMLContext
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
 
 function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -285,7 +286,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
-    ctx.search_js = copy_asset("search.js", doc)
 
     # Generate documenter.js file with all the JS dependencies
     ctx.documenter_js = "assets/documenter.js"
@@ -377,11 +377,12 @@ end
 
 ## Search page
 function render_search(ctx)
-    @tags article body h1 header hr html li nav p span ul script
+    @tags article body h1 header hr html li nav p span ul script meta
 
     src = get_url(ctx, ctx.search_navnode)
 
     head = render_head(ctx, ctx.search_navnode)
+    push!(head.nodes, meta[:name => "documenter.pagetype", :content => "search"])
     sidebar = render_sidebar(ctx, ctx.search_navnode)
     navbar = render_navbar(ctx, ctx.search_navnode, false)
     article = article(
@@ -389,10 +390,7 @@ function render_search(ctx)
         ul["#documenter-search-results"]
     )
     footer = render_footer(ctx, ctx.search_navnode)
-    scripts = [
-        script[:src => relhref(src, ctx.search_index_js)],
-        script[:src => relhref(src, ctx.search_js)],
-    ]
+    scripts = [script[:src => relhref(src, ctx.search_index_js)]]
     htmldoc = render_html(ctx, ctx.search_navnode, head, sidebar, navbar, article, footer, scripts)
     open_output(ctx, ctx.search_navnode) do io
         print(io, htmldoc)
