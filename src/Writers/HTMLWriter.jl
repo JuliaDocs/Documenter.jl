@@ -284,12 +284,11 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
-
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
-    ctx.documenter_js = copy_asset("documenter.js", doc)
     ctx.search_js = copy_asset("search.js", doc)
 
     # Generate documenter.js file with all the JS dependencies
+    ctx.documenter_js = "assets/documenter.js"
     if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
         @warn "not creating 'documenter.js', provided by the user."
     else
