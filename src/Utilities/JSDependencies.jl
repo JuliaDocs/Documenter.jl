@@ -55,7 +55,7 @@ function shimdict(r::RequireJS)
     for (name, lib) in r.libraries
         @assert name == lib.name
         libshim = shimdict(lib)
-        if !isnothing(libshim)
+        if libshim !== nothing
             shim[name] = libshim
         end
     end
