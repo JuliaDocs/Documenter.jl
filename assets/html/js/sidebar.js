@@ -48,14 +48,3 @@ $(document).ready(function() {
     $("#documenter .docs-menu .is-active").get(0).offsetTop
     - $("#documenter .docs-menu").get(0).offsetTop - 15;
 })
-})
-
-require(['jquery', 'headroom', 'headroom-jquery'], function($, Headroom) {
-// Manages the top navigation bar (hides it when the user starts scrolling down on the
-// mobile).
-window.Headroom = Headroom; // work around buggy module loading?
-$(document).ready(function() {
-  $('#documenter .docs-navbar').headroom({
-    "tolerance": {"up": 10, "down": 10},
-  });
-})
