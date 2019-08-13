@@ -44,9 +44,9 @@ $(document).ready(function() {
 
 // Scroll the navigation bar to the currently selected menu item
 $(document).ready(function() {
-  var sidebar = $("#documenter .docs-menu");
-  var active = $("#documenter .docs-menu .is-active");
-  if(active.length > 0) {
-    sidebar.get(0).get(0).scrollTop = active.get(0).offsetTop - sidebar.get(0).offsetTop - 15;
+  var sidebar = $("#documenter .docs-menu").get(0);
+  var active = $("#documenter .docs-menu .is-active").get(0);
+  if(typeof active !== 'undefined') {
+    sidebar.scrollTop = active.offsetTop - sidebar.offsetTop - 15;
   }
 })
