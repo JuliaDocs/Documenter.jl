@@ -111,6 +111,10 @@ Default is `nothing`, in which case no canonical link is set.
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
 
+**`sidebar_sitename`** determines whether the site name is shown in the sidebar or not.
+Setting it to `false` can be useful when the logo already contains the name of the package.
+Defaults to `true`.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -145,6 +149,7 @@ struct HTML <: Documenter.Writer
     assets        :: Vector{String}
     analytics     :: String
     collapselevel :: Int
+    sidebar_sitename :: Bool
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -154,9 +159,11 @@ struct HTML <: Documenter.Writer
             assets        :: Vector{String} = String[],
             analytics     :: String = "",
             collapselevel :: Integer = 2,
+            sidebar_sitename :: Bool = true,
         )
         collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
-        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics, collapselevel)
+        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
+            collapselevel, sidebar_sitename)
     end
 end
 
@@ -539,9 +546,11 @@ function render_sidebar(ctx, navnode)
         push!(navmenu.nodes, logo_element)
     end
     # Sitename
-    push!(navmenu.nodes, div[".docs-package-name"](
-        span[".docs-autofit"](ctx.doc.user.sitename)
-    ))
+    if ctx.settings.sidebar_sitename
+        push!(navmenu.nodes, div[".docs-package-name"](
+            span[".docs-autofit"](ctx.doc.user.sitename)
+        ))
+    end
 
     # Search box
     push!(navmenu.nodes,
