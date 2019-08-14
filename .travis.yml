@@ -3,10 +3,12 @@ language: julia
 os:
   - linux
   - osx
+  - windows
 
 julia:
   - 1.0
   - 1.1
+  - 1.2
   - nightly
 
 notifications:
@@ -20,6 +22,14 @@ after_success:
 
 jobs:
   include:
+    - os: windows
+      arch: x86
+      julia: 1.0
+      name: "Julia: 1.0 (32bit)"
+    - os: windows
+      arch: x86
+      julia: nightly
+      name: "Julia: nightly (32bit)"
     - stage: "Themes"
       script:
         - julia --project=test/themes -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
