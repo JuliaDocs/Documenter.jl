@@ -186,9 +186,9 @@ when a minor version changes (i.e. except in patch releases).
 **`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
 defined in the `modules` keyword that have a docstring attached have the docstring also
 listed in the manual (e.g. there's a `@docs` blocks with that docstring). Possible values
-are `:all` (check all names) and `:exports` (check only exported names). The default value
-is `:none`, in which case no checks are performed. If `strict` is also enabled then the
-build will fail if any missing docstrings are encountered.
+are `:all` (check all names; the default), `:exports` (check only exported names) and
+`:none` (no checks are performed). If `strict` is also enabled then the build will fail if
+any missing docstrings are encountered.
 
 **`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
 of external-pointing links, to make sure that they are up-to-date. The links and their
