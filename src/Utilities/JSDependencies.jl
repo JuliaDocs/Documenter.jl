@@ -226,7 +226,7 @@ Parses a JS snippet file into a [`Snippet`](@ref) object.
 # Format
 
 The first few lines are parsed to get the dependencies and argument variable names of the
-snippet. They need to match `^//\s*([a-z]+):` (i.e. start with `//`, optional whitespace, a
+snippet. They need to match `^//\\s*([a-z]+):` (i.e. start with `//`, optional whitespace, a
 lowercase identifier, and a colon). Once the parser hits a line that does not match that
 pattern, it will assume that it and all the following lines are the actual script.
 
