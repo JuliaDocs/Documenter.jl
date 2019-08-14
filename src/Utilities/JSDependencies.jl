@@ -4,35 +4,89 @@ Provides an API to programmatically construct a [RequireJS](https://requirejs.or
 module JSDependencies
 using JSON
 
+"""
+    struct RemoteLibrary
+
+Declares a remote JS dependency that should be declared in the RequireJS configuration shim.
+
+# Fields
+
+* `name`: a unique name for the dependency, used to refer to it in other dependencies and
+  snippets
+* `url`: full remote URL from where the dependency can be loaded from
+* `deps`: a list of the library's dependencies (becomes the `deps` configuration in the
+  RequireJS shim)
+* `exports`: sets the `exports` config in the resulting RequireJS shim
+
+# Constructors
+
+```julia
+RemoteLibrary(name::AbstractString, url::AbstractString; deps=String[], exports=nothing)
+```
+"""
 struct RemoteLibrary
     name :: String
     url :: String
     # The following become part of the shim
     deps :: Vector{String}
     exports :: Union{Nothing, String}
-    function RemoteLibrary(name, url; deps=String[], exports=nothing)
+
+    function RemoteLibrary(name::AbstractString, url::AbstractString; deps=String[], exports=nothing)
         new(name, url, deps, exports)
     end
 end
 
-function shimdict(lib::RemoteLibrary)
-    isempty(lib.deps) && (lib.exports === nothing) && return nothing
-    shim = Dict{Symbol,Any}()
-    if !isempty(lib.deps)
-        shim[:deps] = lib.deps
-    end
-    if lib.exports !== nothing
-        shim[:exports] = lib.exports
-    end
-    return shim
-end
+"""
+    struct Snippet
 
+Declares a JS code snipped that should be loaded with RequireJS. This gets wrapped in
+`require([deps...], function(args...) {script...})` in the output.
+
+# Fields
+
+* `deps`: names of the [`RemoteLibrary`](@ref) dependencies of the snippet
+* `args`: the arguments of the callback function, corresponding to the library objects
+  of the dependencies, in the order of `deps`
+* `js`: the JS code of the function that gets used as the function body of the callback
+
+# Constructors
+
+```julia
+Snippet(deps::AbstractVector, args::AbstractVector, js::AbstractString)
+```
+"""
 struct Snippet
     deps :: Vector{String}
     args :: Vector{String}
     js :: String
+
+    function Snippet(deps::AbstractVector, args::AbstractVector, js::AbstractString)
+        new(deps, args, js)
+    end
 end
 
+"""
+    struct RequireJS
+
+Declares a single RequireJS configuration/app file.
+
+# Fields
+
+* `libraries`: a dictionary of [`RemoteLibrary`](@ref) declarations (keys are the library
+  names)
+* `snippets`: a list of JS snippets ([`Snippet`](@ref))
+
+# Constructors
+
+```julia
+RequireJS(libraries::AbstractVector{RemoteLibrary}, snippets::AbstractVector{Snippet} = Snippet[])
+```
+
+# API
+
+* The `push!` function can be used to add additional libraries and snippets.
+*
+"""
 struct RequireJS
     libraries :: Dict{String, RemoteLibrary}
     snippets :: Vector{Snippet}
@@ -51,18 +105,6 @@ struct RequireJS
     end
 end
 
-function shimdict(r::RequireJS)
-    shim = Dict{String,Any}()
-    for (name, lib) in r.libraries
-        @assert name == lib.name
-        libshim = shimdict(lib)
-        if libshim !== nothing
-            shim[name] = libshim
-        end
-    end
-    return shim
-end
-
 function Base.push!(r::RequireJS, lib::RemoteLibrary)
     if lib.name in keys(r.libraries)
         error("Library already added.")
@@ -72,6 +114,12 @@ end
 
 Base.push!(r::RequireJS, s::Snippet) = push!(r.snippets, s)
 
+"""
+    verify(r::RequireJS; verbose=false) -> Bool
+
+Checks that none of the dependencies are missing (returns `false` if some are). If `verbose`
+is set to `true`, it will also log an error with the missing dependency.
+"""
 function verify(r::RequireJS; verbose=false)
     isvalid = true
     for (name, lib) in r.libraries
@@ -92,6 +140,15 @@ function verify(r::RequireJS; verbose=false)
     end
     return isvalid
 end
+
+"""
+    writejs(io::IO, r::RequireJS)
+    writejs(filename::AbstractString, r::RequireJS)
+
+Writes out the [`RequireJS`](@ref) object as a valid JS that can be loaded with a `<script>`
+tag, either into a stream or a file. It will contain all the configuration and snippets.
+"""
+function writejs end
 
 function writejs(filename::AbstractString, r::RequireJS)
     open(filename, "w") do io
@@ -136,11 +193,60 @@ function writejs(io::IO, r::RequireJS)
     end
 end
 
+function shimdict(r::RequireJS)
+    shim = Dict{String,Any}()
+    for (name, lib) in r.libraries
+        @assert name == lib.name
+        libshim = shimdict(lib)
+        if libshim !== nothing
+            shim[name] = libshim
+        end
+    end
+    return shim
+end
+
+function shimdict(lib::RemoteLibrary)
+    isempty(lib.deps) && (lib.exports === nothing) && return nothing
+    shim = Dict{Symbol,Any}()
+    if !isempty(lib.deps)
+        shim[:deps] = lib.deps
+    end
+    if lib.exports !== nothing
+        shim[:exports] = lib.exports
+    end
+    return shim
+end
+
 """
     parse_snippet(filename::AbstractString) -> Snippet
     parse_snippet(io::IO) -> Snippet
 
 Parses a JS snippet file into a [`Snippet`](@ref) object.
+
+# Format
+
+The first few lines are parsed to get the dependencies and argument variable names of the
+snippet. They need to match `^//\s*([a-z]+):` (i.e. start with `//`, optional whitespace, a
+lowercase identifier, and a colon). Once the parser hits a line that does not match that
+pattern, it will assume that it and all the following lines are the actual script.
+
+Only lowercase letters are allowed in the identifiers. Currently only `libraries` and
+`arguments` are actually parsed and lines with other syntactically valid identifiers are
+ignored. For `libraries` and `arguments`, the value (after the colon) must be a comma
+separated list.
+
+A valid snippet file would look like the following. Note that the list of arguments can be
+shorter than the list of dependencies.
+
+```js
+// libraries: jquery, highlight, highlight-julia, highlight-julia-repl
+// arguments: \$, hljs
+
+// Initialize the highlight.js highlighter
+\$(document).ready(function() {
+  hljs.initHighlighting();
+})
+```
 """
 function parse_snippet end
 
