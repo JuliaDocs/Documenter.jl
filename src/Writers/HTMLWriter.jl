@@ -53,9 +53,9 @@ import ...Documenter:
     Utilities,
     Writers
 
+using ...Utilities: JSDependencies
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
-using ...Utilities.JSDependencies: JSDependencies, RemoteLibrary
 
 export HTML
 
@@ -178,36 +178,38 @@ const fontawesome_css = [
 const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
 const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
 
-const jslibraries = [
-    RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"),
-    RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"),
-    RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js"),
-    RemoteLibrary(
+"Provides a namespace for JS dependencies."
+module JS
+    using ....Utilities.JSDependencies: RemoteLibrary
+    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js")
+    const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js")
+    const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js")
+    const headroom_jquery = RemoteLibrary(
         "headroom-jquery",
         "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js",
         deps = ["jquery", "headroom"],
-    ),
+    )
     # FIXME: upgrade KaTeX to v0.11.0
-    RemoteLibrary("katex", "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/katex.min.js"),
-    RemoteLibrary(
+    const katex = RemoteLibrary("katex", "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/katex.min.js")
+    const katex_auto_render = RemoteLibrary(
         "katex-auto-render",
         "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/contrib/auto-render.min.js",
         deps = ["katex"],
-    ),
-    RemoteLibrary("highlight", "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"),
-    RemoteLibrary(
+    )
+    const highlight = RemoteLibrary("highlight", "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js")
+    const highlight_julia = RemoteLibrary(
         "highlight-julia",
         "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/languages/julia.min.js",
         deps = ["highlight"],
-    ),
-    RemoteLibrary(
+    )
+    const highlight_julia_repl = RemoteLibrary(
         "highlight-julia-repl",
         "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/languages/julia-repl.min",
         deps = ["highlight"],
-    ),
-    RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js"),
-    RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"),
-]
+    )
+    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js")
+    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js")
+end
 
 struct SearchRecord
     src :: String
@@ -300,7 +302,11 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
         @warn "not creating 'documenter.js', provided by the user."
     else
-        r = JSDependencies.RequireJS(jslibraries)
+        r = JSDependencies.RequireJS([
+            JS.jquery, JS.jqueryui, JS.headroom, JS.headroom_jquery,
+            JS.highlight, JS.highlight_julia, JS.highlight_julia_repl,
+            JS.katex, JS.katex_auto_render,
+        ])
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
@@ -315,7 +321,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "search.js"))
         @warn "not creating 'search.js', provided by the user."
     else
-        r = JSDependencies.RequireJS(jslibraries)
+        r = JSDependencies.RequireJS([JS.jquery, JS.lunr, JS.lodash])
         push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
