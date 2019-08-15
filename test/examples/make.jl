@@ -98,42 +98,13 @@ end
 
 # Build example docs
 using Documenter, DocumenterMarkdown
-using Documenter.Utilities: withoutput
+isdefined(@__MODULE__, :TestUtilities) || (include("../TestUtilities.jl"); using .TestUtilities)
 
 const examples_root = @__DIR__
 const builds_directory = joinpath(examples_root, "builds")
 ispath(builds_directory) && rm(builds_directory, recursive=true)
 
 expandfirst = ["expandorder/AA.md"]
-
-function _quietly(f, expr, source)
-    result, success, backtrace, output = withoutput(f)
-    if success
-        printstyled("@quietly: success, $(sizeof(output)) bytes of output hidden\n"; color=:magenta)
-        return result
-    else
-        @error """
-        An error was thrown in @quietly
-        Error: $(repr(result)) at $(source.file):$(source.line)
-        Expression:
-        $(expr)
-        """
-        printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
-        print(output)
-        last(output) != "\n" && println()
-        printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
-        throw(result)
-    end
-end
-macro quietly(expr)
-    orig_expr = Expr(:inert, expr)
-    source = QuoteNode(__source__)
-    quote
-        _quietly($orig_expr, $source) do
-            $(esc(expr))
-        end
-    end
-end
 
 @info("Building mock package docs: MarkdownWriter")
 examples_markdown_doc = @quietly makedocs(

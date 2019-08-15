@@ -1,29 +1,10 @@
 using Test
 import Documenter
-using Documenter.Utilities: withoutput
+include("TestUtilities.jl"); using .TestUtilities
 
 @testset "Documenter" begin
-    # Various tests use Utilities.withoutput to capture output. So we'll first make sure
-    # that it is working properly.
-    @testset "withoutput" begin
-        let (result, success, backtrace, output) = withoutput() do
-                println("test stdout")
-            end
-            @test success
-            @test result === nothing
-            @test output == "test stdout\n"
-        end
-        let (result, success, backtrace, output) = withoutput(() -> 42)
-            @test success
-            @test result === 42
-            @test output == ""
-        end
-        let (result, success, backtrace, output) = withoutput(() -> error("test error"))
-            @test !success
-            @test result isa ErrorException
-            @test output == ""
-        end
-    end
+    # Test TestUtilities
+    TestUtilities.test()
 
     # Build the example docs
     @info "Building example/make.jl"
@@ -31,12 +12,12 @@ using Documenter.Utilities: withoutput
 
     # Test missing docs
     @info "Building missingdocs/make.jl"
-    include("missingdocs/make.jl")
+    @quietly include("missingdocs/make.jl")
 
     # Error reporting.
     println("="^50)
     @info("The following errors are expected output.")
-    include(joinpath("errors", "make.jl"))
+    include("errors/make.jl")
     @info("END of expected error output.")
     println("="^50)
 
