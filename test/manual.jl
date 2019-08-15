@@ -17,7 +17,13 @@ using Test
     ```
     """)
     @test isfile(tmpfile)
-    @test_throws TestSetException fetch(schedule(Task(() -> doctest(Documenter))))
+    # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
+    # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
+    if isdefined(Base, :TaskFailedException)
+        @test_throws TaskFailedException fetch(schedule(Task(() -> doctest(Documenter))))
+    else
+        @test_throws TestSetException fetch(schedule(Task(() -> doctest(Documenter))))
+    end
     println("^^^ Expected error output.")
     rm(tmpfile)
     @test !isfile(tmpfile)
