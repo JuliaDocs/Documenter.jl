@@ -165,25 +165,24 @@ function writejs(io::IO, r::RequireJS)
     for (name, lib) in r.libraries
         url = endswith(lib.url, ".js") ? replace(lib.url, r"\.js$" => "") : lib.url
         write(io, """
-            '$(lib.name)': '$(url)',
-        """) # FIXME: escape bad characters
+            '$(jsescape(lib.name))': '$(jsescape(url))',
+        """)
     end
-    write(io, """
-      },
-    """)
+    write(io, "  }")
+
     shim = shimdict(r)
-    if !isempty(shim)
-        write(io, "  shim: ")
-        JSON.print(io, shim, 2) # FIXME: escape JS properly
-        write(io, ",\n")
+    if isempty(shim)
+        write(io, '\n')
+    else
+        write(io, ",\n  shim: ")
+        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
+        write(io, reduce(replace, escapes, init=JSON.json(shim, 2)))
     end
-    write(io, """
-    });
-    """)
+    write(io, "});\n")
 
     for s in r.snippets
-        args = join(s.args, ", ") # FIXME: escapes
-        deps = join(("\'$(d)\'" for d in s.deps), ", ") # FIXME: escapes
+        args = join(s.args, ", ") # Note: not string literals => no escaping
+        deps = join(("\'$(jsescape(d))\'" for d in s.deps), ", ")
         write(io, """
         $("/"^80)
         require([$(deps)], function($(args)) {
@@ -299,8 +298,8 @@ function jsescape(s)
     # Note: in ECMAScript® 2019 (10th edition), U+2028 and U+2029 do not actually need to be
     # escaped anymore:
     #
-    # > Updated syntax includes optional catch binding parameters and allowing U+2028 (LINE
-    # > SEPARATOR) and U+2029 (PARAGRAPH SEPARATOR) in string literals to align with JSON.
+    # > Updated syntax includes /--/ allowing U+2028 (LINE SEPARATOR) and U+2029 (PARAGRAPH
+    # > SEPARATOR) in string literals to align with JSON.
     #
     # https://www.ecma-international.org/ecma-262/10.0/index.html#sec-intro
     #
