@@ -280,4 +280,52 @@ function parse_snippet(io::IO)
     Snippet(libraries, arguments, snippet)
 end
 
+"""
+Replaces some of the characters in the string with escape sequences so that the strings
+would be valid JS string literals, as per the
+[ECMAScript® 2017 standard](https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals).
+Note that it always escapes both potential `"` and `'` closing quotes.
+"""
+function jsescape(s)
+    b = IOBuffer()
+    # From the ECMAScript® 2017 standard:
+    #
+    # > All code points may appear literally in a string literal except for the closing
+    # > quote code points, U+005C (REVERSE SOLIDUS), U+000D (CARRIAGE RETURN), U+2028 (LINE
+    # > SEPARATOR), U+2029 (PARAGRAPH SEPARATOR), and U+000A (LINE FEED).
+    #
+    # https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals
+    #
+    # Note: in ECMAScript® 2019 (10th edition), U+2028 and U+2029 do not actually need to be
+    # escaped anymore:
+    #
+    # > Updated syntax includes optional catch binding parameters and allowing U+2028 (LINE
+    # > SEPARATOR) and U+2029 (PARAGRAPH SEPARATOR) in string literals to align with JSON.
+    #
+    # https://www.ecma-international.org/ecma-262/10.0/index.html#sec-intro
+    #
+    # But we'll  keep these escapes around for now, as not all JS parsers may be compatible
+    # with the latest standard yet.
+    for c in s
+        if c === '\u000a'     # LINE FEED,       i.e. \n
+            write(b, "\\n")
+        elseif c === '\u000d' # CARRIAGE RETURN, i.e. \r
+            write(b, "\\r")
+        elseif c === '\u005c' # REVERSE SOLIDUS, i.e. \
+            write(b, "\\\\")
+        elseif c === '\u0022' # QUOTATION MARK,  i.e. "
+            write(b, "\\\"")
+        elseif c === '\u0027' # APOSTROPHE,      i.e. '
+            write(b, "\\'")
+        elseif c === '\u2028' # LINE SEPARATOR
+            write(b, "\\u2028")
+        elseif c === '\u2029' # PARAGRAPH SEPARATOR
+            write(b, "\\u2029")
+        else
+            write(b, c)
+        end
+    end
+    String(take!(b))
+end
+
 end

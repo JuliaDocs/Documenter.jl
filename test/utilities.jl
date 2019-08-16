@@ -373,6 +373,25 @@ end
             @test snippet.args == ["\$"]
             @test snippet.js == "script\n"
         end
+
+        # jsescape
+        @testset "jsescape" begin
+            using Documenter.Utilities.JSDependencies: jsescape
+            @test jsescape("abc123") == "abc123"
+            @test jsescape("▶αβγ") == "▶αβγ"
+            @test jsescape("") == ""
+
+            @test jsescape("a\nb") == "a\\nb"
+            @test jsescape("\r\n") == "\\r\\n"
+            @test jsescape("\\") == "\\\\"
+
+            @test jsescape("\"'") == "\\\"\\'"
+
+            # Ref: #639
+            @test jsescape("\u2028") == "\\u2028"
+            @test jsescape("\u2029") == "\\u2029"
+            @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
+        end
     end
 end
 
