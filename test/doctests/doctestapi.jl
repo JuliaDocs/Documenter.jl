@@ -17,7 +17,14 @@ function run_doctest(f, args...; kwargs...)
         # Running inside a Task to make sure that the parent testsets do not interfere.
         t = Task(() -> doctest(args...; kwargs...))
         schedule(t)
-        fetch(t) # if an exception happens, it gets propagated
+        # if an exception happens, it gets propagated
+        try
+            fetch(t)
+        catch e
+            # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
+            # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
+            rethrow(t.exception)
+        end
     end
 
     @debug """run_doctest($args;, $kwargs) -> $(success ? "success" : "fail")
