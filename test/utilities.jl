@@ -415,6 +415,8 @@ end
             end
             @test occursin("'fo\\'o'", output)
             @test occursin("example.com\\n/foo", output)
+            @test !occursin("'fo'o'", output)
+            @test !occursin("example.com\n/foo", output)
         end
     end
 end
