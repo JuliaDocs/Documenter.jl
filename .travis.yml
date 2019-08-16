@@ -7,7 +7,14 @@ os:
 julia:
   - 1.0
   - 1.1
+  - 1.2
   - nightly
+
+branches:
+  only:
+    - master
+    - /^release-.*$/
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 
 notifications:
   email: false
