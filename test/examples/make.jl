@@ -201,6 +201,7 @@ examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.j
             ],
             prettyurls = true,
             canonical = "https://example.com/stable",
+            highlights = ["erlang", "erlang-repl"],
         )
     )
 end

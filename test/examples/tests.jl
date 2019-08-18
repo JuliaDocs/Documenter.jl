@@ -91,6 +91,12 @@ end
             @test isfile(joinpath(build_dir, "omitted.html"))
             @test isfile(joinpath(build_dir, "hidden.html"))
             @test isfile(joinpath(build_dir, "lib", "autodocs.html"))
+
+            # Assets
+            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
+            @test occursin("languages/julia.min", documenterjs)
+            @test occursin("languages/julia-repl.min", documenterjs)
         end
     end
 
@@ -106,6 +112,16 @@ end
             @test joinpath(build_dir, "omitted", "index.html") |> isfile
             @test joinpath(build_dir, "hidden", "index.html") |> isfile
             @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
+
+            # Assets
+            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+
+            # This build includes erlang and erlang-repl highlighting
+            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
+            @test occursin("languages/julia.min", documenterjs)
+            @test occursin("languages/julia-repl.min", documenterjs)
+            @test occursin("languages/erlang-repl.min", documenterjs)
+            @test occursin("languages/erlang.min", documenterjs)
         end
     end
 end

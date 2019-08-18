@@ -116,6 +116,14 @@ for more information.
 Setting it to `false` can be useful when the logo already contains the name of the package.
 Defaults to `true`.
 
+**`highlights`** can be used to add highlighting for additional languages. By default,
+Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download/)
+languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by"
+their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.js) for the
+highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
+you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done whether the
+provided language names are sane.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -151,6 +159,7 @@ struct HTML <: Documenter.Writer
     analytics     :: String
     collapselevel :: Int
     sidebar_sitename :: Bool
+    highlights    :: Vector{String}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -161,10 +170,11 @@ struct HTML <: Documenter.Writer
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
+            highlights :: Vector{String} = String[],
         )
         collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
         new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
-            collapselevel, sidebar_sitename)
+            collapselevel, sidebar_sitename, highlights)
     end
 end
 
@@ -180,7 +190,7 @@ const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
 
 "Provides a namespace for JS dependencies."
 module JS
-    using ....Utilities.JSDependencies: RemoteLibrary
+    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape
     const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js")
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js")
     const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js")
@@ -196,19 +206,36 @@ module JS
         "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/contrib/auto-render.min.js",
         deps = ["katex"],
     )
-    const highlight = RemoteLibrary("highlight", "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js")
-    const highlight_julia = RemoteLibrary(
-        "highlight-julia",
-        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/languages/julia.min.js",
-        deps = ["highlight"],
-    )
-    const highlight_julia_repl = RemoteLibrary(
-        "highlight-julia-repl",
-        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/languages/julia-repl.min",
-        deps = ["highlight"],
-    )
     const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js")
     const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js")
+
+    # highlight.js
+    "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
+    function highlightjs!(r::RequireJS, languages = String[])
+        hljs_version = "9.15.9"
+        push!(r, RemoteLibrary(
+            "highlight",
+            "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
+        ))
+        prepend!(languages, ["julia", "julia-repl"])
+        for language in languages
+            language = jsescape(language)
+            push!(r, RemoteLibrary(
+                "highlight-$(language)",
+                "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/languages/$(language).min.js",
+                deps = ["highlight"]
+            ))
+        end
+        push!(r, Snippet(
+            vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
+            ["\$", "hljs"],
+            raw"""
+            $(document).ready(function() {
+                hljs.initHighlighting();
+            })
+            """
+        ))
+    end
 end
 
 struct SearchRecord
@@ -304,9 +331,9 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     else
         r = JSDependencies.RequireJS([
             JS.jquery, JS.jqueryui, JS.headroom, JS.headroom_jquery,
-            JS.highlight, JS.highlight_julia, JS.highlight_julia_repl,
             JS.katex, JS.katex_auto_render,
         ])
+        JS.highlightjs!(r, settings.highlights)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
