@@ -113,13 +113,6 @@ struct MathJax <: MathEngine
     end
 end
 
-function mergeconfigs(config::Dict, default::Dict)
-    for (k, v) in config
-        default[k] = v
-    end
-end
-mergeconfigs(::Nothing, default::Dict) = default # nothing to merge
-
 """
     HTML(kwargs...)
 
