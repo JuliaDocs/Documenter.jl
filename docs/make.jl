@@ -18,6 +18,7 @@ makedocs(
         canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
         assets = ["assets/favicon.ico"],
         analytics = "UA-136089579-2",
+        highlights = ["yaml"],
     ),
     clean = false,
     sitename = "Documenter.jl",

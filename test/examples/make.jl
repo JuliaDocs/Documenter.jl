@@ -208,6 +208,7 @@ examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.j
                     :bra => ["\\langle#1|", 1],
                 ),
             ))),
+            highlights = ["erlang", "erlang-repl"],
         )
     )
 end
