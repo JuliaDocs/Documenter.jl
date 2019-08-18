@@ -51,7 +51,7 @@ include("Deps.jl")
 
 import .Utilities: Selectors
 import .Writers.HTMLWriter: HTML
-
+import .Writers.HTMLWriter.JS: KaTeX, MathJax
 
 # User Interface.
 # ---------------

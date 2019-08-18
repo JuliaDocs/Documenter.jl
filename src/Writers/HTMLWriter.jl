@@ -53,7 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using ...Utilities: JSDependencies
+using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
@@ -67,6 +67,58 @@ const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
+
+abstract type MathEngine end
+
+struct KaTeX <: MathEngine
+    config :: Dict{Symbol,Any}
+    override :: Bool
+    function KaTeX(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+            :delimiters => [
+                Dict(:left => raw"$",   :right => raw"$",   display => false),
+                Dict(:left => raw"$$",  :right => raw"$$",  display => true),
+                Dict(:left => raw"\[", :right => raw"\]", display => true),
+            ]
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
+
+struct MathJax <: MathEngine
+    config :: Dict{Symbol,Any}
+    function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+           :tex2jax => Dict(
+               "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+               "processEscapes" => true
+           ),
+           :config => ["MMLorHTML.js"],
+           :jax => [
+               "input/TeX",
+               "output/HTML-CSS",
+               "output/NativeMML"
+           ],
+           :extensions => [
+               "MathMenu.js",
+               "MathZoom.js",
+               "TeX/AMSmath.js",
+               "TeX/AMSsymbols.js",
+               "TeX/autobold.js",
+               "TeX/autoload-all.js"
+           ],
+           :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
+
+function mergeconfigs(config::Dict, default::Dict)
+    for (k, v) in config
+        default[k] = v
+    end
+end
+mergeconfigs(::Nothing, default::Dict) = default # nothing to merge
 
 """
     HTML(kwargs...)
@@ -151,6 +203,7 @@ struct HTML <: Documenter.Writer
     analytics     :: String
     collapselevel :: Int
     sidebar_sitename :: Bool
+    mathengine    :: Union{MathEngine,Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -161,10 +214,11 @@ struct HTML <: Documenter.Writer
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
+            mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
         )
         collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
         new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
-            collapselevel, sidebar_sitename)
+            collapselevel, sidebar_sitename, mathengine)
     end
 end
 
@@ -180,7 +234,10 @@ const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
 
 "Provides a namespace for JS dependencies."
 module JS
-    using ....Utilities.JSDependencies: RemoteLibrary
+    using JSON
+    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, json_jsescape
+    using ..HTMLWriter: KaTeX, MathJax
+
     const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js")
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js")
     const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js")
@@ -188,13 +245,6 @@ module JS
         "headroom-jquery",
         "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js",
         deps = ["jquery", "headroom"],
-    )
-    # FIXME: upgrade KaTeX to v0.11.0
-    const katex = RemoteLibrary("katex", "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/katex.min.js")
-    const katex_auto_render = RemoteLibrary(
-        "katex-auto-render",
-        "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/contrib/auto-render.min.js",
-        deps = ["katex"],
     )
     const highlight = RemoteLibrary("highlight", "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js")
     const highlight_julia = RemoteLibrary(
@@ -209,6 +259,45 @@ module JS
     )
     const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js")
     const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js")
+
+    # MathJax & KaTeX
+    function mathengine!(r::RequireJS, engine::KaTeX)
+        katex_version = "0.10.2" # FIXME: upgrade KaTeX to v0.11.0
+        push!(r, RemoteLibrary(
+            "katex",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
+        ))
+        push!(r, RemoteLibrary(
+            "katex-auto-render",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
+            deps = ["katex"],
+        ))
+        push!(r, Snippet(
+            ["jquery", "katex", "katex-auto-render"],
+            ["\$", "katex", "renderMathInElement"],
+            """
+            \$(document).ready(function() {
+              renderMathInElement(
+                document.body,
+                $(json_jsescape(engine.config, 2))
+              );
+            })
+            """
+        ))
+    end
+    function mathengine!(r::RequireJS, engine::MathJax)
+        push!(r, RemoteLibrary(
+            "mathjax",
+            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML",
+            exports = "MathJax"
+        ))
+        push!(r, Snippet(["mathjax"], ["MathJax"],
+            """
+            MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
+            """
+        ))
+    end
+    mathengine(::RequireJS, ::Nothing) = nothing
 end
 
 struct SearchRecord
@@ -305,8 +394,8 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         r = JSDependencies.RequireJS([
             JS.jquery, JS.jqueryui, JS.headroom, JS.headroom_jquery,
             JS.highlight, JS.highlight_julia, JS.highlight_julia_repl,
-            JS.katex, JS.katex_auto_render,
         ])
+        JS.mathengine!(r, settings.mathengine)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
@@ -343,12 +432,8 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
-        # convert Vector{SearchRecord} to a JSON string, and escape two Unicode
-        # characters since JSON is not a JS subset, and we want JS here
-        # ref http://timelessrepo.com/json-isnt-a-javascript-subset
-        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
-        js = reduce(replace, escapes, init=JSON.json(ctx.search_index))
-        println(io, js, "\n}")
+        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
+        println(io, json_jsescape(ctx.search_index), "\n}")
     end
 end
 
