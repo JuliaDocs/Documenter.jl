@@ -1,6 +1,7 @@
 module HTMLWriterTests
 
 using Test
+using Documenter
 using Documenter: DocSystem
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
 
@@ -24,6 +25,26 @@ end
         @test isfile(joinpath(HTMLWriter.ASSETS_SASS, "$(theme).scss"))
         @test isfile(joinpath(HTMLWriter.ASSETS_THEMES, "$(theme).css"))
     end
+
+    # asset handling
+    let asset = remote("https://example.com/foo.js")
+        @test asset.uri == "https://example.com/foo.js"
+        @test asset.class == :js
+    end
+    let asset = remote("http://example.com/foo.js", class=:ico)
+        @test asset.uri == "http://example.com/foo.js"
+        @test asset.class == :ico
+    end
+    @test_throws ErrorException remote("ftp://example.com/foo.js")
+    @test_throws ErrorException remote("example.com/foo.js")
+    @test_throws ErrorException remote("foo.js")
+    @test_throws ErrorException remote("https://example.com/foo.js?q=1")
+    @test_throws ErrorException remote("https://example.com/foo.js", class=:error)
+
+    # HTML format object
+    @test Documenter.HTML() isa Documenter.HTML
+    @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
+    @test_throws ArgumentError Documenter.HTML(assets=["foo.js", 10])
 
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")

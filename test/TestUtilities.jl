@@ -11,15 +11,16 @@ function _quietly(f, expr, source)
         return result
     else
         @error """
-        An error was thrown in @quietly
-        Error: $(repr(result)) at $(source.file):$(source.line)
-        Expression:
+        An error was thrown in @quietly, $(sizeof(output)) bytes of output captured
+        $(typeof(result)) at $(source.file):$(source.line) in expression:
         $(expr)
         """
-        printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
-        print(output)
-        last(output) != "\n" && println()
-        printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
+        if !isempty(output)
+            printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
+            print(output)
+            last(output) != "\n" && println()
+            printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
+        end
         throw(result)
     end
 end

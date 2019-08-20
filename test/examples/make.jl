@@ -172,16 +172,15 @@ function withassets(f, assets...)
     for asset in assets
         cp(src(asset), dst(asset))
     end
-    rv = try
-        f()
-    catch exception
-        @warn "f() threw an exception" exception
-        nothing
+    rv, exception = try
+        f(), nothing
+    catch e
+        nothing, e
     end
     for asset in assets
         rm(dst(asset))
     end
-    return rv
+    return (exception === nothing) ? rv : throw(exception)
 end
 
 examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
@@ -197,7 +196,9 @@ examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.j
         format = Documenter.HTML(
             assets = [
                 "assets/favicon.ico",
-                "assets/custom.css"
+                "assets/custom.css",
+                remote("https://example.com/resource.js"),
+                remote("http://example.com/fonts?param=foo", class=:css),
             ],
             prettyurls = true,
             canonical = "https://example.com/stable",

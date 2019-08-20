@@ -68,6 +68,25 @@ const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
+struct RemoteAsset
+    class :: Symbol
+    uri :: String
+
+    function RemoteAsset(uri; class = nothing)
+        if match(r"^https?://", uri) === nothing
+            error("Not a remote asset. URL must start with http:// or https://")
+        end
+        if class === nothing
+            class = assetclass(uri)
+            (class === nothing) && error("Unable to determine asset class: $(uri)")
+        end
+        class in [:ico, :css, :js] || error("Invalid asset class $class")
+        new(class, uri)
+    end
+end
+
+remote(uri; class = nothing) = RemoteAsset(uri; class = class)
+
 """
     HTML(kwargs...)
 
@@ -155,7 +174,8 @@ struct HTML <: Documenter.Writer
     disable_git   :: Bool
     edit_branch   :: Union{String, Nothing}
     canonical     :: Union{String, Nothing}
-    assets        :: Vector{String}
+    local_assets  :: Vector{String}
+    remote_assets :: Vector{RemoteAsset}
     analytics     :: String
     collapselevel :: Int
     sidebar_sitename :: Bool
@@ -166,15 +186,19 @@ struct HTML <: Documenter.Writer
             disable_git   :: Bool = false,
             edit_branch   :: Union{String, Nothing} = "master",
             canonical     :: Union{String, Nothing} = nothing,
-            assets        :: Vector{String} = String[],
+            assets        :: Vector = String[],
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
             highlights :: Vector{String} = String[],
         )
-        collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
-        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights)
+        collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
+        all(x -> isa(x, AbstractString) || isa(x, RemoteAsset), assets) ||
+            throw(ArgumentError("assets must contain strings or remote assets"))
+        local_assets = filter(x -> isa(x, AbstractString), assets)
+        remote_assets = filter(x -> isa(x, RemoteAsset), assets)
+        new(prettyurls, disable_git, edit_branch, canonical, local_assets, remote_assets,
+            analytics, collapselevel, sidebar_sitename, highlights)
     end
 end
 
@@ -563,16 +587,25 @@ function render_head(ctx, navnode)
     )
 end
 
+function assetclass(uri)
+    # TODO: support actual proper URIs
+    ext = splitext(uri)[end]
+    ext == ".ico" ? :ico :
+    ext == ".css" ? :css :
+    ext == ".js"  ? :js  : nothing
+end
+
 function asset_links(src::AbstractString, assets::Vector)
     @tags link script
     links = DOM.Node[]
     for each in assets
         ext = splitext(each)[end]
         url = relhref(src, each)
+        class = assetclass(each)
         node =
-            ext == ".ico" ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
-            ext == ".css" ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
-            ext == ".js"  ? script[:src => url] : continue # Skip non-js/css files.
+            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
+            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
+            class == :js  ? script[:src => url] : continue # Skip non-js/css files.
         push!(links, node)
     end
     return links

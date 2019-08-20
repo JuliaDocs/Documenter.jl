@@ -50,12 +50,12 @@ include("Writers/Writers.jl")
 include("Deps.jl")
 
 import .Utilities: Selectors
-import .Writers.HTMLWriter: HTML
+import .Writers.HTMLWriter: HTML, remote
 
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta, remote
 
 """
     makedocs(
