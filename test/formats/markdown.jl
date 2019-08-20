@@ -3,14 +3,14 @@ module MarkdownFormatTests
 using Test
 using Random
 
-using Documenter
+using Documenter, DocumenterMarkdown
 
 # Documenter package docs
 @info("Building Documenter's docs with Markdown.")
 const Documenter_root = normpath(joinpath(@__DIR__, "..", "..", "docs"))
 build_dir_relpath = relpath(joinpath(@__DIR__, "builds/markdown"), Documenter_root)
 doc = makedocs(
-    format = :markdown,
+    format = Markdown(),
     debug   = true,
     root    = Documenter_root,
     modules = Documenter,
