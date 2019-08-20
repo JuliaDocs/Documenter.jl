@@ -217,6 +217,7 @@ struct HTML <: Documenter.Writer
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
             highlights :: Vector{String} = String[],
+            mathengine :: Union{MathEngine,Nothing} = KaTeX(),
         )
         collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
         new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,

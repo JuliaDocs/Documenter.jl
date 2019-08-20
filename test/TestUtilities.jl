@@ -15,11 +15,14 @@ function _quietly(f, expr, source)
         Error: $(repr(result)) at $(source.file):$(source.line)
         Expression:
         $(expr)
+        $(sizeof(output)) bytes of output captured
         """
-        printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
-        print(output)
-        last(output) != "\n" && println()
-        printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
+        if length(output) > 0
+            printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
+            print(output)
+            last(output) != "\n" && println()
+            printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
+        end
         throw(result)
     end
 end
