@@ -1,6 +1,7 @@
 module HTMLWriterTests
 
 using Test
+using Documenter: DocSystem
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
 
 function verify_version_file(versionfile, entries)
@@ -77,22 +78,17 @@ end
         versions = ["stable" => "v^", "dev" => "stable"]
         @test_throws ArgumentError expand_versions(tmpdir, versions)
     end
-end
-
-## `Markdown.MD` to `DOM.Node` conversion tests.
-module MarkdownToNode
-    import Documenter.DocSystem
-    import Documenter.Writers.HTMLWriter: mdconvert
 
     # Exhaustive Conversion from Markdown to Nodes.
-    for mod in Base.Docs.modules
-        for (binding, multidoc) in DocSystem.getmeta(mod)
-            for (typesig, docstr) in multidoc.docs
-                md = DocSystem.parsedoc(docstr)
-                string(mdconvert(md))
+    @testset "MD2Node" begin
+        for mod in Base.Docs.modules
+            for (binding, multidoc) in DocSystem.getmeta(mod)
+                for (typesig, docstr) in multidoc.docs
+                    md = Documenter.DocSystem.parsedoc(docstr)
+                    @test string(HTMLWriter.mdconvert(md; footnotes=[])) isa String
+                end
             end
         end
     end
 end
-
 end
