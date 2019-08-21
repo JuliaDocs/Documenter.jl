@@ -51,7 +51,8 @@ import ...Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Writers
+    Writers,
+    asset
 
 using ...Utilities: JSDependencies
 import ...Utilities.DOM: DOM, Tag, @tags
@@ -77,11 +78,46 @@ struct HTMLAsset
         if !islocal && match(r"^https?://", uri) === nothing
             error("Remote asset URL must start with http:// or https://")
         end
-        class in [:ico, :css, :js] || error("Invalid asset class $class")
+        class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
         new(class, uri, islocal)
     end
 end
 
+"""
+    asset(uri)
+
+Can be used to pass non-local web assets to [`HTML`](@ref), where `uri` should be an absolute
+HTTP or HTTPS URL.
+
+It accepts the following keyword arguments:
+
+**`class`** can be used to override the asset class, which determines how exactly the asset
+gets included in the HTML page. This is necessary if the class can not be determined
+automatically (default).
+
+Should be one of: `:js`, `:css` or `:ico`. They become a `<script>`,
+`<link rel="stylesheet" type="text/css">` and `<link rel="icon" type="image/x-icon">`
+elements in `<head>`, respectively.
+
+**`islocal`** can be used to declare the asset to be local. The `uri` should then be a path
+relative to the documentation source directory (conventionally `src/`). This can be useful
+when it is necessary to override the asset class of a local asset.
+
+# Usage
+
+```julia
+Documenter.HTML(assets = [
+    # Standard local asset
+    "assets/extra_styles.css",
+    # Standard remote asset (extension used to determine that class = :js)
+    asset("https://example.com/jslibrary.js"),
+    # Setting asset class manually, since it can't be determined manually
+    asset("https://example.com/fonts", class = :css),
+    # Same as above, but for a local asset
+    asset("asset/foo.script", class=:js, islocal=true),
+])
+```
+"""
 function asset(uri; class = nothing, islocal=false)
     if class === nothing
         class = assetclass(uri)
@@ -98,7 +134,7 @@ function assetclass(uri)
     ext = splitext(uri)[end]
     ext == ".ico" ? :ico :
     ext == ".css" ? :css :
-    ext == ".js"  ? :js  : nothing
+    ext == ".js"  ? :js  : :unknown
 end
 
 """
@@ -176,12 +212,17 @@ in this order. The first one it finds gets displayed at the top of the navigatio
 It will also check for `assets/logo-dark.{svg,png,webp,gif,jpg,jpeg}` and use that for dark
 themes.
 
-Additional JS, ICO, and CSS assets can be included in the generated pages using the
-`assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
-each listed asset in the `<head>` of every page in the order in which they are listed.
-The type of the asset (i.e. whether it is going to be included with a `<script>` or a
-`<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
-Adding an ICO asset is primarilly useful for setting a custom `favicon`.
+Additional JS, ICO, and CSS assets can be included in the generated pages by passing them as
+a list with the `assets` keyword. Each asset will be included in the `<head>` of every page
+in the order in which they are given. The type of the asset (i.e. whether it is going to be
+included with a `<script>` or a `<link>` tag) is determined by the file's extension --
+either `.js`, `.ico`[^1], or `.css` (unless overridden with [`asset`](@ref)).
+
+Simple strings are assumed to be local assets and that each correspond to a file relative to
+the documentation source directory (conventionally `src/`). Non-local assets, identified by
+their absolute URLs, can be included with the [`asset`](@ref) function.
+
+[^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
 """
 struct HTML <: Documenter.Writer
     prettyurls    :: Bool
