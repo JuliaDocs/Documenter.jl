@@ -27,24 +27,31 @@ end
     end
 
     # asset handling
-    let asset = remote("https://example.com/foo.js")
+    let asset = asset("https://example.com/foo.js")
         @test asset.uri == "https://example.com/foo.js"
         @test asset.class == :js
+        @test asset.islocal === false
     end
-    let asset = remote("http://example.com/foo.js", class=:ico)
+    let asset = asset("http://example.com/foo.js", class=:ico)
         @test asset.uri == "http://example.com/foo.js"
         @test asset.class == :ico
+        @test asset.islocal === false
     end
-    @test_throws ErrorException remote("ftp://example.com/foo.js")
-    @test_throws ErrorException remote("example.com/foo.js")
-    @test_throws ErrorException remote("foo.js")
-    @test_throws ErrorException remote("https://example.com/foo.js?q=1")
-    @test_throws ErrorException remote("https://example.com/foo.js", class=:error)
+    let asset = asset("foo/bar.css", islocal=true)
+        @test asset.uri == "foo/bar.css"
+        @test asset.class == :css
+        @test asset.islocal === true
+    end
+    @test_throws Exception asset("ftp://example.com/foo.js")
+    @test_throws Exception asset("example.com/foo.js")
+    @test_throws Exception asset("foo.js")
+    @test_throws Exception asset("https://example.com/foo.js?q=1")
+    @test_throws Exception asset("https://example.com/foo.js", class=:error)
 
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML
     @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
-    @test_throws ArgumentError Documenter.HTML(assets=["foo.js", 10])
+    @test_throws Exception Documenter.HTML(assets=["foo.js", 10])
 
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")

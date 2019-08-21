@@ -197,8 +197,8 @@ examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.j
             assets = [
                 "assets/favicon.ico",
                 "assets/custom.css",
-                remote("https://example.com/resource.js"),
-                remote("http://example.com/fonts?param=foo", class=:css),
+                asset("https://example.com/resource.js"),
+                asset("http://example.com/fonts?param=foo", class=:css),
             ],
             prettyurls = true,
             canonical = "https://example.com/stable",

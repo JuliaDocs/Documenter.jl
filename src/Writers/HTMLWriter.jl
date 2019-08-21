@@ -68,24 +68,38 @@ const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
-struct RemoteAsset
+struct HTMLAsset
     class :: Symbol
     uri :: String
+    islocal :: Bool
 
-    function RemoteAsset(uri; class = nothing)
-        if match(r"^https?://", uri) === nothing
-            error("Not a remote asset. URL must start with http:// or https://")
-        end
-        if class === nothing
-            class = assetclass(uri)
-            (class === nothing) && error("Unable to determine asset class: $(uri)")
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool)
+        if !islocal && match(r"^https?://", uri) === nothing
+            error("Remote asset URL must start with http:// or https://")
         end
         class in [:ico, :css, :js] || error("Invalid asset class $class")
-        new(class, uri)
+        new(class, uri, islocal)
     end
 end
 
-remote(uri; class = nothing) = RemoteAsset(uri; class = class)
+function asset(uri; class = nothing, islocal=false)
+    if class === nothing
+        class = assetclass(uri)
+        (class === nothing) && error("""
+        Unable to determine asset class for: $(uri)
+        It can be set explicitly with the `class` keyword argument.
+        """)
+    end
+    HTMLAsset(class, uri, islocal)
+end
+
+function assetclass(uri)
+    # TODO: support actual proper URIs
+    ext = splitext(uri)[end]
+    ext == ".ico" ? :ico :
+    ext == ".css" ? :css :
+    ext == ".js"  ? :js  : nothing
+end
 
 """
     HTML(kwargs...)
@@ -174,8 +188,7 @@ struct HTML <: Documenter.Writer
     disable_git   :: Bool
     edit_branch   :: Union{String, Nothing}
     canonical     :: Union{String, Nothing}
-    local_assets  :: Vector{String}
-    remote_assets :: Vector{RemoteAsset}
+    assets        :: Vector{HTMLAsset}
     analytics     :: String
     collapselevel :: Int
     sidebar_sitename :: Bool
@@ -193,12 +206,13 @@ struct HTML <: Documenter.Writer
             highlights :: Vector{String} = String[],
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
-        all(x -> isa(x, AbstractString) || isa(x, RemoteAsset), assets) ||
-            throw(ArgumentError("assets must contain strings or remote assets"))
-        local_assets = filter(x -> isa(x, AbstractString), assets)
-        remote_assets = filter(x -> isa(x, RemoteAsset), assets)
-        new(prettyurls, disable_git, edit_branch, canonical, local_assets, remote_assets,
-            analytics, collapselevel, sidebar_sitename, highlights)
+        assets = map(assets) do asset
+            isa(asset, HTMLAsset) && return asset
+            isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
+            error("Invalid value in assets: $(asset) [$(typeof(asset))]")
+        end
+        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
+            collapselevel, sidebar_sitename, highlights)
     end
 end
 
@@ -286,11 +300,10 @@ mutable struct HTMLContext
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
-    local_assets :: Vector{String}
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -381,7 +394,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     for theme in THEMES
         copy_asset("themes/$(theme).css", doc)
     end
-    append!(ctx.local_assets, settings.assets)
 
     for page in keys(doc.blueprint.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
@@ -571,7 +583,7 @@ function render_head(ctx, navnode)
         script[:src => relhref(src, "../versions.js")],
 
         # Custom user-provided assets.
-        asset_links(src, ctx.local_assets),
+        asset_links(src, ctx.settings.assets),
         # Themes. Note: we reverse the make sure that the default theme (first in the array)
         # comes as the last <link> tag.
         map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
@@ -587,21 +599,12 @@ function render_head(ctx, navnode)
     )
 end
 
-function assetclass(uri)
-    # TODO: support actual proper URIs
-    ext = splitext(uri)[end]
-    ext == ".ico" ? :ico :
-    ext == ".css" ? :css :
-    ext == ".js"  ? :js  : nothing
-end
-
-function asset_links(src::AbstractString, assets::Vector)
+function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     @tags link script
     links = DOM.Node[]
-    for each in assets
-        ext = splitext(each)[end]
-        url = relhref(src, each)
-        class = assetclass(each)
+    for asset in assets
+        class = asset.class
+        url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
             class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
             class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
