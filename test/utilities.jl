@@ -403,6 +403,13 @@ end
             @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
         end
 
+        @testset "json_jsescape" begin
+            using Documenter.Utilities.JSDependencies: json_jsescape
+            @test json_jsescape(["abc"]) == raw"[\"abc\"]"
+            @test json_jsescape(["\\"]) == raw"[\"\\\\\"]"
+            @test json_jsescape(["x\u2028y"]) == raw"[\"x\u2028y\"]"
+        end
+
         # Proper escaping of generated JS
         let r = RequireJS([
                 RemoteLibrary("fo\'o", "example.com\n/foo"),
