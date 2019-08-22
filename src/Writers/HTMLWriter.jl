@@ -70,9 +70,25 @@ const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
 abstract type MathEngine end
 
+"""
+    KaTeX(config::Dict = <default>, override = false)
+
+An instance of the `KaTeX` type can be passed to [`HTML`](@ref) via the `mathengine` keyword
+to specify that the [KaTeX rendering engine](https://katex.org/) should be used in the HTML
+output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure KaTeX. It becomes the
+[options argument of `renderMathInElement`](https://katex.org/docs/autorender.html#api). By
+default, Documenter only sets a custom `delimiters` option.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `delimiters` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
 struct KaTeX <: MathEngine
     config :: Dict{Symbol,Any}
-    override :: Bool
     function KaTeX(config::Union{Dict,Nothing} = nothing, override=false)
         default = Dict(
             :delimiters => [
@@ -85,6 +101,24 @@ struct KaTeX <: MathEngine
     end
 end
 
+"""
+    MathJax(config::Dict = <default>, override = false)
+
+An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+used in the HTML output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
+default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+and `Tex`.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `tex2jax` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
 struct MathJax <: MathEngine
     config :: Dict{Symbol,Any}
     function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
@@ -168,6 +202,13 @@ their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.
 highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
 you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done whether the
 provided language names are sane.
+
+**`mathengine`** specifies which LaTeX rendering engine will be used to render the math
+blocks. The options are either [KaTeX](https://katex.org/) (default) or
+[MathJax](https://www.mathjax.org/), enabled by passing an instance of [`KaTeX`](@ref) or
+[`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
+passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
+
 
 # Default and custom assets
 
