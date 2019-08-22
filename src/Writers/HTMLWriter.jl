@@ -349,7 +349,7 @@ module JS
     function mathengine!(r::RequireJS, engine::MathJax)
         push!(r, RemoteLibrary(
             "mathjax",
-            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML",
+            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
             exports = "MathJax"
         ))
         push!(r, Snippet(["mathjax"], ["MathJax"],
