@@ -199,6 +199,7 @@ examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.j
                 "assets/custom.css",
                 asset("https://example.com/resource.js"),
                 asset("http://example.com/fonts?param=foo", class=:css),
+                asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class=:css),
             ],
             prettyurls = true,
             canonical = "https://example.com/stable",
