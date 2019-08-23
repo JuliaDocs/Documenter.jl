@@ -53,7 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using ...Utilities: JSDependencies
+using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
@@ -67,6 +67,85 @@ const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
+
+abstract type MathEngine end
+
+"""
+    KaTeX(config::Dict = <default>, override = false)
+
+An instance of the `KaTeX` type can be passed to [`HTML`](@ref) via the `mathengine` keyword
+to specify that the [KaTeX rendering engine](https://katex.org/) should be used in the HTML
+output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure KaTeX. It becomes the
+[options argument of `renderMathInElement`](https://katex.org/docs/autorender.html#api). By
+default, Documenter only sets a custom `delimiters` option.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `delimiters` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct KaTeX <: MathEngine
+    config :: Dict{Symbol,Any}
+    function KaTeX(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+            :delimiters => [
+                Dict(:left => raw"$",   :right => raw"$",   display => false),
+                Dict(:left => raw"$$",  :right => raw"$$",  display => true),
+                Dict(:left => raw"\[", :right => raw"\]", display => true),
+            ]
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
+
+"""
+    MathJax(config::Dict = <default>, override = false)
+
+An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+used in the HTML output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
+default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+and `Tex`.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `tex2jax` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct MathJax <: MathEngine
+    config :: Dict{Symbol,Any}
+    function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+           :tex2jax => Dict(
+               "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+               "processEscapes" => true
+           ),
+           :config => ["MMLorHTML.js"],
+           :jax => [
+               "input/TeX",
+               "output/HTML-CSS",
+               "output/NativeMML"
+           ],
+           :extensions => [
+               "MathMenu.js",
+               "MathZoom.js",
+               "TeX/AMSmath.js",
+               "TeX/AMSsymbols.js",
+               "TeX/autobold.js",
+               "TeX/autoload-all.js"
+           ],
+           :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
 
 """
     HTML(kwargs...)
@@ -124,6 +203,13 @@ highlight.js version Documenter is using. E.g. to include highlighting for YAML 
 you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done whether the
 provided language names are sane.
 
+**`mathengine`** specifies which LaTeX rendering engine will be used to render the math
+blocks. The options are either [KaTeX](https://katex.org/) (default) or
+[MathJax](https://www.mathjax.org/), enabled by passing an instance of [`KaTeX`](@ref) or
+[`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
+passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
+
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -160,6 +246,7 @@ struct HTML <: Documenter.Writer
     collapselevel :: Int
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
+    mathengine    :: Union{MathEngine,Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -171,10 +258,11 @@ struct HTML <: Documenter.Writer
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
             highlights :: Vector{String} = String[],
+            mathengine :: Union{MathEngine,Nothing} = KaTeX(),
         )
         collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
         new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights)
+            collapselevel, sidebar_sitename, highlights, mathengine)
     end
 end
 
@@ -190,7 +278,10 @@ const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
 
 "Provides a namespace for JS dependencies."
 module JS
-    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape
+    using JSON
+    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
+    using ..HTMLWriter: KaTeX, MathJax
+
     const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js")
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js")
     const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js")
@@ -198,13 +289,6 @@ module JS
         "headroom-jquery",
         "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js",
         deps = ["jquery", "headroom"],
-    )
-    # FIXME: upgrade KaTeX to v0.11.0
-    const katex = RemoteLibrary("katex", "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/katex.min.js")
-    const katex_auto_render = RemoteLibrary(
-        "katex-auto-render",
-        "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.2/contrib/auto-render.min.js",
-        deps = ["katex"],
     )
     const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js")
     const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js")
@@ -236,6 +320,45 @@ module JS
             """
         ))
     end
+
+    # MathJax & KaTeX
+    function mathengine!(r::RequireJS, engine::KaTeX)
+        katex_version = "0.10.2" # FIXME: upgrade KaTeX to v0.11.0
+        push!(r, RemoteLibrary(
+            "katex",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
+        ))
+        push!(r, RemoteLibrary(
+            "katex-auto-render",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
+            deps = ["katex"],
+        ))
+        push!(r, Snippet(
+            ["jquery", "katex", "katex-auto-render"],
+            ["\$", "katex", "renderMathInElement"],
+            """
+            \$(document).ready(function() {
+              renderMathInElement(
+                document.body,
+                $(json_jsescape(engine.config, 2))
+              );
+            })
+            """
+        ))
+    end
+    function mathengine!(r::RequireJS, engine::MathJax)
+        push!(r, RemoteLibrary(
+            "mathjax",
+            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
+            exports = "MathJax"
+        ))
+        push!(r, Snippet(["mathjax"], ["MathJax"],
+            """
+            MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
+            """
+        ))
+    end
+    mathengine(::RequireJS, ::Nothing) = nothing
 end
 
 struct SearchRecord
@@ -331,8 +454,8 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     else
         r = JSDependencies.RequireJS([
             JS.jquery, JS.jqueryui, JS.headroom, JS.headroom_jquery,
-            JS.katex, JS.katex_auto_render,
         ])
+        JS.mathengine!(r, settings.mathengine)
         JS.highlightjs!(r, settings.highlights)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
@@ -370,12 +493,8 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
-        # convert Vector{SearchRecord} to a JSON string, and escape two Unicode
-        # characters since JSON is not a JS subset, and we want JS here
-        # ref http://timelessrepo.com/json-isnt-a-javascript-subset
-        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
-        js = reduce(replace, escapes, init=JSON.json(ctx.search_index))
-        println(io, js, "\n}")
+        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
+        println(io, json_jsescape(ctx.search_index), "\n}")
     end
 end
 

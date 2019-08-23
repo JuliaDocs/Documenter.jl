@@ -1,6 +1,7 @@
 module HTMLWriterTests
 
 using Test
+using Documenter
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
 
 function verify_version_file(versionfile, entries)
@@ -22,6 +23,51 @@ end
     for theme in HTMLWriter.THEMES
         @test isfile(joinpath(HTMLWriter.ASSETS_SASS, "$(theme).scss"))
         @test isfile(joinpath(HTMLWriter.ASSETS_THEMES, "$(theme).css"))
+    end
+
+    # MathEngine
+    let katex = KaTeX()
+        @test length(katex.config) == 1
+        @test haskey(katex.config, :delimiters)
+    end
+    let katex = KaTeX(Dict(:foo => 1))
+        @test length(katex.config) == 2
+        @test haskey(katex.config, :delimiters)
+        @test haskey(katex.config, :foo)
+    end
+    let katex = KaTeX(Dict(:delimiters => 1, :foo => 2))
+        @test length(katex.config) == 2
+        @test haskey(katex.config, :delimiters)
+        @test katex.config[:delimiters] == 1
+        @test haskey(katex.config, :foo)
+    end
+
+    let mathjax = MathJax()
+        @test length(mathjax.config) == 5
+        @test haskey(mathjax.config, :tex2jax)
+        @test haskey(mathjax.config, :config)
+        @test haskey(mathjax.config, :jax)
+        @test haskey(mathjax.config, :extensions)
+        @test haskey(mathjax.config, :TeX)
+    end
+    let mathjax = MathJax(Dict(:foo => 1))
+        @test length(mathjax.config) == 6
+        @test haskey(mathjax.config, :tex2jax)
+        @test haskey(mathjax.config, :config)
+        @test haskey(mathjax.config, :jax)
+        @test haskey(mathjax.config, :extensions)
+        @test haskey(mathjax.config, :TeX)
+        @test haskey(mathjax.config, :foo)
+    end
+    let mathjax = MathJax(Dict(:tex2jax => 1, :foo => 2))
+        @test length(mathjax.config) == 6
+        @test haskey(mathjax.config, :tex2jax)
+        @test haskey(mathjax.config, :config)
+        @test haskey(mathjax.config, :jax)
+        @test haskey(mathjax.config, :extensions)
+        @test haskey(mathjax.config, :TeX)
+        @test haskey(mathjax.config, :foo)
+        @test mathjax.config[:tex2jax] == 1
     end
 
     mktempdir() do tmpdir
