@@ -202,6 +202,13 @@ examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.j
             ],
             prettyurls = true,
             canonical = "https://example.com/stable",
+            mathengine = MathJax(Dict(:TeX => Dict(
+                :equationNumbers => Dict(:autoNumber => "AMS"),
+                :Macros => Dict(
+                    :ket => ["|#1\\rangle", 1],
+                    :bra => ["\\langle#1|", 1],
+                ),
+            ))),
             highlights = ["erlang", "erlang-repl"],
         )
     )

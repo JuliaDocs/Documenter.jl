@@ -171,13 +171,7 @@ function writejs(io::IO, r::RequireJS)
     write(io, "  }")
 
     shim = shimdict(r)
-    if isempty(shim)
-        write(io, '\n')
-    else
-        write(io, ",\n  shim: ")
-        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
-        write(io, reduce(replace, escapes, init=JSON.json(shim, 2)))
-    end
+    isempty(shim) ? write(io, '\n') : write(io, ",\n  shim: ", json_jsescape(shim, 2))
     write(io, "});\n")
 
     for s in r.snippets
@@ -325,6 +319,21 @@ function jsescape(s)
         end
     end
     String(take!(b))
+end
+
+"""
+    json_jsescape(args...)
+
+Call `JSON.json(args...)` to generate a `String` of JSON, but then also escape two Unicode
+characters to get valid JS (since [JSON is not a JS subset](http://timelessrepo.com/json-isnt-a-javascript-subset)).
+
+!!! note
+    Technically, starting with ECMAScript® 2019 (10th edition), this is no longer necessary.
+    The JS standard was changed in a way that all valid JSON is also valid JS.
+"""
+function json_jsescape(args...)
+    escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
+    reduce(replace, escapes, init=JSON.json(args...))
 end
 
 end

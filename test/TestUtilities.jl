@@ -24,6 +24,7 @@ function _quietly(f, expr, source)
         An error was thrown in @quietly, $(sizeof(output)) bytes of output captured
         $(typeof(result)) at $(source.file):$(source.line) in expression:
         $(expr)
+        $(sizeof(output)) bytes of output captured
         """
         if !isempty(output)
             printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)

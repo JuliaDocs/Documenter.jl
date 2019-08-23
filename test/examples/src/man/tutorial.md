@@ -350,3 +350,21 @@ With explicit alignment.
 | :---   |    :---:    |       ---: |
 | `A`    |      ✓      |      10.00 |
 | `BB`   |      ✓      | 1000000.00 |
+
+## Customizing MathJax
+
+The following example only works on the deploy build where
+
+```julia
+mathengine = Documenter.MathJax(Dict(:TeX => Dict(
+    :equationNumbers => Dict(:autoNumber => "AMS"),
+    :Macros => Dict(
+        :ket => ["|#1\\rangle", 1],
+        :bra => ["\\langle#1|", 1],
+    ),
+)))
+```
+
+```math
+\bra{x}\ket{y}
+```
