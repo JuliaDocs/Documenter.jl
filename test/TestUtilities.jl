@@ -4,6 +4,16 @@ using Documenter.Utilities: withoutput
 
 export @quietly
 
+struct QuietlyException <: Exception
+    exception
+    backtrace
+end
+
+function Base.showerror(io::IO, e::QuietlyException)
+    println(io, "@quietly hit an exception ($(typeof(e.exception))):")
+    showerror(io, e.exception, e.backtrace)
+end
+
 function _quietly(f, expr, source)
     result, success, backtrace, output = withoutput(f)
     if success
@@ -11,19 +21,18 @@ function _quietly(f, expr, source)
         return result
     else
         @error """
-        An error was thrown in @quietly
-        Error: $(repr(result)) at $(source.file):$(source.line)
-        Expression:
+        An error was thrown in @quietly, $(sizeof(output)) bytes of output captured
+        $(typeof(result)) at $(source.file):$(source.line) in expression:
         $(expr)
         $(sizeof(output)) bytes of output captured
         """
-        if length(output) > 0
+        if !isempty(output)
             printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
             print(output)
             last(output) != "\n" && println()
             printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
         end
-        throw(result)
+        throw(QuietlyException(result, backtrace))
     end
 end
 macro quietly(expr)
