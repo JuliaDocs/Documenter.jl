@@ -165,7 +165,7 @@ $(document).ready(function() {
 
   var index = lunr(function () {
     this.ref('location')
-    this.field('title',{boost: 10})
+    this.field('title',{boost: 100})
     this.field('text')
     documenterSearchIndex['docs'].forEach(function(e) {
         this.add(e)
