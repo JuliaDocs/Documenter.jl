@@ -156,7 +156,7 @@ dependencies your package might have. If Documenter is the only dependency, then
 
 ````@eval
 import Documenter, Markdown
-m = match(r"^version = \"(\d+.\d+.\d+)\"$"m,
+m = match(r"^version = \"(\d+.\d+.\d+)(-DEV)?\"$"m,
     read(joinpath(dirname(dirname(pathof(Documenter))), "Project.toml"), String))
 v = VersionNumber(m.captures[1])
 Markdown.parse("""
@@ -165,7 +165,7 @@ Markdown.parse("""
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
 [compat]
-Documenter = "~$(v.major).$(v.minor)"
+Documenter = "$(v.major).$(v.minor)"
 ```
 """)
 ````

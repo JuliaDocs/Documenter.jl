@@ -1,6 +1,8 @@
 module HTMLWriterTests
 
 using Test
+using Documenter
+using Documenter: DocSystem
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
 
 function verify_version_file(versionfile, entries)
@@ -22,6 +24,78 @@ end
     for theme in HTMLWriter.THEMES
         @test isfile(joinpath(HTMLWriter.ASSETS_SASS, "$(theme).scss"))
         @test isfile(joinpath(HTMLWriter.ASSETS_THEMES, "$(theme).css"))
+    end
+
+    # asset handling
+    let asset = asset("https://example.com/foo.js")
+        @test asset.uri == "https://example.com/foo.js"
+        @test asset.class == :js
+        @test asset.islocal === false
+    end
+    let asset = asset("http://example.com/foo.js", class=:ico)
+        @test asset.uri == "http://example.com/foo.js"
+        @test asset.class == :ico
+        @test asset.islocal === false
+    end
+    let asset = asset("foo/bar.css", islocal=true)
+        @test asset.uri == "foo/bar.css"
+        @test asset.class == :css
+        @test asset.islocal === true
+    end
+    @test_throws Exception asset("ftp://example.com/foo.js")
+    @test_throws Exception asset("example.com/foo.js")
+    @test_throws Exception asset("foo.js")
+    @test_throws Exception asset("https://example.com/foo.js?q=1")
+    @test_throws Exception asset("https://example.com/foo.js", class=:error)
+
+    # HTML format object
+    @test Documenter.HTML() isa Documenter.HTML
+    @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
+    @test_throws Exception Documenter.HTML(assets=["foo.js", 10])
+
+    # MathEngine
+    let katex = KaTeX()
+        @test length(katex.config) == 1
+        @test haskey(katex.config, :delimiters)
+    end
+    let katex = KaTeX(Dict(:foo => 1))
+        @test length(katex.config) == 2
+        @test haskey(katex.config, :delimiters)
+        @test haskey(katex.config, :foo)
+    end
+    let katex = KaTeX(Dict(:delimiters => 1, :foo => 2))
+        @test length(katex.config) == 2
+        @test haskey(katex.config, :delimiters)
+        @test katex.config[:delimiters] == 1
+        @test haskey(katex.config, :foo)
+    end
+
+    let mathjax = MathJax()
+        @test length(mathjax.config) == 5
+        @test haskey(mathjax.config, :tex2jax)
+        @test haskey(mathjax.config, :config)
+        @test haskey(mathjax.config, :jax)
+        @test haskey(mathjax.config, :extensions)
+        @test haskey(mathjax.config, :TeX)
+    end
+    let mathjax = MathJax(Dict(:foo => 1))
+        @test length(mathjax.config) == 6
+        @test haskey(mathjax.config, :tex2jax)
+        @test haskey(mathjax.config, :config)
+        @test haskey(mathjax.config, :jax)
+        @test haskey(mathjax.config, :extensions)
+        @test haskey(mathjax.config, :TeX)
+        @test haskey(mathjax.config, :foo)
+    end
+    let mathjax = MathJax(Dict(:tex2jax => 1, :foo => 2))
+        @test length(mathjax.config) == 6
+        @test haskey(mathjax.config, :tex2jax)
+        @test haskey(mathjax.config, :config)
+        @test haskey(mathjax.config, :jax)
+        @test haskey(mathjax.config, :extensions)
+        @test haskey(mathjax.config, :TeX)
+        @test haskey(mathjax.config, :foo)
+        @test mathjax.config[:tex2jax] == 1
     end
 
     mktempdir() do tmpdir
@@ -77,6 +151,17 @@ end
         versions = ["stable" => "v^", "dev" => "stable"]
         @test_throws ArgumentError expand_versions(tmpdir, versions)
     end
-end
 
+    # Exhaustive Conversion from Markdown to Nodes.
+    @testset "MD2Node" begin
+        for mod in Base.Docs.modules
+            for (binding, multidoc) in DocSystem.getmeta(mod)
+                for (typesig, docstr) in multidoc.docs
+                    md = Documenter.DocSystem.parsedoc(docstr)
+                    @test string(HTMLWriter.mdconvert(md; footnotes=[])) isa String
+                end
+            end
+        end
+    end
+end
 end

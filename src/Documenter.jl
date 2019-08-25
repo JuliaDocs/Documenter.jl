@@ -50,12 +50,12 @@ include("Writers/Writers.jl")
 include("Deps.jl")
 
 import .Utilities: Selectors
-import .Writers.HTMLWriter: HTML
-
+import .Writers.HTMLWriter: HTML, asset
+import .Writers.HTMLWriter.JS: KaTeX, MathJax
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta, KaTeX, MathJax, asset
 
 """
     makedocs(
@@ -231,89 +231,7 @@ See the [Other Output Formats](@ref) for more information.
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
-function makedocs(components...; debug = false, format = HTML(),
-                  html_prettyurls::Union{Bool, Nothing} = nothing, # deprecated
-                  html_disable_git::Union{Bool, Nothing} = nothing, # deprecated
-                  html_edit_branch::Union{String, Nothing} = nothing, # deprecated
-                  html_canonical::Union{String, Nothing} = nothing, # deprecated
-                  assets::Union{Vector{<:AbstractString}, Nothing} = nothing, # deprecated
-                  analytics::Union{<:AbstractString, Nothing} = nothing, # deprecated
-                  kwargs...)
-    # html_ keywords deprecation
-    html_keywords = Dict()
-    function html_warn(kw)
-        replace_with = startswith(kw, "html_") ? kw[6:end] : kw
-        @warn """
-        The `$kw` keyword argument should now be specified in the
-        `Documenter.HTML()` format specifier. To fix this warning replace
-        ```
-        $kw = ...
-        ```
-        with
-        ```
-        format = Documenter.HTML($(replace_with) = ...)
-        ```
-        """
-    end
-    if html_prettyurls !== nothing
-        html_warn("html_prettyurls")
-        html_keywords[:prettyurls] = html_prettyurls
-    end
-    if html_disable_git !== nothing
-        html_warn("html_disable_git")
-        html_keywords[:disable_git] = html_disable_git
-    end
-    if html_edit_branch !== nothing
-        html_warn("html_edit_branch")
-        html_keywords[:edit_branch] = html_edit_branch
-    end
-    if html_canonical !== nothing
-        html_warn("html_canonical")
-        html_keywords[:canonical] = html_canonical
-    end
-    if assets !== nothing
-        html_warn("assets")
-        html_keywords[:assets] = assets
-    end
-    if analytics !== nothing
-        html_warn("analytics")
-        html_keywords[:analytics] = analytics
-    end
-
-    # deprecation of format as Symbols
-    function fmt(f)
-        if f === :html
-            Base.depwarn("`format = :html` is deprecated, use `format = Documenter.HTML()` instead.", :makedocs)
-            return Writers.HTMLWriter.HTML(; html_keywords...)
-        elseif f === :latex
-            Base.depwarn("`format = :latex` is deprecated, use `format = LaTeX()` from " *
-                "the DocumenterLaTeX package instead.", :makedocs)
-            return Writers.LaTeXWriter.LaTeX()
-        elseif f === :markdown
-            Base.depwarn("`format = :markdown` is deprecated, use `format = Markdown()` " *
-                "from the DocumenterMarkdown package instead.", :makedocs)
-            return Writers.MarkdownWriter.Markdown()
-        end
-    end
-    if isa(format, AbstractVector{<:Symbol})
-        format = fmt.(format)
-    elseif isa(format, Symbol)
-        format = fmt(format)
-    end
-    # overwrite some stuff in HTML() if outer html_ kwargs have been set
-    # seems ok since the depwarns will still be there.
-    overwrite(x) = x
-    function overwrite(html::HTML)
-        d = Dict(x => getfield(html, x) for x in fieldnames(HTML))
-        d = merge!(d, html_keywords)
-        return HTML(; d...)
-    end
-    if isa(format, HTML)
-        format = overwrite(format)
-    elseif format isa AbstractVector
-        format = overwrite.(format)
-    end
-
+function makedocs(components...; debug = false, format = HTML(), kwargs...)
     document = Documents.Document(components; format=format, kwargs...)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
@@ -512,10 +430,6 @@ function deploydocs(;
 
         repo   = error("no 'repo' keyword provided."),
         branch = "gh-pages",
-        latest::Union{String,Nothing} = nothing, # deprecated
-
-        osname::Union{String,Nothing} = nothing, # deprecated
-        julia::Union{String,Nothing} = nothing, # deprecated
 
         deps   = nothing,
         make   = nothing,
@@ -525,28 +439,6 @@ function deploydocs(;
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
     )
-    # deprecation of latest kwarg (renamed to devbranch)
-    if latest !== nothing
-        Base.depwarn("The `latest` keyword argument has been renamed to `devbranch`.", :deploydocs)
-        devbranch = latest
-        @info "setting `devbranch` to `$(devbranch)`."
-    end
-    # deprecation/removal of `julia` and `osname` kwargs
-    if julia !== nothing
-        Base.depwarn("the `julia` keyword argument to `Documenter.deploydocs` is " *
-            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
-            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
-        @info "skipping docs deployment."
-        return
-    end
-    if osname !== nothing
-        Base.depwarn("the `osname` keyword argument to `Documenter.deploydocs` is " *
-            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
-            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
-        @info "skipping docs deployment."
-        return
-    end
-
     # Get environment variables.
     documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
     travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")

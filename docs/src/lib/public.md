@@ -22,6 +22,7 @@ Pages = ["public.md"]
 Documenter
 makedocs
 hide
+asset
 deploydocs
 Deps
 Deps.pip

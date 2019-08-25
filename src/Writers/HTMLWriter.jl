@@ -51,8 +51,10 @@ import ...Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Writers
+    Writers,
+    asset
 
+using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
@@ -66,6 +68,153 @@ const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
+
+struct HTMLAsset
+    class :: Symbol
+    uri :: String
+    islocal :: Bool
+
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool)
+        if !islocal && match(r"^https?://", uri) === nothing
+            error("Remote asset URL must start with http:// or https://")
+        end
+        class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
+        new(class, uri, islocal)
+    end
+end
+
+"""
+    asset(uri)
+
+Can be used to pass non-local web assets to [`HTML`](@ref), where `uri` should be an absolute
+HTTP or HTTPS URL.
+
+It accepts the following keyword arguments:
+
+**`class`** can be used to override the asset class, which determines how exactly the asset
+gets included in the HTML page. This is necessary if the class can not be determined
+automatically (default).
+
+Should be one of: `:js`, `:css` or `:ico`. They become a `<script>`,
+`<link rel="stylesheet" type="text/css">` and `<link rel="icon" type="image/x-icon">`
+elements in `<head>`, respectively.
+
+**`islocal`** can be used to declare the asset to be local. The `uri` should then be a path
+relative to the documentation source directory (conventionally `src/`). This can be useful
+when it is necessary to override the asset class of a local asset.
+
+# Usage
+
+```julia
+Documenter.HTML(assets = [
+    # Standard local asset
+    "assets/extra_styles.css",
+    # Standard remote asset (extension used to determine that class = :js)
+    asset("https://example.com/jslibrary.js"),
+    # Setting asset class manually, since it can't be determined manually
+    asset("https://example.com/fonts", class = :css),
+    # Same as above, but for a local asset
+    asset("asset/foo.script", class=:js, islocal=true),
+])
+```
+"""
+function asset(uri; class = nothing, islocal=false)
+    if class === nothing
+        class = assetclass(uri)
+        (class === nothing) && error("""
+        Unable to determine asset class for: $(uri)
+        It can be set explicitly with the `class` keyword argument.
+        """)
+    end
+    HTMLAsset(class, uri, islocal)
+end
+
+function assetclass(uri)
+    # TODO: support actual proper URIs
+    ext = splitext(uri)[end]
+    ext == ".ico" ? :ico :
+    ext == ".css" ? :css :
+    ext == ".js"  ? :js  : :unknown
+end
+
+abstract type MathEngine end
+
+"""
+    KaTeX(config::Dict = <default>, override = false)
+
+An instance of the `KaTeX` type can be passed to [`HTML`](@ref) via the `mathengine` keyword
+to specify that the [KaTeX rendering engine](https://katex.org/) should be used in the HTML
+output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure KaTeX. It becomes the
+[options argument of `renderMathInElement`](https://katex.org/docs/autorender.html#api). By
+default, Documenter only sets a custom `delimiters` option.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `delimiters` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct KaTeX <: MathEngine
+    config :: Dict{Symbol,Any}
+    function KaTeX(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+            :delimiters => [
+                Dict(:left => raw"$",   :right => raw"$",   display => false),
+                Dict(:left => raw"$$",  :right => raw"$$",  display => true),
+                Dict(:left => raw"\[", :right => raw"\]", display => true),
+            ]
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
+
+"""
+    MathJax(config::Dict = <default>, override = false)
+
+An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+used in the HTML output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
+default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+and `Tex`.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `tex2jax` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct MathJax <: MathEngine
+    config :: Dict{Symbol,Any}
+    function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+           :tex2jax => Dict(
+               "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+               "processEscapes" => true
+           ),
+           :config => ["MMLorHTML.js"],
+           :jax => [
+               "input/TeX",
+               "output/HTML-CSS",
+               "output/NativeMML"
+           ],
+           :extensions => [
+               "MathMenu.js",
+               "MathZoom.js",
+               "TeX/AMSmath.js",
+               "TeX/AMSsymbols.js",
+               "TeX/autobold.js",
+               "TeX/autoload-all.js"
+           ],
+           :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
 
 """
     HTML(kwargs...)
@@ -115,6 +264,21 @@ for more information.
 Setting it to `false` can be useful when the logo already contains the name of the package.
 Defaults to `true`.
 
+**`highlights`** can be used to add highlighting for additional languages. By default,
+Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download/)
+languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by"
+their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.js) for the
+highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
+you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done whether the
+provided language names are sane.
+
+**`mathengine`** specifies which LaTeX rendering engine will be used to render the math
+blocks. The options are either [KaTeX](https://katex.org/) (default) or
+[MathJax](https://www.mathjax.org/), enabled by passing an instance of [`KaTeX`](@ref) or
+[`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
+passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
+
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -134,36 +298,50 @@ in this order. The first one it finds gets displayed at the top of the navigatio
 It will also check for `assets/logo-dark.{svg,png,webp,gif,jpg,jpeg}` and use that for dark
 themes.
 
-Additional JS, ICO, and CSS assets can be included in the generated pages using the
-`assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
-each listed asset in the `<head>` of every page in the order in which they are listed.
-The type of the asset (i.e. whether it is going to be included with a `<script>` or a
-`<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
-Adding an ICO asset is primarilly useful for setting a custom `favicon`.
+Additional JS, ICO, and CSS assets can be included in the generated pages by passing them as
+a list with the `assets` keyword. Each asset will be included in the `<head>` of every page
+in the order in which they are given. The type of the asset (i.e. whether it is going to be
+included with a `<script>` or a `<link>` tag) is determined by the file's extension --
+either `.js`, `.ico`[^1], or `.css` (unless overridden with [`asset`](@ref)).
+
+Simple strings are assumed to be local assets and that each correspond to a file relative to
+the documentation source directory (conventionally `src/`). Non-local assets, identified by
+their absolute URLs, can be included with the [`asset`](@ref) function.
+
+[^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
 """
 struct HTML <: Documenter.Writer
     prettyurls    :: Bool
     disable_git   :: Bool
     edit_branch   :: Union{String, Nothing}
     canonical     :: Union{String, Nothing}
-    assets        :: Vector{String}
+    assets        :: Vector{HTMLAsset}
     analytics     :: String
     collapselevel :: Int
     sidebar_sitename :: Bool
+    highlights    :: Vector{String}
+    mathengine    :: Union{MathEngine,Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
             edit_branch   :: Union{String, Nothing} = "master",
             canonical     :: Union{String, Nothing} = nothing,
-            assets        :: Vector{String} = String[],
+            assets        :: Vector = String[],
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
+            highlights :: Vector{String} = String[],
+            mathengine :: Union{MathEngine,Nothing} = KaTeX(),
         )
-        collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
+        collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
+        assets = map(assets) do asset
+            isa(asset, HTMLAsset) && return asset
+            isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
+            error("Invalid value in assets: $(asset) [$(typeof(asset))]")
+        end
         new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
-            collapselevel, sidebar_sitename)
+            collapselevel, sidebar_sitename, highlights, mathengine)
     end
 end
 
@@ -176,6 +354,91 @@ const fontawesome_css = [
 ]
 const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
 const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+
+"Provides a namespace for JS dependencies."
+module JS
+    using JSON
+    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
+    using ..HTMLWriter: KaTeX, MathJax
+
+    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js")
+    const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js")
+    const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js")
+    const headroom_jquery = RemoteLibrary(
+        "headroom-jquery",
+        "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js",
+        deps = ["jquery", "headroom"],
+    )
+    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js")
+    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js")
+
+    # highlight.js
+    "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
+    function highlightjs!(r::RequireJS, languages = String[])
+        hljs_version = "9.15.9"
+        push!(r, RemoteLibrary(
+            "highlight",
+            "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
+        ))
+        prepend!(languages, ["julia", "julia-repl"])
+        for language in languages
+            language = jsescape(language)
+            push!(r, RemoteLibrary(
+                "highlight-$(language)",
+                "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/languages/$(language).min.js",
+                deps = ["highlight"]
+            ))
+        end
+        push!(r, Snippet(
+            vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
+            ["\$", "hljs"],
+            raw"""
+            $(document).ready(function() {
+                hljs.initHighlighting();
+            })
+            """
+        ))
+    end
+
+    # MathJax & KaTeX
+    function mathengine!(r::RequireJS, engine::KaTeX)
+        katex_version = "0.10.2" # FIXME: upgrade KaTeX to v0.11.0
+        push!(r, RemoteLibrary(
+            "katex",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
+        ))
+        push!(r, RemoteLibrary(
+            "katex-auto-render",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
+            deps = ["katex"],
+        ))
+        push!(r, Snippet(
+            ["jquery", "katex", "katex-auto-render"],
+            ["\$", "katex", "renderMathInElement"],
+            """
+            \$(document).ready(function() {
+              renderMathInElement(
+                document.body,
+                $(json_jsescape(engine.config, 2))
+              );
+            })
+            """
+        ))
+    end
+    function mathengine!(r::RequireJS, engine::MathJax)
+        push!(r, RemoteLibrary(
+            "mathjax",
+            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
+            exports = "MathJax"
+        ))
+        push!(r, Snippet(["mathjax"], ["MathJax"],
+            """
+            MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
+            """
+        ))
+    end
+    mathengine(::RequireJS, ::Nothing) = nothing
+end
 
 struct SearchRecord
     src :: String
@@ -201,11 +464,10 @@ mutable struct HTMLContext
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
-    local_assets :: Vector{String}
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -261,15 +523,41 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
-
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
-    ctx.documenter_js = copy_asset("documenter.js", doc)
-    ctx.search_js = copy_asset("search.js", doc)
+
+    # Generate documenter.js file with all the JS dependencies
+    ctx.documenter_js = "assets/documenter.js"
+    if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
+        @warn "not creating 'documenter.js', provided by the user."
+    else
+        r = JSDependencies.RequireJS([
+            JS.jquery, JS.jqueryui, JS.headroom, JS.headroom_jquery,
+        ])
+        JS.mathengine!(r, settings.mathengine)
+        JS.highlightjs!(r, settings.highlights)
+        for filename in readdir(joinpath(ASSETS, "js"))
+            path = joinpath(ASSETS, "js", filename)
+            endswith(filename, ".js") && isfile(path) || continue
+            push!(r, JSDependencies.parse_snippet(path))
+        end
+        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
+        JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
+    end
+
+    # Generate search.js file with all the JS dependencies
+    ctx.search_js = "assets/search.js"
+    if isfile(joinpath(doc.user.source, "assets", "search.js"))
+        @warn "not creating 'search.js', provided by the user."
+    else
+        r = JSDependencies.RequireJS([JS.jquery, JS.lunr, JS.lodash])
+        push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
+        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
+        JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
+    end
 
     for theme in THEMES
         copy_asset("themes/$(theme).css", doc)
     end
-    append!(ctx.local_assets, settings.assets)
 
     for page in keys(doc.blueprint.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
@@ -282,12 +570,8 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
-        # convert Vector{SearchRecord} to a JSON string, and escape two Unicode
-        # characters since JSON is not a JS subset, and we want JS here
-        # ref http://timelessrepo.com/json-isnt-a-javascript-subset
-        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
-        js = reduce(replace, escapes, init=JSON.json(ctx.search_index))
-        println(io, js, "\n}")
+        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
+        println(io, json_jsescape(ctx.search_index), "\n}")
     end
 end
 
@@ -459,7 +743,7 @@ function render_head(ctx, navnode)
         script[:src => relhref(src, "../versions.js")],
 
         # Custom user-provided assets.
-        asset_links(src, ctx.local_assets),
+        asset_links(src, ctx.settings.assets),
         # Themes. Note: we reverse the make sure that the default theme (first in the array)
         # comes as the last <link> tag.
         map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
@@ -475,16 +759,16 @@ function render_head(ctx, navnode)
     )
 end
 
-function asset_links(src::AbstractString, assets::Vector)
+function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     @tags link script
     links = DOM.Node[]
-    for each in assets
-        ext = splitext(each)[end]
-        url = relhref(src, each)
+    for asset in assets
+        class = asset.class
+        url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
-            ext == ".ico" ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
-            ext == ".css" ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
-            ext == ".js"  ? script[:src => url] : continue # Skip non-js/css files.
+            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
+            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
+            class == :js  ? script[:src => url] : continue # Skip non-js/css files.
         push!(links, node)
     end
     return links

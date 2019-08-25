@@ -98,6 +98,7 @@ end
 
 # Build example docs
 using Documenter, DocumenterMarkdown
+isdefined(@__MODULE__, :TestUtilities) || (include("../TestUtilities.jl"); using .TestUtilities)
 
 const examples_root = @__DIR__
 const builds_directory = joinpath(examples_root, "builds")
@@ -106,7 +107,7 @@ ispath(builds_directory) && rm(builds_directory, recursive=true)
 expandfirst = ["expandorder/AA.md"]
 
 @info("Building mock package docs: MarkdownWriter")
-examples_markdown_doc = makedocs(
+examples_markdown_doc = @quietly makedocs(
     format = Markdown(),
     debug = true,
     root  = examples_root,
@@ -141,7 +142,7 @@ htmlbuild_pages = Any[
 ]
 
 @info("Building mock package docs: HTMLWriter / local build")
-examples_html_local_doc = makedocs(
+examples_html_local_doc = @quietly makedocs(
     debug = true,
     root  = examples_root,
     build = "builds/html-local",
@@ -171,19 +172,18 @@ function withassets(f, assets...)
     for asset in assets
         cp(src(asset), dst(asset))
     end
-    rv = try
-        f()
-    catch exception
-        @warn "f() threw an exception" exception
-        nothing
+    rv, exception = try
+        f(), nothing
+    catch e
+        nothing, e
     end
     for asset in assets
         rm(dst(asset))
     end
-    return rv
+    return (exception === nothing) ? rv : throw(exception)
 end
 
-examples_html_deploy_doc = withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
+examples_html_deploy_doc = @quietly withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
     makedocs(
         debug = true,
         root  = examples_root,
@@ -196,10 +196,21 @@ examples_html_deploy_doc = withassets("images/logo.png", "images/logo.jpg", "ima
         format = Documenter.HTML(
             assets = [
                 "assets/favicon.ico",
-                "assets/custom.css"
+                "assets/custom.css",
+                asset("https://example.com/resource.js"),
+                asset("http://example.com/fonts?param=foo", class=:css),
+                asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class=:css),
             ],
             prettyurls = true,
             canonical = "https://example.com/stable",
+            mathengine = MathJax(Dict(:TeX => Dict(
+                :equationNumbers => Dict(:autoNumber => "AMS"),
+                :Macros => Dict(
+                    :ket => ["|#1\\rangle", 1],
+                    :bra => ["\\langle#1|", 1],
+                ),
+            ))),
+            highlights = ["erlang", "erlang-repl"],
         )
     )
 end
