@@ -2,6 +2,7 @@ module HTMLWriterTests
 
 using Test
 using Documenter
+using Documenter: DocSystem
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
 
 function verify_version_file(versionfile, entries)
@@ -24,6 +25,33 @@ end
         @test isfile(joinpath(HTMLWriter.ASSETS_SASS, "$(theme).scss"))
         @test isfile(joinpath(HTMLWriter.ASSETS_THEMES, "$(theme).css"))
     end
+
+    # asset handling
+    let asset = asset("https://example.com/foo.js")
+        @test asset.uri == "https://example.com/foo.js"
+        @test asset.class == :js
+        @test asset.islocal === false
+    end
+    let asset = asset("http://example.com/foo.js", class=:ico)
+        @test asset.uri == "http://example.com/foo.js"
+        @test asset.class == :ico
+        @test asset.islocal === false
+    end
+    let asset = asset("foo/bar.css", islocal=true)
+        @test asset.uri == "foo/bar.css"
+        @test asset.class == :css
+        @test asset.islocal === true
+    end
+    @test_throws Exception asset("ftp://example.com/foo.js")
+    @test_throws Exception asset("example.com/foo.js")
+    @test_throws Exception asset("foo.js")
+    @test_throws Exception asset("https://example.com/foo.js?q=1")
+    @test_throws Exception asset("https://example.com/foo.js", class=:error)
+
+    # HTML format object
+    @test Documenter.HTML() isa Documenter.HTML
+    @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
+    @test_throws Exception Documenter.HTML(assets=["foo.js", 10])
 
     # MathEngine
     let katex = KaTeX()
@@ -123,22 +151,17 @@ end
         versions = ["stable" => "v^", "dev" => "stable"]
         @test_throws ArgumentError expand_versions(tmpdir, versions)
     end
-end
-
-## `Markdown.MD` to `DOM.Node` conversion tests.
-module MarkdownToNode
-    import Documenter.DocSystem
-    import Documenter.Writers.HTMLWriter: mdconvert
 
     # Exhaustive Conversion from Markdown to Nodes.
-    for mod in Base.Docs.modules
-        for (binding, multidoc) in DocSystem.getmeta(mod)
-            for (typesig, docstr) in multidoc.docs
-                md = DocSystem.parsedoc(docstr)
-                string(mdconvert(md))
+    @testset "MD2Node" begin
+        for mod in Base.Docs.modules
+            for (binding, multidoc) in DocSystem.getmeta(mod)
+                for (typesig, docstr) in multidoc.docs
+                    md = Documenter.DocSystem.parsedoc(docstr)
+                    @test string(HTMLWriter.mdconvert(md; footnotes=[])) isa String
+                end
             end
         end
     end
 end
-
 end

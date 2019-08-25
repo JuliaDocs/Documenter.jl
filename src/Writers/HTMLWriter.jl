@@ -51,7 +51,8 @@ import ...Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Writers
+    Writers,
+    asset
 
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
@@ -67,6 +68,74 @@ const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
+
+struct HTMLAsset
+    class :: Symbol
+    uri :: String
+    islocal :: Bool
+
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool)
+        if !islocal && match(r"^https?://", uri) === nothing
+            error("Remote asset URL must start with http:// or https://")
+        end
+        class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
+        new(class, uri, islocal)
+    end
+end
+
+"""
+    asset(uri)
+
+Can be used to pass non-local web assets to [`HTML`](@ref), where `uri` should be an absolute
+HTTP or HTTPS URL.
+
+It accepts the following keyword arguments:
+
+**`class`** can be used to override the asset class, which determines how exactly the asset
+gets included in the HTML page. This is necessary if the class can not be determined
+automatically (default).
+
+Should be one of: `:js`, `:css` or `:ico`. They become a `<script>`,
+`<link rel="stylesheet" type="text/css">` and `<link rel="icon" type="image/x-icon">`
+elements in `<head>`, respectively.
+
+**`islocal`** can be used to declare the asset to be local. The `uri` should then be a path
+relative to the documentation source directory (conventionally `src/`). This can be useful
+when it is necessary to override the asset class of a local asset.
+
+# Usage
+
+```julia
+Documenter.HTML(assets = [
+    # Standard local asset
+    "assets/extra_styles.css",
+    # Standard remote asset (extension used to determine that class = :js)
+    asset("https://example.com/jslibrary.js"),
+    # Setting asset class manually, since it can't be determined manually
+    asset("https://example.com/fonts", class = :css),
+    # Same as above, but for a local asset
+    asset("asset/foo.script", class=:js, islocal=true),
+])
+```
+"""
+function asset(uri; class = nothing, islocal=false)
+    if class === nothing
+        class = assetclass(uri)
+        (class === nothing) && error("""
+        Unable to determine asset class for: $(uri)
+        It can be set explicitly with the `class` keyword argument.
+        """)
+    end
+    HTMLAsset(class, uri, islocal)
+end
+
+function assetclass(uri)
+    # TODO: support actual proper URIs
+    ext = splitext(uri)[end]
+    ext == ".ico" ? :ico :
+    ext == ".css" ? :css :
+    ext == ".js"  ? :js  : :unknown
+end
 
 abstract type MathEngine end
 
@@ -229,19 +298,24 @@ in this order. The first one it finds gets displayed at the top of the navigatio
 It will also check for `assets/logo-dark.{svg,png,webp,gif,jpg,jpeg}` and use that for dark
 themes.
 
-Additional JS, ICO, and CSS assets can be included in the generated pages using the
-`assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
-each listed asset in the `<head>` of every page in the order in which they are listed.
-The type of the asset (i.e. whether it is going to be included with a `<script>` or a
-`<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
-Adding an ICO asset is primarilly useful for setting a custom `favicon`.
+Additional JS, ICO, and CSS assets can be included in the generated pages by passing them as
+a list with the `assets` keyword. Each asset will be included in the `<head>` of every page
+in the order in which they are given. The type of the asset (i.e. whether it is going to be
+included with a `<script>` or a `<link>` tag) is determined by the file's extension --
+either `.js`, `.ico`[^1], or `.css` (unless overridden with [`asset`](@ref)).
+
+Simple strings are assumed to be local assets and that each correspond to a file relative to
+the documentation source directory (conventionally `src/`). Non-local assets, identified by
+their absolute URLs, can be included with the [`asset`](@ref) function.
+
+[^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
 """
 struct HTML <: Documenter.Writer
     prettyurls    :: Bool
     disable_git   :: Bool
     edit_branch   :: Union{String, Nothing}
     canonical     :: Union{String, Nothing}
-    assets        :: Vector{String}
+    assets        :: Vector{HTMLAsset}
     analytics     :: String
     collapselevel :: Int
     sidebar_sitename :: Bool
@@ -253,14 +327,19 @@ struct HTML <: Documenter.Writer
             disable_git   :: Bool = false,
             edit_branch   :: Union{String, Nothing} = "master",
             canonical     :: Union{String, Nothing} = nothing,
-            assets        :: Vector{String} = String[],
+            assets        :: Vector = String[],
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
             highlights :: Vector{String} = String[],
             mathengine :: Union{MathEngine,Nothing} = KaTeX(),
         )
-        collapselevel >= 1 || thrown(ArgumentError("collapselevel must be >= 1"))
+        collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
+        assets = map(assets) do asset
+            isa(asset, HTMLAsset) && return asset
+            isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
+            error("Invalid value in assets: $(asset) [$(typeof(asset))]")
+        end
         new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine)
     end
@@ -385,11 +464,10 @@ mutable struct HTMLContext
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
-    local_assets :: Vector{String}
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [], [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -480,7 +558,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     for theme in THEMES
         copy_asset("themes/$(theme).css", doc)
     end
-    append!(ctx.local_assets, settings.assets)
 
     for page in keys(doc.blueprint.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
@@ -666,7 +743,7 @@ function render_head(ctx, navnode)
         script[:src => relhref(src, "../versions.js")],
 
         # Custom user-provided assets.
-        asset_links(src, ctx.local_assets),
+        asset_links(src, ctx.settings.assets),
         # Themes. Note: we reverse the make sure that the default theme (first in the array)
         # comes as the last <link> tag.
         map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
@@ -682,16 +759,16 @@ function render_head(ctx, navnode)
     )
 end
 
-function asset_links(src::AbstractString, assets::Vector)
+function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     @tags link script
     links = DOM.Node[]
-    for each in assets
-        ext = splitext(each)[end]
-        url = relhref(src, each)
+    for asset in assets
+        class = asset.class
+        url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
-            ext == ".ico" ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
-            ext == ".css" ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
-            ext == ".js"  ? script[:src => url] : continue # Skip non-js/css files.
+            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
+            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
+            class == :js  ? script[:src => url] : continue # Skip non-js/css files.
         push!(links, node)
     end
     return links

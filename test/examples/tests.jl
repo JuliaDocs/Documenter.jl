@@ -80,8 +80,6 @@ end
 
         @test isa(doc, Documenter.Documents.Document)
 
-        # TODO: test the HTML build
-
         let build_dir = joinpath(examples_root, "builds", "html-local")
 
             index_html = read(joinpath(build_dir, "index.html"), String)
@@ -105,13 +103,15 @@ end
 
         @test isa(doc, Documenter.Documents.Document)
 
-        # TODO: test the HTML build with pretty URLs
-
         let build_dir = joinpath(examples_root, "builds", "html-deploy")
             @test joinpath(build_dir, "index.html") |> isfile
             @test joinpath(build_dir, "omitted", "index.html") |> isfile
             @test joinpath(build_dir, "hidden", "index.html") |> isfile
             @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
+
+            # Test existence of some HTML elements
+            indexhtml = String(read(joinpath(build_dir, "index.html")))
+            #@test occursin("", indexhtml)
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
