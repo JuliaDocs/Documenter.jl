@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.23.3`
+
+* ![Bugfix][badge-bugfix] Fix file permission error when `Pkg.test`ing Documenter. ([#1115][github-1115])
+
 ## Version `v0.23.2`
 
 * ![Bugfix][badge-bugfix] Empty Markdown headings no longer cause Documenter to crash. ([#1081][github-1081], [#1082][github-1082])
@@ -402,6 +406,7 @@
 [github-1077]: https://github.com/JuliaDocs/Documenter.jl/pull/1077
 [github-1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [github-1082]: https://github.com/JuliaDocs/Documenter.jl/pull/1082
+[github-1115]: https://github.com/JuliaDocs/Documenter.jl/pull/1115
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
