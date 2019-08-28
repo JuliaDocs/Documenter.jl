@@ -9,8 +9,11 @@ function test_doctest_fix(dir)
     srcdir = mktempdir(dir)
     builddir = mktempdir(dir)
     @debug "Testing doctest = :fix" srcdir builddir
-    cp(joinpath(@__DIR__, "broken.md"), joinpath(srcdir, "index.md"))
-    cp(joinpath(@__DIR__, "broken.jl"), joinpath(srcdir, "src.jl"))
+
+    # Pkg.add changes permission of files to read-only,
+    # so instead of copying them we read + write.
+    write(joinpath(srcdir, "index.md"), read(joinpath(@__DIR__, "broken.md")))
+    write(joinpath(srcdir, "src.jl"), read(joinpath(@__DIR__, "broken.jl")))
 
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
