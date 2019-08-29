@@ -407,23 +407,31 @@ function latex(io::IO, code::Markdown.Code)
     # the julia-repl is called "jlcon" in Pygments
     language = (language == "julia-repl") ? "jlcon" : language
     if language in LEXER
-        _print(io, "\n\\begin{minted}[escapeinside=\\%\\%]")
+        _print(io, "\n\\begin{minted}[escapeinside=⊻⊻]")
         _println(io, "{", language, "}")
-        _print_code_escapes(io, code.code)
+        _print_code_escapes_minted(io, code.code)
         _println(io, "\\end{minted}\n")
     else
         _println(io, "\n\\begin{lstlisting}[escapeinside=\\%\\%]")
-        _print_code_escapes(io, code.code)
+        _print_code_escapes_lstlisting(io, code.code)
         _println(io, "\\end{lstlisting}\n")
     end
 end
 
-function _print_code_escapes(io, s::AbstractString)
+function _print_code_escapes_lstlisting(io, s::AbstractString)
     for ch in s
         ch === '%' ? _print(io, "%\\%%") :
         ch === '⊻' ? _print(io, "%\\unicodeveebar%") :
                      _print(io, ch)
     end
+end
+
+function _print_code_escapes_minted(io, s::AbstractString)
+    for ch in s
+        ch === '⊻' ? _print(io, "⊻\\unicodeveebar⊻") :
+                     _print(io, ch)
+    end
+    _println(io)
 end
 
 function latexinline(io::IO, code::Markdown.Code)
