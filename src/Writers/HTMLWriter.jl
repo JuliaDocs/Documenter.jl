@@ -783,7 +783,7 @@ analytics_script(tracking_id::AbstractString) =
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
         ga('create', '$(tracking_id)', 'auto');
-        ga('send', 'pageview');
+        ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
         """
     )
 
