@@ -113,18 +113,21 @@ end
 
 struct ContentsNode
     pages       :: Vector{String} # Which pages should be included in contents? Set by user.
-    depth       :: Int            # Down to which level should headers be displayed? Set by user.
+    depthrange  :: UnitRange{Int} # Down to which level should headers be displayed? Set by user.
     build       :: String         # Same as for `IndexNode`s.
     source      :: String         # Same as for `IndexNode`s.
     elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
 
     function ContentsNode(;
             Pages  = [],
-            Depth  = 2,
+            Depth  = 1:2,
             build  = error("missing value for `build` in `ContentsNode`."),
             source = error("missing value for `source` in `ContentsNode`."),
             others...
         )
+        if Depth isa Int
+            Depth = 1:Depth
+        end
         new(Pages, Depth, build, source, [])
     end
 end
@@ -422,7 +425,7 @@ function populate!(contents::ContentsNode, document::Document)
         for (file, anchors) in filedict
             for anchor in anchors
                 page = relpath(anchor.file, dirname(contents.build))
-                if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) ≤ contents.depth
+                if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) in contents.depthrange
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end

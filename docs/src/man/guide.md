@@ -330,7 +330,7 @@ document, but this can be adjusted using `Pages` and `Depth` settings as in the 
 ````markdown
 ```@contents
 Pages = ["foo.md", "bar.md"]
-Depth = 3
+Depth = 1:3
 ```
 ````
 
