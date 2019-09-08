@@ -128,9 +128,11 @@ jobs:
       julia: 1.0
       os: linux
       script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-                                               Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
+         - julia -e 'using Pkg; Pkg.activate(); push!(LOAD_PATH, pwd());' 
+        - julia --project=docs/ -e 'using Pkg; Pkg.activate();  push!(LOAD_PATH,pwd());'
+
+        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate();'
+        - julia --project=docs/ --color=yes docs/make.jl
       after_success: skip
 ```
 
