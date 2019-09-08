@@ -51,8 +51,7 @@ import ...Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Writers,
-    asset
+    Writers
 
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
