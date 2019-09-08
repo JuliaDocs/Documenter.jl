@@ -135,6 +135,7 @@ read [Generating an SSH Key](@ref).
 First, we need to Base64 encode the private key. Open Julia, and run the command
 
 ```julia
+julia> using Base64
 julia> read("path/to/private/key", String) |> base64encode |> println
 ```
 
