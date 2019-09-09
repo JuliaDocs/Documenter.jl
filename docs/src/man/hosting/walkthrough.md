@@ -135,6 +135,8 @@ read [Generating an SSH Key](@ref).
 First, we need to Base64 encode the private key. Open Julia, and run the command
 
 ```julia
+julia> using Base64
+
 julia> read("path/to/private/key", String) |> base64encode |> println
 ```
 
@@ -148,7 +150,7 @@ to the "Environment Variables" section. It should look like this:
 Now, add a new environment variable called `DOCUMENTER_KEY`, and set its value to the output
 from the Julia command above (make sure to remove the surrounding quotes).
 
-Finally, check that the "Display value in build log" is switched off and then click "Add".
+Finally, make sure that the "Display value in build log" is left switched off and then click "Add".
 Congratulations! You've added the private key to Travis.
 
 !!! warning "Security warning"
