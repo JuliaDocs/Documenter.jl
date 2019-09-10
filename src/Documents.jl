@@ -132,6 +132,8 @@ struct ContentsNode
     end
 end
 
+contents_header_level_offset(contents) = first(contents.depthrange) - 1
+
 ## Other nodes
 
 struct MetaNode

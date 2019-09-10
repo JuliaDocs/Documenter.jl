@@ -315,7 +315,7 @@ function latex(io::IO, contents::Documents.ContentsNode, page, doc)
     _println(io, "\\begin{itemize}")
     for (count, path, anchor) in contents.elements
         header = anchor.object
-        level = Utilities.header_level(header)
+        level = Utilities.header_level(header) - contents_header_level_offset(contents)
         id = string(hash(string(anchor.id, "-", anchor.nth)))
         level < depth && (_println(io, "\\end{itemize}"); needs_end = false)
         level > depth && (_println(io, "\\begin{itemize}"); needs_end = true)

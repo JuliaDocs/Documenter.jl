@@ -127,7 +127,7 @@ function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, pa
         header = anchor.object
         url    = string(path, '#', anchor.id, '-', anchor.nth)
         link   = MarkdownStdlib.Link(header.text, url)
-        level  = Utilities.header_level(header)
+        level = Utilities.header_level(header) - contents_header_level_offset(contents)
         print(io, "    "^(level - 1), "- ")
         MarkdownStdlib.plaininline(io, link)
         println(io)
