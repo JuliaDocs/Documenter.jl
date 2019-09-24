@@ -223,7 +223,7 @@ exist it will be created automatically by [`deploydocs`](@ref). If does exist th
 Documenter simply adds an additional commit with the built documentation. You should be
 aware that Documenter may overwrite existing content without warning.
 
-If you wish to create the `gh-pages` branch manually the that can be done following
+If you wish to create the `gh-pages` branch manually that can be done following
 [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
 ## Documentation Versions
