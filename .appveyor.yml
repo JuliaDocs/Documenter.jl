@@ -12,7 +12,7 @@ platform:
 # (tests will run but not make your overall status red)
 matrix:
   allow_failures:
-  - julia_version: nightly
+  - julia_version: latest
 
 branches:
   only:
