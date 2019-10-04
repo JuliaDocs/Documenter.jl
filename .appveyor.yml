@@ -2,7 +2,7 @@ environment:
   matrix:
   - julia_version: 1.0
   - julia_version: 1.2
-  - julia_version: latest
+  - julia_version: nightly
 
 platform:
   - x86 # 32-bit
@@ -12,7 +12,7 @@ platform:
 # (tests will run but not make your overall status red)
 matrix:
   allow_failures:
-  - julia_version: latest
+  - julia_version: nightly
 
 branches:
   only:
