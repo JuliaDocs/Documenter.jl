@@ -447,23 +447,6 @@ function deploydocs(;
     travis_tag          = get(ENV, "TRAVIS_TAG",           "")
     travis_event_type   = get(ENV, "TRAVIS_EVENT_TYPE",    "")
 
-
-    # Other variables.
-    sha = cd(root) do
-        # We'll make sure we run the git commands in the source directory (root), in case
-        # the working directory has been changed (e.g. if the makedocs' build argument is
-        # outside root).
-        try
-            readchomp(`git rev-parse --short HEAD`)
-        catch
-            # git rev-parse will throw an error and return code 128 if it is not being
-            # run in a git repository, which will make run/readchomp throw an exception.
-            # We'll assume that if readchomp fails it is due to this and set the sha
-            # variable accordingly.
-            "(not-git-repo)"
-        end
-    end
-
     # Check criteria for deployment
     ## The deploydocs' repo should match TRAVIS_REPO_SLUG
     repo_ok = occursin(travis_repo_slug, repo)
@@ -500,6 +483,20 @@ function deploydocs(;
         end
         # Change to the root directory and try to deploy the docs.
         cd(root) do
+            # Find the commit sha.
+            # We'll make sure we run the git commands in the source directory (root), in case
+            # the working directory has been changed (e.g. if the makedocs' build argument is
+            # outside root).
+            sha = try
+                readchomp(`git rev-parse --short HEAD`)
+            catch
+                # git rev-parse will throw an error and return code 128 if it is not being
+                # run in a git repository, which will make run/readchomp throw an exception.
+                # We'll assume that if readchomp fails it is due to this and set the sha
+                # variable accordingly.
+                "(not-git-repo)"
+            end
+
             @debug "setting up target directory."
             isdir(target) || mkpath(target)
             # Run extra build steps defined in `make` if required.

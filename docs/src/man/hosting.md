@@ -219,11 +219,11 @@ These are needed to avoid committing generated content to your repository.
 ## `gh-pages` Branch
 
 By default, Documenter pushes documentation to the `gh-pages` branch. If the branch does not
-exist it will be created automatically by [`deploydocs`](@ref). If does exist then
+exist it will be created automatically by [`deploydocs`](@ref). If it does exist then
 Documenter simply adds an additional commit with the built documentation. You should be
 aware that Documenter may overwrite existing content without warning.
 
-If you wish to create the `gh-pages` branch manually the that can be done following
+If you wish to create the `gh-pages` branch manually that can be done following
 [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
 ## Documentation Versions
