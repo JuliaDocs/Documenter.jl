@@ -345,7 +345,7 @@ function latex(io::IO, d::Dict{MIME,Any})
         _println(io, """
         \\begin{figure}[H]
         \\centering
-        \\includegraphics{$(filename)}
+        \\includegraphics[max width=\\linewidth]{$(filename)}
         \\end{figure}
         """)
     elseif haskey(d, MIME"image/jpeg"())
@@ -353,7 +353,7 @@ function latex(io::IO, d::Dict{MIME,Any})
         _println(io, """
         \\begin{figure}[H]
         \\centering
-        \\includegraphics{$(filename)}
+        \\includegraphics[max width=\\linewidth]{$(filename)}
         \\end{figure}
         """)
     elseif haskey(d, MIME"text/latex"())
@@ -567,7 +567,7 @@ function latexinline(io::IO, md::Markdown.Image)
             normpath(joinpath(dirname(io.filename), md.url))
         end
         url = replace(url, "\\" => "/") # use / on Windows too.
-        wrapinline(io, "includegraphics") do
+        wrapinline(io, "includegraphics[max width=\\linewidth]") do
             _print(io, url)
         end
         _println(io)

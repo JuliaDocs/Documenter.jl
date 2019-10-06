@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.24.0`
+
+* ![Enhancement][badge-enhancement] In the PDF/LaTeX output, images that are wider than the text are now being scaled down to text width automatically. The PDF builds now require the [adjustbox](https://ctan.org/pkg/adjustbox) LaTeX package to be available. ([#1137][github-1137])
+
 ## Version `v0.23.3`
 
 * ![Bugfix][badge-bugfix] Fix file permission error when `Pkg.test`ing Documenter. ([#1115][github-1115])
@@ -407,6 +411,7 @@
 [github-1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [github-1082]: https://github.com/JuliaDocs/Documenter.jl/pull/1082
 [github-1115]: https://github.com/JuliaDocs/Documenter.jl/pull/1115
+[github-1137]: https://github.com/JuliaDocs/Documenter.jl/pull/1137
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
