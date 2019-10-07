@@ -17,6 +17,9 @@ the docs you're currently reading.
     [Travis](https://travis-ci.com/) accounts setup. If not then go set those up first and
     then return here.
 
+    In this guide we use Travis CI for deployment, but it is possible to customize
+    Documenter such that other services can be used, see [Deployment systems](@ref).
+
 
 ## Overview
 
@@ -281,3 +284,19 @@ trigger these builds and neither do pull requests by potential contributors.**
 
 If you would like to see a more complete example of how this process is setup then take a
 look at this package's repository for some inspiration.
+
+## Deployment systems
+
+In the guide above we used Travis CI for building and pushing updates to the documentation.
+However, it is possible to customize Documenter to use other systems. This is done by
+passing a configuration (a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs`
+by the `deploy_config` keyword argument. Currently, only [`Travis`](@ref) is implemented,
+but it is easy to define your own by following the simple interface described below.
+
+```@docs
+Documenter.DeployConfig
+Documenter.documenter_key
+Documenter.git_tag
+Documenter.should_deploy
+Documenter.Travis
+```
