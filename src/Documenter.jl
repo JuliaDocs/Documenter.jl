@@ -545,14 +545,6 @@ function git_push(
                     devurl_dir = joinpath(dirname, devurl)
                     gitrm_copy(target_dir, devurl_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
-                    # symlink "latest" to devurl to preserve links (remove in some future release)
-                    if devurl != "latest"
-                        rm(joinpath(dirname, "latest"); recursive = true, force = true)
-                        @warn(string("creating symlink from `latest` to `$(devurl)` for backwards ",
-                            "compatibility with old links. In future Documenter versions this symlink ",
-                            "will not be created. Please update any links that point to `latest`."))
-                        cd(dirname) do; rm_and_add_symlink(devurl, "latest"); end
-                    end
                 else
                     tagged_dir = joinpath(dirname, tag)
                     gitrm_copy(target_dir, tagged_dir)
