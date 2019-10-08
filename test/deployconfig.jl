@@ -71,3 +71,24 @@ end
         @test !Documenter.should_deploy(cfg; repo="github.com/JuliaDocs/Documenter.jl.git", devbranch="master")
     end
 end
+
+@testset "Autodetection of deploy system" begin
+    withenv("TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REPOSITORY" => nothing,
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg isa Documenter.Travis
+    end
+    withenv("TRAVIS_REPO_SLUG" => nothing,
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg isa Documenter.GitHubActions
+    end
+    withenv("TRAVIS_REPO_SLUG" => nothing,
+            "GITHUB_REPOSITORY" => nothing,
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg === nothing
+    end
+end

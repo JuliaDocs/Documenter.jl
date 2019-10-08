@@ -4,7 +4,7 @@
 
 * ![Feature][badge-feature] Deployment is now more customizable and thus not as tied to Travis CI as before. ([#1147][github-1147])
 
-* ![Feature][badge-feature] Documenter now has builtin support for deploying from GitHub Actions. ([#1144][github-1144])
+* ![Feature][badge-feature] Documenter now has builtin support for deploying from GitHub Actions. Documenter will autodetect the running system, unless explicitly specified. ([#1144][github-1144], [#1152][github-1152])
 
 * ![Enhancement][badge-enhancement] In the PDF/LaTeX output, images that are wider than the text are now being scaled down to text width automatically. The PDF builds now require the [adjustbox](https://ctan.org/pkg/adjustbox) LaTeX package to be available. ([#1137][github-1137])
 
@@ -421,6 +421,7 @@
 [github-1144]: https://github.com/JuliaDocs/Documenter.jl/pull/1144
 [github-1147]: https://github.com/JuliaDocs/Documenter.jl/pull/1147
 [github-1151]: https://github.com/JuliaDocs/Documenter.jl/pull/1151
+[github-1152]: https://github.com/JuliaDocs/Documenter.jl/pull/1152
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
