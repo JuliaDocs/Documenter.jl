@@ -6,6 +6,8 @@
 
 * ![Enhancement][badge-enhancement] In the PDF/LaTeX output, images that are wider than the text are now being scaled down to text width automatically. The PDF builds now require the [adjustbox](https://ctan.org/pkg/adjustbox) LaTeX package to be available. ([#1137][github-1137])
 
+* ![BREAKING][badge-breaking] Documenter no longer creates a symlink between the old `latest` url to specified `devurl`. Make sure to update links in e.g. the package readme. ([#1151][github-1151])
+
 ## Version `v0.23.3`
 
 * ![Bugfix][badge-bugfix] Fix file permission error when `Pkg.test`ing Documenter. ([#1115][github-1115])
@@ -415,6 +417,7 @@
 [github-1115]: https://github.com/JuliaDocs/Documenter.jl/pull/1115
 [github-1137]: https://github.com/JuliaDocs/Documenter.jl/pull/1137
 [github-1147]: https://github.com/JuliaDocs/Documenter.jl/pull/1147
+[github-1151]: https://github.com/JuliaDocs/Documenter.jl/pull/1151
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
