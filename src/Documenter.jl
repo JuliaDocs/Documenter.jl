@@ -289,6 +289,8 @@ makedocs(
 hide(root::Pair, children) = (true, root.first, root.second, map(hide, children))
 hide(root::AbstractString, children) = (true, nothing, root, map(hide, children))
 
+include("deployconfig.jl")
+
 """
     deploydocs(
         root   = "<current-directory>",
@@ -332,6 +334,11 @@ repo = "github.com/JuliaDocs/Documenter.jl.git"
 ```
 
 # Optional keyword arguments
+
+**`deploy_config`** determines configuration for the deployment.
+If this is not specified Documenter will try to autodetect from the
+currently running environment. See the manual section about
+[Deployment systems](@ref).
 
 **`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
 
@@ -380,43 +387,6 @@ the generated html. The following entries are valied in the `versions` vector:
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
 
-# Environment variables
-
-[`deploydocs`](@ref)'s behavior is influenced by the following environment variables, many
-of which are specific to the [Travis CI platform](https://travis-ci.com/).
-
- - **`DOCUMENTER_KEY`**: must contain the Base64-encoded SSH private key for the repository.
-
- - **`TRAVIS_PULL_REQUEST`**: must be set to `false`.
-
-   This avoids deployment on pull request builds. Note that there is no way to _safely_
-   enable builds on pull requests, since that would expose the SSH private key
-   (`DOCUMENTER_KEY`), giving anyone opening a pull request full write access to the repository.
-
- - **`TRAVIS_REPO_SLUG`**: must match the value of the `repo` keyword.
-
- - **`TRAVIS_EVENT_TYPE`**: may not be set to `cron`.
-
-   This avoids the re-deployment of existing docs on builds that were triggered by a Travis
-   cron job.
-
- - **`TRAVIS_BRANCH`**: unless `TRAVIS_TAG` is non-empty, this must have the same value as the
-   `devbranch` keyword.
-
-   This makes sure that only the development branch (commonly, the `master` branch) will deploy
-   the "dev" documentation (deployed into a directory specified by the `devurl` keyword).
-
- - **`TRAVIS_TAG`**: if set, a tagged version deployment is performed instead; the value must be
-   a valid version number (i.e. match `Base.VERSION_REGEX`).
-
-   The documentation for a package version tag gets deployed to a directory named after the
-   version number in `TRAVIS_TAG` instead.
-
-The `TRAVIS_*` variables are set automatically on Travis, but could be set manually to
-appropriate values as well to run [`deploydocs`](@ref) locally or on other CI platforms.
-More information on how Travis sets the `TRAVIS_*` variables can be found in the
-[Travis documentation](https://docs.travis-ci.com/user/environment-variables/#default-environment-variables).
-
 # See Also
 
 The [Hosting Documentation](@ref) section of the manual provides a step-by-step guide to
@@ -438,42 +408,13 @@ function deploydocs(;
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
+        deploy_config = nothing,
     )
-    # Get environment variables.
-    documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
-    travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
-    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
-    travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
-    travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_event_type   = get(ENV, "TRAVIS_EVENT_TYPE",    "")
 
-    # Check criteria for deployment
-    ## The deploydocs' repo should match TRAVIS_REPO_SLUG
-    repo_ok = occursin(travis_repo_slug, repo)
-    ## Do not deploy for PRs
-    pr_ok = travis_pull_request == "false"
-    ## If a tag exist it should be a valid VersionNumber
-    tag_ok = isempty(travis_tag) || occursin(Base.VERSION_REGEX, travis_tag)
-    ## If no tag exists deploydocs' devbranch should match TRAVIS_BRANCH
-    branch_ok = !isempty(travis_tag) || travis_branch == devbranch
-    ## DOCUMENTER_KEY should exist
-    key_ok = !isempty(documenter_key)
-    ## Cron jobs should not deploy
-    type_ok = travis_event_type != "cron"
-    should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok
+    # Default to Travis (TODO: Autodetect)
+    deploy_config = something(deploy_config, Travis())
 
-    marker(x) = x ? "✔" : "✘"
-    @info """Deployment criteria:
-    - $(marker(repo_ok)) ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)"
-    - $(marker(pr_ok)) ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false"
-    - $(marker(tag_ok)) ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber
-    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch)" (if tag is empty)
-    - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
-    - $(marker(type_ok)) ENV["TRAVIS_EVENT_TYPE"]="$(travis_event_type)" is not "cron"
-    Deploying: $(marker(should_deploy))
-    """
-
-    if should_deploy
+    if should_deploy(deploy_config; repo=repo, devbranch=devbranch)
         # Add local bin path if needed.
         Deps.updatepath!()
         # Install dependencies when applicable.
@@ -509,8 +450,8 @@ function deploydocs(;
                 git_push(
                     root, temp, repo;
                     branch=branch, dirname=dirname, target=target,
-                    tag=travis_tag, key=documenter_key, sha=sha,
-                    devurl = devurl, versions = versions, forcepush = forcepush,
+                    sha=sha, deploy_config=deploy_config,
+                    devurl=devurl, versions=versions, forcepush=forcepush,
                 )
             end
         end
@@ -520,17 +461,18 @@ end
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", tag="", key="", sha="", devurl="dev"
+        branch="gh-pages", dirname="", target="site", sha="", devurl="dev", deploy_config
     )
 
 Handles pushing changes to the remote documentation branch.
-When `tag` is empty the docs are deployed to the `devurl` directory,
-and when building docs for a tag they are deployed to a `vX.Y.Z` directory.
+The documentation are placed in the `devurl` folder
+(if `git_tag(deploy_config)` returns `nothing`) or the version folder
+corresponding to `git_tag(deploy_config)`, e.g. a `vX.Y.Z` directory.
 """
 function git_push(
         root, temp, repo;
-        branch="gh-pages", dirname="", target="site", tag="", key="", sha="", devurl="dev",
-        versions, forcepush=false,
+        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        versions, forcepush=false, deploy_config,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -545,13 +487,14 @@ function git_push(
 
     keyfile = abspath(joinpath(root, ".documenter"))
     try
-        write(keyfile, String(base64decode(key)))
+        write(keyfile, base64decode(documenter_key(deploy_config)))
     catch e
         @error """
         Documenter failed to decode the DOCUMENTER_KEY environment variable.
         Make sure that the environment variable is properly set up as a Base64-encoded string
         of the SSH private key. You may need to re-generate the keys with DocumenterTools.
         """
+        rm(keyfile; force=true)
         rethrow(e)
     end
     chmod(keyfile, 0o600)
@@ -597,7 +540,8 @@ function git_push(
                 end
 
                 # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
-                if isempty(tag)
+                tag = git_tag(deploy_config)
+                if tag === nothing
                     devurl_dir = joinpath(dirname, devurl)
                     gitrm_copy(target_dir, devurl_dir)
                     Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
