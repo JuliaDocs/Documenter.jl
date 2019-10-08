@@ -408,11 +408,8 @@ function deploydocs(;
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
-        deploy_config = nothing,
+        deploy_config = auto_detect_deploy_system(),
     )
-
-    # Default to Travis (TODO: Autodetect)
-    deploy_config = something(deploy_config, Travis())
 
     if should_deploy(deploy_config; repo=repo, devbranch=devbranch)
         # Add local bin path if needed.

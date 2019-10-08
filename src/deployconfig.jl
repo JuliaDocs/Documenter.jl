@@ -33,7 +33,8 @@ Return `true` if the current build should deploy, and `false` otherwise.
 This function is called with the `repo` and `devbranch` arguments from
 [`deploydocs`](@ref).
 """
-should_deploy(cfg::DeployConfig; kwargs...) = false
+should_deploy(::DeployConfig; kwargs...) = false
+should_deploy(::Nothing; kwargs...) = false # when auto-detection fails
 
 #############
 # Travis CI #
@@ -196,4 +197,18 @@ end
 function git_tag(cfg::GitHubActions)
     m = match(r"^refs/tags/(.*)$", cfg.github_ref)
     return m === nothing ? nothing : String(m.captures[1])
+end
+
+
+##################
+# Auto-detection #
+##################
+function auto_detect_deploy_system()
+    if haskey(ENV, "TRAVIS_REPO_SLUG")
+        return Travis()
+    elseif haskey(ENV, "GITHUB_REPOSITORY")
+        return GitHubActions()
+    else
+        return nothing
+    end
 end
