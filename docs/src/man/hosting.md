@@ -2,8 +2,9 @@
 
 After going through the [Package Guide](@ref) and [Doctests](@ref) page you will need to
 host the generated documentation somewhere for potential users to read. This guide will
-describe how to setup automatic updates for your package docs using the Travis build service
-and GitHub Pages. This is the same approach used by this package to host its own docs --
+describe how to setup automatic updates for your package docs using either the Travis CI
+build service or GitHub Actions together with and GitHub Pages for hosting the generated
+HTML files. This is the same approach used by this package to host its own docs --
 the docs you're currently reading.
 
 !!! note
@@ -17,8 +18,8 @@ the docs you're currently reading.
     [Travis](https://travis-ci.com/) accounts setup. If not then go set those up first and
     then return here.
 
-    In this guide we use Travis CI for deployment, but it is possible to customize
-    Documenter such that other services can be used, see [Deployment systems](@ref).
+    It is possible to deploy from other systems than Travis CI or GitHub Actions,
+    see the section on [Deployment systems](@ref).
 
 
 ## Overview
@@ -26,7 +27,7 @@ the docs you're currently reading.
 Once set up correctly, the following will happen each time you push new updates to your
 package repository:
 
-- Travis buildbots will start up and run your package tests in a "Test" stage.
+- Buildbots will start up and run your package tests in a "Test" stage.
 - After the Test stage completes, a single bot will run a new "Documentation" stage, which
   will build the documentation.
 - If the documentation is built successfully, the bot will attempt to push the generated
@@ -41,7 +42,7 @@ The following sections outline how to enable this for your own package.
 ## SSH Deploy Keys
 
 Deploy keys provide push access to a *single* repository, to allow secure deployment of
-generated documentation from Travis to GitHub. The SSH keys can be generated with the
+generated documentation from the builder to GitHub. The SSH keys can be generated with the
 `Travis.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl)
 package.
 
@@ -119,7 +120,15 @@ Follow the instructions that are printed out, namely:
     There are more explicit instructions for adding the keys to GitHub and Travis in the
     [SSH Deploy Keys Walkthrough](@ref) section of the manual.
 
-## `.travis.yml` Configuration
+## Configuration files for the builder
+
+In the upcoming sections we describe how to configure the build service to run
+the documentation build stage. In general it is easiest to choose the same
+service as the one testing your package. If you don't explicitly select
+the service with the `deploy_config` keyword argument to `deploydocs`
+Documenter will try to automatically detect which system is running and use that.
+
+### Travis CI: `.travis.yml`
 
 To tell Travis that we want a new build stage we can add the following to the `.travis.yml`
 file:
@@ -152,6 +161,52 @@ The three lines in the `script:` section do the following:
     If your package has a build script you should call
     `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
     sure the package is built properly.
+
+
+### GitHub Actions
+
+To run the documentation build from GitHub Actions you should add the following to your
+workflow configuration file:
+
+```yaml
+name: Documentation
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        julia-version: [1.2.0]
+        julia-arch: [x86]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: ${{ matrix.julia-version }}
+      - name: Install dependencies
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+      - name: Build and deploy
+        env:
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+        run: julia --project=docs/ docs/make.jl
+```
+
+which will install Julia, checkout the correct commit of your repository, and run the
+build of the documentation.
+
+where the `julia-version:`, `julia-arch:` and `os:` entries decide the worker from which
+the docs are built and deployed. In the example above we will thus build and deploy the
+documentation from a ubuntu worker running Julia 1.2. For more information on how to setup
+a GitHub workflow see the manual for
+[Configuring a workflow](https://help.github.com/en/articles/configuring-a-workflow).
+
+The commands in the lines in the `run:` section do the same as for Travis,
+see the previous section.
+
+## `docs/Project.toml`
 
 The doc-build environment `docs/Project.toml` includes Documenter and other doc-build
 dependencies your package might have. If Documenter is the only dependency, then the
@@ -287,11 +342,11 @@ look at this package's repository for some inspiration.
 
 ## Deployment systems
 
-In the guide above we used Travis CI for building and pushing updates to the documentation.
-However, it is possible to customize Documenter to use other systems. This is done by
-passing a configuration (a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs`
-by the `deploy_config` keyword argument. Currently, only [`Travis`](@ref) is implemented,
-but it is easy to define your own by following the simple interface described below.
+It is possible to customize Documenter to use other systems then the ones described in
+the sections above. This is done by passing a configuration
+(a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs` by the `deploy_config`
+keyword argument. Currently, only [`Travis`](@ref) is implemented, but it is easy to define
+your own by following the simple interface described below.
 
 ```@docs
 Documenter.DeployConfig
@@ -299,4 +354,5 @@ Documenter.documenter_key
 Documenter.git_tag
 Documenter.should_deploy
 Documenter.Travis
+Documenter.GitHubActions
 ```

@@ -48,6 +48,8 @@ The following environment variables influences the build
 when using the `Travis` configuration:
 
  - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the repository.
+   This variable should be set in the Travis settings for the repository. Make sure this
+   variable is marked **NOT** to be displayed in the build log.
 
  - `TRAVIS_PULL_REQUEST`: must be set to `false`.
    This avoids deployment on pull request builds.
@@ -67,9 +69,8 @@ when using the `Travis` configuration:
    a package version tag gets deployed to a directory named after the version number in
    `TRAVIS_TAG` instead.
 
-The `TRAVIS_*` variables are set automatically on Travis, but could be set manually to
-appropriate values as well. More information on how Travis sets the `TRAVIS_*` variables
-can be found in the
+The `TRAVIS_*` variables are set automatically on Travis. More information on how Travis
+sets the `TRAVIS_*` variables can be found in the
 [Travis documentation](https://docs.travis-ci.com/user/environment-variables/#default-environment-variables).
 """
 struct Travis <: DeployConfig
@@ -120,4 +121,79 @@ end
 # Obtain git tag for the build
 function git_tag(cfg::Travis)
     isempty(cfg.travis_tag) ? nothing : cfg.travis_tag
+end
+
+
+##################
+# GitHub Actions #
+##################
+
+"""
+    GitHubActions <: DeployConfig
+
+Implementation of `DeployConfig` for deploying from GitHub Actions.
+
+The following environment variables influences the build
+when using the `GitHubActions` configuration:
+
+ - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the repository.
+   This variable should be set in the GitHub Actions configuration file using a repository
+   secret, see the documentation for
+   [secret environment variables](https://help.github.com/en/articles/virtual-environments-for-github-actions#creating-and-using-secrets-encrypted-variables).
+
+ - `GITHUB_EVENT_NAME`: must be set to `push`.
+   This avoids deployment on pull request builds.
+
+ - `GITHUB_REPOSITORY`: must match the value of the `repo` keyword to [`deploydocs`](@ref).
+
+ - `GITHUB_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively
+   correspond to a git tag.
+
+The `GITHUB_*` variables are set automatically on GitHub Actions, see the
+[documentation](https://help.github.com/en/articles/virtual-environments-for-github-actions#default-environment-variables).
+"""
+struct GitHubActions <: DeployConfig
+    github_repository::String
+    github_event_name::String
+    github_ref::String
+end
+function GitHubActions()
+    github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
+    github_event_name = get(ENV, "GITHUB_EVENT_NAME", "") # "push", "pull_request" or "cron" (?)
+    github_ref        = get(ENV, "GITHUB_REF",        "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
+    return GitHubActions(github_repository, github_event_name, github_ref)
+end
+
+# Check criteria for deployment
+function should_deploy(cfg::GitHubActions; repo, devbranch, kwargs...)
+    ## The deploydocs' repo should match GITHUB_REPOSITORY
+    repo_ok = occursin(cfg.github_repository, repo)
+    ## Do not deploy for PRs
+    pr_ok = cfg.github_event_name == "push"
+    ## If a tag exist it should be a valid VersionNumber
+    m = match(r"^refs/tags/(.*)$", cfg.github_ref)
+    tag_ok = m === nothing ? false : occursin(Base.VERSION_REGEX, String(m.captures[1]))
+    ## If no tag exists deploydocs' devbranch should match the current branch
+    m = match(r"^refs/heads/(.*)$", cfg.github_ref)
+    branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
+    ## DOCUMENTER_KEY should exist (just check here and extract the value later)
+    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    # ## Cron jobs should not deploy
+    # type_ok = cfg.travis_event_type != "cron"
+    all_ok = repo_ok && pr_ok && (tag_ok || branch_ok) && key_ok # && type_ok
+    marker(x) = x ? "✔" : "✘"
+    @info """Deployment criteria for deploying with GitHub Actions:
+    - $(marker(repo_ok)) ENV["GITHUB_REPOSITORY"]="$(cfg.github_repository)" occurs in repo="$(repo)"
+    - $(marker(pr_ok)) ENV["GITHUB_EVENT_NAME"]="$(cfg.github_event_name)" is "push"
+    - $(marker(tag_ok || branch_ok)) ENV["GITHUB_REF"]="$(cfg.github_ref)" corresponds to a tag or matches devbranch="$(devbranch)"
+    - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
+    Deploying: $(marker(all_ok))
+    """
+    return all_ok
+end
+
+# Obtain git tag for the build
+function git_tag(cfg::GitHubActions)
+    m = match(r"^refs/tags/(.*)$", cfg.github_ref)
+    return m === nothing ? nothing : String(m.captures[1])
 end
