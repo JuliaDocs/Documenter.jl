@@ -86,7 +86,7 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
-To filter out certain docstrings by your own criteria, you can provide function with them
+To filter out certain docstrings by your own criteria, you can provide function with the
 `Filter` keyword:
 
 ````markdown
