@@ -641,7 +641,7 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     # The sandboxed module -- either a new one or a cached one from this page.
     name = matched[1]
     sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
-    mod  = get!(page.globals.meta, sym, Module(sym))::Module
+    mod  = get!(() -> get_new_sandbox(sym), page.globals.meta, sym)
 
     # Evaluate whole @setup block at once instead of piecewise
     page.mapping[x] =

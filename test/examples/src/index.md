@@ -402,6 +402,19 @@ julia> ans
 "world"
 ```
 
+## Issue #1148
+
+```@setup setup-include-test
+write("issue1148.jl", "x = 1148")
+r = include("issue1148.jl")
+rm("issue1148.jl")
+```
+
+```@repl setup-include-test
+x
+@assert x == 1148
+```
+
 # Issue513
 
 ```jldoctest named
