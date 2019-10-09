@@ -43,7 +43,7 @@ The following sections outline how to enable this for your own package.
 
 Deploy keys provide push access to a *single* repository, to allow secure deployment of
 generated documentation from the builder to GitHub. The SSH keys can be generated with the
-`Travis.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl)
+`genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl)
 package.
 
 !!! note
@@ -63,23 +63,27 @@ pkg> add DocumenterTools
 julia> using DocumenterTools
 ```
 
-Then call the [`Travis.genkeys`](@ref) function as follows:
+Then call the [`DocumenterTools.genkeys`](@ref) function as follows:
 
 ```julia-repl
 julia> using MyPackage
-julia> Travis.genkeys(user="MyUser", repo="git@github.com:MyUser/MyPackage.jl.git")
+julia> DocumenterTools.genkeys(user="MyUser", repo="git@github.com:MyUser/MyPackage.jl.git")
 ```
 
-where `MyPackage` is the name of the package you would like to create deploy keys for and `MyUser` is your GitHub username. Note that the keyword arguments are optional and can be omitted.
+where `MyPackage` is the name of the package you would like to create deploy keys for and
+`MyUser` is your GitHub username. Note that the keyword arguments are optional and can be
+omitted.
 
-If the package is checked out in development mode with `] dev MyPackage`, you can also use `Travis.genkeys` as follows:
+If the package is checked out in development mode with `] dev MyPackage`, you can also use
+`DocumenterTools.genkeys` as follows:
 
 ```julia-repl
 julia> using MyPackage
-julia> Travis.genkeys(MyPackage)
+julia> DocumenterTools.genkeys(MyPackage)
 ```
 
-where `MyPackage` is the package you would like to create deploy keys for. The output will look similar to the text below:
+where `MyPackage` is the package you would like to create deploy keys for. The output will
+look similar to the text below:
 
 ```
 INFO: add the public key below to https://github.com/USER/REPO/settings/keys
@@ -345,8 +349,8 @@ look at this package's repository for some inspiration.
 It is possible to customize Documenter to use other systems then the ones described in
 the sections above. This is done by passing a configuration
 (a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs` by the `deploy_config`
-keyword argument. Currently, only [`Travis`](@ref) is implemented, but it is easy to define
-your own by following the simple interface described below.
+keyword argument. Currently, only [`Travis`](@ref Documenter.Travis) is implemented, but it
+is easy to define your own by following the simple interface described below.
 
 ```@docs
 Documenter.DeployConfig
