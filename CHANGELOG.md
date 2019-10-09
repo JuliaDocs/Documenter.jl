@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.23.4`
+
+* ![Bugfix][badge-bugfix] The `include` and `eval` functions are also available in `@setup` blocks now. ([#1148][github-1148], [#1153][github-1153])
+
 ## Version `v0.23.3`
 
 * ![Bugfix][badge-bugfix] Fix file permission error when `Pkg.test`ing Documenter. ([#1115][github-1115])
@@ -407,6 +411,8 @@
 [github-1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [github-1082]: https://github.com/JuliaDocs/Documenter.jl/pull/1082
 [github-1115]: https://github.com/JuliaDocs/Documenter.jl/pull/1115
+[github-1148]: https://github.com/JuliaDocs/Documenter.jl/issues/1148
+[github-1153]: https://github.com/JuliaDocs/Documenter.jl/pull/1153
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
