@@ -42,9 +42,8 @@ The following sections outline how to enable this for your own package.
 ## SSH Deploy Keys
 
 Deploy keys provide push access to a *single* repository, to allow secure deployment of
-generated documentation from the builder to GitHub. The SSH keys can be generated with the
-`genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl)
-package.
+generated documentation from the builder to GitHub. The SSH keys can be generated with
+`DocumenterTools.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl) package.
 
 !!! note
 
@@ -86,13 +85,15 @@ where `MyPackage` is the package you would like to create deploy keys for. The o
 look similar to the text below:
 
 ```
-INFO: add the public key below to https://github.com/USER/REPO/settings/keys
+[ Info: add the public key below to https://github.com/USER/REPO/settings/keys
       with read/write access:
 
 [SSH PUBLIC KEY HERE]
 
-INFO: add a secure environment variable named 'DOCUMENTER_KEY' to
-      https://travis-ci.com/USER/REPO/settings with value:
+[ Info: add a secure environment variable named 'DOCUMENTER_KEY' to
+  https://travis-ci.com/USER/REPO/settings (if you deploy using Travis CI) or
+  https://github.com/USER/REPO/settings/secrets (if you deploy using GitHub Actions)
+  with value:
 
 [LONG BASE64 ENCODED PRIVATE KEY]
 ```
@@ -105,14 +106,15 @@ Follow the instructions that are printed out, namely:
     **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
     generated documentation to the repo.
 
- 2. Next add the long private key to the Travis settings page using the provided link. Again
-    note that you should include **no whitespace** when copying the key. In the **`Environment
+ 2. Next add the long private key to the Travis/GitHub Actions settings page using the provided link.
+    Again note that you should include **no whitespace** when copying the key. In the **`Environment
     Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
     out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
 
     !!! warning "Security warning"
 
-        To reiterate: make sure that the "Display value in build log" option is **OFF** for
+        To reiterate: make sure that this key is hidden. In particular, in the Travis CI settings
+        the "Display value in build log" option should be **OFF** for
         the variable, so that it does not get printed when the tests run. This
         base64-encoded string contains the *unencrypted* private key that gives full write
         access to your repository, so it must be kept safe.  Also, make sure that you never
@@ -349,8 +351,9 @@ look at this package's repository for some inspiration.
 It is possible to customize Documenter to use other systems then the ones described in
 the sections above. This is done by passing a configuration
 (a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs` by the `deploy_config`
-keyword argument. Currently, only [`Travis`](@ref Documenter.Travis) is implemented, but it
-is easy to define your own by following the simple interface described below.
+keyword argument. Documenter natively supports [`Travis`](@ref Documenter.Travis) and
+[`GitHubActions`](@ref Documenter.GitHubActions) natively, but it is easy to define
+your own by following the simple interface described below.
 
 ```@docs
 Documenter.DeployConfig

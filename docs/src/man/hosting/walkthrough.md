@@ -6,7 +6,7 @@ process. There are three main steps:
 
 1. [Generating an SSH Key](@ref)
 2. [Adding the Public Key to GitHub](@ref)
-3. [Adding the Private Key to Travis](@ref)
+3. [Adding the Private Key](@ref)
 
 ## Generating an SSH Key
 
@@ -30,7 +30,7 @@ And the private key usually look something like this
 
 ### If you have `ssh-keygen` installed
 
-If you have `ssh-keygen` installed, but `Travis.genkeys()` didn't work, you can generate an
+If you have `ssh-keygen` installed, but `DocumenterTools.genkeys()` didn't work, you can generate an
 SSH key as follows. First, generate a key using `ssh-keygen` and save it to the file
 `privatekey`:
 
@@ -46,8 +46,7 @@ julia> using Base64
 julia> read("privatekey", String) |> base64encode |>  println
 ```
 
-Copy and paste the output somewhere. This is your *private key* and is required for the step
-[Adding the Private Key to Travis](@ref).
+Copy and paste the output somewhere. This is your *private key* and is required for the last step.
 
 Now we need to get the public key. Run the following command:
 
@@ -89,8 +88,7 @@ Now we need to save the public key somewhere.
 Finally, we need to save the private key somewhere.
 
 * Click the "Conversions" tab, and then click "Export OpenSSH key". Save that file
-  somewhere. That file is your *private key* and is required for the [Adding the Private Key
-  to Travis](@ref) step.
+  somewhere. That file is your *private key* and is required for the last step.
 
   ![](puttygen-export-private-key.png)
 
@@ -123,12 +121,13 @@ Now we need to fill in three pieces of information.
 3. Make sure that the "Allow write access" box is checked.
 
 Once you're done, click "Add key". Congratulations! You've added the public key
-to GitHub. The next step is to add the private key to Travis.
+to GitHub. The next step is to add the private key to Travis or GitHub Secrets.
 
 
-## Adding the Private Key to Travis
+## Adding the Private Key
 
-In this section, we explain how to upload a private SSH key to Travis. By this point, you
+In this section, we explain how to upload a private SSH key to Travis or GitHub Actions,
+depending on which service you will use for deploying your documentation. By this point, you
 should have generated a private key and saved it to a file. If you haven't done this, go
 read [Generating an SSH Key](@ref).
 
@@ -142,7 +141,9 @@ julia> read("path/to/private/key", String) |> base64encode |> println
 
 Copy the resulting output.
 
-Next, go to `https://travis-ci.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings`. Scroll down
+### Adding the Private Key to Travis
+
+Go to `https://travis-ci.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings`. Scroll down
 to the "Environment Variables" section. It should look like this:
 
 ![](travis-variables.png)
@@ -161,6 +162,13 @@ Congratulations! You've added the private key to Travis.
     access to your repository, so it must be kept safe.  Also, make sure that you never
     expose this variable in your tests, nor merge any code that does. You can read more
     about Travis environment variables in [Travis User Documentation](https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings).
+
+
+### Adding the Private Key to GitHub Secrets
+
+Go to `https://github.com/USER/REPO/settings/secrets` and press `Add new secret`.
+Use `DOCUMENTER_KEY` for the name, and the Base64 encoded key from the previous section
+as the value.
 
 ---
 
