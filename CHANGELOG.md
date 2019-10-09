@@ -10,6 +10,10 @@
 
 * ![BREAKING][badge-breaking] Documenter no longer creates a symlink between the old `latest` url to specified `devurl`. Make sure to update links in e.g. the package readme. ([#1151][github-1151])
 
+## Version `v0.23.4`
+
+* ![Bugfix][badge-bugfix] The `include` and `eval` functions are also available in `@setup` blocks now. ([#1148][github-1148], [#1153][github-1153])
+
 ## Version `v0.23.3`
 
 * ![Bugfix][badge-bugfix] Fix file permission error when `Pkg.test`ing Documenter. ([#1115][github-1115])
@@ -420,8 +424,10 @@
 [github-1137]: https://github.com/JuliaDocs/Documenter.jl/pull/1137
 [github-1144]: https://github.com/JuliaDocs/Documenter.jl/pull/1144
 [github-1147]: https://github.com/JuliaDocs/Documenter.jl/pull/1147
+[github-1148]: https://github.com/JuliaDocs/Documenter.jl/issues/1148
 [github-1151]: https://github.com/JuliaDocs/Documenter.jl/pull/1151
 [github-1152]: https://github.com/JuliaDocs/Documenter.jl/pull/1152
+[github-1153]: https://github.com/JuliaDocs/Documenter.jl/pull/1153
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
