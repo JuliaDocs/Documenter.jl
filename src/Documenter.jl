@@ -476,116 +476,131 @@ function git_push(
 
     target_dir = abspath(target)
 
-    # Extract host from repo as everything up to first ':' or '/' character
-    host = match(r"(.*?)[:\/]", repo)[1]
+    # Generate a closure with common commands for ssh and https
+    function git_commands()
+        # Setup git.
+        run(`git init`)
+        run(`git config user.name "zeptodoctor"`)
+        run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
 
-    # The upstream URL to which we push new content and the ssh decryption commands.
-    upstream = "git@$(replace(repo, "$host/" => "$host:"))"
-
-    keyfile = abspath(joinpath(root, ".documenter"))
-    try
-        write(keyfile, base64decode(documenter_key(deploy_config)))
-    catch e
-        @error """
-        Documenter failed to decode the DOCUMENTER_KEY environment variable.
-        Make sure that the environment variable is properly set up as a Base64-encoded string
-        of the SSH private key. You may need to re-generate the keys with DocumenterTools.
-        """
-        rm(keyfile; force=true)
-        rethrow(e)
-    end
-    chmod(keyfile, 0o600)
-
-    try
-        # Use a custom SSH config file to avoid overwriting the default user config.
-        withfile(joinpath(homedir(), ".ssh", "config"),
+        # Fetch from remote and checkout the branch.
+        run(`git remote add upstream $upstream`)
+        try
+            run(`git fetch upstream`)
+        catch e
+            @error """
+            Git failed to fetch $upstream
+            This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
+            Make sure that the environment variable is properly set up as a Base64-encoded string
+            of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            Host $host
-                StrictHostKeyChecking no
-                HostName $host
-                IdentityFile "$keyfile"
-                BatchMode yes
-            """
-        ) do
-            cd(temp) do
-                # Setup git.
-                run(`git init`)
-                run(`git config user.name "zeptodoctor"`)
-                run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+            rethrow(e)
+        end
 
-                # Fetch from remote and checkout the branch.
-                run(`git remote add upstream $upstream`)
-                try
-                    run(`git fetch upstream`)
-                catch e
-                    @error """
-                    Git failed to fetch $upstream
-                    This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
-                    Make sure that the environment variable is properly set up as a Base64-encoded string
-                    of the SSH private key. You may need to re-generate the keys with DocumenterTools.
-                    """
-                    rethrow(e)
-                end
+        try
+            run(`git checkout -b $branch upstream/$branch`)
+        catch e
+            @debug "checking out $branch failed with error: $e"
+            @debug "creating a new local $branch branch."
+            run(`git checkout --orphan $branch`)
+            run(`git commit --allow-empty -m "Initial empty commit for docs"`)
+        end
 
-                try
-                    run(`git checkout -b $branch upstream/$branch`)
-                catch e
-                    @debug "checking out $branch failed with error: $e"
-                    @debug "creating a new local $branch branch."
-                    run(`git checkout --orphan $branch`)
-                    run(`git commit --allow-empty -m "Initial empty commit for docs"`)
-                end
+        # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
+        tag = git_tag(deploy_config)
+        if tag === nothing
+            devurl_dir = joinpath(dirname, devurl)
+            gitrm_copy(target_dir, devurl_dir)
+            Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
+        else
+            tagged_dir = joinpath(dirname, tag)
+            gitrm_copy(target_dir, tagged_dir)
+            Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
+        end
 
-                # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
-                tag = git_tag(deploy_config)
-                if tag === nothing
-                    devurl_dir = joinpath(dirname, devurl)
-                    gitrm_copy(target_dir, devurl_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
+        # Expand the users `versions` vector
+        entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
+
+        # Create the versions.js file containing a list of `entries`.
+        # This must always happen after the folder copying.
+        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
+
+        # generate the symlinks, make sure we don't overwrite devurl
+        cd(dirname) do
+            for kv in symlinks
+                i = findfirst(x -> x.first == devurl, symlinks)
+                if i === nothing
+                    rm_and_add_symlink(kv.second, kv.first)
                 else
-                    tagged_dir = joinpath(dirname, tag)
-                    gitrm_copy(target_dir, tagged_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
-                end
-
-                # Expand the users `versions` vector
-                entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
-
-                # Create the versions.js file containing a list of `entries`.
-                # This must always happen after the folder copying.
-                Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
-
-                # generate the symlinks, make sure we don't overwrite devurl
-                cd(dirname) do
-                    for kv in symlinks
-                        i = findfirst(x -> x.first == devurl, symlinks)
-                        if i === nothing
-                            rm_and_add_symlink(kv.second, kv.first)
-                        else
-                            throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
-                                "`devurl = $(devurl)` with the same name.")))
-                        end
-                    end
-                end
-
-                # Add, commit, and push the docs to the remote.
-                run(`git add -A .`)
-                if !success(`git diff --cached --exit-code`)
-                    if forcepush
-                        run(`git commit --amend --date=now -m "build based on $sha"`)
-                        run(`git push -fq upstream HEAD:$branch`)
-                    else
-                        run(`git commit -m "build based on $sha"`)
-                        run(`git push -q upstream HEAD:$branch`)
-                    end
-                else
-                    @debug "new docs identical to the old -- not committing nor pushing."
+                    throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
+                        "`devurl = $(devurl)` with the same name.")))
                 end
             end
         end
-    finally
-        # Remove the unencrypted private key.
-        isfile(keyfile) && rm(keyfile)
+
+        # Add, commit, and push the docs to the remote.
+        run(`git add -A .`)
+        if !success(`git diff --cached --exit-code`)
+            if forcepush
+                run(`git commit --amend --date=now -m "build based on $sha"`)
+                run(`git push -fq upstream HEAD:$branch`)
+            else
+                run(`git commit -m "build based on $sha"`)
+                run(`git push -q upstream HEAD:$branch`)
+            end
+        else
+            @debug "new docs identical to the old -- not committing nor pushing."
+        end
+    end
+
+    if authentication_method(deploy_config) === SSH
+        # Extract host from repo as everything up to first ':' or '/' character
+        host = match(r"(.*?)[:\/]", repo)[1]
+
+        # The upstream URL to which we push new content and the ssh decryption commands.
+        upstream = "git@$(replace(repo, "$host/" => "$host:"))"
+
+        keyfile = abspath(joinpath(root, ".documenter"))
+        try
+            write(keyfile, base64decode(documenter_key(deploy_config)))
+        catch e
+            @error """
+            Documenter failed to decode the DOCUMENTER_KEY environment variable.
+            Make sure that the environment variable is properly set up as a Base64-encoded string
+            of the SSH private key. You may need to re-generate the keys with DocumenterTools.
+            """
+            rm(keyfile; force=true)
+            rethrow(e)
+        end
+        chmod(keyfile, 0o600)
+
+        try
+            # Use a custom SSH config file to avoid overwriting the default user config.
+            withfile(joinpath(homedir(), ".ssh", "config"),
+                """
+                Host $host
+                    StrictHostKeyChecking no
+                    HostName $host
+                    IdentityFile "$keyfile"
+                    BatchMode yes
+                """
+            ) do
+                cd(git_commands, temp)
+            end
+        catch e
+            @error "Failed to push:" e
+        finally
+            # Remove the unencrypted private key.
+            isfile(keyfile) && rm(keyfile)
+        end
+    else # authentication_method(deploy_config) === HTTPS
+        # The upstream URL to which we push new content authenticated with token
+        upstream = authenticated_repo_url(deploy_config)
+        try
+            cd(git_commands, temp)
+        catch e
+            @error "Failed to push:" e
+        end
     end
 end
 

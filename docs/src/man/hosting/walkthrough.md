@@ -1,6 +1,6 @@
 # SSH Deploy Keys Walkthrough
 
-If the instructions in [SSH Deploy Keys](@ref) did not work for you (for example,
+If the instructions in [Authentication: SSH Deploy Keys](@ref) did not work for you (for example,
 `ssh-keygen` is not installed), don't worry! This walkthrough will guide you through the
 process. There are three main steps:
 
@@ -126,8 +126,7 @@ to GitHub. The next step is to add the private key to Travis or GitHub Secrets.
 
 ## Adding the Private Key
 
-In this section, we explain how to upload a private SSH key to Travis or GitHub Actions,
-depending on which service you will use for deploying your documentation. By this point, you
+In this section, we explain how to upload a private SSH key to Travis. By this point, you
 should have generated a private key and saved it to a file. If you haven't done this, go
 read [Generating an SSH Key](@ref).
 
@@ -140,8 +139,6 @@ julia> read("path/to/private/key", String) |> base64encode |> println
 ```
 
 Copy the resulting output.
-
-### Adding the Private Key to Travis
 
 Go to `https://travis-ci.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings`. Scroll down
 to the "Environment Variables" section. It should look like this:
@@ -162,13 +159,6 @@ Congratulations! You've added the private key to Travis.
     access to your repository, so it must be kept safe.  Also, make sure that you never
     expose this variable in your tests, nor merge any code that does. You can read more
     about Travis environment variables in [Travis User Documentation](https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings).
-
-
-### Adding the Private Key to GitHub Secrets
-
-Go to `https://github.com/USER/REPO/settings/secrets` and press `Add new secret`.
-Use `DOCUMENTER_KEY` for the name, and the Base64 encoded key from the previous section
-as the value.
 
 ---
 
