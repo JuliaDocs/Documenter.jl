@@ -36,11 +36,49 @@ package repository:
 Note that the hosted documentation does not update when you make pull requests; you see
 updates only when you merge to `master` or push new tags.
 
-The following sections outline how to enable this for your own package.
+In the upcoming sections we describe how to configure the build service to run
+the documentation build stage. In general it is easiest to choose the same
+service as the one testing your package. If you don't explicitly select
+the service with the `deploy_config` keyword argument to `deploydocs`
+Documenter will try to automatically detect which system is running and use that.
 
+## Travis CI
 
-## SSH Deploy Keys
+To tell Travis that we want a new build stage we can add the following to the `.travis.yml`
+file:
 
+```yaml
+jobs:
+  include:
+    - stage: "Documentation"
+      julia: 1.0
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
+                                               Pkg.instantiate()'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip
+```
+
+where the `julia:` and `os:` entries decide the worker from which the docs are built and
+deployed. In the example above we will thus build and deploy the documentation from a linux
+worker running Julia 1.0. For more information on how to setup a build stage, see the Travis
+manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
+
+The three lines in the `script:` section do the following:
+
+ 1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
+ 2. Install your package in the doc-build environment.
+ 3. Run the docs/make.jl script, which builds and deploys the documentation.
+
+!!! note
+    If your package has a build script you should call
+    `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
+    sure the package is built properly.
+
+### Authentication: SSH Deploy Keys
+
+In order to push the generated documentation from Travis you need to add deploy keys.
 Deploy keys provide push access to a *single* repository, to allow secure deployment of
 generated documentation from the builder to GitHub. The SSH keys can be generated with
 `DocumenterTools.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl) package.
@@ -91,9 +129,7 @@ look similar to the text below:
 [SSH PUBLIC KEY HERE]
 
 [ Info: add a secure environment variable named 'DOCUMENTER_KEY' to
-  https://travis-ci.com/USER/REPO/settings (if you deploy using Travis CI) or
-  https://github.com/USER/REPO/settings/secrets (if you deploy using GitHub Actions)
-  with value:
+  https://travis-ci.com/USER/REPO/settings with value:
 
 [LONG BASE64 ENCODED PRIVATE KEY]
 ```
@@ -106,7 +142,7 @@ Follow the instructions that are printed out, namely:
     **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
     generated documentation to the repo.
 
- 2. Next add the long private key to the Travis/GitHub Actions settings page using the provided link.
+ 2. Next add the long private key to the Travis settings page using the provided link.
     Again note that you should include **no whitespace** when copying the key. In the **`Environment
     Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
     out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
@@ -123,50 +159,8 @@ Follow the instructions that are printed out, namely:
 
 !!! note
 
-    There are more explicit instructions for adding the keys to GitHub and Travis in the
+    There are more explicit instructions for adding the keys to Travis in the
     [SSH Deploy Keys Walkthrough](@ref) section of the manual.
-
-## Configuration files for the builder
-
-In the upcoming sections we describe how to configure the build service to run
-the documentation build stage. In general it is easiest to choose the same
-service as the one testing your package. If you don't explicitly select
-the service with the `deploy_config` keyword argument to `deploydocs`
-Documenter will try to automatically detect which system is running and use that.
-
-### Travis CI: `.travis.yml`
-
-To tell Travis that we want a new build stage we can add the following to the `.travis.yml`
-file:
-
-```yaml
-jobs:
-  include:
-    - stage: "Documentation"
-      julia: 1.0
-      os: linux
-      script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-                                               Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
-      after_success: skip
-```
-
-where the `julia:` and `os:` entries decide the worker from which the docs are built and
-deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1.0. For more information on how to setup a build stage, see the Travis
-manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
-
-The three lines in the `script:` section do the following:
-
- 1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
- 2. Install your package in the doc-build environment.
- 3. Run the docs/make.jl script, which builds and deploys the documentation.
-
-!!! note
-    If your package has a build script you should call
-    `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
-    sure the package is built properly.
 
 
 ### GitHub Actions
@@ -196,7 +190,7 @@ jobs:
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: julia --project=docs/ docs/make.jl
 ```
 
@@ -357,9 +351,11 @@ your own by following the simple interface described below.
 
 ```@docs
 Documenter.DeployConfig
-Documenter.documenter_key
-Documenter.git_tag
 Documenter.should_deploy
+Documenter.git_tag
+Documenter.authentication_method
+Documenter.authenticated_repo_url
+Documenter.documenter_key
 Documenter.Travis
 Documenter.GitHubActions
 ```

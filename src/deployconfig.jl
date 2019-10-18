@@ -10,6 +10,9 @@ abstract type DeployConfig end
 
 Return the Base64-encoded SSH private key for the repository.
 Defaults to reading the `DOCUMENTER_KEY` environment variable.
+
+This method must be supported by configs that push with SSH, see
+[`Documenter.authentication_method`](@ref).
 """
 function documenter_key(::DeployConfig)
     return ENV["DOCUMENTER_KEY"]
@@ -35,6 +38,28 @@ This function is called with the `repo` and `devbranch` arguments from
 """
 should_deploy(::DeployConfig; kwargs...) = false
 should_deploy(::Nothing; kwargs...) = false # when auto-detection fails
+
+@enum AuthenticationMethod SSH HTTPS
+
+"""
+    Documenter.authentication_method(::DeployConfig)
+
+Return enum instance `SSH` or `HTTPS` depending on push method to be used.
+
+Configs returning `SSH` should support [`Documenter.documenter_key`](@ref).
+Configs returning `HTTPS` should support [`Documenter.authenticated_repo_url`](@ref).
+"""
+authentication_method(::DeployConfig) = SSH
+
+"""
+    Documenter.authenticated_repo_url(cfg::DeployConfig)
+
+Return an authenticated URL to the upstream repository.
+
+This method must be supported by configs that push with HTTPS, see
+[`Documenter.authentication_method`](@ref).
+"""
+function authenticated_repo_url end
 
 #############
 # Travis CI #
@@ -177,20 +202,26 @@ function should_deploy(cfg::GitHubActions; repo, devbranch, kwargs...)
     ## If no tag exists deploydocs' devbranch should match the current branch
     m = match(r"^refs/heads/(.*)$", cfg.github_ref)
     branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
-    ## DOCUMENTER_KEY should exist (just check here and extract the value later)
-    key_ok = haskey(ENV, "DOCUMENTER_KEY")
-    # ## Cron jobs should not deploy
-    # type_ok = cfg.travis_event_type != "cron"
-    all_ok = repo_ok && pr_ok && (tag_ok || branch_ok) && key_ok # && type_ok
+    ## GITHUB_ACTOR should exist (just check here and extract the value later)
+    actor_ok = haskey(ENV, "GITHUB_ACTOR")
+    ## GITHUB_TOKEN should exist (just check here and extract the value later)
+    token_ok = haskey(ENV, "GITHUB_TOKEN")
+    all_ok = repo_ok && pr_ok && (tag_ok || branch_ok) && actor_ok && token_ok
     marker(x) = x ? "✔" : "✘"
     @info """Deployment criteria for deploying with GitHub Actions:
     - $(marker(repo_ok)) ENV["GITHUB_REPOSITORY"]="$(cfg.github_repository)" occurs in repo="$(repo)"
     - $(marker(pr_ok)) ENV["GITHUB_EVENT_NAME"]="$(cfg.github_event_name)" is "push"
     - $(marker(tag_ok || branch_ok)) ENV["GITHUB_REF"]="$(cfg.github_ref)" corresponds to a tag or matches devbranch="$(devbranch)"
-    - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
+    - $(marker(actor_ok)) ENV["GITHUB_ACTOR"] exists
+    - $(marker(token_ok)) ENV["GITHUB_TOKEN"] exists
     Deploying: $(marker(all_ok))
     """
     return all_ok
+end
+
+authentication_method(::GitHubActions) = HTTPS
+function authenticated_repo_url(cfg::GitHubActions)
+    return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
 
 # Obtain git tag for the build
