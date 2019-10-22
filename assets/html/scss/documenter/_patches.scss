@@ -22,6 +22,12 @@
     @extend .tag;
     @extend .is-dark;
   }
+  //
+  blockquote, .admonition-body {
+    > ul:first-child, > ol:first-child {
+      margin-top: 0;
+    }
+  }
 }
 
 // We want to be able to disable certain breadcrumb components
