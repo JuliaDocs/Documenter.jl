@@ -15,6 +15,7 @@ matrix:
 
 branches:
   only:
+    - /.*/
     - master
     - /^release-.*$/
     - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
