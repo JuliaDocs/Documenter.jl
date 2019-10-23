@@ -7308,6 +7308,8 @@ html.theme--documenter-dark {
     width: initial;
     max-width: 100%;
     overflow-x: auto; }
+  html.theme--documenter-dark .content blockquote > ul:first-child, html.theme--documenter-dark .content blockquote > ol:first-child, html.theme--documenter-dark .content .admonition-body > ul:first-child, html.theme--documenter-dark .content .admonition-body > ol:first-child {
+    margin-top: 0; }
   html.theme--documenter-dark .breadcrumb a.is-disabled {
     cursor: default;
     pointer-events: none; }

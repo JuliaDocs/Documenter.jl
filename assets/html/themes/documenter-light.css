@@ -7243,6 +7243,9 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
   max-width: 100%;
   overflow-x: auto; }
 
+.content blockquote > ul:first-child, .content blockquote > ol:first-child, .content .admonition-body > ul:first-child, .content .admonition-body > ol:first-child {
+  margin-top: 0; }
+
 .breadcrumb a.is-disabled {
   cursor: default;
   pointer-events: none; }
