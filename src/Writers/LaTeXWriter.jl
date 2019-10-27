@@ -134,15 +134,21 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             end
             cp(STYLE, "documenter.sty")
 
-            # compile .tex and copy over the .pdf file if compile_tex return true
+            # compile .tex
             status = compile_tex(doc, settings, texfile)
-            status && cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
 
             # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
             # source files over to a directory under doc.user.root.
             if haskey(ENV, "DOCUMENTER_LATEX_DEBUG")
                 sources = cp(pwd(), mktempdir(doc.user.root), force=true)
                 @info "LaTeX sources copied for debugging to $(sources)"
+            end
+
+            # If the build was successful, copy of the PDF to the .build directory
+            if status
+                cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
+            else
+                error("Compiling the .tex file failed. See logs for more information.")
             end
         end
     end
