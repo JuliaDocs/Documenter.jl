@@ -1,5 +1,10 @@
 using Test
 
+# DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
+# make.jl. But for the tests we need to make sure that all the relevant builds
+# ran.
+haskey(ENV, "DOCUMENTER_TEST_EXAMPLES") && error("DOCUMENTER_TEST_EXAMPLES env. variable is set")
+
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl
 # has to be expected in the context of the Main module.
@@ -13,6 +18,56 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
 end
 
 @testset "Examples" begin
+    @testset "HTML: deploy" begin
+        doc = Main.examples_html_doc
+
+        @test isa(doc, Documenter.Documents.Document)
+
+        let build_dir = joinpath(examples_root, "builds", "html")
+            @test joinpath(build_dir, "index.html") |> isfile
+            @test joinpath(build_dir, "omitted", "index.html") |> isfile
+            @test joinpath(build_dir, "hidden", "index.html") |> isfile
+            @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
+
+            # Test existence of some HTML elements
+            indexhtml = String(read(joinpath(build_dir, "index.html")))
+            #@test occursin("", indexhtml)
+
+            # Assets
+            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+
+            # This build includes erlang and erlang-repl highlighting
+            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
+            @test occursin("languages/julia.min", documenterjs)
+            @test occursin("languages/julia-repl.min", documenterjs)
+            @test occursin("languages/erlang-repl.min", documenterjs)
+            @test occursin("languages/erlang.min", documenterjs)
+        end
+    end
+
+    @testset "HTML: local" begin
+        doc = Main.examples_html_local_doc
+
+        @test isa(doc, Documenter.Documents.Document)
+
+        let build_dir = joinpath(examples_root, "builds", "html-local")
+
+            index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
+
+            @test isfile(joinpath(build_dir, "index.html"))
+            @test isfile(joinpath(build_dir, "omitted.html"))
+            @test isfile(joinpath(build_dir, "hidden.html"))
+            @test isfile(joinpath(build_dir, "lib", "autodocs.html"))
+
+            # Assets
+            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
+            @test occursin("languages/julia.min", documenterjs)
+            @test occursin("languages/julia-repl.min", documenterjs)
+        end
+    end
+
     @testset "Markdown" begin
         doc = Main.examples_markdown_doc
 
@@ -50,7 +105,7 @@ end
 
         @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-        @test length(doc.blueprint.pages) == 16
+        @test length(doc.blueprint.pages) == 17
 
         let headers = doc.internal.headers
             @test Documenter.Anchors.exists(headers, "Documentation")
@@ -73,55 +128,5 @@ end
         end
 
         @test length(doc.internal.objects) == 41
-    end
-
-    @testset "HTML: local" begin
-        doc = Main.examples_html_local_doc
-
-        @test isa(doc, Documenter.Documents.Document)
-
-        let build_dir = joinpath(examples_root, "builds", "html-local")
-
-            index_html = read(joinpath(build_dir, "index.html"), String)
-            @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
-
-            @test isfile(joinpath(build_dir, "index.html"))
-            @test isfile(joinpath(build_dir, "omitted.html"))
-            @test isfile(joinpath(build_dir, "hidden.html"))
-            @test isfile(joinpath(build_dir, "lib", "autodocs.html"))
-
-            # Assets
-            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
-            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
-            @test occursin("languages/julia.min", documenterjs)
-            @test occursin("languages/julia-repl.min", documenterjs)
-        end
-    end
-
-    @testset "HTML: deploy" begin
-        doc = Main.examples_html_deploy_doc
-
-        @test isa(doc, Documenter.Documents.Document)
-
-        let build_dir = joinpath(examples_root, "builds", "html-deploy")
-            @test joinpath(build_dir, "index.html") |> isfile
-            @test joinpath(build_dir, "omitted", "index.html") |> isfile
-            @test joinpath(build_dir, "hidden", "index.html") |> isfile
-            @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
-
-            # Test existence of some HTML elements
-            indexhtml = String(read(joinpath(build_dir, "index.html")))
-            #@test occursin("", indexhtml)
-
-            # Assets
-            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
-
-            # This build includes erlang and erlang-repl highlighting
-            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
-            @test occursin("languages/julia.min", documenterjs)
-            @test occursin("languages/julia-repl.min", documenterjs)
-            @test occursin("languages/erlang-repl.min", documenterjs)
-            @test occursin("languages/erlang.min", documenterjs)
-        end
     end
 end

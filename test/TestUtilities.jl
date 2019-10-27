@@ -4,6 +4,10 @@ using Documenter.Utilities: withoutput
 
 export @quietly
 
+const QUIETLY_LOG = joinpath(@__DIR__, "quietly.log")
+
+__init__() = isfile(QUIETLY_LOG) && rm(QUIETLY_LOG)
+
 struct QuietlyException <: Exception
     exception
     backtrace
@@ -16,6 +20,21 @@ end
 
 function _quietly(f, expr, source)
     result, success, backtrace, output = withoutput(f)
+    haskey(ENV, "DOCUMENTER_TEST_QUIETLY") && open(QUIETLY_LOG; write=true, append=true) do io
+        println(io, "@quietly: success = $(success) / $(sizeof(output)) bytes of output captured")
+        println(io, "@quietly: $(source.file):$(source.line)")
+        println(io, "@quietly: typeof(result) = ", typeof(result))
+        println(io, "@quietly: STDOUT")
+        println(io, output)
+        println(io, "@quietly: end of STDOUT")
+        if success
+            println(io, "@quietly: result =")
+            println(io, result)
+        else
+            println(io, "@quietly: result (error) =")
+            showerror(io, result, backtrace)
+        end
+    end
     if success
         printstyled("@quietly: success, $(sizeof(output)) bytes of output hidden\n"; color=:magenta)
         return result
