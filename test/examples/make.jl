@@ -241,3 +241,38 @@ else
     @info "Skipping build: Markdown" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
+
+# PDF/LaTeX
+examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/simple")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX Simple",
+        root  = examples_root,
+        build = "builds/latex_simple",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/simple" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_nondocker")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(),
+        sitename = "Documenter LaTeX Simple Non-Docker",
+        root  = examples_root,
+        build = "builds/latex_simple_nondocker",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_nondocker" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
