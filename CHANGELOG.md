@@ -8,6 +8,10 @@
 
 * ![Enhancement][badge-enhancement] In the PDF/LaTeX output, images that are wider than the text are now being scaled down to text width automatically. The PDF builds now require the [adjustbox](https://ctan.org/pkg/adjustbox) LaTeX package to be available. ([#1137][github-1137])
 
+* ![Enhancement][badge-enhancement] If the TeX compilation fails for the PDF/LaTeX output, `makedocs` now throws an exception. ([#1166][github-1166])
+
+* ![Bugfix][badge-bugfix] `LaTeXWriter` now outputs valid LaTeX if an `@contents` block is nested by more than two levels, or if `@contents` or `@index` blocks do not contain any items. ([#1166][github-1166])
+
 * ![BREAKING][badge-breaking] Documenter no longer creates a symlink between the old `latest` url to specified `devurl`. Make sure to update links in e.g. the package readme. ([#1151][github-1151])
 
 ## Version `v0.23.4`
@@ -428,6 +432,7 @@
 [github-1151]: https://github.com/JuliaDocs/Documenter.jl/pull/1151
 [github-1152]: https://github.com/JuliaDocs/Documenter.jl/pull/1152
 [github-1153]: https://github.com/JuliaDocs/Documenter.jl/pull/1153
+[github-1166]: https://github.com/JuliaDocs/Documenter.jl/pull/1166
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
