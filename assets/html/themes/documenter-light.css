@@ -7237,6 +7237,9 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
   font-weight: inherit;
   word-break: break-word; }
 
+.content a code {
+  color: #0b5bda; }
+
 .content table {
   display: block;
   width: initial;

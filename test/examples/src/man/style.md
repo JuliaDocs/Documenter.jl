@@ -41,3 +41,7 @@ In block quotes
 !!! note
     1. asd
     2. asdf
+
+## Links and code spans
+
+Lorem [ipsum](#) dolor sit [`amet`](#), consectetur adipiscing `elit`.

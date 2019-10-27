@@ -7303,6 +7303,8 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .content code {
     font-weight: inherit;
     word-break: break-word; }
+  html.theme--documenter-dark .content a code {
+    color: #1abc9c; }
   html.theme--documenter-dark .content table {
     display: block;
     width: initial;

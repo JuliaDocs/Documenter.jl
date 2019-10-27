@@ -10,6 +10,9 @@
     // liberal with word breaks for them
     word-break: break-word;
   }
+  a code {
+    color: $link;
+  }
   // Don't make tables full-width and make sure that overflowing tables are scrollable
   table {
     display: block;
