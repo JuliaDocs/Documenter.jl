@@ -352,7 +352,6 @@ function latex(io::IO, contents::Documents.ContentsNode, page, doc)
         _print(io, "\\item \\hyperlink{", id, "}{")
         latexinline(io, header.text)
         _println(io, "}")
-        @assert depth == level
     end
     # print any remaining missing \end{itemize} statements
     for _ = 1:depth; _println(io, "\\end{itemize}"); end
