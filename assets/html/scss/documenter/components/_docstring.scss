@@ -16,6 +16,10 @@
     box-shadow: $card-header-shadow;
     box-shadow: none;
     border-bottom: 1px solid $border;
+
+    code {
+      background-color: transparent;
+    }
   }
 
   > section {

@@ -7282,6 +7282,8 @@ html.theme--documenter-dark {
       box-shadow: 0 1px 2px rgba(10, 10, 10, 0.1);
       box-shadow: none;
       border-bottom: 1px solid #5e6d6f; }
+      html.theme--documenter-dark .docstring > header code {
+        background-color: transparent; }
     html.theme--documenter-dark .docstring > section {
       position: relative;
       padding: 1.5rem;
