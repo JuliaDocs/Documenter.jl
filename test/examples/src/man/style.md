@@ -46,6 +46,12 @@ In block quotes
 
 Lorem [ipsum](#) dolor sit [`amet`](#), consectetur adipiscing `elit`.
 
+## Code blocks
+
+```julia
+foo = "Example of string $(interpolation)."
+```
+
 ## Footnote rendering
 
 This sentence has a footnote.[^5]
