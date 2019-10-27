@@ -63,3 +63,9 @@
   top: 0;
   right: 0;
 }
+
+// Set font subpixel rendering to auto on the HTML tag
+html {
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+}

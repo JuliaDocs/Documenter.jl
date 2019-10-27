@@ -7263,6 +7263,10 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
   top: 0;
   right: 0; }
 
+html {
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto; }
+
 /* This file contain the overall layout.
  *
  * The main container is <div> that is identified by id #documenter.

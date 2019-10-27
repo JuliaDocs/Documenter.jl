@@ -7323,6 +7323,9 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .katex .katex-mathml {
     top: 0;
     right: 0; }
+  html.theme--documenter-dark html {
+    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: auto; }
   @media screen and (min-width: 1056px) {
     html.theme--documenter-dark #documenter .docs-main {
       max-width: 52rem;
@@ -7566,8 +7569,6 @@ html.theme--documenter-dark {
   html.theme--documenter-dark {
     background-color: #1f2424;
     font-size: 16px;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
     min-width: 300px;
     overflow-x: auto;
     overflow-y: scroll;
