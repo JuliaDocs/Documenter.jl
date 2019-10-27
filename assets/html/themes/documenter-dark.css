@@ -1127,7 +1127,7 @@ html.theme--documenter-dark {
     color: #e74c3c;
     font-size: 0.875em;
     font-weight: normal;
-    padding: 0.25em 0.5em 0.25em; }
+    padding: 0.1em; }
   html.theme--documenter-dark hr {
     background-color: #282f2f;
     border: none;
