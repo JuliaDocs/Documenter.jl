@@ -1056,7 +1056,8 @@ function render_article(ctx, navnode)
             else
                 li["#$(fid).footnote"](
                     a[".tag.is-link", :href => "#$(citerefid)"](f.id),
-                    mdconvert(f.text),
+                    # passing an empty MD() as `parent` to give it block context
+                    mdconvert(f.text, Markdown.MD()),
                 )
             end
         end

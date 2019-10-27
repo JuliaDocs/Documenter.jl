@@ -45,3 +45,14 @@ In block quotes
 ## Links and code spans
 
 Lorem [ipsum](#) dolor sit [`amet`](#), consectetur adipiscing `elit`.
+
+## Footnote rendering
+
+This sentence has a footnote.[^5]
+
+[^5]: An example of how you can benchmark a log density with gradient `∇P`, obtained as described below:
+    ```julia
+    using BenchmarkTools, LogDensityProblems
+    x = randn(LogDensityProblems.dimension(∇P))
+    @benchmark LogDensityProblems.logdensity_and_gradient($∇P, $x)
+    ```
