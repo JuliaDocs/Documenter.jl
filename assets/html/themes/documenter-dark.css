@@ -7255,6 +7255,10 @@ html.theme--documenter-dark {
       border-bottom: 1px solid #5e6d6f; }
       html.theme--documenter-dark .docstring > header code {
         background-color: transparent; }
+      html.theme--documenter-dark .docstring > header .docstring-binding {
+        margin-right: 0.3em; }
+      html.theme--documenter-dark .docstring > header .docstring-category {
+        margin-left: 0.3em; }
     html.theme--documenter-dark .docstring > section {
       position: relative;
       padding: 1.5rem;

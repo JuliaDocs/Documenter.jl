@@ -7215,6 +7215,10 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
     border-bottom: 1px solid #dbdbdb; }
     .docstring > header code {
       background-color: transparent; }
+    .docstring > header .docstring-binding {
+      margin-right: 0.3em; }
+    .docstring > header .docstring-category {
+      margin-left: 0.3em; }
   .docstring > section {
     position: relative;
     padding: 1.5rem;

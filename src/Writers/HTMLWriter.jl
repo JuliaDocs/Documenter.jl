@@ -1279,8 +1279,7 @@ function domify(ctx, navnode, node::Documents.DocsNode)
         header(
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Utilities.doccat(node.object))"),
-            "."
+            span[".docstring-category"]("$(Utilities.doccat(node.object))")
         ),
         domify_doc(ctx, navnode, node.docstr)
     )
