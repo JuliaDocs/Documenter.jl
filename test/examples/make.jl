@@ -160,6 +160,7 @@ htmlbuild_pages = Any[
         "expandorder/AA.md",
     ],
     "unicode.md",
+    "latex.md",
 ]
 
 # Build with pretty URLs and canonical links and a PNG logo
@@ -257,6 +258,46 @@ examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: LaTeXWriter/simple" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_doc = if "latex" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root  = examples_root,
+        build = "builds/latex",
+        pages = htmlbuild_pages = Any[
+            "General" => [
+                "index.md",
+                "latex.md",
+                "unicode.md",
+                hide("hidden.md"),
+            ],
+            # man/tutorial.md can't be built because it contains SVG images
+            # "Manual" => ["man/tutorial.md"],
+            hide("Hidden Pages" => "hidden/index.md", Any[
+                "Page X" => "hidden/x.md",
+                "hidden/y.md",
+                "hidden/z.md",
+            ]),
+            "Library" => [
+                "lib/functions.md",
+                "lib/autodocs.md",
+                "lib/editurl.md",
+            ],
+            "Expandorder" => [
+                "expandorder/00.md",
+                "expandorder/01.md",
+                "expandorder/AA.md",
+            ],
+        ],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
