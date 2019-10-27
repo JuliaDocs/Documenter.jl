@@ -140,7 +140,9 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
             # source files over to a directory under doc.user.root.
             if haskey(ENV, "DOCUMENTER_LATEX_DEBUG")
-                sources = cp(pwd(), mktempdir(doc.user.root), force=true)
+                dst = isempty(ENV["DOCUMENTER_LATEX_DEBUG"]) ? mktempdir(doc.user.root) :
+                    joinpath(doc.user.root, ENV["DOCUMENTER_LATEX_DEBUG"])
+                sources = cp(pwd(), dst, force=true)
                 @info "LaTeX sources copied for debugging to $(sources)"
             end
 
@@ -303,6 +305,10 @@ end
 ## Index, Contents, and Eval Nodes.
 
 function latex(io::IO, index::Documents.IndexNode, page, doc)
+    # Having an empty itemize block in LaTeX throws an error, so we bail early
+    # in that situation:
+    isempty(index.elements) && (_println(io); return)
+
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
         id = string(hash(string(Utilities.slugify(object))))
@@ -316,22 +322,40 @@ function latex(io::IO, index::Documents.IndexNode, page, doc)
 end
 
 function latex(io::IO, contents::Documents.ContentsNode, page, doc)
+    # Having an empty itemize block in LaTeX throws an error, so we bail early
+    # in that situation:
+    isempty(contents.elements) && (_println(io); return)
+
     depth = 1
-    needs_end = false
     _println(io, "\\begin{itemize}")
     for (count, path, anchor) in contents.elements
         header = anchor.object
         level = Utilities.header_level(header)
         id = string(hash(string(anchor.id, "-", anchor.nth)))
-        level < depth && (_println(io, "\\end{itemize}"); needs_end = false)
-        level > depth && (_println(io, "\\begin{itemize}"); needs_end = true)
+        # If we're changing depth, we need to make sure we always print the
+        # correct number of \begin{itemize} and \end{itemize} statements.
+        if level > depth
+            for k in 1:(level - depth)
+                # if we jump by more than one level deeper we need to put empty
+                # \items in -- otherwise LaTeX will complain
+                (k >= 2) && _println(io, "\\item ~")
+                _println(io, "\\begin{itemize}")
+                depth += 1
+            end
+        elseif level < depth
+            for _ in 1:(depth - level)
+                _println(io, "\\end{itemize}")
+                depth -= 1
+            end
+        end
+        # Print the corresponding \item statement
         _print(io, "\\item \\hyperlink{", id, "}{")
         latexinline(io, header.text)
         _println(io, "}")
-        depth = level
+        @assert depth == level
     end
-    needs_end && _println(io, "\\end{itemize}")
-    _println(io, "\\end{itemize}")
+    # print any remaining missing \end{itemize} statements
+    for _ = 1:depth; _println(io, "\\end{itemize}"); end
     _println(io)
 end
 
