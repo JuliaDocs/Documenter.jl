@@ -7474,7 +7474,6 @@ html {
         margin-top: 0.5rem; }
       #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem {
         width: 100%;
-        color: gray;
         padding: 0; }
         #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem::before {
           content: "⚬";

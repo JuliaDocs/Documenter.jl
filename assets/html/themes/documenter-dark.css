@@ -7524,7 +7524,6 @@ html.theme--documenter-dark {
           margin-top: 0.5rem; }
         html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem {
           width: 100%;
-          color: gray;
           padding: 0; }
           html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem::before {
             content: "⚬";
