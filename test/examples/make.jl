@@ -276,11 +276,11 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
                 "unicode.md",
                 hide("hidden.md"),
             ],
-            "Manual" => [
-                # man/tutorial.md can't be built because it contains SVG images
-                #"man/tutorial.md",
-                "man/style.md",
-            ],
+            # SVG images nor code blocks in footnotes are allowed in LaTeX
+            # "Manual" => [
+            #     "man/tutorial.md",
+            #     "man/style.md",
+            # ],
             hide("Hidden Pages" => "hidden/index.md", Any[
                 "Page X" => "hidden/x.md",
                 "hidden/y.md",
