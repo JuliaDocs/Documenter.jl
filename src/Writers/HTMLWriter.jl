@@ -351,7 +351,6 @@ const fontawesome_css = [
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/solid.min.css",
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/brands.min.css",
 ]
-const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
 const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
 
 "Provides a namespace for JS dependencies."
@@ -374,7 +373,10 @@ module JS
     # highlight.js
     "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
     function highlightjs!(r::RequireJS, languages = String[])
-        hljs_version = "9.15.9"
+        # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
+        # When updating this dependency, it is also necessary to update the the CSS
+        # files the CSS files in assets/html/scss/highlightjs
+        hljs_version = "9.15.10"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -715,7 +717,6 @@ function render_head(ctx, navnode)
     css_links = [
         google_fonts,
         fontawesome_css...,
-        highlightjs_css,
         katex_css,
     ]
     head(
@@ -1056,7 +1057,8 @@ function render_article(ctx, navnode)
             else
                 li["#$(fid).footnote"](
                     a[".tag.is-link", :href => "#$(citerefid)"](f.id),
-                    mdconvert(f.text),
+                    # passing an empty MD() as `parent` to give it block context
+                    mdconvert(f.text, Markdown.MD()),
                 )
             end
         end
@@ -1277,8 +1279,7 @@ function domify(ctx, navnode, node::Documents.DocsNode)
         header(
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Utilities.doccat(node.object))"),
-            "."
+            span[".docstring-category"]("$(Utilities.doccat(node.object))")
         ),
         domify_doc(ctx, navnode, node.docstr)
     )

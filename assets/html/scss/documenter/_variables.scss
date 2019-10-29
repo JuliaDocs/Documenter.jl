@@ -5,7 +5,7 @@
 // ------
 $primary: #4eb5de !default;
 $red: #da0b00 !default;
-$blue: #0b5bda !default;
+$blue: #2e63b8 !default;
 $green: #22c35b !default;
 $turquoise: #1db5c9 !default;
 $text: #222222 !default;
@@ -14,6 +14,7 @@ $text-strong: $text !default;
 // to make sure it always renders nicely, we'll just use transparent black color to make the
 // background of the <code> elements slightly darker.
 $code-background: rgba(0, 0, 0, 0.05);
+$code-padding: 0.1em;
 
 $documenter-docstring-background: transparent !default;
 

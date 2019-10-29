@@ -133,8 +133,8 @@ end
 using Documenter, DocumenterMarkdown
 isdefined(@__MODULE__, :TestUtilities) || (include("../TestUtilities.jl"); using .TestUtilities)
 
-const examples_root = @__DIR__
-const builds_directory = joinpath(examples_root, "builds")
+examples_root = @__DIR__
+builds_directory = joinpath(examples_root, "builds")
 ispath(builds_directory) && rm(builds_directory, recursive=true)
 
 expandfirst = ["expandorder/AA.md"]
@@ -142,6 +142,7 @@ htmlbuild_pages = Any[
     "**Home**" => "index.md",
     "Manual" => [
         "man/tutorial.md",
+        "man/style.md",
     ],
     hide("hidden.md"),
     "Library" => [
@@ -275,8 +276,11 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
                 "unicode.md",
                 hide("hidden.md"),
             ],
-            # man/tutorial.md can't be built because it contains SVG images
-            # "Manual" => ["man/tutorial.md"],
+            # SVG images nor code blocks in footnotes are allowed in LaTeX
+            # "Manual" => [
+            #     "man/tutorial.md",
+            #     "man/style.md",
+            # ],
             hide("Hidden Pages" => "hidden/index.md", Any[
                 "Page X" => "hidden/x.md",
                 "hidden/y.md",
