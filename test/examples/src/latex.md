@@ -20,3 +20,11 @@ Pages = ["does-not-exist.md"]
 ```@index
 Pages = ["does-not-exist.md"]
 ```
+
+## Issue 1119
+
+```julia
+1 % 2
+1 ⊻ 2
+1 | 2
+```
