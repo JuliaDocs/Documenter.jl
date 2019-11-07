@@ -10,6 +10,9 @@
     // liberal with word breaks for them
     word-break: break-word;
   }
+  a code {
+    color: $link;
+  }
   // Don't make tables full-width and make sure that overflowing tables are scrollable
   table {
     display: block;
@@ -21,6 +24,12 @@
   kbd {
     @extend .tag;
     @extend .is-dark;
+  }
+  //
+  blockquote, .admonition-body {
+    > ul:first-child, > ol:first-child {
+      margin-top: 0;
+    }
   }
 }
 
@@ -53,4 +62,10 @@
 .katex .katex-mathml {
   top: 0;
   right: 0;
+}
+
+// Set font subpixel rendering to auto on the HTML tag
+html {
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
 }

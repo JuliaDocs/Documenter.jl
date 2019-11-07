@@ -52,6 +52,9 @@ include("TestUtilities.jl"); using .TestUtilities
     # HTMLWriter
     include("htmlwriter.jl")
 
+    # Deployment configurations
+    include("deployconfig.jl")
+
     # Mock package docs.
     include("examples/tests.jl")
 
