@@ -7240,8 +7240,7 @@ h1:hover .docs-heading-anchor, h2:hover .docs-heading-anchor, h3:hover .docs-hea
   border: 1px solid #dbdbdb; }
 
 .content code {
-  font-weight: inherit;
-  word-break: break-word; }
+  font-weight: inherit; }
 
 .content a code {
   color: #2e63b8; }
@@ -7277,6 +7276,9 @@ html {
  *
  * The main container is <div> that is identified by id #documenter.
  */
+#documenter .docs-main > article {
+  overflow-wrap: break-word; }
+
 @media screen and (min-width: 1056px) {
   #documenter .docs-main {
     max-width: 52rem;
