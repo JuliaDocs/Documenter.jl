@@ -580,8 +580,10 @@ function git_push(
                 """
                 Host $host
                     StrictHostKeyChecking no
+                    User git
                     HostName $host
                     IdentityFile "$keyfile"
+                    IdentitiesOnly yes
                     BatchMode yes
                 """
             ) do
