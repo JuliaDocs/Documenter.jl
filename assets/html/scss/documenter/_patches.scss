@@ -6,9 +6,6 @@
   // Bold code spans
   code {
     font-weight: inherit;
-    // long unbreakable code snippets can happen, so we'll be slightly more
-    // liberal with word breaks for them
-    word-break: break-word;
   }
   a code {
     color: $link;
