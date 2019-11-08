@@ -7278,8 +7278,7 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .content pre {
     border: 1px solid #5e6d6f; }
   html.theme--documenter-dark .content code {
-    font-weight: inherit;
-    word-break: break-word; }
+    font-weight: inherit; }
   html.theme--documenter-dark .content a code {
     color: #1abc9c; }
   html.theme--documenter-dark .content table {
@@ -7303,6 +7302,8 @@ html.theme--documenter-dark {
   html.theme--documenter-dark html {
     -moz-osx-font-smoothing: auto;
     -webkit-font-smoothing: auto; }
+  html.theme--documenter-dark #documenter .docs-main > article {
+    overflow-wrap: break-word; }
   @media screen and (min-width: 1056px) {
     html.theme--documenter-dark #documenter .docs-main {
       max-width: 52rem;
