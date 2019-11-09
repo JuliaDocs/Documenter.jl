@@ -18,7 +18,7 @@
 
   **Possible breakage:** Packages overriding the default Documenter CSS file, relying on some external CSS or relying on Documenter's CSS working in a particular way will not build correct-looking sites. Custom themes should now be developed as Sass files and compiled together with the Documenter and Bulma Sass dependencies (under `assets/html/scss`).
 
-* ![Feature][badge-feature] Deployment is now more customizable and thus not as tied to Travis CI as before. ([#1147][github-1147])
+* ![Feature][badge-feature] Deployment is now more customizable and thus not as tied to Travis CI as before. ([#1147][github-1147], [#1171][github-1171])
 
 * ![Feature][badge-feature] Documenter now has builtin support for deploying from GitHub Actions. Documenter will autodetect the running system, unless explicitly specified. ([#1144][github-1144], [#1152][github-1152])
 
@@ -469,6 +469,7 @@
 [github-1152]: https://github.com/JuliaDocs/Documenter.jl/pull/1152
 [github-1153]: https://github.com/JuliaDocs/Documenter.jl/pull/1153
 [github-1166]: https://github.com/JuliaDocs/Documenter.jl/pull/1166
+[github-1171]: https://github.com/JuliaDocs/Documenter.jl/pull/1171
 
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
