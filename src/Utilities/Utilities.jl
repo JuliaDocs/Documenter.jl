@@ -663,6 +663,12 @@ function display_dict(x)
     return out
 end
 
+# Default
+struct Default{T}
+    value :: T
+end
+Base.getindex(default::Default) = default.value
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
