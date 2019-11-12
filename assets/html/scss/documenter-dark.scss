@@ -90,5 +90,9 @@ html.theme--#{$themename} {
   // }
 
   // FIXME: Hack to get a proper theme for highlight.js in the Darkly theme
-  @import "a11y-dark";
+  @import "highlightjs/a11y-dark";
+  // Also, a11y-dark does not highlight string interpolation properly.
+  .hljs-subst {
+    color: #f8f8f2;
+  }
 }

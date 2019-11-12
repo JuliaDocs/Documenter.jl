@@ -16,6 +16,17 @@
     box-shadow: $card-header-shadow;
     box-shadow: none;
     border-bottom: 1px solid $border;
+
+    code {
+      background-color: transparent;
+    }
+
+    .docstring-binding {
+      margin-right: 0.3em;
+    }
+    .docstring-category {
+      margin-left: 0.3em;
+    }
   }
 
   > section {

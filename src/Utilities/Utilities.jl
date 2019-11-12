@@ -663,6 +663,28 @@ function display_dict(x)
     return out
 end
 
+"""
+    struct Default{T}
+
+Internal wrapper type that is meant to be used in situations where it is necessary to
+distinguish whether the user explicitly passed the same value as the default value to a
+keyword argument, or whether the keyword argument was not passed at all.
+
+```julia
+function foo(; kwarg = Default("default value"))
+    if isa(kwarg, Default)
+        # User did not explicitly pass a value for kwarg
+    else kwarg === "default value"
+        # User passed "default value" explicitly
+    end
+end
+```
+"""
+struct Default{T}
+    value :: T
+end
+Base.getindex(default::Default) = default.value
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")

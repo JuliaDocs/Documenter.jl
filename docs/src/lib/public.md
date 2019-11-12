@@ -36,6 +36,5 @@ DocMeta.setdocmeta!
 
 ```@docs
 DocumenterTools.generate
-DocumenterTools.Travis.genkeys
-DocumenterTools.Travis
+DocumenterTools.genkeys
 ```

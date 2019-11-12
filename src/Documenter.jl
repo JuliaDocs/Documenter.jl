@@ -289,6 +289,8 @@ makedocs(
 hide(root::Pair, children) = (true, root.first, root.second, map(hide, children))
 hide(root::AbstractString, children) = (true, nothing, root, map(hide, children))
 
+include("deployconfig.jl")
+
 """
     deploydocs(
         root   = "<current-directory>",
@@ -332,6 +334,11 @@ repo = "github.com/JuliaDocs/Documenter.jl.git"
 ```
 
 # Optional keyword arguments
+
+**`deploy_config`** determines configuration for the deployment.
+If this is not specified Documenter will try to autodetect from the
+currently running environment. See the manual section about
+[Deployment systems](@ref).
 
 **`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
 
@@ -380,43 +387,6 @@ the generated html. The following entries are valied in the `versions` vector:
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
 
-# Environment variables
-
-[`deploydocs`](@ref)'s behavior is influenced by the following environment variables, many
-of which are specific to the [Travis CI platform](https://travis-ci.com/).
-
- - **`DOCUMENTER_KEY`**: must contain the Base64-encoded SSH private key for the repository.
-
- - **`TRAVIS_PULL_REQUEST`**: must be set to `false`.
-
-   This avoids deployment on pull request builds. Note that there is no way to _safely_
-   enable builds on pull requests, since that would expose the SSH private key
-   (`DOCUMENTER_KEY`), giving anyone opening a pull request full write access to the repository.
-
- - **`TRAVIS_REPO_SLUG`**: must match the value of the `repo` keyword.
-
- - **`TRAVIS_EVENT_TYPE`**: may not be set to `cron`.
-
-   This avoids the re-deployment of existing docs on builds that were triggered by a Travis
-   cron job.
-
- - **`TRAVIS_BRANCH`**: unless `TRAVIS_TAG` is non-empty, this must have the same value as the
-   `devbranch` keyword.
-
-   This makes sure that only the development branch (commonly, the `master` branch) will deploy
-   the "dev" documentation (deployed into a directory specified by the `devurl` keyword).
-
- - **`TRAVIS_TAG`**: if set, a tagged version deployment is performed instead; the value must be
-   a valid version number (i.e. match `Base.VERSION_REGEX`).
-
-   The documentation for a package version tag gets deployed to a directory named after the
-   version number in `TRAVIS_TAG` instead.
-
-The `TRAVIS_*` variables are set automatically on Travis, but could be set manually to
-appropriate values as well to run [`deploydocs`](@ref) locally or on other CI platforms.
-More information on how Travis sets the `TRAVIS_*` variables can be found in the
-[Travis documentation](https://docs.travis-ci.com/user/environment-variables/#default-environment-variables).
-
 # See Also
 
 The [Hosting Documentation](@ref) section of the manual provides a step-by-step guide to
@@ -438,59 +408,10 @@ function deploydocs(;
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
+        deploy_config = auto_detect_deploy_system(),
     )
-    # Get environment variables.
-    documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
-    travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
-    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
-    travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
-    travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_event_type   = get(ENV, "TRAVIS_EVENT_TYPE",    "")
 
-
-    # Other variables.
-    sha = cd(root) do
-        # We'll make sure we run the git commands in the source directory (root), in case
-        # the working directory has been changed (e.g. if the makedocs' build argument is
-        # outside root).
-        try
-            readchomp(`git rev-parse --short HEAD`)
-        catch
-            # git rev-parse will throw an error and return code 128 if it is not being
-            # run in a git repository, which will make run/readchomp throw an exception.
-            # We'll assume that if readchomp fails it is due to this and set the sha
-            # variable accordingly.
-            "(not-git-repo)"
-        end
-    end
-
-    # Check criteria for deployment
-    ## The deploydocs' repo should match TRAVIS_REPO_SLUG
-    repo_ok = occursin(travis_repo_slug, repo)
-    ## Do not deploy for PRs
-    pr_ok = travis_pull_request == "false"
-    ## If a tag exist it should be a valid VersionNumber
-    tag_ok = isempty(travis_tag) || occursin(Base.VERSION_REGEX, travis_tag)
-    ## If no tag exists deploydocs' devbranch should match TRAVIS_BRANCH
-    branch_ok = !isempty(travis_tag) || travis_branch == devbranch
-    ## DOCUMENTER_KEY should exist
-    key_ok = !isempty(documenter_key)
-    ## Cron jobs should not deploy
-    type_ok = travis_event_type != "cron"
-    should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok
-
-    marker(x) = x ? "✔" : "✘"
-    @info """Deployment criteria:
-    - $(marker(repo_ok)) ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)"
-    - $(marker(pr_ok)) ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false"
-    - $(marker(tag_ok)) ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber
-    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch)" (if tag is empty)
-    - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
-    - $(marker(type_ok)) ENV["TRAVIS_EVENT_TYPE"]="$(travis_event_type)" is not "cron"
-    Deploying: $(marker(should_deploy))
-    """
-
-    if should_deploy
+    if should_deploy(deploy_config; repo=repo, devbranch=devbranch)
         # Add local bin path if needed.
         Deps.updatepath!()
         # Install dependencies when applicable.
@@ -500,6 +421,20 @@ function deploydocs(;
         end
         # Change to the root directory and try to deploy the docs.
         cd(root) do
+            # Find the commit sha.
+            # We'll make sure we run the git commands in the source directory (root), in case
+            # the working directory has been changed (e.g. if the makedocs' build argument is
+            # outside root).
+            sha = try
+                readchomp(`git rev-parse --short HEAD`)
+            catch
+                # git rev-parse will throw an error and return code 128 if it is not being
+                # run in a git repository, which will make run/readchomp throw an exception.
+                # We'll assume that if readchomp fails it is due to this and set the sha
+                # variable accordingly.
+                "(not-git-repo)"
+            end
+
             @debug "setting up target directory."
             isdir(target) || mkpath(target)
             # Run extra build steps defined in `make` if required.
@@ -512,8 +447,8 @@ function deploydocs(;
                 git_push(
                     root, temp, repo;
                     branch=branch, dirname=dirname, target=target,
-                    tag=travis_tag, key=documenter_key, sha=sha,
-                    devurl = devurl, versions = versions, forcepush = forcepush,
+                    sha=sha, deploy_config=deploy_config,
+                    devurl=devurl, versions=versions, forcepush=forcepush,
                 )
             end
         end
@@ -523,139 +458,151 @@ end
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", tag="", key="", sha="", devurl="dev"
+        branch="gh-pages", dirname="", target="site", sha="", devurl="dev", deploy_config
     )
 
 Handles pushing changes to the remote documentation branch.
-When `tag` is empty the docs are deployed to the `devurl` directory,
-and when building docs for a tag they are deployed to a `vX.Y.Z` directory.
+The documentation are placed in the `devurl` folder
+(if `git_tag(deploy_config)` returns `nothing`) or the version folder
+corresponding to `git_tag(deploy_config)`, e.g. a `vX.Y.Z` directory.
 """
 function git_push(
         root, temp, repo;
-        branch="gh-pages", dirname="", target="site", tag="", key="", sha="", devurl="dev",
-        versions, forcepush=false,
+        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        versions, forcepush=false, deploy_config,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
 
     target_dir = abspath(target)
 
-    # Extract host from repo as everything up to first ':' or '/' character
-    host = match(r"(.*?)[:\/]", repo)[1]
+    # Generate a closure with common commands for ssh and https
+    function git_commands()
+        # Setup git.
+        run(`git init`)
+        run(`git config user.name "zeptodoctor"`)
+        run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
 
-    # The upstream URL to which we push new content and the ssh decryption commands.
-    upstream = "git@$(replace(repo, "$host/" => "$host:"))"
-
-    keyfile = abspath(joinpath(root, ".documenter"))
-    try
-        write(keyfile, String(base64decode(key)))
-    catch e
-        @error """
-        Documenter failed to decode the DOCUMENTER_KEY environment variable.
-        Make sure that the environment variable is properly set up as a Base64-encoded string
-        of the SSH private key. You may need to re-generate the keys with DocumenterTools.
-        """
-        rethrow(e)
-    end
-    chmod(keyfile, 0o600)
-
-    try
-        # Use a custom SSH config file to avoid overwriting the default user config.
-        withfile(joinpath(homedir(), ".ssh", "config"),
+        # Fetch from remote and checkout the branch.
+        run(`git remote add upstream $upstream`)
+        try
+            run(`git fetch upstream`)
+        catch e
+            @error """
+            Git failed to fetch $upstream
+            This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
+            Make sure that the environment variable is properly set up as a Base64-encoded string
+            of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            Host $host
-                StrictHostKeyChecking no
-                HostName $host
-                IdentityFile "$keyfile"
-                BatchMode yes
-            """
-        ) do
-            cd(temp) do
-                # Setup git.
-                run(`git init`)
-                run(`git config user.name "zeptodoctor"`)
-                run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+            rethrow(e)
+        end
 
-                # Fetch from remote and checkout the branch.
-                run(`git remote add upstream $upstream`)
-                try
-                    run(`git fetch upstream`)
-                catch e
-                    @error """
-                    Git failed to fetch $upstream
-                    This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
-                    Make sure that the environment variable is properly set up as a Base64-encoded string
-                    of the SSH private key. You may need to re-generate the keys with DocumenterTools.
-                    """
-                    rethrow(e)
-                end
+        try
+            run(`git checkout -b $branch upstream/$branch`)
+        catch e
+            @debug "checking out $branch failed with error: $e"
+            @debug "creating a new local $branch branch."
+            run(`git checkout --orphan $branch`)
+            run(`git commit --allow-empty -m "Initial empty commit for docs"`)
+        end
 
-                try
-                    run(`git checkout -b $branch upstream/$branch`)
-                catch e
-                    @debug "checking out $branch failed with error: $e"
-                    @debug "creating a new local $branch branch."
-                    run(`git checkout --orphan $branch`)
-                    run(`git commit --allow-empty -m "Initial empty commit for docs"`)
-                end
+        # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
+        tag = git_tag(deploy_config)
+        if tag === nothing
+            devurl_dir = joinpath(dirname, devurl)
+            gitrm_copy(target_dir, devurl_dir)
+            Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
+        else
+            tagged_dir = joinpath(dirname, tag)
+            gitrm_copy(target_dir, tagged_dir)
+            Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
+        end
 
-                # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
-                if isempty(tag)
-                    devurl_dir = joinpath(dirname, devurl)
-                    gitrm_copy(target_dir, devurl_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
-                    # symlink "latest" to devurl to preserve links (remove in some future release)
-                    if devurl != "latest"
-                        rm(joinpath(dirname, "latest"); recursive = true, force = true)
-                        @warn(string("creating symlink from `latest` to `$(devurl)` for backwards ",
-                            "compatibility with old links. In future Documenter versions this symlink ",
-                            "will not be created. Please update any links that point to `latest`."))
-                        cd(dirname) do; rm_and_add_symlink(devurl, "latest"); end
-                    end
+        # Expand the users `versions` vector
+        entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
+
+        # Create the versions.js file containing a list of `entries`.
+        # This must always happen after the folder copying.
+        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
+
+        # generate the symlinks, make sure we don't overwrite devurl
+        cd(dirname) do
+            for kv in symlinks
+                i = findfirst(x -> x.first == devurl, symlinks)
+                if i === nothing
+                    rm_and_add_symlink(kv.second, kv.first)
                 else
-                    tagged_dir = joinpath(dirname, tag)
-                    gitrm_copy(target_dir, tagged_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
-                end
-
-                # Expand the users `versions` vector
-                entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
-
-                # Create the versions.js file containing a list of `entries`.
-                # This must always happen after the folder copying.
-                Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
-
-                # generate the symlinks, make sure we don't overwrite devurl
-                cd(dirname) do
-                    for kv in symlinks
-                        i = findfirst(x -> x.first == devurl, symlinks)
-                        if i === nothing
-                            rm_and_add_symlink(kv.second, kv.first)
-                        else
-                            throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
-                                "`devurl = $(devurl)` with the same name.")))
-                        end
-                    end
-                end
-
-                # Add, commit, and push the docs to the remote.
-                run(`git add -A .`)
-                if !success(`git diff --cached --exit-code`)
-                    if forcepush
-                        run(`git commit --amend --date=now -m "build based on $sha"`)
-                        run(`git push -fq upstream HEAD:$branch`)
-                    else
-                        run(`git commit -m "build based on $sha"`)
-                        run(`git push -q upstream HEAD:$branch`)
-                    end
-                else
-                    @debug "new docs identical to the old -- not committing nor pushing."
+                    throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
+                        "`devurl = $(devurl)` with the same name.")))
                 end
             end
         end
-    finally
-        # Remove the unencrypted private key.
-        isfile(keyfile) && rm(keyfile)
+
+        # Add, commit, and push the docs to the remote.
+        run(`git add -A .`)
+        if !success(`git diff --cached --exit-code`)
+            if forcepush
+                run(`git commit --amend --date=now -m "build based on $sha"`)
+                run(`git push -fq upstream HEAD:$branch`)
+            else
+                run(`git commit -m "build based on $sha"`)
+                run(`git push -q upstream HEAD:$branch`)
+            end
+        else
+            @debug "new docs identical to the old -- not committing nor pushing."
+        end
+    end
+
+    if authentication_method(deploy_config) === SSH
+        # Extract host from repo as everything up to first ':' or '/' character
+        host = match(r"(.*?)[:\/]", repo)[1]
+
+        # The upstream URL to which we push new content and the ssh decryption commands.
+        upstream = "git@$(replace(repo, "$host/" => "$host:"))"
+
+        keyfile = abspath(joinpath(root, ".documenter"))
+        try
+            write(keyfile, base64decode(documenter_key(deploy_config)))
+        catch e
+            @error """
+            Documenter failed to decode the DOCUMENTER_KEY environment variable.
+            Make sure that the environment variable is properly set up as a Base64-encoded string
+            of the SSH private key. You may need to re-generate the keys with DocumenterTools.
+            """
+            rm(keyfile; force=true)
+            rethrow(e)
+        end
+        chmod(keyfile, 0o600)
+
+        try
+            # Use a custom SSH config file to avoid overwriting the default user config.
+            withfile(joinpath(homedir(), ".ssh", "config"),
+                """
+                Host $host
+                    StrictHostKeyChecking no
+                    User git
+                    HostName $host
+                    IdentityFile "$keyfile"
+                    IdentitiesOnly yes
+                    BatchMode yes
+                """
+            ) do
+                cd(git_commands, temp)
+            end
+        catch e
+            @error "Failed to push:" e
+        finally
+            # Remove the unencrypted private key.
+            isfile(keyfile) && rm(keyfile)
+        end
+    else # authentication_method(deploy_config) === HTTPS
+        # The upstream URL to which we push new content authenticated with token
+        upstream = authenticated_repo_url(deploy_config)
+        try
+            cd(git_commands, temp)
+        catch e
+            @error "Failed to push:" e
+        end
     end
 end
 

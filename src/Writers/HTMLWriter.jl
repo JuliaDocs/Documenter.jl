@@ -7,7 +7,7 @@ A module for rendering `Document` objects to HTML.
 [`Documenter.makedocs`](@ref): `authors`, `pages`, `sitename`, `version`.
 The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
 keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
-keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_branch` and
+keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link` and
 `prettyurls`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
@@ -51,9 +51,9 @@ import ...Documenter:
     Expanders,
     Documenter,
     Utilities,
-    Writers,
-    asset
+    Writers
 
+using ...Utilities: Default
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
@@ -246,8 +246,11 @@ an error and exit if any of the Git commands fail. The calls to Git are mainly u
 gather information about the current commit hash and file paths, necessary for constructing
 the links to the remote repository.
 
-**`edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
-point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
+**`edit_link`** can be used to specify which branch, tag or commit (when passed a `String`)
+in the remote repository the "Edit on ..." links point to. If a special `Symbol` value
+`:commit` is passed, the current commit will be used instead. If set to `nothing`, the
+link edit link will be hidden altogether. Default value is `"master"`, making the edit link
+point to the master branch.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend
 you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
@@ -313,7 +316,7 @@ their absolute URLs, can be included with the [`asset`](@ref) function.
 struct HTML <: Documenter.Writer
     prettyurls    :: Bool
     disable_git   :: Bool
-    edit_branch   :: Union{String, Nothing}
+    edit_link     :: Union{String, Symbol, Nothing}
     canonical     :: Union{String, Nothing}
     assets        :: Vector{HTMLAsset}
     analytics     :: String
@@ -325,7 +328,7 @@ struct HTML <: Documenter.Writer
     function HTML(;
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
-            edit_branch   :: Union{String, Nothing} = "master",
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Default("master"),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",
@@ -333,6 +336,8 @@ struct HTML <: Documenter.Writer
             sidebar_sitename :: Bool = true,
             highlights :: Vector{String} = String[],
             mathengine :: Union{MathEngine,Nothing} = KaTeX(),
+            # deprecated keywords
+            edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         assets = map(assets) do asset
@@ -340,7 +345,20 @@ struct HTML <: Documenter.Writer
             isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
             error("Invalid value in assets: $(asset) [$(typeof(asset))]")
         end
-        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics,
+        # Handle edit_branch deprecation
+        if !isa(edit_branch, Default)
+            isa(edit_link, Default) || error("Can't specify edit_branch (deprecated) and edit_link simultaneously")
+            @warn """
+            The edit_branch keyword is deprecated -- use edit_link instead.
+            Note: `edit_branch = nothing` must be changed to `edit_link = :commit`.
+            """
+            edit_link = (edit_branch === nothing) ? :commit : edit_branch
+        end
+        if isa(edit_link, Symbol) && (edit_link !== :commit)
+            throw(ArgumentError("Invalid symbol (:$edit_link) passed to edit_link."))
+        end
+        isa(edit_link, Default) && (edit_link = edit_link[])
+        new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine)
     end
 end
@@ -352,7 +370,6 @@ const fontawesome_css = [
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/solid.min.css",
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/brands.min.css",
 ]
-const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
 const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
 
 "Provides a namespace for JS dependencies."
@@ -375,7 +392,10 @@ module JS
     # highlight.js
     "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
     function highlightjs!(r::RequireJS, languages = String[])
-        hljs_version = "9.15.9"
+        # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
+        # When updating this dependency, it is also necessary to update the the CSS
+        # files the CSS files in assets/html/scss/highlightjs
+        hljs_version = "9.15.10"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -716,7 +736,6 @@ function render_head(ctx, navnode)
     css_links = [
         google_fonts,
         fontawesome_css...,
-        highlightjs_css,
         katex_css,
     ]
     head(
@@ -783,7 +802,7 @@ analytics_script(tracking_id::AbstractString) =
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
         ga('create', '$(tracking_id)', 'auto');
-        ga('send', 'pageview');
+        ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
         """
     )
 
@@ -963,7 +982,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     navbar_right = div[".docs-right"]
 
     # Set the logo and name for the "Edit on.." button.
-    if edit_page_link && !ctx.settings.disable_git
+    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
         host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
         if host_type == Utilities.RepoGitlab
             host = "GitLab"
@@ -981,6 +1000,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         hoststring = isempty(host) ? " source" : " on $(host)"
 
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
+        edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
         url = if Utilities.isabsurl(pageurl)
             pageurl
         else
@@ -988,10 +1008,10 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
                 # need to set users path relative the page itself
                 pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
             end
-            Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.settings.edit_branch)
+            Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
         end
         if url !== nothing
-            edit_verb = (ctx.settings.edit_branch === nothing) ? "View" : "Edit"
+            edit_verb = (edit_branch === nothing) ? "View" : "Edit"
             title = "$(edit_verb)$hoststring"
             push!(navbar_right.nodes,
                 a[".docs-edit-link", :href => url, :title => title](
@@ -1057,7 +1077,8 @@ function render_article(ctx, navnode)
             else
                 li["#$(fid).footnote"](
                     a[".tag.is-link", :href => "#$(citerefid)"](f.id),
-                    mdconvert(f.text),
+                    # passing an empty MD() as `parent` to give it block context
+                    mdconvert(f.text, Markdown.MD()),
                 )
             end
         end
@@ -1278,8 +1299,7 @@ function domify(ctx, navnode, node::Documents.DocsNode)
         header(
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Utilities.doccat(node.object))"),
-            "."
+            span[".docstring-category"]("$(Utilities.doccat(node.object))")
         ),
         domify_doc(ctx, navnode, node.docstr)
     )
