@@ -18,6 +18,10 @@
 
   **Possible breakage:** Packages overriding the default Documenter CSS file, relying on some external CSS or relying on Documenter's CSS working in a particular way will not build correct-looking sites. Custom themes should now be developed as Sass files and compiled together with the Documenter and Bulma Sass dependencies (under `assets/html/scss`).
 
+* ![Deprecation][badge-deprecation] ![Enhancement][badge-enhancement] The `edit_branch` keyword to `Documenter.HTML` has been deprecated in favor of the new `edit_link` keyword. As a new feature, passing `edit_link = nothing` disables the "Edit on GitHub" links altogether. ([#1173][github-1173])
+
+  **For upgrading:** If using `edit_branch = nothing`, use `edit_link = :commit` instead. If passing a `String` to `edit_branch`, pass that to `edit_link` instead.
+
 * ![Feature][badge-feature] Deployment is now more customizable and thus not as tied to Travis CI as before. ([#1147][github-1147], [#1171][github-1171])
 
 * ![Feature][badge-feature] Documenter now has builtin support for deploying from GitHub Actions. Documenter will autodetect the running system, unless explicitly specified. ([#1144][github-1144], [#1152][github-1152])
@@ -470,6 +474,7 @@
 [github-1153]: https://github.com/JuliaDocs/Documenter.jl/pull/1153
 [github-1166]: https://github.com/JuliaDocs/Documenter.jl/pull/1166
 [github-1171]: https://github.com/JuliaDocs/Documenter.jl/pull/1171
+[github-1173]: https://github.com/JuliaDocs/Documenter.jl/pull/1173
 
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
