@@ -1216,11 +1216,11 @@ function domify(ctx, navnode, anchor::Anchors.Anchor)
         h = anchor.object
         fixlinks!(ctx, navnode, h)
         DOM.Tag(Symbol("h$(Utilities.header_level(h))"))[:id => aid](
-            mdconvert(h.text, h),
-            a[".docs-heading-anchor", :href => "#$aid", :title => "Permalink"]
+            a[".docs-heading-anchor", :href => "#$aid"](mdconvert(h.text, h)),
+            a[".docs-heading-anchor-permalink", :href => "#$aid", :title => "Permalink"]
         )
     else
-        a[".nav-anchor", :id => aid, :href => "#$aid"](domify(ctx, navnode, anchor.object))
+        a[:id => aid, :href => "#$aid"](domify(ctx, navnode, anchor.object))
     end
 end
 

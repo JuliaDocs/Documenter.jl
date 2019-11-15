@@ -2,6 +2,12 @@
 // Implemented as empty <a> tags inside the <hN> tags, showing up as chain icons
 h1, h2, h3, h4, h5, h6 {
   .docs-heading-anchor {
+    &, &:hover, &:visited {
+      color: $content-heading-color;
+    }
+  }
+
+  .docs-heading-anchor-permalink {
     visibility: hidden;
     vertical-align: middle;
     margin-left: 0.5em;
@@ -13,7 +19,7 @@ h1, h2, h3, h4, h5, h6 {
     }
   }
   // the permalinks icon is only shown if the user hovers over the heading
-  &:hover .docs-heading-anchor {
+  &:hover .docs-heading-anchor-permalink {
     visibility: visible;
   }
 }

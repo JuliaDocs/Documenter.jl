@@ -72,3 +72,8 @@ $desktop: round($body-size * ($documenter-max-width + $documenter-sidebar-width 
 
 // Admonitions
 $message-header-padding: 0.75em;
+$message-body-padding: 1em 1.25em;
+// Docstrings
+$card-content-padding-v: 1rem;
+$card-content-padding-h: 1.25rem;
+$card-content-padding: $card-content-padding-v $card-content-padding-h;

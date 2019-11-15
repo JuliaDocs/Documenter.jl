@@ -42,8 +42,8 @@
       transition: opacity 0.3s;
       opacity: 0;
       position: absolute;
-      right: $card-content-padding / 2;
-      bottom: $card-content-padding / 2;
+      right: $card-content-padding-h / 2;
+      bottom: $card-content-padding-v / 2;
       @extend .tag;
       @extend .is-primary;
       @extend .is-size-7;
