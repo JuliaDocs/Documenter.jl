@@ -7393,10 +7393,10 @@ html.theme--documenter-dark {
     flex-direction: column;
     color: #fff;
     background-color: #282f2f;
-    border-right: 1px solid #5e6d6f;
     padding: 0;
     flex: 0 0 18rem;
     z-index: 5;
+    box-shadow: inset -1px 0px 0px 0px #5e6d6f;
     position: fixed;
     left: -18rem;
     width: 18rem;

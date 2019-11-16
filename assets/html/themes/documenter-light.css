@@ -7373,10 +7373,10 @@ html {
   flex-direction: column;
   color: #0a0a0a;
   background-color: whitesmoke;
-  border-right: 1px solid #dbdbdb;
   padding: 0;
   flex: 0 0 18rem;
   z-index: 5;
+  box-shadow: inset -1px 0px 0px 0px #dbdbdb;
   position: fixed;
   left: -18rem;
   width: 18rem;

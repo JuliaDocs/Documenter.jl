@@ -4,10 +4,13 @@
 
   color: $documenter-sidebar-color;
   background-color: $documenter-sidebar-background;
-  border-right: 1px solid $border;
   padding: 0;
   flex: 0 0 $documenter-sidebar-width;
   z-index: 5; // make sure it's on top of the main body and top bar
+
+  // We create the sidebar border with an inset shadow. The reason for this is so that we
+  // could hide the "border" behind a white background for the in-page links.
+  box-shadow: inset -1px 0px 0px 0px $border;
 
   // This is mobile-first, so our default state is that the sidebar is hidden away left
   // of the screen.
