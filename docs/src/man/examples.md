@@ -27,7 +27,7 @@ Packages that have tagged versions available in the general Registry:
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/stable/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
-- [DrWatson](https://juliadynamics.github.io/DrWatson.jl/dev/)
+- [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
 - [EvolvingGraphs.jl](https://etymoio.github.io/EvolvingGraphs.jl/stable/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/stable/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/stable/)
