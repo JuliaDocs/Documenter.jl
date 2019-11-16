@@ -40,6 +40,17 @@ which will cause any unlisted docstrings to raise warnings when [`makedocs`](@re
 called. If `modules` is not defined then no warnings are printed, even if a document has
 missing docstrings.
 
+Notice also that you can use `@docs` to display the documentation strings of only specific
+methods, by stating the dispatch types. For example
+````markdown
+```@docs
+f(::Type1, ::Type2)
+```
+````
+will only display the documentation string of `f` that is related to these types.
+This can be useful when your module extends a function and adds a documentation
+string to that extention.
+
 ## `@autodocs` block
 
 Automatically splices all docstrings from the provided modules in place of the code block.
