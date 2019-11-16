@@ -19,25 +19,20 @@ function documenter_key(::DeployConfig)
 end
 
 """
-    Documenter.git_tag(cfg::DeployConfig)
+    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl, kwargs...)
 
-Return the git tag of the build. If the build is not for a tag, return `nothing`.
+Return the folder where the documentation should be deployed to, or `nothing`
+if the current build should not deploy.
+This function is called with the `repo`, `devbranch`, `push_preview` and `devurl`
+arguments from [`deploydocs`](@ref).
 
-This function determines the subfolder where the built docs are deployed.
-Either a folder named as the tag (e.g. `vX.Y.Z`) or `devurl`
-(see [`deploydocs`](@ref)) for non-tag builds.
+!!! note
+    Implementations of this functions should accept trailing `kwargs...` for
+    compatibility with future Documenter releases which may pass additional
+    keyword arguments.
 """
-git_tag(::DeployConfig) = nothing
-
-"""
-    Documenter.should_deploy(cfg::DeployConfig; repo=repo, devbranch=devbranch)
-
-Return `true` if the current build should deploy, and `false` otherwise.
-This function is called with the `repo` and `devbranch` arguments from
-[`deploydocs`](@ref).
-"""
-should_deploy(::DeployConfig; kwargs...) = false
-should_deploy(::Nothing; kwargs...) = false # when auto-detection fails
+deploy_folder(::DeployConfig; kwargs...) = nothing
+deploy_folder(::Nothing; kwargs...) = nothing # when auto-detection fails
 
 @enum AuthenticationMethod SSH HTTPS
 
@@ -60,6 +55,8 @@ This method must be supported by configs that push with HTTPS, see
 [`Documenter.authentication_method`](@ref).
 """
 function authenticated_repo_url end
+
+marker(x) = x ? "✔" : "✘"
 
 #############
 # Travis CI #
@@ -117,36 +114,66 @@ function Travis()
 end
 
 # Check criteria for deployment
-function should_deploy(cfg::Travis; repo, devbranch, kwargs...)
+function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwargs...)
+    io = IOBuffer()
+    all_ok = true
+    ## Determine build type; release, devbranch or preview
+    if cfg.travis_pull_request != "false"
+        build_type = :preview
+    elseif !isempty(cfg.travis_tag)
+        build_type = :release
+    else
+        build_type = :devbranch
+    end
+    println(io, "Deployment criteria for deploying $(build_type) build from Travis:")
     ## The deploydocs' repo should match TRAVIS_REPO_SLUG
     repo_ok = occursin(cfg.travis_repo_slug, repo)
-    ## Do not deploy for PRs
-    pr_ok = cfg.travis_pull_request == "false"
-    ## If a tag exist it should be a valid VersionNumber
-    tag_ok = isempty(cfg.travis_tag) || occursin(Base.VERSION_REGEX, cfg.travis_tag)
-    ## If no tag exists deploydocs' devbranch should match TRAVIS_BRANCH
-    branch_ok = !isempty(cfg.travis_tag) || cfg.travis_branch == devbranch
+    all_ok &= repo_ok
+    println(io, "- $(marker(repo_ok)) ENV[\"TRAVIS_REPO_SLUG\"]=\"$(cfg.travis_repo_slug)\" occurs in repo=\"$(repo)\"")
+    if build_type === :release
+        ## Do not deploy for PRs
+        pr_ok = cfg.travis_pull_request == "false"
+        println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"")
+        all_ok &= pr_ok
+        ## If a tag exist it should be a valid VersionNumber
+        tag_ok = occursin(Base.VERSION_REGEX, cfg.travis_tag)
+        all_ok &= tag_ok
+        println(io, "- $(marker(tag_ok)) ENV[\"TRAVIS_TAG\"] contains a valid VersionNumber")
+        ## Deploy to folder according to the tag
+        subfolder = cfg.travis_tag
+    elseif build_type === :devbranch
+        ## Do not deploy for PRs
+        pr_ok = cfg.travis_pull_request == "false"
+        println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"")
+        all_ok &= pr_ok
+        ## deploydocs' devbranch should match TRAVIS_BRANCH
+        branch_ok = !isempty(cfg.travis_tag) || cfg.travis_branch == devbranch
+        all_ok &= branch_ok
+        println(io, "- $(marker(branch_ok)) ENV[\"TRAVIS_BRANCH\"] matches devbranch=\"$(devbranch)\"")
+        ## Deploy to deploydocs devurl kwarg
+        subfolder = devurl
+    else # build_type === :preview
+        pr_number = tryparse(Int, cfg.travis_pull_request)
+        pr_ok = pr_number !== nothing
+        all_ok &= pr_ok
+        println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is a number")
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        ## deploy to previews/PR
+        subfolder = "previews/PR$(something(pr_number, 0))"
+    end
     ## DOCUMENTER_KEY should exist (just check here and extract the value later)
     key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    all_ok &= key_ok
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
     ## Cron jobs should not deploy
     type_ok = cfg.travis_event_type != "cron"
-    all_ok = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok
-    marker(x) = x ? "✔" : "✘"
-    @info """Deployment criteria for deploying with Travis:
-    - $(marker(repo_ok)) ENV["TRAVIS_REPO_SLUG"]="$(cfg.travis_repo_slug)" occurs in repo="$(repo)"
-    - $(marker(pr_ok)) ENV["TRAVIS_PULL_REQUEST"]="$(cfg.travis_pull_request)" is "false"
-    - $(marker(tag_ok)) ENV["TRAVIS_TAG"]="$(cfg.travis_tag)" is (i) empty or (ii) a valid VersionNumber
-    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(cfg.travis_branch)" matches devbranch="$(devbranch)" (if tag is empty)
-    - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
-    - $(marker(type_ok)) ENV["TRAVIS_EVENT_TYPE"]="$(cfg.travis_event_type)" is not "cron"
-    Deploying: $(marker(all_ok))
-    """
-    return all_ok
-end
-
-# Obtain git tag for the build
-function git_tag(cfg::Travis)
-    isempty(cfg.travis_tag) ? nothing : cfg.travis_tag
+    all_ok &= type_ok
+    println(io, "- $(marker(type_ok)) ENV[\"TRAVIS_EVENT_TYPE\"]=\"$(cfg.travis_event_type)\" is not \"cron\"")
+    print(io, "Deploying: $(marker(all_ok))")
+    @info String(take!(io))
+    return all_ok ? subfolder : nothing
 end
 
 
@@ -191,43 +218,73 @@ function GitHubActions()
 end
 
 # Check criteria for deployment
-function should_deploy(cfg::GitHubActions; repo, devbranch, kwargs...)
+function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl, kwargs...)
+    io = IOBuffer()
+    all_ok = true
+    ## Determine build type
+    if cfg.github_event_name == "pull_request"
+        build_type = :preview
+    elseif occursin(r"^refs\/tags\/(.*)$", cfg.github_ref)
+        build_type = :release
+    else
+        build_type = :devbranch
+    end
+    println(io, "Deployment criteria for deploying $(build_type) build from GitHub Actions:")
     ## The deploydocs' repo should match GITHUB_REPOSITORY
     repo_ok = occursin(cfg.github_repository, repo)
-    ## Do not deploy for PRs
-    pr_ok = cfg.github_event_name == "push"
-    ## If a tag exist it should be a valid VersionNumber
-    m = match(r"^refs/tags/(.*)$", cfg.github_ref)
-    tag_ok = m === nothing ? false : occursin(Base.VERSION_REGEX, String(m.captures[1]))
-    ## If no tag exists deploydocs' devbranch should match the current branch
-    m = match(r"^refs/heads/(.*)$", cfg.github_ref)
-    branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
+    all_ok &= repo_ok
+    println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
+    if build_type === :release
+        ## Do not deploy for PRs
+        event_ok = cfg.github_event_name == "push"
+        all_ok &= event_ok
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        ## If a tag exist it should be a valid VersionNumber
+        m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
+        tag_ok = m === nothing ? false : occursin(Base.VERSION_REGEX, String(m.captures[1]))
+        all_ok &= tag_ok
+        println(io, "- $(marker(tag_ok)) ENV[\"GITHUB_REF\"]=\"$(cfg.github_ref)\" contains a valid VersionNumber")
+        ## Deploy to folder according to the tag
+        subfolder = m === nothing ? nothing : String(m.captures[1])
+    elseif build_type === :devbranch
+        ## Do not deploy for PRs
+        event_ok = cfg.github_event_name == "push"
+        all_ok &= event_ok
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        ## deploydocs' devbranch should match the current branch
+        m = match(r"^refs\/heads\/(.*)$", cfg.github_ref)
+        branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
+        all_ok &= branch_ok
+        println(io, "- $(marker(branch_ok)) ENV[\"GITHUB_REF\"] matches devbranch=\"$(devbranch)\"")
+        ## Deploy to deploydocs devurl kwarg
+        subfolder = devurl
+    else # build_type === :preview
+        m = match(r"refs\/pull\/(\d+)\/merge", cfg.github_ref)
+        pr_number = tryparse(Int, m === nothing ? "" : m.captures[1])
+        pr_ok = pr_number !== nothing
+        all_ok &= pr_ok
+        println(io, "- $(marker(pr_ok)) ENV[\"GITHUB_REF\"] corresponds to a PR number")
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        ## deploydocs to previews/PR
+        subfolder = "previews/PR$(something(pr_number, 0))"
+    end
     ## GITHUB_ACTOR should exist (just check here and extract the value later)
     actor_ok = haskey(ENV, "GITHUB_ACTOR")
+    all_ok &= actor_ok
+    println(io, "- $(marker(actor_ok)) ENV[\"GITHUB_ACTOR\"] exists")
     ## GITHUB_TOKEN should exist (just check here and extract the value later)
     token_ok = haskey(ENV, "GITHUB_TOKEN")
-    all_ok = repo_ok && pr_ok && (tag_ok || branch_ok) && actor_ok && token_ok
-    marker(x) = x ? "✔" : "✘"
-    @info """Deployment criteria for deploying with GitHub Actions:
-    - $(marker(repo_ok)) ENV["GITHUB_REPOSITORY"]="$(cfg.github_repository)" occurs in repo="$(repo)"
-    - $(marker(pr_ok)) ENV["GITHUB_EVENT_NAME"]="$(cfg.github_event_name)" is "push"
-    - $(marker(tag_ok || branch_ok)) ENV["GITHUB_REF"]="$(cfg.github_ref)" corresponds to a tag or matches devbranch="$(devbranch)"
-    - $(marker(actor_ok)) ENV["GITHUB_ACTOR"] exists
-    - $(marker(token_ok)) ENV["GITHUB_TOKEN"] exists
-    Deploying: $(marker(all_ok))
-    """
-    return all_ok
+    all_ok &= token_ok
+    println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists")
+    print(io, "Deploying: $(marker(all_ok))")
+    return all_ok ? subfolder : nothing
 end
 
 authentication_method(::GitHubActions) = HTTPS
 function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
-end
-
-# Obtain git tag for the build
-function git_tag(cfg::GitHubActions)
-    m = match(r"^refs/tags/(.*)$", cfg.github_ref)
-    return m === nothing ? nothing : String(m.captures[1])
 end
 
 
