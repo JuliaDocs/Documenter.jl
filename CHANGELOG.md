@@ -10,6 +10,8 @@
 
   **For upgrading:** Pass the corresponding values to the `HTML` constructor when settings the `format` keyword.
 
+* ![Feature][badge-feature] Documenter can now deploy preview documentation from pull requests (with head branch in the same repository, i.e. not from forks). This is enabled by passing `push_preview=true` to `deploydocs`. ([#1180][github-1180])
+
 * ![Enhancement][badge-enhancement] The Documenter HTML front end now uses [KaTeX](https://katex.org/) as the default math rendering engine. ([#1097][github-1097])
 
   **Possible breakage:** This may break the rendering of equations that use some more esoteric features that are only supported in MathJax. It is possible to switch back to MathJax by passing `mathengine = Documenter.MathJax()` to the `HTML` constructor in the `format` keyword.
@@ -22,7 +24,7 @@
 
   **For upgrading:** If using `edit_branch = nothing`, use `edit_link = :commit` instead. If passing a `String` to `edit_branch`, pass that to `edit_link` instead.
 
-* ![Feature][badge-feature] Deployment is now more customizable and thus not as tied to Travis CI as before. ([#1147][github-1147], [#1171][github-1171])
+* ![Feature][badge-feature] Deployment is now more customizable and thus not as tied to Travis CI as before. ([#1147][github-1147], [#1171][github-1171], [#1180][github-1180])
 
 * ![Feature][badge-feature] Documenter now has builtin support for deploying from GitHub Actions. Documenter will autodetect the running system, unless explicitly specified. ([#1144][github-1144], [#1152][github-1152])
 
@@ -475,7 +477,7 @@
 [github-1166]: https://github.com/JuliaDocs/Documenter.jl/pull/1166
 [github-1171]: https://github.com/JuliaDocs/Documenter.jl/pull/1171
 [github-1173]: https://github.com/JuliaDocs/Documenter.jl/pull/1173
-
+[github-1180]: https://github.com/JuliaDocs/Documenter.jl/pull/1180
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

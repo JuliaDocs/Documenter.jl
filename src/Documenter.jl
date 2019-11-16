@@ -387,6 +387,9 @@ the generated html. The following entries are valied in the `versions` vector:
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
 
+**`push_preview`** a boolean that specifies if preview documentation should be
+deployed from pull requests or not.
+
 # See Also
 
 The [Hosting Documentation](@ref) section of the manual provides a step-by-step guide to
@@ -409,9 +412,11 @@ function deploydocs(;
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
+        push_preview::Bool = false,
     )
 
-    if should_deploy(deploy_config; repo=repo, devbranch=devbranch)
+    subfolder = deploy_folder(deploy_config; repo=repo, devbranch=devbranch, push_preview=push_preview, devurl=devurl)
+    if subfolder !== nothing
         # Add local bin path if needed.
         Deps.updatepath!()
         # Install dependencies when applicable.
@@ -447,7 +452,7 @@ function deploydocs(;
                 git_push(
                     root, temp, repo;
                     branch=branch, dirname=dirname, target=target,
-                    sha=sha, deploy_config=deploy_config,
+                    sha=sha, deploy_config=deploy_config, subfolder=subfolder,
                     devurl=devurl, versions=versions, forcepush=forcepush,
                 )
             end
@@ -458,18 +463,17 @@ end
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", sha="", devurl="dev", deploy_config
+        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        deploy_config, folder,
     )
 
 Handles pushing changes to the remote documentation branch.
-The documentation are placed in the `devurl` folder
-(if `git_tag(deploy_config)` returns `nothing`) or the version folder
-corresponding to `git_tag(deploy_config)`, e.g. a `vX.Y.Z` directory.
+The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
-        versions, forcepush=false, deploy_config,
+        versions, forcepush=false, deploy_config, subfolder,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -506,17 +510,10 @@ function git_push(
             run(`git commit --allow-empty -m "Initial empty commit for docs"`)
         end
 
-        # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
-        tag = git_tag(deploy_config)
-        if tag === nothing
-            devurl_dir = joinpath(dirname, devurl)
-            gitrm_copy(target_dir, devurl_dir)
-            Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
-        else
-            tagged_dir = joinpath(dirname, tag)
-            gitrm_copy(target_dir, tagged_dir)
-            Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
-        end
+        # Copy docs to `subfolder` directory.
+        deploy_dir = joinpath(dirname, subfolder)
+        gitrm_copy(target_dir, deploy_dir)
+        Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
         # Expand the users `versions` vector
         entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
@@ -590,7 +587,7 @@ function git_push(
                 cd(git_commands, temp)
             end
         catch e
-            @error "Failed to push:" e
+            @error "Failed to push:" exception=(e, catch_backtrace())
         finally
             # Remove the unencrypted private key.
             isfile(keyfile) && rm(keyfile)
@@ -601,7 +598,7 @@ function git_push(
         try
             cd(git_commands, temp)
         catch e
-            @error "Failed to push:" e
+            @error "Failed to push:" exception=(e, catch_backtrace())
         end
     end
 end
@@ -627,6 +624,9 @@ first, `git add -A` will not detect case changes in filenames.
 function gitrm_copy(src, dst)
     # --ignore-unmatch so that we wouldn't get errors if dst does not exist
     run(`git rm -rf --ignore-unmatch $(dst)`)
+    # git rm also removed parent directories
+    # if they are empty so need to mkpath after
+    mkpath(dst)
     cp(src, dst; force=true)
 end
 
@@ -747,8 +747,7 @@ function doctest(
             )
             true
         catch err
-            @error "Doctesting failed"
-            showerror(stdout, err, catch_backtrace())
+            @error "Doctesting failed" exception=(err, catch_backtrace())
             false
         finally
             rm(dir; recursive=true)

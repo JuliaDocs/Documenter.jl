@@ -351,8 +351,7 @@ your own by following the simple interface described below.
 
 ```@docs
 Documenter.DeployConfig
-Documenter.should_deploy
-Documenter.git_tag
+Documenter.deploy_folder
 Documenter.authentication_method
 Documenter.authenticated_repo_url
 Documenter.documenter_key

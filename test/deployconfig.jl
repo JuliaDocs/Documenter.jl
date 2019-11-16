@@ -1,4 +1,6 @@
-@testset "Travis CI deploy configuration" begin
+using Logging
+
+@testset "Travis CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
     withenv("TRAVIS_CI" => "true",
             "TRAVIS_PULL_REQUEST" => "false",
@@ -8,12 +10,24 @@
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
-        @test Documenter.should_deploy(cfg; repo="github.com/JuliaDocs/Documenter.jl.git", devbranch="master")
-        @test Documenter.git_tag(cfg) === "v1.2.3"
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="dev", push_preview=true) == "v1.2.3"
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         @test Documenter.authentication_method(cfg) === Documenter.SSH
     end
-    # Regular devbranch build
+    # Broken tag build
+    withenv("TRAVIS_CI" => "true",
+            "TRAVIS_PULL_REQUEST" => "false",
+            "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
+            "TRAVIS_BRANCH" => "master",
+            "TRAVIS_TAG" => "not-a-version",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Travis()
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="dev", push_preview=true) === nothing
+    end
+    # Regular/broken devbranch build
     withenv("TRAVIS_CI" => "true",
             "TRAVIS_PULL_REQUEST" => "false",
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
@@ -22,11 +36,28 @@
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
-        @test Documenter.should_deploy(cfg; repo="github.com/JuliaDocs/Documenter.jl.git", devbranch="master")
-        @test Documenter.git_tag(cfg) === nothing
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=true) == "hello-world"
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="not-master", devurl="hello-world", push_preview=true) === nothing
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
-    # Missing environment variables
+    # Regular pull request build
+    withenv("TRAVIS_CI" => "true",
+            "TRAVIS_PULL_REQUEST" => "42",
+            "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
+            "TRAVIS_BRANCH" => "something",
+            "TRAVIS_TAG" => nothing,
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Travis()
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=true) == "previews/PR42"
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=false) === nothing
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Missing/broken environment variables
     withenv("TRAVIS_CI" => "true",
             "TRAVIS_PULL_REQUEST" => "false",
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
@@ -35,11 +66,12 @@
             "DOCUMENTER_KEY" => nothing,
         ) do
         cfg = Documenter.Travis()
-        @test !Documenter.should_deploy(cfg; repo="github.com/JuliaDocs/Documenter.jl.git", devbranch="master")
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=false) === nothing
     end
-end
+end end
 
-@testset "GitHub Actions deploy configuration" begin
+@testset "GitHub Actions deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -48,10 +80,21 @@ end
             "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.should_deploy(cfg; repo="github.com/JuliaDocs/Documenter.jl.git", devbranch="master")
-        @test Documenter.git_tag(cfg) === "v1.2.3"
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="dev", push_preview=true) == "v1.2.3"
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
         @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Broken tag build
+    withenv("GITHUB_EVENT_NAME" => "push",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/not-a-version",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.GitHubActions()
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="dev", push_preview=true) === nothing
     end
     # Regular devbranch build
     withenv("GITHUB_EVENT_NAME" => "push",
@@ -61,8 +104,24 @@ end
             "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.should_deploy(cfg; repo="github.com/JuliaDocs/Documenter.jl.git", devbranch="master")
-        @test Documenter.git_tag(cfg) === nothing
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=true) == "hello-world"
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="not-master", devurl="hello-world", push_preview=true) === nothing
+        @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Regular pull request build
+    withenv("GITHUB_EVENT_NAME" => "pull_request",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/pull/42/merge",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.GitHubActions()
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=true) == "previews/PR42"
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="not-master", devurl="hello-world", push_preview=false) === nothing
         @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
     # Missing environment variables
@@ -73,9 +132,10 @@ end
             "GITHUB_TOKEN" => nothing,
         ) do
         cfg = Documenter.GitHubActions()
-        @test !Documenter.should_deploy(cfg; repo="github.com/JuliaDocs/Documenter.jl.git", devbranch="master")
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=true) === nothing
     end
-end
+end end
 
 @testset "Autodetection of deploy system" begin
     withenv("TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
