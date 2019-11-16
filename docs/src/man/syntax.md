@@ -49,7 +49,8 @@ f(::Type1, ::Type2)
 ````
 will only display the documentation string of `f` that is related to these types.
 This can be useful when your module extends a function and adds a documentation
-string to that extention.
+string to that new method. Note that the method signature has to match exactly -- Documenter will
+not match methods based on dispatch rules.
 
 ## `@autodocs` block
 
