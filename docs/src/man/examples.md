@@ -18,7 +18,7 @@ should give a good overview of what this package is currently able to do.
 
 ## Registered
 
-Packages that have tagged versions available in `METADATA.jl`.
+Packages that have tagged versions available in the general Registry:
 
 - [Augmentor.jl](https://evizero.github.io/Augmentor.jl/)
 - [BanditOpt.jl](https://v-i-s-h.github.io/BanditOpt.jl/stable/)
@@ -27,6 +27,7 @@ Packages that have tagged versions available in `METADATA.jl`.
 - [ControlSystems.jl](http://juliacontrol.github.io/ControlSystems.jl/stable/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
+- [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
 - [EvolvingGraphs.jl](https://etymoio.github.io/EvolvingGraphs.jl/stable/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/stable/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/stable/)
