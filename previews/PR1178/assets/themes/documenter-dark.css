@@ -3685,7 +3685,7 @@ html.theme--documenter-dark {
     position: relative; }
   html.theme--documenter-dark .card-content {
     background-color: transparent;
-    padding: 1.5rem; }
+    padding: 1em 1.25em; }
   html.theme--documenter-dark .card-footer {
     background-color: transparent;
     border-top: 1px solid #5e6d6f;
@@ -4041,7 +4041,7 @@ html.theme--documenter-dark {
     border-style: solid;
     border-width: 0 0 0 4px;
     color: #fff;
-    padding: 1.25em 1.5em; }
+    padding: 1em 1.25em; }
     html.theme--documenter-dark .message-body code,
     html.theme--documenter-dark .message-body pre {
       background-color: white; }
@@ -7235,7 +7235,7 @@ html.theme--documenter-dark {
       content: "\f06a"; }
   html.theme--documenter-dark .admonition-body {
     color: #fff;
-    padding: 1.25em 1.5em; }
+    padding: 1em 1.25em; }
     html.theme--documenter-dark .admonition-body pre {
       background-color: #282f2f; }
     html.theme--documenter-dark .admonition-body code {
@@ -7263,7 +7263,7 @@ html.theme--documenter-dark {
         margin-left: 0.3em; }
     html.theme--documenter-dark .docstring > section {
       position: relative;
-      padding: 1.5rem;
+      padding: 1em 1.25em;
       border-bottom: 1px solid #5e6d6f; }
       html.theme--documenter-dark .docstring > section:last-child {
         border-bottom: none; }
@@ -7271,8 +7271,8 @@ html.theme--documenter-dark {
         transition: opacity 0.3s;
         opacity: 0;
         position: absolute;
-        right: 0.75rem;
-        bottom: 0.75rem; }
+        right: 1em 1.25em/2;
+        bottom: 1em 1.25em/2; }
     html.theme--documenter-dark .docstring:hover > section > a.docs-sourcelink {
       opacity: 0.2; }
     html.theme--documenter-dark .docstring > section:hover a.docs-sourcelink {

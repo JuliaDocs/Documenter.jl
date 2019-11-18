@@ -3767,7 +3767,7 @@ a.tag:hover, .docstring > section > a.docs-sourcelink:hover {
 
 .card-content {
   background-color: transparent;
-  padding: 1.5rem; }
+  padding: 1em 1.25em; }
 
 .card-footer {
   background-color: transparent;
@@ -4152,7 +4152,7 @@ a.list-item {
   border-style: solid;
   border-width: 0 0 0 4px;
   color: #222222;
-  padding: 1.25em 1.5em; }
+  padding: 1em 1.25em; }
   .message-body code,
   .message-body pre {
     background-color: white; }
@@ -7195,7 +7195,7 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
 
 .admonition-body {
   color: #222222;
-  padding: 1.25em 1.5em; }
+  padding: 1em 1.25em; }
   .admonition-body pre {
     background-color: whitesmoke; }
   .admonition-body code {
@@ -7224,7 +7224,7 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       margin-left: 0.3em; }
   .docstring > section {
     position: relative;
-    padding: 1.5rem;
+    padding: 1em 1.25em;
     border-bottom: 1px solid #dbdbdb; }
     .docstring > section:last-child {
       border-bottom: none; }
@@ -7232,8 +7232,8 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       transition: opacity 0.3s;
       opacity: 0;
       position: absolute;
-      right: 0.75rem;
-      bottom: 0.75rem; }
+      right: 1em 1.25em/2;
+      bottom: 1em 1.25em/2; }
   .docstring:hover > section > a.docs-sourcelink {
     opacity: 0.2; }
   .docstring > section:hover a.docs-sourcelink {
