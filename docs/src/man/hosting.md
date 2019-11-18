@@ -76,7 +76,7 @@ The three lines in the `script:` section do the following:
     `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
     sure the package is built properly.
 
-### Authentication: SSH Deploy Keys
+### [Authentication: SSH Deploy Keys](@id travis-ssh)
 
 In order to push the generated documentation from Travis you need to add deploy keys.
 Deploy keys provide push access to a *single* repository, to allow secure deployment of
@@ -163,7 +163,7 @@ Follow the instructions that are printed out, namely:
     [SSH Deploy Keys Walkthrough](@ref) section of the manual.
 
 
-### GitHub Actions
+## GitHub Actions
 
 To run the documentation build from GitHub Actions you should add the following to your
 workflow configuration file:
@@ -190,21 +190,61 @@ jobs:
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
         run: julia --project=docs/ docs/make.jl
 ```
 
 which will install Julia, checkout the correct commit of your repository, and run the
-build of the documentation.
-
-where the `julia-version:`, `julia-arch:` and `os:` entries decide the worker from which
-the docs are built and deployed. In the example above we will thus build and deploy the
-documentation from a ubuntu worker running Julia 1.2. For more information on how to setup
-a GitHub workflow see the manual for
-[Configuring a workflow](https://help.github.com/en/articles/configuring-a-workflow).
+build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
+the environment from which the docs are built and deployed. In the example above we will
+thus build and deploy the documentation from a ubuntu worker running Julia 1.2. For more
+information on how to setup a GitHub workflow see the manual for
+[Configuring a workflow](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
+
+### Authentication: `GITHUB_TOKEN`
+
+When running from GitHub Actions it is possible to authenticate using
+[the GitHub Actions authentication token
+(`GITHUB_TOKEN`)](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token). This is done by adding
+
+```yaml
+GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
+
+!!! note
+    You can only use `GITHUB_TOKEN` for authentication if the target repository
+    of the deployment is the same as the current repository. In order to push
+    elsewhere you should instead use a SSH deploy key.
+
+!!! warning "GitHub Pages and GitHub Token"
+    Currently the GitHub Page build is not triggered when the GitHub provided
+    `GITHUB_TOKEN` is used for authentication. See
+    [issue #1177](https://github.com/JuliaDocs/Documenter.jl/issues/1177)
+    for more information.
+
+### Authentication: SSH Deploy Keys
+
+It is also possible to authenticate using a SSH deploy key, just as described in
+the [SSH Deploy Keys section for Travis CI](@ref travis-ssh). You can generate the
+key in the same way, and then set the encoded key as a secret environment variable
+in your repository settings. You also need to make the key available for the doc
+building workflow by adding
+
+```yaml
+DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+```
+
+to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
+See GitHub's manual for
+[Creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
+for more information.
+
 
 ## `docs/Project.toml`
 

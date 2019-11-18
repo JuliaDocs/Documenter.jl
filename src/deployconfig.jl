@@ -189,11 +189,6 @@ Implementation of `DeployConfig` for deploying from GitHub Actions.
 The following environment variables influences the build
 when using the `GitHubActions` configuration:
 
- - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the repository.
-   This variable should be set in the GitHub Actions configuration file using a repository
-   secret, see the documentation for
-   [secret environment variables](https://help.github.com/en/articles/virtual-environments-for-github-actions#creating-and-using-secrets-encrypted-variables).
-
  - `GITHUB_EVENT_NAME`: must be set to `push`.
    This avoids deployment on pull request builds.
 
@@ -202,8 +197,11 @@ when using the `GitHubActions` configuration:
  - `GITHUB_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively
    correspond to a git tag.
 
+ - `GITHUB_TOKEN` or `DOCUMENTER_KEY`: used for authentication with GitHub,
+   see the manual section for [GitHub Actions](@ref) for more information.
+
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://help.github.com/en/articles/virtual-environments-for-github-actions#default-environment-variables).
+[documentation](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -274,15 +272,33 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
     actor_ok = haskey(ENV, "GITHUB_ACTOR")
     all_ok &= actor_ok
     println(io, "- $(marker(actor_ok)) ENV[\"GITHUB_ACTOR\"] exists")
-    ## GITHUB_TOKEN should exist (just check here and extract the value later)
+    ## GITHUB_TOKEN or DOCUMENTER_KEY should exist (just check here and extract the value later)
     token_ok = haskey(ENV, "GITHUB_TOKEN")
-    all_ok &= token_ok
-    println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists")
+    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    auth_ok = token_ok | key_ok
+    all_ok &= auth_ok
+    if key_ok
+        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists exists")
+    elseif token_ok
+        println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists exists")
+    else
+        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"]  exists")
+    end
     print(io, "Deploying: $(marker(all_ok))")
     return all_ok ? subfolder : nothing
 end
 
-authentication_method(::GitHubActions) = HTTPS
+function authentication_method(::GitHubActions)
+    if haskey(ENV, "DOCUMENTER_KEY")
+        return SSH
+    else
+        @warn "Currently the GitHub Pages build is not triggered when " *
+              "using `GITHUB_TOKEN` for authentication. See issue #1177 " *
+              "(https://github.com/JuliaDocs/Documenter.jl/issues/1177) " *
+              "for more information."
+        return HTTPS
+    end
+end
 function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
