@@ -28,6 +28,8 @@
 
 * ![Feature][badge-feature] Documenter now has builtin support for deploying from GitHub Actions. Documenter will autodetect the running system, unless explicitly specified. ([#1144][github-1144], [#1152][github-1152])
 
+* ![Feature][badge-feature] When using GitHub Actions Documenter will (try to) post a GitHub status with a link to the generated documentation. This is especially useful for pull request preview builds (see above). ([#1186][github-1186])
+
 * ![Enhancement][badge-enhancement] The handling of JS and CSS assets is now more customizable:
 
   * The `asset` function can now be used to declare remote JS and CSS assets in the `assets` keyword. ([#1108][github-1108])
@@ -478,6 +480,7 @@
 [github-1171]: https://github.com/JuliaDocs/Documenter.jl/pull/1171
 [github-1173]: https://github.com/JuliaDocs/Documenter.jl/pull/1173
 [github-1180]: https://github.com/JuliaDocs/Documenter.jl/pull/1180
+[github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

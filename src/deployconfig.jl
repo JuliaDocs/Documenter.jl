@@ -1,3 +1,5 @@
+import JSON
+
 """
     DeployConfig
 
@@ -55,6 +57,9 @@ This method must be supported by configs that push with HTTPS, see
 [`Documenter.authentication_method`](@ref).
 """
 function authenticated_repo_url end
+
+post_status(cfg::DeployConfig; kwargs...) = nothing
+post_status(; kwargs...) = post_status(auto_detect_deploy_system(); kwargs...)
 
 marker(x) = x ? "✔" : "✘"
 
@@ -301,6 +306,78 @@ function authentication_method(::GitHubActions)
 end
 function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
+end
+
+
+
+function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwargs...)
+    try # make this non-fatal and silent
+        # If we got this far it usually means everything is in
+        # order so no need to check everything again.
+        # In particular this is only called after we have
+        # determined to deploy.
+        sha = nothing
+        if get(ENV, "GITHUB_EVENT_NAME", nothing) == "pull_request"
+            event_path = get(ENV, "GITHUB_EVENT_PATH", nothing)
+            event_path === nothing && return
+            event = JSON.parsefile(event_path)
+            if haskey(event, "pull_request") &&
+               haskey(event["pull_request"], "head") &&
+               haskey(event["pull_request"]["head"], "sha")
+               sha = event["pull_request"]["head"]["sha"]
+            end
+        elseif get(ENV, "GITHUB_EVENT_NAME", nothing) == "push"
+            sha = get(ENV, "GITHUB_SHA", nothing)
+        end
+        sha === nothing && return
+        return post_github_status(type, repo, sha, subfolder)
+    catch
+        @debug "Failed to post status"
+    end
+end
+
+function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothing) where S <: String
+    try
+        Sys.which("curl") === nothing && return
+        ## Extract owner and repository name
+        m = match(r"^github.com\/(.+?)\/(.+?\.jl)(.git)?$", deploydocs_repo)
+        m === nothing && return
+        owner = String(m.captures[1])
+        repo = String(m.captures[2])
+
+        ## Need an access token for this
+        auth = get(ENV, "GITHUB_TOKEN", nothing)
+        auth === nothing && return
+        # construct the curl call
+        cmd = `curl -sX POST`
+        push!(cmd.exec, "-H", "Authorization: token $(auth)")
+        push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
+        push!(cmd.exec, "-H", "Content-Type: application/json")
+        json = Dict{String,Any}("context" => "continuous-integration/documenter", "state"=>type)
+        if type == "pending"
+            json["description"] = "Documentation build in progress"
+        elseif type == "success"
+            json["description"] = "Documentation build succeeded"
+            if subfolder !== nothing
+                json["target_url"] = "https://$(owner).github.io/$(repo)/$(subfolder)"
+            end
+        elseif type == "error"
+            json["description"] = "Documentation build errored"
+        elseif type == "failure"
+            json["description"] = "Documentation build failed"
+        else
+            error("unsupported type: $type")
+        end
+        push!(cmd.exec, "-d", sprint(JSON.print, json))
+        push!(cmd.exec, "https://api.github.com/repos/$(owner)/$(repo)/statuses/$(sha)")
+        # Run the command (silently)
+        io = IOBuffer()
+        res = run(pipeline(cmd; stdout=io, stderr=devnull))
+        @debug "Response of curl POST request" response=String(take!(io))
+    catch
+        @debug "Failed to post status"
+    end
+    return nothing
 end
 
 

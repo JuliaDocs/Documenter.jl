@@ -586,8 +586,10 @@ function git_push(
             ) do
                 cd(git_commands, temp)
             end
+            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
         catch e
             @error "Failed to push:" exception=(e, catch_backtrace())
+            post_status(deploy_config; repo=repo, type="error")
         finally
             # Remove the unencrypted private key.
             isfile(keyfile) && rm(keyfile)
@@ -597,8 +599,10 @@ function git_push(
         upstream = authenticated_repo_url(deploy_config)
         try
             cd(git_commands, temp)
+            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
         catch e
             @error "Failed to push:" exception=(e, catch_backtrace())
+            post_status(deploy_config; repo=repo, type="error")
         end
     end
 end
