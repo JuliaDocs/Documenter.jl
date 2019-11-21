@@ -58,7 +58,7 @@ This method must be supported by configs that push with HTTPS, see
 """
 function authenticated_repo_url end
 
-post_status(cfg::DeployConfig; kwargs...) = nothing
+post_status(cfg::Union{DeployConfig,Nothing}; kwargs...) = nothing
 post_status(; kwargs...) = post_status(auto_detect_deploy_system(); kwargs...)
 
 marker(x) = x ? "✔" : "✘"
