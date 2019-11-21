@@ -3767,7 +3767,7 @@ a.tag:hover, .docstring > section > a.docs-sourcelink:hover {
 
 .card-content {
   background-color: transparent;
-  padding: 1em 1.25em; }
+  padding: 1rem 1.25rem; }
 
 .card-footer {
   background-color: transparent;
@@ -7224,7 +7224,7 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       margin-left: 0.3em; }
   .docstring > section {
     position: relative;
-    padding: 1em 1.25em;
+    padding: 1rem 1.25rem;
     border-bottom: 1px solid #dbdbdb; }
     .docstring > section:last-child {
       border-bottom: none; }
@@ -7232,8 +7232,8 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       transition: opacity 0.3s;
       opacity: 0;
       position: absolute;
-      right: 1em 1.25em/2;
-      bottom: 1em 1.25em/2; }
+      right: 0.625rem;
+      bottom: 0.5rem; }
   .docstring:hover > section > a.docs-sourcelink {
     opacity: 0.2; }
   .docstring > section:hover a.docs-sourcelink {
@@ -7247,6 +7247,9 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
 
 .content a code {
   color: #2e63b8; }
+
+.content h1 code, .content h2 code, .content h3 code, .content h4 code, .content h5 code, .content h6 code {
+  color: #222222; }
 
 .content table {
   display: block;
