@@ -363,31 +363,34 @@ struct HTML <: Documenter.Writer
     end
 end
 
-const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
-const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-const fontawesome_css = [
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/fontawesome.min.css",
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/solid.min.css",
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/brands.min.css",
-]
-const katex_css = "https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-
-"Provides a namespace for JS dependencies."
-module JS
+"Provides a namespace for remote dependencies."
+module RD
     using JSON
     using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
     using ..HTMLWriter: KaTeX, MathJax
 
-    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js")
-    const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js")
-    const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js")
+    const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
+    const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
+    const fontawesome_version = "5.11.2"
+    const fontawesome_css = [
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/brands.min.css",
+    ]
+
+    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+    const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
+    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.6/lunr.min.js")
+    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js")
+
+    # headroom
+    const headroom_version = "0.10.3"
+    const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/headroom.min.js")
     const headroom_jquery = RemoteLibrary(
         "headroom-jquery",
-        "https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/jQuery.headroom.min.js",
         deps = ["jquery", "headroom"],
     )
-    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.5/lunr.min.js")
-    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js")
 
     # highlight.js
     "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
@@ -421,8 +424,9 @@ module JS
     end
 
     # MathJax & KaTeX
+    const katex_version = "0.11.1"
+    const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
     function mathengine!(r::RequireJS, engine::KaTeX)
-        katex_version = "0.10.2" # FIXME: upgrade KaTeX to v0.11.0
         push!(r, RemoteLibrary(
             "katex",
             "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
@@ -551,10 +555,10 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS([
-            JS.jquery, JS.jqueryui, JS.headroom, JS.headroom_jquery,
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
-        JS.mathengine!(r, settings.mathengine)
-        JS.highlightjs!(r, settings.highlights)
+        RD.mathengine!(r, settings.mathengine)
+        RD.highlightjs!(r, settings.highlights)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
@@ -569,7 +573,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "search.js"))
         @warn "not creating 'search.js', provided by the user."
     else
-        r = JSDependencies.RequireJS([JS.jquery, JS.lunr, JS.lodash])
+        r = JSDependencies.RequireJS([RD.jquery, RD.lunr, RD.lodash])
         push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
@@ -734,9 +738,9 @@ function render_head(ctx, navnode)
 
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
-        google_fonts,
-        fontawesome_css...,
-        katex_css,
+        RD.google_fonts,
+        RD.fontawesome_css...,
+        RD.katex_css,
     ]
     head(
         meta[:charset=>"UTF-8"],
@@ -754,7 +758,7 @@ function render_head(ctx, navnode)
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
         script[
-            :src => requirejs_cdn,
+            :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
 
