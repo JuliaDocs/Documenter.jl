@@ -7,6 +7,7 @@ using Logging
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
             "TRAVIS_BRANCH" => "master",
             "TRAVIS_TAG" => "v1.2.3",
+            "TRAVIS_EVENT_TYPE" => nothing,
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
@@ -21,6 +22,7 @@ using Logging
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
             "TRAVIS_BRANCH" => "master",
             "TRAVIS_TAG" => "not-a-version",
+            "TRAVIS_EVENT_TYPE" => nothing,
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
@@ -33,6 +35,7 @@ using Logging
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
             "TRAVIS_BRANCH" => "master",
             "TRAVIS_TAG" => nothing,
+            "TRAVIS_EVENT_TYPE" => nothing,
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
@@ -48,6 +51,7 @@ using Logging
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
             "TRAVIS_BRANCH" => "something",
             "TRAVIS_TAG" => nothing,
+            "TRAVIS_EVENT_TYPE" => nothing,
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
@@ -63,6 +67,7 @@ using Logging
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
             "TRAVIS_BRANCH" => "master",
             "TRAVIS_TAG" => "v1.2.3",
+            "TRAVIS_EVENT_TYPE" => nothing,
             "DOCUMENTER_KEY" => nothing,
         ) do
         cfg = Documenter.Travis()
