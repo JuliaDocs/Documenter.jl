@@ -36,6 +36,8 @@
   * The `highlights` keyword to `HTML` can be used to declare additional languages that should be highlighted in code blocks. ([#1094][github-1094])
   * It is now possible to choose between MathJax and KaTeX as the math rendering engine with the `mathengine` keyword to `HTML` and to set their configuration in the `make.jl` script directly. ([#1097][github-1097])
 
+* ![Enhancement][badge-enhancement] The JS and CSS dependencies of the front end have been updated to the latest versions. ([#1189][github-1189])
+
 * ![Enhancement][badge-enhancement] Displaying of the site name at the top of the sidebar can now be disabled by passing `sidebar_sitename = false` to `HTML` in the `format` keyword. ([#1089][github-1089])
 
 * ![Enhancement][badge-enhancement] For deployments that have Google Analytics enabled, the URL fragment (i.e. the in-page `#` target) also stored in analytics. ([#1121][github-1121])
@@ -481,6 +483,7 @@
 [github-1173]: https://github.com/JuliaDocs/Documenter.jl/pull/1173
 [github-1180]: https://github.com/JuliaDocs/Documenter.jl/pull/1180
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
+[github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
