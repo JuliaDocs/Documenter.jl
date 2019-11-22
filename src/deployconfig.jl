@@ -58,7 +58,7 @@ This method must be supported by configs that push with HTTPS, see
 """
 function authenticated_repo_url end
 
-post_status(cfg::DeployConfig; kwargs...) = nothing
+post_status(cfg::Union{DeployConfig,Nothing}; kwargs...) = nothing
 post_status(; kwargs...) = post_status(auto_detect_deploy_system(); kwargs...)
 
 marker(x) = x ? "✔" : "✘"
@@ -353,13 +353,13 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
         push!(cmd.exec, "-H", "Authorization: token $(auth)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
-        json = Dict{String,Any}("context" => "continuous-integration/documenter", "state"=>type)
+        json = Dict{String,Any}("context" => "documenter/deploy", "state"=>type)
         if type == "pending"
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
             if subfolder !== nothing
-                json["target_url"] = "https://$(owner).github.io/$(repo)/$(subfolder)"
+                json["target_url"] = "https://$(owner).github.io/$(repo)/$(subfolder)/"
             end
         elseif type == "error"
             json["description"] = "Documentation build errored"

@@ -10,6 +10,11 @@
   a code {
     color: $link;
   }
+  h1, h2, h3, h4, h5, h6 {
+    code {
+      color: $content-heading-color;
+    }
+  }
   // Don't make tables full-width and make sure that overflowing tables are scrollable
   table {
     display: block;
