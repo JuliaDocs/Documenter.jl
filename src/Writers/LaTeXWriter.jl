@@ -95,7 +95,7 @@ end
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: rendering PDF."
-    mktempdir() do path
+    Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             name = doc.user.sitename
