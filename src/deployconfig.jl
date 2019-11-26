@@ -33,8 +33,14 @@ arguments from [`deploydocs`](@ref).
     compatibility with future Documenter releases which may pass additional
     keyword arguments.
 """
-deploy_folder(::DeployConfig; kwargs...) = nothing
-deploy_folder(::Nothing; kwargs...) = nothing # when auto-detection fails
+function deploy_folder(cfg::DeployConfig; kwargs...)
+    @warn "Documenter.deploy_folder(::$(typeof(cfg)); kwargs...) not implemented. Skipping deployment."
+    return nothing
+end
+function deploy_folder(::Nothing; kwargs...)
+    @warn "Documenter could not auto-detect the building environment Skipping deployment."
+    return nothing
+end
 
 @enum AuthenticationMethod SSH HTTPS
 
@@ -290,6 +296,7 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
         println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"]  exists")
     end
     print(io, "Deploying: $(marker(all_ok))")
+    @info String(take!(io))
     return all_ok ? subfolder : nothing
 end
 

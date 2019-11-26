@@ -195,6 +195,19 @@ end end
     end
 end end
 
+struct CustomConfig <: Documenter.DeployConfig end
+Documenter.deploy_folder(::CustomConfig; kwargs...) = "v1.2.3"
+struct BrokenConfig <: Documenter.DeployConfig end
+
+@testset "Custom configuration" begin; with_logger(NullLogger()) do
+        cfg = CustomConfig()
+        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="dev", push_preview=true) == "v1.2.3"
+        cfg = BrokenConfig()
+        @test (@test_logs (:warn, r"Documenter\.deploy_folder\(::BrokenConfig; kwargs\.\.\.\) not implemented") Documenter.deploy_folder(cfg)) === nothing
+        @test (@test_logs (:warn, r"Documenter could not auto-detect") Documenter.deploy_folder(nothing)) === nothing
+end end
+
 @testset "Autodetection of deploy system" begin
     withenv("TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
             "GITHUB_REPOSITORY" => nothing,
