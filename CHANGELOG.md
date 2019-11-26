@@ -1,5 +1,13 @@
 # Documenter.jl changelog
 
+## Version `v0.24.2`
+
+* ![Maintenance][badge-maintenance] Improvements to logging in `deploydocs`. ([#1195][github-1195])
+
+## Version `v0.24.1`
+
+* ![Bugfix][badge-bugfix] Fix a bad `mktempdir` incantation in `LaTeXWriter`. ([#1194][github-1194])
+
 ## Version `v0.24.0`
 
 * ![BREAKING][badge-breaking] Documenter no longer creates a symlink between the old `latest` url to specified `devurl`. ([#1151][github-1151])
@@ -484,6 +492,8 @@
 [github-1180]: https://github.com/JuliaDocs/Documenter.jl/pull/1180
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
+[github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
+[github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
