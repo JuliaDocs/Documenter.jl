@@ -2,3 +2,8 @@
 
 This build only contains a single paragraph of text to make sure that a
 near-empty LaTeX builds passes.
+
+```julia-repl
+julia> 127 % Int8
+127
+```
