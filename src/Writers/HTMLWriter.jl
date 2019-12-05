@@ -999,7 +999,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             logo = "\uf171"
         else
             host = ""
-            logo = "\uf15c"
+            logo = "\uf841" # "git-alt" icon
         end
         hoststring = isempty(host) ? " source" : " on $(host)"
 
@@ -1015,12 +1015,18 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
         end
         if url !== nothing
-            edit_verb = (edit_branch === nothing) ? "View" : "Edit"
-            title = "$(edit_verb)$hoststring"
+            repo_title = isempty(host) ? "Source" : host
             push!(navbar_right.nodes,
-                a[".docs-edit-link", :href => url, :title => title](
+                a[".docs-navbar-link", :href => url, :title => repo_title](
                     span[".docs-icon.fab"](logo),
-                    span[".docs-label.is-hidden-touch"](title)
+                    span[".docs-label.is-hidden-touch"](repo_title)
+                )
+            )
+            # Add an edit link, with just an icon ('file-alt' if "view" and 'edit' if "edit")
+            edit_verb, edit_logo = (edit_branch === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
+            push!(navbar_right.nodes,
+                a[".docs-navbar-link", :href => url, :title => "$(edit_verb)$hoststring"](
+                    span[".docs-icon.fas"](edit_logo)
                 )
             )
         end
@@ -1028,13 +1034,13 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Settings cog
     push!(navbar_right.nodes, a[
-        "#documenter-settings-button.docs-settings-button.fas.fa-cog",
+        "#documenter-settings-button.docs-settings-button.docs-navbar-link.fas.fa-cog",
         :href => "#", :title => "Settings",
     ])
 
     # Hamburger on mobile
     push!(navbar_right.nodes, a[
-        "#documenter-sidebar-button.docs-sidebar-button.fa.fa-bars.is-hidden-desktop",
+        "#documenter-sidebar-button.docs-sidebar-button.docs-navbar-link.fa.fa-bars.is-hidden-desktop",
         :href => "#"
     ])
 

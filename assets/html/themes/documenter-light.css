@@ -7322,10 +7322,9 @@ html {
     #documenter .docs-main header.docs-navbar .docs-right .docs-label {
       padding: 0;
       margin-left: 0.3em; }
-    #documenter .docs-main header.docs-navbar .docs-right .docs-settings-button {
-      margin: auto 0 auto 1rem; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
-      font-size: 1.5rem;
+      font-size: 1.5rem; }
+    #documenter .docs-main header.docs-navbar .docs-right .docs-navbar-link {
       margin: auto 0 auto 1rem; }
   #documenter .docs-main header.docs-navbar > * {
     margin: auto 0; }
