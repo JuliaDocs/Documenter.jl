@@ -44,8 +44,8 @@ Documenter will try to automatically detect which system is running and use that
 
 ## Travis CI
 
-To tell Travis that we want a new build stage we can add the following to the `.travis.yml`
-file:
+To tell Travis that we want a new build stage, we can add the following to an existing `.travis.yml`
+file. Note that the snippet below will not work by itself and must be accompanied by a complete Travis file.
 
 ```yaml
 jobs:
