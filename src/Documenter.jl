@@ -481,11 +481,14 @@ function git_push(
     target_dir = abspath(target)
 
     # Generate a closure with common commands for ssh and https
-    function git_commands()
+    function git_commands(sshconfig=nothing)
         # Setup git.
         run(`git init`)
         run(`git config user.name "zeptodoctor"`)
         run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+        if sshconfig !== nothing
+            run(`git config core.sshCommand "ssh -F $(sshconfig)"`)
+        end
 
         # Fetch from remote and checkout the branch.
         run(`git remote add upstream $upstream`)
@@ -572,8 +575,8 @@ function git_push(
         chmod(keyfile, 0o600)
 
         try
-            # Use a custom SSH config file to avoid overwriting the default user config.
-            withfile(joinpath(homedir(), ".ssh", "config"),
+            mktemp() do sshconfig, io
+                print(io,
                 """
                 Host $host
                     StrictHostKeyChecking no
@@ -582,9 +585,14 @@ function git_push(
                     IdentityFile "$keyfile"
                     IdentitiesOnly yes
                     BatchMode yes
-                """
-            ) do
-                cd(git_commands, temp)
+                """)
+                close(io)
+                chmod(sshconfig, 0o600)
+                # git config core.sshCommand requires git 2.10.0, but
+                # GIT_SSH_COMMAND works from 2.3.0 so define both.
+                withenv("GIT_SSH_COMMAND" => "ssh -F $(sshconfig)") do
+                    cd(() -> git_commands(sshconfig), temp)
+                end
             end
             post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
         catch e
@@ -632,35 +640,6 @@ function gitrm_copy(src, dst)
     # if they are empty so need to mkpath after
     mkpath(dst)
     cp(src, dst; force=true)
-end
-
-function withfile(func, file::AbstractString, contents::AbstractString)
-    dir = dirname(file)
-    hasdir = isdir(dir)
-    hasdir || mkpath(dir)
-
-    hasfile = isfile(file)
-    original = hasfile ? read(file, String) : ""
-    open(file, "w") do stream
-        print(stream, contents)
-        flush(stream) # Make sure file is written before continuing.
-    end
-    try
-        func()
-    finally
-        if hasfile
-            open(file, "w") do stream
-                print(stream, original)
-            end
-        else
-            rm(file)
-        end
-
-        if !hasdir
-            # dir should be empty now as the only file inside was deleted
-            rm(dir, recursive=true)
-        end
-    end
 end
 
 function getenv(regex::Regex)

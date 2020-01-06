@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.24.3`
+
+* ![Bugfix][badge-bugfix] Fix a case where Documenter's deployment would fail due to git picking up the wrong ssh config file on non-standard systems. ([#1216][github-1216])
+
 ## Version `v0.24.2`
 
 * ![Maintenance][badge-maintenance] Improvements to logging in `deploydocs`. ([#1195][github-1195])
@@ -494,6 +498,7 @@
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
 [github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
+[github-1216]: https://github.com/JuliaDocs/Documenter.jl/pull/1216
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
