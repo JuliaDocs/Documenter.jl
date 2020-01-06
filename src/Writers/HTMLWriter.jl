@@ -281,6 +281,7 @@ blocks. The options are either [KaTeX](https://katex.org/) (default) or
 [`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
 passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
 
+**`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
 
 # Default and custom assets
 
@@ -324,6 +325,7 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
+    lang          :: String
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -338,6 +340,7 @@ struct HTML <: Documenter.Writer
             mathengine :: Union{MathEngine,Nothing} = KaTeX(),
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
+            lang          :: String = "en",
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         assets = map(assets) do asset
@@ -359,7 +362,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine)
+            collapselevel, sidebar_sitename, highlights, mathengine, lang)
     end
 end
 
@@ -680,7 +683,7 @@ Renders the main `<html>` tag.
 function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
     @tags html body div
     DOM.HTMLDocument(
-        html[:lang=>"en"](
+        html[:lang=>ctx.settings.lang](
             head,
             body(
                 div["#documenter"](
