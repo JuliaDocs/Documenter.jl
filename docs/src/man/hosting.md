@@ -177,7 +177,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
           version: 1.3
