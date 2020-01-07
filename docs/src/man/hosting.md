@@ -171,7 +171,12 @@ workflow configuration file:
 ```yaml
 name: Documentation
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+    tags: '*'
+  pull_request:
 
 jobs:
   build:
