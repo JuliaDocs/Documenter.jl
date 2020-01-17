@@ -4,6 +4,8 @@
 
 * ![Enhancement][badge-enhancement] Change the inline code to less distracting black color in the HTML light theme. ([#1212][github-1212], [#1222][github-1222])
 
+* ![Enhancement][badge-enhancement] Add the ability specify the `lang` attribute of the `html` tag in the HTML output, to better support documentation pages in other languages. By default Documenter now defaults to `lang="en"`. ([#1223][github-1223])
+
 ## Version `v0.24.3`
 
 * ![Bugfix][badge-bugfix] Fix a case where Documenter's deployment would fail due to git picking up the wrong ssh config file on non-standard systems. ([#1216][github-1216])
@@ -505,6 +507,7 @@
 [github-1212]: https://github.com/JuliaDocs/Documenter.jl/issues/1212
 [github-1216]: https://github.com/JuliaDocs/Documenter.jl/pull/1216
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
+[github-1223]: https://github.com/JuliaDocs/Documenter.jl/pull/1223
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
