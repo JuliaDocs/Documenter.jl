@@ -62,7 +62,12 @@
           font-size: 1.5rem;
         }
         .docs-navbar-link {
-          margin: auto 0 auto 1rem;
+          margin: auto 0.5rem auto 0.5rem;
+        }
+        @include touch {
+          .docs-navbar-link {
+            margin: auto 0.75rem auto 0.75rem;
+          }
         }
       }
 

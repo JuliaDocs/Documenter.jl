@@ -21,6 +21,27 @@ using DocStringExtensions
 import Markdown
 using Unicode
 
+# Remote URLs.
+# ------------
+
+abstract type RepositoryRemote end
+
+function repofile(remote::RepositoryRemote, ref::AbstractString, filename::AbstractString, linerange::AbstractRange{<:Integer})
+    filename = startswith(filename, '/') ? filename : "/$(filename)" # sanitize the file name
+    _fileurl(remote, ref, filename, linerange)
+end
+reporoot(remote::RepositoryRemote) = _reporoot(remote)
+
+struct GitHub <: RepositoryRemote
+    user :: String
+    repo :: String
+end
+_reporoot(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
+function _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange::AbstractRange{<:Integer})
+    lstart, lend = first(linerange), last(linerange)
+    "$(remote_reporoot(remote::GitHub))/blob/$(ref)$(filename)#L$(lstart)-L$(lend)"
+end
+
 # Pages.
 # ------
 
@@ -225,7 +246,7 @@ struct User
     strict::Bool              # Throw an exception when any warnings are encountered.
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    repo    :: String  # Template for URL to source code repo
+    repo    :: Union{RepositoryRemote, String} # Remote Git repository information
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -279,7 +300,7 @@ function Document(plugins = nothing;
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         expandfirst :: Vector        = String[],
-        repo     :: AbstractString   = "",
+        repo     :: Union{RepositoryRemote, AbstractString} = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -287,6 +308,10 @@ function Document(plugins = nothing;
         others...
     )
     Utilities.check_kwargs(others)
+
+    if repo isa AbstractString
+        Base.depwarn("Passing a string to `repo` is deprecated, use a RepositoryRemote object instead.", :makedocs)
+    end
 
     if !isa(format, AbstractVector)
         format = Writer[format]
@@ -315,7 +340,7 @@ function Document(plugins = nothing;
         sitename,
         authors,
         version,
-        highlightsig
+        highlightsig,
     )
     internal = Internal(
         Utilities.assetsdir(),

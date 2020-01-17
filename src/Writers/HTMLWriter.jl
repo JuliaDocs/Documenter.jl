@@ -773,7 +773,7 @@ function render_head(ctx, navnode)
             e = link[".docs-theme-link",
                 :rel => "stylesheet", :type => "text/css",
                 :href => relhref(src, "assets/themes/$(theme).css"),
-                Symbol("data-theme-name") => theme,
+                Symbol("data-theme-name") => theme,Writers
             ]
             (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
             return e
@@ -987,35 +987,35 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Set the logo and name for the "Edit on.." button.
     if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
-        host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
-        if host_type == Utilities.RepoGitlab
-            host = "GitLab"
-            logo = "\uf296"
-        elseif host_type == Utilities.RepoGithub
-            host = "GitHub"
-            logo = "\uf09b"
-        elseif host_type == Utilities.RepoBitbucket
-            host = "BitBucket"
-            logo = "\uf171"
-        else
-            host = ""
-            logo = "\uf841" # "git-alt" icon
-        end
-        hoststring = isempty(host) ? " source" : " on $(host)"
-
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
         edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
-        url = if Utilities.isabsurl(pageurl)
-            pageurl
-        else
-            if !(pageurl == getpage(ctx, navnode).source)
-                # need to set users path relative the page itself
-                pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
+
+        if ctx.doc.user.repo isa AbstractString
+            host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
+            host, logo = host_logo(host_type)
+            hoststring = isempty(host) ? " source" : " on $(host)"
+            url = if Utilities.isabsurl(pageurl)
+                pageurl
+            else
+                if !(pageurl == getpage(ctx, navnode).source)
+                    # need to set users path relative the page itself
+                    pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
+                end
+                Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
             end
-            Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
-        end
-        if url !== nothing
+            if url !== nothing
+                edit_verb = (edit_branch === nothing) ? "View" : "Edit"
+                title = "$(edit_verb)$hoststring"
+                push!(navbar_right.nodes,
+                    a[".docs-navbar-link", :href => url, :title => title](
+                        span[".docs-icon.fab"](logo),
+                        span[".docs-label.is-hidden-touch"](title)
+                    )
+                )
+            end
+        else
             repo_title = isempty(host) ? "Source" : host
+            hoststring = isempty(host) ? " source" : " on $(host)"
             push!(navbar_right.nodes,
                 a[".docs-navbar-link", :href => url, :title => repo_title](
                     span[".docs-icon.fab"](logo),
@@ -1046,6 +1046,18 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Construct the main <header> node that should be the first element in div.docs-main
     header[".docs-navbar"](breadcrumb, navbar_right)
+end
+
+function host_logo(hosttype)
+    if host_type == Utilities.RepoGitlab
+        (host = "GitLab", logo = "\uf296")
+    elseif host_type == Utilities.RepoGithub
+        (host = "GitHub", logo = "\uf09b")
+    elseif host_type == Utilities.RepoBitbucket
+        (host = "BitBucket", logo = "\uf171")
+    else
+        (host = "", logo = "\uf841") # "git-alt" icon
+    end
 end
 
 function render_footer(ctx, navnode)
