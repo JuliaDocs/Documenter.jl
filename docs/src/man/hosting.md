@@ -171,21 +171,21 @@ workflow configuration file:
 ```yaml
 name: Documentation
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+    tags: '*'
+  pull_request:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        julia-version: [1.2.0]
-        julia-arch: [x86]
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: ${{ matrix.julia-version }}
+          version: 1.3
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
