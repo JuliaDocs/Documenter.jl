@@ -44,8 +44,8 @@ Documenter will try to automatically detect which system is running and use that
 
 ## Travis CI
 
-To tell Travis that we want a new build stage we can add the following to the `.travis.yml`
-file:
+To tell Travis that we want a new build stage, we can add the following to an existing `.travis.yml`
+file. Note that the snippet below will not work by itself and must be accompanied by a complete Travis file.
 
 ```yaml
 jobs:
@@ -171,21 +171,21 @@ workflow configuration file:
 ```yaml
 name: Documentation
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+    tags: '*'
+  pull_request:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        julia-version: [1.2.0]
-        julia-arch: [x86]
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: ${{ matrix.julia-version }}
+          version: 1.3
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
