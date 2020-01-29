@@ -73,7 +73,7 @@ function onormalize(s)
     s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
 
     # Remove stacktraces
-    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)*" => s"\1\\n\3{STACKTRACE}")
+    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)+" => s"\1\\n\3{STACKTRACE}")
 
     return s
 end
