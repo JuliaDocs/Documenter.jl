@@ -211,6 +211,15 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test success
         @test is_same_as_file(output, rfile("32.stdout"))
     end
+
+    if VERSION >= v"1.5.0-DEV.178"
+        # Julia 1.5 REPL softscope,
+        # see https://github.com/JuliaLang/julia/pull/33864
+        run_makedocs(["softscope.md"]) do result, success, backtrace, output
+            @test success
+            @test is_same_as_file(output, rfile("1.stdout"))
+        end
+    end
 end
 
 using Documenter.DocTests: remove_common_backtrace
