@@ -1,6 +1,6 @@
-Julia 1.5's REPL softscope
+REPL scoping behaviour when Julia < 1.5
 
-```jldoctest
+```jldoctest; filter = r"Stacktrace:(\\n \\[[0-9]+\\].*)*"
 julia> s = 0 # global
 0
 
@@ -8,12 +8,10 @@ julia> for i = 1:10
            t = s + i # new local `t`
            s = t # assign global `s`
        end
-
-julia> s # global
-55
-
-julia> @isdefined(t) # global
-false
+ERROR: UndefVarError: s not defined
+Stacktrace:
+ [1] top-level scope at ./none:2
+[...]
 ```
 
 ```jldoctest; filter = r"Stacktrace:(\\n \\[[0-9]+\\].*)*"
@@ -28,12 +26,10 @@ julia> code = """
        """;
 
 julia> include_string(Main, code)
-┌ Warning: Assignment to `s` in soft scope is ambiguous because a global variable by the same name exists: `s` will be treated as a new local. Disambiguate by using `local s` to suppress this warning or `global s` to assign to the existing global variable.
-└ @ string:4
 ERROR: LoadError: UndefVarError: s not defined
 Stacktrace:
  [1] top-level scope at ./string:3
- [2] include_string(::Module, ::String, ::String) at ./loading.jl:1080
+ [2] include_string(::Module, ::String, ::String) at ./loading.jl:1075
 [...]
 ```
 
@@ -48,8 +44,6 @@ s, # global
 
 # output
 
-┌ Warning: Assignment to `s` in soft scope is ambiguous because a global variable by the same name exists: `s` will be treated as a new local. Disambiguate by using `local s` to suppress this warning or `global s` to assign to the existing global variable.
-└ @ none:3
 ERROR: UndefVarError: s not defined
 Stacktrace:
  [1] top-level scope at ./none:2

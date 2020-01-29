@@ -217,7 +217,13 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         # see https://github.com/JuliaLang/julia/pull/33864
         run_makedocs(["softscope.md"]) do result, success, backtrace, output
             @test success
-            @test is_same_as_file(output, rfile("1.stdout"))
+            @test is_same_as_file(output, rfile("41.stdout"))
+        end
+    else
+        # Old REPL scoping behaviour on older Julia version
+        run_makedocs(["hardscope.md"]) do result, success, backtrace, output
+            @test success
+            @test is_same_as_file(output, rfile("42.stdout"))
         end
     end
 end
