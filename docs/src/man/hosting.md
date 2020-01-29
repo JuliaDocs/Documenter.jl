@@ -65,6 +65,15 @@ deployed. In the example above we will thus build and deploy the documentation f
 worker running Julia 1.0. For more information on how to setup a build stage, see the Travis
 manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
+!!! note "`matrix:` section in `.travis.yml`"
+
+    Travis CI used to use `matrix:` as the section to configure to build matrix in the config
+    file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
+    `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
+    
+    If your `.travis.yml` file still uses `matrix:`, it should be replaced merged into a single
+    `jobs:` section.
+
 The three lines in the `script:` section do the following:
 
  1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
