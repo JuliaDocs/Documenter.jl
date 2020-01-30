@@ -16,7 +16,7 @@ julia> @isdefined(t) # global
 false
 ```
 
-```jldoctest; filter = r"Stacktrace:(\\n \\[[0-9]+\\].*)*"
+```jldoctest; filter = r"Stacktrace:(\n \[[0-9]+\].*)*"
 julia> code = """
        s = 0 # global
        for i = 1:10
@@ -37,7 +37,7 @@ Stacktrace:
 [...]
 ```
 
-```jldoctest; filter = r"Stacktrace:(\\n \\[[0-9]+\\].*)*"
+```jldoctest; filter = r"Stacktrace:(\n \[[0-9]+\].*)*"
 s = 0 # global
 for i = 1:10
     t = s + i # new local `t`
