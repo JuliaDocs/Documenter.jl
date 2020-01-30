@@ -516,6 +516,12 @@ Named `@repl <name>` blocks behave in the same way as named `@example <name>` bl
     will be written to, and the paths in `include` calls are interpreted to be relative to
     `pwd`.  This can be customized with the `workdir` keyword of [`makedocs`](@ref).
 
+!!! note "Soft vs hard scope"
+
+    Julia 1.5 changed the REPL to use the _soft scope_ when handling global variables in
+    `for` loops etc. When using Documenter with Julia 1.5 or above, Documenter uses the soft
+    scope in `@repl`-blocks and REPL-type doctests.
+
 ## `@setup <name>` block
 
 These are similar to `@example` blocks, but both the input and output are hidden from the

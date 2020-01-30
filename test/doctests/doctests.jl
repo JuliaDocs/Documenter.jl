@@ -73,7 +73,7 @@ function onormalize(s)
     s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
 
     # Remove stacktraces
-    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)*" => s"\1\\n\3{STACKTRACE}")
+    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)+" => s"\1\\n\3{STACKTRACE}")
 
     return s
 end
@@ -210,6 +210,21 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("32.stdout"))
+    end
+
+    if VERSION >= v"1.5.0-DEV.178"
+        # Julia 1.5 REPL softscope,
+        # see https://github.com/JuliaLang/julia/pull/33864
+        run_makedocs(["softscope.md"]) do result, success, backtrace, output
+            @test success
+            @test is_same_as_file(output, rfile("41.stdout"))
+        end
+    else
+        # Old REPL scoping behaviour on older Julia version
+        run_makedocs(["hardscope.md"]) do result, success, backtrace, output
+            @test success
+            @test is_same_as_file(output, rfile("42.stdout"))
+        end
     end
 end
 
