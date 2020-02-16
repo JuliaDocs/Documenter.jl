@@ -7468,7 +7468,7 @@ html {
     #documenter .docs-sidebar ul.docs-menu a.tocitem:hover, #documenter .docs-sidebar ul.docs-menu label.tocitem:hover {
       background-color: #ebebeb; }
     #documenter .docs-sidebar ul.docs-menu li.is-active {
-      border-top: 1px solid #c7c7c7;
+      border-top: 1px solid #dbdbdb;
       border-bottom: 1px solid #dbdbdb;
       background-color: white; }
       #documenter .docs-sidebar ul.docs-menu li.is-active > .tocitem, #documenter .docs-sidebar ul.docs-menu li.is-active > .tocitem:hover {
