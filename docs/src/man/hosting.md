@@ -233,7 +233,7 @@ to the configuration file, as showed in the [previous section](@ref GitHub-Actio
 !!! note
     While GitHub will automatically create a github token for you named "GITHUB_TOKEN",
     it will not have push access. Therefore, you must override
-    GitHub my making a personal access token with the same name.
+    GitHub by making a new personal access token with the same name.
 
 ### Authentication: SSH Deploy Keys
 
