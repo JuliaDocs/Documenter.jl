@@ -231,9 +231,9 @@ GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 
 !!! note
-    While GitHub will automatically create a github token for you named "GITHUB"
-    token for you, it will not have push access. Therefore, you must override
-    GitHub my making a new key with the same name.
+    While GitHub will automatically create a github token for you named "GITHUB_TOKEN",
+    it will not have push access. Therefore, you must override
+    GitHub my making a personal access token with the same name.
 
 ### Authentication: SSH Deploy Keys
 
