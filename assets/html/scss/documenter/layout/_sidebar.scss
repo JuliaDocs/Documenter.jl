@@ -151,27 +151,41 @@
       display: block;
       padding: 0.5rem 0.5rem;
 
+      // We'll force all .tocitems to have the sidebar colors. This is to override any
+      // higher-level defaults, such as when the .tocitem is in an <a> tag. We'll also make
+      // sure that they do not display any :hover behaviour by default.
       &, &:hover {
         color: $documenter-sidebar-color;
+        background: $documenter-sidebar-background;
       }
     }
-
+    // If the .tocitem is in an <a> or <label> tags (latter used for collapsible submenus),
+    // we'll apply special :hover styling to highlight them to the user as they move the
+    // mouse over the menu.
     a, label {
       &.tocitem:hover {
+        color: $documenter-sidebar-menu-hover-color;
         background-color: $documenter-sidebar-menu-hover-background;
       }
     }
 
+    // The in-page links for the current page are wrapped in a li.is-active element.
     li.is-active {
       border-top: 1px solid $border;
       border-bottom: 1px solid $border;
       background-color: $documenter-sidebar-menu-active-background;
-
-      > .tocitem {
+      // The background color for li.is-active is different, so we also need to make sure
+      // that the .tocitems match. We'll disable :hover for them too.
+      .tocitem {
         &, &:hover {
           background-color: $documenter-sidebar-menu-active-background;
           color: $documenter-sidebar-menu-active-color;
         }
+      }
+      // The .tocitems of the in-page links should also have a :hover styling:
+      ul.internal .tocitem:hover {
+        background-color: $documenter-sidebar-menu-active-hover-background;
+        color: $documenter-sidebar-menu-active-hover-color;
       }
     }
 
