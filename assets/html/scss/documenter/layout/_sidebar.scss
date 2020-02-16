@@ -9,6 +9,8 @@
   flex: 0 0 $documenter-sidebar-width;
   z-index: 5; // make sure it's on top of the main body and top bar
 
+  font-size: $documenter-sidebar-size;
+
   // This is mobile-first, so our default state is that the sidebar is hidden away left
   // of the screen.
   position: fixed;
@@ -83,7 +85,6 @@
     // item
     user-select: none;
 
-    font-size: $size-normal;
     border-top: 1px solid $border;
     // background-color: $background;
 
@@ -99,7 +100,7 @@
 
     // Second and lower
     > li li {
-      font-size: 0.95*$size-normal;
+      font-size: $documenter-sidebar-submenu-size;
       margin-left: 1em;
       border-left: 1px solid $border;
 
@@ -133,7 +134,7 @@
         text-rendering: auto;
         line-height: 1;
 
-        font-size: 0.75*$size-normal;
+        font-size: $documenter-sidebar-menu-chevron-size;
         margin-left: 1rem;
         margin-top: auto;
         margin-bottom: auto;
@@ -200,7 +201,7 @@
       margin: 0 0.5rem 0.5rem;
       border-top: 1px solid $border;
       li {
-        font-size: 0.85*$size-normal;
+        font-size: $documenter-sidebar-menu-active-size;
         border-left: none;
         margin-left: 0;
         margin-top: 0.5rem;

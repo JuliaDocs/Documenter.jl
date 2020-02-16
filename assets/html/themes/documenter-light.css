@@ -7383,6 +7383,7 @@ html {
   padding: 0;
   flex: 0 0 18rem;
   z-index: 5;
+  font-size: 1rem;
   position: fixed;
   left: -18rem;
   width: 18rem;
@@ -7424,7 +7425,6 @@ html {
   #documenter .docs-sidebar ul.docs-menu {
     flex-grow: 1;
     user-select: none;
-    font-size: 1rem;
     border-top: 1px solid #dbdbdb;
     padding-bottom: 1.5rem;
     /* Managing collapsible submenus */ }

@@ -4,6 +4,11 @@
 // Hence the need to override this variable.
 // $navbar-breakpoint: $tablet !default;
 
+$documenter-sidebar-size: $size-normal !default;
+$documenter-sidebar-submenu-size: 0.95*$documenter-sidebar-size !default;
+$documenter-sidebar-menu-chevron-size: 0.75*$documenter-sidebar-size !default;
+$documenter-sidebar-menu-active-size: 0.85*$documenter-sidebar-size !default;
+
 $documenter-sidebar-title-width: 0.9 * $documenter-sidebar-width !default;
 $documenter-sidebar-menu-padding: 1rem !default;
 $documenter-sidebar-title-font-size: $size-large !default;
