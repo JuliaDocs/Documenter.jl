@@ -81,7 +81,7 @@ The three lines in the `script:` section do the following:
     Travis CI used to use `matrix:` as the section to configure to build matrix in the config
     file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
     `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
-    
+
     If your `.travis.yml` file still uses `matrix:`, it should be replaced with a a single
     `jobs:` section.
 
@@ -216,9 +216,13 @@ see the previous section.
 
 ### Authentication: `GITHUB_TOKEN`
 
-When running from GitHub Actions it is possible to authenticate using
-[the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token). This is done by adding
+When running from GitHub Actions it is possible to authenticate using a personal
+access token.
+
+First, create a new personal access token named "GITHUB_TOKEN" with
+the "repo" scope checked [here](https://github.com/settings/tokens/new).
+
+Then, add
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -227,15 +231,9 @@ GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 
 !!! note
-    You can only use `GITHUB_TOKEN` for authentication if the target repository
-    of the deployment is the same as the current repository. In order to push
-    elsewhere you should instead use a SSH deploy key.
-
-!!! warning "GitHub Pages and GitHub Token"
-    Currently the GitHub Page build is not triggered when the GitHub provided
-    `GITHUB_TOKEN` is used for authentication. See
-    [issue #1177](https://github.com/JuliaDocs/Documenter.jl/issues/1177)
-    for more information.
+    While GitHub will automatically create a github token for you named "GITHUB"
+    token for you, it will not have push access. Therefore, you must override
+    GitHub my making a new key with the same name.
 
 ### Authentication: SSH Deploy Keys
 
