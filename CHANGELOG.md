@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.25.0`
+
+* ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
+
 ## Version `v0.24.5`
 
 * ![Enhancement][badge-enhancement] ![Bugfix][badge-bugfix] Documenter now correctly emulates the "REPL softscope" (Julia 1.5) in REPL-style doctest blocks and `@repl` blocks. ([#1232][github-1232])
@@ -513,6 +517,7 @@
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
 [github-1223]: https://github.com/JuliaDocs/Documenter.jl/pull/1223
 [github-1232]: https://github.com/JuliaDocs/Documenter.jl/pull/1232
+[github-1240]: https://github.com/JuliaDocs/Documenter.jl/pull/1240
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
