@@ -2,8 +2,8 @@
 
 After going through the [Package Guide](@ref) and [Doctests](@ref) page you will need to
 host the generated documentation somewhere for potential users to read. This guide will
-describe how to setup automatic updates for your package docs using either the Travis CI
-build service or GitHub Actions together with and GitHub Pages for hosting the generated
+describe how to setup automatic updates for your package docs using
+GitHub Actions together with and GitHub Pages for hosting the generated
 HTML files. This is the same approach used by this package to host its own docs --
 the docs you're currently reading.
 
@@ -14,11 +14,11 @@ the docs you're currently reading.
     proceed with the steps outlined here once you have successfully managed to build your
     documentation locally with Documenter.
 
-    This guide assumes that you already have [GitHub](https://github.com/) and
-    [Travis](https://travis-ci.com/) accounts setup. If not then go set those up first and
+    This guide assumes that you already have a [GitHub](https://github.com/)
+    account setup. If not then go set those up first and
     then return here.
 
-    It is possible to deploy from other systems than Travis CI or GitHub Actions,
+    It is possible to deploy from other systems than GitHub Actions,
     see the section on [Deployment systems](@ref).
 
 
@@ -42,135 +42,13 @@ service as the one testing your package. If you don't explicitly select
 the service with the `deploy_config` keyword argument to `deploydocs`
 Documenter will try to automatically detect which system is running and use that.
 
-## Travis CI
+### [Authentication: SSH Deploy Keys]
 
-To tell Travis that we want a new build stage, we can add the following to an existing `.travis.yml`
-file. Note that the snippet below will not work by itself and must be accompanied by a complete Travis file.
-
-```yaml
-jobs:
-  include:
-    - stage: "Documentation"
-      julia: 1.3
-      os: linux
-      script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-                                               Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
-      after_success: skip
-```
-
-where the `julia:` and `os:` entries decide the worker from which the docs are built and
-deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1.3. For more information on how to setup a build stage, see the Travis
-manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
-
-The three lines in the `script:` section do the following:
-
- 1. Instantiate the doc-building environment (i.e. `docs/Project.toml`, see below).
- 2. Install your package in the doc-build environment.
- 3. Run the docs/make.jl script, which builds and deploys the documentation.
-
-!!! note
-    If your package has a build script you should call
-    `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
-    sure the package is built properly.
-
-!!! note "matrix: section in .travis.yml"
-
-    Travis CI used to use `matrix:` as the section to configure to build matrix in the config
-    file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
-    `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
-    
-    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a a single
-    `jobs:` section.
-
-### [Authentication: SSH Deploy Keys](@id travis-ssh)
-
-In order to push the generated documentation from Travis you need to add deploy keys.
+In order to push the generated documentation from GitHub actions you need to add deploy keys.
 Deploy keys provide push access to a *single* repository, to allow secure deployment of
-generated documentation from the builder to GitHub. The SSH keys can be generated with
-`DocumenterTools.genkeys` from the [DocumenterTools](https://github.com/JuliaDocs/DocumenterTools.jl) package.
-
-!!! note
-
-    You will need several command line programs (`which`, `git` and `ssh-keygen`) to be
-    installed for the following steps to work. If DocumenterTools fails, please see the the
-    [SSH Deploy Keys Walkthrough](@ref) section for instruction on how to generate the keys
-    manually (including in Windows).
-
-
-Install and load DocumenterTools with
-
-```
-pkg> add DocumenterTools
-```
-```julia-repl
-julia> using DocumenterTools
-```
-
-Then call the [`DocumenterTools.genkeys`](@ref) function as follows:
-
-```julia-repl
-julia> using MyPackage
-julia> DocumenterTools.genkeys(user="MyUser", repo="git@github.com:MyUser/MyPackage.jl.git")
-```
-
-where `MyPackage` is the name of the package you would like to create deploy keys for and
-`MyUser` is your GitHub username. Note that the keyword arguments are optional and can be
-omitted.
-
-If the package is checked out in development mode with `] dev MyPackage`, you can also use
-`DocumenterTools.genkeys` as follows:
-
-```julia-repl
-julia> using MyPackage
-julia> DocumenterTools.genkeys(MyPackage)
-```
-
-where `MyPackage` is the package you would like to create deploy keys for. The output will
-look similar to the text below:
-
-```
-[ Info: add the public key below to https://github.com/USER/REPO/settings/keys
-      with read/write access:
-
-[SSH PUBLIC KEY HERE]
-
-[ Info: add a secure environment variable named 'DOCUMENTER_KEY' to
-  https://travis-ci.com/USER/REPO/settings with value:
-
-[LONG BASE64 ENCODED PRIVATE KEY]
-```
-
-Follow the instructions that are printed out, namely:
-
- 1. Add the public ssh key to your settings page for the GitHub repository that you are
-    setting up by following the `.../settings/key` link provided. Click on **`Add deploy
-    key`**, enter the name **`documenter`** as the title, and copy the public key into the
-    **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
-    generated documentation to the repo.
-
- 2. Next add the long private key to the Travis settings page using the provided link.
-    Again note that you should include **no whitespace** when copying the key. In the **`Environment
-    Variables`** section add a key with the name `DOCUMENTER_KEY` and the value that was printed
-    out. **Do not** set the variable to be displayed in the build log. Then click **`Add`**.
-
-    !!! warning "Security warning"
-
-        To reiterate: make sure that this key is hidden. In particular, in the Travis CI settings
-        the "Display value in build log" option should be **OFF** for
-        the variable, so that it does not get printed when the tests run. This
-        base64-encoded string contains the *unencrypted* private key that gives full write
-        access to your repository, so it must be kept safe.  Also, make sure that you never
-        expose this variable in your tests, nor merge any code that does. You can read more
-        about Travis environment variables in [Travis User Documentation](https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings).
-
-!!! note
-
-    There are more explicit instructions for adding the keys to Travis in the
-    [SSH Deploy Keys Walkthrough](@ref) section of the manual.
-
+generated documentation from the builder to GitHub. The SSH keys can be generated and
+submitted with `OnlinePackage.jl`. See the instructions for using that package
+[here](https://bramtayl.github.io/OnlinePackage.jl/latest/).
 
 ## GitHub Actions
 
@@ -195,13 +73,9 @@ jobs:
       - uses: julia-actions/setup-julia@latest
         with:
           version: 1.3
-      - name: Install dependencies
-        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-      - name: Build and deploy
+      - uses: julia-actions/julia-docdeploy@releases/v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
-        run: julia --project=docs/ docs/make.jl
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 ```
 
 which will install Julia, checkout the correct commit of your repository, and run the
@@ -210,50 +84,6 @@ the environment from which the docs are built and deployed. In the example above
 thus build and deploy the documentation from a ubuntu worker running Julia 1.2. For more
 information on how to setup a GitHub workflow see the manual for
 [Configuring a workflow](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
-
-The commands in the lines in the `run:` section do the same as for Travis,
-see the previous section.
-
-### Authentication: `GITHUB_TOKEN`
-
-When running from GitHub Actions it is possible to authenticate using
-[the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token). This is done by adding
-
-```yaml
-GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
-to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
-
-!!! note
-    You can only use `GITHUB_TOKEN` for authentication if the target repository
-    of the deployment is the same as the current repository. In order to push
-    elsewhere you should instead use a SSH deploy key.
-
-!!! warning "GitHub Pages and GitHub Token"
-    Currently the GitHub Page build is not triggered when the GitHub provided
-    `GITHUB_TOKEN` is used for authentication. See
-    [issue #1177](https://github.com/JuliaDocs/Documenter.jl/issues/1177)
-    for more information.
-
-### Authentication: SSH Deploy Keys
-
-It is also possible to authenticate using a SSH deploy key, just as described in
-the [SSH Deploy Keys section for Travis CI](@ref travis-ssh). You can generate the
-key in the same way, and then set the encoded key as a secret environment variable
-in your repository settings. You also need to make the key available for the doc
-building workflow by adding
-
-```yaml
-DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-```
-
-to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
-See GitHub's manual for
-[Creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
-for more information.
-
 
 ## `docs/Project.toml`
 
