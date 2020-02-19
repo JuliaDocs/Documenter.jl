@@ -86,13 +86,10 @@
     user-select: none;
 
     border-top: 1px solid $border;
-    // background-color: $background;
-
     padding-bottom: 1.5rem;
 
     // First level items
     > li {
-      // padding-left: 0.5em;
       > .tocitem {
         font-weight: bold;
       }
@@ -103,10 +100,6 @@
       font-size: $documenter-sidebar-submenu-size;
       margin-left: 1em;
       border-left: 1px solid $border;
-
-      &.is-active {
-        // margin-left: 0;
-      }
     }
 
     /* Managing collapsible submenus */
