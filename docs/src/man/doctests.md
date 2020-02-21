@@ -81,6 +81,12 @@ and will suppress the output, although the line is still evaluated.
 
 Note that not all features of the REPL are supported such as shell and help modes.
 
+!!! note "Soft vs hard scope"
+
+    Julia 1.5 changed the REPL to use the _soft scope_ when handling global variables in
+    `for` loops etc. When using Documenter with Julia 1.5 or above, Documenter uses the soft
+    scope in `@repl`-blocks and REPL-type doctests.
+
 ## Exceptions
 
 Doctests can also test for thrown exceptions and their stacktraces. Comparing of the actual

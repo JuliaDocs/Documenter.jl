@@ -51,7 +51,7 @@ file. Note that the snippet below will not work by itself and must be accompanie
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.0
+      julia: 1.3
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
@@ -62,7 +62,7 @@ jobs:
 
 where the `julia:` and `os:` entries decide the worker from which the docs are built and
 deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1.0. For more information on how to setup a build stage, see the Travis
+worker running Julia 1.3. For more information on how to setup a build stage, see the Travis
 manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
 The three lines in the `script:` section do the following:
@@ -75,6 +75,15 @@ The three lines in the `script:` section do the following:
     If your package has a build script you should call
     `Pkg.build("PackageName")` after the call to `Pkg.develop` to make
     sure the package is built properly.
+
+!!! note "matrix: section in .travis.yml"
+
+    Travis CI used to use `matrix:` as the section to configure to build matrix in the config
+    file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
+    `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
+    
+    If your `.travis.yml` file still uses `matrix:`, it should be replaced with a a single
+    `jobs:` section.
 
 ### [Authentication: SSH Deploy Keys](@id travis-ssh)
 
