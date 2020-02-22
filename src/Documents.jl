@@ -68,9 +68,7 @@ defined for that type:
 """
 abstract type RepositoryRemote end
 function _reporoot end
-function _fileurl(remote::RepositoryRemote, ref::String, filename::String, linerange::UnitRange{Int64})
-    _fileurl(remote, ref, filename)
-end
+_fileurl(remote::RepositoryRemote, ref, filename, linerange) = _fileurl(remote, ref, filename)
 
 reporoot(remote::RepositoryRemote) = _reporoot(remote)
 function repofile(remote::RepositoryRemote, ref, filename, linerange=nothing)
@@ -114,12 +112,14 @@ struct StringRemote <: RepositoryRemote
     urltemplate :: String
 end
 _reporoot(remote::StringRemote) = remote.reporoot
+using ..Documenter.Utilities: repo_host_from_url, LineRangeFormatting, format_line
 function _fileurl(remote::StringRemote, ref, filename, linerange=nothing)
-    lines = if linerange !== nothing
-    end
+    lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(repo_host_from_url(remote.reporoot)))
+    # lines = if linerange !== nothing
+    # end
     s = replace(remote.urltemplate, "{commit}" => ref)
     s = replace(s, "{path}" => filename)
-    replace(s, "{line}" => linerange)
+    replace(s, "{line}" => lines)
 end
 
 # Pages.
