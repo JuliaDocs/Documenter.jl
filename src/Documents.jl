@@ -225,7 +225,7 @@ struct User
     strict::Bool              # Throw an exception when any warnings are encountered.
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    repo    :: Union{Utilities.RepositoryRemote,Nothing} # Remote Git repository information
+    remote  :: Union{Utilities.RepositoryRemote,Nothing} # Remote Git repository information
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -237,7 +237,6 @@ Private state used to control the generation process.
 """
 struct Internal
     assets  :: String             # Path where asset files will be copied to.
-    remote  :: String             # The remote repo on github where this package is hosted.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
@@ -315,9 +314,6 @@ function Document(plugins = nothing;
     else
         repo
     end
-    @info "repo" repo
-
-    @debug "Utilities.getremote(root)" Utilities.getremote(root)
 
     user = User(
         root,
@@ -342,7 +338,6 @@ function Document(plugins = nothing;
     )
     internal = Internal(
         Utilities.assetsdir(),
-        Utilities.getremote(root),
         [],
         [],
         Anchors.AnchorMap(),

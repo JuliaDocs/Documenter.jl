@@ -989,10 +989,10 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     navbar_right = div[".docs-right"]
 
     # Set the logo and name for the "Edit on.." button.
-    if ctx.doc.user.repo isa Utilities.GitHub
-        host, logo = host_logo(ctx.doc.user.repo)
+    if ctx.doc.user.remote isa Utilities.GitHub
+        host, logo = host_logo(ctx.doc.user.remote)
         repo_title = isempty(host) ? "Git" : host
-        url = "https://github.com/$(ctx.doc.user.repo.user)/$(ctx.doc.user.repo.repo)"
+        url = "https://github.com/$(ctx.doc.user.remote.user)/$(ctx.doc.user.remote.repo)"
         push!(navbar_right.nodes,
             a[".docs-navbar-link", :href => url, :title => repo_title](
                 span[".docs-icon.fab"](logo),
@@ -1001,12 +1001,12 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         )
     end
     # Add an edit link, with just an icon ('file-alt' if "view" and 'edit' if "edit")
-    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (ctx.doc.user.repo !== nothing)
+    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (ctx.doc.user.remote !== nothing)
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
         edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
-        host, _ = host_logo(ctx.doc.user.repo)
+        host, _ = host_logo(ctx.doc.user.remote)
         hoststring = isempty(host) ? " source" : " on $(host)"
-        url = repofile(ctx.doc.user.repo, "master", pageurl)
+        url = repofile(ctx.doc.user.remote, "master", pageurl)
         edit_verb, edit_logo = (edit_branch === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
         push!(navbar_right.nodes,
             a[".docs-navbar-link", :href => url, :title => "$(edit_verb)$hoststring"](
@@ -1318,7 +1318,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             ret = section(div(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
-                url = Utilities.url(ctx.doc.user.repo, result)
+                url = Utilities.url(ctx.doc.user.remote, result)
                 if url !== nothing
                     push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
                 end

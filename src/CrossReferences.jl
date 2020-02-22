@@ -219,8 +219,8 @@ getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, 
 # -----------------------------
 
 function issue_xref(link::Markdown.Link, num, meta, page, doc)
-    if doc.user.repo isa Utilities.GitHub
-        user, repo = doc.user.repo.user, doc.user.repo.repo
+    if doc.user.remote isa Utilities.GitHub
+        user, repo = doc.user.remote.user, doc.user.repo.repo
         link.url = "https://github.com/$(user)/$(repo)/issues/$num"
     end
 end
