@@ -413,7 +413,9 @@ _fileurl(remote::RepositoryRemote, ref, filename, linerange) = _fileurl(remote, 
 
 #reporoot(remote::RepositoryRemote) = _reporoot(remote)
 function repofile(remote::RepositoryRemote, ref, filename, linerange=nothing)
-    filename = startswith(filename, '/') ? filename : "/$(filename)" # sanitize the file name
+     # sanitize the file name
+    filename = startswith(filename, '/') ? filename : "/$(filename)"
+    filename = replace(filename, '\\' => '/') # remove backslashes on Windows
     if linerange === nothing
         _fileurl(remote, ref, filename)
     else
@@ -436,6 +438,10 @@ makedocs(
 struct GitHub <: RepositoryRemote
     user :: String
     repo :: String
+end
+function GitHub(remote::AbstractString)
+    user, repo = split(remote, '/')
+    GitHub(user, repo)
 end
 _reporoot(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
 function _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString)
@@ -474,69 +480,34 @@ function _fileurl(remote::StringRemote, ref, filename, linerange=nothing)
     replace(s, "{line}" => lines)
 end
 
-function url(repo, file; commit=nothing)
-    file = abspath(file)
-    if !isfile(file)
-        @warn "couldn't find file \"$file\" when generating URL"
+const JuliaRemote = GitHub("JuliaLang", "julia")
+url(remote, doc::Docs.DocStr) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
+function url(remote, mod, file, linerange)
+    # quickly bail if file ===  nothing, which can happen when using e.g. Revise (see #689)
+    if file === nothing
+        @warn "nothing passed as file to url()" remote mod file linerange
+        @debug "Stacktrace" stacktrace()
         return nothing
     end
-    file = realpath(file)
-    remote = getremote(dirname(file))
-    isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
-    path = relpath_from_repo_root(file)
-    if path === nothing
-        nothing
-    else
-        repo = replace(repo, "{commit}" => commit === nothing ? repo_commit(file) : commit)
-        # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
-        repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
-        repo = replace(repo, "{line}" => "")
-        repo
-    end
-end
-
-url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
-
-function url(remote, repo, mod, file, linerange)
-    @debug "url(::$(typeof(remote)), ::$(typeof(repo)), ::$(typeof(mod)), ::$(typeof(file)), ::$(typeof(linerange)))" remote repo mod file linerange
-    file === nothing && return nothing # needed on julia v0.6, see #689
-    remote = getremote(dirname(file))
-    isabspath(file) && isempty(remote) && isempty(repo) && return nothing
-
-    # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
+    # make sure we get the true path, as otherwise we will get different paths when we
+    # compute `root` below
     if isfile(file)
         file = realpath(abspath(file))
     end
 
-    # Format the line range.
-    line = format_line(linerange, LineRangeFormatting(repo_host_from_url(repo)))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
     if inbase(mod) || !isabspath(file)
-        file = replace(file, '\\' => '/')
-        base = "https://github.com/JuliaLang/julia/blob"
-        dest = "base/$file#$line"
-        if isempty(Base.GIT_VERSION_INFO.commit)
-            "$base/v$VERSION/$dest"
-        else
-            commit = Base.GIT_VERSION_INFO.commit
-            "$base/$commit/$dest"
-        end
+        ref = isempty(Base.GIT_VERSION_INFO.commit) ? "v$VERSION" : Base.GIT_VERSION_INFO.commit
+        repofile(JuliaRemote, ref, "base/$file", linerange)
     else
         path = relpath_from_repo_root(file)
-        if isempty(repo)
-            repo = "https://github.com/$remote/blob/{commit}{path}#{line}"
+        path === nothing && return nothing
+        if remote === nothing
+            remote = StringRemote("https://github.com/$(getremote(dirname(file)))/blob/{commit}{path}#{line}")
         end
-        if path === nothing
-            nothing
-        else
-            repo = replace(repo, "{commit}" => repo_commit(file))
-            # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
-            repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
-            repo = replace(repo, "{line}" => line)
-            repo
-        end
+        repofile(remote, repo_commit(file), path, linerange)
     end
 end
 
@@ -549,6 +520,7 @@ function getremote(dir::AbstractString)
         end
     m = match(LibGit2.GITHUB_REGEX, remote)
     if m === nothing
+        # TODO: Also support GitHub Actions env. variables? (GITHUB_REPOSITORY)
         travis = get(ENV, "TRAVIS_REPO_SLUG", "")
         isempty(travis) ? "" : travis
     else
@@ -596,6 +568,7 @@ function repo_host_from_url(repoURL::String)
         return RepoUnknown
     end
 end
+repo_host_from_url(remote::StringRemote) = repo_host_from_url(remote.urltemplate)
 
 # Find line numbers.
 # ------------------

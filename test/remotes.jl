@@ -43,6 +43,13 @@ using Documenter.Utilities: repofile, StringRemote, GitHub
     @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
     @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
     @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5-L8"
+
+    r = GitHub("JuliaDocs/Documenter.jl")
+    #@test reporoot(r) == "https://github.com/JuliaDocs/Documenter.jl"
+    @test repofile(r, "mybranch", "src/foo.jl") == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl"
+    @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
+    @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
+    @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5-L8"
 end
 
 end # module

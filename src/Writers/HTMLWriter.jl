@@ -989,51 +989,30 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     navbar_right = div[".docs-right"]
 
     # Set the logo and name for the "Edit on.." button.
-    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
+    if ctx.doc.user.repo isa Utilities.GitHub
+        host, logo = host_logo(ctx.doc.user.repo)
+        repo_title = isempty(host) ? "Git" : host
+        url = "https://github.com/$(ctx.doc.user.repo.user)/$(ctx.doc.user.repo.repo)"
+        push!(navbar_right.nodes,
+            a[".docs-navbar-link", :href => url, :title => repo_title](
+                span[".docs-icon.fab"](logo),
+                span[".docs-label.is-hidden-touch"](repo_title)
+            )
+        )
+    end
+    # Add an edit link, with just an icon ('file-alt' if "view" and 'edit' if "edit")
+    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (ctx.doc.user.repo !== nothing)
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
         edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
-
-        host_type = Utilities.repo_host_from_url(reporoot(ctx.doc.user.repo))
-        host, logo = host_logo(host_type)
-        if ctx.doc.user.repo isa AbstractString
-            hoststring = isempty(host) ? " source" : " on $(host)"
-            url = if Utilities.isabsurl(pageurl)
-                pageurl
-            else
-                if !(pageurl == getpage(ctx, navnode).source)
-                    # need to set users path relative the page itself
-                    pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
-                end
-                Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
-            end
-            if url !== nothing
-                edit_verb = (edit_branch === nothing) ? "View" : "Edit"
-                title = "$(edit_verb)$hoststring"
-                push!(navbar_right.nodes,
-                    a[".docs-navbar-link", :href => url, :title => title](
-                        span[".docs-icon.fab"](logo),
-                        span[".docs-label.is-hidden-touch"](title)
-                    )
-                )
-            end
-        else
-            repo_title = isempty(host) ? "Source" : host
-            hoststring = isempty(host) ? " source" : " on $(host)"
-            url = repofile(ctx.doc.user.repo, "master", pageurl)
-            push!(navbar_right.nodes,
-                a[".docs-navbar-link", :href => url, :title => repo_title](
-                    span[".docs-icon.fab"](logo),
-                    span[".docs-label.is-hidden-touch"](repo_title)
-                )
+        host, _ = host_logo(ctx.doc.user.repo)
+        hoststring = isempty(host) ? " source" : " on $(host)"
+        url = repofile(ctx.doc.user.repo, "master", pageurl)
+        edit_verb, edit_logo = (edit_branch === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
+        push!(navbar_right.nodes,
+            a[".docs-navbar-link", :href => url, :title => "$(edit_verb)$hoststring"](
+                span[".docs-icon.fas"](edit_logo)
             )
-            # Add an edit link, with just an icon ('file-alt' if "view" and 'edit' if "edit")
-            edit_verb, edit_logo = (edit_branch === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
-            push!(navbar_right.nodes,
-                a[".docs-navbar-link", :href => url, :title => "$(edit_verb)$hoststring"](
-                    span[".docs-icon.fas"](edit_logo)
-                )
-            )
-        end
+        )
     end
 
     # Settings cog
@@ -1052,17 +1031,14 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     header[".docs-navbar"](breadcrumb, navbar_right)
 end
 
-function host_logo(host_type)
-    if host_type == Utilities.RepoGitlab
-        (host = "GitLab", logo = "\uf296")
-    elseif host_type == Utilities.RepoGithub
-        (host = "GitHub", logo = "\uf09b")
-    elseif host_type == Utilities.RepoBitbucket
-        (host = "BitBucket", logo = "\uf171")
-    else
-        (host = "", logo = "\uf841") # "git-alt" icon
-    end
+const host_logo_fallback = (host = "", logo = "\uf841")
+host_logo(remote::Utilities.GitHub) = (host = "GitHub", logo = "\uf09b")
+function host_logo(remote::Utilities.StringRemote)
+    occursin("bitbucket", remote.urltemplate) ? (host = "BitBucket", logo = "\uf171") :
+    occursin("gitlab", remote.urltemplate)    ? (host = "GitLab", logo = "\uf296")    :
+    host_logo_fallback
 end
+host_logo(remote::Utilities.RepositoryRemote) = host_logo_fallback
 
 function render_footer(ctx, navnode)
     @tags a div nav
@@ -1342,7 +1318,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             ret = section(div(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
-                url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
+                url = Utilities.url(ctx.doc.user.repo, result)
                 if url !== nothing
                     push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
                 end

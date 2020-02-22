@@ -296,22 +296,26 @@ function Document(plugins = nothing;
         version = "git:$(Utilities.get_commit_short(root))"
     end
 
-    repo = if repo isa AbstractString && repo == ""
+    repo = if repo isa AbstractString && isempty(repo)
         # If the user does not provide the `repo` argument, we'll try to automatically
         # detect the remote repository by looking at the Git remotes. This only works if
         # the repository is hosted on GitHub.
+        #
+        # Utilities.getremote will first check the 'origin' remote of the repository. If
+        # that fails, we'll fall back to TRAVIS_REPO_SLUG.
         remote = Utilities.getremote(root)
         if isempty(remote)
             @warn "Unable to determine remote Git URL automatically. Source links may be missing."
             nothing
         else
-            Utilities.StringRemote("https://github.com/$(remote)", "https://github.com/$remote/blob/{commit}{path}#{line}")
+            Utilities.GitHub(remote)
         end
     elseif repo isa AbstractString
-        Utilities.StringRemote("", repo)
+        Utilities.StringRemote(repo)
     else
         repo
     end
+    @info "repo" repo
 
     @debug "Utilities.getremote(root)" Utilities.getremote(root)
 
