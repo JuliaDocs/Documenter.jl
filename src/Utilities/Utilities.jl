@@ -408,10 +408,10 @@ defined for that type:
   would return `https://github.com/USER/REPO/blob/master/foo/bar.jl#L12`.
 """
 abstract type RepositoryRemote end
-function _reporoot end
+#function _reporoot end
 _fileurl(remote::RepositoryRemote, ref, filename, linerange) = _fileurl(remote, ref, filename)
 
-reporoot(remote::RepositoryRemote) = _reporoot(remote)
+#reporoot(remote::RepositoryRemote) = _reporoot(remote)
 function repofile(remote::RepositoryRemote, ref, filename, linerange=nothing)
     filename = startswith(filename, '/') ? filename : "/$(filename)" # sanitize the file name
     if linerange === nothing
@@ -461,10 +461,10 @@ Can contain the following template sections that Documenter will replace:
 * `{line}`: replaced by the line (or line range) reference
 """
 struct StringRemote <: RepositoryRemote
-    reporoot :: String
+    #reporoot :: String
     urltemplate :: String
 end
-_reporoot(remote::StringRemote) = remote.reporoot
+#_reporoot(remote::StringRemote) = remote.reporoot
 function _fileurl(remote::StringRemote, ref, filename, linerange=nothing)
     lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(repo_host_from_url(remote.urltemplate)))
     # lines = if linerange !== nothing
