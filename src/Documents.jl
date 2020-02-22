@@ -24,22 +24,102 @@ using Unicode
 # Remote URLs.
 # ------------
 
-abstract type RepositoryRemote end
+"""
+    abstract type RepositoryRemote
 
-function repofile(remote::RepositoryRemote, ref::AbstractString, filename::AbstractString, linerange::AbstractRange{<:Integer})
-    filename = startswith(filename, '/') ? filename : "/$(filename)" # sanitize the file name
-    _fileurl(remote, ref, filename, linerange)
+Abstract supertype for implementing additional remote repositories that Documenter can use
+when generating links to files hosted on Git hosting service (such as GitHub, GitLab etc).
+For custom or less common Git hosting services, the user can create their own
+`RepositoryRemote` and pass that as the `repo` argument to [`makedocs`](@ref).
+
+When implementing a new type `T <: RepositoryRemote`, the following methods should be
+defined for that type:
+
+* ```julia
+  Documents._reporoot(remote::T) -> String
+  ```
+
+  Should return a string pointing to the landing page of the remote repository.
+
+  E.g. for GitHub it would return `https://github.com/USER/REPO/`.
+
+* ```julia
+  Documents._fileurl(remote::T, ref::String, filename::String) -> String
+  ```
+
+  Should return the full URL to the source file `filename`. `ref` is the Git reference such
+  as a commit SHA, branch name or a tag name. `filename` is guaranteed to start with a `/`.
+
+  E.g. for GitHub, for `ref="master"` and `filename="foo/bar.jl"` it would return
+  `https://github.com/USER/REPO/blob/master/foo/bar.jl`.
+
+* ```julia
+  Documents._fileurl(remote::T, ref::String, filename::String, linerange::UnitRange{Int}) -> String
+  ```
+
+  As the other `_fileurl`, but allows the specification of the line number (if
+  `first(linerange) == last(linerange)`) or a range of lines.
+
+  This method is optional -- if it is not implemented, Documenter falls back to the other
+  `_fileurl` and the resulting links do not refer to specific lines.
+
+  E.g. for GitHub, for `ref="master"`, `filename="foo/bar.jl"` and `linerange=12:12` it
+  would return `https://github.com/USER/REPO/blob/master/foo/bar.jl#L12`.
+"""
+abstract type RepositoryRemote end
+function _reporoot end
+function _fileurl(remote::RepositoryRemote, ref::String, filename::String, linerange::UnitRange{Int64})
+    _fileurl(remote, ref, filename)
 end
+
 reporoot(remote::RepositoryRemote) = _reporoot(remote)
+function repofile(remote::RepositoryRemote, ref, filename, linerange=nothing)
+    filename = startswith(filename, '/') ? filename : "/$(filename)" # sanitize the file name
+    if linerange === nothing
+        _fileurl(remote, ref, filename)
+    else
+        _fileurl(remote, ref, filename, Int(first(linerange)):Int(last(linerange)))
+    end
+end
 
 struct GitHub <: RepositoryRemote
     user :: String
     repo :: String
 end
 _reporoot(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
-function _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange::AbstractRange{<:Integer})
+function _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString)
+    reporoot = _reporoot(remote)
+    "$(reporoot)/blob/$(ref)$(filename)"
+end
+function _fileurl(remote::GitHub, ref::String, filename::String, linerange::UnitRange{Int})
+    fileurl = _fileurl(remote, ref, filename)
     lstart, lend = first(linerange), last(linerange)
-    "$(remote_reporoot(remote::GitHub))/blob/$(ref)$(filename)#L$(lstart)-L$(lend)"
+    (lstart == lend) ? "$(fileurl)#L$(lstart)" : "$(fileurl)#L$(lstart)-L$(lend)"
+end
+
+"""
+    struct StringRemote <: RepositoryRemote
+
+A [`RepositoryRemote`](@ref) type used internally in Documenter when the user passes a
+string as the `repo` argument.
+
+Can contain the following template sections that Documenter will replace:
+
+* `{commit}`: replaced by the commit SHA, branch or tag name
+* `{path}`: replaced by the path of the file, relative to the repository root
+* `{line}`: replaced by the line (or line range) reference
+"""
+struct StringRemote <: RepositoryRemote
+    reporoot :: String
+    urltemplate :: String
+end
+_reporoot(remote::StringRemote) = remote.reporoot
+function _fileurl(remote::StringRemote, ref, filename, linerange=nothing)
+    lines = if linerange !== nothing
+    end
+    s = replace(remote.urltemplate, "{commit}" => ref)
+    s = replace(s, "{path}" => filename)
+    replace(s, "{line}" => linerange)
 end
 
 # Pages.
@@ -246,7 +326,7 @@ struct User
     strict::Bool              # Throw an exception when any warnings are encountered.
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    repo    :: Union{RepositoryRemote, String} # Remote Git repository information
+    repo    :: RepositoryRemote # Remote Git repository information
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -300,7 +380,7 @@ function Document(plugins = nothing;
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         expandfirst :: Vector        = String[],
-        repo     :: Union{RepositoryRemote, AbstractString} = "",
+        repo     :: Union{AbstractString, RepositoryRemote} = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -309,10 +389,6 @@ function Document(plugins = nothing;
     )
     Utilities.check_kwargs(others)
 
-    if repo isa AbstractString
-        Base.depwarn("Passing a string to `repo` is deprecated, use a RepositoryRemote object instead.", :makedocs)
-    end
-
     if !isa(format, AbstractVector)
         format = Writer[format]
     end
@@ -320,6 +396,18 @@ function Document(plugins = nothing;
     if version == "git-commit"
         version = "git:$(Utilities.get_commit_short(root))"
     end
+
+    repo = if repo isa AbstractString && repo == ""
+        # If the user does not provide the `repo` argument, we'll try to automatically
+        # detect the remote repository by looking at the Git remotes:
+        StringRemote("", "")
+    elseif repo isa AbstractString
+        StringRemote("", repo)
+    else
+        repo
+    end
+
+    @debug "Utilities.getremote(root)" Utilities.getremote(root)
 
     user = User(
         root,

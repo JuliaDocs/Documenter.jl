@@ -53,6 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
+using ...Documents: repofile, reporoot
 using ...Utilities: Default
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
@@ -776,7 +777,7 @@ function render_head(ctx, navnode)
             e = link[".docs-theme-link",
                 :rel => "stylesheet", :type => "text/css",
                 :href => relhref(src, "assets/themes/$(theme).css"),
-                Symbol("data-theme-name") => theme,Writers
+                Symbol("data-theme-name") => theme,
             ]
             (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
             return e
@@ -993,9 +994,9 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
         edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
 
+        host_type = Utilities.repo_host_from_url(reporoot(ctx.doc.user.repo))
+        host, logo = host_logo(host_type)
         if ctx.doc.user.repo isa AbstractString
-            host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
-            host, logo = host_logo(host_type)
             hoststring = isempty(host) ? " source" : " on $(host)"
             url = if Utilities.isabsurl(pageurl)
                 pageurl
@@ -1019,6 +1020,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         else
             repo_title = isempty(host) ? "Source" : host
             hoststring = isempty(host) ? " source" : " on $(host)"
+            url = repofile(ctx.doc.user.repo, "master", pageurl)
             push!(navbar_right.nodes,
                 a[".docs-navbar-link", :href => url, :title => repo_title](
                     span[".docs-icon.fab"](logo),
@@ -1051,7 +1053,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     header[".docs-navbar"](breadcrumb, navbar_right)
 end
 
-function host_logo(hosttype)
+function host_logo(host_type)
     if host_type == Utilities.RepoGitlab
         (host = "GitLab", logo = "\uf296")
     elseif host_type == Utilities.RepoGithub

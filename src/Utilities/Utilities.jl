@@ -386,6 +386,7 @@ end
 url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
 
 function url(remote, repo, mod, file, linerange)
+    @debug "url(::$(typeof(remote)), ::$(typeof(repo)), ::$(typeof(mod)), ::$(typeof(file)), ::$(typeof(linerange)))" remote repo mod file linerange
     file === nothing && return nothing # needed on julia v0.6, see #689
     remote = getremote(dirname(file))
     isabspath(file) && isempty(remote) && isempty(repo) && return nothing
