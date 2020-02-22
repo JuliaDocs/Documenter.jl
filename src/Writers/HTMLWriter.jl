@@ -53,8 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using ...Documents: repofile, reporoot
-using ...Utilities: Default
+using ...Utilities: Default, repofile, reporoot
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten

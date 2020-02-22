@@ -1,12 +1,13 @@
 module RemoteTests
 using Test
-using Documenter.Documents: reporoot, repofile, StringRemote
+using Documenter.Utilities: reporoot, repofile, StringRemote, GitHub
 
 @testset "RepositoryRemote" begin
     r = StringRemote("https://github.com/FOO/BAR", "https://github.com/FOO/BAR/blob/{commit}{path}#{line}")
     @test reporoot(r) == "https://github.com/FOO/BAR"
     @test repofile(r, "master", "src/foo.jl") == "https://github.com/FOO/BAR/blob/master/src/foo.jl#"
     @test repofile(r, "master", "src/foo.jl", 5:5) == "https://github.com/FOO/BAR/blob/master/src/foo.jl#L5"
+    @test repofile(r, "master", "src/foo.jl", 10) == "https://github.com/FOO/BAR/blob/master/src/foo.jl#L10"
     @test repofile(r, "master", "src/foo.jl", 5:15) == "https://github.com/FOO/BAR/blob/master/src/foo.jl#L5-L15"
 
     # Default linerange formatting is GitHub-style
@@ -29,6 +30,14 @@ using Documenter.Documents: reporoot, repofile, StringRemote
     @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl") == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#"
     @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl", 5:5) == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#L5"
     @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl", 5:15) == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#L5-15"
+
+    # GitHub remote
+    r = GitHub("JuliaDocs", "Documenter.jl")
+    @test reporoot(r) == "https://github.com/JuliaDocs/Documenter.jl"
+    @test repofile(r, "mybranch", "src/foo.jl") == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl"
+    @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
+    @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
+    @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5-L8"
 end
 
 end # module
