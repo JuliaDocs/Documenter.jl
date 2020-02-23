@@ -53,7 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using ...Utilities: Default, repofile
+using ...Utilities: Default
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
@@ -247,10 +247,15 @@ gather information about the current commit hash and file paths, necessary for c
 the links to the remote repository.
 
 **`edit_link`** can be used to specify which branch, tag or commit (when passed a `String`)
-in the remote repository the "Edit on ..." links point to. If a special `Symbol` value
-`:commit` is passed, the current commit will be used instead. If set to `nothing`, the
+in the remote repository the "Edit on ..." button links point to. If a special `Symbol`
+value `:commit` is passed, the current commit will be used instead. If set to `nothing`, the
 link edit link will be hidden altogether. Default value is `"master"`, making the edit link
 point to the master branch.
+
+**`repolink`** can be used to override the URL of the Git repository link in the top navbar
+(if passed a `String`). By default, Documenter attempts to determine the link from the Git
+remote of the repository (e.g. specified via the `remote` argument of [`makedocs`](@ref)).
+Passing a `nothing` disables the repository link.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend
 you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
@@ -318,6 +323,7 @@ struct HTML <: Documenter.Writer
     prettyurls    :: Bool
     disable_git   :: Bool
     edit_link     :: Union{String, Symbol, Nothing}
+    repolink      :: Union{String, Nothing, Default{Nothing}}
     canonical     :: Union{String, Nothing}
     assets        :: Vector{HTMLAsset}
     analytics     :: String
@@ -331,6 +337,7 @@ struct HTML <: Documenter.Writer
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
             edit_link     :: Union{String, Symbol, Nothing, Default} = Default("master"),
+            repolink      :: Union{String, Nothing, Default} = Default(nothing),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",
@@ -338,9 +345,9 @@ struct HTML <: Documenter.Writer
             sidebar_sitename :: Bool = true,
             highlights :: Vector{String} = String[],
             mathengine :: Union{MathEngine,Nothing} = KaTeX(),
+            lang          :: String = "en",
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
-            lang          :: String = "en",
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         assets = map(assets) do asset
@@ -361,7 +368,7 @@ struct HTML <: Documenter.Writer
             throw(ArgumentError("Invalid symbol (:$edit_link) passed to edit_link."))
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
-        new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
+        new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, lang)
     end
 end
@@ -988,25 +995,47 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     # The "Edit on GitHub" links and the hamburger to open the sidebar (on mobile) float right
     navbar_right = div[".docs-right"]
 
-    # Set the logo and name for the "Edit on.." button.
-    if ctx.doc.user.remote isa Utilities.GitHub
-        host, logo = host_logo(ctx.doc.user.remote)
-        repo_title = isempty(host) ? "Git" : host
-        url = "https://github.com/$(ctx.doc.user.remote.user)/$(ctx.doc.user.remote.repo)"
-        push!(navbar_right.nodes,
-            a[".docs-navbar-link", :href => url, :title => repo_title](
-                span[".docs-icon.fab"](logo),
-                span[".docs-label.is-hidden-touch"](repo_title)
+    # Set up the link to the root of the remote Git repository
+    #
+    # By default, we try to determine it from the configured remote. If that fails, the link
+    # is not displayed. The user can also pass repolink to HTML to either disable it or
+    # override the link URL. If the link URL is overridden, we use
+    #
+    # The user can override the URL by using an explicit URL. In that case, we try to figure
+    # out what icon we should use based on the URL.
+    if ctx.settings.repolink !== nothing && (ctx.settings.repolink isa String || ctx.doc.user.remote isa Utilities.RepositoryRemote)
+        url, (host, logo) = if ctx.settings.repolink isa String
+            ctx.settings.repolink, host_logo(ctx.settings.repolink)
+        else # ctx.doc.user.remote isa Utilities.RepositoryRemote
+            Utilities.repourl(ctx.doc.user.remote), host_logo(ctx.doc.user.remote)
+        end
+        # repourl() can sometimes return a nothing
+        if url !== nothing
+            repo_title = "View repository" * (isempty(host) ? "" : " on $host")
+            push!(navbar_right.nodes,
+                a[".docs-navbar-link", :href => url, :title => repo_title](
+                    span[".docs-icon.fab"](logo),
+                    span[".docs-label.is-hidden-touch"](isempty(host) ? "Repository" : host)
+                )
             )
-        )
+        end
     end
     # Add an edit link, with just an icon ('file-alt' if "view" and 'edit' if "edit")
     if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (ctx.doc.user.remote !== nothing)
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
+        @debug "pageurl=$pageurl"
         edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
         host, _ = host_logo(ctx.doc.user.remote)
         hoststring = isempty(host) ? " source" : " on $(host)"
-        url = repofile(ctx.doc.user.remote, "master", pageurl)
+        url = if Utilities.isabsurl(pageurl)
+            pageurl
+        else
+            if !(pageurl == getpage(ctx, navnode).source)
+                # need to set users path relative the page itself
+                pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
+            end
+            Utilities.repofile(ctx.doc.user.remote, "master", pageurl)
+        end
         edit_verb, edit_logo = (edit_branch === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
         push!(navbar_right.nodes,
             a[".docs-navbar-link", :href => url, :title => "$(edit_verb)$hoststring"](
@@ -1031,14 +1060,19 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     header[".docs-navbar"](breadcrumb, navbar_right)
 end
 
-const host_logo_fallback = (host = "", logo = "\uf841")
-host_logo(remote::Utilities.GitHub) = (host = "GitHub", logo = "\uf09b")
-function host_logo(remote::Utilities.StringRemote)
-    occursin("bitbucket", remote.urltemplate) ? (host = "BitBucket", logo = "\uf171") :
-    occursin("gitlab", remote.urltemplate)    ? (host = "GitLab", logo = "\uf296")    :
+const host_logo_github    = (host = "GitHub",    logo = "\uf09b")
+const host_logo_bitbucket = (host = "BitBucket", logo = "\uf171")
+const host_logo_gitlab    = (host = "GitLab",    logo = "\uf296")
+const host_logo_fallback  = (host = "",          logo = "\uf841")
+host_logo(remote::Utilities.GitHub) = host_logo_github
+host_logo(remote::Utilities.StringRemote) = host_logo(remote.urltemplate)
+host_logo(remote::Utilities.RepositoryRemote) = host_logo_fallback
+function host_logo(remoteurl::String)
+    occursin("github", remoteurl)    ? host_logo_github    :
+    occursin("gitlab", remoteurl)    ? host_logo_gitlab    :
+    occursin("bitbucket", remoteurl) ? host_logo_bitbucket :
     host_logo_fallback
 end
-host_logo(remote::Utilities.RepositoryRemote) = host_logo_fallback
 
 function render_footer(ctx, navnode)
     @tags a div nav

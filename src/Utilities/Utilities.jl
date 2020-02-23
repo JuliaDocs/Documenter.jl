@@ -377,14 +377,6 @@ When implementing a new type `T <: RepositoryRemote`, the following methods shou
 defined for that type:
 
 * ```julia
-  Documents._reporoot(remote::T) -> String
-  ```
-
-  Should return a string pointing to the landing page of the remote repository.
-
-  E.g. for GitHub it would return `https://github.com/USER/REPO/`.
-
-* ```julia
   Documents._fileurl(remote::T, ref::String, filename::String) -> String
   ```
 
@@ -406,12 +398,20 @@ defined for that type:
 
   E.g. for GitHub, for `ref="master"`, `filename="foo/bar.jl"` and `linerange=12:12` it
   would return `https://github.com/USER/REPO/blob/master/foo/bar.jl#L12`.
+
+* ```julia
+  Documents._repourl(remote::T) -> String
+  ```
+
+  Should return a string pointing to the landing page of the remote repository.
+
+  E.g. for GitHub it would return `https://github.com/USER/REPO/`.
 """
 abstract type RepositoryRemote end
-#function _reporoot end
+function _repourl end
 _fileurl(remote::RepositoryRemote, ref, filename, linerange) = _fileurl(remote, ref, filename)
 
-#reporoot(remote::RepositoryRemote) = _reporoot(remote)
+repourl(remote::RepositoryRemote) = _repourl(remote)
 function repofile(remote::RepositoryRemote, ref, filename, linerange=nothing)
      # sanitize the file name
     filename = startswith(filename, '/') ? filename : "/$(filename)"
@@ -443,11 +443,8 @@ function GitHub(remote::AbstractString)
     user, repo = split(remote, '/')
     GitHub(user, repo)
 end
-_reporoot(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
-function _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString)
-    reporoot = _reporoot(remote)
-    "$(reporoot)/blob/$(ref)$(filename)"
-end
+_repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
+_fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString) = "$(_repourl(remote))/blob/$(ref)$(filename)"
 function _fileurl(remote::GitHub, ref::String, filename::String, linerange::UnitRange{Int})
     fileurl = _fileurl(remote, ref, filename)
     lstart, lend = first(linerange), last(linerange)
@@ -467,10 +464,11 @@ Can contain the following template sections that Documenter will replace:
 * `{line}`: replaced by the line (or line range) reference
 """
 struct StringRemote <: RepositoryRemote
-    #reporoot :: String
     urltemplate :: String
+    repourl :: Union{String, Nothing}
+    StringRemote(urltemplate, repourl=nothing) = new(urltemplate, repourl)
 end
-#_reporoot(remote::StringRemote) = remote.reporoot
+_repourl(remote::StringRemote) = remote.repourl
 function _fileurl(remote::StringRemote, ref, filename, linerange=nothing)
     lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(repo_host_from_url(remote.urltemplate)))
     # lines = if linerange !== nothing
