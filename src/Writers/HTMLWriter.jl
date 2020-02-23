@@ -1020,9 +1020,21 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             )
         end
     end
-    # Add an edit link, with just an icon ('file-alt' if "view" and 'edit' if "edit")
-    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (ctx.doc.user.remote !== nothing)
-        pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
+    # Add an edit link, with just an icon
+    #
+    # This is only displayed if edit_page_link === true (some special pages, such as the
+    # search page, do not get an edit link) and the user has not disabled it explicitly
+    # (ctx.settings.edit_link === nothing for all edit links, or :EditURL === nothing in an
+    # @meta block for this particular page).
+    #
+    # To determine edit links, we also need to invoke Git (to know where the repository root
+    # is), so setting HTML(disable_git=true) will also disable the edit links. Finally, we
+    # we also need to determine where the remote repository is, which we do via
+    # doc.user.remote, so this can't be set to nothing either.
+    #
+    # The icon will be 'file-alt' if "view" and 'edit' if "edit".
+    user_editurl = get(getpage(ctx, navnode).globals.meta, :EditURL, missing)
+    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (user_editurl !== nothing) && (ctx.doc.user.remote !== nothing)
         @debug "pageurl=$pageurl"
         edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
         host, _ = host_logo(ctx.doc.user.remote)
