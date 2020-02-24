@@ -300,17 +300,7 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
     return all_ok ? subfolder : nothing
 end
 
-function authentication_method(::GitHubActions)
-    if haskey(ENV, "DOCUMENTER_KEY")
-        return SSH
-    else
-        @warn "Currently the GitHub Pages build is not triggered when " *
-              "using `GITHUB_TOKEN` for authentication. See issue #1177 " *
-              "(https://github.com/JuliaDocs/Documenter.jl/issues/1177) " *
-              "for more information."
-        return HTTPS
-    end
-end
+authentication_method(::GitHubActions) = haskey(ENV, "DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
@@ -320,7 +310,7 @@ end
 function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
-        # order so no need to check everything again.
+        # order so no need to check everythgit remote add origin https://github.com/mortenpi/Example2.jl.giting again.
         # In particular this is only called after we have
         # determined to deploy.
         sha = nothing
