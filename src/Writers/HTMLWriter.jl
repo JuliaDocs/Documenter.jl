@@ -1033,27 +1033,38 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     # doc.user.remote, so this can't be set to nothing either.
     #
     # The icon will be 'file-alt' if "view" and 'edit' if "edit".
-    user_editurl = get(getpage(ctx, navnode).globals.meta, :EditURL, missing)
-    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (user_editurl !== nothing) && (ctx.doc.user.remote !== nothing)
-        @debug "pageurl=$pageurl"
-        edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
-        host, _ = host_logo(ctx.doc.user.remote)
-        hoststring = isempty(host) ? " source" : " on $(host)"
-        url = if Utilities.isabsurl(pageurl)
-            pageurl
-        else
-            if !(pageurl == getpage(ctx, navnode).source)
+    if edit_page_link
+        user_editurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
+        if ! Utilities.isabsurl(user_editurl)
+            if user_editurl != getpage(ctx, navnode).source
                 # need to set users path relative the page itself
-                pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
+                user_editurl = Utilities.relpath_from_repo_root(joinpath(first(splitdir(getpage(ctx, navnode).source)), user_editurl))
             end
-            Utilities.repofile(ctx.doc.user.remote, "master", pageurl)
+            user_editurl = Utilities.relpath_from_repo_root(user_editurl)
         end
-        edit_verb, edit_logo = (edit_branch === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
-        push!(navbar_right.nodes,
-            a[".docs-navbar-link", :href => url, :title => "$(edit_verb)$hoststring"](
-                span[".docs-icon.fas"](edit_logo)
+        @debug "Edit links:" user_editurl ctx.settings.edit_link ctx.doc.user.remote ctx.settings.disable_git edit_page_link
+        if (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (user_editurl !== nothing) && (ctx.doc.user.remote !== nothing)
+            host, _ = host_logo(ctx.doc.user.remote)
+            hoststring = isempty(host) ? " source" : " on $(host)"
+            url = if Utilities.isabsurl(user_editurl)
+                user_editurl
+            else
+                edit_branch = if isa(ctx.settings.edit_link, String)
+                    ctx.settings.edit_link
+                elseif ctx.settings.edit_link === :commit
+                    Utilities.repo_commit(user_editurl)
+                else
+                    nothing
+                end
+                Utilities.repofile(ctx.doc.user.remote, edit_branch, user_editurl)
+            end
+            edit_verb, edit_logo = (ctx.settings.edit_link === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
+            push!(navbar_right.nodes,
+                a[".docs-navbar-link", :href => url, :title => "$(edit_verb)$hoststring"](
+                    span[".docs-icon.fas"](edit_logo)
+                )
             )
-        )
+        end
     end
 
     # Settings cog

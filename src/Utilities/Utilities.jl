@@ -480,7 +480,7 @@ end
 
 const JuliaRemote = GitHub("JuliaLang", "julia")
 url(remote, doc::Docs.DocStr) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
-function url(remote, mod, file, linerange)
+function url(remote, mod, file, linerange; commit = nothing)
     # quickly bail if file ===  nothing, which can happen when using e.g. Revise (see #689)
     if file === nothing
         @warn "nothing passed as file to url()" remote mod file linerange
@@ -502,10 +502,9 @@ function url(remote, mod, file, linerange)
     else
         path = relpath_from_repo_root(file)
         path === nothing && return nothing
-        if remote === nothing
-            remote = StringRemote("https://github.com/$(getremote(dirname(file)))/blob/{commit}{path}#{line}")
-        end
-        repofile(remote, repo_commit(file), path, linerange)
+        remote = (remote === nothing) ? StringRemote("https://github.com/$(getremote(dirname(file)))/blob/{commit}{path}#{line}") : remote
+        commit = (commit === nothing) ? repo_commit(file) : commit
+        repofile(remote, commit, path, linerange)
     end
 end
 
