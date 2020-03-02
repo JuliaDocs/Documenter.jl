@@ -19,13 +19,13 @@ https://github.com/JuliaDocs/Documenter.jl/tree/master/assets/html/scss), specif
    ```
    and similarly for the dark version.
 
-Try to for example to make a `light.scss` file with only contents
+For example, make a `light.scss` file with only contents
 ```
 $themename: "documenter-light";
 $text: #b31616;
 @import "documenter-light";
 ```
-and this should change your main text color to a red hue.
+and after you follow the above steps, this should change your main text color to a red hue.
 Notice that if you want to change fonts with e.g. `$family-sans-serif: 'Montserrat', sans-serif;`, then you should include these fonts into the assets argument of the HTML writer through the `format` keyword of `makedocs`:
 ```julia
 format = Documenter.HTML(
