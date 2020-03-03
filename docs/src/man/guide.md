@@ -1,7 +1,3 @@
-```@meta
-EditURL = "../../make.jl"
-```
-
 # Package Guide
 
 Documenter is designed to do one thing -- combine markdown files and inline docstrings from

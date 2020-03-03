@@ -1,7 +1,3 @@
-```@meta
-EditURL = "https://example.org/"
-```
-
 # Showcase
 
 This page showcases the various page elements that are supported by Documenter.
