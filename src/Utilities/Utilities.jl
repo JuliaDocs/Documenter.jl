@@ -444,7 +444,7 @@ function GitHub(remote::AbstractString)
 end
 _repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
 _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString) = "$(_repourl(remote))/blob/$(ref)$(filename)"
-function _fileurl(remote::GitHub, ref::String, filename::String, linerange::UnitRange{Int})
+function _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange::UnitRange{Int})
     fileurl = _fileurl(remote, ref, filename)
     lstart, lend = first(linerange), last(linerange)
     (lstart == lend) ? "$(fileurl)#L$(lstart)" : "$(fileurl)#L$(lstart)-L$(lend)"
