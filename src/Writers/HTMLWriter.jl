@@ -1038,7 +1038,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         if ! Utilities.isabsurl(user_editurl)
             if user_editurl != getpage(ctx, navnode).source
                 # need to set users path relative the page itself
-                user_editurl = Utilities.relpath_from_repo_root(joinpath(first(splitdir(getpage(ctx, navnode).source)), user_editurl))
+                user_editurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), user_editurl)
             end
             user_editurl = Utilities.relpath_from_repo_root(user_editurl)
         end

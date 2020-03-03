@@ -350,10 +350,9 @@ Returns the path of `file`, relative to the root of the Git repository, or `noth
 file is not in a Git repository.
 """
 function relpath_from_repo_root(file)
-    cd(dirname(file)) do
-        root = repo_root(file)
-        root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
-    end
+    file = abspath(file)
+    root = repo_root(file)
+    root !== nothing && startswith(abspath(file), root) ? relpath(file, root) : nothing
 end
 
 function repo_commit(file)
