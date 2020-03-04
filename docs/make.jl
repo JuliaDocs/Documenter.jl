@@ -35,7 +35,7 @@ makedocs(
             hide("man/hosting.md", [
                 "man/hosting/walkthrough.md"
             ]),
-            "man/theming.md"
+            "man/theming.md",
             "man/other-formats.md",
         ],
         "showcase.md",
