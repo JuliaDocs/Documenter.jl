@@ -11,9 +11,13 @@ julia:
 
 branches:
   only:
+    - /.*/
     - master
     - /^release-.*$/
     - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+
+env:
+  - TRAVIS_TAG: v1.2.3
 
 after_success:
   - if [ -f test/quietly.log ]; then cat test/quietly.log; fi
