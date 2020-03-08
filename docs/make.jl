@@ -46,7 +46,6 @@ makedocs(
         ],
         "contributing.md",
     ],
-    repo = Remotes.GitHub("JuliaDocs", "Documenter.jl"),
     linkcheck = !("skiplinks" in ARGS),
     strict = !("strict=false" in ARGS),
     doctest = ("doctest=only" in ARGS) ? :only : true,

@@ -555,6 +555,19 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
 
+    if (doc.user.remote === nothing || Remotes.repourl(doc.user.remote) === nothing) && isa(settings.repolink, Default)
+        @warn """
+        Unable to determine the repository root URL for the navbar link.
+
+        This can happen when a string is passed to the `repo` keyword of `makedocs` and the
+        `repolink` keyword of `format = HTML(...)` is not configured.
+
+        To remove this warning, either (1) pass a Remotes.Remote object to `repo` to completely
+        specify the remote repository, or explicitly the the remote URL by passing `repolink`
+        as `format = HTML(repolink = "...")`.
+        """
+    end
+
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
