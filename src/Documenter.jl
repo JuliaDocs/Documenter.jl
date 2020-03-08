@@ -49,13 +49,13 @@ include("DocChecks.jl")
 include("Writers/Writers.jl")
 include("Deps.jl")
 
-import .Utilities: Selectors
+import .Utilities: Selectors, Remotes
 import .Writers.HTMLWriter: HTML, asset
 import .Writers.HTMLWriter.RD: KaTeX, MathJax
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta, KaTeX, MathJax, asset
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta, KaTeX, MathJax, asset, Remotes
 
 """
     makedocs(

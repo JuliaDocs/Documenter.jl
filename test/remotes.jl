@@ -1,9 +1,10 @@
 module RemoteTests
 using Test
-using Documenter.Utilities: repofile, repourl, StringRemote, GitHub
+using Documenter
+using .Remotes: repofile, repourl, URL, GitHub
 
 @testset "RepositoryRemote" begin
-    let r = StringRemote("https://github.com/FOO/BAR/blob/{commit}{path}#{line}")
+    let r = URL("https://github.com/FOO/BAR/blob/{commit}{path}#{line}")
         @test repourl(r) === nothing
         @test repofile(r, "master", "src/foo.jl") == "https://github.com/FOO/BAR/blob/master/src/foo.jl#"
         @test repofile(r, "master", "src/foo.jl", 5:5) == "https://github.com/FOO/BAR/blob/master/src/foo.jl#L5"
@@ -12,7 +13,7 @@ using Documenter.Utilities: repofile, repourl, StringRemote, GitHub
     end
 
     # Default linerange formatting is GitHub-style
-    let r = StringRemote("http://example.org/{commit}/x{path}?lines={line}", "https://example.org/X")
+    let r = URL("http://example.org/{commit}/x{path}?lines={line}", "https://example.org/X")
         @test repourl(r) == "https://example.org/X"
         @test repofile(r, "123abc", "src/foo.jl") == "http://example.org/123abc/x/src/foo.jl?lines="
         @test repofile(r, "123abc", "src/foo.jl", 5:5) == "http://example.org/123abc/x/src/foo.jl?lines=L5"
@@ -20,7 +21,7 @@ using Documenter.Utilities: repofile, repourl, StringRemote, GitHub
     end
 
     # Different line range formatting for URLs containing 'bitbucket'
-    let r = StringRemote("https://bitbucket.org/foo/bar/src/{commit}{path}#lines-{line}")
+    let r = URL("https://bitbucket.org/foo/bar/src/{commit}{path}#lines-{line}")
         @test repourl(r) === nothing
         @test repofile(r, "mybranch", "src/foo.jl") == "https://bitbucket.org/foo/bar/src/mybranch/src/foo.jl#lines-"
         @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://bitbucket.org/foo/bar/src/mybranch/src/foo.jl#lines-5"
@@ -28,7 +29,7 @@ using Documenter.Utilities: repofile, repourl, StringRemote, GitHub
     end
 
     # Different line range formatting for URLs containing 'gitlab'
-    let r = StringRemote("https://gitlab.mydomain.eu/foo/bar/-/blob/{commit}{path}#{line}", "https://gitlab.mydomain.eu/foo/bar/")
+    let r = URL("https://gitlab.mydomain.eu/foo/bar/-/blob/{commit}{path}#{line}", "https://gitlab.mydomain.eu/foo/bar/")
         @test repourl(r) == "https://gitlab.mydomain.eu/foo/bar/"
         @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl") == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#"
         @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl", 5:5) == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#L5"

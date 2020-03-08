@@ -16,7 +16,7 @@ import ..Documenter:
     Plugin,
     Writer
 
-import ..Documenter.Utilities.Markdown2
+using ..Documenter.Utilities: Remotes, Markdown2
 using DocStringExtensions
 import Markdown
 using Unicode
@@ -225,7 +225,7 @@ struct User
     strict::Bool              # Throw an exception when any warnings are encountered.
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    remote  :: Union{Utilities.RepositoryRemote,Nothing} # Remote Git repository information
+    remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -278,7 +278,7 @@ function Document(plugins = nothing;
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         expandfirst :: Vector        = String[],
-        repo     :: Union{Utilities.RepositoryRemote,AbstractString} = "",
+        repo     :: Union{Remotes.Remote, AbstractString} = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -295,7 +295,7 @@ function Document(plugins = nothing;
         version = "git:$(Utilities.get_commit_short(root))"
     end
 
-    repo = if repo isa AbstractString && isempty(repo)
+    repo = if (repo isa AbstractString) && isempty(repo)
         # If the user does not provide the `repo` argument, we'll try to automatically
         # detect the remote repository by looking at the Git remotes. This only works if
         # the repository is hosted on GitHub.
@@ -307,10 +307,10 @@ function Document(plugins = nothing;
             @warn "Unable to determine remote Git URL automatically. Source links may be missing."
             nothing
         else
-            Utilities.GitHub(remote)
+            Remotes.GitHub(remote)
         end
     elseif repo isa AbstractString
-        Utilities.StringRemote(repo)
+        Remotes.URL(repo)
     else
         repo
     end

@@ -356,128 +356,22 @@ function relpath_from_repo_root(file)
 end
 
 function repo_commit(file)
-    cd(dirname(file)) do
-        readchomp(`git rev-parse HEAD`)
+    # TODO: verify this error handling
+    try
+        cd(dirname(file)) do
+            readchomp(`git rev-parse HEAD`)
+        end
+    catch e
+        @warn "Error in running repo_commit for $(file)" e
+        nothing
     end
 end
 
 # Remote URLs.
 # ------------
+include("Remotes.jl")
+using .Remotes: repofile
 
-"""
-    abstract type RepositoryRemote
-
-Abstract supertype for implementing additional remote repositories that Documenter can use
-when generating links to files hosted on Git hosting service (such as GitHub, GitLab etc).
-For custom or less common Git hosting services, the user can create their own
-`RepositoryRemote` and pass that as the `repo` argument to [`makedocs`](@ref).
-
-When implementing a new type `T <: RepositoryRemote`, the following methods should be
-defined for that type:
-
-* ```julia
-  Documents._fileurl(remote::T, ref::String, filename::String) -> String
-  ```
-
-  Should return the full URL to the source file `filename`. `ref` is the Git reference such
-  as a commit SHA, branch name or a tag name. `filename` is guaranteed to start with a `/`.
-
-  E.g. for GitHub, for `ref="master"` and `filename="foo/bar.jl"` it would return
-  `https://github.com/USER/REPO/blob/master/foo/bar.jl`.
-
-* ```julia
-  Documents._fileurl(remote::T, ref::String, filename::String, linerange::UnitRange{Int}) -> String
-  ```
-
-  As the other `_fileurl`, but allows the specification of the line number (if
-  `first(linerange) == last(linerange)`) or a range of lines.
-
-  This method is optional -- if it is not implemented, Documenter falls back to the other
-  `_fileurl` and the resulting links do not refer to specific lines.
-
-  E.g. for GitHub, for `ref="master"`, `filename="foo/bar.jl"` and `linerange=12:12` it
-  would return `https://github.com/USER/REPO/blob/master/foo/bar.jl#L12`.
-
-* ```julia
-  Documents._repourl(remote::T) -> String
-  ```
-
-  Should return a string pointing to the landing page of the remote repository.
-
-  E.g. for GitHub it would return `https://github.com/USER/REPO/`.
-"""
-abstract type RepositoryRemote end
-function _repourl end
-_fileurl(remote::RepositoryRemote, ref, filename, linerange) = _fileurl(remote, ref, filename)
-
-repourl(remote::RepositoryRemote) = _repourl(remote)
-function repofile(remote::RepositoryRemote, ref, filename, linerange=nothing)
-     # sanitize the file name
-    filename = startswith(filename, '/') ? filename : "/$(filename)"
-    filename = replace(filename, '\\' => '/') # remove backslashes on Windows
-    if linerange === nothing
-        _fileurl(remote, ref, filename)
-    else
-        _fileurl(remote, ref, filename, Int(first(linerange)):Int(last(linerange)))
-    end
-end
-
-"""
-    struct GitHub <: RepositoryRemote
-
-Represents a remote Git repository hosted on GitHub. The repository is identified by the
-names of the user (or organization) and the repository: `GitHub(user, repository)`. E.g.:
-
-```julia
-makedocs(
-    repo = GitHub("JuliaDocs", "Documenter.jl")
-)
-```
-"""
-struct GitHub <: RepositoryRemote
-    user :: String
-    repo :: String
-end
-function GitHub(remote::AbstractString)
-    user, repo = split(remote, '/')
-    GitHub(user, repo)
-end
-_repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
-_fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString) = "$(_repourl(remote))/blob/$(ref)$(filename)"
-function _fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange::UnitRange{Int})
-    fileurl = _fileurl(remote, ref, filename)
-    lstart, lend = first(linerange), last(linerange)
-    (lstart == lend) ? "$(fileurl)#L$(lstart)" : "$(fileurl)#L$(lstart)-L$(lend)"
-end
-
-"""
-    struct StringRemote <: RepositoryRemote
-
-A [`RepositoryRemote`](@ref) type used internally in Documenter when the user passes a
-string as the `repo` argument.
-
-Can contain the following template sections that Documenter will replace:
-
-* `{commit}`: replaced by the commit SHA, branch or tag name
-* `{path}`: replaced by the path of the file, relative to the repository root
-* `{line}`: replaced by the line (or line range) reference
-"""
-struct StringRemote <: RepositoryRemote
-    urltemplate :: String
-    repourl :: Union{String, Nothing}
-    StringRemote(urltemplate, repourl=nothing) = new(urltemplate, repourl)
-end
-_repourl(remote::StringRemote) = remote.repourl
-function _fileurl(remote::StringRemote, ref, filename, linerange=nothing)
-    lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(repo_host_from_url(remote.urltemplate)))
-    # lines = if linerange !== nothing
-    # end
-    s = replace(remote.urltemplate, "{commit}" => ref)
-    s = replace(s, "{path}" => filename)
-    replace(s, "{line}" => lines)
-end
-
-const JuliaRemote = GitHub("JuliaLang", "julia")
 url(remote, doc::Docs.DocStr) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
 function url(remote, mod, file, linerange; commit = nothing)
     # quickly bail if file ===  nothing, which can happen when using e.g. Revise (see #689)
@@ -497,12 +391,18 @@ function url(remote, mod, file, linerange; commit = nothing)
     # determine the correct URL.
     if inbase(mod) || !isabspath(file)
         ref = isempty(Base.GIT_VERSION_INFO.commit) ? "v$VERSION" : Base.GIT_VERSION_INFO.commit
-        repofile(JuliaRemote, ref, "base/$file", linerange)
+        repofile(Remotes.julia, ref, "base/$file", linerange)
     else
         path = relpath_from_repo_root(file)
         path === nothing && return nothing
-        remote = (remote === nothing) ? StringRemote("https://github.com/$(getremote(dirname(file)))/blob/{commit}{path}#{line}") : remote
+        remote = (remote === nothing) ? Remotes.URL("https://github.com/$(getremote(dirname(file)))/blob/{commit}{path}#{line}") : remote
         commit = (commit === nothing) ? repo_commit(file) : commit
+        # repo_commit() can return nothing if it runs into an error
+        # TODO: verify this error handling
+        if commit === nothing
+            @warn "Unable to determine remote URL" remote mod file linerange
+            return nothing
+        end
         repofile(remote, commit, path, linerange)
     end
 end
@@ -545,27 +445,6 @@ function inbase(m::Module)
     end
 end
 
-# Repository hosts
-#   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoUnknown
-
-# Repository host from repository url
-# i.e. "https://github.com/something" => RepoGithub
-#      "https://bitbucket.org/xxx" => RepoBitbucket
-# If no match, returns RepoUnknown
-function repo_host_from_url(repoURL::String)
-    if occursin("bitbucket", repoURL)
-        return RepoBitbucket
-    elseif occursin("github", repoURL) || isempty(repoURL)
-        return RepoGithub
-    elseif occursin("gitlab", repoURL)
-        return RepoGitlab
-    else
-        return RepoUnknown
-    end
-end
-repo_host_from_url(remote::StringRemote) = repo_host_from_url(remote.urltemplate)
-
 # Find line numbers.
 # ------------------
 
@@ -574,30 +453,6 @@ linerange(doc) = linerange(doc.text, doc.data[:linenumber])
 function linerange(text, from)
     lines = sum([isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
     return lines > 0 ? (from:(from + lines + 1)) : (from:from)
-end
-
-struct LineRangeFormatting
-    prefix::String
-    separator::String
-
-    function LineRangeFormatting(host::RepoHost)
-        if host == RepoBitbucket
-            new("", ":")
-        elseif host == RepoGitlab
-            new("L", "-")
-        else
-            # default is github-style
-            new("L", "-L")
-        end
-    end
-end
-
-function format_line(range::AbstractRange, format::LineRangeFormatting)
-    if length(range) <= 1
-        string(format.prefix, first(range))
-    else
-        string(format.prefix, first(range), format.separator, last(range))
-    end
 end
 
 newlines(s::AbstractString) = count(c -> c === '\n', s)

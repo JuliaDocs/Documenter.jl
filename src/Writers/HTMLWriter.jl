@@ -53,7 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using ...Utilities: Default
+using ...Utilities: Default, Remotes
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
@@ -1003,11 +1003,11 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     #
     # The user can override the URL by using an explicit URL. In that case, we try to figure
     # out what icon we should use based on the URL.
-    if ctx.settings.repolink !== nothing && (ctx.settings.repolink isa String || ctx.doc.user.remote isa Utilities.RepositoryRemote)
+    if ctx.settings.repolink !== nothing && (ctx.settings.repolink isa String || ctx.doc.user.remote isa Remotes.Remote)
         url, (host, logo) = if ctx.settings.repolink isa String
             ctx.settings.repolink, host_logo(ctx.settings.repolink)
-        else # ctx.doc.user.remote isa Utilities.RepositoryRemote
-            Utilities.repourl(ctx.doc.user.remote), host_logo(ctx.doc.user.remote)
+        else # ctx.doc.user.remote isa Remotes.Remote
+            Remotes.repourl(ctx.doc.user.remote), host_logo(ctx.doc.user.remote)
         end
         # repourl() can sometimes return a nothing
         if url !== nothing
@@ -1056,7 +1056,13 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
                 else
                     nothing
                 end
-                Utilities.repofile(ctx.doc.user.remote, edit_branch, user_editurl)
+                # TODO: verify error handling
+                if edit_branch === nothing
+                    @warn "Unable to determine edit_branch"
+                    ""
+                else
+                    Utilities.repofile(ctx.doc.user.remote, edit_branch, user_editurl)
+                end
             end
             edit_verb, edit_logo = (ctx.settings.edit_link === nothing) ? ("View", "\uf15c") : ("Edit", "\uf044")
             push!(navbar_right.nodes,
@@ -1087,9 +1093,9 @@ const host_logo_github    = (host = "GitHub",    logo = "\uf09b")
 const host_logo_bitbucket = (host = "BitBucket", logo = "\uf171")
 const host_logo_gitlab    = (host = "GitLab",    logo = "\uf296")
 const host_logo_fallback  = (host = "",          logo = "\uf841")
-host_logo(remote::Utilities.GitHub) = host_logo_github
-host_logo(remote::Utilities.StringRemote) = host_logo(remote.urltemplate)
-host_logo(remote::Utilities.RepositoryRemote) = host_logo_fallback
+host_logo(remote::Remotes.GitHub) = host_logo_github
+host_logo(remote::Remotes.URL) = host_logo(remote.urltemplate)
+host_logo(remote::Remotes.Remote) = host_logo_fallback
 function host_logo(remoteurl::String)
     occursin("github", remoteurl)    ? host_logo_github    :
     occursin("gitlab", remoteurl)    ? host_logo_gitlab    :
