@@ -1,5 +1,12 @@
 # Documenter.jl changelog
 
+## Version `v0.25.0`
+
+* ![Enhancement][badge-enhancement] Documenter can now be configured to show a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
+
+* ![Enhancement][badge-enhancement] A more generic API is now available to configure the remote repository URLs by passing objects that are subtypes of `Remotes.Remote` and implement its interface
+(e.g. `Remotes.GitHub`) as the `repo` argument of `makedocs`. ([#1254][github-1254])
+
 ## Version `v0.24.5`
 
 * ![Enhancement][badge-enhancement] ![Bugfix][badge-bugfix] Documenter now correctly emulates the "REPL softscope" (Julia 1.5) in REPL-style doctest blocks and `@repl` blocks. ([#1232][github-1232])
@@ -513,6 +520,7 @@
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
 [github-1223]: https://github.com/JuliaDocs/Documenter.jl/pull/1223
 [github-1232]: https://github.com/JuliaDocs/Documenter.jl/pull/1232
+[github-1254]: https://github.com/JuliaDocs/Documenter.jl/pull/1254
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
