@@ -539,4 +539,53 @@ walk(f, meta, block::EvalNode)  = walk(f, meta, block.result)
 walk(f, meta, block::MetaNode)  = (merge!(meta, block.dict); nothing)
 walk(f, meta, block::Anchors.Anchor) = walk(f, meta, block.object)
 
+####
+# ...
+"""
+    apply(f, documentnode)
+
+Applies `f` on on all the children of Documenter document node `documentnode`.
+"""
+function apply end
+
+apply(f, block) = nothing
+
+apply(f, block::Vector) = for each in block; f(each); end
+
+const ContentElements = Union{
+    Markdown.BlockQuote,
+    Markdown.Paragraph,
+    Markdown.MD,
+    Markdown.Admonition,
+}
+apply(f, block::ContentElements) = apply(f, block.content)
+
+const TextElements = Union{
+    Markdown.Bold,
+    Markdown.Header,
+    Markdown.Italic,
+    Markdown.Footnote,
+    Markdown.Link,
+}
+apply(f, block::TextElements) = apply(f, block.text)
+
+apply(f, block::Markdown.Image) = apply(f, block.alt)
+apply(f, block::Markdown.Table) = apply(f, block.rows)
+apply(f, block::Markdown.List) = apply(f, block.items)
+apply(f, block::DocsNodes) = apply(f, block.nodes)
+apply(f, block::DocsNode) = apply(f, block.docstr)
+apply(f, block::EvalNode) = apply(f, block.result)
+apply(f, block::Anchors.Anchor) = apply(f, block.object)
+
+# const ChildlessElements = Union{
+#     Markdown.Code,
+#     MetaNode,
+#     RawHTML,
+#     RawNode,
+#     AbstractString,
+# }
+# apply(f, block::ChildlessElements) = nothing
+
+# TODO: another idea -- maybe implement children(::x) for all of them?
+
 end

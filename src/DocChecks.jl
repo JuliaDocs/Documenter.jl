@@ -163,14 +163,19 @@ hascurl() = (try; success(`curl --version`); catch err; false; end)
 $(SIGNATURES)
 
 Checks external links using curl.
+
+[Gadfly.jl](https://gadflyjl.orgasd/stable/)
 """
 function linkcheck(doc::Documents.Document)
     if doc.user.linkcheck
         if hascurl()
             for (src, page) in doc.blueprint.pages
                 for element in page.elements
+                    stackwalk(page.mapping[element]) do stack, obj
+                        @info "Application:" typeof.(stack) typeof(obj)
+                    end
                     Documents.walk(page.globals.meta, page.mapping[element]) do block
-                        linkcheck(block, doc)
+                        linkcheck(block, src, doc)
                     end
                 end
             end
@@ -182,7 +187,7 @@ function linkcheck(doc::Documents.Document)
     return nothing
 end
 
-function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=:HEAD)
+function linkcheck(link::Markdown.Link, pagesrc, doc::Documents.Document; method::Symbol=:HEAD)
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
@@ -202,7 +207,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
             result = read(cmd, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
-            @warn "$cmd failed:" exception = err
+            @warn "linkcheck: curl command failed" command = cmd exception = err page = pagesrc typeof(err)
             return false
         end
         STATUS_REGEX = r"^(\d+) (\w+)://(?:\S+) (\S+)?$"m
@@ -219,9 +224,16 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
                 @debug "linkcheck '$(link.url)' status: $(status)."
             elseif protocol === :HTTP && status < 400
                 if location !== nothing
-                    @warn "linkcheck '$(link.url)' status: $(status), redirects to $(location)."
+                    @warn """
+                    linkcheck: status $(status) on page $(pagesrc)
+                    link: $(link.url)
+                    redirects to: $(location)
+                    """
                 else
-                    @warn "linkcheck '$(link.url)' status: $(status)."
+                    @warn """
+                    linkcheck: status $(status) on page $(pagesrc)
+                    link: $(link.url)
+                    """
                 end
             elseif protocol === :HTTP && status == 405 && method === :HEAD
                 # when a server doesn't support HEAD requests, fallback to GET
@@ -229,18 +241,40 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
                 return linkcheck(link, doc; method=:GET)
             else
                 push!(doc.internal.errors, :linkcheck)
-                @error "linkcheck '$(link.url)' status: $(status)."
+                @error """
+                linkcheck: status $(status) on page $(pagesrc)
+                link: $(link.url)
+                redirects to: $(location)
+                """
             end
         else
             push!(doc.internal.errors, :linkcheck)
-            @warn "invalid result returned by $cmd:" result
+            @warn """
+            linkcheck: invalid result returned by curl
+            """ command = cmd result
         end
     end
     return false
 end
-linkcheck(other, doc::Documents.Document) = true
+linkcheck(other, pagesrc, doc::Documents.Document) = true
+function linkcheck(docstr::Documents.DocsNode, pagesrc, doc::Documents.Document)
+    @info "docstr::DocsNode" docstr
+    return true
+end
+function linkcheck(docstr::Documents.DocsNodes, pagesrc, doc::Documents.Document)
+    @info "docstr::DocsNodes" docstr
+    return true
+end
 
 linkcheck_ismatch(r::String, url) = (url == r)
 linkcheck_ismatch(r::Regex, url) = occursin(r, url)
+
+stackwalk(f, node) = stackwalk(f, Any[], node)
+function stackwalk(f, stack, node)
+    push!(stack, node)
+    f(stack, node)
+    Documents.apply(x -> stackwalk(f, stack, x), node)
+    pop!(stack)
+end
 
 end
