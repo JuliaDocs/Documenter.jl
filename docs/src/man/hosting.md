@@ -81,7 +81,7 @@ The three lines in the `script:` section do the following:
     Travis CI used to use `matrix:` as the section to configure to build matrix in the config
     file. This now appears to be a deprecated alias for `jobs:`. If you use both `matrix:` and
     `jobs:` in your configuration, `matrix:` overrides the settings under `jobs:`.
-    
+
     If your `.travis.yml` file still uses `matrix:`, it should be replaced with a a single
     `jobs:` section.
 
@@ -209,7 +209,7 @@ build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entrie
 the environment from which the docs are built and deployed. In the example above we will
 thus build and deploy the documentation from a ubuntu worker running Julia 1.2. For more
 information on how to setup a GitHub workflow see the manual for
-[Configuring a workflow](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow).
+[Configuring a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
@@ -218,7 +218,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token). This is done by adding
+(`GITHUB_TOKEN`)](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -251,7 +251,7 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
+[Creating and using encrypted secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets)
 for more information.
 
 

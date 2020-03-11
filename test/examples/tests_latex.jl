@@ -16,12 +16,20 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
+# This gets appended to the filename if we're building a tag (i.e. TRAVIS_TAG is set)
+tagsuffix = if occursin(Base.VERSION_REGEX, get(ENV, "TRAVIS_TAG", ""))
+    v = VersionNumber(ENV["TRAVIS_TAG"])
+    "-$(v.major).$(v.minor).$(v.patch)"
+else
+    ""
+end
+
 @testset "Examples/LaTeX" begin
     @testset "PDF/LaTeX: simple" begin
         doc = Main.examples_latex_simple_doc
         @test isa(doc, Documenter.Documents.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple")
-            @test joinpath(build_dir, "DocumenterLaTeXSimple.pdf") |> isfile
+            @test joinpath(build_dir, "DocumenterLaTeXSimple$(tagsuffix).pdf") |> isfile
         end
     end
 
@@ -29,7 +37,7 @@ end
         doc = Main.examples_latex_doc
         @test isa(doc, Documenter.Documents.Document)
         let build_dir = joinpath(examples_root, "builds", "latex")
-            @test joinpath(build_dir, "DocumenterLaTeX.pdf") |> isfile
+            @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
         end
     end
 end
