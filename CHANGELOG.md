@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.24.6`
+
+* ![Enhancement][badge-enhancement] Reorganize some of the internal variables in Documenter's Sass sources, to make it easier to create custom themes on top of the Documenter base theme. ([#1258][github-1258])
+
 ## Version `v0.24.5`
 
 * ![Enhancement][badge-enhancement] ![Bugfix][badge-bugfix] Documenter now correctly emulates the "REPL softscope" (Julia 1.5) in REPL-style doctest blocks and `@repl` blocks. ([#1232][github-1232])
@@ -513,6 +517,7 @@
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
 [github-1223]: https://github.com/JuliaDocs/Documenter.jl/pull/1223
 [github-1232]: https://github.com/JuliaDocs/Documenter.jl/pull/1232
+[github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
