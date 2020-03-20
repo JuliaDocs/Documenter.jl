@@ -237,6 +237,10 @@ DocMeta.setdocmeta!(MyPackage, :DocTestSetup, :(using MyPackage); recursive=true
 makedocs(modules=[MyPackage], ...)
 ```
 
+!!! note
+    Please make sure to include all modules that contain docstrings with doctests in the
+    `modules` argument to [`makedocs`](@ref). Otherwise these doctests will not be run.
+
 ### Block-level setup code
 
 Yet another option is to use the `setup` keyword argument to the `jldoctest` block, which is
