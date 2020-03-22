@@ -238,7 +238,7 @@ makedocs(modules=[MyPackage], ...)
 ```
 
 !!! note
-    Please make sure to include all modules that contain docstrings with doctests in the
+    Make sure to include all (top-level) modules that contain docstrings with doctests in the
     `modules` argument to [`makedocs`](@ref). Otherwise these doctests will not be run.
 
 ### Block-level setup code
