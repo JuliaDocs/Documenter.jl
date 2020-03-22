@@ -7,3 +7,10 @@ near-empty LaTeX builds passes.
 julia> 127 % Int8
 127
 ```
+## Issue 1119
+
+```julia
+1 % 2
+1 ⊻ 2
+1 | 2
+```
