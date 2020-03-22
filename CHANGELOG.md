@@ -4,7 +4,7 @@
 
 * ![Bugfix][badge-bugfix] Remove `only`, a new export from `Base` on Julia 1.4, from the JS search filter. ([#1264][github-1264])
 
-* ![Bugfix][badge-bugfix] Fix errors in LaTeX builds due to bad escaping of certain characters. ([#1200][github-1200], [#1119][github-1119], [#1269][github-1269])
+* ![Bugfix][badge-bugfix] Fix errors in LaTeX builds due to bad escaping of certain characters. ([#1118][github-1118], [#1119][github-1119], [#1200][github-1200], [#1269][github-1269])
 
 ## Version `v0.24.6`
 
@@ -502,6 +502,7 @@
 [github-1112]: https://github.com/JuliaDocs/Documenter.jl/pull/1112
 [github-1113]: https://github.com/JuliaDocs/Documenter.jl/pull/1113
 [github-1115]: https://github.com/JuliaDocs/Documenter.jl/pull/1115
+[github-1118]: https://github.com/JuliaDocs/Documenter.jl/issues/1118
 [github-1119]: https://github.com/JuliaDocs/Documenter.jl/pull/1119
 [github-1121]: https://github.com/JuliaDocs/Documenter.jl/pull/1121
 [github-1137]: https://github.com/JuliaDocs/Documenter.jl/pull/1137
