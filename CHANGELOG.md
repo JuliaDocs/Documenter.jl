@@ -4,6 +4,8 @@
 
 * ![Bugfix][badge-bugfix] Remove `only`, a new export from `Base` on Julia 1.4, from the JS search filter. ([#1264][github-1264])
 
+* ![Bugfix][badge-bugfix] Fix errors in LaTeX builds due to bad escaping of certain characters. ([#1118][github-1118], [#1119][github-1119], [#1200][github-1200], [#1269][github-1269])
+
 ## Version `v0.24.6`
 
 * ![Enhancement][badge-enhancement] Reorganize some of the internal variables in Documenter's Sass sources, to make it easier to create custom themes on top of the Documenter base theme. ([#1258][github-1258])
@@ -500,6 +502,8 @@
 [github-1112]: https://github.com/JuliaDocs/Documenter.jl/pull/1112
 [github-1113]: https://github.com/JuliaDocs/Documenter.jl/pull/1113
 [github-1115]: https://github.com/JuliaDocs/Documenter.jl/pull/1115
+[github-1118]: https://github.com/JuliaDocs/Documenter.jl/issues/1118
+[github-1119]: https://github.com/JuliaDocs/Documenter.jl/pull/1119
 [github-1121]: https://github.com/JuliaDocs/Documenter.jl/pull/1121
 [github-1137]: https://github.com/JuliaDocs/Documenter.jl/pull/1137
 [github-1144]: https://github.com/JuliaDocs/Documenter.jl/pull/1144
@@ -516,6 +520,7 @@
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
 [github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
+[github-1200]: https://github.com/JuliaDocs/Documenter.jl/issues/1200
 [github-1212]: https://github.com/JuliaDocs/Documenter.jl/issues/1212
 [github-1216]: https://github.com/JuliaDocs/Documenter.jl/pull/1216
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
@@ -523,6 +528,7 @@
 [github-1232]: https://github.com/JuliaDocs/Documenter.jl/pull/1232
 [github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 [github-1264]: https://github.com/JuliaDocs/Documenter.jl/pull/1264
+[github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
