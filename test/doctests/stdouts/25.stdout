@@ -22,7 +22,30 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    -64
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:336
+└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:381
+┌ Error: doctest failure in src/broken.md:10-13
+│ 
+│ ```jldoctest; filter = r"([0-9]+\.[0-9]{8})[0-9]+" => s"\1***"
+│ julia> sqrt(2)
+│ 1.4142999999999
+│ ```
+│ 
+│ Subexpression:
+│ 
+│ sqrt(2)
+│ 
+│ Evaluated output:
+│ 
+│ 1.4142135623730951
+│ 
+│ Expected output:
+│ 
+│ 1.4142999999999
+│ 
+│   diff =
+│    Warning: Diff output requires color.
+│    1.41429999999991.4142135623730951
+└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:381
 ┌ Error: doctest failure in ~/Julia/JuliaDocs/Documenter/test/doctests/src/FooBroken.jl:6-9
 │ 
 │ ```jldoctest
@@ -45,4 +68,4 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    424
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:336
+└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:381

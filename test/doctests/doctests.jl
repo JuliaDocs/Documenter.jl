@@ -1,4 +1,4 @@
-# To fix all the output reference, run this file with
+# To fix all the output reference files, run this file with
 #
 #    DOCUMENTER_FIXTESTS= julia doctests.jl
 #
