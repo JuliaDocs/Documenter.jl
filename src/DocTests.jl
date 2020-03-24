@@ -261,9 +261,21 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     meta_block_filters = get(meta, :DocTestFilters, [])
     meta_block_filters == nothing && meta_block_filters == []
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
-    for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
+    for rs in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
+        # If a doctest filter is just a string or regex, everything that matches gets
+        # removed before comparing the inputs and outputs of a doctest. However, it can
+        # also be a regex => substitution pair in which case the match gets replaced by
+        # the substitution string.
+        r, s = if isa(rs, Pair{Regex,T} where T <: AbstractString)
+            rs
+        elseif isa(rs, Regex) || isa(rs, AbstractString)
+            rs, ""
+        else
+            @error "Invalid doctest filter" typeof(rs) rs
+            error("Invalid doctest filter")
+        end
         if all(occursin.((r,), strings))
-            strings = replace.(strings, (r => "",))
+            strings = replace.(strings, (r => s,))
         end
     end
     return strings
