@@ -51,7 +51,7 @@ file. Note that the snippet below will not work by itself and must be accompanie
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.3
+      julia: 1.4
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
@@ -62,7 +62,7 @@ jobs:
 
 where the `julia:` and `os:` entries decide the worker from which the docs are built and
 deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1.3. For more information on how to setup a build stage, see the Travis
+worker running Julia 1.4. For more information on how to setup a build stage, see the Travis
 manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
 The three lines in the `script:` section do the following:
@@ -194,7 +194,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: 1.3
+          version: '1.4'
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
@@ -263,7 +263,7 @@ dependencies your package might have. If Documenter is the only dependency, then
 
 ````@eval
 import Documenter, Markdown
-m = match(r"^version = \"(\d+.\d+.\d+)(-DEV)?\"$"m,
+m = match(r"^version = \"(\d+.\d+.\d+)(-DEV)?(\+.+)?\"$"m,
     read(joinpath(dirname(dirname(pathof(Documenter))), "Project.toml"), String))
 v = VersionNumber(m.captures[1])
 Markdown.parse("""
