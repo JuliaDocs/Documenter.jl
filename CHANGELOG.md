@@ -2,6 +2,8 @@
 
 ## Version `v0.25.0`
 
+* ![Enhancement][badge-enhancement] Doctest filters now accept `Regex`-`SubstitutionString` pairs, allowing for more sophisticated doctest filtering. ([#1271][github-1271])
+
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
 
 ## Version `v0.24.7`
@@ -534,6 +536,7 @@
 [github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 [github-1264]: https://github.com/JuliaDocs/Documenter.jl/pull/1264
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
+[github-1271]: https://github.com/JuliaDocs/Documenter.jl/pull/1271
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
