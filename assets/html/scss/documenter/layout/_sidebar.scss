@@ -9,6 +9,8 @@
   flex: 0 0 $documenter-sidebar-width;
   z-index: 5; // make sure it's on top of the main body and top bar
 
+  font-size: $documenter-sidebar-size;
+
   // This is mobile-first, so our default state is that the sidebar is hidden away left
   // of the screen.
   position: fixed;
@@ -83,15 +85,11 @@
     // item
     user-select: none;
 
-    font-size: $size-normal;
     border-top: 1px solid $border;
-    // background-color: $background;
-
     padding-bottom: 1.5rem;
 
     // First level items
     > li {
-      // padding-left: 0.5em;
       > .tocitem {
         font-weight: bold;
       }
@@ -99,13 +97,9 @@
 
     // Second and lower
     > li li {
-      font-size: 0.95*$size-normal;
+      font-size: $documenter-sidebar-submenu-size;
       margin-left: 1em;
       border-left: 1px solid $border;
-
-      &.is-active {
-        // margin-left: 0;
-      }
     }
 
     /* Managing collapsible submenus */
@@ -133,7 +127,7 @@
         text-rendering: auto;
         line-height: 1;
 
-        font-size: 0.75*$size-normal;
+        font-size: $documenter-sidebar-menu-chevron-size;
         margin-left: 1rem;
         margin-top: auto;
         margin-bottom: auto;
@@ -151,27 +145,41 @@
       display: block;
       padding: 0.5rem 0.5rem;
 
+      // We'll force all .tocitems to have the sidebar colors. This is to override any
+      // higher-level defaults, such as when the .tocitem is in an <a> tag. We'll also make
+      // sure that they do not display any :hover behaviour by default.
       &, &:hover {
         color: $documenter-sidebar-color;
+        background: $documenter-sidebar-background;
       }
     }
-
+    // If the .tocitem is in an <a> or <label> tags (latter used for collapsible submenus),
+    // we'll apply special :hover styling to highlight them to the user as they move the
+    // mouse over the menu.
     a, label {
       &.tocitem:hover {
+        color: $documenter-sidebar-menu-hover-color;
         background-color: $documenter-sidebar-menu-hover-background;
       }
     }
 
+    // The in-page links for the current page are wrapped in a li.is-active element.
     li.is-active {
-      border-top: 1px solid $documenter-sidebar-menu-border;
+      border-top: 1px solid $border;
       border-bottom: 1px solid $border;
       background-color: $documenter-sidebar-menu-active-background;
-
-      > .tocitem {
+      // The background color for li.is-active is different, so we also need to make sure
+      // that the .tocitems match. We'll disable :hover for them too.
+      .tocitem {
         &, &:hover {
           background-color: $documenter-sidebar-menu-active-background;
           color: $documenter-sidebar-menu-active-color;
         }
+      }
+      // The .tocitems of the in-page links should also have a :hover styling:
+      ul.internal .tocitem:hover {
+        background-color: $documenter-sidebar-menu-active-hover-background;
+        color: $documenter-sidebar-menu-active-hover-color;
       }
     }
 
@@ -186,7 +194,7 @@
       margin: 0 0.5rem 0.5rem;
       border-top: 1px solid $border;
       li {
-        font-size: 0.85*$size-normal;
+        font-size: $documenter-sidebar-menu-active-size;
         border-left: none;
         margin-left: 0;
         margin-top: 0.5rem;
