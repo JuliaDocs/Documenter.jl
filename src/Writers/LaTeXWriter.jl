@@ -435,19 +435,41 @@ function latex(io::IO, code::Markdown.Code)
     language = isempty(code.language) ? "none" : code.language
     # the julia-repl is called "jlcon" in Pygments
     language = (language == "julia-repl") ? "jlcon" : language
+    escape = '⊻' ∈ code.code
     if language in LEXER
-        _print(io, "\n\\begin{minted}[escapeinside=\\%\\%]")
+        _print(io, "\n\\begin{minted}")
+        if escape
+            _print(io, "[escapeinside=\\#\\%]")
+        end
         _println(io, "{", language, "}")
-        _print_code_escapes(io, code.code)
-        _println(io, "\\end{minted}\n")
+        if escape
+            _print_code_escapes_minted(io, code.code)
+        else
+            _print(io, code.code)
+        end
+        _println(io, "\n\\end{minted}\n")
     else
-        _println(io, "\n\\begin{lstlisting}[escapeinside=\\%\\%]")
-        _print_code_escapes(io, code.code)
-        _println(io, "\\end{lstlisting}\n")
+        _print(io, "\n\\begin{lstlisting}")
+        if escape
+            _println(io, "[escapeinside=\\%\\%]")
+            _print_code_escapes_lstlisting(io, code.code)
+        else
+            _println(io)
+            _print(io, code.code)
+        end
+        _println(io, "\n\\end{lstlisting}\n")
     end
 end
 
-function _print_code_escapes(io, s::AbstractString)
+function _print_code_escapes_minted(io, s::AbstractString)
+    for ch in s
+        ch === '#' ? _print(io, "##%") :
+        ch === '%' ? _print(io, "#%%") : # Note: "#\\%%" results in pygmentize error...
+        ch === '⊻' ? _print(io, "#\\unicodeveebar%") :
+                     _print(io, ch)
+    end
+end
+function _print_code_escapes_lstlisting(io, s::AbstractString)
     for ch in s
         ch === '%' ? _print(io, "%\\%%") :
         ch === '⊻' ? _print(io, "%\\unicodeveebar%") :
