@@ -261,13 +261,51 @@ julia> foo(2)
 
 ## Filtering Doctests
 
-A part of the output of a doctest might be non-deterministic, e.g. pointer addresses and timings.
-It is therefore possible to filter a doctest so that the deterministic part can still be tested.
+A part of the output of a doctest might be non-deterministic, e.g. pointer addresses and
+timings. It is possible to use regular expressions to filter out or transform parts of the
+doctest outputs so that the deterministic part can still be tested.
 
-A filter takes the form of a regular expression.
-In a doctest, each match in the expected output and the actual output is removed before the two outputs are compared.
-Filters are added globally, i.e. applied to all doctests in the documentation, by passing a list of regular expressions to
-`makedocs` with the keyword `doctestfilters`.
+A doctest filter is a regular expression and substitution string pair. In a doctest, each
+match in the expected output and the actual output is replaced according to the filter
+before the two outputs are compared. For example, in the following the filter matches
+floating point numbers and only retains the first 4 digits after the decimal point,
+replacing the rest with `***`:
+
+````markdown
+```jldoctest; filter = r"(\d*)\.(\d{4})\d+" => s"\1.\2***"
+julia> sqrt(2)
+1.4142135623730951
+```
+````
+
+The actual string that gets compared to determine whether the doctest is up to date is
+
+```
+1.4142***
+```
+
+The filter can also be just a regular expression in which case the whole matching substring
+is removed. For more information on the regular expression and substitution string syntax,
+see the [Julia
+manual](https://docs.julialang.org/en/v1/manual/strings/#Regular-Expressions-1).
+
+!!! note "Testing and debugging"
+
+    Documenter outputs debug-level logs for each doctest it runs, showing the outputs both
+    before and after filtering. This can be useful when developing doctests to see if the
+    filters are being applied as you expect (e.g. to make sure that they are not too broad
+    or to understand why a filter is not working).
+
+    To enable the debug output, you can set the `JULIA_DEBUG` environment variable to
+    Documenter's `DocTests` module, e.g. by doing the following in the `make.jl` script:
+
+    ```julia
+    ENV["JULIA_DEBUG"] = "DocTests"
+    ```
+
+The doctest filters can be applied globally, on a per-file basis or to each doctest
+separately. To apply them globally, i.e. to all doctests in the documentation, a list of
+filters can be passed to [`makedocs`](@ref) with the keyword `doctestfilters`.
 
 For more fine grained control it is possible to define filters in `@meta` blocks by assigning them
 to the `DocTestFilters` variable, either as a single regular expression (`DocTestFilters = [r"foo"]`)
@@ -300,8 +338,8 @@ help avoid unintentional filtering in following doctest blocks.
 
 Another option is to use the `filter` keyword argument. This defines a doctest-local filter
 which is only active for the specific doctest. Note that such filters are not shared between
-named doctests either. It is possible to define a filter by a single regex (filter = r"foo")
-or as a list of regex (filter = [r"foo", r"bar"]). Example:
+named doctests either. It is possible to define a filter by a single regex (`filter = r"foo"`)
+or as a list of regex (`filter = [r"foo", r"bar"]`). Example:
 
 ````markdown
 ```jldoctest; filter = r"[0-9\.]+ seconds \(.*\)"
