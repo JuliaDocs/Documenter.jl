@@ -1600,7 +1600,21 @@ function mdconvert(a::Markdown.Admonition, parent; kwargs...)
         (a.category == "note")    ? "is-info"    :
         (a.category == "info")    ? "is-info"    :
         (a.category == "tip")     ? "is-success" :
-        (a.category == "compat")  ? "is-compat"  : ""
+        (a.category == "compat")  ? "is-compat"  : begin
+            # If the admonition category is not one of the standard ones, we just tag the
+            # admonition element with a `is-$(category)` class. However, we first carefully
+            # sanitize the category name:
+            #
+            # (1) remove all characters except A-Z, a-z, 0-9 and -
+            cat_sanitized = replace(a.category, r"[^A-Za-z0-9-]" => "")
+            # (2) remove any dashes from the beginning and end of the string
+            cat_sanitized = replace(cat_sanitized, r"^[-]+" => "")
+            cat_sanitized = replace(cat_sanitized, r"[-]+$" => "")
+            # (3) reduce any duplicate dashes in the middle to single dashes
+            cat_sanitized = replace(cat_sanitized, r"[-]+" => "-")
+            cat_sanitized = lowercase(cat_sanitized)
+            "is-$(cat_sanitized)"
+        end
     div[".admonition.$(colorclass)"](
         header[".admonition-header"](a.title),
         div[".admonition-body"](mdconvert(a.content, a; kwargs...))
