@@ -1602,8 +1602,12 @@ function mdconvert(a::Markdown.Admonition, parent; kwargs...)
         (a.category == "tip")     ? "is-success" :
         (a.category == "compat")  ? "is-compat"  : begin
             # If the admonition category is not one of the standard ones, we just tag the
-            # admonition element with a `is-$(category)` class. However, we first carefully
-            # sanitize the category name:
+            # admonition element with a `admonition--$(category)` class. However, we first
+            # carefully sanitize the category name. Strictly speaking, this is not necessary
+            # when were using the Markdown parser in the Julia standard library, since it
+            # restricts the category to [a-z]+. But it is possible for the users to
+            # construct their own Admonition objects with arbitrary category strings and
+            # pass them onto Documenter.
             #
             # (1) remove all characters except A-Z, a-z, 0-9 and -
             cat_sanitized = replace(a.category, r"[^A-Za-z0-9-]" => "")
@@ -1613,7 +1617,7 @@ function mdconvert(a::Markdown.Admonition, parent; kwargs...)
             # (3) reduce any duplicate dashes in the middle to single dashes
             cat_sanitized = replace(cat_sanitized, r"[-]+" => "-")
             cat_sanitized = lowercase(cat_sanitized)
-            "is-$(cat_sanitized)"
+            "admonition-$(cat_sanitized)"
         end
     div[".admonition.$(colorclass)"](
         header[".admonition-header"](a.title),
