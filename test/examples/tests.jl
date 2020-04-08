@@ -28,10 +28,11 @@ end
             @test joinpath(build_dir, "omitted", "index.html") |> isfile
             @test joinpath(build_dir, "hidden", "index.html") |> isfile
             @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
+            @test joinpath(build_dir, "man", "style", "index.html") |> isfile
 
             # Test existence of some HTML elements
-            indexhtml = String(read(joinpath(build_dir, "index.html")))
-            #@test occursin("", indexhtml)
+            man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
+            @test occursin("is-category-myadmonition", man_style_html)
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile

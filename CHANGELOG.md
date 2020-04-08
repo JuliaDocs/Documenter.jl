@@ -6,7 +6,7 @@
 
 ## Version `v0.24.8`
 
-* ![Enhancement][badge-enhancement] Non-standard admonition categories are (again) applied to the admonition `<div>` elements in HTML output (as `admonition-$category`). ([#1279][github-1279], [#1280][github-1280])
+* ![Enhancement][badge-enhancement] Non-standard admonition categories are (again) applied to the admonition `<div>` elements in HTML output (as `is-category-$category`). ([#1279][github-1279], [#1280][github-1280])
 
 ## Version `v0.24.7`
 

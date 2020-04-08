@@ -1595,17 +1595,17 @@ end
 function mdconvert(a::Markdown.Admonition, parent; kwargs...)
     @tags header div
     colorclass =
-        (a.category == "danger")  ? "is-danger"  :
-        (a.category == "warning") ? "is-warning" :
-        (a.category == "note")    ? "is-info"    :
-        (a.category == "info")    ? "is-info"    :
-        (a.category == "tip")     ? "is-success" :
-        (a.category == "compat")  ? "is-compat"  : begin
-            # If the admonition category is not one of the standard ones, we just tag the
-            # admonition element with a `admonition-$(category)` class. However, we first
-            # carefully sanitize the category name. Strictly speaking, this is not necessary
-            # when were using the Markdown parser in the Julia standard library, since it
-            # restricts the category to [a-z]+. But it is possible for the users to
+        (a.category == "danger")  ? ".is-danger"  :
+        (a.category == "warning") ? ".is-warning" :
+        (a.category == "note")    ? ".is-info"    :
+        (a.category == "info")    ? ".is-info"    :
+        (a.category == "tip")     ? ".is-success" :
+        (a.category == "compat")  ? ".is-compat"  : begin
+            # If the admonition category is not one of the standard ones, we tag the
+            # admonition div element with a `is-category-$(category)` class. However, we
+            # first carefully sanitize the category name. Strictly speaking, this is not
+            # necessary when were using the Markdown parser in the Julia standard library,
+            # since it restricts the category to [a-z]+. But it is possible for the users to
             # construct their own Admonition objects with arbitrary category strings and
             # pass them onto Documenter.
             #
@@ -1617,9 +1617,11 @@ function mdconvert(a::Markdown.Admonition, parent; kwargs...)
             # (3) reduce any duplicate dashes in the middle to single dashes
             cat_sanitized = replace(cat_sanitized, r"[-]+" => "-")
             cat_sanitized = lowercase(cat_sanitized)
-            "admonition-$(cat_sanitized)"
+            # (4) if nothing is left (or the category was empty to begin with), we don't
+            # apply a class
+            isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-    div[".admonition.$(colorclass)"](
+    div[".admonition$(colorclass)"](
         header[".admonition-header"](a.title),
         div[".admonition-body"](mdconvert(a.content, a; kwargs...))
     )
