@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.25.0`
+
+* ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
+
 ## Version `v0.24.7`
 
 * ![Bugfix][badge-bugfix] Remove `only`, a new export from `Base` on Julia 1.4, from the JS search filter. ([#1264][github-1264])
@@ -526,6 +530,7 @@
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
 [github-1223]: https://github.com/JuliaDocs/Documenter.jl/pull/1223
 [github-1232]: https://github.com/JuliaDocs/Documenter.jl/pull/1232
+[github-1240]: https://github.com/JuliaDocs/Documenter.jl/pull/1240
 [github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 [github-1264]: https://github.com/JuliaDocs/Documenter.jl/pull/1264
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
