@@ -1602,7 +1602,7 @@ function mdconvert(a::Markdown.Admonition, parent; kwargs...)
         (a.category == "tip")     ? "is-success" :
         (a.category == "compat")  ? "is-compat"  : begin
             # If the admonition category is not one of the standard ones, we just tag the
-            # admonition element with a `admonition--$(category)` class. However, we first
+            # admonition element with a `admonition-$(category)` class. However, we first
             # carefully sanitize the category name. Strictly speaking, this is not necessary
             # when were using the Markdown parser in the Julia standard library, since it
             # restricts the category to [a-z]+. But it is possible for the users to
