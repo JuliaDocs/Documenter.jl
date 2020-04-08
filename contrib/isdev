@@ -1,0 +1,5 @@
+#!/usr/bin/env julia
+project = String(read(joinpath(@__DIR__, "..", "Project.toml")))
+m = match(r"version\s*=\s*\"([A-Za-z0-9.-]+)\"", project)
+m === nothing && error("Unable to find version number in Project.toml")
+println(m[1])
