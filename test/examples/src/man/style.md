@@ -38,8 +38,8 @@ Also, custom admonition classes can be used:
     )
     ```
 
-    [See here](https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/src/assets/custom.css)
-    for an example `custom.css` file.
+    See [`test/examples/src/assets/custom.css`](https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/src/assets/custom.css)
+    for an example of a custom CSS file.
 
 But otherwise
 
