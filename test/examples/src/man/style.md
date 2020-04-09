@@ -25,6 +25,21 @@ Also, custom admonition classes can be used:
 !!! myadmonition "My Admonition Class"
 
     In the HTML output, this admonition has `is-category-myadmonition` applied to it.
+    Its style can be changed by adding styles to `.admonition-header` and `.admonition-body`
+    in a custom css file and adding it to the build with, for example:
+
+    ```julia
+    makedocs(
+        # ...
+        format=Documenter.HTML(;
+            #...
+            assets=["assets/custom.css"]
+        )
+    )
+    ```
+
+    See [`test/examples/src/assets/custom.css`](https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/src/assets/custom.css)
+    for an example of a custom CSS file.
 
 But otherwise
 
