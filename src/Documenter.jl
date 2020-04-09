@@ -474,7 +474,7 @@ The documentation are placed in the folder specified by `subfolder`.
 function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
-        versions, forcepush=false, deploy_config, subfolder,
+        versions, forcepush=false, deploy_config, subfolder, username="git"
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -555,11 +555,21 @@ function git_push(
     end
 
     if authentication_method(deploy_config) === SSH
-        # Extract host from repo as everything up to first ':' or '/' character
-        host = match(r"(.*?)[:\/]", repo)[1]
-
-        # The upstream URL to which we push new content and the ssh decryption commands.
-        upstream = "git@$(replace(repo, "$host/" => "$host:"))"
+        # For repo URL of the form user@host:/path/to/repo, extract user
+        if '@' in repo
+            user, rest = split(repo, '@')
+            # Extract host from repo as everything between @ and first ':' or '/' character
+            host = match(r"(.*?)[:\/]", rest)[1]
+            # The upstream URL to which we push new content and the ssh decryption commands.
+            upstream = "$(replace(repo, "$host/" => "$host:"))"
+        else
+            user = "git"
+            # Extract host from repo as everything up to first ':' or '/' character
+            host = match(r"(.*?)[:\/]", repo)[1]
+            # The upstream URL to which we push new content and the ssh decryption commands.
+            upstream = "git@$(replace(repo, "$host/" => "$host:"))"
+        end
+        
 
         keyfile = abspath(joinpath(root, ".documenter"))
         try
@@ -581,7 +591,7 @@ function git_push(
                 """
                 Host $host
                     StrictHostKeyChecking no
-                    User git
+                    User $user
                     HostName $host
                     IdentityFile "$keyfile"
                     IdentitiesOnly yes
