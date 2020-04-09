@@ -1646,7 +1646,11 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"image/jpeg"())
         out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
     elseif haskey(d, MIME"text/latex"())
-        out = Utilities.mdparse(d[MIME"text/latex"()]; mode = :single)
+        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \], we
+        # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
+        # delimiters around it anyway.
+        m = match(r"\s*\\\[(.*)\\\]\s*", d[MIME"text/latex"()])
+        out = Markdown.LaTeX(m === nothing ? d[MIME"text/latex"()] : m[1])
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())

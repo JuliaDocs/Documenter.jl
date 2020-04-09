@@ -385,3 +385,27 @@ Hello World!
 Written in <a href="https://fonts.google.com/specimen/Nanum+Brush+Script">Nanum Brush Script.</a>
 </div>
 ```
+
+## Handling of `text/latex`
+
+You can define a type that has a `Base.show` method for the `text/latex` MIME:
+
+```@example showablelatex
+struct LaTeXEquation
+    code :: String
+end
+Base.show(io, ::MIME"text/latex", latex::LaTeXEquation) = write(io, latex.code)
+nothing # hide
+```
+
+In an `@example` or `@eval`block, it renders as an equation:
+
+```@example showablelatex
+LaTeXEquation("x^2")
+```
+
+Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`.
+
+```@example showablelatex
+LaTeXEquation("\\[\\left[ \\begin{array}{rr}x&2 x\\end{array}\\right]\\]")
+```
