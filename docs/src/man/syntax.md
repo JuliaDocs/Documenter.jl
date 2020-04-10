@@ -40,6 +40,25 @@ which will cause any unlisted docstrings to raise warnings when [`makedocs`](@re
 called. If `modules` is not defined then no warnings are printed, even if a document has
 missing docstrings.
 
+Notice also that you can use `@docs` to display the documentation strings of only specific
+methods, by stating the dispatch types. For example
+````markdown
+```@docs
+f(::Type1, ::Type2)
+```
+````
+will only display the documentation string of `f` that is related to these types.
+This can be useful when your module extends a function and adds a documentation
+string to that new method.
+
+Note that when specifying signatures, it should match the method definition exactly.
+Documenter will not match methods based on dispatch rules. For example, assuming you
+have a docstring attached to `foo(::Integer) = ...`, then neither `foo(::Number)` nor
+`foo(::Int64)` will match it in an at-docs block (even though `Int64 <: Integer <: Number`).
+The only way you can splice that docstring is by listing exactly `foo(::Integer)` in
+the at-docs block.
+
+
 ## `@autodocs` block
 
 Automatically splices all docstrings from the provided modules in place of the code block.
@@ -86,7 +105,7 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
-To filter out certain docstrings by your own criteria, you can provide function with them
+To filter out certain docstrings by your own criteria, you can provide function with the
 `Filter` keyword:
 
 ````markdown
@@ -334,7 +353,8 @@ on each line is also removed.
 
 !!! note
     The working directory, `pwd`, is set to the directory in `build` where the file
-    will be written to, and the paths in `include` calls are interpreted to be relative to `pwd`.
+    will be written to, and the paths in `include` calls are interpreted to be relative to
+    `pwd`. This can be customized with the `workdir` keyword of [`makedocs`](@ref).
 
 **Hiding Source Code**
 
@@ -493,7 +513,14 @@ Named `@repl <name>` blocks behave in the same way as named `@example <name>` bl
 
 !!! note
     The working directory, `pwd`, is set to the directory in `build` where the file
-    will be written to, and the paths in `include` calls are interpreted to be relative to `pwd`.
+    will be written to, and the paths in `include` calls are interpreted to be relative to
+    `pwd`.  This can be customized with the `workdir` keyword of [`makedocs`](@ref).
+
+!!! note "Soft vs hard scope"
+
+    Julia 1.5 changed the REPL to use the _soft scope_ when handling global variables in
+    `for` loops etc. When using Documenter with Julia 1.5 or above, Documenter uses the soft
+    scope in `@repl`-blocks and REPL-type doctests.
 
 ## `@setup <name>` block
 

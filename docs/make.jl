@@ -1,18 +1,41 @@
 using Documenter, DocumenterTools
+include("DocumenterShowcase.jl")
+
+# The DOCSARGS environment variable can be used to pass additional arguments to make.jl.
+# This is useful on CI, if you need to change the behavior of the build slightly but you
+# can not change the .travis.yml or make.jl scripts any more (e.g. for a tag build).
+if haskey(ENV, "DOCSARGS")
+    for arg in split(ENV["DOCSARGS"])
+        (arg in ARGS) || push!(ARGS, arg)
+    end
+end
 
 makedocs(
-    modules = [Documenter, DocumenterTools],
+    modules = [Documenter, DocumenterTools, DocumenterShowcase],
     format = Documenter.HTML(
         # Use clean URLs, unless built as a "local" build
         prettyurls = !("local" in ARGS),
         canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
         assets = ["assets/favicon.ico"],
-        analytics = "UA-89508993-1",
+        analytics = "UA-136089579-2",
+        highlights = ["yaml"],
     ),
     clean = false,
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     linkcheck = !("skiplinks" in ARGS),
+    linkcheck_ignore = [
+        # timelessrepo.com seems to 404 on any CURL request...
+        "http://timelessrepo.com/json-isnt-a-javascript-subset",
+        # We'll ignore links that point to GitHub's edit pages, as they redirect to the
+        # login screen and cause a warning:
+        r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
+    ] ∪ (get(ENV, "GITHUB_ACTIONS", nothing)  == "true" ? [
+        # Extra ones we ignore only on CI.
+        #
+        # It seems that CTAN blocks GitHub Actions?
+        "https://ctan.org/pkg/minted",
+    ] : []),
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
@@ -26,32 +49,22 @@ makedocs(
             ]),
             "man/other-formats.md",
         ],
+        "showcase.md",
         "Library" => Any[
             "Public" => "lib/public.md",
-            hide("Internals" => "lib/internals.md", Any[
-                "lib/internals/anchors.md",
-                "lib/internals/builder.md",
-                "lib/internals/cross-references.md",
-                "lib/internals/docchecks.md",
-                "lib/internals/docsystem.md",
-                "lib/internals/doctests.md",
-                "lib/internals/documenter.md",
-                "lib/internals/documentertools.md",
-                "lib/internals/documents.md",
-                "lib/internals/dom.md",
-                "lib/internals/expanders.md",
-                "lib/internals/mdflatten.md",
-                "lib/internals/selectors.md",
-                "lib/internals/textdiff.md",
-                "lib/internals/utilities.md",
-                "lib/internals/writers.md",
-            ])
+            "Internals" => map(
+                s -> "lib/internals/$(s)",
+                sort(readdir(joinpath(@__DIR__, "src/lib/internals")))
+            ),
         ],
         "contributing.md",
     ],
+    strict = !("strict=false" in ARGS),
+    doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
 deploydocs(
     repo = "github.com/JuliaDocs/Documenter.jl.git",
     target = "build",
+    push_preview = true,
 )

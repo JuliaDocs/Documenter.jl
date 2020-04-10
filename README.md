@@ -30,9 +30,9 @@ julia> import Pkg; Pkg.add("Documenter")
 
 ## Project Status
 
-The package is tested against Julia `0.7`, `1.0` and the nightly builds of the Julia `master` branch on Linux, macOS, and Windows.
+The package is tested against, and being developed for, Julia `1.0` and above on Linux, macOS, and Windows.
 
-Support for Julia `0.4`, `0.5` and `0.6` has been dropped in the latest version, but older versions of Documenter may still work (Documenter versions `0.8`, `0.11` and `0.19`, respectively).
+Support for Julia `0.4`, `0.5`, `0.6` and `0.7` has been dropped in the latest version, but older versions of Documenter may still work (Documenter versions `0.8`, `0.11`, `0.19`, and `0.22` respectively).
 
 ## Questions and Contributions
 
@@ -40,12 +40,12 @@ Usage questions can be posted on the [Julia Discourse forum][discourse-tag-url] 
 
 Contributions are very welcome, as are feature requests and suggestions. Please open an [issue][issues-url] if you encounter any problems. The [contributing page][contrib-url] has a few guidelines that should be followed when opening pull requests and contributing code.
 
-[contrib-url]: https://juliadocs.github.io/Documenter.jl/latest/man/contributing/
+[contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
 [gitter-url]: https://gitter.im/juliadocs/users
 
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://juliadocs.github.io/Documenter.jl/latest
+[docs-dev-url]: https://juliadocs.github.io/Documenter.jl/dev
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://juliadocs.github.io/Documenter.jl/stable

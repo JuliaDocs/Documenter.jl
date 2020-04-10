@@ -13,8 +13,10 @@ import ..Documenter:
     Documenter,
     Anchors,
     Utilities,
-    Plugin
+    Plugin,
+    Writer
 
+import ..Documenter.Utilities.Markdown2
 using DocStringExtensions
 import Markdown
 using Unicode
@@ -35,8 +37,9 @@ Globals() = Globals(Main, Dict())
 Represents a single markdown file.
 """
 struct Page
-    source   :: String
-    build    :: String
+    source      :: String
+    build       :: String
+    workdir :: Union{Symbol,String}
     """
     Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
     should be considered immutable.
@@ -49,11 +52,35 @@ struct Page
     """
     mapping  :: IdDict{Any,Any}
     globals  :: Globals
+    md2ast   :: Markdown2.MD
 end
-function Page(source::AbstractString, build::AbstractString)
-    elements = Markdown.parse(read(source, String)).content
-    Page(source, build, elements, IdDict{Any,Any}(), Globals())
+function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
+    mdpage = Markdown.parse(read(source, String))
+    md2ast = try
+        Markdown2.convert(Markdown2.MD, mdpage)
+    catch err
+        @error """
+            Markdown2 conversion error on $(source).
+            This is a bug — please report this on the Documenter issue tracker
+            """
+        rethrow(err)
+    end
+    Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), md2ast)
 end
+
+# FIXME -- special overload for Utilities.parseblock
+Utilities.parseblock(code::AbstractString, doc, page::Documents.Page; kwargs...) = Utilities.parseblock(code, doc, page.source; kwargs...)
+
+# Document blueprints.
+# --------------------
+
+# Should contain all the information that is necessary to build a document.
+# Currently has enough information to just run doctests.
+struct DocumentBlueprint
+    pages :: Dict{String, Page} # Markdown files only.
+    modules :: Set{Module} # Which modules to check for missing docs?
+end
+
 
 # Document Nodes.
 # ---------------
@@ -61,12 +88,12 @@ end
 ## IndexNode.
 
 struct IndexNode
-    pages    :: Vector{String} # Which pages to include in the index? Set by user.
-    modules  :: Vector{Module} # Which modules to include? Set by user.
-    order    :: Vector{Symbol} # What order should docs be listed in? Set by user.
-    build    :: String         # Path to the file where this index will appear.
-    source   :: String         # Path to the file where this index was written.
-    elements :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
+    pages       :: Vector{String} # Which pages to include in the index? Set by user.
+    modules     :: Vector{Module} # Which modules to include? Set by user.
+    order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
+    build       :: String         # Path to the file where this index will appear.
+    source      :: String         # Path to the file where this index was written.
+    elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
 
     function IndexNode(;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
@@ -85,11 +112,11 @@ end
 ## ContentsNode.
 
 struct ContentsNode
-    pages    :: Vector{String} # Which pages should be included in contents? Set by user.
-    depth    :: Int            # Down to which level should headers be displayed? Set by user.
-    build    :: String         # Same as for `IndexNode`s.
-    source   :: String         # Same as for `IndexNode`s.
-    elements :: Vector         # (order, page, anchor)-tuple for constructing links.
+    pages       :: Vector{String} # Which pages should be included in contents? Set by user.
+    depth       :: Int            # Down to which level should headers be displayed? Set by user.
+    build       :: String         # Same as for `IndexNode`s.
+    source      :: String         # Same as for `IndexNode`s.
+    elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
 
     function ContentsNode(;
             Pages  = [],
@@ -152,7 +179,7 @@ to other page, reference to the [`Page`](@ref) object etc.
 mutable struct NavNode
     """
     `nothing` if the `NavNode` is a non-page node of the navigation tree, otherwise
-    the string should be a valid key in `doc.internal.pages`
+    the string should be a valid key in `doc.blueprint.pages`
     """
     page           :: Union{String, Nothing}
     """
@@ -187,7 +214,8 @@ struct User
     root    :: String  # An absolute path to the root directory of the document.
     source  :: String  # Parent directory is `.root`. Where files are read from.
     build   :: String  # Parent directory is also `.root`. Where files are written to.
-    format  :: Vector{Plugin} # What format to render the final document with?
+    workdir :: Union{Symbol,String} # Parent directory is also `.root`. Where code is executed from.
+    format  :: Vector{Writer} # What format to render the final document with?
     clean   :: Bool           # Empty the `build` directory before starting a new build?
     doctest :: Union{Bool,Symbol} # Run doctests?
     linkcheck::Bool           # Check external links..
@@ -195,8 +223,8 @@ struct User
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
     strict::Bool              # Throw an exception when any warnings are encountered.
-    modules :: Set{Module}    # Which modules to check for missing docs?
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
+    expandfirst::Vector{String} # List of pages that get "expanded" before others
     repo    :: String  # Template for URL to source code repo
     sitename:: String
     authors :: String
@@ -210,7 +238,6 @@ Private state used to control the generation process.
 struct Internal
     assets  :: String             # Path where asset files will be copied to.
     remote  :: String             # The remote repo on github where this package is hosted.
-    pages   :: Dict{String, Page} # Markdown files only.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
@@ -233,12 +260,14 @@ struct Document
     user     :: User     # Set by the user via `makedocs`.
     internal :: Internal # Computed values.
     plugins  :: Dict{DataType, Plugin}
+    blueprint :: DocumentBlueprint
 end
 
 function Document(plugins = nothing;
         root     :: AbstractString   = Utilities.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
+        workdir  :: Union{Symbol, AbstractString}  = :build,
         format   :: Any              = Documenter.HTML(),
         clean    :: Bool             = true,
         doctest  :: Union{Bool,Symbol} = true,
@@ -249,6 +278,7 @@ function Document(plugins = nothing;
         strict::Bool                 = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
+        expandfirst :: Vector        = String[],
         repo     :: AbstractString   = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
@@ -259,7 +289,7 @@ function Document(plugins = nothing;
     Utilities.check_kwargs(others)
 
     if !isa(format, AbstractVector)
-        format = Plugin[format]
+        format = Writer[format]
     end
 
     if version == "git-commit"
@@ -270,6 +300,7 @@ function Document(plugins = nothing;
         root,
         source,
         build,
+        workdir,
         format,
         clean,
         doctest,
@@ -278,8 +309,8 @@ function Document(plugins = nothing;
         checkdocs,
         doctestfilters,
         strict,
-        Utilities.submodules(modules),
         pages,
+        expandfirst,
         repo,
         sitename,
         authors,
@@ -289,7 +320,6 @@ function Document(plugins = nothing;
     internal = Internal(
         Utilities.assetsdir(),
         Utilities.getremote(root),
-        Dict{String, Page}(),
         [],
         [],
         Anchors.AnchorMap(),
@@ -306,14 +336,18 @@ function Document(plugins = nothing;
     if plugins !== nothing
         for plugin in plugins
             plugin isa Plugin ||
-                throw("$(typeof(plugin)) is not a subtype of `Documenter.Plugin`.")
+                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Documenter.Plugin`."))
             haskey(plugin_dict, typeof(plugin)) &&
-                throw("only one copy of $(typeof(plugin)) may be passed.")
+                throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
             plugin_dict[typeof(plugin)] = plugin
         end
     end
 
-    Document(user, internal, plugin_dict)
+    blueprint = DocumentBlueprint(
+        Dict{String, Page}(),
+        Utilities.submodules(modules),
+    )
+    Document(user, internal, plugin_dict, blueprint)
 end
 
 """
@@ -333,11 +367,11 @@ end
 
 ## Methods
 
-function addpage!(doc::Document, src::AbstractString, dst::AbstractString)
-    page = Page(src, dst)
+function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
+    page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
     name = normpath(relpath(src, doc.user.source))
-    doc.internal.pages[name] = page
+    doc.blueprint.pages[name] = page
 end
 
 """
@@ -406,7 +440,7 @@ end
 
 # some replacements for jldoctest blocks
 function doctest_replace!(doc::Documents.Document)
-    for (src, page) in doc.internal.pages
+    for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
         for element in page.elements
             page.globals.meta[:CurrentFile] = page.source

@@ -3,3 +3,12 @@
 center.raw-html-block {
     color: red;
 }
+
+.admonition.is-category-myadmonition > .admonition-header {
+    background-color: rgba(152,78,163,0.8);
+   }
+   
+.admonition.is-category-myadmonition > .admonition-body {
+background-color: rgba(152,78,163,0.2);
+}
+   

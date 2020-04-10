@@ -350,3 +350,38 @@ With explicit alignment.
 | :---   |    :---:    |       ---: |
 | `A`    |      ✓      |      10.00 |
 | `BB`   |      ✓      | 1000000.00 |
+
+## Customizing assets
+
+The following example only works on the deploy build where
+
+```julia
+mathengine = Documenter.MathJax(Dict(:TeX => Dict(
+    :equationNumbers => Dict(:autoNumber => "AMS"),
+    :Macros => Dict(
+        :ket => ["|#1\\rangle", 1],
+        :bra => ["\\langle#1|", 1],
+    ),
+)))
+```
+
+```math
+\bra{x}\ket{y}
+```
+
+The following at-raw block only renders correctly on the deploy build, where
+
+```julia
+assets = [
+  asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class=:css),
+  ...
+]
+```
+
+```@raw html
+<div style="font-family: 'Nanum Brush Script'; text-align: center; font-size: xx-large;">
+Hello World!
+<br />
+Written in <a href="https://fonts.google.com/specimen/Nanum+Brush+Script">Nanum Brush Script.</a>
+</div>
+```

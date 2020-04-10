@@ -13,6 +13,7 @@ $(EXPORTS)
 """
 module Documenter
 
+using Test: @testset, @test
 using DocStringExtensions
 import Base64: base64decode
 
@@ -30,30 +31,32 @@ a new `T` object will be created.
 """
 abstract type Plugin end
 
+abstract type Writer end
 
 # Submodules
 # ----------
 
 include("Utilities/Utilities.jl")
+include("DocMeta.jl")
 include("DocSystem.jl")
 include("Anchors.jl")
 include("Documents.jl")
-include("Builder.jl")
 include("Expanders.jl")
-include("CrossReferences.jl")
 include("DocTests.jl")
+include("Builder.jl")
+include("CrossReferences.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
 include("Deps.jl")
 
 import .Utilities: Selectors
-import .Writers.HTMLWriter: HTML
-
+import .Writers.HTMLWriter: HTML, asset
+import .Writers.HTMLWriter.RD: KaTeX, MathJax
 
 # User Interface.
 # ---------------
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta, KaTeX, MathJax, asset
 
-export Deps, makedocs, deploydocs, hide
 """
     makedocs(
         root    = "<current-directory>",
@@ -65,6 +68,7 @@ export Deps, makedocs, deploydocs, hide
         repo    = "",
         highlightsig = true,
         sitename = "",
+        expandfirst = [],
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -118,6 +122,10 @@ After that, it's encouraged to always make sure that documentation examples are 
 produce the expected results. See the [Doctests](@ref) manual section for details about
 running doctests.
 
+Setting `doctest` to `:only` allows for doctesting without a full build. In this mode, most
+build stages are skipped and the `strict` keyword is ignore (a doctesting error will always
+make `makedocs` throw an error).
+
 **`modules`** specifies a vector of modules that should be documented in `source`. If any
 inline docstrings from those modules are seen to be missing from the generated content then
 a warning will be printed during execution of [`makedocs`](@ref). By default no modules are
@@ -159,6 +167,16 @@ is enabled by default.
 
 **`sitename`** is displayed in the title bar and/or the navigation menu when applicable.
 
+**`expandfirst`** allows some of the pages to be _expanded_ (i.e. at-blocks evaluated etc.)
+before the others. Documenter normally evaluates the files in the alphabetic order of their
+file paths relative to `src`, but `expandfirst` allows some pages to be prioritized.
+
+For example, if you have `foo.md` and `bar.md`, `bar.md` would normally be evaluated before
+`foo.md`. But with `expandfirst = ["foo.md"]`, you can force `foo.md` to be evaluated first.
+
+Evaluation order among the `expandfirst` pages is according to the order they appear in the
+argument.
+
 # Experimental keywords
 
 In addition to standard arguments there is a set of non-finalized experimental keyword
@@ -168,9 +186,9 @@ when a minor version changes (i.e. except in patch releases).
 **`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
 defined in the `modules` keyword that have a docstring attached have the docstring also
 listed in the manual (e.g. there's a `@docs` block with that docstring). Possible values
-are `:all` (check all names) and `:exports` (check only exported names). The default value
-is `:none`, in which case no checks are performed. If `strict` is also enabled then the
-build will fail if any missing docstrings are encountered.
+are `:all` (check all names; the default), `:exports` (check only exported names) and
+`:none` (no checks are performed). If `strict` is also enabled then the build will fail if
+any missing docstrings are encountered.
 
 **`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
 of external-pointing links, to make sure that they are up-to-date. The links and their
@@ -183,6 +201,20 @@ ignored.
 
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
+
+**`workdir`** determines the working directory where `@example` and `@repl` code blocks are
+executed. It can be either a path or the special value `:build` (default).
+
+If the `workdir` is set to a path, the working directory is reset to that path for each code
+block being evaluated. Relative paths are taken to be relative to `root`, but using absolute
+paths is recommended (e.g. `workdir = joinpath(@__DIR__, "..")` for executing in the package
+root for the usual `docs/make.jl` setup).
+
+With the default `:build` option, the working directory is set to a subdirectory of `build`,
+determined from the source file path. E.g. for `src/foo.md` it is set to `build/`, for
+`src/foo/bar.md` it is set to `build/foo` etc.
+
+Note that `workdir` does not affect doctests.
 
 ## Output formats
 **`format`** allows the output format to be specified. The default format is
@@ -199,89 +231,7 @@ See the [Other Output Formats](@ref) for more information.
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
-function makedocs(components...; debug = false, format = HTML(),
-                  html_prettyurls::Union{Bool, Nothing} = nothing, # deprecated
-                  html_disable_git::Union{Bool, Nothing} = nothing, # deprecated
-                  html_edit_branch::Union{String, Nothing} = nothing, # deprecated
-                  html_canonical::Union{String, Nothing} = nothing, # deprecated
-                  assets::Union{Vector{<:AbstractString}, Nothing} = nothing, # deprecated
-                  analytics::Union{<:AbstractString, Nothing} = nothing, # deprecated
-                  kwargs...)
-    # html_ keywords deprecation
-    html_keywords = Dict()
-    function html_warn(kw)
-        replace_with = startswith(kw, "html_") ? kw[6:end] : kw
-        @warn """
-        The `$kw` keyword argument should now be specified in the
-        `Documenter.HTML()` format specifier. To fix this warning replace
-        ```
-        $kw = ...
-        ```
-        with
-        ```
-        format = Documenter.HTML($(replace_with) = ...)
-        ```
-        """
-    end
-    if html_prettyurls !== nothing
-        html_warn("html_prettyurls")
-        html_keywords[:prettyurls] = html_prettyurls
-    end
-    if html_disable_git !== nothing
-        html_warn("html_disable_git")
-        html_keywords[:disable_git] = html_disable_git
-    end
-    if html_edit_branch !== nothing
-        html_warn("html_edit_branch")
-        html_keywords[:edit_branch] = html_edit_branch
-    end
-    if html_canonical !== nothing
-        html_warn("html_canonical")
-        html_keywords[:canonical] = html_canonical
-    end
-    if assets !== nothing
-        html_warn("assets")
-        html_keywords[:assets] = assets
-    end
-    if analytics !== nothing
-        html_warn("analytics")
-        html_keywords[:analytics] = analytics
-    end
-
-    # deprecation of format as Symbols
-    function fmt(f)
-        if f === :html
-            Base.depwarn("`format = :html` is deprecated, use `format = Documenter.HTML()` instead.", :makedocs)
-            return Writers.HTMLWriter.HTML(; html_keywords...)
-        elseif f === :latex
-            Base.depwarn("`format = :latex` is deprecated, use `format = LaTeX()` from " *
-                "the DocumenterLaTeX package instead.", :makedocs)
-            return Writers.LaTeXWriter.LaTeX()
-        elseif f === :markdown
-            Base.depwarn("`format = :markdown` is deprecated, use `format = Markdown()` " *
-                "from the DocumenterMarkdown package instead.", :makedocs)
-            return Writers.MarkdownWriter.Markdown()
-        end
-    end
-    if isa(format, AbstractVector{<:Symbol})
-        format = fmt.(format)
-    elseif isa(format, Symbol)
-        format = fmt(format)
-    end
-    # overwrite some stuff in HTML() if outer html_ kwargs have been set
-    # seems ok since the depwarns will still be there.
-    overwrite(x) = x
-    function overwrite(html::HTML)
-        d = Dict(x => getfield(html, x) for x in fieldnames(HTML))
-        d = merge!(d, html_keywords)
-        return HTML(; d...)
-    end
-    if isa(format, HTML)
-        format = overwrite(format)
-    elseif format isa AbstractVector
-        format = overwrite.(format)
-    end
-
+function makedocs(components...; debug = false, format = HTML(), kwargs...)
     document = Documents.Document(components; format=format, kwargs...)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
@@ -339,6 +289,8 @@ makedocs(
 hide(root::Pair, children) = (true, root.first, root.second, map(hide, children))
 hide(root::AbstractString, children) = (true, nothing, root, map(hide, children))
 
+include("deployconfig.jl")
+
 """
     deploydocs(
         root   = "<current-directory>",
@@ -349,7 +301,8 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
         make   = nothing | <Function>,
         devbranch = "master",
         devurl = "dev",
-        versions = ["stable" => "v^", "v#.#", devurl => devurl]
+        versions = ["stable" => "v^", "v#.#", devurl => devurl],
+        push_preview = false
     )
 
 Converts markdown files generated by [`makedocs`](@ref) to HTML and pushes them to `repo`.
@@ -382,6 +335,11 @@ repo = "github.com/JuliaDocs/Documenter.jl.git"
 ```
 
 # Optional keyword arguments
+
+**`deploy_config`** determines configuration for the deployment.
+If this is not specified Documenter will try to autodetect from the
+currently running environment. See the manual section about
+[Deployment systems](@ref).
 
 **`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
 
@@ -430,42 +388,8 @@ the generated html. The following entries are valid in the `versions` vector:
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
 
-# Environment variables
-
-[`deploydocs`](@ref)'s behavior is influenced by the following environment variables, many
-of which are specific to the [Travis CI platform](https://travis-ci.com/).
-
- - **`DOCUMENTER_KEY`**: must contain the Base64-encoded SSH private key for the repository.
-
- - **`TRAVIS_PULL_REQUEST`**: must be set to `false`.
-
-   This avoids deployment on pull request builds. Note that there is no way to _safely_
-   enable builds on pull requests, since that would expose the SSH private key
-   (`DOCUMENTER_KEY`), giving anyone opening a pull request full write access to the repository.
-
- - **`TRAVIS_REPO_SLUG`**: must match the value of the `repo` keyword.
-
- - **`TRAVIS_EVENT_TYPE`**: may not be set to `cron`.
-
-   This avoids the re-deployment of existing docs on builds that were triggered by a Travis
-   cron job.
-
- - **`TRAVIS_BRANCH`**: unless `TRAVIS_TAG` is non-empty, this must have the same value as the
-   `devbranch` keyword.
-
-   This makes sure that only the development branch (commonly, the `master` branch) will deploy
-   the "dev" documentation (deployed into a directory specified by the `devurl` keyword).
-
- - **`TRAVIS_TAG`**: if set, a tagged version deployment is performed instead; the value must be
-   a valid version number (i.e. match `Base.VERSION_REGEX`).
-
-   The documentation for a package version tag gets deployed to a directory named after the
-   version number in `TRAVIS_TAG` instead.
-
-The `TRAVIS_*` variables are set automatically on Travis, but could be set manually to
-appropriate values as well to run [`deploydocs`](@ref) locally or on other CI platforms.
-More information on how Travis sets the `TRAVIS_*` variables can be found in the
-[Travis documentation](https://docs.travis-ci.com/user/environment-variables/#default-environment-variables).
+**`push_preview`** a boolean that specifies if preview documentation should be
+deployed from pull requests or not.
 
 # See Also
 
@@ -480,10 +404,6 @@ function deploydocs(;
 
         repo   = error("no 'repo' keyword provided."),
         branch = "gh-pages",
-        latest::Union{String,Nothing} = nothing, # deprecated
-
-        osname::Union{String,Nothing} = nothing, # deprecated
-        julia::Union{String,Nothing} = nothing, # deprecated
 
         deps   = nothing,
         make   = nothing,
@@ -492,81 +412,12 @@ function deploydocs(;
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
+        deploy_config = auto_detect_deploy_system(),
+        push_preview::Bool = false,
     )
-    # deprecation of latest kwarg (renamed to devbranch)
-    if latest !== nothing
-        Base.depwarn("The `latest` keyword argument has been renamed to `devbranch`.", :deploydocs)
-        devbranch = latest
-        @info "setting `devbranch` to `$(devbranch)`."
-    end
-    # deprecation/removal of `julia` and `osname` kwargs
-    if julia !== nothing
-        Base.depwarn("the `julia` keyword argument to `Documenter.deploydocs` is " *
-            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
-            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
-        @info "skipping docs deployment."
-        return
-    end
-    if osname !== nothing
-        Base.depwarn("the `osname` keyword argument to `Documenter.deploydocs` is " *
-            "removed. Use Travis Build Stages for determining from where to deploy instead. " *
-            "See the section about Hosting in the Documenter manual for more details.", :deploydocs)
-        @info "skipping docs deployment."
-        return
-    end
 
-    # Get environment variables.
-    documenter_key      = get(ENV, "DOCUMENTER_KEY",       "")
-    travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
-    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
-    travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
-    travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_event_type   = get(ENV, "TRAVIS_EVENT_TYPE",    "")
-
-
-    # Other variables.
-    sha = cd(root) do
-        # We'll make sure we run the git commands in the source directory (root), in case
-        # the working directory has been changed (e.g. if the makedocs' build argument is
-        # outside root).
-        try
-            readchomp(`git rev-parse --short HEAD`)
-        catch
-            # git rev-parse will throw an error and return code 128 if it is not being
-            # run in a git repository, which will make run/readchomp throw an exception.
-            # We'll assume that if readchomp fails it is due to this and set the sha
-            # variable accordingly.
-            "(not-git-repo)"
-        end
-    end
-
-    # Check criteria for deployment
-    ## The deploydocs' repo should match TRAVIS_REPO_SLUG
-    repo_ok = occursin(travis_repo_slug, repo)
-    ## Do not deploy for PRs
-    pr_ok = travis_pull_request == "false"
-    ## If a tag exist it should be a valid VersionNumber
-    tag_ok = isempty(travis_tag) || occursin(Base.VERSION_REGEX, travis_tag)
-    ## If no tag exists deploydocs' devbranch should match TRAVIS_BRANCH
-    branch_ok = !isempty(travis_tag) || travis_branch == devbranch
-    ## DOCUMENTER_KEY should exist
-    key_ok = !isempty(documenter_key)
-    ## Cron jobs should not deploy
-    type_ok = travis_event_type != "cron"
-    should_deploy = repo_ok && pr_ok && tag_ok && branch_ok && key_ok && type_ok
-
-    marker(x) = x ? "✔" : "✘"
-    @info """Deployment criteria:
-    - $(marker(repo_ok)) ENV["TRAVIS_REPO_SLUG"]="$(travis_repo_slug)" occurs in repo="$(repo)"
-    - $(marker(pr_ok)) ENV["TRAVIS_PULL_REQUEST"]="$(travis_pull_request)" is "false"
-    - $(marker(tag_ok)) ENV["TRAVIS_TAG"]="$(travis_tag)" is (i) empty or (ii) a valid VersionNumber
-    - $(marker(branch_ok)) ENV["TRAVIS_BRANCH"]="$(travis_branch)" matches devbranch="$(devbranch)" (if tag is empty)
-    - $(marker(key_ok)) ENV["DOCUMENTER_KEY"] exists
-    - $(marker(type_ok)) ENV["TRAVIS_EVENT_TYPE"]="$(travis_event_type)" is not "cron"
-    Deploying: $(marker(should_deploy))
-    """
-
-    if should_deploy
+    subfolder = deploy_folder(deploy_config; repo=repo, devbranch=devbranch, push_preview=push_preview, devurl=devurl)
+    if subfolder !== nothing
         # Add local bin path if needed.
         Deps.updatepath!()
         # Install dependencies when applicable.
@@ -576,6 +427,20 @@ function deploydocs(;
         end
         # Change to the root directory and try to deploy the docs.
         cd(root) do
+            # Find the commit sha.
+            # We'll make sure we run the git commands in the source directory (root), in case
+            # the working directory has been changed (e.g. if the makedocs' build argument is
+            # outside root).
+            sha = try
+                readchomp(`git rev-parse --short HEAD`)
+            catch
+                # git rev-parse will throw an error and return code 128 if it is not being
+                # run in a git repository, which will make run/readchomp throw an exception.
+                # We'll assume that if readchomp fails it is due to this and set the sha
+                # variable accordingly.
+                "(not-git-repo)"
+            end
+
             @debug "setting up target directory."
             isdir(target) || mkpath(target)
             # Run extra build steps defined in `make` if required.
@@ -588,8 +453,8 @@ function deploydocs(;
                 git_push(
                     root, temp, repo;
                     branch=branch, dirname=dirname, target=target,
-                    tag=travis_tag, key=documenter_key, sha=sha,
-                    devurl = devurl, versions = versions, forcepush = forcepush,
+                    sha=sha, deploy_config=deploy_config, subfolder=subfolder,
+                    devurl=devurl, versions=versions, forcepush=forcepush,
                 )
             end
         end
@@ -599,139 +464,155 @@ end
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", tag="", key="", sha="", devurl="dev"
+        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        deploy_config, folder,
     )
 
 Handles pushing changes to the remote documentation branch.
-When `tag` is empty the docs are deployed to the `devurl` directory,
-and when building docs for a tag they are deployed to a `vX.Y.Z` directory.
+The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
         root, temp, repo;
-        branch="gh-pages", dirname="", target="site", tag="", key="", sha="", devurl="dev",
-        versions, forcepush=false,
+        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        versions, forcepush=false, deploy_config, subfolder,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
 
     target_dir = abspath(target)
 
-    # Extract host from repo as everything up to first ':' or '/' character
-    host = match(r"(.*?)[:\/]", repo)[1]
+    # Generate a closure with common commands for ssh and https
+    function git_commands(sshconfig=nothing)
+        # Setup git.
+        run(`git init`)
+        run(`git config user.name "zeptodoctor"`)
+        run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+        if sshconfig !== nothing
+            run(`git config core.sshCommand "ssh -F $(sshconfig)"`)
+        end
 
-    # The upstream URL to which we push new content and the ssh decryption commands.
-    upstream = "git@$(replace(repo, "$host/" => "$host:"))"
-
-    keyfile = abspath(joinpath(root, ".documenter"))
-    try
-        write(keyfile, String(base64decode(key)))
-    catch e
-        @error """
-        Documenter failed to decode the DOCUMENTER_KEY environment variable.
-        Make sure that the environment variable is properly set up as a Base64-encoded string
-        of the SSH private key. You may need to re-generate the keys with DocumenterTools.
-        """
-        rethrow(e)
-    end
-    chmod(keyfile, 0o600)
-
-    try
-        # Use a custom SSH config file to avoid overwriting the default user config.
-        withfile(joinpath(homedir(), ".ssh", "config"),
+        # Fetch from remote and checkout the branch.
+        run(`git remote add upstream $upstream`)
+        try
+            run(`git fetch upstream`)
+        catch e
+            @error """
+            Git failed to fetch $upstream
+            This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
+            Make sure that the environment variable is properly set up as a Base64-encoded string
+            of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            Host $host
-                StrictHostKeyChecking no
-                HostName $host
-                IdentityFile "$keyfile"
-                BatchMode yes
-            """
-        ) do
-            cd(temp) do
-                # Setup git.
-                run(`git init`)
-                run(`git config user.name "zeptodoctor"`)
-                run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+            rethrow(e)
+        end
 
-                # Fetch from remote and checkout the branch.
-                run(`git remote add upstream $upstream`)
-                try
-                    run(`git fetch upstream`)
-                catch e
-                    @error """
-                    Git failed to fetch $upstream
-                    This can be caused by a DOCUMENTER_KEY variable that is not correctly set up.
-                    Make sure that the environment variable is properly set up as a Base64-encoded string
-                    of the SSH private key. You may need to re-generate the keys with DocumenterTools.
-                    """
-                    rethrow(e)
-                end
+        try
+            run(`git checkout -b $branch upstream/$branch`)
+        catch e
+            @debug "checking out $branch failed with error: $e"
+            @debug "creating a new local $branch branch."
+            run(`git checkout --orphan $branch`)
+            run(`git commit --allow-empty -m "Initial empty commit for docs"`)
+        end
 
-                try
-                    run(`git checkout -b $branch upstream/$branch`)
-                catch e
-                    @debug "checking out $branch failed with error: $e"
-                    @debug "creating a new local $branch branch."
-                    run(`git checkout --orphan $branch`)
-                    run(`git commit --allow-empty -m "Initial empty commit for docs"`)
-                end
+        # Copy docs to `subfolder` directory.
+        deploy_dir = joinpath(dirname, subfolder)
+        gitrm_copy(target_dir, deploy_dir)
+        Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
-                # Copy docs to `devurl`, or `stable`, `<release>`, and `<version>` directories.
-                if isempty(tag)
-                    devurl_dir = joinpath(dirname, devurl)
-                    gitrm_copy(target_dir, devurl_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(devurl_dir, devurl)
-                    # symlink "latest" to devurl to preserve links (remove in some future release)
-                    if devurl != "latest"
-                        rm(joinpath(dirname, "latest"); recursive = true, force = true)
-                        @warn(string("creating symlink from `latest` to `$(devurl)` for backwards ",
-                            "compatibility with old links. In future Documenter versions this symlink ",
-                            "will not be created. Please update any links that point to `latest`."))
-                        cd(dirname) do; rm_and_add_symlink(devurl, "latest"); end
-                    end
+        # Expand the users `versions` vector
+        entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
+
+        # Create the versions.js file containing a list of `entries`.
+        # This must always happen after the folder copying.
+        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
+
+        # generate the symlinks, make sure we don't overwrite devurl
+        cd(dirname) do
+            for kv in symlinks
+                i = findfirst(x -> x.first == devurl, symlinks)
+                if i === nothing
+                    rm_and_add_symlink(kv.second, kv.first)
                 else
-                    tagged_dir = joinpath(dirname, tag)
-                    gitrm_copy(target_dir, tagged_dir)
-                    Writers.HTMLWriter.generate_siteinfo_file(tagged_dir, tag)
-                end
-
-                # Expand the users `versions` vector
-                entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
-
-                # Create the versions.js file containing a list of `entries`.
-                # This must always happen after the folder copying.
-                Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
-
-                # generate the symlinks, make sure we don't overwrite devurl
-                cd(dirname) do
-                    for kv in symlinks
-                        i = findfirst(x -> x.first == devurl, symlinks)
-                        if i === nothing
-                            rm_and_add_symlink(kv.second, kv.first)
-                        else
-                            throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
-                                "`devurl = $(devurl)` with the same name.")))
-                        end
-                    end
-                end
-
-                # Add, commit, and push the docs to the remote.
-                run(`git add -A .`)
-                if !success(`git diff --cached --exit-code`)
-                    if forcepush
-                        run(`git commit --amend --date=now -m "build based on $sha"`)
-                        run(`git push -fq upstream HEAD:$branch`)
-                    else
-                        run(`git commit -m "build based on $sha"`)
-                        run(`git push -q upstream HEAD:$branch`)
-                    end
-                else
-                    @debug "new docs identical to the old -- not committing nor pushing."
+                    throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
+                        "`devurl = $(devurl)` with the same name.")))
                 end
             end
         end
-    finally
-        # Remove the unencrypted private key.
-        isfile(keyfile) && rm(keyfile)
+
+        # Add, commit, and push the docs to the remote.
+        run(`git add -A .`)
+        if !success(`git diff --cached --exit-code`)
+            if forcepush
+                run(`git commit --amend --date=now -m "build based on $sha"`)
+                run(`git push -fq upstream HEAD:$branch`)
+            else
+                run(`git commit -m "build based on $sha"`)
+                run(`git push -q upstream HEAD:$branch`)
+            end
+        else
+            @debug "new docs identical to the old -- not committing nor pushing."
+        end
+    end
+
+    if authentication_method(deploy_config) === SSH
+        # Extract host from repo as everything up to first ':' or '/' character
+        host = match(r"(.*?)[:\/]", repo)[1]
+
+        # The upstream URL to which we push new content and the ssh decryption commands.
+        upstream = "git@$(replace(repo, "$host/" => "$host:"))"
+
+        keyfile = abspath(joinpath(root, ".documenter"))
+        try
+            write(keyfile, base64decode(documenter_key(deploy_config)))
+        catch e
+            @error """
+            Documenter failed to decode the DOCUMENTER_KEY environment variable.
+            Make sure that the environment variable is properly set up as a Base64-encoded string
+            of the SSH private key. You may need to re-generate the keys with DocumenterTools.
+            """
+            rm(keyfile; force=true)
+            rethrow(e)
+        end
+        chmod(keyfile, 0o600)
+
+        try
+            mktemp() do sshconfig, io
+                print(io,
+                """
+                Host $host
+                    StrictHostKeyChecking no
+                    User git
+                    HostName $host
+                    IdentityFile "$keyfile"
+                    IdentitiesOnly yes
+                    BatchMode yes
+                """)
+                close(io)
+                chmod(sshconfig, 0o600)
+                # git config core.sshCommand requires git 2.10.0, but
+                # GIT_SSH_COMMAND works from 2.3.0 so define both.
+                withenv("GIT_SSH_COMMAND" => "ssh -F $(sshconfig)") do
+                    cd(() -> git_commands(sshconfig), temp)
+                end
+            end
+            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
+        catch e
+            @error "Failed to push:" exception=(e, catch_backtrace())
+            post_status(deploy_config; repo=repo, type="error")
+        finally
+            # Remove the unencrypted private key.
+            isfile(keyfile) && rm(keyfile)
+        end
+    else # authentication_method(deploy_config) === HTTPS
+        # The upstream URL to which we push new content authenticated with token
+        upstream = authenticated_repo_url(deploy_config)
+        try
+            cd(git_commands, temp)
+            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
+        catch e
+            @error "Failed to push:" exception=(e, catch_backtrace())
+            post_status(deploy_config; repo=repo, type="error")
+        end
     end
 end
 
@@ -756,36 +637,10 @@ first, `git add -A` will not detect case changes in filenames.
 function gitrm_copy(src, dst)
     # --ignore-unmatch so that we wouldn't get errors if dst does not exist
     run(`git rm -rf --ignore-unmatch $(dst)`)
+    # git rm also removed parent directories
+    # if they are empty so need to mkpath after
+    mkpath(dst)
     cp(src, dst; force=true)
-end
-
-function withfile(func, file::AbstractString, contents::AbstractString)
-    dir = dirname(file)
-    hasdir = isdir(dir)
-    hasdir || mkpath(dir)
-
-    hasfile = isfile(file)
-    original = hasfile ? read(file, String) : ""
-    open(file, "w") do stream
-        print(stream, contents)
-        flush(stream) # Make sure file is written before continuing.
-    end
-    try
-        func()
-    finally
-        if hasfile
-            open(file, "w") do stream
-                print(stream, original)
-            end
-        else
-            rm(file)
-        end
-
-        if !hasdir
-            # dir should be empty now as the only file inside was deleted
-            rm(dir, recursive=true)
-        end
-    end
 end
 
 function getenv(regex::Regex)
@@ -793,6 +648,98 @@ function getenv(regex::Regex)
         occursin(regex, key) && return value
     end
     error("could not find key/iv pair.")
+end
+
+"""
+    doctest(package::Module; kwargs...)
+
+Convenience method that runs and checks all the doctests for a given Julia package.
+`package` must be the `Module` object corresponding to the top-level module of the package.
+Behaves like an `@testset` call, returning a testset if all the doctests are successful or
+throwing a `TestSetException` if there are any failures. Can be included in other testsets.
+
+# Keywords
+
+**`manual`** controls how manual pages are handled. By default (`manual = true`), `doctest`
+assumes that manual pages are located under `docs/src`. If that is not the case, the
+`manual` keyword argument can be passed to specify the directory. Setting `manual = false`
+will skip doctesting of manual pages altogether.
+
+Additional keywords are passed on to the main [`doctest`](@ref) method.
+"""
+function doctest(package::Module; manual=true, testset=nothing, kwargs...)
+    if pathof(package) === nothing
+        throw(ArgumentError("$(package) is not a top-level package module."))
+    end
+    source = nothing
+    if manual === true
+         source = normpath(joinpath(dirname(pathof(package)), "..", "docs", "src"))
+         isdir(source) || throw(ArgumentError("""
+         Package $(package) does not have a documentation source directory at standard location.
+         Searched at: $(source)
+         If ...
+         """))
+    end
+    testset = (testset === nothing) ? "Doctests: $(package)" : testset
+    doctest(source, [package]; testset=testset, kwargs...)
+end
+
+"""
+    doctest(source, modules; kwargs...)
+
+Runs all the doctests in the given modules and on manual pages under the `source` directory.
+Behaves like an `@testset` call, returning a testset if all the doctests are successful or
+throwing a `TestSetException` if there are any failures. Can be included in other testsets.
+
+The manual pages are searched recursively in subdirectories of `source` too. Doctesting of
+manual pages can be disabled if `source` is set to `nothing`.
+
+# Keywords
+
+**`testset`** specifies the name of test testset (default `Doctests`).
+
+**`fix`**, if set to `true`, updates all the doctests that fail with the correct output
+(default `false`).
+
+!!! warning
+    When running `doctest(...; fix=true)`, Documenter will modify the Markdown and Julia
+    source files. It is strongly recommended that you only run it on packages in Pkg's
+    develop mode and commit any staged changes. You should also review all the changes made
+    by `doctest` before committing them, as there may be edge cases when the automatic
+    fixing fails.
+"""
+function doctest(
+        source::Union{AbstractString,Nothing},
+        modules::AbstractVector{Module};
+        fix = false,
+        testset = "Doctests",
+    )
+    function all_doctests()
+        dir = mktempdir()
+        try
+            @debug "Doctesting in temporary directory: $(dir)" modules
+            if source === nothing
+                source = joinpath(dir, "src")
+                mkdir(source)
+            end
+            makedocs(
+                root = dir,
+                source = source,
+                sitename = "",
+                doctest = fix ? :fix : :only,
+                modules = modules,
+            )
+            true
+        catch err
+            @error "Doctesting failed" exception=(err, catch_backtrace())
+            false
+        finally
+            rm(dir; recursive=true)
+        end
+    end
+    @testset "$testset" begin
+        @test all_doctests()
+    end
 end
 
 end # module

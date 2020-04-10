@@ -1,0 +1,105 @@
+// This is a heavily customized version of Bulma's message component
+// Original copyright (c) 2019 Jeremy Thomas, The MIT License (MIT)
+$admonition-colors: (
+  'default': $grey-darker, 'info': $info, 'success': $success, 'warning': $warning,
+  'danger': $danger, 'compat': $turquoise,
+) !default;
+
+$admonition-background: () !default;
+$admonition-body-color: () !default;
+$admonition-header-background: () !default;
+$admonition-header-color: () !default;
+@each $name, $color in $admonition-colors {
+  $bg: lighten-color($color, 4);
+  @if not map-has-key($admonition-header-background, $name) {
+    $admonition-header-background: map-merge($admonition-header-background, ($name: $color)) !global;
+  }
+  @if not map-has-key($admonition-header-color, $name) {
+    $admonition-header-color: map-merge($admonition-header-color, ($name: findColorInvert($color))) !global;
+  }
+  @if not map-has-key($admonition-background, $name) {
+    $admonition-background: map-merge($admonition-background, ($name: $bg)) !global;
+  }
+  @if not map-has-key($admonition-body-color, $name) {
+    $admonition-body-color: map-merge($admonition-body-color, ($name: findColorInvert($bg))) !global;
+  }
+}
+
+.admonition {
+  @extend %block;
+
+  background-color: map-get($admonition-background, 'default');
+  border-style: solid;
+  border-width: 1px;
+  border-color: map-get($admonition-header-background, 'default');
+  border-radius: $message-radius;
+  font-size: $size-normal;
+
+  strong {
+    color: currentColor;
+  }
+
+  // Sizes
+  &.is-small {
+    font-size: $size-small;
+  }
+
+  &.is-medium {
+    font-size: $size-medium;
+  }
+
+  &.is-large {
+    font-size: $size-large;
+  }
+
+  // Colors
+  @each $name, $pair in $admonition-colors {
+    // $text-color: desaturate(darken($color, $darken-percentage), $desaturate-percentage);
+    // $color-lightning: max(100% - lightness($color) - 5%, 0%);
+    // $background: lighten($color, $color-lightning);
+
+    &.is-#{$name} {
+      background-color: map-get($admonition-background, $name);
+      border-color: map-get($admonition-header-background, $name);
+
+      > .admonition-header {
+        background-color: map-get($admonition-header-background, $name);
+        color: map-get($admonition-header-color, $name);
+      }
+
+      > .admonition-body {
+        color: map-get($admonition-body-color, $name);
+      }
+    }
+  }
+}
+
+.admonition-header {
+  color: map-get($admonition-header-color, 'default');
+  background-color: map-get($admonition-header-background, 'default');
+  align-items: center;
+  font-weight: $message-header-weight;
+  justify-content: space-between;
+  line-height: 1.25;
+  padding: $message-header-padding;
+  position: relative;
+
+  &:before {
+    @include font-awesome;
+    margin-right: $message-header-padding;
+    content: "\f06a";
+}
+}
+
+.admonition-body {
+  color: $message-body-color;
+  padding: $message-body-padding;
+
+  pre {
+    background-color: $pre-background;
+  }
+
+  code {
+    background-color: $code-background;
+  }
+}

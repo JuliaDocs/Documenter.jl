@@ -7,7 +7,8 @@ module DocChecks
 import ..Documenter:
     Documenter,
     Documents,
-    Utilities
+    Utilities,
+    Utilities.Markdown2
 
 using DocStringExtensions
 import Markdown
@@ -26,12 +27,24 @@ Prints out the name of each object that has not had its docs spliced into the do
 function missingdocs(doc::Documents.Document)
     doc.user.checkdocs === :none && return
     @debug "checking for missing docstrings."
-    bindings = allbindings(doc.user.checkdocs, doc.user.modules)
+    bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
     for object in keys(doc.internal.objects)
-        if haskey(bindings, object.binding)
-            signatures = bindings[object.binding]
+        # The module references in docs blocks can yield a binding like
+        # Docs.Binding(Mod, :SubMod) for a module SubMod, a submodule of Mod. However, the
+        # module bindings that come from Docs.meta() always appear to be of the form
+        # Docs.Binding(Mod.SubMod, :SubMod) (since Julia 0.7). We therefore "normalize"
+        # module bindings before we search in the list returned by allbindings().
+        binding = if Documenter.DocSystem.defined(object.binding) && !Documenter.DocSystem.iskeyword(object.binding)
+            m = Documenter.DocSystem.resolve(object.binding)
+            isa(m, Module) && nameof(object.binding.mod) != object.binding.var ?
+                Docs.Binding(m, nameof(m)) : object.binding
+        else
+            object.binding
+        end
+        if haskey(bindings, binding)
+            signatures = bindings[binding]
             if object.signature ≡ Union{} || length(signatures) ≡ 1
-                delete!(bindings, object.binding)
+                delete!(bindings, binding)
             elseif object.signature in signatures
                 delete!(signatures, object.signature)
             end
@@ -95,7 +108,7 @@ function footnotes(doc::Documents.Document)
     # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
     # footnote references and a single footnote body.
     footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
-    for (src, page) in doc.internal.pages
+    for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
         orphans = Dict{String, Tuple{Int, Int}}()
         for element in page.elements
@@ -154,7 +167,7 @@ Checks external links using curl.
 function linkcheck(doc::Documents.Document)
     if doc.user.linkcheck
         if hascurl()
-            for (src, page) in doc.internal.pages
+            for (src, page) in doc.blueprint.pages
                 for element in page.elements
                     Documents.walk(page.globals.meta, page.mapping[element]) do block
                         linkcheck(block, doc)

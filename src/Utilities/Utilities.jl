@@ -84,8 +84,12 @@ Returns a `Vector` of tuples `(expr, code)`, where `expr` is the corresponding e
 parsed from.
 
 The keyword argument `skip = N` drops the leading `N` lines from the input string.
+
+If `raise=false` is passed, the `Meta.parse` does not raise an exception on parse errors,
+but instead returns an expression that will raise an error when evaluated. `parseblock`
+returns this expression normally and it must be handled appropriately by the caller.
 """
-function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
+function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
@@ -102,10 +106,10 @@ function parseblock(code::AbstractString, doc, page; skip = 0, keywords = true)
                 (QuoteNode(keyword), cursor + lastindex(line))
             else
                 try
-                    Meta.parse(code, cursor)
+                    Meta.parse(code, cursor; raise=raise)
                 catch err
                     push!(doc.internal.errors, :parse_error)
-                    @warn "failed to parse exception in $(Utilities.locrepr(page.source))" exception = err
+                    @warn "failed to parse exception in $(Utilities.locrepr(file))" exception = err
                     break
                 end
             end
@@ -359,7 +363,12 @@ function repo_commit(file)
 end
 
 function url(repo, file; commit=nothing)
-    file = realpath(abspath(file))
+    file = abspath(file)
+    if !isfile(file)
+        @warn "couldn't find file \"$file\" when generating URL"
+        return nothing
+    end
+    file = realpath(file)
     remote = getremote(dirname(file))
     isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
     path = relpath_from_repo_root(file)
@@ -654,9 +663,33 @@ function display_dict(x)
     return out
 end
 
+"""
+    struct Default{T}
+
+Internal wrapper type that is meant to be used in situations where it is necessary to
+distinguish whether the user explicitly passed the same value as the default value to a
+keyword argument, or whether the keyword argument was not passed at all.
+
+```julia
+function foo(; kwarg = Default("default value"))
+    if isa(kwarg, Default)
+        # User did not explicitly pass a value for kwarg
+    else kwarg === "default value"
+        # User passed "default value" explicitly
+    end
+end
+```
+"""
+struct Default{T}
+    value :: T
+end
+Base.getindex(default::Default) = default.value
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
 include("Selectors.jl")
+include("Markdown2.jl")
+include("JSDependencies.jl")
 
 end

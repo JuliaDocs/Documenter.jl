@@ -1,0 +1,48 @@
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+┌ Error: doctest failure in src/broken.md:3-6
+│ 
+│ ```jldoctest
+│ julia> 2 + 2
+│ -6
+│ ```
+│ 
+│ Subexpression:
+│ 
+│ 2 + 2
+│ 
+│ Evaluated output:
+│ 
+│ 4
+│ 
+│ Expected output:
+│ 
+│ -6
+│ 
+│   diff =
+│    Warning: Diff output requires color.
+│    -64
+└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:336
+┌ Error: doctest failure in ~/Julia/JuliaDocs/Documenter/test/doctests/src/FooBroken.jl:6-9
+│ 
+│ ```jldoctest
+│ julia> 2 + 2
+│ 42
+│ ```
+│ 
+│ Subexpression:
+│ 
+│ 2 + 2
+│ 
+│ Evaluated output:
+│ 
+│ 4
+│ 
+│ Expected output:
+│ 
+│ 42
+│ 
+│   diff =
+│    Warning: Diff output requires color.
+│    424
+└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:336
