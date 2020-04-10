@@ -1,9 +1,9 @@
 # Doctests
 
-Documenter will, by default, try to run `jldoctest` code blocks that it finds in the generated
-documentation. This can help to avoid documentation examples from becoming outdated,
-incorrect, or misleading. It's recommended that as many of a package's examples be runnable
-by Documenter's doctest.
+Documenter will, by default, run `jldoctest` code blocks that it finds and makes sure that
+the actual output matches what's in the doctest. This can help to avoid documentation
+examples from becoming outdated, incorrect, or misleading. It's recommended that as many of
+a package's examples be runnable by Documenter's doctest.
 
 This section of the manual outlines how to go about enabling doctests for code blocks in
 your package's documentation.
@@ -80,6 +80,12 @@ doctest. Semi-colons, `;`, at the end of a line works in the same way as in the 
 and will suppress the output, although the line is still evaluated.
 
 Note that not all features of the REPL are supported such as shell and help modes.
+
+!!! note "Soft vs hard scope"
+
+    Julia 1.5 changed the REPL to use the _soft scope_ when handling global variables in
+    `for` loops etc. When using Documenter with Julia 1.5 or above, Documenter uses the soft
+    scope in `@repl`-blocks and REPL-type doctests.
 
 ## Exceptions
 
@@ -178,10 +184,14 @@ julia> println(foo)
 ## Setup Code
 
 Doctests may require some setup code that must be evaluated prior to that of the actual
-example, but that should not be displayed in the final documentation. For this purpose a
-`@meta` block containing a `DocTestSetup = ...` value can be used. In the example below,
-the function `foo` is defined inside a `@meta` block. This block will be evaluated at
-the start of the following doctest blocks:
+example, but that should not be displayed in the final documentation. There are three ways
+to specify the setup code, each appropriate in a different situation.
+
+### `DocTestSetup` in `@meta` blocks
+
+For doctests in the Markdown source files, an `@meta` block containing a `DocTestSetup =
+...` value can be used. In the example below, the function `foo` is defined inside a `@meta`
+block. This block will be evaluated at the start of the following doctest blocks:
 
 ````markdown
 ```@meta
@@ -205,8 +215,36 @@ DocTestSetup = nothing
 The `DocTestSetup = nothing` is not strictly necessary, but good practice nonetheless to
 help avoid unintentional definitions in following doctest blocks.
 
-Another option is to use the `setup` keyword argument, which is convenient for short definitions,
-and for setups needed in inline docstrings.
+While technically the `@meta` blocks also work within docstrings, their use there is
+discouraged since the `@meta` blocks will show up when querying docstrings in the REPL.
+
+!!! note "Historic note"
+    It used to be that `DocTestSetup`s in `@meta` blocks in Markdown files that included
+    docstrings also affected the doctests in the docstrings. Since Documenter 0.23 that is
+    no longer the case. You should use [Module-level metadata](@ref) or [Block-level setup
+    code](@ref) instead.
+
+### Module-level metadata
+
+For doctests that are in docstrings, the exported [`DocMeta`](@ref) module provides an API
+to attach metadata that applies to all the docstrings in a particular module. Setting up the
+`DocTestSetup` metadata should be done before the [`makedocs`](@ref) or [`doctest`](@ref)
+call:
+
+```julia
+using MyPackage, Documenter
+DocMeta.setdocmeta!(MyPackage, :DocTestSetup, :(using MyPackage); recursive=true)
+makedocs(modules=[MyPackage], ...)
+```
+
+!!! note
+    Make sure to include all (top-level) modules that contain docstrings with doctests in the
+    `modules` argument to [`makedocs`](@ref). Otherwise these doctests will not be run.
+
+### Block-level setup code
+
+Yet another option is to use the `setup` keyword argument to the `jldoctest` block, which is
+convenient for short definitions, and for setups needed in inline docstrings.
 
 ````markdown
 ```jldoctest; setup = :(foo(x) = x^2)
@@ -220,10 +258,6 @@ julia> foo(2)
     The `DocTestSetup` and the `setup` values are **re-evaluated** at the start of *each* doctest block
     and no state is shared between any code blocks.
     To preserve definitions see [Preserving Definitions Between Blocks](@ref).
-
-!!! note
-
-    If you rely on setup-code for doctests inside docstrings, included in the document with `@docs` or `@autodocs`, the `@meta` block must be in the markdown file that calls these macros and not within the docstrings themselves, otherwise they will be ignored.
 
 ## Filtering Doctests
 
@@ -286,25 +320,67 @@ julia> @time [1,2,3,4]
     The global filters, filters defined in `@meta` blocks, and filters defined with the `filter`
     keyword argument are all applied to each doctest.
 
+
+## Doctesting as Part of Testing
+
+Documenter provides the [`doctest`](@ref) function which can be used to verify all doctests
+independently of manual builds. It behaves like a `@testset`, so it will return a testset
+if all the tests pass or throw a `TestSetException` if it does not.
+
+For example, it can be used to verify doctests as part of the normal test suite by having
+e.g. the following in `runtests.jl`:
+
+```julia
+using Test, Documenter, MyPackage
+doctest(MyPackage)
+```
+
+By default, it will also attempt to verify all the doctests on manual `.md` files, which it
+assumes are located under `docs/src`. This can be configured or disabled with the `manual`
+keyword (see [`doctest`](@ref) for more information).
+
+It can also be included in another testset, in which case it gets incorporated into the
+parent testset. So, as another example, to test a package that does have separate manual
+pages, just docstrings, and also collects all the tests into a single testset, the
+`runtests.jl` might look as follows:
+
+```julia
+using Test, Documenter, MyPackage
+@testset "MyPackage" begin
+    ... # other tests & testsets
+    doctest(MyPackage; manual = false)
+    ... # other tests & testsets
+end
+```
+
+Note that you still need to make sure that all the necessary [Module-level metadata](@ref)
+for the doctests is set up before [`doctest`](@ref) is called. Also, you need to add
+Documenter and all the other packages you are loading in the doctests as test dependencies.
+
+
 ## Fixing Outdated Doctests
 
-To fix outdated doctests, the `doctest` flag to [`makedocs`](@ref) can be set to
-`doctest = :fix`. This will run the doctests, and overwrite the old results with
-the new output.
+To fix outdated doctests, the [`doctest`](@ref) function can be called with `fix = true`.
+This will run the doctests, and overwrite the old results with the new output. This can be
+done just in the REPL:
+
+```julia-repl
+julia> using Documenter, MyPackage
+julia> doctest(MyPackage, fix=true)
+```
+
+Alternatively, you can also pass the `doctest = :fix` keyword to [`makedocs`](@ref).
 
 !!! note
 
-    The `:fix` option currently only works for LF line endings (`'\n'`)
+    * The `:fix` option currently only works for LF line endings (`'\n'`)
 
-!!! note
+    * It is recommended to `git commit` any code changes before running the doctest fixing.
+      That way it is simple to restore to the previous state if the fixing goes wrong.
 
-    It is recommended to `git commit` any code changes before running the doctest fixing.
-    That way it is simple to restore to the previous state if the fixing goes wrong.
-
-!!! note
-
-    There are some corner cases where the fixing algorithm may replace the wrong code snippet.
-    It is therefore recommended to manually inspect the result of the fixing before committing.
+    * There are some corner cases where the fixing algorithm may replace the wrong code
+      snippet. It is therefore recommended to manually inspect the result of the fixing
+      before committing.
 
 
 ## Skipping Doctests

@@ -6,49 +6,128 @@ module DocTests
 using DocStringExtensions
 
 import ..Documenter:
+    DocSystem,
+    DocMeta,
     Documenter,
     Documents,
     Expanders,
-    Utilities
+    Utilities,
+    IdDict
 
 import Markdown, REPL
+import .Utilities: Markdown2
 
 # Julia code block testing.
 # -------------------------
 
+mutable struct MutableMD2CodeBlock
+    language :: String
+    code :: String
+end
+MutableMD2CodeBlock(block :: Markdown2.CodeBlock) = MutableMD2CodeBlock(block.language, block.code)
+
+struct DocTestContext
+    file :: String
+    doc :: Documents.Document
+    meta :: Dict{Symbol, Any}
+    DocTestContext(file::String, doc::Documents.Document) = new(file, doc, Dict())
+end
+
 """
 $(SIGNATURES)
 
-Traverses the document tree and tries to run each Julia code block encountered. Will abort
-the document generation when an error is thrown. Use `doctest = false` keyword in
-[`Documenter.makedocs`](@ref) to disable doctesting.
+Traverses the pages and modules in the documenter blueprint, searching and
+executing doctests.
+
+Will abort the document generation when an error is thrown. Use `doctest = false`
+keyword in [`Documenter.makedocs`](@ref) to disable doctesting.
 """
-function doctest(doc::Documents.Document)
-    if doc.user.doctest === :fix || doc.user.doctest
-        @debug "running doctests."
-        for (src, page) in doc.internal.pages
-            empty!(page.globals.meta)
-            for element in page.elements
-                page.globals.meta[:CurrentFile] = page.source
-                Documents.walk(page.globals.meta, page.mapping[element]) do block
-                    doctest(block, page.globals.meta, doc, page)
-                end
+function doctest(blueprint::Documents.DocumentBlueprint, doc::Documents.Document)
+    @debug "Running doctests."
+    # find all the doctest blocks in the pages
+    for (src, page) in blueprint.pages
+        doctest(page, doc)
+    end
+
+    # find all the doctest block in all the docstrings (within specified modules)
+    for mod in blueprint.modules
+        for (binding, multidoc) in DocSystem.getmeta(mod)
+            for signature in multidoc.order
+                doctest(multidoc.docs[signature], mod, doc)
             end
         end
-    else
-        @debug "skipped doctesting."
     end
 end
 
-function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page)
-    lang = block.language
+function doctest(page::Documents.Page, doc::Documents.Document)
+    ctx = DocTestContext(page.source, doc) # FIXME
+    ctx.meta[:CurrentFile] = page.source
+    doctest(ctx, page.md2ast)
+end
+
+function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
+    md = DocSystem.parsedoc(docstr)
+    # Note: parsedocs / formatdoc in Base is weird. It double-wraps the docstring Markdown
+    # in a Markdown.MD object..
+    @assert isa(md, Markdown.MD) # relying on Julia internals here
+    while length(md.content) == 1 && isa(first(md.content), Markdown.MD)
+        md = first(md.content)
+    end
+    md2ast = try
+        Markdown2.convert(Markdown2.MD, md)
+    catch err
+        @error """
+            Markdown2 conversion error for a docstring in $(mod).
+            This is a bug — please report this on the Documenter issue tracker
+            """ docstr.data
+        rethrow(err)
+    end
+    ctx = DocTestContext(docstr.data[:path], doc)
+    merge!(ctx.meta, DocMeta.getdocmeta(mod))
+    ctx.meta[:CurrentFile] = get(docstr.data, :path, nothing)
+    doctest(ctx, md2ast)
+end
+
+function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
+    @assert startswith(block.language, "@meta")
+    meta = Dict{Symbol, Any}()
+    for (ex, str) in Utilities.parseblock(block.code, ctx.doc, ctx.file)
+        if Utilities.isassign(ex)
+            try
+                meta[ex.args[1]] = Core.eval(Main, ex.args[2])
+            catch err
+                push!(ctx.doc.internal.errors, :meta_block)
+                @warn "Failed to evaluate `$(strip(str))` in `@meta` block." err
+            end
+        end
+    end
+    return meta
+end
+
+function doctest(ctx::DocTestContext, md2ast::Markdown2.MD)
+    Markdown2.walk(md2ast) do node
+        isa(node, Markdown2.CodeBlock) || return true
+        if startswith(node.language, "jldoctest")
+            doctest(ctx, node)
+        elseif startswith(node.language, "@meta")
+            merge!(ctx.meta, parse_metablock(ctx, node))
+        else
+            return true
+        end
+        return false
+    end
+end
+
+function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
+    lang = block_immutable.language
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        sandbox = get!(() -> Expanders.get_new_sandbox(sym), page.globals.meta, sym)
+        sandbox = get!(() -> Expanders.get_new_sandbox(sym), ctx.meta, sym)
 
         # Normalise line endings.
+        block = MutableMD2CodeBlock(block_immutable)
         block.code = replace(block.code, "\r\n" => "\n")
 
         # parse keyword arguments to doctest
@@ -58,7 +137,7 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
             kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
-                    file = meta[:CurrentFile]
+                    file = ctx.meta[:CurrentFile]
                     lines = Utilities.find_block_in_file(block.code, file)
                     @warn("""
                         invalid syntax for doctest keyword arguments in $(Utilities.locrepr(file, lines))
@@ -73,26 +152,26 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
                 d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
             end
         end
-        meta[:LocalDocTestArguments] = d
+        ctx.meta[:LocalDocTestArguments] = d
 
-        for expr in [get(meta, :DocTestSetup, []); get(meta[:LocalDocTestArguments], :setup, [])]
+        for expr in [get(ctx.meta, :DocTestSetup, []); get(ctx.meta[:LocalDocTestArguments], :setup, [])]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             try
                 Core.eval(sandbox, expr)
             catch e
-                push!(doc.internal.errors, :doctest)
+                push!(ctx.doc.internal.errors, :doctest)
                 @error("could not evaluate expression from doctest setup.",
                     expression = expr, exception = e)
                 return false
             end
         end
         if occursin(r"^julia> "m, block.code)
-            eval_repl(block, sandbox, meta, doc, page)
+            eval_repl(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         elseif occursin(r"^# output$"m, block.code)
-            eval_script(block, sandbox, meta, doc, page)
+            eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         else
-            push!(doc.internal.errors, :doctest)
-            file = meta[:CurrentFile]
+            push!(ctx.doc.internal.errors, :doctest)
+            file = ctx.meta[:CurrentFile]
             lines = Utilities.find_block_in_file(block.code, file)
             @warn("""
                 invalid doctest block in $(Utilities.locrepr(file, lines))
@@ -103,21 +182,16 @@ function doctest(block::Markdown.Code, meta::Dict, doc::Documents.Document, page
                 ```
                 """)
         end
-       delete!(meta, :LocalDocTestArguments)
+        delete!(ctx.meta, :LocalDocTestArguments)
     end
     false
 end
-doctest(block, meta::Dict, doc::Documents.Document, page) = true
-
-function doctest(block::Markdown.MD, meta::Dict, doc::Documents.Document, page)
-    haskey(block.meta, :path) && (meta[:CurrentFile] = block.meta[:path])
-    return true
-end
+doctest(ctx::DocTestContext, block) = true
 
 # Doctest evaluation.
 
 mutable struct Result
-    block  :: Markdown.Code # The entire code block that is being tested.
+    block  :: MutableMD2CodeBlock # The entire code block that is being tested.
     input  :: String # Part of `block.code` representing the current input.
     output :: String # Part of `block.code` representing the current expected output.
     file   :: String # File in which the doctest is written. Either `.md` or `.jl`.
@@ -134,9 +208,14 @@ end
 function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
     for (input, output) in repl_splitter(block.code)
         result = Result(block, input, output, meta[:CurrentFile])
-        for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
+        for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = REPL.ends_with_semicolon(str)
+            if VERSION >= v"1.5.0-DEV.178"
+                # Use the REPL softscope for REPL jldoctests,
+                # see https://github.com/JuliaLang/julia/pull/33864
+                ex = REPL.softscope!(ex)
+            end
             (value, success, backtrace, text) = Utilities.withoutput() do
                 Core.eval(sandbox, ex)
             end
@@ -146,6 +225,8 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             if !success
                 result.bt = backtrace
             end
+            # don't evaluate further if there is a parse error
+            isa(ex, Expr) && ex.head === :error && break
         end
         checkresult(sandbox, result, meta, doc)
     end
@@ -161,7 +242,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     input  = rstrip(input, '\n')
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
-    for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false)
+    for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
         (value, success, backtrace, text) = Utilities.withoutput() do
             Core.eval(sandbox, ex)
         end
@@ -211,6 +292,8 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                @debug "Doctest metadata" meta
+                push!(doc.internal.errors, :doctest)
             end
         end
     else
@@ -225,6 +308,8 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
                 fix_doctest(result, str, doc)
             else
                 report(result, str, doc)
+                @debug "Doctest metadata" meta
+                push!(doc.internal.errors, :doctest)
             end
         end
     end
@@ -239,12 +324,32 @@ function result_to_string(buf, value)
 end
 
 function error_to_string(buf, er, bt)
-    # Remove unimportant backtrace info.
+    # Remove unimportant backtrace info. TODO: this backtrace handling should maybe be done
+    # by Utilities.withoutput() already.
+    bt = remove_common_backtrace(bt, backtrace())
+    # Remove everything below the last eval call (which should be the one in withoutput)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
+    bt = (index === nothing) ? bt : bt[1:(index - 1)]
     # Print a REPL-like error message.
     print(buf, "ERROR: ")
-    Base.invokelatest(showerror, buf, er, index === nothing ? bt : bt[1:(index - 1)])
+    Base.invokelatest(showerror, buf, er, bt)
     return sanitise(buf)
+end
+
+function remove_common_backtrace(bt, reference_bt)
+    cutoff = nothing
+    # We'll start from the top of the backtrace (end of the array) and go down, checking
+    # if the backtraces agree
+    for ridx in 1:length(bt)
+        # Cancel search if we run out the reference BT or find a non-matching one frames:
+        if ridx > length(reference_bt) || bt[length(bt) - ridx + 1] != reference_bt[length(reference_bt) - ridx + 1]
+            cutoff = length(bt) - ridx + 1
+            break
+        end
+    end
+    # It's possible that the loop does not find anything, i.e. that all BT elements are in
+    # the reference_BT too. In that case we'll just return an empty BT.
+    bt[1:(cutoff === nothing ? 0 : cutoff)]
 end
 
 # Strip trailing whitespace from each line and return resulting string
@@ -272,13 +377,13 @@ function report(result::Result, str, doc::Documents.Document)
 
         $(result.input)
 
-        Output:
+        Evaluated output:
 
-        $(result.output)
+        $(rstrip(str))
 
         Expected output:
 
-        $(rstrip(str))
+        $(result.output)
 
         """, diff)
 end

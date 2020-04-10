@@ -2,7 +2,7 @@
 
 Documentation for `Documenter.jl`'s public interface.
 
-See [Internal Documentation](@ref) for internal package docs covering all submodules.
+See the Internals section of the manual for internal package docs covering all submodules.
 
 ## Contents
 
@@ -22,15 +22,19 @@ Pages = ["public.md"]
 Documenter
 makedocs
 hide
+asset
 deploydocs
 Deps
 Deps.pip
+doctest
+DocMeta
+DocMeta.getdocmeta
+DocMeta.setdocmeta!
 ```
 
 ## DocumenterTools
 
 ```@docs
 DocumenterTools.generate
-DocumenterTools.Travis.genkeys
-DocumenterTools.Travis
+DocumenterTools.genkeys
 ```

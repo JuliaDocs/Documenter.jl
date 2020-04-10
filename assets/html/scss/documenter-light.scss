@@ -1,0 +1,24 @@
+@charset "UTF-8";
+
+@import "documenter/utilities";
+@import "documenter/variables";
+
+@import "bulma/utilities/all";
+@import "bulma/base/all";
+
+@import "documenter/overrides";
+
+@import "bulma/elements/all";
+@import "bulma/form/all";
+@import "bulma/components/all";
+@import "bulma/grid/all";
+@import "bulma/layout/all";
+
+@import "documenter/elements";
+@import "documenter/components/all";
+@import "documenter/patches";
+@import "documenter/layout/all";
+
+// Workaround to compile in highlightjs theme, so that we could have different
+// themes for both
+@import "highlightjs/default"

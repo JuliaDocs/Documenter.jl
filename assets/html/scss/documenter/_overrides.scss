@@ -1,0 +1,41 @@
+// Additional variables and overrides
+
+// While the docs claim that the navbar breakpoint is `mobile`, it actually is `desktop`.
+// Hence the need to override this variable.
+// $navbar-breakpoint: $tablet !default;
+
+$documenter-sidebar-size: $size-normal !default;
+$documenter-sidebar-submenu-size: 0.95*$documenter-sidebar-size !default;
+$documenter-sidebar-menu-chevron-size: 0.75*$documenter-sidebar-size !default;
+$documenter-sidebar-menu-active-size: 0.85*$documenter-sidebar-size !default;
+
+$documenter-sidebar-title-width: 0.9 * $documenter-sidebar-width !default;
+$documenter-sidebar-menu-padding: 1rem !default;
+$documenter-sidebar-title-font-size: $size-large !default;
+
+// The coloring of the sidebar works as follows:
+//  - by default, everything gets $documenter-sidebar-color/background
+//  - clickable menu items also get a :hover color with $documenter-sidebar-menu-hover-*
+//  - the in-page ("active") links get a different color/background with
+//    $documenter-sidebar-menu-active-*, and the clickable in-page links also get their
+//    own :hover colors with $documenter-sidebar-menu-active-hover-*
+$documenter-sidebar-background: $background !default;
+$documenter-sidebar-color: invert($documenter-sidebar-background) !default;
+$documenter-sidebar-menu-hover-background: darken-color($documenter-sidebar-background, 0.5) !default;
+$documenter-sidebar-menu-hover-color: $documenter-sidebar-color !default;
+$documenter-sidebar-menu-active-background: lighten-color($documenter-sidebar-background, 0.5) !default;
+$documenter-sidebar-menu-active-color: $documenter-sidebar-color !default;
+$documenter-sidebar-menu-active-hover-background: darken-color($documenter-sidebar-background, 0.5) !default;
+$documenter-sidebar-menu-active-hover-color: $documenter-sidebar-menu-active-color !default;
+
+$documenter-sidebar-scrollbar-color: darken-color($documenter-sidebar-background, 1) !default;
+$documenter-sidebar-scrollbar-color-hover: darken-color($documenter-sidebar-background, 2) !default;
+
+$breadcrumb-item-disabled-color: $text-strong !default;
+
+$content-pre-padding: 0.7rem 0.5rem !default;
+
+$admonition-background: ('default': $grey-light, 'warning': #fff3c5) !default;
+
+$documenter-docstring-shadow: 2px 2px 3px rgba($black, 0.1) !default;
+$documenter-docstring-header-background: $background !default;

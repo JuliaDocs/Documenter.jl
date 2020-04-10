@@ -17,7 +17,7 @@ module _Markdown
 end
 const MarkdownStdlib = _Markdown.Markdown
 
-struct Markdown <: Documenter.Plugin
+struct Markdown <: Documenter.Writer
 end
 
 # return the same file with the extension changed to .md
@@ -27,7 +27,7 @@ function render(doc::Documents.Document, settings::Markdown=Markdown())
     @info "MarkdownWriter: rendering Markdown pages."
     copy_assets(doc)
     mime = MIME"text/plain"()
-    for (src, page) in doc.internal.pages
+    for (src, page) in doc.blueprint.pages
         open(mdext(page.build), "w") do io
             for elem in page.elements
                 node = page.mapping[elem]

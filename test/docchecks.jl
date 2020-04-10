@@ -7,6 +7,7 @@ using Documenter.DocChecks: linkcheck
 using Documenter.Documents
 
 @testset "DocChecks" begin
+    # The linkcheck tests are currently not reliable on CI, so they are disabled.
     @testset "linkcheck" begin
         src = md"""
             [HTTP (HTTP/1.1) success](http://www.google.com)
@@ -20,7 +21,7 @@ using Documenter.Documents
         Documents.walk(Dict{Symbol, Any}(), src) do block
             doc = Documents.Document(; linkcheck=true)
             result = linkcheck(block, doc)
-            @test doc.internal.errors == Set{Symbol}()
+            @test_skip doc.internal.errors == Set{Symbol}()
             result
         end
 
@@ -29,7 +30,7 @@ using Documenter.Documents
         Documents.walk(Dict{Symbol, Any}(), src) do block
             linkcheck(block, doc)
         end
-        @test doc.internal.errors == Set{Symbol}([:linkcheck])
+        @test_skip doc.internal.errors == Set{Symbol}([:linkcheck])
     end
 end
 

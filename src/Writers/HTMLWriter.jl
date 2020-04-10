@@ -7,7 +7,7 @@ A module for rendering `Document` objects to HTML.
 [`Documenter.makedocs`](@ref): `authors`, `pages`, `sitename`, `version`.
 The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
 keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
-keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_branch` and
+keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link` and
 `prettyurls`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
@@ -40,6 +40,7 @@ then it is intended as the page title. This has two consequences:
 """
 module HTMLWriter
 
+using Dates: Dates, @dateformat_str, now
 import Markdown
 import JSON
 
@@ -52,10 +53,168 @@ import ...Documenter:
     Utilities,
     Writers
 
+using ...Utilities: Default
+using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
 export HTML
+
+"List of Documenter native themes."
+const THEMES = ["documenter-light", "documenter-dark"]
+"The root directory of the HTML assets."
+const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
+"The directory where all the Sass/SCSS files needed for theme building are."
+const ASSETS_SASS = joinpath(ASSETS, "scss")
+"Directory for the compiled CSS files of the themes."
+const ASSETS_THEMES = joinpath(ASSETS, "themes")
+
+struct HTMLAsset
+    class :: Symbol
+    uri :: String
+    islocal :: Bool
+
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool)
+        if !islocal && match(r"^https?://", uri) === nothing
+            error("Remote asset URL must start with http:// or https://")
+        end
+        class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
+        new(class, uri, islocal)
+    end
+end
+
+"""
+    asset(uri)
+
+Can be used to pass non-local web assets to [`HTML`](@ref), where `uri` should be an absolute
+HTTP or HTTPS URL.
+
+It accepts the following keyword arguments:
+
+**`class`** can be used to override the asset class, which determines how exactly the asset
+gets included in the HTML page. This is necessary if the class can not be determined
+automatically (default).
+
+Should be one of: `:js`, `:css` or `:ico`. They become a `<script>`,
+`<link rel="stylesheet" type="text/css">` and `<link rel="icon" type="image/x-icon">`
+elements in `<head>`, respectively.
+
+**`islocal`** can be used to declare the asset to be local. The `uri` should then be a path
+relative to the documentation source directory (conventionally `src/`). This can be useful
+when it is necessary to override the asset class of a local asset.
+
+# Usage
+
+```julia
+Documenter.HTML(assets = [
+    # Standard local asset
+    "assets/extra_styles.css",
+    # Standard remote asset (extension used to determine that class = :js)
+    asset("https://example.com/jslibrary.js"),
+    # Setting asset class manually, since it can't be determined manually
+    asset("https://example.com/fonts", class = :css),
+    # Same as above, but for a local asset
+    asset("asset/foo.script", class=:js, islocal=true),
+])
+```
+"""
+function asset(uri; class = nothing, islocal=false)
+    if class === nothing
+        class = assetclass(uri)
+        (class === nothing) && error("""
+        Unable to determine asset class for: $(uri)
+        It can be set explicitly with the `class` keyword argument.
+        """)
+    end
+    HTMLAsset(class, uri, islocal)
+end
+
+function assetclass(uri)
+    # TODO: support actual proper URIs
+    ext = splitext(uri)[end]
+    ext == ".ico" ? :ico :
+    ext == ".css" ? :css :
+    ext == ".js"  ? :js  : :unknown
+end
+
+abstract type MathEngine end
+
+"""
+    KaTeX(config::Dict = <default>, override = false)
+
+An instance of the `KaTeX` type can be passed to [`HTML`](@ref) via the `mathengine` keyword
+to specify that the [KaTeX rendering engine](https://katex.org/) should be used in the HTML
+output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure KaTeX. It becomes the
+[options argument of `renderMathInElement`](https://katex.org/docs/autorender.html#api). By
+default, Documenter only sets a custom `delimiters` option.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `delimiters` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct KaTeX <: MathEngine
+    config :: Dict{Symbol,Any}
+    function KaTeX(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+            :delimiters => [
+                Dict(:left => raw"$",   :right => raw"$",   display => false),
+                Dict(:left => raw"$$",  :right => raw"$$",  display => true),
+                Dict(:left => raw"\[", :right => raw"\]", display => true),
+            ]
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
+
+"""
+    MathJax(config::Dict = <default>, override = false)
+
+An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+used in the HTML output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
+default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+and `Tex`.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `tex2jax` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct MathJax <: MathEngine
+    config :: Dict{Symbol,Any}
+    function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+           :tex2jax => Dict(
+               "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+               "processEscapes" => true
+           ),
+           :config => ["MMLorHTML.js"],
+           :jax => [
+               "input/TeX",
+               "output/HTML-CSS",
+               "output/NativeMML"
+           ],
+           :extensions => [
+               "MathMenu.js",
+               "MathZoom.js",
+               "TeX/AMSmath.js",
+               "TeX/AMSsymbols.js",
+               "TeX/autobold.js",
+               "TeX/autoload-all.js"
+           ],
+           :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
 
 """
     HTML(kwargs...)
@@ -87,8 +246,11 @@ an error and exit if any of the Git commands fail. The calls to Git are mainly u
 gather information about the current commit hash and file paths, necessary for constructing
 the links to the remote repository.
 
-**`edit_branch`** specifies which branch, tag or commit the "Edit on GitHub" links
-point to. It defaults to `master`. If it set to `nothing`, the current commit will be used.
+**`edit_link`** can be used to specify which branch, tag or commit (when passed a `String`)
+in the remote repository the "Edit on ..." links point to. If a special `Symbol` value
+`:commit` is passed, the current commit will be used instead. If set to `nothing`, the
+link edit link will be hidden altogether. Default value is `"master"`, making the edit link
+point to the master branch.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend
 you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
@@ -100,6 +262,26 @@ Default is `nothing`, in which case no canonical link is set.
 
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
+
+**`sidebar_sitename`** determines whether the site name is shown in the sidebar or not.
+Setting it to `false` can be useful when the logo already contains the name of the package.
+Defaults to `true`.
+
+**`highlights`** can be used to add highlighting for additional languages. By default,
+Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download/)
+languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by"
+their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.js) for the
+highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
+you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done whether the
+provided language names are sane.
+
+**`mathengine`** specifies which LaTeX rendering engine will be used to render the math
+blocks. The options are either [KaTeX](https://katex.org/) (default) or
+[MathJax](https://www.mathjax.org/), enabled by passing an instance of [`KaTeX`](@ref) or
+[`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
+passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
+
+**`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
 
 # Default and custom assets
 
@@ -117,38 +299,173 @@ the subdirectories of `assets/` are not linked).
 
 For the **logo**, Documenter checks for the existence of `assets/logo.{svg,png,webp,gif,jpg,jpeg}`,
 in this order. The first one it finds gets displayed at the top of the navigation sidebar.
+It will also check for `assets/logo-dark.{svg,png,webp,gif,jpg,jpeg}` and use that for dark
+themes.
 
-Additional JS, ICO, and CSS assets can be included in the generated pages using the
-`assets` keyword for `makedocs`. `assets` must be a `Vector{String}` and will include
-each listed asset in the `<head>` of every page in the order in which they are listed.
-The type of the asset (i.e. whether it is going to be included with a `<script>` or a
-`<link>` tag) is determined by the file's extension -- either `.js`, `.ico`, or `.css`.
-Adding an ICO asset is primarilly useful for setting a custom `favicon`.
+Additional JS, ICO, and CSS assets can be included in the generated pages by passing them as
+a list with the `assets` keyword. Each asset will be included in the `<head>` of every page
+in the order in which they are given. The type of the asset (i.e. whether it is going to be
+included with a `<script>` or a `<link>` tag) is determined by the file's extension --
+either `.js`, `.ico`[^1], or `.css` (unless overridden with [`asset`](@ref)).
+
+Simple strings are assumed to be local assets and that each correspond to a file relative to
+the documentation source directory (conventionally `src/`). Non-local assets, identified by
+their absolute URLs, can be included with the [`asset`](@ref) function.
+
+[^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
 """
-struct HTML <: Documenter.Plugin
-    prettyurls  :: Bool
-    disable_git :: Bool
-    edit_branch :: Union{String, Nothing}
-    canonical   :: Union{String, Nothing}
-    assets      :: Vector{String}
-    analytics   :: String
+struct HTML <: Documenter.Writer
+    prettyurls    :: Bool
+    disable_git   :: Bool
+    edit_link     :: Union{String, Symbol, Nothing}
+    canonical     :: Union{String, Nothing}
+    assets        :: Vector{HTMLAsset}
+    analytics     :: String
+    collapselevel :: Int
+    sidebar_sitename :: Bool
+    highlights    :: Vector{String}
+    mathengine    :: Union{MathEngine,Nothing}
+    lang          :: String
 
     function HTML(;
-        prettyurls::Bool = true,
-        disable_git::Bool = false,
-        edit_branch::Union{String, Nothing} = "master",
-        canonical::Union{String, Nothing} = nothing,
-        assets::Vector{String} = String[],
-        analytics::String = "")
-        new(prettyurls, disable_git, edit_branch, canonical, assets, analytics)
+            prettyurls    :: Bool = true,
+            disable_git   :: Bool = false,
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Default("master"),
+            canonical     :: Union{String, Nothing} = nothing,
+            assets        :: Vector = String[],
+            analytics     :: String = "",
+            collapselevel :: Integer = 2,
+            sidebar_sitename :: Bool = true,
+            highlights :: Vector{String} = String[],
+            mathengine :: Union{MathEngine,Nothing} = KaTeX(),
+            # deprecated keywords
+            edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
+            lang          :: String = "en",
+        )
+        collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
+        assets = map(assets) do asset
+            isa(asset, HTMLAsset) && return asset
+            isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
+            error("Invalid value in assets: $(asset) [$(typeof(asset))]")
+        end
+        # Handle edit_branch deprecation
+        if !isa(edit_branch, Default)
+            isa(edit_link, Default) || error("Can't specify edit_branch (deprecated) and edit_link simultaneously")
+            @warn """
+            The edit_branch keyword is deprecated -- use edit_link instead.
+            Note: `edit_branch = nothing` must be changed to `edit_link = :commit`.
+            """
+            edit_link = (edit_branch === nothing) ? :commit : edit_branch
+        end
+        if isa(edit_link, Symbol) && (edit_link !== :commit)
+            throw(ArgumentError("Invalid symbol (:$edit_link) passed to edit_link."))
+        end
+        isa(edit_link, Default) && (edit_link = edit_link[])
+        new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
+            collapselevel, sidebar_sitename, highlights, mathengine, lang)
     end
 end
 
-const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"
-const normalize_css = "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css"
-const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-const fontawesome_css = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
-const highlightjs_css = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"
+"Provides a namespace for remote dependencies."
+module RD
+    using JSON
+    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
+    using ..HTMLWriter: KaTeX, MathJax
+
+    const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
+    const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
+    const fontawesome_version = "5.11.2"
+    const fontawesome_css = [
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/brands.min.css",
+    ]
+
+    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+    const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
+    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.6/lunr.min.js")
+    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js")
+
+    # headroom
+    const headroom_version = "0.10.3"
+    const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/headroom.min.js")
+    const headroom_jquery = RemoteLibrary(
+        "headroom-jquery",
+        "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/jQuery.headroom.min.js",
+        deps = ["jquery", "headroom"],
+    )
+
+    # highlight.js
+    "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
+    function highlightjs!(r::RequireJS, languages = String[])
+        # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
+        # When updating this dependency, it is also necessary to update the the CSS
+        # files the CSS files in assets/html/scss/highlightjs
+        hljs_version = "9.15.10"
+        push!(r, RemoteLibrary(
+            "highlight",
+            "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
+        ))
+        prepend!(languages, ["julia", "julia-repl"])
+        for language in languages
+            language = jsescape(language)
+            push!(r, RemoteLibrary(
+                "highlight-$(language)",
+                "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/languages/$(language).min.js",
+                deps = ["highlight"]
+            ))
+        end
+        push!(r, Snippet(
+            vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
+            ["\$", "hljs"],
+            raw"""
+            $(document).ready(function() {
+                hljs.initHighlighting();
+            })
+            """
+        ))
+    end
+
+    # MathJax & KaTeX
+    const katex_version = "0.11.1"
+    const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
+    function mathengine!(r::RequireJS, engine::KaTeX)
+        push!(r, RemoteLibrary(
+            "katex",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
+        ))
+        push!(r, RemoteLibrary(
+            "katex-auto-render",
+            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
+            deps = ["katex"],
+        ))
+        push!(r, Snippet(
+            ["jquery", "katex", "katex-auto-render"],
+            ["\$", "katex", "renderMathInElement"],
+            """
+            \$(document).ready(function() {
+              renderMathInElement(
+                document.body,
+                $(json_jsescape(engine.config, 2))
+              );
+            })
+            """
+        ))
+    end
+    function mathengine!(r::RequireJS, engine::MathJax)
+        push!(r, RemoteLibrary(
+            "mathjax",
+            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
+            exports = "MathJax"
+        ))
+        push!(r, Snippet(["mathjax"], ["MathJax"],
+            """
+            MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
+            """
+        ))
+    end
+    mathengine(::RequireJS, ::Nothing) = nothing
+end
 
 struct SearchRecord
     src :: String
@@ -167,17 +484,17 @@ other recursive functions.
 mutable struct HTMLContext
     doc :: Documents.Document
     settings :: HTML
-    logo :: String
     scripts :: Vector{String}
     documenter_js :: String
+    themeswap_js :: String
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
-    local_assets :: Vector{String}
+    footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, "", [], "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -223,7 +540,7 @@ end
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
 """
-getpage(ctx, path) = ctx.doc.internal.pages[path]
+getpage(ctx, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 
 
@@ -233,37 +550,55 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
+    ctx.themeswap_js = copy_asset("themeswap.js", doc)
 
-    copy_asset("arrow.svg", doc)
-
-    for logoext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
-        logo = joinpath("assets", "logo.$(logoext)")
-        if isfile(joinpath(doc.user.build, logo))
-            ctx.logo = logo
-            break
+    # Generate documenter.js file with all the JS dependencies
+    ctx.documenter_js = "assets/documenter.js"
+    if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
+        @warn "not creating 'documenter.js', provided by the user."
+    else
+        r = JSDependencies.RequireJS([
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
+        ])
+        RD.mathengine!(r, settings.mathengine)
+        RD.highlightjs!(r, settings.highlights)
+        for filename in readdir(joinpath(ASSETS, "js"))
+            path = joinpath(ASSETS, "js", filename)
+            endswith(filename, ".js") && isfile(path) || continue
+            push!(r, JSDependencies.parse_snippet(path))
         end
+        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
+        JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
     end
 
-    ctx.documenter_js = copy_asset("documenter.js", doc)
-    ctx.search_js = copy_asset("search.js", doc)
+    # Generate search.js file with all the JS dependencies
+    ctx.search_js = "assets/search.js"
+    if isfile(joinpath(doc.user.source, "assets", "search.js"))
+        @warn "not creating 'search.js', provided by the user."
+    else
+        r = JSDependencies.RequireJS([RD.jquery, RD.lunr, RD.lodash])
+        push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
+        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
+        JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
+    end
 
-    push!(ctx.local_assets, copy_asset("documenter.css", doc))
-    append!(ctx.local_assets, settings.assets)
+    for theme in THEMES
+        copy_asset("themes/$(theme).css", doc)
+    end
 
-    for navnode in doc.internal.navlist
-        render_page(ctx, navnode)
+    for page in keys(doc.blueprint.pages)
+        idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
+        nn = (idx === nothing) ? Documents.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
+        @debug "Rendering $(page) [$(repr(idx))]"
+        render_page(ctx, nn)
     end
 
     render_search(ctx)
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
-        # convert Vector{SearchRecord} to a JSON string, and escape two Unicode
-        # characters since JSON is not a JS subset, and we want JS here
-        # ref http://timelessrepo.com/json-isnt-a-javascript-subset
-        escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
-        js = reduce(replace, escapes, init=JSON.json(ctx.search_index))
-        println(io, js, "\n}")
+        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
+        println(io, json_jsescape(ctx.search_index), "\n}")
     end
 end
 
@@ -278,7 +613,7 @@ function copy_asset(file, doc)
     isfile(src) || error("Asset '$file' not found at $(abspath(src))")
 
     # Since user's alternative assets are already copied over in a previous build
-    # step and they should override documenter's original assets, we only actually
+    # step and they should override Documenter's original assets, we only actually
     # perform the copy if <source>/assets/<file> does not exist. Note that checking
     # the existence of <build>/assets/<file> is not sufficient since the <build>
     # directory might be dirty from a previous build.
@@ -297,28 +632,107 @@ end
 # Page
 # ------------------------------------------------------------------------------
 
+## Standard page
 """
 Constructs and writes the page referred to by the `navnode` to `.build`.
 """
 function render_page(ctx, navnode)
-    @tags html body
-
+    @tags html div body
     page = getpage(ctx, navnode)
-
     head = render_head(ctx, navnode)
-    navmenu = render_navmenu(ctx, navnode)
+    sidebar = render_sidebar(ctx, navnode)
+    navbar = render_navbar(ctx, navnode, true)
     article = render_article(ctx, navnode)
-
-    htmldoc = DOM.HTMLDocument(
-        html[:lang=>"en"](
-            head,
-            body(navmenu, article)
-        )
-    )
-
+    footer = render_footer(ctx, navnode)
+    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
     open_output(ctx, navnode) do io
         print(io, htmldoc)
     end
+end
+
+## Search page
+function render_search(ctx)
+    @tags article body h1 header hr html li nav p span ul script
+
+    src = get_url(ctx, ctx.search_navnode)
+
+    head = render_head(ctx, ctx.search_navnode)
+    sidebar = render_sidebar(ctx, ctx.search_navnode)
+    navbar = render_navbar(ctx, ctx.search_navnode, false)
+    article = article(
+        p["#documenter-search-info"]("Loading search..."),
+        ul["#documenter-search-results"]
+    )
+    footer = render_footer(ctx, ctx.search_navnode)
+    scripts = [
+        script[:src => relhref(src, ctx.search_index_js)],
+        script[:src => relhref(src, ctx.search_js)],
+    ]
+    htmldoc = render_html(ctx, ctx.search_navnode, head, sidebar, navbar, article, footer, scripts)
+    open_output(ctx, ctx.search_navnode) do io
+        print(io, htmldoc)
+    end
+end
+
+## Rendering HTML elements
+# ------------------------------------------------------------------------------
+
+"""
+Renders the main `<html>` tag.
+"""
+function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
+    @tags html body div
+    DOM.HTMLDocument(
+        html[:lang=>ctx.settings.lang](
+            head,
+            body(
+                div["#documenter"](
+                    sidebar,
+                    div[".docs-main"](navbar, article, footer),
+                    render_settings(ctx),
+                ),
+            ),
+            scripts...
+        )
+    )
+end
+
+"""
+Renders the modal settings dialog.
+"""
+function render_settings(ctx)
+    @tags div header section footer p button hr span select option label a
+
+    theme_selector = p(
+        label[".label"]("Theme"),
+        div[".select"](
+            select["#documenter-themepicker"](option[:value=>theme](theme) for theme in THEMES)
+        )
+    )
+
+    now_full, now_short = Dates.format(now(), dateformat"E d U Y HH:MM"), Dates.format(now(), dateformat"E d U Y")
+    buildinfo = p(
+        "This document was generated with ",
+        a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"),
+        " on ",
+        span[".colophon-date", :title => now_full](now_short),
+        ". ",
+        "Using Julia version $(Base.VERSION)."
+    )
+
+    div["#documenter-settings.modal"](
+        div[".modal-background"],
+        div[".modal-card"](
+            header[".modal-card-head"](
+                p[".modal-card-title"]("Settings"),
+                button[".delete"]()
+            ),
+            section[".modal-card-body"](
+                theme_selector, hr(), buildinfo
+            ),
+            footer[".modal-card-foot"]()
+        )
+    )
 end
 
 function render_head(ctx, navnode)
@@ -327,10 +741,9 @@ function render_head(ctx, navnode)
 
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
-        normalize_css,
-        google_fonts,
-        fontawesome_css,
-        highlightjs_css,
+        RD.google_fonts,
+        RD.fontawesome_css...,
+        RD.katex_css,
     ]
     head(
         meta[:charset=>"UTF-8"],
@@ -348,7 +761,7 @@ function render_head(ctx, navnode)
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
         script[
-            :src => requirejs_cdn,
+            :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
 
@@ -356,20 +769,32 @@ function render_head(ctx, navnode)
         script[:src => relhref(src, "../versions.js")],
 
         # Custom user-provided assets.
-        asset_links(src, ctx.local_assets)
+        asset_links(src, ctx.settings.assets),
+        # Themes. Note: we reverse the make sure that the default theme (first in the array)
+        # comes as the last <link> tag.
+        map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
+            e = link[".docs-theme-link",
+                :rel => "stylesheet", :type => "text/css",
+                :href => relhref(src, "assets/themes/$(theme).css"),
+                Symbol("data-theme-name") => theme,
+            ]
+            (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
+            return e
+        end,
+        script[:src => relhref(src, ctx.themeswap_js)],
     )
 end
 
-function asset_links(src::AbstractString, assets::Vector)
+function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     @tags link script
     links = DOM.Node[]
-    for each in assets
-        ext = splitext(each)[end]
-        url = relhref(src, each)
+    for asset in assets
+        class = asset.class
+        url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
-            ext == ".ico" ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
-            ext == ".css" ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
-            ext == ".js"  ? script[:src => url] : continue # Skip non-js/css files.
+            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
+            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
+            class == :js  ? script[:src => url] : continue # Skip non-js/css files.
         push!(links, node)
     end
     return links
@@ -384,7 +809,7 @@ analytics_script(tracking_id::AbstractString) =
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
         ga('create', '$(tracking_id)', 'auto');
-        ga('send', 'pageview');
+        ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
         """
     )
 
@@ -399,86 +824,85 @@ function canonical_link_element(canonical_link, src)
    end
 end
 
-## Search page
-# ------------
-
-function render_search(ctx)
-    @tags article body h1 header hr html li nav p span ul script
-
-    src = get_url(ctx, ctx.search_navnode)
-
-    head = render_head(ctx, ctx.search_navnode)
-    navmenu = render_navmenu(ctx, ctx.search_navnode)
-    article = article(
-        header(
-            nav(ul(li("Search"))),
-            hr(),
-            render_topbar(ctx, ctx.search_navnode),
-        ),
-        h1("Search"),
-        p["#search-info"]("Number of results: ", span["#search-results-number"]("loading...")),
-        ul["#search-results"]
-    )
-
-    htmldoc = DOM.HTMLDocument(
-        html[:lang=>"en"](
-            head,
-            body(navmenu, article),
-            script[:src => relhref(src, ctx.search_index_js)],
-            script[:src => relhref(src, ctx.search_js)],
-        )
-    )
-    open_output(ctx, ctx.search_navnode) do io
-        print(io, htmldoc)
-    end
-end
-
 # Navigation menu
 # ------------------------------------------------------------------------------
 
-function render_navmenu(ctx, navnode)
-    @tags a form h1 img input nav div select option
+struct NavMenuContext
+    htmlctx :: HTMLContext
+    current :: Documents.NavNode
+    idstack :: Vector{Int}
+end
+NavMenuContext(ctx::HTMLContext, current::Documents.NavNode) = NavMenuContext(ctx, current, [])
 
+function render_sidebar(ctx, navnode)
+    @tags a form img input nav div select option span
     src = get_url(ctx, navnode)
+    navmenu = nav[".docs-sidebar"]
 
-    navmenu = nav[".toc"]
-    if !isempty(ctx.logo)
-        push!(navmenu.nodes,
-            a[:href => relhref(src, "index.html")](
-                img[
-                    ".logo",
-                    :src => relhref(src, ctx.logo),
-                    :alt => "$(ctx.doc.user.sitename) logo"
-                ]
-            )
-        )
-    end
-    push!(navmenu.nodes, h1(ctx.doc.user.sitename))
-    let version_selector = select["#version-selector", :onChange => "window.location.href=this.value"]()
-        if isempty(ctx.doc.user.version)
-            push!(version_selector.attributes, :style => "visibility: hidden")
+    # Logo
+    logo = find_image_asset(ctx, "logo")
+    logo_dark = find_image_asset(ctx, "logo-dark")
+    if logo !== nothing
+        # the logo will point to the first page in the navigation menu
+        href = navhref(ctx, first(ctx.doc.internal.navlist), navnode)
+        alt = isempty(ctx.doc.user.sitename) ? "Logo" : "$(ctx.doc.user.sitename) logo"
+        logo_element = a[".docs-logo", :href => href]
+        if logo_dark === nothing
+            push!(logo_element.nodes, img[:src => relhref(src, logo), :alt => alt])
         else
-            push!(version_selector.nodes,
-                option[
-                    :value => "#",
-                    :selected => "selected",
-                ](ctx.doc.user.version)
-            )
+            push!(logo_element.nodes, img[".docs-light-only", :src => relhref(src, logo), :alt => alt])
+            push!(logo_element.nodes, img[".docs-dark-only", :src => relhref(src, logo_dark), :alt => alt])
         end
-        push!(navmenu.nodes, version_selector)
+        push!(navmenu.nodes, logo_element)
     end
+    # Sitename
+    if ctx.settings.sidebar_sitename
+        push!(navmenu.nodes, div[".docs-package-name"](
+            span[".docs-autofit"](ctx.doc.user.sitename)
+        ))
+    end
+
+    # Search box
     push!(navmenu.nodes,
-        form[".search#search-form", :action => navhref(ctx, ctx.search_navnode, navnode)](
+        form[".docs-search", :action => navhref(ctx, ctx.search_navnode, navnode)](
             input[
-                "#search-query",
+                "#documenter-search-query.docs-search-query",
                 :name => "q",
                 :type => "text",
                 :placeholder => "Search docs",
             ],
         )
     )
-    push!(navmenu.nodes, navitem(ctx, navnode))
+
+    # The menu itself
+    menu = navitem(NavMenuContext(ctx, navnode, ))
+    push!(menu.attributes, :class => "docs-menu")
+    push!(navmenu.nodes, menu)
+
+    # Version selector
+    let
+        vs_class = ".docs-version-selector.field.has-addons"
+        vs_label = span[".docs-label.button.is-static.is-size-7"]("Version")
+        vs_label = div[".control"](vs_label)
+        vs_select = select["#documenter-version-selector"]
+        if !isempty(ctx.doc.user.version)
+            vs_class = "$(vs_class).visible"
+            opt = option[:value => "#", :selected => "selected", ](ctx.doc.user.version)
+            vs_select = vs_select(opt)
+        end
+        vs_select = div[".select.is-fullwidth.is-size-7"](vs_select)
+        vs_select = div[".docs-selector.control.is-expanded"](vs_select)
+        push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
+    end
     navmenu
+end
+
+function find_image_asset(ctx, name)
+    for ext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
+        filename = joinpath("assets", "$(name).$(ext)")
+        isfile(joinpath(ctx.doc.user.build, filename)) && return filename
+    end
+    return nothing
 end
 
 """
@@ -488,41 +912,56 @@ It gets called recursively to construct the whole tree.
 It always returns a [`DOM.Node`](@ref). If there's nothing to display (e.g. the node is set
 to be invisible), it returns an empty text node (`DOM.Node("")`).
 """
-navitem(ctx, current) = navitem(ctx, current, ctx.doc.internal.navtree)
-function navitem(ctx, current, nns::Vector)
-    nodes = map(nn -> navitem(ctx, current, nn), nns)
-    filter!(node -> node.name !== DOM.TEXT, nodes)
-    isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)(nodes)
+navitem(nctx) = navitem(nctx, nctx.htmlctx.doc.internal.navtree)
+function navitem(nctx, nns::Vector)
+    push!(nctx.idstack, 0)
+    nodes = map(nns) do nn
+        nctx.idstack[end] = nctx.idstack[end] + 1
+        navitem(nctx, nn)
+    end
+    pop!(nctx.idstack)
+    filter!(node -> node.name !== DOM.TEXT, nodes) # FIXME: why?
+    ulclass = (length(nctx.idstack) >= nctx.htmlctx.settings.collapselevel) ? ".collapsed" : ""
+    isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)[ulclass](nodes)
 end
-function navitem(ctx, current, nn::Documents.NavNode)
-    @tags ul li span a
-
+function navitem(nctx, nn::Documents.NavNode)
+    @tags ul li span a input label i
+    ctx, current = nctx.htmlctx, nctx.current
     # We'll do the children first, primarily to determine if this node has any that are
     # visible. If it does not and it itself is not visible (including current), then
     # we'll hide this one as well, returning an empty string Node.
-    children = navitem(ctx, current, nn.children)
+    children = navitem(nctx, nn.children)
     if nn !== current && !nn.visible && children.name === DOM.TEXT
         return DOM.Node("")
     end
 
     # construct this item
     title = mdconvert(pagetitle(ctx, nn); droplinks=true)
-    link = if nn.page === nothing
-        span[".toctext"](title)
+    currentclass = (nn === current) ? ".is-active" : ""
+    item = if length(nctx.idstack) >= ctx.settings.collapselevel && children.name !== DOM.TEXT
+        menuid = "menuitem-$(join(nctx.idstack, '-'))"
+        input_attr = ["#$(menuid).collapse-toggle", :type => "checkbox"]
+        nn in Documents.navpath(nctx.current) && push!(input_attr, :checked)
+        li[currentclass](
+            input[input_attr...],
+            label[".tocitem", :for => menuid](span[".docs-label"](title), i[".docs-chevron"]),
+        )
+    elseif nn.page === nothing
+        li[currentclass](span[".tocitem"](title))
     else
-        a[".toctext", :href => navhref(ctx, nn, current)](title)
+        li[currentclass](a[".tocitem", :href => navhref(ctx, nn, current)](title))
     end
-    item = (nn === current) ? li[".current"](link) : li(link)
 
     # add the subsections (2nd level headings) from the page
     if (nn === current) && current.page !== nothing
-        subs = collect_subsections(ctx.doc.internal.pages[current.page])
+        subs = collect_subsections(ctx.doc.blueprint.pages[current.page])
         internal_links = map(subs) do s
             istoplevel, anchor, text = s
             _li = istoplevel ? li[".toplevel"] : li[]
-            _li(a[".toctext", :href => anchor](mdconvert(text; droplinks=true)))
+            _li(a[".tocitem", :href => anchor](span(mdconvert(text; droplinks=true))))
         end
-        push!(item.nodes, ul[".internal"](internal_links))
+        # Only create the ul.internal tag if there actually are in-page headers
+        length(internal_links) > 0 && push!(item.nodes, ul[".internal"](internal_links))
     end
 
     # add the visible subsections, if any, as a single list
@@ -531,79 +970,128 @@ function navitem(ctx, current, nn::Documents.NavNode)
     item
 end
 
+function render_navbar(ctx, navnode, edit_page_link::Bool)
+    @tags div header nav ul li a span
 
-# Article (page contents)
-# ------------------------------------------------------------------------------
-
-function render_article(ctx, navnode)
-    @tags article header footer nav ul li hr span a
-
-    header_links = map(Documents.navpath(navnode)) do nn
+    # The breadcrumb (navigation links on top)
+    navpath = Documents.navpath(navnode)
+    header_links = map(navpath) do nn
         title = mdconvert(pagetitle(ctx, nn); droplinks=true)
-        nn.page === nothing ? li(title) : li(a[:href => navhref(ctx, nn, navnode)](title))
+        nn.page === nothing ? li(a[".is-disabled"](title)) : li(a[:href => navhref(ctx, nn, navnode)](title))
     end
+    header_links[end] = header_links[end][".is-active"]
+    breadcrumb = nav[".breadcrumb"](
+        ul[".is-hidden-mobile"](header_links),
+        ul[".is-hidden-tablet"](header_links[end]) # when on mobile, we only show the page title, basically
+    )
 
-    topnav = nav(ul(header_links))
+    # The "Edit on GitHub" links and the hamburger to open the sidebar (on mobile) float right
+    navbar_right = div[".docs-right"]
 
     # Set the logo and name for the "Edit on.." button.
-    host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
-    if host_type == Utilities.RepoGitlab
-        host = "GitLab"
-        logo = "\uf296"
-    elseif host_type == Utilities.RepoGithub
-        host = "GitHub"
-        logo = "\uf09b"
-    elseif host_type == Utilities.RepoBitbucket
-        host = "BitBucket"
-        logo = "\uf171"
-    else
-        host = ""
-        logo = "\uf15c"
-    end
-    hoststring = isempty(host) ? " source" : " on $(host)"
+    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
+        host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
+        if host_type == Utilities.RepoGitlab
+            host = "GitLab"
+            logo = "\uf296"
+        elseif host_type == Utilities.RepoGithub
+            host = "GitHub"
+            logo = "\uf09b"
+        elseif host_type == Utilities.RepoBitbucket
+            host = "BitBucket"
+            logo = "\uf171"
+        else
+            host = ""
+            logo = "\uf15c"
+        end
+        hoststring = isempty(host) ? " source" : " on $(host)"
 
-    if !ctx.settings.disable_git
         pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
-        if Utilities.isabsurl(pageurl)
-            url = pageurl
+        edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
+        url = if Utilities.isabsurl(pageurl)
+            pageurl
         else
             if !(pageurl == getpage(ctx, navnode).source)
                 # need to set users path relative the page itself
                 pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
             end
-            url = Utilities.url(ctx.doc.user.repo, pageurl, commit=ctx.settings.edit_branch)
+            Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
         end
         if url !== nothing
-            edit_verb = (ctx.settings.edit_branch === nothing) ? "View" : "Edit"
-            push!(topnav.nodes, a[".edit-page", :href => url](span[".fa"](logo), " $(edit_verb)$hoststring"))
+            edit_verb = (edit_branch === nothing) ? "View" : "Edit"
+            title = "$(edit_verb)$hoststring"
+            push!(navbar_right.nodes,
+                a[".docs-edit-link", :href => url, :title => title](
+                    span[".docs-icon.fab"](logo),
+                    span[".docs-label.is-hidden-touch"](title)
+                )
+            )
         end
     end
-    art_header = header(topnav, hr(), render_topbar(ctx, navnode))
 
-    # build the footer with nav links
-    art_footer = footer(hr())
-    if navnode.prev !== nothing
-        direction = span[".direction"]("Previous")
-        title = span[".title"](mdconvert(pagetitle(ctx, navnode.prev); droplinks=true))
-        link = a[".previous", :href => navhref(ctx, navnode.prev, navnode)](direction, title)
-        push!(art_footer.nodes, link)
-    end
+    # Settings cog
+    push!(navbar_right.nodes, a[
+        "#documenter-settings-button.docs-settings-button.fas.fa-cog",
+        :href => "#", :title => "Settings",
+    ])
 
-    if navnode.next !== nothing
-        direction = span[".direction"]("Next")
-        title = span[".title"](mdconvert(pagetitle(ctx, navnode.next); droplinks=true))
-        link = a[".next", :href => navhref(ctx, navnode.next, navnode)](direction, title)
-        push!(art_footer.nodes, link)
-    end
+    # Hamburger on mobile
+    push!(navbar_right.nodes, a[
+        "#documenter-sidebar-button.docs-sidebar-button.fa.fa-bars.is-hidden-desktop",
+        :href => "#"
+    ])
 
-    pagenodes = domify(ctx, navnode)
-    article["#docs"](art_header, pagenodes, art_footer)
+    # Construct the main <header> node that should be the first element in div.docs-main
+    header[".docs-navbar"](breadcrumb, navbar_right)
 end
 
-function render_topbar(ctx, navnode)
-    @tags a div span
-    page_title = string(mdflatten(pagetitle(ctx, navnode)))
-    return div["#topbar"](span(page_title), a[".fa .fa-bars", :href => "#"])
+function render_footer(ctx, navnode)
+    @tags a div nav
+    # Navigation links (previous/next page), if there are any
+    navlinks = DOM.Node[]
+    if navnode.prev !== nothing
+        title = mdconvert(pagetitle(ctx, navnode.prev); droplinks=true)
+        link = a[".docs-footer-prevpage", :href => navhref(ctx, navnode.prev, navnode)]("« ", title)
+        push!(navlinks, link)
+    end
+    if navnode.next !== nothing
+        title = mdconvert(pagetitle(ctx, navnode.next); droplinks=true)
+        link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
+        push!(navlinks, link)
+    end
+    return isempty(navlinks) ? "" : nav[".docs-footer"](navlinks)
+end
+
+# Article (page contents)
+# ------------------------------------------------------------------------------
+
+function render_article(ctx, navnode)
+    @tags article section ul li hr span a div p
+
+    # Build the page itself (and collect any footnotes)
+    empty!(ctx.footnotes)
+    art_body = article["#documenter-page.content"](domify(ctx, navnode))
+    # Footnotes, if there are any
+    if !isempty(ctx.footnotes)
+        fnotes = map(ctx.footnotes) do f
+            fid = "footnote-$(f.id)"
+            citerefid = "citeref-$(f.id)"
+            if length(f.text) == 1 && first(f.text) isa Markdown.Paragraph
+                li["#$(fid).footnote"](
+                    a[".tag.is-link", :href => "#$(citerefid)"](f.id),
+                    mdconvert(f.text[1].content),
+                )
+            else
+                li["#$(fid).footnote"](
+                    a[".tag.is-link", :href => "#$(citerefid)"](f.id),
+                    # passing an empty MD() as `parent` to give it block context
+                    mdconvert(f.text, Markdown.MD()),
+                )
+            end
+        end
+        push!(art_body.nodes, section[".footnotes.is-size-7"](ul(fnotes)))
+    end
+    return art_body
 end
 
 # expand the versions argument from the user
@@ -725,7 +1213,7 @@ end
 
 function domify(ctx, navnode, node)
     fixlinks!(ctx, navnode, node)
-    mdconvert(node, Markdown.MD())
+    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes)
 end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
@@ -734,11 +1222,12 @@ function domify(ctx, navnode, anchor::Anchors.Anchor)
     if isa(anchor.object, Markdown.Header)
         h = anchor.object
         fixlinks!(ctx, navnode, h)
-        DOM.Tag(Symbol("h$(Utilities.header_level(h))"))(
-            a[".nav-anchor", :id => aid, :href => "#$aid"](mdconvert(h.text, h))
+        DOM.Tag(Symbol("h$(Utilities.header_level(h))"))[:id => aid](
+            a[".docs-heading-anchor", :href => "#$aid"](mdconvert(h.text, h)),
+            a[".docs-heading-anchor-permalink", :href => "#$aid", :title => "Permalink"]
         )
     else
-        a[".nav-anchor", :id => aid, :href => "#$aid"](domify(ctx, navnode, anchor.object))
+        a[:id => aid, :href => "#$aid"](domify(ctx, navnode, anchor.object))
     end
 end
 
@@ -802,7 +1291,7 @@ function domify(ctx, navnode, docs::Documents.DocsNodes)
 end
 
 function domify(ctx, navnode, node::Documents.DocsNode)
-    @tags a code div section span
+    @tags a code article header span
 
     # push to search index
     rec = SearchRecord(ctx, navnode;
@@ -813,39 +1302,38 @@ function domify(ctx, navnode, node::Documents.DocsNode)
 
     push!(ctx.search_index, rec)
 
-    section[".docstring"](
-        div[".docstring-header"](
+    article[".docstring"](
+        header(
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Utilities.doccat(node.object))"),
-            "."
+            span[".docstring-category"]("$(Utilities.doccat(node.object))")
         ),
         domify_doc(ctx, navnode, node.docstr)
     )
 end
 
 function domify_doc(ctx, navnode, md::Markdown.MD)
-    @tags a
+    @tags a section footer div
     if haskey(md.meta, :results)
         # The `:results` field contains a vector of `Docs.DocStr` objects associated with
         # each markdown object. The `DocStr` contains data such as file and line info that
         # we need for generating correct source links.
         map(zip(md.content, md.meta[:results])) do md
             markdown, result = md
-            ret = Any[domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))]
+            ret = section(div(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
                 url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
                 if url !== nothing
-                    push!(ret, a[".source-link", :target=>"_blank", :href=>url]("source"))
+                    push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
                 end
             end
-            ret
+            return ret
         end
     else
         # Docstrings with no `:results` metadata won't contain source locations so we don't
         # try to print them out. Just print the basic docstring.
-        domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(md))
+        section(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(md)))
     end
 end
 
@@ -915,8 +1403,8 @@ Returns the full path of a [`Documents.NavNode`](@ref) relative to `src/`.
 get_url(ctx, navnode::Documents.NavNode) = get_url(ctx, navnode.page)
 
 """
-If `html_prettyurls` is enabled, returns a "pretty" version of the `path` which can then be
-used in links in the resulting HTML file.
+If `prettyurls` for [`HTML`](@ref Documenter.HTML) is enabled, returns a "pretty" version of
+the `path` which can then be used in links in the resulting HTML file.
 """
 function pretty_url(ctx, path::AbstractString)
     if ctx.settings.prettyurls
@@ -991,9 +1479,12 @@ end
 # mdconvert
 # ------------------------------------------------------------------------------
 
-const md_block_nodes = [Markdown.MD, Markdown.BlockQuote]
-push!(md_block_nodes, Markdown.List)
-push!(md_block_nodes, Markdown.Admonition)
+const md_block_nodes = [
+    Markdown.MD,
+    Markdown.BlockQuote,
+    Markdown.List,
+    Markdown.Admonition,
+]
 
 """
 [`MDBlockContext`](@ref) is a union of all the Markdown nodes whose children should
@@ -1012,7 +1503,7 @@ mdconvert(text::AbstractString, parent; kwargs...) = DOM.Node(text)
 
 mdconvert(vec::Vector, parent; kwargs...) = [mdconvert(x, parent; kwargs...) for x in vec]
 
-mdconvert(md::Markdown.MD, parent; kwargs...) = Tag(:div)(mdconvert(md.content, md; kwargs...))
+mdconvert(md::Markdown.MD, parent; kwargs...) = mdconvert(md.content, md; kwargs...)
 
 mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconvert(b.content, b; kwargs...))
 
@@ -1029,7 +1520,17 @@ mdconvert(h::Markdown.Header{N}, parent; kwargs...) where {N} = DOM.Tag(Symbol("
 
 mdconvert(::Markdown.HorizontalRule, parent; kwargs...) = Tag(:hr)()
 
-mdconvert(i::Markdown.Image, parent; kwargs...) = Tag(:img)[:src => i.url, :alt => i.alt]
+function mdconvert(i::Markdown.Image, parent; kwargs...)
+    @tags video img a
+
+    if occursin(r"\.(webm|mp4|ogg|ogm|ogv|avi)$", i.url)
+        video[:src => i.url, :controls => "true", :title => i.alt](
+            a[:href => i.url](i.alt)
+        )
+    else
+        img[:src => i.url, :alt => i.alt]
+    end
+end
 
 mdconvert(i::Markdown.Italic, parent; kwargs...) = Tag(:em)(mdconvert(i.text, i; kwargs...))
 
@@ -1079,20 +1580,50 @@ end
 
 mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 
-mdconvert(f::Markdown.Footnote, parent; kwargs...) = footnote(f.id, f.text, parent; kwargs...)
-footnote(id, text::Nothing, parent; kwargs...) = Tag(:a)[:href => "#footnote-$(id)"]("[$id]")
-function footnote(id, text, parent; kwargs...)
-    Tag(:div)[".footnote#footnote-$(id)"](
-        Tag(:a)[:href => "#footnote-$(id)"](Tag(:strong)("[$id]")),
-        mdconvert(text, parent; kwargs...),
-    )
+function mdconvert(f::Markdown.Footnote, parent; footnotes = nothing, kwargs...)
+    @tags sup a
+    if f.text === nothing # => Footnote link
+        return sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
+    elseif footnotes !== nothing # Footnote definition
+        push!(footnotes, f)
+    else # => Footnote definition, but nowhere to put it
+        @error "Bad footnote definition."
+    end
+    return []
 end
 
 function mdconvert(a::Markdown.Admonition, parent; kwargs...)
-    @tags div
-    div[".admonition.$(a.category)"](
-        div[".admonition-title"](a.title),
-        div[".admonition-text"](mdconvert(a.content, a; kwargs...))
+    @tags header div
+    colorclass =
+        (a.category == "danger")  ? ".is-danger"  :
+        (a.category == "warning") ? ".is-warning" :
+        (a.category == "note")    ? ".is-info"    :
+        (a.category == "info")    ? ".is-info"    :
+        (a.category == "tip")     ? ".is-success" :
+        (a.category == "compat")  ? ".is-compat"  : begin
+            # If the admonition category is not one of the standard ones, we tag the
+            # admonition div element with a `is-category-$(category)` class. However, we
+            # first carefully sanitize the category name. Strictly speaking, this is not
+            # necessary when were using the Markdown parser in the Julia standard library,
+            # since it restricts the category to [a-z]+. But it is possible for the users to
+            # construct their own Admonition objects with arbitrary category strings and
+            # pass them onto Documenter.
+            #
+            # (1) remove all characters except A-Z, a-z, 0-9 and -
+            cat_sanitized = replace(a.category, r"[^A-Za-z0-9-]" => "")
+            # (2) remove any dashes from the beginning and end of the string
+            cat_sanitized = replace(cat_sanitized, r"^[-]+" => "")
+            cat_sanitized = replace(cat_sanitized, r"[-]+$" => "")
+            # (3) reduce any duplicate dashes in the middle to single dashes
+            cat_sanitized = replace(cat_sanitized, r"[-]+" => "-")
+            cat_sanitized = lowercase(cat_sanitized)
+            # (4) if nothing is left (or the category was empty to begin with), we don't
+            # apply a class
+            isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
+        end
+    div[".admonition$(colorclass)"](
+        header[".admonition-header"](a.title),
+        div[".admonition-body"](mdconvert(a.content, a; kwargs...))
     )
 end
 
@@ -1126,6 +1657,12 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     return mdconvert(out, parent; kwargs...)
 end
 
+# Fallback
+function mdconvert(x, parent; kwargs...)
+    @debug "Strange inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
+    repr(x)
+end
+
 # fixlinks!
 # ------------------------------------------------------------------------------
 
@@ -1148,7 +1685,7 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     end
     path = normpath(joinpath(dirname(navnode.page), first(s)))
 
-    if endswith(path, ".md") && path in keys(ctx.doc.internal.pages)
+    if endswith(path, ".md") && path in keys(ctx.doc.blueprint.pages)
         # make sure that links to different valid pages are correct
         path = pretty_url(ctx, relhref(get_url(ctx, navnode), get_url(ctx, path)))
     elseif isfile(joinpath(ctx.doc.user.build, path))
@@ -1156,7 +1693,7 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
         # provided files or generated by code examples)
         path = relhref(get_url(ctx, navnode), path)
     else
-        @warn "invalid local link: unresolved path in $(Utilities.locrepr(navnode.page))" link = link.url
+        @warn "invalid local link: unresolved path in $(Utilities.locrepr(navnode.page))" link.text link.url
     end
 
     # Replace any backslashes in links, if building the docs on Windows

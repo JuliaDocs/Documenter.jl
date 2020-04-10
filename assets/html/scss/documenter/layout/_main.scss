@@ -1,0 +1,130 @@
+/* This file contain the overall layout.
+ *
+ * The main container is <div> that is identified by id #documenter.
+ */
+#documenter {
+  .docs-main {
+    > article {
+      // Long inline words can happen, so we'll break them in case that, instead of letting
+      // go into overflow. Most likely to happen with inline code snippets.
+      overflow-wrap: break-word;
+    }
+
+    @include desktop {
+      max-width: $documenter-max-width + 2*$documenter-main-padding;
+      margin-left: $documenter-sidebar-width + $documenter-sidebar-main-gap;
+      padding-right: $documenter-main-padding-right;
+    }
+
+    @include touch {
+      width: 100%;
+
+      > article {
+        max-width: $documenter-max-width + 2*$documenter-main-padding;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 1rem;
+        padding: 0 $documenter-main-padding;
+      }
+      > header, > nav {
+        max-width: 100%;
+        width: 100%;
+        margin: 0;
+      }
+    }
+
+    // Navbar is the top bar of the page that contains the breadcrumb,
+    // the "Edit on GitHub" link and the sidebar burger (when on mobile).
+    header.docs-navbar {
+      background-color: $body-background-color;
+      border-bottom: 1px solid $border;
+      z-index: 2;
+
+      min-height: 4rem;
+      margin-bottom: 1rem;
+
+      display: flex;
+      .breadcrumb {
+        flex-grow: 1;
+      }
+
+      .docs-right {
+        display: flex;
+        .docs-icon, .docs-label, .docs-sidebar-button {
+          display: inline-block;
+        }
+        white-space: nowrap;
+        .docs-label {
+          padding: 0;
+          margin-left: 0.3em;
+        }
+        .docs-settings-button {
+          margin: auto 0 auto 1rem;
+        }
+        .docs-sidebar-button {
+          font-size: 1.5rem;
+          margin: auto 0 auto 1rem;
+        }
+      }
+
+      // ensure vertical middle alignment of everything in the navbar
+      > * {
+        margin: auto 0;
+      }
+
+      @include touch {
+        position: sticky;
+        top: 0;
+        padding: 0 1rem;
+
+        /* For Headroom.js */
+        transition-property: top, box-shadow;
+        -webkit-transition-property: top, box-shadow; /* Safari */
+        transition-duration: 0.3s;
+        -webkit-transition-duration: 0.3s; /* Safari */
+        &.headroom--not-top {
+          box-shadow: $shadow-size 0rem $shadow-blur $shadow;
+          transition-duration: 0.7s;
+          -webkit-transition-duration: 0.7s; /* Safari */
+        }
+        &.headroom--unpinned.headroom--not-top.headroom--not-bottom {
+          top: -4.5rem;
+          transition-duration: 0.7s;
+          -webkit-transition-duration: 0.7s; /* Safari */
+        }
+      }
+    }
+
+    // Footnotes
+    section.footnotes {
+      border-top: 1px solid $border;
+      li {
+        .tag:first-child {
+          margin-right: 1em;
+          margin-bottom: 0.4em;
+        }
+      }
+    }
+
+    .docs-footer {
+      display: flex;
+      margin-left: 0;
+      margin-right: 0;
+      border-top: 1px solid $border;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+
+      @include touch {
+        padding-left: $documenter-main-padding;
+        padding-right: $documenter-main-padding;
+      }
+
+      .docs-footer-nextpage, .docs-footer-prevpage {
+        flex-grow: 1;
+      }
+      .docs-footer-nextpage {
+        text-align: right;
+      }
+    }
+  }
+}

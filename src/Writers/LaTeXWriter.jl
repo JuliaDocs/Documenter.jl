@@ -4,7 +4,7 @@ A module for rendering `Document` objects to LaTeX and PDF.
 # Keywords
 
 [`LaTeXWriter`](@ref) uses the following additional keyword arguments that can be passed to
-[`Documenter.makedocs`](@ref): `authors`, `sitename`.
+[`makedocs`](@ref Documenter.makedocs): `authors`, `sitename`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 navigation menu. It goes into the `\\title` LaTeX command.
@@ -19,7 +19,7 @@ import ...Documenter: Documenter
     LaTeXWriter.LaTeX(; kwargs...)
 
 Output format specifier that results in LaTeX/PDF output.
-Used together with [`makedocs`](@ref), e.g.
+Used together with [`makedocs`](@ref Documenter.makedocs), e.g.
 
 ```julia
 makedocs(
@@ -38,7 +38,7 @@ The `makedocs` argument `authors` should also be specified, it will be used for 
 **`platform`** sets the platform where the tex-file is compiled, either `"native"` (default) or `"docker"`.
 See [Other Output Formats](@ref) for more information.
 """
-struct LaTeX <: Documenter.Plugin
+struct LaTeX <: Documenter.Writer
     platform::String
     function LaTeX(; platform = "native")
         platform ∈ ("native", "docker") || throw(ArgumentError("unknown platform: $platform"))
@@ -84,9 +84,18 @@ const DOCUMENT_STRUCTURE = (
     "subparagraph",
 )
 
+# https://github.com/JuliaLang/julia/pull/32851
+function mktempdir(args...; kwargs...)
+    if VERSION < v"1.3.0-alpha.112"
+        return Base.mktempdir(args...; kwargs...)
+    else
+        return Base.mktempdir(args...; cleanup=false, kwargs...)
+    end
+end
+
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: rendering PDF."
-    mktempdir() do path
+    Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             name = doc.user.sitename
@@ -112,7 +121,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                             _println(context, header_text)
                         else
                             path = normpath(filename)
-                            page = doc.internal.pages[path]
+                            page = doc.blueprint.pages[path]
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
@@ -125,9 +134,24 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             end
             cp(STYLE, "documenter.sty")
 
-            # compile .tex and copy over the .pdf file if compile_tex return true
+            # compile .tex
             status = compile_tex(doc, settings, texfile)
-            status && cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
+
+            # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
+            # source files over to a directory under doc.user.root.
+            if haskey(ENV, "DOCUMENTER_LATEX_DEBUG")
+                dst = isempty(ENV["DOCUMENTER_LATEX_DEBUG"]) ? mktempdir(doc.user.root) :
+                    joinpath(doc.user.root, ENV["DOCUMENTER_LATEX_DEBUG"])
+                sources = cp(pwd(), dst, force=true)
+                @info "LaTeX sources copied for debugging to $(sources)"
+            end
+
+            # If the build was successful, copy of the PDF to the .build directory
+            if status
+                cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
+            else
+                error("Compiling the .tex file failed. See logs for more information.")
+            end
         end
     end
 end
@@ -281,6 +305,10 @@ end
 ## Index, Contents, and Eval Nodes.
 
 function latex(io::IO, index::Documents.IndexNode, page, doc)
+    # Having an empty itemize block in LaTeX throws an error, so we bail early
+    # in that situation:
+    isempty(index.elements) && (_println(io); return)
+
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
         id = string(hash(string(Utilities.slugify(object))))
@@ -294,22 +322,39 @@ function latex(io::IO, index::Documents.IndexNode, page, doc)
 end
 
 function latex(io::IO, contents::Documents.ContentsNode, page, doc)
+    # Having an empty itemize block in LaTeX throws an error, so we bail early
+    # in that situation:
+    isempty(contents.elements) && (_println(io); return)
+
     depth = 1
-    needs_end = false
     _println(io, "\\begin{itemize}")
     for (count, path, anchor) in contents.elements
         header = anchor.object
         level = Utilities.header_level(header)
         id = string(hash(string(anchor.id, "-", anchor.nth)))
-        level < depth && (_println(io, "\\end{itemize}"); needs_end = false)
-        level > depth && (_println(io, "\\begin{itemize}"); needs_end = true)
+        # If we're changing depth, we need to make sure we always print the
+        # correct number of \begin{itemize} and \end{itemize} statements.
+        if level > depth
+            for k in 1:(level - depth)
+                # if we jump by more than one level deeper we need to put empty
+                # \items in -- otherwise LaTeX will complain
+                (k >= 2) && _println(io, "\\item ~")
+                _println(io, "\\begin{itemize}")
+                depth += 1
+            end
+        elseif level < depth
+            for _ in 1:(depth - level)
+                _println(io, "\\end{itemize}")
+                depth -= 1
+            end
+        end
+        # Print the corresponding \item statement
         _print(io, "\\item \\hyperlink{", id, "}{")
         latexinline(io, header.text)
         _println(io, "}")
-        depth = level
     end
-    needs_end && _println(io, "\\end{itemize}")
-    _println(io, "\\end{itemize}")
+    # print any remaining missing \end{itemize} statements
+    for _ = 1:depth; _println(io, "\\end{itemize}"); end
     _println(io)
 end
 
@@ -329,7 +374,7 @@ function latex(io::IO, d::Dict{MIME,Any})
         _println(io, """
         \\begin{figure}[H]
         \\centering
-        \\includegraphics{$(filename)}
+        \\includegraphics[max width=\\linewidth]{$(filename)}
         \\end{figure}
         """)
     elseif haskey(d, MIME"image/jpeg"())
@@ -337,7 +382,7 @@ function latex(io::IO, d::Dict{MIME,Any})
         _println(io, """
         \\begin{figure}[H]
         \\centering
-        \\includegraphics{$(filename)}
+        \\includegraphics[max width=\\linewidth]{$(filename)}
         \\end{figure}
         """)
     elseif haskey(d, MIME"text/latex"())
@@ -390,22 +435,59 @@ function latex(io::IO, code::Markdown.Code)
     language = isempty(code.language) ? "none" : code.language
     # the julia-repl is called "jlcon" in Pygments
     language = (language == "julia-repl") ? "jlcon" : language
+    escape = '⊻' ∈ code.code
     if language in LEXER
         _print(io, "\n\\begin{minted}")
+        if escape
+            _print(io, "[escapeinside=\\#\\%]")
+        end
         _println(io, "{", language, "}")
-        _println(io, code.code)
-        _println(io, "\\end{minted}\n")
+        if escape
+            _print_code_escapes_minted(io, code.code)
+        else
+            _print(io, code.code)
+        end
+        _println(io, "\n\\end{minted}\n")
     else
-        _println(io, "\n\\begin{lstlisting}")
-        _println(io, code.code)
-        _println(io, "\\end{lstlisting}\n")
+        _print(io, "\n\\begin{lstlisting}")
+        if escape
+            _println(io, "[escapeinside=\\%\\%]")
+            _print_code_escapes_lstlisting(io, code.code)
+        else
+            _println(io)
+            _print(io, code.code)
+        end
+        _println(io, "\n\\end{lstlisting}\n")
+    end
+end
+
+function _print_code_escapes_minted(io, s::AbstractString)
+    for ch in s
+        ch === '#' ? _print(io, "##%") :
+        ch === '%' ? _print(io, "#%%") : # Note: "#\\%%" results in pygmentize error...
+        ch === '⊻' ? _print(io, "#\\unicodeveebar%") :
+                     _print(io, ch)
+    end
+end
+function _print_code_escapes_lstlisting(io, s::AbstractString)
+    for ch in s
+        ch === '%' ? _print(io, "%\\%%") :
+        ch === '⊻' ? _print(io, "%\\unicodeveebar%") :
+                     _print(io, ch)
     end
 end
 
 function latexinline(io::IO, code::Markdown.Code)
     _print(io, "\\texttt{")
-    latexesc(io, code.code)
+    _print_code_escapes_inline(io, code.code)
     _print(io, "}")
+end
+
+function _print_code_escapes_inline(io, s::AbstractString)
+    for ch in s
+        ch === '⊻' ? _print(io, "\\unicodeveebar{}") :
+                     latexesc(io, ch)
+    end
 end
 
 function latex(io::IO, md::Markdown.Paragraph)
@@ -536,7 +618,7 @@ function latexinline(io::IO, md::Markdown.Image)
             normpath(joinpath(dirname(io.filename), md.url))
         end
         url = replace(url, "\\" => "/") # use / on Windows too.
-        wrapinline(io, "includegraphics") do
+        wrapinline(io, "includegraphics[max width=\\linewidth]") do
             _print(io, url)
         end
         _println(io)
@@ -605,9 +687,11 @@ for ch in "&%\$#_{}"
     _latexescape_chars[ch] = "\\$ch"
 end
 
+latexesc(io, ch::AbstractChar) = _print(io, get(_latexescape_chars, ch, ch))
+
 function latexesc(io, s::AbstractString)
     for ch in s
-        _print(io, get(_latexescape_chars, ch, ch))
+        latexesc(io, ch)
     end
 end
 
