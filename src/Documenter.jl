@@ -185,7 +185,7 @@ when a minor version changes (i.e. except in patch releases).
 
 **`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
 defined in the `modules` keyword that have a docstring attached have the docstring also
-listed in the manual (e.g. there's a `@docs` blocks with that docstring). Possible values
+listed in the manual (e.g. there's a `@docs` block with that docstring). Possible values
 are `:all` (check all names; the default), `:exports` (check only exported names) and
 `:none` (no checks are performed). If `strict` is also enabled then the build will fail if
 any missing docstrings are encountered.
@@ -244,7 +244,7 @@ $(SIGNATURES)
 
 Allows a page to be hidden in the navigation menu. It will only show up if it happens to be
 the current page. The hidden page will still be present in the linear page list that can be
-accessed via the previous and next page links. The title of the hidden page can be overriden
+accessed via the previous and next page links. The title of the hidden page can be overridden
 using the `=>` operator as usual.
 
 # Usage
@@ -344,7 +344,7 @@ currently running environment. See the manual section about
 **`root`** has the same purpose as the `root` keyword for [`makedocs`](@ref).
 
 **`target`** is the directory, relative to `root`, where generated content that should be
-deployed to `gh-pages` is written to. written to. It should generally be the same as
+deployed to `gh-pages` is written to. It should generally be the same as
 [`makedocs`](@ref)'s `build` and defaults to `"build"`.
 
 **`branch`** is the branch where the generated documentation is pushed. If the branch does
@@ -360,10 +360,10 @@ It can be used e.g. for a Markdown build. The following example installed the `p
 deps = Deps.pip("pygments", "mkdocs")
 ```
 
-**`make`** is the function used to specify an additonal build phase. By default, nothing gets
+**`make`** is the function used to specify an additional build phase. By default, nothing gets
 executed.
 
-**`devbranch`** is the branch that "tracks" the in-development version of the  generated
+**`devbranch`** is the branch that "tracks" the in-development version of the generated
 documentation. By default this value is set to `"master"`.
 
 **`devurl`** the folder that in-development version of the docs will be deployed.
@@ -375,7 +375,7 @@ The default (`forcepush = false`) is to push a new commit, but when
 force pushed, erasing the Git history on the deployment branch.
 
 **`versions`** determines content and order of the resulting version selector in
-the generated html. The following entries are valied in the `versions` vector:
+the generated html. The following entries are valid in the `versions` vector:
  - `"v#"`: includes links to the latest documentation for each major release cycle
    (i.e. `v2.0`, `v1.1`).
  - `"v#.#"`: includes links to the latest documentation for each minor release cycle
