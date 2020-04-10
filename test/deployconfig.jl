@@ -228,3 +228,19 @@ end end
         @test cfg === nothing
     end
 end
+##
+@testset "Remote repository paths" begin
+    uhu = Documenter.user_host_upstream("github.com/JuliaDocs/Documenter.jl.git")
+    @test uhu == ("git", "github.com", "git@github.com:JuliaDocs/Documenter.jl.git")
+
+    uhu = Documenter.user_host_upstream("user@page.com:path/to/repo")
+    @test uhu == ("user", "page.com", "user@page.com:path/to/repo")
+
+    uhu = Documenter.user_host_upstream("user@page.com/path/to/repo")
+    @test uhu == ("user", "page.com", "user@page.com:path/to/repo")
+
+    uhu = Documenter.user_host_upstream("user@subdom.long-page.com:/path/to/repo")
+    @test uhu == ("user", "subdom.long-page.com", "user@subdom.long-page.com:path/to/repo")
+
+    @test_throws ErrorException Documenter.user_host_upstream("user@subdom.long-page.com")
+end

@@ -555,23 +555,8 @@ function git_push(
     end
 
     if authentication_method(deploy_config) === SSH
-        # Create the upstream repository
-        if '@' in repo
-            # For repo URL of the form user@host:/path/to/repo, extract user
-            user, rest = split(repo, '@')
-            # Extract host from repo as everything between @ and first ':' or '/' character
-            host = match(r"(.*?)[:\/]", rest)[1]
-            # The upstream URL to which we push new content and the ssh decryption commands.
-            upstream = "$(replace(repo, "$host/" => "$host:"))"
-        else
-            # if no user given, default to "git"
-            user = "git"
-            # Extract host from repo as everything up to first ':' or '/' character
-            host = match(r"(.*?)[:\/]", repo)[1]
-            # The upstream URL to which we push new content and the ssh decryption commands.
-            upstream = "git@$(replace(repo, "$host/" => "$host:"))"
-        end
-        
+        # Get the parts of the repo path and create upstream repo path
+        user, host, upstream = user_host_upstream(repo)        
 
         keyfile = abspath(joinpath(root, ".documenter"))
         try
@@ -634,6 +619,29 @@ function rm_and_add_symlink(target, link)
         rm(link; force = true, recursive = true)
     end
     symlink(target, link)
+end
+
+"""
+    user_host_upstream
+
+Disassemble repo address into user, host, and path to repo. If no user is given, default to
+"git". Reassemble user, host and path into an upstream to `git push` to. 
+"""
+function user_host_upstream(repo)
+    #= the regex has three parts:
+    (?:([^@]*)@)?  matches any number of characters up to the first "@", if present,
+        capturing only the characters before the "@" - this captures the username
+    (?:([^\/:]*)[\/:]){1}  matches exactly one instance of any number of characters
+        other than "/" or ":" up to the first "/" or ":" - this captures the hostname
+    [\/]?(.*)  matches the rest of the repo, except an initial "/" if present (e.g. if
+        repo is of the form usr@host:/path/to/repo) - this captures the path on the host
+    =#
+    m = match(r"(?:([^@]*)@)?(?:([^\/:]*)[\/:]){1}[\/]?(.*)", repo)
+    isnothing(m) && error("Invalid repo path $repo")
+    user, host, pth = m.captures
+    user = isnothing(user) ? "git" : user
+    upstream = "$user@$host:$pth"
+    return user, host, upstream
 end
 
 """
