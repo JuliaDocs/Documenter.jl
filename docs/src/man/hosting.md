@@ -214,6 +214,34 @@ information on how to setup a GitHub workflow see the manual for
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
 
+!!! warning "TagBot & tagged versions"
+
+    In order to deploy documentation for **tagged versions**, the GitHub Actions workflow
+    needs to be triggered by the tag. However, by default, when the [Julia TagBot](https://github.com/marketplace/actions/julia-tagbot)
+    uses just the `GITHUB_TOKEN` for authentication, it does not have the permission to trigger
+    any further workflows jobs, and so the the documentation CI job never runs for the tag.
+
+    To work around that, TagBot should be [configured to use `DOCUMNTER_KEY`](https://github.com/marketplace/actions/julia-tagbot#ssh-deploy-keys)
+    for authentication, by adding `ssh: ${{ secrets.DOCUMENTER_KEY }}` to the `with` section.
+    The full TagBot file could look as follows:
+
+    ```yml
+    name: TagBot
+    on:
+      schedule:
+        - cron: 0 * * * *
+    jobs:
+      TagBot:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: JuliaRegistries/TagBot@v1
+            with:
+              token: ${{ secrets.GITHUB_TOKEN }}
+              ssh: ${{ secrets.DOCUMENTER_KEY }}
+    ```
+
+
+
 ### Authentication: `GITHUB_TOKEN`
 
 When running from GitHub Actions it is possible to authenticate using
