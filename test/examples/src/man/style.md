@@ -20,6 +20,12 @@ In an admonition it looks like this:
     * Nulla quis venenatis justo.
     * In non _sodales_ eros.
 
+Also, custom admonition classes can be used:
+
+!!! myadmonition "My Admonition Class"
+
+    In the HTML output, this admonition has `is-category-myadmonition` applied to it.
+
 But otherwise
 
 * Lorem ipsum dolor sit amet, consectetur adipiscing elit.

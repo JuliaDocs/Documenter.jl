@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.24.8`
+
+* ![Enhancement][badge-enhancement] Non-standard admonition categories are (again) applied to the admonition `<div>` elements in HTML output (as `is-category-$category`). ([#1279][github-1279], [#1280][github-1280])
+
 ## Version `v0.24.7`
 
 * ![Bugfix][badge-bugfix] Remove `only`, a new export from `Base` on Julia 1.4, from the JS search filter. ([#1264][github-1264])
@@ -529,6 +533,8 @@
 [github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 [github-1264]: https://github.com/JuliaDocs/Documenter.jl/pull/1264
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
+[github-1279]: https://github.com/JuliaDocs/Documenter.jl/issues/1279
+[github-1280]: https://github.com/JuliaDocs/Documenter.jl/pull/1280
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
