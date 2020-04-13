@@ -308,17 +308,17 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
 
         object = Utilities.Object(binding, typesig)
         # We can't include the same object more than once in a document.
-        if haskey(doc.internal.objects, object)
-            push!(doc.internal.errors, :docs_block)
-            @warn("""
-                duplicate docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
-                ```$(x.language)
-                $(x.code)
-                ```
-                """)
-            push!(nodes, admonition)
-            continue
-        end
+#         if haskey(doc.internal.objects, object)
+#             push!(doc.internal.errors, :docs_block)
+#             @warn("""
+#                 duplicate docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
+#                 ```$(x.language)
+#                 $(x.code)
+#                 ```
+#                 """)
+#             push!(nodes, admonition)
+#             continue
+#         end
 
         # Find the docs matching `binding` and `typesig`. Only search within the provided modules.
         docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.blueprint.modules)
@@ -448,16 +448,16 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         # Finalise docstrings.
         nodes = DocsNode[]
         for (mod, path, category, object, isexported, docstr) in results
-            if haskey(doc.internal.objects, object)
-                push!(doc.internal.errors, :autodocs_block)
-                @warn("""
-                    duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source, lines))
-                    ```$(x.language)
-                    $(x.code)
-                    ```
-                    """)
-                continue
-            end
+#             if haskey(doc.internal.objects, object)
+#                 push!(doc.internal.errors, :autodocs_block)
+#                 @warn("""
+#                     duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source, lines))
+#                     ```$(x.language)
+#                     $(x.code)
+#                     ```
+#                     """)
+#                 continue
+#             end
             markdown = Markdown.MD(Documenter.DocSystem.parsedoc(docstr))
             markdown.meta[:results] = [docstr]
             doc.user.highlightsig && highlightsig!(markdown)
