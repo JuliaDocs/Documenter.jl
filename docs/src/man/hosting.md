@@ -221,9 +221,9 @@ see the previous section.
     uses just the `GITHUB_TOKEN` for authentication, it does not have the permission to trigger
     any further workflows jobs, and so the the documentation CI job never runs for the tag.
 
-    To work around that, TagBot should be [configured to use `DOCUMNTER_KEY`](https://github.com/marketplace/actions/julia-tagbot#ssh-deploy-keys)
+    To work around that, TagBot should be [configured to use `DOCUMENTER_KEY`](https://github.com/marketplace/actions/julia-tagbot#ssh-deploy-keys)
     for authentication, by adding `ssh: ${{ secrets.DOCUMENTER_KEY }}` to the `with` section.
-    The full TagBot file could look as follows:
+    A complete TagBot workflow file could look as follows:
 
     ```yml
     name: TagBot
