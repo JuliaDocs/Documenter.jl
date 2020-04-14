@@ -622,7 +622,7 @@ function rm_and_add_symlink(target, link)
 end
 
 """
-    user_host_upstream
+    user_host_upstream(repo)
 
 Disassemble repo address into user, host, and path to repo. If no user is given, default to
 "git". Reassemble user, host and path into an upstream to `git push` to. 
