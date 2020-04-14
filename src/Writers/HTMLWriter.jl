@@ -752,7 +752,7 @@ function render_head(ctx, navnode)
 
         analytics_script(ctx.settings.analytics),
 
-        canonical_link_element(ctx.settings.canonical, src),
+        canonical_link_element(ctx.settings.canonical, pretty_url(ctx, src)),
 
         # Stylesheets.
         map(css_links) do each
