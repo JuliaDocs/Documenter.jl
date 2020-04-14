@@ -94,7 +94,7 @@ function namedxref(link::Markdown.Link, slug, meta, page, doc)
             # Replace the `@ref` url with a path to the referenced header.
             anchor   = Anchors.anchor(headers, slug)
             path     = relpath(anchor.file, dirname(page.build))
-            link.url = string(path, '#', slug, '-', anchor.nth)
+            link.url = string(path, Anchors.fragment(anchor))
         else
             push!(doc.internal.errors, :cross_references)
             @warn "'$slug' is not unique in $(Utilities.locrepr(page.source))."
