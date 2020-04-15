@@ -4,6 +4,10 @@
 
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
 
+## Version `v0.24.9`
+
+* ![Bugfix][badge-bugfix] Canonical URLs are now properly prettified (e.g. `/path/` instead of `/path/index.html`) when using `prettyurls=true`. ([#1293][github-1293])
+
 ## Version `v0.24.8`
 
 * ![Enhancement][badge-enhancement] Non-standard admonition categories are (again) applied to the admonition `<div>` elements in HTML output (as `is-category-$category`). ([#1279][github-1279], [#1280][github-1280])
@@ -540,6 +544,7 @@
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
 [github-1279]: https://github.com/JuliaDocs/Documenter.jl/issues/1279
 [github-1280]: https://github.com/JuliaDocs/Documenter.jl/pull/1280
+[github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
