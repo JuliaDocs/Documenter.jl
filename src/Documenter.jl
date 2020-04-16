@@ -637,7 +637,7 @@ function user_host_upstream(repo)
         repo is of the form usr@host:/path/to/repo) - this captures the path on the host
     =#
     m = match(r"(?:([^@]*)@)?(?:([^\/:]*)[\/:]){1}[\/]?(.*)", repo)
-    isnothing(m) && error("Invalid repo path $repo")
+    (m === nothing) && error("Invalid repo path $repo")
     user, host, pth = m.captures
     user = isnothing(user) ? "git" : user
     upstream = "$user@$host:$pth"
