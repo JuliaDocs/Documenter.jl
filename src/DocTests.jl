@@ -300,7 +300,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
         )
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
-        if isempty(head) || !startswith(str, head)
+        if isempty(head) || !startswith(filteredstr, filteredhead)
             if doc.user.doctest === :fix
                 fix_doctest(result, str, doc)
             else

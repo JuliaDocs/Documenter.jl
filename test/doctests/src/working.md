@@ -20,3 +20,10 @@ ERROR: 0123456789
 Stacktrace:
 [...]
 ```
+
+```jldoctest; filter = r"\b[0-9]+\b"
+julia> error("0123456789")
+ERROR: 9876543210
+Stacktrace:
+[...]
+```
