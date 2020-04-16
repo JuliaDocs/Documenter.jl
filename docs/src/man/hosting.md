@@ -2,8 +2,8 @@
 
 After going through the [Package Guide](@ref) and [Doctests](@ref) page you will need to
 host the generated documentation somewhere for potential users to read. This guide will
-describe how to setup automatic updates for your package docs using either the Travis CI
-build service or GitHub Actions together with and GitHub Pages for hosting the generated
+describe how to set up automatic updates for your package docs using either the Travis CI
+build service or GitHub Actions together with GitHub Pages for hosting the generated
 HTML files. This is the same approach used by this package to host its own docs --
 the docs you're currently reading.
 
