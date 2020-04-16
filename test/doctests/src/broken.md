@@ -20,3 +20,10 @@ ERROR: ABCDEFGHIJ
 Stacktrace:
  [...]
 ```
+
+```jldoctest; filter = r"\b[0-9]+\b"
+julia> error("0123456789")
+ERROR: ABCDEFGHIJ
+Stacktrace:
+[...]
+```
