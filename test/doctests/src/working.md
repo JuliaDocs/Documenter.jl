@@ -11,3 +11,12 @@ Filtering with regex substitutions:
 julia> sqrt(2)
 1.41421356000
 ```
+
+Testing catching errors:
+
+```jldoctest
+julia> error("0123456789")
+ERROR: 0123456789
+Stacktrace:
+[...]
+```
