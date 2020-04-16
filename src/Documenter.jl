@@ -639,7 +639,7 @@ function user_host_upstream(repo)
     m = match(r"(?:([^@]*)@)?(?:([^\/:]*)[\/:]){1}[\/]?(.*)", repo)
     (m === nothing) && error("Invalid repo path $repo")
     user, host, pth = m.captures
-    user = isnothing(user) ? "git" : user
+    user = (user === nothing) ? "git" : user
     upstream = "$user@$host:$pth"
     return user, host, upstream
 end
