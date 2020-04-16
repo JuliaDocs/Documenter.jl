@@ -233,6 +233,12 @@ end
     uhu = Documenter.user_host_upstream("github.com/JuliaDocs/Documenter.jl.git")
     @test uhu == ("git", "github.com", "git@github.com:JuliaDocs/Documenter.jl.git")
 
+    uhu = Documenter.user_host_upstream("github.com:JuliaDocs/Documenter.jl.git")
+    @test uhu == ("git", "github.com", "git@github.com:JuliaDocs/Documenter.jl.git")
+
+    uhu = Documenter.user_host_upstream("gitlab.com/JuliaDocs/Documenter.jl")
+    @test uhu == ("git", "gitlab.com", "git@gitlab.com:JuliaDocs/Documenter.jl")
+
     uhu = Documenter.user_host_upstream("user@page.com:path/to/repo")
     @test uhu == ("user", "page.com", "user@page.com:path/to/repo")
 
