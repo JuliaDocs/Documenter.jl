@@ -474,7 +474,7 @@ The documentation are placed in the folder specified by `subfolder`.
 function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
-        versions, forcepush=false, deploy_config, subfolder
+        versions, forcepush=false, deploy_config, subfolder,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
