@@ -347,7 +347,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
     try
         Sys.which("curl") === nothing && return
         ## Extract owner and repository name
-        m = match(r"^github.com\/(.+?)\/(.+?\.jl)(.git)?$", deploydocs_repo)
+        m = match(r"^github.com\/(.+?)\/(.+?)(.git)?$", deploydocs_repo)
         m === nothing && return
         owner = String(m.captures[1])
         repo = String(m.captures[2])
