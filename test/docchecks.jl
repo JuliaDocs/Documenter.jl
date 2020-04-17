@@ -31,6 +31,13 @@ using Documenter.Documents
             linkcheck(block, doc)
         end
         @test_skip doc.internal.errors == Set{Symbol}([:linkcheck])
+
+        src = Markdown.parse("[Timeout](http://httpbin.org/delay/3)")
+        doc = Documents.Document(; linkcheck=true, linkcheck_timeout=0.1)
+        Documents.walk(Dict{Symbol, Any}(), src) do block
+            linkcheck(block, doc)
+        end
+        @test_skip doc.internal.errors == Set{Symbol}([:linkcheck])
     end
 end
 
