@@ -4,6 +4,10 @@
 
 * ![Enhancement][badge-enhancement] Doctest filters now accept `Regex`-`SubstitutionString` pairs, allowing for more sophisticated doctest filtering. ([#1271][github-1271])
 
+* ![Enhancement][badge-enhancement] When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. ([#1285][github-1285])
+
+* ![Enhancement][badge-enhancement] The first link fragment on each page now omits the number; before the rendering resulted in: `#foobar-1`, `#foobar-2`, and now: `#foobar`, `#foobar-2`. For backwards compatibility the old fragments are also inserted such that old links will still point to the same location. ([#1292][github-1292])
+
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
 
 ## Version `v0.24.9`
@@ -547,6 +551,8 @@
 [github-1271]: https://github.com/JuliaDocs/Documenter.jl/pull/1271
 [github-1279]: https://github.com/JuliaDocs/Documenter.jl/issues/1279
 [github-1280]: https://github.com/JuliaDocs/Documenter.jl/pull/1280
+[github-1285]: https://github.com/JuliaDocs/Documenter.jl/pull/1285
+[github-1292]: https://github.com/JuliaDocs/Documenter.jl/pull/1292
 [github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
