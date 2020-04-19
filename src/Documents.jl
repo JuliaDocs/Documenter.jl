@@ -220,6 +220,7 @@ struct User
     doctest :: Union{Bool,Symbol} # Run doctests?
     linkcheck::Bool           # Check external links..
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
+    linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
     strict::Bool              # Throw an exception when any warnings are encountered.
@@ -273,6 +274,7 @@ function Document(plugins = nothing;
         doctest  :: Union{Bool,Symbol} = true,
         linkcheck:: Bool             = false,
         linkcheck_ignore :: Vector   = [],
+        linkcheck_timeout :: Real    = 10,
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
         strict::Bool                 = false,
@@ -306,6 +308,7 @@ function Document(plugins = nothing;
         doctest,
         linkcheck,
         linkcheck_ignore,
+        linkcheck_timeout,
         checkdocs,
         doctestfilters,
         strict,

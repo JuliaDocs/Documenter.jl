@@ -8,6 +8,10 @@
 
 * ![Enhancement][badge-enhancement] The first link fragment on each page now omits the number; before the rendering resulted in: `#foobar-1`, `#foobar-2`, and now: `#foobar`, `#foobar-2`. For backwards compatibility the old fragments are also inserted such that old links will still point to the same location. ([#1292][github-1292])
 
+## Version `v0.24.10`
+
+* ![Enhancement][badge-enhancement] The `curl` timeout when checking remote links is now configurable with the `linkcheck_timeout` keyword. ([#1057][github-1057], [#1295][github-1295])
+
 ## Version `v0.24.9`
 
 * ![Bugfix][badge-bugfix] Canonical URLs are now properly prettified (e.g. `/path/` instead of `/path/index.html`) when using `prettyurls=true`. ([#1293][github-1293])
@@ -500,6 +504,7 @@
 [github-1046]: https://github.com/JuliaDocs/Documenter.jl/issues/1046
 [github-1047]: https://github.com/JuliaDocs/Documenter.jl/pull/1047
 [github-1054]: https://github.com/JuliaDocs/Documenter.jl/pull/1054
+[github-1057]: https://github.com/JuliaDocs/Documenter.jl/issues/1057
 [github-1061]: https://github.com/JuliaDocs/Documenter.jl/pull/1061
 [github-1062]: https://github.com/JuliaDocs/Documenter.jl/pull/1062
 [github-1066]: https://github.com/JuliaDocs/Documenter.jl/pull/1066
@@ -551,6 +556,7 @@
 [github-1285]: https://github.com/JuliaDocs/Documenter.jl/pull/1285
 [github-1292]: https://github.com/JuliaDocs/Documenter.jl/pull/1292
 [github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
+[github-1295]: https://github.com/JuliaDocs/Documenter.jl/pull/1295
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
