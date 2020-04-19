@@ -30,6 +30,10 @@ doctest
 DocMeta
 DocMeta.getdocmeta
 DocMeta.setdocmeta!
+Documenter.Remotes
+Documenter.Remotes.GitHub
+Documenter.Remotes.URL
+Documenter.Remotes.Remote
 ```
 
 ## DocumenterTools
