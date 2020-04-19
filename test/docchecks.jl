@@ -7,7 +7,6 @@ using Documenter.DocChecks: linkcheck
 using Documenter.Documents
 
 @testset "DocChecks" begin
-    # The linkcheck tests are currently not reliable on CI, so they are disabled.
     @testset "linkcheck" begin
         src = md"""
             [HTTP (HTTP/1.1) success](http://www.google.com)
@@ -19,9 +18,9 @@ using Documenter.Documents
             """
 
         Documents.walk(Dict{Symbol, Any}(), src) do block
-            doc = Documents.Document(; linkcheck=true)
+            doc = Documents.Document(; linkcheck=true, linkcheck_timeout=20)
             result = linkcheck(block, doc)
-            @test_skip doc.internal.errors == Set{Symbol}()
+            @test doc.internal.errors == Set{Symbol}()
             result
         end
 
@@ -30,7 +29,14 @@ using Documenter.Documents
         Documents.walk(Dict{Symbol, Any}(), src) do block
             linkcheck(block, doc)
         end
-        @test_skip doc.internal.errors == Set{Symbol}([:linkcheck])
+        @test doc.internal.errors == Set{Symbol}([:linkcheck])
+
+        src = Markdown.parse("[Timeout](http://httpbin.org/delay/3)")
+        doc = Documents.Document(; linkcheck=true, linkcheck_timeout=0.1)
+        Documents.walk(Dict{Symbol, Any}(), src) do block
+            linkcheck(block, doc)
+        end
+        @test doc.internal.errors == Set{Symbol}([:linkcheck])
     end
 end
 
