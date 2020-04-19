@@ -57,5 +57,6 @@ separate from specific packages.
 
 - [DifferentialEquations.jl](https://docs.sciml.ai/dev/)
 - [JuliaDocs landing page](https://juliadocs.github.io/dev/)
+- [JuliaImages](https://juliaimages.org)
 - [JuliaMusic](https://juliamusic.github.io/JuliaMusic_documentation.jl/dev/)
 - [Plots.jl](https://docs.juliaplots.org/dev/)
