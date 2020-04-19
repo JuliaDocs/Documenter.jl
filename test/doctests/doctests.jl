@@ -71,9 +71,13 @@ function onormalize(s)
     # Remove filesystem paths in doctests failures
     s = replace(s, r"(doctest failure in )(.*)$"m => s"\1{PATH}")
     s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
+    s = replace(s, r"(top-level scope at )(.*)$"m => s"\1{PATH}")
 
     # Remove stacktraces
     s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)+" => s"\1\\n\3{STACKTRACE}")
+
+    # Remove floating point numbers
+    s = replace(s, r"([0-9]*\.[0-9]{8})[0-9]+" => s"\1***")
 
     return s
 end
