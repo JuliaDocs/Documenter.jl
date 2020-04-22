@@ -47,6 +47,10 @@ module A
 end
 end
 
+# hasfield was added in Julia 1.2. This definition borrowed from Compat.jl (MIT)
+# Note: this can not be inside the testset
+(VERSION < v"1.2.0-DEV.272") && (hasfield(::Type{T}, name::Symbol) where T = Base.fieldindex(T, name, false) > 0)
+
 @testset "Utilities" begin
     let doc = @doc(length)
         a = Documenter.Utilities.filterdocs(doc, Set{Module}())
@@ -268,8 +272,6 @@ end
             # warnings enabled or not. To figure out whether that is the case or not, we can
             # look at the .depwarn field of the undocumented Base.JLOptions object.
             @test isdefined(Base, :JLOptions)
-            # hasfield was added in Julia 1.2. This definition borrowed from Compat.jl (MIT)
-            (VERSION < v"1.2.0-DEV.272") && (hasfield(::Type{T}, name::Symbol) where T = Base.fieldindex(T, name, false) > 0)
             @test hasfield(Base.JLOptions, :depwarn)
             if Base.JLOptions().depwarn == 0 # --depwarn=no, default on Julia >= 1.5
                 @test output == "println\n[ Info: @info\n"
