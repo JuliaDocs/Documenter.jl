@@ -199,6 +199,9 @@ will fail if there are any broken (400+ status code) links. Default: `false`.
 be a list of strings (which get matched exactly) or `Regex` objects. By default nothing is
 ignored.
 
+**`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
+return a response before giving up. The default is 10 seconds.
+
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
 
