@@ -394,6 +394,16 @@ the generated html. The following entries are valid in the `versions` vector:
 **`push_preview`** a boolean that specifies if preview documentation should be
 deployed from pull requests or not.
 
+# Releases vs development branches
+
+[`deploydocs`](@ref) will automatically figure out whether it is deploying the documentation
+for a tagged release or just a development branch (usually, based on the environment
+variables set by the CI system).
+
+With versioned tags, [`deploydocs`](@ref) discards the build metadata (i.e. `+` and
+everything that follows it) from the version number when determining the name of the
+directory into which the documentation gets deployed. Pre-release identifiers are preserved.
+
 # See Also
 
 The [Hosting Documentation](@ref) section of the manual provides a step-by-step guide to
@@ -559,7 +569,7 @@ function git_push(
 
     if authentication_method(deploy_config) === SSH
         # Get the parts of the repo path and create upstream repo path
-        user, host, upstream = user_host_upstream(repo)        
+        user, host, upstream = user_host_upstream(repo)
 
         keyfile = abspath(joinpath(root, ".documenter"))
         try
@@ -628,7 +638,7 @@ end
     user_host_upstream(repo)
 
 Disassemble repo address into user, host, and path to repo. If no user is given, default to
-"git". Reassemble user, host and path into an upstream to `git push` to. 
+"git". Reassemble user, host and path into an upstream to `git push` to.
 """
 function user_host_upstream(repo)
     #= the regex has three parts:
