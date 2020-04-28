@@ -278,9 +278,9 @@ function parsedoc(docstr::DocStr)
         Base.Docs.parsedoc(docstr)
     catch exception
         @error """
-        parsedoc failed to parse a docstring into Markdown.
-        This indicates a problem with the docstring.
-        """ exception docstr.data docstr.text docstr.object
+        parsedoc failed to parse a docstring into Markdown. This indicates a problem with the docstring.
+        """ exception docstr.data collect(docstr.text) docstr.object
+        # Note: collect is there because svec does not print as nicely as a vector
         rethrow(exception)
     end
 end
