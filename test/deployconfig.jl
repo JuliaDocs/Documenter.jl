@@ -228,3 +228,49 @@ end end
         @test cfg === nothing
     end
 end
+##
+@testset "Remote repository paths" begin
+    uhu = Documenter.user_host_upstream("github.com/JuliaDocs/Documenter.jl.git")
+    @test uhu == ("git", "github.com", "git@github.com:JuliaDocs/Documenter.jl.git")
+
+    uhu = Documenter.user_host_upstream("github.com:JuliaDocs/Documenter.jl.git")
+    @test uhu == ("git", "github.com", "git@github.com:JuliaDocs/Documenter.jl.git")
+
+    uhu = Documenter.user_host_upstream("gitlab.com/JuliaDocs/Documenter.jl")
+    @test uhu == ("git", "gitlab.com", "git@gitlab.com:JuliaDocs/Documenter.jl")
+
+    uhu = Documenter.user_host_upstream("user@page.com:path/to/repo")
+    @test uhu == ("user", "page.com", "user@page.com:path/to/repo")
+
+    uhu = Documenter.user_host_upstream("user@page.com/path/to/repo")
+    @test uhu == ("user", "page.com", "user@page.com:path/to/repo")
+
+    uhu = Documenter.user_host_upstream("user@subdom.long-page.com:/path/to/repo")
+    @test uhu == ("user", "subdom.long-page.com", "user@subdom.long-page.com:path/to/repo")
+
+    @test_throws ErrorException Documenter.user_host_upstream("user@subdom.long-page.com")
+end
+
+@testset "version_tag_strip_build" begin
+    using Documenter: version_tag_strip_build
+    @test version_tag_strip_build("v1.2.3") == "v1.2.3"
+    @test version_tag_strip_build("v1.2.3+build") == "v1.2.3"
+    @test version_tag_strip_build("v1.2.3+1") == "v1.2.3"
+    @test version_tag_strip_build("v1.2.3-DEV") == "v1.2.3-DEV"
+    @test version_tag_strip_build("v1.2.3-DEV+build") == "v1.2.3-DEV"
+    @test version_tag_strip_build("v1.2") == "v1.2"
+    @test version_tag_strip_build("v1.2+build-build") == "v1.2"
+    @test version_tag_strip_build("v1.2-1+build-build") == "v1.2-1"
+    @test version_tag_strip_build("v0") == "v0"
+    @test version_tag_strip_build("v0+build-build") == "v0"
+    @test version_tag_strip_build("v0-A+build-build") == "v0-A"
+    # In case the tag does not have v, no v in the output
+    @test version_tag_strip_build("1.2") == "1.2"
+    @test version_tag_strip_build("1.2.3-DEV+build") == "1.2.3-DEV"
+    # If it's not a valid version number
+    @test version_tag_strip_build("") === nothing
+    @test version_tag_strip_build("+A") === nothing
+    @test version_tag_strip_build("X.Y.Z") === nothing
+    @test version_tag_strip_build("1#2") === nothing
+    @test version_tag_strip_build(".1") === nothing
+end

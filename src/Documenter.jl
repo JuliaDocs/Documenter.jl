@@ -199,6 +199,9 @@ will fail if there are any broken (400+ status code) links. Default: `false`.
 be a list of strings (which get matched exactly) or `Regex` objects. By default nothing is
 ignored.
 
+**`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
+return a response before giving up. The default is 10 seconds.
+
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
 any errors with the document in the previous build phases.
 
@@ -391,6 +394,16 @@ the generated html. The following entries are valid in the `versions` vector:
 **`push_preview`** a boolean that specifies if preview documentation should be
 deployed from pull requests or not.
 
+# Releases vs development branches
+
+[`deploydocs`](@ref) will automatically figure out whether it is deploying the documentation
+for a tagged release or just a development branch (usually, based on the environment
+variables set by the CI system).
+
+With versioned tags, [`deploydocs`](@ref) discards the build metadata (i.e. `+` and
+everything that follows it) from the version number when determining the name of the
+directory into which the documentation gets deployed. Pre-release identifiers are preserved.
+
 # See Also
 
 The [Hosting Documentation](@ref) section of the manual provides a step-by-step guide to
@@ -555,11 +568,8 @@ function git_push(
     end
 
     if authentication_method(deploy_config) === SSH
-        # Extract host from repo as everything up to first ':' or '/' character
-        host = match(r"(.*?)[:\/]", repo)[1]
-
-        # The upstream URL to which we push new content and the ssh decryption commands.
-        upstream = "git@$(replace(repo, "$host/" => "$host:"))"
+        # Get the parts of the repo path and create upstream repo path
+        user, host, upstream = user_host_upstream(repo)
 
         keyfile = abspath(joinpath(root, ".documenter"))
         try
@@ -581,7 +591,7 @@ function git_push(
                 """
                 Host $host
                     StrictHostKeyChecking no
-                    User git
+                    User $user
                     HostName $host
                     IdentityFile "$keyfile"
                     IdentitiesOnly yes
@@ -622,6 +632,29 @@ function rm_and_add_symlink(target, link)
         rm(link; force = true, recursive = true)
     end
     symlink(target, link)
+end
+
+"""
+    user_host_upstream(repo)
+
+Disassemble repo address into user, host, and path to repo. If no user is given, default to
+"git". Reassemble user, host and path into an upstream to `git push` to.
+"""
+function user_host_upstream(repo)
+    #= the regex has three parts:
+    (?:([^@]*)@)?  matches any number of characters up to the first "@", if present,
+        capturing only the characters before the "@" - this captures the username
+    (?:([^\/:]*)[\/:]){1}  matches exactly one instance of any number of characters
+        other than "/" or ":" up to the first "/" or ":" - this captures the hostname
+    [\/]?(.*)  matches the rest of the repo, except an initial "/" if present (e.g. if
+        repo is of the form usr@host:/path/to/repo) - this captures the path on the host
+    =#
+    m = match(r"(?:([^@]*)@)?(?:([^\/:]*)[\/:]){1}[\/]?(.*)", repo)
+    (m === nothing) && error("Invalid repo path $repo")
+    user, host, pth = m.captures
+    user = (user === nothing) ? "git" : user
+    upstream = "$user@$host:$pth"
+    return user, host, upstream
 end
 
 """

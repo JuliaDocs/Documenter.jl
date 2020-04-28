@@ -61,7 +61,11 @@ function render(io::IO, mime::MIME"text/plain", vec::Vector, page, doc)
 end
 
 function render(io::IO, mime::MIME"text/plain", anchor::Anchors.Anchor, page, doc)
-    println(io, "\n<a id='", anchor.id, "-", anchor.nth, "'></a>")
+    println(io, "\n<a id='", lstrip(Anchors.fragment(anchor), '#'), "'></a>")
+    if anchor.nth == 1 # add legacy id
+        legacy = lstrip(Anchors.fragment(anchor), '#') * "-1"
+        println(io, "\n<a id='", legacy, "'></a>")
+    end
     render(io, mime, anchor.object, page, doc)
 end
 
@@ -125,7 +129,7 @@ function render(io::IO, ::MIME"text/plain", contents::Documents.ContentsNode, pa
     for (count, path, anchor) in contents.elements
         path = mdext(path)
         header = anchor.object
-        url    = string(path, '#', anchor.id, '-', anchor.nth)
+        url    = string(path, Anchors.fragment(anchor))
         link   = MarkdownStdlib.Link(header.text, url)
         level  = Utilities.header_level(header)
         print(io, "    "^(level - 1), "- ")
