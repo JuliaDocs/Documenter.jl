@@ -193,8 +193,9 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
     end
 
     if !haskey(doc.internal.locallinks, link)
+        timeout = doc.user.linkcheck_timeout
         null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
-        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(link.url) --max-time 10 -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(link.url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result
         try
