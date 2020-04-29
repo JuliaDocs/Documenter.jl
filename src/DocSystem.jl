@@ -6,7 +6,7 @@ module DocSystem
 
 using DocStringExtensions
 import Markdown
-import Base.Docs: MultiDoc, parsedoc, formatdoc, DocStr
+import Base.Docs: MultiDoc, formatdoc, DocStr
 
 ## Bindings ##
 
@@ -266,5 +266,23 @@ category(::DataType) = :type
 category(x::UnionAll) = category(Base.unwrap_unionall(x))
 category(::Module) = :module
 category(::Any) = :constant
+
+"""
+    DocSystem.parsedoc(docstr::DocStr)
+
+Thin internal wrapper around `Base.Docs.parsedoc` which prints additional debug information
+in case `Base.Docs.parsedoc` fails with an exception.
+"""
+function parsedoc(docstr::DocStr)
+    try
+        Base.Docs.parsedoc(docstr)
+    catch exception
+        @error """
+        parsedoc failed to parse a docstring into Markdown. This indicates a problem with the docstring.
+        """ exception docstr.data collect(docstr.text) docstr.object
+        # Note: collect is there because svec does not print as nicely as a vector
+        rethrow(exception)
+    end
+end
 
 end
