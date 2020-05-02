@@ -421,6 +421,7 @@ Documenter.deploy_folder
 Documenter.authentication_method
 Documenter.authenticated_repo_url
 Documenter.documenter_key
+Documenter.documenter_key_previews
 Documenter.Travis
 Documenter.GitHubActions
 ```
