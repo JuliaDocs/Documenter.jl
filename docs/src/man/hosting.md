@@ -219,7 +219,7 @@ see the previous section.
     In order to deploy documentation for **tagged versions**, the GitHub Actions workflow
     needs to be triggered by the tag. However, by default, when the [Julia TagBot](https://github.com/marketplace/actions/julia-tagbot)
     uses just the `GITHUB_TOKEN` for authentication, it does not have the permission to trigger
-    any further workflows jobs, and so the the documentation CI job never runs for the tag.
+    any further workflows jobs, and so the documentation CI job never runs for the tag.
 
     To work around that, TagBot should be [configured to use `DOCUMENTER_KEY`](https://github.com/marketplace/actions/julia-tagbot#ssh-deploy-keys)
     for authentication, by adding `ssh: ${{ secrets.DOCUMENTER_KEY }}` to the `with` section.
@@ -229,7 +229,7 @@ see the previous section.
     name: TagBot
     on:
       schedule:
-        - cron: 0 * * * *
+        - cron: 0 0 * * *
     jobs:
       TagBot:
         runs-on: ubuntu-latest
