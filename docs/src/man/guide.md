@@ -159,7 +159,8 @@ build/
        ```julia
        makedocs(...,
            format = Documenter.HTML(
-               prettyurls = get(ENV, "CI", nothing) == "true"
+               prettyurls = (get(ENV, "CI", nothing) == "true" ||
+                             get(ENV, "GITHUB_ACTIONS", nothing) == "true")
            )
        )
        ```
