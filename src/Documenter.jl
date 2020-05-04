@@ -484,7 +484,7 @@ function deploydocs(;
                 @debug "running extra build steps."
                 make()
             end
-            @debug "pushing new documentation to remote: '$deploy_branch:$branch'."
+            @debug "pushing new documentation to remote: '$deploy_repo:$deploy_branch'."
             mktempdir() do temp
                 git_push(
                     root, temp, deploy_repo;
