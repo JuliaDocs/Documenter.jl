@@ -7,6 +7,14 @@ Abstract type which new deployment configs should be subtypes of.
 """
 abstract type DeployConfig end
 
+Base.@kwdef struct DeployDecision
+    all_ok::Bool
+    branch::String = ""
+    is_preview::Bool = false
+    repo::String = ""
+    subfolder::String = ""
+end
+
 """
     Documenter.documenter_key(cfg::DeployConfig)
 
@@ -18,6 +26,20 @@ This method must be supported by configs that push with SSH, see
 """
 function documenter_key(::DeployConfig)
     return ENV["DOCUMENTER_KEY"]
+end
+
+"""
+    Documenter.documenter_key_previews(cfg::DeployConfig)
+
+Return the Base64-encoded SSH private key for the repository.
+Uses the `DOCUMENTER_KEY_PREVIEWS` environment variable if it is defined,
+otherwise uses the `DOCUMENTER_KEY` environment variable.
+
+This method must be supported by configs that push with SSH, see
+[`Documenter.authentication_method`](@ref).
+"""
+function documenter_key_previews(cfg::DeployConfig)
+    return get(ENV, "DOCUMENTER_KEY_PREVIEWS", documenter_key(cfg))
 end
 
 """
@@ -125,7 +147,15 @@ function Travis()
 end
 
 # Check criteria for deployment
-function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwargs...)
+function deploy_folder(cfg::Travis;
+                       repo,
+                       repo_previews = repo,
+                       branch = "gh-pages",
+                       branch_previews = branch,
+                       devbranch,
+                       push_preview,
+                       devurl,
+                       kwargs...)
     io = IOBuffer()
     all_ok = true
     ## Determine build type; release, devbranch or preview
@@ -151,6 +181,9 @@ function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwarg
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"TRAVIS_TAG\"] contains a valid VersionNumber")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to folder according to the tag
         subfolder = tag_nobuild
     elseif build_type === :devbranch
@@ -162,6 +195,9 @@ function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwarg
         branch_ok = !isempty(cfg.travis_tag) || cfg.travis_branch == devbranch
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"TRAVIS_BRANCH\"] matches devbranch=\"$(devbranch)\"")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
     else # build_type === :preview
@@ -172,6 +208,9 @@ function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwarg
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+        is_preview = true
         ## deploy to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
     end
@@ -185,7 +224,15 @@ function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwarg
     println(io, "- $(marker(type_ok)) ENV[\"TRAVIS_EVENT_TYPE\"]=\"$(cfg.travis_event_type)\" is not \"cron\"")
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
-    return all_ok ? subfolder : nothing
+    if all_ok
+        return DeployDecision(; all_ok = true,
+                                branch = deploy_branch,
+                                is_preview = is_preview,
+                                repo = deploy_repo,
+                                subfolder = subfolder)
+    else
+        return DeployDecision(; all_ok = false)
+    end
 end
 
 
@@ -228,7 +275,15 @@ function GitHubActions()
 end
 
 # Check criteria for deployment
-function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl, kwargs...)
+function deploy_folder(cfg::GitHubActions;
+                       repo,
+                       repo_previews = repo,
+                       branch = "gh-pages",
+                       branch_previews = branch,
+                       devbranch,
+                       push_preview,
+                       devurl,
+                       kwargs...)
     io = IOBuffer()
     all_ok = true
     ## Determine build type
@@ -255,6 +310,9 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"GITHUB_REF\"]=\"$(cfg.github_ref)\" contains a valid VersionNumber")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to folder according to the tag
         subfolder = m === nothing ? nothing : tag_nobuild
     elseif build_type === :devbranch
@@ -267,6 +325,9 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
         branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"GITHUB_REF\"] matches devbranch=\"$(devbranch)\"")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
     else # build_type === :preview
@@ -278,6 +339,9 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+        is_preview = true
         ## deploydocs to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
     end
@@ -299,7 +363,15 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
     end
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
-    return all_ok ? subfolder : nothing
+    if all_ok
+        return DeployDecision(; all_ok = true,
+                                branch = deploy_branch,
+                                is_preview = is_preview,
+                                repo = deploy_repo,
+                                subfolder = subfolder)
+    else
+        return DeployDecision(; all_ok = false)
+    end
 end
 
 function authentication_method(::GitHubActions)
