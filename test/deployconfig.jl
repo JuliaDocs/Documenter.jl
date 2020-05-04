@@ -247,6 +247,33 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
+    # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch; use a different deploy key for previews
+    withenv("GITHUB_EVENT_NAME" => "pull_request",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/pull/42/merge",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY_PREVIEWS" => "SGVsbG8sIHdvcmxkLw==",
+        ) do
+        cfg = Documenter.GitHubActions()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true,
+                                     repo_previews="github.com/JuliaDocs/Documenter-previews.jl.git",
+                                     branch_previews="gh-pages-previews")
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "github.com/JuliaDocs/Documenter-previews.jl.git"
+        @test d.branch == "gh-pages-previews"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="not-master", devurl="hello-world", push_preview=false,
+                                     repo_previews="",
+                                     branch_previews="")
+        @test !d.all_ok
+        @test Documenter.authentication_method(cfg) === Documenter.SSH
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        @test Documenter.documenter_key_previews(cfg) === "SGVsbG8sIHdvcmxkLw=="
+    end
     # Missing environment variables
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
