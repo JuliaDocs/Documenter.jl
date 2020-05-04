@@ -40,7 +40,6 @@ This method must be supported by configs that push with SSH, see
 """
 function documenter_key_previews(cfg::DeployConfig)
     return get(ENV, "DOCUMENTER_KEY_PREVIEWS", documenter_key(cfg))
-
 end
 
 """
