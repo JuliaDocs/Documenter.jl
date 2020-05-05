@@ -506,7 +506,7 @@ end
 function latex(io::IO, md::Markdown.Admonition)
     wrapblock(io, "quote") do
         wrapinline(io, "textbf") do
-            _print(io, md.title)
+            latexinline(io, md.title)
         end
         _println(io, "\n")
         latex(io, md.content)
@@ -681,7 +681,6 @@ const _latexescape_chars = Dict{Char, AbstractString}(
     '\\' => "{\\textbackslash}",
     '\'' => "{\\textquotesingle}",
     '"' => "{\\textquotedbl}",
-    '_' => "{\\_}",
 )
 for ch in "&%\$#_{}"
     _latexescape_chars[ch] = "\\$ch"

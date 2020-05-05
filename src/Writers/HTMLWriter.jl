@@ -477,7 +477,7 @@ end
 struct SearchRecord
     src :: String
     page :: Documents.Page
-    loc :: String
+    fragment :: String
     category :: String
     title :: String
     page_title :: String
@@ -503,7 +503,7 @@ end
 
 HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
-function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category="page", text="")
+function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
     if title === nothing
         title = page_title
@@ -511,7 +511,7 @@ function SearchRecord(ctx::HTMLContext, navnode; loc="", title=nothing, category
     SearchRecord(
         pretty_url(ctx, get_url(ctx, navnode.page)),
         getpage(ctx, navnode),
-        loc,
+        fragment,
         lowercase(category),
         title,
         page_title,
@@ -522,7 +522,7 @@ end
 function SearchRecord(ctx::HTMLContext, navnode, node::Markdown.Header)
     a = getpage(ctx, navnode).mapping[node]
     SearchRecord(ctx, navnode;
-        loc="$(a.id)-$(a.nth)",
+        fragment=Anchors.fragment(a),
         title=mdflatten(node),
         category="section")
 end
@@ -534,7 +534,7 @@ end
 function JSON.lower(rec::SearchRecord)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(rec.src, '\\' => '/')
-    ref = string(src, '#', rec.loc)
+    ref = string(src, rec.fragment)
     Dict{String, String}(
         "location" => ref,
         "page" => rec.page_title,
@@ -1289,16 +1289,18 @@ end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
     @tags a
-    aid = "$(anchor.id)-$(anchor.nth)"
+    frag = Anchors.fragment(anchor)
+    legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
     if isa(anchor.object, Markdown.Header)
         h = anchor.object
         fixlinks!(ctx, navnode, h)
-        DOM.Tag(Symbol("h$(Utilities.header_level(h))"))[:id => aid](
-            a[".docs-heading-anchor", :href => "#$aid"](mdconvert(h.text, h)),
-            a[".docs-heading-anchor-permalink", :href => "#$aid", :title => "Permalink"]
+        DOM.Tag(Symbol("h$(Utilities.header_level(h))"))[:id => lstrip(frag, '#')](
+            a[".docs-heading-anchor", :href => frag](mdconvert(h.text, h)),
+            legacy...,
+            a[".docs-heading-anchor-permalink", :href => frag, :title => "Permalink"]
         )
     else
-        a[:id => aid, :href => "#$aid"](domify(ctx, navnode, anchor.object))
+        a[:id => frag, :href => frag](legacy..., domify(ctx, navnode, anchor.object))
     end
 end
 
@@ -1335,7 +1337,7 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
         path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
         header = anchor.object
-        url = string(path, '#', anchor.id, '-', anchor.nth)
+        url = string(path, Anchors.fragment(anchor))
         node = a[:href=>url](mdconvert(header.text; droplinks=true))
         level = Utilities.header_level(header)
         push!(lb, level, node)
@@ -1366,7 +1368,7 @@ function domify(ctx, navnode, node::Documents.DocsNode)
 
     # push to search index
     rec = SearchRecord(ctx, navnode;
-        loc=node.anchor.id,
+        fragment=Anchors.fragment(node.anchor),
         title=string(node.object.binding),
         category=Utilities.doccat(node.object),
         text = mdflatten(node.docstr))
@@ -1540,7 +1542,7 @@ function collect_subsections(page::Documents.Page)
                 continue
             end
             anchor = page.mapping[element]
-            push!(sections, (toplevel, "#$(anchor.id)-$(anchor.nth)", element.text))
+            push!(sections, (toplevel, Anchors.fragment(anchor), element.text))
         end
     end
     return sections

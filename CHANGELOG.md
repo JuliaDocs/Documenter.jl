@@ -7,7 +7,21 @@
 * ![Enhancement][badge-enhancement] A more generic API is now available to configure the remote repository URLs by passing objects that are subtypes of `Remotes.Remote` and implement its interface
 (e.g. `Remotes.GitHub`) as the `repo` argument of `makedocs`. ([#1254][github-1254])
 
+* ![Enhancement][badge-enhancement] When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. ([#1285][github-1285])
+
+* ![Enhancement][badge-enhancement] The first link fragment on each page now omits the number; before the rendering resulted in: `#foobar-1`, `#foobar-2`, and now: `#foobar`, `#foobar-2`. For backwards compatibility the old fragments are also inserted such that old links will still point to the same location. ([#1292][github-1292])
+
+* ![Enhancement][badge-enhancement] When deploying on CI with `deploydocs`, the build information in the version number (i.e. what comes after `+`) is now discarded when determining the destination directory. This allows custom tags to be used to fix documentation build and deployment issues for versions that have already been registered. ([#1298][github-1298])
+
+* ![Enhancement][badge-enhancement] You can now optionally choose to push pull request preview builds to a different branch and/or different repository than the main docs builds, by setting the optional `branch_previews` and/or `repo_previews` keyword arguments to the `deploydocs` function. Also, you can now optionally choose to use a different SSH key for preview builds, by setting the optional `DOCUMENTER_KEY_PREVIEWS` environment variable; if the `DOCUMENTER_KEY_PREVIEWS` environment variable is not set, then the regular `DOCUMENTER_KEY` environment variable will be used.
+
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
+
+## Version `v0.24.10`
+
+* ![Enhancement][badge-enhancement] The `curl` timeout when checking remote links is now configurable with the `linkcheck_timeout` keyword. ([#1057][github-1057], [#1295][github-1295])
+
+* ![Bugfix][badge-bugfix] Special characters are now properly escaped in admonition titles in LaTeX/PDF builds and do not cause the PDF build to fail anymore. ([#1299][github-1299])
 
 ## Version `v0.24.9`
 
@@ -501,6 +515,7 @@
 [github-1046]: https://github.com/JuliaDocs/Documenter.jl/issues/1046
 [github-1047]: https://github.com/JuliaDocs/Documenter.jl/pull/1047
 [github-1054]: https://github.com/JuliaDocs/Documenter.jl/pull/1054
+[github-1057]: https://github.com/JuliaDocs/Documenter.jl/issues/1057
 [github-1061]: https://github.com/JuliaDocs/Documenter.jl/pull/1061
 [github-1062]: https://github.com/JuliaDocs/Documenter.jl/pull/1062
 [github-1066]: https://github.com/JuliaDocs/Documenter.jl/pull/1066
@@ -550,7 +565,12 @@
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
 [github-1279]: https://github.com/JuliaDocs/Documenter.jl/issues/1279
 [github-1280]: https://github.com/JuliaDocs/Documenter.jl/pull/1280
+[github-1285]: https://github.com/JuliaDocs/Documenter.jl/pull/1285
+[github-1292]: https://github.com/JuliaDocs/Documenter.jl/pull/1292
 [github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
+[github-1295]: https://github.com/JuliaDocs/Documenter.jl/pull/1295
+[github-1298]: https://github.com/JuliaDocs/Documenter.jl/pull/1298
+[github-1299]: https://github.com/JuliaDocs/Documenter.jl/pull/1299
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
