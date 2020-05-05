@@ -418,6 +418,7 @@ your own by following the simple interface described below.
 ```@docs
 Documenter.DeployConfig
 Documenter.deploy_folder
+Documenter.DeployDecision
 Documenter.authentication_method
 Documenter.authenticated_repo_url
 Documenter.documenter_key
