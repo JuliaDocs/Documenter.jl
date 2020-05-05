@@ -7,6 +7,19 @@ Abstract type which new deployment configs should be subtypes of.
 """
 abstract type DeployConfig end
 
+"""
+    DeployDecision(; kwargs...)
+
+Struct containing information about the decision to deploy or not deploy.
+
+# Arguments
+
+- `all_ok::Bool` - Should documentation be deployed?
+- `branch::String` - The branch to which documentation should be pushed
+- `is_preview::Bool` - Is this documentation build a pull request?
+- `repo::String` - The repo to which documentation should be pushed
+- `subfolder::String` - The subfolder to which documentation should be pushed
+"""
 Base.@kwdef struct DeployDecision
     all_ok::Bool
     branch::String = ""
