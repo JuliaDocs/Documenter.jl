@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.24.11`
+
+* ![Bugfix][badge-bugfix] Some sections and page titles that were missing from the search results in the HTML backend now show up. ([#1311][github-1311])
+
 ## Version `v0.24.10`
 
 * ![Enhancement][badge-enhancement] The `curl` timeout when checking remote links is now configurable with the `linkcheck_timeout` keyword. ([#1057][github-1057], [#1295][github-1295])
@@ -549,6 +553,7 @@
 [github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
 [github-1295]: https://github.com/JuliaDocs/Documenter.jl/pull/1295
 [github-1299]: https://github.com/JuliaDocs/Documenter.jl/pull/1299
+[github-1311]: https://github.com/JuliaDocs/Documenter.jl/pull/1311
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
