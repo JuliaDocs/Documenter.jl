@@ -7,6 +7,19 @@ Abstract type which new deployment configs should be subtypes of.
 """
 abstract type DeployConfig end
 
+"""
+    DeployDecision(; kwargs...)
+
+Struct containing information about the decision to deploy or not deploy.
+
+# Arguments
+
+- `all_ok::Bool` - Should documentation be deployed?
+- `branch::String` - The branch to which documentation should be pushed
+- `is_preview::Bool` - Is this documentation build a pull request?
+- `repo::String` - The repo to which documentation should be pushed
+- `subfolder::String` - The subfolder to which documentation should be pushed
+"""
 Base.@kwdef struct DeployDecision
     all_ok::Bool
     branch::String = ""
@@ -45,8 +58,7 @@ end
 """
     Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl, kwargs...)
 
-Return the folder where the documentation should be deployed to, or `nothing`
-if the current build should not deploy.
+Return a `DeployDecision`.
 This function is called with the `repo`, `devbranch`, `push_preview` and `devurl`
 arguments from [`deploydocs`](@ref).
 
@@ -57,11 +69,11 @@ arguments from [`deploydocs`](@ref).
 """
 function deploy_folder(cfg::DeployConfig; kwargs...)
     @warn "Documenter.deploy_folder(::$(typeof(cfg)); kwargs...) not implemented. Skipping deployment."
-    return nothing
+    return DeployDecision(; all_ok = false)
 end
 function deploy_folder(::Nothing; kwargs...)
     @warn "Documenter could not auto-detect the building environment Skipping deployment."
-    return nothing
+    return DeployDecision(; all_ok = false)
 end
 
 @enum AuthenticationMethod SSH HTTPS
