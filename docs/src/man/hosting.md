@@ -328,12 +328,14 @@ These are needed to avoid committing generated content to your repository.
 By default, Documenter pushes documentation to the `gh-pages` branch. If the branch does not
 exist it will be created automatically by [`deploydocs`](@ref). If it does exist then
 Documenter simply adds an additional commit with the built documentation. You should be
-aware that Documenter may overwrite existing content without warning. To properly deploy your site
-make sure that you have `gh-pages branch` selected in your GitHub repository settings under
-GitHub Pages.
+aware that Documenter may overwrite existing content without warning.
 
 If you wish to create the `gh-pages` branch manually that can be done following
 [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
+
+You also need to make sure that you have "gh-pages branch" selected as [the source of the GitHub
+Pages site in your GitHub repository settings](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
+so that GitHub would actually serve the contents as a website.
 
 ## Documentation Versions
 
