@@ -367,11 +367,11 @@ function deploy_folder(cfg::GitHubActions;
     auth_ok = token_ok | key_ok
     all_ok &= auth_ok
     if key_ok
-        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists exists")
+        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
     elseif token_ok
-        println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists exists")
+        println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists")
     else
-        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"]  exists")
+        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"] exists")
     end
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
