@@ -438,7 +438,6 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         comparison = function (a, b)
             local t
             (t = Documents._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
-            a[5] == b[5] || return a[5] > b[5] # exported bindings before unexported ones.
             (t = Documents._compare(pagesmap,  2, a, b)) == 0 || return t < 0 # page
             (t = Documents._compare(ordermap,  3, a, b)) == 0 || return t < 0 # category
             string(a[4]) < string(b[4])                                       # name
