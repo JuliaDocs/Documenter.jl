@@ -408,7 +408,7 @@ deployed. It defaults to the value of `repo`.
     Pull requests made from forks will not have previews.
     Hosting previews requires access to the deploy key.
     Therefore, previews are available only for pull requests that were
-    submitted directly to the main repository.
+    submitted directly from the main repository.
 
 # Releases vs development branches
 
