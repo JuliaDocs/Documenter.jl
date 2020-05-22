@@ -394,13 +394,21 @@ the generated html. The following entries are valid in the `versions` vector:
    (as in e.g. `"stable" => "v^"`).
 
 **`push_preview`** a boolean that specifies if preview documentation should be
-deployed from pull requests or not.
+deployed from pull requests or not. If your published documentation is hosted
+at `"https://USER.github.io/PACKAGE.jl/stable`, by default the preview will be
+hosted at `"https://USER.github.io/PACKAGE.jl/previews/PR##"`.
 
 **`branch_previews`** is the branch to which pull request previews are deployed.
 It defaults to the value of `branch`.
 
 **`repo_previews`** is the remote repository to which pull request previews are
 deployed. It defaults to the value of `repo`.
+
+!!! note
+    Pull requests made from forks will not have previews.
+    Hosting previews requires access to the deploy key.
+    Therefore, previews are available only for pull requests that were
+    submitted directly from the main repository.
 
 # Releases vs development branches
 
