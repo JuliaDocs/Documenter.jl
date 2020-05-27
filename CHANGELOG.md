@@ -12,6 +12,8 @@
 
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
 
+* ![Bugfix][badge-bugfix] Custom assets (CSS, JS etc.) for the HTML build are now again included as the very last elements in the `<head>` tag so that it would be possible to override default the default assets. ([#1328][github-1328])
+
 ## Version `v0.24.11`
 
 * ![Bugfix][badge-bugfix] Some sections and page titles that were missing from the search results in the HTML backend now show up. ([#1311][github-1311])
@@ -573,6 +575,7 @@
 [github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
 [github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
+[github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
