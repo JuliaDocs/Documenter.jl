@@ -154,7 +154,7 @@ end
 
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
-            @test commit isa String
+            @test commit isa AbstractString
 
             @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
             @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
