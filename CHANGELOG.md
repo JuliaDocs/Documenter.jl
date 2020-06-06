@@ -13,9 +13,15 @@
 
 * ![Enhancement][badge-enhancement] When deploying on CI with `deploydocs`, the build information in the version number (i.e. what comes after `+`) is now discarded when determining the destination directory. This allows custom tags to be used to fix documentation build and deployment issues for versions that have already been registered. ([#1298][github-1298])
 
-* ![Enhancement][badge-enhancement] You can now optionally choose to push pull request preview builds to a different branch and/or different repository than the main docs builds, by setting the optional `branch_previews` and/or `repo_previews` keyword arguments to the `deploydocs` function. Also, you can now optionally choose to use a different SSH key for preview builds, by setting the optional `DOCUMENTER_KEY_PREVIEWS` environment variable; if the `DOCUMENTER_KEY_PREVIEWS` environment variable is not set, then the regular `DOCUMENTER_KEY` environment variable will be used.
+* ![Enhancement][badge-enhancement] You can now optionally choose to push pull request preview builds to a different branch and/or different repository than the main docs builds, by setting the optional `branch_previews` and/or `repo_previews` keyword arguments to the `deploydocs` function. Also, you can now optionally choose to use a different SSH key for preview builds, by setting the optional `DOCUMENTER_KEY_PREVIEWS` environment variable; if the `DOCUMENTER_KEY_PREVIEWS` environment variable is not set, then the regular `DOCUMENTER_KEY` environment variable will be used. ([#1307][github-1307], [#1310][github-1310], [#1315][github-1315])
 
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
+
+* ![Bugfix][badge-bugfix] Custom assets (CSS, JS etc.) for the HTML build are now again included as the very last elements in the `<head>` tag so that it would be possible to override default the default assets. ([#1328][github-1328])
+
+## Version `v0.24.11`
+
+* ![Bugfix][badge-bugfix] Some sections and page titles that were missing from the search results in the HTML backend now show up. ([#1311][github-1311])
 
 ## Version `v0.24.10`
 
@@ -571,6 +577,11 @@
 [github-1295]: https://github.com/JuliaDocs/Documenter.jl/pull/1295
 [github-1298]: https://github.com/JuliaDocs/Documenter.jl/pull/1298
 [github-1299]: https://github.com/JuliaDocs/Documenter.jl/pull/1299
+[github-1311]: https://github.com/JuliaDocs/Documenter.jl/pull/1311
+[github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
+[github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
+[github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
+[github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

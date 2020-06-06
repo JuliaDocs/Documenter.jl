@@ -214,6 +214,34 @@ information on how to setup a GitHub workflow see the manual for
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
 
+!!! warning "TagBot & tagged versions"
+
+    In order to deploy documentation for **tagged versions**, the GitHub Actions workflow
+    needs to be triggered by the tag. However, by default, when the [Julia TagBot](https://github.com/marketplace/actions/julia-tagbot)
+    uses just the `GITHUB_TOKEN` for authentication, it does not have the permission to trigger
+    any further workflows jobs, and so the documentation CI job never runs for the tag.
+
+    To work around that, TagBot should be [configured to use `DOCUMENTER_KEY`](https://github.com/marketplace/actions/julia-tagbot#ssh-deploy-keys)
+    for authentication, by adding `ssh: ${{ secrets.DOCUMENTER_KEY }}` to the `with` section.
+    A complete TagBot workflow file could look as follows:
+
+    ```yml
+    name: TagBot
+    on:
+      schedule:
+        - cron: 0 0 * * *
+    jobs:
+      TagBot:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: JuliaRegistries/TagBot@v1
+            with:
+              token: ${{ secrets.GITHUB_TOKEN }}
+              ssh: ${{ secrets.DOCUMENTER_KEY }}
+    ```
+
+
+
 ### Authentication: `GITHUB_TOKEN`
 
 When running from GitHub Actions it is possible to authenticate using
@@ -333,6 +361,10 @@ aware that Documenter may overwrite existing content without warning.
 If you wish to create the `gh-pages` branch manually that can be done following
 [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
+You also need to make sure that you have "gh-pages branch" selected as [the source of the GitHub
+Pages site in your GitHub repository settings](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
+so that GitHub would actually serve the contents as a website.
+
 ## Documentation Versions
 
 The documentation is deployed as follows:
@@ -418,6 +450,7 @@ your own by following the simple interface described below.
 ```@docs
 Documenter.DeployConfig
 Documenter.deploy_folder
+Documenter.DeployDecision
 Documenter.authentication_method
 Documenter.authenticated_repo_url
 Documenter.documenter_key

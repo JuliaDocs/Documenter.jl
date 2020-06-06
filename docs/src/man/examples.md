@@ -31,7 +31,7 @@ Packages that have tagged versions available in the general Registry:
 - [EvolvingGraphs.jl](https://etymoio.github.io/EvolvingGraphs.jl/stable/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/stable/)
 - [EzXML.jl](https://bicycle1885.github.io/EzXML.jl/stable/)
-- [FourierFlows.jl](https://FourierFlows.github.io/FourierFlows.jl/stable/)
+- [FourierFlows.jl](https://fourierflows.github.io/FourierFlowsDocumentation/stable/)
 - [Gadfly.jl](https://gadflyjl.org/stable/)
 - [GeoStats.jl](https://juliaearth.github.io/GeoStats.jl/stable/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/stable/)

@@ -153,7 +153,7 @@ build/
        ```
 
        Alternatively, if your goal is to eventually set up automatic documentation deployment
-       with Travis CI (see [Hosting Documentation](@ref)), you can also use their environment
+       with e.g. Travis CI or GitHub Actions (see [Hosting Documentation](@ref)), you can also use their environment
        variables to determine Documenter's behavior in `make.jl` on the fly:
 
        ```julia

@@ -300,8 +300,8 @@ struct BrokenConfig <: Documenter.DeployConfig end
         @test d.all_ok
         @test d.subfolder == "v1.2.3"
         cfg = BrokenConfig()
-        @test (@test_logs (:warn, r"Documenter\.deploy_folder\(::BrokenConfig; kwargs\.\.\.\) not implemented") Documenter.deploy_folder(cfg)) === nothing
-        @test (@test_logs (:warn, r"Documenter could not auto-detect") Documenter.deploy_folder(nothing)) === nothing
+        @test (@test_logs (:warn, r"Documenter\.deploy_folder\(::BrokenConfig; kwargs\.\.\.\) not implemented") Documenter.deploy_folder(cfg)) == Documenter.DeployDecision(; all_ok = false)
+        @test (@test_logs (:warn, r"Documenter could not auto-detect") Documenter.deploy_folder(nothing)) == Documenter.DeployDecision(; all_ok = false)
 end end
 
 @testset "Autodetection of deploy system" begin
