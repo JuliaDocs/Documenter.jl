@@ -14,6 +14,8 @@
 
 * ![Bugfix][badge-bugfix] Custom assets (CSS, JS etc.) for the HTML build are now again included as the very last elements in the `<head>` tag so that it would be possible to override default the default assets. ([#1328][github-1328])
 
+* ![Bugfix][badge-bugfix] Docstrings from `@autodocs` blocks are no longer sorted according to an undocumented rule where exported names should come before unexported names. Should this behavior be necessary, the `@autodocs` can be replaced by two separate blocks that use the `Public` and `Private` options to filter out the unexported or exported docstrings in the first or the second block, respectively. ([#964][github-964], [#1323][github-1323])
+
 ## Version `v0.24.11`
 
 * ![Bugfix][badge-bugfix] Some sections and page titles that were missing from the search results in the HTML backend now show up. ([#1311][github-1311])
@@ -486,6 +488,7 @@
 [github-958]: https://github.com/JuliaDocs/Documenter.jl/pull/958
 [github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
 [github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
+[github-964]: https://github.com/JuliaDocs/Documenter.jl/issues/964
 [github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
@@ -575,6 +578,7 @@
 [github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
 [github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
+[github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
