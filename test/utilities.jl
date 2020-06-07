@@ -129,6 +129,8 @@ end
         @test Documenter.Utilities.format_line(100:9999, formatting) == "100:9999"
     end
 
+    @test Documenter.Utilities.linerange(Core.svec(), 0) === 0:0
+
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)
     Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
