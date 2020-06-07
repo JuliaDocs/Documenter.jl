@@ -490,7 +490,7 @@ end
 linerange(doc) = linerange(doc.text, doc.data[:linenumber])
 
 function linerange(text, from)
-    lines = sum([isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
+    lines = sum(Int[isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
     return lines > 0 ? (from:(from + lines + 1)) : (from:from)
 end
 
