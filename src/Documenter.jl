@@ -554,6 +554,7 @@ function git_push(
         try
             run(`git checkout -b $branch upstream/$branch`)
         catch e
+            @info "fatal error regarding $branch is expected on first deployment"
             @debug "checking out $branch failed with error: $e"
             @debug "creating a new local $branch branch."
             run(`git checkout --orphan $branch`)
