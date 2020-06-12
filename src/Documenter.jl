@@ -143,7 +143,13 @@ makedocs(
 and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
 
-**`repo`** specifies a template for the "link to source" feature. If you are
+**`repo`** specifies the remote repository for the "link to source" feature. This can either
+be a [`Remotes.Remote`](@ref) subtype (e.g. [`Remotes.GitHub`](@ref)) or a template string.
+
+If a string is passed, it is interpreted according to the rules described in
+[`Remotes.URL`](@ref).
+
+    If you are
 using GitHub, this is automatically generated from the remote. If you are using
 a different host, you can use this option to tell Documenter how URLs should be
 generated. The following placeholders will be replaced with the respective
@@ -158,6 +164,12 @@ For example if you are using GitLab.com, you could use
 ```julia
 makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
 ```
+
+
+
+[`Remotes.GitHub`](@ref)
+
+[`Remotes.Remote`](@ref)
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an

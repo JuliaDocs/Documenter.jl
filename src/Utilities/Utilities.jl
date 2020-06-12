@@ -407,21 +407,30 @@ function url(remote, mod, file, linerange; commit = nothing)
     end
 end
 
+"""
+    getremote(dir::AbstractString) -> String
+
+Automagically tries to determine the remote repository, either from the Git origin URL, or
+from CI environment variables. `dir` specifies which repository's `origin` it tries to look
+up.
+
+Returns `"\$USER/\$REPOSITORY"`, or an empty string if it was not able to determine the
+remote.
+"""
 function getremote(dir::AbstractString)
-    remote =
-        try
-            cd(() -> readchomp(`git config --get remote.origin.url`), dir)
-        catch err
-            ""
-        end
-    m = match(LibGit2.GITHUB_REGEX, remote)
-    if m === nothing
-        # TODO: Also support GitHub Actions env. variables? (GITHUB_REPOSITORY)
-        travis = get(ENV, "TRAVIS_REPO_SLUG", "")
-        isempty(travis) ? "" : travis
-    else
-        m[1]
+    # First, try to look for the Git repos origin:
+    remote = try
+        cd(() -> readchomp(`git config --get remote.origin.url`), dir)
+    catch err
+        ""
     end
+    m = match(LibGit2.GITHUB_REGEX, remote)
+    (m === nothing) || return m[1]
+    # First fallback, should work on Travis:
+    travis_slug = get(ENV, "TRAVIS_REPO_SLUG", "")
+    isempty(travis_slug) || return travis_slug
+    # Second fallback, should work on GitHub Actions:
+    return get(ENV, "GITHUB_REPOSITORY", "")
 end
 
 """
@@ -448,9 +457,13 @@ end
 # Find line numbers.
 # ------------------
 
-linerange(doc) = linerange(doc.text, doc.data[:linenumber])
+function linerange(doc)
+    @info "linerange" doc
+    linerange(doc.text, doc.data[:linenumber])
+end
 
 function linerange(text, from)
+    @info "...." text typeof(text) from typeof(from)
     lines = sum([isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
     return lines > 0 ? (from:(from + lines + 1)) : (from:from)
 end
