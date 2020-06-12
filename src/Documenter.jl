@@ -554,9 +554,13 @@ function git_push(
         try
             run(`git checkout -b $branch upstream/$branch`)
         catch e
-            @info "fatal error regarding $branch is expected on first deployment"
+            @info """
+            Checking out $branch failed, creating a new orphaned branch.
+            This usually happens when deploying to a repository for the first time and
+            the $branch branch does not exist yet. The fatal error above is expected output
+            from Git in this situation.
+            """
             @debug "checking out $branch failed with error: $e"
-            @debug "creating a new local $branch branch."
             run(`git checkout --orphan $branch`)
             run(`git commit --allow-empty -m "Initial empty commit for docs"`)
         end
