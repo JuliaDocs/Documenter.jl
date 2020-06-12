@@ -35,13 +35,14 @@ The `makedocs` argument `authors` should also be specified, it will be used for 
 
 # Keyword arguments
 
-**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default) or `"docker"`.
+**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default), `"docker"`,
+or "none" which doesn't compile the tex.
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
     platform::String
     function LaTeX(; platform = "native")
-        platform ∈ ("native", "docker") || throw(ArgumentError("unknown platform: $platform"))
+        platform ∈ ("native", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
         return new(platform)
     end
 end
@@ -94,7 +95,7 @@ function mktempdir(args...; kwargs...)
 end
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
-    @info "LaTeXWriter: rendering PDF."
+    @info "LaTeXWriter: rendering tex file."
     Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
@@ -147,7 +148,9 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             end
 
             # If the build was successful, copy of the PDF to the .build directory
-            if status
+            if status && (settings.platform == "none")
+                cp(texfile, joinpath(doc.user.root, doc.user.build, texfile); force = true)
+            elseif status
                 cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
             else
                 error("Compiling the .tex file failed. See logs for more information.")
@@ -193,6 +196,9 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
         finally
             try; piperun(`docker stop latex-container`); catch; end
         end
+    elseif settings.platform == "none"
+        @info "Skipping compiling tex file."
+        return true
     end
 end
 
