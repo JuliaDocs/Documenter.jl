@@ -503,7 +503,7 @@ SimpleSSHConfig() = SimpleSSHConfig("")
 
 deploy_folder(::SimpleSSHConfig; repo, devbranch, push_preview, devurl, kwargs...) = devurl
 authentication_method(::SimpleSSHConfig) = SSH
-function documenter_key(cfg.::SimpleSSHConfig)
+function documenter_key(cfg::SimpleSSHConfig)
     k = cfg.ssh_key_location
     if isempty(k)
         ENV["DOCUMENTER_KEY"]
