@@ -148,11 +148,11 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                 @info "LaTeX sources copied for debugging to $(sources)"
             end
 
-            # If the build was successful, copy of the PDF to the .build directory
-            if status && (settings.platform == "none")
-                cp(texfile, joinpath(doc.user.root, doc.user.build, texfile); force = true)
-            elseif status
+            # If the build was successful, copy the PDF or the LaTeX source to the .build directory
+            if status && (settings.platform != "none")
                 cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
+            elseif status && (settings.platform == "none")
+                cp(pwd(), joinpath(doc.user.root, doc.user.build); force = true)
             else
                 error("Compiling the .tex file failed. See logs for more information.")
             end
