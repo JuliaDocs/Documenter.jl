@@ -484,6 +484,35 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
 end
 
 
+"""
+    SimpleSSHConfig <: DeployConfig
+
+Implementation of deploy config for deploying directly via SSH.  This is particularly useful in cases
+where there is a private repository and it's impractical or impossible to set up github actions or
+travis for fully automated deployment.
+
+The constructor optionally accepts a key location, so that it is possible to use multiple distinct keys.
+If the key location is not passed or is an empty string, the `DOCUMENTER_KEY` environment variable will
+be used.
+"""
+struct SimpleSSHConfig <: DeployConfig
+    ssh_key_location::String
+end
+
+SimpleSSHConfig() = SimpleSSHConfig("")
+
+deploy_folder(::SimpleSSHConfig; repo, devbranch, push_preview, devurl, kwargs...) = devurl
+authentication_method(::SimpleSSHConfig) = SSH
+function documenter_key(cfg.::SimpleSSHConfig)
+    k = cfg.ssh_key_location
+    if isempty(k)
+        ENV["DOCUMENTER_KEY"]
+    else
+        Base64.base64encode(open(read, k))
+    end
+end
+
+
 ##################
 # Auto-detection #
 ##################

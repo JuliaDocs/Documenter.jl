@@ -282,7 +282,6 @@ See GitHub's manual for
 [Creating and using encrypted secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets)
 for more information.
 
-
 ## `docs/Project.toml`
 
 The doc-build environment `docs/Project.toml` includes Documenter and other doc-build
@@ -339,6 +338,18 @@ or `git@`.
 
 See the [`deploydocs`](@ref) function documentation for more details.
 
+
+## Using Simple SSH
+If you do not have access to either Travis or Github for automated documentation updates,
+or you are working in a private git hosting service where using these is impractical, it
+may be desirable to push objects more simply via SSH.  For such cases, simply call, e.g.
+```julia
+deploydocs(
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    deploy_config = Documenter.SimpleSSHConfig("/path/to/ssh-key")
+)
+```
+If no path to the SSH key is provided, the `DOCUMENTER_KEY` environment variable will be used.
 
 
 ## `.gitignore`
@@ -457,4 +468,5 @@ Documenter.documenter_key
 Documenter.documenter_key_previews
 Documenter.Travis
 Documenter.GitHubActions
+Documenter.SimpleSSHConfig
 ```
