@@ -198,9 +198,9 @@ services:
 
 to your `.travis.yml` file.
 
-### Compiling to latex only
+### Compiling to LaTeX only
 
-There's a possibility to save only the `.tex` file and skip the pdf compilation.
+There's a possibility to save only the `.tex` file and skip the PDF compilation.
 For this purpose use the `platform="none"` keyword:
 
 ```

@@ -37,6 +37,7 @@ The `makedocs` argument `authors` should also be specified, it will be used for 
 
 **`platform`** sets the platform where the tex-file is compiled, either `"native"` (default), `"docker"`,
 or "none" which doesn't compile the tex.
+
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
@@ -95,7 +96,7 @@ function mktempdir(args...; kwargs...)
 end
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
-    @info "LaTeXWriter: rendering tex file."
+    @info "LaTeXWriter: creating the LaTeX file."
     Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
