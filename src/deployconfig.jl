@@ -488,8 +488,8 @@ end
     SimpleSSHConfig <: DeployConfig
 
 Implementation of deploy config for deploying directly via SSH.  This is particularly useful in cases
-where there is a private repository and it's impractical or impossible to set up github actions or
-travis for fully automated deployment.
+where there is a private repository and it's impractical or impossible to set up GitHub Actions or
+Travis for fully automated deployment.
 
 The constructor optionally accepts a key location, so that it is possible to use multiple distinct keys.
 If the key location is not passed or is an empty string, the `DOCUMENTER_KEY` environment variable will
