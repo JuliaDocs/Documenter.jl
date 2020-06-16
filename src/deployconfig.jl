@@ -491,7 +491,7 @@ Implementation of deploy config for deploying directly via SSH.  This is particu
 where there is a private repository and it's impractical or impossible to set up GitHub Actions or
 Travis for fully automated deployment.
 
-The constructor optionally accepts a key location, so that it is possible to use multiple distinct keys.
+The constructor optionally accepts a path to the SSH key, so that it is possible to use multiple distinct keys.
 If the key location is not passed or is an empty string, the `DOCUMENTER_KEY` environment variable will
 be used.
 """
