@@ -350,6 +350,7 @@ deploydocs(
     deploy_config = Documenter.SimpleSSHConfig("/path/to/ssh-key")
 )
 ```
+
 If no path to the SSH key is provided, the `DOCUMENTER_KEY` environment variable will be used.
 
 
