@@ -493,7 +493,7 @@ Travis for fully automated deployment.
 
 The constructor optionally accepts a path to the SSH key, so that it is possible to use multiple distinct keys.
 If the key location is not passed or is an empty string, the `DOCUMENTER_KEY` environment variable will
-be used.
+be used.  If the `DOCUMENTER_KEY` environment variable does not exist, `~/.ssh/id_rsa` will be used.
 """
 struct SimpleSSHConfig <: DeployConfig
     ssh_key_location::String
@@ -501,14 +501,21 @@ end
 
 SimpleSSHConfig() = SimpleSSHConfig("")
 
-deploy_folder(::SimpleSSHConfig; repo, devbranch, push_preview, devurl, kwargs...) = devurl
+function deploy_folder(::SimpleSSHConfig; repo, devbranch, push_preview, devurl,
+                       branch="gh-pages", kwargs...)
+    DeployDecision(all_ok=true, repo=repo, branch=branch, subfolder=devurl)
+end
 authentication_method(::SimpleSSHConfig) = SSH
 function documenter_key(cfg::SimpleSSHConfig)
     k = cfg.ssh_key_location
     if isempty(k)
-        ENV["DOCUMENTER_KEY"]
+        if "DOCUMENTER_KEY" ∈ keys(ENV)
+            ENV["DOCUMENTER_KEY"]
+        else
+            base64encode(open(read, joinpath(ENV["HOME"], ".ssh", "id_rsa")))
+        end
     else
-        Base64.base64encode(open(read, k))
+        base64encode(open(read, k))
     end
 end
 
@@ -522,6 +529,6 @@ function auto_detect_deploy_system()
     elseif haskey(ENV, "GITHUB_REPOSITORY")
         return GitHubActions()
     else
-        return nothing
+        return SimpleSSHConfig()
     end
 end

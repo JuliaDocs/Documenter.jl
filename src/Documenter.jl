@@ -15,7 +15,7 @@ module Documenter
 
 using Test: @testset, @test
 using DocStringExtensions
-import Base64: base64decode
+import Base64: base64decode, base64encode
 
 """
     abstract type Plugin end
