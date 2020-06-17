@@ -340,6 +340,7 @@ See the [`deploydocs`](@ref) function documentation for more details.
 
 
 ## Using Simple SSH
+
 If you do not have access to either Travis or Github for automated documentation updates,
 or you are working in a private git hosting service where using these is impractical, it
 may be desirable to push objects more simply via SSH.  For such cases, simply call, e.g.
