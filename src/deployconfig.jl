@@ -538,7 +538,9 @@ function auto_detect_deploy_system()
         return Travis()
     elseif haskey(ENV, "GITHUB_REPOSITORY")
         return GitHubActions()
-    else
+    elseif haskey(ENV, "DOCUMENTER_KEY_PATH")
         return SimpleSSHConfig()
+    else
+        return nothing
     end
 end
