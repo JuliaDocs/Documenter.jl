@@ -488,18 +488,21 @@ end
     SimpleSSHConfig <: DeployConfig
 
 Implementation of deploy config for deploying directly via SSH.  This is particularly useful in cases
-where there is a private repository and it's impractical or impossible to set up GitHub Actions or
+in which there is a private repository and it's impractical or impossible to set up GitHub Actions or
 Travis for fully automated deployment.
 
 The constructor optionally accepts a path to the SSH key, so that it is possible to use multiple distinct keys.
-If the key location is not passed or is an empty string, the `DOCUMENTER_KEY` environment variable will
-be used.  If the `DOCUMENTER_KEY` environment variable does not exist, `~/.ssh/id_rsa` will be used.
+If the key location is not passed or is an empty string, it will check for the `DOCUMENTER_KEY_PATH` environment
+variable for a path to an SSH key.  If `DOCUMENTER_KEY_PATH` is not set, it will check for `DOCUMENTER_KEY`
+as in the Travis and GitHub Actions configs.  Failing this, it will check for a key at `\$HOME/.ssh/id_rsa`.
 """
 struct SimpleSSHConfig <: DeployConfig
     ssh_key_location::String
 end
 
 SimpleSSHConfig() = SimpleSSHConfig("")
+
+_read_ssh_key(fname) = base64encode(open(read, fname))
 
 function deploy_folder(::SimpleSSHConfig; repo, devbranch, push_preview, devurl,
                        branch="gh-pages", kwargs...)
@@ -509,10 +512,17 @@ authentication_method(::SimpleSSHConfig) = SSH
 function documenter_key(cfg::SimpleSSHConfig)
     k = cfg.ssh_key_location
     if isempty(k)
-        if "DOCUMENTER_KEY" ∈ keys(ENV)
-            ENV["DOCUMENTER_KEY"]
+        k1 = get(ENV, "DOCUMENTER_KEY_PATH", nothing)
+        k2 = get(ENV, "DOCUMENTER_KEY", nothing)
+        if k1 ≢ nothing
+            @info "DeployConfig: Using key location from `DOCUMENTER_KEY_PATH`"
+            _read_ssh_key(k1)
+        elseif k2 ≢ nothing
+            @info "DeployConfg: Using key from `DOCUMENTER_KEY`"
+            k2
         else
-            base64encode(open(read, joinpath(ENV["HOME"], ".ssh", "id_rsa")))
+            @info "DeployConfg: Using key at `~/.ssh/id_rsa`"
+            _read_ssh_key(joinpath(ENV["HOME"],".ssh","id_rsa"))
         end
     else
         base64encode(open(read, k))

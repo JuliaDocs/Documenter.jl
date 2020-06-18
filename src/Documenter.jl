@@ -619,9 +619,10 @@ function git_push(
             write(keyfile, base64decode(keycontent))
         catch e
             @error """
-            Documenter failed to decode the DOCUMENTER_KEY environment variable.
-            Make sure that the environment variable is properly set up as a Base64-encoded string
-            of the SSH private key. You may need to re-generate the keys with DocumenterTools.
+            Documenter failed to obtain SSH private key.
+            If using the `DOCUMENTER_KEY` environment variable, make sure that it is properly
+            set up as a Base64-encoded string of the SSH private key. You may need to
+            re-generate the keys with DocumenterTools.
             """
             rm(keyfile; force=true)
             rethrow(e)
