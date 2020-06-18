@@ -321,3 +321,46 @@ else
     @info "Skipping build: LaTeXWriter/latex_simple_nondocker" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
+
+examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_texonly")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "none"),
+        sitename = "Documenter LaTeX",
+        root  = examples_root,
+        build = "builds/latex_texonly",
+        pages = htmlbuild_pages = Any[
+            "General" => [
+                "index.md",
+                "latex.md",
+                "unicode.md",
+                hide("hidden.md"),
+            ],
+            # SVG images nor code blocks in footnotes are allowed in LaTeX
+            # "Manual" => [
+            #     "man/tutorial.md",
+            #     "man/style.md",
+            # ],
+            hide("Hidden Pages" => "hidden/index.md", Any[
+                "Page X" => "hidden/x.md",
+                "hidden/y.md",
+                "hidden/z.md",
+            ]),
+            "Library" => [
+                "lib/functions.md",
+                "lib/autodocs.md",
+                "lib/editurl.md",
+            ],
+            "Expandorder" => [
+                "expandorder/00.md",
+                "expandorder/01.md",
+                "expandorder/AA.md",
+            ],
+        ],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_texonly" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
