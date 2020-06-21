@@ -7,7 +7,8 @@ on:
   pull_request:
 
 jobs:
-  build:
+  test:
+    name: "Online lincheck tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,6 +17,14 @@ jobs:
           version: '1.4'
       - name: Run online linkcheck tests
         run: julia --color=yes test/run_docchecks.jl
+  manual_linkcheck:
+    name: "Linkcheck Documenter's manual"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: '1.4'
       - name: Install dependencies
         run: julia --color=yes --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and check documentation
