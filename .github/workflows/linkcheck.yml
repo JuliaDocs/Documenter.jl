@@ -14,8 +14,8 @@ jobs:
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1.4'
-      - name: Install dependencies
-        run: julia --color=yes test/run_docchecks.jl'
+      - name: Run online linkcheck tests
+        run: julia --color=yes test/run_docchecks.jl
       - name: Install dependencies
         run: julia --color=yes --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and check documentation
