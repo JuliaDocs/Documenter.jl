@@ -12,6 +12,8 @@
 
 * ![Enhancement][badge-enhancement] The LaTeX/PDF backend now supports the `platform="none"` keyword, which outputs only the TeX source files, rather than a compiled PDF. ([#1338][github-1338], [#1339][github-1339])
 
+* ![Enhancement][badge-enhancement] Linkcheck no longer prints a warning when enountering a `302 Found` temporary redirect. ([#1344][github-1344], [#1345][github-1345])
+
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
 
 * ![Bugfix][badge-bugfix] Custom assets (CSS, JS etc.) for the HTML build are now again included as the very last elements in the `<head>` tag so that it would be possible to override default the default assets. ([#1328][github-1328])
@@ -584,6 +586,8 @@
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 [github-1338]: https://github.com/JuliaDocs/Documenter.jl/issues/1338
 [github-1339]: https://github.com/JuliaDocs/Documenter.jl/pull/1339
+[github-1344]: https://github.com/JuliaDocs/Documenter.jl/issues/1344
+[github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
