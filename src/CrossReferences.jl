@@ -39,10 +39,12 @@ end
 # -------------------------------------
 
 const NAMED_XREF = r"^@ref (.+)$"
+const URL_XREF = r"^@url (.+)\/(.+)$"
 
 function xref(link::Markdown.Link, meta, page, doc)
     link.url == "@ref"             ? basicxref(link, meta, page, doc) :
     occursin(NAMED_XREF, link.url) ? namedxref(link, meta, page, doc) : nothing
+    occursin(URL_XREF, link.url) ? urlxref(link, meta, page, doc) : nothing
     return false # Stop `walk`ing down this `link` element.
 end
 xref(other, meta, page, doc) = true # Continue to `walk` through element `other`.
@@ -221,6 +223,17 @@ getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, 
 function issue_xref(link::Markdown.Link, num, meta, page, doc)
     link.url = isempty(doc.internal.remote) ? link.url :
         "https://github.com/$(doc.internal.remote)/issues/$num"
+end
+
+# Cross link.
+# -----------------------------
+function urlxref(link::Markdown.Link, meta, page, doc)
+    baseurls_dict = meta[:BaseURLs]
+    m = match(r"@url (.+)\/(.+)", link.url)
+    key = m.captures[1]
+    base_url = baseurls_dict[key]
+    rest_url = m.captures[2]
+    link.url = "$base_url/$rest_url"
 end
 
 end
