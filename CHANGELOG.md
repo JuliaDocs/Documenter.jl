@@ -2,6 +2,8 @@
 
 ## Version `v0.25.0`
 
+* ![Feature][badge-feature] `deploydocs` can now also use SSH key files directly with `SimpleSSHConfig`, also making it easier to deploy documentation locally. ([#1340][github-1340])
+
 * ![Enhancement][badge-enhancement] When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. ([#1285][github-1285])
 
 * ![Enhancement][badge-enhancement] The first link fragment on each page now omits the number; before the rendering resulted in: `#foobar-1`, `#foobar-2`, and now: `#foobar`, `#foobar-2`. For backwards compatibility the old fragments are also inserted such that old links will still point to the same location. ([#1292][github-1292])
@@ -580,6 +582,7 @@
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
 [github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
+[github-1340]: https://github.com/JuliaDocs/Documenter.jl/pull/1340
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
