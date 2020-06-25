@@ -514,14 +514,14 @@ function documenter_key(cfg::SimpleSSHConfig)
     if isempty(k)
         k1 = get(ENV, "DOCUMENTER_KEY_PATH", nothing)
         k2 = get(ENV, "DOCUMENTER_KEY", nothing)
-        if k1 ≢ nothing
-            @info "DeployConfig: Using key location from `DOCUMENTER_KEY_PATH`"
+        if k1 !== nothing
+            @info "SimpleSSHConfig: Using key location from `DOCUMENTER_KEY_PATH`"
             _read_ssh_key(k1)
-        elseif k2 ≢ nothing
-            @info "DeployConfg: Using key from `DOCUMENTER_KEY`"
+        elseif k2 !== nothing
+            @info "SimpleSSHConfig: Using key from `DOCUMENTER_KEY`"
             k2
         else
-            @info "DeployConfg: Using key at `~/.ssh/id_rsa`"
+            @info "SimpleSSHConfig: Using key at `~/.ssh/id_rsa`"
             _read_ssh_key(joinpath(ENV["HOME"],".ssh","id_rsa"))
         end
     else
