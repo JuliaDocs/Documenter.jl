@@ -346,11 +346,14 @@ or you are working in a private git hosting service where using these is impract
 may be desirable to push objects more simply via SSH.  For such cases, simply call, e.g.
 
 ```julia
-deploydocs(
+"deploy" ∈ ARGS && deploydocs(
     repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
     deploy_config = Documenter.SimpleSSHConfig("/path/to/ssh-key")
 )
 ```
+Note that calling `deploydocs` with the `SimpleSSHConfig` will always deploy, so if you
+are worried about pushing to the remote git repository you may want to guard against it
+by, as in this example, checking for if the argument `"deploy"` was given.
 
 If no path to the SSH key is provided, the `DOCUMENTER_KEY` environment variable will be used.
 
