@@ -516,7 +516,7 @@ function documenter_key(cfg::SimpleSSHConfig)
         k2 = get(ENV, "DOCUMENTER_KEY", nothing)
         if k1 !== nothing
             @info "SimpleSSHConfig: Using key location from `DOCUMENTER_KEY_PATH`"
-            _read_ssh_key(k1)
+            _read_ssh_key(expanduser(k1))
         elseif k2 !== nothing
             @info "SimpleSSHConfig: Using key from `DOCUMENTER_KEY`"
             k2
