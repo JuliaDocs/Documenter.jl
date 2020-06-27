@@ -2,7 +2,7 @@
 
 ## Version `v0.25.0`
 
-* ![Feature][badge-feature] `deploydocs` can now also use SSH key files directly with `SimpleSSHConfig`, also making it easier to deploy documentation locally. ([#1340][github-1340])
+* ![Feature][badge-feature] `deploydocs` can now also use SSH key files directly with `SimpleSSHConfig`. ([#1340][github-1340])
 
 * ![Enhancement][badge-enhancement] When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. ([#1285][github-1285])
 
