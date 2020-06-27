@@ -341,8 +341,8 @@ See the [`deploydocs`](@ref) function documentation for more details.
 
 ## Using Simple SSH
 
-If you do not have access to either Travis or Github for automated documentation updates,
-or you are working in a private git hosting service where using these is impractical, it
+If you do not have access to either Travis or GitHub for automated documentation updates,
+or you are working in a private Git hosting service where using these is impractical, it
 may be desirable to push objects more simply via SSH.  For such cases, simply call, e.g.
 
 ```julia
@@ -351,9 +351,10 @@ may be desirable to push objects more simply via SSH.  For such cases, simply ca
     deploy_config = Documenter.SimpleSSHConfig("/path/to/ssh-key")
 )
 ```
+
 Note that calling `deploydocs` with the `SimpleSSHConfig` will always deploy, so if you
-are worried about pushing to the remote git repository you may want to guard against it
-by, as in this example, checking for if the argument `"deploy"` was given.
+are worried about pushing to the remote Git repository you may want to guard against it
+by, as in this example, checking if the argument `"deploy"` was passed on the command line.
 
 If no path to the SSH key is provided, the `DOCUMENTER_KEY` environment variable will be used.
 
