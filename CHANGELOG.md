@@ -588,9 +588,9 @@
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 [github-1338]: https://github.com/JuliaDocs/Documenter.jl/issues/1338
 [github-1339]: https://github.com/JuliaDocs/Documenter.jl/pull/1339
+[github-1340]: https://github.com/JuliaDocs/Documenter.jl/pull/1340
 [github-1344]: https://github.com/JuliaDocs/Documenter.jl/issues/1344
 [github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
-
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
