@@ -352,9 +352,10 @@ may be desirable to push objects more simply via SSH.  For such cases, simply ca
 )
 ```
 
-Note that calling `deploydocs` with the `SimpleSSHConfig` will always deploy, so if you
-are worried about pushing to the remote Git repository you may want to guard against it
-by, as in this example, checking if the argument `"deploy"` was passed on the command line.
+Note that calling [`deploydocs`](@ref) with the [`SimpleSSHConfig`](@ref Documenter.SimpleSSHConfig)
+will always deploy. So, to avoid unwanted accidental deployments, it is good practice to
+guard the [`deploydocs`](@ref) call, e.g. by checking whether `"deploy"` was passed as a
+command line argument to the `make.jl` script (as is done in the example above).
 
 If no path to the SSH key is provided, the `DOCUMENTER_KEY` environment variable will be used.
 
