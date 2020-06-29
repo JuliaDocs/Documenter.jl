@@ -495,6 +495,12 @@ The constructor optionally accepts a path to the SSH key, so that it is possible
 If the key location is not passed or is an empty string, it will check for the `DOCUMENTER_KEY_PATH` environment
 variable for a path to an SSH key.  If `DOCUMENTER_KEY_PATH` is not set, it will check for `DOCUMENTER_KEY`
 as in the Travis and GitHub Actions configs.  Failing this, it will check for a key at `\$HOME/.ssh/id_rsa`.
+
+!!! warning "Tagged versions"
+
+    `SimpleSSHConfig` does not currently support pushing documentation for tagged versions, and
+    will always deploy the documentation into development version directory in the remote
+    repository.
 """
 struct SimpleSSHConfig <: DeployConfig
     ssh_key_location::String
