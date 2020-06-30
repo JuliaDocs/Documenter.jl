@@ -25,6 +25,7 @@ Packages that have tagged versions available in the general Registry:
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/stable/)
 - [Bio.jl](https://biojulia.net/Bio.jl/stable/)
 - [ControlSystems.jl](https://juliacontrol.github.io/ControlSystems.jl/stable/)
+- [COSMO.jl](https://oxfordcontrol.github.io/COSMO.jl/stable/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
 - [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
 - [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
