@@ -73,6 +73,9 @@ module AutoDocs
 
         "Macro `B.@m`."
         macro m() end
+
+        "Produces inputs for [`B.analyze`](@ref)."
+        gen_data() = [1,2,3]
     end
 
     "Module `B`."
@@ -88,6 +91,9 @@ module AutoDocs
 
         "Macro `B.@m`."
         macro m() end
+
+        "Analyzes data from [`A.gen_data`](@ref)."
+        analyze(data) = nothing
     end
 
     module Filter
@@ -177,6 +183,7 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
             pages = htmlbuild_pages,
             expandfirst = expandfirst,
             doctest = false,
+            modules = [Mod, AutoDocs, AutoDocs.A, AutoDocs.B, AutoDocs.Filter],
             format = Documenter.HTML(
                 assets = [
                     "assets/favicon.ico",
