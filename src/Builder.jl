@@ -167,8 +167,8 @@ string sorting, except for prioritizing `index.md` (i.e. `index.md` always comes
 """
 function lt_page(a, b)
     # note: length("index.md") == 8
-    a = endswith(a, "index.md") ? a[1:end-8] : a
-    b = endswith(b, "index.md") ? b[1:end-8] : b
+    a = endswith(a, "index.md") ? chop(a; tail = 8) : a
+    b = endswith(b, "index.md") ? chop(b; tail = 8) : b
     return a < b
 end
 
