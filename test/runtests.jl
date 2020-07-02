@@ -50,8 +50,8 @@ include("TestUtilities.jl"); using .TestUtilities
     # MDFlatten tests.
     include("mdflatten.jl")
 
-    # Expanders
-    include("expanders.jl")
+    # Main build pipeline (Builder and Expanders modules)
+    include("pipeline.jl")
 
     # HTMLWriter
     include("htmlwriter.jl")

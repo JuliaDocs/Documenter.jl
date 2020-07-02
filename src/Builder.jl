@@ -138,7 +138,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     # If the user hasn't specified the page list, then we'll just default to a
     # flat list of all the markdown files we found, sorted by the filesystem
     # path (it will group them by subdirectory, among others).
-    userpages = isempty(doc.user.pages) ? sort(mdpages) : doc.user.pages
+    userpages = isempty(doc.user.pages) ? sort(mdpages, lt=lt_page) : doc.user.pages
 
     # Populating the .navtree and .navlist.
     # We need the for loop because we can't assign to the fields of the immutable
@@ -157,6 +157,19 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
         end
         prev = navnode
     end
+end
+
+"""
+    lt_page(a::AbstractString, b::AbstractString)
+
+Checks if the page path `a` should come before `b` in a sorted list. Falls back to standard
+string sorting, except for prioritizing `index.md` (i.e. `index.md` always comes first).
+"""
+function lt_page(a, b)
+    # note: length("index.md") == 8
+    a = endswith(a, "index.md") ? a[1:end-8] : a
+    b = endswith(b, "index.md") ? b[1:end-8] : b
+    return a < b
 end
 
 """
