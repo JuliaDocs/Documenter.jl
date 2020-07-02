@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.25.1`
+
+* ![Enhancement][badge-enhancement] When automatically determining the page list (i.e. `pages` is not passed to `makedocs`), Documenter now lists `index.md` before other pages. ([#1355][github-1355])
+
 ## Version `v0.25.0`
 
 * ![Enhancement][badge-enhancement] When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. ([#1285][github-1285])
@@ -588,6 +592,7 @@
 [github-1339]: https://github.com/JuliaDocs/Documenter.jl/pull/1339
 [github-1344]: https://github.com/JuliaDocs/Documenter.jl/issues/1344
 [github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
+[github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
