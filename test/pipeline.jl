@@ -3,15 +3,16 @@ using Test
 
 @testset "Builder.lt_page" begin
     using Documenter.Builder: lt_page
-    # Checks to make sure that only exactly one of a<b. a==b and a>b is true for give a & b
+    # Checks to make sure that only exactly one of a<b, a==b and a>b is true for given a & b
     iscorrectisless(a,b) = sum([lt_page(a, b), a == b, lt_page(b, a)]) == 1
     # Test equal strings:
-    for a in ["index.md", "foo/index.md", "foo.md", "bar/foo.md", "foo/bar/baz/qux", ""]
+    for a in ["index.md", "foo/index.md", "foo.md", "bar/foo.md", "foo/bar/baz/qux", "", "α", "α/β", "α/index.md"]
         @test !lt_page(a, a)
         @test iscorrectisless(a, a)
     end
     # Test less thans
     for (a, b) in [
+            ("a", "b"), ("α", "β"), ("b", "α"),
             # index.md takes precedence
             ("index.md", "a"),
             ("index.md", "index.mm"),
@@ -24,6 +25,7 @@ using Test
             ("foo/index.md", "foo/bar/foo.md"),
             # But not over stuff that is outside of the subdirectory
             ("a", "foo/index.md"),
+            ("α", "α/index.md"),
             ("foo/index.md", "g"),
             ("bar/index.md", "foo/index.md"),
             ("bar/qux/index.md", "foo/index.md"),
@@ -37,6 +39,7 @@ using Test
     @test sort(["foo", "f/bar"], lt=lt_page) == ["f/bar", "foo"]
     @test sort(["foo", "index.md"], lt=lt_page) == ["index.md", "foo"]
     @test sort(["foo.md", "foo/index.md", "index.md", "foo/foo.md"], lt=lt_page) == ["index.md", "foo.md", "foo/index.md", "foo/foo.md"]
+    @test sort(["foo.md", "ϕωω/index.md", "index.md", "foo/foo.md"], lt=lt_page) == ["index.md", "foo.md", "foo/foo.md", "ϕωω/index.md"]
 end
 
 # Docstring signature syntax highlighting tests.
