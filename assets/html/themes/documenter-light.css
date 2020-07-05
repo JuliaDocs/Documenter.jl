@@ -7239,6 +7239,9 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
   .docstring > section:hover a.docs-sourcelink {
     opacity: 1; }
 
+.documenter-example-output {
+  background-color: white; }
+
 .content pre {
   border: 1px solid #dbdbdb; }
 
