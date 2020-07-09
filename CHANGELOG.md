@@ -598,7 +598,6 @@
 [github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 
-
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
 [json-jl]: https://github.com/JuliaIO/JSON.jl
