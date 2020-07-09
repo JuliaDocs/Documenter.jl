@@ -1651,7 +1651,8 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
-        out = Markdown.Code(d[MIME"text/plain"()])
+        @tags pre
+        return pre[".documenter-example-output"](d[MIME"text/plain"()])
     else
         error("this should never happen.")
     end

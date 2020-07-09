@@ -7277,6 +7277,8 @@ html.theme--documenter-dark {
       opacity: 0.2; }
     html.theme--documenter-dark .docstring > section:hover a.docs-sourcelink {
       opacity: 1; }
+  html.theme--documenter-dark .documenter-example-output {
+    background-color: #1f2424; }
   html.theme--documenter-dark .content pre {
     border: 1px solid #5e6d6f; }
   html.theme--documenter-dark .content code {

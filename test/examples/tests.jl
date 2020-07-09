@@ -34,6 +34,9 @@ end
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
 
+            index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("documenter-example-output", index_html)
+
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
 
@@ -55,6 +58,7 @@ end
 
             index_html = read(joinpath(build_dir, "index.html"), String)
             @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
+            @test occursin("documenter-example-output", index_html)
 
             @test isfile(joinpath(build_dir, "index.html"))
             @test isfile(joinpath(build_dir, "omitted.html"))
