@@ -37,6 +37,9 @@ end
             index_html = read(joinpath(build_dir, "index.html"), String)
             @test occursin("documenter-example-output", index_html)
 
+            example_output_html = read(joinpath(build_dir, "example-output.html"), String)
+            @test occursin("documenter-example-output", example_output_html)
+
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
 
