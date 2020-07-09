@@ -4,7 +4,7 @@
 
 * ![Enhancement][badge-enhancement] When automatically determining the page list (i.e. `pages` is not passed to `makedocs`), Documenter now lists `index.md` before other pages. ([#1355][github-1355])
 
-* ![Enhancement][badge-enhancement] The output text boxes of `@example` blocks are now style differently from the code blocks, to make it easier to visually distinguish between the input and output. ([#1026][github-1026], [#1357][github-1357])
+* ![Enhancement][badge-enhancement] The output text boxes of `@example` blocks are now style differently from the code blocks, to make it easier to visually distinguish between the input and output. ([#1026][github-1026], [#1357][github-1357], [#1360][github-1360])
 
 ## Version `v0.25.0`
 
@@ -597,6 +597,7 @@
 [github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
 [github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
+[github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
