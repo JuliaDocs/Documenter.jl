@@ -162,6 +162,7 @@ htmlbuild_pages = Any[
     ],
     "unicode.md",
     "latex.md",
+    "example-output.md",
 ]
 
 # Build with pretty URLs and canonical links and a PNG logo
@@ -274,7 +275,6 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
                 "index.md",
                 "latex.md",
                 "unicode.md",
-                "example-output.md",
                 hide("hidden.md"),
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
