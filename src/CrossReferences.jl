@@ -128,6 +128,10 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
     end
     mod = get(meta, :CurrentModule, Main)
 
+    if isa(ex, Expr)
+        mod, ex = resolve_reference(mod, ex, doc.blueprint.modules)
+    end
+
     # Find binding and type signature associated with the link.
     local binding
     try
@@ -159,6 +163,54 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
         push!(doc.internal.errors, :cross_references)
         @warn "no doc found for reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source))."
     end
+end
+
+"""
+    modpath = buildname(modexpr)
+
+Given an expression `:(OuterModule.InnerModule.funcname)`, return `(:OuterModule, :InnerModule, :funcname)`.
+"""
+buildname(xdot::Expr) = isa(xdot.args[1], Symbol) ? (xdot.args[1], xdot.args[2].value) : (buildname(xdot.args[1])..., xdot.args[2].value)
+
+"""
+    m, name = resolve_reference(mod::Module, ex::Expr, modules)
+
+Given a module-scoped expression `ex`, return the module `m` and `name` of the reference.
+`m` is an element of `modules` that matches the scoping path of `ex`, or `mod` if no module matches.
+
+Note that the module-path in `ex` will match the first entry in `modules` that ends with the same path.
+If you have two parent modules that have identically-named submodules, be sure to include a distinguishing
+parent in the reference. I.e., instead of ``[`Same.f`](@ref)`` you should use ``[`Parent1.Same.f`](@ref)``
+if needed to prevent any ambiguity in which module named `Same` you mean.
+
+# Examples
+
+```jldoctest
+julia> module A module B f(x) = 1 end end
+Main.A
+
+julia> Documenter.CrossReferences.resolve_reference(A, :(B.f), [A, A.B])
+(Main.A.B, :f)
+```
+"""
+function resolve_reference(mod::Module, ex::Expr, modules)
+    x = ex
+    while isa(x, Expr) && x.head ∈ (:call, :macrocall, :curly)
+        x = x.args[1]
+    end
+    if Meta.isexpr(x, :.)
+        # For module-scoped references, adjust the reference
+        namet = buildname(x)    # e.g., (:OuterModule, :InnerModule, :funcname)
+        modpath, name = namet[1:end-1], namet[end]
+        n = length(modpath)
+        for m in modules
+            fn = fullname(m)
+            if fn[end-n+1:end] === modpath
+                return m, name
+            end
+        end
+    end
+    return mod, ex
 end
 
 """
