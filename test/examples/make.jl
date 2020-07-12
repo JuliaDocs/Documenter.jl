@@ -276,6 +276,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
                 "latex.md",
                 "unicode.md",
                 hide("hidden.md"),
+                "example-output.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
@@ -336,6 +337,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
                 "latex.md",
                 "unicode.md",
                 hide("hidden.md"),
+                "example-output.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
