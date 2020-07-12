@@ -76,9 +76,6 @@ module AutoDocs
 
         "Macro `B.@m`."
         macro m() end
-
-        "Produces inputs for [`B.analyze`](@ref)."
-        gen_data() = [1,2,3]
     end
 
     "Module `B`."
@@ -94,9 +91,6 @@ module AutoDocs
 
         "Macro `B.@m`."
         macro m() end
-
-        "Analyzes data from [`A.gen_data`](@ref) and [`Mod.gen_data2`](@ref)."
-        analyze(data) = nothing
     end
 
     module Filter
@@ -114,6 +108,16 @@ module AutoDocs
 
         "random function"
         function qqq end
+    end
+
+    module XrefA
+        "Produces inputs for [`B.analyze`](@ref)."
+        gen_data() = [1,2,3]
+    end
+
+    module XrefB
+        "Analyzes data from [`A.gen_data`](@ref) and [`Mod.gen_data2`](@ref)."
+        analyze(data) = nothing
     end
 end
 
@@ -157,6 +161,7 @@ htmlbuild_pages = Any[
         "lib/functions.md",
         "lib/autodocs.md",
         "lib/editurl.md",
+        "lib/xrefs.md",
     ],
     hide("Hidden Pages" => "hidden/index.md", Any[
         "Page X" => "hidden/x.md",

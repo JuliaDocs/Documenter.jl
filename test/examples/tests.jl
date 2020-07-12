@@ -28,11 +28,16 @@ end
             @test joinpath(build_dir, "omitted", "index.html") |> isfile
             @test joinpath(build_dir, "hidden", "index.html") |> isfile
             @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
+            @test joinpath(build_dir, "lib", "xrefs", "index.html") |> isfile
             @test joinpath(build_dir, "man", "style", "index.html") |> isfile
 
             # Test existence of some HTML elements
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
+
+            # Test existence of some HTML elements
+            xrefs_html = String(read(joinpath(build_dir, "lib", "xrefs", "index.html")))
+            @test_broken occursin("href=\"#gen_data\"", xrefs_html)
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
