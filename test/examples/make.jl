@@ -36,6 +36,9 @@ module Mod
     [`func(x)`](@ref)
     """
     mutable struct T end
+
+    "Produces inputs for [`B.analyze`](@ref)."
+    gen_data2() = [1,2,3]
 end
 
 "`AutoDocs` module."
@@ -92,7 +95,7 @@ module AutoDocs
         "Macro `B.@m`."
         macro m() end
 
-        "Analyzes data from [`A.gen_data`](@ref)."
+        "Analyzes data from [`A.gen_data`](@ref) and [`Mod.gen_data2`](@ref)."
         analyze(data) = nothing
     end
 
