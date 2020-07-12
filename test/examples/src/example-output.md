@@ -1,3 +1,5 @@
+# Example stdout
+
 Checking that `@example` output is contained in a specific HTML class.
 
 !!! warning
