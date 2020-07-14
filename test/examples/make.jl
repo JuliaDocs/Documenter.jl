@@ -6,7 +6,7 @@
 # or not and should be kept unique.
 isdefined(@__MODULE__, :examples_root) && error("examples_root is already defined\n$(@__FILE__) included multiple times?")
 
-# The `Mod` and `AutoDocs` modules are assumed to exists in the Main module.
+# The `Mod` and `AutoDocs` modules are assumed to exist in the Main module.
 (@__MODULE__) === Main || error("$(@__FILE__) must be included into Main.")
 
 # DOCUMENTER_TEST_EXAMPLES environment variable can be used to control which
@@ -118,15 +118,14 @@ function withassets(f, assets...)
     for asset in assets
         cp(src(asset), dst(asset))
     end
-    rv, exception = try
-        f(), nothing
-    catch e
-        nothing, e
+    try
+        f()
+    finally
+        @debug "Cleaning up assets" assets
+        for asset in assets
+            rm(dst(asset))
+        end
     end
-    for asset in assets
-        rm(dst(asset))
-    end
-    return (exception === nothing) ? rv : throw(exception)
 end
 
 # Build example docs
