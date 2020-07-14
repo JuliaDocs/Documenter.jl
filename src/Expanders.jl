@@ -585,7 +585,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     isempty(input)  || push!(content, Markdown.Code("julia", input))
     if result === nothing
         code = Documenter.DocTests.sanitise(buffer)
-        isempty(code) || push!(content, Markdown.Code(code))
+        isempty(code) || push!(content, Dict{MIME,Any}(MIME"text/plain"() => code))
     elseif !isempty(output)
         push!(content, output)
     end

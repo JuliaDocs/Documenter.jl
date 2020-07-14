@@ -37,6 +37,9 @@ end
             index_html = read(joinpath(build_dir, "index.html"), String)
             @test occursin("documenter-example-output", index_html)
 
+            example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
+            @test occursin("documenter-example-output", example_output_html)
+
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
 
@@ -110,7 +113,7 @@ end
 
         @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-        @test length(doc.blueprint.pages) == 18
+        @test length(doc.blueprint.pages) == 19
 
         let headers = doc.internal.headers
             @test Documenter.Anchors.exists(headers, "Documentation")
