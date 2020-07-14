@@ -1058,7 +1058,11 @@ function render_footer(ctx, navnode)
         link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
         push!(navlinks, link)
     end
-    return isempty(navlinks) ? "" : nav[".docs-footer"](navlinks)
+
+    linebreak = div[".flexbox-break"]()
+    footer_message = div[".footer-message"]("Powered by ", a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"), " and the ", a[:href => "https://julialang.org/"]("Julia Programming Language"), ".")
+
+    return isempty(navlinks) ? nav[".docs-footer"](footer_message) : nav[".docs-footer"](navlinks, linebreak, footer_message)
 end
 
 # Article (page contents)
