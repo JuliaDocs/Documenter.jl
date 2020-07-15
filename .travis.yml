@@ -26,7 +26,7 @@ jobs:
   include:
     - stage: "Tests"
     - stage: "Tests"
-      script: echo "!!!"
+      before_script: mkdir -p $HOME/.julia/config && cp startup.jl $HOME/.julia/config
 
 notifications:
   email: false
