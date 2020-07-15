@@ -4,7 +4,7 @@ os:
   - linux
 
 julia:
-  - 1.4
+  - nightly
 
 branches:
   only:
