@@ -187,13 +187,17 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                 ],
                 prettyurls = true,
                 canonical = "https://example.com/stable",
-                mathengine = MathJax(Dict(:TeX => Dict(
-                    :equationNumbers => Dict(:autoNumber => "AMS"),
-                    :Macros => Dict(
-                        :ket => ["|#1\\rangle", 1],
-                        :bra => ["\\langle#1|", 1],
-                    ),
-                ))),
+                #mathengine = MathJax(Dict(:TeX => Dict(
+                #    :equationNumbers => Dict(:autoNumber => "AMS"),
+                #    :Macros => Dict(
+                #        :ket => ["|#1\\rangle", 1],
+                #        :bra => ["\\langle#1|", 1],
+                #    ),
+                #))),
+                mathengine = MathJax3(Dict(
+                    :loader => Dict("load" => ["[tex]/physics"]),
+                    :tex => Dict("packages" => Dict("[+]" => "physics")),
+                )),
                 highlights = ["erlang", "erlang-repl"],
             )
         )

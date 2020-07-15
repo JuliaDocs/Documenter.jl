@@ -192,27 +192,68 @@ struct MathJax <: MathEngine
     config :: Dict{Symbol,Any}
     function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
         default = Dict(
-           :tex2jax => Dict(
-               "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
-               "processEscapes" => true
-           ),
-           :config => ["MMLorHTML.js"],
-           :jax => [
-               "input/TeX",
-               "output/HTML-CSS",
-               "output/NativeMML"
-           ],
-           :extensions => [
-               "MathMenu.js",
-               "MathZoom.js",
-               "TeX/AMSmath.js",
-               "TeX/AMSsymbols.js",
-               "TeX/autobold.js",
-               "TeX/autoload-all.js"
-           ],
-           :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+            :tex2jax => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "processEscapes" => true
+            ),
+            :config => ["MMLorHTML.js"],
+            :jax => [
+                "input/TeX",
+                "output/HTML-CSS",
+                "output/NativeMML"
+            ],
+            :extensions => [
+                "MathMenu.js",
+                "MathZoom.js",
+                "TeX/AMSmath.js",
+                "TeX/AMSsymbols.js",
+                "TeX/autobold.js",
+                "TeX/autoload-all.js"
+            ],
+            :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
         )
         new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
+
+_merge(a, b) = b
+_merge(a::Dict, b::Dict) = merge(_merge, a, b)
+_merge(a::Vector, b::Vector) = [a; b]
+
+"""
+    MathJax3(config::Dict = <default>, override = false)
+
+An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+used in the HTML output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
+default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+and `Tex`.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `tex2jax` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct MathJax3 <: MathEngine
+    config :: Dict{Symbol,Any}
+    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+            :tex => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "processEscapes" => true,
+                "tags" => "ams",
+                "packages" => ["base", "ams", "autoload"],
+            ),
+            :options => Dict(
+                "ignoreHtmlClass" => "tex2jax_ignore",
+                "processHtmlClass" => "tex2jax_process",
+            )
+        )
+        new((config === nothing) ? default : override ? config : _merge(default, config))
     end
 end
 
@@ -370,7 +411,7 @@ end
 module RD
     using JSON
     using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
-    using ..HTMLWriter: KaTeX, MathJax
+    using ..HTMLWriter: KaTeX, MathJax, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
@@ -461,6 +502,17 @@ module RD
         push!(r, Snippet(["mathjax"], ["MathJax"],
             """
             MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
+            """
+        ))
+    end
+    function mathengine!(r::RequireJS, engine::MathJax3)
+        push!(r, RemoteLibrary(
+            "mathjax3",
+            "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js",
+        ))
+        push!(r, Snippet(["mathjax3"], ["MathJax"],
+            """
+            window.MathJax = $(json_jsescape(engine.config, 2))
             """
         ))
     end
