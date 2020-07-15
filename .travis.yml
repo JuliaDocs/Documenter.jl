@@ -25,6 +25,8 @@ jobs:
     - julia: nightly
   include:
     - stage: "Tests"
+    - stage: "Tests"
+      script: echo "!!!"
 
 notifications:
   email: false
