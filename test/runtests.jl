@@ -1,3 +1,5 @@
+isfile(joinpath(ENV["HOME"], ".julia/config/startup.jl")) && include(joinpath(ENV["HOME"], ".julia/config/startup.jl"))
+
 using Test
 import Documenter
 include("TestUtilities.jl"); using .TestUtilities
