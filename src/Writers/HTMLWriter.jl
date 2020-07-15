@@ -1029,7 +1029,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             title = "$(edit_verb)$hoststring"
             push!(navbar_right.nodes,
                 a[".docs-edit-link", :href => url, :title => title](
-                        span[".docs-icon.fab"](logo),
+                    span[".docs-icon.fab"](logo),
                     span[".docs-label.is-hidden-touch"](title)
                 )
             )
