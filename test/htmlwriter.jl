@@ -54,6 +54,7 @@ end
     @test_throws Exception Documenter.HTML(assets=["foo.js", 10])
     @test_throws ArgumentError Documenter.HTML(footer="foo\n\nbar")
     @test_throws ArgumentError Documenter.HTML(footer="# foo")
+    @test_throws ArgumentError Documenter.HTML(footer="")
     @test Documenter.HTML(footer="foo bar [baz](https://github.com)") isa Documenter.HTML
 
     # MathEngine
