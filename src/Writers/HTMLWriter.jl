@@ -325,7 +325,7 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
-    footer        :: String
+    footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
 
     function HTML(;
@@ -339,7 +339,7 @@ struct HTML <: Documenter.Writer
             sidebar_sitename :: Bool = true,
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
-            footer        :: String = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
+            footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
@@ -362,8 +362,11 @@ struct HTML <: Documenter.Writer
         if isa(edit_link, Symbol) && (edit_link !== :commit)
             throw(ArgumentError("Invalid symbol (:$edit_link) passed to edit_link."))
         end
-        if occursin('\n', footer)
-            throw(ArgumentError("footer must be a single-line markdown compatible string."))
+        if footer !== nothing
+            footer = Markdown.parse(footer)
+            if !(length(footer.content) == 1 && footer.content[1] isa Markdown.Paragraph)
+                throw(ArgumentError("footer must be a single-line markdown compatible string."))
+            end
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
@@ -1072,8 +1075,8 @@ function render_footer(ctx, navnode)
         push!(nav_children, navlinks, linebreak)
     end
 
-    if !isempty(footer_content)
-        footer_container = domify(ctx, navnode, Markdown.parse(footer_content))
+    if footer_content !== nothing
+        footer_container = domify(ctx, navnode, footer_content)
         push!(first(footer_container).attributes, :class => "footer-message")
 
         push!(nav_children, footer_container)
