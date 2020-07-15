@@ -7399,8 +7399,9 @@ html.theme--documenter-dark {
       flex-basis: 100%;
       height: 0; }
     html.theme--documenter-dark #documenter .docs-main .docs-footer .footer-message {
-      font-size: 0.9em;
-      margin: 0.5em auto 0 auto; }
+      font-size: 0.8em;
+      margin: 0.5em auto 0 auto;
+      text-align: center; }
   html.theme--documenter-dark #documenter .docs-sidebar {
     display: flex;
     flex-direction: column;
