@@ -325,6 +325,7 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
+    footer        :: String
     lang          :: String
 
     function HTML(;
@@ -336,8 +337,9 @@ struct HTML <: Documenter.Writer
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
-            highlights :: Vector{String} = String[],
-            mathengine :: Union{MathEngine,Nothing} = KaTeX(),
+            highlights    :: Vector{String} = String[],
+            mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
+            footer        :: String = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
@@ -360,9 +362,12 @@ struct HTML <: Documenter.Writer
         if isa(edit_link, Symbol) && (edit_link !== :commit)
             throw(ArgumentError("Invalid symbol (:$edit_link) passed to edit_link."))
         end
+        if occursin('\n', footer)
+            throw(ArgumentError("footer must be a single-line markdown compatible string."))
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
     end
 end
 
@@ -1021,7 +1026,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             title = "$(edit_verb)$hoststring"
             push!(navbar_right.nodes,
                 a[".docs-edit-link", :href => url, :title => title](
-                    span[".docs-icon.fab"](logo),
+                        span[".docs-icon.fab"](logo),
                     span[".docs-label.is-hidden-touch"](title)
                 )
             )
@@ -1060,9 +1065,21 @@ function render_footer(ctx, navnode)
     end
 
     linebreak = div[".flexbox-break"]()
-    footer_message = div[".footer-message"]("Powered by ", a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"), " and the ", a[:href => "https://julialang.org/"]("Julia Programming Language"), ".")
+    footer_content = ctx.settings.footer
 
-    return isempty(navlinks) ? nav[".docs-footer"](footer_message) : nav[".docs-footer"](navlinks, linebreak, footer_message)
+    nav_children = []
+    if !isempty(navlinks)
+        push!(nav_children, navlinks, linebreak)
+    end
+
+    if !isempty(footer_content)
+        footer_container = domify(ctx, navnode, Markdown.parse(footer_content))
+        push!(first(footer_container).attributes, :class => "footer-message")
+
+        push!(nav_children, footer_container)
+    end
+
+    return nav[".docs-footer"](nav_children...)
 end
 
 # Article (page contents)

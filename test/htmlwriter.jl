@@ -52,6 +52,7 @@ end
     @test Documenter.HTML() isa Documenter.HTML
     @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
     @test_throws Exception Documenter.HTML(assets=["foo.js", 10])
+    @test_throws ArgumentError Documenter.HTML(footer="foo\nbar")
 
     # MathEngine
     let katex = KaTeX()
