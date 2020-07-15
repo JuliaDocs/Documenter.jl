@@ -1078,7 +1078,6 @@ function render_footer(ctx, navnode)
     if footer_content !== nothing
         footer_container = domify(ctx, navnode, footer_content)
         push!(first(footer_container).attributes, :class => "footer-message")
-
         push!(nav_children, footer_container)
     end
 
