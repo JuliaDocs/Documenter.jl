@@ -7,8 +7,8 @@ A module for rendering `Document` objects to HTML.
 [`Documenter.makedocs`](@ref): `authors`, `pages`, `sitename`, `version`.
 The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
 keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
-keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link` and
-`prettyurls`.
+keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link`,
+`prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 *navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
@@ -282,6 +282,10 @@ blocks. The options are either [KaTeX](https://katex.org/) (default) or
 passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
 
 **`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
+
+**`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
+the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
+and the [Julia Programming Language](https://julialang.org/)."`.
 
 # Default and custom assets
 
