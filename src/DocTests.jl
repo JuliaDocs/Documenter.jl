@@ -440,7 +440,6 @@ end
 
 const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
-const ANON_FUNC_DECLARATION = r"#[0-9]+ \(generic function with [0-9]+ method(s)?\)"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
@@ -449,11 +448,6 @@ function repl_splitter(code)
     buffer = IOBuffer()
     while !isempty(lines)
         line = popfirst!(lines)
-        # REPL code blocks may contain leading lines with comments. Drop them.
-        # TODO: handle multiline comments?
-        # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
-        # TODO: Remove this special case and just disallow lines with comments?
-        startswith(line, '#') && !occursin(ANON_FUNC_DECLARATION, line) && continue
         prompt = match(PROMPT_REGEX, line)
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
@@ -461,6 +455,10 @@ function repl_splitter(code)
                 savebuffer!(input, buffer)
                 println(buffer, line)
                 takeuntil!(PROMPT_REGEX, buffer, lines)
+            elseif startswith(lstrip(source[1]), '#')
+                # REPL code blocks may contain leading lines with comments. Drop them.
+                # TODO: handle multiline comments?
+                continue
             else
                 println(buffer, source[1])
             end
