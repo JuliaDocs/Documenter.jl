@@ -559,9 +559,13 @@ end
 # This (equation*, split) math env seems to be the only way to correctly
 # render all the equations in the Julia manual.
 function latex(io::IO, math::Markdown.LaTeX)
-    _print(io, "\\begin{equation*}\n\\begin{split}")
-    _print(io, math.formula)
-    _println(io, "\\end{split}\\end{equation*}")
+    if occursin(r"^\\begin\{align\*\}", math.formula) 
+        _print(io, math.formula) 
+    else
+        _print(io, "\\begin{equation*}\n\\begin{split}")
+        _print(io, math.formula)
+        _println(io, "\\end{split}\\end{equation*}")
+    end
 end
 
 function latex(io::IO, md::Markdown.Table)
