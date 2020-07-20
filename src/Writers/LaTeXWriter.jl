@@ -556,10 +556,11 @@ function latex(io::IO, hr::Markdown.HorizontalRule)
     _println(io, "{\\rule{\\textwidth}{1pt}}")
 end
 
-# This (equation*, split) math env seems to be the only way to correctly
-# render all the equations in the Julia manual.
+# This (equation*, split) math env seems to be the only way to correctly render all the
+# equations in the Julia manual. However, if the equation is already wrapped in
+# align/align*, then there is no need to further wrap it (in fact, it will break).
 function latex(io::IO, math::Markdown.LaTeX)
-    if occursin(r"^\\begin\{align\*\}", math.formula)
+    if occursin(r"^\\begin\{align\*?\}", math.formula)
         _print(io, math.formula)
     else
         _print(io, "\\begin{equation*}\n\\begin{split}")
