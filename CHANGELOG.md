@@ -4,6 +4,10 @@
 
 * ![Enhancement][badge-enhancement] When automatically determining the page list (i.e. `pages` is not passed to `makedocs`), Documenter now lists `index.md` before other pages. ([#1355][github-1355])
 
+* ![Enhancement][badge-enhancement] The output text boxes of `@example` blocks are now style differently from the code blocks, to make it easier to visually distinguish between the input and output. ([#1026][github-1026], [#1357][github-1357], [#1360][github-1360])
+
+* ![Enhancement][badge-enhancement] The generated HTML site now displays a footer by default that mentions Julia and Documenter. This can be customized or disabled by passing the `footer` keyword to `Documeter.HTML`. ([#1184][github-1184], [#1365][github-1365])
+
 * ![Enhancement][badge-enhancement] Warnings that cause `makedocs` to error when `strict=true` are now printed as errors when `strict` is set to `true`. ([#1088][github-1088], [#1349][github-1349])
 
 ## Version `v0.25.0`
@@ -519,6 +523,7 @@
 [github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
 [github-1015]: https://github.com/JuliaDocs/Documenter.jl/pull/1015
 [github-1025]: https://github.com/JuliaDocs/Documenter.jl/pull/1025
+[github-1026]: https://github.com/JuliaDocs/Documenter.jl/issues/1026
 [github-1027]: https://github.com/JuliaDocs/Documenter.jl/issues/1027
 [github-1028]: https://github.com/JuliaDocs/Documenter.jl/pull/1028
 [github-1029]: https://github.com/JuliaDocs/Documenter.jl/pull/1029
@@ -563,6 +568,7 @@
 [github-1171]: https://github.com/JuliaDocs/Documenter.jl/pull/1171
 [github-1173]: https://github.com/JuliaDocs/Documenter.jl/pull/1173
 [github-1180]: https://github.com/JuliaDocs/Documenter.jl/pull/1180
+[github-1184]: https://github.com/JuliaDocs/Documenter.jl/issues/1184
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
@@ -597,6 +603,9 @@
 [github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
 [github-1349]: https://github.com/JuliaDocs/Documenter.jl/pull/1349
 [github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
+[github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
+[github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
+[github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

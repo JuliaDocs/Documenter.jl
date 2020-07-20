@@ -34,6 +34,12 @@ end
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
 
+            index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("documenter-example-output", index_html)
+
+            example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
+            @test occursin("documenter-example-output", example_output_html)
+
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
 
@@ -55,6 +61,7 @@ end
 
             index_html = read(joinpath(build_dir, "index.html"), String)
             @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
+            @test occursin("documenter-example-output", index_html)
 
             @test isfile(joinpath(build_dir, "index.html"))
             @test isfile(joinpath(build_dir, "omitted.html"))
@@ -106,7 +113,7 @@ end
 
         @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-        @test length(doc.blueprint.pages) == 18
+        @test length(doc.blueprint.pages) == 19
 
         let headers = doc.internal.headers
             @test Documenter.Anchors.exists(headers, "Documentation")

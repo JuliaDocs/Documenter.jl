@@ -6,7 +6,7 @@
 # or not and should be kept unique.
 isdefined(@__MODULE__, :examples_root) && error("examples_root is already defined\n$(@__FILE__) included multiple times?")
 
-# The `Mod` and `AutoDocs` modules are assumed to exists in the Main module.
+# The `Mod` and `AutoDocs` modules are assumed to exist in the Main module.
 (@__MODULE__) === Main || error("$(@__FILE__) must be included into Main.")
 
 # DOCUMENTER_TEST_EXAMPLES environment variable can be used to control which
@@ -118,15 +118,14 @@ function withassets(f, assets...)
     for asset in assets
         cp(src(asset), dst(asset))
     end
-    rv, exception = try
-        f(), nothing
-    catch e
-        nothing, e
+    try
+        f()
+    finally
+        @debug "Cleaning up assets" assets
+        for asset in assets
+            rm(dst(asset))
+        end
     end
-    for asset in assets
-        rm(dst(asset))
-    end
-    return (exception === nothing) ? rv : throw(exception)
 end
 
 # Build example docs
@@ -162,6 +161,7 @@ htmlbuild_pages = Any[
     ],
     "unicode.md",
     "latex.md",
+    "example-output.md",
 ]
 
 # Build with pretty URLs and canonical links and a PNG logo
@@ -195,6 +195,7 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                     ),
                 ))),
                 highlights = ["erlang", "erlang-repl"],
+                footer = "This footer has been customized.",
             )
         )
     end
@@ -221,6 +222,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             assets = ["assets/custom.css"],
             prettyurls = false,
             edit_branch = nothing,
+            footer = nothing,
         ),
     )
 else
@@ -275,6 +277,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
                 "latex.md",
                 "unicode.md",
                 hide("hidden.md"),
+                "example-output.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
@@ -335,6 +338,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
                 "latex.md",
                 "unicode.md",
                 hide("hidden.md"),
+                "example-output.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
