@@ -10,6 +10,8 @@
 
 * ![Enhancement][badge-enhancement] Warnings that cause `makedocs` to error when `strict=true` are now printed as errors when `strict` is set to `true`. ([#1088][github-1088], [#1349][github-1349])
 
+* ![Bugfix][badge-bugfix] In the PDF/LaTeX output, equations that use the `align` or `align*` environment are no longer further wrapped in `equation*`/`split`. ([#1368][github-1368])
+
 ## Version `v0.25.0`
 
 * ![Enhancement][badge-enhancement] When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. ([#1285][github-1285])
@@ -606,6 +608,7 @@
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 [github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
 [github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
+[github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
