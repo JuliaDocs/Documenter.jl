@@ -495,3 +495,11 @@ MarkdownOnly("""
 
 # Empty heading
 ##
+
+
+# @url
+```@meta
+BaseURLs = Dict("AcuteML" => "https://aminya.github.io/AcuteML.jl/dev/SyntaxReference")
+```
+
+[url test](@url AcuteML/#AcuteML.@aml)
