@@ -174,12 +174,12 @@ end
     MathJax(config::Dict = <default>, override = false)
 
 An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
-keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+keyword to specify that the [MathJax v2 rendering engine](https://www.mathjax.org/) should be
 used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
-the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
-default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7-latest/options/) function. By
+default, Documenter sets custom configurations for `tex2jax`, `config`, `jax`, `extensions`
 and `Tex`.
 
 By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
@@ -216,21 +216,17 @@ struct MathJax <: MathEngine
     end
 end
 
-_merge(a, b) = b
-_merge(a::Dict, b::Dict) = merge(_merge, a, b)
-_merge(a::Vector, b::Vector) = [a; b]
-
 """
     MathJax3(config::Dict = <default>, override = false)
 
-An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
-keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+An instance of the `MathJax3` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax v3 rendering engine](https://www.mathjax.org/) should be
 used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
-the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
-default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
-and `Tex`.
+[`Window.MathJax`](https://docs.mathjax.org/en/latest/options/) function. By default,
+Documenter sets a custom configuration only for `tex2jax` and the `base`, `ams` and `autoload`
+packages are imported.
 
 By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
 resulting configuration dictionary will contain the values from both dictionaries, but e.g.
@@ -244,7 +240,6 @@ struct MathJax3 <: MathEngine
         default = Dict(
             :tex => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
-                "processEscapes" => true,
                 "tags" => "ams",
                 "packages" => ["base", "ams", "autoload"],
             ),
@@ -253,7 +248,6 @@ struct MathJax3 <: MathEngine
                 "processHtmlClass" => "tex2jax_process",
             )
         )
-        #new((config === nothing) ? default : override ? config : _merge(default, config))
         new((config === nothing) ? default : override ? config : merge(default, config))
     end
 end
@@ -508,7 +502,7 @@ module RD
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
         push!(r, Snippet([], [],
-            @show """
+            """
             window.MathJax = $(json_jsescape(engine.config, 2));
 
             (function () {

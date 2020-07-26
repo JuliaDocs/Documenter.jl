@@ -200,12 +200,7 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                         "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
                         "processEscapes" => true,
                         "tags" => "ams",
-                        #"packages" => ["base", "ams", "autoload"],
-                        "packages" => Dict("[+]" => ["physics"]),
-                    ),
-                    :options => Dict(
-                        "ignoreHtmlClass" => "tex2jax_ignore",
-                        "processHtmlClass" => "tex2jax_process",
+                        "packages" => ["base", "ams", "autoload", "physics"],
                     ),
                 )),
                 highlights = ["erlang", "erlang-repl"],
