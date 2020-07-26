@@ -367,6 +367,7 @@ mathengine = Documenter.MathJax(Dict(:TeX => Dict(
 
 ```math
 \bra{x}\ket{y}
+\pdv[n]{f}{x}
 ```
 
 The following at-raw block only renders correctly on the deploy build, where

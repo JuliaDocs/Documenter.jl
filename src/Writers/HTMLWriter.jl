@@ -253,7 +253,8 @@ struct MathJax3 <: MathEngine
                 "processHtmlClass" => "tex2jax_process",
             )
         )
-        new((config === nothing) ? default : override ? config : _merge(default, config))
+        #new((config === nothing) ? default : override ? config : _merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config))
     end
 end
 
@@ -506,13 +507,16 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
-        push!(r, RemoteLibrary(
-            "mathjax3",
-            "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js",
-        ))
-        push!(r, Snippet(["mathjax3"], ["MathJax"],
-            """
-            window.MathJax = $(json_jsescape(engine.config, 2))
+        push!(r, Snippet([], [],
+            @show """
+            window.MathJax = $(json_jsescape(engine.config, 2));
+
+            (function () {
+                var script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+                script.async = true;
+                document.head.appendChild(script);
+            })();
             """
         ))
     end

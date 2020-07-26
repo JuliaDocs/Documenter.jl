@@ -196,7 +196,17 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                 #))),
                 mathengine = MathJax3(Dict(
                     :loader => Dict("load" => ["[tex]/physics"]),
-                    :tex => Dict("packages" => Dict("[+]" => "physics")),
+                    :tex => Dict(
+                        "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                        "processEscapes" => true,
+                        "tags" => "ams",
+                        #"packages" => ["base", "ams", "autoload"],
+                        "packages" => Dict("[+]" => ["physics"]),
+                    ),
+                    :options => Dict(
+                        "ignoreHtmlClass" => "tex2jax_ignore",
+                        "processHtmlClass" => "tex2jax_process",
+                    ),
                 )),
                 highlights = ["erlang", "erlang-repl"],
             )
