@@ -51,11 +51,12 @@ include("Deps.jl")
 
 import .Utilities: Selectors
 import .Writers.HTMLWriter: HTML, asset
-import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax3
+import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta, KaTeX, MathJax, MathJax3, asset
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset,
+    KaTeX, MathJax, MathJax2, MathJax3
 
 """
     makedocs(

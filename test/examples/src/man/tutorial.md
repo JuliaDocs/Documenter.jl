@@ -356,13 +356,30 @@ With explicit alignment.
 The following example only works on the deploy build where
 
 ```julia
-mathengine = Documenter.MathJax(Dict(:TeX => Dict(
-    :equationNumbers => Dict(:autoNumber => "AMS"),
-    :Macros => Dict(
-        :ket => ["|#1\\rangle", 1],
-        :bra => ["\\langle#1|", 1],
+mathengine = MathJax2(Dict(
+    :TeX => Dict(
+        :equationNumbers => Dict(:autoNumber => "AMS"),
+        :Macros => Dict(
+            :ket => ["|#1\\rangle", 1],
+            :bra => ["\\langle#1|", 1],
+            :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+        ),
     ),
-)))
+)),
+```
+or on MathJax v3, the
+[physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf)
+can be loaded:
+
+```julia
+mathengine = MathJax3(Dict(
+    :loader => Dict("load" => ["[tex]/physics"]),
+    :tex => Dict(
+        "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+        "tags" => "ams",
+        "packages" => ["base", "ams", "autoload", "physics"],
+    ),
+)),
 ```
 
 ```math

@@ -171,9 +171,9 @@ struct KaTeX <: MathEngine
 end
 
 """
-    MathJax(config::Dict = <default>, override = false)
+    MathJax2(config::Dict = <default>, override = false)
 
-An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
+An instance of the `MathJax2` type can be passed to [`HTML`](@ref) via the `mathengine`
 keyword to specify that the [MathJax v2 rendering engine](https://www.mathjax.org/) should be
 used in the HTML output to render mathematical expressions.
 
@@ -188,9 +188,9 @@ setting your own `tex2jax` value will override the default). This can be overrid
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
 """
-struct MathJax <: MathEngine
+struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
+    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false)
         default = Dict(
             :tex2jax => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
@@ -215,6 +215,8 @@ struct MathJax <: MathEngine
         new((config === nothing) ? default : override ? config : merge(default, config))
     end
 end
+
+@deprecate MathJax(config::Union{Dict,Nothing} = nothing, override=false) MathJax2(config, override)
 
 """
     MathJax3(config::Dict = <default>, override = false)
@@ -312,10 +314,11 @@ you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done
 provided language names are sane.
 
 **`mathengine`** specifies which LaTeX rendering engine will be used to render the math
-blocks. The options are either [KaTeX](https://katex.org/) (default) or
-[MathJax](https://www.mathjax.org/), enabled by passing an instance of [`KaTeX`](@ref) or
-[`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
-passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
+blocks. The options are either [KaTeX](https://katex.org/) (default),
+[MathJax v2](https://www.mathjax.org/), or [MathJax v3](https://www.mathjax.org/), enabled by
+passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
+[`MathJax3`](@ref) objects, respectively. The rendering engine can further be customized by
+passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
 **`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
 
@@ -406,7 +409,7 @@ end
 module RD
     using JSON
     using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
-    using ..HTMLWriter: KaTeX, MathJax, MathJax3
+    using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
@@ -488,7 +491,7 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax)
+    function mathengine!(r::RequireJS, engine::MathJax2)
         push!(r, RemoteLibrary(
             "mathjax",
             "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
@@ -507,7 +510,7 @@ module RD
 
             (function () {
                 var script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js';
                 script.async = true;
                 document.head.appendChild(script);
             })();

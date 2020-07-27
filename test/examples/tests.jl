@@ -18,9 +18,9 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
 end
 
 @testset "Examples" begin
-    @testset "HTML: deploy" begin
-        doc = Main.examples_html_doc
-
+    @testset "HTML: deploy$name" for (doc, name) in [
+        (Main.examples_html_doc, ""), (Main.examples_html_mathjax3_doc, " using MathJax v3")
+    ]
         @test isa(doc, Documenter.Documents.Document)
 
         let build_dir = joinpath(examples_root, "builds", "html")
