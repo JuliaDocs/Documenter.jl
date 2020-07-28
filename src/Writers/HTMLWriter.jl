@@ -216,7 +216,8 @@ struct MathJax2 <: MathEngine
     end
 end
 
-@deprecate MathJax(config::Union{Dict,Nothing} = nothing, override=false) MathJax2(config, override)
+@deprecate MathJax(config::Union{Dict,Nothing} = nothing, override=false) MathJax2(config, override) false
+@doc "deprecated – Use MathJax2 instead" MathJax
 
 """
     MathJax3(config::Dict = <default>, override = false)
