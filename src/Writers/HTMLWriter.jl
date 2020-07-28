@@ -653,7 +653,7 @@ function render_page(ctx, navnode)
     page = getpage(ctx, navnode)
     head = render_head(ctx, navnode)
     sidebar = render_sidebar(ctx, navnode)
-    navbar = render_navbar(ctx, navnode, true)
+    navbar = render_navbar(ctx, navnode, true, true)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
     htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
@@ -670,7 +670,7 @@ function render_search(ctx)
 
     head = render_head(ctx, ctx.search_navnode)
     sidebar = render_sidebar(ctx, ctx.search_navnode)
-    navbar = render_navbar(ctx, ctx.search_navnode, false)
+    navbar = render_navbar(ctx, ctx.search_navnode, false, false)
     article = article(
         p["#documenter-search-info"]("Loading search..."),
         ul["#documenter-search-results"]
@@ -750,6 +750,7 @@ end
 function render_head(ctx, navnode)
     @tags head meta link script title
     src = get_url(ctx, navnode)
+    repo_owner, repo_name = split(Utilities.getremote("src"), "/")
 
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
@@ -772,6 +773,8 @@ function render_head(ctx, navnode)
         end,
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
+        script("repo_owner=\"$(repo_owner)\""),
+        script("repo_name=\"$(repo_name)\""),
         script[
             :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js)
@@ -981,8 +984,8 @@ function navitem(nctx, nn::Documents.NavNode)
     item
 end
 
-function render_navbar(ctx, navnode, edit_page_link::Bool)
-    @tags div header nav ul li a span
+function render_navbar(ctx, navnode, edit_page_link::Bool, repo_page_link::Bool)
+    @tags div header nav ul li a span svg
 
     # The breadcrumb (navigation links on top)
     navpath = Documents.navpath(navnode)
@@ -996,11 +999,45 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         ul[".is-hidden-tablet"](header_links[end]) # when on mobile, we only show the page title, basically
     )
 
-    # The "Edit on GitHub" links and the hamburger to open the sidebar (on mobile) float right
     navbar_right = div[".docs-right"]
 
+    repo_page_link && render_repo_page_link(ctx, navnode, navbar_right)
+    # "Edit on GitHub" button
+    edit_page_link && render_edit_page_link(ctx, navnode, navbar_right)
+
+    # Settings cog
+    push!(navbar_right.nodes, a[
+        "#documenter-settings-button.docs-settings-button.fas.fa-cog",
+        :href => "#", :title => "Settings",
+    ])
+
+    # Hamburger on mobile
+    push!(navbar_right.nodes, a[
+        "#documenter-sidebar-button.docs-sidebar-button.fa.fa-bars.is-hidden-desktop",
+        :href => "#"
+    ])
+
+    # Construct the main <header> node that should be the first element in div.docs-main
+    header[".docs-navbar"](breadcrumb, navbar_right)
+end
+
+function render_repo_page_link(ctx, navnode, navbar_right)
+    @tags div ul li a span
+    # Add the Github go to repository button
+    host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
+    if host_type == Utilities.RepoGithub
+        push!(navbar_right.nodes,
+            div[:id => "documenter-go-to-repo"](
+
+            )
+        )
+    end
+end
+
+function render_edit_page_link(ctx, navnode, navbar_right)
+    @tags div ul li a span svg
     # Set the logo and name for the "Edit on.." button.
-    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
+    if (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
         host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
         if host_type == Utilities.RepoGitlab
             host = "GitLab"
@@ -1039,21 +1076,6 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             )
         end
     end
-
-    # Settings cog
-    push!(navbar_right.nodes, a[
-        "#documenter-settings-button.docs-settings-button.fas.fa-cog",
-        :href => "#", :title => "Settings",
-    ])
-
-    # Hamburger on mobile
-    push!(navbar_right.nodes, a[
-        "#documenter-sidebar-button.docs-sidebar-button.fa.fa-bars.is-hidden-desktop",
-        :href => "#"
-    ])
-
-    # Construct the main <header> node that should be the first element in div.docs-main
-    header[".docs-navbar"](breadcrumb, navbar_right)
 end
 
 function render_footer(ctx, navnode)
