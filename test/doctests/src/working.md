@@ -19,3 +19,14 @@ julia> f(42)
 # output from f
 42
 ```
+
+Original issue:
+
+```jldoctest
+julia> f()=0
+f (generic function with 1 method)
+
+julia> methods(f)
+# 1 method for generic function "f":
+[1] f() in Main at none:1
+```
