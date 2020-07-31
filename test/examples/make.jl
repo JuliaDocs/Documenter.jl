@@ -195,6 +195,7 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                     ),
                 ))),
                 highlights = ["erlang", "erlang-repl"],
+                footer = "This footer has been customized.",
             )
         )
     end
@@ -221,6 +222,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             assets = ["assets/custom.css"],
             prettyurls = false,
             edit_branch = nothing,
+            footer = nothing,
         ),
     )
 else

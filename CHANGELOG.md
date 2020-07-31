@@ -10,6 +10,12 @@
 
 * ![Enhancement][badge-enhancement] The output text boxes of `@example` blocks are now style differently from the code blocks, to make it easier to visually distinguish between the input and output. ([#1026][github-1026], [#1357][github-1357], [#1360][github-1360])
 
+* ![Enhancement][badge-enhancement] The generated HTML site now displays a footer by default that mentions Julia and Documenter. This can be customized or disabled by passing the `footer` keyword to `Documeter.HTML`. ([#1184][github-1184], [#1365][github-1365])
+
+* ![Enhancement][badge-enhancement] Warnings that cause `makedocs` to error when `strict=true` are now printed as errors when `strict` is set to `true`. ([#1088][github-1088], [#1349][github-1349])
+
+* ![Bugfix][badge-bugfix] In the PDF/LaTeX output, equations that use the `align` or `align*` environment are no longer further wrapped in `equation*`/`split`. ([#1368][github-1368])
+
 ## Version `v0.25.0`
 
 * ![Enhancement][badge-enhancement] When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. ([#1285][github-1285])
@@ -545,6 +551,7 @@
 [github-1077]: https://github.com/JuliaDocs/Documenter.jl/pull/1077
 [github-1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [github-1082]: https://github.com/JuliaDocs/Documenter.jl/pull/1082
+[github-1088]: https://github.com/JuliaDocs/Documenter.jl/issues/1088
 [github-1089]: https://github.com/JuliaDocs/Documenter.jl/pull/1089
 [github-1094]: https://github.com/JuliaDocs/Documenter.jl/pull/1094
 [github-1097]: https://github.com/JuliaDocs/Documenter.jl/pull/1097
@@ -567,6 +574,7 @@
 [github-1171]: https://github.com/JuliaDocs/Documenter.jl/pull/1171
 [github-1173]: https://github.com/JuliaDocs/Documenter.jl/pull/1173
 [github-1180]: https://github.com/JuliaDocs/Documenter.jl/pull/1180
+[github-1184]: https://github.com/JuliaDocs/Documenter.jl/issues/1184
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
@@ -599,9 +607,12 @@
 [github-1339]: https://github.com/JuliaDocs/Documenter.jl/pull/1339
 [github-1344]: https://github.com/JuliaDocs/Documenter.jl/issues/1344
 [github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
+[github-1349]: https://github.com/JuliaDocs/Documenter.jl/pull/1349
 [github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 [github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
+[github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
+[github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
 [github-1369]: https://github.com/JuliaDocs/Documenter.jl/pull/1369
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
