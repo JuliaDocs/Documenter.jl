@@ -116,7 +116,7 @@ Documenter: populating indices.
 Documenter: rendering document.
 ```
 
-The `docs/` folder should contain a new directory -- called `build/`. It's structure should
+The `docs/` folder should contain a new directory -- called `build/`. Its structure should
 look like the following
 
 ```
