@@ -1,5 +1,29 @@
 # Documenter.jl changelog
 
+## Version `v0.25.2`
+
+* ![Deprecation][badge-deprecation] The `Documenter.MathJax` type, used to specify the mathematics rendering engine in the HTML output, is now deprecated in favor of `Documenter.MathJax2`. ([#1362][github-1362], [#1367][github-1367])
+
+  **For upgrading:** simply replace `MathJax` with `MathJax2`. I.e. instead of
+
+  ```
+  makedocs(
+      format = Documenter.HTML(mathengine = Documenter.MathJax(...), ...),
+      ...
+  )
+  ```
+
+  you should have
+
+  ```
+  makedocs(
+      format = Documenter.HTML(mathengine = Documenter.MathJax2(...), ...),
+      ...
+  )
+  ```
+
+* ![Enhancement][badge-enhancement] It is now possible to use MathJax 3 as the mathematics rendering in the HTML output. This can be done by passing `Documenter.MathJax3` as the `mathengine` keyword to `HTML`. ([#1362][github-1362], [#1367][github-1367])
+
 ## Version `v0.25.1`
 
 * ![Enhancement][badge-enhancement] When automatically determining the page list (i.e. `pages` is not passed to `makedocs`), Documenter now lists `index.md` before other pages. ([#1355][github-1355])
@@ -607,7 +631,9 @@
 [github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 [github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
+[github-1362]: https://github.com/JuliaDocs/Documenter.jl/issues/1362
 [github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
+[github-1367]: https://github.com/JuliaDocs/Documenter.jl/pull/1367
 [github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
