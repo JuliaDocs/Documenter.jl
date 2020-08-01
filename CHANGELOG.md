@@ -22,7 +22,7 @@
   )
   ```
 
-* ![Enhancement][badge-enhancement] It is now possible to use MathJax 3 as the mathematics rendering in the HTML output. This can be done by passing `Documenter.MathJax3` as the `mathengine` keyword to `HTML`. ([#1362][github-1362], [#1367][github-1367])
+* ![Enhancement][badge-enhancement] It is now possible to use MathJax v3 as the mathematics rendering in the HTML output. This can be done by passing `Documenter.MathJax3` as the `mathengine` keyword to `HTML`. ([#1362][github-1362], [#1367][github-1367])
 
 ## Version `v0.25.1`
 
