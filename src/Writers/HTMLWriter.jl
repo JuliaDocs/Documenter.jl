@@ -7,8 +7,8 @@ A module for rendering `Document` objects to HTML.
 [`Documenter.makedocs`](@ref): `authors`, `pages`, `sitename`, `version`.
 The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
 keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
-keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link` and
-`prettyurls`.
+keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link`,
+`prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 *navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
@@ -323,6 +323,10 @@ passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) 
 
 **`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
 
+**`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
+the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
+and the [Julia Programming Language](https://julialang.org/)."`.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -365,6 +369,7 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
+    footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
 
     function HTML(;
@@ -376,8 +381,9 @@ struct HTML <: Documenter.Writer
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
-            highlights :: Vector{String} = String[],
-            mathengine :: Union{MathEngine,Nothing} = KaTeX(),
+            highlights    :: Vector{String} = String[],
+            mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
+            footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
@@ -400,9 +406,15 @@ struct HTML <: Documenter.Writer
         if isa(edit_link, Symbol) && (edit_link !== :commit)
             throw(ArgumentError("Invalid symbol (:$edit_link) passed to edit_link."))
         end
+        if footer !== nothing
+            footer = Markdown.parse(footer)
+            if !(length(footer.content) == 1 && footer.content[1] isa Markdown.Paragraph)
+                throw(ArgumentError("footer must be a single-line markdown compatible string."))
+            end
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
     end
 end
 
@@ -1112,7 +1124,22 @@ function render_footer(ctx, navnode)
         link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
         push!(navlinks, link)
     end
-    return isempty(navlinks) ? "" : nav[".docs-footer"](navlinks)
+
+    linebreak = div[".flexbox-break"]()
+    footer_content = ctx.settings.footer
+
+    nav_children = []
+    if !isempty(navlinks)
+        push!(nav_children, navlinks, linebreak)
+    end
+
+    if footer_content !== nothing
+        footer_container = domify(ctx, navnode, footer_content)
+        push!(first(footer_container).attributes, :class => "footer-message")
+        push!(nav_children, footer_container)
+    end
+
+    return nav[".docs-footer"](nav_children...)
 end
 
 # Article (page contents)

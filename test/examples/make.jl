@@ -187,6 +187,7 @@ function html_doc(build_directory, mathengine)
                 canonical = "https://example.com/stable",
                 mathengine = mathengine,
                 highlights = ["erlang", "erlang-repl"],
+                footer = "This footer has been customized.",
             )
         )
     end
@@ -248,6 +249,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             assets = ["assets/custom.css"],
             prettyurls = false,
             edit_branch = nothing,
+            footer = nothing,
         ),
     )
 else
