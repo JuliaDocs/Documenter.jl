@@ -20,6 +20,20 @@ julia> f(42)
 42
 ```
 
+```jldoctest
+julia> let x = 1
+           println("$x")
+           # comment
+           println("$x")
+       end
+1
+1
+
+julia> println("xyz")
+       # comment
+xyz
+```
+
 Original issue:
 
 ```jldoctest
@@ -29,4 +43,13 @@ f (generic function with 1 method)
 julia> methods(f)
 # 1 method for generic function "f":
 [1] f() in Main at none:1
+```
+
+Comments at the start:
+
+```jldoctest
+# Initial comments before the first julia> prompt..
+# .. should be ignored.
+julia> 2 + 2
+4
 ```

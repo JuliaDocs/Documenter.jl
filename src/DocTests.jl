@@ -445,24 +445,24 @@ function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
     input  = String[]
     output = String[]
-    buffer = IOBuffer()
+    buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
+    found_first_prompt = false
     while !isempty(lines)
         line = popfirst!(lines)
         prompt = match(PROMPT_REGEX, line)
+        # We allow comments before the first julia> prompt
+        !found_first_prompt && startswith(line, '#') && continue
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
             if source === nothing
                 savebuffer!(input, buffer)
                 println(buffer, line)
                 takeuntil!(PROMPT_REGEX, buffer, lines)
-            elseif startswith(lstrip(source[1]), '#')
-                # REPL code blocks may contain leading lines with comments. Drop them.
-                # TODO: handle multiline comments?
-                continue
             else
                 println(buffer, source[1])
             end
         else
+            found_first_prompt = true
             savebuffer!(output, buffer)
             println(buffer, prompt[1])
         end
