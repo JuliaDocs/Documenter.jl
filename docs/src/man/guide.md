@@ -141,7 +141,10 @@ build/
     not resolve directory URLs like `foo/` to `foo/index.html` for local files. You have two
     options:
 
-    1. You can run a local web server out of the `docs/build` directory. If you have Python
+    1. You can run a local web server out of the `docs/build` directory. One way to accomplish
+       this is to install the [LiveServer](https://github.com/asprionj/LiveServer.jl) Julia
+       package. You can then start the server with
+       `julia -e 'using LiveServer; cd("docs/build"); serve()'`. Alternatively, if you have Python
        installed, you can simple start one with `python3 -m http.server --bind localhost`
        (or `python -m SimpleHTTPServer` with Python 2).
 
