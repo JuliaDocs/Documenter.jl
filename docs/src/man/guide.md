@@ -145,7 +145,7 @@ build/
        this is to install the [LiveServer](https://github.com/asprionj/LiveServer.jl) Julia
        package. You can then start the server with
        `julia -e 'using LiveServer; cd("docs/build"); serve()'`. Alternatively, if you have Python
-       installed, you can simple start one with `python3 -m http.server --bind localhost`
+       installed, you can start one with `python3 -m http.server --bind localhost`
        (or `python -m SimpleHTTPServer` with Python 2).
 
     2. You can disable the pretty URLs feature by passing `prettyurls = false` with the
