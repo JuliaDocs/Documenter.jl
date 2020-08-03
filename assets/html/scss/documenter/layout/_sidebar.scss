@@ -88,18 +88,18 @@
     border-top: 1px solid $border;
     padding-bottom: 1.5rem;
 
-    // First level items
     > li {
+      // First level items
       > .tocitem {
         font-weight: bold;
       }
-    }
 
-    // Second and lower
-    > li li {
-      font-size: $documenter-sidebar-submenu-size;
-      margin-left: 1em;
-      border-left: 1px solid $border;
+      // Second and lower
+      li {
+        font-size: $documenter-sidebar-submenu-size;
+        margin-left: 1em;
+        border-left: 1px solid $border;
+      }
     }
 
     /* Managing collapsible submenus */
