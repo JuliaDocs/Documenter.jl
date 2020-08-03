@@ -88,7 +88,7 @@ $admonition-header-color: () !default;
     @include font-awesome;
     margin-right: $message-header-padding;
     content: "\f06a";
-}
+  }
 }
 
 .admonition-body {
