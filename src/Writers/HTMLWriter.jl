@@ -228,12 +228,14 @@ used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
 [`Window.MathJax`](https://docs.mathjax.org/en/latest/options/) function. By default,
-Documenter sets a custom configuration only for `tex2jax` and the `base`, `ams` and `autoload`
-packages are imported.
+Documenter specifies in the key `tex` that `\$...\$` and `\\(...\\)` denote inline math, that AMS
+style tags should be used and the `base`, `ams` and `autoload` packages should be imported.
+The key `options`, by default, specifies which HTML classes to ignore and which to process
+using MathJax.
 
 By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
 resulting configuration dictionary will contain the values from both dictionaries, but e.g.
-setting your own `tex2jax` value will override the default). This can be overridden by
+setting your own `tex` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
 """
