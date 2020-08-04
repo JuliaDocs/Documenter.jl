@@ -565,7 +565,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
                     ```$(x.language)
                     $(x.code)
                     ```
-                    """, value, backtrace, text)
+                    """, value, stacktrace(backtrace), text)
                 page.mapping[x] = x
                 return
             end
