@@ -288,12 +288,8 @@ body > .navbar {
     $color-invert: nth($pair, 2);
 
     &.is-#{$name} {
-      .navbar {
-        .navbar-dropdown {
-          .navbar-item:hover {
-            background-color: $navbar-dropdown-item-hover-background-color;
-          }
-        }
+      .navbar .navbar-dropdown .navbar-item:hover {
+        background-color: $navbar-dropdown-item-hover-background-color;
       }
     }
   }
