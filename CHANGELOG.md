@@ -24,6 +24,8 @@
 
 * ![Enhancement][badge-enhancement] It is now possible to use MathJax v3 as the mathematics rendering in the HTML output. This can be done by passing `Documenter.MathJax3` as the `mathengine` keyword to `HTML`. ([#1362][github-1362], [#1367][github-1367])
 
+* ![Enhancement][badge-enhancement] The deployment commits created by Documenter are no longer signed by the **@zeptodoctor** user, but rather with the non-existing `documenter@juliadocs.github.io` email address. ([#1379][github-1379], [#1388][github-1388])
+
 * ![Bugfix][badge-bugfix] REPL doctest output lines starting with `#` right after the input code part are now correctly treated as being part of the output (unless prepended with 7 spaces, in line with the standard heuristic). ([#1369][github-1369])
 
 ## Version `v0.25.1`
@@ -638,6 +640,8 @@
 [github-1367]: https://github.com/JuliaDocs/Documenter.jl/pull/1367
 [github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
 [github-1369]: https://github.com/JuliaDocs/Documenter.jl/pull/1369
+[github-1379]: https://github.com/JuliaDocs/Documenter.jl/issues/1379
+[github-1388]: https://github.com/JuliaDocs/Documenter.jl/pull/1388
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
