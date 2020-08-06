@@ -18,7 +18,7 @@ isdefined(@__MODULE__, :examples_root) && error("examples_root is already define
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["markdown", "html", "html-local"]
+    ["markdown", "html", "html-mathjax3", "html-local"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -164,14 +164,12 @@ htmlbuild_pages = Any[
     "example-output.md",
 ]
 
-# Build with pretty URLs and canonical links and a PNG logo
-examples_html_doc = if "html" in EXAMPLE_BUILDS
-    @info("Building mock package docs: HTMLWriter / deployment build")
+function html_doc(build_directory, mathengine)
     @quietly withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
         makedocs(
             debug = true,
             root  = examples_root,
-            build = "builds/html",
+            build = "builds/$(build_directory)",
             doctestfilters = [r"Ptr{0x[0-9]+}"],
             sitename = "Documenter example",
             pages = htmlbuild_pages,
@@ -187,20 +185,49 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                 ],
                 prettyurls = true,
                 canonical = "https://example.com/stable",
-                mathengine = MathJax(Dict(:TeX => Dict(
-                    :equationNumbers => Dict(:autoNumber => "AMS"),
-                    :Macros => Dict(
-                        :ket => ["|#1\\rangle", 1],
-                        :bra => ["\\langle#1|", 1],
-                    ),
-                ))),
+                mathengine = mathengine,
                 highlights = ["erlang", "erlang-repl"],
                 footer = "This footer has been customized.",
             )
         )
     end
+end
+
+# Build with pretty URLs and canonical links and a PNG logo
+examples_html_doc = if "html" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build")
+    html_doc("html",
+        MathJax2(Dict(
+            :TeX => Dict(
+                :equationNumbers => Dict(:autoNumber => "AMS"),
+                :Macros => Dict(
+                    :ket => ["|#1\\rangle", 1],
+                    :bra => ["\\langle#1|", 1],
+                    :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                ),
+            ),
+        )),
+    )
 else
     @info "Skipping build: HTML/deploy" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# same as HTML, but with MathJax3
+examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build using MathJax v3")
+    html_doc("html-mathjax3",
+        MathJax3(Dict(
+            :loader => Dict("load" => ["[tex]/physics"]),
+            :tex => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "tags" => "ams",
+                "packages" => ["base", "ams", "autoload", "physics"],
+            ),
+        )),
+    )
+else
+    @info "Skipping build: HTML/deploy MathJax v3" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 

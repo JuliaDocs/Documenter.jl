@@ -18,12 +18,12 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
 end
 
 @testset "Examples" begin
-    @testset "HTML: deploy" begin
-        doc = Main.examples_html_doc
-
+    @testset "HTML: deploy/$name" for (doc, name) in [
+        (Main.examples_html_doc, "html"), (Main.examples_html_mathjax3_doc, "html-mathjax3")
+    ]
         @test isa(doc, Documenter.Documents.Document)
 
-        let build_dir = joinpath(examples_root, "builds", "html")
+        let build_dir = joinpath(examples_root, "builds", name)
             @test joinpath(build_dir, "index.html") |> isfile
             @test joinpath(build_dir, "omitted", "index.html") |> isfile
             @test joinpath(build_dir, "hidden", "index.html") |> isfile
@@ -42,6 +42,12 @@ end
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+            documenter_js = read(joinpath(build_dir, "assets", "documenter.js"), String)
+            if name == "html-mathjax3"
+                @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3", documenter_js)
+            else # name == "html", uses MathJax2
+                @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2", documenter_js)
+            end
 
             # This build includes erlang and erlang-repl highlighting
             documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))

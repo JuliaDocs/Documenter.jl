@@ -2,6 +2,28 @@
 
 ## Version `v0.25.2`
 
+* ![Deprecation][badge-deprecation] The `Documenter.MathJax` type, used to specify the mathematics rendering engine in the HTML output, is now deprecated in favor of `Documenter.MathJax2`. ([#1362][github-1362], [#1367][github-1367])
+
+  **For upgrading:** simply replace `MathJax` with `MathJax2`. I.e. instead of
+
+  ```
+  makedocs(
+      format = Documenter.HTML(mathengine = Documenter.MathJax(...), ...),
+      ...
+  )
+  ```
+
+  you should have
+
+  ```
+  makedocs(
+      format = Documenter.HTML(mathengine = Documenter.MathJax2(...), ...),
+      ...
+  )
+  ```
+
+* ![Enhancement][badge-enhancement] It is now possible to use MathJax v3 as the mathematics rendering in the HTML output. This can be done by passing `Documenter.MathJax3` as the `mathengine` keyword to `HTML`. ([#1362][github-1362], [#1367][github-1367])
+
 * ![Bugfix][badge-bugfix] REPL doctest output lines starting with `#` right after the input code part are now correctly treated as being part of the output (unless prepended with 7 spaces, in line with the standard heuristic). ([#1369][github-1369])
 
 ## Version `v0.25.1`
@@ -611,7 +633,9 @@
 [github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 [github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
+[github-1362]: https://github.com/JuliaDocs/Documenter.jl/issues/1362
 [github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
+[github-1367]: https://github.com/JuliaDocs/Documenter.jl/pull/1367
 [github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
 [github-1369]: https://github.com/JuliaDocs/Documenter.jl/pull/1369
 

@@ -171,15 +171,15 @@ struct KaTeX <: MathEngine
 end
 
 """
-    MathJax(config::Dict = <default>, override = false)
+    MathJax2(config::Dict = <default>, override = false)
 
-An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
-keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+An instance of the `MathJax2` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax v2 rendering engine](https://www.mathjax.org/) should be
 used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
-the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
-default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7-latest/options/) function. By
+default, Documenter sets custom configurations for `tex2jax`, `config`, `jax`, `extensions`
 and `Tex`.
 
 By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
@@ -188,29 +188,70 @@ setting your own `tex2jax` value will override the default). This can be overrid
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
 """
-struct MathJax <: MathEngine
+struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
+    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false)
         default = Dict(
-           :tex2jax => Dict(
-               "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
-               "processEscapes" => true
-           ),
-           :config => ["MMLorHTML.js"],
-           :jax => [
-               "input/TeX",
-               "output/HTML-CSS",
-               "output/NativeMML"
-           ],
-           :extensions => [
-               "MathMenu.js",
-               "MathZoom.js",
-               "TeX/AMSmath.js",
-               "TeX/AMSsymbols.js",
-               "TeX/autobold.js",
-               "TeX/autoload-all.js"
-           ],
-           :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+            :tex2jax => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "processEscapes" => true
+            ),
+            :config => ["MMLorHTML.js"],
+            :jax => [
+                "input/TeX",
+                "output/HTML-CSS",
+                "output/NativeMML"
+            ],
+            :extensions => [
+                "MathMenu.js",
+                "MathZoom.js",
+                "TeX/AMSmath.js",
+                "TeX/AMSsymbols.js",
+                "TeX/autobold.js",
+                "TeX/autoload-all.js"
+            ],
+            :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config))
+    end
+end
+
+@deprecate MathJax(config::Union{Dict,Nothing} = nothing, override=false) MathJax2(config, override) false
+@doc "deprecated – Use [`MathJax2`](@ref) instead" MathJax
+
+"""
+    MathJax3(config::Dict = <default>, override = false)
+
+An instance of the `MathJax3` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax v3 rendering engine](https://www.mathjax.org/) should be
+used in the HTML output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
+[`Window.MathJax`](https://docs.mathjax.org/en/latest/options/) function. By default,
+Documenter specifies in the key `tex` that `\$...\$` and `\\(...\\)` denote inline math, that AMS
+style tags should be used and the `base`, `ams` and `autoload` packages should be imported.
+The key `options`, by default, specifies which HTML classes to ignore and which to process
+using MathJax.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `tex` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+"""
+struct MathJax3 <: MathEngine
+    config :: Dict{Symbol,Any}
+    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false)
+        default = Dict(
+            :tex => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "tags" => "ams",
+                "packages" => ["base", "ams", "autoload"],
+            ),
+            :options => Dict(
+                "ignoreHtmlClass" => "tex2jax_ignore",
+                "processHtmlClass" => "tex2jax_process",
+            )
         )
         new((config === nothing) ? default : override ? config : merge(default, config))
     end
@@ -276,10 +317,11 @@ you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done
 provided language names are sane.
 
 **`mathengine`** specifies which LaTeX rendering engine will be used to render the math
-blocks. The options are either [KaTeX](https://katex.org/) (default) or
-[MathJax](https://www.mathjax.org/), enabled by passing an instance of [`KaTeX`](@ref) or
-[`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
-passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
+blocks. The options are either [KaTeX](https://katex.org/) (default),
+[MathJax v2](https://www.mathjax.org/), or [MathJax v3](https://www.mathjax.org/), enabled by
+passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
+[`MathJax3`](@ref) objects, respectively. The rendering engine can further be customized by
+passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
 **`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
 
@@ -382,7 +424,7 @@ end
 module RD
     using JSON
     using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
-    using ..HTMLWriter: KaTeX, MathJax
+    using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
@@ -464,7 +506,7 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax)
+    function mathengine!(r::RequireJS, engine::MathJax2)
         push!(r, RemoteLibrary(
             "mathjax",
             "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
@@ -473,6 +515,20 @@ module RD
         push!(r, Snippet(["mathjax"], ["MathJax"],
             """
             MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
+            """
+        ))
+    end
+    function mathengine!(r::RequireJS, engine::MathJax3)
+        push!(r, Snippet([], [],
+            """
+            window.MathJax = $(json_jsescape(engine.config, 2));
+
+            (function () {
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js';
+                script.async = true;
+                document.head.appendChild(script);
+            })();
             """
         ))
     end
