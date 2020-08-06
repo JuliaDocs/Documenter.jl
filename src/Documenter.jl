@@ -532,8 +532,8 @@ function git_push(
     function git_commands(sshconfig=nothing)
         # Setup git.
         run(`git init`)
-        run(`git config user.name "zeptodoctor"`)
-        run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+        run(`git config user.name "Documenter.jl"`)
+        run(`git config user.email "documenter@juliadocs.github.io"`)
         if sshconfig !== nothing
             run(`git config core.sshCommand "ssh -F $(sshconfig)"`)
         end
