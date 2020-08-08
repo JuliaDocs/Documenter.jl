@@ -422,7 +422,14 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     newcode = code[1:last(inputidx)]
     isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
-    newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+    if result.output == ""
+        # This works around a regression in Julia 1.5.0 (https://github.com/JuliaLang/julia/issues/36953)
+        # Technically, it is only necessary if VERSION >= v"1.5.0-DEV.826"
+        newcode *= str
+        newcode *= code[nextind(code, last(inputidx)):end]
+    else
+        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+    end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
     result.block.code = newcode
