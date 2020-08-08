@@ -28,6 +28,8 @@
 
 * ![Bugfix][badge-bugfix] REPL doctest output lines starting with `#` right after the input code part are now correctly treated as being part of the output (unless prepended with 7 spaces, in line with the standard heuristic). ([#1369][github-1369])
 
+* ![Maintenance][badge-maintenance] Documenter now works around a Julia 1.5.0 regression ([JuliaLang/julia#36953](https://github.com/JuliaLang/julia/issues/36953)) which broke doctest fixing if the original doctest output was empty. ([#1337][github-1337], [#1389][github-1389])
+
 ## Version `v0.25.1`
 
 * ![Enhancement][badge-enhancement] When automatically determining the page list (i.e. `pages` is not passed to `makedocs`), Documenter now lists `index.md` before other pages. ([#1355][github-1355])
@@ -627,6 +629,7 @@
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
 [github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
+[github-1337]: https://github.com/JuliaDocs/Documenter.jl/issues/1337
 [github-1338]: https://github.com/JuliaDocs/Documenter.jl/issues/1338
 [github-1339]: https://github.com/JuliaDocs/Documenter.jl/pull/1339
 [github-1344]: https://github.com/JuliaDocs/Documenter.jl/issues/1344
@@ -642,6 +645,7 @@
 [github-1369]: https://github.com/JuliaDocs/Documenter.jl/pull/1369
 [github-1379]: https://github.com/JuliaDocs/Documenter.jl/issues/1379
 [github-1388]: https://github.com/JuliaDocs/Documenter.jl/pull/1388
+[github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
