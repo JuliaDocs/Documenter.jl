@@ -74,7 +74,7 @@ end
         @test haskey(katex.config, :foo)
     end
 
-    let mathjax = MathJax()
+    let mathjax = MathJax2()
         @test length(mathjax.config) == 5
         @test haskey(mathjax.config, :tex2jax)
         @test haskey(mathjax.config, :config)
@@ -82,7 +82,7 @@ end
         @test haskey(mathjax.config, :extensions)
         @test haskey(mathjax.config, :TeX)
     end
-    let mathjax = MathJax(Dict(:foo => 1))
+    let mathjax = MathJax2(Dict(:foo => 1))
         @test length(mathjax.config) == 6
         @test haskey(mathjax.config, :tex2jax)
         @test haskey(mathjax.config, :config)
@@ -91,7 +91,7 @@ end
         @test haskey(mathjax.config, :TeX)
         @test haskey(mathjax.config, :foo)
     end
-    let mathjax = MathJax(Dict(:tex2jax => 1, :foo => 2))
+    let mathjax = MathJax2(Dict(:tex2jax => 1, :foo => 2))
         @test length(mathjax.config) == 6
         @test haskey(mathjax.config, :tex2jax)
         @test haskey(mathjax.config, :config)
