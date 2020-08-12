@@ -145,7 +145,11 @@ end
         verify_version_file(versionfile, entries)
 
         versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
-        entries, symlinks = expand_versions(tmpdir, versions)
+        entries, symlinks = @test_logs(
+            (:warn, "no match for `versions` entry `\"foobar\"`"),
+            (:warn, "no match for `versions` entry `\"foo\" => \"bar\"`"),
+            expand_versions(tmpdir, versions)
+        )
         @test entries == ["v2.1", "devel"]
         @test ("v2.1" => "2.1.1") in symlinks
         @test ("devel" => "dev") in symlinks
