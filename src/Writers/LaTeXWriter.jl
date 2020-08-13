@@ -656,17 +656,14 @@ function latexinline(io::IO, md::Markdown.Link)
             wrapinline(io, "hyperlink") do
                 _print(io, id)
             end
-            _print(io, "{")
-            latexinline(io, md.text)
-            _print(io, "}")
         else
             wrapinline(io, "href") do
                 latexesc(io, md.url)
             end
-            _print(io, "{")
-            latexinline(io, md.text)
-            _print(io, "}")
         end
+        _print(io, "{")
+        latexinline(io, md.text)
+        _print(io, "}")
     end
 end
 
