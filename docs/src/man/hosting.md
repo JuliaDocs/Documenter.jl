@@ -282,7 +282,7 @@ See GitHub's manual for
 [Creating and using encrypted secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets)
 for more information.
 
-### Add code coverage from your deployed docs
+### Add code coverage from documentation builds
 
 If you want code run during the documentation deployment to be covered by codecov,
 you can edit the end of the docs part of your workflow configuration file so that 
