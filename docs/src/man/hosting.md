@@ -287,7 +287,7 @@ for more information.
 If you want code run during the documentation deployment to be covered by Codecov,
 you can edit the end of the docs part of your workflow configuration file so that 
 `docs/make.jl` is run with the `--code-coverage=user` flag and the coverage reports
-are uploaded to codecov:
+are uploaded to Codecov:
 
 ```yaml
       - run: julia --project=docs/ --code-coverage=user docs/make.jl
