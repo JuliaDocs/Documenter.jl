@@ -442,6 +442,21 @@ end
             @test !occursin("example.com\n/foo", output)
         end
     end
+
+    @testset "codelang" begin
+        @test Documenter.Utilities.codelang("") == ""
+        @test Documenter.Utilities.codelang(" ") == ""
+        @test Documenter.Utilities.codelang("  ") == ""
+        @test Documenter.Utilities.codelang("\t  ") == ""
+        @test Documenter.Utilities.codelang("julia") == "julia"
+        @test Documenter.Utilities.codelang("julia-repl") == "julia-repl"
+        @test Documenter.Utilities.codelang("julia-repl x=y") == "julia-repl"
+        @test Documenter.Utilities.codelang("julia-repl\tx=y") == "julia-repl"
+        @test Documenter.Utilities.codelang(" julia-repl\tx=y") == "julia-repl"
+        @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
+        @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
+        @test Documenter.Utilities.codelang("&%^ ***") == "&%^"
+    end
 end
 
 end

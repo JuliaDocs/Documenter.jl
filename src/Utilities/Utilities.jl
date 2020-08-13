@@ -691,6 +691,17 @@ struct Default{T}
 end
 Base.getindex(default::Default) = default.value
 
+"""
+    $(SIGNATURES)
+
+Extracts the language identifier from the info string of a Markdown code block.
+"""
+function codelang(infostring::AbstractString)
+    ss = split(infostring, limit=1)
+    m = match(r"^\s*(\S*)", infostring)
+    return m[1]
+end
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
