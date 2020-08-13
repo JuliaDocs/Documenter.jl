@@ -284,7 +284,7 @@ for more information.
 
 ### Add code coverage from documentation builds
 
-If you want code run during the documentation deployment to be covered by codecov,
+If you want code run during the documentation deployment to be covered by Codecov,
 you can edit the end of the docs part of your workflow configuration file so that 
 `docs/make.jl` is run with the `--code-coverage=user` flag and the coverage reports
 are uploaded to codecov:
