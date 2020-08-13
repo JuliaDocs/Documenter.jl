@@ -36,6 +36,8 @@ end
 
             index_html = read(joinpath(build_dir, "index.html"), String)
             @test occursin("documenter-example-output", index_html)
+            @test occursin("1392-test-language", index_html)
+            @test !occursin("1392-extra-info", index_html)
 
             example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
             @test occursin("documenter-example-output", example_output_html)
