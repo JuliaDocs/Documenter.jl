@@ -2,8 +2,10 @@
 #
 # DOCUMENTER_TEST_DEBUG= JULIA_DEBUG=all julia test/doctests/fix/tests.jl
 #
+isdefined(@__MODULE__, :TestUtilities) || (include("../../TestUtilities.jl"); using .TestUtilities)
 module DocTestFixTest
 using Documenter, Test
+using ..TestUtilities: @quietly
 
 function test_doctest_fix(dir)
     srcdir = mktempdir(dir)
@@ -30,15 +32,12 @@ function test_doctest_fix(dir)
     @test read(joinpath(srcdir, "src.jl"), String) == read(joinpath(@__DIR__, "fixed.jl"), String)
 end
 
-println("="^50)
-@info("Testing `doctest = :fix`")
+@info "Testing `doctest = :fix` in $(@__FILE__)"
 if haskey(ENV, "DOCUMENTER_TEST_DEBUG")
     # in this mode the directories remain
     test_doctest_fix(mktempdir(@__DIR__))
 else
-    mktempdir(test_doctest_fix, @__DIR__)
+    @quietly mktempdir(test_doctest_fix, @__DIR__)
 end
-@info("Done testing `doctest = :fix`")
-println("="^50)
 
 end # module
