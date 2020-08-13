@@ -28,6 +28,8 @@
 
 * ![Bugfix][badge-bugfix] REPL doctest output lines starting with `#` right after the input code part are now correctly treated as being part of the output (unless prepended with 7 spaces, in line with the standard heuristic). ([#1369][github-1369])
 
+* ![Bugfix][badge-bugfix] Documenter now throws away the extra information from the info string of a Markdown code block (i.e. ` ```language extra-info`), to correctly determine the language, which should be a single word. ([#1392](github-1392), [#1400](github-1400))
+
 * ![Maintenance][badge-maintenance] Documenter now works around a Julia 1.5.0 regression ([JuliaLang/julia#36953](https://github.com/JuliaLang/julia/issues/36953)) which broke doctest fixing if the original doctest output was empty. ([#1337][github-1337], [#1389][github-1389])
 
 ## Version `v0.25.1`
@@ -646,6 +648,8 @@
 [github-1379]: https://github.com/JuliaDocs/Documenter.jl/issues/1379
 [github-1388]: https://github.com/JuliaDocs/Documenter.jl/pull/1388
 [github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
+[github-1392]: https://github.com/JuliaDocs/Documenter.jl/pull/1392
+[github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

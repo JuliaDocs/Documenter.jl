@@ -1595,7 +1595,8 @@ mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, 
 
 function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
-    language = isempty(c.language) ? "none" : c.language
+    language = Utilities.codelang(c.language)
+    language = isempty(language) ? "none" : language
     pre(code[".language-$(language)"](c.code))
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
