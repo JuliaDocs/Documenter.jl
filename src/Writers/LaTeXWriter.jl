@@ -498,8 +498,15 @@ function _print_code_escapes_inline(io, s::AbstractString)
 end
 
 function latex(io::IO, md::Markdown.Paragraph)
-    for md in md.content
-        latexinline(io, md)
+    if occursin(r"^\h*?\\begin{\p{Xan}*?}", md.content[begin])
+        for md in md.content
+            md = Base.replace(md, r"\\$" => "\\\\")
+            Base.print(io.io, md)
+        end
+    else
+        for md in md.content
+            latexinline(io, md)
+        end
     end
     _println(io, "\n")
 end
