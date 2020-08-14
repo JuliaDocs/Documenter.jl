@@ -29,7 +29,7 @@ julia> 127 % Int8
 julia> function foo end;
 ```
 
-## Issue 1400
+## Issue 1401
 
 1. The output is a latex tabular environment
 
