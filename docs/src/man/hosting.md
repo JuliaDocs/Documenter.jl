@@ -294,9 +294,8 @@ are uploaded to Codecov:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-      - uses: julia-actions/julia-uploadcodecov@latest
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v1
 ```
 
 ## `docs/Project.toml`
