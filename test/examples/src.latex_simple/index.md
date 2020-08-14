@@ -22,3 +22,9 @@ julia> 127 % Int8
 !!! info "~, ^, \, ', ", _, &, %, \, $, #, { and }."
 
     ~, ^, \, ', ", _, &, %, \, $, #, { and }.
+
+## Issue 1392
+
+```julia-repl sayhello2
+julia> function foo end;
+```

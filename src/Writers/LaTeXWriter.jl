@@ -439,9 +439,10 @@ const LEXER = Set([
 ])
 
 function latex(io::IO, code::Markdown.Code)
-    language = isempty(code.language) ? "none" : code.language
-    # the julia-repl is called "jlcon" in Pygments
-    language = occursin(r"^julia-repl\b", language) ? "jlcon" : language
+    language = Utilities.codelang(code.language)
+    language = isempty(language) ? "none" :
+        (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
+        language
     escape = '⊻' ∈ code.code
     if language in LEXER
         _print(io, "\n\\begin{minted}")
