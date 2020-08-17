@@ -56,12 +56,15 @@ function missingdocs(doc::Documents.Document)
     n = reduce(+, map(length, values(bindings)), init=0)
     if n > 0
         b = IOBuffer()
-        println(b, "$n docstring$(n ≡ 1 ? "" : "s") potentially missing:\n")
+        println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
         for (binding, signatures) in bindings
             for sig in signatures
                 println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
             end
         end
+        println(b, """\n
+            These are docstrings in the checked modules (configured with the modules keyword)
+            that are not included in @docs or @autodocs blocks.""")
         push!(doc.internal.errors, :missing_docs)
         @logmsg loglevel(doc) String(take!(b))
     end
