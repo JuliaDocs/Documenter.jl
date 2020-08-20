@@ -323,7 +323,9 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 [`MathJax3`](@ref) objects, respectively. The rendering engine can further be customized by
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
-**`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
+**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
+of the top-level `<html>` element, declaring the language of the generated pages. The default
+value is `"en"`.
 
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
