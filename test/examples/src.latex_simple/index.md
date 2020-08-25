@@ -29,16 +29,45 @@ julia> 127 % Int8
 julia> function foo end;
 ```
 
-## Issue 1401
+## Issue 1401: rendering custom LaTeX
 
-1. The output is a latex tabular environment
+### @example block / show with `text/latex` MIME
 
 ```@example
-using DataFrames
-DataFrame(i=1:3, y='A':'C')
+struct Table end
+Base.show(io, ::MIME"text/latex", ::Table) = write(io, raw"""
+begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+""")
+Table()
 ```
 
-2. The paragraph itself is a latex tabular environment
+### @raw block
+
+```@raw latex
+\begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+```
+
+### Inline LaTeX
+
+_Note: this should render as just text, not as a table._
 
 \begin{tabular}{r|ccc}
         & i & y & z\\
@@ -50,4 +79,3 @@ DataFrame(i=1:3, y='A':'C')
         3 & 3 & 'C' & 7 \\
         4 & 4 & 'D' & 8 \\
 \end{tabular}
-
