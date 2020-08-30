@@ -1,6 +1,6 @@
 # Documenter.jl changelog
 
-## Version `v0.25.3`
+## Version `v0.26.0`
 
 * ![Enhancement][badge-enhancement] Documenter can now be configured to show a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
 
