@@ -463,8 +463,13 @@ function linerange(doc)
 end
 
 function linerange(text, from)
-    @info "...." text typeof(text) from typeof(from)
-    lines = sum([isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
+    # text is assumed to be a Core.SimpleVector (svec) from the .text field of a Docs.DocStr object.
+    # Hence, we need to be careful when summing over an empty svec below.
+    #
+    # Also, the isodd logic _appears_ to be there to handle variable interpolation into docstrings. In that case,
+    # the .text field seems to become longer than just 1 element and every even element is the interpolated object,
+    # and only the odd ones actually contain the docstring text as a string.
+    lines = sum(Int[isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
     return lines > 0 ? (from:(from + lines + 1)) : (from:from)
 end
 
@@ -634,6 +639,16 @@ struct Default{T}
     value :: T
 end
 Base.getindex(default::Default) = default.value
+
+"""
+    $(SIGNATURES)
+
+Extracts the language identifier from the info string of a Markdown code block.
+"""
+function codelang(infostring::AbstractString)
+    m = match(r"^\s*(\S*)", infostring)
+    return m[1]
+end
 
 include("DOM.jl")
 include("MDFlatten.jl")

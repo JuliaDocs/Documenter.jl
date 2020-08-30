@@ -116,7 +116,7 @@ Documenter: populating indices.
 Documenter: rendering document.
 ```
 
-The `docs/` folder should contain a new directory -- called `build/`. It's structure should
+The `docs/` folder should contain a new directory -- called `build/`. Its structure should
 look like the following
 
 ```
@@ -141,8 +141,11 @@ build/
     not resolve directory URLs like `foo/` to `foo/index.html` for local files. You have two
     options:
 
-    1. You can run a local web server out of the `docs/build` directory. If you have Python
-       installed, you can simple start one with `python3 -m http.server --bind localhost`
+    1. You can run a local web server out of the `docs/build` directory. One way to accomplish
+       this is to install the [LiveServer](https://github.com/asprionj/LiveServer.jl) Julia
+       package. You can then start the server with
+       `julia -e 'using LiveServer; serve(dir="docs/build")'`. Alternatively, if you have Python
+       installed, you can start one with `python3 -m http.server --bind localhost`
        (or `python -m SimpleHTTPServer` with Python 2).
 
     2. You can disable the pretty URLs feature by passing `prettyurls = false` with the

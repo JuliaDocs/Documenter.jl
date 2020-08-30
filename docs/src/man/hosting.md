@@ -282,6 +282,21 @@ See GitHub's manual for
 [Creating and using encrypted secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets)
 for more information.
 
+### Add code coverage from documentation builds
+
+If you want code run during the documentation deployment to be covered by Codecov,
+you can edit the end of the docs part of your workflow configuration file so that 
+`docs/make.jl` is run with the `--code-coverage=user` flag and the coverage reports
+are uploaded to Codecov:
+
+```yaml
+      - run: julia --project=docs/ --code-coverage=user docs/make.jl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v1
+```
 
 ## `docs/Project.toml`
 

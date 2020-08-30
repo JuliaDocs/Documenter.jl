@@ -422,7 +422,14 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     newcode = code[1:last(inputidx)]
     isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
-    newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+    if result.output == ""
+        # This works around a regression in Julia 1.5.0 (https://github.com/JuliaLang/julia/issues/36953)
+        # Technically, it is only necessary if VERSION >= v"1.5.0-DEV.826"
+        newcode *= str
+        newcode *= code[nextind(code, last(inputidx)):end]
+    else
+        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+    end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
     result.block.code = newcode
@@ -440,21 +447,18 @@ end
 
 const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
-const ANON_FUNC_DECLARATION = r"#[0-9]+ \(generic function with [0-9]+ method(s)?\)"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
     input  = String[]
     output = String[]
-    buffer = IOBuffer()
+    buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
+    found_first_prompt = false
     while !isempty(lines)
         line = popfirst!(lines)
-        # REPL code blocks may contain leading lines with comments. Drop them.
-        # TODO: handle multiline comments?
-        # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
-        # TODO: Remove this special case and just disallow lines with comments?
-        startswith(line, '#') && !occursin(ANON_FUNC_DECLARATION, line) && continue
         prompt = match(PROMPT_REGEX, line)
+        # We allow comments before the first julia> prompt
+        !found_first_prompt && startswith(line, '#') && continue
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
             if source === nothing
@@ -465,6 +469,7 @@ function repl_splitter(code)
                 println(buffer, source[1])
             end
         else
+            found_first_prompt = true
             savebuffer!(output, buffer)
             println(buffer, prompt[1])
         end

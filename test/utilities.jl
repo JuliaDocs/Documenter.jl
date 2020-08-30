@@ -129,6 +129,8 @@ end
         @test Documenter.Utilities.Remotes.format_line(100:9999, formatting) == "100:9999"
     end
 
+    @test Documenter.Utilities.linerange(Core.svec(), 0) === 0:0
+
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)
     Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
@@ -445,6 +447,21 @@ end
             @test !occursin("'fo'o'", output)
             @test !occursin("example.com\n/foo", output)
         end
+    end
+
+    @testset "codelang" begin
+        @test Documenter.Utilities.codelang("") == ""
+        @test Documenter.Utilities.codelang(" ") == ""
+        @test Documenter.Utilities.codelang("  ") == ""
+        @test Documenter.Utilities.codelang("\t  ") == ""
+        @test Documenter.Utilities.codelang("julia") == "julia"
+        @test Documenter.Utilities.codelang("julia-repl") == "julia-repl"
+        @test Documenter.Utilities.codelang("julia-repl x=y") == "julia-repl"
+        @test Documenter.Utilities.codelang("julia-repl\tx=y") == "julia-repl"
+        @test Documenter.Utilities.codelang(" julia-repl\tx=y") == "julia-repl"
+        @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
+        @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
+        @test Documenter.Utilities.codelang("&%^ ***") == "&%^"
     end
 end
 

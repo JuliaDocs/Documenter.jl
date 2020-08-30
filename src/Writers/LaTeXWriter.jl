@@ -35,13 +35,15 @@ The `makedocs` argument `authors` should also be specified, it will be used for 
 
 # Keyword arguments
 
-**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default) or `"docker"`.
+**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default), `"docker"`,
+or "none" which doesn't compile the tex.
+
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
     platform::String
     function LaTeX(; platform = "native")
-        platform ∈ ("native", "docker") || throw(ArgumentError("unknown platform: $platform"))
+        platform ∈ ("native", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
         return new(platform)
     end
 end
@@ -94,7 +96,7 @@ function mktempdir(args...; kwargs...)
 end
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
-    @info "LaTeXWriter: rendering PDF."
+    @info "LaTeXWriter: creating the LaTeX file."
     Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
@@ -146,9 +148,11 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                 @info "LaTeX sources copied for debugging to $(sources)"
             end
 
-            # If the build was successful, copy of the PDF to the .build directory
-            if status
+            # If the build was successful, copy the PDF or the LaTeX source to the .build directory
+            if status && (settings.platform != "none")
                 cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
+            elseif status && (settings.platform == "none")
+                cp(pwd(), joinpath(doc.user.root, doc.user.build); force = true)
             else
                 error("Compiling the .tex file failed. See logs for more information.")
             end
@@ -193,6 +197,9 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
         finally
             try; piperun(`docker stop latex-container`); catch; end
         end
+    elseif settings.platform == "none"
+        @info "Skipping compiling tex file."
+        return true
     end
 end
 
@@ -432,9 +439,10 @@ const LEXER = Set([
 ])
 
 function latex(io::IO, code::Markdown.Code)
-    language = isempty(code.language) ? "none" : code.language
-    # the julia-repl is called "jlcon" in Pygments
-    language = (language == "julia-repl") ? "jlcon" : language
+    language = Utilities.codelang(code.language)
+    language = isempty(language) ? "none" :
+        (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
+        language
     escape = '⊻' ∈ code.code
     if language in LEXER
         _print(io, "\n\\begin{minted}")
@@ -549,12 +557,17 @@ function latex(io::IO, hr::Markdown.HorizontalRule)
     _println(io, "{\\rule{\\textwidth}{1pt}}")
 end
 
-# This (equation*, split) math env seems to be the only way to correctly
-# render all the equations in the Julia manual.
+# This (equation*, split) math env seems to be the only way to correctly render all the
+# equations in the Julia manual. However, if the equation is already wrapped in
+# align/align*, then there is no need to further wrap it (in fact, it will break).
 function latex(io::IO, math::Markdown.LaTeX)
-    _print(io, "\\begin{equation*}\n\\begin{split}")
-    _print(io, math.formula)
-    _println(io, "\\end{split}\\end{equation*}")
+    if occursin(r"^\\begin\{align\*?\}", math.formula)
+        _print(io, math.formula)
+    else
+        _print(io, "\\begin{equation*}\n\\begin{split}")
+        _print(io, math.formula)
+        _println(io, "\\end{split}\\end{equation*}")
+    end
 end
 
 function latex(io::IO, md::Markdown.Table)
@@ -644,17 +657,14 @@ function latexinline(io::IO, md::Markdown.Link)
             wrapinline(io, "hyperlink") do
                 _print(io, id)
             end
-            _print(io, "{")
-            latexinline(io, md.text)
-            _print(io, "}")
         else
             wrapinline(io, "href") do
                 latexesc(io, md.url)
             end
-            _print(io, "{")
-            latexinline(io, md.text)
-            _print(io, "}")
         end
+        _print(io, "{")
+        latexinline(io, md.text)
+        _print(io, "}")
     end
 end
 

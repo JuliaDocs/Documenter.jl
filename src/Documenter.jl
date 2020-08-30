@@ -51,11 +51,12 @@ include("Deps.jl")
 
 import .Utilities: Selectors, Remotes
 import .Writers.HTMLWriter: HTML, asset
-import .Writers.HTMLWriter.RD: KaTeX, MathJax
+import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta, KaTeX, MathJax, asset, Remotes
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
+    KaTeX, MathJax, MathJax2, MathJax3
 
 """
     makedocs(
@@ -543,8 +544,8 @@ function git_push(
     function git_commands(sshconfig=nothing)
         # Setup git.
         run(`git init`)
-        run(`git config user.name "zeptodoctor"`)
-        run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+        run(`git config user.name "Documenter.jl"`)
+        run(`git config user.email "documenter@juliadocs.github.io"`)
         if sshconfig !== nothing
             run(`git config core.sshCommand "ssh -F $(sshconfig)"`)
         end
@@ -566,8 +567,13 @@ function git_push(
         try
             run(`git checkout -b $branch upstream/$branch`)
         catch e
+            @info """
+            Checking out $branch failed, creating a new orphaned branch.
+            This usually happens when deploying to a repository for the first time and
+            the $branch branch does not exist yet. The fatal error above is expected output
+            from Git in this situation.
+            """
             @debug "checking out $branch failed with error: $e"
-            @debug "creating a new local $branch branch."
             run(`git checkout --orphan $branch`)
             run(`git commit --allow-empty -m "Initial empty commit for docs"`)
         end

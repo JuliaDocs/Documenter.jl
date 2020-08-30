@@ -27,7 +27,11 @@ include("TestUtilities.jl"); using .TestUtilities
     include("remotes.jl")
 
     # DocChecks tests
-    include("docchecks.jl")
+    if haskey(ENV, "DOCUMENTER_TEST_LINKCHECK")
+        include("docchecks.jl")
+    else
+        @info "DOCUMENTER_TEST_LINKCHECK not set, skipping online linkcheck tests."
+    end
 
     # NavNode tests.
     include("navnode.jl")
@@ -47,8 +51,8 @@ include("TestUtilities.jl"); using .TestUtilities
     # MDFlatten tests.
     include("mdflatten.jl")
 
-    # Expanders
-    include("expanders.jl")
+    # Main build pipeline (Builder and Expanders modules)
+    include("pipeline.jl")
 
     # HTMLWriter
     include("htmlwriter.jl")

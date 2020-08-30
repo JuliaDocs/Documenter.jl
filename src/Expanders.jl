@@ -438,7 +438,6 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         comparison = function (a, b)
             local t
             (t = Documents._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
-            a[5] == b[5] || return a[5] > b[5] # exported bindings before unexported ones.
             (t = Documents._compare(pagesmap,  2, a, b)) == 0 || return t < 0 # page
             (t = Documents._compare(ordermap,  3, a, b)) == 0 || return t < 0 # category
             string(a[4]) < string(b[4])                                       # name
@@ -586,7 +585,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     isempty(input)  || push!(content, Markdown.Code("julia", input))
     if result === nothing
         code = Documenter.DocTests.sanitise(buffer)
-        isempty(code) || push!(content, Markdown.Code(code))
+        isempty(code) || push!(content, Dict{MIME,Any}(MIME"text/plain"() => code))
     elseif !isempty(output)
         push!(content, output)
     end

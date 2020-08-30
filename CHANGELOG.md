@@ -1,5 +1,49 @@
 # Documenter.jl changelog
 
+## Version `v0.25.2`
+
+* ![Deprecation][badge-deprecation] The `Documenter.MathJax` type, used to specify the mathematics rendering engine in the HTML output, is now deprecated in favor of `Documenter.MathJax2`. ([#1362][github-1362], [#1367][github-1367])
+
+  **For upgrading:** simply replace `MathJax` with `MathJax2`. I.e. instead of
+
+  ```
+  makedocs(
+      format = Documenter.HTML(mathengine = Documenter.MathJax(...), ...),
+      ...
+  )
+  ```
+
+  you should have
+
+  ```
+  makedocs(
+      format = Documenter.HTML(mathengine = Documenter.MathJax2(...), ...),
+      ...
+  )
+  ```
+
+* ![Enhancement][badge-enhancement] It is now possible to use MathJax v3 as the mathematics rendering in the HTML output. This can be done by passing `Documenter.MathJax3` as the `mathengine` keyword to `HTML`. ([#1362][github-1362], [#1367][github-1367])
+
+* ![Enhancement][badge-enhancement] The deployment commits created by Documenter are no longer signed by the **@zeptodoctor** user, but rather with the non-existing `documenter@juliadocs.github.io` email address. ([#1379][github-1379], [#1388][github-1388])
+
+* ![Bugfix][badge-bugfix] REPL doctest output lines starting with `#` right after the input code part are now correctly treated as being part of the output (unless prepended with 7 spaces, in line with the standard heuristic). ([#1369][github-1369])
+
+* ![Bugfix][badge-bugfix] Documenter now throws away the extra information from the info string of a Markdown code block (i.e. ` ```language extra-info`), to correctly determine the language, which should be a single word. ([#1392](github-1392), [#1400](github-1400))
+
+* ![Maintenance][badge-maintenance] Documenter now works around a Julia 1.5.0 regression ([JuliaLang/julia#36953](https://github.com/JuliaLang/julia/issues/36953)) which broke doctest fixing if the original doctest output was empty. ([#1337][github-1337], [#1389][github-1389])
+
+## Version `v0.25.1`
+
+* ![Enhancement][badge-enhancement] When automatically determining the page list (i.e. `pages` is not passed to `makedocs`), Documenter now lists `index.md` before other pages. ([#1355][github-1355])
+
+* ![Enhancement][badge-enhancement] The output text boxes of `@example` blocks are now style differently from the code blocks, to make it easier to visually distinguish between the input and output. ([#1026][github-1026], [#1357][github-1357], [#1360][github-1360])
+
+* ![Enhancement][badge-enhancement] The generated HTML site now displays a footer by default that mentions Julia and Documenter. This can be customized or disabled by passing the `footer` keyword to `Documeter.HTML`. ([#1184][github-1184], [#1365][github-1365])
+
+* ![Enhancement][badge-enhancement] Warnings that cause `makedocs` to error when `strict=true` are now printed as errors when `strict` is set to `true`. ([#1088][github-1088], [#1349][github-1349])
+
+* ![Bugfix][badge-bugfix] In the PDF/LaTeX output, equations that use the `align` or `align*` environment are no longer further wrapped in `equation*`/`split`. ([#1368][github-1368])
+
 ## Version `v0.25.0`
 
 * ![Enhancement][badge-enhancement] Documenter can now be configured to show a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
@@ -15,9 +59,15 @@
 
 * ![Enhancement][badge-enhancement] You can now optionally choose to push pull request preview builds to a different branch and/or different repository than the main docs builds, by setting the optional `branch_previews` and/or `repo_previews` keyword arguments to the `deploydocs` function. Also, you can now optionally choose to use a different SSH key for preview builds, by setting the optional `DOCUMENTER_KEY_PREVIEWS` environment variable; if the `DOCUMENTER_KEY_PREVIEWS` environment variable is not set, then the regular `DOCUMENTER_KEY` environment variable will be used. ([#1307][github-1307], [#1310][github-1310], [#1315][github-1315])
 
+* ![Enhancement][badge-enhancement] The LaTeX/PDF backend now supports the `platform="none"` keyword, which outputs only the TeX source files, rather than a compiled PDF. ([#1338][github-1338], [#1339][github-1339])
+
+* ![Enhancement][badge-enhancement] Linkcheck no longer prints a warning when enountering a `302 Found` temporary redirect. ([#1344][github-1344], [#1345][github-1345])
+
 * ![Bugfix][badge-bugfix] `Deps.pip` is again a closure and gets executed during the `deploydocs` call, not before it. ([#1240][github-1240])
 
 * ![Bugfix][badge-bugfix] Custom assets (CSS, JS etc.) for the HTML build are now again included as the very last elements in the `<head>` tag so that it would be possible to override default the default assets. ([#1328][github-1328])
+
+* ![Bugfix][badge-bugfix] Docstrings from `@autodocs` blocks are no longer sorted according to an undocumented rule where exported names should come before unexported names. Should this behavior be necessary, the `@autodocs` can be replaced by two separate blocks that use the `Public` and `Private` options to filter out the unexported or exported docstrings in the first or the second block, respectively. ([#964][github-964], [#1323][github-1323])
 
 ## Version `v0.24.11`
 
@@ -491,6 +541,7 @@
 [github-958]: https://github.com/JuliaDocs/Documenter.jl/pull/958
 [github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
 [github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
+[github-964]: https://github.com/JuliaDocs/Documenter.jl/issues/964
 [github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
@@ -511,6 +562,7 @@
 [github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
 [github-1015]: https://github.com/JuliaDocs/Documenter.jl/pull/1015
 [github-1025]: https://github.com/JuliaDocs/Documenter.jl/pull/1025
+[github-1026]: https://github.com/JuliaDocs/Documenter.jl/issues/1026
 [github-1027]: https://github.com/JuliaDocs/Documenter.jl/issues/1027
 [github-1028]: https://github.com/JuliaDocs/Documenter.jl/pull/1028
 [github-1029]: https://github.com/JuliaDocs/Documenter.jl/pull/1029
@@ -532,6 +584,7 @@
 [github-1077]: https://github.com/JuliaDocs/Documenter.jl/pull/1077
 [github-1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [github-1082]: https://github.com/JuliaDocs/Documenter.jl/pull/1082
+[github-1088]: https://github.com/JuliaDocs/Documenter.jl/issues/1088
 [github-1089]: https://github.com/JuliaDocs/Documenter.jl/pull/1089
 [github-1094]: https://github.com/JuliaDocs/Documenter.jl/pull/1094
 [github-1097]: https://github.com/JuliaDocs/Documenter.jl/pull/1097
@@ -554,6 +607,7 @@
 [github-1171]: https://github.com/JuliaDocs/Documenter.jl/pull/1171
 [github-1173]: https://github.com/JuliaDocs/Documenter.jl/pull/1173
 [github-1180]: https://github.com/JuliaDocs/Documenter.jl/pull/1180
+[github-1184]: https://github.com/JuliaDocs/Documenter.jl/issues/1184
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
@@ -581,7 +635,27 @@
 [github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
 [github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
+[github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
+[github-1337]: https://github.com/JuliaDocs/Documenter.jl/issues/1337
+[github-1338]: https://github.com/JuliaDocs/Documenter.jl/issues/1338
+[github-1339]: https://github.com/JuliaDocs/Documenter.jl/pull/1339
+[github-1344]: https://github.com/JuliaDocs/Documenter.jl/issues/1344
+[github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
+[github-1349]: https://github.com/JuliaDocs/Documenter.jl/pull/1349
+[github-1355]: https://github.com/JuliaDocs/Documenter.jl/pull/1355
+[github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
+[github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
+[github-1362]: https://github.com/JuliaDocs/Documenter.jl/issues/1362
+[github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
+[github-1367]: https://github.com/JuliaDocs/Documenter.jl/pull/1367
+[github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
+[github-1369]: https://github.com/JuliaDocs/Documenter.jl/pull/1369
+[github-1379]: https://github.com/JuliaDocs/Documenter.jl/issues/1379
+[github-1388]: https://github.com/JuliaDocs/Documenter.jl/pull/1388
+[github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
+[github-1392]: https://github.com/JuliaDocs/Documenter.jl/pull/1392
+[github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
