@@ -405,7 +405,7 @@ By default Documenter will create a link called `stable` that points to the late
 https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
 ```
 
-It is recommended to use this link, rather then the versioned links, since it will be updated
+It is recommended to use this link, rather than the versioned links, since it will be updated
 with new releases.
 
 !!! info "Fixing broken release deployments"
