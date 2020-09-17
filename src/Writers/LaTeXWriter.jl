@@ -741,8 +741,12 @@ function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: Abst
 end
 
 function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
-    push!(out, (p.first, "", depth))
-    files!(out, p.second, depth)
+    if p.second isa String
+        files!(out, p.first=>String(p.second), depth)
+    else
+        push!(out, (p.first, "", depth))
+        files!(out, p.second, depth)
+    end
 end
 
 files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)
