@@ -6,19 +6,20 @@ This page serves as a quickstart guide and it will get you up and running with w
 
 This
 
-![img](/assets/docu.png)
+![](assets/docu.png)
 
 ## How 
 
 1. Toml who? This is very generic to Julia and you can get it by going to your folder, opening Julia and typing these. [Source](https://invenia.github.io/PkgTemplates.jl/stable/user/)
-    - ```jl
+
+    ```jl
     ]add PkgTemplates
     using PkgTemplates
     t = Template()
     t("MyPkg")    
     ```
 This will create a bunch of default folders which we will use.
-> Note that PkgTemplates can generate the documentation for you. It requires a bit of tinkering but you can skip a few steps if you want. (Go to step 8 directly :) )
+> Note that PkgTemplates can [generate the documentation for you](https://invenia.github.io/PkgTemplates.jl/stable/user/#PkgTemplates.Documenter). It requires a bit of tinkering but you can skip a few steps if you want. (Go to step 8 directly :) )
 2. Get the package
    ```jl
    ]add Documenter
@@ -62,7 +63,8 @@ This will create a bunch of default folders which we will use.
     - Instead of classification and Datasets, put the names of the other files you have in your source
     - Note that this is a very basic initialization and more complex ones can be found in their [documentation](https://juliadocs.github.io/Documenter.jl/stable/man/guide/#Navigation)
 7. After that, go to the docs folder and do 
-    - ```jl
+
+    ```jl
     julia make.jl
     ```
 8. This will generate everything you need. You can test it out by opening docs/build/index.html
@@ -98,8 +100,6 @@ This will create a bunch of default folders which we will use.
 
 ## Tips and informal rules
 
-Some tips from experience..
-
 1. Write docstrings as you go. Because you will never feel like writing them later
 2. No need to write paragraphs, just explain what to do and how to invoke the function
 3. Be short and to the point
@@ -112,10 +112,13 @@ Some tips from experience..
     ```julia
     downloader("http://www.julialang.org/", "/tmp/","index. html")```
     ```
-5. ### Learn markdown
+5. Learn *markdown* 
+
 It will save your life over and over again.
 Here is the best cheat sheet I found to learn it [CHEAT](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
-6. ### Automation!
+
+6. *Automation!*
+
 If you want to automate this workflow, use a [github action](https://discourse.julialang.org/t/step-by-step-documentation-tutorial/46093/4)
 
 
