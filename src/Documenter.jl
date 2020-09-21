@@ -163,14 +163,8 @@ value of the generated link:
 For example if you are using GitLab.com, you could use
 
 ```julia
-makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
+makedocs(repo = "https://gitlab.com/user/project/blob/{commit}{path}#{line}")
 ```
-
-
-
-[`Remotes.GitHub`](@ref)
-
-[`Remotes.Remote`](@ref)
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
