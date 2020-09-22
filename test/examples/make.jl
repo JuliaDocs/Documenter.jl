@@ -395,3 +395,22 @@ else
     @info "Skipping build: LaTeXWriter/latex_texonly" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
+
+examples_latex_headings_doc = if "latex_headings" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_headings")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "none"),
+        sitename = "Documenter LaTeX Heading Tests",
+        root  = examples_root,
+        build = "builds/latex_headings",
+        pages = ["Part1" => "headings/f1.md",
+                "Part2" => ["headings/f2.md", "headings/f3.md"],
+                "Part3" => "headings/f4.md"
+                ],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_headings" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
