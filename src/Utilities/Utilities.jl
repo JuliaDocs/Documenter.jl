@@ -528,13 +528,6 @@ newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
 
 
-using IOCapture
-function withoutput(f)
-    c = iocapture(f, throwerrors=false)
-    return c.value, !c.error, c.backtrace, c.output
-end
-
-
 """
     issubmodule(sub, mod)
 

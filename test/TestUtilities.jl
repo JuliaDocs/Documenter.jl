@@ -1,6 +1,6 @@
 module TestUtilities
 using Test
-using Documenter.Utilities: withoutput
+import IOCapture
 
 export @quietly
 
@@ -19,39 +19,38 @@ function Base.showerror(io::IO, e::QuietlyException)
 end
 
 function _quietly(f, expr, source)
-    result, success, backtrace, output = withoutput(f)
+    c = IOCapture.iocapture(f; throwerrors=false)
     haskey(ENV, "DOCUMENTER_TEST_QUIETLY") && open(QUIETLY_LOG; write=true, append=true) do io
-        println(io, "@quietly: success = $(success) / $(sizeof(output)) bytes of output captured")
+        println(io, "@quietly: c.error = $(c.error) / $(sizeof(c.output)) bytes of output captured")
         println(io, "@quietly: $(source.file):$(source.line)")
-        println(io, "@quietly: typeof(result) = ", typeof(result))
+        println(io, "@quietly: typeof(result) = ", typeof(c.value))
         println(io, "@quietly: STDOUT")
         println(io, output)
         println(io, "@quietly: end of STDOUT")
         if success
             println(io, "@quietly: result =")
-            println(io, result)
+            println(io, c.value)
         else
             println(io, "@quietly: result (error) =")
-            showerror(io, result, backtrace)
+            showerror(io, c.value, c.backtrace)
         end
     end
-    if success
-        printstyled("@quietly: success, $(sizeof(output)) bytes of output hidden\n"; color=:magenta)
-        return result
+    if !c.error
+        printstyled("@quietly: success, $(sizeof(c.output)) bytes of output hidden\n"; color=:magenta)
+        return c.value
     else
         @error """
-        An error was thrown in @quietly, $(sizeof(output)) bytes of output captured
-        $(typeof(result)) at $(source.file):$(source.line) in expression:
+        An error was thrown in @quietly, $(sizeof(c.output)) bytes of output captured
+        $(typeof(c.value)) at $(source.file):$(source.line) in expression:
         $(expr)
-        $(sizeof(output)) bytes of output captured
         """
-        if !isempty(output)
+        if !isempty(c.output)
             printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
-            print(output)
-            last(output) != "\n" && println()
+            print(c.output)
+            last(c.output) != "\n" && println()
             printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
         end
-        throw(QuietlyException(result, backtrace))
+        throw(QuietlyException(c.value, c.backtrace))
     end
 end
 macro quietly(expr)
@@ -64,30 +63,4 @@ macro quietly(expr)
     end
 end
 
-"Runs the tests for TestUtilities"
-function test()
-    @testset "TestUtilities" begin
-        # Various tests use Utilities.withoutput to capture output. So we'll first make sure
-        # that it is working properly.
-        @testset "withoutput" begin
-            let (result, success, backtrace, output) = withoutput() do
-                    println("test stdout")
-                end
-                @test success
-                @test result === nothing
-                @test output == "test stdout\n"
-            end
-            let (result, success, backtrace, output) = withoutput(() -> 42)
-                @test success
-                @test result === 42
-                @test output == ""
-            end
-            let (result, success, backtrace, output) = withoutput(() -> error("test error"))
-                @test !success
-                @test result isa ErrorException
-                @test output == ""
-            end
-        end
-    end
-end
 end

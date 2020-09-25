@@ -9,11 +9,13 @@
 module DocTestAPITests
 using Test
 using Documenter
+import IOCapture
 
 # Test the Documenter.doctest function
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
-    (result, success, backtrace, output) = Documenter.Utilities.withoutput() do
+    (result, success, backtrace, output) =
+    c = IOCapture.iocapture(throwerrors=false) do
         # Running inside a Task to make sure that the parent testsets do not interfere.
         t = Task(() -> doctest(args...; kwargs...))
         schedule(t)
@@ -27,13 +29,13 @@ function run_doctest(f, args...; kwargs...)
         end
     end
 
-    @debug """run_doctest($args;, $kwargs) -> $(success ? "success" : "fail")
+    @debug """run_doctest($args;, $kwargs) -> $(c.error ? "fail" : "success")
     ------------------------------------ output ------------------------------------
-    $(output)
+    $(c.output)
     --------------------------------------------------------------------------------
-    """ result stacktrace(backtrace)
+    """ c.value stacktrace(c.backtrace)
 
-    f(result, success, backtrace, output)
+    f(c.value, !c.error, c.backtrace, c.output)
 end
 
 """

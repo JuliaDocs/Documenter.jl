@@ -16,6 +16,7 @@ import ..Documenter:
 
 import Markdown, REPL
 import .Utilities: Markdown2
+import IOCapture
 
 # Julia code block testing.
 # -------------------------
@@ -216,14 +217,14 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
                 # see https://github.com/JuliaLang/julia/pull/33864
                 ex = REPL.softscope!(ex)
             end
-            (value, success, backtrace, text) = Utilities.withoutput() do
+            c = IOCapture.iocapture(throwerrors=false) do
                 Core.eval(sandbox, ex)
             end
-            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
-            result.value = value
-            print(result.stdout, text)
-            if !success
-                result.bt = backtrace
+            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+            result.value = c.value
+            print(result.stdout, c.output)
+            if c.error
+                result.bt = c.backtrace
             end
             # don't evaluate further if there is a parse error
             isa(ex, Expr) && ex.head === :error && break
@@ -243,13 +244,13 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
     for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
-        (value, success, backtrace, text) = Utilities.withoutput() do
+        c = IOCapture.iocapture(throwerrors=false) do
             Core.eval(sandbox, ex)
         end
-        result.value = value
-        print(result.stdout, text)
-        if !success
-            result.bt = backtrace
+        result.value = c.value
+        print(result.stdout, c.output)
+        if c.error
+            result.bt = c.backtrace
             break
         end
     end
@@ -324,10 +325,9 @@ function result_to_string(buf, value)
 end
 
 function error_to_string(buf, er, bt)
-    # Remove unimportant backtrace info. TODO: this backtrace handling should maybe be done
-    # by Utilities.withoutput() already.
+    # Remove unimportant backtrace info.
     bt = remove_common_backtrace(bt, backtrace())
-    # Remove everything below the last eval call (which should be the one in withoutput)
+    # Remove everything below the last eval call (which should be the one in IOCapture.iocapture)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
     bt = (index === nothing) ? bt : bt[1:(index - 1)]
     # Print a REPL-like error message.

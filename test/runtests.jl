@@ -3,9 +3,6 @@ import Documenter
 include("TestUtilities.jl"); using .TestUtilities
 
 @testset "Documenter" begin
-    # Test TestUtilities
-    TestUtilities.test()
-
     # Build the example docs
     @info "Building example/make.jl"
     include("examples/make.jl")
