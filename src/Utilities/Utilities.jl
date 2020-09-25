@@ -528,63 +528,10 @@ newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
 
 
-# Output redirection.
-# -------------------
-using Logging
-
-"""
-Call a function and capture all `stdout` and `stderr` output.
-
-    withoutput(f) --> (result, success, backtrace, output)
-
-where
-
-  * `result` is the value returned from calling function `f`.
-  * `success` signals whether `f` has thrown an error, in which case `result` stores the
-    `Exception` that was raised.
-  * `backtrace` a `Vector{Ptr{Cvoid}}` produced by `catch_backtrace()` if an error is thrown.
-  * `output` is the combined output of `stdout` and `stderr` during execution of `f`.
-
-"""
+using IOCapture
 function withoutput(f)
-    # Save the default output streams.
-    default_stdout = stdout
-    default_stderr = stderr
-
-    # Redirect both the `stdout` and `stderr` streams to a single `Pipe` object.
-    pipe = Pipe()
-    Base.link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true)
-    redirect_stdout(pipe.in)
-    redirect_stderr(pipe.in)
-    # Also redirect logging stream to the same pipe
-    logger = ConsoleLogger(pipe.in)
-
-    # Bytes written to the `pipe` are captured in `output` and converted to a `String`.
-    output = UInt8[]
-
-    # Run the function `f`, capturing all output that it might have generated.
-    # Success signals whether the function `f` did or did not throw an exception.
-    result, success, backtrace = with_logger(logger) do
-        try
-            f(), true, Vector{Ptr{Cvoid}}()
-        catch err
-            # InterruptException should never happen during normal doc-testing
-            # and not being able to abort the doc-build is annoying (#687).
-            isa(err, InterruptException) && rethrow(err)
-
-            err, false, catch_backtrace()
-        finally
-            # Force at least a single write to `pipe`, otherwise `readavailable` blocks.
-            println()
-            # Restore the original output streams.
-            redirect_stdout(default_stdout)
-            redirect_stderr(default_stderr)
-            # NOTE: `close` must always be called *after* `readavailable`.
-            append!(output, readavailable(pipe))
-            close(pipe)
-        end
-    end
-    return result, success, backtrace, chomp(String(output))
+    c = iocapture(f, throwerrors=false)
+    return c.value, !c.error, c.backtrace, c.output
 end
 
 
