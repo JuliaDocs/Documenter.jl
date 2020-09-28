@@ -38,7 +38,7 @@ jobs:
           using Pkg
           Pkg.instantiate()
           Pkg.develop(PackageSpec(path=pwd()))
-          Pkg.add("IOCapture")
+          Pkg.add(["IOCapture", "DocumenterMarkdown"])
         '
       - julia --project=test/examples test/examples/tests_latex.jl
       name: "PDF/LaTeX backend"
