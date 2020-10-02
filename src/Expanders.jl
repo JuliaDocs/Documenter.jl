@@ -20,7 +20,7 @@ import .Utilities: Selectors
 
 import Markdown, REPL
 import Base64: stringmime
-
+import IOCapture
 
 function expand(doc::Documents.Document)
     priority_pages = filter(doc.user.expandfirst) do src
@@ -550,22 +550,22 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             code = x.code
         end
         for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
-            (value, success, backtrace, text) = Utilities.withoutput() do
+            c = IOCapture.iocapture(throwerrors=false) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
                 end
             end
-            Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
-            result = value
-            print(buffer, text)
-            if !success
+            Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+            result = c.value
+            print(buffer, c.output)
+            if c.error
                 push!(doc.internal.errors, :example_block)
                 @warn("""
                     failed to run `@example` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
                     ```
-                    """, value)
+                    """, c.value)
                 page.mapping[x] = x
                 return
             end
@@ -612,21 +612,21 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             # see https://github.com/JuliaLang/julia/pull/33864
             ex = REPL.softscope!(ex)
         end
-        (value, success, backtrace, text) = Utilities.withoutput() do
+        c = IOCapture.iocapture(throwerrors=false) do
             cd(page.workdir) do
                 Core.eval(mod, ex)
             end
         end
-        Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
-        result = value
-        output = if success
+        Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+        result = c.value
+        output = if !c.error
             hide = REPL.ends_with_semicolon(input)
-            Documenter.DocTests.result_to_string(buffer, hide ? nothing : value)
+            Documenter.DocTests.result_to_string(buffer, hide ? nothing : c.value)
         else
-            Documenter.DocTests.error_to_string(buffer, value, [])
+            Documenter.DocTests.error_to_string(buffer, c.value, [])
         end
         isempty(input) || println(out, prepend_prompt(input))
-        print(out, text)
+        print(out, c.output)
         if isempty(input) || isempty(output)
             println(out)
         else

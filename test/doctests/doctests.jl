@@ -12,6 +12,7 @@ module DocTestsTests
 using Test
 using Documenter
 using Documenter.Utilities.TextDiff: Diff, Words
+import IOCapture
 
 include("src/FooWorking.jl")
 include("src/FooBroken.jl")
@@ -29,7 +30,7 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
         cp(joinpath(@__DIR__, "src", mdfile), joinpath(srcdir, mdfile))
     end
 
-    (result, success, backtrace, output) = Documenter.Utilities.withoutput() do
+    c = IOCapture.iocapture(throwerrors=false) do
         makedocs(
             sitename = " ",
             root = dir,
@@ -38,21 +39,21 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
         )
     end
 
-    @debug """run_makedocs($mdfiles, modules=$modules) -> $(success ? "success" : "fail")
+    @debug """run_makedocs($mdfiles, modules=$modules) -> $(c.error ? "fail" : "success")
     ------------------------------------ output ------------------------------------
-    $(output)
+    $(c.output)
     --------------------------------------------------------------------------------
-    """ result stacktrace(backtrace) dir
+    """ c.value stacktrace(c.backtrace) dir
 
-    write(joinpath(dir, "output"), output)
-    write(joinpath(dir, "output.onormalize"), onormalize(output))
+    write(joinpath(dir, "output"), c.output)
+    write(joinpath(dir, "output.onormalize"), onormalize(c.output))
     open(joinpath(dir, "result"), "w") do io
-        show(io, "text/plain", result)
+        show(io, "text/plain", c.value)
         println(io, "-"^80)
-        show(io, "text/plain", stacktrace(backtrace))
+        show(io, "text/plain", stacktrace(c.backtrace))
     end
 
-    f(result, success, backtrace, output)
+    f(c.value, !c.error, c.backtrace, c.output)
 end
 
 function printoutput(result, success, backtrace, output)
