@@ -1726,6 +1726,11 @@ end
 
 mdconvert(html::Documents.RawHTML, parent; kwargs...) = Tag(Symbol("#RAW#"))(html.code)
 
+function _strip_out(regex::Regex, string)
+    m = match(regex, string)
+    return m === nothing ? string : m[1]
+end
+
 # Select the "best" representation for HTML output.
 mdconvert(mo::Documents.MultiOutput, parent; kwargs...) =
     Base.invokelatest(mdconvert, mo.content, parent; kwargs...)
@@ -1746,8 +1751,9 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \], we
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
         # delimiters around it anyway.
-        m = match(r"\s*\\\[(.*)\\\]\s*", d[MIME"text/latex"()])
-        out = Markdown.LaTeX(m === nothing ? d[MIME"text/latex"()] : m[1])
+        out2 = _strip_out(r"\s*\\\[(.*)\\\]\s*", d[MIME"text/latex"()])
+        out1 = _strip_out(r"\s*\$\$(.*)\$\$\s*", out2)
+        out = Markdown.LaTeX(out1)
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
