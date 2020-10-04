@@ -634,7 +634,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         r = JSDependencies.RequireJS([
             RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
-        typeof(settings.mathengine) == KaTeX ? RD.mathengine!(r, settings.mathengine) :
+        isa(settings.mathengine, KaTeX) ? RD.mathengine!(r, settings.mathengine) :
             RD.mathengine!(r, settings.mathengine, settings.mathjaxcdn)
         RD.highlightjs!(r, settings.highlights)
         for filename in readdir(joinpath(ASSETS, "js"))
