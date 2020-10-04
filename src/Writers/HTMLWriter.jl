@@ -510,8 +510,8 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax2; 
-                cdn::String = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML")
+    function mathengine!(r::RequireJS, engine::MathJax2, mathjaxcdn::String)
+        cdn = isempty(mathjaxcdn) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : mathjaxcdn
         push!(r, RemoteLibrary(
             "mathjax",
             cdn,
@@ -523,8 +523,8 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax3;
-                cdn::String = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js")
+    function mathengine!(r::RequireJS, engine::MathJax3, mathjaxcdn::String)
+        cdn = isempty(mathjaxcdn) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : mathjaxcdn
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
