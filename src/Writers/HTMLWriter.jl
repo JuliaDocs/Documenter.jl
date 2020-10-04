@@ -373,6 +373,7 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
+    mathjaxcdn    :: String
     footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
 
@@ -387,6 +388,7 @@ struct HTML <: Documenter.Writer
             sidebar_sitename :: Bool = true,
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
+            mathjaxcdn    :: String = "",
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -418,7 +420,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, mathjaxcdn, footer, lang)
     end
 end
 
@@ -508,10 +510,11 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax2)
+    function mathengine!(r::RequireJS, engine::MathJax2, cdn::String)
+        isempty(cdn) && cdn = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML"
         push!(r, RemoteLibrary(
             "mathjax",
-            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
+            cdn,
             exports = "MathJax"
         ))
         push!(r, Snippet(["mathjax"], ["MathJax"],
@@ -520,14 +523,15 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax3)
+    function mathengine!(r::RequireJS, engine::MathJax3, cdn::String)
+        isempty(cdn) && cdn = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js"
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
 
             (function () {
                 var script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js';
+                script.src = $cdn;
                 script.async = true;
                 document.head.appendChild(script);
             })();
@@ -630,7 +634,8 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         r = JSDependencies.RequireJS([
             RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
-        RD.mathengine!(r, settings.mathengine)
+        isa(settings.mathengine, KaTeX) ? RD.mathengine!(r, settings.mathengine) :
+            RD.mathengine!(r, settings.mathengine, settings.mathjaxcdn)
         RD.highlightjs!(r, settings.highlights)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
