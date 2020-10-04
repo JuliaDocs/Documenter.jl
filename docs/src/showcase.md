@@ -274,7 +274,7 @@ The [`@index` block](@ref) can be used to generate a list of all the docstrings 
 Pages = ["showcase.md"]
 ```
 
-## Multiple uses of the same symbol
+### Multiple uses of the same symbol
 
 Sometimes a symbol has multiple docstrings, for example a type definition, inner and outer constructors. The example
 below shows how to use specific ones in the documentation.
