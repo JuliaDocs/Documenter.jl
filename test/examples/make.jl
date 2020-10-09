@@ -206,7 +206,9 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                     :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
                 ),
             ),
-        )),
+        ); 
+            url = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML"
+        ),
     )
 else
     @info "Skipping build: HTML/deploy" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
@@ -224,7 +226,9 @@ examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
                 "tags" => "ams",
                 "packages" => ["base", "ams", "autoload", "physics"],
             ),
-        )),
+        ); 
+            url = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js"
+        ),
     )
 else
     @info "Skipping build: HTML/deploy MathJax v3" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)

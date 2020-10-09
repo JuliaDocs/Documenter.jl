@@ -190,7 +190,8 @@ user-provided dictionary is used.
 """
 struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false)
+    url :: String
+    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false; url = "")
         default = Dict(
             :tex2jax => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
@@ -212,7 +213,7 @@ struct MathJax2 <: MathEngine
             ],
             :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -241,7 +242,8 @@ user-provided dictionary is used.
 """
 struct MathJax3 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false)
+    url :: String
+    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false; url = "")
         default = Dict(
             :tex => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
@@ -253,7 +255,7 @@ struct MathJax3 <: MathEngine
                 "processHtmlClass" => "tex2jax_process",
             )
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -373,7 +375,6 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
-    mathjaxcdn    :: String
     footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
 
@@ -388,7 +389,6 @@ struct HTML <: Documenter.Writer
             sidebar_sitename :: Bool = true,
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
-            mathjaxcdn    :: String = "",
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -420,7 +420,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, mathjaxcdn, footer, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
     end
 end
 
@@ -510,11 +510,11 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax2, cdn::String)
-        isempty(cdn) && cdn = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML"
+    function mathengine!(r::RequireJS, engine::MathJax2)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
-            cdn,
+            url,
             exports = "MathJax"
         ))
         push!(r, Snippet(["mathjax"], ["MathJax"],
@@ -523,15 +523,15 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax3, cdn::String)
-        isempty(cdn) && cdn = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js"
+    function mathengine!(r::RequireJS, engine::MathJax3)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
 
             (function () {
                 var script = document.createElement('script');
-                script.src = $cdn;
+                script.src = $url;
                 script.async = true;
                 document.head.appendChild(script);
             })();
@@ -634,8 +634,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         r = JSDependencies.RequireJS([
             RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
-        isa(settings.mathengine, KaTeX) ? RD.mathengine!(r, settings.mathengine) :
-            RD.mathengine!(r, settings.mathengine, settings.mathjaxcdn)
+        RD.mathengine!(r, settings.mathengine)
         RD.highlightjs!(r, settings.highlights)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
