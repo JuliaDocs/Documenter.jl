@@ -221,11 +221,13 @@ examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
     html_doc("html-mathjax2-custom",
         MathJax2(
             Dict(
-                :loader => Dict("load" => ["[tex]/physics"]),
-                :tex => Dict(
-                    "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
-                    "tags" => "ams",
-                    "packages" => ["base", "ams", "autoload", "physics"],
+                :TeX => Dict(
+                    :equationNumbers => Dict(:autoNumber => "AMS"),
+                    :Macros => Dict(
+                        :ket => ["|#1\\rangle", 1],
+                        :bra => ["\\langle#1|", 1],
+                        :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                    ),
                 ),
             ),
             url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js",
