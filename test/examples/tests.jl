@@ -51,7 +51,7 @@ end
             if name == "html-mathjax3"
                 @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3", documenter_js)
             elseif name == "html-mathjax2-custom"
-                @test occursin("https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_CHTML", documenter_js)
+                @test occursin("https://cdn.jsdelivr.net/npm/mathjax@2/MathJax", documenter_js)
             elseif name == "html-mathjax3-custom"
                 @test occursin("script.src = https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js;", documenter_js)
                 @test_broken occursin("script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';", documenter_js)

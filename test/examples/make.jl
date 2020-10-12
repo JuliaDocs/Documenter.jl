@@ -228,7 +228,7 @@ examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
                     "packages" => ["base", "ams", "autoload", "physics"],
                 ),
             ),
-            url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_CHTML",
+            url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js",
         ),
     )
 else
