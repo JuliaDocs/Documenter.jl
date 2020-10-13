@@ -1726,11 +1726,6 @@ end
 
 mdconvert(html::Documents.RawHTML, parent; kwargs...) = Tag(Symbol("#RAW#"))(html.code)
 
-function _strip_out(regex::Regex, string)
-    m = match(regex, string)
-    return m === nothing ? string : m[1]
-end
-
 # Select the "best" representation for HTML output.
 mdconvert(mo::Documents.MultiOutput, parent; kwargs...) =
     Base.invokelatest(mdconvert, mo.content, parent; kwargs...)
@@ -1748,12 +1743,18 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"image/jpeg"())
         out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
     elseif haskey(d, MIME"text/latex"())
-        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \], we
+        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
         # delimiters around it anyway.
-        out2 = _strip_out(r"\s*\\\[(.*)\\\]\s*", d[MIME"text/latex"()])
-        out1 = _strip_out(r"\s*\$\$(.*)\$\$\s*", out2)
-        out = Markdown.LaTeX(out1)
+        latex = d[MIME"text/latex"()]
+        equation = false
+        m_bracket = match(r"\s*\\\[(.*)\\\]\s*", latex)
+        m_dollars = match(r"\s*\\\[(.*)\\\]\s*", latex)
+        if m_bracket === nothing && m_dollars === nothing
+            out = Utilities.mdparse(latex; mode = :single)
+        else
+            out = Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
+        end
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
