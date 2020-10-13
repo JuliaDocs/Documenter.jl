@@ -422,8 +422,14 @@ In an `@example` or `@eval`block, it renders as an equation:
 LaTeXEquation("x^2")
 ```
 
-Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`.
+Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`:
 
 ```@example showablelatex
 LaTeXEquation("\\[\\left[ \\begin{array}{rr}x&2 x\\end{array}\\right]\\]")
+```
+
+or wrapped in `$$ ... $$`:
+
+```@example showablelatex
+LaTeXEquation("$$\\begin{bmatrix} 1 & 2\\ 3 & 4 \\end{bmatrix}$$")
 ```
