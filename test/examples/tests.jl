@@ -19,7 +19,10 @@ end
 
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
-        (Main.examples_html_doc, "html"), (Main.examples_html_mathjax3_doc, "html-mathjax3")
+        (Main.examples_html_doc, "html"),
+        (Main.examples_html_mathjax2_custom_doc, "html-mathjax2-custom"),
+        (Main.examples_html_mathjax3_doc, "html-mathjax3"),
+        (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom")
     ]
         @test isa(doc, Documenter.Documents.Document)
 
@@ -47,6 +50,11 @@ end
             documenter_js = read(joinpath(build_dir, "assets", "documenter.js"), String)
             if name == "html-mathjax3"
                 @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3", documenter_js)
+            elseif name == "html-mathjax2-custom"
+                @test occursin("https://cdn.jsdelivr.net/npm/mathjax@2/MathJax", documenter_js)
+            elseif name == "html-mathjax3-custom"
+                @test occursin("script.src = https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js;", documenter_js)
+                @test_broken occursin("script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';", documenter_js)
             else # name == "html", uses MathJax2
                 @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2", documenter_js)
             end

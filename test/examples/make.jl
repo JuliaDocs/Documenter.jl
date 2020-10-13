@@ -18,7 +18,8 @@ isdefined(@__MODULE__, :examples_root) && error("examples_root is already define
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["markdown", "html", "html-mathjax3", "html-local"]
+    ["markdown", "html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
+    "html-local"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -116,7 +117,8 @@ function withassets(f, assets...)
         isfile(src(asset)) || error("$(asset) is missing")
     end
     for asset in assets
-        cp(src(asset), dst(asset))
+        isfile(dst(asset)) && @warn "Asset '$asset' present, dirty build directory. Overwriting." src(asset) dst(asset)
+        cp(src(asset), dst(asset), force=true)
     end
     try
         f()
@@ -206,16 +208,35 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                     :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
                 ),
             ),
-        ); 
-            url = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML"
-        ),
+        )),
     )
 else
     @info "Skipping build: HTML/deploy" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
-# same as HTML, but with MathJax3
+# Same as HTML, but with variations on the MathJax configuration
+examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build using MathJax v2 (custom URL)")
+    html_doc("html-mathjax2-custom",
+        MathJax2(
+            Dict(
+                :TeX => Dict(
+                    :equationNumbers => Dict(:autoNumber => "AMS"),
+                    :Macros => Dict(
+                        :ket => ["|#1\\rangle", 1],
+                        :bra => ["\\langle#1|", 1],
+                        :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                    ),
+                ),
+            ),
+            url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js",
+        ),
+    )
+else
+    @info "Skipping build: HTML/deploy MathJax v2 (custom URL)" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
 examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / deployment build using MathJax v3")
     html_doc("html-mathjax3",
@@ -226,12 +247,29 @@ examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
                 "tags" => "ams",
                 "packages" => ["base", "ams", "autoload", "physics"],
             ),
-        ); 
-            url = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js"
-        ),
+        )),
     )
 else
     @info "Skipping build: HTML/deploy MathJax v3" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+examples_html_mathjax3_custom_doc = if "html-mathjax3-custom" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build using MathJax v3 (custom URL)")
+    html_doc("html-mathjax3-custom",
+        MathJax3(
+            Dict(
+                :loader => Dict("load" => ["[tex]/physics"]),
+                :tex => Dict(
+                    "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                    "tags" => "ams",
+                    "packages" => ["base", "ams", "autoload", "physics"],
+                ),
+            ),
+            url = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
+        ),
+    )
+else
+    @info "Skipping build: HTML/deploy MathJax v3 (custom URL)" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 

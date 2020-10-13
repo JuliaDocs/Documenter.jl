@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.25.3`
+
+* ![Enhancement][badge-enhancement] The URL of the MathJax module can now be customized by passing the `url` keyword argument to the constructors (`MathJax2`, `MathJax3`). ([#1428][github-1428], [#1430][github-1430])
+
 ## Version `v0.25.2`
 
 * ![Deprecation][badge-deprecation] The `Documenter.MathJax` type, used to specify the mathematics rendering engine in the HTML output, is now deprecated in favor of `Documenter.MathJax2`. ([#1362][github-1362], [#1367][github-1367])
@@ -650,6 +654,8 @@
 [github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
 [github-1392]: https://github.com/JuliaDocs/Documenter.jl/pull/1392
 [github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
+[github-1428]: https://github.com/JuliaDocs/Documenter.jl/issues/1428
+[github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
