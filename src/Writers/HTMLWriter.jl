@@ -187,6 +187,9 @@ resulting configuration dictionary will contain the values from both dictionarie
 setting your own `tex2jax` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
+
+user can specify a Content Delivery Network (CDN) link via the optional argument of `url` to
+access a particular minor version of [MathJax v2 rendering engine](https://www.mathjax.org/).
 """
 struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
@@ -239,6 +242,9 @@ resulting configuration dictionary will contain the values from both dictionarie
 setting your own `tex` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
+
+user can specify a Content Delivery Network (CDN) link via the optional argument of `url` to
+access a particular minor version of [MathJax v3 rendering engine](https://www.mathjax.org/).
 """
 struct MathJax3 <: MathEngine
     config :: Dict{Symbol,Any}
@@ -531,7 +537,7 @@ module RD
 
             (function () {
                 var script = document.createElement('script');
-                script.src = $url;
+                script.src = '$url';
                 script.async = true;
                 document.head.appendChild(script);
             })();
