@@ -188,8 +188,9 @@ setting your own `tex2jax` value will override the default). This can be overrid
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
 
-user can specify a Content Delivery Network (CDN) link via the optional argument of `url` to
-access a particular minor version of [MathJax v2 rendering engine](https://www.mathjax.org/).
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version). The URL should just refer to the file and not contain any
+query parameters (e.g. `?config=TeX-AMS-MML_CHTML` must be removed).
 """
 struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
@@ -243,8 +244,9 @@ setting your own `tex` value will override the default). This can be overridden 
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
 
-user can specify a Content Delivery Network (CDN) link via the optional argument of `url` to
-access a particular minor version of [MathJax v3 rendering engine](https://www.mathjax.org/).
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version). The URL should just refer to the file and not contain any
+query parameters (e.g. `?config=TeX-AMS-MML_CHTML` must be removed).
 """
 struct MathJax3 <: MathEngine
     config :: Dict{Symbol,Any}
