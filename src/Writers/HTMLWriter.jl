@@ -1749,7 +1749,7 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         latex = d[MIME"text/latex"()]
         equation = false
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*", latex)
-        m_dollars = match(r"\s*\\\[(.*)\\\]\s*", latex)
+        m_dollars = match(r"\s*\\$$(.*)\\$$\s*", latex)
         if m_bracket === nothing && m_dollars === nothing
             out = Utilities.mdparse(latex; mode = :single)
         else
