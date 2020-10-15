@@ -2,7 +2,7 @@
 
 ## Version `v0.25.3`
 
-* ![Enhancement][badge-enhancement] The URL of the MathJax module can now be customized by passing the `url` keyword argument to the constructors (`MathJax2`, `MathJax3`). ([#1428][github-1428], [#1430][github-1430])
+* ![Enhancement][badge-enhancement] The URL to the MathJax JS module can now be customized by passing the `url` keyword argument to the constructors (`MathJax2`, `MathJax3`). ([#1428][github-1428], [#1430][github-1430])
 
 ## Version `v0.25.2`
 
