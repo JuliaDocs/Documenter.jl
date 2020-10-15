@@ -416,7 +416,7 @@ Base.show(io, ::MIME"text/latex", latex::LaTeXEquation) = write(io, latex.code)
 nothing # hide
 ```
 
-In an `@example` or `@eval`block, it renders as an equation:
+In an `@example` or `@eval` block, it renders as an equation:
 
 ```@example showablelatex
 LaTeXEquation("x^2")
