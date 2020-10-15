@@ -419,8 +419,7 @@ nothing # hide
 In an `@example` or `@eval` block, it renders as an equation:
 
 ```@example showablelatex
-LaTeXEquation("x^2")
-```
+LaTeXEquation("Foo $x^2$ bar.")
 
 Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`:
 
