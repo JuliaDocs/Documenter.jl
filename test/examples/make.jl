@@ -230,7 +230,7 @@ examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
                     ),
                 ),
             ),
-            url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js",
+            url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
         ),
     )
 else

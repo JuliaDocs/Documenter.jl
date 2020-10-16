@@ -189,8 +189,7 @@ setting `override` to `true`, in which case the default values are ignored and o
 user-provided dictionary is used.
 
 The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
-use a particular minor version). The URL should just refer to the file and not contain any
-query parameters (e.g. `?config=TeX-AMS-MML_CHTML` must be removed).
+use a particular minor version).
 """
 struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
@@ -245,8 +244,7 @@ setting `override` to `true`, in which case the default values are ignored and o
 user-provided dictionary is used.
 
 The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
-use a particular minor version). The URL should just refer to the file and not contain any
-query parameters (e.g. `?config=TeX-AMS-MML_CHTML` must be removed).
+use a particular minor version).
 """
 struct MathJax3 <: MathEngine
     config :: Dict{Symbol,Any}
