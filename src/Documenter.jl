@@ -775,6 +775,8 @@ manual pages can be disabled if `source` is set to `nothing`.
 
 **`testset`** specifies the name of test testset (default `Doctests`).
 
+**`doctestfilters`** vector of regex to filter tests (see the manual on [Filtering Doctests](@ref))
+
 **`fix`**, if set to `true`, updates all the doctests that fail with the correct output
 (default `false`).
 
@@ -790,6 +792,7 @@ function doctest(
         modules::AbstractVector{Module};
         fix = false,
         testset = "Doctests",
+        doctestfilters = Regex[],
     )
     function all_doctests()
         dir = mktempdir()
@@ -805,6 +808,7 @@ function doctest(
                 sitename = "",
                 doctest = fix ? :fix : :only,
                 modules = modules,
+                doctestfilters = doctestfilters,
             )
             true
         catch err
