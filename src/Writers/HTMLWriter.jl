@@ -187,10 +187,14 @@ resulting configuration dictionary will contain the values from both dictionarie
 setting your own `tex2jax` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
+
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version).
 """
 struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false)
+    url :: String
+    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false; url = "")
         default = Dict(
             :tex2jax => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
@@ -212,7 +216,7 @@ struct MathJax2 <: MathEngine
             ],
             :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -238,10 +242,14 @@ resulting configuration dictionary will contain the values from both dictionarie
 setting your own `tex` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
+
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version).
 """
 struct MathJax3 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false)
+    url :: String
+    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false; url = "")
         default = Dict(
             :tex => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
@@ -253,7 +261,7 @@ struct MathJax3 <: MathEngine
                 "processHtmlClass" => "tex2jax_process",
             )
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -509,9 +517,10 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax2)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
-            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
+            url,
             exports = "MathJax"
         ))
         push!(r, Snippet(["mathjax"], ["MathJax"],
@@ -521,13 +530,14 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
 
             (function () {
                 var script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js';
+                script.src = '$url';
                 script.async = true;
                 document.head.appendChild(script);
             })();
