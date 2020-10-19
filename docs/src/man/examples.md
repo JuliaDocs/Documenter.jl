@@ -36,7 +36,6 @@ Packages that have tagged versions available in the general Registry:
 - [Gadfly.jl](https://gadflyjl.org/stable/)
 - [GeoStats.jl](https://juliaearth.github.io/GeoStats.jl/stable/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/stable/)
-- [IntervalConstraintProgramming.jl](https://juliaintervals.github.io/IntervalConstraintProgramming.jl/stable/)
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/stable/)
 - [Mimi.jl](https://www.mimiframework.org/Mimi.jl/stable/)
@@ -56,7 +55,7 @@ Packages that have tagged versions available in the general Registry:
 Some projects or organizations maintain dedicated documentation repositories that are
 separate from specific packages.
 
-- [DifferentialEquations.jl](https://docs.sciml.ai/dev/)
+- [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/)
 - [JuliaDocs landing page](https://juliadocs.github.io/dev/)
 - [JuliaImages](https://juliaimages.org)
 - [JuliaMusic](https://juliamusic.github.io/JuliaMusic_documentation.jl/dev/)
