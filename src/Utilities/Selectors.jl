@@ -162,7 +162,10 @@ Selectors.dispatch(MySelector, args...)
 ```
 """
 function dispatch(::Type{T}, x...) where T <: AbstractSelector
-    for t in (sort(subtypes(T); by = order))
+    types = get!(selector_subtypes, T) do
+        sort(subtypes(T); by = order)
+    end
+    for t in types
         if !disable(t) && matcher(t, x...)
             runner(t, x...)
             strict(t) && return
@@ -170,5 +173,10 @@ function dispatch(::Type{T}, x...) where T <: AbstractSelector
     end
     runner(T, x...)
 end
+
+# Under certain circumstances, the function `subtypes` can be very slow
+# (https://github.com/JuliaLang/julia/issues/38079), so to ensure that
+# `dispatch` remains fast we cache the results of `subtypes` here.
+const selector_subtypes = Dict{Type,Vector}()
 
 end
