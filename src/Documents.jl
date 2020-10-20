@@ -231,6 +231,7 @@ struct User
     authors :: String
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
+    throwerrors::Bool # throw an exception if any of the `@example` or `@repl` blocks throws an exception
 end
 
 """
@@ -286,6 +287,7 @@ function Document(plugins = nothing;
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
+        throwerrors::Bool            = false,
         others...
     )
     Utilities.check_kwargs(others)
@@ -318,7 +320,8 @@ function Document(plugins = nothing;
         sitename,
         authors,
         version,
-        highlightsig
+        highlightsig,
+        throwerrors,
     )
     internal = Internal(
         Utilities.assetsdir(),

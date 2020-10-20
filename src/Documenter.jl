@@ -220,6 +220,9 @@ determined from the source file path. E.g. for `src/foo.md` it is set to `build/
 
 Note that `workdir` does not affect doctests.
 
+**`throwerrors`** -- if set to `true`, [`makedocs`](@ref) will error if any of the
+`@example` or `@repl` blocks throws an exception. Default: `false`.
+
 ## Output formats
 **`format`** allows the output format to be specified. The default format is
 [`Documenter.HTML`](@ref) which creates a set of HTML files.
