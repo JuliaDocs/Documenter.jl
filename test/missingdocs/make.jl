@@ -18,5 +18,6 @@ for sym in [:none, :exports]
         modules = MissingDocs,
         checkdocs = sym,
         sitename = "MissingDocs Checks",
+        strict = false,
     )
 end

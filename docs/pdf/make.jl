@@ -3,6 +3,23 @@ using Test
 
 const ROOT = joinpath(@__DIR__, "..")
 
+# The DOCSARGS environment variable can be used to pass additional arguments to make.jl.
+# This is useful on CI, if you need to change the behavior of the build slightly but you
+# can not change the .travis.yml or make.jl scripts any more (e.g. for a tag build).
+if haskey(ENV, "DOCSARGS")
+    for arg in split(ENV["DOCSARGS"])
+        (arg in ARGS) || push!(ARGS, arg)
+    end
+end
+
+if "strict=true" in ARGS
+    strict=true
+elseif "strict=false" in ARGS
+    strict=false
+else
+    strict=true
+end
+
 # Documenter package docs
 doc = makedocs(
     debug = true,
@@ -13,6 +30,7 @@ doc = makedocs(
     format = LaTeX(platform = "docker"),
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
+    strict = strict,
     pages = [
         "Home" => "index.md",
         "Manual" => Any[

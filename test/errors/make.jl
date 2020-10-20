@@ -16,6 +16,6 @@ end
 
 using Documenter
 
-makedocs(sitename="-", modules = [ErrorsModule])
+makedocs(sitename="-", modules = [ErrorsModule], strict = false)
 
 @test_throws ErrorException makedocs(modules = [ErrorsModule], strict = true)

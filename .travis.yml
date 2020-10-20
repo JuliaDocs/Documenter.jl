@@ -50,7 +50,7 @@ jobs:
       after_success: skip
     - script:
         - julia --project=docs/pdf/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-        - julia --project=docs/pdf/ docs/pdf/make.jl
+        - julia --project=docs/pdf/ docs/pdf/make.jl strict=false
       name: "PDF"
       after_success: skip
       services: docker

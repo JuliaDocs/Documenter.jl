@@ -177,6 +177,7 @@ function html_doc(build_directory, mathengine)
             pages = htmlbuild_pages,
             expandfirst = expandfirst,
             doctest = false,
+            strict = false,
             format = Documenter.HTML(
                 assets = [
                     "assets/favicon.ico",
@@ -284,7 +285,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         sitename = "Documenter example",
         pages = htmlbuild_pages,
         expandfirst = expandfirst,
-
+        strict = false,
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
         format = Documenter.HTML(
@@ -309,6 +310,7 @@ examples_markdown_doc = if "markdown" in EXAMPLE_BUILDS
         build = "builds/markdown",
         doctest = false,
         expandfirst = expandfirst,
+        strict = false,
     )
 else
     @info "Skipping build: Markdown" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
@@ -327,6 +329,7 @@ examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
         pages = ["Main section" => ["index.md"]],
         doctest = false,
         debug = true,
+        strict = false,
     )
 else
     @info "Skipping build: LaTeXWriter/simple" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
@@ -371,6 +374,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        strict = false,
     )
 else
     @info "Skipping build: LaTeXWriter/latex" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
@@ -388,6 +392,7 @@ examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUI
         pages = ["Main section" => ["index.md"]],
         doctest = false,
         debug = true,
+        strict = false,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_simple_nondocker" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
@@ -432,6 +437,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        strict = false,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)

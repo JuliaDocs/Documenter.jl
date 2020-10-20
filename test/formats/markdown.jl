@@ -15,6 +15,7 @@ doc = makedocs(
     root    = Documenter_root,
     modules = Documenter,
     build   = build_dir_relpath,
+    strict  = false,
 )
 
 @testset "Markdown" begin

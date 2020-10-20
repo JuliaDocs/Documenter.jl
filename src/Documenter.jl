@@ -204,7 +204,7 @@ ignored.
 return a response before giving up. The default is 10 seconds.
 
 **`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
-any errors with the document in the previous build phases.
+any errors with the document in the previous build phases. Default: `true`.
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).

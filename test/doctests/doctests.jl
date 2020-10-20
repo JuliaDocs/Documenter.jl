@@ -162,14 +162,14 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("8.stdout"))
     end
 
-    # Here we try the default (strict = false) -- output should say that doctest failed, but
+    # Here we try the strict = false -- output should say that doctest failed, but
     # success should still be true.
-    run_makedocs(["working.md"]) do result, success, backtrace, output
+    run_makedocs(["working.md"]; strict = false) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("11.stdout"))
     end
 
-    run_makedocs(["broken.md"]) do result, success, backtrace, output
+    run_makedocs(["broken.md"]; strict = false) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("12.stdout"))
     end
@@ -196,7 +196,11 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("24.stdout"))
     end
     # strict gets ignored with doctest = :only
-    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, strict=false) do result, success, backtrace, output
+    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, strict = true) do result, success, backtrace, output
+        @test !success
+        @test is_same_as_file(output, rfile("25.stdout"))
+    end
+    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, strict = false) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile("25.stdout"))
     end
@@ -216,13 +220,13 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     if VERSION >= v"1.5.0-DEV.178"
         # Julia 1.5 REPL softscope,
         # see https://github.com/JuliaLang/julia/pull/33864
-        run_makedocs(["softscope.md"]) do result, success, backtrace, output
+        run_makedocs(["softscope.md"]; strict = false) do result, success, backtrace, output
             @test success
             @test is_same_as_file(output, rfile("41.stdout"))
         end
     else
         # Old REPL scoping behaviour on older Julia version
-        run_makedocs(["hardscope.md"]) do result, success, backtrace, output
+        run_makedocs(["hardscope.md"]; strict = false) do result, success, backtrace, output
             @test success
             @test is_same_as_file(output, rfile("42.stdout"))
         end

@@ -20,7 +20,7 @@ function test_doctest_fix(dir)
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
-    makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
+    makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix, strict = false)
 
     # test that strict = true works
     include(joinpath(srcdir, "src.jl")); @eval import .Foo

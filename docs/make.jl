@@ -10,6 +10,14 @@ if haskey(ENV, "DOCSARGS")
     end
 end
 
+if "strict=true" in ARGS
+    strict=true
+elseif "strict=false" in ARGS
+    strict=false
+else
+    strict=true
+end
+
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
     format = Documenter.HTML(
@@ -59,7 +67,7 @@ makedocs(
         ],
         "contributing.md",
     ],
-    strict = !("strict=false" in ARGS),
+    strict = strict,
     doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
