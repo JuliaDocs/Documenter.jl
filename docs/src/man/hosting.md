@@ -207,9 +207,9 @@ jobs:
 which will install Julia, checkout the correct commit of your repository, and run the
 build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
 the environment from which the docs are built and deployed. In the example above we will
-thus build and deploy the documentation from a ubuntu worker running Julia 1.2. For more
-information on how to setup a GitHub workflow see the manual for
-[Configuring a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow).
+thus build and deploy the documentation from a ubuntu worker running Julia 1.4. For more
+information on how to setup a GitHub workflow see the manual:
+[Learn GitHub Actions](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
@@ -246,7 +246,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -279,13 +279,13 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Creating and using encrypted secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets)
+[Encrypted secrets](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
 for more information.
 
 ### Add code coverage from documentation builds
 
 If you want code run during the documentation deployment to be covered by Codecov,
-you can edit the end of the docs part of your workflow configuration file so that 
+you can edit the end of the docs part of your workflow configuration file so that
 `docs/make.jl` is run with the `--code-coverage=user` flag and the coverage reports
 are uploaded to Codecov:
 
@@ -376,8 +376,9 @@ aware that Documenter may overwrite existing content without warning.
 If you wish to create the `gh-pages` branch manually that can be done following
 [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
-You also need to make sure that you have "gh-pages branch" selected as [the source of the GitHub
-Pages site in your GitHub repository settings](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
+You also need to make sure that you have "gh-pages branch" selected as
+[the source of the GitHub Pages site in your GitHub repository
+settings](https://docs.github.com/en/free-pro-team@latest/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
 
 ## Documentation Versions
