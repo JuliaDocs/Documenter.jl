@@ -289,6 +289,100 @@ end end
     end
 end end
 
+@testset "Gitlab CI deploy configuration" begin; with_logger(NullLogger()) do
+    # Regular tag build
+    withenv("GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => "v1.2.3",
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Gitlab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        @test Documenter.authentication_method(cfg) === Documenter.SSH
+    end
+    # Broken tag build
+    withenv("GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => "not-a-version",
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Gitlab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test !d.all_ok
+    end
+    # Regular/broken devbranch build
+    withenv(
+            "GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => nothing,
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Gitlab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "hello-world"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Regular pull request build
+    withenv("GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "something",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "42",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => nothing,
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Gitlab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Missing/broken environment variables
+    withenv(
+            "GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => "v1.2.3",
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+        cfg = Documenter.Gitlab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
+    end
+end end
+
 struct CustomConfig <: Documenter.DeployConfig end
 Documenter.deploy_folder(::CustomConfig; kwargs...) = Documenter.DeployDecision(; all_ok = true, subfolder = "v1.2.3")
 struct BrokenConfig <: Documenter.DeployConfig end
