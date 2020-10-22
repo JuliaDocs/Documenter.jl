@@ -431,5 +431,5 @@ LaTeXEquation(raw"\[\left[ \begin{array}{rr}x&2 x\end{array}\right]\]")
 or wrapped in `$$ ... $$`:
 
 ```@example showablelatex
-LaTeXEquation("$$\\begin{bmatrix} 1 & 2\\ 3 & 4 \\end{bmatrix}$$")
+LaTeXEquation(raw"$$\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$$")
 ```
