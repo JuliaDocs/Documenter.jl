@@ -2,67 +2,67 @@
 
 Documenter is designed to do one thing -- combine markdown files and inline docstrings from
 Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide
-to creating a simple document.
+intended for users who iteratively develop a package and write documentation for it.
 
+## Preliminaries
 
-## Installation
-
-Documenter can be installed using the Julia package manager.
-From the Julia REPL, type `]` to enter the Pkg REPL mode and run
+As a package developer you want to keep a single Julia REPL session opened from which you
+generate your docs. To make Julia aware of changes to your code and docstrings, you need to
+install [Revise.jl](https://github.com/timholy/Revise.jl) first. Enter the Pkg REPL by
+pressing `]` and run:
 
 ```
-pkg> add Documenter
+(@v1.5) pkg> add Revise
+
+julia> using Revise
 ```
 
 
-## Setting up the Folder Structure
+## Setting up the Package Structure
 
 !!! note
     The function [`DocumenterTools.generate`](@ref) from the `DocumenterTools` package
     can generate the basic structure that Documenter expects.
 
-Firstly, we need a Julia module to document. This could be a package generated via
-`PkgDev.generate` or a single `.jl` script accessible via Julia's `LOAD_PATH`. For this
-guide we'll be using a package called `Example.jl` that has the following directory layout:
+Go back to the Pkg REPL and generate a new package:
+
+```julia
+(@v1.5) pkg> generate Example
+ Generating  project Example:
+    Example/Project.toml
+    Example/src/Example.jl
+```
+
+By default the generated Example.jl file contains a `greet()` function. We're going to add a
+docstring to it:
+
+```julia
+module Example
+
+"""
+    greet()
+
+Prints "Hello world!"
+"""
+greet() = print("Hello World!")
+
+end # module
+```
+
+Now create a `docs` folder within the package with the following structure:
 
 ```
 Example/
-├── src/
-│   └── Example.jl
-...
+├── docs
+│   ├── make.jl
+│   └── src
+│       └── index.md
+├── Project.toml
+└── src
+    └── Example.jl
 ```
 
-Note that the `...` just represent unimportant files and folders.
-
-We must decide on a location where we'd like to store the documentation for this package.
-It's recommended to use a folder named `docs/` in the toplevel of the package, like so
-
-```
-Example/
-├── docs/
-│   └── ...
-├── src/
-│   └── Example.jl
-...
-```
-
-Inside the `docs/` folder we need to add two things. A source folder which will contain the
-markdown files that will be used to build the finished document and a Julia script that will
-be used to control the build process. The following names are recommended
-
-```
-docs/
-├── src/
-└── make.jl
-```
-
-
-## Building an Empty Document
-
-With our `docs/` directory now setup we're going to build our first document. It'll just be
-a single empty file at the moment, but we'll be adding to it later on.
-
-Add the following to your `make.jl` file
+The `make.jl` file should contain:
 
 ```julia
 using Documenter, Example
@@ -70,66 +70,55 @@ using Documenter, Example
 makedocs(sitename="My Documentation")
 ```
 
-This assumes you've installed Documenter as discussed in [Installation](@ref) and that your
-`Example.jl` package can be found by Julia.
+and the `index.md` look as follows:
 
-!!! note
+````
+# Example.jl Documentation
 
-    If your source directory is not accessible through Julia's LOAD_PATH, you might wish to
-    add the following line at the top of make.jl
+```@docs
+Example.greet()
+```
+````
 
-    ```julia
-    push!(LOAD_PATH,"../src/")
-    ```
+Since Documenter is a development tool and not a true dependency of your package, create
+a fresh environment in the `docs/` folder, and add Documenter and the Example package
+itself as dependencies:
 
-Now add an `index.md` file to the `src/` directory.
+```julia
+(@v1.5) pkg> activate Example/docs
+ Activating new environment at `~/Documents/projects/Example/docs/Project.toml`
 
-!!! note
-    If you use Documenter's default HTML output the name `index.md` is mandatory.
-    This file will be the main page of the rendered HTML documentation.
+(docs) pkg> add Documenter
 
-Leave the newly added file empty and then run the following command from the `docs/` directory
-
-```sh
-$ julia make.jl
+(docs) pkg> dev Example
+[ Info: Resolving package identifier `Example` as a directory at `~/Documents/projects/Example`.
 ```
 
-Note that `$` just represents the prompt character. You don't need to type that.
+## Generating docs
 
-If you'd like to see the output from this command in color use
+In your REPL you can now include the `make.jl` script:
 
-```sh
-$ julia --color=yes make.jl
+```julia
+julia> cd("Example")
+
+julia> include("docs/make.jl")
+[ Info: Precompiling Example [86743d7e-c321-4af5-beac-c79b42746a03]
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+[ Info: ExpandTemplates: expanding markdown templates.
+[ Info: CrossReferences: building cross-references.
+[ Info: CheckDocument: running document checks.
+[ Info: Populate: populating indices.
+[ Info: RenderDocument: rendering document.
+[ Info: HTMLWriter: rendering HTML pages.
 ```
 
-When you run that you should see the following output
+After this, the `docs/` folder should contain a `build/index.html` file. Open this in your
+browser to view the generated docs.
 
-```
-Documenter: setting up build directory.
-Documenter: expanding markdown templates.
-Documenter: building cross-references.
-Documenter: running document checks.
- > checking for missing docstrings.
- > running doctests.
- > checking footnote links.
-Documenter: populating indices.
-Documenter: rendering document.
-```
-
-The `docs/` folder should contain a new directory -- called `build/`. Its structure should
-look like the following
-
-```
-build/
-├── assets/
-│   ├── arrow.svg
-│   ├── documenter.css
-│   ├── documenter.js
-│   └── search.js
-├── index.html
-├── search/index.html
-└── search_index.js
-```
+You can now start developing your package by adding more functions and docstrings and document
+them further in `index.md`. Anytime you want to regenerate the docs, run
+`include("docs/make.jl)` from the REPL and refresh the `index.html` page in your browser.
 
 !!! note
 
@@ -176,61 +165,6 @@ build/
 
     See the [Hosting Documentation](@ref) section for details regarding how you should go
     about setting this up correctly.
-
-At this point `build/index.html` should be an empty page since `src/index.md` is empty. You
-can try adding some text to `src/index.md` and re-running the `make.jl` file to see the
-changes.
-
-
-## Adding Some Docstrings
-
-Next we'll splice a docstring defined in the `Example` module into the `index.md` file. To
-do this first document a function in that module:
-
-```julia
-module Example
-
-export func
-
-"""
-    func(x)
-
-Returns double the number `x` plus `1`.
-"""
-func(x) = 2x + 1
-
-end
-```
-
-Then in the `src/index.md` file add the following
-
-````markdown
-# Example.jl Documentation
-
-```@docs
-func(x)
-```
-````
-
-When we next run `make.jl` the docstring for `Example.func(x)` should appear in place of
-the `@docs` block in `build/index.md`. Note that *more than one* object can be referenced
-inside a `@docs` block -- just place each one on a separate line.
-
-Note that a `@docs` block is evaluated in the `Main` module. This means that each object
-listed in the block must be visible there. The module can be changed to something else on
-a per-page basis with a `@meta` block as in the following
-
-````markdown
-# Example.jl Documentation
-
-```@meta
-CurrentModule = Example
-```
-
-```@docs
-func(x)
-```
-````
 
 ### Filtering included docstrings
 
@@ -287,11 +221,11 @@ syntax which looks pretty similar to normal markdown link syntax. Replace the co
 # Example.jl Documentation
 
 ```@docs
-func(x)
+greet(x)
 ```
 
 - link to [Example.jl Documentation](@ref)
-- link to [`func(x)`](@ref)
+- link to [`greet(x)`](@ref)
 ````
 
 So we just have to replace each link's url with `@ref` and write the name of the thing we'd
@@ -317,7 +251,7 @@ previous sections. Add the following to that file
 ## Functions
 
 ```@docs
-func(x)
+greet(x)
 ```
 
 ## Index
