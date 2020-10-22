@@ -661,14 +661,11 @@
 [github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
 [github-1392]: https://github.com/JuliaDocs/Documenter.jl/pull/1392
 [github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
-<<<<<<< HEAD
 [github-1428]: https://github.com/JuliaDocs/Documenter.jl/issues/1428
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
 [github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
-=======
 [github-1426]: https://github.com/JuliaDocs/Documenter.jl/pull/1426
->>>>>>> 5eca1784... Add CHANGELOG
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
