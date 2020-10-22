@@ -425,7 +425,7 @@ LaTeXEquation(raw"Foo $x^2$ bar.")
 Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`:
 
 ```@example showablelatex
-LaTeXEquation("\\[\\left[ \\begin{array}{rr}x&2 x\\end{array}\\right]\\]")
+LaTeXEquation(raw"\[\left[ \begin{array}{rr}x&2 x\end{array}\right]\]")
 ```
 
 or wrapped in `$$ ... $$`:
