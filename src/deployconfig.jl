@@ -618,7 +618,7 @@ function deploy_folder(
     println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
     all_ok &= key_ok
 
-    print(io, "Deploying to folder \"$(subfolder)\": $(marker(all_ok))")
+    print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
     @info String(take!(io))
 
     if all_ok
