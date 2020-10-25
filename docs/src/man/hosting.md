@@ -460,7 +460,7 @@ It is possible to customize Documenter to use other systems then the ones descri
 the sections above. This is done by passing a configuration
 (a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs` by the `deploy_config`
 keyword argument. Documenter supports [`Travis`](@ref Documenter.Travis),
-[`GitHubActions`](@ref Documenter.GitHubActions), and [`Gitlab`](@ref Documenter.Gitlab)
+[`GitHubActions`](@ref Documenter.GitHubActions), and [`GitLab`](@ref Documenter.GitLab)
 natively, but it is easy to define your own by following the simple interface
 described below.
 
@@ -474,5 +474,5 @@ Documenter.documenter_key
 Documenter.documenter_key_previews
 Documenter.Travis
 Documenter.GitHubActions
-Documenter.Gitlab
+Documenter.GitLab
 ```

@@ -484,19 +484,19 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
 end
 
 ##########
-# Gitlab #
+# GitLab #
 ##########
 
 """
-    Gitlab <: DeployConfig
+    GitLab <: DeployConfig
 
-Gitlab implementation of `DeployConfig`.
+GitLab implementation of `DeployConfig`.
 
-The following environment variables influences the build when using the
-`Gitlab` configuration:
+The following environment variables influence the build when using the
+`GitLab` configuration:
 
  - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
-   repository. This variable should be set in the Gitlab settings. Make sure this
+   repository. This variable should be set in the GitLab settings. Make sure this
    variable is marked **NOT** to be displayed in the build log.
 
  - `CI_COMMIT_BRANCH`: the name of the commit branch.
@@ -511,11 +511,11 @@ The following environment variables influences the build when using the
 
  - `CI_PIPELINE_SOURCE`: Indicates how the pipeline was triggered.
 
-The `CI_*` variables are set automatically on Gitlab. More information on how Gitlab
+The `CI_*` variables are set automatically on GitLab. More information on how GitLab
 sets the `CI_*` variables can be found in the
-[Gitlab documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html).
+[GitLab documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html).
 """
-struct Gitlab <: DeployConfig
+struct GitLab <: DeployConfig
     commit_branch::String
     pull_request_iid::String
     repo_slug::String
@@ -523,17 +523,17 @@ struct Gitlab <: DeployConfig
     pipeline_source::String
 end
 
-function Gitlab()
+function GitLab()
     commit_branch = get(ENV, "CI_COMMIT_BRANCH", "")
     pull_request_iid = get(ENV, "CI_EXTERNAL_PULL_REQUEST_IID", "")
     repo_slug = get(ENV, "CI_PROJECT_PATH_SLUG", "")
     commit_tag = get(ENV, "CI_COMMIT_TAG", "")
     pipeline_source = get(ENV, "CI_PIPELINE_SOURCE", "")
-    Gitlab(commit_branch, pull_request_iid, repo_slug, commit_tag, pipeline_source)
+    GitLab(commit_branch, pull_request_iid, repo_slug, commit_tag, pipeline_source)
 end
 
 function deploy_folder(
-    cfg::Gitlab;
+    cfg::GitLab;
     repo,
     repo_previews = repo,
     devbranch,
@@ -549,7 +549,7 @@ function deploy_folder(
     io = IOBuffer()
     all_ok = true
 
-    println(io, "\nGitlab config:")
+    println(io, "\nGitLab config:")
     println(io, "  Commit branch: \"", cfg.commit_branch, "\"")
     println(io, "  Pull request IID: \"", cfg.pull_request_iid, "\"")
     println(io, "  Repo slug: \"", cfg.repo_slug, "\"")
@@ -581,7 +581,6 @@ function deploy_folder(
         subfolder = tag_nobuild
         deploy_branch = branch
         deploy_repo = repo
-
     elseif build_type == :preview
         pr_number = tryparse(Int, cfg.pull_request_iid)
         pr_ok = pr_number !== nothing
@@ -634,9 +633,9 @@ function deploy_folder(
     end
 end
 
-authentication_method(::Gitlab) = Documenter.SSH
+authentication_method(::GitLab) = Documenter.SSH
 
-documenter_key(::Gitlab) = ENV["DOCUMENTER_KEY"]
+documenter_key(::GitLab) = ENV["DOCUMENTER_KEY"]
 
 ##################
 # Auto-detection #

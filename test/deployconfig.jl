@@ -289,7 +289,7 @@ end end
     end
 end end
 
-@testset "Gitlab CI deploy configuration" begin; with_logger(NullLogger()) do
+@testset "GitLab CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
     withenv("GITLAB_CI" => "true",
             "CI_COMMIT_BRANCH" => "master",
@@ -299,7 +299,7 @@ end end
             "CI_PIPELINE_SOURCE" => "push",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
-        cfg = Documenter.Gitlab()
+        cfg = Documenter.GitLab()
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="dev", push_preview=true)
         @test d.all_ok
@@ -318,7 +318,7 @@ end end
             "CI_PIPELINE_SOURCE" => "push",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
-        cfg = Documenter.Gitlab()
+        cfg = Documenter.GitLab()
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="dev", push_preview=true)
         @test !d.all_ok
@@ -333,7 +333,7 @@ end end
             "CI_PIPELINE_SOURCE" => "push",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
-        cfg = Documenter.Gitlab()
+        cfg = Documenter.GitLab()
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="hello-world", push_preview=true)
         @test d.all_ok
@@ -354,7 +354,7 @@ end end
             "CI_PIPELINE_SOURCE" => "push",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
-        cfg = Documenter.Gitlab()
+        cfg = Documenter.GitLab()
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="hello-world", push_preview=true)
         @test d.all_ok
@@ -376,7 +376,7 @@ end end
             "CI_PIPELINE_SOURCE" => "push",
             "DOCUMENTER_KEY" => nothing,
         ) do
-        cfg = Documenter.Gitlab()
+        cfg = Documenter.GitLab()
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="hello-world", push_preview=false)
         @test !d.all_ok

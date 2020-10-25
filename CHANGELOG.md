@@ -2,7 +2,7 @@
 
 ## Version `v0.25.3`
 
-* ![Feature][badge-feature] Documenter can now deploy from Gitlab CI to GitHub Pages with `Documenter.Gitlab`.
+* ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
 
 * ![Enhancement][badge-enhancement] The URL to the MathJax JS module can now be customized by passing the `url` keyword argument to the constructors (`MathJax2`, `MathJax3`). ([#1428][github-1428], [#1430][github-1430])
 
@@ -662,6 +662,7 @@
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
 [github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
+[github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
