@@ -645,6 +645,8 @@ function auto_detect_deploy_system()
         return Travis()
     elseif haskey(ENV, "GITHUB_REPOSITORY")
         return GitHubActions()
+    elseif haskey(ENV, "GITLAB_CI")
+        return GitLab()
     else
         return nothing
     end
