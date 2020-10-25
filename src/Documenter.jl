@@ -237,6 +237,10 @@ in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(components...; debug = false, format = HTML(), kwargs...)
     document = Documents.Document(components; format=format, kwargs...)
+    # Before starting the build pipeline, we empty out the subtype cache used by
+    # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
+    # may have been added to the selector pipelines between makedocs calls.
+    empty!(Selectors.selector_subtypes)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end
