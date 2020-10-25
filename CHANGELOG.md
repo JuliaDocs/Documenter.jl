@@ -8,6 +8,8 @@
 
 * ![Bugfix][badge-bugfix] `Documenter.doctest` now correctly accepts the `doctestfilters` keyword, similar to `Documenter.makedocs`. ([#1364][github-1364], [#1435][github-1435])
 
+* ![Bugfix][badge-bugfix] The `Selectors.dispatch` function now uses a cache to avoid calling `subtypes` on selectors multiple times during a `makedocs` call to avoid slowdowns due to [`subtypes` being slow][julia-38079]. ([#1438][github-1438], [#1440][github-1440], [#1452][github-1452])
+
 ## Version `v0.25.2`
 
 * ![Deprecation][badge-deprecation] The `Documenter.MathJax` type, used to specify the mathematics rendering engine in the HTML output, is now deprecated in favor of `Documenter.MathJax2`. ([#1362][github-1362], [#1367][github-1367])
@@ -660,9 +662,14 @@
 [github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
 [github-1428]: https://github.com/JuliaDocs/Documenter.jl/issues/1428
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
+[github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
 [github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
+[github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
+[github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
+
+[julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
