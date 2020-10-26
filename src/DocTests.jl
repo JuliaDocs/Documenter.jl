@@ -217,7 +217,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
                 # see https://github.com/JuliaLang/julia/pull/33864
                 ex = REPL.softscope!(ex)
             end
-            c = IOCapture.iocapture(throwerrors=false) do
+            c = IOCapture.iocapture(throwerrors = :interrupt) do
                 Core.eval(sandbox, ex)
             end
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
@@ -244,7 +244,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
     for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
-        c = IOCapture.iocapture(throwerrors=false) do
+        c = IOCapture.iocapture(throwerrors = :interrupt) do
             Core.eval(sandbox, ex)
         end
         result.value = c.value
