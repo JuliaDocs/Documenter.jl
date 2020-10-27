@@ -237,6 +237,10 @@ in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(components...; debug = false, format = HTML(), kwargs...)
     document = Documents.Document(components; format=format, kwargs...)
+    # Before starting the build pipeline, we empty out the subtype cache used by
+    # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
+    # may have been added to the selector pipelines between makedocs calls.
+    empty!(Selectors.selector_subtypes)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end
@@ -775,6 +779,8 @@ manual pages can be disabled if `source` is set to `nothing`.
 
 **`testset`** specifies the name of test testset (default `Doctests`).
 
+**`doctestfilters`** vector of regex to filter tests (see the manual on [Filtering Doctests](@ref))
+
 **`fix`**, if set to `true`, updates all the doctests that fail with the correct output
 (default `false`).
 
@@ -790,6 +796,7 @@ function doctest(
         modules::AbstractVector{Module};
         fix = false,
         testset = "Doctests",
+        doctestfilters = Regex[],
     )
     function all_doctests()
         dir = mktempdir()
@@ -805,6 +812,7 @@ function doctest(
                 sitename = "",
                 doctest = fix ? :fix : :only,
                 modules = modules,
+                doctestfilters = doctestfilters,
             )
             true
         catch err

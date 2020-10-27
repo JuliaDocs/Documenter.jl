@@ -272,7 +272,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -483,6 +483,159 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
     return nothing
 end
 
+##########
+# GitLab #
+##########
+
+"""
+    GitLab <: DeployConfig
+
+GitLab implementation of `DeployConfig`.
+
+The following environment variables influence the build when using the
+`GitLab` configuration:
+
+ - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
+   repository. This variable should be set in the GitLab settings. Make sure this
+   variable is marked **NOT** to be displayed in the build log.
+
+ - `CI_COMMIT_BRANCH`: the name of the commit branch.
+
+ - `CI_EXTERNAL_PULL_REQUEST_IID`: Pull Request ID from GitHub if the pipelines
+   are for external pull requests.
+
+ - `CI_PROJECT_PATH_SLUG`: The namespace with project name. All letters
+   lowercased and non-alphanumeric characters replaced with `-`.
+
+ - `CI_COMMIT_TAG`: The commit tag name. Present only when building tags.
+
+ - `CI_PIPELINE_SOURCE`: Indicates how the pipeline was triggered.
+
+The `CI_*` variables are set automatically on GitLab. More information on how GitLab
+sets the `CI_*` variables can be found in the
+[GitLab documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html).
+"""
+struct GitLab <: DeployConfig
+    commit_branch::String
+    pull_request_iid::String
+    repo_slug::String
+    commit_tag::String
+    pipeline_source::String
+end
+
+function GitLab()
+    commit_branch = get(ENV, "CI_COMMIT_BRANCH", "")
+    pull_request_iid = get(ENV, "CI_EXTERNAL_PULL_REQUEST_IID", "")
+    repo_slug = get(ENV, "CI_PROJECT_PATH_SLUG", "")
+    commit_tag = get(ENV, "CI_COMMIT_TAG", "")
+    pipeline_source = get(ENV, "CI_PIPELINE_SOURCE", "")
+    GitLab(commit_branch, pull_request_iid, repo_slug, commit_tag, pipeline_source)
+end
+
+function deploy_folder(
+    cfg::GitLab;
+    repo,
+    repo_previews = repo,
+    devbranch,
+    push_preview,
+    devurl,
+    branch = "gh-pages",
+    branch_previews = branch,
+    kwargs...,
+)
+
+    marker(x) = x ? "✔" : "✘"
+
+    io = IOBuffer()
+    all_ok = true
+
+    println(io, "\nGitLab config:")
+    println(io, "  Commit branch: \"", cfg.commit_branch, "\"")
+    println(io, "  Pull request IID: \"", cfg.pull_request_iid, "\"")
+    println(io, "  Repo slug: \"", cfg.repo_slug, "\"")
+    println(io, "  Commit tag: \"", cfg.commit_tag, "\"")
+    println(io, "  Pipeline source: \"", cfg.pipeline_source, "\"")
+
+    build_type = if cfg.pull_request_iid != ""
+        :preview
+    elseif cfg.commit_tag != ""
+        :release
+    else
+        :devbranch
+    end
+
+    println(io, "Detected build type: ", build_type)
+
+    if build_type == :release
+        tag_nobuild = version_tag_strip_build(cfg.commit_tag)
+        ## If a tag exist it should be a valid VersionNumber
+        tag_ok = tag_nobuild !== nothing
+
+        println(
+            io,
+            "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"] contains a valid VersionNumber",
+        )
+        all_ok &= tag_ok
+
+        is_preview = false
+        subfolder = tag_nobuild
+        deploy_branch = branch
+        deploy_repo = repo
+    elseif build_type == :preview
+        pr_number = tryparse(Int, cfg.pull_request_iid)
+        pr_ok = pr_number !== nothing
+        all_ok &= pr_ok
+        println(
+            io,
+            "- $(marker(pr_ok)) ENV[\"CI_EXTERNAL_PULL_REQUEST_IID\"]=\"$(cfg.pull_request_iid)\" is a number",
+        )
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        is_preview = true
+        println(
+            io,
+            "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`",
+        )
+        ## deploy to previews/PR
+        subfolder = "previews/PR$(something(pr_number, 0))"
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+    else
+        branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
+        all_ok &= branch_ok
+        println(
+            io,
+            "- $(marker(branch_ok)) ENV[\"CI_COMMIT_BRANCH\"] matches devbranch=\"$(devbranch)\"",
+        )
+        is_preview = false
+        subfolder = devurl
+        deploy_branch = branch
+        deploy_repo = repo
+    end
+
+    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
+    all_ok &= key_ok
+
+    print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
+    @info String(take!(io))
+
+    if all_ok
+        return DeployDecision(;
+            all_ok = true,
+            branch = deploy_branch,
+            repo = deploy_repo,
+            subfolder = subfolder,
+            is_preview = is_preview,
+        )
+    else
+        return DeployDecision(; all_ok = false)
+    end
+end
+
+authentication_method(::GitLab) = Documenter.SSH
+
+documenter_key(::GitLab) = ENV["DOCUMENTER_KEY"]
 
 ##################
 # Auto-detection #
@@ -492,6 +645,8 @@ function auto_detect_deploy_system()
         return Travis()
     elseif haskey(ENV, "GITHUB_REPOSITORY")
         return GitHubActions()
+    elseif haskey(ENV, "GITLAB_CI")
+        return GitLab()
     else
         return nothing
     end

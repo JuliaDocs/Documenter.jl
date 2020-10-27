@@ -30,7 +30,7 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
         cp(joinpath(@__DIR__, "src", mdfile), joinpath(srcdir, mdfile))
     end
 
-    c = IOCapture.iocapture(throwerrors=false) do
+    c = IOCapture.iocapture(throwerrors = :interrupt) do
         makedocs(
             sitename = " ",
             root = dir,
