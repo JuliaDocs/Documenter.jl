@@ -449,6 +449,7 @@ module RD
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
     const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.6/lunr.min.js")
     const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js")
+    const clipboardjs = RemoteLibrary("clipboard", "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js")
 
     # headroom
     const headroom_version = "0.10.3"
@@ -485,6 +486,17 @@ module RD
             raw"""
             $(document).ready(function() {
                 hljs.initHighlighting();
+            })
+            """
+        ))
+    end
+
+    # clipboard.js
+    function clipboard!(r::RequireJS)
+        push!(r, Snippet(["jquery", "clipboard"], ["\$", "ClipboardJS"],
+            raw"""
+            $(document).ready(function() {
+                new ClipboardJS('.copy-button');
             })
             """
         ))
@@ -639,9 +651,11 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     else
         r = JSDependencies.RequireJS([
             RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
+            RD.clipboardjs
         ])
         RD.mathengine!(r, settings.mathengine)
         RD.highlightjs!(r, settings.highlights)
+        RD.clipboard!(r)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
@@ -1609,10 +1623,14 @@ mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconver
 mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, parent; kwargs...))
 
 function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
-    @tags pre code
+    @tags pre code button
     language = Utilities.codelang(c.language)
     language = isempty(language) ? "none" : language
-    pre(code[".language-$(language)"](c.code))
+    code_block = [
+        button[".copy-button .button .fas .fa-copy", Symbol("data-clipboard-text")=>c.code],
+        code[".language-$(language)"](c.code)
+    ]
+    pre(code_block)
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
 
