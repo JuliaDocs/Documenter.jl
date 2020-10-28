@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.26.0`
+
+* ![Enhancement][badge-enhancement] Objects that render as equations and whose `text/latex` representations are wrapped in display equation delimiters `\[ ... \]` or `$$ ... $$` are now handled correctly in the HTML output. ([#1278][github-1278], [#1283][github-1283], [#1426][github-1426])
+
 ## Version `v0.25.3`
 
 * ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
@@ -627,8 +631,10 @@
 [github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 [github-1264]: https://github.com/JuliaDocs/Documenter.jl/pull/1264
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
+[github-1278]: https://github.com/JuliaDocs/Documenter.jl/issues/1278
 [github-1279]: https://github.com/JuliaDocs/Documenter.jl/issues/1279
 [github-1280]: https://github.com/JuliaDocs/Documenter.jl/pull/1280
+[github-1283]: https://github.com/JuliaDocs/Documenter.jl/pull/1283
 [github-1285]: https://github.com/JuliaDocs/Documenter.jl/pull/1285
 [github-1292]: https://github.com/JuliaDocs/Documenter.jl/pull/1292
 [github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
@@ -651,6 +657,7 @@
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 [github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
 [github-1362]: https://github.com/JuliaDocs/Documenter.jl/issues/1362
+[github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
 [github-1367]: https://github.com/JuliaDocs/Documenter.jl/pull/1367
 [github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
@@ -660,11 +667,11 @@
 [github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
 [github-1392]: https://github.com/JuliaDocs/Documenter.jl/pull/1392
 [github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
+[github-1426]: https://github.com/JuliaDocs/Documenter.jl/pull/1426
 [github-1428]: https://github.com/JuliaDocs/Documenter.jl/issues/1428
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
-[github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
-[github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
+[github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452

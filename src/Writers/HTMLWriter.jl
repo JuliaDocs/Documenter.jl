@@ -1743,7 +1743,18 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"image/jpeg"())
         out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
     elseif haskey(d, MIME"text/latex"())
-        out = Utilities.mdparse(d[MIME"text/latex"()]; mode = :single)
+        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
+        # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
+        # delimiters around it anyway.
+        latex = d[MIME"text/latex"()]
+        equation = false
+        m_bracket = match(r"\s*\\\[(.*)\\\]\s*", latex)
+        m_dollars = match(r"\s*\$\$(.*)\$\$\s*", latex)
+        if m_bracket === nothing && m_dollars === nothing
+            out = Utilities.mdparse(latex; mode = :single)
+        else
+            out = Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
+        end
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
