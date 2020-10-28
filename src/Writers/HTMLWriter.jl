@@ -1615,7 +1615,7 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     language = isempty(language) ? "none" : language
     copy_icon = span[".icon"](i[".fas .fa-copy"])
     code_block = [
-        button[".copy-button .button", Symbol("data-clipboard-text")=>c.code](copy_icon),
+        button[".copy-button .button", :title=>"Copy to clipboard", Symbol("data-clipboard-text")=>c.code](copy_icon),
         code[".language-$(language)"](c.code)
     ]
     pre(code_block)
