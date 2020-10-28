@@ -6,9 +6,13 @@
 
 ## Version `v0.25.3`
 
+* ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
+
 * ![Enhancement][badge-enhancement] The URL to the MathJax JS module can now be customized by passing the `url` keyword argument to the constructors (`MathJax2`, `MathJax3`). ([#1428][github-1428], [#1430][github-1430])
 
 * ![Bugfix][badge-bugfix] `Documenter.doctest` now correctly accepts the `doctestfilters` keyword, similar to `Documenter.makedocs`. ([#1364][github-1364], [#1435][github-1435])
+
+* ![Bugfix][badge-bugfix] The `Selectors.dispatch` function now uses a cache to avoid calling `subtypes` on selectors multiple times during a `makedocs` call to avoid slowdowns due to [`subtypes` being slow][julia-38079]. ([#1438][github-1438], [#1440][github-1440], [#1452][github-1452])
 
 ## Version `v0.25.2`
 
@@ -653,6 +657,7 @@
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 [github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
 [github-1362]: https://github.com/JuliaDocs/Documenter.jl/issues/1362
+[github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
 [github-1367]: https://github.com/JuliaDocs/Documenter.jl/pull/1367
 [github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
@@ -662,11 +667,16 @@
 [github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
 [github-1392]: https://github.com/JuliaDocs/Documenter.jl/pull/1392
 [github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
+[github-1426]: https://github.com/JuliaDocs/Documenter.jl/pull/1426
 [github-1428]: https://github.com/JuliaDocs/Documenter.jl/issues/1428
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
-[github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
-[github-1426]: https://github.com/JuliaDocs/Documenter.jl/pull/1426
+[github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
+[github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
+[github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
+[github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
+
+[julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
