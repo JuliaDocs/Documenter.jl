@@ -491,17 +491,6 @@ module RD
         ))
     end
 
-    # clipboard.js
-    function clipboard!(r::RequireJS)
-        push!(r, Snippet(["jquery", "clipboard"], ["\$", "ClipboardJS"],
-            raw"""
-            $(document).ready(function() {
-                new ClipboardJS('.copy-button');
-            })
-            """
-        ))
-    end
-
     # MathJax & KaTeX
     const katex_version = "0.11.1"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
@@ -650,12 +639,10 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
-            RD.clipboardjs
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery, RD.clipboardjs
         ])
         RD.mathengine!(r, settings.mathengine)
         RD.highlightjs!(r, settings.highlights)
-        RD.clipboard!(r)
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
@@ -1623,11 +1610,12 @@ mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconver
 mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, parent; kwargs...))
 
 function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
-    @tags pre code button
+    @tags pre code button span i
     language = Utilities.codelang(c.language)
     language = isempty(language) ? "none" : language
+    copy_icon = span[".icon"](i[".fas .fa-copy"])
     code_block = [
-        button[".copy-button .button .fas .fa-copy", Symbol("data-clipboard-text")=>c.code],
+        button[".copy-button .button", Symbol("data-clipboard-text")=>c.code](copy_icon),
         code[".language-$(language)"](c.code)
     ]
     pre(code_block)
