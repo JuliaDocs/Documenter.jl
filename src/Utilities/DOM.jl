@@ -292,6 +292,9 @@ function escapehtml(text::AbstractString)
             char === '"'  ? write(buffer, "&quot;") : write(buffer, char)
         end
         String(take!(buffer))
+    end
+    if occursin("\n", text)
+        replace(text, "\n"=>"&#10;")
     else
         text
     end
