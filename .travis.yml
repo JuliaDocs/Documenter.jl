@@ -7,7 +7,7 @@ os:
 julia:
   - 1.0
   - 1.4
-  - 1.5
+  - 1
   - nightly
 
 branches:
@@ -18,6 +18,7 @@ branches:
 
 after_success:
   - if [ -f test/quietly.log ]; then cat test/quietly.log; fi
+  - echo "$TRAVIS_JULIA_VERSION"
   - if [[ $TRAVIS_JULIA_VERSION = 1.1 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then
       julia --project=coverage/ -e 'using Pkg; Pkg.instantiate();
           using Coverage; Codecov.submit(Codecov.process_folder())';
