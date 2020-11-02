@@ -4,12 +4,23 @@
 // Copies code block to clipboard.
 $(document).ready(function() {
   var clipboard = new ClipboardJS('.copy-button');
+  var btns = document.querySelectorAll('.copy-button');
   clipboard.on('success', function(e) {
-    var previousHTML = e.trigger.innerHTML;
-    e.trigger.innerHTML = 'Copied!';
+    showTooltip(e.trigger, 'Copied!');
+  })
 
-    setTimeout(() => {
-      e.trigger.innerHTML = previousHTML;
-    }, 2000)
-  });
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('mouseleave', clearTooltip);
+    btns[i].addEventListener('blur', clearTooltip);
+  }
+
+  function clearTooltip(e) {
+    e.currentTarget.setAttribute('class', 'copy-button button');
+    e.currentTarget.removeAttribute('aria-label');
+  }
+
+  function showTooltip(elem, msg) {
+    elem.setAttribute('class', 'copy-button button tooltipped tooltipped-s');
+    elem.setAttribute('aria-label', msg);
+  }
 });

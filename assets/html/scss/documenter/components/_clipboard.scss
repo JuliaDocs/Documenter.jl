@@ -1,3 +1,68 @@
-.copy-button {
-  float: right;
+.tooltipped {
+  position: relative;
+}
+
+.tooltipped:after {
+  position: absolute;
+  display: none;
+  padding: 5px 8px;
+  color: #fff;
+  text-align: center;
+  content: attr(aria-label);
+  background: rgba(0, 0, 0, .8);
+  border-radius: 3px;
+}
+
+.tooltipped:before {
+  position: absolute;
+  display: none;
+  width: 0;
+  height: 0;
+  color: rgba(0, 0, 0, .8);
+  content: "";
+  border: 5px solid transparent
+}
+
+.tooltipped:hover:before,
+.tooltipped:hover:after,
+.tooltipped:active:before,
+.tooltipped:active:after,
+.tooltipped:focus:before,
+.tooltipped:focus:after {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.tooltipped-s:after {
+  top: 100%;
+  right: 50%;
+  margin-top: 5px;
+  transform: translateX(50%)
+}
+
+.tooltipped-s:before {
+  top: auto;
+  right: 50%;
+  bottom: -5px;
+  margin-right: -5px;
+  border-bottom-color: rgba(0, 0, 0, .8);
+}
+
+.snippet {
+  position:relative;
+  overflow:visible
+ }
+
+.snippet .copy-button {
+  transition: opacity .3s ease-in-out;
+  opacity: 0;
+  font-size: 0.9em;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
+.snippet:hover .copy-button,
+.snippet .copy-button:focus {
+  opacity: 1
 }

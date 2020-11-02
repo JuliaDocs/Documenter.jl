@@ -7279,8 +7279,57 @@ html.theme--documenter-dark {
       opacity: 1; }
   html.theme--documenter-dark .documenter-example-output {
     background-color: #1f2424; }
-  html.theme--documenter-dark .copy-button {
-    float: right; }
+  html.theme--documenter-dark .tooltipped {
+    position: relative; }
+  html.theme--documenter-dark .tooltipped:after {
+    position: absolute;
+    display: none;
+    padding: 5px 8px;
+    color: #fff;
+    text-align: center;
+    content: attr(aria-label);
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 3px; }
+  html.theme--documenter-dark .tooltipped:before {
+    position: absolute;
+    display: none;
+    width: 0;
+    height: 0;
+    color: rgba(0, 0, 0, 0.8);
+    content: "";
+    border: 5px solid transparent; }
+  html.theme--documenter-dark .tooltipped:hover:before,
+  html.theme--documenter-dark .tooltipped:hover:after,
+  html.theme--documenter-dark .tooltipped:active:before,
+  html.theme--documenter-dark .tooltipped:active:after,
+  html.theme--documenter-dark .tooltipped:focus:before,
+  html.theme--documenter-dark .tooltipped:focus:after {
+    display: inline-block;
+    text-decoration: none; }
+  html.theme--documenter-dark .tooltipped-s:after {
+    top: 100%;
+    right: 50%;
+    margin-top: 5px;
+    transform: translateX(50%); }
+  html.theme--documenter-dark .tooltipped-s:before {
+    top: auto;
+    right: 50%;
+    bottom: -5px;
+    margin-right: -5px;
+    border-bottom-color: rgba(0, 0, 0, 0.8); }
+  html.theme--documenter-dark .snippet {
+    position: relative;
+    overflow: visible; }
+  html.theme--documenter-dark .snippet .copy-button {
+    transition: opacity .3s ease-in-out;
+    opacity: 0;
+    font-size: 0.9em;
+    position: absolute;
+    right: 4px;
+    top: 4px; }
+  html.theme--documenter-dark .snippet:hover .copy-button,
+  html.theme--documenter-dark .snippet .copy-button:focus {
+    opacity: 1; }
   html.theme--documenter-dark .content pre {
     border: 1px solid #5e6d6f; }
   html.theme--documenter-dark .content code {

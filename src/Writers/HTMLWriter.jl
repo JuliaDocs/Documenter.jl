@@ -1618,7 +1618,7 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
         button[".copy-button .button", :title=>"Copy to clipboard", Symbol("data-clipboard-text")=>c.code](copy_icon),
         code[".language-$(language)"](c.code)
     ]
-    pre(code_block)
+    pre[".snippet"](code_block)
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
 

@@ -248,7 +248,11 @@ function Base.show(io::IO, n::Node)
         print(io, '<', n.name)
         for (name, value) in n.attributes
             print(io, ' ', name)
-            isempty(value) || print(io, '=', repr(escapehtml(value)))
+            if name === Symbol("data-clipboard-text")
+                isempty(value) || print(io, '=', repr(escapehtml(value, escape_new_lines=true)))
+            else
+                isempty(value) || print(io, '=', repr(escapehtml(value)))
+            end
         end
         if n.name in VOID_ELEMENTS
             print(io, "/>")
@@ -281,7 +285,7 @@ When no escaping is needed then the same object is returned, otherwise a new
 string is constructed with the characters escaped. The returned object should
 always be treated as an immutable copy and compared using `==` rather than `===`.
 """
-function escapehtml(text::AbstractString)
+function escapehtml(text::AbstractString; escape_new_lines=false)
     if occursin(r"[<>&'\"]", text)
         buffer = IOBuffer()
         for char in text
@@ -291,10 +295,11 @@ function escapehtml(text::AbstractString)
             char === '\'' ? write(buffer, "&#39;")  :
             char === '"'  ? write(buffer, "&quot;") : write(buffer, char)
         end
-        String(take!(buffer))
-    end
-    if occursin("\n", text)
-        replace(text, "\n"=>"&#10;")
+        escaped_text = String(take!(buffer))
+        if escape_new_lines
+            return replace(escaped_text, "\n"=>"&#10;")
+        end
+        escaped_text
     else
         text
     end
