@@ -381,6 +381,12 @@ You also need to make sure that you have "gh-pages branch" selected as
 settings](https://docs.github.com/en/free-pro-team@latest/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
 
+Note that the `gh-pages` branch can become very large, especially when `push_preview` is enabled to
+build documentation for each pull request. To cleanup the branch and remove stale documentation
+previews, a GitHub Actions workflow like
+[DocCleanup.yml](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml)
+can be used.
+
 ## Documentation Versions
 
 The documentation is deployed as follows:
