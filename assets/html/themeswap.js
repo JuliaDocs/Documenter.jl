@@ -7,11 +7,9 @@ function set_theme_from_local_storage() {
   var theme =  window.localStorage.getItem("documenter-theme");
   // Check if the browser supports user color preference
   var darkPreference = false;
-  if(window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all') {
-    // Check if the users preference is for dark color scheme
-    if(window.matchMedia('(prefers-color-scheme: dark)').matches === true) {
-      darkPreference = true;
-    }
+  // Check if the users preference is for dark color scheme
+  if(window.matchMedia('(prefers-color-scheme: dark)').matches === true) {
+    darkPreference = true;
   }
   // Initialize a few variables for the loop:
   //
@@ -33,8 +31,10 @@ function set_theme_from_local_storage() {
     // To distinguish the default (primary) theme, it needs to have the data-theme-primary
     // attribute set.
     var isprimary = (ss.ownerNode.getAttribute("data-theme-primary") !== null);
-    // If the ss is not primary then use it if the user's preference is towards dark colors
-    if(!isprimary) darkTheme = themename;
+    // Check if the theme is primary dark theme
+    var isDarkTheme = (ss.ownerNode.getAttribute("dark-theme-primary") !== null);
+    // Use ss is for dark theme then set the value of darkTheme
+    if(isDarkTheme) darkTheme = themename;
     // If we find a matching theme (and it's not the default), we'll set active to non-null
     if(themename === theme) active = i;
     // Store the style sheets of inactive themes so that we could disable them
@@ -48,7 +48,7 @@ function set_theme_from_local_storage() {
       ss.disabled = true;
     });
   }
-  else if(darkTheme !== null) {
+  else if(isDarkTheme !== null && darkPreference === true) {
     // If we did find an active theme, we'll (1) add the theme--$(theme) class to <html>
     document.getElementsByTagName('html')[0].className = "theme--" + darkTheme;
     // and (2) disable all the other theme stylesheets
@@ -57,12 +57,6 @@ function set_theme_from_local_storage() {
         ss.disabled = true;
       }
     });
-    // Store the theme in localStorage
-    if(typeof(window.localStorage) !== "undefined") {
-      window.localStorage.setItem("documenter-theme", darkTheme);
-    } else {
-      console.error("Browser does not support window.localStorage");
-    }
   }
 }
 set_theme_from_local_storage();
