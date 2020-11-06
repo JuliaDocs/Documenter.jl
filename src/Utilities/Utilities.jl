@@ -466,7 +466,7 @@ end
 
 # Repository hosts
 #   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoUnknown
+@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
 
 # Repository host from repository url
 # i.e. "https://github.com/something" => RepoGithub
@@ -479,6 +479,8 @@ function repo_host_from_url(repoURL::String)
         return RepoGithub
     elseif occursin("gitlab", repoURL)
         return RepoGitlab
+    elseif occursin("azure", repoURL)
+        return RepoAzureDevOps
     else
         return RepoUnknown
     end
@@ -504,16 +506,10 @@ struct LineRangeFormatting
     prefix::String
     separator::String
 
-    function LineRangeFormatting(host::RepoHost)
-        if host == RepoBitbucket
-            new("", ":")
-        elseif host == RepoGitlab
-            new("L", "-")
-        else
-            # default is github-style
-            new("L", "-L")
-        end
-    end
+    LineRangeFormatting(::RepoAzureDevOps) = new("&line=", "&lineEnd=")
+    LineRangeFormatting(::RepoBitbucket) = new("", ":")
+    LineRangeFormatting(::RepoGitlab) = new("L", "-")
+    LineRangeFormatting(::RepoHost) = new("L", "-L")
 end
 
 function format_line(range::AbstractRange, format::LineRangeFormatting)
