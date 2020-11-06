@@ -1079,6 +1079,9 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         elseif host_type == Utilities.RepoBitbucket
             host = "BitBucket"
             logo = "\uf171"
+        elseif host_type == Utilities.RepoAzureDevOps
+            host = "Azure DevOps"
+            logo = "\ue01a" # TODO change to ADO logo when added to FA
         else
             host = ""
             logo = "\uf15c"
