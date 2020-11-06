@@ -162,6 +162,12 @@ makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&versio
 makedocs(repo = \"https://bitbucket.org/user/project/src/{commit}/{path}#lines-{line}\") # BitBucket
 ```
 
+or for AzureDevOps:
+
+```julia
+makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1&lineStyle=plain\")
+```
+
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
 indented code block containing the function signature, then that block would be highlighted
