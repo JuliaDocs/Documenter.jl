@@ -163,7 +163,7 @@ makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
 or for AzureDevOps:
 
 ```julia
-makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1&lineStyle=plain\")
+makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\")
 ```
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
