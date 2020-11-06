@@ -366,7 +366,7 @@ function repo_commit(file)
     end
 end
 
-function format_commit(commit::String, host::RepoHost)
+function format_commit(commit::AbstractString, host::RepoHost)
     if host === RepoAzureDevOps
         # if commit hash then preceeded by GC, if branch name then preceeded by GB
         if match(r"[0-9a-fA-F]{40}", commit) !== nothing
