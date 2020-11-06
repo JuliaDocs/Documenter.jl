@@ -165,7 +165,7 @@ makedocs(repo = \"https://bitbucket.org/user/project/src/{commit}/{path}#lines-{
 or for AzureDevOps:
 
 ```julia
-makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1&lineStyle=plain\")
+makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\")
 ```
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
