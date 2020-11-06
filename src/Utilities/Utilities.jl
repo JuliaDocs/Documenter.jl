@@ -484,6 +484,10 @@ function inbase(m::Module)
     end
 end
 
+# Repository hosts
+#   RepoUnknown denotes that the repository type could not be determined automatically
+@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
+
 # Repository host from repository url
 # i.e. "https://github.com/something" => RepoGithub
 #      "https://bitbucket.org/xxx" => RepoBitbucket
