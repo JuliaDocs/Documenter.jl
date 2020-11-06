@@ -160,6 +160,12 @@ For example if you are using GitLab.com, you could use
 makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
 ```
 
+or for AzureDevOps:
+
+```julia
+makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1&lineStyle=plain\")
+```
+
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
 indented code block containing the function signature, then that block would be highlighted
