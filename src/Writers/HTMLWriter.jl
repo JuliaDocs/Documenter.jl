@@ -1158,6 +1158,17 @@ end
 
 # Article (page contents)
 # ------------------------------------------------------------------------------
+function unique_footnotes(footnotes)
+    unique_ids = Int[]
+    unique_footnotes = String[]
+    for (i, fn) in enumerate(footnotes)
+        if fn.id ∉ unique_footnotes
+            push!(unique_ids, i)
+            push!(unique_footnotes, fn.id)
+        end
+    end
+    return footnotes[unique_ids]
+end
 
 function render_article(ctx, navnode)
     @tags article section ul li hr span a div p
@@ -1167,7 +1178,8 @@ function render_article(ctx, navnode)
     art_body = article["#documenter-page.content"](domify(ctx, navnode))
     # Footnotes, if there are any
     if !isempty(ctx.footnotes)
-        fnotes = map(ctx.footnotes) do f
+        # remove duplicate footnotes (if there are any duplicates), then process them
+        fnotes = map(unique_footnotes(ctx.footnotes)) do f
             fid = "footnote-$(f.id)"
             citerefid = "citeref-$(f.id)"
             if length(f.text) == 1 && first(f.text) isa Markdown.Paragraph
