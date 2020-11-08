@@ -154,16 +154,12 @@ value of the generated link:
   - `{path}` Path to the file in the repository
   - `{line}` Line (or range of lines) in the source file
 
-For example if you are using GitLab.com, you could use
+BitBucket, GitLab and Azure DevOps are supported along with GitHub, for example:
 
 ```julia
-makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
-```
-
-or for AzureDevOps:
-
-```julia
-makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\")
+makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\") # GitLab
+makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\") # ADO
+makedocs(repo = \"https://bitbucket.org/user/project/src/{commit}/{path}#lines-{line}\") # BitBucket
 ```
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
