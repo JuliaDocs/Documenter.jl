@@ -1,10 +1,14 @@
 // Small function to quickly swap out themes. Gets put into the <head> tag..
 function set_theme_from_local_storage() {
-  // Browser does not support Web Storage, bail early.
-  if(typeof(window.localStorage) === "undefined") return;
-  // Get the user-picked theme from localStorage. May be `null`, which means the default
-  // theme.
-  var theme =  window.localStorage.getItem("documenter-theme");
+  // Intialize the theme to null, which means default
+  var theme = null;
+  // If the browser supports the localstorage and is not disabled then try to get the
+  // documenter theme
+  if(typeof(window.localStorage) != null) {
+    // Get the user-picked theme from localStorage. May be `null`, which means the default
+    // theme.
+    theme =  window.localStorage.getItem("documenter-theme");
+  }
   // Check if the browser supports user color preference
   var darkPreference = false;
   // Check if the users preference is for dark color scheme
@@ -32,8 +36,8 @@ function set_theme_from_local_storage() {
     // attribute set.
     var isprimary = (ss.ownerNode.getAttribute("data-theme-primary") !== null);
     // Check if the theme is primary dark theme
-    var isDarkTheme = (ss.ownerNode.getAttribute("dark-theme-primary") !== null);
-    // Use ss is for dark theme then set the value of darkTheme
+    var isDarkTheme = (ss.ownerNode.getAttribute("data-theme-primary-dark") !== null);
+    // If ss is for dark theme then set the value of darkTheme to the name of the theme
     if(isDarkTheme) darkTheme = themename;
     // If we find a matching theme (and it's not the default), we'll set active to non-null
     if(themename === theme) active = i;
@@ -48,7 +52,7 @@ function set_theme_from_local_storage() {
       ss.disabled = true;
     });
   }
-  else if(isDarkTheme !== null && darkPreference === true) {
+  else if(darkTheme !== null && darkPreference === true) {
     // If we did find an active theme, we'll (1) add the theme--$(theme) class to <html>
     document.getElementsByTagName('html')[0].className = "theme--" + darkTheme;
     // and (2) disable all the other theme stylesheets
