@@ -1158,16 +1158,36 @@ end
 
 # Article (page contents)
 # ------------------------------------------------------------------------------
+"""
+    unique_footnotes(footnotes)
+
+Iteratively traverse footnotes and check whether current footnote 
+body *and* id are identical to some existing footnote's 
+id and body. If duplicate ids *and* bodies are detected, the 
+footnote is regarded as a duplicate. 
+
+Bodies are deemed identical if their string representations are 
+identical.
+"""
 function unique_footnotes(footnotes)
-    unique_ids = Int[]
+    elements = Int[]
+    unique_ids = String[]
     unique_footnotes = String[]
     for (i, fn) in enumerate(footnotes)
-        if fn.id ∉ unique_footnotes
-            push!(unique_ids, i)
-            push!(unique_footnotes, fn.id)
-        end
+        if fn.id ∉ unique_ids
+            push!(elements, i)
+            push!(unique_ids, fn.id)
+        else 
+            for idx in findall(unique_ids .== fn.id)
+                if string.(fn.text) != string.(footnotes[idx].text)
+                    push!(elements, i)
+                    push!(unique_ids, fn.id)
+                end
+            end
+        end 
     end
-    return footnotes[unique_ids]
+    
+    return footnotes[elements]
 end
 
 function render_article(ctx, navnode)
