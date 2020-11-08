@@ -383,9 +383,40 @@ so that GitHub would actually serve the contents as a website.
 
 Note that the `gh-pages` branch can become very large, especially when `push_preview` is enabled to
 build documentation for each pull request. To cleanup the branch and remove stale documentation
-previews, a GitHub Actions workflow like
-[DocCleanup.yml](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml)
-can be used.
+previews, a GitHub Actions workflow like the following can be used.
+
+```
+name: Doc Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  doc-preview-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+
+      - name: Delete preview and history
+        run: |
+            git config user.name "Documenter.jl"
+            git config user.email "documenter@juliadocs.github.io"
+            git rm -rf "previews/PR$PRNUM"
+            git commit -m "delete preview"
+            git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+        env:
+            PRNUM: ${{ github.event.number }}
+
+      - name: Push changes
+        run: |
+            git push --force origin gh-pages-new:gh-pages
+```
+
+This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml).
 
 ## Documentation Versions
 
