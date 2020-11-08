@@ -856,7 +856,7 @@ function render_head(ctx, navnode)
                 Symbol("data-theme-name") => theme,
             ]
             (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
-            (i == 2) && push!(e.attributes, Symbol("dark-theme-primary") => "")
+            (i == 2) && push!(e.attributes, Symbol("data-theme-primary-dark") => "")
             return e
         end,
         script[:src => relhref(src, ctx.themeswap_js)],
