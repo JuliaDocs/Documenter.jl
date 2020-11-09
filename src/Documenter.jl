@@ -158,7 +158,7 @@ BitBucket, GitLab and Azure DevOps are supported along with GitHub, for example:
 
 ```julia
 makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\") # GitLab
-makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\") # ADO
+makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\") # Azure DevOps
 makedocs(repo = \"https://bitbucket.org/user/project/src/{commit}/{path}#lines-{line}\") # BitBucket
 ```
 
