@@ -637,6 +637,149 @@ authentication_method(::GitLab) = Documenter.SSH
 
 documenter_key(::GitLab) = ENV["DOCUMENTER_KEY"]
 
+#############
+# Buildkite #
+#############
+
+"""
+    Buildkite <: DeployConfig
+
+Buildkite implementation of `DeployConfig`.
+
+The following environment variables influence the build when using the
+`Buildkite` configuration:
+
+ - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
+   repository. This variable should be somehow set in the CI environment, e.g.,
+   provisioned by an agent environment plugin.
+
+ - `BUILDKITE_BRANCH`: the name of the commit branch.
+
+ - `BUILDKITE_PULL_REQUEST`: Pull Request ID from GitHub if the pipelines
+   are for external pull requests.
+
+ - `BUILDKITE_TAG`: The commit tag name. Present only when building tags.
+
+The `BUILDKITE_*` variables are set automatically on GitLab. More information on how
+Buildkite sets the `BUILDKITE_*` variables can be found in the
+[Buildkite documentation](https://buildkite.com/docs/pipelines/environment-variables).
+"""
+struct Buildkite <: DeployConfig
+    commit_branch::String
+    pull_request::String
+    commit_tag::String
+end
+
+function Buildkite()
+    commit_branch = get(ENV, "BUILDKITE_BRANCH", "")
+    pull_request = get(ENV, "BUILDKITE_PULL_REQUEST", "")
+    commit_tag = get(ENV, "BUILDKITE_TAG", "")
+    Buildkite(commit_branch, pull_request, commit_tag)
+end
+
+function deploy_folder(
+    cfg::Buildkite;
+    repo,
+    repo_previews = repo,
+    devbranch,
+    push_preview,
+    devurl,
+    branch = "gh-pages",
+    branch_previews = branch,
+    kwargs...,
+)
+
+    marker(x) = x ? "✔" : "✘"
+
+    io = IOBuffer()
+    all_ok = true
+
+    println(io, "\nBuildkite config:")
+    println(io, "  Commit branch: \"", cfg.commit_branch, "\"")
+    println(io, "  Pull request: \"", cfg.pull_request, "\"")
+    println(io, "  Commit tag: \"", cfg.commit_tag, "\"")
+
+    build_type = if cfg.pull_request != ""
+        :preview
+    elseif cfg.commit_tag != ""
+        :release
+    else
+        :devbranch
+    end
+
+    println(io, "Detected build type: ", build_type)
+
+    if build_type == :release
+        tag_nobuild = version_tag_strip_build(cfg.commit_tag)
+        ## If a tag exist it should be a valid VersionNumber
+        tag_ok = tag_nobuild !== nothing
+
+        println(
+            io,
+            "- $(marker(tag_ok)) ENV[\"BUILDKITE_TAG\"] contains a valid VersionNumber",
+        )
+        all_ok &= tag_ok
+
+        is_preview = false
+        subfolder = tag_nobuild
+        deploy_branch = branch
+        deploy_repo = repo
+    elseif build_type == :preview
+        pr_number = tryparse(Int, cfg.pull_request)
+        pr_ok = pr_number !== nothing
+        all_ok &= pr_ok
+        println(
+            io,
+            "- $(marker(pr_ok)) ENV[\"BUILDKITE_PULL_REQUEST\"]=\"$(cfg.pull_request)\" is a number",
+        )
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        is_preview = true
+        println(
+            io,
+            "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`",
+        )
+        ## deploy to previews/PR
+        subfolder = "previews/PR$(something(pr_number, 0))"
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+    else
+        branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
+        all_ok &= branch_ok
+        println(
+            io,
+            "- $(marker(branch_ok)) ENV[\"BUILDKITE_BRANCH\"] matches devbranch=\"$(devbranch)\"",
+        )
+        is_preview = false
+        subfolder = devurl
+        deploy_branch = branch
+        deploy_repo = repo
+    end
+
+    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
+    all_ok &= key_ok
+
+    print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
+    @info String(take!(io))
+
+    if all_ok
+        return DeployDecision(;
+            all_ok = true,
+            branch = deploy_branch,
+            repo = deploy_repo,
+            subfolder = subfolder,
+            is_preview = is_preview,
+        )
+    else
+        return DeployDecision(; all_ok = false)
+    end
+end
+
+authentication_method(::Buildkite) = Documenter.SSH
+
+documenter_key(::Buildkite) = ENV["DOCUMENTER_KEY"]
+
 ##################
 # Auto-detection #
 ##################
@@ -647,6 +790,8 @@ function auto_detect_deploy_system()
         return GitHubActions()
     elseif haskey(ENV, "GITLAB_CI")
         return GitLab()
+    elseif haskey(ENV, "BUILDKITE")
+        return Buildkite()
     else
         return nothing
     end
