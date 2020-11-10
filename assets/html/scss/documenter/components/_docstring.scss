@@ -48,7 +48,7 @@
       @extend .is-primary;
       @extend .is-size-7;
       &:hover {
-        background-color: darken($primary, 10%);
+        background-color: darken($primary, 5%);
         text-decoration: none;
       }
     }

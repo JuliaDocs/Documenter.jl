@@ -7235,7 +7235,7 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       right: 0.625rem;
       bottom: 0.5rem; }
       .docstring > section > a.docs-sourcelink:hover {
-        background-color: #27a1d2;
+        background-color: #39acda;
         text-decoration: none; }
   .docstring:hover > section > a.docs-sourcelink {
     opacity: 0.2; }

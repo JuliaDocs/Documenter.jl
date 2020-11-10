@@ -7274,7 +7274,7 @@ html.theme--documenter-dark {
         right: 0.625rem;
         bottom: 0.5rem; }
         html.theme--documenter-dark .docstring > section > a.docs-sourcelink:hover {
-          background-color: #28415b;
+          background-color: #2f4d6d;
           text-decoration: none; }
     html.theme--documenter-dark .docstring:hover > section > a.docs-sourcelink {
       opacity: 0.2; }
