@@ -2,6 +2,8 @@
 
 ## Version `v0.26.0`
 
+* ![Feature][badge-feature] Documenter can now deploy from Buildkite CI to GitHub Pages with `Documenter.Buildkite`. ([#1469][github-1469])
+
 * ![Enhancement][badge-enhancement] Objects that render as equations and whose `text/latex` representations are wrapped in display equation delimiters `\[ ... \]` or `$$ ... $$` are now handled correctly in the HTML output. ([#1278][github-1278], [#1283][github-1283], [#1426][github-1426])
 
 ## Version `v0.25.3`
@@ -675,6 +677,7 @@
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
+[github-1469]: https://github.com/JuliaDocs/Documenter.jl/pull/1469
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
