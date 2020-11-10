@@ -387,7 +387,7 @@ end end
     # Regular tag build
     withenv("BUILDKITE" => "true",
             "BUILDKITE_BRANCH" => "master",
-            "BUILDKITE_PULL_REQUEST" => "",
+            "BUILDKITE_PULL_REQUEST" => "false",
             "BUILDKITE_TAG" => "v1.2.3",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
@@ -404,7 +404,7 @@ end end
     # Broken tag build
     withenv("BUILDKITE" => "true",
             "BUILDKITE_BRANCH" => "master",
-            "BUILDKITE_PULL_REQUEST" => "",
+            "BUILDKITE_PULL_REQUEST" => "false",
             "BUILDKITE_TAG" => "not-a-version",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
@@ -417,7 +417,7 @@ end end
     withenv(
             "BUILDKITE" => "true",
             "BUILDKITE_BRANCH" => "master",
-            "BUILDKITE_PULL_REQUEST" => "",
+            "BUILDKITE_PULL_REQUEST" => "false",
             "BUILDKITE_TAG" => nothing,
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
@@ -456,7 +456,7 @@ end end
     withenv(
             "BUILDKITE" => "true",
             "BUILDKITE_BRANCH" => "master",
-            "BUILDKITE_PULL_REQUEST" => "",
+            "BUILDKITE_PULL_REQUEST" => "false",
             "BUILDKITE_TAG" => "v1.2.3",
             "DOCUMENTER_KEY" => nothing,
         ) do

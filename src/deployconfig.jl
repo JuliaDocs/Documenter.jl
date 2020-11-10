@@ -672,7 +672,7 @@ end
 
 function Buildkite()
     commit_branch = get(ENV, "BUILDKITE_BRANCH", "")
-    pull_request = get(ENV, "BUILDKITE_PULL_REQUEST", "")
+    pull_request = get(ENV, "BUILDKITE_PULL_REQUEST", "false")
     commit_tag = get(ENV, "BUILDKITE_TAG", "")
     Buildkite(commit_branch, pull_request, commit_tag)
 end
@@ -699,7 +699,7 @@ function deploy_folder(
     println(io, "  Pull request: \"", cfg.pull_request, "\"")
     println(io, "  Commit tag: \"", cfg.commit_tag, "\"")
 
-    build_type = if cfg.pull_request != ""
+    build_type = if cfg.pull_request != "false"
         :preview
     elseif cfg.commit_tag != ""
         :release
