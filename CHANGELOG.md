@@ -6,6 +6,8 @@
 
 * ![Enhancement][badge-enhancement] The search page in the HTML output now shows the page titles in the search results. ([#1468][github-1468])
 
+* ![Bugfix][badge-bugfix] Type aliases of `Union`s (e.g. `const MyAlias = Union{Foo,Bar}`) are now correctly listed as "Type" in docstrings. ([#1466][github-1466], [#1474][github-1474])
+
 ## Version `v0.25.3`
 
 * ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
@@ -677,7 +679,9 @@
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
+[github-1466]: https://github.com/JuliaDocs/Documenter.jl/issues/1466
 [github-1468]: https://github.com/JuliaDocs/Documenter.jl/pull/1468
+[github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
