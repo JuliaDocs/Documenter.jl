@@ -8,6 +8,8 @@
 
 * ![Enhancement][badge-enhancement] Documenter now support Azure DevOps Repos URL scheme when generating edit and source links pointing to the repository. ([#1462][github-1462], [#1463][github-1463], [#1471][github-1471])
 
+* ![Enhancement][badge-enhancement] The HTML front end now respects the user's OS-level dark theme preference (determined via the `prefers-color-scheme: dark` media query). ([#1320][github-1320], [#1456][github-1456])
+
 ## Version `v0.25.3`
 
 * ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
@@ -649,6 +651,7 @@
 [github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
 [github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
+[github-1320]: https://github.com/JuliaDocs/Documenter.jl/issues/1320
 [github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 [github-1337]: https://github.com/JuliaDocs/Documenter.jl/issues/1337
@@ -679,6 +682,7 @@
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
+[github-1456]: https://github.com/JuliaDocs/Documenter.jl/pull/1456
 [github-1462]: https://github.com/JuliaDocs/Documenter.jl/issues/1462
 [github-1463]: https://github.com/JuliaDocs/Documenter.jl/pull/1463
 [github-1468]: https://github.com/JuliaDocs/Documenter.jl/pull/1468
