@@ -66,6 +66,15 @@
   right: 0;
 }
 
+// Long equations within ```math ... ``` blocks overflow the container, this allows for horizontal scrollbars solving this issue
+.katex-display {
+  margin: 0.5em 0;
+  .katex .katex-html {
+    overflow-x: auto;
+    padding: 0.5em 0;
+  }
+}
+
 // Set font subpixel rendering to auto on the HTML tag
 html {
   -moz-osx-font-smoothing: auto;
