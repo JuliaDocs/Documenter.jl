@@ -4,6 +4,10 @@
 
 * ![Enhancement][badge-enhancement] Objects that render as equations and whose `text/latex` representations are wrapped in display equation delimiters `\[ ... \]` or `$$ ... $$` are now handled correctly in the HTML output. ([#1278][github-1278], [#1283][github-1283], [#1426][github-1426])
 
+* ![Enhancement][badge-enhancement] The search page in the HTML output now shows the page titles in the search results. ([#1468][github-1468])
+
+* ![Enhancement][badge-enhancement] Documenter now support Azure DevOps Repos URL scheme when generating edit and source links pointing to the repository. ([#1462][github-1462], [#1463][github-1463], [#1471][github-1471])
+
 ## Version `v0.25.3`
 
 * ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
@@ -675,6 +679,10 @@
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
+[github-1462]: https://github.com/JuliaDocs/Documenter.jl/issues/1462
+[github-1463]: https://github.com/JuliaDocs/Documenter.jl/pull/1463
+[github-1468]: https://github.com/JuliaDocs/Documenter.jl/pull/1468
+[github-1471]: https://github.com/JuliaDocs/Documenter.jl/pull/1471
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
