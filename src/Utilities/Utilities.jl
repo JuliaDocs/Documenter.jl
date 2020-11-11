@@ -257,7 +257,7 @@ end
 doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
-doccat(::DataType) = "Type"
+doccat(::Type)     = "Type"
 doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
 doccat(::Module)   = "Module"
 doccat(::Any)      = "Constant"
