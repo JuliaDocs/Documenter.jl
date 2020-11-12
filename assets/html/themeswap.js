@@ -4,7 +4,7 @@ function set_theme_from_local_storage() {
   var theme = null;
   // If the browser supports the localstorage and is not disabled then try to get the
   // documenter theme
-  if(typeof(window.localStorage) != null) {
+  if(window.localStorage != null) {
     // Get the user-picked theme from localStorage. May be `null`, which means the default
     // theme.
     theme =  window.localStorage.getItem("documenter-theme");
