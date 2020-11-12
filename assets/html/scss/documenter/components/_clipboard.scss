@@ -20,7 +20,7 @@
   height: 0;
   color: rgba(0, 0, 0, .8);
   content: "";
-  border: 5px solid transparent
+  border: 5px solid transparent;
 }
 
 .tooltipped:hover:before,
@@ -37,7 +37,7 @@
   top: 100%;
   right: 50%;
   margin-top: 5px;
-  transform: translateX(50%)
+  transform: translateX(50%);
 }
 
 .tooltipped-s:before {
@@ -50,7 +50,7 @@
 
 .snippet {
   position:relative;
-  overflow:visible
+  overflow:visible;
  }
 
 .snippet .copy-button {
@@ -64,5 +64,5 @@
 
 .snippet:hover .copy-button,
 .snippet .copy-button:focus {
-  opacity: 1
+  opacity: 1;
 }
