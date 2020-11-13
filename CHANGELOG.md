@@ -2,7 +2,10 @@
 
 ## Version `v0.25.4`
 
+* ![Feature][badge-feature] Documenter can now deploy from Buildkite CI to GitHub Pages with `Documenter.Buildkite`. ([#1469][github-1469])
+
 * ![Enhancement][badge-enhancement] Documenter now support Azure DevOps Repos URL scheme when generating edit and source links pointing to the repository. ([#1462][github-1462], [#1463][github-1463], [#1471][github-1471])
+
 
 ## Version `v0.25.3`
 
@@ -674,6 +677,7 @@
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
 [github-1462]: https://github.com/JuliaDocs/Documenter.jl/issues/1462
 [github-1463]: https://github.com/JuliaDocs/Documenter.jl/pull/1463
+[github-1469]: https://github.com/JuliaDocs/Documenter.jl/pull/1469
 [github-1471]: https://github.com/JuliaDocs/Documenter.jl/pull/1471
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
