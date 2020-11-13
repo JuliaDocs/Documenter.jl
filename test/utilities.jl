@@ -113,6 +113,7 @@ end
     @test Documenter.Utilities.repo_host_from_url("https://github.com/Whatever") == Documenter.Utilities.RepoGithub
     @test Documenter.Utilities.repo_host_from_url("https://www.github.com/Whatever") == Documenter.Utilities.RepoGithub
     @test Documenter.Utilities.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.Utilities.RepoGitlab
+    @test Documenter.Utilities.repo_host_from_url("https://dev.azure.com/Whatever") == Documenter.Utilities.RepoAzureDevOps
 
     # line range
     let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoGithub)
@@ -136,7 +137,24 @@ end
         @test Documenter.Utilities.format_line(100:9999, formatting) == "100:9999"
     end
 
+    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoAzureDevOps)
+        @test Documenter.Utilities.format_line(1:1, formatting) == "&line=1"
+        @test Documenter.Utilities.format_line(123:123, formatting) == "&line=123"
+        @test Documenter.Utilities.format_line(2:5, formatting) == "&line=2&lineEnd=5"
+        @test Documenter.Utilities.format_line(100:9999, formatting) == "&line=100&lineEnd=9999"
+    end
+
     @test Documenter.Utilities.linerange(Core.svec(), 0) === 0:0
+
+    # commit format
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGithub) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGithub) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGitlab) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGitlab) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoBitbucket) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoBitbucket) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoAzureDevOps) == "GC7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoAzureDevOps) == "GBtest"
 
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)

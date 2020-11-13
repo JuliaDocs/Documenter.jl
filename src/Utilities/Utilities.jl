@@ -343,6 +343,10 @@ function repo_root(file; dbdir=".git")
     return nothing
 end
 
+# Repository hosts
+#   RepoUnknown denotes that the repository type could not be determined automatically
+@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
+
 """
     $(SIGNATURES)
 
@@ -362,6 +366,19 @@ function repo_commit(file)
     end
 end
 
+function format_commit(commit::AbstractString, host::RepoHost)
+    if host === RepoAzureDevOps
+        # if commit hash then preceeded by GC, if branch name then preceeded by GB
+        if match(r"[0-9a-fA-F]{40}", commit) !== nothing
+            commit = "GC$commit"
+        else
+            commit = "GB$commit"
+        end
+    else
+        return commit
+    end
+end
+
 function url(repo, file; commit=nothing)
     file = abspath(file)
     if !isfile(file)
@@ -375,7 +392,8 @@ function url(repo, file; commit=nothing)
     if path === nothing
         nothing
     else
-        repo = replace(repo, "{commit}" => commit === nothing ? repo_commit(file) : commit)
+        hosttype = repo_host_from_url(repo)
+        repo = replace(repo, "{commit}" => format_commit(commit === nothing ? repo_commit(file) : commit, hosttype))
         # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
         repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
         repo = replace(repo, "{line}" => "")
@@ -395,8 +413,10 @@ function url(remote, repo, mod, file, linerange)
         file = realpath(abspath(file))
     end
 
+    hosttype = repo_host_from_url(repo)
+
     # Format the line range.
-    line = format_line(linerange, LineRangeFormatting(repo_host_from_url(repo)))
+    line = format_line(linerange, LineRangeFormatting(hosttype))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
@@ -418,7 +438,7 @@ function url(remote, repo, mod, file, linerange)
         if path === nothing
             nothing
         else
-            repo = replace(repo, "{commit}" => repo_commit(file))
+            repo = replace(repo, "{commit}" => format_commit(repo_commit(file), hosttype))
             # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
             repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
             repo = replace(repo, "{line}" => line)
@@ -464,10 +484,6 @@ function inbase(m::Module)
     end
 end
 
-# Repository hosts
-#   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoUnknown
-
 # Repository host from repository url
 # i.e. "https://github.com/something" => RepoGithub
 #      "https://bitbucket.org/xxx" => RepoBitbucket
@@ -479,6 +495,8 @@ function repo_host_from_url(repoURL::String)
         return RepoGithub
     elseif occursin("gitlab", repoURL)
         return RepoGitlab
+    elseif occursin("azure", repoURL)
+        return RepoAzureDevOps
     else
         return RepoUnknown
     end
@@ -505,7 +523,9 @@ struct LineRangeFormatting
     separator::String
 
     function LineRangeFormatting(host::RepoHost)
-        if host == RepoBitbucket
+        if host === RepoAzureDevOps
+            new("&line=", "&lineEnd=")
+        elseif host == RepoBitbucket
             new("", ":")
         elseif host == RepoGitlab
             new("L", "-")
