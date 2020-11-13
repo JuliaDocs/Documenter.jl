@@ -12,6 +12,8 @@
 
 * ![Feature][badge-feature] Documenter can now deploy from Buildkite CI to GitHub Pages with `Documenter.Buildkite`. ([#1469][github-1469])
 
+* ![Bugfix][badge-bugfix] Type aliases of `Union`s (e.g. `const MyAlias = Union{Foo,Bar}`) are now correctly listed as "Type" in docstrings. ([#1466][github-1466], [#1474][github-1474])
+
 ## Version `v0.25.3`
 
 * ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
@@ -685,9 +687,11 @@
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
 [github-1462]: https://github.com/JuliaDocs/Documenter.jl/issues/1462
 [github-1463]: https://github.com/JuliaDocs/Documenter.jl/pull/1463
+[github-1466]: https://github.com/JuliaDocs/Documenter.jl/issues/1466
 [github-1468]: https://github.com/JuliaDocs/Documenter.jl/pull/1468
 [github-1469]: https://github.com/JuliaDocs/Documenter.jl/pull/1469
 [github-1471]: https://github.com/JuliaDocs/Documenter.jl/pull/1471
+[github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 

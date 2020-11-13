@@ -27,6 +27,10 @@ module UnitTests
     f(x) = x
 
     const pi = 3.0
+
+    const TA = Vector{UInt128}
+    const TB = Array{T, 8} where T
+    const TC = Union{Int64, Float64, String}
 end
 
 module OuterModule
@@ -97,6 +101,9 @@ end
     @test Documenter.Utilities.doccat(UnitTests.S) == "Type"
     @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
     @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
+    @test Documenter.Utilities.doccat(UnitTests.TA) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.TB) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.TC) == "Type"
 
     # repo type
     @test Documenter.Utilities.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
