@@ -1775,6 +1775,9 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     fixlinks!(ctx, navnode, link.text)
     Utilities.isabsurl(link.url) && return
 
+    # anything starting with mailto: doesn't need fixing
+    startswith(link.url, "mailto:") && return
+
     # links starting with a # are references within the same file -- there's nothing to fix
     # for such links
     startswith(link.url, '#') && return
