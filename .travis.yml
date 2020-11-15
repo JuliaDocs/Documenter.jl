@@ -5,10 +5,10 @@ os:
   - osx
 
 julia:
-  - nightly
   - 1
   - 1.4
   - 1.0
+  - nightly
 
 branches:
   only:
