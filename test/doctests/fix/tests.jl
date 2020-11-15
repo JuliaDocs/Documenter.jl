@@ -20,24 +20,25 @@ function test_doctest_fix(dir)
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
-    makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
+    @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
 
     # test that strict = true works
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=true"
-    makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, strict = true)
+    @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, strict = true)
 
     # also test that we obtain the expected output
     @test read(joinpath(srcdir, "index.md"), String) == read(joinpath(@__DIR__, "fixed.md"), String)
     @test read(joinpath(srcdir, "src.jl"), String) == read(joinpath(@__DIR__, "fixed.jl"), String)
 end
 
-@info "Testing `doctest = :fix` in $(@__FILE__)"
-if haskey(ENV, "DOCUMENTER_TEST_DEBUG")
-    # in this mode the directories remain
-    test_doctest_fix(mktempdir(@__DIR__))
-else
-    @quietly mktempdir(test_doctest_fix, @__DIR__)
+@testset "doctest fixing" begin
+    if haskey(ENV, "DOCUMENTER_TEST_DEBUG")
+        # in this mode the directories remain
+        test_doctest_fix(mktempdir(@__DIR__))
+    else
+        mktempdir(test_doctest_fix, @__DIR__)
+    end
 end
 
 end # module
