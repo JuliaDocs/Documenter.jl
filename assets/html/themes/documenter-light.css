@@ -7234,6 +7234,8 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       position: absolute;
       right: 0.625rem;
       bottom: 0.5rem; }
+    .docstring > section .math-container {
+      overflow-x: auto; }
   .docstring:hover > section > a.docs-sourcelink {
     opacity: 0.2; }
   .docstring > section:hover a.docs-sourcelink {
@@ -7277,11 +7279,8 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
   top: 0;
   right: 0; }
 
-.katex-display {
-  margin: 0.5em 0; }
-  .katex-display .katex .katex-html {
-    overflow-x: auto;
-    padding: 0.5em 0; }
+.katex-display, mjx-container, .MathJax_Display {
+  margin: 0.5em 0 !important; }
 
 html {
   -moz-osx-font-smoothing: auto;

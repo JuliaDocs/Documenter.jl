@@ -7273,6 +7273,8 @@ html.theme--documenter-dark {
         position: absolute;
         right: 0.625rem;
         bottom: 0.5rem; }
+      html.theme--documenter-dark .docstring > section .math-container {
+        overflow-x: auto; }
     html.theme--documenter-dark .docstring:hover > section > a.docs-sourcelink {
       opacity: 0.2; }
     html.theme--documenter-dark .docstring > section:hover a.docs-sourcelink {
@@ -7305,11 +7307,8 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .katex .katex-mathml {
     top: 0;
     right: 0; }
-  html.theme--documenter-dark .katex-display {
-    margin: 0.5em 0; }
-    html.theme--documenter-dark .katex-display .katex .katex-html {
-      overflow-x: auto;
-      padding: 0.5em 0; }
+  html.theme--documenter-dark .katex-display, html.theme--documenter-dark mjx-container, html.theme--documenter-dark .MathJax_Display {
+    margin: 0.5em 0 !important; }
   html.theme--documenter-dark html {
     -moz-osx-font-smoothing: auto;
     -webkit-font-smoothing: auto; }

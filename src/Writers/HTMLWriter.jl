@@ -1634,7 +1634,10 @@ end
 
 mdconvert(i::Markdown.Italic, parent; kwargs...) = Tag(:em)(mdconvert(i.text, i; kwargs...))
 
-mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)   = Tag(:div)(string("\\[", m.formula, "\\]"))
+function mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)
+    @tags p
+    p[".math-container"](string("\\[", m.formula, "\\]"))
+end
 mdconvert(m::Markdown.LaTeX, parent; kwargs...) = Tag(:span)(string('$', m.formula, '$'))
 
 mdconvert(::Markdown.LineBreak, parent; kwargs...) = Tag(:br)()
