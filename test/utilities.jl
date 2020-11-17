@@ -2,6 +2,7 @@ module UtilitiesTests
 
 using Test
 import Base64: stringmime
+include("TestUtilities.jl"); using .TestUtilities
 
 import Documenter
 import Markdown
@@ -324,11 +325,11 @@ end
             @test length(md) == 2
         end
 
-        @info "Expected error output:"
-        @test_throws ArgumentError mdparse("!!! adm", mode=:span)
-        @test_throws ArgumentError mdparse("x\n\ny")
-        @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
-        @info ".. end of expected error output."
+        @quietly begin
+            @test_throws ArgumentError mdparse("!!! adm", mode=:span)
+            @test_throws ArgumentError mdparse("x\n\ny")
+            @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
+        end
     end
 
     @testset "JSDependencies" begin
