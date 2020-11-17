@@ -3,7 +3,7 @@ DocTestFixTest.Foo.foo
 ```
 
 ```jldoctest
-julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
+julia> Main.DocTestFixArray_2468
 4×1×1 Array{Int64,3}:
 [:, :, 1] =
  2
@@ -11,7 +11,7 @@ julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
  6
  8
 
-julia> reshape(Int64[1, 2, 3, 4], (4,1,1))
+julia> Main.DocTestFixArray_1234
 4×1×1 Array{Int64,3}:
 [:, :, 1] =
  1
@@ -20,7 +20,7 @@ julia> reshape(Int64[1, 2, 3, 4], (4,1,1))
  4
 ```
 ```jldoctest
-julia> reshape(Int64[1, 2, 3, 4], (4,1,1))
+julia> Main.DocTestFixArray_1234
 4×1×1 Array{Int64,3}:
 [:, :, 1] =
  1
@@ -28,7 +28,7 @@ julia> reshape(Int64[1, 2, 3, 4], (4,1,1))
  3
  4
 
-julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
+julia> Main.DocTestFixArray_2468
 4×1×1 Array{Int64,3}:
 [:, :, 1] =
  2
@@ -37,7 +37,7 @@ julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
  8
 ```
 ```jldoctest
-julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
+julia> Main.DocTestFixArray_2468
 4×1×1 Array{Int64,3}:
 [:, :, 1] =
  2
@@ -45,7 +45,7 @@ julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
  6
  8
 
-julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
+julia> Main.DocTestFixArray_2468
 4×1×1 Array{Int64,3}:
 [:, :, 1] =
  2
@@ -55,7 +55,7 @@ julia> reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
 ```
 ```jldoctest
 julia> begin
-          reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
+          Main.DocTestFixArray_2468
        end
 4×1×1 Array{Int64,3}:
 [:, :, 1] =
@@ -65,7 +65,7 @@ julia> begin
  8
 ```
 ```jldoctest
-reshape(Int64[1, 2, 3, 4] * 2, (4,1,1))
+Main.DocTestFixArray_2468
 
 # output
 

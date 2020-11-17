@@ -7,9 +7,22 @@ module DocTestFixTest
 using Documenter, Test
 using ..TestUtilities: @quietly
 
+# Type to reliably show() objects across Julia versions:
+@eval Main begin
+    struct ShowWrap
+        s :: String
+    end
+    Base.show(io::IO, x::ShowWrap) = write(io, x.s)
+    const DocTestFixArray_1234 = Main.ShowWrap("4×1×1 Array{Int64,3}:\n[:, :, 1] =\n 1\n 2\n 3\n 4")
+    const DocTestFixArray_2468 = Main.ShowWrap("4×1×1 Array{Int64,3}:\n[:, :, 1] =\n 2\n 4\n 6\n 8")
+end
+
+# The version check is necessary due to a behaviour change in https://github.com/JuliaLang/julia/pull/32851
+mktempdir_nocleanup(dir) = VERSION >= v"1.3.0-alpha.112" ? mktempdir(dir, cleanup = false) : mktempdir(dir)
+
 function test_doctest_fix(dir)
-    srcdir = mktempdir(dir)
-    builddir = mktempdir(dir)
+    srcdir = mktempdir_nocleanup(dir)
+    builddir = mktempdir_nocleanup(dir)
     @debug "Testing doctest = :fix" srcdir builddir
 
     # Pkg.add changes permission of files to read-only,
@@ -35,7 +48,7 @@ end
 @testset "doctest fixing" begin
     if haskey(ENV, "DOCUMENTER_TEST_DEBUG")
         # in this mode the directories remain
-        test_doctest_fix(mktempdir(@__DIR__))
+        test_doctest_fix(mktempdir_nocleanup(@__DIR__))
     else
         mktempdir(test_doctest_fix, @__DIR__)
     end
