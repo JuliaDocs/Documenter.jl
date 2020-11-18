@@ -438,7 +438,7 @@ module RD
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-    const fontawesome_version = "5.11.2"
+    const fontawesome_version = "5.15.0"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
@@ -1079,6 +1079,9 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         elseif host_type == Utilities.RepoBitbucket
             host = "BitBucket"
             logo = "\uf171"
+        elseif host_type == Utilities.RepoAzureDevOps
+            host = "Azure DevOps"
+            logo = "\uf3ca" # TODO change to ADO logo when added to FontAwesome
         else
             host = ""
             logo = "\uf15c"
@@ -1101,7 +1104,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             title = "$(edit_verb)$hoststring"
             push!(navbar_right.nodes,
                 a[".docs-edit-link", :href => url, :title => title](
-                    span[".docs-icon.fab"](logo),
+                    span[host_type == Utilities.RepoUnknown ? ".docs-icon.fa" : ".docs-icon.fab"](logo),
                     span[".docs-label.is-hidden-touch"](title)
                 )
             )
@@ -1771,6 +1774,9 @@ actual URLs.
 function fixlinks!(ctx, navnode, link::Markdown.Link)
     fixlinks!(ctx, navnode, link.text)
     Utilities.isabsurl(link.url) && return
+
+    # anything starting with mailto: doesn't need fixing
+    startswith(link.url, "mailto:") && return
 
     # links starting with a # are references within the same file -- there's nothing to fix
     # for such links
