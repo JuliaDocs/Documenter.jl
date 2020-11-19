@@ -244,7 +244,8 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
         )),
     )
 else
-    @info "Skipping build: HTML/deploy" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: HTML/deploy"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -267,7 +268,8 @@ examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
         ),
     )
 else
-    @info "Skipping build: HTML/deploy MathJax v2 (custom URL)" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: HTML/deploy MathJax v2 (custom URL)"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
@@ -283,7 +285,8 @@ examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
         )),
     )
 else
-    @info "Skipping build: HTML/deploy MathJax v3" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: HTML/deploy MathJax v3"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 examples_html_mathjax3_custom_doc = if "html-mathjax3-custom" in EXAMPLE_BUILDS
@@ -302,7 +305,8 @@ examples_html_mathjax3_custom_doc = if "html-mathjax3-custom" in EXAMPLE_BUILDS
         ),
     )
 else
-    @info "Skipping build: HTML/deploy MathJax v3 (custom URL)" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: HTML/deploy MathJax v3 (custom URL)"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -328,7 +332,8 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         ),
     )
 else
-    @info "Skipping build: HTML/local" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: HTML/local"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -344,7 +349,8 @@ examples_markdown_doc = if "markdown" in EXAMPLE_BUILDS
         expandfirst = expandfirst,
     )
 else
-    @info "Skipping build: Markdown" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: Markdown"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -362,7 +368,8 @@ examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/simple" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/simple"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -406,7 +413,8 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/latex" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/latex"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -423,7 +431,8 @@ examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUI
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/latex_simple_nondocker" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/latex_simple_nondocker"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -467,6 +476,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/latex_texonly" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/latex_texonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end

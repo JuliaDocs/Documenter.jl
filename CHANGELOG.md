@@ -6,13 +6,13 @@
 
 * ![Enhancement][badge-enhancement] The search page in the HTML output now shows the page titles in the search results. ([#1468][github-1468])
 
-* ![Enhancement][badge-enhancement] Documenter now support Azure DevOps Repos URL scheme when generating edit and source links pointing to the repository. ([#1462][github-1462], [#1463][github-1463], [#1471][github-1471])
-
 * ![Enhancement][badge-enhancement] The HTML front end now respects the user's OS-level dark theme preference (determined via the `prefers-color-scheme: dark` media query). ([#1320][github-1320], [#1456][github-1456])
 
 ## Version `v0.25.4`
 
 * ![Feature][badge-feature] Documenter can now deploy from Buildkite CI to GitHub Pages with `Documenter.Buildkite`. ([#1469][github-1469])
+
+* ![Enhancement][badge-enhancement] Documenter now support Azure DevOps Repos URL scheme when generating edit and source links pointing to the repository. ([#1462][github-1462], [#1463][github-1463], [#1471][github-1471])
 
 * ![Bugfix][badge-bugfix] Type aliases of `Union`s (e.g. `const MyAlias = Union{Foo,Bar}`) are now correctly listed as "Type" in docstrings. ([#1466][github-1466], [#1474][github-1474])
 
