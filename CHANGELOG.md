@@ -8,6 +8,10 @@
 
 * ![Enhancement][badge-enhancement] The HTML front end now respects the user's OS-level dark theme preference (determined via the `prefers-color-scheme: dark` media query). ([#1320][github-1320], [#1456][github-1456])
 
+## Version `v0.25.5`
+
+* ![Bugfix][badge-bugfix] In the HTML output, display equations that are wider than the page now get a scrollbar instead of overflowing. ([#1470][github-1470], [#1476][github-1476])
+
 ## Version `v0.25.4`
 
 * ![Feature][badge-feature] Documenter can now deploy from Buildkite CI to GitHub Pages with `Documenter.Buildkite`. ([#1469][github-1469])
@@ -17,8 +21,6 @@
 * ![Bugfix][badge-bugfix] Type aliases of `Union`s (e.g. `const MyAlias = Union{Foo,Bar}`) are now correctly listed as "Type" in docstrings. ([#1466][github-1466], [#1474][github-1474])
 
 * ![Bugfix][badge-bugfix] HTMLWriter no longers prints a warning when encountering `mailto:` URLs in links. ([#1472][github-1472])
-
-* ![Bugfix][badge-bugfix] In the HTML output, display equations that are wider than the page now get a scrollbar instead of overflowing. ([#1470][github-1470], [#1476][github-1476])
 
 ## Version `v0.25.3`
 
