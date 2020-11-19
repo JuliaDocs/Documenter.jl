@@ -8,6 +8,10 @@
       // Long inline words can happen, so we'll break them in case that, instead of letting
       // go into overflow. Most likely to happen with inline code snippets.
       overflow-wrap: break-word;
+
+      .math-container {
+        overflow-x: auto;
+      }
     }
 
     @include desktop {

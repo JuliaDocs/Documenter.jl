@@ -48,10 +48,6 @@
       @extend .is-primary;
       @extend .is-size-7;
     }
-
-    .math-container {
-      overflow-x: auto;
-    }
   }
 
   &:hover > section > a.docs-sourcelink {

@@ -7234,8 +7234,6 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       position: absolute;
       right: 0.625rem;
       bottom: 0.5rem; }
-    .docstring > section .math-container {
-      overflow-x: auto; }
   .docstring:hover > section > a.docs-sourcelink {
     opacity: 0.2; }
   .docstring > section:hover a.docs-sourcelink {
@@ -7292,6 +7290,8 @@ html {
  */
 #documenter .docs-main > article {
   overflow-wrap: break-word; }
+  #documenter .docs-main > article .math-container {
+    overflow-x: auto; }
 
 @media screen and (min-width: 1056px) {
   #documenter .docs-main {

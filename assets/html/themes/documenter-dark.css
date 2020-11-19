@@ -7273,8 +7273,6 @@ html.theme--documenter-dark {
         position: absolute;
         right: 0.625rem;
         bottom: 0.5rem; }
-      html.theme--documenter-dark .docstring > section .math-container {
-        overflow-x: auto; }
     html.theme--documenter-dark .docstring:hover > section > a.docs-sourcelink {
       opacity: 0.2; }
     html.theme--documenter-dark .docstring > section:hover a.docs-sourcelink {
@@ -7314,6 +7312,8 @@ html.theme--documenter-dark {
     -webkit-font-smoothing: auto; }
   html.theme--documenter-dark #documenter .docs-main > article {
     overflow-wrap: break-word; }
+    html.theme--documenter-dark #documenter .docs-main > article .math-container {
+      overflow-x: auto; }
   @media screen and (min-width: 1056px) {
     html.theme--documenter-dark #documenter .docs-main {
       max-width: 52rem;
