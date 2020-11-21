@@ -1,5 +1,23 @@
 # Documenter.jl changelog
 
+## Version `v0.26.0`
+
+* ![Enhancement][badge-enhancement] Objects that render as equations and whose `text/latex` representations are wrapped in display equation delimiters `\[ ... \]` or `$$ ... $$` are now handled correctly in the HTML output. ([#1278][github-1278], [#1283][github-1283], [#1426][github-1426])
+
+* ![Enhancement][badge-enhancement] The search page in the HTML output now shows the page titles in the search results. ([#1468][github-1468])
+
+* ![Enhancement][badge-enhancement] The HTML front end now respects the user's OS-level dark theme preference (determined via the `prefers-color-scheme: dark` media query). ([#1320][github-1320], [#1456][github-1456])
+
+## Version `v0.25.4`
+
+* ![Feature][badge-feature] Documenter can now deploy from Buildkite CI to GitHub Pages with `Documenter.Buildkite`. ([#1469][github-1469])
+
+* ![Enhancement][badge-enhancement] Documenter now support Azure DevOps Repos URL scheme when generating edit and source links pointing to the repository. ([#1462][github-1462], [#1463][github-1463], [#1471][github-1471])
+
+* ![Bugfix][badge-bugfix] Type aliases of `Union`s (e.g. `const MyAlias = Union{Foo,Bar}`) are now correctly listed as "Type" in docstrings. ([#1466][github-1466], [#1474][github-1474])
+
+* ![Bugfix][badge-bugfix] HTMLWriter no longers prints a warning when encountering `mailto:` URLs in links. ([#1472][github-1472])
+
 ## Version `v0.25.3`
 
 * ![Feature][badge-feature] Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. ([#1448][github-1448])
@@ -627,8 +645,10 @@
 [github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 [github-1264]: https://github.com/JuliaDocs/Documenter.jl/pull/1264
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269
+[github-1278]: https://github.com/JuliaDocs/Documenter.jl/issues/1278
 [github-1279]: https://github.com/JuliaDocs/Documenter.jl/issues/1279
 [github-1280]: https://github.com/JuliaDocs/Documenter.jl/pull/1280
+[github-1283]: https://github.com/JuliaDocs/Documenter.jl/pull/1283
 [github-1285]: https://github.com/JuliaDocs/Documenter.jl/pull/1285
 [github-1292]: https://github.com/JuliaDocs/Documenter.jl/pull/1292
 [github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
@@ -639,6 +659,7 @@
 [github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
 [github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
+[github-1320]: https://github.com/JuliaDocs/Documenter.jl/issues/1320
 [github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 [github-1337]: https://github.com/JuliaDocs/Documenter.jl/issues/1337
@@ -651,6 +672,7 @@
 [github-1357]: https://github.com/JuliaDocs/Documenter.jl/pull/1357
 [github-1360]: https://github.com/JuliaDocs/Documenter.jl/pull/1360
 [github-1362]: https://github.com/JuliaDocs/Documenter.jl/issues/1362
+[github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1365]: https://github.com/JuliaDocs/Documenter.jl/pull/1365
 [github-1367]: https://github.com/JuliaDocs/Documenter.jl/pull/1367
 [github-1368]: https://github.com/JuliaDocs/Documenter.jl/pull/1368
@@ -660,14 +682,23 @@
 [github-1389]: https://github.com/JuliaDocs/Documenter.jl/pull/1389
 [github-1392]: https://github.com/JuliaDocs/Documenter.jl/pull/1392
 [github-1400]: https://github.com/JuliaDocs/Documenter.jl/pull/1400
+[github-1426]: https://github.com/JuliaDocs/Documenter.jl/pull/1426
 [github-1428]: https://github.com/JuliaDocs/Documenter.jl/issues/1428
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
-[github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
-[github-1364]: https://github.com/JuliaDocs/Documenter.jl/issues/1364
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
+[github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
+[github-1456]: https://github.com/JuliaDocs/Documenter.jl/pull/1456
+[github-1462]: https://github.com/JuliaDocs/Documenter.jl/issues/1462
+[github-1463]: https://github.com/JuliaDocs/Documenter.jl/pull/1463
+[github-1466]: https://github.com/JuliaDocs/Documenter.jl/issues/1466
+[github-1468]: https://github.com/JuliaDocs/Documenter.jl/pull/1468
+[github-1469]: https://github.com/JuliaDocs/Documenter.jl/pull/1469
+[github-1471]: https://github.com/JuliaDocs/Documenter.jl/pull/1471
+[github-1472]: https://github.com/JuliaDocs/Documenter.jl/pull/1472
+[github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
