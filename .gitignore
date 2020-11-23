@@ -13,5 +13,3 @@ test/workdir/builds/
 docs/build/
 docs/pdf/build/
 docs/site/
-
-*.css.map
