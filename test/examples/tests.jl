@@ -150,6 +150,6 @@ end
             end
         end
 
-        @test length(doc.internal.objects) == 41
+        @test length(doc.internal.objects) == 42
     end
 end
