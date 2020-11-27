@@ -2,6 +2,7 @@ module UtilitiesTests
 
 using Test
 import Base64: stringmime
+include("TestUtilities.jl"); using .TestUtilities
 
 import Documenter
 import Markdown
@@ -27,6 +28,10 @@ module UnitTests
     f(x) = x
 
     const pi = 3.0
+
+    const TA = Vector{UInt128}
+    const TB = Array{T, 8} where T
+    const TC = Union{Int64, Float64, String}
 end
 
 module OuterModule
@@ -97,6 +102,9 @@ end
     @test Documenter.Utilities.doccat(UnitTests.S) == "Type"
     @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
     @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
+    @test Documenter.Utilities.doccat(UnitTests.TA) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.TB) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.TC) == "Type"
 
     # repo type
     @test Documenter.Utilities.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
@@ -106,6 +114,7 @@ end
     @test Documenter.Utilities.repo_host_from_url("https://github.com/Whatever") == Documenter.Utilities.RepoGithub
     @test Documenter.Utilities.repo_host_from_url("https://www.github.com/Whatever") == Documenter.Utilities.RepoGithub
     @test Documenter.Utilities.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.Utilities.RepoGitlab
+    @test Documenter.Utilities.repo_host_from_url("https://dev.azure.com/Whatever") == Documenter.Utilities.RepoAzureDevOps
 
     # line range
     let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoGithub)
@@ -129,7 +138,24 @@ end
         @test Documenter.Utilities.format_line(100:9999, formatting) == "100:9999"
     end
 
+    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoAzureDevOps)
+        @test Documenter.Utilities.format_line(1:1, formatting) == "&line=1"
+        @test Documenter.Utilities.format_line(123:123, formatting) == "&line=123"
+        @test Documenter.Utilities.format_line(2:5, formatting) == "&line=2&lineEnd=5"
+        @test Documenter.Utilities.format_line(100:9999, formatting) == "&line=100&lineEnd=9999"
+    end
+
     @test Documenter.Utilities.linerange(Core.svec(), 0) === 0:0
+
+    # commit format
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGithub) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGithub) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGitlab) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGitlab) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoBitbucket) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoBitbucket) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoAzureDevOps) == "GC7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoAzureDevOps) == "GBtest"
 
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)
@@ -299,11 +325,11 @@ end
             @test length(md) == 2
         end
 
-        @info "Expected error output:"
-        @test_throws ArgumentError mdparse("!!! adm", mode=:span)
-        @test_throws ArgumentError mdparse("x\n\ny")
-        @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
-        @info ".. end of expected error output."
+        @quietly begin
+            @test_throws ArgumentError mdparse("!!! adm", mode=:span)
+            @test_throws ArgumentError mdparse("x\n\ny")
+            @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
+        end
     end
 
     @testset "JSDependencies" begin

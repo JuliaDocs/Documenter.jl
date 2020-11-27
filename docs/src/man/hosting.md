@@ -381,6 +381,44 @@ You also need to make sure that you have "gh-pages branch" selected as
 settings](https://docs.github.com/en/free-pro-team@latest/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
 
+**Cleaning up `gh-pages`.**
+Note that the `gh-pages` branch can become very large, especially when `push_preview` is
+enabled to build documentation for each pull request. To clean up the branch and remove
+stale documentation previews, a GitHub Actions workflow like the following can be used.
+
+```yaml
+name: Doc Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  doc-preview-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+
+      - name: Delete preview and history
+        run: |
+            git config user.name "Documenter.jl"
+            git config user.email "documenter@juliadocs.github.io"
+            git rm -rf "previews/PR$PRNUM"
+            git commit -m "delete preview"
+            git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+        env:
+            PRNUM: ${{ github.event.number }}
+
+      - name: Push changes
+        run: |
+            git push --force origin gh-pages-new:gh-pages
+```
+
+_This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
+
 ## Documentation Versions
 
 The documentation is deployed as follows:
@@ -459,9 +497,10 @@ look at this package's repository for some inspiration.
 It is possible to customize Documenter to use other systems then the ones described in
 the sections above. This is done by passing a configuration
 (a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs` by the `deploy_config`
-keyword argument. Documenter natively supports [`Travis`](@ref Documenter.Travis) and
-[`GitHubActions`](@ref Documenter.GitHubActions) natively, but it is easy to define
-your own by following the simple interface described below.
+keyword argument. Documenter supports [`Travis`](@ref Documenter.Travis),
+[`GitHubActions`](@ref Documenter.GitHubActions), [`GitLab`](@ref Documenter.GitLab), and
+[`Buildkite`](@ref Documenter.Buildkite) natively, but it is easy to define your own by
+following the simple interface described below.
 
 ```@docs
 Documenter.DeployConfig
@@ -473,4 +512,6 @@ Documenter.documenter_key
 Documenter.documenter_key_previews
 Documenter.Travis
 Documenter.GitHubActions
+Documenter.GitLab
+Documenter.Buildkite
 ```

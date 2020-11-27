@@ -19,7 +19,7 @@ function Base.showerror(io::IO, e::QuietlyException)
 end
 
 function _quietly(f, expr, source)
-    c = IOCapture.iocapture(f; throwerrors=false)
+    c = IOCapture.iocapture(f; throwerrors = :interrupt)
     haskey(ENV, "DOCUMENTER_TEST_QUIETLY") && open(QUIETLY_LOG; write=true, append=true) do io
         println(io, "@quietly: c.error = $(c.error) / $(sizeof(c.output)) bytes of output captured")
         println(io, "@quietly: $(source.file):$(source.line)")
