@@ -560,6 +560,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             print(buffer, c.output)
             if c.error
                 push!(doc.internal.errors, :example_block)
+                @debug "" exception=(c.value, c.backtrace)
                 @warn("""
                     failed to run `@example` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
