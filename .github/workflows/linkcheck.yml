@@ -28,4 +28,4 @@ jobs:
       - name: Install dependencies
         run: julia --color=yes --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and check documentation
-        run: julia --color=yes --project=docs/ docs/make.jl
+        run: julia --color=yes --project=docs/ docs/make.jl linkcheck
