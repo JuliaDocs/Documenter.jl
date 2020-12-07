@@ -8,6 +8,8 @@
 
 * ![Enhancement][badge-enhancement] The HTML front end now respects the user's OS-level dark theme preference (determined via the `prefers-color-scheme: dark` media query). ([#1320][github-1320], [#1456][github-1456])
 
+* ![Enhancement][badge-enhancement] HTML output now bails early if there are no pages, instead of throwing an `UndefRefError`. In addition, it will also warn if `index.md` is missing and it is not able to generate the main landing page (`index.html`). ([#1201][github-1201], [#1491][github-1491])
+
 ## Version `v0.25.5`
 
 * ![Bugfix][badge-bugfix] In the HTML output, display equations that are wider than the page now get a scrollbar instead of overflowing. ([#1470][github-1470], [#1476][github-1476])
@@ -640,6 +642,7 @@
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
 [github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
 [github-1200]: https://github.com/JuliaDocs/Documenter.jl/issues/1200
+[github-1201]: https://github.com/JuliaDocs/Documenter.jl/issues/1201
 [github-1212]: https://github.com/JuliaDocs/Documenter.jl/issues/1212
 [github-1216]: https://github.com/JuliaDocs/Documenter.jl/pull/1216
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
@@ -705,6 +708,7 @@
 [github-1472]: https://github.com/JuliaDocs/Documenter.jl/pull/1472
 [github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 [github-1476]: https://github.com/JuliaDocs/Documenter.jl/pull/1476
+[github-1491]: https://github.com/JuliaDocs/Documenter.jl/pull/1491
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
