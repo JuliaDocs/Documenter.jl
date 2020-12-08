@@ -16,14 +16,14 @@ module LaTeXWriter
 import ...Documenter: Documenter
 
 """
-    LaTeXWriter.LaTeX(; kwargs...)
+    Documenter.LaTeX(; kwargs...)
 
 Output format specifier that results in LaTeX/PDF output.
 Used together with [`makedocs`](@ref Documenter.makedocs), e.g.
 
 ```julia
 makedocs(
-    format = LaTeX()
+    format = Documenter.LaTeX()
 )
 ```
 
