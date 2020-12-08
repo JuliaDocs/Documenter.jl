@@ -8,6 +8,8 @@
 
 * ![Enhancement][badge-enhancement] The HTML front end now respects the user's OS-level dark theme preference (determined via the `prefers-color-scheme: dark` media query). ([#1320][github-1320], [#1456][github-1456])
 
+* ![Enhancement][badge-enhancement] `deploydocs` now prints a warning on GitHub Actions, Travis CI and Buildkite if the current branch is `main`, but `devbranch = "master`, which indicates a possible Documenter misconfiguration due to GitHub changing the default primary branch of a repository to `main`. ([#1489][github-1489])
+
 ## Version `v0.25.5`
 
 * ![Bugfix][badge-bugfix] In the HTML output, display equations that are wider than the page now get a scrollbar instead of overflowing. ([#1470][github-1470], [#1476][github-1476])
@@ -705,6 +707,7 @@
 [github-1472]: https://github.com/JuliaDocs/Documenter.jl/pull/1472
 [github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 [github-1476]: https://github.com/JuliaDocs/Documenter.jl/pull/1476
+[github-1489]: https://github.com/JuliaDocs/Documenter.jl/pull/1489
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
