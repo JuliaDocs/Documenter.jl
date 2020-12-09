@@ -1,4 +1,4 @@
-using Documenter, DocumenterTools, DocumenterLaTeX
+using Documenter, DocumenterTools
 using Test
 
 const ROOT = joinpath(@__DIR__, "..")
@@ -10,7 +10,7 @@ doc = makedocs(
     build = "pdf/build",
     modules = [Documenter, DocumenterTools],
     clean = false,
-    format = LaTeX(platform = "docker"),
+    format = Documenter.LaTeX(platform = "docker"),
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     pages = [
