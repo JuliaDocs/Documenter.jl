@@ -14,6 +14,8 @@
 
 * ![Enhancement][badge-enhancement] HTML output now bails early if there are no pages, instead of throwing an `UndefRefError`. In addition, it will also warn if `index.md` is missing and it is not able to generate the main landing page (`index.html`). ([#1201][github-1201], [#1491][github-1491])
 
+* ![Enhancement][badge-enhancement] `deploydocs` now prints a warning on GitHub Actions, Travis CI and Buildkite if the current branch is `main`, but `devbranch = "master`, which indicates a possible Documenter misconfiguration due to GitHub changing the default primary branch of a repository to `main`. ([#1489][github-1489])
+
 ## Version `v0.25.5`
 
 * ![Bugfix][badge-bugfix] In the HTML output, display equations that are wider than the page now get a scrollbar instead of overflowing. ([#1470][github-1470], [#1476][github-1476])
@@ -712,6 +714,7 @@
 [github-1472]: https://github.com/JuliaDocs/Documenter.jl/pull/1472
 [github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 [github-1476]: https://github.com/JuliaDocs/Documenter.jl/pull/1476
+[github-1489]: https://github.com/JuliaDocs/Documenter.jl/pull/1489
 [github-1491]: https://github.com/JuliaDocs/Documenter.jl/pull/1491
 [github-1493]: https://github.com/JuliaDocs/Documenter.jl/pull/1493
 
