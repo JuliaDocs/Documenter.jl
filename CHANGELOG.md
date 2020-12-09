@@ -2,6 +2,10 @@
 
 ## Version `v0.26.0`
 
+* ![BREAKING][badge-breaking] The PDF/LaTeX output is again provided as a Documenter built-in and can be enabled by passing an instance of `Documenter.LaTeX` to `format`. The DocumenterLaTeX package has been deprecated. ([#1493][github-1493])
+
+  **For upgrading:** If using the PDF/LaTeX output, change the `format` argument of `makedocs` to `format = Documenter.LaTeX(...)` and remove all references to the DocumenterLaTeX package (e.g. from `docs/Project.toml`).
+
 * ![Enhancement][badge-enhancement] Objects that render as equations and whose `text/latex` representations are wrapped in display equation delimiters `\[ ... \]` or `$$ ... $$` are now handled correctly in the HTML output. ([#1278][github-1278], [#1283][github-1283], [#1426][github-1426])
 
 * ![Enhancement][badge-enhancement] The search page in the HTML output now shows the page titles in the search results. ([#1468][github-1468])
@@ -705,6 +709,7 @@
 [github-1472]: https://github.com/JuliaDocs/Documenter.jl/pull/1472
 [github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 [github-1476]: https://github.com/JuliaDocs/Documenter.jl/pull/1476
+[github-1493]: https://github.com/JuliaDocs/Documenter.jl/pull/1493
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
