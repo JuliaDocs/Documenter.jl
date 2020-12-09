@@ -627,6 +627,11 @@ getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 function render(doc::Documents.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
+    if isempty(doc.blueprint.pages)
+        error("Aborting HTML build: no pages under src/")
+    elseif !haskey(doc.blueprint.pages, "index.md")
+        @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
+    end
 
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
@@ -955,7 +960,7 @@ function render_sidebar(ctx, navnode)
     )
 
     # The menu itself
-    menu = navitem(NavMenuContext(ctx, navnode, ))
+    menu = navitem(NavMenuContext(ctx, navnode))
     push!(menu.attributes, :class => "docs-menu")
     push!(navmenu.nodes, menu)
 

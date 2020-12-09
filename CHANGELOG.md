@@ -2,11 +2,19 @@
 
 ## Version `v0.26.0`
 
+* ![BREAKING][badge-breaking] The PDF/LaTeX output is again provided as a Documenter built-in and can be enabled by passing an instance of `Documenter.LaTeX` to `format`. The DocumenterLaTeX package has been deprecated. ([#1493][github-1493])
+
+  **For upgrading:** If using the PDF/LaTeX output, change the `format` argument of `makedocs` to `format = Documenter.LaTeX(...)` and remove all references to the DocumenterLaTeX package (e.g. from `docs/Project.toml`).
+
 * ![Enhancement][badge-enhancement] Objects that render as equations and whose `text/latex` representations are wrapped in display equation delimiters `\[ ... \]` or `$$ ... $$` are now handled correctly in the HTML output. ([#1278][github-1278], [#1283][github-1283], [#1426][github-1426])
 
 * ![Enhancement][badge-enhancement] The search page in the HTML output now shows the page titles in the search results. ([#1468][github-1468])
 
 * ![Enhancement][badge-enhancement] The HTML front end now respects the user's OS-level dark theme preference (determined via the `prefers-color-scheme: dark` media query). ([#1320][github-1320], [#1456][github-1456])
+
+* ![Enhancement][badge-enhancement] HTML output now bails early if there are no pages, instead of throwing an `UndefRefError`. In addition, it will also warn if `index.md` is missing and it is not able to generate the main landing page (`index.html`). ([#1201][github-1201], [#1491][github-1491])
+
+* ![Enhancement][badge-enhancement] `deploydocs` now prints a warning on GitHub Actions, Travis CI and Buildkite if the current branch is `main`, but `devbranch = "master`, which indicates a possible Documenter misconfiguration due to GitHub changing the default primary branch of a repository to `main`. ([#1489][github-1489])
 
 ## Version `v0.25.5`
 
@@ -640,6 +648,7 @@
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
 [github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
 [github-1200]: https://github.com/JuliaDocs/Documenter.jl/issues/1200
+[github-1201]: https://github.com/JuliaDocs/Documenter.jl/issues/1201
 [github-1212]: https://github.com/JuliaDocs/Documenter.jl/issues/1212
 [github-1216]: https://github.com/JuliaDocs/Documenter.jl/pull/1216
 [github-1222]: https://github.com/JuliaDocs/Documenter.jl/pull/1222
@@ -705,6 +714,9 @@
 [github-1472]: https://github.com/JuliaDocs/Documenter.jl/pull/1472
 [github-1474]: https://github.com/JuliaDocs/Documenter.jl/pull/1474
 [github-1476]: https://github.com/JuliaDocs/Documenter.jl/pull/1476
+[github-1489]: https://github.com/JuliaDocs/Documenter.jl/pull/1489
+[github-1491]: https://github.com/JuliaDocs/Documenter.jl/pull/1491
+[github-1493]: https://github.com/JuliaDocs/Documenter.jl/pull/1493
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 

@@ -1,9 +1,75 @@
 # Other Output Formats
 
-In addition to the default native HTML output, plugin packages enable Documenter to generate
-output in other formats. Once the corresponding package is loaded, the output format can be
+In addition to the default native HTML output, Documenter also provides [a built-in
+LaTeX-based PDF output](@ref pdf-output). Additional output formats are provided through
+plugin packages. Once the corresponding package is loaded, the output format can be
 specified using the `format` option in [`makedocs`](@ref).
 
+## [PDF Output via LaTeX](@id pdf-output)
+
+`makedocs` can be switched over to use the PDF/LaTeX backend by passing a
+[`Documenter.LaTeX`](@ref) object as the `format` keyword:
+
+```julia
+using Documenter
+makedocs(format = LaTeX(), ...)
+```
+
+Documenter will then generate a PDF file of the documentation using LaTeX, which will be
+placed in the output (`build/`) directory.
+
+The `makedocs` argument `sitename` will be used for the `\title` field in the tex document,
+and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment variable is set)
+the version number will be appended to the title.
+The `makedocs` argument `authors` should also be specified, it will be used for the
+`\authors` field in the tex document.
+
+### Compiling using natively installed latex
+
+The following is required to build the documentation:
+
+* You need `pdflatex` command to be installed and available to Documenter.
+* You need the [minted](https://ctan.org/pkg/minted) LaTeX package and its backend source
+  highlighter [Pygments](https://pygments.org/) installed.
+* You need the [_DejaVu Sans_ and _DejaVu Sans Mono_](https://dejavu-fonts.github.io/) fonts installed.
+
+### Compiling using docker image
+
+It is also possible to use a prebuilt [docker image](https://hub.docker.com/r/juliadocs/documenter-latex/)
+to compile the `.tex` file. The image contains all of the required installs described in the section
+above. The only requirement for using the image is that `docker` is installed and available for
+the builder to call. You also need to tell Documenter to use the docker image, instead of natively
+installed tex which is the default. This is done with the `LaTeX` specifier:
+
+```
+using DocumenterLaTeX
+makedocs(
+    format = LaTeX(platform = "docker"),
+    ...
+)
+```
+
+If you build the documentation on Travis you need to add
+
+```
+services:
+  - docker
+```
+
+to your `.travis.yml` file.
+
+### Compiling to LaTeX only
+
+There's a possibility to save only the `.tex` file and skip the PDF compilation.
+For this purpose use the `platform="none"` keyword:
+
+```
+using DocumenterLaTeX
+makedocs(
+    format = LaTeX(platform = "none"),
+    ...
+)
+```
 
 ## Markdown & MkDocs
 
@@ -145,68 +211,3 @@ extra_javascript:
 Following this guide and adding the necessary changes to the configuration files should
 enable properly rendered mathematical equations within your documentation both locally and
 when built and deployed using the Travis built service.
-
-
-## PDF Output via LaTeX
-
-LaTeX/PDF output requires the [`DocumenterLaTeX`](https://github.com/JuliaDocs/DocumenterLaTeX.jl)
-package to be available and loaded in `make.jl` with
-
-```
-using DocumenterLaTeX
-```
-
-When `DocumenterLaTeX` is loaded, you can set `format = LaTeX()` in [`makedocs`](@ref),
-and Documenter will generate a PDF version of the documentation using LaTeX.
-The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document,
-and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment variable is set)
-the version number will be appended to the title.
-The `makedocs` argument `authors` should also be specified, it will be used for the
-`\\authors` field in the tex document.
-
-### Compiling using natively installed latex
-
-The following is required to build the documentation:
-
-* You need `pdflatex` command to be installed and available to Documenter.
-* You need the [minted](https://ctan.org/pkg/minted) LaTeX package and its backend source
-  highlighter [Pygments](https://pygments.org/) installed.
-* You need the [_DejaVu Sans_ and _DejaVu Sans Mono_](https://dejavu-fonts.github.io/) fonts installed.
-
-### Compiling using docker image
-
-It is also possible to use a prebuilt [docker image](https://hub.docker.com/r/juliadocs/documenter-latex/)
-to compile the `.tex` file. The image contains all of the required installs described in the section
-above. The only requirement for using the image is that `docker` is installed and available for
-the builder to call. You also need to tell Documenter to use the docker image, instead of natively
-installed tex which is the default. This is done with the `LaTeX` specifier:
-
-```
-using DocumenterLaTeX
-makedocs(
-    format = LaTeX(platform = "docker"),
-    ...
-)
-```
-
-If you build the documentation on Travis you need to add
-
-```
-services:
-  - docker
-```
-
-to your `.travis.yml` file.
-
-### Compiling to LaTeX only
-
-There's a possibility to save only the `.tex` file and skip the PDF compilation.
-For this purpose use the `platform="none"` keyword:
-
-```
-using DocumenterLaTeX
-makedocs(
-    format = LaTeX(platform = "none"),
-    ...
-)
-```

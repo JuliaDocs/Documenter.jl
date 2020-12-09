@@ -29,6 +29,9 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     for mdfile in mdfiles
         cp(joinpath(@__DIR__, "src", mdfile), joinpath(srcdir, mdfile))
     end
+    # Create a dummy index.md file so that we wouldn't generate the "can't generated landing
+    # page" warning.
+    touch(joinpath(srcdir, "index.md"))
 
     c = IOCapture.iocapture(throwerrors = :interrupt) do
         makedocs(
