@@ -82,27 +82,6 @@ function render(doc::Documents.Document)
 
             See the Output Backends section in the manual for more information.
             """
-        elseif isa(each, LaTeXWriter.LaTeX) && !backends_enabled[:latex]
-            @warn """Deprecated format
-
-            The LaTeX/PDF backend must now be imported from a separate package.
-            Add DocumenterLaTeX to your documentation dependencies and add
-
-                using DocumenterLaTeX
-
-            to your make.jl script, and use
-
-                makedocs(
-                    format = LaTeX(),
-                    ...
-                )
-
-            in the call to `makedocs`.
-            Built-in support for LaTeX/PDF output will be removed completely in a future
-            Documenter version, causing builds to fail completely.
-
-            See the Output Backends section in the manual for more information.
-            """
         end
         Selectors.dispatch(FormatSelector, each, doc)
     end
@@ -116,18 +95,12 @@ include("MarkdownWriter.jl")
 include("HTMLWriter.jl")
 include("LaTeXWriter.jl")
 
-# This is hack to enable shell packages that would behave as in the supplementary Writer
-# modules have been moved out of Documenter.
-#
-# External packages DocumenterMarkdown and DocumenterLaTeX can use the enable_backend
-# function to mark that a certain backend is loaded in backends_enabled. That is used to
-# determine whether a deprecation warning should be printed in the render method above.
-#
-# enable_backend() is not part of the API and will be removed as soon as LaTeXWriter and
-# MarkdownWriter are actually moved out into a separate module (TODO).
+# This is hack to enable the DocumenterMarkdown shell package to behave as if it provides
+# the MarkdownWriter, even though the actual writer code has not yet been moved out of
+# Documenter (TODO). enable_backend() is not part of the API and will be removed as soon as
+# MarkdownWriter is actually moved out into a separate module.
 backends_enabled = Dict(
     :markdown => false,
-    :latex => false
 )
 
 function enable_backend(backend::Symbol)

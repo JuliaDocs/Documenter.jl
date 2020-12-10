@@ -52,6 +52,7 @@ include("Deps.jl")
 import .Utilities: Selectors
 import .Writers.HTMLWriter: HTML, asset
 import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
+import .Writers.LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
@@ -223,14 +224,15 @@ determined from the source file path. E.g. for `src/foo.md` it is set to `build/
 Note that `workdir` does not affect doctests.
 
 ## Output formats
-**`format`** allows the output format to be specified. The default format is
-[`Documenter.HTML`](@ref) which creates a set of HTML files.
 
-There are other possible formats that are enabled by using other addon-packages.
-For examples, the `DocumenterMarkdown` package define the `DocumenterMarkdown.Markdown()`
-format for use with e.g. MkDocs, and the `DocumenterLaTeX` package define the
-`DocumenterLaTeX.LaTeX()` format for LaTeX / PDF output.
-See the [Other Output Formats](@ref) for more information.
+**`format`** allows the output format to be specified. The default format is
+[`Documenter.HTML`](@ref) which creates a set of HTML files, but Documenter also provides
+PDF output via the [`Documenter.LaTeX`](@ref) writer.
+
+Other formats can be enabled by using other addon-packages. For example, the
+[DocumenterMarkdown](https://github.com/JuliaDocs/DocumenterMarkdown.jl) package provides
+the original Markdown -> Markdown output. See the [Other Output Formats](@ref) for more
+information.
 
 # See Also
 
