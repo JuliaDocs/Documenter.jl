@@ -46,7 +46,7 @@ jobs:
           file: lcov.info
 
   docs:
-    name: Documentation
+    name: Documentation ${{ matrix.makejl }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
