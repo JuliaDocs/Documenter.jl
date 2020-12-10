@@ -64,7 +64,7 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - run: |
-          julia --project=${{ matrix.jlenv }} -e '
+          julia --project=test/themes/ -e '
             using Pkg
             Pkg.instantiate()
             Pkg.develop(PackageSpec(path=pwd()))'
@@ -93,7 +93,7 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - run: |
-          julia --project=${{ matrix.jlenv }} -e '
+          julia --project=test/examples -e '
             using Pkg
             Pkg.instantiate()
             Pkg.develop(PackageSpec(path=pwd()))
