@@ -707,7 +707,10 @@ function copy_asset(file, doc)
     else
         ispath(dirname(dst)) || mkpath(dirname(dst))
         ispath(dst) && @warn "overwriting '$dst'."
-        cp(src, dst, force=true)
+        # Files in the Documenter folder itself are read-only when
+        # Documenter is Pkg.added so we create a new file to get
+        # correct file permissions.
+        open(io -> write(dst, io), src, "r")
     end
     assetpath = normpath(joinpath("assets", file))
     # Replace any backslashes in links, if building the docs on Windows
