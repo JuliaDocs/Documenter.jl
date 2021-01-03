@@ -461,6 +461,14 @@ end
         @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.Utilities.codelang("&%^ ***") == "&%^"
     end
+
+    @testset "slugify" begin
+        @test Documenter.Utilities.slugify("iam") == "iam"
+        @test Documenter.Utilities.slugify(" one  two  three ") == "one-two-three"
+        @test Documenter.Utilities.slugify("one&two") == "one-and-two"
+        @test Documenter.Utilities.slugify("1) problematic heading 1") == "problematic-heading-1"
+        @test Documenter.Utilities.slugify("α alpha") == "α-alpha"
+    end
 end
 
 end
