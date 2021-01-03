@@ -66,6 +66,7 @@ srcpath(source, root, file) = normpath(joinpath(relpath(root, source), file))
 Slugify a string into a suitable URL.
 """
 function slugify(s::AbstractString)
+    s = lstrip(x->x ∉ 'a':'z' && x ∉ 'A':'Z',s)
     s = replace(s, r"\s+" => "-")
     s = replace(s, r"^\d+" => "")
     s = replace(s, r"&" => "-and-")
