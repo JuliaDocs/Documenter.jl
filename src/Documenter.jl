@@ -51,11 +51,13 @@ include("Deps.jl")
 
 import .Utilities: Selectors
 import .Writers.HTMLWriter: HTML, asset
-import .Writers.HTMLWriter.RD: KaTeX, MathJax
+import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
+import .Writers.LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta, KaTeX, MathJax, asset
+export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset,
+    KaTeX, MathJax, MathJax2, MathJax3
 
 """
     makedocs(
@@ -153,10 +155,12 @@ value of the generated link:
   - `{path}` Path to the file in the repository
   - `{line}` Line (or range of lines) in the source file
 
-For example if you are using GitLab.com, you could use
+BitBucket, GitLab and Azure DevOps are supported along with GitHub, for example:
 
 ```julia
-makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\")
+makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\") # GitLab
+makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\") # Azure DevOps
+makedocs(repo = \"https://bitbucket.org/user/project/src/{commit}/{path}#lines-{line}\") # BitBucket
 ```
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
@@ -220,14 +224,15 @@ determined from the source file path. E.g. for `src/foo.md` it is set to `build/
 Note that `workdir` does not affect doctests.
 
 ## Output formats
-**`format`** allows the output format to be specified. The default format is
-[`Documenter.HTML`](@ref) which creates a set of HTML files.
 
-There are other possible formats that are enabled by using other addon-packages.
-For examples, the `DocumenterMarkdown` package define the `DocumenterMarkdown.Markdown()`
-format for use with e.g. MkDocs, and the `DocumenterLaTeX` package define the
-`DocumenterLaTeX.LaTeX()` format for LaTeX / PDF output.
-See the [Other Output Formats](@ref) for more information.
+**`format`** allows the output format to be specified. The default format is
+[`Documenter.HTML`](@ref) which creates a set of HTML files, but Documenter also provides
+PDF output via the [`Documenter.LaTeX`](@ref) writer.
+
+Other formats can be enabled by using other addon-packages. For example, the
+[DocumenterMarkdown](https://github.com/JuliaDocs/DocumenterMarkdown.jl) package provides
+the original Markdown -> Markdown output. See the [Other Output Formats](@ref) for more
+information.
 
 # See Also
 
@@ -236,6 +241,10 @@ in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(components...; debug = false, format = HTML(), kwargs...)
     document = Documents.Document(components; format=format, kwargs...)
+    # Before starting the build pipeline, we empty out the subtype cache used by
+    # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
+    # may have been added to the selector pipelines between makedocs calls.
+    empty!(Selectors.selector_subtypes)
     cd(document.user.root) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end
@@ -531,8 +540,8 @@ function git_push(
     function git_commands(sshconfig=nothing)
         # Setup git.
         run(`git init`)
-        run(`git config user.name "zeptodoctor"`)
-        run(`git config user.email "44736852+zeptodoctor@users.noreply.github.com"`)
+        run(`git config user.name "Documenter.jl"`)
+        run(`git config user.email "documenter@juliadocs.github.io"`)
         if sshconfig !== nothing
             run(`git config core.sshCommand "ssh -F $(sshconfig)"`)
         end
@@ -775,6 +784,8 @@ manual pages can be disabled if `source` is set to `nothing`.
 
 **`testset`** specifies the name of test testset (default `Doctests`).
 
+**`doctestfilters`** vector of regex to filter tests (see the manual on [Filtering Doctests](@ref))
+
 **`fix`**, if set to `true`, updates all the doctests that fail with the correct output
 (default `false`).
 
@@ -790,6 +801,7 @@ function doctest(
         modules::AbstractVector{Module};
         fix = false,
         testset = "Doctests",
+        doctestfilters = Regex[],
     )
     function all_doctests()
         dir = mktempdir()
@@ -805,6 +817,7 @@ function doctest(
                 sitename = "",
                 doctest = fix ? :fix : :only,
                 modules = modules,
+                doctestfilters = doctestfilters,
             )
             true
         catch err

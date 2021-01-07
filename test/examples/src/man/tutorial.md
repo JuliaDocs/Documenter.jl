@@ -356,17 +356,35 @@ With explicit alignment.
 The following example only works on the deploy build where
 
 ```julia
-mathengine = Documenter.MathJax(Dict(:TeX => Dict(
-    :equationNumbers => Dict(:autoNumber => "AMS"),
-    :Macros => Dict(
-        :ket => ["|#1\\rangle", 1],
-        :bra => ["\\langle#1|", 1],
+mathengine = MathJax2(Dict(
+    :TeX => Dict(
+        :equationNumbers => Dict(:autoNumber => "AMS"),
+        :Macros => Dict(
+            :ket => ["|#1\\rangle", 1],
+            :bra => ["\\langle#1|", 1],
+            :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+        ),
     ),
-)))
+)),
+```
+or on MathJax v3, the
+[physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf)
+can be loaded:
+
+```julia
+mathengine = MathJax3(Dict(
+    :loader => Dict("load" => ["[tex]/physics"]),
+    :tex => Dict(
+        "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+        "tags" => "ams",
+        "packages" => ["base", "ams", "autoload", "physics"],
+    ),
+)),
 ```
 
 ```math
 \bra{x}\ket{y}
+\pdv[n]{f}{x}
 ```
 
 The following at-raw block only renders correctly on the deploy build, where
@@ -384,4 +402,34 @@ Hello World!
 <br />
 Written in <a href="https://fonts.google.com/specimen/Nanum+Brush+Script">Nanum Brush Script.</a>
 </div>
+```
+
+## Handling of `text/latex`
+
+You can define a type that has a `Base.show` method for the `text/latex` MIME:
+
+```@example showablelatex
+struct LaTeXEquation
+    code :: String
+end
+Base.show(io, ::MIME"text/latex", latex::LaTeXEquation) = write(io, latex.code)
+nothing # hide
+```
+
+In an `@example` or `@eval` block, it renders as an equation:
+
+```@example showablelatex
+LaTeXEquation(raw"Foo $x^2$ bar.")
+```
+
+Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`:
+
+```@example showablelatex
+LaTeXEquation(raw"\[\left[ \begin{array}{rr}x&2 x\end{array}\right]\]")
+```
+
+or wrapped in `$$ ... $$`:
+
+```@example showablelatex
+LaTeXEquation(raw"$$\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$$")
 ```

@@ -13,6 +13,9 @@ import ..Documenter:
 using DocStringExtensions
 import Markdown
 
+using Logging
+loglevel(doc) = doc.user.strict ? Logging.Error : Logging.Warn
+
 # Missing docstrings.
 # -------------------
 
@@ -53,14 +56,17 @@ function missingdocs(doc::Documents.Document)
     n = reduce(+, map(length, values(bindings)), init=0)
     if n > 0
         b = IOBuffer()
-        println(b, "$n docstring$(n ≡ 1 ? "" : "s") potentially missing:\n")
+        println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
         for (binding, signatures) in bindings
             for sig in signatures
                 println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
             end
         end
+        println(b, """\n
+            These are docstrings in the checked modules (configured with the modules keyword)
+            that are not included in @docs or @autodocs blocks.""")
         push!(doc.internal.errors, :missing_docs)
-        @warn String(take!(b))
+        @logmsg loglevel(doc) String(take!(b))
     end
 end
 
@@ -123,17 +129,17 @@ function footnotes(doc::Documents.Document)
             # Multiple footnote bodies.
             if bodies > 1
                 push!(doc.internal.errors, :footnote)
-                @warn "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source))."
+                @logmsg loglevel(doc) "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source))."
             end
             # No footnote references for an id.
             if ids === 0
                 push!(doc.internal.errors, :footnote)
-                @warn "unused footnote named '$id' in $(Utilities.locrepr(page.source))."
+                @logmsg loglevel(doc) "unused footnote named '$id' in $(Utilities.locrepr(page.source))."
             end
             # No footnote bodies for an id.
             if bodies === 0
                 push!(doc.internal.errors, :footnote)
-                @warn "no footnotes found for '$id' in $(Utilities.locrepr(page.source))."
+                @logmsg loglevel(doc) "no footnotes found for '$id' in $(Utilities.locrepr(page.source))."
             end
         end
     end
@@ -176,7 +182,7 @@ function linkcheck(doc::Documents.Document)
             end
         else
             push!(doc.internal.errors, :linkcheck)
-            @warn "linkcheck requires `curl`."
+            @logmsg loglevel(doc) "linkcheck requires `curl`."
         end
     end
     return nothing
@@ -203,7 +209,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
             result = read(cmd, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
-            @warn "$cmd failed:" exception = err
+            @logmsg loglevel(doc) "$cmd failed:" exception = err
             return false
         end
         STATUS_REGEX = r"^(\d+) (\w+)://(?:\S+) (\S+)?$"m
@@ -234,11 +240,11 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
                 return linkcheck(link, doc; method=:GET)
             else
                 push!(doc.internal.errors, :linkcheck)
-                @error "linkcheck '$(link.url)' status: $(status)."
+                @logmsg loglevel(doc) "linkcheck '$(link.url)' status: $(status)."
             end
         else
             push!(doc.internal.errors, :linkcheck)
-            @warn "invalid result returned by $cmd:" result
+            @logmsg loglevel(doc) "invalid result returned by $cmd:" result
         end
     end
     return false

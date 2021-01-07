@@ -23,7 +23,7 @@ makedocs(
     clean = false,
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
-    linkcheck = !("skiplinks" in ARGS),
+    linkcheck = "linkcheck" in ARGS,
     linkcheck_ignore = [
         # timelessrepo.com seems to 404 on any CURL request...
         "http://timelessrepo.com/json-isnt-a-javascript-subset",

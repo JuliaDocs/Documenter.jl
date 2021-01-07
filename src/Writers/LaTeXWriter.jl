@@ -16,14 +16,14 @@ module LaTeXWriter
 import ...Documenter: Documenter
 
 """
-    LaTeXWriter.LaTeX(; kwargs...)
+    Documenter.LaTeX(; kwargs...)
 
 Output format specifier that results in LaTeX/PDF output.
 Used together with [`makedocs`](@ref Documenter.makedocs), e.g.
 
 ```julia
 makedocs(
-    format = LaTeX()
+    format = Documenter.LaTeX()
 )
 ```
 
@@ -439,9 +439,10 @@ const LEXER = Set([
 ])
 
 function latex(io::IO, code::Markdown.Code)
-    language = isempty(code.language) ? "none" : code.language
-    # the julia-repl is called "jlcon" in Pygments
-    language = (language == "julia-repl") ? "jlcon" : language
+    language = Utilities.codelang(code.language)
+    language = isempty(language) ? "none" :
+        (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
+        language
     escape = '⊻' ∈ code.code
     if language in LEXER
         _print(io, "\n\\begin{minted}")
@@ -556,12 +557,17 @@ function latex(io::IO, hr::Markdown.HorizontalRule)
     _println(io, "{\\rule{\\textwidth}{1pt}}")
 end
 
-# This (equation*, split) math env seems to be the only way to correctly
-# render all the equations in the Julia manual.
+# This (equation*, split) math env seems to be the only way to correctly render all the
+# equations in the Julia manual. However, if the equation is already wrapped in
+# align/align*, then there is no need to further wrap it (in fact, it will break).
 function latex(io::IO, math::Markdown.LaTeX)
-    _print(io, "\\begin{equation*}\n\\begin{split}")
-    _print(io, math.formula)
-    _println(io, "\\end{split}\\end{equation*}")
+    if occursin(r"^\\begin\{align\*?\}", math.formula)
+        _print(io, math.formula)
+    else
+        _print(io, "\\begin{equation*}\n\\begin{split}")
+        _print(io, math.formula)
+        _println(io, "\\end{split}\\end{equation*}")
+    end
 end
 
 function latex(io::IO, md::Markdown.Table)
@@ -651,17 +657,14 @@ function latexinline(io::IO, md::Markdown.Link)
             wrapinline(io, "hyperlink") do
                 _print(io, id)
             end
-            _print(io, "{")
-            latexinline(io, md.text)
-            _print(io, "}")
         else
             wrapinline(io, "href") do
                 latexesc(io, md.url)
             end
-            _print(io, "{")
-            latexinline(io, md.text)
-            _print(io, "}")
         end
+        _print(io, "{")
+        latexinline(io, md.text)
+        _print(io, "}")
     end
 end
 

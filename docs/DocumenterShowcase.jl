@@ -73,4 +73,13 @@ function Base.show(io, ::MIME"image/svg+xml", c::SVGCircle)
     """)
 end
 
+"The type definition."
+struct Foo{T,S} end
+
+"Constructor `Foo()` with no arguments."
+Foo() = Foo{Nothing,Nothing}()
+
+"Constructor `Foo{T}()` with one parametric argument."
+Foo{T}() where T = Foo{T,Nothing}()
+
 end # module

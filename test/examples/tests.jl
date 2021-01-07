@@ -18,12 +18,15 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
 end
 
 @testset "Examples" begin
-    @testset "HTML: deploy" begin
-        doc = Main.examples_html_doc
-
+    @testset "HTML: deploy/$name" for (doc, name) in [
+        (Main.examples_html_doc, "html"),
+        (Main.examples_html_mathjax2_custom_doc, "html-mathjax2-custom"),
+        (Main.examples_html_mathjax3_doc, "html-mathjax3"),
+        (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom")
+    ]
         @test isa(doc, Documenter.Documents.Document)
 
-        let build_dir = joinpath(examples_root, "builds", "html")
+        let build_dir = joinpath(examples_root, "builds", name)
             @test joinpath(build_dir, "index.html") |> isfile
             @test joinpath(build_dir, "omitted", "index.html") |> isfile
             @test joinpath(build_dir, "hidden", "index.html") |> isfile
@@ -34,8 +37,26 @@ end
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
 
+            index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("documenter-example-output", index_html)
+            @test occursin("1392-test-language", index_html)
+            @test !occursin("1392-extra-info", index_html)
+
+            example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
+            @test occursin("documenter-example-output", example_output_html)
+
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+            documenter_js = read(joinpath(build_dir, "assets", "documenter.js"), String)
+            if name == "html-mathjax3"
+                @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3", documenter_js)
+            elseif name == "html-mathjax2-custom"
+                @test occursin("https://cdn.jsdelivr.net/npm/mathjax@2/MathJax", documenter_js)
+            elseif name == "html-mathjax3-custom"
+                @test occursin("script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';", documenter_js)
+            else # name == "html", uses MathJax2
+                @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2", documenter_js)
+            end
 
             # This build includes erlang and erlang-repl highlighting
             documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
@@ -55,6 +76,7 @@ end
 
             index_html = read(joinpath(build_dir, "index.html"), String)
             @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
+            @test occursin("documenter-example-output", index_html)
 
             @test isfile(joinpath(build_dir, "index.html"))
             @test isfile(joinpath(build_dir, "omitted.html"))
@@ -106,7 +128,7 @@ end
 
         @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-        @test length(doc.blueprint.pages) == 18
+        @test length(doc.blueprint.pages) == 19
 
         let headers = doc.internal.headers
             @test Documenter.Anchors.exists(headers, "Documentation")
@@ -128,6 +150,6 @@ end
             end
         end
 
-        @test length(doc.internal.objects) == 41
+        @test length(doc.internal.objects) == 42
     end
 end

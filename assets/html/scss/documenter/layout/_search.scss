@@ -5,20 +5,11 @@
   }
 
   #documenter-search-results {
-    // border: 1px solid $border;
-    // padding: 1rem;
     list-style-type: circle;
     list-style-position: outside;
-    // padding-left: 1rem;
 
     li {
       margin-left: 2rem;
-      // &::before {
-      //   @include font-awesome;
-      //   content: "";
-      // }
-      > header {
-      }
     }
     .docs-highlight {
       background-color: yellow;

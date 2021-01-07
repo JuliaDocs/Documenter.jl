@@ -5,8 +5,9 @@ os:
   - osx
 
 julia:
-  - 1.0
+  - 1
   - 1.4
+  - 1.0
   - nightly
 
 branches:
@@ -17,7 +18,7 @@ branches:
 
 after_success:
   - if [ -f test/quietly.log ]; then cat test/quietly.log; fi
-  - if [[ $TRAVIS_JULIA_VERSION = 1.1 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then
+  - if [[ $TRAVIS_JULIA_VERSION = 1 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then
       julia --project=coverage/ -e 'using Pkg; Pkg.instantiate();
           using Coverage; Codecov.submit(Codecov.process_folder())';
     fi
@@ -32,13 +33,19 @@ jobs:
         - julia --project=test/themes test/themes/themes.jl
       name: "Themes"
     - script:
-      - julia --project=test/examples -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd())); Pkg.add("DocumenterMarkdown")'
+      - |
+        julia --project=test/examples -e '
+          using Pkg
+          Pkg.instantiate()
+          Pkg.develop(PackageSpec(path=pwd()))
+          Pkg.add(["IOCapture", "DocumenterMarkdown"])
+        '
       - julia --project=test/examples test/examples/tests_latex.jl
       name: "PDF/LaTeX backend"
     - stage: "Documentation"
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl skiplinks
+        - julia --project=docs/ docs/make.jl
       name: "HTML"
       after_success: skip
     - script:

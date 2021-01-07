@@ -6,7 +6,7 @@
 # or not and should be kept unique.
 isdefined(@__MODULE__, :examples_root) && error("examples_root is already defined\n$(@__FILE__) included multiple times?")
 
-# The `Mod` and `AutoDocs` modules are assumed to exists in the Main module.
+# The `Mod` and `AutoDocs` modules are assumed to exist in the Main module.
 (@__MODULE__) === Main || error("$(@__FILE__) must be included into Main.")
 
 # DOCUMENTER_TEST_EXAMPLES environment variable can be used to control which
@@ -18,7 +18,8 @@ isdefined(@__MODULE__, :examples_root) && error("examples_root is already define
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["markdown", "html", "html-local"]
+    ["markdown", "html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
+    "html-local"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -36,6 +37,39 @@ module Mod
     [`func(x)`](@ref)
     """
     mutable struct T end
+
+    @doc raw"""
+    Inline: ``\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}``
+
+    Display equation:
+
+    ```math
+    \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}
+    ```
+
+    !!! note "Long equations in admonitions"
+
+        Inline: ``\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}``
+
+        Display equation:
+
+        ```math
+        \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}
+        ```
+
+    Long equations in footnotes.[^longeq-footnote]
+
+    [^longeq-footnote]:
+
+        Inline: ``\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}``
+
+        Display equation:
+
+        ```math
+        \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}
+        ```
+    """
+    function long_equations_in_docstrings end
 end
 
 "`AutoDocs` module."
@@ -116,17 +150,17 @@ function withassets(f, assets...)
         isfile(src(asset)) || error("$(asset) is missing")
     end
     for asset in assets
-        cp(src(asset), dst(asset))
+        isfile(dst(asset)) && @warn "Asset '$asset' present, dirty build directory. Overwriting." src(asset) dst(asset)
+        cp(src(asset), dst(asset), force=true)
     end
-    rv, exception = try
-        f(), nothing
-    catch e
-        nothing, e
+    try
+        f()
+    finally
+        @debug "Cleaning up assets" assets
+        for asset in assets
+            rm(dst(asset))
+        end
     end
-    for asset in assets
-        rm(dst(asset))
-    end
-    return (exception === nothing) ? rv : throw(exception)
 end
 
 # Build example docs
@@ -162,16 +196,15 @@ htmlbuild_pages = Any[
     ],
     "unicode.md",
     "latex.md",
+    "example-output.md",
 ]
 
-# Build with pretty URLs and canonical links and a PNG logo
-examples_html_doc = if "html" in EXAMPLE_BUILDS
-    @info("Building mock package docs: HTMLWriter / deployment build")
+function html_doc(build_directory, mathengine)
     @quietly withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
         makedocs(
             debug = true,
             root  = examples_root,
-            build = "builds/html",
+            build = "builds/$(build_directory)",
             doctestfilters = [r"Ptr{0x[0-9]+}"],
             sitename = "Documenter example",
             pages = htmlbuild_pages,
@@ -187,19 +220,93 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                 ],
                 prettyurls = true,
                 canonical = "https://example.com/stable",
-                mathengine = MathJax(Dict(:TeX => Dict(
+                mathengine = mathengine,
+                highlights = ["erlang", "erlang-repl"],
+                footer = "This footer has been customized.",
+            )
+        )
+    end
+end
+
+# Build with pretty URLs and canonical links and a PNG logo
+examples_html_doc = if "html" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build")
+    html_doc("html",
+        MathJax2(Dict(
+            :TeX => Dict(
+                :equationNumbers => Dict(:autoNumber => "AMS"),
+                :Macros => Dict(
+                    :ket => ["|#1\\rangle", 1],
+                    :bra => ["\\langle#1|", 1],
+                    :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                ),
+            ),
+        )),
+    )
+else
+    @info "Skipping build: HTML/deploy"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# Same as HTML, but with variations on the MathJax configuration
+examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build using MathJax v2 (custom URL)")
+    html_doc("html-mathjax2-custom",
+        MathJax2(
+            Dict(
+                :TeX => Dict(
                     :equationNumbers => Dict(:autoNumber => "AMS"),
                     :Macros => Dict(
                         :ket => ["|#1\\rangle", 1],
                         :bra => ["\\langle#1|", 1],
+                        :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
                     ),
-                ))),
-                highlights = ["erlang", "erlang-repl"],
-            )
-        )
-    end
+                ),
+            ),
+            url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
+        ),
+    )
 else
-    @info "Skipping build: HTML/deploy" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: HTML/deploy MathJax v2 (custom URL)"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build using MathJax v3")
+    html_doc("html-mathjax3",
+        MathJax3(Dict(
+            :loader => Dict("load" => ["[tex]/physics"]),
+            :tex => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "tags" => "ams",
+                "packages" => ["base", "ams", "autoload", "physics"],
+            ),
+        )),
+    )
+else
+    @info "Skipping build: HTML/deploy MathJax v3"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+examples_html_mathjax3_custom_doc = if "html-mathjax3-custom" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build using MathJax v3 (custom URL)")
+    html_doc("html-mathjax3-custom",
+        MathJax3(
+            Dict(
+                :loader => Dict("load" => ["[tex]/physics"]),
+                :tex => Dict(
+                    "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                    "tags" => "ams",
+                    "packages" => ["base", "ams", "autoload", "physics"],
+                ),
+            ),
+            url = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
+        ),
+    )
+else
+    @info "Skipping build: HTML/deploy MathJax v3 (custom URL)"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -221,10 +328,12 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             assets = ["assets/custom.css"],
             prettyurls = false,
             edit_branch = nothing,
+            footer = nothing,
         ),
     )
 else
-    @info "Skipping build: HTML/local" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: HTML/local"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -240,7 +349,8 @@ examples_markdown_doc = if "markdown" in EXAMPLE_BUILDS
         expandfirst = expandfirst,
     )
 else
-    @info "Skipping build: Markdown" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: Markdown"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -258,7 +368,8 @@ examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/simple" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/simple"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
@@ -275,6 +386,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
                 "latex.md",
                 "unicode.md",
                 hide("hidden.md"),
+                "example-output.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
@@ -301,14 +413,15 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/latex" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/latex"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
 examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_simple_nondocker")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(),
+        format = Documenter.LaTeX(),
         sitename = "Documenter LaTeX Simple Non-Docker",
         root  = examples_root,
         build = "builds/latex_simple_nondocker",
@@ -318,14 +431,15 @@ examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUI
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/latex_simple_nondocker" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/latex_simple_nondocker"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
 
 examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_texonly")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "none"),
+        format = Documenter.LaTeX(platform = "none"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_texonly",
@@ -335,6 +449,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
                 "latex.md",
                 "unicode.md",
                 hide("hidden.md"),
+                "example-output.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
@@ -361,6 +476,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         debug = true,
     )
 else
-    @info "Skipping build: LaTeXWriter/latex_texonly" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    @info "Skipping build: LaTeXWriter/latex_texonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end

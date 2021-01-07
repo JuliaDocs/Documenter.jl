@@ -495,3 +495,9 @@ MarkdownOnly("""
 
 # Empty heading
 ##
+
+# Issue 1392
+
+```1392-test-language 1392-extra-info
+julia> function foo end;
+```

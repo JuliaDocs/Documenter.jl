@@ -16,6 +16,7 @@ import ..Documenter:
 
 import Markdown, REPL
 import .Utilities: Markdown2
+import IOCapture
 
 # Julia code block testing.
 # -------------------------
@@ -216,14 +217,14 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
                 # see https://github.com/JuliaLang/julia/pull/33864
                 ex = REPL.softscope!(ex)
             end
-            (value, success, backtrace, text) = Utilities.withoutput() do
+            c = IOCapture.iocapture(throwerrors = :interrupt) do
                 Core.eval(sandbox, ex)
             end
-            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(value))))
-            result.value = value
-            print(result.stdout, text)
-            if !success
-                result.bt = backtrace
+            Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+            result.value = c.value
+            print(result.stdout, c.output)
+            if c.error
+                result.bt = c.backtrace
             end
             # don't evaluate further if there is a parse error
             isa(ex, Expr) && ex.head === :error && break
@@ -243,13 +244,13 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
     for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
-        (value, success, backtrace, text) = Utilities.withoutput() do
+        c = IOCapture.iocapture(throwerrors = :interrupt) do
             Core.eval(sandbox, ex)
         end
-        result.value = value
-        print(result.stdout, text)
-        if !success
-            result.bt = backtrace
+        result.value = c.value
+        print(result.stdout, c.output)
+        if c.error
+            result.bt = c.backtrace
             break
         end
     end
@@ -324,10 +325,9 @@ function result_to_string(buf, value)
 end
 
 function error_to_string(buf, er, bt)
-    # Remove unimportant backtrace info. TODO: this backtrace handling should maybe be done
-    # by Utilities.withoutput() already.
+    # Remove unimportant backtrace info.
     bt = remove_common_backtrace(bt, backtrace())
-    # Remove everything below the last eval call (which should be the one in withoutput)
+    # Remove everything below the last eval call (which should be the one in IOCapture.iocapture)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
     bt = (index === nothing) ? bt : bt[1:(index - 1)]
     # Print a REPL-like error message.
@@ -422,7 +422,14 @@ function fix_doctest(result::Result, str, doc::Documents.Document)
     newcode = code[1:last(inputidx)]
     isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
-    newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+    if result.output == ""
+        # This works around a regression in Julia 1.5.0 (https://github.com/JuliaLang/julia/issues/36953)
+        # Technically, it is only necessary if VERSION >= v"1.5.0-DEV.826"
+        newcode *= str
+        newcode *= code[nextind(code, last(inputidx)):end]
+    else
+        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+    end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
     result.block.code = newcode
@@ -440,21 +447,18 @@ end
 
 const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
-const ANON_FUNC_DECLARATION = r"#[0-9]+ \(generic function with [0-9]+ method(s)?\)"
 
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
     input  = String[]
     output = String[]
-    buffer = IOBuffer()
+    buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
+    found_first_prompt = false
     while !isempty(lines)
         line = popfirst!(lines)
-        # REPL code blocks may contain leading lines with comments. Drop them.
-        # TODO: handle multiline comments?
-        # ANON_FUNC_DECLARATION deals with `x->x` -> `#1 (generic function ....)` on 0.7
-        # TODO: Remove this special case and just disallow lines with comments?
-        startswith(line, '#') && !occursin(ANON_FUNC_DECLARATION, line) && continue
         prompt = match(PROMPT_REGEX, line)
+        # We allow comments before the first julia> prompt
+        !found_first_prompt && startswith(line, '#') && continue
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
             if source === nothing
@@ -465,6 +469,7 @@ function repl_splitter(code)
                 println(buffer, source[1])
             end
         else
+            found_first_prompt = true
             savebuffer!(output, buffer)
             println(buffer, prompt[1])
         end

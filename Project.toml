@@ -1,11 +1,12 @@
 name = "Documenter"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.24.7+0.25-DEV"
+version = "0.26.1"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
@@ -17,6 +18,7 @@ Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
 DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8"
+IOCapture = "0.1"
 JSON = "0.19, 0.20, 0.21"
 julia = "1"
 

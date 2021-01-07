@@ -257,7 +257,7 @@ end
 doccat(b::Binding, ::Type)  = "Method"
 
 doccat(::Function) = "Function"
-doccat(::DataType) = "Type"
+doccat(::Type)     = "Type"
 doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
 doccat(::Module)   = "Module"
 doccat(::Any)      = "Constant"
@@ -343,6 +343,10 @@ function repo_root(file; dbdir=".git")
     return nothing
 end
 
+# Repository hosts
+#   RepoUnknown denotes that the repository type could not be determined automatically
+@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
+
 """
     $(SIGNATURES)
 
@@ -362,6 +366,19 @@ function repo_commit(file)
     end
 end
 
+function format_commit(commit::AbstractString, host::RepoHost)
+    if host === RepoAzureDevOps
+        # if commit hash then preceeded by GC, if branch name then preceeded by GB
+        if match(r"[0-9a-fA-F]{40}", commit) !== nothing
+            commit = "GC$commit"
+        else
+            commit = "GB$commit"
+        end
+    else
+        return commit
+    end
+end
+
 function url(repo, file; commit=nothing)
     file = abspath(file)
     if !isfile(file)
@@ -375,7 +392,8 @@ function url(repo, file; commit=nothing)
     if path === nothing
         nothing
     else
-        repo = replace(repo, "{commit}" => commit === nothing ? repo_commit(file) : commit)
+        hosttype = repo_host_from_url(repo)
+        repo = replace(repo, "{commit}" => format_commit(commit === nothing ? repo_commit(file) : commit, hosttype))
         # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
         repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
         repo = replace(repo, "{line}" => "")
@@ -395,8 +413,10 @@ function url(remote, repo, mod, file, linerange)
         file = realpath(abspath(file))
     end
 
+    hosttype = repo_host_from_url(repo)
+
     # Format the line range.
-    line = format_line(linerange, LineRangeFormatting(repo_host_from_url(repo)))
+    line = format_line(linerange, LineRangeFormatting(hosttype))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
@@ -418,7 +438,7 @@ function url(remote, repo, mod, file, linerange)
         if path === nothing
             nothing
         else
-            repo = replace(repo, "{commit}" => repo_commit(file))
+            repo = replace(repo, "{commit}" => format_commit(repo_commit(file), hosttype))
             # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
             repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
             repo = replace(repo, "{line}" => line)
@@ -464,10 +484,6 @@ function inbase(m::Module)
     end
 end
 
-# Repository hosts
-#   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoUnknown
-
 # Repository host from repository url
 # i.e. "https://github.com/something" => RepoGithub
 #      "https://bitbucket.org/xxx" => RepoBitbucket
@@ -479,6 +495,8 @@ function repo_host_from_url(repoURL::String)
         return RepoGithub
     elseif occursin("gitlab", repoURL)
         return RepoGitlab
+    elseif occursin("azure", repoURL)
+        return RepoAzureDevOps
     else
         return RepoUnknown
     end
@@ -505,7 +523,9 @@ struct LineRangeFormatting
     separator::String
 
     function LineRangeFormatting(host::RepoHost)
-        if host == RepoBitbucket
+        if host === RepoAzureDevOps
+            new("&line=", "&lineEnd=")
+        elseif host == RepoBitbucket
             new("", ":")
         elseif host == RepoGitlab
             new("L", "-")
@@ -526,66 +546,6 @@ end
 
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
-
-
-# Output redirection.
-# -------------------
-using Logging
-
-"""
-Call a function and capture all `stdout` and `stderr` output.
-
-    withoutput(f) --> (result, success, backtrace, output)
-
-where
-
-  * `result` is the value returned from calling function `f`.
-  * `success` signals whether `f` has thrown an error, in which case `result` stores the
-    `Exception` that was raised.
-  * `backtrace` a `Vector{Ptr{Cvoid}}` produced by `catch_backtrace()` if an error is thrown.
-  * `output` is the combined output of `stdout` and `stderr` during execution of `f`.
-
-"""
-function withoutput(f)
-    # Save the default output streams.
-    default_stdout = stdout
-    default_stderr = stderr
-
-    # Redirect both the `stdout` and `stderr` streams to a single `Pipe` object.
-    pipe = Pipe()
-    Base.link_pipe!(pipe; reader_supports_async = true, writer_supports_async = true)
-    redirect_stdout(pipe.in)
-    redirect_stderr(pipe.in)
-    # Also redirect logging stream to the same pipe
-    logger = ConsoleLogger(pipe.in)
-
-    # Bytes written to the `pipe` are captured in `output` and converted to a `String`.
-    output = UInt8[]
-
-    # Run the function `f`, capturing all output that it might have generated.
-    # Success signals whether the function `f` did or did not throw an exception.
-    result, success, backtrace = with_logger(logger) do
-        try
-            f(), true, Vector{Ptr{Cvoid}}()
-        catch err
-            # InterruptException should never happen during normal doc-testing
-            # and not being able to abort the doc-build is annoying (#687).
-            isa(err, InterruptException) && rethrow(err)
-
-            err, false, catch_backtrace()
-        finally
-            # Force at least a single write to `pipe`, otherwise `readavailable` blocks.
-            println()
-            # Restore the original output streams.
-            redirect_stdout(default_stdout)
-            redirect_stderr(default_stderr)
-            # NOTE: `close` must always be called *after* `readavailable`.
-            append!(output, readavailable(pipe))
-            close(pipe)
-        end
-    end
-    return result, success, backtrace, chomp(String(output))
-end
 
 
 """
@@ -690,6 +650,16 @@ struct Default{T}
     value :: T
 end
 Base.getindex(default::Default) = default.value
+
+"""
+    $(SIGNATURES)
+
+Extracts the language identifier from the info string of a Markdown code block.
+"""
+function codelang(infostring::AbstractString)
+    m = match(r"^\s*(\S*)", infostring)
+    return m[1]
+end
 
 include("DOM.jl")
 include("MDFlatten.jl")

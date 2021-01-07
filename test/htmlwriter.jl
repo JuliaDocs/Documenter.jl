@@ -52,6 +52,10 @@ end
     @test Documenter.HTML() isa Documenter.HTML
     @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
     @test_throws Exception Documenter.HTML(assets=["foo.js", 10])
+    @test_throws ArgumentError Documenter.HTML(footer="foo\n\nbar")
+    @test_throws ArgumentError Documenter.HTML(footer="# foo")
+    @test_throws ArgumentError Documenter.HTML(footer="")
+    @test Documenter.HTML(footer="foo bar [baz](https://github.com)") isa Documenter.HTML
 
     # MathEngine
     let katex = KaTeX()
@@ -70,7 +74,7 @@ end
         @test haskey(katex.config, :foo)
     end
 
-    let mathjax = MathJax()
+    let mathjax = MathJax2()
         @test length(mathjax.config) == 5
         @test haskey(mathjax.config, :tex2jax)
         @test haskey(mathjax.config, :config)
@@ -78,7 +82,7 @@ end
         @test haskey(mathjax.config, :extensions)
         @test haskey(mathjax.config, :TeX)
     end
-    let mathjax = MathJax(Dict(:foo => 1))
+    let mathjax = MathJax2(Dict(:foo => 1))
         @test length(mathjax.config) == 6
         @test haskey(mathjax.config, :tex2jax)
         @test haskey(mathjax.config, :config)
@@ -87,7 +91,7 @@ end
         @test haskey(mathjax.config, :TeX)
         @test haskey(mathjax.config, :foo)
     end
-    let mathjax = MathJax(Dict(:tex2jax => 1, :foo => 2))
+    let mathjax = MathJax2(Dict(:tex2jax => 1, :foo => 2))
         @test length(mathjax.config) == 6
         @test haskey(mathjax.config, :tex2jax)
         @test haskey(mathjax.config, :config)
@@ -141,7 +145,11 @@ end
         verify_version_file(versionfile, entries)
 
         versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
-        entries, symlinks = expand_versions(tmpdir, versions)
+        entries, symlinks = @test_logs(
+            (:warn, "no match for `versions` entry `\"foobar\"`"),
+            (:warn, "no match for `versions` entry `\"foo\" => \"bar\"`"),
+            expand_versions(tmpdir, versions)
+        )
         @test entries == ["v2.1", "devel"]
         @test ("v2.1" => "2.1.1") in symlinks
         @test ("devel" => "dev") in symlinks

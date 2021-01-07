@@ -116,7 +116,7 @@ Documenter: populating indices.
 Documenter: rendering document.
 ```
 
-The `docs/` folder should contain a new directory -- called `build/`. It's structure should
+The `docs/` folder should contain a new directory -- called `build/`. Its structure should
 look like the following
 
 ```
@@ -141,8 +141,11 @@ build/
     not resolve directory URLs like `foo/` to `foo/index.html` for local files. You have two
     options:
 
-    1. You can run a local web server out of the `docs/build` directory. If you have Python
-       installed, you can simple start one with `python3 -m http.server --bind localhost`
+    1. You can run a local web server out of the `docs/build` directory. One way to accomplish
+       this is to install the [LiveServer](https://github.com/tlienart/LiveServer.jl) Julia
+       package. You can then start the server with
+       `julia -e 'using LiveServer; serve(dir="docs/build")'`. Alternatively, if you have Python
+       installed, you can start one with `python3 -m http.server --bind localhost`
        (or `python -m SimpleHTTPServer` with Python 2).
 
     2. You can disable the pretty URLs feature by passing `prettyurls = false` with the
@@ -361,3 +364,31 @@ makedocs(
 
 Using the `pages` argument you can organize your pages into subsections and hide some pages
 from the sidebar with the help of the [`hide`](@ref) functions.
+
+
+## Adding a logo or icon
+
+You can easily add a logo or icon to your documentation which
+will be automatically displayed in the navigation sidebar.
+
+During the build process, Documenter looks for suitable
+graphic images in the `src/assets/` directory and
+automatically copies them to `/build/assets/`.
+
+You can use SVG, PNG, WEBP, GIF, or JPEG images. 
+
+Documenter looks for files `logo.svg`, `logo.png`,
+`logo.webp`, `logo.gif`, `logo.jpg`, or `logo.jpeg`, in that
+order. The first suitable image found is used.
+
+This image will be used for both light and dark themes. If
+you want to create a separate design for the dark theme, add a file
+called `logo-dark.svg` (or PNG/WEBP/GIF/JPEG).
+
+Files don't need to be square. Images with transparent
+backgrounds can look better, particularly for dark themes.
+
+There's a `sidebar_sitename` keyword option for 
+[`Documenter.HTML`](@ref) that lets you hide the sitename
+that's usually displayed below a logo. This is useful if the
+logo already contains the name.

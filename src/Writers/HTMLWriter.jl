@@ -7,8 +7,8 @@ A module for rendering `Document` objects to HTML.
 [`Documenter.makedocs`](@ref): `authors`, `pages`, `sitename`, `version`.
 The behavior of [`HTMLWriter`](@ref) can be further customized by setting the `format`
 keyword of [`Documenter.makedocs`](@ref) to a [`HTML`](@ref), which accepts the following
-keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link` and
-`prettyurls`.
+keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link`,
+`prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
 *navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
@@ -171,15 +171,15 @@ struct KaTeX <: MathEngine
 end
 
 """
-    MathJax(config::Dict = <default>, override = false)
+    MathJax2(config::Dict = <default>, override = false)
 
-An instance of the `MathJax` type can be passed to [`HTML`](@ref) via the `mathengine`
-keyword to specify that the [MathJax rendering engine](https://www.mathjax.org/) should be
+An instance of the `MathJax2` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax v2 rendering engine](https://www.mathjax.org/) should be
 used in the HTML output to render mathematical expressions.
 
 A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
-the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/latest/options/) function. By
-default, Documenter set custom configuration for `tex2jax`, `config`, `jax`, `extensions`
+the [`MathJax.Hub.Config`](https://docs.mathjax.org/en/v2.7-latest/options/) function. By
+default, Documenter sets custom configurations for `tex2jax`, `config`, `jax`, `extensions`
 and `Tex`.
 
 By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
@@ -187,32 +187,81 @@ resulting configuration dictionary will contain the values from both dictionarie
 setting your own `tex2jax` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
+
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version).
 """
-struct MathJax <: MathEngine
+struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax(config::Union{Dict,Nothing} = nothing, override=false)
+    url :: String
+    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false; url = "")
         default = Dict(
-           :tex2jax => Dict(
-               "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
-               "processEscapes" => true
-           ),
-           :config => ["MMLorHTML.js"],
-           :jax => [
-               "input/TeX",
-               "output/HTML-CSS",
-               "output/NativeMML"
-           ],
-           :extensions => [
-               "MathMenu.js",
-               "MathZoom.js",
-               "TeX/AMSmath.js",
-               "TeX/AMSsymbols.js",
-               "TeX/autobold.js",
-               "TeX/autoload-all.js"
-           ],
-           :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
+            :tex2jax => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "processEscapes" => true
+            ),
+            :config => ["MMLorHTML.js"],
+            :jax => [
+                "input/TeX",
+                "output/HTML-CSS",
+                "output/NativeMML"
+            ],
+            :extensions => [
+                "MathMenu.js",
+                "MathZoom.js",
+                "TeX/AMSmath.js",
+                "TeX/AMSsymbols.js",
+                "TeX/autobold.js",
+                "TeX/autoload-all.js"
+            ],
+            :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
+    end
+end
+
+@deprecate MathJax(config::Union{Dict,Nothing} = nothing, override=false) MathJax2(config, override) false
+@doc "deprecated – Use [`MathJax2`](@ref) instead" MathJax
+
+"""
+    MathJax3(config::Dict = <default>, override = false)
+
+An instance of the `MathJax3` type can be passed to [`HTML`](@ref) via the `mathengine`
+keyword to specify that the [MathJax v3 rendering engine](https://www.mathjax.org/) should be
+used in the HTML output to render mathematical expressions.
+
+A dictionary can be passed via the `config` argument to configure MathJax. It gets passed to
+[`Window.MathJax`](https://docs.mathjax.org/en/latest/options/) function. By default,
+Documenter specifies in the key `tex` that `\$...\$` and `\\(...\\)` denote inline math, that AMS
+style tags should be used and the `base`, `ams` and `autoload` packages should be imported.
+The key `options`, by default, specifies which HTML classes to ignore and which to process
+using MathJax.
+
+By default, the user-provided dictionary gets _merged_ with the default dictionary (i.e. the
+resulting configuration dictionary will contain the values from both dictionaries, but e.g.
+setting your own `tex` value will override the default). This can be overridden by
+setting `override` to `true`, in which case the default values are ignored and only the
+user-provided dictionary is used.
+
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version).
+"""
+struct MathJax3 <: MathEngine
+    config :: Dict{Symbol,Any}
+    url :: String
+    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false; url = "")
+        default = Dict(
+            :tex => Dict(
+                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                "tags" => "ams",
+                "packages" => ["base", "ams", "autoload"],
+            ),
+            :options => Dict(
+                "ignoreHtmlClass" => "tex2jax_ignore",
+                "processHtmlClass" => "tex2jax_process",
+            )
+        )
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -276,12 +325,19 @@ you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done
 provided language names are sane.
 
 **`mathengine`** specifies which LaTeX rendering engine will be used to render the math
-blocks. The options are either [KaTeX](https://katex.org/) (default) or
-[MathJax](https://www.mathjax.org/), enabled by passing an instance of [`KaTeX`](@ref) or
-[`MathJax`](@ref) objects, respectively. The rendering engine can further be customized by
-passing options to the [`KaTeX`](@ref) or [`MathJax`](@ref) constructors.
+blocks. The options are either [KaTeX](https://katex.org/) (default),
+[MathJax v2](https://www.mathjax.org/), or [MathJax v3](https://www.mathjax.org/), enabled by
+passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
+[`MathJax3`](@ref) objects, respectively. The rendering engine can further be customized by
+passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
-**`lang`** can be used to specify the language tag of each HTML page. Default is `"en"`.
+**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
+of the top-level `<html>` element, declaring the language of the generated pages. The default
+value is `"en"`.
+
+**`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
+the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
+and the [Julia Programming Language](https://julialang.org/)."`.
 
 # Default and custom assets
 
@@ -325,6 +381,7 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
+    footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
 
     function HTML(;
@@ -336,8 +393,9 @@ struct HTML <: Documenter.Writer
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
-            highlights :: Vector{String} = String[],
-            mathengine :: Union{MathEngine,Nothing} = KaTeX(),
+            highlights    :: Vector{String} = String[],
+            mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
+            footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
@@ -360,9 +418,15 @@ struct HTML <: Documenter.Writer
         if isa(edit_link, Symbol) && (edit_link !== :commit)
             throw(ArgumentError("Invalid symbol (:$edit_link) passed to edit_link."))
         end
+        if footer !== nothing
+            footer = Markdown.parse(footer)
+            if !(length(footer.content) == 1 && footer.content[1] isa Markdown.Paragraph)
+                throw(ArgumentError("footer must be a single-line markdown compatible string."))
+            end
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
     end
 end
 
@@ -370,11 +434,11 @@ end
 module RD
     using JSON
     using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
-    using ..HTMLWriter: KaTeX, MathJax
+    using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-    const fontawesome_version = "5.11.2"
+    const fontawesome_version = "5.15.0"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
@@ -452,15 +516,31 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax)
+    function mathengine!(r::RequireJS, engine::MathJax2)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
-            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
+            url,
             exports = "MathJax"
         ))
         push!(r, Snippet(["mathjax"], ["MathJax"],
             """
             MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
+            """
+        ))
+    end
+    function mathengine!(r::RequireJS, engine::MathJax3)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
+        push!(r, Snippet([], [],
+            """
+            window.MathJax = $(json_jsescape(engine.config, 2));
+
+            (function () {
+                var script = document.createElement('script');
+                script.src = '$url';
+                script.async = true;
+                document.head.appendChild(script);
+            })();
             """
         ))
     end
@@ -547,6 +627,11 @@ getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 function render(doc::Documents.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
+    if isempty(doc.blueprint.pages)
+        error("Aborting HTML build: no pages under src/")
+    elseif !haskey(doc.blueprint.pages, "index.md")
+        @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
+    end
 
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
@@ -622,7 +707,10 @@ function copy_asset(file, doc)
     else
         ispath(dirname(dst)) || mkpath(dirname(dst))
         ispath(dst) && @warn "overwriting '$dst'."
-        cp(src, dst, force=true)
+        # Files in the Documenter folder itself are read-only when
+        # Documenter is Pkg.added so we create a new file to get
+        # correct file permissions.
+        open(io -> write(dst, io), src, "r")
     end
     assetpath = normpath(joinpath("assets", file))
     # Replace any backslashes in links, if building the docs on Windows
@@ -776,6 +864,7 @@ function render_head(ctx, navnode)
                 Symbol("data-theme-name") => theme,
             ]
             (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
+            (i == 2) && push!(e.attributes, Symbol("data-theme-primary-dark") => "")
             return e
         end,
         script[:src => relhref(src, ctx.themeswap_js)],
@@ -874,7 +963,7 @@ function render_sidebar(ctx, navnode)
     )
 
     # The menu itself
-    menu = navitem(NavMenuContext(ctx, navnode, ))
+    menu = navitem(NavMenuContext(ctx, navnode))
     push!(menu.attributes, :class => "docs-menu")
     push!(navmenu.nodes, menu)
 
@@ -999,6 +1088,9 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         elseif host_type == Utilities.RepoBitbucket
             host = "BitBucket"
             logo = "\uf171"
+        elseif host_type == Utilities.RepoAzureDevOps
+            host = "Azure DevOps"
+            logo = "\uf3ca" # TODO change to ADO logo when added to FontAwesome
         else
             host = ""
             logo = "\uf15c"
@@ -1021,7 +1113,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             title = "$(edit_verb)$hoststring"
             push!(navbar_right.nodes,
                 a[".docs-edit-link", :href => url, :title => title](
-                    span[".docs-icon.fab"](logo),
+                    span[host_type == Utilities.RepoUnknown ? ".docs-icon.fa" : ".docs-icon.fab"](logo),
                     span[".docs-label.is-hidden-touch"](title)
                 )
             )
@@ -1058,7 +1150,22 @@ function render_footer(ctx, navnode)
         link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
         push!(navlinks, link)
     end
-    return isempty(navlinks) ? "" : nav[".docs-footer"](navlinks)
+
+    linebreak = div[".flexbox-break"]()
+    footer_content = ctx.settings.footer
+
+    nav_children = []
+    if !isempty(navlinks)
+        push!(nav_children, navlinks, linebreak)
+    end
+
+    if footer_content !== nothing
+        footer_container = domify(ctx, navnode, footer_content)
+        push!(first(footer_container).attributes, :class => "footer-message")
+        push!(nav_children, footer_container)
+    end
+
+    return nav[".docs-footer"](nav_children...)
 end
 
 # Article (page contents)
@@ -1512,7 +1619,8 @@ mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, 
 
 function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
-    language = isempty(c.language) ? "none" : c.language
+    language = Utilities.codelang(c.language)
+    language = isempty(language) ? "none" : language
     pre(code[".language-$(language)"](c.code))
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
@@ -1535,7 +1643,10 @@ end
 
 mdconvert(i::Markdown.Italic, parent; kwargs...) = Tag(:em)(mdconvert(i.text, i; kwargs...))
 
-mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)   = Tag(:div)(string("\\[", m.formula, "\\]"))
+function mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)
+    @tags p
+    p[".math-container"](string("\\[", m.formula, "\\]"))
+end
 mdconvert(m::Markdown.LaTeX, parent; kwargs...) = Tag(:span)(string('$', m.formula, '$'))
 
 mdconvert(::Markdown.LineBreak, parent; kwargs...) = Tag(:br)()
@@ -1647,11 +1758,23 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"image/jpeg"())
         out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
     elseif haskey(d, MIME"text/latex"())
-        out = Utilities.mdparse(d[MIME"text/latex"()]; mode = :single)
+        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
+        # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
+        # delimiters around it anyway.
+        latex = d[MIME"text/latex"()]
+        equation = false
+        m_bracket = match(r"\s*\\\[(.*)\\\]\s*", latex)
+        m_dollars = match(r"\s*\$\$(.*)\$\$\s*", latex)
+        if m_bracket === nothing && m_dollars === nothing
+            out = Utilities.mdparse(latex; mode = :single)
+        else
+            out = Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
+        end
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
-        out = Markdown.Code(d[MIME"text/plain"()])
+        @tags pre
+        return pre[".documenter-example-output"](d[MIME"text/plain"()])
     else
         error("this should never happen.")
     end
@@ -1674,6 +1797,9 @@ actual URLs.
 function fixlinks!(ctx, navnode, link::Markdown.Link)
     fixlinks!(ctx, navnode, link.text)
     Utilities.isabsurl(link.url) && return
+
+    # anything starting with mailto: doesn't need fixing
+    startswith(link.url, "mailto:") && return
 
     # links starting with a # are references within the same file -- there's nothing to fix
     # for such links
