@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.26.1`
+
+* ![Bugfix][badge-bugfix] HTML assets that are copied directly from Documenters source to the build output now has correct file permissions. ([#1497][github-1497])
+
 ## Version `v0.26.0`
 
 * ![BREAKING][badge-breaking] The PDF/LaTeX output is again provided as a Documenter built-in and can be enabled by passing an instance of `Documenter.LaTeX` to `format`. The DocumenterLaTeX package has been deprecated. ([#1493][github-1493])
@@ -717,6 +721,7 @@
 [github-1489]: https://github.com/JuliaDocs/Documenter.jl/pull/1489
 [github-1491]: https://github.com/JuliaDocs/Documenter.jl/pull/1491
 [github-1493]: https://github.com/JuliaDocs/Documenter.jl/pull/1493
+[github-1497]: https://github.com/JuliaDocs/Documenter.jl/pull/1497
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
