@@ -79,6 +79,12 @@ function onormalize(s)
     # Remove stacktraces
     s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" => s"\1\\n\3{STACKTRACE}")
 
+    # We need to make sure that, if we're running the tests on Windows, that we'll have consistent
+    # line breaks. So we'll normalize CRLF to LF.
+    if Sys.iswindows()
+        s = replace(s, "\r\n" => "\n")
+    end
+
     return s
 end
 
