@@ -1,5 +1,11 @@
 # Documenter.jl changelog
 
+## Version `v0.27.0`
+
+* ![Enhancement][badge-enhancement] The JS dependencies have been updated to their respective latest versions.
+
+  - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503])
+
 ## Version `v0.26.1`
 
 * ![Bugfix][badge-bugfix] HTML assets that are copied directly from Documenters source to the build output now has correct file permissions. ([#1497][github-1497])
@@ -722,6 +728,7 @@
 [github-1491]: https://github.com/JuliaDocs/Documenter.jl/pull/1491
 [github-1493]: https://github.com/JuliaDocs/Documenter.jl/pull/1493
 [github-1497]: https://github.com/JuliaDocs/Documenter.jl/pull/1497
+[github-1503]: https://github.com/JuliaDocs/Documenter.jl/pull/1503
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
