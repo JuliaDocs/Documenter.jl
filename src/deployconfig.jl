@@ -236,6 +236,19 @@ function deploy_folder(cfg::Travis;
     println(io, "- $(marker(type_ok)) ENV[\"TRAVIS_EVENT_TYPE\"]=\"$(cfg.travis_event_type)\" is not \"cron\"")
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.travis_branch == "main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master
+        Documenter's configured primary development branch (`devbranch`) is "master", but the
+        current branch (\$TRAVIS_BRANCH) is "main". This can happen because Documenter uses
+        GitHub's old default primary branch name as the default value for `devbranch`.
+
+        If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
+        to deploydocs.
+
+        See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
+        """
+    end
     if all_ok
         return DeployDecision(; all_ok = true,
                                 branch = deploy_branch,
@@ -375,6 +388,19 @@ function deploy_folder(cfg::GitHubActions;
     end
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.github_ref == "refs/heads/main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master
+        Documenter's configured primary development branch (`devbranch`) is "master", but the
+        current branch (from \$GITHUB_REF) is "main". This can happen because Documenter uses
+        GitHub's old default primary branch name as the default value for `devbranch`.
+
+        If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
+        to deploydocs.
+
+        See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
+        """
+    end
     if all_ok
         return DeployDecision(; all_ok = true,
                                 branch = deploy_branch,
@@ -762,6 +788,19 @@ function deploy_folder(
 
     print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
     @info String(take!(io))
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.commit_branch == "main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master
+        Documenter's configured primary development branch (`devbranch`) is "master", but the
+        current branch (\$BUILDKITE_BRANCH) is "main". This can happen because Documenter uses
+        GitHub's old default primary branch name as the default value for `devbranch`.
+
+        If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
+        to deploydocs.
+
+        See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
+        """
+    end
 
     if all_ok
         return DeployDecision(;

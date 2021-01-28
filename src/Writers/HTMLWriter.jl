@@ -464,7 +464,7 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "9.15.10"
+        hljs_version = "10.5.0"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -480,7 +480,7 @@ module RD
         end
         push!(r, Snippet(
             vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
-            ["\$", "hljs"],
+            ["\$"],
             raw"""
             $(document).ready(function() {
                 hljs.initHighlighting();
@@ -626,6 +626,11 @@ getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 function render(doc::Documents.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
+    if isempty(doc.blueprint.pages)
+        error("Aborting HTML build: no pages under src/")
+    elseif !haskey(doc.blueprint.pages, "index.md")
+        @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
+    end
 
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
@@ -701,7 +706,10 @@ function copy_asset(file, doc)
     else
         ispath(dirname(dst)) || mkpath(dirname(dst))
         ispath(dst) && @warn "overwriting '$dst'."
-        cp(src, dst, force=true)
+        # Files in the Documenter folder itself are read-only when
+        # Documenter is Pkg.added so we create a new file to get
+        # correct file permissions.
+        open(io -> write(dst, io), src, "r")
     end
     assetpath = normpath(joinpath("assets", file))
     # Replace any backslashes in links, if building the docs on Windows
@@ -954,7 +962,7 @@ function render_sidebar(ctx, navnode)
     )
 
     # The menu itself
-    menu = navitem(NavMenuContext(ctx, navnode, ))
+    menu = navitem(NavMenuContext(ctx, navnode))
     push!(menu.attributes, :class => "docs-menu")
     push!(navmenu.nodes, menu)
 
