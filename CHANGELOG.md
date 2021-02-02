@@ -6,6 +6,10 @@
 
   - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503])
 
+## Version `v0.26.2`
+
+* ![Bugfix][badge-bugfix] Script-type doctests that have an empty output section no longer crash Documenter. ([#1510][github-1510])
+
 ## Version `v0.26.1`
 
 * ![Bugfix][badge-bugfix] HTML assets that are copied directly from Documenters source to the build output now has correct file permissions. ([#1497][github-1497])
@@ -729,6 +733,7 @@
 [github-1493]: https://github.com/JuliaDocs/Documenter.jl/pull/1493
 [github-1497]: https://github.com/JuliaDocs/Documenter.jl/pull/1497
 [github-1503]: https://github.com/JuliaDocs/Documenter.jl/pull/1503
+[github-1510]: https://github.com/JuliaDocs/Documenter.jl/pull/1510
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
