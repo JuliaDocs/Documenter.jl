@@ -41,16 +41,8 @@ function test_doctest_fix(dir)
     @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, strict = true)
 
     # also test that we obtain the expected output
-    @test readref(joinpath(srcdir, "index.md"); fixcrlf=Sys.iswindows()) == readref(joinpath(@__DIR__, "fixed.md"))
-    @test readref(joinpath(srcdir, "src.jl"); fixcrlf=Sys.iswindows()) == readref(joinpath(@__DIR__, "fixed.jl"))
-end
-
-function readref(filename; fixcrlf=false)
-    s = read(filename, String)
-    if fixcrlf
-        replace(s, "\r\n" => "\n")
-    end
-    return s
+    @test read(joinpath(srcdir, "index.md"), String) == read(joinpath(@__DIR__, "fixed.md"), String)
+    @test read(joinpath(srcdir, "src.jl"), String) == read(joinpath(@__DIR__, "fixed.jl"), String)
 end
 
 @testset "doctest fixing" begin
