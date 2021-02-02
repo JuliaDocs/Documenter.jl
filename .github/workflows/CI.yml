@@ -18,8 +18,11 @@ jobs:
           - 'nightly'
         os:
           - ubuntu-latest
-          - windows-latest
           - macos-latest
+          # We still run Windows tests on AppVeyor because the tests are not passing on
+          # the Windows image of GitHub Actions:
+          # https://github.com/JuliaDocs/Documenter.jl/pull/1496
+          #- windows-latest
         arch:
           - x64
         include:
