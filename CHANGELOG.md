@@ -6,6 +6,10 @@
 
   - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503])
 
+## Version `v0.26.2`
+
+* ![Bugfix][badge-bugfix] When checking for authentication keys when deploying, Documenter now more appropriately checks if the environment variables are non-empty, rather than just whether they are defined. ([#1511][github-1511])
+
 ## Version `v0.26.1`
 
 * ![Bugfix][badge-bugfix] HTML assets that are copied directly from Documenters source to the build output now has correct file permissions. ([#1497][github-1497])
@@ -729,6 +733,7 @@
 [github-1493]: https://github.com/JuliaDocs/Documenter.jl/pull/1493
 [github-1497]: https://github.com/JuliaDocs/Documenter.jl/pull/1497
 [github-1503]: https://github.com/JuliaDocs/Documenter.jl/pull/1503
+[github-1511]: https://github.com/JuliaDocs/Documenter.jl/pull/1511
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
