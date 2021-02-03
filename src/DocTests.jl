@@ -239,7 +239,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     #
     #
     #       to mark `input`/`output` separation.
-    input, output = split(block.code, "# output\n", limit = 2)
+    input, output = split(block.code, r"^# output$"m, limit = 2)
     input  = rstrip(input, '\n')
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
