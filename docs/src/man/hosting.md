@@ -355,6 +355,26 @@ or `git@`.
 See the [`deploydocs`](@ref) function documentation for more details.
 
 
+## Using Simple SSH
+
+If you do not have access to either Travis or GitHub for automated documentation updates,
+or you are working in a private Git hosting service where using these is impractical, it
+may be desirable to push objects more simply via SSH.  For such cases, simply call, e.g.
+
+```julia
+"deploy" ∈ ARGS && deploydocs(
+    repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+    deploy_config = Documenter.SimpleSSHConfig("/path/to/ssh-key")
+)
+```
+
+Note that calling [`deploydocs`](@ref) with the [`SimpleSSHConfig`](@ref Documenter.SimpleSSHConfig)
+will always deploy. So, to avoid unwanted accidental deployments, it is good practice to
+guard the [`deploydocs`](@ref) call, e.g. by checking whether `"deploy"` was passed as a
+command line argument to the `make.jl` script (as is done in the example above).
+
+If no path to the SSH key is provided, the `DOCUMENTER_KEY` environment variable will be used.
+
 
 ## `.gitignore`
 
@@ -514,4 +534,5 @@ Documenter.Travis
 Documenter.GitHubActions
 Documenter.GitLab
 Documenter.Buildkite
+Documenter.SimpleSSHConfig
 ```
