@@ -34,4 +34,5 @@ build_script:
 
 test_script:
   - echo "%JL_TEST_SCRIPT%"
+  - git config -l
   - C:\julia\bin\julia -e "%JL_TEST_SCRIPT%"
