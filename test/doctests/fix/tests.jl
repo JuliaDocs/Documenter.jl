@@ -20,6 +20,11 @@ end
 # The version check is necessary due to a behaviour change in https://github.com/JuliaLang/julia/pull/32851
 mktempdir_nocleanup(dir) = VERSION >= v"1.3.0-alpha.112" ? mktempdir(dir, cleanup = false) : mktempdir(dir)
 
+function normalize_line_endings(filename)
+    s = read(filename, String)
+    return replace(s, "\r\n" => "\n")
+end
+
 function test_doctest_fix(dir)
     srcdir = mktempdir_nocleanup(dir)
     builddir = mktempdir_nocleanup(dir)
@@ -27,9 +32,11 @@ function test_doctest_fix(dir)
 
     # Pkg.add changes permission of files to read-only,
     # so instead of copying them we read + write.
-    write(joinpath(srcdir, "index.md"), read(joinpath(@__DIR__, "broken.md")))
-    write(joinpath(srcdir, "src.jl"), read(joinpath(@__DIR__, "broken.jl")))
-
+    src_jl = joinpath(srcdir, "src.jl")
+    index_md = joinpath(srcdir, "index.md")
+    write(index_md, normalize_line_endings(joinpath(@__DIR__, "broken.md")))
+    write(src_jl, normalize_line_endings(joinpath(@__DIR__, "broken.jl")))
+        
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
@@ -41,16 +48,8 @@ function test_doctest_fix(dir)
     @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, strict = true)
 
     # also test that we obtain the expected output
-    @test readref(joinpath(srcdir, "index.md"); fixcrlf=Sys.iswindows()) == readref(joinpath(@__DIR__, "fixed.md"))
-    @test readref(joinpath(srcdir, "src.jl"); fixcrlf=Sys.iswindows()) == readref(joinpath(@__DIR__, "fixed.jl"))
-end
-
-function readref(filename; fixcrlf=false)
-    s = read(filename, String)
-    if fixcrlf
-        replace(s, "\r\n" => "\n")
-    end
-    return s
+    @test normalize_line_endings(index_md) == normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
+    @test normalize_line_endings(src_jl) == normalize_line_endings(joinpath(@__DIR__, "fixed.jl"))
 end
 
 @testset "doctest fixing" begin
