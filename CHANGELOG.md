@@ -12,6 +12,8 @@
 
 * ![Bugfix][badge-bugfix] When checking for authentication keys when deploying, Documenter now more appropriately checks if the environment variables are non-empty, rather than just whether they are defined. ([#1511][github-1511])
 
+* ![Bugfix][badge-bugfix] Doctests now correctly handle the case when the repository has been checked out with `CRLF` line endings (which can happen on Windows with `core.autocrlf=true`). ([#1516][github-1516], [#1519][github-1519], [#1520][github-1520])
+
 ## Version `v0.26.1`
 
 * ![Bugfix][badge-bugfix] HTML assets that are copied directly from Documenters source to the build output now has correct file permissions. ([#1497][github-1497])
@@ -737,6 +739,9 @@
 [github-1503]: https://github.com/JuliaDocs/Documenter.jl/pull/1503
 [github-1510]: https://github.com/JuliaDocs/Documenter.jl/pull/1510
 [github-1511]: https://github.com/JuliaDocs/Documenter.jl/pull/1511
+[github-1516]: https://github.com/JuliaDocs/Documenter.jl/issues/1516
+[github-1519]: https://github.com/JuliaDocs/Documenter.jl/pull/1519
+[github-1520]: https://github.com/JuliaDocs/Documenter.jl/pull/1520
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
