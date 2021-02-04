@@ -36,7 +36,7 @@ function test_doctest_fix(dir)
     index_md = joinpath(srcdir, "index.md")
     write(index_md, normalize_line_endings(joinpath(@__DIR__, "broken.md")))
     write(src_jl, normalize_line_endings(joinpath(@__DIR__, "broken.jl")))
-        
+
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
