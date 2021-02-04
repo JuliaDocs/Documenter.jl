@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: "Online tests"
+    name: "Linkcheck: Online tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
       - name: Run online linkcheck tests
         run: julia --color=yes test/run_docchecks.jl
   manual_linkcheck:
-    name: "Documenter manual"
+    name: "Linkcheck: Documenter manual"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
