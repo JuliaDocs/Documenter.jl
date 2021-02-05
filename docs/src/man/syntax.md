@@ -323,8 +323,10 @@ As with `@index` if `Pages` is not provided then all pages are included. The def
 
 ## `@example` block
 
-Evaluates the code block and inserts the result into the final document along with the
-original source code.
+Evaluates the code block and inserts the result of the last expression into the final document along with the
+original source code. If the last expression returns `nothing`, the `stdout`
+and `stderr` streams of the whole block are inserted instead. A semicolon `;`
+at the end of the last line has no effect.
 
 ````markdown
 ```@example
@@ -375,17 +377,12 @@ Note that appending `# hide` to every line in an `@example` block will result in
 being hidden in the rendered document. The results block will still be rendered though.
 `@setup` blocks are a convenient shorthand for hiding an entire block, including the output.
 
-**`stdout` and `stderr`**
+**Empty Outputs**
 
-The Julia output streams are redirected to the results block when evaluating `@example`
-blocks in the same way as when running doctest code blocks.
-
-**`nothing` Results**
-
-When the `@example` block evaluates to `nothing` then the second block is not displayed.
-Only the source code block will be shown in the rendered document. Note that if any output
-from either `stdout` or `stderr` is captured then the results block will be displayed even
-if `nothing` is returned.
+When an `@example` block returns `nothing`, the results block will show instead
+the `stdout` and `stderr` streams produced by the whole block. If these are
+empty, the results block is not displayed at all; only the source code block
+will be shown in the rendered document.
 
 **Named `@example` Blocks**
 
@@ -482,9 +479,10 @@ second block. A block with `continued = true` does not have any output.
 
 ## `@repl` block
 
-These are similar to `@example` blocks, but adds a `julia> ` prompt before each toplevel
-expression. `;` and `# hide` syntax may be used in `@repl` blocks in the same way as in the
-Julia REPL and `@example` blocks.
+These are similar to `@example` blocks, but add a `julia> ` prompt before each toplevel
+expression. The `# hide` syntax may be used in `@repl` blocks in the same way
+as in `@example` blocks. Furthermore, a semicolon `;` at the end of a line will
+suppress the output as in the Julia REPL.
 
 ````markdown
 ```@repl
