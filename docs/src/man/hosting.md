@@ -425,7 +425,7 @@ The documentation is deployed as follows:
 
 - Documentation built for a tag `vX.Y.Z` will be stored in a folder `vX.Y.Z`.
 
-- Documentation built from the `devbranch` branch (`master` by default) is stored a folder
+- Documentation built from the `devbranch` branch (`master` by default) is stored in a folder
   determined by the `devurl` keyword to [`deploydocs`](@ref) (`dev` by default).
 
 Which versions that will show up in the version selector is determined by the
