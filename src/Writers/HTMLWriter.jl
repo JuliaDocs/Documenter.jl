@@ -1762,9 +1762,9 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
         # delimiters around it anyway.
         latex = d[MIME"text/latex"()]
-        equation = false
-        m_bracket = match(r"\s*\\\[(.*)\\\]\s*", latex)
-        m_dollars = match(r"\s*\$\$(.*)\$\$\s*", latex)
+        # Make sure to match multiline strings!
+        m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
+        m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
         if m_bracket === nothing && m_dollars === nothing
             out = Utilities.mdparse(latex; mode = :single)
         else
