@@ -425,12 +425,47 @@ LaTeXEquation(raw"Foo $x^2$ bar.")
 Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`:
 
 ```@example showablelatex
-LaTeXEquation("\\[\\left[\\begin{array}{rr} x & 2x \\\\ \n y & y \\end{array}\\right]\\]")
+LaTeXEquation(raw"\[\left[ \begin{array}{rr}x&2 x\end{array}\right]\]")
 ```
 
 or wrapped in `$$ ... $$`:
 
 ```@example showablelatex
+LaTeXEquation(raw"$$\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$$")
+```
+
+---
+
+Extra tests for handling multi-line equations ([#1518](https://github.com/JuliaDocs/Documenter.jl/pull/1518)):
+
+
+```@example showablelatex
+LaTeXEquation(raw"""
+\[
+    \left[
+        \begin{array}{rr}
+            x & 2x
+        \end{array}
+    \right]
+\]
+""")
+```
+
+```@example showablelatex
+LaTeXEquation(raw"""$$
+\begin{bmatrix}
+    1 & 2 \\
+    3 & 4
+\end{bmatrix}
+$$""")
+```
+
+Without `raw""` strings we have to double-escape our `\` and `$`:
+
+```@example showablelatex
+LaTeXEquation("\\[\\left[\\begin{array}{rr} x & 2x \\\\ \n y & y \\end{array}\\right]\\]")
+```
+
+```@example showablelatex
 LaTeXEquation("\$\$\\begin{bmatrix} 1 & 2 \\\\ \n 3 & 4 \\end{bmatrix}\$\$")
 ```
-although note how we have to double-escape our `\` and `$`.
