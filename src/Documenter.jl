@@ -825,7 +825,11 @@ function doctest(
             @error "Doctesting failed" exception=(err, catch_backtrace())
             false
         finally
-            rm(dir; recursive=true)
+            try
+                rm(dir; recursive=true)
+            catch e
+                @warn "Documenter was unable to clean up the temporary directory $(dir)" exception = e
+            end
         end
     end
     @testset "$testset" begin
