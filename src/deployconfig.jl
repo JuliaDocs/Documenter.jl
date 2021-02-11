@@ -414,17 +414,7 @@ function deploy_folder(cfg::GitHubActions;
     end
 end
 
-function authentication_method(::GitHubActions)
-    if env_nonempty("DOCUMENTER_KEY")
-        return SSH
-    else
-        @warn "Currently the GitHub Pages build is not triggered when " *
-              "using `GITHUB_TOKEN` for authentication. See issue #1177 " *
-              "(https://github.com/JuliaDocs/Documenter.jl/issues/1177) " *
-              "for more information."
-        return HTTPS
-    end
-end
+authentication_method(::GitHubActions) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
