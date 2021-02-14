@@ -2,6 +2,8 @@
 
 ## Version `v0.26.2`
 
+* ![Enhancement][badge-enhancement] `doctest()` no longer throws an error if cleaning up the temporary directory fails for some reason. ([#1513][github-1513], [#1526][github-1526])
+
 * ![Bugfix][badge-bugfix] Script-type doctests that have an empty output section no longer crash Documenter. ([#1510][github-1510])
 
 * ![Bugfix][badge-bugfix] When checking for authentication keys when deploying, Documenter now more appropriately checks if the environment variables are non-empty, rather than just whether they are defined. ([#1511][github-1511])
@@ -734,10 +736,12 @@
 [github-1497]: https://github.com/JuliaDocs/Documenter.jl/pull/1497
 [github-1510]: https://github.com/JuliaDocs/Documenter.jl/pull/1510
 [github-1511]: https://github.com/JuliaDocs/Documenter.jl/pull/1511
+[github-1513]: https://github.com/JuliaDocs/Documenter.jl/issues/1513
 [github-1516]: https://github.com/JuliaDocs/Documenter.jl/issues/1516
 [github-1518]: https://github.com/JuliaDocs/Documenter.jl/pull/1518
 [github-1519]: https://github.com/JuliaDocs/Documenter.jl/pull/1519
 [github-1520]: https://github.com/JuliaDocs/Documenter.jl/pull/1520
+[github-1526]: https://github.com/JuliaDocs/Documenter.jl/pull/1526
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
