@@ -214,10 +214,12 @@ function writeheader(io::IO, doc::Documents.Document)
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
     preamble =
         """
-        \\documentclass{memoir}
+        \\documentclass[oneside]{memoir}
 
         \\usepackage{./documenter}
         \\usepackage{./custom}
+
+        \\settocdepth{section}
 
         \\title{
             {\\HUGE $(doc.user.sitename)}\\\\
@@ -229,6 +231,7 @@ function writeheader(io::IO, doc::Documents.Document)
 
         \\frontmatter
         \\maketitle
+        \\clearpage
         \\tableofcontents
 
         \\mainmatter
