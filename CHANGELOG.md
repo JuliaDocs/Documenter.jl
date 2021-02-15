@@ -6,6 +6,8 @@
 
   - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503])
 
+* ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
+
 ## Version `v0.26.2`
 
 * ![Enhancement][badge-enhancement] `doctest()` no longer throws an error if cleaning up the temporary directory fails for some reason. ([#1513][github-1513], [#1526][github-1526])
@@ -753,6 +755,7 @@
 [github-1520]: https://github.com/JuliaDocs/Documenter.jl/pull/1520
 [github-1526]: https://github.com/JuliaDocs/Documenter.jl/pull/1526
 [github-1527]: https://github.com/JuliaDocs/Documenter.jl/pull/1527
+[github-1529]: https://github.com/JuliaDocs/Documenter.jl/pull/1529
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
