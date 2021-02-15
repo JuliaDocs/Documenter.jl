@@ -103,6 +103,8 @@ post_status(; kwargs...) = post_status(auto_detect_deploy_system(); kwargs...)
 
 marker(x) = x ? "✔" : "✘"
 
+env_nonempty(key) = !isempty(get(ENV, key, ""))
+
 #############
 # Travis CI #
 #############
@@ -227,9 +229,9 @@ function deploy_folder(cfg::Travis;
         subfolder = "previews/PR$(something(pr_number, 0))"
     end
     ## DOCUMENTER_KEY should exist (just check here and extract the value later)
-    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
     all_ok &= key_ok
-    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     ## Cron jobs should not deploy
     type_ok = cfg.travis_event_type != "cron"
     all_ok &= type_ok
@@ -371,20 +373,20 @@ function deploy_folder(cfg::GitHubActions;
         subfolder = "previews/PR$(something(pr_number, 0))"
     end
     ## GITHUB_ACTOR should exist (just check here and extract the value later)
-    actor_ok = haskey(ENV, "GITHUB_ACTOR")
+    actor_ok = env_nonempty("GITHUB_ACTOR")
     all_ok &= actor_ok
-    println(io, "- $(marker(actor_ok)) ENV[\"GITHUB_ACTOR\"] exists")
+    println(io, "- $(marker(actor_ok)) ENV[\"GITHUB_ACTOR\"] exists and is non-empty")
     ## GITHUB_TOKEN or DOCUMENTER_KEY should exist (just check here and extract the value later)
-    token_ok = haskey(ENV, "GITHUB_TOKEN")
-    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    token_ok = env_nonempty("GITHUB_TOKEN")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
     auth_ok = token_ok | key_ok
     all_ok &= auth_ok
     if key_ok
-        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
+        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     elseif token_ok
-        println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists")
+        println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
     else
-        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"] exists")
+        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
     end
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
@@ -412,17 +414,7 @@ function deploy_folder(cfg::GitHubActions;
     end
 end
 
-function authentication_method(::GitHubActions)
-    if haskey(ENV, "DOCUMENTER_KEY")
-        return SSH
-    else
-        @warn "Currently the GitHub Pages build is not triggered when " *
-              "using `GITHUB_TOKEN` for authentication. See issue #1177 " *
-              "(https://github.com/JuliaDocs/Documenter.jl/issues/1177) " *
-              "for more information."
-        return HTTPS
-    end
-end
+authentication_method(::GitHubActions) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
@@ -639,8 +631,8 @@ function deploy_folder(
         deploy_repo = repo
     end
 
-    key_ok = haskey(ENV, "DOCUMENTER_KEY")
-    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     all_ok &= key_ok
 
     print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
@@ -782,8 +774,8 @@ function deploy_folder(
         deploy_repo = repo
     end
 
-    key_ok = haskey(ENV, "DOCUMENTER_KEY")
-    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     all_ok &= key_ok
 
     print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")

@@ -405,7 +405,9 @@ the generated html. The following entries are valid in the `versions` vector:
 **`push_preview`** a boolean that specifies if preview documentation should be
 deployed from pull requests or not. If your published documentation is hosted
 at `"https://USER.github.io/PACKAGE.jl/stable`, by default the preview will be
-hosted at `"https://USER.github.io/PACKAGE.jl/previews/PR##"`.
+hosted at `"https://USER.github.io/PACKAGE.jl/previews/PR##"`. This feature
+works for pull requests with head branch in the same repository, i.e. not from
+forks.
 
 **`branch_previews`** is the branch to which pull request previews are deployed.
 It defaults to the value of `branch`.
@@ -823,7 +825,11 @@ function doctest(
             @error "Doctesting failed" exception=(err, catch_backtrace())
             false
         finally
-            rm(dir; recursive=true)
+            try
+                rm(dir; recursive=true)
+            catch e
+                @warn "Documenter was unable to clean up the temporary directory $(dir)" exception = e
+            end
         end
     end
     @testset "$testset" begin

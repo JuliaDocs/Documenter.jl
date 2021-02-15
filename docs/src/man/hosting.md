@@ -199,8 +199,8 @@ jobs:
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
         run: julia --project=docs/ docs/make.jl
 ```
 
@@ -258,12 +258,6 @@ to the configuration file, as showed in the [previous section](@ref GitHub-Actio
     You can only use `GITHUB_TOKEN` for authentication if the target repository
     of the deployment is the same as the current repository. In order to push
     elsewhere you should instead use a SSH deploy key.
-
-!!! warning "GitHub Pages and GitHub Token"
-    Currently the GitHub Page build is not triggered when the GitHub provided
-    `GITHUB_TOKEN` is used for authentication. See
-    [issue #1177](https://github.com/JuliaDocs/Documenter.jl/issues/1177)
-    for more information.
 
 ### Authentication: SSH Deploy Keys
 
