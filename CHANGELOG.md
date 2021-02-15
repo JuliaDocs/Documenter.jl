@@ -4,6 +4,8 @@
 
 * ![Enhancement][badge-enhancement] `doctest()` no longer throws an error if cleaning up the temporary directory fails for some reason. ([#1513][github-1513], [#1526][github-1526])
 
+* ![Enhancement][badge-enhancement] Cosmetic improvements to the PDF output. ([#1342][github-1342], [#1527][github-1527])
+
 * ![Bugfix][badge-bugfix] Script-type doctests that have an empty output section no longer crash Documenter. ([#1510][github-1510])
 
 * ![Bugfix][badge-bugfix] When checking for authentication keys when deploying, Documenter now more appropriately checks if the environment variables are non-empty, rather than just whether they are defined. ([#1511][github-1511])
@@ -694,6 +696,7 @@
 [github-1337]: https://github.com/JuliaDocs/Documenter.jl/issues/1337
 [github-1338]: https://github.com/JuliaDocs/Documenter.jl/issues/1338
 [github-1339]: https://github.com/JuliaDocs/Documenter.jl/pull/1339
+[github-1342]: https://github.com/JuliaDocs/Documenter.jl/issues/1342
 [github-1344]: https://github.com/JuliaDocs/Documenter.jl/issues/1344
 [github-1345]: https://github.com/JuliaDocs/Documenter.jl/pull/1345
 [github-1349]: https://github.com/JuliaDocs/Documenter.jl/pull/1349
@@ -742,6 +745,7 @@
 [github-1519]: https://github.com/JuliaDocs/Documenter.jl/pull/1519
 [github-1520]: https://github.com/JuliaDocs/Documenter.jl/pull/1520
 [github-1526]: https://github.com/JuliaDocs/Documenter.jl/pull/1526
+[github-1527]: https://github.com/JuliaDocs/Documenter.jl/pull/1527
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
