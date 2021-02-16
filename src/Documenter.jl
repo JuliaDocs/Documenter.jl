@@ -663,6 +663,7 @@ function git_push(
         catch e
             @error "Failed to push:" exception=(e, catch_backtrace())
             post_status(deploy_config; repo=repo, type="error")
+            rethrow(e)
         finally
             # Remove the unencrypted private key.
             isfile(keyfile) && rm(keyfile)
@@ -676,6 +677,7 @@ function git_push(
         catch e
             @error "Failed to push:" exception=(e, catch_backtrace())
             post_status(deploy_config; repo=repo, type="error")
+            rethrow(e)
         end
     end
 end
