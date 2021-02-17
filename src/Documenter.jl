@@ -628,8 +628,7 @@ function git_push(
                 keycontent = documenter_key(deploy_config)
             end
             write(keyfile, base64decode(keycontent))
-            @info "SSH key fingerprint:"
-            run(`ssh-keygen -l -Esha256 -f $(keyfile)`)
+            @info "^^^ SSH key fingerprint" success(`ssh-keygen -l -Esha256 -f $(keyfile)`)
         catch e
             @error """
             Documenter failed to decode the DOCUMENTER_KEY environment variable.
