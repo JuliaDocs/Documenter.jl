@@ -69,7 +69,6 @@
 * ![Bugfix][badge-bugfix] `Documenter.doctest` now correctly accepts the `doctestfilters` keyword, similar to `Documenter.makedocs`. ([#1364][github-1364], [#1435][github-1435])
 
 * ![Bugfix][badge-bugfix] The `Selectors.dispatch` function now uses a cache to avoid calling `subtypes` on selectors multiple times during a `makedocs` call to avoid slowdowns due to [`subtypes` being slow][julia-38079]. ([#1438][github-1438], [#1440][github-1440], [#1452][github-1452])
->>>>>>> master
 
 ## Version `v0.25.2`
 
