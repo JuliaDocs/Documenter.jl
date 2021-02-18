@@ -16,14 +16,14 @@ module LaTeXWriter
 import ...Documenter: Documenter
 
 """
-    LaTeXWriter.LaTeX(; kwargs...)
+    Documenter.LaTeX(; kwargs...)
 
 Output format specifier that results in LaTeX/PDF output.
 Used together with [`makedocs`](@ref Documenter.makedocs), e.g.
 
 ```julia
 makedocs(
-    format = LaTeX()
+    format = Documenter.LaTeX()
 )
 ```
 
@@ -214,10 +214,12 @@ function writeheader(io::IO, doc::Documents.Document)
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
     preamble =
         """
-        \\documentclass{memoir}
+        \\documentclass[oneside]{memoir}
 
         \\usepackage{./documenter}
         \\usepackage{./custom}
+
+        \\settocdepth{section}
 
         \\title{
             {\\HUGE $(doc.user.sitename)}\\\\
@@ -229,6 +231,7 @@ function writeheader(io::IO, doc::Documents.Document)
 
         \\frontmatter
         \\maketitle
+        \\clearpage
         \\tableofcontents
 
         \\mainmatter

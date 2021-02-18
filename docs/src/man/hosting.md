@@ -199,17 +199,17 @@ jobs:
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
         run: julia --project=docs/ docs/make.jl
 ```
 
 which will install Julia, checkout the correct commit of your repository, and run the
 build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
 the environment from which the docs are built and deployed. In the example above we will
-thus build and deploy the documentation from a ubuntu worker running Julia 1.2. For more
-information on how to setup a GitHub workflow see the manual for
-[Configuring a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow).
+thus build and deploy the documentation from a ubuntu worker running Julia 1.4. For more
+information on how to setup a GitHub workflow see the manual:
+[Learn GitHub Actions](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
@@ -246,7 +246,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -258,12 +258,6 @@ to the configuration file, as showed in the [previous section](@ref GitHub-Actio
     You can only use `GITHUB_TOKEN` for authentication if the target repository
     of the deployment is the same as the current repository. In order to push
     elsewhere you should instead use a SSH deploy key.
-
-!!! warning "GitHub Pages and GitHub Token"
-    Currently the GitHub Page build is not triggered when the GitHub provided
-    `GITHUB_TOKEN` is used for authentication. See
-    [issue #1177](https://github.com/JuliaDocs/Documenter.jl/issues/1177)
-    for more information.
 
 ### Authentication: SSH Deploy Keys
 
@@ -279,13 +273,13 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Creating and using encrypted secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets)
+[Encrypted secrets](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
 for more information.
 
 ### Add code coverage from documentation builds
 
 If you want code run during the documentation deployment to be covered by Codecov,
-you can edit the end of the docs part of your workflow configuration file so that 
+you can edit the end of the docs part of your workflow configuration file so that
 `docs/make.jl` is run with the `--code-coverage=user` flag and the coverage reports
 are uploaded to Codecov:
 
@@ -376,9 +370,48 @@ aware that Documenter may overwrite existing content without warning.
 If you wish to create the `gh-pages` branch manually that can be done following
 [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
-You also need to make sure that you have "gh-pages branch" selected as [the source of the GitHub
-Pages site in your GitHub repository settings](https://help.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
+You also need to make sure that you have "gh-pages branch" selected as
+[the source of the GitHub Pages site in your GitHub repository
+settings](https://docs.github.com/en/free-pro-team@latest/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
+
+**Cleaning up `gh-pages`.**
+Note that the `gh-pages` branch can become very large, especially when `push_preview` is
+enabled to build documentation for each pull request. To clean up the branch and remove
+stale documentation previews, a GitHub Actions workflow like the following can be used.
+
+```yaml
+name: Doc Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  doc-preview-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+
+      - name: Delete preview and history
+        run: |
+            git config user.name "Documenter.jl"
+            git config user.email "documenter@juliadocs.github.io"
+            git rm -rf "previews/PR$PRNUM"
+            git commit -m "delete preview"
+            git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+        env:
+            PRNUM: ${{ github.event.number }}
+
+      - name: Push changes
+        run: |
+            git push --force origin gh-pages-new:gh-pages
+```
+
+_This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
 ## Documentation Versions
 
@@ -386,7 +419,7 @@ The documentation is deployed as follows:
 
 - Documentation built for a tag `vX.Y.Z` will be stored in a folder `vX.Y.Z`.
 
-- Documentation built from the `devbranch` branch (`master` by default) is stored a folder
+- Documentation built from the `devbranch` branch (`master` by default) is stored in a folder
   determined by the `devurl` keyword to [`deploydocs`](@ref) (`dev` by default).
 
 Which versions that will show up in the version selector is determined by the
@@ -405,7 +438,7 @@ By default Documenter will create a link called `stable` that points to the late
 https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
 ```
 
-It is recommended to use this link, rather then the versioned links, since it will be updated
+It is recommended to use this link, rather than the versioned links, since it will be updated
 with new releases.
 
 !!! info "Fixing broken release deployments"
@@ -458,9 +491,10 @@ look at this package's repository for some inspiration.
 It is possible to customize Documenter to use other systems then the ones described in
 the sections above. This is done by passing a configuration
 (a [`DeployConfig`](@ref Documenter.DeployConfig)) to `deploydocs` by the `deploy_config`
-keyword argument. Documenter natively supports [`Travis`](@ref Documenter.Travis) and
-[`GitHubActions`](@ref Documenter.GitHubActions) natively, but it is easy to define
-your own by following the simple interface described below.
+keyword argument. Documenter supports [`Travis`](@ref Documenter.Travis),
+[`GitHubActions`](@ref Documenter.GitHubActions), [`GitLab`](@ref Documenter.GitLab), and
+[`Buildkite`](@ref Documenter.Buildkite) natively, but it is easy to define your own by
+following the simple interface described below.
 
 ```@docs
 Documenter.DeployConfig
@@ -472,4 +506,6 @@ Documenter.documenter_key
 Documenter.documenter_key_previews
 Documenter.Travis
 Documenter.GitHubActions
+Documenter.GitLab
+Documenter.Buildkite
 ```

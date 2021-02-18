@@ -2,6 +2,7 @@ module UtilitiesTests
 
 using Test
 import Base64: stringmime
+include("TestUtilities.jl"); using .TestUtilities
 
 import Documenter
 import Markdown
@@ -27,6 +28,10 @@ module UnitTests
     f(x) = x
 
     const pi = 3.0
+
+    const TA = Vector{UInt128}
+    const TB = Array{T, 8} where T
+    const TC = Union{Int64, Float64, String}
 end
 
 module OuterModule
@@ -97,6 +102,9 @@ end
     @test Documenter.Utilities.doccat(UnitTests.S) == "Type"
     @test Documenter.Utilities.doccat(UnitTests.f) == "Function"
     @test Documenter.Utilities.doccat(UnitTests.pi) == "Constant"
+    @test Documenter.Utilities.doccat(UnitTests.TA) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.TB) == "Type"
+    @test Documenter.Utilities.doccat(UnitTests.TC) == "Type"
 
     # repo type
     @test Documenter.Utilities.Remotes.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.Utilities.Remotes.RepoBitbucket
@@ -106,6 +114,7 @@ end
     @test Documenter.Utilities.Remotes.repo_host_from_url("https://github.com/Whatever") == Documenter.Utilities.Remotes.RepoGithub
     @test Documenter.Utilities.Remotes.repo_host_from_url("https://www.github.com/Whatever") == Documenter.Utilities.Remotes.RepoGithub
     @test Documenter.Utilities.Remotes.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.Utilities.Remotes.RepoGitlab
+    @test Documenter.Utilities.Remotes.repo_host_from_url("https://dev.azure.com/Whatever") == Documenter.Utilities.Remotes.RepoAzureDevOps
 
     # line range
     let formatting = Documenter.Utilities.Remotes.LineRangeFormatting(Documenter.Utilities.Remotes.RepoGithub)
@@ -129,7 +138,24 @@ end
         @test Documenter.Utilities.Remotes.format_line(100:9999, formatting) == "100:9999"
     end
 
+    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoAzureDevOps)
+        @test Documenter.Utilities.format_line(1:1, formatting) == "&line=1"
+        @test Documenter.Utilities.format_line(123:123, formatting) == "&line=123"
+        @test Documenter.Utilities.format_line(2:5, formatting) == "&line=2&lineEnd=5"
+        @test Documenter.Utilities.format_line(100:9999, formatting) == "&line=100&lineEnd=9999"
+    end
+
     @test Documenter.Utilities.linerange(Core.svec(), 0) === 0:0
+
+    # commit format
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGithub) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGithub) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGitlab) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGitlab) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoBitbucket) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoBitbucket) == "test"
+    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoAzureDevOps) == "GC7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoAzureDevOps) == "GBtest"
 
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)
@@ -267,28 +293,6 @@ end
         @test splitby(r"[▶]+", "Ω▶▶Y▶Z▶κ") == ["Ω▶▶", "Y▶", "Z▶", "κ"]
     end
 
-    # This test checks that deprecation warnings are captured correctly
-    @static if isdefined(Base, :with_logger)
-        @testset "withoutput" begin
-            _, _, _, output = Documenter.Utilities.withoutput() do
-                println("println")
-                @info "@info"
-                f() = (Base.depwarn("depwarn", :f); nothing)
-                f()
-            end
-            # The output is dependent on whether the user is running tests with deprecation
-            # warnings enabled or not. To figure out whether that is the case or not, we can
-            # look at the .depwarn field of the undocumented Base.JLOptions object.
-            @test isdefined(Base, :JLOptions)
-            @test hasfield(Base.JLOptions, :depwarn)
-            if Base.JLOptions().depwarn == 0 # --depwarn=no, default on Julia >= 1.5
-                @test output == "println\n[ Info: @info\n"
-            else # --depwarn=yes
-                @test startswith(output, "println\n[ Info: @info\n┌ Warning: depwarn\n")
-            end
-        end
-    end
-
     @testset "issues #749, #790, #823" begin
         let parse(x) = Documenter.Utilities.parseblock(x, nothing, nothing)
             for LE in ("\r\n", "\n")
@@ -327,11 +331,11 @@ end
             @test length(md) == 2
         end
 
-        @info "Expected error output:"
-        @test_throws ArgumentError mdparse("!!! adm", mode=:span)
-        @test_throws ArgumentError mdparse("x\n\ny")
-        @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
-        @info ".. end of expected error output."
+        @quietly begin
+            @test_throws ArgumentError mdparse("!!! adm", mode=:span)
+            @test_throws ArgumentError mdparse("x\n\ny")
+            @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
+        end
     end
 
     @testset "JSDependencies" begin
@@ -422,7 +426,7 @@ end
             # Ref: #639
             @test jsescape("\u2028") == "\\u2028"
             @test jsescape("\u2029") == "\\u2029"
-            @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
+            @test jsescape("policy to delete.") == "policy to\\u2028 delete."
         end
 
         @testset "json_jsescape" begin

@@ -66,6 +66,11 @@
   right: 0;
 }
 
+// fix spacing for math displays, particularly important with overflow scroll bar
+.katex-display, mjx-container, .MathJax_Display {
+  margin: 0.5em 0 !important;
+}
+
 // Set font subpixel rendering to auto on the HTML tag
 html {
   -moz-osx-font-smoothing: auto;

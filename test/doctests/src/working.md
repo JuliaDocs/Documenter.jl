@@ -53,3 +53,10 @@ Comments at the start:
 julia> 2 + 2
 4
 ```
+
+Empty output:
+
+```jldoctest
+nothing
+# output
+```

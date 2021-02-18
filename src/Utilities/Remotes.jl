@@ -6,7 +6,7 @@ module Remotes
 # TODO: Remove this -- it's not used anywhere anymore
 # Repository hosts
 #   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoUnknown
+@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
 
 # Repository host from repository url
 # i.e. "https://github.com/something" => RepoGithub
@@ -19,6 +19,8 @@ function repo_host_from_url(repoURL::String)
         return RepoGithub
     elseif occursin("gitlab", repoURL)
         return RepoGitlab
+    elseif occursin("azure", repoURL)
+        return RepoAzureDevOps
     else
         return RepoUnknown
     end
@@ -29,7 +31,9 @@ struct LineRangeFormatting
     separator::String
 
     function LineRangeFormatting(host::RepoHost)
-        if host == RepoBitbucket
+        if host === RepoAzureDevOps
+            new("&line=", "&lineEnd=")
+        elseif host == RepoBitbucket
             new("", ":")
         elseif host == RepoGitlab
             new("L", "-")
@@ -45,6 +49,19 @@ function format_line(range::AbstractRange, format::LineRangeFormatting)
         string(format.prefix, first(range))
     else
         string(format.prefix, first(range), format.separator, last(range))
+    end
+end
+
+function format_commit(host::RepoHost, commit::AbstractString)
+    if host === RepoAzureDevOps
+        # if commit hash then preceeded by GC, if branch name then preceeded by GB
+        if match(r"[0-9a-fA-F]{40}", commit) !== nothing
+            commit = "GC$commit"
+        else
+            commit = "GB$commit"
+        end
+    else
+        return commit
     end
 end
 
@@ -153,7 +170,9 @@ struct URL <: Remote
 end
 _repourl(remote::URL) = remote.repourl
 function _fileurl(remote::URL, ref, filename, linerange=nothing)
-    lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(repo_host_from_url(remote.urltemplate)))
+    hosttype = repo_host_from_url(remote.urltemplate)
+    lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
+    ref = format_commit(hosttype, ref)
     # lines = if linerange !== nothing
     # end
     s = replace(remote.urltemplate, "{commit}" => ref)

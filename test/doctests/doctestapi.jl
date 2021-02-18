@@ -9,11 +9,13 @@
 module DocTestAPITests
 using Test
 using Documenter
+import IOCapture
 
 # Test the Documenter.doctest function
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
-    (result, success, backtrace, output) = Documenter.Utilities.withoutput() do
+    (result, success, backtrace, output) =
+    c = IOCapture.iocapture(throwerrors = :interrupt) do
         # Running inside a Task to make sure that the parent testsets do not interfere.
         t = Task(() -> doctest(args...; kwargs...))
         schedule(t)
@@ -27,13 +29,13 @@ function run_doctest(f, args...; kwargs...)
         end
     end
 
-    @debug """run_doctest($args;, $kwargs) -> $(success ? "success" : "fail")
+    @debug """run_doctest($args;, $kwargs) -> $(c.error ? "fail" : "success")
     ------------------------------------ output ------------------------------------
-    $(output)
+    $(c.output)
     --------------------------------------------------------------------------------
-    """ result stacktrace(backtrace)
+    """ c.value stacktrace(c.backtrace)
 
-    f(result, success, backtrace, output)
+    f(c.value, !c.error, c.backtrace, c.output)
 end
 
 """
@@ -103,6 +105,19 @@ module DocTest5
         function foo end
     end
 end
+
+"""
+```jldoctest
+julia> println("global filter")
+global FILTER
+```
+
+```jldoctest; filter = r"local (filter|FILTER)"
+julia> println("local filter")
+local FILTER
+```
+"""
+module DoctestFilters end
 
 """
 ```jldoctest
@@ -206,6 +221,12 @@ end
     run_doctest(nothing, [DocTest5]) do result, success, backtrace, output
         @test success
         @test result isa Test.DefaultTestSet
+    end
+
+    # DoctestFilters
+    df = [r"global (filter|FILTER)"]
+    run_doctest(nothing, [DoctestFilters], doctestfilters=df) do result, success, backtrace, output
+        @test success
     end
 
     # Parse errors in doctests (https://github.com/JuliaDocs/Documenter.jl/issues/1046)

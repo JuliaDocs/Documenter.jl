@@ -12,6 +12,7 @@ module DocTestsTests
 using Test
 using Documenter
 using Documenter.Utilities.TextDiff: Diff, Words
+import IOCapture
 
 include("src/FooWorking.jl")
 include("src/FooBroken.jl")
@@ -28,8 +29,11 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     for mdfile in mdfiles
         cp(joinpath(@__DIR__, "src", mdfile), joinpath(srcdir, mdfile))
     end
+    # Create a dummy index.md file so that we wouldn't generate the "can't generated landing
+    # page" warning.
+    touch(joinpath(srcdir, "index.md"))
 
-    (result, success, backtrace, output) = Documenter.Utilities.withoutput() do
+    c = IOCapture.iocapture(throwerrors = :interrupt) do
         makedocs(
             sitename = " ",
             root = dir,
@@ -38,21 +42,21 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
         )
     end
 
-    @debug """run_makedocs($mdfiles, modules=$modules) -> $(success ? "success" : "fail")
+    @debug """run_makedocs($mdfiles, modules=$modules) -> $(c.error ? "fail" : "success")
     ------------------------------------ output ------------------------------------
-    $(output)
+    $(c.output)
     --------------------------------------------------------------------------------
-    """ result stacktrace(backtrace) dir
+    """ c.value stacktrace(c.backtrace) dir
 
-    write(joinpath(dir, "output"), output)
-    write(joinpath(dir, "output.onormalize"), onormalize(output))
+    write(joinpath(dir, "output"), c.output)
+    write(joinpath(dir, "output.onormalize"), onormalize(c.output))
     open(joinpath(dir, "result"), "w") do io
-        show(io, "text/plain", result)
+        show(io, "text/plain", c.value)
         println(io, "-"^80)
-        show(io, "text/plain", stacktrace(backtrace))
+        show(io, "text/plain", stacktrace(c.backtrace))
     end
 
-    f(result, success, backtrace, output)
+    f(c.value, !c.error, c.backtrace, c.output)
 end
 
 function printoutput(result, success, backtrace, output)
@@ -67,6 +71,12 @@ function onormalize(s)
     # Runs a bunch of regexes on captured documenter output strings to remove any machine /
     # platform / environment / time dependent parts, so that it would actually be possible
     # to compare Documenter output to previously generated reference outputs.
+
+    # We need to make sure that, if we're running the tests on Windows, that we'll have consistent
+    # line breaks. So we'll normalize CRLF to LF.
+    if Sys.iswindows()
+        s = replace(s, "\r\n" => "\n")
+    end
 
     # Remove filesystem paths in doctests failures
     s = replace(s, r"(doctest failure in )(.*)$"m => s"\1{PATH}")

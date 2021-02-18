@@ -187,10 +187,14 @@ resulting configuration dictionary will contain the values from both dictionarie
 setting your own `tex2jax` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
+
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version).
 """
 struct MathJax2 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false)
+    url :: String
+    function MathJax2(config::Union{Dict,Nothing} = nothing, override=false; url = "")
         default = Dict(
             :tex2jax => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
@@ -212,7 +216,7 @@ struct MathJax2 <: MathEngine
             ],
             :TeX => Dict(:equationNumbers => Dict(:autoNumber => "AMS"))
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -238,10 +242,14 @@ resulting configuration dictionary will contain the values from both dictionarie
 setting your own `tex` value will override the default). This can be overridden by
 setting `override` to `true`, in which case the default values are ignored and only the
 user-provided dictionary is used.
+
+The URL of the MathJax JS file can be overridden using the `url` keyword argument (e.g. to
+use a particular minor version).
 """
 struct MathJax3 <: MathEngine
     config :: Dict{Symbol,Any}
-    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false)
+    url :: String
+    function MathJax3(config::Union{Dict,Nothing} = nothing, override=false; url = "")
         default = Dict(
             :tex => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
@@ -253,7 +261,7 @@ struct MathJax3 <: MathEngine
                 "processHtmlClass" => "tex2jax_process",
             )
         )
-        new((config === nothing) ? default : override ? config : merge(default, config))
+        new((config === nothing) ? default : override ? config : merge(default, config), url)
     end
 end
 
@@ -437,7 +445,7 @@ module RD
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-    const fontawesome_version = "5.11.2"
+    const fontawesome_version = "5.15.0"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
@@ -464,7 +472,7 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "9.15.10"
+        hljs_version = "10.5.0"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -480,7 +488,7 @@ module RD
         end
         push!(r, Snippet(
             vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
-            ["\$", "hljs"],
+            ["\$"],
             raw"""
             $(document).ready(function() {
                 hljs.initHighlighting();
@@ -516,9 +524,10 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax2)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
-            "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML",
+            url,
             exports = "MathJax"
         ))
         push!(r, Snippet(["mathjax"], ["MathJax"],
@@ -528,13 +537,14 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
 
             (function () {
                 var script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js';
+                script.src = '$url';
                 script.async = true;
                 document.head.appendChild(script);
             })();
@@ -624,6 +634,11 @@ getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 function render(doc::Documents.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
+    if isempty(doc.blueprint.pages)
+        error("Aborting HTML build: no pages under src/")
+    elseif !haskey(doc.blueprint.pages, "index.md")
+        @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
+    end
 
     if (doc.user.remote === nothing || Remotes.repourl(doc.user.remote) === nothing) && isa(settings.repolink, Default)
         @warn """
@@ -712,7 +727,10 @@ function copy_asset(file, doc)
     else
         ispath(dirname(dst)) || mkpath(dirname(dst))
         ispath(dst) && @warn "overwriting '$dst'."
-        cp(src, dst, force=true)
+        # Files in the Documenter folder itself are read-only when
+        # Documenter is Pkg.added so we create a new file to get
+        # correct file permissions.
+        open(io -> write(dst, io), src, "r")
     end
     assetpath = normpath(joinpath("assets", file))
     # Replace any backslashes in links, if building the docs on Windows
@@ -866,6 +884,7 @@ function render_head(ctx, navnode)
                 Symbol("data-theme-name") => theme,
             ]
             (i == 1) && push!(e.attributes, Symbol("data-theme-primary") => "")
+            (i == 2) && push!(e.attributes, Symbol("data-theme-primary-dark") => "")
             return e
         end,
         script[:src => relhref(src, ctx.themeswap_js)],
@@ -964,7 +983,7 @@ function render_sidebar(ctx, navnode)
     )
 
     # The menu itself
-    menu = navitem(NavMenuContext(ctx, navnode, ))
+    menu = navitem(NavMenuContext(ctx, navnode))
     push!(menu.attributes, :class => "docs-menu")
     push!(navmenu.nodes, menu)
 
@@ -1171,10 +1190,11 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     header[".docs-navbar"](breadcrumb, navbar_right)
 end
 
-const host_logo_github    = (host = "GitHub",    logo = "\uf09b")
-const host_logo_bitbucket = (host = "BitBucket", logo = "\uf171")
-const host_logo_gitlab    = (host = "GitLab",    logo = "\uf296")
-const host_logo_fallback  = (host = "",          logo = "\uf841")
+const host_logo_github    = (host = "GitHub",       logo = "\uf09b")
+const host_logo_bitbucket = (host = "BitBucket",    logo = "\uf171")
+const host_logo_gitlab    = (host = "GitLab",       logo = "\uf296")
+const host_logo_azure     = (host = "Azure DevOps", logo = "\uf3ca") # TODO change to ADO logo when added to FontAwesome
+const host_logo_fallback  = (host = "",             logo = "\uf841")
 host_logo(remote::Remotes.GitHub) = host_logo_github
 host_logo(remote::Remotes.URL) = host_logo(remote.urltemplate)
 host_logo(remote::Remotes.Remote) = host_logo_fallback
@@ -1182,6 +1202,7 @@ function host_logo(remoteurl::String)
     occursin("github", remoteurl)    ? host_logo_github    :
     occursin("gitlab", remoteurl)    ? host_logo_gitlab    :
     occursin("bitbucket", remoteurl) ? host_logo_bitbucket :
+    occursin("azure", remoteurl)     ? host_logo_azure     :
     host_logo_fallback
 end
 
@@ -1692,7 +1713,10 @@ end
 
 mdconvert(i::Markdown.Italic, parent; kwargs...) = Tag(:em)(mdconvert(i.text, i; kwargs...))
 
-mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)   = Tag(:div)(string("\\[", m.formula, "\\]"))
+function mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)
+    @tags p
+    p[".math-container"](string("\\[", m.formula, "\\]"))
+end
 mdconvert(m::Markdown.LaTeX, parent; kwargs...) = Tag(:span)(string('$', m.formula, '$'))
 
 mdconvert(::Markdown.LineBreak, parent; kwargs...) = Tag(:br)()
@@ -1804,7 +1828,18 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"image/jpeg"())
         out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
     elseif haskey(d, MIME"text/latex"())
-        out = Utilities.mdparse(d[MIME"text/latex"()]; mode = :single)
+        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
+        # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
+        # delimiters around it anyway.
+        latex = d[MIME"text/latex"()]
+        # Make sure to match multiline strings!
+        m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
+        m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
+        if m_bracket === nothing && m_dollars === nothing
+            out = Utilities.mdparse(latex; mode = :single)
+        else
+            out = Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
+        end
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
@@ -1832,6 +1867,9 @@ actual URLs.
 function fixlinks!(ctx, navnode, link::Markdown.Link)
     fixlinks!(ctx, navnode, link.text)
     Utilities.isabsurl(link.url) && return
+
+    # anything starting with mailto: doesn't need fixing
+    startswith(link.url, "mailto:") && return
 
     # links starting with a # are references within the same file -- there's nothing to fix
     # for such links
