@@ -642,7 +642,7 @@ function git_push(
         if haskey(ENV, "DOCUMENTER_PRINT_SSH_FINGERPRINT")
             @info "DOCUMENTER_PRINT_SSH_FINGERPRINT set, printing SSH key fingerprint"
             try
-                run(`ssh-keygen -l -Esha256 -f $(keyfile)`)
+                run(`ssh-keygen -l -f $(keyfile)`)
             catch e
                 @error "SSH keygen failed" exception=(e, catch_backtrace())
             end
