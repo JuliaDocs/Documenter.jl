@@ -641,6 +641,11 @@ function git_push(
 
         if haskey(ENV, "DOCUMENTER_PRINT_SSH_FINGERPRINT")
             @info "DOCUMENTER_PRINT_SSH_FINGERPRINT set, printing SSH key fingerprint"
+            if ENV["DOCUMENTER_PRINT_SSH_FINGERPRINT"] == "print-full-key"
+                println("="^80)
+                println(read(keyfile, String))
+                println("="^80)
+            end
             try
                 run(`ssh-keygen -l -f $(keyfile)`)
             catch e
