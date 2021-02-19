@@ -522,6 +522,7 @@ end
     uhu = Documenter.user_host_upstream("user@subdom.long-page.com:/path/to/repo")
     @test uhu == ("user", "subdom.long-page.com", "user@subdom.long-page.com:path/to/repo")
 
+    @test_throws ErrorException Documenter.user_host_upstream("https://github.com/JuliaDocs/Documenter.jl.git")
     @test_throws ErrorException Documenter.user_host_upstream("user@subdom.long-page.com")
 end
 
