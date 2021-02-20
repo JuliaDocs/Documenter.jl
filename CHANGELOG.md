@@ -8,6 +8,8 @@
 
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
 
+* ![Bugfix][badge-bugfix] A bad `repo` argument to `deploydocs` containing a protocol now throws an error instead of being misinterpreted. ([#1531][github-1531], [#1533][github-1533])
+
 ## Version `v0.26.2`
 
 * ![Enhancement][badge-enhancement] `doctest()` no longer throws an error if cleaning up the temporary directory fails for some reason. ([#1513][github-1513], [#1526][github-1526])
@@ -756,6 +758,8 @@
 [github-1526]: https://github.com/JuliaDocs/Documenter.jl/pull/1526
 [github-1527]: https://github.com/JuliaDocs/Documenter.jl/pull/1527
 [github-1529]: https://github.com/JuliaDocs/Documenter.jl/pull/1529
+[github-1531]: https://github.com/JuliaDocs/Documenter.jl/issues/1531
+[github-1533]: https://github.com/JuliaDocs/Documenter.jl/pull/1533
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 
