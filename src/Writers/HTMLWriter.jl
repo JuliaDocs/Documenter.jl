@@ -43,6 +43,7 @@ module HTMLWriter
 using Dates: Dates, @dateformat_str, now
 import Markdown
 import JSON
+import URIs
 
 import ...Documenter:
     Anchors,
@@ -1748,7 +1749,17 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     if haskey(d, MIME"text/html"())
         out = Documents.RawHTML(d[MIME"text/html"()])
     elseif haskey(d, MIME"image/svg+xml"())
-        out = Documents.RawHTML(d[MIME"image/svg+xml"()])
+        svg = d[MIME"image/svg+xml"()]
+        # the xmlns attribute has to be present for data:image/svg+xml
+        # to work (https://stackoverflow.com/questions/18467982)
+        # URIs.escapeuri is needed to replace all special characters from the SVG string
+        # which could break the HTML
+        out = if occursin("xmlns=", svg)
+            escaped_svg = URIs.escapeuri(svg)
+            Documents.RawHTML(string("<img src=\"data:image/svg+xml,", escaped_svg, "\" />"))
+        else
+            Documents.RawHTML(d[MIME"image/svg+xml"()])
+        end
     elseif haskey(d, MIME"image/png"())
         out = Documents.RawHTML(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
     elseif haskey(d, MIME"image/webp"())
