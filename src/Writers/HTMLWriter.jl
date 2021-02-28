@@ -43,7 +43,6 @@ module HTMLWriter
 using Dates: Dates, @dateformat_str, now
 import Markdown
 import JSON
-import URIs
 
 import ...Documenter:
     Anchors,
@@ -1750,13 +1749,28 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         out = Documents.RawHTML(d[MIME"text/html"()])
     elseif haskey(d, MIME"image/svg+xml"())
         svg = d[MIME"image/svg+xml"()]
-        # the xmlns attribute has to be present for data:image/svg+xml
+        # The xmlns attribute has to be present for data:image/svg+xml
         # to work (https://stackoverflow.com/questions/18467982)
-        # URIs.escapeuri is needed to replace all special characters from the SVG string
-        # which could break the HTML
         out = if occursin("xmlns=", svg)
-            escaped_svg = URIs.escapeuri(svg)
-            Documents.RawHTML(string("<img src=\"data:image/svg+xml,", escaped_svg, "\" />"))
+            # We can leave the svg as utf8, but the minimum safety precaution we need
+            # is to ensure the src string separator is not in the svg.
+            # That can be either " or ', and the svg will most likely use only one of them
+            # so we check which one occurs more often and use the other as the separator.
+            # This should leave most svg basically intact.
+            singles = count(==('\''), svg)
+            doubles = count(==('"'), svg)
+            if singles > doubles
+                # Replace every " with %22 because it terminates the src=" string otherwise
+                svg = replace(svg, "\"" => "%22")
+                sep = "\""
+            else
+                # Replace every ' with %27 because it terminates the src=' string otherwise
+                svg = replace(svg, "\'" => "%27")
+                sep = "'"
+            end
+            # Replace # with %23 https://github.com/jakubpawlowicz/clean-css/issues/763#issuecomment-215283553
+            svg = replace(svg, "#" => "%23")
+            Documents.RawHTML(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         else
             Documents.RawHTML(d[MIME"image/svg+xml"()])
         end

@@ -14,14 +14,12 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
 DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8"
 IOCapture = "0.1"
 JSON = "0.19, 0.20, 0.21"
-URIs = "1.2"
 julia = "1"
 
 [extras]
