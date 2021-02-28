@@ -66,12 +66,12 @@ This is equivalent to manually adding all the docstrings in a `@docs` block.
 
 ````markdown
 ```@autodocs
-Modules = [Foo, Bar]
+Modules = [Foo, Bar, Bar.Baz]
 Order   = [:function, :type]
 ```
 ````
 
-The above `@autodocs` block adds all the docstrings found in modules `Foo` and `Bar` that
+The above `@autodocs` block adds all the docstrings found in modules `Foo`, `Bar`, and `Bar.Baz` that
 refer to functions or types to the document.
 
 Each module is added in order and so all docs from `Foo` will appear before those of `Bar`.
