@@ -1766,6 +1766,11 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         # That can be either " or ', and the svg will most likely use only one of them
         # so we check which one occurs more often and use the other as the separator.
         # This should leave most svg basically intact.
+
+        # Replace % with %25 and # with %23 https://github.com/jakubpawlowicz/clean-css/issues/763#issuecomment-215283553
+        svg = replace(svg, "%" => "%25")
+        svg = replace(svg, "#" => "%23")
+
         singles = count(==('\''), svg)
         doubles = count(==('"'), svg)
         if singles > doubles
@@ -1777,8 +1782,7 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
             svg = replace(svg, "\'" => "%27")
             sep = "'"
         end
-        # Replace # with %23 https://github.com/jakubpawlowicz/clean-css/issues/763#issuecomment-215283553
-        svg = replace(svg, "#" => "%23")
+        
         out = Documents.RawHTML(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         
     elseif haskey(d, MIME"image/png"())
