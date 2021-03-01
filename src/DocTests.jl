@@ -125,9 +125,9 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         if isempty(name)
-            sym = Symbol("__doctest__", filter(!=('#'), string(gensym())))
+            sym = Symbol("__doctest__", lstrip(string(gensym()), '#'))
         else
-            sym = Symbol("__doctest__", name)
+            sym = Symbol("__doctest__named__", name)
         end
         sandbox = get!(() -> Expanders.get_new_sandbox(sym), ctx.meta, sym)
 
