@@ -73,6 +73,7 @@ Order   = [:function, :type]
 
 The above `@autodocs` block adds all the docstrings found in modules `Foo`, `Bar`, and `Bar.Baz` that
 refer to functions or types to the document.
+Note that a submodule must be listed explicitly in order to include the docstrings within it.
 
 Each module is added in order and so all docs from `Foo` will appear before those of `Bar`.
 Possible values for the `Order` vector are
