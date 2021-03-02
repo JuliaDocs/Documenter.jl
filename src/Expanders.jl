@@ -600,7 +600,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     matched = match(r"^@repl[ ]?(.*)$", x.language)
     matched === nothing && error("invalid '@repl' syntax: $(x.language)")
     name = matched[1]
-    mod  = mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
+    mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
     code = split(x.code, '\n'; limit = 2)[end]
     result, out = nothing, IOBuffer()
     for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
