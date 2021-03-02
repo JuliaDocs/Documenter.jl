@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.26.3`
+
+* ![Maintenance][badge-maintenance] The internal naming of the temporary modules used to run doctests changed to accommodate upcoming printing changes in Julia. ([JuliaLang/julia#39841][julia-39841], [#1540][github-1540])
+
 ## Version `v0.26.2`
 
 * ![Enhancement][badge-enhancement] `doctest()` no longer throws an error if cleaning up the temporary directory fails for some reason. ([#1513][github-1513], [#1526][github-1526])
@@ -746,8 +750,10 @@
 [github-1520]: https://github.com/JuliaDocs/Documenter.jl/pull/1520
 [github-1526]: https://github.com/JuliaDocs/Documenter.jl/pull/1526
 [github-1527]: https://github.com/JuliaDocs/Documenter.jl/pull/1527
+[github-1540]: https://github.com/JuliaDocs/Documenter.jl/pull/1540
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
+[julia-39841]: https://github.com/JuliaLang/julia/pull/39841
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
