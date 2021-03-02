@@ -10,6 +10,10 @@
 
 * ![Bugfix][badge-bugfix] A bad `repo` argument to `deploydocs` containing a protocol now throws an error instead of being misinterpreted. ([#1531][github-1531], [#1533][github-1533])
 
+## Version `v0.26.3`
+
+* ![Maintenance][badge-maintenance] The internal naming of the temporary modules used to run doctests changed to accommodate upcoming printing changes in Julia. ([JuliaLang/julia#39841][julia-39841], [#1540][github-1540])
+
 ## Version `v0.26.2`
 
 * ![Enhancement][badge-enhancement] `doctest()` no longer throws an error if cleaning up the temporary directory fails for some reason. ([#1513][github-1513], [#1526][github-1526])
@@ -760,8 +764,10 @@
 [github-1529]: https://github.com/JuliaDocs/Documenter.jl/pull/1529
 [github-1531]: https://github.com/JuliaDocs/Documenter.jl/issues/1531
 [github-1533]: https://github.com/JuliaDocs/Documenter.jl/pull/1533
+[github-1540]: https://github.com/JuliaDocs/Documenter.jl/pull/1540
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
+[julia-39841]: https://github.com/JuliaLang/julia/pull/39841
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
