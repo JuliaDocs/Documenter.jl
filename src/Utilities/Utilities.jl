@@ -661,6 +661,25 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
+function get_sandbox_module!(meta, prefix, name = "")
+    sym = if isempty(name)
+        Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
+    else
+        Symbol("__", prefix, "__named__", name)
+    end
+    # Either fetch and return an existing sandbox from the meta dictionary (based on the generated name),
+    # or initialize a new clean one, which gets stored in meta for future re-use.
+    get!(meta, sym) do
+        # If the module does not exists already, we need to construct a new one.
+        m = Module(sym)
+        # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
+        Core.eval(m, :(eval(x) = Core.eval($m, x)))
+        # modules created with Module() does not have include defined
+        Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
+        return m
+    end
+end
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
