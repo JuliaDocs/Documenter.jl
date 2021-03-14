@@ -1753,7 +1753,7 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
 
         svg_tag_match = match(r"<svg[^>]*>", svg)
 
-        if isnothing(svg_tag_match)
+        if svg_tag_match === nothing
             # There is no svg tag so we don't do any more advanced
             # processing and just return the svg as RawHTML.
             # The svg string should be invalid but that's not our concern here.
