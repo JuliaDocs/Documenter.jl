@@ -216,7 +216,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
                 # see https://github.com/JuliaLang/julia/pull/33864
                 ex = REPL.softscope!(ex)
             end
-            c = IOCapture.iocapture(throwerrors = :interrupt) do
+            c = IOCapture.capture(rethrow = InterruptException) do
                 Core.eval(sandbox, ex)
             end
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
@@ -243,7 +243,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
     for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
-        c = IOCapture.iocapture(throwerrors = :interrupt) do
+        c = IOCapture.capture(rethrow = InterruptException) do
             Core.eval(sandbox, ex)
         end
         result.value = c.value
@@ -326,7 +326,7 @@ end
 function error_to_string(buf, er, bt)
     # Remove unimportant backtrace info.
     bt = remove_common_backtrace(bt, backtrace())
-    # Remove everything below the last eval call (which should be the one in IOCapture.iocapture)
+    # Remove everything below the last eval call (which should be the one in IOCapture.capture)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
     bt = (index === nothing) ? bt : bt[1:(index - 1)]
     # Print a REPL-like error message.

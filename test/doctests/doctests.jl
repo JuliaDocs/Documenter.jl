@@ -33,7 +33,7 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     # page" warning.
     touch(joinpath(srcdir, "index.md"))
 
-    c = IOCapture.iocapture(throwerrors = :interrupt) do
+    c = IOCapture.capture(rethrow = InterruptException) do
         makedocs(
             sitename = " ",
             root = dir,

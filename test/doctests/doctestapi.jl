@@ -15,7 +15,7 @@ import IOCapture
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
     (result, success, backtrace, output) =
-    c = IOCapture.iocapture(throwerrors = :interrupt) do
+    c = IOCapture.capture(rethrow = InterruptException) do
         # Running inside a Task to make sure that the parent testsets do not interfere.
         t = Task(() -> doctest(args...; kwargs...))
         schedule(t)
