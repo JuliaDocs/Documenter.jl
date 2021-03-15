@@ -1749,10 +1749,7 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         out = Documents.RawHTML(d[MIME"text/html"()])
     elseif haskey(d, MIME"image/svg+xml"())
         svg = d[MIME"image/svg+xml"()]
-
-
         svg_tag_match = match(r"<svg[^>]*>", svg)
-
         if svg_tag_match === nothing
             # There is no svg tag so we don't do any more advanced
             # processing and just return the svg as RawHTML.
