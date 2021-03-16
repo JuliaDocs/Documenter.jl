@@ -112,8 +112,8 @@ julia> using DocumenterTools
 Then call the [`DocumenterTools.genkeys`](@ref) function as follows:
 
 ```julia-repl
-julia> using MyPackage
-julia> DocumenterTools.genkeys(user="MyUser", repo="git@github.com:MyUser/MyPackage.jl.git")
+julia> using DocumenterTools
+julia> DocumenterTools.genkeys(user="MyUser", repo="MyPackage.jl")
 ```
 
 where `MyPackage` is the name of the package you would like to create deploy keys for and

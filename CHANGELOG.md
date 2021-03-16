@@ -4,11 +4,15 @@
 
 * ![Enhancement][badge-enhancement] The JS dependencies have been updated to their respective latest versions.
 
-  - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503])
+  - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551])
 
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
 
 * ![Bugfix][badge-bugfix] A bad `repo` argument to `deploydocs` containing a protocol now throws an error instead of being misinterpreted. ([#1531][github-1531], [#1533][github-1533])
+
+## Version `v0.26.3`
+
+* ![Maintenance][badge-maintenance] The internal naming of the temporary modules used to run doctests changed to accommodate upcoming printing changes in Julia. ([JuliaLang/julia#39841][julia-39841], [#1540][github-1540])
 
 ## Version `v0.26.2`
 
@@ -760,8 +764,11 @@
 [github-1529]: https://github.com/JuliaDocs/Documenter.jl/pull/1529
 [github-1531]: https://github.com/JuliaDocs/Documenter.jl/issues/1531
 [github-1533]: https://github.com/JuliaDocs/Documenter.jl/pull/1533
+[github-1540]: https://github.com/JuliaDocs/Documenter.jl/pull/1540
+[github-1551]: https://github.com/JuliaDocs/Documenter.jl/pull/1551
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
+[julia-39841]: https://github.com/JuliaLang/julia/pull/39841
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl

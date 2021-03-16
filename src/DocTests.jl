@@ -124,8 +124,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
-        sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        sandbox = get!(() -> Expanders.get_new_sandbox(sym), ctx.meta, sym)
+        sandbox = Utilities.get_sandbox_module!(ctx.meta, "doctest", name)
 
         # Normalise line endings.
         block = MutableMD2CodeBlock(block_immutable)
