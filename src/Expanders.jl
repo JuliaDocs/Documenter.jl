@@ -550,7 +550,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             code = x.code
         end
         for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
-            c = IOCapture.iocapture(throwerrors = :interrupt) do
+            c = IOCapture.capture(rethrow = InterruptException) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
                 end
@@ -611,7 +611,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             # see https://github.com/JuliaLang/julia/pull/33864
             ex = REPL.softscope!(ex)
         end
-        c = IOCapture.iocapture(throwerrors = :interrupt) do
+        c = IOCapture.capture(rethrow = InterruptException) do
             cd(page.workdir) do
                 Core.eval(mod, ex)
             end
