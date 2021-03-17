@@ -149,6 +149,46 @@ Order = [:type]
 ```
 ````
 
+You may have some names in your package that are unexported but are still part
+of your package's public API. You can tell Documenter about these names by
+defining the `NONEXPORTED_PUBLIC_NAMES` vector in your package. The names in
+`NONEXPORTED_PUBLIC_NAMES` will be treated as public by Documenter. Example
+usage:
+
+```julia
+module MyPackage
+
+export a
+
+const NONEXPORTED_PUBLIC_NAMES = Symbol[:b, :c]
+
+"""
+`a` is exported, and it is part of the public API.
+"""
+function a end
+
+"""
+`b` is not exported, but it is part of the public API.
+"""
+function b end
+
+"""
+`c` is not exported, but it is part of the public API.
+"""
+function c end
+
+"""
+`d` is not exported, and it is private (internal).
+"""
+function d end
+
+end # module
+```
+
+In the above example, `a`, `b`, and `c` will be considered by Documenter to be
+public (even though `b` and `c` are not exported). `d` will be considered to be
+private.
+
 !!! note
 
     When more complex sorting is needed then use `@docs` to define it

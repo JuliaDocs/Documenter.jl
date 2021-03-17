@@ -76,3 +76,5 @@ include("TestUtilities.jl"); using .TestUtilities
     @info "doctest() Documenter's manual"
     @quietly include("manual.jl")
 end
+
+include("public_names.jl")

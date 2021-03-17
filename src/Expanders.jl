@@ -367,6 +367,20 @@ end
 
 const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 
+@inline function _name_is_public_but_nonexported(m::Module, name::Symbol)
+    isdefined(m, :NONEXPORTED_PUBLIC_NAMES) || return false
+    nonexported_public_names = getfield(m, :NONEXPORTED_PUBLIC_NAMES)
+    if !(nonexported_public_names isa AbstractVector{Symbol})
+        @warn("$(m).NONEXPORTED_PUBLIC_NAMES is not a vector of symbols, so Documenter will ignore it", maxlog = 1)
+        return false
+    end
+    return name in nonexported_public_names
+end
+
+@inline function name_is_public(m::Module, name::Symbol)
+    return Base.isexported(m, name) || _name_is_public_but_nonexported(m, name)
+end
+
 function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
@@ -402,8 +416,8 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
                 # Which bindings should be included?
-                isexported = Base.isexported(mod, binding.var)
-                included = (isexported && public) || (!isexported && private)
+                ispublic = name_is_public(mod, binding.var)
+                included = (ispublic && public) || (!ispublic && private)
                 # What category does the binding belong to?
                 category = Documenter.DocSystem.category(binding)
                 if category in order && included
@@ -416,11 +430,11 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                             path = normpath(docstr.data[:path])
                             object = Utilities.Object(binding, typesig)
                             if isempty(pages)
-                                push!(results, (mod, path, category, object, isexported, docstr))
+                                push!(results, (mod, path, category, object, ispublic, docstr))
                             else
                                 for p in pages
                                     if endswith(path, p)
-                                        push!(results, (mod, p, category, object, isexported, docstr))
+                                        push!(results, (mod, p, category, object, ispublic, docstr))
                                         break
                                     end
                                 end
@@ -446,7 +460,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
 
         # Finalise docstrings.
         nodes = DocsNode[]
-        for (mod, path, category, object, isexported, docstr) in results
+        for (mod, path, category, object, ispublic, docstr) in results
             if haskey(doc.internal.objects, object)
                 push!(doc.internal.errors, :autodocs_block)
                 @warn("""
