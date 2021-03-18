@@ -138,6 +138,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
                 Meta.parse("($(lang[nextind(lang, idx):end]),)")
             catch e
                 e isa Meta.ParseError || rethrow(e)
+                push!(ctx.doc.internal.errors, :doctest)
                 file = ctx.meta[:CurrentFile]
                 lines = Utilities.find_block_in_file(block.code, file)
                 @warn("""
@@ -152,6 +153,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
             end
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
+                    push!(ctx.doc.internal.errors, :doctest)
                     file = ctx.meta[:CurrentFile]
                     lines = Utilities.find_block_in_file(block.code, file)
                     @warn("""
