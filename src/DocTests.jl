@@ -134,7 +134,22 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
         d = Dict()
         idx = findfirst(c -> c == ';', lang)
         if idx !== nothing
-            kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
+            kwargs = try
+                Meta.parse("($(lang[nextind(lang, idx):end]),)")
+            catch e
+                e isa Meta.ParseError || rethrow(e)
+                file = ctx.meta[:CurrentFile]
+                lines = Utilities.find_block_in_file(block.code, file)
+                @warn("""
+                    Unable to parse doctest keyword arguments in $(Utilities.locrepr(file, lines))
+                    Use ```jldoctest name; key1 = value1, key2 = value2
+
+                    ```$(lang)
+                    $(block.code)
+                    ```
+                    """, parse_error = e)
+                return false
+            end
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
                     file = ctx.meta[:CurrentFile]
