@@ -187,6 +187,14 @@ julia> 2 + 2
 """
 module BadDocTestKwargs2 end
 
+"""
+```jldoctest; foo
+julia> 2 + 2
+4
+```
+"""
+module BadDocTestKwargs3 end
+
 @testset "Documenter.doctest" begin
     # DocTest1
     run_doctest(nothing, [DocTest1]) do result, success, backtrace, output
@@ -271,6 +279,10 @@ module BadDocTestKwargs2 end
         @test result isa TestSetException
     end
     run_doctest(nothing, [BadDocTestKwargs2]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
+    end
+    run_doctest(nothing, [BadDocTestKwargs3]) do result, success, backtrace, output
         @test !success
         @test result isa TestSetException
     end
