@@ -7448,6 +7448,8 @@ html.theme--documenter-dark {
       padding: 0.5rem 0; }
       html.theme--documenter-dark #documenter .docs-sidebar .docs-package-name .docs-autofit {
         max-width: 16.2rem; }
+      html.theme--documenter-dark #documenter .docs-sidebar .docs-package-name a, html.theme--documenter-dark #documenter .docs-sidebar .docs-package-name a:hover {
+        color: #fff; }
     html.theme--documenter-dark #documenter .docs-sidebar .docs-version-selector {
       border-top: 1px solid #5e6d6f;
       display: none;
