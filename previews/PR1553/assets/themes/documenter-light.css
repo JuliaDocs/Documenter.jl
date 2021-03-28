@@ -7432,6 +7432,8 @@ html {
     padding: 0.5rem 0; }
     #documenter .docs-sidebar .docs-package-name .docs-autofit {
       max-width: 16.2rem; }
+    #documenter .docs-sidebar .docs-package-name a, #documenter .docs-sidebar .docs-package-name a:hover {
+      color: #0a0a0a; }
   #documenter .docs-sidebar .docs-version-selector {
     border-top: 1px solid #dbdbdb;
     display: none;
