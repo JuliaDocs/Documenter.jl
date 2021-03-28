@@ -27,6 +27,8 @@
 
 * ![Enhancement][badge-enhancement] Cosmetic improvements to the PDF output. ([#1342][github-1342], [#1527][github-1527])
 
+* ![Enhancement][badge-enhancement] If `jldoctest` keyword arguments fail to parse, these now get logged as doctesting failures, rather than being ignored with a warning or making `makedocs` throw an error (depending on why they fail to parse). ([#1556][github-1556], [#1557][github-1557])
+
 * ![Bugfix][badge-bugfix] Script-type doctests that have an empty output section no longer crash Documenter. ([#1510][github-1510])
 
 * ![Bugfix][badge-bugfix] When checking for authentication keys when deploying, Documenter now more appropriately checks if the environment variables are non-empty, rather than just whether they are defined. ([#1511][github-1511])
@@ -777,6 +779,8 @@
 [github-1549]: https://github.com/JuliaDocs/Documenter.jl/pull/1549
 [github-1551]: https://github.com/JuliaDocs/Documenter.jl/pull/1551
 [github-1553]: https://github.com/JuliaDocs/Documenter.jl/pull/1553
+[github-1556]: https://github.com/JuliaDocs/Documenter.jl/issues/1556
+[github-1557]: https://github.com/JuliaDocs/Documenter.jl/pull/1557
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841

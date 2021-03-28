@@ -36,21 +36,29 @@ In fact, while not recommended, you can actually have a matryoshka of admonition
 module DocumenterShowcase
 
 """
+    foo(::Integer)
+
 Docstring for `foo(::Integer)`.
 """
 foo(::Integer) = nothing
 
 """
+    foo(::AbstractString)
+
 Docstring for `foo(::AbstractString)`.
 """
 foo(::AbstractString) = nothing
 
 """
+    bar(::Integer)
+
 Docstring for `bar(::Integer)`.
 """
 bar(::Integer) = nothing
 
 """
+    bar(::AbstractString)
+
 Docstring for `bar(::AbstractString)`.
 """
 bar(::AbstractString) = nothing
