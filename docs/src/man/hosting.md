@@ -395,21 +395,19 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: gh-pages
-
-      - name: Delete preview and history
+      - name: Delete preview and history + push changes
         run: |
-            git config user.name "Documenter.jl"
-            git config user.email "documenter@juliadocs.github.io"
-            git rm -rf "previews/PR$PRNUM"
-            git commit -m "delete preview"
-            git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+            if [ -d "previews/PR$PRNUM" ]; then
+              git config user.name "Documenter.jl"
+              git config user.email "documenter@juliadocs.github.io"
+              git rm -rf "previews/PR$PRNUM"
+              git commit -m "delete preview"
+              git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+              git push --force origin gh-pages-new:gh-pages
+            fi
         env:
             PRNUM: ${{ github.event.number }}
-
-      - name: Push changes
-        run: |
-            git push --force origin gh-pages-new:gh-pages
-```
+ ```
 
 _This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
