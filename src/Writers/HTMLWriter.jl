@@ -896,6 +896,7 @@ analytics_script(tracking_id::AbstractString) =
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
+          gtag('config', $(tracking_id), {'page_path': location.pathname + location.search + location.hash});
 
           gtag('config', '$(tracking_id)');
         </script>
