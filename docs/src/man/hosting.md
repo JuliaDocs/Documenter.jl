@@ -407,7 +407,7 @@ jobs:
             fi
         env:
             PRNUM: ${{ github.event.number }}
- ```
+```
 
 _This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
