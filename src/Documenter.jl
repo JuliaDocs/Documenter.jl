@@ -703,6 +703,8 @@ Disassemble repo address into user, host, and path to repo. If no user is given,
 "git". Reassemble user, host and path into an upstream to `git push` to.
 """
 function user_host_upstream(repo)
+    # If the repo path contains the protocol, throw immediately an error.
+    occursin(r"^[a-z]+://", repo) && error("The repo path $(repo) should not contain the protocol")
     #= the regex has three parts:
     (?:([^@]*)@)?  matches any number of characters up to the first "@", if present,
         capturing only the characters before the "@" - this captures the username

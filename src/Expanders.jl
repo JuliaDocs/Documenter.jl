@@ -532,8 +532,8 @@ end
 function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     # The sandboxed module -- either a new one or a cached one from this page.
     name = match(r"^@example[ ]?(.*)$", first(split(x.language, ';', limit = 2)))[1]
-    sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
-    mod  = get!(() -> get_new_sandbox(sym), page.globals.meta, sym)
+    mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
+    sym = nameof(mod)
     lines = Utilities.find_block_in_file(x.code, page.source)
 
     # "parse" keyword arguments to example (we only need to look for continued = true)
@@ -550,7 +550,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             code = x.code
         end
         for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
-            c = IOCapture.iocapture(throwerrors = :interrupt) do
+            c = IOCapture.capture(rethrow = InterruptException) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
                 end
@@ -600,8 +600,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     matched = match(r"^@repl[ ]?(.*)$", x.language)
     matched === nothing && error("invalid '@repl' syntax: $(x.language)")
     name = matched[1]
-    sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
-    mod  = get!(() -> get_new_sandbox(sym), page.globals.meta, sym)
+    mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
     code = split(x.code, '\n'; limit = 2)[end]
     result, out = nothing, IOBuffer()
     for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
@@ -612,7 +611,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             # see https://github.com/JuliaLang/julia/pull/33864
             ex = REPL.softscope!(ex)
         end
-        c = IOCapture.iocapture(throwerrors = :interrupt) do
+        c = IOCapture.capture(rethrow = InterruptException) do
             cd(page.workdir) do
                 Core.eval(mod, ex)
             end
@@ -644,8 +643,7 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     matched === nothing && error("invalid '@setup <name>' syntax: $(x.language)")
     # The sandboxed module -- either a new one or a cached one from this page.
     name = matched[1]
-    sym  = isempty(name) ? gensym("ex-") : Symbol("ex-", name)
-    mod  = get!(() -> get_new_sandbox(sym), page.globals.meta, sym)
+    mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
 
     # Evaluate whole @setup block at once instead of piecewise
     page.mapping[x] =
@@ -714,15 +712,6 @@ function prepend_prompt(input)
         println(out, n == 1 ? prompt : padding, line)
     end
     rstrip(String(take!(out)))
-end
-
-function get_new_sandbox(name::Symbol)
-    m = Module(name)
-    # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
-    Core.eval(m, :(eval(x) = Core.eval($m, x)))
-    # modules created with Module() does not have include defined
-    Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
-    return m
 end
 
 highlightsig!(x) = nothing

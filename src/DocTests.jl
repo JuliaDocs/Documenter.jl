@@ -124,8 +124,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
-        sym = isempty(name) ? gensym("doctest-") : Symbol("doctest-", name)
-        sandbox = get!(() -> Expanders.get_new_sandbox(sym), ctx.meta, sym)
+        sandbox = Utilities.get_sandbox_module!(ctx.meta, "doctest", name)
 
         # Normalise line endings.
         block = MutableMD2CodeBlock(block_immutable)
@@ -135,9 +134,26 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
         d = Dict()
         idx = findfirst(c -> c == ';', lang)
         if idx !== nothing
-            kwargs = Meta.parse("($(lang[nextind(lang, idx):end]),)")
+            kwargs = try
+                Meta.parse("($(lang[nextind(lang, idx):end]),)")
+            catch e
+                e isa Meta.ParseError || rethrow(e)
+                push!(ctx.doc.internal.errors, :doctest)
+                file = ctx.meta[:CurrentFile]
+                lines = Utilities.find_block_in_file(block.code, file)
+                @warn("""
+                    Unable to parse doctest keyword arguments in $(Utilities.locrepr(file, lines))
+                    Use ```jldoctest name; key1 = value1, key2 = value2
+
+                    ```$(lang)
+                    $(block.code)
+                    ```
+                    """, parse_error = e)
+                return false
+            end
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
+                    push!(ctx.doc.internal.errors, :doctest)
                     file = ctx.meta[:CurrentFile]
                     lines = Utilities.find_block_in_file(block.code, file)
                     @warn("""
@@ -217,7 +233,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
                 # see https://github.com/JuliaLang/julia/pull/33864
                 ex = REPL.softscope!(ex)
             end
-            c = IOCapture.iocapture(throwerrors = :interrupt) do
+            c = IOCapture.capture(rethrow = InterruptException) do
                 Core.eval(sandbox, ex)
             end
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
@@ -244,7 +260,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
     for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
-        c = IOCapture.iocapture(throwerrors = :interrupt) do
+        c = IOCapture.capture(rethrow = InterruptException) do
             Core.eval(sandbox, ex)
         end
         result.value = c.value
@@ -327,7 +343,7 @@ end
 function error_to_string(buf, er, bt)
     # Remove unimportant backtrace info.
     bt = remove_common_backtrace(bt, backtrace())
-    # Remove everything below the last eval call (which should be the one in IOCapture.iocapture)
+    # Remove everything below the last eval call (which should be the one in IOCapture.capture)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
     bt = (index === nothing) ? bt : bt[1:(index - 1)]
     # Print a REPL-like error message.

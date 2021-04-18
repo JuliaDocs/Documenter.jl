@@ -15,7 +15,7 @@ import IOCapture
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
     (result, success, backtrace, output) =
-    c = IOCapture.iocapture(throwerrors = :interrupt) do
+    c = IOCapture.capture(rethrow = InterruptException) do
         # Running inside a Task to make sure that the parent testsets do not interfere.
         t = Task(() -> doctest(args...; kwargs...))
         schedule(t)
@@ -171,6 +171,30 @@ module PR1075
     @doc @doc(bar) function baz end
 end
 
+"""
+```jldoctest;
+julia> 2 + 2
+4
+```
+"""
+module BadDocTestKwargs1 end
+
+"""
+```jldoctest; %%%
+julia> 2 + 2
+4
+```
+"""
+module BadDocTestKwargs2 end
+
+"""
+```jldoctest; foo
+julia> 2 + 2
+4
+```
+"""
+module BadDocTestKwargs3 end
+
 @testset "Documenter.doctest" begin
     # DocTest1
     run_doctest(nothing, [DocTest1]) do result, success, backtrace, output
@@ -247,6 +271,20 @@ end
     run_doctest(nothing, [PR1075]) do result, success, backtrace, output
         @test success
         @test result isa Test.DefaultTestSet
+    end
+
+    # Issue 1556, PR 1557
+    run_doctest(nothing, [BadDocTestKwargs1]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
+    end
+    run_doctest(nothing, [BadDocTestKwargs2]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
+    end
+    run_doctest(nothing, [BadDocTestKwargs3]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
 end
 

@@ -64,6 +64,9 @@
     .docs-autofit {
       max-width: $documenter-sidebar-title-width;
     }
+    a, a:hover {
+      color: $documenter-sidebar-color;
+    }
   }
 
   // The version selector (optional). It is hidden by default, but can be toggled by JS
