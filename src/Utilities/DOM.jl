@@ -94,8 +94,6 @@ text escaped.
 """
 module DOM
 
-import ..Utilities
-
 tostr(p::Pair) = p
 
 export @tags

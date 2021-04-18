@@ -33,7 +33,6 @@ abstract type. Both of these abstract types themselves are a subtype of the
 * The [`walk`](@ref) function can be used for walking over a [`Markdown2.MD`](@ref) tree.
 """
 module Markdown2
-using DocStringExtensions
 import Markdown
 
 

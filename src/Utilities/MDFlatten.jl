@@ -9,8 +9,6 @@ module MDFlatten
 
 export mdflatten
 
-import ..Utilities
-
 import Markdown:
     MD, BlockQuote, Bold, Code, Header, HorizontalRule,
     Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table,
