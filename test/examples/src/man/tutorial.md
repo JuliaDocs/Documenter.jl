@@ -182,6 +182,8 @@ Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
 end # module
 ```
 
+Without xmlns tag:
+
 ```@example inlinesvg
 using .InlineSVG
 SVG("""
@@ -190,6 +192,81 @@ SVG("""
     <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
     <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
     <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+  </g>
+</svg>
+""")
+```
+
+With xmlns tag:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width="82" height="76" xmlns="http://www.w3.org/2000/svg">
+  <g style="stroke-width: 3">
+    <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+    <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+  </g>
+</svg>
+""")
+```
+
+With single quotes:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width='82' height='76' xmlns='http://www.w3.org/2000/svg'>
+  <g style='stroke-width: 3'>
+    <circle cx='20' cy='56' r='16' style='stroke: #cb3c33; fill: #d5635c' />
+    <circle cx='41' cy='20' r='16' style='stroke: #389826; fill: #60ad51' />
+    <circle cx='62' cy='56' r='16' style='stroke: #9558b2; fill: #aa79c1' />
+  </g>
+</svg>
+""")
+```
+
+With a mixture of single and double quotes:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width='82' height='76' xmlns='http://www.w3.org/2000/svg'>
+  <g style='stroke-width: 3'>
+    <circle cx='20' cy='56' r='16' style='stroke: #cb3c33; fill: #d5635c' />
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+    <circle cx='62' cy='56' r='16' style='stroke: #9558b2; fill: #aa79c1' />
+  </g>
+</svg>
+""")
+```
+
+With viewBox and without xmlns, making the svg really large to test that it is resized correctly:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width="8200" height="7600" viewBox="0 0 82 76">
+  <g style="stroke-width: 3">
+    <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+    <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+  </g>
+</svg>
+""")
+```
+
+Without viewBox and without xmlns, making the svg really large to test that it is resized correctly:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width="8200" height="7600">
+  <g style="stroke-width: 300">
+    <circle cx="2000" cy="5600" r="1600" style="stroke: #cb3c33; fill: #d5635c" />
+    <circle cx="4100" cy="2000" r="1600" style="stroke: #389826; fill: #60ad51" />
+    <circle cx="6200" cy="5600" r="1600" style="stroke: #9558b2; fill: #aa79c1" />
   </g>
 </svg>
 """)
