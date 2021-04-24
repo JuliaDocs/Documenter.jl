@@ -437,7 +437,7 @@ module RD
     using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
-    const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
+    const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
     const fontawesome_version = "5.15.0"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
@@ -829,7 +829,7 @@ function render_head(ctx, navnode)
 
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
-        RD.google_fonts,
+        RD.lato,
         RD.fontawesome_css...,
         RD.katex_css,
     ]
