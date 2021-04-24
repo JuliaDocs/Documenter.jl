@@ -197,6 +197,7 @@ htmlbuild_pages = Any[
     "unicode.md",
     "latex.md",
     "example-output.md",
+    "fonts.md",
 ]
 
 function html_doc(build_directory, mathengine)
