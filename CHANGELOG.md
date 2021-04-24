@@ -6,6 +6,8 @@
 
   - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551])
 
+* ![Enhancement][badge-enhancement] The HTML output now uses [JuliaMono][juliamono] as the default monospace font, retrieved from CDNJS. Relatedly, the Lato font is also now retrieved from CDNJS, and the generated HTML pages no longer depend on Google Fonts. ([#618][github-618], [#1561][github-1561], [#1568][github-1568], [#1569][github-1569], [JuliaLang/www.julialang.org][julialangorg-1272])
+
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
 
 * ![Enhancement][badge-enhancement] In the HTML output, the site name at the top of the sidebar now also links back to the main page of the documentation (just like the logo). ([#1553][github-1553])
@@ -570,6 +572,7 @@
 [github-487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
 [github-511]: https://github.com/JuliaDocs/Documenter.jl/pull/511
 [github-535]: https://github.com/JuliaDocs/Documenter.jl/issues/535
+[github-618]: https://github.com/JuliaDocs/Documenter.jl/issues/618
 [github-631]: https://github.com/JuliaDocs/Documenter.jl/issues/631
 [github-697]: https://github.com/JuliaDocs/Documenter.jl/pull/697
 [github-706]: https://github.com/JuliaDocs/Documenter.jl/pull/706
@@ -784,14 +787,19 @@
 [github-1553]: https://github.com/JuliaDocs/Documenter.jl/pull/1553
 [github-1556]: https://github.com/JuliaDocs/Documenter.jl/issues/1556
 [github-1557]: https://github.com/JuliaDocs/Documenter.jl/pull/1557
+[github-1561]: https://github.com/JuliaDocs/Documenter.jl/issues/1561
 [github-1567]: https://github.com/JuliaDocs/Documenter.jl/pull/1567
+[github-1568]: https://github.com/JuliaDocs/Documenter.jl/issues/1568
+[github-1569]: https://github.com/JuliaDocs/Documenter.jl/pull/1569
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
+[julialangorg-1272]: https://github.com/JuliaLang/www.julialang.org/issues/1272
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
 [json-jl]: https://github.com/JuliaIO/JSON.jl
+[juliamono]: https://cormullion.github.io/pages/2020-07-26-JuliaMono/
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
