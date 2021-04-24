@@ -1107,7 +1107,6 @@ a.has-text-danger:hover, a.has-text-danger:focus {
   src: local("JuliaMono"), url("https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.037/JuliaMono-Black.woff2") format("woff2");
   text-rendering: optimizeLegibility; }
 
-/*! Lato font. */
 html.theme--documenter-dark {
   /* This file contain the overall layout.
  *
