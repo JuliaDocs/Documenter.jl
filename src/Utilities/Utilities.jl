@@ -7,7 +7,7 @@ using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, LibGit2
-import Base64: stringmime
+import Base64: stringmime, base64encode
 
 # escape characters that has a meaning in regex
 regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
@@ -179,9 +179,11 @@ struct Object
     binding   :: Binding
     signature :: Type
 
-    function Object(b::Binding, signature::Type)
+    id_str :: AbstractString
+
+    function Object(b::Binding, signature::Type, i_s :: AbstractString = "")
         m = nameof(b.mod) === b.var ? parentmodule(b.mod) : b.mod
-        new(Binding(m, b.var), signature)
+        new(Binding(m, b.var), signature, base64encode(i_s) )
     end
 end
 
@@ -217,7 +219,9 @@ end
 function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
+    print_id(io, obj.id_str)
 end
+print_id(io::IO, id :: AbstractString ) = isempty(id) ? nothing : print(io, '-', id) 
 print_signature(io::IO, signature::Union{Union, Type{Union{}}}) = nothing
 print_signature(io::IO, signature)        = print(io, '-', signature)
 

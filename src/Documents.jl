@@ -20,7 +20,7 @@ import ..Documenter.Utilities.Markdown2
 using DocStringExtensions
 import Markdown
 using Unicode
-
+import Base64: base64encode
 # Pages.
 # ------
 
@@ -94,7 +94,8 @@ struct IndexNode
     build       :: String         # Path to the file where this index will appear.
     source      :: String         # Path to the file where this index was written.
     elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
-
+    include_ids :: Vector{<:AbstractString} # list of `id_str`s to include into index block (to avoid duplicates)
+    
     function IndexNode(;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
             #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
@@ -103,9 +104,13 @@ struct IndexNode
             Order   = [:module, :constant, :type, :function, :macro],
             build   = error("missing value for `build` in `IndexNode`."),
             source  = error("missing value for `source` in `IndexNode`."),
+            include_ids = [""],
             others...
         )
-        new(Pages, Modules, Order, build, source, [])
+        new(
+            Pages, Modules, Order, build, source, [],
+            [base64encode(str_id) for str_id ∈ include_ids]
+        )
     end
 end
 
@@ -399,9 +404,10 @@ function populate!(index::IndexNode, document::Document)
     for (object, doc) in document.internal.objects
         page = relpath(doc.page.build, dirname(index.build))
         mod  = object.binding.mod
+        id_str = object.id_str
         # Include *all* signatures, whether they are `Union{}` or not.
         cat  = Symbol(lowercase(Utilities.doccat(object.binding, Union{})))
-        if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
+        if _isvalid(id_str, index.include_ids) && _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end

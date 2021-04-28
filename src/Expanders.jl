@@ -210,8 +210,8 @@ Selectors.order(::Type{RawBlocks})      = 11.0
 
 Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node, Markdown.Header)
 Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
-Selectors.matcher(::Type{DocsBlocks},     node, page, doc) = iscode(node, "@docs")
-Selectors.matcher(::Type{AutoDocsBlocks}, node, page, doc) = iscode(node, "@autodocs")
+Selectors.matcher(::Type{DocsBlocks},     node, page, doc) = iscode(node, r"^@docs")
+Selectors.matcher(::Type{AutoDocsBlocks}, node, page, doc) = iscode(node, r"@autodocs")
 Selectors.matcher(::Type{EvalBlocks},     node, page, doc) = iscode(node, "@eval")
 Selectors.matcher(::Type{IndexBlocks},    node, page, doc) = iscode(node, "@index")
 Selectors.matcher(::Type{ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
@@ -272,6 +272,7 @@ end
 # -----
 
 function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
+    id_str = match(r"^@docs[ ]?(.*)$", first(split(x.language, ';', limit = 2)))[1]
     nodes  = Union{DocsNode,Markdown.Admonition}[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
     lines = Utilities.find_block_in_file(x.code, page.source)
@@ -306,7 +307,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         end
         typesig = Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
 
-        object = Utilities.Object(binding, typesig)
+        object = Utilities.Object(binding, typesig, id_str)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
             push!(doc.internal.errors, :docs_block)
@@ -368,6 +369,7 @@ end
 const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 
 function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
+    id_str = match(r"^@autodocs[ ]?(.*)$", first(split(x.language, ';', limit = 2)))[1]
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
     lines = Utilities.find_block_in_file(x.code, page.source)
@@ -414,7 +416,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                     if filtered
                         for (typesig, docstr) in multidoc.docs
                             path = normpath(docstr.data[:path])
-                            object = Utilities.Object(binding, typesig)
+                            object = Utilities.Object(binding, typesig, id_str)
                             if isempty(pages)
                                 push!(results, (mod, path, category, object, isexported, docstr))
                             else
