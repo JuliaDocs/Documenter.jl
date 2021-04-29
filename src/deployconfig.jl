@@ -527,8 +527,8 @@ function verify_github_pull_repository(repo, prnr)
         else
             return false
         end
-    catch
-        @warn "Unable to verify if PR comes from destination repository"
+    catch e
+        @warn "Unable to verify if PR comes from destination repository" e
         return true
     end
 end
