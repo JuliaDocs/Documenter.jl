@@ -47,7 +47,7 @@ By default, the HTML output renders equations with [KaTeX](https://katex.org/), 
 
 Finally, admonitions for notes, warnings and such:
 
-## Note admonition
+###### Note admonition
 !!! note "'note' admonition"
     Admonitions look like this. This is a `!!! note`-type admonition.
 
@@ -68,27 +68,27 @@ Finally, admonitions for notes, warnings and such:
     ##### Heading 5
     ###### Heading 6
     
-## Info admonition
+###### Info admonition
 !!! info "'info' admonition"
     This is a `!!! info`-type admonition. This is the same as a `!!! note`-type.
 
-## Tip admonition
+###### Tip admonition
 !!! tip "'tip' admonition"
     This is a `!!! tip`-type admonition.
 
-## Warning admonition
+###### Warning admonition
 !!! warning "'warning' admonition"
     This is a `!!! warning`-type admonition.
 
-## Danger admonition
+###### Danger admonition
 !!! danger "'danger' admonition"
     This is a `!!! danger`-type admonition.
 
-## Compat admonition
+###### Compat admonition
 !!! compat "'compat' admonition"
     This is a `!!! compat`-type admonition.
 
-## Unknown admonition class
+###### Unknown admonition class
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class. This is a `code example`.
 
