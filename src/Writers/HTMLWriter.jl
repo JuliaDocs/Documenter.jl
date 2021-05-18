@@ -1289,7 +1289,7 @@ function expand_versions(dir, versions)
 end
 
 # write version file
-function generate_version_file(versionfile::AbstractString, entries, symlinks)
+function generate_version_file(versionfile::AbstractString, entries, symlinks = [])
     open(versionfile, "w") do buf
         println(buf, "var DOC_VERSIONS = [")
         for folder in entries
