@@ -1,12 +1,12 @@
 function maybeAddWarning () {
     // DOCUMENTER_NEWEST is defined in versions.js, DOCUMENTER_CURRENT_VERSION in siteinfo.js
     if (window.DOCUMENTER_NEWEST && window.DOCUMENTER_CURRENT_VERSION ) {
+        // Current version is not a version number, so we can't tell if it's the newest version. Abort.
         if (!/v(\d+\.)*\d+/.test(window.DOCUMENTER_CURRENT_VERSION)) {
-            // Current version is not a version number, so we can't tell if it's the newest version. Abort.
             return
         }
-        if (window.DOCUMENTER_NEWEST !== window.DOCUMENTER_CURRENT_VERSION) {
-            // Only add a warning to old versions.
+        // Only add a warning to old versions.
+        if (window.DOCUMENTER_NEWEST === window.DOCUMENTER_CURRENT_VERSION) {
             return
         }
         // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
