@@ -650,6 +650,9 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
+            if filename == "warner.js" && !doc.user.warn_outdated
+                continue
+            end
             push!(r, JSDependencies.parse_snippet(path))
         end
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
@@ -1286,13 +1289,21 @@ function expand_versions(dir, versions)
 end
 
 # write version file
-function generate_version_file(versionfile::AbstractString, entries)
+function generate_version_file(versionfile::AbstractString, entries, symlinks)
     open(versionfile, "w") do buf
         println(buf, "var DOC_VERSIONS = [")
         for folder in entries
             println(buf, "  \"", folder, "\",")
         end
         println(buf, "];")
+
+        newest = first(entries)
+        for s in symlinks
+            if s[1] == newest
+                newest = s[2]
+            end
+        end
+        println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
     end
 end
 
@@ -1788,10 +1799,10 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
                 svg = replace(svg, "\'" => "%27")
                 sep = "'"
             end
-            
+
             out = Documents.RawHTML(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         end
-        
+
     elseif haskey(d, MIME"image/png"())
         out = Documents.RawHTML(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
     elseif haskey(d, MIME"image/webp"())

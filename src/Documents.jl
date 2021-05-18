@@ -231,6 +231,7 @@ struct User
     authors :: String
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
+    warn_outdated::Bool # insert warning popup for old versions of the documentation
 end
 
 """
@@ -286,6 +287,7 @@ function Document(plugins = nothing;
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
+        warn_outdated :: Bool             = true,
         others...
     )
     Utilities.check_kwargs(others)
@@ -318,7 +320,8 @@ function Document(plugins = nothing;
         sitename,
         authors,
         version,
-        highlightsig
+        highlightsig,
+        warn_outdated
     )
     internal = Internal(
         Utilities.assetsdir(),

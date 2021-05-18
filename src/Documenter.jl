@@ -223,6 +223,9 @@ determined from the source file path. E.g. for `src/foo.md` it is set to `build/
 
 Note that `workdir` does not affect doctests.
 
+**`old_warn`** inserts a warning if the current page is not the newest version of the
+documentation.
+
 ## Output formats
 
 **`format`** allows the output format to be specified. The default format is
@@ -586,7 +589,7 @@ function git_push(
 
         # Create the versions.js file containing a list of `entries`.
         # This must always happen after the folder copying.
-        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
+        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
 
         # generate the symlinks, make sure we don't overwrite devurl
         cd(dirname) do
