@@ -28,7 +28,7 @@ function maybeAddWarning () {
             document.body.removeChild(div);
         });
         const href = window.documenterBaseURL + '/../' + window.DOCUMENTER_NEWEST;
-        div.innerHTML = 'This is an old version of the documentation. <br> <a href="' + href + '" style="color: green">Go to the newest version</a>.';
+        div.innerHTML = 'This is an old version of the documentation. <br> <a href="' + href + '" style="color: rgb(46, 99, 184)">Go to the newest version</a>.';
         div.appendChild(closer);
         document.body.appendChild(div);
     };
