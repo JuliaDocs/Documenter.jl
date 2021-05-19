@@ -7281,9 +7281,9 @@ html.theme--documenter-dark {
     background-color: #1f2424; }
   html.theme--documenter-dark .outdated-warning-overlay {
     position: fixed;
-    width: 100%;
     top: 0;
     left: 0;
+    right: 0;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     z-index: 999;
     background-color: #282f2f;
