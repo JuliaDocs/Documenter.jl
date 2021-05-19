@@ -223,9 +223,6 @@ determined from the source file path. E.g. for `src/foo.md` it is set to `build/
 
 Note that `workdir` does not affect doctests.
 
-**`old_warn`** inserts a warning if the current page is not the newest version of the
-documentation.
-
 ## Output formats
 
 **`format`** allows the output format to be specified. The default format is

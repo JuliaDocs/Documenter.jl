@@ -339,6 +339,9 @@ value is `"en"`.
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 and the [Julia Programming Language](https://julialang.org/)."`.
 
+**`warn_outdated`** inserts a warning if the current page is not the newest version of the
+documentation.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -383,6 +386,7 @@ struct HTML <: Documenter.Writer
     mathengine    :: Union{MathEngine,Nothing}
     footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
+    warn_outdated :: Bool
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -399,6 +403,7 @@ struct HTML <: Documenter.Writer
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
+            warn_outdated :: Bool = true
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         assets = map(assets) do asset
@@ -426,7 +431,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang, warn_outdated)
     end
 end
 
@@ -650,7 +655,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
-            if filename == "warner.js" && !doc.user.warn_outdated
+            if filename == "warner.js" && !settings.warn_outdated
                 continue
             end
             push!(r, JSDependencies.parse_snippet(path))
@@ -1300,10 +1305,12 @@ function generate_version_file(versionfile::AbstractString, entries, symlinks = 
         # The first element in entries corresponds to the latest version, but is usually not the full version
         # number. So this essentially follows the symlinks that will be generated to figure out the full
         # version number (stored in DOCUMENTER_CURRENT_VERSION in siteinfo.js).
+        # Every symlink points to a directory, so this doesn't need to be recursive.
         newest = first(entries)
         for s in symlinks
             if s.first == newest
                 newest = s.second
+                break
             end
         end
         println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
