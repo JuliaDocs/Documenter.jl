@@ -1297,10 +1297,13 @@ function generate_version_file(versionfile::AbstractString, entries, symlinks = 
         end
         println(buf, "];")
 
+        # The first element in entries corresponds to the latest version, but is usually not the full version
+        # number. So this essentially follows the symlinks that will be generated to figure out the full
+        # version number (stored in DOCUMENTER_CURRENT_VERSION in siteinfo.js).
         newest = first(entries)
         for s in symlinks
-            if s[1] == newest
-                newest = s[2]
+            if s.first == newest
+                newest = s.second
             end
         end
         println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
