@@ -60,6 +60,9 @@ using ...Utilities.MDFlatten
 
 export HTML
 
+"Data attribute for the script inserting a wraning for outdated docs."
+OUTDATED_VERSION_ATTR = "data-outdated-warner"
+
 "List of Documenter native themes."
 const THEMES = ["documenter-light", "documenter-dark"]
 "The root directory of the HTML assets."
@@ -655,9 +658,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
-            if filename == "warner.js" && !settings.warn_outdated
-                continue
-            end
             push!(r, JSDependencies.parse_snippet(path))
         end
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
@@ -847,6 +847,7 @@ function render_head(ctx, navnode)
         title(page_title),
 
         analytics_script(ctx.settings.analytics),
+        warning_script(ctx.settings.warn_outdated),
 
         canonical_link_element(ctx.settings.canonical, pretty_url(ctx, src)),
 
@@ -908,6 +909,15 @@ analytics_script(tracking_id::AbstractString) =
         ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
         """
     )
+
+function warning_script(should_warn)
+    if should_warn
+        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR)](
+            read(joinpath(ASSETS, "warner.js"), String)
+        )
+    end
+    return Tag(Symbol("#RAW#"))("")
+end
 
 function canonical_link_element(canonical_link, src)
    @tags link
