@@ -200,7 +200,7 @@ Footnote references can be added with the `[^label]` syntax.[^1] The footnote de
 
 The footnote label can be an arbitrary string and even consist of block-level elements.[^Clarke61]
 
-[^1]: A footnote definition uses the `[^label]: ...` sytax in a block scope.
+[^1]: A footnote definition uses the `[^label]: ...` syntax in a block scope.
 
 [^Clarke61]:
     > Any sufficiently advanced technology is indistinguishable from magic.
