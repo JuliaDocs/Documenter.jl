@@ -447,7 +447,7 @@ worry about relative paths.
     qt.qpa.xcb: could not connect to display 
     qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
     ```
-    To fix these, you need to set the environment variable `GKSwstype` to "100". For example,
+    To fix these, you need to set the environment variable `GKSwstype` to `100`. For example,
     if you use GitHub actions to build your documentation, you can modify the default script to
     ```
     - name: Build and deploy
