@@ -575,6 +575,7 @@ mutable struct HTMLContext
     scripts :: Vector{String}
     documenter_js :: String
     themeswap_js :: String
+    warner_js :: String
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
@@ -582,7 +583,7 @@ mutable struct HTMLContext
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -644,6 +645,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
+    ctx.warner_js = copy_asset("warner.js", doc)
 
     # Generate documenter.js file with all the JS dependencies
     ctx.documenter_js = "assets/documenter.js"
@@ -847,7 +849,7 @@ function render_head(ctx, navnode)
         title(page_title),
 
         analytics_script(ctx.settings.analytics),
-        warning_script(ctx.settings.warn_outdated),
+        warning_script(src, ctx),
 
         canonical_link_element(ctx.settings.canonical, pretty_url(ctx, src)),
 
@@ -910,11 +912,9 @@ analytics_script(tracking_id::AbstractString) =
         """
     )
 
-function warning_script(should_warn)
-    if should_warn
-        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR)](
-            read(joinpath(ASSETS, "warner.js"), String)
-        )
+function warning_script(src, ctx)
+    if ctx.settings.warn_outdated
+        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
     end
     return Tag(Symbol("#RAW#"))("")
 end
