@@ -440,6 +440,28 @@ will be rendered . This means than in the above example `savefig` will output th
 files into that directory. This allows the images to be easily referenced without needing to
 worry about relative paths.
 
+!!! info
+    If you use [Plots.jl](https://github.com/JuliaPlots/Plots.jl) with the default backend 
+    [GR.jl](https://github.com/jheinen/GR.jl), you will likely see warnings like
+    ```
+    qt.qpa.xcb: could not connect to display 
+    qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+    ```
+    To fix these, you need to set the environment variable `GKSwstype` to `100`. For example,
+    if you use GitHub actions to build your documentation, you can modify the default script to
+    ```
+    - name: Build and deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
+        DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
+        GKSwstype: "100" # https://discourse.julialang.org/t/generation-of-documentation-fails-qt-qpa-xcb-could-not-connect-to-display/60988
+      run: julia --project=docs --color=yes docs/make.jl
+    ```
+    Alternatively, you can set this environemnt variable directly in Julia using
+    ```julia
+    ENV["GKSwstype"] = "100"
+    ```
+
 `@example` blocks automatically define `ans` which, as in the Julia REPL, is bound to the
 value of the last evaluated expression. This can be useful in situations such as the
 following one where where binding the object returned by `plot` to a named variable would
