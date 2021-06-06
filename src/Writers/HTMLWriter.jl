@@ -61,7 +61,7 @@ using ...Utilities.MDFlatten
 export HTML
 
 "Data attribute for the script inserting a wraning for outdated docs."
-OUTDATED_VERSION_ATTR = "data-outdated-warner"
+const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
 "List of Documenter native themes."
 const THEMES = ["documenter-light", "documenter-dark"]
