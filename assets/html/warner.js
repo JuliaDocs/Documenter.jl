@@ -1,7 +1,12 @@
 function maybeAddWarning () {
-    // DOCUMENTER_NEWEST is defined in versions.js, DOCUMENTER_CURRENT_VERSION in siteinfo.js.
+    // DOCUMENTER_NEWEST is defined in versions.js, DOCUMENTER_CURRENT_VERSION and DOCUMENTER_STABLE
+    // in siteinfo.js.
     // If either of these are undefined something went horribly wrong, so we abort.
-    if (window.DOCUMENTER_NEWEST === undefined || window.DOCUMENTER_CURRENT_VERSION === undefined) {
+    if (
+            window.DOCUMENTER_NEWEST === undefined ||
+            window.DOCUMENTER_CURRENT_VERSION === undefined ||
+            window.DOCUMENTER_STABLE === undefined
+       ) {
         return
     };
 
@@ -31,7 +36,7 @@ function maybeAddWarning () {
     closer.addEventListener('click', function () {
         document.body.removeChild(div);
     });
-    const href = window.documenterBaseURL + '/../' + window.DOCUMENTER_NEWEST;
+    const href = window.documenterBaseURL + '/../' + window.DOCUMENTER_STABLE;
     div.innerHTML = 'This is an old version of the documentation. <br> <a href="' + href + '">Go to the newest version</a>.';
     div.appendChild(closer);
     document.body.appendChild(div);

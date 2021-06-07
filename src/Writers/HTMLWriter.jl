@@ -1324,6 +1324,7 @@ function generate_version_file(versionfile::AbstractString, entries, symlinks = 
             end
         end
         println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
+        println(buf, "var DOCUMENTER_STABLE = \"$(first(entries))\";")
     end
 end
 
