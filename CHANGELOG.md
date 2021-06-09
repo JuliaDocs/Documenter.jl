@@ -10,6 +10,8 @@
 
   - Font Awesome has been updated to `v5.15.3` (patch version bump). ([#1590][github-1590])
 
+  - lunr.js has been updated to `v2.3.9` (patch version bump). ([#1590][github-1590])
+
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
 
 * ![Enhancement][badge-enhancement] In the HTML output, the site name at the top of the sidebar now also links back to the main page of the documentation (just like the logo). ([#1553][github-1553])
