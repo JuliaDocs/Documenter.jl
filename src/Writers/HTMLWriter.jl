@@ -446,7 +446,7 @@ module RD
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-    const fontawesome_version = "5.15.0"
+    const fontawesome_version = "5.15.3"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",

@@ -6,6 +6,8 @@
 
   - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551])
 
+  - Font Awesome has been updated to `v5.15.3` (patch version bump). ([#1590][github-1590])
+
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
 
 * ![Enhancement][badge-enhancement] In the HTML output, the site name at the top of the sidebar now also links back to the main page of the documentation (just like the logo). ([#1553][github-1553])
@@ -793,6 +795,7 @@
 [github-1559]: https://github.com/JuliaDocs/Documenter.jl/pull/1559
 [github-1567]: https://github.com/JuliaDocs/Documenter.jl/pull/1567
 [github-1577]: https://github.com/JuliaDocs/Documenter.jl/pull/1577
+[github-1590]: https://github.com/JuliaDocs/Documenter.jl/pull/1590
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
