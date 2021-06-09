@@ -6,6 +6,8 @@
 
   - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551])
 
+  - jQuery been updated to `v3.6.0` (minor version bump). ([#1590][github-1590])
+
   - Font Awesome has been updated to `v5.15.3` (patch version bump). ([#1590][github-1590])
 
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
