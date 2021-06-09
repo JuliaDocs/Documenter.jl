@@ -209,7 +209,7 @@ build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entrie
 the environment from which the docs are built and deployed. In the example above we will
 thus build and deploy the documentation from a ubuntu worker running Julia 1.6. For more
 information on how to setup a GitHub workflow see the manual:
-[Learn GitHub Actions](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions).
+[Learn GitHub Actions](https://docs.github.com/en/actions/learn-github-actions).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
@@ -246,7 +246,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/reference/authentication-in-a-workflow). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -273,7 +273,7 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
+[Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets)
 for more information.
 
 ### Add code coverage from documentation builds
@@ -372,7 +372,7 @@ If you wish to create the `gh-pages` branch manually that can be done following
 
 You also need to make sure that you have "gh-pages branch" selected as
 [the source of the GitHub Pages site in your GitHub repository
-settings](https://docs.github.com/en/free-pro-team@latest/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
+settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
 
 **Cleaning up `gh-pages`.**
