@@ -10,7 +10,7 @@ $admonition-body-color: () !default;
 $admonition-header-background: () !default;
 $admonition-header-color: () !default;
 @each $name, $color in $admonition-colors {
-  $bg: lighten-color($color, 4);
+  $bg: lighten-color($color, 5);
   @if not map-has-key($admonition-header-background, $name) {
     $admonition-header-background: map-merge($admonition-header-background, ($name: $color)) !global;
   }

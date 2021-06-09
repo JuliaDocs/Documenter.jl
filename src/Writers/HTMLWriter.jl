@@ -60,6 +60,9 @@ using ...Utilities.MDFlatten
 
 export HTML
 
+"Data attribute for the script inserting a wraning for outdated docs."
+const OUTDATED_VERSION_ATTR = "data-outdated-warner"
+
 "List of Documenter native themes."
 const THEMES = ["documenter-light", "documenter-dark"]
 "The root directory of the HTML assets."
@@ -339,6 +342,9 @@ value is `"en"`.
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 and the [Julia Programming Language](https://julialang.org/)."`.
 
+**`warn_outdated`** inserts a warning if the current page is not the newest version of the
+documentation.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -383,6 +389,7 @@ struct HTML <: Documenter.Writer
     mathengine    :: Union{MathEngine,Nothing}
     footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
+    warn_outdated :: Bool
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -399,6 +406,7 @@ struct HTML <: Documenter.Writer
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
+            warn_outdated :: Bool = true
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         assets = map(assets) do asset
@@ -426,7 +434,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang, warn_outdated)
     end
 end
 
@@ -567,6 +575,7 @@ mutable struct HTMLContext
     scripts :: Vector{String}
     documenter_js :: String
     themeswap_js :: String
+    warner_js :: String
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
@@ -574,7 +583,7 @@ mutable struct HTMLContext
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -636,6 +645,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
+    ctx.warner_js = copy_asset("warner.js", doc)
 
     # Generate documenter.js file with all the JS dependencies
     ctx.documenter_js = "assets/documenter.js"
@@ -839,6 +849,7 @@ function render_head(ctx, navnode)
         title(page_title),
 
         analytics_script(ctx.settings.analytics),
+        warning_script(src, ctx),
 
         canonical_link_element(ctx.settings.canonical, pretty_url(ctx, src)),
 
@@ -900,6 +911,13 @@ analytics_script(tracking_id::AbstractString) =
         ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
         """
     )
+
+function warning_script(src, ctx)
+    if ctx.settings.warn_outdated
+        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
+    end
+    return Tag(Symbol("#RAW#"))("")
+end
 
 function canonical_link_element(canonical_link, src)
    @tags link
@@ -1286,13 +1304,27 @@ function expand_versions(dir, versions)
 end
 
 # write version file
-function generate_version_file(versionfile::AbstractString, entries)
+function generate_version_file(versionfile::AbstractString, entries, symlinks = [])
     open(versionfile, "w") do buf
         println(buf, "var DOC_VERSIONS = [")
         for folder in entries
             println(buf, "  \"", folder, "\",")
         end
         println(buf, "];")
+
+        # The first element in entries corresponds to the latest version, but is usually not the full version
+        # number. So this essentially follows the symlinks that will be generated to figure out the full
+        # version number (stored in DOCUMENTER_CURRENT_VERSION in siteinfo.js).
+        # Every symlink points to a directory, so this doesn't need to be recursive.
+        newest = first(entries)
+        for s in symlinks
+            if s.first == newest
+                newest = s.second
+                break
+            end
+        end
+        println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
+        println(buf, "var DOCUMENTER_STABLE = \"$(first(entries))\";")
     end
 end
 
@@ -1788,10 +1820,10 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
                 svg = replace(svg, "\'" => "%27")
                 sep = "'"
             end
-            
+
             out = Documents.RawHTML(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         end
-        
+
     elseif haskey(d, MIME"image/png"())
         out = Documents.RawHTML(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
     elseif haskey(d, MIME"image/webp"())
