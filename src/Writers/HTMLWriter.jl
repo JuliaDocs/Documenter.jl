@@ -446,20 +446,20 @@ module RD
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-    const fontawesome_version = "5.15.0"
+    const fontawesome_version = "5.15.3"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/brands.min.css",
     ]
 
-    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js")
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
-    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.6/lunr.min.js")
-    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js")
+    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js")
+    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js")
 
     # headroom
-    const headroom_version = "0.10.3"
+    const headroom_version = "0.12.0"
     const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/headroom.min.js")
     const headroom_jquery = RemoteLibrary(
         "headroom-jquery",
@@ -473,7 +473,7 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "10.5.0"
+        hljs_version = "11.0.1"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -492,14 +492,14 @@ module RD
             ["\$"],
             raw"""
             $(document).ready(function() {
-                hljs.initHighlighting();
+                hljs.highlightAll();
             })
             """
         ))
     end
 
     # MathJax & KaTeX
-    const katex_version = "0.11.1"
+    const katex_version = "0.13.11"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
     function mathengine!(r::RequireJS, engine::KaTeX)
         push!(r, RemoteLibrary(
@@ -525,7 +525,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax2)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
             url,
@@ -538,7 +538,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.4/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));

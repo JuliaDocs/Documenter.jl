@@ -4,7 +4,21 @@
 
 * ![Enhancement][badge-enhancement] The JS dependencies have been updated to their respective latest versions.
 
-  - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551])
+  - highlight.js has been updated to `v11.0.1` (major version bump), which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551], [#1590][github-1590])
+
+  - Headroom.js has been updated to `v0.12.0` (major version bump). ([#1590][github-1590])
+
+  - KaTeX been updated to `v0.13.11` (major version bump). ([#1590][github-1590])
+
+  - MathJax versions have been updated to `v2.7.7` (patch version bump) and `v3.1.4` (minor version bump), for MathJax 2 and 3, respectively. ([#1590][github-1590])
+
+  - jQuery been updated to `v3.6.0` (minor version bump). ([#1590][github-1590])
+
+  - Font Awesome has been updated to `v5.15.3` (patch version bump). ([#1590][github-1590])
+
+  - lunr.js has been updated to `v2.3.9` (patch version bump). ([#1590][github-1590])
+
+  - lodash.js has been updated to `v4.17.21` (patch version bump). ([#1590][github-1590])
 
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
 
@@ -793,6 +807,7 @@
 [github-1559]: https://github.com/JuliaDocs/Documenter.jl/pull/1559
 [github-1567]: https://github.com/JuliaDocs/Documenter.jl/pull/1567
 [github-1577]: https://github.com/JuliaDocs/Documenter.jl/pull/1577
+[github-1590]: https://github.com/JuliaDocs/Documenter.jl/pull/1590
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
