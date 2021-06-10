@@ -459,7 +459,7 @@ module RD
     const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js")
 
     # headroom
-    const headroom_version = "0.10.3"
+    const headroom_version = "0.12.0"
     const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/headroom.min.js")
     const headroom_jquery = RemoteLibrary(
         "headroom-jquery",
