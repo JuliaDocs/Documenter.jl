@@ -899,18 +899,18 @@ function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     return links
 end
 
-analytics_script(tracking_id::AbstractString) =
-    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : Tag(:script)(
-        """
-        <script async src="https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"></script>
-        <script>
+function analytics_script(tracking_id::AbstractString)
+    @tags script
+    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : [
+        script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
+        script("""
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', '$(tracking_id)', {'page_path': location.pathname + location.search + location.hash});
-        </script>
-        """
-    )
+        """)
+    ]
+end
 
 function warning_script(src, ctx)
     if ctx.settings.warn_outdated
