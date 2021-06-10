@@ -586,7 +586,7 @@ function git_push(
 
         # Create the versions.js file containing a list of `entries`.
         # This must always happen after the folder copying.
-        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries)
+        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
 
         # generate the symlinks, make sure we don't overwrite devurl
         cd(dirname) do

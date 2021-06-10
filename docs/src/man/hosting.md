@@ -51,7 +51,7 @@ file. Note that the snippet below will not work by itself and must be accompanie
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.4
+      julia: 1.6
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
@@ -62,7 +62,7 @@ jobs:
 
 where the `julia:` and `os:` entries decide the worker from which the docs are built and
 deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1.4. For more information on how to setup a build stage, see the Travis
+worker running Julia 1.6. For more information on how to setup a build stage, see the Travis
 manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
 The three lines in the `script:` section do the following:
@@ -194,7 +194,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: '1.4'
+          version: '1.6'
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
@@ -207,9 +207,9 @@ jobs:
 which will install Julia, checkout the correct commit of your repository, and run the
 build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
 the environment from which the docs are built and deployed. In the example above we will
-thus build and deploy the documentation from a ubuntu worker running Julia 1.4. For more
+thus build and deploy the documentation from a ubuntu worker running Julia 1.6. For more
 information on how to setup a GitHub workflow see the manual:
-[Learn GitHub Actions](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions).
+[Learn GitHub Actions](https://docs.github.com/en/actions/learn-github-actions).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
@@ -246,7 +246,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/reference/authentication-in-a-workflow). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -273,7 +273,7 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
+[Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets)
 for more information.
 
 ### Add code coverage from documentation builds
@@ -372,7 +372,7 @@ If you wish to create the `gh-pages` branch manually that can be done following
 
 You also need to make sure that you have "gh-pages branch" selected as
 [the source of the GitHub Pages site in your GitHub repository
-settings](https://docs.github.com/en/free-pro-team@latest/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
+settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
 
 **Cleaning up `gh-pages`.**
@@ -395,20 +395,18 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: gh-pages
-
-      - name: Delete preview and history
+      - name: Delete preview and history + push changes
         run: |
-            git config user.name "Documenter.jl"
-            git config user.email "documenter@juliadocs.github.io"
-            git rm -rf "previews/PR$PRNUM"
-            git commit -m "delete preview"
-            git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+            if [ -d "previews/PR$PRNUM" ]; then
+              git config user.name "Documenter.jl"
+              git config user.email "documenter@juliadocs.github.io"
+              git rm -rf "previews/PR$PRNUM"
+              git commit -m "delete preview"
+              git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+              git push --force origin gh-pages-new:gh-pages
+            fi
         env:
             PRNUM: ${{ github.event.number }}
-
-      - name: Push changes
-        run: |
-            git push --force origin gh-pages-new:gh-pages
 ```
 
 _This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml) (Apache License 2.0)._

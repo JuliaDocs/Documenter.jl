@@ -36,8 +36,10 @@ end
             # Test existence of some HTML elements
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
+            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
 
             index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
             @test occursin("documenter-example-output", index_html)
             @test occursin("1392-test-language", index_html)
             @test !occursin("1392-extra-info", index_html)
