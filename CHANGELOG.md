@@ -8,6 +8,8 @@
 
   - Headroom.js has been updated to `v0.12.0` (major version bump). ([#1590][github-1590])
 
+  - KaTeX been updated to `v0.13.11` (major version bump). ([#1590][github-1590])
+
   - MathJax versions have been updated to `v2.7.7` (patch version bump) and `v3.1.4` (minor version bump), for MathJax 2 and 3, respectively. ([#1590][github-1590])
 
   - jQuery been updated to `v3.6.0` (minor version bump). ([#1590][github-1590])
