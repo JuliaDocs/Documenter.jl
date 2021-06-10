@@ -525,7 +525,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax2)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
             url,
@@ -538,7 +538,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.4/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
