@@ -473,7 +473,7 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "10.5.0"
+        hljs_version = "11.0.1"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -492,7 +492,7 @@ module RD
             ["\$"],
             raw"""
             $(document).ready(function() {
-                hljs.initHighlighting();
+                hljs.highlightAll();
             })
             """
         ))

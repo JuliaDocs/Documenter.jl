@@ -4,7 +4,7 @@
 
 * ![Enhancement][badge-enhancement] The JS dependencies have been updated to their respective latest versions.
 
-  - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551])
+  - highlight.js has been updated to `v11.0.1` (major version bump), which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551], [#1590][github-1590])
 
   - Headroom.js has been updated to `v0.12.0` (major version bump). ([#1590][github-1590])
 

@@ -1070,9 +1070,13 @@ html.theme--documenter-dark {
  *
  * The main container is <div> that is identified by id #documenter.
  */
-  /* a11y-dark theme */
-  /* Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
-  /* @author: ericwbailey */
+  /*!
+  Theme: a11y-dark
+  Author: @ericwbailey
+  Maintainer: @ericwbailey
+
+  Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css
+*/
   /* Comment */
   /* Red */
   /* Orange */
@@ -7598,6 +7602,9 @@ html.theme--documenter-dark {
     overflow-y: scroll;
     text-rendering: optimizeLegibility;
     text-size-adjust: 100%; }
+  html.theme--documenter-dark .hljs {
+    background: #2b2b2b;
+    color: #f8f8f2; }
   html.theme--documenter-dark .hljs-comment,
   html.theme--documenter-dark .hljs-quote {
     color: #d4d0ab; }
@@ -7612,7 +7619,6 @@ html.theme--documenter-dark {
     color: #ffa07a; }
   html.theme--documenter-dark .hljs-number,
   html.theme--documenter-dark .hljs-built_in,
-  html.theme--documenter-dark .hljs-builtin-name,
   html.theme--documenter-dark .hljs-literal,
   html.theme--documenter-dark .hljs-type,
   html.theme--documenter-dark .hljs-params,
@@ -7632,12 +7638,6 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .hljs-keyword,
   html.theme--documenter-dark .hljs-selector-tag {
     color: #dcc6e0; }
-  html.theme--documenter-dark .hljs {
-    display: block;
-    overflow-x: auto;
-    background: #2b2b2b;
-    color: #f8f8f2;
-    padding: 0.5em; }
   html.theme--documenter-dark .hljs-emphasis {
     font-style: italic; }
   html.theme--documenter-dark .hljs-strong {
@@ -7646,7 +7646,6 @@ html.theme--documenter-dark {
     html.theme--documenter-dark .hljs-addition,
     html.theme--documenter-dark .hljs-attribute,
     html.theme--documenter-dark .hljs-built_in,
-    html.theme--documenter-dark .hljs-builtin-name,
     html.theme--documenter-dark .hljs-bullet,
     html.theme--documenter-dark .hljs-comment,
     html.theme--documenter-dark .hljs-link,
