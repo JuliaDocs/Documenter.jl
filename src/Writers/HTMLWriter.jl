@@ -899,18 +899,18 @@ function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     return links
 end
 
-analytics_script(tracking_id::AbstractString) =
-    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : Tag(:script)(
-        """
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-        ga('create', '$(tracking_id)', 'auto');
-        ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
-        """
-    )
+function analytics_script(tracking_id::AbstractString)
+    @tags script
+    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : [
+        script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
+        script("""
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '$(tracking_id)', {'page_path': location.pathname + location.search + location.hash});
+        """)
+    ]
+end
 
 function warning_script(src, ctx)
     if ctx.settings.warn_outdated
