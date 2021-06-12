@@ -14,7 +14,7 @@ import ..Documenter:
     Utilities,
     IdDict
 
-import Markdown, REPL
+import Markdown, REPL, Random
 import .Utilities: Markdown2
 import IOCapture
 
@@ -233,7 +233,16 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
                 # see https://github.com/JuliaLang/julia/pull/33864
                 ex = REPL.softscope!(ex)
             end
+            # It is common to set the global RNG seed in doctests, however,
+            # IOCapture modifies the global RNG seed due to spawning a task.
+            # Therefore, save and restore the seed after calling into IOCapture
+            @static if VERSION >= v"1.7.0-DEV.1226"
+                oldrng = copy(Random.default_rng())
+            end
             c = IOCapture.capture(rethrow = InterruptException) do
+                @static if VERSION >= v"1.7.0-DEV.1226"
+                    copy!(Random.default_rng(), oldrng)
+                end
                 Core.eval(sandbox, ex)
             end
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))

@@ -60,3 +60,16 @@ Empty output:
 nothing
 # output
 ```
+
+RNG seeding
+
+```jldoctest; setup = :(using Random; Random.seed!(1))
+julia> a = rand();
+
+julia> Random.seed!(1);
+
+julia> b = rand();
+
+julia> a == b
+true
+```
