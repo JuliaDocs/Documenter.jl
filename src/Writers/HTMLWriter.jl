@@ -1312,6 +1312,9 @@ function generate_version_file(versionfile::AbstractString, entries, symlinks = 
         end
         println(buf, "];")
 
+        # entries is empty if no versions have been built at all
+        isempty(entries) && return
+
         # The first element in entries corresponds to the latest version, but is usually not the full version
         # number. So this essentially follows the symlinks that will be generated to figure out the full
         # version number (stored in DOCUMENTER_CURRENT_VERSION in siteinfo.js).
