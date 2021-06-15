@@ -48,6 +48,7 @@ Packages that have tagged versions available in the general Registry:
 - [PhyloNetworks.jl](https://crsl4.github.io/PhyloNetworks.jl/stable/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
 - [Query.jl](https://www.queryverse.org/Query.jl/stable/)
+- [SimGBS.jl](https://kanji709.github.io/SimGBS.jl/dev/)
 - [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)
 - [Weave.jl](https://weavejl.mpastell.com/stable/)
 
