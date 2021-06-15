@@ -503,7 +503,8 @@ second block. A block with `continued = true` does not have any output.
 ## `@repl` block
 
 These are similar to `@example` blocks, but add a `julia> ` prompt before each toplevel
-expression. The `# hide` syntax may be used in `@repl` blocks in the same way
+expression and do not fail upon encountering an error.
+The `# hide` syntax may be used in `@repl` blocks in the same way
 as in `@example` blocks. Furthermore, a semicolon `;` at the end of a line will
 suppress the output as in the Julia REPL.
 
@@ -527,6 +528,24 @@ julia> b = 2
 
 julia> a + b
 3
+```
+````
+
+And likewise
+
+````markdown
+```@repl
+sqrt(-1)
+```
+````
+
+will generate
+
+````markdown
+```julia
+julia> sqrt(-1)
+ERROR: DomainError with -1.0:
+sqrt will only return a complex result if called with a complex argument. Try sqrt(Complex(x)).
 ```
 ````
 
