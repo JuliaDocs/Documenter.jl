@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.1`
+
+* ![Bugfix][badge-bugfix] Documenter no longer throws an error when generating the version selector if there are no deployed versions. ([#1594][github-1594], [#1596][github-1596])
+
 ## Version `v0.27.0`
 
 * ![Enhancement][badge-enhancement] The JS dependencies have been updated to their respective latest versions.
@@ -808,6 +812,8 @@
 [github-1567]: https://github.com/JuliaDocs/Documenter.jl/pull/1567
 [github-1577]: https://github.com/JuliaDocs/Documenter.jl/pull/1577
 [github-1590]: https://github.com/JuliaDocs/Documenter.jl/pull/1590
+[github-1594]: https://github.com/JuliaDocs/Documenter.jl/issues/1594
+[github-1596]: https://github.com/JuliaDocs/Documenter.jl/pull/1596
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
