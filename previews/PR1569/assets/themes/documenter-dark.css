@@ -1065,56 +1065,18 @@ a.has-text-danger:hover, a.has-text-danger:focus {
 .is-relative {
   position: relative !important; }
 
-@font-face {
-  font-family: JuliaMono;
-  font-weight: 300;
-  font-style: normal;
-  src: local("JuliaMono"), url("https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.037/JuliaMono-Light.woff2") format("woff2");
-  text-rendering: optimizeLegibility; }
-
-@font-face {
-  font-family: JuliaMono;
-  font-weight: 400;
-  font-style: normal;
-  src: local("JuliaMono"), url("https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.037/JuliaMono-Medium.woff2") format("woff2");
-  text-rendering: optimizeLegibility; }
-
-@font-face {
-  font-family: JuliaMono;
-  font-weight: 500;
-  font-style: normal;
-  src: local("JuliaMono"), url("https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.037/JuliaMono-SemiBold.woff2") format("woff2");
-  text-rendering: optimizeLegibility; }
-
-@font-face {
-  font-family: JuliaMono;
-  font-weight: 600;
-  font-style: normal;
-  src: local("JuliaMono"), url("https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.037/JuliaMono-Bold.woff2") format("woff2");
-  text-rendering: optimizeLegibility; }
-
-@font-face {
-  font-family: JuliaMono;
-  font-weight: 800;
-  font-style: normal;
-  src: local("JuliaMono"), url("https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.037/JuliaMono-ExtraBold.woff2") format("woff2");
-  text-rendering: optimizeLegibility; }
-
-@font-face {
-  font-family: JuliaMono;
-  font-weight: 900;
-  font-style: normal;
-  src: local("JuliaMono"), url("https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.037/JuliaMono-Black.woff2") format("woff2");
-  text-rendering: optimizeLegibility; }
-
 html.theme--documenter-dark {
   /* This file contain the overall layout.
  *
  * The main container is <div> that is identified by id #documenter.
  */
-  /* a11y-dark theme */
-  /* Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
-  /* @author: ericwbailey */
+  /*!
+  Theme: a11y-dark
+  Author: @ericwbailey
+  Maintainer: @ericwbailey
+
+  Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css
+*/
   /* Comment */
   /* Red */
   /* Orange */
@@ -7321,6 +7283,28 @@ html.theme--documenter-dark {
       opacity: 1; }
   html.theme--documenter-dark .documenter-example-output {
     background-color: #1f2424; }
+  html.theme--documenter-dark .outdated-warning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    background-color: #282f2f;
+    border-bottom: 3px solid #9e1b0d;
+    padding: 10px 35px;
+    text-align: center;
+    font-size: 15px; }
+    html.theme--documenter-dark .outdated-warning-overlay .outdated-warning-closer {
+      position: absolute;
+      top: calc(50% - 10px);
+      right: 18px;
+      cursor: pointer;
+      width: 12px; }
+    html.theme--documenter-dark .outdated-warning-overlay a {
+      color: #1abc9c; }
+      html.theme--documenter-dark .outdated-warning-overlay a:hover {
+        color: #1dd2af; }
   html.theme--documenter-dark .content pre {
     border: 1px solid #5e6d6f; }
   html.theme--documenter-dark .content code {
@@ -7618,6 +7602,9 @@ html.theme--documenter-dark {
     overflow-y: scroll;
     text-rendering: optimizeLegibility;
     text-size-adjust: 100%; }
+  html.theme--documenter-dark .hljs {
+    background: #2b2b2b;
+    color: #f8f8f2; }
   html.theme--documenter-dark .hljs-comment,
   html.theme--documenter-dark .hljs-quote {
     color: #d4d0ab; }
@@ -7632,7 +7619,6 @@ html.theme--documenter-dark {
     color: #ffa07a; }
   html.theme--documenter-dark .hljs-number,
   html.theme--documenter-dark .hljs-built_in,
-  html.theme--documenter-dark .hljs-builtin-name,
   html.theme--documenter-dark .hljs-literal,
   html.theme--documenter-dark .hljs-type,
   html.theme--documenter-dark .hljs-params,
@@ -7652,12 +7638,6 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .hljs-keyword,
   html.theme--documenter-dark .hljs-selector-tag {
     color: #dcc6e0; }
-  html.theme--documenter-dark .hljs {
-    display: block;
-    overflow-x: auto;
-    background: #2b2b2b;
-    color: #f8f8f2;
-    padding: 0.5em; }
   html.theme--documenter-dark .hljs-emphasis {
     font-style: italic; }
   html.theme--documenter-dark .hljs-strong {
@@ -7666,7 +7646,6 @@ html.theme--documenter-dark {
     html.theme--documenter-dark .hljs-addition,
     html.theme--documenter-dark .hljs-attribute,
     html.theme--documenter-dark .hljs-built_in,
-    html.theme--documenter-dark .hljs-builtin-name,
     html.theme--documenter-dark .hljs-bullet,
     html.theme--documenter-dark .hljs-comment,
     html.theme--documenter-dark .hljs-link,
