@@ -60,6 +60,9 @@ using ...Utilities.MDFlatten
 
 export HTML
 
+"Data attribute for the script inserting a wraning for outdated docs."
+const OUTDATED_VERSION_ATTR = "data-outdated-warner"
+
 "List of Documenter native themes."
 const THEMES = ["documenter-light", "documenter-dark"]
 "The root directory of the HTML assets."
@@ -339,6 +342,9 @@ value is `"en"`.
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 and the [Julia Programming Language](https://julialang.org/)."`.
 
+**`warn_outdated`** inserts a warning if the current page is not the newest version of the
+documentation.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -383,6 +389,7 @@ struct HTML <: Documenter.Writer
     mathengine    :: Union{MathEngine,Nothing}
     footer        :: Union{Markdown.MD, Nothing}
     lang          :: String
+    warn_outdated :: Bool
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -399,6 +406,7 @@ struct HTML <: Documenter.Writer
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
+            warn_outdated :: Bool = true
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         assets = map(assets) do asset
@@ -426,7 +434,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang, warn_outdated)
     end
 end
 
@@ -437,21 +445,21 @@ module RD
     using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
-    const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
-    const fontawesome_version = "5.15.0"
+    const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
+    const fontawesome_version = "5.15.3"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/brands.min.css",
     ]
 
-    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js")
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
-    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.6/lunr.min.js")
-    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js")
+    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js")
+    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js")
 
     # headroom
-    const headroom_version = "0.10.3"
+    const headroom_version = "0.12.0"
     const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/headroom.min.js")
     const headroom_jquery = RemoteLibrary(
         "headroom-jquery",
@@ -465,7 +473,7 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "10.5.0"
+        hljs_version = "11.0.1"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -484,14 +492,14 @@ module RD
             ["\$"],
             raw"""
             $(document).ready(function() {
-                hljs.initHighlighting();
+                hljs.highlightAll();
             })
             """
         ))
     end
 
     # MathJax & KaTeX
-    const katex_version = "0.11.1"
+    const katex_version = "0.13.11"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
     function mathengine!(r::RequireJS, engine::KaTeX)
         push!(r, RemoteLibrary(
@@ -517,7 +525,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax2)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
             url,
@@ -530,7 +538,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.4/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
@@ -567,6 +575,7 @@ mutable struct HTMLContext
     scripts :: Vector{String}
     documenter_js :: String
     themeswap_js :: String
+    warner_js :: String
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
@@ -574,7 +583,7 @@ mutable struct HTMLContext
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -636,6 +645,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
+    ctx.warner_js = copy_asset("warner.js", doc)
 
     # Generate documenter.js file with all the JS dependencies
     ctx.documenter_js = "assets/documenter.js"
@@ -839,6 +849,7 @@ function render_head(ctx, navnode)
         title(page_title),
 
         analytics_script(ctx.settings.analytics),
+        warning_script(src, ctx),
 
         canonical_link_element(ctx.settings.canonical, pretty_url(ctx, src)),
 
@@ -888,18 +899,25 @@ function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     return links
 end
 
-analytics_script(tracking_id::AbstractString) =
-    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : Tag(:script)(
-        """
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+function analytics_script(tracking_id::AbstractString)
+    @tags script
+    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : [
+        script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
+        script("""
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '$(tracking_id)', {'page_path': location.pathname + location.search + location.hash});
+        """)
+    ]
+end
 
-        ga('create', '$(tracking_id)', 'auto');
-        ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
-        """
-    )
+function warning_script(src, ctx)
+    if ctx.settings.warn_outdated
+        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
+    end
+    return Tag(Symbol("#RAW#"))("")
+end
 
 function canonical_link_element(canonical_link, src)
    @tags link
@@ -1286,13 +1304,30 @@ function expand_versions(dir, versions)
 end
 
 # write version file
-function generate_version_file(versionfile::AbstractString, entries)
+function generate_version_file(versionfile::AbstractString, entries, symlinks = [])
     open(versionfile, "w") do buf
         println(buf, "var DOC_VERSIONS = [")
         for folder in entries
             println(buf, "  \"", folder, "\",")
         end
         println(buf, "];")
+
+        # entries is empty if no versions have been built at all
+        isempty(entries) && return
+
+        # The first element in entries corresponds to the latest version, but is usually not the full version
+        # number. So this essentially follows the symlinks that will be generated to figure out the full
+        # version number (stored in DOCUMENTER_CURRENT_VERSION in siteinfo.js).
+        # Every symlink points to a directory, so this doesn't need to be recursive.
+        newest = first(entries)
+        for s in symlinks
+            if s.first == newest
+                newest = s.second
+                break
+            end
+        end
+        println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
+        println(buf, "var DOCUMENTER_STABLE = \"$(first(entries))\";")
     end
 end
 
@@ -1788,10 +1823,10 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
                 svg = replace(svg, "\'" => "%27")
                 sep = "'"
             end
-            
+
             out = Documents.RawHTML(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         end
-        
+
     elseif haskey(d, MIME"image/png"())
         out = Documents.RawHTML(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
     elseif haskey(d, MIME"image/webp"())

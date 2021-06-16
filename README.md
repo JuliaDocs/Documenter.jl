@@ -32,8 +32,6 @@ julia> import Pkg; Pkg.add("Documenter")
 
 The package is tested against, and being developed for, Julia `1.0` and above on Linux, macOS, and Windows.
 
-Support for Julia `0.4`, `0.5`, `0.6` and `0.7` has been dropped in the latest version, but older versions of Documenter may still work (Documenter versions `0.8`, `0.11`, `0.19`, and `0.22` respectively).
-
 ## Questions and Contributions
 
 Usage questions can be posted on the [Julia Discourse forum][discourse-tag-url] under the `documenter` tag, in the #documentation channel of the [Julia Slack](https://julialang.org/community/) and/or in the [JuliaDocs Gitter chat room][gitter-url].

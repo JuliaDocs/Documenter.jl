@@ -47,6 +47,7 @@ By default, the HTML output renders equations with [KaTeX](https://katex.org/), 
 
 Finally, admonitions for notes, warnings and such:
 
+###### Note admonition
 !!! note "'note' admonition"
     Admonitions look like this. This is a `!!! note`-type admonition.
 
@@ -66,22 +67,28 @@ Finally, admonitions for notes, warnings and such:
     #### Heading 4
     ##### Heading 5
     ###### Heading 6
-
+    
+###### Info admonition
 !!! info "'info' admonition"
     This is a `!!! info`-type admonition. This is the same as a `!!! note`-type.
 
+###### Tip admonition
 !!! tip "'tip' admonition"
     This is a `!!! tip`-type admonition.
 
+###### Warning admonition
 !!! warning "'warning' admonition"
     This is a `!!! warning`-type admonition.
 
+###### Danger admonition
 !!! danger "'danger' admonition"
     This is a `!!! danger`-type admonition.
 
+###### Compat admonition
 !!! compat "'compat' admonition"
     This is a `!!! compat`-type admonition.
 
+###### Unknown admonition class
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class. This is a `code example`.
 
@@ -193,7 +200,7 @@ Footnote references can be added with the `[^label]` syntax.[^1] The footnote de
 
 The footnote label can be an arbitrary string and even consist of block-level elements.[^Clarke61]
 
-[^1]: A footnote definition uses the `[^label]: ...` sytax in a block scope.
+[^1]: A footnote definition uses the `[^label]: ...` syntax in a block scope.
 
 [^Clarke61]:
     > Any sufficiently advanced technology is indistinguishable from magic.

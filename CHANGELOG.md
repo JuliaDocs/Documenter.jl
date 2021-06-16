@@ -1,16 +1,40 @@
 # Documenter.jl changelog
 
+## Version `v0.27.1`
+
+* ![Enhancement][badge-enhancement] The HTML output now uses [JuliaMono][juliamono] as the default monospace font, retrieved from CDNJS. Relatedly, the Lato font is also now retrieved from CDNJS, and the generated HTML pages no longer depend on Google Fonts. ([#618][github-618], [#1561][github-1561], [#1568][github-1568], [#1569][github-1569], [JuliaLang/www.julialang.org][julialangorg-1272])
+
+* ![Enhancement][badge-enhancement] The wording of the text in the the old version warning box was improved. ([#1595][github-1595])
+
+* ![Bugfix][badge-bugfix] Documenter no longer throws an error when generating the version selector if there are no deployed versions. ([#1594][github-1594], [#1596][github-1596])
+
 ## Version `v0.27.0`
 
 * ![Enhancement][badge-enhancement] The JS dependencies have been updated to their respective latest versions.
 
-  - highlight.js has been updated to `v10.5.0`, which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551])
+  - highlight.js has been updated to `v11.0.1` (major version bump), which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. ([#1503][github-1503], [#1551][github-1551], [#1590][github-1590])
 
-* ![Enhancement][badge-enhancement] The HTML output now uses [JuliaMono][juliamono] as the default monospace font, retrieved from CDNJS. Relatedly, the Lato font is also now retrieved from CDNJS, and the generated HTML pages no longer depend on Google Fonts. ([#618][github-618], [#1561][github-1561], [#1568][github-1568], [#1569][github-1569], [JuliaLang/www.julialang.org][julialangorg-1272])
+  - Headroom.js has been updated to `v0.12.0` (major version bump). ([#1590][github-1590])
+
+  - KaTeX been updated to `v0.13.11` (major version bump). ([#1590][github-1590])
+
+  - MathJax versions have been updated to `v2.7.7` (patch version bump) and `v3.1.4` (minor version bump), for MathJax 2 and 3, respectively. ([#1590][github-1590])
+
+  - jQuery been updated to `v3.6.0` (minor version bump). ([#1590][github-1590])
+
+  - Font Awesome has been updated to `v5.15.3` (patch version bump). ([#1590][github-1590])
+
+  - lunr.js has been updated to `v2.3.9` (patch version bump). ([#1590][github-1590])
+
+  - lodash.js has been updated to `v4.17.21` (patch version bump). ([#1590][github-1590])
 
 * ![Enhancement][badge-enhancement] `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. ([#1529][github-1529])
 
 * ![Enhancement][badge-enhancement] In the HTML output, the site name at the top of the sidebar now also links back to the main page of the documentation (just like the logo). ([#1553][github-1553])
+
+* ![Enhancement][badge-enhancement] The generated HTML sites can now detect if the version the user is browsing is not for the latest version of the package and display a notice box to the user with a link to the latest version. In addition, the pages get a `noindex` tag which should aid in removing outdated versions from search engine results. ([#1302][github-1302], [#1449][github-1449], [#1577][github-1577])
+
+* ![Enhancement][badge-enhancement] The analytics in the HTML output now use the `gtag.js` script, replacing the old deprecated setup. ([#1559][github-1559])
 
 * ![Bugfix][badge-bugfix] A bad `repo` argument to `deploydocs` containing a protocol now throws an error instead of being misinterpreted. ([#1531][github-1531], [#1533][github-1533])
 
@@ -714,6 +738,7 @@
 [github-1295]: https://github.com/JuliaDocs/Documenter.jl/pull/1295
 [github-1298]: https://github.com/JuliaDocs/Documenter.jl/pull/1298
 [github-1299]: https://github.com/JuliaDocs/Documenter.jl/pull/1299
+[github-1302]: https://github.com/JuliaDocs/Documenter.jl/issues/1302
 [github-1311]: https://github.com/JuliaDocs/Documenter.jl/pull/1311
 [github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
 [github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
@@ -749,6 +774,7 @@
 [github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
+[github-1449]: https://github.com/JuliaDocs/Documenter.jl/issues/1449
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
 [github-1456]: https://github.com/JuliaDocs/Documenter.jl/pull/1456
 [github-1462]: https://github.com/JuliaDocs/Documenter.jl/issues/1462
@@ -787,10 +813,16 @@
 [github-1553]: https://github.com/JuliaDocs/Documenter.jl/pull/1553
 [github-1556]: https://github.com/JuliaDocs/Documenter.jl/issues/1556
 [github-1557]: https://github.com/JuliaDocs/Documenter.jl/pull/1557
+[github-1559]: https://github.com/JuliaDocs/Documenter.jl/pull/1559
 [github-1561]: https://github.com/JuliaDocs/Documenter.jl/issues/1561
 [github-1567]: https://github.com/JuliaDocs/Documenter.jl/pull/1567
 [github-1568]: https://github.com/JuliaDocs/Documenter.jl/issues/1568
 [github-1569]: https://github.com/JuliaDocs/Documenter.jl/pull/1569
+[github-1577]: https://github.com/JuliaDocs/Documenter.jl/pull/1577
+[github-1590]: https://github.com/JuliaDocs/Documenter.jl/pull/1590
+[github-1594]: https://github.com/JuliaDocs/Documenter.jl/issues/1594
+[github-1595]: https://github.com/JuliaDocs/Documenter.jl/pull/1595
+[github-1596]: https://github.com/JuliaDocs/Documenter.jl/pull/1596
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
