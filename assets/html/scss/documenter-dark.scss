@@ -10,8 +10,9 @@ $bulmaswatch-import-font: false;
 
 $documenter-is-dark-theme: true;
 
+// Darkly sets the font variables, so we need to override them here
 $family-sans-serif: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-$family-monospace: 'Roboto Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'DejaVu Sans Mono', monospace;
+$family-monospace: 'JuliaMono', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'DejaVu Sans Mono', monospace;
 
 $info: #024c7d;
 $success: #008438;
