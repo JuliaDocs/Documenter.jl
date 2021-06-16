@@ -2,6 +2,8 @@
 
 ## Version `v0.27.1`
 
+* ![Enhancement][badge-enhancement] The wording of the text in the the old version warning box was improved. ([#1595][github-1595])
+
 * ![Bugfix][badge-bugfix] Documenter no longer throws an error when generating the version selector if there are no deployed versions. ([#1594][github-1594], [#1596][github-1596])
 
 ## Version `v0.27.0`
@@ -813,6 +815,7 @@
 [github-1577]: https://github.com/JuliaDocs/Documenter.jl/pull/1577
 [github-1590]: https://github.com/JuliaDocs/Documenter.jl/pull/1590
 [github-1594]: https://github.com/JuliaDocs/Documenter.jl/issues/1594
+[github-1595]: https://github.com/JuliaDocs/Documenter.jl/pull/1595
 [github-1596]: https://github.com/JuliaDocs/Documenter.jl/pull/1596
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
