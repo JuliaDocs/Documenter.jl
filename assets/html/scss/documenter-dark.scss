@@ -57,9 +57,6 @@ $button-static-color: $grey-lighter;
 $button-static-background-color: $background;
 $button-static-border-color: $border;
 
-// Import the CSS definition of Julia Mono
-@import "juliamono";
-
 // All secondary themes have to be nested in a theme--$(themename) class. When Documenter
 // switches themes, it applies this class to <html> and then disables the primary
 // stylesheet.
