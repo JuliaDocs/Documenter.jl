@@ -40,7 +40,7 @@ $lightness-unit: 8% !default;
 // -----
 // Declares the font family for the main text.
 $family-sans-serif: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;
-$family-monospace: 'Roboto Mono', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'DejaVu Sans Mono', monospace !default;
+$family-monospace: 'JuliaMono', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'DejaVu Sans Mono', monospace !default;
 // Note: declaring a font family here does not necessarily mean that it will be available
 // for the user. For uncommon fonts it is up to the user to also provide the necessary font
 // assets, e.g. via a CDN, in the makedocs() call.
