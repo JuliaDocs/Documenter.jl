@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.2`
+
+* ![Enhancement][badge-enhancement] The default font has been changed to `Lato Medium` so that the look of the text would be closer to the old Google Fonts version of Lato. ([#1602][github-1602], [#1604][github-1604])
+
 ## Version `v0.27.1`
 
 * ![Enhancement][badge-enhancement] The HTML output now uses [JuliaMono][juliamono] as the default monospace font, retrieved from CDNJS. Relatedly, the Lato font is also now retrieved from CDNJS, and the generated HTML pages no longer depend on Google Fonts. ([#618][github-618], [#1561][github-1561], [#1568][github-1568], [#1569][github-1569], [JuliaLang/www.julialang.org][julialangorg-1272])
@@ -823,6 +827,8 @@
 [github-1594]: https://github.com/JuliaDocs/Documenter.jl/issues/1594
 [github-1595]: https://github.com/JuliaDocs/Documenter.jl/pull/1595
 [github-1596]: https://github.com/JuliaDocs/Documenter.jl/pull/1596
+[github-1602]: https://github.com/JuliaDocs/Documenter.jl/issues/1602
+[github-1604]: https://github.com/JuliaDocs/Documenter.jl/pull/1604
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
