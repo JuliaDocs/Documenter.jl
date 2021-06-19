@@ -38,6 +38,12 @@ Usage questions can be posted on the [Julia Discourse forum][discourse-tag-url] 
 
 Contributions are very welcome, as are feature requests and suggestions. Please open an [issue][issues-url] if you encounter any problems. The [contributing page][contrib-url] has a few guidelines that should be followed when opening pull requests and contributing code.
 
+## Related packages
+
+Other packages that can be combined with `Documenter.jl` to document Julia projects include the following.
+* [Literate.jl](https://github.com/fredrikekre/Literate.jl)
+* [DemoCards.jl](https://github.com/johnnychen94/DemoCards.jl)
+
 [contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
 [gitter-url]: https://gitter.im/juliadocs/users
