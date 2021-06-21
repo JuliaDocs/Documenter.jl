@@ -40,9 +40,23 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 
 ## Related packages
 
-Other packages that can be combined with `Documenter.jl` to document Julia projects include the following.
+There are several packages that extend Documenter in different ways. The JuliaDocs organization maintains:
+
+* [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
+* [DocumenterMarkdown.jl](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
+
+Other third-party packages that can be combined with Documenter include:
+
 * [Literate.jl](https://github.com/fredrikekre/Literate.jl)
 * [DemoCards.jl](https://github.com/johnnychen94/DemoCards.jl)
+* [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
+* [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
+
+Finally, there are also a few other packages in the Julia ecosystem that are similar to Documenter, but fill a slightly different niche:
+
+* [Publish.jl](https://github.com/MichaelHatherly/Publish.jl)
+* [Franklin.jl](https://github.com/tlienart/Franklin.jl)
+* [Weave.jl](https://github.com/JunoLab/Weave.jl)
 
 [contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
