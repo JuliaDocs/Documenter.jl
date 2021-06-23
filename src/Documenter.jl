@@ -17,6 +17,14 @@ using Test: @testset, @test
 using DocStringExtensions
 import Base64: base64decode
 
+# Version number of Documenter itself
+const DOCUMENTER_VERSION = let
+    project = joinpath(dirname(dirname(pathof(Documenter))), "Project.toml")
+    toml = read(project, String)
+    m = match(r"^version\s*=\s\"(.*)\"$"m, toml)
+    VersionNumber(m[1])
+end
+
 """
     abstract type Plugin end
 
