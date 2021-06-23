@@ -38,6 +38,26 @@ Usage questions can be posted on the [Julia Discourse forum][discourse-tag-url] 
 
 Contributions are very welcome, as are feature requests and suggestions. Please open an [issue][issues-url] if you encounter any problems. The [contributing page][contrib-url] has a few guidelines that should be followed when opening pull requests and contributing code.
 
+## Related packages
+
+There are several packages that extend Documenter in different ways. The JuliaDocs organization maintains:
+
+* [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
+* [DocumenterMarkdown.jl](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
+
+Other third-party packages that can be combined with Documenter include:
+
+* [DemoCards.jl](https://github.com/johnnychen94/DemoCards.jl)
+* [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
+* [Literate.jl](https://github.com/fredrikekre/Literate.jl)
+* [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
+
+Finally, there are also a few other packages in the Julia ecosystem that are similar to Documenter, but fill a slightly different niche:
+
+* [Franklin.jl](https://github.com/tlienart/Franklin.jl)
+* [Publish.jl](https://github.com/MichaelHatherly/Publish.jl)
+* [Weave.jl](https://github.com/JunoLab/Weave.jl)
+
 [contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
 [gitter-url]: https://gitter.im/juliadocs/users
