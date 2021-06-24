@@ -796,13 +796,6 @@ function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scrip
     )
 end
 
-function documenter_version()
-    project = joinpath(dirname(dirname(pathof(Documenter))), "Project.toml")
-    toml = read(project, String)
-    m = match(r"^version\s*=\s\"(.*)\"$"m, toml)
-    return VersionNumber(m[1])
-end
-
 """
 Renders the modal settings dialog.
 """
@@ -820,7 +813,7 @@ function render_settings(ctx)
     buildinfo = p(
         "This document was generated with ",
         a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"),
-        " version $(documenter_version())",
+        " version $(Documenter.DOCUMENTER_VERSION)",
         " on ",
         span[".colophon-date", :title => now_full](now_short),
         ". ",

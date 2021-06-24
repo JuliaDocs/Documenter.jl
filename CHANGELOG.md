@@ -2,7 +2,7 @@
 
 ## Version `v0.27.3`
 
-* ![Enhancement][badge-enhancement] The version of Documenter used for generating a document is now displayed in the build information. ([#1609][github-1609])
+* ![Enhancement][badge-enhancement] The version of Documenter used for generating a document is now displayed in the build information. ([#1609][github-1609], [#1611][github-1611])
 
 ## Version `v0.27.2`
 
@@ -834,6 +834,7 @@
 [github-1602]: https://github.com/JuliaDocs/Documenter.jl/issues/1602
 [github-1604]: https://github.com/JuliaDocs/Documenter.jl/pull/1604
 [github-1609]: https://github.com/JuliaDocs/Documenter.jl/pull/1609
+[github-1611]: https://github.com/JuliaDocs/Documenter.jl/pull/1611
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
