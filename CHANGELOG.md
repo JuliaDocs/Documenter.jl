@@ -2,6 +2,8 @@
 
 ## Version `v0.27.3`
 
+* ![Feature][badge-feature] Documenter can now deploy documentation directly to the "root" instead of versioned folders. ([#1615][github-1615], [#1616][github-1616])
+
 * ![Enhancement][badge-enhancement] The version of Documenter used for generating a document is now displayed in the build information. ([#1609][github-1609], [#1611][github-1611])
 
 * ![Bugfix][badge-bugfix] The HTML front end no longer uses ligatures when displaying code (with JuliaMono). ([#1610][github-1610], [#1617][github-1617])
@@ -838,6 +840,8 @@
 [github-1609]: https://github.com/JuliaDocs/Documenter.jl/pull/1609
 [github-1610]: https://github.com/JuliaDocs/Documenter.jl/issues/1610
 [github-1611]: https://github.com/JuliaDocs/Documenter.jl/pull/1611
+[github-1615]: https://github.com/JuliaDocs/Documenter.jl/issues/1615
+[github-1616]: https://github.com/JuliaDocs/Documenter.jl/pull/1616
 [github-1617]: https://github.com/JuliaDocs/Documenter.jl/pull/1617
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079

@@ -409,6 +409,9 @@ the generated html. The following entries are valid in the `versions` vector:
    and generate a url from which `"second"` can be accessed.
    The second argument can be `"v^"`, to point to the maximum version docs
    (as in e.g. `"stable" => "v^"`).
+If `versions = nothing` documentation will be deployed directly to the "root", i.e.
+not to a versioned subfolder. See the manual section on
+[Deploying without the versioning scheme](@ref) for more details.
 
 **`push_preview`** a boolean that specifies if preview documentation should be
 deployed from pull requests or not. If your published documentation is hosted
@@ -480,6 +483,11 @@ function deploydocs(;
         deploy_repo = deploy_decision.repo
         deploy_subfolder = deploy_decision.subfolder
         deploy_is_preview = deploy_decision.is_preview
+
+        # Non-versioned docs: deploy to root
+        if versions === nothing && !deploy_is_preview
+            deploy_subfolder = nothing
+        end
 
         # Add local bin path if needed.
         Deps.updatepath!()
@@ -585,26 +593,30 @@ function git_push(
         end
 
         # Copy docs to `subfolder` directory.
-        deploy_dir = joinpath(dirname, subfolder)
+        deploy_dir = subfolder === nothing ? dirname : joinpath(dirname, subfolder)
         gitrm_copy(target_dir, deploy_dir)
-        Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
-        # Expand the users `versions` vector
-        entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
+        if versions !== nothing
+            # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
+            Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
-        # Create the versions.js file containing a list of `entries`.
-        # This must always happen after the folder copying.
-        Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
+            # Expand the users `versions` vector
+            entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
 
-        # generate the symlinks, make sure we don't overwrite devurl
-        cd(dirname) do
-            for kv in symlinks
-                i = findfirst(x -> x.first == devurl, symlinks)
-                if i === nothing
-                    rm_and_add_symlink(kv.second, kv.first)
-                else
-                    throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
-                        "`devurl = $(devurl)` with the same name.")))
+            # Create the versions.js file containing a list of `entries`.
+            # This must always happen after the folder copying.
+            Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
+
+            # generate the symlinks, make sure we don't overwrite devurl
+            cd(dirname) do
+                for kv in symlinks
+                    i = findfirst(x -> x.first == devurl, symlinks)
+                    if i === nothing
+                        rm_and_add_symlink(kv.second, kv.first)
+                    else
+                        throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
+                            "`devurl = $(devurl)` with the same name.")))
+                    end
                 end
             end
         end
@@ -734,12 +746,22 @@ filesystems that are case-insensitive (e.g. on OS X, Windows). Without doing a `
 first, `git add -A` will not detect case changes in filenames.
 """
 function gitrm_copy(src, dst)
-    # --ignore-unmatch so that we wouldn't get errors if dst does not exist
-    run(`git rm -rf --ignore-unmatch $(dst)`)
-    # git rm also removed parent directories
+    # Remove individual entries since with versions=nothing the root
+    # would be removed and we want to preserve previews
+    if isdir(dst)
+        for x in filter!(!in((".git", "previews")), readdir(dst))
+            # --ignore-unmatch so that we wouldn't get errors if dst does not exist
+            run(`git rm -rf --ignore-unmatch $(joinpath(dst, x))`)
+        end
+    end
+    # git rm also remove parent directories
     # if they are empty so need to mkpath after
     mkpath(dst)
-    cp(src, dst; force=true)
+    # Copy individual entries rather then the full folder since with
+    # versions=nothing it would replace the root including e.g. the .git folder
+    for x in readdir(src)
+        cp(joinpath(src, x), joinpath(dst, x); force=true)
+    end
 end
 
 function getenv(regex::Regex)
