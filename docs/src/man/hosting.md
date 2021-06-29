@@ -413,7 +413,12 @@ _This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/Ti
 
 ## Documentation Versions
 
-The documentation is deployed as follows:
+!!! note
+    This section describes the default mode of deployment, which is by version.
+    See the following section on [Deploying without the versioning scheme](@ref)
+    if you want to deploy directly to the "root".
+
+By default the documentation is deployed as follows:
 
 - Documentation built for a tag `vX.Y.Z` will be stored in a folder `vX.Y.Z`.
 
@@ -472,6 +477,25 @@ and text of the image can be changed by altering `docs-stable-blue` as described
 [shields.io](https://shields.io), though it is recommended that package authors follow this
 standard to make it easier for potential users to find documentation links across multiple
 package README files.
+
+### Deploying without the versioning scheme
+
+Documenter supports deployment directly to the website root ignoring any version
+subfolders as described in the previous section. This can be useful if you use
+Documenter for something that is not a versioned project, for example.
+To do this, pass `versions = nothing` to the [`deploydocs`](@ref) function.
+Now the pages should be found directly at
+
+```
+https://USER_NAME.github.io/PACKAGE_NAME.jl/
+```
+
+Preview builds are still deployed to the `previews` subfolder.
+
+!!! note
+    The landing page for the [JuliaDocs GitHub organization](https://juliadocs.github.io)
+    ([source repository](https://github.com/JuliaDocs/juliadocs.github.io)) is one example
+    where this functionality is used.
 
 ---
 

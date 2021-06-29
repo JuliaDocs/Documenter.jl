@@ -483,9 +483,11 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
+            target_url = "https://$(owner).github.io/$(repo)/"
             if subfolder !== nothing
-                json["target_url"] = "https://$(owner).github.io/$(repo)/$(subfolder)/"
+                target_url *= "$(subfolder)/"
             end
+            json["target_url"] = target_url
         elseif type == "error"
             json["description"] = "Documentation build errored"
         elseif type == "failure"
