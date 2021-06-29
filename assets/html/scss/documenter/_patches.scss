@@ -35,6 +35,10 @@
   }
 }
 
+pre, code {
+  font-variant-ligatures: no-contextual;
+}
+
 // We want to be able to disable certain breadcrumb components
 .breadcrumb a.is-disabled {
   cursor: default;
