@@ -172,7 +172,7 @@ end
         end
     end
 
-    @test "Dollar escapes" begin
+    @testset "Dollar escapes" begin
         @test string(HTMLWriter.mdconvert("\$1")) == "\$1"
         @test string(HTMLWriter.mdconvert("\$")) == "<span>\$</span>"
     end
