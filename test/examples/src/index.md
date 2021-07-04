@@ -501,3 +501,8 @@ MarkdownOnly("""
 ```1392-test-language 1392-extra-info
 julia> function foo end;
 ```
+
+# Issue 890
+
+I will pay \$1 if $x^2$ is displayed correctly. People may also write \$s or
+even money bag\$\$.

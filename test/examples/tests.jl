@@ -43,6 +43,10 @@ end
             @test occursin("documenter-example-output", index_html)
             @test occursin("1392-test-language", index_html)
             @test !occursin("1392-extra-info", index_html)
+            @test occursin(
+                raw"<p>I will pay <span>$</span>1 if <span>$x^2$</span> is displayed correctly. People may also write <span>$</span>s or even money bag<span>$</span><span>$</span>.</p>",
+                index_html,
+            )
 
             example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
             @test occursin("documenter-example-output", example_output_html)
