@@ -58,7 +58,7 @@ Some projects or organizations maintain dedicated documentation repositories tha
 separate from specific packages.
 
 - [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/)
-- [JuliaDocs landing page](https://juliadocs.github.io/dev/)
+- [JuliaDocs landing page](https://juliadocs.github.io/)
 - [JuliaImages](https://juliaimages.org)
 - [JuliaMusic](https://juliamusic.github.io/JuliaMusic_documentation.jl/dev/)
 - [Plots.jl](https://docs.juliaplots.org/dev/)
