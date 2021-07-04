@@ -21,7 +21,7 @@ import Base64: base64decode
 const DOCUMENTER_VERSION = let
     project = joinpath(dirname(dirname(pathof(Documenter))), "Project.toml")
     toml = read(project, String)
-    m = match(r"^version\s*=\s\"(.*)\"$"m, toml)
+    m = match(r"(*ANYCRLF)^version\s*=\s\"(.*)\"$"m, toml)
     VersionNumber(m[1])
 end
 
