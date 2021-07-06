@@ -7604,6 +7604,87 @@ html.theme--documenter-dark {
     overflow-y: scroll;
     text-rendering: optimizeLegibility;
     text-size-adjust: 100%; }
+  html.theme--documenter-dark .ansi span.sgr1 {
+    font-weight: bolder; }
+  html.theme--documenter-dark .ansi span.sgr2 {
+    font-weight: lighter; }
+  html.theme--documenter-dark .ansi span.sgr3 {
+    font-style: italic; }
+  html.theme--documenter-dark .ansi span.sgr4 {
+    text-decoration: underline; }
+  html.theme--documenter-dark .ansi span.sgr7 {
+    color: #1f2424;
+    background-color: #fff; }
+  html.theme--documenter-dark .ansi span.sgr8 {
+    color: transparent; }
+    html.theme--documenter-dark .ansi span.sgr8 span {
+      color: transparent; }
+  html.theme--documenter-dark .ansi span.sgr9 {
+    text-decoration: line-through; }
+  html.theme--documenter-dark .ansi span.sgr30 {
+    color: #242424; }
+  html.theme--documenter-dark .ansi span.sgr31 {
+    color: #e74c3c; }
+  html.theme--documenter-dark .ansi span.sgr32 {
+    color: #2ecc71; }
+  html.theme--documenter-dark .ansi span.sgr33 {
+    color: #f1b70e; }
+  html.theme--documenter-dark .ansi span.sgr34 {
+    color: #3498db; }
+  html.theme--documenter-dark .ansi span.sgr35 {
+    color: #8e44ad; }
+  html.theme--documenter-dark .ansi span.sgr36 {
+    color: #137886; }
+  html.theme--documenter-dark .ansi span.sgr37 {
+    color: #dbdee0; }
+  html.theme--documenter-dark .ansi span.sgr40 {
+    background-color: #242424; }
+  html.theme--documenter-dark .ansi span.sgr41 {
+    background-color: #e74c3c; }
+  html.theme--documenter-dark .ansi span.sgr42 {
+    background-color: #2ecc71; }
+  html.theme--documenter-dark .ansi span.sgr43 {
+    background-color: #f1b70e; }
+  html.theme--documenter-dark .ansi span.sgr44 {
+    background-color: #3498db; }
+  html.theme--documenter-dark .ansi span.sgr45 {
+    background-color: #8e44ad; }
+  html.theme--documenter-dark .ansi span.sgr46 {
+    background-color: #137886; }
+  html.theme--documenter-dark .ansi span.sgr47 {
+    background-color: #dbdee0; }
+  html.theme--documenter-dark .ansi span.sgr90 {
+    color: #8c9b9d; }
+  html.theme--documenter-dark .ansi span.sgr91 {
+    color: #ef8b80; }
+  html.theme--documenter-dark .ansi span.sgr92 {
+    color: #69dd9a; }
+  html.theme--documenter-dark .ansi span.sgr93 {
+    color: #f4c53e; }
+  html.theme--documenter-dark .ansi span.sgr94 {
+    color: #75b9e7; }
+  html.theme--documenter-dark .ansi span.sgr95 {
+    color: #a563c1; }
+  html.theme--documenter-dark .ansi span.sgr96 {
+    color: #1db4c9; }
+  html.theme--documenter-dark .ansi span.sgr97 {
+    color: #ecf0f1; }
+  html.theme--documenter-dark .ansi span.sgr100 {
+    background-color: #8c9b9d; }
+  html.theme--documenter-dark .ansi span.sgr101 {
+    background-color: #ef8b80; }
+  html.theme--documenter-dark .ansi span.sgr102 {
+    background-color: #69dd9a; }
+  html.theme--documenter-dark .ansi span.sgr103 {
+    background-color: #f4c53e; }
+  html.theme--documenter-dark .ansi span.sgr104 {
+    background-color: #75b9e7; }
+  html.theme--documenter-dark .ansi span.sgr105 {
+    background-color: #a563c1; }
+  html.theme--documenter-dark .ansi span.sgr106 {
+    background-color: #1db4c9; }
+  html.theme--documenter-dark .ansi span.sgr107 {
+    background-color: #ecf0f1; }
   html.theme--documenter-dark .hljs {
     background: #2b2b2b;
     color: #f8f8f2; }

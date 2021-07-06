@@ -7582,6 +7582,126 @@ html {
   #documenter .docs-main #documenter-search-results .docs-highlight {
     background-color: yellow; }
 
+.ansi span.sgr1 {
+  font-weight: bolder; }
+
+.ansi span.sgr2 {
+  font-weight: lighter; }
+
+.ansi span.sgr3 {
+  font-style: italic; }
+
+.ansi span.sgr4 {
+  text-decoration: underline; }
+
+.ansi span.sgr7 {
+  color: white;
+  background-color: #222222; }
+
+.ansi span.sgr8 {
+  color: transparent; }
+  .ansi span.sgr8 span {
+    color: transparent; }
+
+.ansi span.sgr9 {
+  text-decoration: line-through; }
+
+.ansi span.sgr30 {
+  color: #242424; }
+
+.ansi span.sgr31 {
+  color: #a70800; }
+
+.ansi span.sgr32 {
+  color: #1a9847; }
+
+.ansi span.sgr33 {
+  color: #fac800; }
+
+.ansi span.sgr34 {
+  color: #244d8f; }
+
+.ansi span.sgr35 {
+  color: #931fff; }
+
+.ansi span.sgr36 {
+  color: #178d9c; }
+
+.ansi span.sgr37 {
+  color: #dbdbdb; }
+
+.ansi span.sgr40 {
+  background-color: #242424; }
+
+.ansi span.sgr41 {
+  background-color: #a70800; }
+
+.ansi span.sgr42 {
+  background-color: #1a9847; }
+
+.ansi span.sgr43 {
+  background-color: #fac800; }
+
+.ansi span.sgr44 {
+  background-color: #244d8f; }
+
+.ansi span.sgr45 {
+  background-color: #931fff; }
+
+.ansi span.sgr46 {
+  background-color: #178d9c; }
+
+.ansi span.sgr47 {
+  background-color: #dbdbdb; }
+
+.ansi span.sgr90 {
+  color: #7a7a7a; }
+
+.ansi span.sgr91 {
+  color: #da0b00; }
+
+.ansi span.sgr92 {
+  color: #22c35b; }
+
+.ansi span.sgr93 {
+  color: #ffdd57; }
+
+.ansi span.sgr94 {
+  color: #2e63b8; }
+
+.ansi span.sgr95 {
+  color: #b86bff; }
+
+.ansi span.sgr96 {
+  color: #1db5c9; }
+
+.ansi span.sgr97 {
+  color: whitesmoke; }
+
+.ansi span.sgr100 {
+  background-color: #7a7a7a; }
+
+.ansi span.sgr101 {
+  background-color: #da0b00; }
+
+.ansi span.sgr102 {
+  background-color: #22c35b; }
+
+.ansi span.sgr103 {
+  background-color: #ffdd57; }
+
+.ansi span.sgr104 {
+  background-color: #2e63b8; }
+
+.ansi span.sgr105 {
+  background-color: #b86bff; }
+
+.ansi span.sgr106 {
+  background-color: #1db5c9; }
+
+.ansi span.sgr107 {
+  background-color: whitesmoke; }
+
 /*!
   Theme: Default
   Description: Original highlight.js style

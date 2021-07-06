@@ -477,6 +477,42 @@ draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 ![](plot.svg)
 ````
 
+**Color output**
+
+`@example` blocks support colored text output by mapping [ANSI escape codes]
+(https://en.wikipedia.org/wiki/ANSI_escape_code) to HTML. For example, this block:
+````markdown
+```@example
+printstyled("Here are some colors:\n"; color=:red, bold=true)
+for color in 0:15
+    print("\e[38;5;$(color);48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
+```
+````
+results in the following input and output blocks:
+```@example
+printstyled("Here are some colors:\n"; color=:red, bold=true)
+for color in 0:15
+    print("\e[38;5;$(color);48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
+```
+
+!!! note "Disable color output"
+    To disable color output globally, pass `ansicolor=false` to [`Documenter.HTML`](@ref),
+    and to disable locally for the block, use `ansicolor=false`, like so:
+
+    ````markdown
+    ```@example; ansicolor=false
+    printstyled("hello, world"; color=:red, bold=true)
+    ```
+    ````
+
 **Delayed Execution of `@example` Blocks**
 
 `@example` blocks accept a keyword argument `continued` which can be set to `true` or `false`
@@ -548,6 +584,26 @@ ERROR: DomainError with -1.0:
 sqrt will only return a complex result if called with a complex argument. Try sqrt(Complex(x)).
 ```
 ````
+
+`@repl` blocks support colored output, just like `@example` blocks. The following block
+````markdown
+```@repl
+printstyled("hello, world"; color=:red, bold=true)
+```
+````
+gives
+```@repl
+printstyled("hello, world"; color=:red, bold=true)
+```
+!!! note "Disable color output"
+    To disable color output globally, pass `ansicolor=false` to [`Documenter.HTML`](@ref),
+    and to disable locally for the block, use `ansicolor=false`, like so:
+
+    ````markdown
+    ```@repl; ansicolor=false
+    printstyled("hello, world"; color=:red, bold=true)
+    ```
+    ````
 
 Named `@repl <name>` blocks behave in the same way as named `@example <name>` blocks.
 
