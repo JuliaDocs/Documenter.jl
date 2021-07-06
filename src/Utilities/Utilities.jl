@@ -611,20 +611,21 @@ function mdparse(s::AbstractString; mode=:single)
 end
 
 # Capturing output in different representations similar to IJulia.jl
-function limitstringmime(m::MIME"text/plain", x)
+function limitstringmime(m::MIME"text/plain", x; context = nothing)
     io = IOBuffer()
-    show(IOContext(io, :limit=> true), m, x)
+    ioc = IOContext(context === nothing ? io : IOContext(io, context), :limit => true)
+    show(ioc, m, x)
     return String(take!(io))
 end
-function display_dict(x)
+function display_dict(x; context = nothing)
     out = Dict{MIME,Any}()
     x === nothing && return out
     # Always generate text/plain
-    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x)
+    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context = context)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
               MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
               MIME"text/latex"(), MIME"text/markdown"()]
-        showable(m, x) && (out[m] = stringmime(m, x))
+        showable(m, x) && (out[m] = stringmime(m, x, context = context))
     end
     return out
 end
@@ -661,8 +662,8 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
-function get_sandbox_module!(meta, prefix, name = "")
-    sym = if isempty(name)
+function get_sandbox_module!(meta, prefix, name = nothing)
+    sym = if name === nothing || isempty(name)
         Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
     else
         Symbol("__", prefix, "__named__", name)

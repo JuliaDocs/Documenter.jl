@@ -59,6 +59,8 @@ import ...Documenter:
 
 import Markdown
 
+import ANSIColoredPrinters
+
 mutable struct Context{I <: IO} <: IO
     io::I
     in_header::Bool
@@ -400,7 +402,9 @@ function latex(io::IO, d::Dict{MIME,Any})
     elseif haskey(d, MIME"text/markdown"())
         latex(io, Markdown.parse(d[MIME"text/markdown"()]))
     elseif haskey(d, MIME"text/plain"())
-        latex(io, Markdown.Code(d[MIME"text/plain"()]))
+        text = d[MIME"text/plain"()]
+        out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
+        latex(io, Markdown.Code(out))
     else
         error("this should never happen.")
     end
@@ -446,6 +450,8 @@ function latex(io::IO, code::Markdown.Code)
     language = isempty(language) ? "none" :
         (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
         language
+    text = IOBuffer(code.code)
+    code.code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code.code
     if language in LEXER
         _print(io, "\n\\begin{minted}")

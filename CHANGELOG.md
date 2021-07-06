@@ -1,5 +1,10 @@
 # Documenter.jl changelog
 
+
+## Version `v0.27.4`
+
+* ![Feature][badge-feature] `@example`- and `@repl`-blocks now support colored output by mapping ANSI escape sequences to HTML. This requires Julia >= 1.6 and passing `ansicolor=true` to `Documenter.HTML` (e.g. `makedocs(format=Documenter.HTML(ansicolor=true, ...), ...)`). In Documenter 0.28.0 this will be the default so to (preemptively) opt-out pass `ansicolor=false`. ([#1441][github-1441])
+
 ## Version `v0.27.3`
 
 * ![Feature][badge-feature] Documenter can now deploy documentation directly to the "root" instead of versioned folders. ([#1615][github-1615], [#1616][github-1616])
@@ -784,6 +789,7 @@
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
 [github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
+[github-1441]: https://github.com/JuliaDocs/Documenter.jl/pull/1441
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
 [github-1449]: https://github.com/JuliaDocs/Documenter.jl/issues/1449

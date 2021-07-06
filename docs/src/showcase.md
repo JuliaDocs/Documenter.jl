@@ -67,7 +67,7 @@ Finally, admonitions for notes, warnings and such:
     #### Heading 4
     ##### Heading 5
     ###### Heading 6
-    
+
 ###### Info admonition
 !!! info "'info' admonition"
     This is a `!!! info`-type admonition. This is the same as a `!!! note`-type.
@@ -358,6 +358,66 @@ However, do note that if the block prints to standard output, but also has a fin
 ```@example
 println("Hello World")
 42
+```
+
+### Color output
+
+Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output,
+tranforming ANSI color codes to HTML.
+
+!!! compat "Julia 1.6"
+    Color output requires Julia 1.6 or higher.
+    To enable color output pass `ansicolor=true` to [`Documenter.HTML`](@ref).
+
+#### Colored `@example` block output
+
+**Input:**
+````markdown
+```@example
+code_typed(sqrt, (Float64,))
+```
+````
+
+**Output:**
+```@example
+code_typed(sqrt, (Float64,))
+```
+
+#### Colored `@repl` block output
+
+**Input:**
+````markdown
+```@repl
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+````
+
+**Output:**
+```@repl
+printstyled("This should be in bold cyan.", color=:cyan, bold=true)
+```
+
+**Locally disabled color:**
+````markdown
+```@repl; ansicolor=false
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+````
+```@repl; ansicolor=false
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+
+#### Raw ANSI code output
+
+Regardless of the color setting, when you print the ANSI escape codes directly, coloring is
+enabled.
+```@example
+for color in 0:15
+    print("\e[38;5;$color;48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
 ```
 
 ### REPL-type
