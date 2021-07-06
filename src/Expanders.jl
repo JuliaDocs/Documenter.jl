@@ -629,8 +629,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         end
     end
 
-    code = split(x.code, '\n'; limit = 2)[end]
-    result, out = nothing, IOBuffer()
+    multicodeblock = Markdown.Code[]
     for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
         buffer = IOBuffer()
         input  = droplines(str)
@@ -652,15 +651,19 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         else
             Documenter.DocTests.error_to_string(buffer, c.value, [])
         end
-        isempty(input) || println(out, prepend_prompt(input))
+        if !isempty(input)
+            push!(multicodeblock, Markdown.Code("julia-repl", prepend_prompt(input)))
+        end
+        out = IOBuffer()
         print(out, c.output)
         if isempty(input) || isempty(output)
             println(out)
         else
             println(out, output, "\n")
         end
+        push!(multicodeblock, Markdown.Code("documenter-ansi", rstrip(String(take!(out)))))
     end
-    page.mapping[x] = Markdown.Code("julia-repl", rstrip(String(take!(out))))
+    page.mapping[x] = Documents.MultiCodeBlock("julia-repl", multicodeblock)
 end
 
 # @setup
