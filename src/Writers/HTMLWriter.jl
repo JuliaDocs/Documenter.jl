@@ -1702,6 +1702,18 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     class = isempty(language) ? "nohighlight" : "language-$(language)"
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
         return pre(domify_ansicoloredtext(c.code, "nohighlight"))
+    elseif language == "julia-repl" && occursin(r";\s*ansicolor\s*=\s*true", c.language)
+        multicodeblock = Markdown.Code[]
+        for (input, output) in Documenter.DocTests.repl_splitter(c.code)
+            if !occursin("\e[", output) && occursin("\\e[", output)
+                output = replace(output, "\\e[" => "\e[")
+            end
+            push!(multicodeblock,
+                  Markdown.Code("julia-repl", Documenter.Expanders.prepend_prompt(input)),
+                  Markdown.Code("documenter-ansi", output),
+            )
+        end
+        return mdconvert(Documents.MultiCodeBlock("julia-repl", multicodeblock), parent; kwargs...)
     else
         return pre(code[".$class"](c.code))
     end
