@@ -11,6 +11,8 @@ import ...Documenter:
     Documenter,
     Utilities
 
+import ANSIColoredPrinters
+
 # import Markdown as MarkdownStdlib
 module _Markdown
     import Markdown
@@ -181,7 +183,9 @@ function render(io::IO, mime::MIME"text/plain", d::Dict{MIME,Any}, page, doc)
             ![]($(filename).gif)
             """)
     elseif haskey(d, MIME"text/plain"())
-        render(io, mime, MarkdownStdlib.Code(d[MIME"text/plain"()]), page, doc)
+        text = d[MIME"text/plain"()]
+        out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
+        render(io, mime, MarkdownStdlib.Code(out), page, doc)
     else
         error("this should never happen.")
     end

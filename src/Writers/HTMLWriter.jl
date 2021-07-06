@@ -58,6 +58,8 @@ using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
+import ANSIColoredPrinters
+
 export HTML
 
 "Data attribute for the script inserting a wraning for outdated docs."
@@ -315,6 +317,8 @@ Default is `nothing`, in which case no canonical link is set.
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
 
+**`ansicolor`** can be used to enable/disable colored output from `@repl` and `@example` blocks globally.
+
 **`sidebar_sitename`** determines whether the site name is shown in the sidebar or not.
 Setting it to `false` can be useful when the logo already contains the name of the package.
 Defaults to `true`.
@@ -388,6 +392,7 @@ struct HTML <: Documenter.Writer
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
     footer        :: Union{Markdown.MD, Nothing}
+    ansicolor     :: Bool
     lang          :: String
     warn_outdated :: Bool
 
@@ -403,6 +408,7 @@ struct HTML <: Documenter.Writer
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
+            ansicolor     :: Bool = false, # true in 0.28
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
             lang          :: String = "en",
@@ -434,7 +440,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang, warn_outdated)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer, ansicolor, lang, warn_outdated)
     end
 end
 
@@ -493,6 +499,8 @@ module RD
             ["\$"],
             raw"""
             $(document).ready(function() {
+                hljs.configure({ignoreUnescapedHTML: true}); // for ANSI color support
+                /* TODO: add a plugin for unescaped HTML */
                 hljs.highlightAll();
             })
             """
@@ -1622,6 +1630,28 @@ function collect_subsections(page::Documents.Page)
     return sections
 end
 
+function domify_ansicoloredtext(text::AbstractString, class = "")
+    @tags pre
+    stack = DOM.Node[pre()] # this `pre` is dummy
+    function cb(io::IO, printer, tag::String, attrs::Dict{Symbol, String})
+        text = String(take!(io))
+        children = stack[end].nodes
+        isempty(text) || push!(children, Tag(Symbol("#RAW#"))(text))
+        if startswith(tag, "/")
+            pop!(stack)
+        else
+            parent = Tag(Symbol(tag))[attrs]
+            push!(children, parent)
+            push!(stack, parent)
+        end
+        return true
+    end
+    ansiclass = isempty(class) ? "ansi" : class * " ansi"
+    printer = ANSIColoredPrinters.HTMLPrinter(IOBuffer(text), callback = cb,
+                                              root_tag = "code", root_class = ansiclass)
+    show(IOBuffer(), MIME"text/html"(), printer)
+    return stack[1].nodes
+end
 
 # mdconvert
 # ------------------------------------------------------------------------------
@@ -1670,7 +1700,11 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
     language = Utilities.codelang(c.language)
     class = isempty(language) ? "nohighlight" : "language-$(language)"
-    pre(code[".$class"](c.code))
+    if language == "julia-repl"
+        return pre(domify_ansicoloredtext(c.code, class))
+    else
+        return pre(code[".$class"](c.code))
+    end
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
 
@@ -1865,7 +1899,8 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
         @tags pre
-        return pre[".documenter-example-output"](d[MIME"text/plain"()])
+        text = d[MIME"text/plain"()]
+        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight"))
     else
         error("this should never happen.")
     end
