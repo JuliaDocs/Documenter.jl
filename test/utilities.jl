@@ -460,6 +460,9 @@ end
         @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.Utilities.codelang("&%^ ***") == "&%^"
+        @test Documenter.Utilities.codelang("julia-repl; x=y") == "julia-repl"
+        @test Documenter.Utilities.codelang("julia-repl ; x=y") == "julia-repl"
+        @test Documenter.Utilities.codelang("julia-repl name; x=y") == "julia-repl"
     end
 end
 

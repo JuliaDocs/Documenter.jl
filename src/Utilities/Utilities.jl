@@ -658,8 +658,8 @@ Base.getindex(default::Default) = default.value
 Extracts the language identifier from the info string of a Markdown code block.
 """
 function codelang(infostring::AbstractString)
-    m = match(r"^\s*(\S*)", infostring)
-    return m[1]
+    m = match(r"^\s*([^\r\n\t\f\v ;]*)", infostring) # \S + ;
+    return String(m[1])
 end
 
 function get_sandbox_module!(meta, prefix, name = nothing)

@@ -459,7 +459,10 @@ function populate!(contents::ContentsNode, document::Document)
     return contents
 end
 
-# some replacements for jldoctest blocks
+# Misc stuff
+# 1. Replaces jldoctest code block language with julia-repl/julia
+# 2. Removes output from block-style doctests
+# 3. Drops keyword args from code block language
 function doctest_replace!(doc::Documents.Document)
     for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
@@ -472,14 +475,17 @@ function doctest_replace!(doc::Documents.Document)
     end
 end
 function doctest_replace!(block::Markdown.Code)
-    startswith(block.language, "jldoctest") || return false
-    # suppress output for `#output`-style doctests with `output=false` kwarg
-    if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.language)
-        input = first(split(block.code, "# output\n", limit = 2))
-        block.code = rstrip(input)
+    if startswith(block.language, "jldoctest")
+        # suppress output for `#output`-style doctests with `output=false` kwarg
+        if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.language)
+            input = first(split(block.code, "# output\n", limit = 2))
+            block.code = rstrip(input)
+        end
+        # correct the language field
+        block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
+    else
+        block.language = Utilities.codelang(block.language)
     end
-    # correct the language field
-    block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
     return false
 end
 doctest_replace!(block) = true
