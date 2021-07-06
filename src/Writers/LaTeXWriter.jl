@@ -478,6 +478,10 @@ function latex(io::IO, code::Markdown.Code)
     end
 end
 
+function latex(io::IO, mcb::Documents.MultiCodeBlock)
+    latex(io, Documents.join_multiblock(mcb))
+end
+
 function _print_code_escapes_minted(io, s::AbstractString)
     for ch in s
         ch === '#' ? _print(io, "##%") :

@@ -145,6 +145,10 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.EvalNode, page, 
     node.result === nothing ? nothing : render(io, mime, node.result, page, doc)
 end
 
+function render(io::IO, mime::MIME"text/plain", mcb::Documents.MultiCodeBlock, page, doc)
+    render(io, mime, Documents.join_multiblock(mcb), page, doc)
+end
+
 # Select the "best" representation for Markdown output.
 using Base64: base64decode
 function render(io::IO, mime::MIME"text/plain", d::Documents.MultiOutput, page, doc)

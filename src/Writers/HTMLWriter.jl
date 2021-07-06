@@ -1700,11 +1700,28 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
     @tags pre code
     language = Utilities.codelang(c.language)
     class = isempty(language) ? "nohighlight" : "language-$(language)"
-    if language == "julia-repl"
-        return pre(domify_ansicoloredtext(c.code, class))
+    if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
+        return pre(domify_ansicoloredtext(c.code, "nohighlight"))
     else
         return pre(code[".$class"](c.code))
     end
+end
+function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
+    @tags pre br
+    p = pre()
+    for (i, thing) in enumerate(mcb.content)
+        pre = mdconvert(thing, parent; kwargs...)
+        code = pre.nodes[1]
+        # TODO: This should probably be added to the CSS later on...
+        push!(code.attributes, :style => "display:block;")
+        push!(p.nodes, code)
+        # insert a <br> between output and the next input
+        if i != length(mcb.content) &&
+           findnext(x -> x.language == mcb.language, mcb.content, i + 1) == i + 1
+            push!(p.nodes, br())
+        end
+    end
+    return p
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
 

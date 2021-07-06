@@ -169,6 +169,24 @@ struct MultiOutput
     content::Vector
 end
 
+struct MultiCodeBlock
+    language::String
+    content::Vector
+end
+function join_multiblock(mcb::MultiCodeBlock)
+    io = IOBuffer()
+    for (i, thing) in enumerate(mcb.content)
+        print(io, thing.code)
+        if i != length(mcb.content)
+            println(io)
+            if findnext(x -> x.language == mcb.language, mcb.content, i + 1) == i + 1
+                println(io)
+            end
+        end
+    end
+    return Markdown.Code(mcb.language, String(take!(io)))
+end
+
 # Navigation
 # ----------------------
 
