@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.4`
+
+* ![Bugfix][badge-bugfix] Dollar signs in the HTML output no longer get accidentally misinterpreted as math delimiters in the browser. ([#890](github-890), [#1625](github-1625))
+
 ## Version `v0.27.3`
 
 * ![Feature][badge-feature] Documenter can now deploy documentation directly to the "root" instead of versioned folders. ([#1615][github-1615], [#1616][github-1616])
@@ -638,6 +642,7 @@
 [github-879]: https://github.com/JuliaDocs/Documenter.jl/pull/879
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
 [github-886]: https://github.com/JuliaDocs/Documenter.jl/pull/886
+[github-890]: https://github.com/JuliaDocs/Documenter.jl/issues/890
 [github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
@@ -843,6 +848,7 @@
 [github-1615]: https://github.com/JuliaDocs/Documenter.jl/issues/1615
 [github-1616]: https://github.com/JuliaDocs/Documenter.jl/pull/1616
 [github-1617]: https://github.com/JuliaDocs/Documenter.jl/pull/1617
+[github-1625]: https://github.com/JuliaDocs/Documenter.jl/pull/1625
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
