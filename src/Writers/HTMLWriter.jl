@@ -1676,7 +1676,17 @@ The `parent` argument is passed to allow for context-dependant conversions.
 """
 mdconvert(md; kwargs...) = mdconvert(md, md; kwargs...)
 
-mdconvert(text::AbstractString, parent; kwargs...) = DOM.Node(text)
+function mdconvert(text::AbstractString, parent; kwargs...)
+    # Javascript LaTeX engines have a hard time dealing with `$` floating around
+    # because they use them as in-line escapes. You can try a few different
+    # solutions that don't work (e.g., HTML symbols &#x24;). The easiest (if
+    # hacky) solution is to wrap dollar signs in a <span>. For now, only do this
+    # when the text coming in is a singleton escaped $ sign.
+    if text == "\$"
+        return Tag(:span)("\$")
+    end
+    return DOM.Node(text)
+end
 
 mdconvert(vec::Vector, parent; kwargs...) = [mdconvert(x, parent; kwargs...) for x in vec]
 

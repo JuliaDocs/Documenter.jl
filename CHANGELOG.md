@@ -1,9 +1,10 @@
 # Documenter.jl changelog
 
-
 ## Version `v0.27.4`
 
 * ![Feature][badge-feature] `@example`- and `@repl`-blocks now support colored output by mapping ANSI escape sequences to HTML. This requires Julia >= 1.6 and passing `ansicolor=true` to `Documenter.HTML` (e.g. `makedocs(format=Documenter.HTML(ansicolor=true, ...), ...)`). In Documenter 0.28.0 this will be the default so to (preemptively) opt-out pass `ansicolor=false`. ([#1441][github-1441])
+
+* ![Bugfix][badge-bugfix] Dollar signs in the HTML output no longer get accidentally misinterpreted as math delimiters in the browser. ([#890](github-890), [#1625](github-1625))
 
 ## Version `v0.27.3`
 
@@ -643,6 +644,7 @@
 [github-879]: https://github.com/JuliaDocs/Documenter.jl/pull/879
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
 [github-886]: https://github.com/JuliaDocs/Documenter.jl/pull/886
+[github-890]: https://github.com/JuliaDocs/Documenter.jl/issues/890
 [github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
@@ -849,6 +851,7 @@
 [github-1615]: https://github.com/JuliaDocs/Documenter.jl/issues/1615
 [github-1616]: https://github.com/JuliaDocs/Documenter.jl/pull/1616
 [github-1617]: https://github.com/JuliaDocs/Documenter.jl/pull/1617
+[github-1625]: https://github.com/JuliaDocs/Documenter.jl/pull/1625
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
