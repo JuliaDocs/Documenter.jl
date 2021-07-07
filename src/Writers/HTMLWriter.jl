@@ -499,8 +499,6 @@ module RD
             ["\$"],
             raw"""
             $(document).ready(function() {
-                hljs.configure({ignoreUnescapedHTML: true}); // for ANSI color support
-                /* TODO: add a plugin for unescaped HTML */
                 hljs.highlightAll();
             })
             """
