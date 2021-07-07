@@ -1358,13 +1358,13 @@ function domify(ctx, navnode)
     map(page.elements) do elem
         rec = SearchRecord(ctx, navnode, elem)
         push!(ctx.search_index, rec)
-        domify(ctx, navnode, page.mapping[elem])
+        domify(ctx, navnode, page.mapping[elem], page.mapping)
     end
 end
 
-function domify(ctx, navnode, node)
+function domify(ctx, navnode, node, mapping=nothing)
     fixlinks!(ctx, navnode, node)
-    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes)
+    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes, mapping=mapping)
 end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
@@ -1686,7 +1686,10 @@ function mdconvert(text::AbstractString, parent; kwargs...)
     return DOM.Node(text)
 end
 
-mdconvert(vec::Vector, parent; kwargs...) = [mdconvert(x, parent; kwargs...) for x in vec]
+function mdconvert(vec::Vector, parent; kwargs...)
+    mapping = get(kwargs, :mapping, nothing)
+    [mdconvert(mapping === nothing ? x : get(mapping, x, x), parent; kwargs...) for x in vec]
+end
 
 mdconvert(md::Markdown.MD, parent; kwargs...) = mdconvert(md.content, md; kwargs...)
 
@@ -1754,7 +1757,9 @@ function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
     droplinks ? link_text : Tag(:a)[:href => link.url](link_text)
 end
 
-mdconvert(list::Markdown.List, parent; kwargs...) = (Markdown.isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
+function mdconvert(list::Markdown.List, parent; kwargs...)
+    (Markdown.isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
+end
 
 mdconvert(paragraph::Markdown.Paragraph, parent; kwargs...) = Tag(:p)(mdconvert(paragraph.content, paragraph; kwargs...))
 

@@ -39,11 +39,26 @@ function expand(doc::Documents.Document)
         @debug "Running ExpanderPipeline on $src"
         empty!(page.globals.meta)
         for element in page.elements
-            Selectors.dispatch(ExpanderPipeline, element, page, doc)
+            run_dispatch(element, page, doc)
         end
         pagecheck(page)
     end
 end
+
+run_dispatch(element, page, doc) = Selectors.dispatch(ExpanderPipeline, element, page, doc)
+function run_dispatch(element::Markdown.List, page, doc)
+    Selectors.dispatch(ExpanderPipeline, element, page, doc)
+    foreach(x -> run_dispatch(x, page, doc), element.items)
+end
+function run_dispatch(element::Markdown.Admonition, page, doc)
+    Selectors.dispatch(ExpanderPipeline, element, page, doc)
+    foreach(x -> run_dispatch(x, page, doc), element.content)
+end
+function run_dispatch(element::Vector, page, doc)
+    foreach(x -> run_dispatch(x, page, doc), element)
+end
+
+
 
 # run some checks after expanding the page
 function pagecheck(page)
