@@ -489,9 +489,12 @@ end
 function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     lines = Utilities.find_block_in_file(x.code, page.source)
+    linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
+                                    basename(page.source))
     cd(page.workdir) do
         result = nothing
-        for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
+        for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
+                                              linenumbernode = linenumbernode)
             try
                 result = Core.eval(sandbox, ex)
             catch err
@@ -566,7 +569,10 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         else
             code = x.code
         end
-        for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
+        linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
+                                        basename(page.source))
+        for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false,
+                                              linenumbernode = linenumbernode)
             c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
@@ -641,7 +647,9 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     end
 
     multicodeblock = Markdown.Code[]
-    for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
+    linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
+    for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
+                                          linenumbernode = linenumbernode)
         buffer = IOBuffer()
         input  = droplines(str)
         if VERSION >= v"1.5.0-DEV.178"

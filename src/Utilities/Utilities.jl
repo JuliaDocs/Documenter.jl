@@ -25,13 +25,13 @@ function find_block_in_file(code, file)
     blockidx === nothing && return nothing
     startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
     endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
-    return ":$(startline)-$(endline)"
+    return startline => endline
 end
 
 # Pretty-printing locations
 function locrepr(file, line=nothing)
     str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
-    line !== nothing && (str = str * "$(line)")
+    line !== nothing && (str = str * ":$(line.first)-$(line.second)")
     return str
 end
 
@@ -88,8 +88,12 @@ The keyword argument `skip = N` drops the leading `N` lines from the input strin
 If `raise=false` is passed, the `Meta.parse` does not raise an exception on parse errors,
 but instead returns an expression that will raise an error when evaluated. `parseblock`
 returns this expression normally and it must be handled appropriately by the caller.
+
+The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
+and starting line number of the block (requires Julia 1.6 or higher).
 """
-function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true)
+function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true,
+                    linenumbernode=nothing)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
@@ -119,9 +123,43 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
         end
         cursor = ncursor
     end
+    if VERSION >= v"1.6.0" # required for Meta.parseall(...)
+        if linenumbernode isa LineNumberNode
+            exs = Meta.parseall(code; filename=linenumbernode.file).args
+            @assert length(exs) == 2 * length(results)
+            for (i, ex) in enumerate(Iterators.partition(exs, 2))
+                @assert ex[1] isa LineNumberNode
+                expr = Expr(:toplevel, ex...) # LineNumberNode + expression
+                # in the REPL each evaluation is considered a new file, e.g.
+                # REPL[1], REPL[2], ..., so try to mimic that by incrementing
+                # the counter for each sub-expression in this code block
+                if linenumbernode.file === Symbol("REPL")
+                    newfile = "REPL[$i]"
+                    # to reset the line counter for each new "file"
+                    lineshift = 1 - ex[1].line
+                    update_linenumbernodes!(expr, newfile, lineshift)
+                else
+                    update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
+                end
+                results[i] = (expr , results[i][2])
+            end
+        end
+    end
     results
 end
 isassign(x) = isexpr(x, :(=), 2) && isa(x.args[1], Symbol)
+
+function update_linenumbernodes!(x::Expr, newfile, lineshift)
+    for i in 1:length(x.args)
+        x.args[i] = update_linenumbernodes!(x.args[i], newfile, lineshift)
+    end
+    return x
+end
+update_linenumbernodes!(x::Any, newfile, lineshift) = x
+function update_linenumbernodes!(x::LineNumberNode, newfile, lineshift)
+    return LineNumberNode(x.line + lineshift, newfile)
+end
+
 
 # Checking arguments.
 

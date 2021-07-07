@@ -198,6 +198,7 @@ htmlbuild_pages = Any[
     "latex.md",
     "example-output.md",
     "fonts.md",
+    "linenumbers.md",
 ]
 
 function html_doc(build_directory, mathengine)
@@ -451,6 +452,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
                 "unicode.md",
                 hide("hidden.md"),
                 "example-output.md",
+                "linenumbers.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
