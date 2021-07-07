@@ -597,17 +597,28 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
 
     # Generate different  in different formats and let each writer select
     output = Base.invokelatest(Utilities.display_dict, result, context = :color => ansicolor)
+    # Remove references to gensym'd module from text/plain
+    m = MIME"text/plain"()
+    if haskey(output, m)
+        output[m] = remove_sandbox_from_output(output[m], mod)
+    end
 
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Markdown.Code("julia", input))
     if result === nothing
-        code = Documenter.DocTests.sanitise(buffer)
-        isempty(code) || push!(content, Dict{MIME,Any}(MIME"text/plain"() => code))
+        stdouterr = Documenter.DocTests.sanitise(buffer)
+        stdouterr = remove_sandbox_from_output(stdouterr, mod)
+        isempty(stdouterr) || push!(content, Dict{MIME,Any}(MIME"text/plain"() => stdouterr))
     elseif !isempty(output)
         push!(content, output)
     end
     # ... and finally map the original code block to the newly generated ones.
     page.mapping[x] = Documents.MultiOutput(content)
+end
+
+# Replace references to gensym'd module with Main
+function remove_sandbox_from_output(str, mod::Module)
+    replace(str, Regex(("(Main\\.)?$(nameof(mod))")) => "Main")
 end
 
 # @repl
@@ -655,13 +666,17 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
             push!(multicodeblock, Markdown.Code("julia-repl", prepend_prompt(input)))
         end
         out = IOBuffer()
-        print(out, c.output)
+        print(out, c.output) # c.output is std(out|err)
         if isempty(input) || isempty(output)
             println(out)
         else
             println(out, output, "\n")
         end
-        push!(multicodeblock, Markdown.Code("documenter-ansi", rstrip(String(take!(out)))))
+
+        outstr = String(take!(out))
+        # Replace references to gensym'd module with Main
+        outstr = remove_sandbox_from_output(outstr, mod)
+        push!(multicodeblock, Markdown.Code("documenter-ansi", rstrip(outstr)))
     end
     page.mapping[x] = Documents.MultiCodeBlock("julia-repl", multicodeblock)
 end
