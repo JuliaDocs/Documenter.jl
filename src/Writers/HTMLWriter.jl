@@ -325,7 +325,7 @@ Defaults to `true`.
 
 **`highlights`** can be used to add highlighting for additional languages. By default,
 Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download/)
-languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by"
+languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by
 their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.js) for the
 highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
 you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done whether the
@@ -348,6 +348,16 @@ and the [Julia Programming Language](https://julialang.org/)."`.
 
 **`warn_outdated`** inserts a warning if the current page is not the newest version of the
 documentation.
+
+## Experimental options
+
+**`prerender`** a boolean (`true` or `false` (default)) for enabling prerendering/build
+time application of syntax highlighting of code blocks. Requires a `node` (NodeJS)
+executable to be available in `PATH` or to be passed as the `node` keyword.
+
+**`node`** path to a `node` (NodeJS) executable used for prerendering.
+
+**`highlightjs`** file path to custom highglight.js library to be used with prerendering.
 
 # Default and custom assets
 
@@ -395,6 +405,9 @@ struct HTML <: Documenter.Writer
     ansicolor     :: Bool
     lang          :: String
     warn_outdated :: Bool
+    prerender     :: Bool
+    node          :: Union{Cmd,String,Nothing}
+    highlightjs   :: Union{String,Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -409,12 +422,21 @@ struct HTML <: Documenter.Writer
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             ansicolor     :: Bool = false, # true in 0.28
+            lang          :: String = "en",
+            warn_outdated :: Bool = true,
+
+            # experimental keywords
+            prerender     :: Bool = false,
+            node          :: Union{Cmd,String,Nothing} = nothing,
+            highlightjs   :: Union{String,Nothing} = nothing,
+
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
-            lang          :: String = "en",
-            warn_outdated :: Bool = true
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
+        if prerender
+            prerender, node, highlightjs = prepare_prerendering(prerender, node, highlightjs, highlights)
+        end
         assets = map(assets) do asset
             isa(asset, HTMLAsset) && return asset
             isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
@@ -440,8 +462,49 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer, ansicolor, lang, warn_outdated)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer,
+            ansicolor, lang, warn_outdated, prerender, node, highlightjs)
     end
+end
+
+# Cache of downloaded highlight.js bundles
+const HLJSFILES = Dict{String,String}()
+# Look for node and highlight.js
+function prepare_prerendering(prerender, node, highlightjs, highlights)
+    node = node === nothing ? Sys.which("node") : node
+    if node === nothing
+        @error "HTMLWriter: no node executable given or found on the system. Setting `prerender=false`."
+        return false, node, highlightjs
+    end
+    if !success(`$node --version`)
+        @error "HTMLWriter: bad node executable at $node. Setting `prerender=false`."
+        return false, node, highlightjs
+    end
+    if highlightjs === nothing
+        # Try to download
+        curl = Sys.which("curl")
+        if curl === nothing
+            @error "HTMLWriter: no highlight.js file given and no curl executable found " *
+                   "on the system. Setting `prerender=false`."
+            return false, node, highlightjs
+        end
+        @debug "HTMLWriter: downloading highlightjs"
+        r = Utilities.JSDependencies.RequireJS([])
+        RD.highlightjs!(r, highlights)
+        libs = sort!(collect(r.libraries); by = first) # puts highlight first
+        key = join((x.first for x in libs), ',')
+        highlightjs = get!(HLJSFILES, key) do
+            path, io = mktemp()
+            for lib in libs
+                println(io, "// $(lib.first)")
+                run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout=io))
+                println(io)
+            end
+            close(io)
+            return path
+        end
+    end
+    return prerender, node, highlightjs
 end
 
 "Provides a namespace for remote dependencies."
@@ -485,7 +548,7 @@ module RD
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
         ))
-        prepend!(languages, ["julia", "julia-repl"])
+        languages = ["julia", "julia-repl", languages...]
         for language in languages
             language = jsescape(language)
             push!(r, RemoteLibrary(
@@ -663,7 +726,9 @@ function render(doc::Documents.Document, settings::HTML=HTML())
             RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
         RD.mathengine!(r, settings.mathengine)
-        RD.highlightjs!(r, settings.highlights)
+        if !settings.prerender
+            RD.highlightjs!(r, settings.highlights)
+        end
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
@@ -1364,7 +1429,7 @@ end
 
 function domify(ctx, navnode, node)
     fixlinks!(ctx, navnode, node)
-    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes)
+    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes, settings=ctx.settings)
 end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
@@ -1694,15 +1759,18 @@ mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconver
 
 mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, parent; kwargs...))
 
-function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
+function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
     language = Utilities.codelang(c.language)
     class = isempty(language) ? "nohighlight" : "language-$(language)"
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
         return pre(domify_ansicoloredtext(c.code, "nohighlight"))
-    else
-        return pre(code[".$class"](c.code))
+    elseif settings !== nothing && settings.prerender &&
+           !(isempty(language) || language == "nohighlight")
+        r = hljs_prerender(c, settings)
+        r !== nothing && return r
     end
+    return pre(code[".$class"](c.code))
 end
 function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
     @tags pre br
@@ -1722,6 +1790,28 @@ function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs
     return p
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
+
+function hljs_prerender(c::Markdown.Code, settings::HTML)
+    @assert settings.prerender "unreachable"
+    @tags pre code
+    lang = Utilities.codelang(c.language)
+    hljs = settings.highlightjs
+    js = """
+    const hljs = require('$(hljs)');
+    console.log(hljs.highlight($(repr(c.code)), {'language': "$(lang)"}).value);
+    """
+    out, err = IOBuffer(), IOBuffer()
+    try
+        run(pipeline(`$(settings.node) -e "$(js)"`; stdout=out, stderr=err))
+        str = String(take!(out))
+        # prepend nohighlight to stop runtime highlighting
+        # return pre(code[".nohighlight $(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
+        return pre(code[".language-$(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
+    catch e
+        @error "HTMLWriter: prerendering failed" exception=e stderr=String(take!(err))
+    end
+    return nothing
+end
 
 mdconvert(h::Markdown.Header{N}, parent; kwargs...) where {N} = DOM.Tag(Symbol("h$N"))(mdconvert(h.text, h; kwargs...))
 
