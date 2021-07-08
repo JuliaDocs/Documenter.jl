@@ -4,6 +4,21 @@
 
 * ![Feature][badge-feature] `@example`- and `@repl`-blocks now support colored output by mapping ANSI escape sequences to HTML. This requires Julia >= 1.6 and passing `ansicolor=true` to `Documenter.HTML` (e.g. `makedocs(format=Documenter.HTML(ansicolor=true, ...), ...)`). In Documenter 0.28.0 this will be the default so to (preemptively) opt-out pass `ansicolor=false`. ([#1441][github-1441], [#1628][github-1628])
 
+* ![Experimental][badge-experimental] ![Feature][badge-feature] Documenter's HTML output can now prerender syntax highlighting of code blocks, i.e. syntax highlighting is applied when generating the HTML page rather than on the fly in the browser after the page is loaded. This requires (i) passing `prerender=true` to `Documenter.HTML` and (ii) a `node` (NodeJS) executable available in `PATH`. A path to a `node` executable can be specified by passing the `node` keyword argument to `Documenter.HTML` (for example from the `NodeJS_16_jll` Julia package). In addition, the `highlightjs` keyword argument can be used to specify a file path to a highlight.js library (if this is not given the release used by Documenter will be used). Example configuration:
+  ```julia
+  using Documenter, NodeJS_16_jll
+
+  makedocs(;
+      format = Documenter.HTML(
+          prerender = true,            # enable prerendering
+          node = NodeJS_16_jll.node(), # specify node executable (required if not available in PATH)
+          # ...
+      )
+      # ...
+  )
+  ```
+  _This feature is experimental and subject to change in future releases._ ([#1627][github-1627])
+
 * ![Enhancement][badge-enhancement] The sandbox module used for evaluating `@repl` and `@example` blocks is now removed (replaced with `Main`) in text output. ([#1633][github-1633])
 
 * ![Enhancement][badge-enhancement] `@repl`, `@example`, and `@eval` blocks now have `LineNumberNodes` inserted such that e.g. `@__FILE__` and `@__LINE__` give better output and not just `"none"` for the file and `1` for the line. This requires Julia 1.6 or higher (no change on earlier Julia versions). ([#1634][github-1634])
@@ -856,6 +871,7 @@
 [github-1616]: https://github.com/JuliaDocs/Documenter.jl/pull/1616
 [github-1617]: https://github.com/JuliaDocs/Documenter.jl/pull/1617
 [github-1625]: https://github.com/JuliaDocs/Documenter.jl/pull/1625
+[github-1627]: https://github.com/JuliaDocs/Documenter.jl/pull/1627
 [github-1628]: https://github.com/JuliaDocs/Documenter.jl/pull/1628
 [github-1633]: https://github.com/JuliaDocs/Documenter.jl/pull/1633
 [github-1634]: https://github.com/JuliaDocs/Documenter.jl/pull/1634
