@@ -93,6 +93,12 @@ html.theme--#{$themename} {
 
   @import "documenter/ansicolors";
 
+  // highlight.js color scheme override for the julia> prompt
+  code.language-julia-repl > span.hljs-meta {
+    color: $ansi-green;
+    font-weight: bolder;
+  }
+
   // FIXME: Hack to get a proper theme for highlight.js in the Darkly theme
   @import "highlightjs/a11y-dark";
   // Also, a11y-dark does not highlight string interpolation properly.
