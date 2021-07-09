@@ -7300,10 +7300,6 @@ pre, code {
   background: initial !important;
   padding: initial !important; }
 
-code.language-julia-repl > span.hljs-meta {
-  color: #1a9847;
-  font-weight: bolder; }
-
 .katex .katex-mathml {
   top: 0;
   right: 0; }
@@ -7705,6 +7701,10 @@ html {
 
 .ansi span.sgr107 {
   background-color: whitesmoke; }
+
+code.language-julia-repl > span.hljs-meta {
+  color: #1a9847;
+  font-weight: bolder; }
 
 /*!
   Theme: Default
