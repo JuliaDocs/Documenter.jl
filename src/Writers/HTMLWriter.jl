@@ -1762,15 +1762,15 @@ mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, 
 function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
     language = Utilities.codelang(c.language)
-    class = isempty(language) ? "nohighlight" : "language-$(language)"
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
-        return pre(domify_ansicoloredtext(c.code, "nohighlight"))
+        return pre(domify_ansicoloredtext(c.code, "nohighlight hljs"))
     elseif settings !== nothing && settings.prerender &&
            !(isempty(language) || language == "nohighlight")
         r = hljs_prerender(c, settings)
         r !== nothing && return r
     end
-    return pre(code[".$class"](c.code))
+    class = isempty(language) ? "nohighlight" : "language-$(language)"
+    return pre(code[".$(class) .hljs"](c.code))
 end
 function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
     @tags pre br
@@ -2005,7 +2005,7 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"text/plain"())
         @tags pre
         text = d[MIME"text/plain"()]
-        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight"))
+        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
     else
         error("this should never happen.")
     end
