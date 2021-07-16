@@ -7685,6 +7685,9 @@ html.theme--documenter-dark {
     background-color: #1db4c9; }
   html.theme--documenter-dark .ansi span.sgr107 {
     background-color: #ecf0f1; }
+  html.theme--documenter-dark code.language-julia-repl > span.hljs-meta {
+    color: #2ecc71;
+    font-weight: bolder; }
   html.theme--documenter-dark .hljs {
     background: #2b2b2b;
     color: #f8f8f2; }
