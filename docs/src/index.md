@@ -25,9 +25,12 @@ A package for building documentation from docstrings and markdown files.
 
 The [Package Guide](@ref) provides a tutorial explaining how to get started using Documenter.
 
+A quickstart version of the guide can be found at [Quickstart]("https://github.com/JuliaDocs/Documenter.jl/blob/master/docs/src/quickstart.md")
+
 Some examples of packages using Documenter can be found on the [Examples](@ref) page.
 
 See the [Index](@ref main-index) for the complete list of documented functions and types.
+
 
 ## Manual Outline
 
