@@ -1484,7 +1484,7 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
         header = anchor.object
         url = string(path, Anchors.fragment(anchor))
         node = a[:href=>url](mdconvert(header.text; droplinks=true))
-        level = Utilities.header_level(header)
+        level = Utilities.header_level(header) - contents_header_level_offset(contents)
         push!(lb, level, node)
     end
     domify(lb)

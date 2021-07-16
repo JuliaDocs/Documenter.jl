@@ -158,7 +158,7 @@ abstract type IndexBlocks <: ExpanderPipeline end
 """
 Parses each code block where the language is `@contents` and replaces it with a nested list
 of all `Header` nodes in the generated document. The pages and depth of the list can be set
-using `Pages = [...]` and `Depth = N` where `N` is and integer.
+using `Pages = [...]` and `Depth = N` where `N` is either an Int or a `UnitRange{Int}`.
 
 ````markdown
 ```@contents
@@ -166,7 +166,7 @@ Pages = ["foo.md", "bar.md"]
 Depth = 1
 ```
 ````
-The default `Depth` value is `2`.
+The default `Depth` value is `1:2`.
 """
 abstract type ContentsBlocks <: ExpanderPipeline end
 

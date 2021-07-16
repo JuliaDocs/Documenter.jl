@@ -311,16 +311,18 @@ expected by the user. Try to stick to array literals as much as possible.
 ## `@contents` block
 
 Generates a nested list of links to document sections. Valid settings are `Pages` and `Depth`.
+Note that `Depth` can be either an `Int` (parsed as `1:Depth`) or a `UnitRange{Int}`,
+specifying the starting and ending depth to include in the generated contents.
 
 ````markdown
 ```@contents
 Pages = ["foo.md"]
-Depth = 5
+Depth = 1:5
 ```
 ````
 
 As with `@index` if `Pages` is not provided then all pages are included. The default
-`Depth` value is `2`.
+`Depth` value is `1:2`.
 
 ## `@example` block
 

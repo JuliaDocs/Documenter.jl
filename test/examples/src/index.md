@@ -4,7 +4,7 @@
 
 ```@contents
 Pages = ["index.md"]
-Depth = 5
+Depth = 2:5
 ```
 
 ## Functions Contents
