@@ -69,6 +69,16 @@
           font-size: 1.5rem;
           margin: auto 0 auto 1rem;
         }
+        a {
+          svg {
+            height: 1em;
+            position: relative;
+            top: 0.15em;
+            path {
+              fill: currentColor;
+            }
+          }
+        }
       }
 
       // ensure vertical middle alignment of everything in the navbar

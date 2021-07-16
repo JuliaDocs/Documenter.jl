@@ -7277,6 +7277,9 @@ html.theme--documenter-dark {
         position: absolute;
         right: 0.625rem;
         bottom: 0.5rem; }
+        html.theme--documenter-dark .docstring > section > a.docs-sourcelink:hover {
+          background-color: #2f4d6d;
+          text-decoration: none; }
     html.theme--documenter-dark .docstring:hover > section > a.docs-sourcelink {
       opacity: 0.2; }
     html.theme--documenter-dark .docstring > section:hover a.docs-sourcelink {
@@ -7382,6 +7385,12 @@ html.theme--documenter-dark {
       html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
         font-size: 1.5rem;
         margin: auto 0 auto 1rem; }
+      html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right a svg {
+        height: 1em;
+        position: relative;
+        top: 0.15em; }
+        html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right a svg path {
+          fill: currentColor; }
     html.theme--documenter-dark #documenter .docs-main header.docs-navbar > * {
       margin: auto 0; }
     @media screen and (max-width: 1055px) {

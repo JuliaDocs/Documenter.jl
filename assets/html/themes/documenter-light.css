@@ -7234,6 +7234,9 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
       position: absolute;
       right: 0.625rem;
       bottom: 0.5rem; }
+      .docstring > section > a.docs-sourcelink:hover {
+        background-color: #39acda;
+        text-decoration: none; }
   .docstring:hover > section > a.docs-sourcelink {
     opacity: 0.2; }
   .docstring > section:hover a.docs-sourcelink {
@@ -7362,6 +7365,12 @@ html {
     #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
       font-size: 1.5rem;
       margin: auto 0 auto 1rem; }
+    #documenter .docs-main header.docs-navbar .docs-right a svg {
+      height: 1em;
+      position: relative;
+      top: 0.15em; }
+      #documenter .docs-main header.docs-navbar .docs-right a svg path {
+        fill: currentColor; }
   #documenter .docs-main header.docs-navbar > * {
     margin: auto 0; }
   @media screen and (max-width: 1055px) {

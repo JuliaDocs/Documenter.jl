@@ -520,7 +520,6 @@ module RD
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/brands.min.css",
     ]
 
     const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js")
@@ -1152,7 +1151,7 @@ function navitem(nctx, nn::Documents.NavNode)
 end
 
 function render_navbar(ctx, navnode, edit_page_link::Bool)
-    @tags div header nav ul li a span
+    @tags div header nav ul li a span svg path
 
     # The breadcrumb (navigation links on top)
     navpath = Documents.navpath(navnode)
@@ -1172,21 +1171,41 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     # Set the logo and name for the "Edit on.." button.
     if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
         host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
-        if host_type == Utilities.RepoGitlab
+        if host_type === Utilities.RepoGitlab
             host = "GitLab"
-            logo = "\uf296"
-        elseif host_type == Utilities.RepoGithub
+            # from FontAwesome Brands: https://github.com/FortAwesome/Font-Awesome/blob/master/svgs/brands/gitlab.svg
+            # Font Awesome Free 5.15.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+            logo = svg[:viewBox => "0 0 512 512", :xlmns=>"http://www.w3.org/2000/svg"](
+                path[:d=>"M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88l94.3 294 94.3-294zm349.4 88l-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"]
+            )
+        elseif host_type === Utilities.RepoGithub
             host = "GitHub"
-            logo = "\uf09b"
-        elseif host_type == Utilities.RepoBitbucket
+            # from SimpleIcons: https://github.com/simple-icons/simple-icons/blob/develop/icons/github.svg
+            # https://simpleicons.org/ License - https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md (CC0 1.0 Universal)
+            logo = svg[:viewBox => "0 0 24 24", :xlmns=>"http://www.w3.org/2000/svg"](
+                path[:d=>"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"]
+            )
+        elseif host_type === Utilities.RepoBitbucket
             host = "BitBucket"
-            logo = "\uf171"
-        elseif host_type == Utilities.RepoAzureDevOps
+            # from SimpleIcons: https://github.com/simple-icons/simple-icons/blob/develop/icons/azuredevops.svg
+            # https://simpleicons.org/ License - https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md (CC0 1.0 Universal)
+            logo = svg[:viewBox => "0 0 24 24", :xlmns=>"http://www.w3.org/2000/svg"](
+                path[:d=>"M.778 1.211c-.424-.006-.772.334-.778.758 0 .045.002.09.01.134l3.263 19.811c.084.499.515.867 1.022.872H19.95c.382.004.708-.271.77-.646l3.27-20.03c.068-.418-.216-.813-.635-.881-.045-.008-.089-.011-.133-.01L.778 1.211zM14.52 15.528H9.522L8.17 8.464h7.561l-1.211 7.064z"]
+            )
+        elseif host_type === Utilities.RepoAzureDevOps
             host = "Azure DevOps"
-            logo = "\uf3ca" # TODO change to ADO logo when added to FontAwesome
+            # from SimpleIcons: https://github.com/simple-icons/simple-icons/blob/develop/icons/azuredevops.svg
+            # https://simpleicons.org/ License - https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md (CC0 1.0 Universal)
+            logo = svg[:viewBox => "0 0 24 24", :xlmns=>"http://www.w3.org/2000/svg"](
+                path[:d=>"M0 8.899l2.247-2.966 8.405-3.416V.045l7.37 5.393L2.966 8.36v8.224L0 15.73zm24-4.45v14.652L18.247 24l-9.303-3.056V24l-5.978-7.416 15.057 1.798V5.438z"]
+            )
         else
             host = ""
-            logo = "\uf15c"
+            # from FontAwesome: https://github.com/FortAwesome/Font-Awesome/blob/master/svgs/solid/file-code.svg
+            # Font Awesome Free 5.15.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+            logo = svg[:viewBox => "0 0 384 512", :xlmns=>"http://www.w3.org/2000/svg"](
+                path[:d=>"M384 121.941V128H256V0h6.059c6.365 0 12.47 2.529 16.971 7.029l97.941 97.941A24.005 24.005 0 0 1 384 121.941zM248 160c-13.2 0-24-10.8-24-24V0H24C10.745 0 0 10.745 0 24v464c0 13.255 10.745 24 24 24h336c13.255 0 24-10.745 24-24V160H248zM123.206 400.505a5.4 5.4 0 0 1-7.633.246l-64.866-60.812a5.4 5.4 0 0 1 0-7.879l64.866-60.812a5.4 5.4 0 0 1 7.633.246l19.579 20.885a5.4 5.4 0 0 1-.372 7.747L101.65 336l40.763 35.874a5.4 5.4 0 0 1 .372 7.747l-19.579 20.884zm51.295 50.479l-27.453-7.97a5.402 5.402 0 0 1-3.681-6.692l61.44-211.626a5.402 5.402 0 0 1 6.692-3.681l27.452 7.97a5.4 5.4 0 0 1 3.68 6.692l-61.44 211.626a5.397 5.397 0 0 1-6.69 3.681zm160.792-111.045l-64.866 60.812a5.4 5.4 0 0 1-7.633-.246l-19.58-20.885a5.4 5.4 0 0 1 .372-7.747L284.35 336l-40.763-35.874a5.4 5.4 0 0 1-.372-7.747l19.58-20.885a5.4 5.4 0 0 1 7.633-.246l64.866 60.812a5.4 5.4 0 0 1-.001 7.879z"]
+            )
         end
         hoststring = isempty(host) ? " source" : " on $(host)"
 
@@ -1206,7 +1225,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             title = "$(edit_verb)$hoststring"
             push!(navbar_right.nodes,
                 a[".docs-edit-link", :href => url, :title => title](
-                    span[host_type == Utilities.RepoUnknown ? ".docs-icon.fa" : ".docs-icon.fab"](logo),
+                    span[".docs-icon"](logo),
                     span[".docs-label.is-hidden-touch"](title)
                 )
             )
@@ -1543,7 +1562,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             if !ctx.settings.disable_git
                 url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
                 if url !== nothing
-                    push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
+                    push!(ret.nodes, a[".docs-sourcelink.fa", :target=>"_blank", :href=>url]("\uf121"))
                 end
             end
             return ret
