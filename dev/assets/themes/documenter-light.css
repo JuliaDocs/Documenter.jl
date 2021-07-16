@@ -7702,6 +7702,10 @@ html {
 .ansi span.sgr107 {
   background-color: whitesmoke; }
 
+code.language-julia-repl > span.hljs-meta {
+  color: #1a9847;
+  font-weight: bolder; }
+
 /*!
   Theme: Default
   Description: Original highlight.js style
