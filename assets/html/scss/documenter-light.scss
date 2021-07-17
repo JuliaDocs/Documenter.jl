@@ -1,5 +1,12 @@
 @charset "UTF-8";
 
+// TODO: use default colors
+$info: #209cee;
+$success: #22c35b;
+$warning: #ffdd57;
+$danger: #da0b00;
+$compat: #1db5c9;
+
 @import "documenter/utilities";
 @import "documenter/variables";
 
