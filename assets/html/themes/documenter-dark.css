@@ -7341,7 +7341,8 @@ html.theme--documenter-dark {
   html.theme--documenter-dark #documenter .docs-main > article {
     overflow-wrap: break-word; }
     html.theme--documenter-dark #documenter .docs-main > article .math-container {
-      overflow-x: auto; }
+      overflow-x: auto;
+      overflow-y: hidden; }
   @media screen and (min-width: 1056px) {
     html.theme--documenter-dark #documenter .docs-main {
       max-width: 52rem;
