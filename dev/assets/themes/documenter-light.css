@@ -7318,7 +7318,8 @@ html {
 #documenter .docs-main > article {
   overflow-wrap: break-word; }
   #documenter .docs-main > article .math-container {
-    overflow-x: auto; }
+    overflow-x: auto;
+    overflow-y: hidden; }
 
 @media screen and (min-width: 1056px) {
   #documenter .docs-main {
