@@ -14,11 +14,20 @@ $documenter-is-dark-theme: true;
 $family-sans-serif: 'Lato Medium', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 $family-monospace: 'JuliaMono', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'DejaVu Sans Mono', monospace;
 
+$red: #cb3c33;
+$orange: #d56c00;
+$yellow: #f4c72f;
+$green: #259a12;
+$turquoise: #00a1b7;
+$cyan: #3489da;
+$blue: #3c5dcd;
+$purple: #9558b2;
+
 $info: #024c7d;
 $success: #008438;
 $warning: #ad8100;
 $danger: #9e1b0d;
-$turquoise: #137886;
+$compat: #137886;
 
 $admonition-background: (
   'default': $background, 'info': $background, 'success': $background, 'warning': $background,
@@ -38,7 +47,7 @@ $border-width: 1px;
 @import "documenter/utilities";
 @import "documenter/variables";
 
-$code: $red;
+$code: #e74c3c;
 $code-background: rgba(255, 255, 255, 0.05);
 
 $documenter-docstring-shadow: none;
