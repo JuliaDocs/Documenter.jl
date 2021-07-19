@@ -2,7 +2,7 @@
 
 ## Version `v0.27.4`
 
-* ![Feature][badge-feature] `@example`- and `@repl`-blocks now support colored output by mapping ANSI escape sequences to HTML. This requires Julia >= 1.6 and passing `ansicolor=true` to `Documenter.HTML` (e.g. `makedocs(format=Documenter.HTML(ansicolor=true, ...), ...)`). In Documenter 0.28.0 this will be the default so to (preemptively) opt-out pass `ansicolor=false`. ([#1441][github-1441], [#1628][github-1628])
+* ![Feature][badge-feature] `@example`- and `@repl`-blocks now support colored output by mapping ANSI escape sequences to HTML. This requires Julia >= 1.6 and passing `ansicolor=true` to `Documenter.HTML` (e.g. `makedocs(format=Documenter.HTML(ansicolor=true, ...), ...)`). In Documenter 0.28.0 this will be the default so to (preemptively) opt-out pass `ansicolor=false`. ([#1441][github-1441], [#1628][github-1628], [#1629][github-1629], [#1647][github-1647])
 
 * ![Experimental][badge-experimental] ![Feature][badge-feature] Documenter's HTML output can now prerender syntax highlighting of code blocks, i.e. syntax highlighting is applied when generating the HTML page rather than on the fly in the browser after the page is loaded. This requires (i) passing `prerender=true` to `Documenter.HTML` and (ii) a `node` (NodeJS) executable available in `PATH`. A path to a `node` executable can be specified by passing the `node` keyword argument to `Documenter.HTML` (for example from the `NodeJS_16_jll` Julia package). In addition, the `highlightjs` keyword argument can be used to specify a file path to a highlight.js library (if this is not given the release used by Documenter will be used). Example configuration:
   ```julia
@@ -880,11 +880,13 @@
 [github-1625]: https://github.com/JuliaDocs/Documenter.jl/pull/1625
 [github-1627]: https://github.com/JuliaDocs/Documenter.jl/pull/1627
 [github-1628]: https://github.com/JuliaDocs/Documenter.jl/pull/1628
+[github-1629]: https://github.com/JuliaDocs/Documenter.jl/issues/1629
 [github-1633]: https://github.com/JuliaDocs/Documenter.jl/pull/1633
 [github-1634]: https://github.com/JuliaDocs/Documenter.jl/pull/1634
 [github-1639]: https://github.com/JuliaDocs/Documenter.jl/issues/1639
 [github-1641]: https://github.com/JuliaDocs/Documenter.jl/pull/1641
 [github-1645]: https://github.com/JuliaDocs/Documenter.jl/pull/1645
+[github-1647]: https://github.com/JuliaDocs/Documenter.jl/pull/1647
 [github-1649]: https://github.com/JuliaDocs/Documenter.jl/pull/1649
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
