@@ -7341,7 +7341,8 @@ html.theme--documenter-dark {
   html.theme--documenter-dark #documenter .docs-main > article {
     overflow-wrap: break-word; }
     html.theme--documenter-dark #documenter .docs-main > article .math-container {
-      overflow-x: auto; }
+      overflow-x: auto;
+      overflow-y: hidden; }
   @media screen and (min-width: 1056px) {
     html.theme--documenter-dark #documenter .docs-main {
       max-width: 52rem;
@@ -7624,69 +7625,69 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .ansi span.sgr30 {
     color: #242424; }
   html.theme--documenter-dark .ansi span.sgr31 {
-    color: #e74c3c; }
+    color: #f6705f; }
   html.theme--documenter-dark .ansi span.sgr32 {
-    color: #2ecc71; }
+    color: #4fb43a; }
   html.theme--documenter-dark .ansi span.sgr33 {
-    color: #f1b70e; }
+    color: #f4c72f; }
   html.theme--documenter-dark .ansi span.sgr34 {
-    color: #3498db; }
+    color: #7587f0; }
   html.theme--documenter-dark .ansi span.sgr35 {
-    color: #8e44ad; }
+    color: #bc89d3; }
   html.theme--documenter-dark .ansi span.sgr36 {
-    color: #137886; }
+    color: #49b6ca; }
   html.theme--documenter-dark .ansi span.sgr37 {
-    color: #dbdee0; }
+    color: #b3bdbe; }
   html.theme--documenter-dark .ansi span.sgr40 {
     background-color: #242424; }
   html.theme--documenter-dark .ansi span.sgr41 {
-    background-color: #e74c3c; }
+    background-color: #f6705f; }
   html.theme--documenter-dark .ansi span.sgr42 {
-    background-color: #2ecc71; }
+    background-color: #4fb43a; }
   html.theme--documenter-dark .ansi span.sgr43 {
-    background-color: #f1b70e; }
+    background-color: #f4c72f; }
   html.theme--documenter-dark .ansi span.sgr44 {
-    background-color: #3498db; }
+    background-color: #7587f0; }
   html.theme--documenter-dark .ansi span.sgr45 {
-    background-color: #8e44ad; }
+    background-color: #bc89d3; }
   html.theme--documenter-dark .ansi span.sgr46 {
-    background-color: #137886; }
+    background-color: #49b6ca; }
   html.theme--documenter-dark .ansi span.sgr47 {
-    background-color: #dbdee0; }
+    background-color: #b3bdbe; }
   html.theme--documenter-dark .ansi span.sgr90 {
-    color: #8c9b9d; }
+    color: #92a0a2; }
   html.theme--documenter-dark .ansi span.sgr91 {
-    color: #ef8b80; }
+    color: #ff8674; }
   html.theme--documenter-dark .ansi span.sgr92 {
-    color: #69dd9a; }
+    color: #79d462; }
   html.theme--documenter-dark .ansi span.sgr93 {
-    color: #f4c53e; }
+    color: #ffe76b; }
   html.theme--documenter-dark .ansi span.sgr94 {
-    color: #75b9e7; }
+    color: #8a98ff; }
   html.theme--documenter-dark .ansi span.sgr95 {
-    color: #a563c1; }
+    color: #d2a4e6; }
   html.theme--documenter-dark .ansi span.sgr96 {
-    color: #1db4c9; }
+    color: #6bc8db; }
   html.theme--documenter-dark .ansi span.sgr97 {
     color: #ecf0f1; }
   html.theme--documenter-dark .ansi span.sgr100 {
-    background-color: #8c9b9d; }
+    background-color: #92a0a2; }
   html.theme--documenter-dark .ansi span.sgr101 {
-    background-color: #ef8b80; }
+    background-color: #ff8674; }
   html.theme--documenter-dark .ansi span.sgr102 {
-    background-color: #69dd9a; }
+    background-color: #79d462; }
   html.theme--documenter-dark .ansi span.sgr103 {
-    background-color: #f4c53e; }
+    background-color: #ffe76b; }
   html.theme--documenter-dark .ansi span.sgr104 {
-    background-color: #75b9e7; }
+    background-color: #8a98ff; }
   html.theme--documenter-dark .ansi span.sgr105 {
-    background-color: #a563c1; }
+    background-color: #d2a4e6; }
   html.theme--documenter-dark .ansi span.sgr106 {
-    background-color: #1db4c9; }
+    background-color: #6bc8db; }
   html.theme--documenter-dark .ansi span.sgr107 {
     background-color: #ecf0f1; }
   html.theme--documenter-dark code.language-julia-repl > span.hljs-meta {
-    color: #2ecc71;
+    color: #4fb43a;
     font-weight: bolder; }
   html.theme--documenter-dark .hljs {
     background: #2b2b2b;
