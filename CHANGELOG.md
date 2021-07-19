@@ -29,6 +29,8 @@
 
 * ![Bugfix][badge-bugfix] Dollar signs in the HTML output no longer get accidentally misinterpreted as math delimiters in the browser. ([#890](github-890), [#1625](github-1625))
 
+* ![Bugfix][badge-bugfix] Fix overflow behavior for math environments to hide unnecessary vertical scrollbars. ([#1575](github-1575), [#1649](github-1649))
+
 ## Version `v0.27.3`
 
 * ![Feature][badge-feature] Documenter can now deploy documentation directly to the "root" instead of versioned folders. ([#1615][github-1615], [#1616][github-1616])
@@ -862,6 +864,7 @@
 [github-1568]: https://github.com/JuliaDocs/Documenter.jl/issues/1568
 [github-1569]: https://github.com/JuliaDocs/Documenter.jl/pull/1569
 [github-1577]: https://github.com/JuliaDocs/Documenter.jl/pull/1577
+[github-1575]: https://github.com/JuliaDocs/Documenter.jl/issues/1575
 [github-1590]: https://github.com/JuliaDocs/Documenter.jl/pull/1590
 [github-1594]: https://github.com/JuliaDocs/Documenter.jl/issues/1594
 [github-1595]: https://github.com/JuliaDocs/Documenter.jl/pull/1595
@@ -882,6 +885,7 @@
 [github-1639]: https://github.com/JuliaDocs/Documenter.jl/issues/1639
 [github-1641]: https://github.com/JuliaDocs/Documenter.jl/pull/1641
 [github-1645]: https://github.com/JuliaDocs/Documenter.jl/pull/1645
+[github-1649]: https://github.com/JuliaDocs/Documenter.jl/pull/1649
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
