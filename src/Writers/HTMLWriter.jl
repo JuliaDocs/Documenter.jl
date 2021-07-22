@@ -1405,6 +1405,25 @@ function generate_version_file(versionfile::AbstractString, entries, symlinks = 
     end
 end
 
+# write redirect file
+function generate_redirect_file(redirectfile::AbstractString, entries, devurl, versions)
+    # If `versions` contains "stable"=>"v^" and `entries` contains "stable", then version="stable".
+    # In other cases, version="dev".
+
+    version = devurl
+    stable_index = findfirst(v -> last(v)=="v^", versions)
+    if !isnothing(stable_index)
+        stable_version = first(versions[stable_index])
+        if stable_version in entries
+            version = stable_version
+        end
+    end
+
+    open(redirectfile, "w") do buf
+        println(buf, "<meta http-equiv=\"refresh\" content=\"0; url=./$(version)/\"/>")
+    end
+end
+
 function generate_siteinfo_file(dir::AbstractString, version::AbstractString)
     open(joinpath(dir, "siteinfo.js"), "w") do buf
         println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")

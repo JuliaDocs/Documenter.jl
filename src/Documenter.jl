@@ -607,6 +607,10 @@ function git_push(
             # This must always happen after the folder copying.
             Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
 
+            # Create the index.html file to redirect ./stable or ./dev.
+            # This must always happen after the folder copying.
+            Writers.HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries, devurl, versions)
+
             # generate the symlinks, make sure we don't overwrite devurl
             cd(dirname) do
                 for kv in symlinks
