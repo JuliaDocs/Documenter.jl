@@ -250,6 +250,7 @@ end
 function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     meta = page.globals.meta
     lines = Utilities.find_block_in_file(x.code, page.source)
+    @debug "Evaluating @meta block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
@@ -275,6 +276,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     nodes  = Union{DocsNode,Markdown.Admonition}[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
     lines = Utilities.find_block_in_file(x.code, page.source)
+    @debug "Evaluating @docs block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         admonition = Markdown.Admonition("warning", "Missing docstring.",
             Utilities.mdparse("Missing docstring for `$(strip(str))`. Check Documenter's build log for details.", mode=:blocks))
@@ -371,6 +373,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
     lines = Utilities.find_block_in_file(x.code, page.source)
+    @debug "Evaluating @autodocs block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
@@ -491,6 +494,7 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     lines = Utilities.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
                                     basename(page.source))
+    @debug "Evaluating @eval block:\n$(x.code)"
     cd(page.workdir) do
         result = nothing
         for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
@@ -559,6 +563,7 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         end
     end
 
+    @debug "Evaluating @example block:\n$(x.code)"
     # Evaluate the code block. We redirect stdout/stderr to `buffer`.
     result, buffer = nothing, IOBuffer()
     if !continued # run the code
@@ -648,6 +653,7 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
 
     multicodeblock = Markdown.Code[]
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
+    @debug "Evaluating @repl block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
                                           linenumbernode = linenumbernode)
         buffer = IOBuffer()
@@ -699,6 +705,7 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     # The sandboxed module -- either a new one or a cached one from this page.
     mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
 
+    @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
     page.mapping[x] =
     try
