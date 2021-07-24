@@ -3,7 +3,7 @@ module HTMLWriterTests
 using Test
 using Documenter
 using Documenter: DocSystem
-using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
+using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
@@ -14,6 +14,13 @@ function verify_version_file(versionfile, entries)
         @test i !== nothing
         idx = last(i)
     end
+end
+
+function verify_redirect_file(redirectfile, version)
+    @test isfile(redirectfile)
+    content = read(redirectfile, String)
+
+    occursin(content, "url=./$(version)/")
 end
 
 @testset "HTMLWriter" begin
@@ -104,6 +111,8 @@ end
 
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")
+        redirectfile = joinpath(tmpdir, "index.html")
+        devurl = "dev"
         versions = ["stable", "dev",
                     "2.1.1", "v2.1.0", "v2.0.1", "v2.0.0",
                     "1.1.1", "v1.1.0", "v1.0.1", "v1.0.0",
@@ -124,6 +133,8 @@ end
                            "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries, devurl, versions)
+        verify_redirect_file(redirectfile, "stable")
 
         versions = ["v#"]
         entries, symlinks = expand_versions(tmpdir, versions)
@@ -133,6 +144,8 @@ end
                            "v2.1.1"=>"2.1.1", "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries, devurl, versions)
+        verify_redirect_file(redirectfile, "dev")
 
         versions = ["v#.#.#"]
         entries, symlinks = expand_versions(tmpdir, versions)
@@ -143,6 +156,8 @@ end
                            "v2.0"=>"v2.0.1", "v1.1"=>"1.1.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries, devurl, versions)
+        verify_redirect_file(redirectfile, "dev")
 
         versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
         entries, symlinks = @test_logs(
@@ -155,6 +170,8 @@ end
         @test ("devel" => "dev") in symlinks
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries, devurl, versions)
+        verify_redirect_file(redirectfile, "dev")
 
         versions = ["stable" => "v^", "dev" => "stable"]
         @test_throws ArgumentError expand_versions(tmpdir, versions)
