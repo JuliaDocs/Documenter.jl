@@ -1416,7 +1416,7 @@ function generate_redirect_file(redirectfile::AbstractString, entries, devurl, v
 
     version = devurl
     stable_index = findfirst(v -> last(v)=="v^", versions)
-    if !isnothing(stable_index)
+    if stable_index !== nothing
         stable_version = first(versions[stable_index])
         if stable_version in entries
             version = stable_version
