@@ -118,7 +118,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
                 end
             end
         str = SubString(code, cursor, prevind(code, ncursor))
-        if !isempty(strip(str))
+        if !isempty(strip(str)) && ex !== nothing
             push!(results, (ex, str))
         end
         cursor = ncursor
