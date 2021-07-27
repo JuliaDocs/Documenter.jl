@@ -299,6 +299,46 @@ end
         end
     end
 
+    @testset "PR #1634, issue #1655" begin; if VERSION > v"1.6.0"
+        let parse(x) = Documenter.Utilities.parseblock(x, nothing, nothing;
+                           linenumbernode=LineNumberNode(123, "testfile.jl")
+                       )
+            code = """
+            1 + 1
+            2 + 2
+            """
+            exs = parse(code)
+            @test length(exs) == 2
+            @test exs[1][2] == "1 + 1\n"
+            @test exs[1][1].head == :toplevel
+            @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
+            @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
+            @test exs[2][2] == "2 + 2\n"
+            @test exs[2][1].head == :toplevel
+            @test exs[2][1].args[1] == LineNumberNode(125, "testfile.jl")
+            @test exs[2][1].args[2] == Expr(:call, :+, 2, 2)
+
+            # corner case trailing whitespace
+            code1 = """
+            1 + 1
+
+            """
+            # corner case: trailing comment
+            code2 = """
+            1 + 1
+            # comment
+            """
+            for code in (code1, code2)
+                exs = parse(code)
+                @test length(exs) == 1
+                @test exs[1][2] == "1 + 1\n"
+                @test exs[1][1].head == :toplevel
+                @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
+                @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
+            end
+        end
+    end end
+
     @testset "mdparse" begin
         mdparse = Documenter.Utilities.mdparse
 
