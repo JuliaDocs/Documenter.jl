@@ -574,7 +574,7 @@ end
 # equations in the Julia manual. However, if the equation is already wrapped in
 # align/align*, then there is no need to further wrap it (in fact, it will break).
 function latex(io::IO, math::Markdown.LaTeX)
-    if occursin(r"^\\begin\{align\*?\}", math.formula)
+    if occursin(r"^\\begin\{((equation)|(align)|(gather)|(flalign)|(multline)|(alignat)|(split))\*?\}", math.formula)
         _print(io, math.formula)
     else
         _print(io, "\\begin{equation*}\n\\begin{split}")
