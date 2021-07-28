@@ -20,7 +20,7 @@ function verify_redirect_file(redirectfile, version)
     @test isfile(redirectfile)
     content = read(redirectfile, String)
 
-    occursin(content, "url=./$(version)/")
+    @test occursin("url=./$(version)/", content)
 end
 
 @testset "HTMLWriter" begin
@@ -133,7 +133,7 @@ end
                            "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries, devurl, versions)
+        generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "stable")
 
         versions = ["v#"]
@@ -144,8 +144,8 @@ end
                            "v2.1.1"=>"2.1.1", "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries, devurl, versions)
-        verify_redirect_file(redirectfile, "dev")
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "v2.1")
 
         versions = ["v#.#.#"]
         entries, symlinks = expand_versions(tmpdir, versions)
@@ -156,8 +156,8 @@ end
                            "v2.0"=>"v2.0.1", "v1.1"=>"1.1.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries, devurl, versions)
-        verify_redirect_file(redirectfile, "dev")
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "v2.1.1")
 
         versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
         entries, symlinks = @test_logs(
@@ -170,8 +170,8 @@ end
         @test ("devel" => "dev") in symlinks
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries, devurl, versions)
-        verify_redirect_file(redirectfile, "dev")
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "v2.1")
 
         versions = ["stable" => "v^", "dev" => "stable"]
         @test_throws ArgumentError expand_versions(tmpdir, versions)
