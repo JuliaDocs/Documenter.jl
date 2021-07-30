@@ -689,7 +689,7 @@
 [github-929]: https://github.com/JuliaDocs/Documenter.jl/pull/929
 [github-934]: https://github.com/JuliaDocs/Documenter.jl/pull/934
 [github-935]: https://github.com/JuliaDocs/Documenter.jl/pull/935
-[github-937]: https://github.com/JuliaDocs/Documenter.jl/issue/937
+[github-937]: https://github.com/JuliaDocs/Documenter.jl/issues/937
 [github-938]: https://github.com/JuliaDocs/Documenter.jl/pull/938
 [github-941]: https://github.com/JuliaDocs/Documenter.jl/pull/941
 [github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
