@@ -117,13 +117,15 @@ end
                     "2.1.1", "v2.1.0", "v2.0.1", "v2.0.0",
                     "1.1.1", "v1.1.0", "v1.0.1", "v1.0.0",
                     "0.1.1", "v0.1.0"] # note no `v` on first ones
+
+        # make dummy directories of versioned docs
         cd(tmpdir) do
             for version in versions
                 mkdir(version)
             end
         end
 
-        # expanding versions
+        # case1: default versioning
         versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
         entries, symlinks = expand_versions(tmpdir, versions)
         @test entries == ["stable", "v2.1", "v2.0", "v1.1", "v1.0", "v0.1", "dev"]
@@ -136,6 +138,7 @@ end
         generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "stable")
 
+        # case2: major released versions
         versions = ["v#"]
         entries, symlinks = expand_versions(tmpdir, versions)
         @test entries == ["v2.1", "v1.1"]
@@ -147,6 +150,7 @@ end
         generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "v2.1")
 
+        # case3: all released versions
         versions = ["v#.#.#"]
         entries, symlinks = expand_versions(tmpdir, versions)
         @test entries == ["v2.1.1", "v2.1.0", "v2.0.1", "v2.0.0", "v1.1.1", "v1.1.0",
@@ -159,6 +163,7 @@ end
         generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "v2.1.1")
 
+        # case4: invalid versioning
         versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
         entries, symlinks = @test_logs(
             (:warn, "no match for `versions` entry `\"foobar\"`"),
@@ -173,8 +178,26 @@ end
         generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "v2.1")
 
+        # case5: invalid versioning
         versions = ["stable" => "v^", "dev" => "stable"]
         @test_throws ArgumentError expand_versions(tmpdir, versions)
+
+        # case6: default versioning (no released version)
+        cd(tmpdir) do
+            # remove dummy directories
+            for dir in readdir(tmpdir)
+                rm(dir)
+            end
+            mkdir("dev")
+        end
+        versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
+        entries, symlinks = expand_versions(tmpdir, versions)
+        @test entries == ["dev"]
+        @test symlinks == []
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "dev")
     end
 
     # Exhaustive Conversion from Markdown to Nodes.
