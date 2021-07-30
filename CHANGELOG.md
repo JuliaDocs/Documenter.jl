@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.5`
+
+* ![Bugfix][badge-bugfix] Fix an error introduced in version `v0.27.4` (PR[#1634][github-1634]) which was triggered by trailing comments in `@eval`/`@repl`/`@example` blocks. ([#1655](github-1655), [#1661](github-1661))
+
 ## Version `v0.27.4`
 
 * ![Feature][badge-feature] `@example`- and `@repl`-blocks now support colored output by mapping ANSI escape sequences to HTML. This requires Julia >= 1.6 and passing `ansicolor=true` to `Documenter.HTML` (e.g. `makedocs(format=Documenter.HTML(ansicolor=true, ...), ...)`). In Documenter 0.28.0 this will be the default so to (preemptively) opt-out pass `ansicolor=false`. ([#1441][github-1441], [#1628][github-1628], [#1629][github-1629], [#1647][github-1647])
@@ -888,6 +892,8 @@
 [github-1645]: https://github.com/JuliaDocs/Documenter.jl/pull/1645
 [github-1647]: https://github.com/JuliaDocs/Documenter.jl/pull/1647
 [github-1649]: https://github.com/JuliaDocs/Documenter.jl/pull/1649
+[github-1655]: https://github.com/JuliaDocs/Documenter.jl/issues/1655
+[github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
