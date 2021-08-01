@@ -4,6 +4,7 @@ using Test
 using Documenter
 using Documenter: DocSystem
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
+using Documenter.Utilities: DOM
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
@@ -27,10 +28,18 @@ end
     end
 
     # asset handling
+    function assetlink(src, asset)
+        links = HTMLWriter.asset_links(src, [asset])
+        @test length(links) == 1
+        (; node = links[1], links[1].attributes...)
+    end
     let asset = asset("https://example.com/foo.js")
         @test asset.uri == "https://example.com/foo.js"
         @test asset.class == :js
         @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        @test link.src === "https://example.com/foo.js"
     end
     let asset = asset("http://example.com/foo.js", class=:ico)
         @test asset.uri == "http://example.com/foo.js"
@@ -47,6 +56,27 @@ end
     @test_throws Exception asset("foo.js")
     @test_throws Exception asset("https://example.com/foo.js?q=1")
     @test_throws Exception asset("https://example.com/foo.js", class=:error)
+
+    function attr(node::DOM.Node, attribute::Symbol)
+        i = findfirst(x -> x[1] == attribute, node.attributes)
+        i === nothing && error("Failed to find attribute $src in $node")
+        node.attributes[i][2]
+    end
+    assetlinks = HTMLWriter.asset_links("mypage", [
+        asset("https://example.com/foo.js"),
+        asset("https://example.com/foo.js", islocal=false),
+        asset("https://example.com/foo.js", islocal=true),
+        # Local assets:
+        asset("test/foo.js", islocal=true),
+        asset("/test/foo.js", islocal=true),
+        asset("mypage/foo.js", islocal=true),
+    ])
+    @test attr(assetlinks[1], :src) == "https://example.com/foo.js"
+    @test attr(assetlinks[2], :src) == "https://example.com/foo.js"
+    @test attr(assetlinks[3], :src) == "https:/example.com/foo.js"  # this case is kinda erroneous
+    @test attr(assetlinks[4], :src) == "test/foo.js"
+    @test attr(assetlinks[5], :src) == "../../../../../test/foo.js"
+    @test attr(assetlinks[6], :src) == "mypage/foo.js"
 
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML
