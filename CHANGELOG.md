@@ -897,8 +897,8 @@
 [github-1647]: https://github.com/JuliaDocs/Documenter.jl/pull/1647
 [github-1649]: https://github.com/JuliaDocs/Documenter.jl/pull/1649
 [github-1655]: https://github.com/JuliaDocs/Documenter.jl/issues/1655
-[github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1657
-[github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1658
+[github-1657]: https://github.com/JuliaDocs/Documenter.jl/pull/1657
+[github-1658]: https://github.com/JuliaDocs/Documenter.jl/pull/1658
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
