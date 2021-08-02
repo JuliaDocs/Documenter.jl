@@ -33,12 +33,20 @@ end
         @test length(links) == 1
         (; node = links[1], links[1].attributes...)
     end
+    @test_logs (:error, "Absolute path '/foo' passed to asset_links") HTMLWriter.asset_links(
+        "/foo", HTMLWriter.HTMLAsset[]
+    )
     let asset = asset("https://example.com/foo.js")
         @test asset.uri == "https://example.com/foo.js"
         @test asset.class == :js
         @test asset.islocal === false
         link = assetlink("my/sub/page", asset)
         @test link.node.name === :script
+        @test link.src === "https://example.com/foo.js"
+    end
+    let asset = asset("https://example.com/foo.js", islocal = false)
+        @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
         @test link.src === "https://example.com/foo.js"
     end
     let asset = asset("http://example.com/foo.js", class=:ico)
@@ -50,33 +58,29 @@ end
         @test asset.uri == "foo/bar.css"
         @test asset.class == :css
         @test asset.islocal === true
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :link
+        @test link.href === "../../foo/bar.css"
+        link = assetlink("page.md", asset)
+        @test link.href === "foo/bar.css"
+        link = assetlink("foo/bar.md", asset)
+        @test link.href === "bar.css"
     end
     @test_throws Exception asset("ftp://example.com/foo.js")
     @test_throws Exception asset("example.com/foo.js")
     @test_throws Exception asset("foo.js")
+    @test_throws Exception asset("foo.js", islocal = false)
     @test_throws Exception asset("https://example.com/foo.js?q=1")
     @test_throws Exception asset("https://example.com/foo.js", class=:error)
-
-    function attr(node::DOM.Node, attribute::Symbol)
-        i = findfirst(x -> x[1] == attribute, node.attributes)
-        i === nothing && error("Failed to find attribute $src in $node")
-        node.attributes[i][2]
+    # Edge cases that do not actually quite work correctly:
+    let asset = asset("https://example.com/foo.js", islocal = true)
+        @test asset.uri == "https://example.com/foo.js"
+        @test asset.islocal === true
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        @test link.src === "../../https:/example.com/foo.js"
     end
-    assetlinks = HTMLWriter.asset_links("mypage", [
-        asset("https://example.com/foo.js"),
-        asset("https://example.com/foo.js", islocal=false),
-        asset("https://example.com/foo.js", islocal=true),
-        # Local assets:
-        asset("test/foo.js", islocal=true),
-        asset("/test/foo.js", islocal=true),
-        asset("mypage/foo.js", islocal=true),
-    ])
-    @test attr(assetlinks[1], :src) == "https://example.com/foo.js"
-    @test attr(assetlinks[2], :src) == "https://example.com/foo.js"
-    @test attr(assetlinks[3], :src) == "https:/example.com/foo.js"  # this case is kinda erroneous
-    @test attr(assetlinks[4], :src) == "test/foo.js"
-    @test attr(assetlinks[5], :src) == "../../../../../test/foo.js"
-    @test attr(assetlinks[6], :src) == "mypage/foo.js"
+    @test_logs (:error, "Absolute URI '/foo/bar.ico' passed to asset") asset("/foo/bar.ico", islocal = true)
 
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML

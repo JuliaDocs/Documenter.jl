@@ -83,6 +83,9 @@ struct HTMLAsset
         if !islocal && match(r"^https?://", uri) === nothing
             error("Remote asset URL must start with http:// or https://")
         end
+        if islocal && isabspath(uri)
+            @error("Absolute URI '$uri' passed to asset")
+        end
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
         new(class, uri, islocal)
     end
@@ -959,6 +962,7 @@ function render_head(ctx, navnode)
 end
 
 function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
+    isabspath(src) && @error("Absolute path '$src' passed to asset_links")
     @tags link script
     links = DOM.Node[]
     for asset in assets
