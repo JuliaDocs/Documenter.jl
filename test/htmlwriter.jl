@@ -48,12 +48,12 @@ end
         @test asset.islocal === false
         link = assetlink("my/sub/page", asset)
         @test link.node.name === :script
-        @test link.src === "https://example.com/foo.js"
+        @test link.src == "https://example.com/foo.js"
     end
     let asset = asset("https://example.com/foo.js", islocal = false)
         @test asset.islocal === false
         link = assetlink("my/sub/page", asset)
-        @test link.src === "https://example.com/foo.js"
+        @test link.src == "https://example.com/foo.js"
     end
     let asset = asset("http://example.com/foo.js", class=:ico)
         @test asset.uri == "http://example.com/foo.js"
@@ -66,11 +66,11 @@ end
         @test asset.islocal === true
         link = assetlink("my/sub/page", asset)
         @test link.node.name === :link
-        @test link.href === "../../foo/bar.css"
+        @test link.href == "../../foo/bar.css"
         link = assetlink("page.md", asset)
-        @test link.href === "foo/bar.css"
+        @test link.href == "foo/bar.css"
         link = assetlink("foo/bar.md", asset)
-        @test link.href === "bar.css"
+        @test link.href == "bar.css"
     end
     @test_throws Exception asset("ftp://example.com/foo.js")
     @test_throws Exception asset("example.com/foo.js")
@@ -84,9 +84,14 @@ end
         @test asset.islocal === true
         link = assetlink("my/sub/page", asset)
         @test link.node.name === :script
-        # This actually leads to different results on Windows and Linux
-        @test startswith(link.src, "../")
-        @test endswith(link.src, "https:/example.com/foo.js")
+        # This actually leads to different results on Windows and Linux (on the former, it
+        # gets treated as an absolute path).
+        if Sys.iswindows()
+            @test endswith(link.src, "example.com/foo.js")
+        else
+            @test link.src == "../../https:/example.com/foo.js"
+        end
+
     end
     @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal = true)
 
