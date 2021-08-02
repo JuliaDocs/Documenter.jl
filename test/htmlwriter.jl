@@ -84,7 +84,9 @@ end
         @test asset.islocal === true
         link = assetlink("my/sub/page", asset)
         @test link.node.name === :script
-        @test link.src === "../../https:/example.com/foo.js"
+        # This actually leads to different results on Windows and Linux
+        @test startswith(link.src, "../")
+        @test endswith(link.src, "https:/example.com/foo.js")
     end
     @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal = true)
 
