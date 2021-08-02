@@ -84,7 +84,7 @@ struct HTMLAsset
             error("Remote asset URL must start with http:// or https://")
         end
         if islocal && isabspath(uri)
-            @error("Absolute URI '$uri' passed to asset")
+            @error("Local asset should not have an absolute URI: $uri")
         end
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
         new(class, uri, islocal)

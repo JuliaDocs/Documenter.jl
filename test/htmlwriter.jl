@@ -79,7 +79,7 @@ end
         @test link.node.name === :script
         @test link.src === "../../https:/example.com/foo.js"
     end
-    @test_logs (:error, "Absolute URI '/foo/bar.ico' passed to asset") asset("/foo/bar.ico", islocal = true)
+    @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal = true)
 
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML
