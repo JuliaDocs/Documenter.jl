@@ -4,7 +4,6 @@ using Test
 using Documenter
 using Documenter: DocSystem
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
-using Documenter.Utilities: DOM
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
