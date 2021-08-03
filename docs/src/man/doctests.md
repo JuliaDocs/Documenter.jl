@@ -389,3 +389,25 @@ Alternatively, you can also pass the `doctest = :fix` keyword to [`makedocs`](@r
 Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
 This should only be done when initially laying out the structure of a package's
 documentation, after which it's encouraged to always run doctests when building docs.
+
+## Testing README.md
+
+The easiest way to also run doctests on the README.md file is to add the readme to the
+docs of the module:
+
+```julia
+module MyModule
+
+let
+    path = joinpath(pkgdir(MyModule), "README.md")
+    text = read(path, String)
+    @doc text MyModule
+end
+
+[...]
+
+end # module
+```
+
+Now, when users type `?MyModule` in the REPL, they'll see the contents of the readme
+file, and doctest blocks in the readme file will be tested.
