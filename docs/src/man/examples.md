@@ -20,7 +20,7 @@ should give a good overview of what this package is currently able to do.
 
 Packages that have tagged versions available in the general Registry:
 
-- [Augmentor.jl](https://evizero.github.io/Augmentor.jl/)
+- [Augmentor.jl](https://evizero.github.io/Augmentor.jl/stable/)
 - [BanditOpt.jl](https://v-i-s-h.github.io/BanditOpt.jl/stable/)
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/stable/)
 - [Bio.jl](https://biojulia.net/Bio.jl/stable/)

@@ -1,5 +1,8 @@
 # Documenter.jl changelog
 
+## Version `v0.27.6`
+* ![Feature][badge-feature] Add support for generating `index.html` to redirect to `dev` or `stable`. The redirected destination is the same as the outdated warning. If there's already user-generated `index.html`, Documenter will not overwrite the file. ([#937][github-937], [#1657][github-1657], [#1658][github-1658])
+
 ## Version `v0.27.5`
 
 * ![Bugfix][badge-bugfix] Fix an error introduced in version `v0.27.4` (PR[#1634][github-1634]) which was triggered by trailing comments in `@eval`/`@repl`/`@example` blocks. ([#1655](github-1655), [#1661](github-1661))
@@ -686,6 +689,7 @@
 [github-929]: https://github.com/JuliaDocs/Documenter.jl/pull/929
 [github-934]: https://github.com/JuliaDocs/Documenter.jl/pull/934
 [github-935]: https://github.com/JuliaDocs/Documenter.jl/pull/935
+[github-937]: https://github.com/JuliaDocs/Documenter.jl/issues/937
 [github-938]: https://github.com/JuliaDocs/Documenter.jl/pull/938
 [github-941]: https://github.com/JuliaDocs/Documenter.jl/pull/941
 [github-946]: https://github.com/JuliaDocs/Documenter.jl/pull/946
@@ -893,6 +897,8 @@
 [github-1647]: https://github.com/JuliaDocs/Documenter.jl/pull/1647
 [github-1649]: https://github.com/JuliaDocs/Documenter.jl/pull/1649
 [github-1655]: https://github.com/JuliaDocs/Documenter.jl/issues/1655
+[github-1657]: https://github.com/JuliaDocs/Documenter.jl/pull/1657
+[github-1658]: https://github.com/JuliaDocs/Documenter.jl/pull/1658
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
