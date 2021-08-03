@@ -398,11 +398,12 @@ docs of the module:
 ```julia
 module MyModule
 
-let
+function _update_module_doc()
     path = joinpath(pkgdir(MyModule), "README.md")
     text = read(path, String)
     @doc text MyModule
 end
+_update_module_doc()
 
 [...]
 
@@ -410,4 +411,6 @@ end # module
 ```
 
 Now, when users type `?MyModule` in the REPL, they'll see the contents of the readme
-file, and doctest blocks in the readme file will be tested.
+file, and doctest blocks in the readme file will be tested. Be sure to call 
+`MyModule._update_module_doc()` before running the doctests.
+
