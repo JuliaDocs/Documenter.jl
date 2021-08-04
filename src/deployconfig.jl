@@ -520,17 +520,20 @@ function verify_github_pull_repository(repo, prnr)
         push!(cmd.exec, "--fail")
         push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
         # Run the command (silently)
-        response_iobuffer = IOBuffer()
-        run(pipeline(cmd; stdout=response_iobuffer, stderr=devnull))
+        response_iobuffer, error_iobuffer = IOBuffer(), IOBuffer()
+        run(pipeline(cmd; stdout=response_iobuffer, stderr=error_iobuffer))
+        curlerror = String(take!(error_iobuffer))
+        if length(curlerror) > 0
+            @warn """CURL outputted to standard error:
+            $curlerror
+            """
+        end
         response = JSON.parse(String(take!(response_iobuffer)))
         pr_head_repo = response["head"]["repo"]["full_name"]
-        if pr_head_repo == repo
-            return true
-        else
-            return false
-        end
-    catch
-        @warn "Unable to verify if PR comes from destination repository"
+        @warn "head.repo.full_name = '$(pr_head_repo)'" pr_head_repo repo
+        return (pr_head_repo == repo)
+    catch e
+        @warn "Unable to verify if PR comes from destination repository" e
         return true
     end
 end
