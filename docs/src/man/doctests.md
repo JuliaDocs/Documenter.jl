@@ -399,7 +399,7 @@ docs of the module:
 module MyModule
 
 function _update_module_doc()
-    path = joinpath(pkgdir(MyModule), "README.md")
+    path = joinpath(@__DIR__, "..", "README.md")
     text = read(path, String)
     @doc text MyModule
 end
@@ -413,4 +413,3 @@ end # module
 Now, when users type `?MyModule` in the REPL, they'll see the contents of the readme
 file, and doctest blocks in the readme file will be tested. Be sure to call 
 `MyModule._update_module_doc()` before running the doctests.
-
