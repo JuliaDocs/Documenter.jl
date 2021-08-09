@@ -34,10 +34,26 @@ end
     end
 
     # asset handling
+    function assetlink(src, asset)
+        links = HTMLWriter.asset_links(src, [asset])
+        @test length(links) == 1
+        (; node = links[1], links[1].attributes...)
+    end
+    @test_logs (:error, "Absolute path '/foo' passed to asset_links") HTMLWriter.asset_links(
+        "/foo", HTMLWriter.HTMLAsset[]
+    )
     let asset = asset("https://example.com/foo.js")
         @test asset.uri == "https://example.com/foo.js"
         @test asset.class == :js
         @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        @test link.src == "https://example.com/foo.js"
+    end
+    let asset = asset("https://example.com/foo.js", islocal = false)
+        @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
+        @test link.src == "https://example.com/foo.js"
     end
     let asset = asset("http://example.com/foo.js", class=:ico)
         @test asset.uri == "http://example.com/foo.js"
@@ -48,12 +64,36 @@ end
         @test asset.uri == "foo/bar.css"
         @test asset.class == :css
         @test asset.islocal === true
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :link
+        @test link.href == "../../foo/bar.css"
+        link = assetlink("page.md", asset)
+        @test link.href == "foo/bar.css"
+        link = assetlink("foo/bar.md", asset)
+        @test link.href == "bar.css"
     end
     @test_throws Exception asset("ftp://example.com/foo.js")
     @test_throws Exception asset("example.com/foo.js")
     @test_throws Exception asset("foo.js")
+    @test_throws Exception asset("foo.js", islocal = false)
     @test_throws Exception asset("https://example.com/foo.js?q=1")
     @test_throws Exception asset("https://example.com/foo.js", class=:error)
+    # Edge cases that do not actually quite work correctly:
+    let asset = asset("https://example.com/foo.js", islocal = true)
+        @test asset.uri == "https://example.com/foo.js"
+        @test asset.islocal === true
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        # This actually leads to different results on Windows and Linux (on the former, it
+        # gets treated as an absolute path).
+        if Sys.iswindows()
+            @test endswith(link.src, "example.com/foo.js")
+        else
+            @test link.src == "../../https:/example.com/foo.js"
+        end
+
+    end
+    @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal = true)
 
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML
