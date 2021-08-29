@@ -14,7 +14,7 @@ using DocStringExtensions
 import Markdown
 
 using Logging
-loglevel(doc) = doc.user.strict ? Logging.Error : Logging.Warn
+loglevel(doc) = doc.user.strict === true ? Logging.Error : Logging.Warn
 
 # Missing docstrings.
 # -------------------

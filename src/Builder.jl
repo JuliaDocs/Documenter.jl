@@ -207,13 +207,19 @@ walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, d
 walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
+# Check if `strict` is strict about `val`
+# E.g. `is_strict([:doctest], :doctest) === true`.
+is_strict(strict::Bool, ::Symbol) = strict
+is_strict(strict::Symbol, val::Symbol) = strict === val
+is_strict(strict::Vector{Symbol}, val::Symbol) = val ∈ strict
+is_strict(strict) = Base.Fix1(is_strict, strict)
 
 function Selectors.runner(::Type{Doctest}, doc::Documents.Document)
     if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
         DocTests.doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
-        if (doc.user.doctest === :only || doc.user.strict) && num_errors > 0
+        if (doc.user.doctest === :only || is_strict(doc.user.strict, :doctest)) && num_errors > 0
             error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")
         end
     else
@@ -251,7 +257,7 @@ end
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
     is_doctest_only(doc, "RenderDocument") && return
     count = length(doc.internal.errors)
-    if doc.user.strict && count > 0
+    if any(is_strict(doc.user.strict), doc.internal.errors)
         error("`makedocs` encountered $(count > 1 ? "errors" : "an error"). Terminating build")
     else
         @info "RenderDocument: rendering document."

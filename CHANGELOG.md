@@ -6,6 +6,8 @@
 
 * ![Bugfix][badge-bugfix] Checking whether a PR comes from the correct repository when deciding to deploy a preview on GitHub Actions now works on Julia 1.0 too. ([#1665](github-1665))
 
+* ![Feature][badge-feature] The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. ([][github-])
+
 ## Version `v0.27.5`
 
 * ![Bugfix][badge-bugfix] Fix an error introduced in version `v0.27.4` (PR[#1634][github-1634]) which was triggered by trailing comments in `@eval`/`@repl`/`@example` blocks. ([#1655](github-1655), [#1661](github-1661))
