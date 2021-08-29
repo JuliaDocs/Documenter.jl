@@ -256,9 +256,10 @@ end
 
 function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
     is_doctest_only(doc, "RenderDocument") && return
-    count = length(doc.internal.errors)
-    if any(is_strict(doc.user.strict), doc.internal.errors)
-        error("`makedocs` encountered $(count > 1 ? "errors" : "an error"). Terminating build")
+    # How many fatal errors
+    c = count(is_strict(doc.user.strict), doc.internal.errors)
+    if c > 0
+        error("`makedocs` encountered $(c > 1 ? "errors" : "an error"). Terminating build")
     else
         @info "RenderDocument: rendering document."
         Documenter.Writers.render(doc)
