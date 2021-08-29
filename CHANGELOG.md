@@ -8,7 +8,7 @@
 
 * ![Bugfix][badge-bugfix] When a doctest fails, pass file and line information associated to the location of the doctest instead of the location of the testing code in Documenter to the logger. ([#1687](github-1687))
 
-* ![Feature][badge-feature] The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. ([][github-])
+* ![Feature][badge-feature] The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. ([1689][github-1689])
 
 ## Version `v0.27.5`
 
@@ -909,6 +909,7 @@
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
+[github-1689]: https://github.com/JuliaDocs/Documenter.jl/pull/1689
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
