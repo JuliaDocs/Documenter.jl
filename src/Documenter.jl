@@ -199,8 +199,9 @@ when a minor version changes (i.e. except in patch releases).
 defined in the `modules` keyword that have a docstring attached have the docstring also
 listed in the manual (e.g. there's a `@docs` block with that docstring). Possible values
 are `:all` (check all names; the default), `:exports` (check only exported names) and
-`:none` (no checks are performed). If `strict=true` (or `strict=:missing_docs` or `strict=[:missing_docs, ...]`) is also set then the build will fail if
-any missing docstrings are encountered.
+`:none` (no checks are performed). If `strict=true` (or `strict=:missing_docs` or
+`strict=[:missing_docs, ...]`) is also set then the build will fail if any missing
+docstrings are encountered.
 
 **`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
 of external-pointing links, to make sure that they are up-to-date. The links and their
@@ -215,8 +216,12 @@ ignored.
 **`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
 return a response before giving up. The default is 10 seconds.
 
-**`strict`** -- if set to `true`, [`makedocs`](@ref) fails the build right before rendering if it encountered
-any errors with the document in the previous build phases. The keyword `strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error (or errors) should be fatal. Options are: `:doctest`, `:cross_references`, `:missing_docs`, `:footnote`, `:linkcheck`, `:meta_block`, `:docs_block`, `:autodocs_block`, `:eval_block`, `:example_block`, `:setup_block`, and `:parse_error`.
+**`strict`** -- if set to `true`, [`makedocs`](@ref) fails the build right before rendering
+if it encountered any errors with the document in the previous build phases. The keyword
+`strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error
+(or errors) should be fatal. Options are: `:doctest`, `:cross_references`, `:missing_docs`,
+`:footnote`, `:linkcheck`, `:meta_block`, `:docs_block`, `:autodocs_block`, `:eval_block`,
+`:example_block`, `:setup_block`, and `:parse_error`.
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).
