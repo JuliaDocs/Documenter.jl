@@ -401,7 +401,7 @@ function report(result::Result, str, doc::Documents.Document)
 
         $(result.output)
 
-        """, diff)
+        """, diff, _file=result.file, _line=lines[1])
 end
 
 function fix_doctest(result::Result, str, doc::Documents.Document)
