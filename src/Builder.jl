@@ -14,7 +14,7 @@ import ..Documenter:
     Documenter,
     Utilities
 
-import .Utilities: Selectors
+import .Utilities: Selectors, is_strict
 
 using DocStringExtensions
 
@@ -206,13 +206,6 @@ walk_navpages(title::String, page, parent, doc) = walk_navpages(true, title, pag
 walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
 walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
-
-# Check if `strict` is strict about `val`
-# E.g. `is_strict([:doctest], :doctest) === true`.
-is_strict(strict::Bool, ::Symbol) = strict
-is_strict(strict::Symbol, val::Symbol) = strict === val
-is_strict(strict::Vector{Symbol}, val::Symbol) = val ∈ strict
-is_strict(strict) = Base.Fix1(is_strict, strict)
 
 function Selectors.runner(::Type{Doctest}, doc::Documents.Document)
     if doc.user.doctest in [:fix, :only, true]

@@ -25,6 +25,11 @@ const DOCUMENTER_VERSION = let
     VersionNumber(m[1])
 end
 
+# Names of possible internal errors
+const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
+                     :eval_block, :example_block, :footnote, :linkcheck, :meta_block,
+                     :missing_docs, :parse_error, :setup_block]
+
 """
     abstract type Plugin end
 
@@ -219,9 +224,7 @@ return a response before giving up. The default is 10 seconds.
 **`strict`** -- if set to `true`, [`makedocs`](@ref) fails the build right before rendering
 if it encountered any errors with the document in the previous build phases. The keyword
 `strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error
-(or errors) should be fatal. Options are: `:doctest`, `:cross_references`, `:missing_docs`,
-`:footnote`, `:linkcheck`, `:meta_block`, `:docs_block`, `:autodocs_block`, `:eval_block`,
-`:example_block`, `:setup_block`, and `:parse_error`.
+(or errors) should be fatal. Options are: $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).

@@ -306,6 +306,8 @@ function Document(plugins = nothing;
         highlightsig::Bool           = true,
         others...
     )
+
+    Utilities.check_strict_kw(strict)
     Utilities.check_kwargs(others)
 
     if !isa(format, AbstractVector)
