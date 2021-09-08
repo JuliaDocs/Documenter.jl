@@ -656,7 +656,6 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     @debug "Evaluating @repl block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
                                           linenumbernode = linenumbernode)
-        buffer = IOBuffer()
         input  = droplines(str)
         if VERSION >= v"1.5.0-DEV.178"
             # Use the REPL softscope for REPLBlocks,
@@ -670,11 +669,12 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
         end
         Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
         result = c.value
+        buf = IOContext(IOBuffer(), :color=>ansicolor)
         output = if !c.error
             hide = REPL.ends_with_semicolon(input)
-            Documenter.DocTests.result_to_string(buffer, hide ? nothing : c.value)
+            Documenter.DocTests.result_to_string(buf, hide ? nothing : c.value)
         else
-            Documenter.DocTests.error_to_string(buffer, c.value, [])
+            Documenter.DocTests.error_to_string(buf, c.value, [])
         end
         if !isempty(input)
             push!(multicodeblock, Markdown.Code("julia-repl", prepend_prompt(input)))

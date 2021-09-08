@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.7`
+
+* ![Feature][badge-feature] The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. ([1689][github-1689])
+
 ## Version `v0.27.6`
 
 * ![Feature][badge-feature] Add support for generating `index.html` to redirect to `dev` or `stable`. The redirected destination is the same as the outdated warning. If there's already user-generated `index.html`, Documenter will not overwrite the file. ([#937][github-937], [#1657][github-1657], [#1658][github-1658])
@@ -8,7 +12,7 @@
 
 * ![Bugfix][badge-bugfix] When a doctest fails, pass file and line information associated to the location of the doctest instead of the location of the testing code in Documenter to the logger. ([#1687](github-1687))
 
-* ![Feature][badge-feature] The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. ([1689][github-1689])
+* ![Bugfix][badge-bugfix] Enabled colored printing for each output of `@repl`-blocks. ([#1691](github-1691))
 
 ## Version `v0.27.5`
 
@@ -909,7 +913,9 @@
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
+[github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
 [github-1689]: https://github.com/JuliaDocs/Documenter.jl/pull/1689
+
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
