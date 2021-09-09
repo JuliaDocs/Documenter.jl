@@ -418,8 +418,8 @@ g(x) = cos(x) - x
 and then we plot `f` over the interval from ``-π`` to ``π``
 
 ```@example 1
-x = linspace(-π, π)
-plot(x, f(x), color = "red")
+x = LinRange(-π, π, 16)
+plot(x, f.(x), color = "red")
 savefig("f-plot.svg"); nothing # hide
 ```
 
@@ -428,7 +428,7 @@ savefig("f-plot.svg"); nothing # hide
 and then we do the same with `g`
 
 ```@example 1
-plot(x, g(x), color = "blue")
+plot(x, g.(x), color = "blue")
 savefig("g-plot.svg"); nothing # hide
 ```
 
@@ -653,8 +653,8 @@ final document.
 ```@eval
 using PyPlot
 
-x = linspace(-π, π)
-y = sin(x)
+x = LinRange(-π, π, 16)
+y = sin.(x)
 
 plot(x, y, color = "red")
 savefig("plot.svg")
