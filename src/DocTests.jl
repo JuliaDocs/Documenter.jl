@@ -402,7 +402,7 @@ function report(result::Result, str, doc::Documents.Document)
         $(result.output)
 
         """, diff; _file=result.file,
-          _line=lines === nothing ? (@__LINE__) : first(lines))
+          _line=lines === nothing ? nothing : first(lines))
 end
 
 function fix_doctest(result::Result, str, doc::Documents.Document)
