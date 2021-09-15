@@ -275,7 +275,7 @@ end
 
 function filter_doctests(strings::NTuple{2, AbstractString},
                          doc::Documents.Document, meta::Dict)
-    meta_block_filters = get(meta, :DocTestFilters, [])
+    meta_block_filters = get(Vector{Any}, meta, :DocTestFilters)
     if meta_block_filters === nothing
         meta_block_filters = []
     end
