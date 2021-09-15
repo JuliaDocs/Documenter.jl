@@ -276,9 +276,7 @@ end
 function filter_doctests(strings::NTuple{2, AbstractString},
                          doc::Documents.Document, meta::Dict)
     meta_block_filters = get(Vector{Any}, meta, :DocTestFilters)
-    if meta_block_filters === nothing
-        meta_block_filters = []
-    end
+    meta_block_filters === nothing && (meta_block_filters = [])
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
     for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
         if all(occursin.((r,), strings))
