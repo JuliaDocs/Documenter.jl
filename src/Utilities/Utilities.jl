@@ -723,7 +723,7 @@ end
 """
     is_strict(strict, val::Symbol) -> Bool
 
-Interanl function to checks if `strict` is strict about `val`, i.e.
+Internal function to check if `strict` is strict about `val`, i.e.
 if errors of type `val` should be fatal, according
 to the setting `strict` (as a keyword to `makedocs`).
 
