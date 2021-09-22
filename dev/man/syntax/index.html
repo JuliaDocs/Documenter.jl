@@ -117,8 +117,8 @@ g(x) = cos(x) - x
 and then we plot `f` over the interval from ``-π`` to ``π``
 
 ```@example 1
-x = linspace(-π, π)
-plot(x, f(x), color = &quot;red&quot;)
+x = range(-π, π; length=50)
+plot(x, f.(x), color = &quot;red&quot;)
 savefig(&quot;f-plot.svg&quot;); nothing # hide
 ```
 
@@ -127,7 +127,7 @@ savefig(&quot;f-plot.svg&quot;); nothing # hide
 and then we do the same with `g`
 
 ```@example 1
-plot(x, g(x), color = &quot;blue&quot;)
+plot(x, g.(x), color = &quot;blue&quot;)
 savefig(&quot;g-plot.svg&quot;); nothing # hide
 ```
 
@@ -204,8 +204,8 @@ println(iris)
 ```</code></pre><h2 id="@eval-block"><a class="docs-heading-anchor" href="#@eval-block"><code>@eval</code> block</a><a id="@eval-block-1"></a><a class="docs-heading-anchor-permalink" href="#@eval-block" title="Permalink"></a></h2><p>Evaluates the contents of the block and inserts the resulting value into the final document.</p><p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p><pre><code class="language-markdown hljs">```@eval
 using PyPlot
 
-x = linspace(-π, π)
-y = sin(x)
+x = range(-π, π; length=50)
+y = sin.(x)
 
 plot(x, y, color = &quot;red&quot;)
 savefig(&quot;plot.svg&quot;)
@@ -225,4 +225,4 @@ mdtable(df,latex=false)
 ```</code></pre><p>It will show up as follows, with code having been copied over verbatim to the HTML file.</p><svg style="display: block; margin: 0 auto;" width="5em" heigth="5em">
 	<circle cx="2.5em" cy="2.5em" r="2em" stroke="black" stroke-width=".1em" fill="red" />
     (SVG)
-</svg></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../examples/">« Examples</a><a class="docs-footer-nextpage" href="../doctests/">Doctests »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Wednesday 22 September 2021 09:36">Wednesday 22 September 2021</span>. Using Julia version 1.6.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</svg></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../examples/">« Examples</a><a class="docs-footer-nextpage" href="../doctests/">Doctests »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Wednesday 22 September 2021 13:29">Wednesday 22 September 2021</span>. Using Julia version 1.6.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
