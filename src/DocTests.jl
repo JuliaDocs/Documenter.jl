@@ -382,6 +382,7 @@ import .Utilities.TextDiff
 function report(result::Result, str, doc::Documents.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Utilities.find_block_in_file(result.block.code, result.file)
+    line = lines === nothing ? nothing : first(lines)
     @error("""
         doctest failure in $(Utilities.locrepr(result.file, lines))
 
@@ -401,7 +402,7 @@ function report(result::Result, str, doc::Documents.Document)
 
         $(result.output)
 
-        """, diff, _file=result.file, _line=lines[1])
+        """, diff, _file=result.file, _line=line)
 end
 
 function fix_doctest(result::Result, str, doc::Documents.Document)
