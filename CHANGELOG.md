@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.7`
+
+* ![Bugfix][badge-bugfix] Fix an error when building documentation for the first time with `push_preview`. ([#1704][github-1704])
+
 ## Version `v0.27.6`
 
 * ![Feature][badge-feature] Add support for generating `index.html` to redirect to `dev` or `stable`. The redirected destination is the same as the outdated warning. If there's already user-generated `index.html`, Documenter will not overwrite the file. ([#937][github-937], [#1657][github-1657], [#1658][github-1658])
@@ -910,6 +914,7 @@
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
 [github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
+[github-1704]: https://github.com/JuliaDocs/Documenter.jl/pull/1704
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
