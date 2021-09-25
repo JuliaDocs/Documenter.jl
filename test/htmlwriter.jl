@@ -238,6 +238,14 @@ end
         verify_version_file(versionfile, entries)
         generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "dev")
+
+        # Case 7: no entries
+        entries = String[]
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
+        rm(redirectfile)
+        generate_redirect_file(redirectfile, entries)
+        @test !isfile(redirectfile)
     end
 
     # Exhaustive Conversion from Markdown to Nodes.
