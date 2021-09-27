@@ -2,7 +2,9 @@
 
 ## Version `v0.27.7`
 
-* ![Bugfix][badge-bugfix] Fix an error when building documentation for the first time with `push_preview`. ([#1704][github-1704])
+* ![Bugfix][badge-bugfix] Fix an error when building documentation for the first time with `push_preview`. ([#1693][github-1693], [#1704][github-1704])
+* ![Bugfix][badge-bugfix] Fix a rare logger error for failed doctests. ([#1698][github-1698], [#1699][github-1699])
+* ![Bugfix][badge-bugfix] Fix an error occuring with `DocTestFilters = nothing` in `@meta` blocks. ([#1696][github-1696])
 
 ## Version `v0.27.6`
 
@@ -914,6 +916,10 @@
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
 [github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
+[github-1693]: https://github.com/JuliaDocs/Documenter.jl/issues/1693
+[github-1696]: https://github.com/JuliaDocs/Documenter.jl/pull/1696
+[github-1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
+[github-1699]: https://github.com/JuliaDocs/Documenter.jl/pull/1699
 [github-1704]: https://github.com/JuliaDocs/Documenter.jl/pull/1704
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
