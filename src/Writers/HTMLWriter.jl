@@ -78,8 +78,9 @@ struct HTMLAsset
     class :: Symbol
     uri :: String
     islocal :: Bool
+    attributes::Dict{Symbol, String}
 
-    function HTMLAsset(class::Symbol, uri::String, islocal::Bool)
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, attributes::Dict{Symbol, String}=Dict{Symbol,String}())
         if !islocal && match(r"^https?://", uri) === nothing
             error("Remote asset URL must start with http:// or https://")
         end
@@ -87,7 +88,7 @@ struct HTMLAsset
             @error("Local asset should not have an absolute URI: $uri")
         end
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
-        new(class, uri, islocal)
+        new(class, uri, islocal, attributes)
     end
 end
 
@@ -126,7 +127,7 @@ Documenter.HTML(assets = [
 ])
 ```
 """
-function asset(uri; class = nothing, islocal=false)
+function asset(uri; class = nothing, islocal=false, attributes=Dict{Symbol,String}())
     if class === nothing
         class = assetclass(uri)
         (class === nothing) && error("""
@@ -134,7 +135,7 @@ function asset(uri; class = nothing, islocal=false)
         It can be set explicitly with the `class` keyword argument.
         """)
     end
-    HTMLAsset(class, uri, islocal)
+    HTMLAsset(class, uri, islocal, attributes)
 end
 
 function assetclass(uri)
@@ -969,9 +970,9 @@ function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
         class = asset.class
         url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
-            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
-            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
-            class == :js  ? script[:src => url] : continue # Skip non-js/css files.
+            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon", pairs(asset.attributes)...] :
+            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css", pairs(asset.attributes)...] :
+            class == :js  ? script[:src => url, pairs(asset.attributes)...] : continue # Skip non-js/css files.
         push!(links, node)
     end
     return links
