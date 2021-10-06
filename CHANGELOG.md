@@ -1,6 +1,6 @@
 # Documenter.jl changelog
 
-## Version `v0.27.7`
+## Version `v0.27.8`
 
 * ![Feature][badge-feature] The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. ([1689][github-1689])
 

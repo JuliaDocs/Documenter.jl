@@ -3,7 +3,8 @@
 Documenter will, by default, run `jldoctest` code blocks that it finds and makes sure that
 the actual output matches what's in the doctest. This can help to avoid documentation
 examples from becoming outdated, incorrect, or misleading. It is recommended that as many of
-a package's examples as possible be runnable by Documenter's doctest.
+a package's examples as possible be runnable by Documenter's doctest. Doctest failures during [`makedocs`](@ref) are printed as logging statements by default, but can be made fatal by passing `strict=true` or `strict=:doctest` to `makedocs`.
+
 
 This section of the manual outlines how to go about enabling doctests for code blocks in
 your package's documentation.
@@ -388,4 +389,4 @@ Alternatively, you can also pass the `doctest = :fix` keyword to [`makedocs`](@r
 
 Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
 This should only be done when initially laying out the structure of a package's
-documentation, after which it's encouraged to always run doctests when building docs.
+documentation, after which it's encouraged to always run doctests when building docs. 
