@@ -1,5 +1,8 @@
 # Documenter.jl changelog
 
+## Unreleased
+
+* ![Bugfix][badge-bugfix] Fix multiline display equations in LaTex writer. ([#1709][github-1709])
 
 ## Version `v0.27.8`
 
