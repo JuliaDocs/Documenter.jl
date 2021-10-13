@@ -3,7 +3,7 @@
 
 ## Version `v0.27.8`
 
-* ![Feature][badge-feature] Allow users to inject custom JavaScript resources to enable alternatives to Google Analytics like plausible.io.
+* ![Feature][badge-feature] Allow users to inject custom JavaScript resources to enable alternatives to Google Analytics like plausible.io. ([#1706][github-1706])
 
 ## Version `v0.27.7`
 
