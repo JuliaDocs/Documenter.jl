@@ -7,6 +7,9 @@ $warning: #ffdd57;
 $danger: #da0b00;
 $compat: #1db5c9;
 
+// slightly increase contrast over default l: 48%
+$grey: hsl(0, 0%, 42%);
+
 @import "documenter/utilities";
 @import "documenter/variables";
 

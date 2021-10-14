@@ -1,5 +1,8 @@
 # Documenter.jl changelog
 
+## Unreleased
+
+* ![Bugfix][badge-bugfix] Fix a few accessibility issues. ([#1673][github-1673])
 
 ## Version `v0.27.8`
 
@@ -919,6 +922,7 @@
 [github-1658]: https://github.com/JuliaDocs/Documenter.jl/pull/1658
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
+[github-1673]: https://github.com/JuliaDocs/Documenter.jl/pull/1673
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
 [github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
 [github-1693]: https://github.com/JuliaDocs/Documenter.jl/issues/1693

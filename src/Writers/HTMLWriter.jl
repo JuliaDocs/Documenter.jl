@@ -1490,7 +1490,7 @@ end
 
 function domify(lb::ListBuilder)
     @tags ul li
-    ul(map(e -> isa(e, ListBuilder) ? domify(e) : li(e), lb.es))
+    ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
 end
 
 function domify(ctx, navnode, contents::Documents.ContentsNode)
