@@ -1,5 +1,10 @@
 # Documenter.jl changelog
 
+
+## Version `v0.27.8`
+
+* ![Feature][badge-feature] Allow users to inject custom JavaScript resources to enable alternatives to Google Analytics like plausible.io. ([#1706][github-1706])
+
 ## Version `v0.27.7`
 
 * ![Bugfix][badge-bugfix] Fix an error when building documentation for the first time with `push_preview`. ([#1693][github-1693], [#1704][github-1704])
@@ -921,6 +926,7 @@
 [github-1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
 [github-1699]: https://github.com/JuliaDocs/Documenter.jl/pull/1699
 [github-1704]: https://github.com/JuliaDocs/Documenter.jl/pull/1704
+[github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
