@@ -8,7 +8,6 @@
 
 ## Version `v0.27.7`
 
-* ![Bugfix][badge-bugfix] Fix an error when building documentation for the first time with `push_preview`. ([#1704][github-1704])
 * ![Bugfix][badge-bugfix] Fix an error when building documentation for the first time with `push_preview`. ([#1693][github-1693], [#1704][github-1704])
 * ![Bugfix][badge-bugfix] Fix a rare logger error for failed doctests. ([#1698][github-1698], [#1699][github-1699])
 * ![Bugfix][badge-bugfix] Fix an error occuring with `DocTestFilters = nothing` in `@meta` blocks. ([#1696][github-1696])
