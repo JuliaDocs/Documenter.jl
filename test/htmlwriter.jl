@@ -95,6 +95,17 @@ end
     end
     @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal = true)
 
+    let asset = asset("https://plausible.io/js/plausible.js"; class=:js, attributes=Dict(Symbol("data-domain")=>"example.com", :defer=>""))
+        @test asset.uri == "https://plausible.io/js/plausible.js"
+        @test asset.class == :js
+        @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        @test link.src == "https://plausible.io/js/plausible.js"
+        @test Base.getproperty(link, Symbol("data-domain")) == "example.com"
+        @test link.defer == ""
+    end
+
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML
     @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
@@ -238,6 +249,14 @@ end
         verify_version_file(versionfile, entries)
         generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "dev")
+
+        # Case 7: no entries
+        entries = String[]
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
+        rm(redirectfile)
+        generate_redirect_file(redirectfile, entries)
+        @test !isfile(redirectfile)
     end
 
     # Exhaustive Conversion from Markdown to Nodes.

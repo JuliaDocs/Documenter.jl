@@ -1,5 +1,16 @@
 # Documenter.jl changelog
 
+
+## Version `v0.27.8`
+
+* ![Feature][badge-feature] Allow users to inject custom JavaScript resources to enable alternatives to Google Analytics like plausible.io. ([#1706][github-1706])
+
+## Version `v0.27.7`
+
+* ![Bugfix][badge-bugfix] Fix an error when building documentation for the first time with `push_preview`. ([#1693][github-1693], [#1704][github-1704])
+* ![Bugfix][badge-bugfix] Fix a rare logger error for failed doctests. ([#1698][github-1698], [#1699][github-1699])
+* ![Bugfix][badge-bugfix] Fix an error occuring with `DocTestFilters = nothing` in `@meta` blocks. ([#1696][github-1696])
+
 ## Version `v0.27.6`
 
 * ![Feature][badge-feature] Add support for generating `index.html` to redirect to `dev` or `stable`. The redirected destination is the same as the outdated warning. If there's already user-generated `index.html`, Documenter will not overwrite the file. ([#937][github-937], [#1657][github-1657], [#1658][github-1658])
@@ -7,6 +18,8 @@
 * ![Bugfix][badge-bugfix] Checking whether a PR comes from the correct repository when deciding to deploy a preview on GitHub Actions now works on Julia 1.0 too. ([#1665](github-1665))
 
 * ![Bugfix][badge-bugfix] When a doctest fails, pass file and line information associated to the location of the doctest instead of the location of the testing code in Documenter to the logger. ([#1687](github-1687))
+
+* ![Bugfix][badge-bugfix] Enabled colored printing for each output of `@repl`-blocks. ([#1691](github-1691))
 
 ## Version `v0.27.5`
 
@@ -907,6 +920,13 @@
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
+[github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
+[github-1693]: https://github.com/JuliaDocs/Documenter.jl/issues/1693
+[github-1696]: https://github.com/JuliaDocs/Documenter.jl/pull/1696
+[github-1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
+[github-1699]: https://github.com/JuliaDocs/Documenter.jl/pull/1699
+[github-1704]: https://github.com/JuliaDocs/Documenter.jl/pull/1704
+[github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
