@@ -25,6 +25,11 @@ const DOCUMENTER_VERSION = let
     VersionNumber(m[1])
 end
 
+# Names of possible internal errors
+const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
+                     :eval_block, :example_block, :footnote, :linkcheck, :meta_block,
+                     :missing_docs, :parse_error, :setup_block]
+
 """
     abstract type Plugin end
 
@@ -133,8 +138,8 @@ produce the expected results. See the [Doctests](@ref) manual section for detail
 running doctests.
 
 Setting `doctest` to `:only` allows for doctesting without a full build. In this mode, most
-build stages are skipped and the `strict` keyword is ignore (a doctesting error will always
-make `makedocs` throw an error).
+build stages are skipped and the `strict` keyword is ignored (a doctesting error will always
+make `makedocs` throw an error in this mode).
 
 **`modules`** specifies a vector of modules that should be documented in `source`. If any
 inline docstrings from those modules are seen to be missing from the generated content then
@@ -199,13 +204,15 @@ when a minor version changes (i.e. except in patch releases).
 defined in the `modules` keyword that have a docstring attached have the docstring also
 listed in the manual (e.g. there's a `@docs` block with that docstring). Possible values
 are `:all` (check all names; the default), `:exports` (check only exported names) and
-`:none` (no checks are performed). If `strict` is also enabled then the build will fail if
-any missing docstrings are encountered.
+`:none` (no checks are performed). If `strict=true` (or `strict=:missing_docs` or
+`strict=[:missing_docs, ...]`) is also set then the build will fail if any missing
+docstrings are encountered.
 
 **`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
 of external-pointing links, to make sure that they are up-to-date. The links and their
-status codes are printed to the standard output. If `strict` is also enabled then the build
-will fail if there are any broken (400+ status code) links. Default: `false`.
+status codes are printed to the standard output. If `strict` is also set to `true`
+(or `:linkcheck` or a `Vector` including `:linkcheck`) then the build will fail if there
+are any broken (400+ status code) links. Default: `false`.
 
 **`linkcheck_ignore`** allows certain URLs to be ignored in `linkcheck`. The values should
 be a list of strings (which get matched exactly) or `Regex` objects. By default nothing is
@@ -214,8 +221,10 @@ ignored.
 **`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
 return a response before giving up. The default is 10 seconds.
 
-**`strict`** -- [`makedocs`](@ref) fails the build right before rendering if it encountered
-any errors with the document in the previous build phases.
+**`strict`** -- if set to `true`, [`makedocs`](@ref) fails the build right before rendering
+if it encountered any errors with the document in the previous build phases. The keyword
+`strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error
+(or errors) should be fatal. Options are: $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).

@@ -501,6 +501,27 @@ end
         @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.Utilities.codelang("&%^ ***") == "&%^"
     end
+
+    @testset "is_strict" begin
+        @test Documenter.Utilities.is_strict(true, :doctest)
+        @test Documenter.Utilities.is_strict([:doctest], :doctest)
+        @test Documenter.Utilities.is_strict(:doctest, :doctest)
+        @test !Documenter.Utilities.is_strict(false, :doctest)
+        @test !Documenter.Utilities.is_strict(:setup_block, :doctest)
+        @test !Documenter.Utilities.is_strict([:setup_block], :doctest)
+
+        @test Documenter.Utilities.is_strict(true, :setup_block)
+        @test !Documenter.Utilities.is_strict(false, :setup_block)
+        @test Documenter.Utilities.is_strict(:setup_block, :setup_block)
+        @test Documenter.Utilities.is_strict([:setup_block], :setup_block)
+    end
+
+    @testset "check_strict_kw" begin
+        @test Documenter.Utilities.check_strict_kw(:setup_block) === nothing
+        @test Documenter.Utilities.check_strict_kw(:doctest) === nothing
+        @test_throws ArgumentError Documenter.Utilities.check_strict_kw(:a)
+        @test_throws ArgumentError Documenter.Utilities.check_strict_kw([:a, :doctest])
+    end
 end
 
 end
