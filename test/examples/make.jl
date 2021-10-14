@@ -327,7 +327,10 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
         format = Documenter.HTML(
-            assets = ["assets/custom.css"],
+            assets = [
+                "assets/custom.css",
+                asset("https://plausible.io/js/plausible.js", class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
+            ],
             prettyurls = false,
             edit_branch = nothing,
             footer = nothing,

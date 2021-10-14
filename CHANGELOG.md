@@ -2,6 +2,8 @@
 
 ## Version `v0.27.8`
 
+* ![Feature][badge-feature] Allow users to inject custom JavaScript resources to enable alternatives to Google Analytics like plausible.io. ([#1706][github-1706])
+
 * ![Feature][badge-feature] The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. ([1689][github-1689])
 
 ## Version `v0.27.7`
@@ -927,6 +929,7 @@
 [github-1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
 [github-1699]: https://github.com/JuliaDocs/Documenter.jl/pull/1699
 [github-1704]: https://github.com/JuliaDocs/Documenter.jl/pull/1704
+[github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
