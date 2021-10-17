@@ -1086,6 +1086,30 @@ function render_sidebar(ctx, navnode)
     navmenu
 end
 
+function render_content_toc(ctx, navnode)
+    @tags div a ul li nav
+
+    toc = ul(
+        li(a[:href => "#Documenter"]("Documenter")),
+        li(a[:href => "#Documenter.makedocs"]("Documenter.makedocs")),
+        li(a[:href => "#Documenter.hide"]("Documenter.hide")),
+        li(a[:href => "#Documenter.Writers.HTMLWriter.asset"]("Documenter.Writers.HTMLWriter.asset")),
+        li(a[:href => "#Documenter.deploydocs"]("Documenter.deploydocs")),
+        li(a[:href => "#Documenter.Deps"]("Documenter.Deps")),
+        li(a[:href => "#Documenter.Deps.pip"]("Documenter.Deps.pip")),
+        li(a[:href => "#Documenter.doctest"]("Documenter.doctest")),
+        li(a[:href => "#Documenter.DocMeta"]("Documenter.DocMeta")),
+        li(a[:href => "#Documenter.DocMeta.getdocmeta"]("Documenter.DocMeta.getdocmeta")),
+        li(a[:href => "#Documenter.DocMeta.setdocmeta!"]("Documenter.DocMeta.setdocmeta!")),
+        li(a[:href => "#DocumenterTools.generate"]("DocumenterTools.generate")),
+        li(a[:href => "#DocumenterTools.genkeys"]("DocumenterTools.genkeys")),
+        li(a[:href => "#DocumenterTools.OutdatedWarning.generate"]("DocumenterTools.OutdatedWarning.generate")) ,
+    )
+    navmenu = nav[".content-toc"](toc)
+    return navmenu
+end
+
+
 function find_image_asset(ctx, name)
     for ext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
         filename = joinpath("assets", "$(name).$(ext)")
@@ -1274,7 +1298,7 @@ end
 
 function render_article(ctx, navnode)
     @tags article section ul li hr span a div p
-
+    
     # Build the page itself (and collect any footnotes)
     empty!(ctx.footnotes)
     art_body = article["#documenter-page.content"](domify(ctx, navnode))
@@ -1298,7 +1322,13 @@ function render_article(ctx, navnode)
         end
         push!(art_body.nodes, section[".footnotes.is-size-7"](ul(fnotes)))
     end
-    return art_body
+
+    content_toc = div[".content-toc-container"](render_content_toc(ctx, navnode))
+    article_container = div["#documenter-page-container"](
+        art_body,
+        content_toc
+    )
+    return article_container
 end
 
 # expand the versions argument from the user
