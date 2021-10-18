@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-* ![Bugfix][badge-bugfix] Fix text/latex MIME type in LaTeXWriter. ([#1709][github-1709])
+## Version `v0.27.9`
+
+* ![Bugfix][badge-bugfix] Fix some errors with text/latex MIME type in LaTeXWriter. ([#1709][github-1709])
 
 ## Version `v0.27.8`
 
@@ -936,6 +938,7 @@
 [github-1699]: https://github.com/JuliaDocs/Documenter.jl/pull/1699
 [github-1704]: https://github.com/JuliaDocs/Documenter.jl/pull/1704
 [github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
+[github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
