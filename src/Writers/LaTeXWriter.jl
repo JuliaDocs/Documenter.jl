@@ -398,7 +398,8 @@ function latex(io::IO, d::Dict{MIME,Any})
         \\end{figure}
         """)
     elseif haskey(d, MIME"text/latex"())
-        latex(io, Utilities.mdparse(d[MIME"text/latex"()]; mode = :single))
+        # If it has a latex MIME, just write it out directly.
+        _print(io, d[MIME"text/latex"()])
     elseif haskey(d, MIME"text/markdown"())
         latex(io, Markdown.parse(d[MIME"text/markdown"()]))
     elseif haskey(d, MIME"text/plain"())

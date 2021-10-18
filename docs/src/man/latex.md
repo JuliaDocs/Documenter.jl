@@ -115,3 +115,25 @@ To write a system of equations, use the `aligned` environment:
 ```
 
 These are Maxwell's equations.
+
+## Printing LaTeX from Julia
+
+To pretty-print LaTeX from Julia, overload `Base.show` for the
+`MIME"text/latex"` type. For example:
+```@example
+struct LaTeXEquation
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation)
+    # Wrap in $$ for display math printing
+    return print(io, "\$\$ " * x.content * " \$\$")
+end
+
+LaTeXEquation(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+```

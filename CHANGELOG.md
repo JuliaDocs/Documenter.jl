@@ -1,5 +1,8 @@
 # Documenter.jl changelog
 
+## Unreleased
+
+* ![Bugfix][badge-bugfix] Fix text/latex MIME type in LaTeXWriter. ([#1709][github-1709])
 
 ## Version `v0.27.8`
 
