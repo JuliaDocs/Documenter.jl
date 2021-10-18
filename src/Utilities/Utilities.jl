@@ -629,17 +629,6 @@ The `mode` keyword argument can be one of the following:
 """
 function mdparse(s::AbstractString; mode=:single)
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
-    # If `s` is already wrapped in `\[ ... \]` or `\$\$ ... \$\$``, we unwrap it
-    # and return a Markdown.LaTeX object instead. This is often the case if
-    # users implement a MIME"text/latex" mode to display objects in display math
-    # mode.
-    # Make sure to match multiline strings!
-    m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, s)
-    m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, s)
-    if mode == :single && (m_bracket !== nothing || m_dollars !== nothing)
-        out = m_bracket !== nothing ? m_bracket[1] : m_dollars[1]
-        return Markdown.LaTeX(out)
-    end
     md = Markdown.parse(s)
     if mode == :blocks
         md.content

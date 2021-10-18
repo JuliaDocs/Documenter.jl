@@ -81,3 +81,43 @@ _Note: this should render as just text, not as a table._
         3 & 3 & 'C' & 7 \\
         4 & 4 & 'D' & 8 \\
 \end{tabular}
+
+## Printing LaTeX from Julia
+
+To pretty-print LaTeX from Julia, overload `Base.show` for the
+`MIME"text/latex"` type. For example:
+```@example
+struct LaTeXEquation
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation)
+    # Wrap in $$ for display math printing
+    return print(io, "\$\$ " * x.content * " \$\$")
+end
+
+LaTeXEquation(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+```
+
+```@example
+struct LaTeXEquation2
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation2)
+    # Wrap in \[...\] for display math printing
+    return print(io, "\\[ " * x.content * " \\]")
+end
+
+LaTeXEquation2(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+```

@@ -380,7 +380,6 @@ function latex(io::IO, mo::Documents.MultiOutput)
     foreach(x->Base.invokelatest(latex, io, x), mo.content)
 end
 function latex(io::IO, d::Dict{MIME,Any})
-    @show collect(keys(d))
     filename = String(rand('a':'z', 7))
     if haskey(d, MIME"image/png"())
         write("$(filename).png", base64decode(d[MIME"image/png"()]))
@@ -399,7 +398,8 @@ function latex(io::IO, d::Dict{MIME,Any})
         \\end{figure}
         """)
     elseif haskey(d, MIME"text/latex"())
-        latex(io, Markdown.LaTeX(d[MIME"text/latex"()]))
+        # If it's got a latex MIME, just write it out directly.
+        _print(io, d[MIME"text/latex"()])
     elseif haskey(d, MIME"text/markdown"())
         latex(io, Markdown.parse(d[MIME"text/markdown"()]))
     elseif haskey(d, MIME"text/plain"())
