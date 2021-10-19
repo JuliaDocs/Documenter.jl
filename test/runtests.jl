@@ -51,6 +51,9 @@ include("TestUtilities.jl"); using .TestUtilities
     # HTMLWriter
     include("htmlwriter.jl")
 
+    # LaTeXWriter
+    include("latexwriter.jl")
+
     # Deployment configurations
     include("deployconfig.jl")
 
