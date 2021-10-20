@@ -750,13 +750,16 @@ end
 
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))
 
-function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: AbstractString}
-    push!(out, (p.first, p.second, depth))
-end
-
-function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
-    push!(out, (p.first, "", depth))
-    files!(out, p.second, depth)
+function files!(out, p::Pair{<:AbstractString,<:Any}, depth)
+    # Hack time. Because of Julia's typing, something like
+    # `"Introduction" => "index.md"` may get typed as a `Pair{String,Any}`!
+    if p[2] isa AbstractString
+        push!(out, (p.first, p.second, depth))
+    else
+        push!(out, (p.first, "", depth))
+        files!(out, p.second, depth)
+    end
+    return out
 end
 
 files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)
