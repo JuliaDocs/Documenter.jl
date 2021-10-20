@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Version `v0.27.10`
+
+* ![Bugfix][badge-bugfix] Fix depth of headers in LaTeXWriter. ([#1716][github-1716])
+
 ## Version `v0.27.9`
 
 * ![Bugfix][badge-bugfix] Fix some errors with text/latex MIME type in LaTeXWriter. ([#1709][github-1709])
