@@ -943,6 +943,7 @@
 [github-1704]: https://github.com/JuliaDocs/Documenter.jl/pull/1704
 [github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
+[github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
