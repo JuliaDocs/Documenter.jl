@@ -17,6 +17,8 @@ Pages = ["showcase.md"]
 Documenter can render all the [Markdown syntax supported by the Julia Markdown parser](https://docs.julialang.org/en/v1/stdlib/Markdown/).
 You can use all the usual markdown syntax, such as **bold text** and _italic text_ and `print("inline code")`.
 
+## Code blocks
+
 Code blocks are rendered as follows:
 
 ```
@@ -32,6 +34,8 @@ function foo(x::Integer)
 end
 ```
 
+## Mathematics
+
 For mathematics, both inline and display equations are available.
 Inline equations should be written as LaTeX between two backticks,
 e.g. ``` ``A x^2 + B x + C = 0`` ```.
@@ -45,7 +49,28 @@ x_{1,2} = \frac{-B \pm \sqrt{B^2 - 4 A C}}{2A}
 
 By default, the HTML output renders equations with [KaTeX](https://katex.org/), but [MathJax](https://www.mathjax.org/) can optionally be used as well.
 
-Finally, admonitions for notes, warnings and such:
+## Images
+
+Include images using basic Markdown syntax:
+
+![Enter a descriptive caption for the image](assets/logo.png)
+
+The path should be relative to the directory of the current file. Alternatively,
+use `./` to begin a path relative to the `src` of the documents, e.g.,
+`./assets/logo.png`.
+
+## Admonitions
+
+Admonitions are colorful boxes used to highlight parts of the documentation.
+
+Each admonition begins with three `!!!`, and then the content is indented
+underneath with four spaces:
+```
+!!! note "An optional title"
+    Here is something you should pay attention to.
+```
+
+Documenter supports a range of admonition types for different circumstances.
 
 ###### Note admonition
 !!! note "'note' admonition"
@@ -92,7 +117,7 @@ Finally, admonitions for notes, warnings and such:
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class. This is a `code example`.
 
-### Lists
+## Lists
 
 Tight lists look as follows
 
@@ -172,7 +197,7 @@ Lists can also be included in other blocks that can contain block level items
 >   - Nulla quis venenatis justo.
 >   - In non _sodales_ eros.
 
-### Tables
+## Tables
 
 | object | implemented |      value |
 |--------|-------------|------------|
@@ -194,7 +219,7 @@ Tables that are too wide should become scrollable.
 | `BBBBBBBBBBBBBBBBBBBB` | ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ | 1000000000000000000000000000000000000000000000000000000.00 |
 
 
-### Footnotes
+## Footnotes
 
 Footnote references can be added with the `[^label]` syntax.[^1] The footnote definitions get collected at the bottom of the page.
 
@@ -206,7 +231,7 @@ The footnote label can be an arbitrary string and even consist of block-level el
     > Any sufficiently advanced technology is indistinguishable from magic.
     Arthur C. Clarke, _Profiles of the Future_ (1961): Clarke's Third Law.
 
-### Headings
+## Headings
 
 Finally, headings render as follows
 
