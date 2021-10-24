@@ -175,7 +175,7 @@ Follow the instructions that are printed out, namely:
 ## GitHub Actions
 
 To run the documentation build from GitHub Actions, create a new workflow
-flow configuration file called `.github/workflows/documentation.yml` with the
+configuration file called `.github/workflows/documentation.yml` with the
 following contents:
 ```yaml
 name: Documentation
