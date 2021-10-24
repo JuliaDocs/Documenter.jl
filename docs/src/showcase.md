@@ -49,15 +49,10 @@ x_{1,2} = \frac{-B \pm \sqrt{B^2 - 4 A C}}{2A}
 
 By default, the HTML output renders equations with [KaTeX](https://katex.org/), but [MathJax](https://www.mathjax.org/) can optionally be used as well.
 
-You can also create inline equations with `$content$`, $A x^2 + B x + C = 0$, or
-display equations with `$$content$$`:
-
-$$x_{1,2} = \frac{-B \pm \sqrt{B^2 - 4 A C}}{2A}$$
-
-Note that the display equations must be separated by newlines before and after.
-
-Because `$` are used for math escaping, to write `$` you must escape it as `\$`.
-For example, if $x$ costs \$4, then $\sqrt{x}$ costs \$2.
+!!! warning
+    Similar to LaTeX, using `$` and `$$` to escape inline and display equations
+    also works. However, doing so is deprecated and this functionality may be
+    removed in a future release.
 
 ## Images
 
