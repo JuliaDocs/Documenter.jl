@@ -61,6 +61,11 @@ Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
 
 ---
 
+!!! warning
+    Similar to LaTeX, using `$` and `$$` to escape inline and display equations
+    also works. However, doing so is deprecated and this functionality may be
+    removed in a future release.
+
 ## Display Equations
 
 ````markdown
