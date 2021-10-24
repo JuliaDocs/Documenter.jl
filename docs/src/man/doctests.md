@@ -300,6 +300,12 @@ DocTestFilters = nothing
 The `DocTestFilters = nothing` is not strictly necessary, but good practice nonetheless to
 help avoid unintentional filtering in following doctest blocks.
 
+!!! info
+    Filters are applied line-by-line to the output. To match multiline strings,
+    use the `s` suffix of a regular expression to match newlines, e.g.,
+    `r"[0-9\.]+ seconds \(.*"s`. See the Julia documentation for `@r_str` for
+    more information on regular expression suffixes.
+
 Another option is to use the `filter` keyword argument. This defines a doctest-local filter
 which is only active for the specific doctest. Note that such filters are not shared between
 named doctests either. It is possible to define a filter by a single regex (filter = r"foo")
@@ -389,4 +395,4 @@ Alternatively, you can also pass the `doctest = :fix` keyword to [`makedocs`](@r
 
 Doctesting can be disabled by setting the [`makedocs`](@ref) keyword `doctest = false`.
 This should only be done when initially laying out the structure of a package's
-documentation, after which it's encouraged to always run doctests when building docs. 
+documentation, after which it's encouraged to always run doctests when building docs.
