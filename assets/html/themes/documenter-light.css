@@ -7350,7 +7350,7 @@ li.no-marker {
 
 @media screen and (min-width: 1216px) {
   #documenter .docs-main {
-    margin-left: calc(20rem + (100% - 74rem) / 2); } }
+    margin-left: calc(20rem + (100% - 71rem) / 2); } }
 
 #documenter .docs-main header.docs-navbar {
   background-color: white;
@@ -7457,7 +7457,7 @@ li.no-marker {
       top: 0; } }
   @media screen and (min-width: 1216px) {
     #documenter .docs-sidebar {
-      left: calc((100% - 74rem) / 2);
+      left: calc((100% - 71rem) / 2);
       border-left: 1px solid #dbdbdb; } }
   #documenter .docs-sidebar .docs-logo {
     margin-top: 1rem;

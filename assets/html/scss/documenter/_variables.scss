@@ -75,7 +75,7 @@ $documenter-main-padding-right: 1rem !default;
 $documenter-main-padding: 1rem !default;
 
 // Variables used in widescreen centered layout
-$documenter-body-width: calc($documenter-sidebar-width + 2*$documenter-sidebar-main-gap + $documenter-max-width + 2*$documenter-main-padding) !default;
+$documenter-body-width: calc($documenter-sidebar-width + $documenter-sidebar-main-gap + $documenter-max-width + $documenter-main-padding) !default;
 $documenter-empty-sidespace-half: calc((100% - $documenter-body-width)/2) !default;
 
 // We'll override the Bulma $tablet width, which is the point at which the

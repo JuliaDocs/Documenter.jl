@@ -7356,7 +7356,7 @@ html.theme--documenter-dark {
       padding-right: 1rem; } }
   @media screen and (min-width: 1216px) {
     html.theme--documenter-dark #documenter .docs-main {
-      margin-left: calc(20rem + (100% - 74rem) / 2); } }
+      margin-left: calc(20rem + (100% - 71rem) / 2); } }
   @media screen and (max-width: 1055px) {
     html.theme--documenter-dark #documenter .docs-main {
       width: 100%; }
@@ -7472,7 +7472,7 @@ html.theme--documenter-dark {
         top: 0; } }
     @media screen and (min-width: 1216px) {
       html.theme--documenter-dark #documenter .docs-sidebar {
-        left: calc((100% - 74rem) / 2);
+        left: calc((100% - 71rem) / 2);
         border-left: 1px solid #5e6d6f; } }
     html.theme--documenter-dark #documenter .docs-sidebar .docs-logo {
       margin-top: 1rem;
