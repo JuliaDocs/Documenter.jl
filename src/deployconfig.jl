@@ -114,7 +114,7 @@ accepts any of `master`, `main`.
 struct CommonDevBranches end
 
 matches_devbranch(branchname, devbranch) = branchname == devbranch
-matches_devbranch(branchname, ::CommonDevBranches) = branchname ∈ ("main", "master", "dev")
+matches_devbranch(branchname, ::CommonDevBranches) = branchname ∈ ("main", "master")
 
 #############
 # Travis CI #
