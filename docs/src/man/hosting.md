@@ -529,6 +529,7 @@ Documenter.authentication_method
 Documenter.authenticated_repo_url
 Documenter.documenter_key
 Documenter.documenter_key_previews
+Documenter.CommonDevBranches
 Documenter.Travis
 Documenter.GitHubActions
 Documenter.GitLab
