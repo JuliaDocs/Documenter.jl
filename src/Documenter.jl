@@ -329,7 +329,7 @@ include("deployconfig.jl")
         branch = "gh-pages",
         deps = nothing | <Function>,
         make = nothing | <Function>,
-        devbranch = "master",
+        devbranch = CommonDevBranches(),
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush = false,
@@ -415,7 +415,9 @@ deps = Deps.pip("pygments", "mkdocs")
 executed.
 
 **`devbranch`** is the branch that "tracks" the in-development version of the generated
-documentation. By default this value is set to `"master"`.
+documentation. By default this value is set to `CommonDevBranches()`, which matches either
+`master` or `main`. But to set it explictly you can use a string. Which you should do if you
+use either `master` or `main` for some other purpose.
 
 **`devurl`** the folder that in-development version of the docs will be deployed.
 Defaults to `"dev"`.
@@ -491,7 +493,7 @@ function deploydocs(;
         deps   = nothing,
         make   = nothing,
 
-        devbranch = "master",
+        devbranch = CommonDevBranches(),
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,

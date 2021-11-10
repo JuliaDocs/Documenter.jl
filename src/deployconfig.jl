@@ -104,6 +104,18 @@ marker(x) = x ? "✔" : "✘"
 
 env_nonempty(key) = !isempty(get(ENV, key, ""))
 
+
+"""
+    CommonDevBranches
+
+A stand-in for the name of the devbranch. Rather than hardcoding to `master` or `main` this
+accepts any of `master`, `main`.
+"""
+struct CommonDevBranches end
+
+matches_devbranch(branchname, devbranch) = branchname == devbranch
+matches_devbranch(branchname, ::CommonDevBranches) = branchname ∈ ("main", "master", "dev")
+
 #############
 # Travis CI #
 #############
@@ -130,7 +142,7 @@ when using the `Travis` configuration:
 
  - `TRAVIS_BRANCH`: unless `TRAVIS_TAG` is non-empty, this must have the same value as
    the `devbranch` keyword to [`deploydocs`](@ref). This makes sure that only the
-   development branch (commonly, the `master` branch) will deploy the "dev" documentation
+   development branch will deploy the "dev" documentation
    (deployed into a directory specified by the `devurl` keyword to [`deploydocs`](@ref)).
 
  - `TRAVIS_TAG`: if set, a tagged version deployment is performed instead; the value
@@ -205,7 +217,7 @@ function deploy_folder(cfg::Travis;
         println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"")
         all_ok &= pr_ok
         ## deploydocs' devbranch should match TRAVIS_BRANCH
-        branch_ok = !isempty(cfg.travis_tag) || cfg.travis_branch == devbranch
+        branch_ok = !isempty(cfg.travis_tag) || matches_devbranch(cfg.travis_branch, devbranch)
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"TRAVIS_BRANCH\"] matches devbranch=\"$(devbranch)\"")
         deploy_branch = branch
@@ -241,11 +253,11 @@ function deploy_folder(cfg::Travis;
         @warn """
         Possible deploydocs() misconfiguration: main vs master
         Documenter's configured primary development branch (`devbranch`) is "master", but the
-        current branch (\$TRAVIS_BRANCH) is "main". This can happen because Documenter uses
-        GitHub's old default primary branch name as the default value for `devbranch`.
+        current branch (\$TRAVIS_BRANCH) is "main".
 
         If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
         to deploydocs.
+        Or remove the `devbranch` setting to fallback to the default which accepts both.
 
         See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
         """
@@ -348,7 +360,7 @@ function deploy_folder(cfg::GitHubActions;
         println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.github_ref)
-        branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
+        branch_ok = m === nothing ? false : matches_devbranch(String(m.captures[1]), devbranch)
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"GITHUB_REF\"] matches devbranch=\"$(devbranch)\"")
         deploy_branch = branch
@@ -398,11 +410,11 @@ function deploy_folder(cfg::GitHubActions;
         @warn """
         Possible deploydocs() misconfiguration: main vs master
         Documenter's configured primary development branch (`devbranch`) is "master", but the
-        current branch (from \$GITHUB_REF) is "main". This can happen because Documenter uses
-        GitHub's old default primary branch name as the default value for `devbranch`.
+        current branch (from \$GITHUB_REF) is "main".
 
         If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
         to deploydocs.
+        Or remove the `devbranch` setting to fallback to the default which accepts both.
 
         See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
         """
@@ -664,7 +676,7 @@ function deploy_folder(
         deploy_branch = branch_previews
         deploy_repo = repo_previews
     else
-        branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
+        branch_ok = !isempty(cfg.commit_tag) || matches_devbranch(cfg.commit_branch, devbranch)
         all_ok &= branch_ok
         println(
             io,
@@ -804,7 +816,7 @@ function deploy_folder(
         deploy_branch = branch_previews
         deploy_repo = repo_previews
     else
-        branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
+        branch_ok = !isempty(cfg.commit_tag) || matches_devbranch(cfg.commit_branch, devbranch)
         all_ok &= branch_ok
         println(
             io,
@@ -826,11 +838,11 @@ function deploy_folder(
         @warn """
         Possible deploydocs() misconfiguration: main vs master
         Documenter's configured primary development branch (`devbranch`) is "master", but the
-        current branch (\$BUILDKITE_BRANCH) is "main". This can happen because Documenter uses
-        GitHub's old default primary branch name as the default value for `devbranch`.
+        current branch (\$BUILDKITE_BRANCH) is "main".
 
         If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
         to deploydocs.
+        Or remove the `devbranch` setting to fallback to the default which accepts both.
 
         See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
         """
