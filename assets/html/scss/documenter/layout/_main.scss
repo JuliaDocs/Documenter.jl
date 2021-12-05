@@ -26,6 +26,11 @@
          position: sticky;
          top: 0;
          padding-left: 0.5rem;
+         font-size: smaller;
+         .content-toc-link::before {
+             content: "*";
+             padding-right: 4px;
+         }
        }
        @include touch {
          display: none;
