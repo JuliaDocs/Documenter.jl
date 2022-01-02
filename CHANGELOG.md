@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.0` (minor version bump). ([#1743][github-1743])
+
 ## Version `v0.27.10`
 
 * ![Bugfix][badge-bugfix] Fix depth of headers in LaTeXWriter. ([#1716][github-1716])
@@ -944,6 +946,7 @@
 [github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
+[github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
