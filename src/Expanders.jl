@@ -74,6 +74,8 @@ The default node expander "pipeline", which consists of the following expanders:
 """
 abstract type ExpanderPipeline <: Selectors.AbstractSelector end
 
+abstract type RecursiveExpanderPipeline <: ExpanderPipeline end
+
 """
 Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
 [`Anchors.Anchor`](@ref) object for each one.
@@ -138,9 +140,9 @@ Markdown.parse("![Plot](plot.svg)")
 ```
 ````
 """
-abstract type EvalBlocks <: ExpanderPipeline end
+abstract type EvalBlocks <: RecursiveExpanderPipeline end
 
-abstract type RawBlocks <: ExpanderPipeline end
+abstract type RawBlocks <: RecursiveExpanderPipeline end
 
 """
 Parses each code block where the language is `@index` and replaces it with an index of all
@@ -183,20 +185,23 @@ a + b
 ```
 ````
 """
-abstract type ExampleBlocks <: ExpanderPipeline end
+abstract type ExampleBlocks <: RecursiveExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
 toplevel expression in the final document.
 """
-abstract type REPLBlocks <: ExpanderPipeline end
+abstract type REPLBlocks <: RecursiveExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
 """
-abstract type SetupBlocks <: ExpanderPipeline end
+abstract type SetupBlocks <: RecursiveExpanderPipeline end
 
-abstract type Recurse <: ExpanderPipeline end
+"""
+Node in the pipeline used only to support expansion through recursive block elements.
+"""
+abstract type Recurse <: RecursiveExpanderPipeline end
 
 Selectors.order(::Type{TrackHeaders})   = 1.0
 Selectors.order(::Type{MetaBlocks})     = 2.0
@@ -226,9 +231,12 @@ Selectors.matcher(::Type{Recurse},        node, page, doc) =
     any(x->isa(node, x), (Markdown.Admonition, Markdown.BlockQuote, Markdown.List))
 
 
+Selectors.order(::Type{RecursiveExpanderPipeline}) = Inf
+Selectors.matcher(::Type{RecursiveExpanderPipeline}, node, page, doc) = false
+
 # Default Expander.
 
-Selectors.runner(::Type{ExpanderPipeline}, x, page, doc) = page.mapping[x] = x
+Selectors.runner(::Type{<:ExpanderPipeline}, x, page, doc) = page.mapping[x] = x
 
 # Track Headers.
 # --------------
@@ -749,7 +757,7 @@ function Selectors.runner(::Type{Recurse}, x::Markdown.Admonition, page, doc)
     content = get(page.mapping, x, x).content
     content′ = Any[]
     for elem in content
-        Selectors.dispatch(ExpanderPipeline, elem, page, doc)
+        Selectors.dispatch(RecursiveExpanderPipeline, elem, page, doc)
         push!(content′, get(page.mapping, elem, elem))
     end
     page.mapping[x] = Markdown.Admonition(x.category, x.title, content′)
@@ -758,7 +766,7 @@ function Selectors.runner(::Type{Recurse}, x::Markdown.BlockQuote, page, doc)
     content = get(page.mapping, x, x).content
     content′ = Any[]
     for elem in content
-        Selectors.dispatch(ExpanderPipeline, elem, page, doc)
+        Selectors.dispatch(RecursiveExpanderPipeline, elem, page, doc)
         push!(content′, get(page.mapping, elem, elem))
     end
     page.mapping[x] = Markdown.BlockQuote(content′)
@@ -769,7 +777,7 @@ function Selectors.runner(::Type{Recurse}, x::Markdown.List, page, doc)
     for item in list
         item′ = Any[]
         for mdelem in item
-            Selectors.dispatch(ExpanderPipeline, mdelem, page, doc)
+            Selectors.dispatch(RecursiveExpanderPipeline, mdelem, page, doc)
             push!(item′, get(page.mapping, mdelem, mdelem))
         end
         push!(list′, item′)

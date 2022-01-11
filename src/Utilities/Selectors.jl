@@ -163,7 +163,7 @@ Selectors.dispatch(MySelector, args...)
 """
 function dispatch(::Type{T}, x...) where T <: AbstractSelector
     types = get!(selector_subtypes, T) do
-        sort(subtypes(T); by = order)
+        sort(allsubtypes(T); by = order)
     end
     for t in types
         if !disable(t) && matcher(t, x...)
@@ -178,5 +178,13 @@ end
 # (https://github.com/JuliaLang/julia/issues/38079), so to ensure that
 # `dispatch` remains fast we cache the results of `subtypes` here.
 const selector_subtypes = Dict{Type,Vector}()
+
+function allsubtypes(::Type{T}) where T
+    sub = subtypes(T)
+    for t in sub
+        append!(sub, allsubtypes(t))
+    end
+    return sub
+end
 
 end
