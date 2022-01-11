@@ -196,6 +196,8 @@ Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the fin
 """
 abstract type SetupBlocks <: ExpanderPipeline end
 
+abstract type Recurse <: ExpanderPipeline end
+
 Selectors.order(::Type{TrackHeaders})   = 1.0
 Selectors.order(::Type{MetaBlocks})     = 2.0
 Selectors.order(::Type{DocsBlocks})     = 3.0
@@ -207,6 +209,7 @@ Selectors.order(::Type{ExampleBlocks})  = 8.0
 Selectors.order(::Type{REPLBlocks})     = 9.0
 Selectors.order(::Type{SetupBlocks})    = 10.0
 Selectors.order(::Type{RawBlocks})      = 11.0
+Selectors.order(::Type{Recurse})        = 12.0
 
 Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node, Markdown.Header)
 Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
@@ -219,6 +222,9 @@ Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@ex
 Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
 Selectors.matcher(::Type{SetupBlocks},    node, page, doc) = iscode(node, r"^@setup")
 Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@raw")
+Selectors.matcher(::Type{Recurse},        node, page, doc) =
+    any(x->isa(node, x), (Markdown.Admonition, Markdown.BlockQuote, Markdown.List))
+
 
 # Default Expander.
 
@@ -734,6 +740,41 @@ function Selectors.runner(::Type{RawBlocks}, x, page, doc)
     m = match(r"@raw[ ](.+)$", x.language)
     m === nothing && error("invalid '@raw <name>' syntax: $(x.language)")
     page.mapping[x] = Documents.RawNode(Symbol(m[1]), x.code)
+end
+
+# Recurse.
+# --------
+
+function Selectors.runner(::Type{Recurse}, x::Markdown.Admonition, page, doc)
+    content = get(page.mapping, x, x).content
+    content′ = Any[]
+    for elem in content
+        Selectors.dispatch(ExpanderPipeline, elem, page, doc)
+        push!(content′, get(page.mapping, elem, elem))
+    end
+    page.mapping[x] = Markdown.Admonition(x.category, x.title, content′)
+end
+function Selectors.runner(::Type{Recurse}, x::Markdown.BlockQuote, page, doc)
+    content = get(page.mapping, x, x).content
+    content′ = Any[]
+    for elem in content
+        Selectors.dispatch(ExpanderPipeline, elem, page, doc)
+        push!(content′, get(page.mapping, elem, elem))
+    end
+    page.mapping[x] = Markdown.BlockQuote(content′)
+end
+function Selectors.runner(::Type{Recurse}, x::Markdown.List, page, doc)
+    list = get(page.mapping, x, x).items
+    list′ = Any[]
+    for item in list
+        item′ = Any[]
+        for mdelem in item
+            Selectors.dispatch(ExpanderPipeline, mdelem, page, doc)
+            push!(item′, get(page.mapping, mdelem, mdelem))
+        end
+        push!(list′, item′)
+    end
+    page.mapping[x] = Markdown.List(list′, x.ordered, x.loose)
 end
 
 # Utilities.
