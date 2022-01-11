@@ -25,9 +25,9 @@ import .Utilities: Selectors
 
 abstract type FormatSelector <: Selectors.AbstractSelector end
 
-abstract type MarkdownFormat <: FormatSelector end
-abstract type LaTeXFormat    <: FormatSelector end
-abstract type HTMLFormat     <: FormatSelector end
+struct MarkdownFormat <: FormatSelector end
+struct LaTeXFormat    <: FormatSelector end
+struct HTMLFormat     <: FormatSelector end
 
 Selectors.order(::Type{MarkdownFormat}) = 1.0
 Selectors.order(::Type{LaTeXFormat})    = 2.0

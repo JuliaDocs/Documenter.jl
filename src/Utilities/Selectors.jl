@@ -12,8 +12,8 @@ selector code is described:
 abstract type MySelector <: Selectors.AbstractSelector end
 
 # The different cases we want to test.
-abstract type One    <: MySelector end
-abstract type NotOne <: MySelector end
+struct One    <: MySelector end
+struct NotOne <: MySelector end
 
 # The order in which to test the cases.
 Selectors.order(::Type{One})    = 0.0
@@ -180,9 +180,13 @@ end
 const selector_subtypes = Dict{Type,Vector}()
 
 function allsubtypes(::Type{T}) where T
-    sub = subtypes(T)
-    for t in sub
-        append!(sub, allsubtypes(t))
+    sub = Type[]
+    for t in subtypes(T)
+        if isconcretetype(t)
+            push!(sub, t)
+        else
+            append!(sub, allsubtypes(t))
+        end
     end
     return sub
 end

@@ -38,38 +38,38 @@ abstract type DocumentPipeline <: Selectors.AbstractSelector end
 """
 Creates the correct directory layout within the `build` folder and parses markdown files.
 """
-abstract type SetupBuildDirectory <: DocumentPipeline end
+struct SetupBuildDirectory <: DocumentPipeline end
 
 """
 Runs all the doctests in all docstrings and Markdown files.
 """
-abstract type Doctest <: DocumentPipeline end
+struct Doctest <: DocumentPipeline end
 
 """
 Executes a sequence of actions on each node of the parsed markdown files in turn.
 """
-abstract type ExpandTemplates <: DocumentPipeline end
+struct ExpandTemplates <: DocumentPipeline end
 
 """
 Finds and sets URLs for each `@ref` link in the document to the correct destinations.
 """
-abstract type CrossReferences <: DocumentPipeline end
+struct CrossReferences <: DocumentPipeline end
 
 """
 Checks that all documented objects are included in the document and runs doctests on all
 valid Julia code blocks.
 """
-abstract type CheckDocument <: DocumentPipeline end
+struct CheckDocument <: DocumentPipeline end
 
 """
 Populates the `ContentsNode`s and `IndexNode`s with links.
 """
-abstract type Populate <: DocumentPipeline end
+struct Populate <: DocumentPipeline end
 
 """
 Writes the document tree to the `build` directory.
 """
-abstract type RenderDocument <: DocumentPipeline end
+struct RenderDocument <: DocumentPipeline end
 
 Selectors.order(::Type{SetupBuildDirectory})   = 1.0
 Selectors.order(::Type{Doctest})               = 1.1

@@ -80,7 +80,7 @@ abstract type RecursiveExpanderPipeline <: ExpanderPipeline end
 Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
 [`Anchors.Anchor`](@ref) object for each one.
 """
-abstract type TrackHeaders <: ExpanderPipeline end
+struct TrackHeaders <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@meta` and evaluates the key/value pairs found
@@ -95,7 +95,7 @@ end
 ```
 ````
 """
-abstract type MetaBlocks <: ExpanderPipeline end
+struct MetaBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@docs` and evaluates the expressions found
@@ -109,7 +109,7 @@ deploydocs
 ```
 ````
 """
-abstract type DocsBlocks <: ExpanderPipeline end
+struct DocsBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@autodocs` and replaces it with all the
@@ -122,7 +122,7 @@ Order   = [:function, :type]
 ```
 ````
 """
-abstract type AutoDocsBlocks <: ExpanderPipeline end
+struct AutoDocsBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@eval` and evaluates it's content. Replaces
@@ -140,9 +140,9 @@ Markdown.parse("![Plot](plot.svg)")
 ```
 ````
 """
-abstract type EvalBlocks <: RecursiveExpanderPipeline end
+struct EvalBlocks <: RecursiveExpanderPipeline end
 
-abstract type RawBlocks <: RecursiveExpanderPipeline end
+struct RawBlocks <: RecursiveExpanderPipeline end
 
 """
 Parses each code block where the language is `@index` and replaces it with an index of all
@@ -155,7 +155,7 @@ Pages = ["foo.md", "bar.md"]
 ```
 ````
 """
-abstract type IndexBlocks <: ExpanderPipeline end
+struct IndexBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@contents` and replaces it with a nested list
@@ -170,7 +170,7 @@ Depth = 1
 ````
 The default `Depth` value is `2`.
 """
-abstract type ContentsBlocks <: ExpanderPipeline end
+struct ContentsBlocks <: ExpanderPipeline end
 
 """
 Parses each code block where the language is `@example` and evaluates the parsed Julia code
@@ -185,23 +185,23 @@ a + b
 ```
 ````
 """
-abstract type ExampleBlocks <: RecursiveExpanderPipeline end
+struct ExampleBlocks <: RecursiveExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
 toplevel expression in the final document.
 """
-abstract type REPLBlocks <: RecursiveExpanderPipeline end
+struct REPLBlocks <: RecursiveExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
 """
-abstract type SetupBlocks <: RecursiveExpanderPipeline end
+struct SetupBlocks <: RecursiveExpanderPipeline end
 
 """
 Node in the pipeline used only to support expansion through recursive block elements.
 """
-abstract type Recurse <: RecursiveExpanderPipeline end
+struct Recurse <: RecursiveExpanderPipeline end
 
 Selectors.order(::Type{TrackHeaders})   = 1.0
 Selectors.order(::Type{MetaBlocks})     = 2.0
@@ -230,9 +230,6 @@ Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@ra
 Selectors.matcher(::Type{Recurse},        node, page, doc) =
     any(x->isa(node, x), (Markdown.Admonition, Markdown.BlockQuote, Markdown.List))
 
-
-Selectors.order(::Type{RecursiveExpanderPipeline}) = Inf
-Selectors.matcher(::Type{RecursiveExpanderPipeline}, node, page, doc) = false
 
 # Default Expander.
 
