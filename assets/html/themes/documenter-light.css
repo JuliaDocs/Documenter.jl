@@ -7114,6 +7114,19 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
 .docs-dark-only {
   display: none !important; }
 
+.code-container {
+  position: relative; }
+  .code-container .copy-button {
+    opacity: 0;
+    transition: opacity 0.2s;
+    position: absolute;
+    right: 0.5em;
+    top: 0.5em; }
+  .code-container:hover .copy-button {
+    opacity: 1; }
+  .code-container .copy-button:focus {
+    opacity: 1; }
+
 .admonition {
   background-color: #b5b5b5;
   border-style: solid;

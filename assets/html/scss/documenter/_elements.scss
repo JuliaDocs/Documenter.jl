@@ -33,3 +33,23 @@ h1, h2, h3, h4, h5, h6 {
     display: none !important;
   }
 }
+
+.code-container {
+  position: relative;
+
+  .copy-button {
+    opacity: 0;
+    transition: opacity 0.2s;
+    position: absolute;
+    right: 0.5em;
+    top: 0.5em;
+
+    &:focus {
+      opacity: 1;
+    }
+  }
+
+  &:hover .copy-button {
+    opacity: 1;
+  }
+}

@@ -7179,6 +7179,18 @@ html.theme--documenter-dark {
     visibility: visible; }
   html.theme--documenter-dark .docs-light-only {
     display: none !important; }
+  html.theme--documenter-dark .code-container {
+    position: relative; }
+    html.theme--documenter-dark .code-container .copy-button {
+      opacity: 0;
+      transition: opacity 0.2s;
+      position: absolute;
+      right: 0.5em;
+      top: 0.5em; }
+    html.theme--documenter-dark .code-container:hover .copy-button {
+      opacity: 1; }
+    html.theme--documenter-dark .code-container .copy-button:focus {
+      opacity: 1; }
   html.theme--documenter-dark .admonition {
     background-color: #282f2f;
     border-style: solid;
