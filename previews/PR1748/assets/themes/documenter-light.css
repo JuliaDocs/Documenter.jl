@@ -7114,9 +7114,9 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
 .docs-dark-only {
   display: none !important; }
 
-.code-container {
+pre {
   position: relative; }
-  .code-container .copy-button {
+  pre .copy-button {
     opacity: 0;
     transition: opacity 0.2s;
     position: absolute;
@@ -7124,15 +7124,15 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
     top: 0.5em;
     padding: 0.5em;
     width: 2.5em; }
-    .code-container .copy-button:focus {
+    pre .copy-button:focus {
       opacity: 1; }
-    .code-container .copy-button.success {
+    pre .copy-button.success {
       color: #259a12;
       opacity: 1; }
-    .code-container .copy-button.error {
+    pre .copy-button.error {
       color: #cb3c33;
       opacity: 1; }
-  .code-container:hover .copy-button {
+  pre:hover .copy-button {
     opacity: 1; }
 
 .admonition {
