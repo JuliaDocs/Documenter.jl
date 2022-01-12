@@ -38,15 +38,18 @@ function addCopyButtonCallbacks() {
     el.addEventListener("click", function () {
       navigator.clipboard.writeText(unescape_str(el.dataset.value)).then(
         function () {
-          el.innerText = "Copied";
+          el.classList.add("success", "fa-check")
+          el.classList.remove("fa-copy")
         },
         function () {
-          el.innerText = "Oops";
+          el.classList.add("error", "fa-times")
+          el.classList.remove("fa-copy")
         }
       );
 
       setTimeout(function () {
-        el.innerText = "Copy";
+        el.classList.add("fa-copy")
+        el.classList.remove("success", "fa-check", "fa-times")
       }, 5000);
     });
   }

@@ -2126,9 +2126,9 @@ function wrap_with_copy_button(el, str)
 
     printer = ANSIColoredPrinters.PlainTextPrinter(IOBuffer(str));
     copy_button = button[
-        ".copy-button",
+        ".copy-button .fas .fa-copy",
         Symbol("data-value") => repr("text/plain", printer, context = :color => false)
-    ]("Copy")
+    ]()
 
     return div[".code-container"](copy_button, el)
 end

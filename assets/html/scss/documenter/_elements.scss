@@ -43,8 +43,20 @@ h1, h2, h3, h4, h5, h6 {
     position: absolute;
     right: 0.5em;
     top: 0.5em;
+    padding: 0.5em;
+    width: 2.5em;
 
     &:focus {
+      opacity: 1;
+    }
+
+    &.success {
+      color: $green;
+      opacity: 1;
+    }
+
+    &.error {
+      color: $red;
       opacity: 1;
     }
   }
