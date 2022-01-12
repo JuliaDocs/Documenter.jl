@@ -1787,14 +1787,14 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTM
     @tags pre code
     language = Utilities.codelang(c.language)
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
-        return wrap_with_copy_button(pre(domify_ansicoloredtext(c.code, "nohighlight hljs")), c.code)
+        return pre(domify_ansicoloredtext(c.code, "nohighlight hljs"))
     elseif settings !== nothing && settings.prerender &&
            !(isempty(language) || language == "nohighlight")
         r = hljs_prerender(c, settings)
         r !== nothing && return r
     end
     class = isempty(language) ? "nohighlight" : "language-$(language)"
-    return wrap_with_copy_button(pre(code[".$(class) .hljs"](c.code)), c.code)
+    return pre(code[".$(class) .hljs"](c.code))
 end
 function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
     @tags pre br
@@ -1830,7 +1830,7 @@ function hljs_prerender(c::Markdown.Code, settings::HTML)
         str = String(take!(out))
         # prepend nohighlight to stop runtime highlighting
         # return pre(code[".nohighlight $(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
-        return wrap_with_copy_button(pre(code[".language-$(lang) .hljs"](Tag(Symbol("#RAW#"))(str))), str)
+        return pre(code[".language-$(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
     catch e
         @error "HTMLWriter: prerendering failed" exception=e stderr=String(take!(err))
     end
@@ -2029,7 +2029,7 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     elseif haskey(d, MIME"text/plain"())
         @tags pre
         text = d[MIME"text/plain"()]
-        return wrap_with_copy_button(pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs")), text)
+        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
     else
         error("this should never happen.")
     end
@@ -2120,17 +2120,5 @@ fixlinks!(ctx, navnode, md) = nothing
 
 # TODO: do some regex-magic in raw HTML blocks? Currently ignored.
 #fixlinks!(ctx, navnode, md::Documents.RawHTML) = ...
-
-function wrap_with_copy_button(el, str)
-    @tags div button
-
-    printer = ANSIColoredPrinters.PlainTextPrinter(IOBuffer(str));
-    copy_button = button[
-        ".copy-button .fas .fa-copy",
-        Symbol("data-value") => repr("text/plain", printer, context = :color => false)
-    ]()
-
-    return div[".code-container"](copy_button, el)
-end
 
 end

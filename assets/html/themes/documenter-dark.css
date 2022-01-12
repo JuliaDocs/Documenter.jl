@@ -7179,9 +7179,9 @@ html.theme--documenter-dark {
     visibility: visible; }
   html.theme--documenter-dark .docs-light-only {
     display: none !important; }
-  html.theme--documenter-dark .code-container {
+  html.theme--documenter-dark pre {
     position: relative; }
-    html.theme--documenter-dark .code-container .copy-button {
+    html.theme--documenter-dark pre .copy-button {
       opacity: 0;
       transition: opacity 0.2s;
       position: absolute;
@@ -7189,15 +7189,15 @@ html.theme--documenter-dark {
       top: 0.5em;
       padding: 0.5em;
       width: 2.5em; }
-      html.theme--documenter-dark .code-container .copy-button:focus {
+      html.theme--documenter-dark pre .copy-button:focus {
         opacity: 1; }
-      html.theme--documenter-dark .code-container .copy-button.success {
+      html.theme--documenter-dark pre .copy-button.success {
         color: #259a12;
         opacity: 1; }
-      html.theme--documenter-dark .code-container .copy-button.error {
+      html.theme--documenter-dark pre .copy-button.error {
         color: #cb3c33;
         opacity: 1; }
-    html.theme--documenter-dark .code-container:hover .copy-button {
+    html.theme--documenter-dark pre:hover .copy-button {
       opacity: 1; }
   html.theme--documenter-dark .admonition {
     background-color: #282f2f;
