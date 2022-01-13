@@ -3,6 +3,7 @@
 ## Unreleased
 
 * ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.0` (minor version bump). ([#1743][github-1743])
+* ![Enhancement][badge-enhancement] HTML code blocks now have a copy button. ([#1748][github-1748])
 
 ## Version `v0.27.10`
 
@@ -947,6 +948,7 @@
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
 [github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
+[github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
