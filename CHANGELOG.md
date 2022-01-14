@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* ![Feature][badge-feature] You can now manually trigger deployments using github actions `workflow_dispatch` event trigger
 * ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.0` (minor version bump). ([#1743][github-1743])
 * ![Enhancement][badge-enhancement] Documenter now tries to detect the development branch using `git` with the old default (`master`) as fallback. If you use `main` as the development branch you shouldn't need to specify `devbranch = "main"` as an argument to deploydocs anymore. ([#1443][github-1443], [#1727][github-1727], [#1751][github-1751])
 
