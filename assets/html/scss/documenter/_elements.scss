@@ -38,16 +38,25 @@ pre {
   position: relative;
 
   .copy-button {
-    opacity: 0;
+    opacity: 0.2;
     transition: opacity 0.2s;
     position: absolute;
-    right: 0.5em;
-    top: 0.5em;
+    right: 0em;
+    top: 0em;
     padding: 0.5em;
     width: 2.5em;
+    height: 2.5em;
+    background: transparent;
+    border: none;
+    font-family: "Font Awesome 5 Free";
+    color: $body-color;
+    cursor: pointer;
+    text-align: center;
 
-    &:focus {
+    &:focus, &:hover {
       opacity: 1;
+      background: adjust-color($body-color, $alpha: -0.9);
+      color: $link;
     }
 
     &.success {
