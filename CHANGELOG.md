@@ -4,6 +4,7 @@
 
 * ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.0` (minor version bump). ([#1743][github-1743])
 * ![Enhancement][badge-enhancement] HTML code blocks now have a copy button. ([#1748][github-1748])
+* ![Enhancement][badge-enhancement] Documenter now tries to detect the development branch using `git` with the old default (`master`) as fallback. If you use `main` as the development branch you shouldn't need to specify `devbranch = "main"` as an argument to deploydocs anymore. ([#1443][github-1443], [#1727][github-1727], [#1751][github-1751])
 
 ## Version `v0.27.10`
 
@@ -861,6 +862,7 @@
 [github-1441]: https://github.com/JuliaDocs/Documenter.jl/pull/1441
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
+[github-1443]: https://github.com/JuliaDocs/Documenter.jl/issues/1443
 [github-1449]: https://github.com/JuliaDocs/Documenter.jl/issues/1449
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
 [github-1456]: https://github.com/JuliaDocs/Documenter.jl/pull/1456
@@ -947,8 +949,10 @@
 [github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
+[github-1727]: https://github.com/JuliaDocs/Documenter.jl/pull/1727
 [github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
 [github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
+[github-1751]: https://github.com/JuliaDocs/Documenter.jl/pull/1751
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
