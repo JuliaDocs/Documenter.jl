@@ -221,14 +221,17 @@ function writeheader(io::IO, doc::Documents.Document)
         \\usepackage{./documenter}
         \\usepackage{./custom}
 
-        \\settocdepth{section}
-
         \\title{
             {\\HUGE $(doc.user.sitename)}\\\\
             {\\Large $(get(ENV, "TRAVIS_TAG", ""))}
         }
         \\author{$(doc.user.authors)}
 
+        %% TOC settings
+        % -- TOC depth
+        %   value: [part, chapter, section, subsection,
+        %           subsubsection, paragraph, subparagraph]
+        \\settocdepth{section}  % show "part+chapter+section" in TOC
         \\begin{document}
 
         \\frontmatter
