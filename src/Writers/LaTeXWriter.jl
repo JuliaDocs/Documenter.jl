@@ -221,6 +221,7 @@ function writeheader(io::IO, doc::Documents.Document)
         \\usepackage{./documenter}
         \\usepackage{./custom}
 
+        %% Title Page
         \\title{
             {\\HUGE $(doc.user.sitename)}\\\\
             {\\Large $(get(ENV, "TRAVIS_TAG", ""))}
@@ -246,6 +247,7 @@ function writeheader(io::IO, doc::Documents.Document)
         \\setlength{\\cftchapternumwidth}{2.5em}
         \\makeatother
 
+        %% Main document begin
         \\begin{document}
 
         \\frontmatter
