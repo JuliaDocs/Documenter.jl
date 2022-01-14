@@ -242,6 +242,8 @@ function writeheader(io::IO, doc::Documents.Document)
         \\setlength{\\cftbeforepartskip}{1.5em \\@plus \\p@}
         % {chaper} to {chaper}
         \\setlength{\\cftbeforechapterskip}{0.0em \\@plus \\p@}
+        % Chapter num to chapter title spacing (Figure 9.2@memman)
+        \\setlength{\\cftchapternumwidth}{2.5em}
         \\makeatother
 
         \\begin{document}
