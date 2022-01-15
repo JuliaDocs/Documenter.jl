@@ -1589,6 +1589,27 @@ function domify(ctx, navnode, raw::Documents.RawNode)
     raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
 end
 
+# recursively domify - needed to handle EvalNode, RawNode, etc enclosed recursively
+# within structured content
+function domify(ctx, navnode, node::Markdown.Admonition)
+    domcontent = map(node.content) do elem
+        domify(ctx, navnode, elem)
+    end
+    mdconvert(Markdown.Admonition(node.category, node.title, domcontent))
+end
+function domify(ctx, navnode, node::Markdown.BlockQuote)
+    domcontent = map(node.content) do elem
+        domify(ctx, navnode, elem)
+    end
+    mdconvert(Markdown.BlockQuote(domcontent))
+end
+function domify(ctx, navnode, node::Markdown.List)
+    domitems = map(node.items) do item
+        [domify(ctx, navnode, elem) for elem in item]
+    end
+    mdconvert(Markdown.List(domitems, node.ordered, node.loose))
+end
+
 
 # Utilities
 # ------------------------------------------------------------------------------
@@ -2034,6 +2055,9 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     end
     return mdconvert(out, parent; kwargs...)
 end
+
+# pass through already converted content as-is (e.g. from recursive domify)
+mdconvert(x::DOM.Node, parent; kwargs...) = x
 
 # Fallback
 function mdconvert(x, parent; kwargs...)
