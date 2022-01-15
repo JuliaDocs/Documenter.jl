@@ -546,3 +546,46 @@ LaTeXEquation("\\[\\left[\\begin{array}{rr} x & 2x \\\\ \n y & y \\end{array}\\r
 ```@example showablelatex
 LaTeXEquation("\$\$\\begin{bmatrix} 1 & 2 \\\\ \n 3 & 4 \\end{bmatrix}\$\$")
 ```
+---
+
+Extra tests that code-like blocks are recursively expanded in nested Markdown contexts
+([#1747](https://github.com/JuliaDocs/Documenter.jl/pull/1747)).
+
+- Recurse into lists:
+
+  ```@repl recurse
+  list_one = 1
+  ```
+
+  1. More than single layer of nesting as well:
+
+     ```@repl recurse
+     list_two = 2
+     ```
+
+- `@raw` outputs are code-like:
+
+  ```@raw html
+  <pre>raw code output</pre>
+  ```
+
+!!! note
+
+    Admonitions and blockquotes contain blocks Markdown elements as well.
+
+    ```@setup recurse
+    setup = true
+    ```
+
+    ```@example recurse
+    if setup # assigned in @setup block
+        print(join(["running", "example", "block"], " "))
+    end
+    ```
+
+    The following quote will print a result:
+
+    > Evaling code:
+    > ```@eval
+    > evaled = sqrt(2.0)
+    > ```

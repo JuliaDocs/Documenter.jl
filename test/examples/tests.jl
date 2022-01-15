@@ -94,6 +94,21 @@ end
             documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
+
+            # PR1747
+            @test isfile(joinpath(build_dir, "man", "tutorial.html"))
+            tutorialhtml = read(joinpath(build_dir, "man", "tutorial.html"), String)
+            @test occursin("julia&gt; list_one = 1", tutorialhtml)
+            @test occursin("julia&gt; list_two = 2", tutorialhtml)
+            @test !occursin("&lt;pre&gt;raw code output&lt;/pre&gt;", tutorialhtml)
+            @test !occursin("RawNode(:html", tutorialhtml)
+            @test occursin("<pre>raw code output</pre>", tutorialhtml)
+            @test !occursin("setup = true", tutorialhtml)
+            @test occursin("print(join([", tutorialhtml)
+            @test occursin("running example block", tutorialhtml)
+            @test !occursin("evaled = sqrt(2.0)", tutorialhtml)
+            @test !occursin("EvalNode(", tutorialhtml)
+            @test occursin("1.414213562", tutorialhtml)
         end
     end
 
