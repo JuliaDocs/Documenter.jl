@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## Version `v0.27.11`
+
 * ![Enhancement][badge-enhancement] Documenter now deploys documentation from manually triggered events (`workflow_dispatch` on GitHub actions). ([#1554][github-1554], [#1752][github-1752])
 * ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.0` (minor version bump). ([#1743][github-1743])
 * ![Enhancement][badge-enhancement] HTML code blocks now have a copy button. ([#1748][github-1748])
