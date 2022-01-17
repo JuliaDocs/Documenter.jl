@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## Version `v0.27.12`
+
 * ![Bugfix][badge-bugfix] Fix code copy button in insecure contexts (e.g. pages hosted without https). ([#1754][github-1754])
 
 ## Version `v0.27.11`
