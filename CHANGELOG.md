@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* ![Bugfix][badge-bugfix] Fix code copy button in insecure contexts (e.g. pages hosted without https). ([#1754][github-1754])
+
 ## Version `v0.27.11`
 
 * ![Enhancement][badge-enhancement] Documenter now deploys documentation from manually triggered events (`workflow_dispatch` on GitHub actions). ([#1554][github-1554], [#1752][github-1752])
@@ -958,6 +960,7 @@
 [github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
 [github-1751]: https://github.com/JuliaDocs/Documenter.jl/pull/1751
 [github-1752]: https://github.com/JuliaDocs/Documenter.jl/pull/1752
+[github-1754]: https://github.com/JuliaDocs/Documenter.jl/pull/1754
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
