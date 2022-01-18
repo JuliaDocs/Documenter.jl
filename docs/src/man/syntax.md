@@ -106,7 +106,7 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
-To filter out certain docstrings by your own criteria, you can provide function with the
+To filter out certain docstrings by your own criteria, you can provide a function with the
 `Filter` keyword:
 
 ````markdown
@@ -297,7 +297,7 @@ if not specified. `Order` and `Modules` behave the same way as in [`@autodocs` b
 and filter out docstrings that do not match one of the modules or categories specified.
 
 Note that the values assigned to `Pages`, `Modules`, and `Order` may be any valid Julia code
-and thus can be something more complex that an array literal if required, i.e.
+and thus can be something more complex than an array literal if required, i.e.
 
 ````markdown
 ```@index
@@ -436,7 +436,7 @@ savefig("g-plot.svg"); nothing # hide
 ````
 
 Note that `@example` blocks are evaluated within the directory of `build` where the file
-will be rendered . This means than in the above example `savefig` will output the `.svg`
+will be rendered . This means that in the above example `savefig` will output the `.svg`
 files into that directory. This allows the images to be easily referenced without needing to
 worry about relative paths.
 
@@ -457,14 +457,14 @@ worry about relative paths.
         GKSwstype: "100" # https://discourse.julialang.org/t/generation-of-documentation-fails-qt-qpa-xcb-could-not-connect-to-display/60988
       run: julia --project=docs --color=yes docs/make.jl
     ```
-    Alternatively, you can set this environemnt variable directly in Julia using
+    Alternatively, you can set this environment variable directly in Julia using
     ```julia
     ENV["GKSwstype"] = "100"
     ```
 
 `@example` blocks automatically define `ans` which, as in the Julia REPL, is bound to the
 value of the last evaluated expression. This can be useful in situations such as the
-following one where where binding the object returned by `plot` to a named variable would
+following one where binding the object returned by `plot` to a named variable would
 look out of place in the final rendered documentation:
 
 ````markdown
@@ -690,7 +690,7 @@ filename is not known until evaluation of the block itself.
 !!! note
 
     In most cases `@example` is preferred over `@eval`. Just like in normal Julia code where
-    `eval` should be only be considered as a last resort, `@eval` should be treated in the
+    `eval` should only be considered as a last resort, `@eval` should be treated in the
     same way.
 
 
