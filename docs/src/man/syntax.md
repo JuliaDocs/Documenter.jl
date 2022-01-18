@@ -690,7 +690,7 @@ filename is not known until evaluation of the block itself.
 !!! note
 
     In most cases `@example` is preferred over `@eval`. Just like in normal Julia code where
-    `eval` should be only considered as a last resort, `@eval` should be treated in the
+    `eval` should only be considered as a last resort, `@eval` should be treated in the
     same way.
 
 
