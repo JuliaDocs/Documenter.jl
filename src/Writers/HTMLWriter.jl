@@ -947,6 +947,7 @@ function render_head(ctx, navnode)
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
+        script[:src => relhref(src, "../copy.js")],
         # Themes. Note: we reverse the list to make sure that the default theme (first in
         # the array) comes as the last <link> tag.
         map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
