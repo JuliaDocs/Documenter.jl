@@ -308,8 +308,8 @@ help avoid unintentional filtering in following doctest blocks.
 
 Another option is to use the `filter` keyword argument. This defines a doctest-local filter
 which is only active for the specific doctest. Note that such filters are not shared between
-named doctests either. It is possible to define a filter by a single regex (filter = r"foo")
-or as a list of regex (filter = [r"foo", r"bar"]). Example:
+named doctests either. It is possible to define a filter by a single regex (`filter = r"foo"`)
+or as a list of regex (`filter = [r"foo", r"bar"]`). Example:
 
 ````markdown
 ```jldoctest; filter = r"[0-9\.]+ seconds \(.*\)"

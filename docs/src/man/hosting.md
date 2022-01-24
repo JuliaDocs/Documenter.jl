@@ -174,9 +174,9 @@ Follow the instructions that are printed out, namely:
 
 ## GitHub Actions
 
-To run the documentation build from GitHub Actions you should add the following to your
-workflow configuration file:
-
+To run the documentation build from GitHub Actions, create a new workflow
+configuration file called `.github/workflows/documentation.yml` with the
+following contents:
 ```yaml
 name: Documentation
 
@@ -204,12 +204,14 @@ jobs:
         run: julia --project=docs/ docs/make.jl
 ```
 
-which will install Julia, checkout the correct commit of your repository, and run the
+This will install Julia, checkout the correct commit of your repository, and run the
 build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
-the environment from which the docs are built and deployed. In the example above we will
-thus build and deploy the documentation from a ubuntu worker running Julia 1.6. For more
-information on how to setup a GitHub workflow see the manual:
-[Learn GitHub Actions](https://docs.github.com/en/actions/learn-github-actions).
+the environment from which the docs are built and deployed. The example above builds and deploys
+the documentation from an Ubuntu worker running Julia 1.6. 
+
+!!! tip
+    The example above is a basic workflow that should suit most projects. For more information on
+    how to further customize your action, read the manual: [Learn GitHub Actions](https://docs.github.com/en/actions/learn-github-actions).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
@@ -228,10 +230,13 @@ see the previous section.
     ```yml
     name: TagBot
     on:
-      schedule:
-        - cron: 0 0 * * *
+      issue_comment:
+        types:
+          - created
+      workflow_dispatch:
     jobs:
       TagBot:
+        if: github.event_name == 'workflow_dispatch' || github.actor == 'JuliaTagBot'
         runs-on: ubuntu-latest
         steps:
           - uses: JuliaRegistries/TagBot@v1
@@ -239,8 +244,6 @@ see the previous section.
               token: ${{ secrets.GITHUB_TOKEN }}
               ssh: ${{ secrets.DOCUMENTER_KEY }}
     ```
-
-
 
 ### Authentication: `GITHUB_TOKEN`
 

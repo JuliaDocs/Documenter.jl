@@ -316,12 +316,13 @@ This allows search engines to know which version to send their users to. [See
 wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
 Default is `nothing`, in which case no canonical link is set.
 
-**`analytics`** can be used specify the Google Analytics tracking ID.
-
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
 
-**`ansicolor`** can be used to enable/disable colored output from `@repl` and `@example` blocks globally.
+**`analytics`** can be used specify the Google Analytics tracking ID.
+
+**`collapselevel`** controls the navigation level visible in the sidebar. Defaults to `2`.
+To show fewer levels by default, set `collapselevel = 1`.
 
 **`sidebar_sitename`** determines whether the site name is shown in the sidebar or not.
 Setting it to `false` can be useful when the logo already contains the name of the package.
@@ -342,13 +343,15 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 [`MathJax3`](@ref) objects, respectively. The rendering engine can further be customized by
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
-**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
-of the top-level `<html>` element, declaring the language of the generated pages. The default
-value is `"en"`.
-
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 and the [Julia Programming Language](https://julialang.org/)."`.
+
+**`ansicolor`** can be used to enable/disable colored output from `@repl` and `@example` blocks globally.
+
+**`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
+of the top-level `<html>` element, declaring the language of the generated pages. The default
+value is `"en"`.
 
 **`warn_outdated`** inserts a warning if the current page is not the newest version of the
 documentation.
@@ -612,7 +615,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.4/es5/tex-svg.js" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
@@ -944,6 +947,7 @@ function render_head(ctx, navnode)
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
+        script[:src => relhref(src, "../copy.js")],
         # Themes. Note: we reverse the list to make sure that the default theme (first in
         # the array) comes as the last <link> tag.
         map(Iterators.reverse(enumerate(THEMES))) do (i, theme)
