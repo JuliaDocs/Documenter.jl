@@ -36,6 +36,13 @@ h1, h2, h3, h4, h5, h6 {
 
 pre {
   position: relative;
+  overflow: hidden;
+
+  code {
+    padding: 0.7rem 0.5rem;
+    overflow: auto;
+    display: block;
+  }
 
   .copy-button {
     opacity: 0.2;
