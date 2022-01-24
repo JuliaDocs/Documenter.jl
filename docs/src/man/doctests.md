@@ -301,10 +301,10 @@ The `DocTestFilters = nothing` is not strictly necessary, but good practice none
 help avoid unintentional filtering in following doctest blocks.
 
 !!! info
-    Filters are applied line-by-line to the output. To match multiline strings,
-    use the `s` suffix of a regular expression to match newlines, e.g.,
-    `r"[0-9\.]+ seconds \(.*"s`. See the Julia documentation for `@r_str` for
-    more information on regular expression suffixes.
+    The filter match is replaced with an empty string in both the expected and actual output using
+    `replace`, e.g. `replace(str, filter => "")`. Note that this means that the same filter can match
+    multiple times, and if you need the same filter to match multiple lines your regex need to account
+    for that.
 
 Another option is to use the `filter` keyword argument. This defines a doctest-local filter
 which is only active for the specific doctest. Note that such filters are not shared between
