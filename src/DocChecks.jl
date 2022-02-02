@@ -8,13 +8,14 @@ import ..Documenter:
     Documenter,
     Documents,
     Utilities,
-    Utilities.Markdown2
+    Utilities.Markdown2,
+    Builder.is_strict
 
 using DocStringExtensions
 import Markdown
 
 using Logging
-loglevel(doc) = doc.user.strict ? Logging.Error : Logging.Warn
+loglevel(doc, val) = is_strict(doc.user.strict, val) ? Logging.Error : Logging.Warn
 
 # Missing docstrings.
 # -------------------
@@ -66,7 +67,7 @@ function missingdocs(doc::Documents.Document)
             These are docstrings in the checked modules (configured with the modules keyword)
             that are not included in @docs or @autodocs blocks.""")
         push!(doc.internal.errors, :missing_docs)
-        @logmsg loglevel(doc) String(take!(b))
+        @logmsg loglevel(doc, :missing_docs) String(take!(b))
     end
 end
 
@@ -129,17 +130,17 @@ function footnotes(doc::Documents.Document)
             # Multiple footnote bodies.
             if bodies > 1
                 push!(doc.internal.errors, :footnote)
-                @logmsg loglevel(doc) "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source))."
+                @logmsg loglevel(doc, :footnote) "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source))."
             end
             # No footnote references for an id.
             if ids === 0
                 push!(doc.internal.errors, :footnote)
-                @logmsg loglevel(doc) "unused footnote named '$id' in $(Utilities.locrepr(page.source))."
+                @logmsg loglevel(doc, :footnote) "unused footnote named '$id' in $(Utilities.locrepr(page.source))."
             end
             # No footnote bodies for an id.
             if bodies === 0
                 push!(doc.internal.errors, :footnote)
-                @logmsg loglevel(doc) "no footnotes found for '$id' in $(Utilities.locrepr(page.source))."
+                @logmsg loglevel(doc, :footnote) "no footnotes found for '$id' in $(Utilities.locrepr(page.source))."
             end
         end
     end
@@ -182,7 +183,7 @@ function linkcheck(doc::Documents.Document)
             end
         else
             push!(doc.internal.errors, :linkcheck)
-            @logmsg loglevel(doc) "linkcheck requires `curl`."
+            @logmsg loglevel(doc, :linkcheck) "linkcheck requires `curl`."
         end
     end
     return nothing
@@ -209,7 +210,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
             result = read(cmd, String)
         catch err
             push!(doc.internal.errors, :linkcheck)
-            @logmsg loglevel(doc) "$cmd failed:" exception = err
+            @logmsg loglevel(doc, :linkcheck) "$cmd failed:" exception = err
             return false
         end
         STATUS_REGEX = r"^(\d+) (\w+)://(?:\S+) (\S+)?$"m
@@ -240,11 +241,11 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
                 return linkcheck(link, doc; method=:GET)
             else
                 push!(doc.internal.errors, :linkcheck)
-                @logmsg loglevel(doc) "linkcheck '$(link.url)' status: $(status)."
+                @logmsg loglevel(doc, :linkcheck) "linkcheck '$(link.url)' status: $(status)."
             end
         else
             push!(doc.internal.errors, :linkcheck)
-            @logmsg loglevel(doc) "invalid result returned by $cmd:" result
+            @logmsg loglevel(doc, :linkcheck) "invalid result returned by $cmd:" result
         end
     end
     return false

@@ -11,6 +11,8 @@ import ...Documenter:
     Documenter,
     Utilities
 
+import ANSIColoredPrinters
+
 # import Markdown as MarkdownStdlib
 module _Markdown
     import Markdown
@@ -143,6 +145,10 @@ function render(io::IO, mime::MIME"text/plain", node::Documents.EvalNode, page, 
     node.result === nothing ? nothing : render(io, mime, node.result, page, doc)
 end
 
+function render(io::IO, mime::MIME"text/plain", mcb::Documents.MultiCodeBlock, page, doc)
+    render(io, mime, Documents.join_multiblock(mcb), page, doc)
+end
+
 # Select the "best" representation for Markdown output.
 using Base64: base64decode
 function render(io::IO, mime::MIME"text/plain", d::Documents.MultiOutput, page, doc)
@@ -181,7 +187,9 @@ function render(io::IO, mime::MIME"text/plain", d::Dict{MIME,Any}, page, doc)
             ![]($(filename).gif)
             """)
     elseif haskey(d, MIME"text/plain"())
-        render(io, mime, MarkdownStdlib.Code(d[MIME"text/plain"()]), page, doc)
+        text = d[MIME"text/plain"()]
+        out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
+        render(io, mime, MarkdownStdlib.Code(out), page, doc)
     else
         error("this should never happen.")
     end

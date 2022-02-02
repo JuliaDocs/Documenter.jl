@@ -36,11 +36,17 @@ end
             # Test existence of some HTML elements
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
+            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
 
             index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
             @test occursin("documenter-example-output", index_html)
             @test occursin("1392-test-language", index_html)
             @test !occursin("1392-extra-info", index_html)
+            @test occursin(
+                raw"<p>I will pay <span>$</span>1 if <span>$x^2$</span> is displayed correctly. People may also write <span>$</span>s or even money bag<span>$</span><span>$</span>.</p>",
+                index_html,
+            )
 
             example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
             @test occursin("documenter-example-output", example_output_html)
@@ -128,7 +134,7 @@ end
 
         @test realpath(doc.internal.assets) == realpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-        @test length(doc.blueprint.pages) == 19
+        @test length(doc.blueprint.pages) == 21
 
         let headers = doc.internal.headers
             @test Documenter.Anchors.exists(headers, "Documentation")

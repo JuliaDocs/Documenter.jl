@@ -59,6 +59,8 @@ import ...Documenter:
 
 import Markdown
 
+import ANSIColoredPrinters
+
 mutable struct Context{I <: IO} <: IO
     io::I
     in_header::Bool
@@ -396,11 +398,14 @@ function latex(io::IO, d::Dict{MIME,Any})
         \\end{figure}
         """)
     elseif haskey(d, MIME"text/latex"())
-        latex(io, Utilities.mdparse(d[MIME"text/latex"()]; mode = :single))
+        # If it has a latex MIME, just write it out directly.
+        _print(io, d[MIME"text/latex"()])
     elseif haskey(d, MIME"text/markdown"())
         latex(io, Markdown.parse(d[MIME"text/markdown"()]))
     elseif haskey(d, MIME"text/plain"())
-        latex(io, Markdown.Code(d[MIME"text/plain"()]))
+        text = d[MIME"text/plain"()]
+        out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
+        latex(io, Markdown.Code(out))
     else
         error("this should never happen.")
     end
@@ -446,6 +451,8 @@ function latex(io::IO, code::Markdown.Code)
     language = isempty(language) ? "none" :
         (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
         language
+    text = IOBuffer(code.code)
+    code.code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code.code
     if language in LEXER
         _print(io, "\n\\begin{minted}")
@@ -470,6 +477,10 @@ function latex(io::IO, code::Markdown.Code)
         end
         _println(io, "\n\\end{lstlisting}\n")
     end
+end
+
+function latex(io::IO, mcb::Documents.MultiCodeBlock)
+    latex(io, Documents.join_multiblock(mcb))
 end
 
 function _print_code_escapes_minted(io, s::AbstractString)
@@ -739,13 +750,16 @@ end
 
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))
 
-function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: AbstractString}
-    push!(out, (p.first, p.second, depth))
-end
-
-function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
-    push!(out, (p.first, "", depth))
-    files!(out, p.second, depth)
+function files!(out, p::Pair{<:AbstractString,<:Any}, depth)
+    # Hack time. Because of Julia's typing, something like
+    # `"Introduction" => "index.md"` may get typed as a `Pair{String,Any}`!
+    if p[2] isa AbstractString
+        push!(out, (p.first, p.second, depth))
+    else
+        push!(out, (p.first, "", depth))
+        files!(out, p.second, depth)
+    end
+    return out
 end
 
 files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)

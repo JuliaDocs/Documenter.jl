@@ -19,6 +19,7 @@ makedocs(
         assets = ["assets/favicon.ico"],
         analytics = "UA-136089579-2",
         highlights = ["yaml"],
+        ansicolor = true,
     ),
     clean = false,
     sitename = "Documenter.jl",

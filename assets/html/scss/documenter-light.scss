@@ -1,5 +1,15 @@
 @charset "UTF-8";
 
+// TODO: use default colors
+$info: #209cee;
+$success: #22c35b;
+$warning: #ffdd57;
+$danger: #da0b00;
+$compat: #1db5c9;
+
+// slightly increase contrast over default l: 48%
+$grey: hsl(0, 0%, 42%);
+
 @import "documenter/utilities";
 @import "documenter/variables";
 
@@ -18,6 +28,14 @@
 @import "documenter/components/all";
 @import "documenter/patches";
 @import "documenter/layout/all";
+
+@import "documenter/ansicolors";
+
+// highlight.js color scheme override for the julia> prompt
+code.language-julia-repl > span.hljs-meta {
+  color: $ansi-green;
+  font-weight: bolder;
+}
 
 // Workaround to compile in highlightjs theme, so that we could have different
 // themes for both

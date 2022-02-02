@@ -37,4 +37,5 @@ DocMeta.setdocmeta!
 ```@docs
 DocumenterTools.generate
 DocumenterTools.genkeys
+DocumenterTools.OutdatedWarning.generate
 ```

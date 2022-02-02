@@ -549,3 +549,15 @@ end
     @test version_tag_strip_build("1#2") === nothing
     @test version_tag_strip_build(".1") === nothing
 end
+
+@testset "verify_github_pull_repository" begin
+    if Sys.which("curl") === nothing
+        @warn "'curl' binary not found, skipping related tests."
+    else
+        r = Documenter.run_and_capture(`curl --help`)
+        @test haskey(r, :stdout)
+        @test haskey(r, :stderr)
+        @test r.stdout isa String
+        @test length(r.stdout) > 0
+    end
+end

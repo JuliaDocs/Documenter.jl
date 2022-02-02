@@ -275,8 +275,8 @@ end
 
 function filter_doctests(strings::NTuple{2, AbstractString},
                          doc::Documents.Document, meta::Dict)
-    meta_block_filters = get(meta, :DocTestFilters, [])
-    meta_block_filters == nothing && meta_block_filters == []
+    meta_block_filters = get(Vector{Any}, meta, :DocTestFilters)
+    meta_block_filters === nothing && (meta_block_filters = [])
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
     for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
         if all(occursin.((r,), strings))
@@ -382,6 +382,7 @@ import .Utilities.TextDiff
 function report(result::Result, str, doc::Documents.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Utilities.find_block_in_file(result.block.code, result.file)
+    line = lines === nothing ? nothing : first(lines)
     @error("""
         doctest failure in $(Utilities.locrepr(result.file, lines))
 
@@ -401,7 +402,7 @@ function report(result::Result, str, doc::Documents.Document)
 
         $(result.output)
 
-        """, diff)
+        """, diff, _file=result.file, _line=line)
 end
 
 function fix_doctest(result::Result, str, doc::Documents.Document)
