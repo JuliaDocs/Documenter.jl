@@ -146,7 +146,7 @@ look similar to the text below:
 Follow the instructions that are printed out, namely:
 
  1. Add the public ssh key to your settings page for the GitHub repository that you are
-    setting up by following the `.../settings/key` link provided. Click on **`Add deploy
+    setting up by following the `.../settings/keys` link provided. Click on **`Add deploy
     key`**, enter the name **`documenter`** as the title, and copy the public key into the
     **`Key`** field. Check **`Allow write access`** to allow Documenter to commit the
     generated documentation to the repo.
