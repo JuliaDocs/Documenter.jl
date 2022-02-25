@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## Version `v0.27.13`
+
+* ![Bugfix][badge-bugfix] Fix a CSS bug causing the location of the code copy button to not be fixed in the upper right corner. ([#1758][github-1758], [#1759][github-1759])
+* ![Bugfix][badge-bugfix] Fix a bug when loading the `copy.js` script for the code copy button. ([#1760][github-1760], [#1762][github-1762])
+
 ## Version `v0.27.12`
 
 * ![Bugfix][badge-bugfix] Fix code copy button in insecure contexts (e.g. pages hosted without https). ([#1754][github-1754])
@@ -963,6 +968,10 @@
 [github-1751]: https://github.com/JuliaDocs/Documenter.jl/pull/1751
 [github-1752]: https://github.com/JuliaDocs/Documenter.jl/pull/1752
 [github-1754]: https://github.com/JuliaDocs/Documenter.jl/pull/1754
+[github-1758]: https://github.com/JuliaDocs/Documenter.jl/issues/1758
+[github-1759]: https://github.com/JuliaDocs/Documenter.jl/pull/1759
+[github-1760]: https://github.com/JuliaDocs/Documenter.jl/issues/1760
+[github-1762]: https://github.com/JuliaDocs/Documenter.jl/pull/1762
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
