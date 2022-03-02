@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Version `v0.27.14`
+
+* ![Bugfix][badge-bugfix] Fix a CSS bug causing REPL code blocks to contain extraneous whitespace. ([#1770][github-1770], [#1771][github-1771])
+
 ## Version `v0.27.13`
 
 * ![Bugfix][badge-bugfix] Fix a CSS bug causing the location of the code copy button to not be fixed in the upper right corner. ([#1758][github-1758], [#1759][github-1759])
@@ -972,6 +976,8 @@
 [github-1759]: https://github.com/JuliaDocs/Documenter.jl/pull/1759
 [github-1760]: https://github.com/JuliaDocs/Documenter.jl/issues/1760
 [github-1762]: https://github.com/JuliaDocs/Documenter.jl/pull/1762
+[github-1770]: https://github.com/JuliaDocs/Documenter.jl/issues/1770
+[github-1771]: https://github.com/JuliaDocs/Documenter.jl/pull/1771
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
