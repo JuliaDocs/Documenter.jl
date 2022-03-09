@@ -1,6 +1,7 @@
 # Documenter.jl changelog
 
 ## Unreleased
+* ![Enhancement][badge-enhancement] Documenter now deploys documentation from scheduled jobs (`schedule` on GitHub actions). ([#1772][github-1554], [#1773][github-1752])
 
 ## Version `v0.27.14`
 
