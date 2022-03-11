@@ -9,6 +9,7 @@ using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
+using Logging
 
 # escape characters that has a meaning in regex
 regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
@@ -757,6 +758,12 @@ function check_strict_kw(strict)
         """))
     end
     return nothing
+end
+
+function docerror!(doc, tag, msg; kwargs...)
+    push!(doc.internal.errors, tag)
+    loglevel = is_strict(doc.user.strict, tag) ? Logging.Error : Logging.Warn
+    @logmsg loglevel msg kwargs...
 end
 
 include("DOM.jl")
