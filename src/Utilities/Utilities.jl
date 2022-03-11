@@ -114,8 +114,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
                 try
                     Meta.parse(code, cursor; raise=raise)
                 catch err
-                    push!(doc.internal.errors, :parse_error)
-                    @warn "failed to parse exception in $(Utilities.locrepr(file))" exception = err
+                    docerror!(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))"; exception = err)
                     break
                 end
             end

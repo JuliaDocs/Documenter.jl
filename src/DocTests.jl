@@ -15,7 +15,7 @@ import ..Documenter:
     IdDict
 
 import Markdown, REPL
-import .Utilities: Markdown2
+import .Utilities: Markdown2, docerror!
 import IOCapture
 
 # Julia code block testing.
@@ -97,8 +97,7 @@ function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
-                push!(ctx.doc.internal.errors, :meta_block)
-                @warn "Failed to evaluate `$(strip(str))` in `@meta` block." err
+                docerror!(ctx.doc, :meta_block, "Failed to evaluate `$(strip(str))` in `@meta` block."; exception = err)
             end
         end
     end
@@ -138,25 +137,25 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
                 Meta.parse("($(lang[nextind(lang, idx):end]),)")
             catch e
                 e isa Meta.ParseError || rethrow(e)
-                push!(ctx.doc.internal.errors, :doctest)
                 file = ctx.meta[:CurrentFile]
                 lines = Utilities.find_block_in_file(block.code, file)
-                @warn("""
+                docerror!(ctx.doc, :doctest,
+                    """
                     Unable to parse doctest keyword arguments in $(Utilities.locrepr(file, lines))
                     Use ```jldoctest name; key1 = value1, key2 = value2
 
                     ```$(lang)
                     $(block.code)
                     ```
-                    """, parse_error = e)
+                    """; parse_error = e)
                 return false
             end
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
-                    push!(ctx.doc.internal.errors, :doctest)
                     file = ctx.meta[:CurrentFile]
                     lines = Utilities.find_block_in_file(block.code, file)
-                    @warn("""
+                    docerror!(ctx.doc, :doctest,
+                        """
                         invalid syntax for doctest keyword arguments in $(Utilities.locrepr(file, lines))
                         Use ```jldoctest name; key1 = value1, key2 = value2
 
@@ -187,10 +186,10 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
         elseif occursin(r"^# output$"m, block.code)
             eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         else
-            push!(ctx.doc.internal.errors, :doctest)
             file = ctx.meta[:CurrentFile]
             lines = Utilities.find_block_in_file(block.code, file)
-            @warn("""
+            docerror!(ctx.doc, :doctest,
+                """
                 invalid doctest block in $(Utilities.locrepr(file, lines))
                 Requires `julia> ` or `# output`
 
