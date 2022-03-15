@@ -1,6 +1,7 @@
 # Documenter.jl changelog
 
 ## Unreleased
+* ![Enhancement][badge-enhancement] Documenter now deploys documentation from scheduled jobs (`schedule` on GitHub actions). ([#1772][github-1772], [#1773][github-1773])
 
 ## Version `v0.27.14`
 
@@ -978,6 +979,8 @@
 [github-1762]: https://github.com/JuliaDocs/Documenter.jl/pull/1762
 [github-1770]: https://github.com/JuliaDocs/Documenter.jl/issues/1770
 [github-1771]: https://github.com/JuliaDocs/Documenter.jl/pull/1771
+[github-1772]: https://github.com/JuliaDocs/Documenter.jl/issues/1772
+[github-1773]: https://github.com/JuliaDocs/Documenter.jl/pull/1773
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
