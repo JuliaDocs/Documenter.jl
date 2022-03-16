@@ -13,7 +13,6 @@ import ..Documenter:
 
 using DocStringExtensions
 import Markdown
-using Logging
 
 # Missing docstrings.
 # -------------------
