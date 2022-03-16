@@ -10,6 +10,19 @@ import Markdown, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
 
+macro docerror(doc, tag, msg, exs...)
+    esc(quote
+        let
+            push!($(doc).internal.errors, $(tag))
+            if is_strict($(doc).user.strict, $(tag))
+                @error $(msg) $(exs...)
+            else
+                @warn $(msg) $(exs...)
+            end
+        end
+    end)
+end
+
 # escape characters that has a meaning in regex
 regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
 
@@ -756,19 +769,6 @@ function check_strict_kw(strict)
         """))
     end
     return nothing
-end
-
-macro docerror(doc, tag, msg, exs...)
-    esc(quote
-        let
-            push!($(doc).internal.errors, $(tag))
-            if is_strict($(doc).user.strict, $(tag))
-                @error $(msg) $(exs...)
-            else
-                @warn $(msg) $(exs...)
-            end
-        end
-    end)
 end
 
 include("DOM.jl")
