@@ -522,6 +522,15 @@ end
         @test_throws ArgumentError Documenter.Utilities.check_strict_kw(:a)
         @test_throws ArgumentError Documenter.Utilities.check_strict_kw([:a, :doctest])
     end
+
+    @testset "@docerror" begin
+        doc = (; internal = (; errors = Symbol[]), user = (; strict = [:doctest, :setup_block]))
+        foo = 123
+        @test_logs (:warn, "meta_block issue 123") (Documenter.Utilities.@docerror(doc, :meta_block, "meta_block issue $foo"))
+        @test :meta_block ∈ doc.internal.errors
+        @test_logs (:error, "doctest issue 123") (Documenter.Utilities.@docerror(doc, :doctest, "doctest issue $foo"))
+        @test :doctest ∈ doc.internal.errors
+    end
 end
 
 end
