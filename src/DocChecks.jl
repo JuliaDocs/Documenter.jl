@@ -234,7 +234,7 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
                 @docerror(doc, :linkcheck, "linkcheck '$(link.url)' status: $(status).")
             end
         else
-            @docerror(doc, :linkcheck, "invalid result returned by $cmd:"; result)
+            @docerror(doc, :linkcheck, "invalid result returned by $cmd:", result)
         end
     end
     return false
