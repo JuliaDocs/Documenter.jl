@@ -766,7 +766,7 @@ function docerror!(doc, tag, msg; kwargs...)
 end
 
 macro docerror(doc, tag, msg, exs...)
-    quote
+    esc(quote
         let
             push!($(doc).internal.errors, $(tag))
             if is_strict($(doc).user.strict, $(tag))
@@ -775,7 +775,7 @@ macro docerror(doc, tag, msg, exs...)
                 @warn $(msg) $(exs...)
             end
         end
-    end
+    end)
 end
 
 include("DOM.jl")
