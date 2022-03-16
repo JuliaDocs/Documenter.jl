@@ -10,6 +10,18 @@ import Markdown, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
 
+"""
+    @docerror(doc, tag, msg, exs...)
+
+Add `tag` to the `doc.internal.errors` array and log the message `msg` as an
+error (if `tag` matches the `doc.user.strict` setting) or warning.
+
+- `doc` must be the instance of `Document` used for the Documenter run
+- `tag` must be one of the `Symbol`s in `ERROR_NAMES`
+- `msg` is the explanation of the issue to the user
+- `exs...` are additional expressions that will be included with the message;
+  see `@error` and `@warn`
+"""
 macro docerror(doc, tag, msg, exs...)
     esc(quote
         let
