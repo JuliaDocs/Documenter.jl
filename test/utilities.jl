@@ -530,6 +530,7 @@ end
         @test :meta_block ∈ doc.internal.errors
         @test_logs (:error, "doctest issue 123") (Documenter.Utilities.@docerror(doc, :doctest, "doctest issue $foo"))
         @test :doctest ∈ doc.internal.errors
+        @test_throws LoadError eval(:(Documenter.Utilities.@docerror(doc, :foo, "invalid tag")))
     end
 end
 
