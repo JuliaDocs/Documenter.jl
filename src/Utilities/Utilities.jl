@@ -114,7 +114,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
                 try
                     Meta.parse(code, cursor; raise=raise)
                 catch err
-                    docerror!(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))"; exception = err)
+                    @docerror(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))", exception = err)
                     break
                 end
             end
@@ -757,12 +757,6 @@ function check_strict_kw(strict)
         """))
     end
     return nothing
-end
-
-function docerror!(doc, tag, msg; kwargs...)
-    push!(doc.internal.errors, tag)
-    loglevel = is_strict(doc.user.strict, tag) ? Logging.Error : Logging.Warn
-    @logmsg loglevel msg kwargs...
 end
 
 macro docerror(doc, tag, msg, exs...)

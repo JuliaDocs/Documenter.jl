@@ -16,7 +16,7 @@ import .Documents:
     EvalNode,
     MetaNode
 
-import .Utilities: Selectors, docerror!
+import .Utilities: Selectors, @docerror
 
 import Markdown, REPL
 import Base64: stringmime
@@ -256,13 +256,13 @@ function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
-                docerror!(doc, :meta_block,
+                @docerror(doc, :meta_block,
                     """
                     failed to evaluate `$(strip(str))` in `@meta` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
                     ```
-                    """; exception = err)
+                    """, exception = err)
             end
         end
     end
@@ -283,20 +283,20 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
-            docerror!(doc, :docs_block,
+            @docerror(doc, :docs_block,
                 """
                 unable to get the binding for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
                 ```$(x.language)
                 $(x.code)
                 ```
-                """;
+                """,
                 exception = err)
             push!(nodes, admonition)
             continue
         end
         # Undefined `Bindings` get discarded.
         if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
-            docerror!(doc, :docs_block,
+            @docerror(doc, :docs_block,
                 """
                 undefined binding '$(binding)' in `@docs` block in $(Utilities.locrepr(page.source, lines))
                 ```$(x.language)
@@ -311,7 +311,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         object = Utilities.Object(binding, typesig)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
-            docerror!(doc, :docs_block,
+            @docerror(doc, :docs_block,
                 """
                 duplicate docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
                 ```$(x.language)
@@ -332,7 +332,7 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
 
         # Check that we aren't printing an empty docs list. Skip block when empty.
         if isempty(docs)
-            docerror!(doc, :docs_block,
+            @docerror(doc, :docs_block,
                 """
                 no docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
                 ```$(x.language)
@@ -383,13 +383,13 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                     fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
                 end
             catch err
-                docerror!(doc, :autodocs_block,
+                @docerror(doc, :autodocs_block,
                     """
                     failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
                     ```
-                    """; exception = err)
+                    """, exception = err)
             end
         end
     end
@@ -451,7 +451,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         nodes = DocsNode[]
         for (mod, path, category, object, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
-                docerror!(doc, :autodocs_block,
+                @docerror(doc, :autodocs_block,
                     """
                     duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
@@ -475,7 +475,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         end
         page.mapping[x] = DocsNodes(nodes)
     else
-        docerror!(doc, :autodocs_block,
+        @docerror(doc, :autodocs_block,
             """
             '@autodocs' missing 'Modules = ...' in $(Utilities.locrepr(page.source, lines))
             ```$(x.language)
@@ -502,13 +502,13 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
             try
                 result = Core.eval(sandbox, ex)
             catch err
-                docerror!(doc, :eval_block,
+                @docerror(doc, :eval_block,
                     """
                     failed to evaluate `@eval` block in $(Utilities.locrepr(page.source))
                     ```$(x.language)
                     $(x.code)
                     ```
-                    """; exception = err)
+                    """, exception = err)
             end
         end
         page.mapping[x] = EvalNode(x, result)
@@ -587,13 +587,13 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             result = c.value
             print(buffer, c.output)
             if c.error
-                docerror!(doc, :example_block,
+                @docerror(doc, :example_block,
                     """
                     failed to run `@example` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
                     ```
-                    """; value = c.value)
+                    """, value = c.value)
                 page.mapping[x] = x
                 return
             end
@@ -714,13 +714,13 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
         end
         Markdown.MD([])
     catch err
-        docerror!(doc, :setup_block,
+        @docerror(doc, :setup_block,
             """
             failed to run `@setup` block in $(Utilities.locrepr(page.source))
             ```$(x.language)
             $(x.code)
             ```
-            """; exception=err)
+            """, exception=err)
         x
     end
     # ... and finally map the original code block to the newly generated ones.
