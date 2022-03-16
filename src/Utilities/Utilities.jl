@@ -9,7 +9,6 @@ using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
-using Logging
 
 # escape characters that has a meaning in regex
 regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
