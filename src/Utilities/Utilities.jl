@@ -23,7 +23,8 @@ error (if `tag` matches the `doc.user.strict` setting) or warning.
   see `@error` and `@warn`
 """
 macro docerror(doc, tag, msg, exs...)
-    eval(tag) ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid error"))
+    tag isa QuoteNode || error("invalid call of @docerror")
+    tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
     esc(quote
         let
             push!($(doc).internal.errors, $(tag))
