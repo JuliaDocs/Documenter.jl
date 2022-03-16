@@ -27,7 +27,7 @@ macro docerror(doc, tag, msg, exs...)
     esc(quote
         let
             push!($(doc).internal.errors, $(tag))
-            if is_strict($(doc).user.strict, $(tag))
+            if $Utilities.is_strict($(doc).user.strict, $(tag))
                 @error $(msg) $(exs...)
             else
                 @warn $(msg) $(exs...)
