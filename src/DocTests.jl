@@ -97,7 +97,7 @@ function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
-                @docerror ctx.doc :meta_block "Failed to evaluate `$(strip(str))` in `@meta` block." exception = err
+                @docerror(ctx.doc, :meta_block, "Failed to evaluate `$(strip(str))` in `@meta` block.", exception = err)
             end
         end
     end
@@ -139,7 +139,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
                 e isa Meta.ParseError || rethrow(e)
                 file = ctx.meta[:CurrentFile]
                 lines = Utilities.find_block_in_file(block.code, file)
-                @docerror ctx.doc :doctest
+                @docerror(ctx.doc, :doctest,
                     """
                     Unable to parse doctest keyword arguments in $(Utilities.locrepr(file, lines))
                     Use ```jldoctest name; key1 = value1, key2 = value2
@@ -147,14 +147,14 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
                     ```$(lang)
                     $(block.code)
                     ```
-                    """ parse_error = e
+                    """, parse_error = e)
                 return false
             end
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
                     file = ctx.meta[:CurrentFile]
                     lines = Utilities.find_block_in_file(block.code, file)
-                    @docerror ctx.doc :doctest
+                    @docerror(ctx.doc, :doctest,
                         """
                         invalid syntax for doctest keyword arguments in $(Utilities.locrepr(file, lines))
                         Use ```jldoctest name; key1 = value1, key2 = value2
@@ -162,7 +162,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
                         ```$(lang)
                         $(block.code)
                         ```
-                        """
+                        """)
                     return false
                 end
                 d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
@@ -188,7 +188,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
         else
             file = ctx.meta[:CurrentFile]
             lines = Utilities.find_block_in_file(block.code, file)
-            @docerror ctx.doc :doctest
+            @docerror(ctx.doc, :doctest,
                 """
                 invalid doctest block in $(Utilities.locrepr(file, lines))
                 Requires `julia> ` or `# output`
@@ -196,7 +196,7 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
                 ```$(lang)
                 $(block.code)
                 ```
-                """
+                """)
         end
         delete!(ctx.meta, :LocalDocTestArguments)
     end
