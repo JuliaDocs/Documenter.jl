@@ -530,7 +530,14 @@ end
         @test :meta_block ∈ doc.internal.errors
         @test_logs (:error, "doctest issue 123") (Documenter.Utilities.@docerror(doc, :doctest, "doctest issue $foo"))
         @test :doctest ∈ doc.internal.errors
-        @test_throws ArgumentError @macroexpand Documenter.Utilities.@docerror(doc, :foo, "invalid tag")
+        try
+            @macroexpand Documenter.Utilities.@docerror(doc, :foo, "invalid tag")
+            error("unexpected")
+        catch err
+            err isa LoadError && (err = err.error)
+            @test err isa ArgumentError
+            @test err.msg == "tag :foo is not a valid Documenter error"
+        end
     end
 end
 
