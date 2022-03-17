@@ -2,6 +2,7 @@
 
 ## Unreleased
 * ![Enhancement][badge-enhancement] Documenter now deploys documentation from scheduled jobs (`schedule` on GitHub actions). ([#1772][github-1772], [#1773][github-1773])
+* ![Bugfix][badge-bugfix] Fix `strict` mode to properly print an error, not just a warning. [#1776][github-1776])
 
 ## Version `v0.27.14`
 
