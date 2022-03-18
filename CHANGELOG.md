@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
 
 ## Version `v0.27.15`
 
@@ -980,6 +981,7 @@
 [github-1751]: https://github.com/JuliaDocs/Documenter.jl/pull/1751
 [github-1752]: https://github.com/JuliaDocs/Documenter.jl/pull/1752
 [github-1754]: https://github.com/JuliaDocs/Documenter.jl/pull/1754
+[github-1756]: https://github.com/JuliaDocs/Documenter.jl/issues/1756
 [github-1758]: https://github.com/JuliaDocs/Documenter.jl/issues/1758
 [github-1759]: https://github.com/JuliaDocs/Documenter.jl/pull/1759
 [github-1760]: https://github.com/JuliaDocs/Documenter.jl/issues/1760
@@ -989,6 +991,7 @@
 [github-1772]: https://github.com/JuliaDocs/Documenter.jl/issues/1772
 [github-1773]: https://github.com/JuliaDocs/Documenter.jl/pull/1773
 [github-1774]: https://github.com/JuliaDocs/Documenter.jl/pull/1774
+[github-1776]: https://github.com/JuliaDocs/Documenter.jl/pull/1776
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
