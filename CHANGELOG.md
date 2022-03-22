@@ -701,6 +701,7 @@
 
 * ![Bugfix][badge-bugfix] At-docs blocks no longer give an error when containing empty lines. ([#823][github-823], [#824][github-824])
 
+<!-- issue link definitions -->
 [github-198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [github-487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
 [github-511]: https://github.com/JuliaDocs/Documenter.jl/pull/511
@@ -992,6 +993,7 @@
 [github-1773]: https://github.com/JuliaDocs/Documenter.jl/pull/1773
 [github-1774]: https://github.com/JuliaDocs/Documenter.jl/pull/1774
 [github-1776]: https://github.com/JuliaDocs/Documenter.jl/pull/1776
+<!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
