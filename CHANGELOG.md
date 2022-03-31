@@ -56,15 +56,15 @@
 
 * ![Feature][badge-feature] Add support for generating `index.html` to redirect to `dev` or `stable`. The redirected destination is the same as the outdated warning. If there's already user-generated `index.html`, Documenter will not overwrite the file. ([#937][github-937], [#1657][github-1657], [#1658][github-1658])
 
-* ![Bugfix][badge-bugfix] Checking whether a PR comes from the correct repository when deciding to deploy a preview on GitHub Actions now works on Julia 1.0 too. ([#1665](github-1665))
+* ![Bugfix][badge-bugfix] Checking whether a PR comes from the correct repository when deciding to deploy a preview on GitHub Actions now works on Julia 1.0 too. ([#1665][github-1665])
 
-* ![Bugfix][badge-bugfix] When a doctest fails, pass file and line information associated to the location of the doctest instead of the location of the testing code in Documenter to the logger. ([#1687](github-1687))
+* ![Bugfix][badge-bugfix] When a doctest fails, pass file and line information associated to the location of the doctest instead of the location of the testing code in Documenter to the logger. ([#1687][github-1687])
 
-* ![Bugfix][badge-bugfix] Enabled colored printing for each output of `@repl`-blocks. ([#1691](github-1691))
+* ![Bugfix][badge-bugfix] Enabled colored printing for each output of `@repl`-blocks. ([#1691][github-1691])
 
 ## Version `v0.27.5`
 
-* ![Bugfix][badge-bugfix] Fix an error introduced in version `v0.27.4` (PR[#1634][github-1634]) which was triggered by trailing comments in `@eval`/`@repl`/`@example` blocks. ([#1655](github-1655), [#1661](github-1661))
+* ![Bugfix][badge-bugfix] Fix an error introduced in version `v0.27.4` (PR[#1634][github-1634]) which was triggered by trailing comments in `@eval`/`@repl`/`@example` blocks. ([#1655][github-1655], [#1661][github-1661])
 
 ## Version `v0.27.4`
 
@@ -93,9 +93,9 @@
 
 * ![Enhancement][badge-enhancement] `@repl`, `@example`, and `@eval` blocks now have `LineNumberNodes` inserted such that e.g. `@__FILE__` and `@__LINE__` give better output and not just `"none"` for the file and `1` for the line. This requires Julia 1.6 or higher (no change on earlier Julia versions). ([#1634][github-1634])
 
-* ![Bugfix][badge-bugfix] Dollar signs in the HTML output no longer get accidentally misinterpreted as math delimiters in the browser. ([#890](github-890), [#1625](github-1625))
+* ![Bugfix][badge-bugfix] Dollar signs in the HTML output no longer get accidentally misinterpreted as math delimiters in the browser. ([#890][github-890], [#1625][github-1625])
 
-* ![Bugfix][badge-bugfix] Fix overflow behavior for math environments to hide unnecessary vertical scrollbars. ([#1575](github-1575), [#1649](github-1649))
+* ![Bugfix][badge-bugfix] Fix overflow behavior for math environments to hide unnecessary vertical scrollbars. ([#1575][github-1575], [#1649][github-1649])
 
 ## Version `v0.27.3`
 
@@ -246,7 +246,7 @@
 
 * ![Bugfix][badge-bugfix] REPL doctest output lines starting with `#` right after the input code part are now correctly treated as being part of the output (unless prepended with 7 spaces, in line with the standard heuristic). ([#1369][github-1369])
 
-* ![Bugfix][badge-bugfix] Documenter now throws away the extra information from the info string of a Markdown code block (i.e. ` ```language extra-info`), to correctly determine the language, which should be a single word. ([#1392](github-1392), [#1400](github-1400))
+* ![Bugfix][badge-bugfix] Documenter now throws away the extra information from the info string of a Markdown code block (i.e. ` ```language extra-info`), to correctly determine the language, which should be a single word. ([#1392]][github-1392], [#1400][github-1400])
 
 * ![Maintenance][badge-maintenance] Documenter now works around a Julia 1.5.0 regression ([JuliaLang/julia#36953](https://github.com/JuliaLang/julia/issues/36953)) which broke doctest fixing if the original doctest output was empty. ([#1337][github-1337], [#1389][github-1389])
 
