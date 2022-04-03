@@ -232,7 +232,7 @@ function writeheader(io::IO, doc::Documents.Document)
         % -- TOC depth
         %   value: [part, chapter, section, subsection,
         %           subsubsection, paragraph, subparagraph]
-        \\settocdepth{section}  % show "part+chapter+section" in TOC
+        \\settocdepth{chapter}  % show "part+chapter+section" in TOC
         % -- TOC spacing
         %   ref: https://tex.stackexchange.com/questions/60317/toc-spacing-in-memoir
         %   doc: memoir/memman.pdf
