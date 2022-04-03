@@ -329,7 +329,7 @@ include("deployconfig.jl")
         branch = "gh-pages",
         deps = nothing | <Function>,
         make = nothing | <Function>,
-        devbranch = "master",
+        devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush = false,
@@ -415,7 +415,8 @@ deps = Deps.pip("pygments", "mkdocs")
 executed.
 
 **`devbranch`** is the branch that "tracks" the in-development version of the generated
-documentation. By default this value is set to `"master"`.
+documentation. By default Documenter tries to figure this out using `git`. Can be set
+explicitly as a string (typically `"master"` or `"main"`).
 
 **`devurl`** the folder that in-development version of the docs will be deployed.
 Defaults to `"dev"`.
@@ -491,13 +492,24 @@ function deploydocs(;
         deps   = nothing,
         make   = nothing,
 
-        devbranch = "master",
+        devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview::Bool = false,
     )
+
+    # Try to figure out default branch (see #1443 and #1727)
+    if devbranch === nothing
+        str = try
+            read(pipeline(ignorestatus(setenv(`git remote show origin`; dir=root)); stderr=devnull), String)
+        catch
+            ""
+        end
+        m = match(r"^\s*HEAD branch:\s*(.*)$"m, str)
+        devbranch = m === nothing ? "master" : String(m[1])
+    end
 
     deploy_decision = deploy_folder(deploy_config;
                                     branch=branch,

@@ -274,7 +274,7 @@ Implementation of `DeployConfig` for deploying from GitHub Actions.
 The following environment variables influences the build
 when using the `GitHubActions` configuration:
 
- - `GITHUB_EVENT_NAME`: must be set to `push`.
+ - `GITHUB_EVENT_NAME`: must be set to `push`, `workflow_dispatch`, or `schedule`.
    This avoids deployment on pull request builds.
 
  - `GITHUB_REPOSITORY`: must match the value of the `repo` keyword to [`deploydocs`](@ref).
@@ -327,9 +327,9 @@ function deploy_folder(cfg::GitHubActions;
     println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
     if build_type === :release
         ## Do not deploy for PRs
-        event_ok = cfg.github_event_name == "push"
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
         ## If a tag exist it should be a valid VersionNumber
         m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
         tag_nobuild = version_tag_strip_build(m.captures[1])
@@ -343,9 +343,9 @@ function deploy_folder(cfg::GitHubActions;
         subfolder = m === nothing ? nothing : tag_nobuild
     elseif build_type === :devbranch
         ## Do not deploy for PRs
-        event_ok = cfg.github_event_name == "push"
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.github_ref)
         branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch

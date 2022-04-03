@@ -381,6 +381,24 @@ end end
                                      devbranch="master", devurl="hello-world", push_preview=false)
         @test !d.all_ok
     end
+    # Build on `schedule` jobs
+    withenv("GITHUB_EVENT_NAME" => "schedule",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+        cfg = Documenter.GitHubActions()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
 end end
 
 @testset "Buildkite CI deploy configuration" begin; with_logger(NullLogger()) do

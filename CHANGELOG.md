@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+* ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
+
+## Version `v0.27.15`
+
+* ![Enhancement][badge-enhancement] Documenter now deploys documentation from scheduled jobs (`schedule` on GitHub actions). ([#1772][github-1772], [#1773][github-1773])
+* ![Enhancement][badge-enhancement] Improve layout of the table of contents section in the LaTeX/PDF output. ([#1750][github-1750])
+* ![Bugfix][badge-bugfix] Improve the fix for extraneous whitespace in REPL blocks. ([#1774][github-1774])
+
+## Version `v0.27.14`
+
+* ![Bugfix][badge-bugfix] Fix a CSS bug causing REPL code blocks to contain extraneous whitespace. ([#1770][github-1770], [#1771][github-1771])
+
+## Version `v0.27.13`
+
+* ![Bugfix][badge-bugfix] Fix a CSS bug causing the location of the code copy button to not be fixed in the upper right corner. ([#1758][github-1758], [#1759][github-1759])
+* ![Bugfix][badge-bugfix] Fix a bug when loading the `copy.js` script for the code copy button. ([#1760][github-1760], [#1762][github-1762])
+
+## Version `v0.27.12`
+
+* ![Bugfix][badge-bugfix] Fix code copy button in insecure contexts (e.g. pages hosted without https). ([#1754][github-1754])
+
+## Version `v0.27.11`
+
+* ![Enhancement][badge-enhancement] Documenter now deploys documentation from manually triggered events (`workflow_dispatch` on GitHub actions). ([#1554][github-1554], [#1752][github-1752])
+* ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.0` (minor version bump). ([#1743][github-1743])
+* ![Enhancement][badge-enhancement] HTML code blocks now have a copy button. ([#1748][github-1748])
+* ![Enhancement][badge-enhancement] Documenter now tries to detect the development branch using `git` with the old default (`master`) as fallback. If you use `main` as the development branch you shouldn't need to specify `devbranch = "main"` as an argument to deploydocs anymore. ([#1443][github-1443], [#1727][github-1727], [#1751][github-1751])
+
 ## Version `v0.27.10`
 
 * ![Bugfix][badge-bugfix] Fix depth of headers in LaTeXWriter. ([#1716][github-1716])
@@ -858,6 +886,7 @@
 [github-1441]: https://github.com/JuliaDocs/Documenter.jl/pull/1441
 [github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
+[github-1443]: https://github.com/JuliaDocs/Documenter.jl/issues/1443
 [github-1449]: https://github.com/JuliaDocs/Documenter.jl/issues/1449
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
 [github-1456]: https://github.com/JuliaDocs/Documenter.jl/pull/1456
@@ -895,6 +924,7 @@
 [github-1549]: https://github.com/JuliaDocs/Documenter.jl/pull/1549
 [github-1551]: https://github.com/JuliaDocs/Documenter.jl/pull/1551
 [github-1553]: https://github.com/JuliaDocs/Documenter.jl/pull/1553
+[github-1554]: https://github.com/JuliaDocs/Documenter.jl/issues/1554
 [github-1556]: https://github.com/JuliaDocs/Documenter.jl/issues/1556
 [github-1557]: https://github.com/JuliaDocs/Documenter.jl/pull/1557
 [github-1559]: https://github.com/JuliaDocs/Documenter.jl/pull/1559
@@ -944,6 +974,24 @@
 [github-1706]: https://github.com/JuliaDocs/Documenter.jl/pull/1706
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
+[github-1727]: https://github.com/JuliaDocs/Documenter.jl/pull/1727
+[github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
+[github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
+[github-1750]: https://github.com/JuliaDocs/Documenter.jl/pull/1750
+[github-1751]: https://github.com/JuliaDocs/Documenter.jl/pull/1751
+[github-1752]: https://github.com/JuliaDocs/Documenter.jl/pull/1752
+[github-1754]: https://github.com/JuliaDocs/Documenter.jl/pull/1754
+[github-1756]: https://github.com/JuliaDocs/Documenter.jl/issues/1756
+[github-1758]: https://github.com/JuliaDocs/Documenter.jl/issues/1758
+[github-1759]: https://github.com/JuliaDocs/Documenter.jl/pull/1759
+[github-1760]: https://github.com/JuliaDocs/Documenter.jl/issues/1760
+[github-1762]: https://github.com/JuliaDocs/Documenter.jl/pull/1762
+[github-1770]: https://github.com/JuliaDocs/Documenter.jl/issues/1770
+[github-1771]: https://github.com/JuliaDocs/Documenter.jl/pull/1771
+[github-1772]: https://github.com/JuliaDocs/Documenter.jl/issues/1772
+[github-1773]: https://github.com/JuliaDocs/Documenter.jl/pull/1773
+[github-1774]: https://github.com/JuliaDocs/Documenter.jl/pull/1774
+[github-1776]: https://github.com/JuliaDocs/Documenter.jl/pull/1776
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
