@@ -3,7 +3,8 @@
 Documenter will, by default, run `jldoctest` code blocks that it finds and makes sure that
 the actual output matches what's in the doctest. This can help to avoid documentation
 examples from becoming outdated, incorrect, or misleading. It is recommended that as many of
-a package's examples as possible be runnable by Documenter's doctest.
+a package's examples as possible be runnable by Documenter's doctest. Doctest failures during [`makedocs`](@ref) are printed as logging statements by default, but can be made fatal by passing `strict=true` or `strict=:doctest` to `makedocs`.
+
 
 This section of the manual outlines how to go about enabling doctests for code blocks in
 your package's documentation.
@@ -299,10 +300,16 @@ DocTestFilters = nothing
 The `DocTestFilters = nothing` is not strictly necessary, but good practice nonetheless to
 help avoid unintentional filtering in following doctest blocks.
 
+!!! info
+    The filter match is replaced with an empty string in both the expected and actual output using
+    `replace`, e.g. `replace(str, filter => "")`. Note that this means that the same filter can match
+    multiple times, and if you need the same filter to match multiple lines your regex need to account
+    for that.
+
 Another option is to use the `filter` keyword argument. This defines a doctest-local filter
 which is only active for the specific doctest. Note that such filters are not shared between
-named doctests either. It is possible to define a filter by a single regex (filter = r"foo")
-or as a list of regex (filter = [r"foo", r"bar"]). Example:
+named doctests either. It is possible to define a filter by a single regex (`filter = r"foo"`)
+or as a list of regex (`filter = [r"foo", r"bar"]`). Example:
 
 ````markdown
 ```jldoctest; filter = r"[0-9\.]+ seconds \(.*\)"

@@ -221,14 +221,35 @@ function writeheader(io::IO, doc::Documents.Document)
         \\usepackage{./documenter}
         \\usepackage{./custom}
 
-        \\settocdepth{section}
-
+        %% Title Page
         \\title{
             {\\HUGE $(doc.user.sitename)}\\\\
             {\\Large $(get(ENV, "TRAVIS_TAG", ""))}
         }
         \\author{$(doc.user.authors)}
 
+        %% TOC settings
+        % -- TOC depth
+        %   value: [part, chapter, section, subsection,
+        %           subsubsection, paragraph, subparagraph]
+        \\settocdepth{section}  % show "part+chapter+section" in TOC
+        % -- TOC spacing
+        %   ref: https://tex.stackexchange.com/questions/60317/toc-spacing-in-memoir
+        %   doc: memoir/memman.pdf
+        %       - Figure 9.2: Layout of a ToC
+        %       - Table 9.3: Value of K in macros for styling entries
+        \\makeatletter
+        % {part} to {chaper}
+        \\setlength{\\cftbeforepartskip}{1.5em \\@plus \\p@}
+        % {chaper} to {chaper}
+        \\setlength{\\cftbeforechapterskip}{0.0em \\@plus \\p@}
+        % Chapter num to chapter title spacing (Figure 9.2@memman)
+        \\setlength{\\cftchapternumwidth}{2.5em \\@plus \\p@}
+        % indent before section number
+        \\setlength{\\cftsectionindent}{2.5em \\@plus \\p@}
+        \\makeatother
+
+        %% Main document begin
         \\begin{document}
 
         \\frontmatter
@@ -398,7 +419,8 @@ function latex(io::IO, d::Dict{MIME,Any})
         \\end{figure}
         """)
     elseif haskey(d, MIME"text/latex"())
-        latex(io, Utilities.mdparse(d[MIME"text/latex"()]; mode = :single))
+        # If it has a latex MIME, just write it out directly.
+        _print(io, d[MIME"text/latex"()])
     elseif haskey(d, MIME"text/markdown"())
         latex(io, Markdown.parse(d[MIME"text/markdown"()]))
     elseif haskey(d, MIME"text/plain"())
@@ -749,13 +771,16 @@ end
 
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))
 
-function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: AbstractString}
-    push!(out, (p.first, p.second, depth))
-end
-
-function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
-    push!(out, (p.first, "", depth))
-    files!(out, p.second, depth)
+function files!(out, p::Pair{<:AbstractString,<:Any}, depth)
+    # Hack time. Because of Julia's typing, something like
+    # `"Introduction" => "index.md"` may get typed as a `Pair{String,Any}`!
+    if p[2] isa AbstractString
+        push!(out, (p.first, p.second, depth))
+    else
+        push!(out, (p.first, "", depth))
+        files!(out, p.second, depth)
+    end
+    return out
 end
 
 files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)

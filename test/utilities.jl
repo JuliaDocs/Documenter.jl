@@ -501,6 +501,44 @@ end
         @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.Utilities.codelang("&%^ ***") == "&%^"
     end
+
+    @testset "is_strict" begin
+        @test Documenter.Utilities.is_strict(true, :doctest)
+        @test Documenter.Utilities.is_strict([:doctest], :doctest)
+        @test Documenter.Utilities.is_strict(:doctest, :doctest)
+        @test !Documenter.Utilities.is_strict(false, :doctest)
+        @test !Documenter.Utilities.is_strict(:setup_block, :doctest)
+        @test !Documenter.Utilities.is_strict([:setup_block], :doctest)
+
+        @test Documenter.Utilities.is_strict(true, :setup_block)
+        @test !Documenter.Utilities.is_strict(false, :setup_block)
+        @test Documenter.Utilities.is_strict(:setup_block, :setup_block)
+        @test Documenter.Utilities.is_strict([:setup_block], :setup_block)
+    end
+
+    @testset "check_strict_kw" begin
+        @test Documenter.Utilities.check_strict_kw(:setup_block) === nothing
+        @test Documenter.Utilities.check_strict_kw(:doctest) === nothing
+        @test_throws ArgumentError Documenter.Utilities.check_strict_kw(:a)
+        @test_throws ArgumentError Documenter.Utilities.check_strict_kw([:a, :doctest])
+    end
+
+    @testset "@docerror" begin
+        doc = (; internal = (; errors = Symbol[]), user = (; strict = [:doctest, :setup_block]))
+        foo = 123
+        @test_logs (:warn, "meta_block issue 123") (Documenter.Utilities.@docerror(doc, :meta_block, "meta_block issue $foo"))
+        @test :meta_block ∈ doc.internal.errors
+        @test_logs (:error, "doctest issue 123") (Documenter.Utilities.@docerror(doc, :doctest, "doctest issue $foo"))
+        @test :doctest ∈ doc.internal.errors
+        try
+            @macroexpand Documenter.Utilities.@docerror(doc, :foo, "invalid tag")
+            error("unexpected")
+        catch err
+            err isa LoadError && (err = err.error)
+            @test err isa ArgumentError
+            @test err.msg == "tag :foo is not a valid Documenter error"
+        end
+    end
 end
 
 end

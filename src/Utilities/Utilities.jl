@@ -8,6 +8,34 @@ import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
+import ..ERROR_NAMES
+
+"""
+    @docerror(doc, tag, msg, exs...)
+
+Add `tag` to the `doc.internal.errors` array and log the message `msg` as an
+error (if `tag` matches the `doc.user.strict` setting) or warning.
+
+- `doc` must be the instance of `Document` used for the Documenter run
+- `tag` must be one of the `Symbol`s in `ERROR_NAMES`
+- `msg` is the explanation of the issue to the user
+- `exs...` are additional expressions that will be included with the message;
+  see `@error` and `@warn`
+"""
+macro docerror(doc, tag, msg, exs...)
+    tag isa QuoteNode || error("invalid call of @docerror")
+    tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
+    esc(quote
+        let
+            push!($(doc).internal.errors, $(tag))
+            if $Utilities.is_strict($(doc).user.strict, $(tag))
+                @error $(msg) $(exs...)
+            else
+                @warn $(msg) $(exs...)
+            end
+        end
+    end)
+end
 
 # escape characters that has a meaning in regex
 regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
@@ -112,8 +140,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
                 try
                     Meta.parse(code, cursor; raise=raise)
                 catch err
-                    push!(doc.internal.errors, :parse_error)
-                    @warn "failed to parse exception in $(Utilities.locrepr(file))" exception = err
+                    @docerror(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))", exception = err)
                     break
                 end
             end
@@ -717,6 +744,45 @@ function get_sandbox_module!(meta, prefix, name = nothing)
         Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
         return m
     end
+end
+
+"""
+    is_strict(strict, val::Symbol) -> Bool
+
+Internal function to check if `strict` is strict about `val`, i.e.
+if errors of type `val` should be fatal, according
+to the setting `strict` (as a keyword to `makedocs`).
+
+Single-argument `is_strict(strict)` provides a curried function.
+"""
+is_strict
+
+is_strict(strict::Bool, ::Symbol) = strict
+is_strict(strict::Symbol, val::Symbol) = strict === val
+is_strict(strict::Vector{Symbol}, val::Symbol) = val ∈ strict
+is_strict(strict) = Base.Fix1(is_strict, strict)
+
+"""
+    check_strict_kw(strict) -> Nothing
+
+Internal function to check if `strict` is a valid value for
+the keyword argument `strict` to `makedocs.` Throws an
+`ArgumentError` if it is not valid.
+"""
+check_strict_kw
+
+check_strict_kw(::Bool) = nothing
+check_strict_kw(s::Symbol) = check_strict_kw(tuple(s))
+function check_strict_kw(strict)
+    extra_names = setdiff(strict, ERROR_NAMES)
+    if !isempty(extra_names)
+        throw(ArgumentError("""
+        Keyword argument `strict` given unknown values: $(extra_names)
+
+        Valid options are: $(ERROR_NAMES)
+        """))
+    end
+    return nothing
 end
 
 include("DOM.jl")
