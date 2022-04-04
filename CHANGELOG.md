@@ -3,6 +3,7 @@
 ## Unreleased
 
 * ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
+* ![Bugfix][badge-bugfix] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`). ([#1780][github-1780])
 
 ## Version `v0.27.15`
 
