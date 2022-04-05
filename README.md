@@ -51,6 +51,7 @@ Other third-party packages that can be combined with Documenter include:
 * [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
 * [Literate.jl](https://github.com/fredrikekre/Literate.jl)
 * [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
+* [QuizQuestions](https://github.com/jverzani/QuizQuestions.jl)
 
 Finally, there are also a few other packages in the Julia ecosystem that are similar to Documenter, but fill a slightly different niche:
 
