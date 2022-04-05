@@ -770,11 +770,11 @@
 [github-995]: https://github.com/JuliaDocs/Documenter.jl/pull/995
 [github-996]: https://github.com/JuliaDocs/Documenter.jl/pull/996
 [github-999]: https://github.com/JuliaDocs/Documenter.jl/pull/999
-[github-1005]: https://github.com/JuliaDocs/Documenter.jl/pull/1005
 [github-1000]: https://github.com/JuliaDocs/Documenter.jl/issues/1000
 [github-1002]: https://github.com/JuliaDocs/Documenter.jl/pull/1002
 [github-1003]: https://github.com/JuliaDocs/Documenter.jl/issues/1003
 [github-1004]: https://github.com/JuliaDocs/Documenter.jl/pull/1004
+[github-1005]: https://github.com/JuliaDocs/Documenter.jl/pull/1005
 [github-1009]: https://github.com/JuliaDocs/Documenter.jl/pull/1009
 [github-1013]: https://github.com/JuliaDocs/Documenter.jl/issues/1013
 [github-1014]: https://github.com/JuliaDocs/Documenter.jl/pull/1014
@@ -852,9 +852,9 @@
 [github-1298]: https://github.com/JuliaDocs/Documenter.jl/pull/1298
 [github-1299]: https://github.com/JuliaDocs/Documenter.jl/pull/1299
 [github-1302]: https://github.com/JuliaDocs/Documenter.jl/issues/1302
-[github-1311]: https://github.com/JuliaDocs/Documenter.jl/pull/1311
 [github-1307]: https://github.com/JuliaDocs/Documenter.jl/pull/1307
 [github-1310]: https://github.com/JuliaDocs/Documenter.jl/pull/1310
+[github-1311]: https://github.com/JuliaDocs/Documenter.jl/pull/1311
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
 [github-1320]: https://github.com/JuliaDocs/Documenter.jl/issues/1320
 [github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
@@ -885,10 +885,10 @@
 [github-1430]: https://github.com/JuliaDocs/Documenter.jl/pull/1430
 [github-1435]: https://github.com/JuliaDocs/Documenter.jl/pull/1435
 [github-1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
-[github-1441]: https://github.com/JuliaDocs/Documenter.jl/pull/1441
-[github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1440]: https://github.com/JuliaDocs/Documenter.jl/pull/1440
+[github-1441]: https://github.com/JuliaDocs/Documenter.jl/pull/1441
 [github-1443]: https://github.com/JuliaDocs/Documenter.jl/issues/1443
+[github-1448]: https://github.com/JuliaDocs/Documenter.jl/pull/1448
 [github-1449]: https://github.com/JuliaDocs/Documenter.jl/issues/1449
 [github-1452]: https://github.com/JuliaDocs/Documenter.jl/pull/1452
 [github-1456]: https://github.com/JuliaDocs/Documenter.jl/pull/1456
@@ -966,8 +966,8 @@
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
 [github-1673]: https://github.com/JuliaDocs/Documenter.jl/pull/1673
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
-[github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
 [github-1689]: https://github.com/JuliaDocs/Documenter.jl/pull/1689
+[github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
 [github-1693]: https://github.com/JuliaDocs/Documenter.jl/issues/1693
 [github-1696]: https://github.com/JuliaDocs/Documenter.jl/pull/1696
 [github-1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
