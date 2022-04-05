@@ -705,18 +705,18 @@
 <!-- issue link definitions -->
 [github-198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [github-487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
-[github-511]: https://github.com/JuliaDocs/Documenter.jl/pull/511
+[github-511]: https://github.com/JuliaDocs/Documenter.jl/issues/511
 [github-535]: https://github.com/JuliaDocs/Documenter.jl/issues/535
 [github-618]: https://github.com/JuliaDocs/Documenter.jl/issues/618
 [github-631]: https://github.com/JuliaDocs/Documenter.jl/issues/631
-[github-697]: https://github.com/JuliaDocs/Documenter.jl/pull/697
+[github-697]: https://github.com/JuliaDocs/Documenter.jl/issues/697
 [github-706]: https://github.com/JuliaDocs/Documenter.jl/pull/706
 [github-756]: https://github.com/JuliaDocs/Documenter.jl/issues/756
 [github-764]: https://github.com/JuliaDocs/Documenter.jl/pull/764
 [github-774]: https://github.com/JuliaDocs/Documenter.jl/pull/774
 [github-789]: https://github.com/JuliaDocs/Documenter.jl/pull/789
 [github-792]: https://github.com/JuliaDocs/Documenter.jl/pull/792
-[github-793]: https://github.com/JuliaDocs/Documenter.jl/pull/793
+[github-793]: https://github.com/JuliaDocs/Documenter.jl/issues/793
 [github-794]: https://github.com/JuliaDocs/Documenter.jl/pull/794
 [github-795]: https://github.com/JuliaDocs/Documenter.jl/pull/795
 [github-802]: https://github.com/JuliaDocs/Documenter.jl/pull/802
@@ -725,7 +725,7 @@
 [github-813]: https://github.com/JuliaDocs/Documenter.jl/pull/813
 [github-816]: https://github.com/JuliaDocs/Documenter.jl/pull/816
 [github-817]: https://github.com/JuliaDocs/Documenter.jl/pull/817
-[github-823]: https://github.com/JuliaDocs/Documenter.jl/pull/823
+[github-823]: https://github.com/JuliaDocs/Documenter.jl/issues/823
 [github-824]: https://github.com/JuliaDocs/Documenter.jl/pull/824
 [github-826]: https://github.com/JuliaDocs/Documenter.jl/pull/826
 [github-833]: https://github.com/JuliaDocs/Documenter.jl/pull/833
@@ -736,14 +736,14 @@
 [github-876]: https://github.com/JuliaDocs/Documenter.jl/pull/876
 [github-879]: https://github.com/JuliaDocs/Documenter.jl/pull/879
 [github-885]: https://github.com/JuliaDocs/Documenter.jl/pull/885
-[github-886]: https://github.com/JuliaDocs/Documenter.jl/pull/886
+[github-886]: https://github.com/JuliaDocs/Documenter.jl/issues/886
 [github-890]: https://github.com/JuliaDocs/Documenter.jl/issues/890
 [github-891]: https://github.com/JuliaDocs/Documenter.jl/pull/891
 [github-898]: https://github.com/JuliaDocs/Documenter.jl/pull/898
 [github-905]: https://github.com/JuliaDocs/Documenter.jl/pull/905
 [github-907]: https://github.com/JuliaDocs/Documenter.jl/pull/907
 [github-917]: https://github.com/JuliaDocs/Documenter.jl/pull/917
-[github-923]: https://github.com/JuliaDocs/Documenter.jl/pull/923
+[github-923]: https://github.com/JuliaDocs/Documenter.jl/issues/923
 [github-926]: https://github.com/JuliaDocs/Documenter.jl/pull/926
 [github-927]: https://github.com/JuliaDocs/Documenter.jl/pull/927
 [github-928]: https://github.com/JuliaDocs/Documenter.jl/pull/928
@@ -757,7 +757,7 @@
 [github-948]: https://github.com/JuliaDocs/Documenter.jl/pull/948
 [github-953]: https://github.com/JuliaDocs/Documenter.jl/pull/953
 [github-958]: https://github.com/JuliaDocs/Documenter.jl/pull/958
-[github-959]: https://github.com/JuliaDocs/Documenter.jl/pull/959
+[github-959]: https://github.com/JuliaDocs/Documenter.jl/issues/959
 [github-960]: https://github.com/JuliaDocs/Documenter.jl/pull/960
 [github-964]: https://github.com/JuliaDocs/Documenter.jl/issues/964
 [github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
