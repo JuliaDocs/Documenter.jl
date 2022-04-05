@@ -522,7 +522,7 @@ module RD
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
-    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css"
+    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css"
     const fontawesome_version = "5.15.3"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
