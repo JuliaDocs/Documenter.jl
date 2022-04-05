@@ -247,6 +247,8 @@ function writeheader(io::IO, doc::Documents.Document)
         \\setlength{\\cftchapternumwidth}{2.5em \\@plus \\p@}
         % indent before section number
         \\setlength{\\cftsectionindent}{2.5em \\@plus \\p@}
+        % Section num to section title spacing (Figure 9.2@memman)
+        \\setlength{\\cftsectionnumwidth}{4.0em \\@plus \\p@}
         \\makeatother
 
         %% Main document begin
