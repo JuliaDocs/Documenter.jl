@@ -2,8 +2,8 @@
 
 ## Unreleased
 
+* ![Enhancement][badge-enhancement] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`). ([#1780][github-1780], [#1784][github-1784])
 * ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
-* ![Bugfix][badge-bugfix] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`). ([#1780][github-1780])
 
 ## Version `v0.27.15`
 
@@ -993,6 +993,8 @@
 [github-1773]: https://github.com/JuliaDocs/Documenter.jl/pull/1773
 [github-1774]: https://github.com/JuliaDocs/Documenter.jl/pull/1774
 [github-1776]: https://github.com/JuliaDocs/Documenter.jl/pull/1776
+[github-1780]: https://github.com/JuliaDocs/Documenter.jl/issues/1780
+[github-1784]: https://github.com/JuliaDocs/Documenter.jl/pull/1784
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
