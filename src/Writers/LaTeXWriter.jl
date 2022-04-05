@@ -232,7 +232,7 @@ function writeheader(io::IO, doc::Documents.Document)
         % -- TOC depth
         %   value: [part, chapter, section, subsection,
         %           subsubsection, paragraph, subparagraph]
-        \\settocdepth{chapter}  % show "part+chapter+section" in TOC
+        \\settocdepth{section}  % show "part+chapter+section" in TOC
         % -- TOC spacing
         %   ref: https://tex.stackexchange.com/questions/60317/toc-spacing-in-memoir
         %   doc: memoir/memman.pdf
@@ -247,6 +247,8 @@ function writeheader(io::IO, doc::Documents.Document)
         \\setlength{\\cftchapternumwidth}{2.5em \\@plus \\p@}
         % indent before section number
         \\setlength{\\cftsectionindent}{2.5em \\@plus \\p@}
+        % Section num to section title spacing (Figure 9.2@memman)
+        \\setlength{\\cftsectionnumwidth}{4.0em \\@plus \\p@}
         \\makeatother
 
         %% Main document begin
