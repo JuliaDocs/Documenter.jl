@@ -215,19 +215,17 @@ function writeheader(io::IO, doc::Documents.Document)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
     
-    preamble =
-        """
-        \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
-        \\newcommand{\\DocVersion}{$(get(ENV, "TRAVIS_TAG", ""))}
-        \\newcommand{\\DocAuthors}{$(doc.user.authors)}
-        """
-    _println(io, preamble)
     preamble_tex_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
     if isfile(preamble_tex_file)
         # copy custom preamble, and insert the whole file.
         cp(custom, "preamble.tex"; force = true)
         preamble =
             """
+            % Useful variables
+            \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
+            \\newcommand{\\DocVersion}{$(get(ENV, "TRAVIS_TAG", ""))}
+            \\newcommand{\\DocAuthors}{$(doc.user.authors)}
+            
             % ---- Insert custom preamble
             \\input{preamble.tex}
             """
