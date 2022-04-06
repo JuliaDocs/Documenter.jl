@@ -218,7 +218,7 @@ function writeheader(io::IO, doc::Documents.Document)
     preamble_tex_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
     if isfile(preamble_tex_file)
         # copy custom preamble, and insert the whole file.
-        cp(custom, "preamble.tex"; force = true)
+        cp(preamble_tex_file, "preamble.tex"; force = true)
         preamble =
             """
             % Useful variables
