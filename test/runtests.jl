@@ -80,11 +80,11 @@ include("TestUtilities.jl"); using .TestUtilities
     @quietly include("manual.jl")
     
     @testset "LaTeX backend custom style" begin
-        @info "Building cover_page/make.jl"
-        @quietly include("cover_page/make.jl")
+        @info "Building LaTeX_backend/cover_page"
+        @quietly include("LaTeX_backend/cover_page/make.jl")
         
-        @info "Building toc_style/make.jl"
-        @quietly include("toc_style/make.jl")
+        @info "Building LaTeX_backend/toc_style"
+        @quietly include("LaTeX_backend/toc_style/make.jl")
     end
 
 end
