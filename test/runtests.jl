@@ -78,5 +78,4 @@ include("TestUtilities.jl"); using .TestUtilities
     # Running doctest() on our own manual
     @info "doctest() Documenter's manual"
     @quietly include("manual.jl")
-
 end

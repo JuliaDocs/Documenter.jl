@@ -2,8 +2,8 @@ using Test
 import Documenter
 include("TestUtilities.jl"); using .TestUtilities
 
-@testset "Examples/LaTeX" begin
-    @testset "LaTeX backend custom style" begin
+@testset "LaTeX backend" begin
+    @testset "custom style" begin
         @info "Building LaTeX_backend/cover_page"
         @quietly include("LaTeX_backend/cover_page/make.jl")
         
