@@ -78,4 +78,13 @@ include("TestUtilities.jl"); using .TestUtilities
     # Running doctest() on our own manual
     @info "doctest() Documenter's manual"
     @quietly include("manual.jl")
+    
+    @testset "LaTeX backend custom style" begin
+        @info "Building cover_page/make.jl"
+        @quietly include("cover_page/make.jl")
+        
+        @info "Building toc-style/make.jl"
+        @quietly include("toc-style/make.jl")
+    end
+
 end
