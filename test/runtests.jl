@@ -83,8 +83,8 @@ include("TestUtilities.jl"); using .TestUtilities
         @info "Building cover_page/make.jl"
         @quietly include("cover_page/make.jl")
         
-        @info "Building toc-style/make.jl"
-        @quietly include("toc-style/make.jl")
+        @info "Building toc_style/make.jl"
+        @quietly include("toc_style/make.jl")
     end
 
 end
