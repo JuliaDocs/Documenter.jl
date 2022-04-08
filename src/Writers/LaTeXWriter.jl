@@ -75,6 +75,7 @@ _println(c::Context, args...) = Base.println(c.io, args...)
 
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
+const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
 
 hastex() = (try; success(`latexmk -version`); catch; false; end)
 
@@ -217,68 +218,21 @@ function writeheader(io::IO, doc::Documents.Document)
     
     preamble_tex_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
     if isfile(preamble_tex_file)
-        # copy custom preamble, and insert the whole file.
+        # copy custom preamble.
         cp(preamble_tex_file, "preamble.tex"; force = true)
-        preamble =
-            """
-            % Useful variables
-            \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
-            \\newcommand{\\DocVersion}{$(get(ENV, "TRAVIS_TAG", ""))}
-            \\newcommand{\\DocAuthors}{$(doc.user.authors)}
-            
-            % ---- Insert custom preamble
-            \\input{preamble.tex}
-            """
-    else # no custom preamble.tex, use default Settings
-        preamble =
-            """
-            \\documentclass[oneside]{memoir}
-
-            \\usepackage{./documenter}
-            \\usepackage{./custom}
-
-            %% Title Page
-            \\title{
-                {\\HUGE $(doc.user.sitename)}\\\\
-                {\\Large $(get(ENV, "TRAVIS_TAG", ""))}
-            }
-            \\author{$(doc.user.authors)}
-
-            %% TOC settings
-            % -- TOC depth
-            %   value: [part, chapter, section, subsection,
-            %           subsubsection, paragraph, subparagraph]
-            \\settocdepth{section}  % show "part+chapter+section" in TOC
-            % -- TOC spacing
-            %   ref: https://tex.stackexchange.com/questions/60317/toc-spacing-in-memoir
-            %   doc: memoir/memman.pdf
-            %       - Figure 9.2: Layout of a ToC
-            %       - Table 9.3: Value of K in macros for styling entries
-            \\makeatletter
-            % {part} to {chaper}
-            \\setlength{\\cftbeforepartskip}{1.5em \\@plus \\p@}
-            % {chaper} to {chaper}
-            \\setlength{\\cftbeforechapterskip}{0.0em \\@plus \\p@}
-            % Chapter num to chapter title spacing (Figure 9.2@memman)
-            \\setlength{\\cftchapternumwidth}{2.5em \\@plus \\p@}
-            % indent before section number
-            \\setlength{\\cftsectionindent}{2.5em \\@plus \\p@}
-            % Section num to section title spacing (Figure 9.2@memman)
-            \\setlength{\\cftsectionnumwidth}{4.0em \\@plus \\p@}
-            \\makeatother
-
-            %% Main document begin
-            \\begin{document}
-
-            \\frontmatter
-            \\maketitle
-            \\clearpage
-            \\tableofcontents
-
-            \\mainmatter
-            """
-    end 
-    
+    else # no custom preamble.tex, use default.
+        cp(DEFAULT_PREAMBLE_PATH, "preamble.tex"; force = true)
+    end
+    preamble =
+        """
+        % Useful variables
+        \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
+        \\newcommand{\\DocVersion}{$(get(ENV, "TRAVIS_TAG", ""))}
+        \\newcommand{\\DocAuthors}{$(doc.user.authors)}
+        
+        % ---- Insert preamble
+        \\input{preamble.tex}
+        """
     # output preamble
     _println(io, preamble)
 end
