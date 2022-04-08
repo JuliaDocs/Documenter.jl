@@ -491,7 +491,7 @@ examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_cover_page")
     @quietly makedocs(
         format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
-        sitename = "PDF Cover Page",
+        sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_cover_page",
         source = "src.cover_page",
@@ -510,7 +510,7 @@ examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_toc_style")
     @quietly makedocs(
         format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
-        sitename = "LaTeX TOC Depth",
+        sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_toc_style",
         source = "src.toc_style",
