@@ -4,6 +4,8 @@
 
 * ![Enhancement][badge-enhancement] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`) and that the latest version (0.039 -> 0.044) of the font would be used. ([#1780][github-1780], [#1784][github-1784])
 * ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
+* ![Enhancement][badge-enhancement] Better spacing between section number and title. ([#1785][github-1785])
+* ![Enhancement][badge-enhancement] Allow custom preamble. ([#1788][github-1788])
 
 ## Version `v0.27.15`
 
@@ -996,6 +998,8 @@
 [github-1776]: https://github.com/JuliaDocs/Documenter.jl/pull/1776
 [github-1780]: https://github.com/JuliaDocs/Documenter.jl/issues/1780
 [github-1784]: https://github.com/JuliaDocs/Documenter.jl/pull/1784
+[github-1785]: https://github.com/JuliaDocs/Documenter.jl/pull/1785
+[github-1788]: https://github.com/JuliaDocs/Documenter.jl/pull/1788
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
