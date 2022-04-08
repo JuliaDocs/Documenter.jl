@@ -86,7 +86,7 @@ and the custom style (`custom.sty`) will be loaded after the default style (`doc
 
 If you wish to fully customize the package loading, you need to write a custom preamble.
 
-The default preamble is currently defined in [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/preamble.tex).
+The default preamble is currently defined in [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/).
 You can override the default preamble completely by adding a custom `preamble.tex` to the `assert/` folder.
 
 There are two examples of custom preambles:
