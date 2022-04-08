@@ -216,10 +216,10 @@ function writeheader(io::IO, doc::Documents.Document)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
     
-    preamble_tex_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
-    if isfile(preamble_tex_file)
+    custom_preamble_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
+    if isfile(custom_preamble_file)
         # copy custom preamble.
-        cp(preamble_tex_file, "preamble.tex"; force = true)
+        cp(custom_preamble_file, "preamble.tex"; force = true)
     else # no custom preamble.tex, use default.
         cp(DEFAULT_PREAMBLE_PATH, "preamble.tex"; force = true)
     end
