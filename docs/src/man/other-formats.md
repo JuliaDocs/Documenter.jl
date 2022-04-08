@@ -71,6 +71,34 @@ makedocs(
 )
 ```
 
+## [Custom LaTeX style](@id custom-latex)
+
+### Load custom packages
+
+We have loaded many common packages in LaTeX,
+such as `fontspec`, `amsmath`, `listings`, `minted`, `tabulary`, `graphicx`,
+and more detailed configurations can be found in [`documenter.sty`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/documenter.sty).
+
+Users can load more custom packages by adding a `custom.sty` to the `assert/` folder,
+and the custom style (`custom.sty`) will be loaded after the default style (`documenter.sty`).
+
+### Custom preamble
+
+If you wish to fully customize the package loading, you need to write a custom preamble.
+
+The default preamble is currently defined in [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/preamble.tex).
+You can override the default preamble completely by adding a custom `preamble.tex` to the `assert/` folder.
+
+There are two examples of custom preambles:
+- Custom [cover page][cover_page_src], ([make.jl][cover_page_makejl])
+- Customizing [the TOC display][toc_display_src], ([make.jl][toc_display_makejl])
+
+[cover_page_src]: https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.cover_page
+[toc_display_src]: https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.toc_style
+[cover_page_makejl]: https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/make.jl#L492-L502
+[toc_display_makejl]: https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/make.jl#L511-L521
+
+
 ## Markdown & MkDocs
 
 Markdown output requires the [`DocumenterMarkdown`](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
