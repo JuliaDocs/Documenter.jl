@@ -980,6 +980,7 @@
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
 [github-1727]: https://github.com/JuliaDocs/Documenter.jl/pull/1727
 [github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
+[github-1746]: https://github.com/JuliaDocs/Documenter.jl/issues/1746
 [github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
 [github-1750]: https://github.com/JuliaDocs/Documenter.jl/pull/1750
 [github-1751]: https://github.com/JuliaDocs/Documenter.jl/pull/1751
