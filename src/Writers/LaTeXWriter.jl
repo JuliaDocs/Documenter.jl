@@ -227,7 +227,8 @@ function writeheader(io::IO, doc::Documents.Document)
         """
         % Useful variables
         \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
-        \\newcommand{\\DocVersion}{$(get(ENV, "TRAVIS_TAG", ""))}
+        % Warning: The default value of \\deprecatedEnvTravisTag is deprecated.
+        \\newcommand{\\deprecatedEnvTravisTag}{$(get(ENV, "TRAVIS_TAG", ""))}
         \\newcommand{\\DocAuthors}{$(doc.user.authors)}
         
         % ---- Insert preamble
