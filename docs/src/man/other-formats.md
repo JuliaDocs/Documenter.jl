@@ -79,15 +79,15 @@ We have loaded many common packages in LaTeX,
 such as `fontspec`, `amsmath`, `listings`, `minted`, `tabulary`, `graphicx`,
 and more detailed configurations can be found in [`documenter.sty`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/documenter.sty).
 
-Users can load more custom packages by adding a `custom.sty` to the `assert/` folder,
+Users can load more custom packages by adding a `custom.sty` to the `assets/` folder,
 and the custom style (`custom.sty`) will be loaded after the default style (`documenter.sty`).
 
 ### Custom preamble
 
 If you wish to fully customize the package loading, you need to write a custom preamble.
 
-The default preamble is currently defined in [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/).
-You can override the default preamble completely by adding a custom `preamble.tex` to the `assert/` folder.
+The default preamble is currently defined in [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/preamble.tex).
+You can override the default preamble completely by adding a custom `preamble.tex` to the `assets/` folder.
 
 There are two examples of custom preambles:
 - Custom [cover page][cover_page_src], ([make.jl][cover_page_makejl])

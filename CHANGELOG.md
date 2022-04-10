@@ -4,8 +4,8 @@
 
 * ![Enhancement][badge-enhancement] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`) and that the latest version (0.039 -> 0.044) of the font would be used. ([#1780][github-1780], [#1784][github-1784])
 * ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
-* ![Enhancement][badge-enhancement] Better spacing between section number and title. ([#1785][github-1785])
-* ![Enhancement][badge-enhancement] Allow custom preamble. ([#1788][github-1788])
+* ![Enhancement][badge-enhancement] The table of contents in the generated PDFs have more space between section numbers and titles to avoid them overlapping. ([#1785][github-1785])
+* ![Enhancement][badge-enhancement] The preamble of the LaTeX source of the PDF build can now be customized by the user. ([#1746][github-1746], [#1788][github-1788])
 
 ## Version `v0.27.15`
 
