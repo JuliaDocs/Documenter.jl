@@ -15,7 +15,7 @@ the docs you're currently reading.
     documentation locally with Documenter.
 
     This guide assumes that you already have [GitHub](https://github.com/) and
-    [Travis](https://travis-ci.com/) accounts setup. If not then go set those up first and
+    [Travis](https://www.travis-ci.com/) accounts setup. If not then go set those up first and
     then return here.
 
     It is possible to deploy from other systems than Travis CI or GitHub Actions,
@@ -207,7 +207,7 @@ jobs:
 This will install Julia, checkout the correct commit of your repository, and run the
 build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
 the environment from which the docs are built and deployed. The example above builds and deploys
-the documentation from an Ubuntu worker running Julia 1.6. 
+the documentation from an Ubuntu worker running Julia 1.6.
 
 !!! tip
     The example above is a basic workflow that should suit most projects. For more information on
@@ -249,7 +249,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/reference/authentication-in-a-workflow). This is done by adding
+(`GITHUB_TOKEN`)]( https://docs.github.com/en/actions/security-guides/automatic-token-authentication). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -276,7 +276,7 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets)
+[Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
 for more information.
 
 ### Add code coverage from documentation builds
