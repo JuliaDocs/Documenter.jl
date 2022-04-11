@@ -490,7 +490,7 @@ end
 examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_cover_page")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_cover_page",
