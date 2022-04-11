@@ -216,13 +216,13 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
             if (protocol === :HTTP && (status < 300 || status == 302)) ||
                 (protocol === :FTP && (200 <= status < 300 || status == 350))
                 if location !== nothing
-                    @debug "linkcheck '$(link.url)' status: $(status), redirects to $(location)."
+                    @debug "linkcheck '$(link.url)' status: $(status), redirects to '$(location)'"
                 else
                     @debug "linkcheck '$(link.url)' status: $(status)."
                 end
             elseif protocol === :HTTP && status < 400
                 if location !== nothing
-                    @warn "linkcheck '$(link.url)' status: $(status), redirects to $(location)."
+                    @warn "linkcheck '$(link.url)' status: $(status), redirects to '$(location)'"
                 else
                     @warn "linkcheck '$(link.url)' status: $(status)."
                 end
