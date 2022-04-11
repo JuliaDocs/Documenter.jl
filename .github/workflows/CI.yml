@@ -62,6 +62,10 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
+      - uses: actions/upload-artifact@v3
+        with:
+          name: PDFs
+          path: test/examples/builds/*/*.pdf
 
   themes:
     name: "CSS for HTML themes"

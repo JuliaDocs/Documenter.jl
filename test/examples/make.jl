@@ -486,3 +486,41 @@ else
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
+
+examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_cover_page")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root  = examples_root,
+        build = "builds/latex_cover_page",
+        source = "src.cover_page",
+        pages = ["Home" => "index.md"],
+        authors = "The Julia Project",
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_cover_page"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_toc_style")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root  = examples_root,
+        build = "builds/latex_toc_style",
+        source = "src.toc_style",
+        pages = ["Part-I" => "index.md"],
+        authors = "The Julia Project",
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_toc_style"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
