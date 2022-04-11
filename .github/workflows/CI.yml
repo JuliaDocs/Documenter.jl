@@ -132,4 +132,4 @@ jobs:
         if: ${{ matrix.makejl == 'docs/pdf/make.jl' }}
         with:
           name: Documenter manual (PDF)
-          path: docs/pdf/build/*.pdf
+          path: docs/pdf/build/pdfdir/*.pdf
