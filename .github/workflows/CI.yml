@@ -128,3 +128,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+      - uses: actions/upload-artifact@v3
+        if: ${{ matrix.makejl == 'docs/pdf/make.jl' }}
+        with:
+          name: Documenter manual (PDF)
+          path: docs/pdf/build/*.pdf
