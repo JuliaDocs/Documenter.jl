@@ -249,7 +249,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)]( https://docs.github.com/en/actions/security-guides/automatic-token-authentication). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/security-guides/automatic-token-authentication). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
