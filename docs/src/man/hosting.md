@@ -412,7 +412,7 @@ jobs:
             PRNUM: ${{ github.event.number }}
 ```
 
-_This workflow was taken from [CliMA/TimeMachine.jl](https://github.com/CliMA/TimeMachine.jl/blob/4d951f814b5b25cd2d13fd7a9f9878e75d0089d1/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
+_This workflow was taken from [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
 ## Documentation Versions
 
