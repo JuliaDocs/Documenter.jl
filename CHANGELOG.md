@@ -6,6 +6,7 @@
 * ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
 * ![Enhancement][badge-enhancement] The table of contents in the generated PDFs have more space between section numbers and titles to avoid them overlapping. ([#1785][github-1785])
 * ![Enhancement][badge-enhancement] The preamble of the LaTeX source of the PDF build can now be customized by the user. ([#1746][github-1746], [#1788][github-1788])
+* ![Enhancement][badge-enhancement] The package version number shown in the PDF manual can now be set by the user by passing the `version` option to `format = LaTeX()`. ([#1795][github-1795])
 
 ## Version `v0.27.15`
 
@@ -1001,6 +1002,7 @@
 [github-1784]: https://github.com/JuliaDocs/Documenter.jl/pull/1784
 [github-1785]: https://github.com/JuliaDocs/Documenter.jl/pull/1785
 [github-1788]: https://github.com/JuliaDocs/Documenter.jl/pull/1788
+[github-1795]: https://github.com/JuliaDocs/Documenter.jl/pull/1795
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
