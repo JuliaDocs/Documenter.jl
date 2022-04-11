@@ -230,6 +230,7 @@ function writeheader(io::IO, doc::Documents.Document)
         % Warning: The default value of \\deprecatedEnvTravisTag is deprecated.
         \\newcommand{\\deprecatedEnvTravisTag}{$(get(ENV, "TRAVIS_TAG", ""))}
         \\newcommand{\\DocAuthors}{$(doc.user.authors)}
+        \\newcommand{\\JuliaVersion}{$(VERSION)}
         
         % ---- Insert preamble
         \\input{preamble.tex}
