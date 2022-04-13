@@ -503,7 +503,9 @@ function deploydocs(;
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
         str = try
-            read(pipeline(ignorestatus(setenv(`git remote show origin`; dir=root)); stderr=devnull), String)
+            read(pipeline(ignorestatus(
+                setenv(`git remote show origin`, ["GIT_TERMINAL_PROMPT=0"]; dir=root)
+            ); stderr=devnull), String)
         catch
             ""
         end
