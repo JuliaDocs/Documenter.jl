@@ -1,6 +1,6 @@
 # Documenter.jl changelog
 
-## Unreleased
+## Version `v0.27.16`
 
 * ![Enhancement][badge-enhancement] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`) and that the latest version (0.039 -> 0.044) of the font would be used. ([#1780][github-1780], [#1784][github-1784])
 * ![Enhancement][badge-enhancement] The table of contents in the generated PDFs have more space between section numbers and titles to avoid them overlapping. ([#1785][github-1785])
