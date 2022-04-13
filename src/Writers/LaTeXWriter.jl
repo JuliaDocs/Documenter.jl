@@ -27,16 +27,15 @@ makedocs(
 )
 ```
 
-The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document,
-and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment variable is set)
-the version number will be appended to the title.
-The `makedocs` argument `authors` should also be specified, it will be used for the
-`\\authors` field in the tex document.
+The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document.
+The `authors` argument should also be specified and will be used for the `\\authors` field
+in the tex document. Finally, a version number can be specified with the `version` option to
+`LaTeX`, which will be printed in the document and also appended to the output PDF file name.
 
 # Keyword arguments
 
-**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default), `"docker"`,
-or "none" which doesn't compile the tex.
+**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default),
+`"docker"`, or "none" which doesn't compile the tex.
 
 **`version`** specifies the version number that gets printed on the title page of the manual.
 It defaults to the value in the `TRAVIS_TAG` environment variable (although this behaviour is
@@ -109,11 +108,9 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             name = doc.user.sitename
-            let tag = get(ENV, "TRAVIS_TAG", "")
-                if occursin(Base.VERSION_REGEX, tag)
-                    v = VersionNumber(tag)
-                    name *= "-$(v.major).$(v.minor).$(v.patch)"
-                end
+            if occursin(Base.VERSION_REGEX, settings.version)
+                v = VersionNumber(settings.version)
+                name *= "-$(v.major).$(v.minor).$(v.patch)"
             end
             name = replace(name, " " => "")
             texfile = name * ".tex"
