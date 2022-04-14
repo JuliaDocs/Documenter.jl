@@ -8,6 +8,7 @@
 * ![Enhancement][badge-enhancement] The package version number shown in the PDF manual can now be set by the user by passing the `version` option to `format = LaTeX()`. ([#1795][github-1795])
 * ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
 * ![Bugfix][badge-bugfix] Disable git terminal prompt when detecting remote HEAD branch. ([#1797][github-1797])
+* ![Bugfix][badge-bugfix] When linkchecking HTTP and HTTPS URLs, Documenter now passes a realistic browser (Chrome) `User-Agent` header along with the request, in order to work around servers that try to use the `User-Agent` to block non-browser requests. ([#1796][github-1796])
 
 ## Version `v0.27.15`
 
@@ -1004,6 +1005,7 @@
 [github-1785]: https://github.com/JuliaDocs/Documenter.jl/pull/1785
 [github-1788]: https://github.com/JuliaDocs/Documenter.jl/pull/1788
 [github-1795]: https://github.com/JuliaDocs/Documenter.jl/pull/1795
+[github-1796]: https://github.com/JuliaDocs/Documenter.jl/pull/1796
 [github-1797]: https://github.com/JuliaDocs/Documenter.jl/pull/1797
 <!-- end of issue link definitions -->
 
