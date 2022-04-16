@@ -363,7 +363,7 @@ end
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/simple")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple",
         root  = examples_root,
         build = "builds/latex_simple",
