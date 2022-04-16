@@ -325,7 +325,7 @@ end
     json_jsescape(args...)
 
 Call `JSON.json(args...)` to generate a `String` of JSON, but then also escape two Unicode
-characters to get valid JS (since [JSON is not a JS subset](http://timelessrepo.com/json-isnt-a-javascript-subset)).
+characters to get valid JS (since [JSON is not a JS subset](https://web.archive.org/web/20200111135746/http://timelessrepo.com/json-isnt-a-javascript-subset)).
 
 !!! note
     Technically, starting with ECMAScript® 2019 (10th edition), this is no longer necessary.

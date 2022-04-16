@@ -30,7 +30,7 @@ end
         doc = Main.examples_latex_simple_doc
         @test isa(doc, Documenter.Documents.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple")
-            @test joinpath(build_dir, "DocumenterLaTeXSimple$(tagsuffix).pdf") |> isfile
+            @test joinpath(build_dir, "DocumenterLaTeXSimple-1.2.3.pdf") |> isfile
         end
     end
 
