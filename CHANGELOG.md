@@ -5,6 +5,7 @@
 * ![Enhancement][badge-enhancement] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`) and that the latest version (0.039 -> 0.044) of the font would be used. ([#1780][github-1780], [#1784][github-1784])
 * ![Enhancement][badge-enhancement] The table of contents in the generated PDFs have more space between section numbers and titles to avoid them overlapping. ([#1785][github-1785])
 * ![Enhancement][badge-enhancement] The preamble of the LaTeX source of the PDF build can now be customized by the user. ([#1746][github-1746], [#1788][github-1788])
+* ![Enhancement][badge-enhancement] The package version number shown in the PDF manual can now be set by the user by passing the `version` option to `format = LaTeX()`. ([#1795][github-1795])
 * ![Bugfix][badge-bugfix] Fix `strict` mode to properly print errors, not just a warnings. ([#1756][github-1756], [#1776][github-1776])
 * ![Bugfix][badge-bugfix] Disable git terminal prompt when detecting remote HEAD branch. ([#1797][github-1797])
 * ![Bugfix][badge-bugfix] When linkchecking HTTP and HTTPS URLs, Documenter now passes a realistic browser (Chrome) `User-Agent` header along with the request, in order to work around servers that try to use the `User-Agent` to block non-browser requests. ([#1796][github-1796])
@@ -1003,6 +1004,7 @@
 [github-1784]: https://github.com/JuliaDocs/Documenter.jl/pull/1784
 [github-1785]: https://github.com/JuliaDocs/Documenter.jl/pull/1785
 [github-1788]: https://github.com/JuliaDocs/Documenter.jl/pull/1788
+[github-1795]: https://github.com/JuliaDocs/Documenter.jl/pull/1795
 [github-1796]: https://github.com/JuliaDocs/Documenter.jl/pull/1796
 [github-1797]: https://github.com/JuliaDocs/Documenter.jl/pull/1797
 <!-- end of issue link definitions -->
