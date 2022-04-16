@@ -17,7 +17,7 @@ Feel free to nominate commits that should be backported by opening an issue. Req
 
 ### `release-*` branches
 
-  * Each new minor version `x.y.0` gets a branch called `release-x.y` (a [protected branch](https://docs.github.com/en/github/administering-a-repository/defining-the-mergeability-of-pull-requests/about-protected-branches)).
+  * Each new minor version `x.y.0` gets a branch called `release-x.y` (a [protected branch](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches)).
   * New versions are usually tagged only from the `release-x.y` branches.
   * For patch releases, changes get backported to the `release-x.y` branch via a single PR with the standard name "Backports for x.y.z" and label ["Type: Backport"](https://github.com/JuliaDocs/Documenter.jl/pulls?q=label%3A%22Type%3A+Backport%22). The PR message links to all the PRs that are providing commits to the backport. The PR gets merged as a merge commit (i.e. not squashed).
   * The old `release-*` branches may be removed once they have outlived their usefulness.
