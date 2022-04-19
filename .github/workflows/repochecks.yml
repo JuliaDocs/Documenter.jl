@@ -19,8 +19,11 @@ jobs:
         run: julia --color=yes --project=scripts/ -e 'using Pkg; Pkg.instantiate()'
       - name: Test scripts/changelog.jl
         run: |
+          # Run the unit tests of the changelog.jl script:
           julia --color=yes --project=scripts/ scripts/changelog.jl test
+          # Run changelog.jl with a small, but known good CHANGELOG file and make sure it passes:
           julia --color=yes --project=scripts/ scripts/changelog.jl --file=scripts/changelog-valid.md
+          # Run changelog.jl with a known _bad_ CHANGELOG file, which should exit with a non-zero code:
           ! julia --color=yes --project=scripts/ scripts/changelog.jl --file=scripts/changelog-invalid.md
       - name: Check CHANGELOG.md
         run: julia --color=yes --project=scripts/ scripts/changelog.jl --github
