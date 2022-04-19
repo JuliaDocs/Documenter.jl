@@ -28,6 +28,8 @@ jobs:
       - name: Check CHANGELOG.md
         run: julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl --github
       - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: src,scripts
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
