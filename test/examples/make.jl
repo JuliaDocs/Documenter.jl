@@ -441,6 +441,26 @@ else
     nothing
 end
 
+examples_latex_simple_tectonic_doc = if "latex_simple_tectonic" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_tectonic")
+    using tectonic_jll: tectonic
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform="tectonic", version = v"1.2.3", tectonic=tectonic()),
+        sitename = "Documenter LaTeX Simple Tectonic",
+        root  = examples_root,
+        build = "builds/latex_simple_tectonic",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_tectonic"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+
 examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_texonly")
     @quietly makedocs(

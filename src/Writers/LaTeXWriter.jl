@@ -35,20 +35,28 @@ in the tex document. Finally, a version number can be specified with the `versio
 # Keyword arguments
 
 **`platform`** sets the platform where the tex-file is compiled, either `"native"` (default),
-`"docker"`, or "none" which doesn't compile the tex.
+`"tectonic"`, `"docker"`, or "none" which doesn't compile the tex. The option `tectonic`
+requires a `tectonic` executable to be available in `PATH` or to be pased as the `tectonic`
+keyword.
 
 **`version`** specifies the version number that gets printed on the title page of the manual.
 It defaults to the value in the `TRAVIS_TAG` environment variable (although this behaviour is
 considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
+
+**`tectonic`** path to a `tectonic` executable used for compilation.
 
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
     platform::String
     version::String
-    function LaTeX(; platform = "native", version = get(ENV, "TRAVIS_TAG", ""))
-        platform ∈ ("native", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
-        return new(platform, string(version))
+    tectonic::Union{Cmd,String,Nothing}
+    function LaTeX(;
+            platform = "native",
+            version  = get(ENV, "TRAVIS_TAG", ""),
+            tectonic = nothing)
+        platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
+        return new(platform, string(version), tectonic)
     end
 end
 
@@ -177,6 +185,19 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
         catch err
             logs = cp(pwd(), mktempdir(); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
+                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+            return false
+        end
+    elseif settings.platform == "tectonic"
+        @info "LaTeXWriter: using tectonic to compile tex."
+        tectonic = isnothing(settings.tectonic) ? Sys.which("tectonic") : settings.tectonic
+        isnothing(tectonic) && (@error "LaTeXWriter: tectonic command not found."; return false)
+        try
+            piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $texfile`)
+            return true
+        catch err
+            logs = cp(pwd(), mktempdir(); force=true)
+            @error "LaTeXWriter: failed to compile tex with tectonic. " *
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
         end
