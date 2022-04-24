@@ -36,8 +36,8 @@ The following is required to build the documentation:
 ### Compiling using Tectonic 
 
 The documentation can be also built using the
-[Tectonic](https://tectonic-typesetting.github.io) typesetting system. It is required to have a `tectonic`
-executable present in `PATH`, or to provide it using the `tectonic` keyword:
+[Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. It is required to have a `tectonic`
+available in `PATH`, or to provide a path to the binary using the `tectonic` keyword:
 
 ```
 using Documenter
@@ -47,8 +47,8 @@ makedocs(
     format = Documenter.LaTeX(platform="tectonic"), 
     ...)
 
-# The path to `tectonic` is provided by the JLL
-import tectonic_jll: tectonic
+# The path to `tectonic` is provided by the tectonic_jll package
+using tectonic_jll: tectonic
 makedocs(
     format = Documenter.LaTeX(platform="tectonic", tectonic=tectonic()), 
     ...)
