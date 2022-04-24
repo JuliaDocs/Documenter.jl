@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Unreleased
+
+* ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
+
 ## Version `v0.27.16`
 
 * ![Enhancement][badge-enhancement] Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`) and that the latest version (0.039 -> 0.044) of the font would be used. ([#1780][github-1780], [#1784][github-1784])
@@ -1007,6 +1011,8 @@
 [github-1795]: https://github.com/JuliaDocs/Documenter.jl/pull/1795
 [github-1796]: https://github.com/JuliaDocs/Documenter.jl/pull/1796
 [github-1797]: https://github.com/JuliaDocs/Documenter.jl/pull/1797
+[github-1802]: https://github.com/JuliaDocs/Documenter.jl/issues/1802
+[github-1803]: https://github.com/JuliaDocs/Documenter.jl/pull/1803
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
