@@ -3,6 +3,7 @@
 ## Unreleased
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
+* ![Bugfix][badge-bugfix] When linkchecking HTTP and HTTPS URLs, Documenter now also passes a realistic `accept-encoding` header along with the request, in order to work around servers that try to block non-browser requests. ([#1807][github-1807])
 
 ## Version `v0.27.16`
 
@@ -1013,6 +1014,7 @@
 [github-1797]: https://github.com/JuliaDocs/Documenter.jl/pull/1797
 [github-1802]: https://github.com/JuliaDocs/Documenter.jl/issues/1802
 [github-1803]: https://github.com/JuliaDocs/Documenter.jl/pull/1803
+[github-1807]: https://github.com/JuliaDocs/Documenter.jl/pull/1807
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
