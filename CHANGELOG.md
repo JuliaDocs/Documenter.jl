@@ -3,6 +3,7 @@
 ## Unreleased
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
+* ![Bugfix][badge-bugfix] LaTeX build logs are now properly appended to `LaTeXWriter.{stdout,stderr}` files, which is relevant for Docker-based builds, where the build main TeX log used to be discarded. ([#X][github-X])
 
 ## Version `v0.27.16`
 
