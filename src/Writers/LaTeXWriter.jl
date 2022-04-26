@@ -231,8 +231,12 @@ end
 
 function piperun(cmd)
     verbose = "--verbose" in ARGS || get(ENV, "DOCUMENTER_VERBOSE", "false") == "true"
-    run(pipeline(cmd, stdout = verbose ? stdout : "LaTeXWriter.stdout",
-                      stderr = verbose ? stderr : "LaTeXWriter.stderr"))
+    run(pipeline(
+        cmd,
+        stdout = verbose ? stdout : "LaTeXWriter.stdout",
+        stderr = verbose ? stderr : "LaTeXWriter.stderr",
+        append = true,
+    ))
 end
 
 function writeheader(io::IO, doc::Documents.Document, settings::LaTeX)
