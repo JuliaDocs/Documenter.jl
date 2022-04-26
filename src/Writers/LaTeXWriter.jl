@@ -180,7 +180,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
-            piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $texfile`)
+            piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $texfile`, clearlogs = true)
             return true
         catch err
             logs = cp(pwd(), mktempdir(); force=true)
@@ -193,7 +193,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
         tectonic = isnothing(settings.tectonic) ? Sys.which("tectonic") : settings.tectonic
         isnothing(tectonic) && (@error "LaTeXWriter: tectonic command not found."; return false)
         try
-            piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $texfile`)
+            piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $texfile`, clearlogs = true)
             return true
         catch err
             logs = cp(pwd(), mktempdir(); force=true)
@@ -211,7 +211,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
             latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $texfile
             """
         try
-            piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`)
+            piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`, clearlogs = true)
             piperun(`docker exec -u zeptodoctor latex-container bash -c $(script)`)
             piperun(`docker cp latex-container:/home/zeptodoctor/build/. .`)
             return true
@@ -229,13 +229,13 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
     end
 end
 
-function piperun(cmd)
+function piperun(cmd; clearlogs = false)
     verbose = "--verbose" in ARGS || get(ENV, "DOCUMENTER_VERBOSE", "false") == "true"
     run(pipeline(
         cmd,
         stdout = verbose ? stdout : "LaTeXWriter.stdout",
         stderr = verbose ? stderr : "LaTeXWriter.stderr",
-        append = true,
+        append = !clearlogs,
     ))
 end
 
