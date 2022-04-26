@@ -3,7 +3,7 @@
 ## Unreleased
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
-* ![Bugfix][badge-bugfix] LaTeX build logs are now properly appended to `LaTeXWriter.{stdout,stderr}` files, which is relevant for Docker-based builds, where the build main TeX log used to be discarded. ([#X][github-X])
+* ![Bugfix][badge-bugfix] LaTeX build logs are now properly outputted to the `LaTeXWriter.{stdout,stderr}` files when using the Docker build option. ([#1806][github-1806])
 
 ## Version `v0.27.16`
 
@@ -1014,6 +1014,7 @@
 [github-1797]: https://github.com/JuliaDocs/Documenter.jl/pull/1797
 [github-1802]: https://github.com/JuliaDocs/Documenter.jl/issues/1802
 [github-1803]: https://github.com/JuliaDocs/Documenter.jl/pull/1803
+[github-1806]: https://github.com/JuliaDocs/Documenter.jl/pull/186
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
