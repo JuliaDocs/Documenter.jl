@@ -12,5 +12,5 @@ test/errors/build/
 test/prerender/build/
 test/workdir/builds/
 docs/build/
-docs/pdf/build/
+docs/build-pdf/
 docs/site/
