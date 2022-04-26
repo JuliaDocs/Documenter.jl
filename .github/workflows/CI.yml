@@ -123,7 +123,7 @@ jobs:
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
-      - run: julia --color=yes --project=docs/ ${{ matrix.format }}
+      - run: julia --color=yes --project=docs/ docs/make.jl ${{ matrix.format }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
