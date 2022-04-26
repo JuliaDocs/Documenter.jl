@@ -68,8 +68,6 @@ makedocs(
     doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
-exit(1)
-
 if "pdf" in ARGS
     # hack to only deploy the actual pdf-file
     mkpath(joinpath(@__DIR__, "build-pdf", "commit"))
