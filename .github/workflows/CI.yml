@@ -108,6 +108,7 @@ jobs:
     name: 'Documentation: ${{ matrix.format }}'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         format:
           - html
