@@ -202,8 +202,13 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
         # Mozilla developer docs, but only is it's a HTTP(S) request.
         #
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
-        useragent  = startswith(uppercase(link.url), "HTTP") ? ["--user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"] : ""
-        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(useragent) $(link.url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+        fakebrowser  = startswith(uppercase(link.url), "HTTP") ? [
+            "--user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+            "-H",
+            "accept-encoding: gzip, deflate, br",
+        ] : ""
+        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(link.url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result
         try
