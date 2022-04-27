@@ -1015,7 +1015,7 @@
 [github-1797]: https://github.com/JuliaDocs/Documenter.jl/pull/1797
 [github-1802]: https://github.com/JuliaDocs/Documenter.jl/issues/1802
 [github-1803]: https://github.com/JuliaDocs/Documenter.jl/pull/1803
-[github-1806]: https://github.com/JuliaDocs/Documenter.jl/pull/186
+[github-1806]: https://github.com/JuliaDocs/Documenter.jl/pull/1806
 [github-1807]: https://github.com/JuliaDocs/Documenter.jl/pull/1807
 <!-- end of issue link definitions -->
 
