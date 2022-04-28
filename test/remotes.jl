@@ -37,12 +37,12 @@ using .Remotes: repofile, repourl, URL, GitHub
     end
 
     # Different line range formatting for URLs containing 'azure'
-    # let r = URL("https://gitlab.mydomain.eu/foo/bar/-/blob/{commit}{path}#{line}", "https://gitlab.mydomain.eu/foo/bar/")
-    #     @test repourl(r) == "https://gitlab.mydomain.eu/foo/bar/"
-    #     @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl") == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#"
-    #     @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl", 5:5) == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#L5"
-    #     @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl", 5:15) == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#L5-15"
-    # end
+    let r = URL("https://gitlab.mydomain.eu/foo/bar/-/blob/{commit}{path}#{line}", "https://gitlab.mydomain.eu/foo/bar/")
+        @test repourl(r) == "https://gitlab.mydomain.eu/foo/bar/"
+        @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl") == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#"
+        @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl", 5:5) == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#L5"
+        @test repofile(r, "v1.2.3-rc3+foo", "src/foo.jl", 5:15) == "https://gitlab.mydomain.eu/foo/bar/-/blob/v1.2.3-rc3+foo/src/foo.jl#L5-15"
+    end
 
     # GitHub remote
     let r = GitHub("JuliaDocs", "Documenter.jl")

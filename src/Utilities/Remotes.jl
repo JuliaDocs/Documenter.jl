@@ -151,7 +151,8 @@ function fileurl(remote::URL, ref, filename, linerange=nothing)
     # lines = if linerange !== nothing
     # end
     s = replace(remote.urltemplate, "{commit}" => ref)
-    s = replace(s, "{path}" => filename)
+    # template strings assume that {path} has a leading / whereas filename does not
+    s = replace(s, "{path}" => "/$(filename)")
     replace(s, "{line}" => lines)
 end
 
@@ -176,7 +177,9 @@ function repo_host_from_url(repoURL::String)
         return RepoUnknown
     end
 end
-repo_host_from_url(remote::Remotes.Remote) = (remote isa Remotes.GitHub) ? RepoGithub : Remotes.repourl(remote)
+repo_host_from_url(::GitHub) = RepoGithub
+repo_host_from_url(remote::Remote) = repo_host_from_url(Remotes.repourl(remote))
+repo_host_from_url(::Nothing) = RepoUnknown
 
 function format_commit(host::RepoHost, commit::AbstractString)
     if host === RepoAzureDevOps

@@ -138,24 +138,24 @@ end
         @test Documenter.Utilities.Remotes.format_line(100:9999, formatting) == "100:9999"
     end
 
-    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoAzureDevOps)
-        @test Documenter.Utilities.format_line(1:1, formatting) == "&line=1"
-        @test Documenter.Utilities.format_line(123:123, formatting) == "&line=123"
-        @test Documenter.Utilities.format_line(2:5, formatting) == "&line=2&lineEnd=5"
-        @test Documenter.Utilities.format_line(100:9999, formatting) == "&line=100&lineEnd=9999"
+    let formatting = Documenter.Utilities.Remotes.LineRangeFormatting(Documenter.Utilities.Remotes.RepoAzureDevOps)
+        @test Documenter.Utilities.Remotes.format_line(1:1, formatting) == "&line=1"
+        @test Documenter.Utilities.Remotes.format_line(123:123, formatting) == "&line=123"
+        @test Documenter.Utilities.Remotes.format_line(2:5, formatting) == "&line=2&lineEnd=5"
+        @test Documenter.Utilities.Remotes.format_line(100:9999, formatting) == "&line=100&lineEnd=9999"
     end
 
     @test Documenter.Utilities.linerange(Core.svec(), 0) === 0:0
 
     # commit format
-    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGithub) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
-    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGithub) == "test"
-    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoGitlab) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
-    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoGitlab) == "test"
-    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoBitbucket) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
-    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoBitbucket) == "test"
-    @test Documenter.Utilities.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.Utilities.RepoAzureDevOps) == "GC7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
-    @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoAzureDevOps) == "GBtest"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoGithub, "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a") == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoGithub, "test") == "test"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoGitlab, "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a") == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoGitlab, "test") == "test"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoBitbucket, "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a") == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoBitbucket, "test") == "test"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoAzureDevOps, "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a") == "GC7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.Utilities.Remotes.format_commit(Documenter.Utilities.Remotes.RepoAzureDevOps, "test") == "GBtest"
 
     # URL building
     filepath = string(first(methods(Documenter.Utilities.url)).file)
@@ -166,6 +166,7 @@ end
     end
 
     mktempdir() do path
+        remote = Documenter.Utilities.Remotes.URL("//blob/{commit}{path}#{line}")
         path_repo = joinpath(path, "repository")
         mkpath(path_repo)
         cd(path_repo) do
@@ -184,8 +185,8 @@ end
             commit = Documenter.Utilities.repo_commit(filepath)
             @test commit isa AbstractString
 
-            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.Utilities.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.url(remote, Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
@@ -206,8 +207,8 @@ end
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
 
-            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.Utilities.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.url(remote, Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
@@ -241,8 +242,8 @@ end
 
             @test isfile(filepath)
 
-            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.Utilities.url(nothing, Documenter, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.Utilities.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.url(remote, Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()

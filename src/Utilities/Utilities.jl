@@ -432,7 +432,7 @@ end
 include("Remotes.jl")
 using .Remotes: Remote, repourl, repofile
 
-function edit_url(remote::Remote, file; commit=nothing)
+function edit_url(remote::Union{Remote,Nothing}, file; commit=nothing)
     remote === nothing && return nothing
 
     file = abspath(file)
@@ -449,9 +449,9 @@ function edit_url(remote::Remote, file; commit=nothing)
     end
 end
 
-url(remote::Remote, doc) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
+url(remote::Union{Remote,Nothing}, doc) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
 
-function url(remote::Remote, mod, file, linerange)
+function url(remote::Union{Remote,Nothing}, mod, file, linerange)
     file === nothing && return nothing # needed on julia v0.6, see #689
     remote === nothing && return nothing
 
