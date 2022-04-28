@@ -332,8 +332,6 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
                 asset("https://plausible.io/js/plausible.js", class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
             ],
             prettyurls = false,
-            edit_link = nothing,
-            repolink = nothing,
             edit_branch = nothing,
             footer = nothing,
         ),
