@@ -56,7 +56,8 @@ function repourl end
 fileurl(remote::Remote, ref, filename, linerange) = fileurl(remote, ref, filename)
 
 """
-    struct GitHub <: Remote
+    GitHub(user :: AbstractString, repo :: AbstractString)
+    GitHub(remote :: AbstractString)
 
 Represents a remote Git repository hosted on GitHub. The repository is identified by the
 names of the user (or organization) and the repository: `GitHub(user, repository)`. E.g.:
@@ -66,6 +67,9 @@ makedocs(
     repo = GitHub("JuliaDocs", "Documenter.jl")
 )
 ```
+
+The single-argument constructor assumes that the user and repository parts are separated by
+a slash (e.g. `JuliaDocs/Documenter.jl`).
 """
 struct GitHub <: Remote
     user :: String
@@ -109,10 +113,11 @@ const julia = GitHub("JuliaLang", "julia")
 # Handling of URL string templates (deprecated, for backwards compatibility)
 #
 """
-    struct URL <: Remote
+    URL(urltemplate, repourl=nothing)
 
 A [`Remote`](@ref) type used internally in Documenter when the user passes a URL template
-string as the `repo` argument.
+string as the `repo` argument. Will return `nothing` from `repourl` if the optional
+`repourl` argument is not passed.
 
 Can contain the following template sections that Documenter will replace:
 
