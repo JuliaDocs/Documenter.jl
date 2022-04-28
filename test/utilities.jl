@@ -107,35 +107,35 @@ end
     @test Documenter.Utilities.doccat(UnitTests.TC) == "Type"
 
     # repo type
-    @test Documenter.Utilities.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
-    @test Documenter.Utilities.repo_host_from_url("https://www.bitbucket.org/somerepo") == Documenter.Utilities.RepoBitbucket
-    @test Documenter.Utilities.repo_host_from_url("http://bitbucket.org/somethingelse") == Documenter.Utilities.RepoBitbucket
-    @test Documenter.Utilities.repo_host_from_url("http://github.com/Whatever") == Documenter.Utilities.RepoGithub
-    @test Documenter.Utilities.repo_host_from_url("https://github.com/Whatever") == Documenter.Utilities.RepoGithub
-    @test Documenter.Utilities.repo_host_from_url("https://www.github.com/Whatever") == Documenter.Utilities.RepoGithub
-    @test Documenter.Utilities.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.Utilities.RepoGitlab
-    @test Documenter.Utilities.repo_host_from_url("https://dev.azure.com/Whatever") == Documenter.Utilities.RepoAzureDevOps
+    @test Documenter.Utilities.Remotes.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.Utilities.Remotes.RepoBitbucket
+    @test Documenter.Utilities.Remotes.repo_host_from_url("https://www.bitbucket.org/somerepo") == Documenter.Utilities.Remotes.RepoBitbucket
+    @test Documenter.Utilities.Remotes.repo_host_from_url("http://bitbucket.org/somethingelse") == Documenter.Utilities.Remotes.RepoBitbucket
+    @test Documenter.Utilities.Remotes.repo_host_from_url("http://github.com/Whatever") == Documenter.Utilities.Remotes.RepoGithub
+    @test Documenter.Utilities.Remotes.repo_host_from_url("https://github.com/Whatever") == Documenter.Utilities.Remotes.RepoGithub
+    @test Documenter.Utilities.Remotes.repo_host_from_url("https://www.github.com/Whatever") == Documenter.Utilities.Remotes.RepoGithub
+    @test Documenter.Utilities.Remotes.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.Utilities.Remotes.RepoGitlab
+    @test Documenter.Utilities.Remotes.repo_host_from_url("https://dev.azure.com/Whatever") == Documenter.Utilities.Remotes.RepoAzureDevOps
 
     # line range
-    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoGithub)
-        @test Documenter.Utilities.format_line(1:1, formatting) == "L1"
-        @test Documenter.Utilities.format_line(123:123, formatting) == "L123"
-        @test Documenter.Utilities.format_line(2:5, formatting) == "L2-L5"
-        @test Documenter.Utilities.format_line(100:9999, formatting) == "L100-L9999"
+    let formatting = Documenter.Utilities.Remotes.LineRangeFormatting(Documenter.Utilities.Remotes.RepoGithub)
+        @test Documenter.Utilities.Remotes.format_line(1:1, formatting) == "L1"
+        @test Documenter.Utilities.Remotes.format_line(123:123, formatting) == "L123"
+        @test Documenter.Utilities.Remotes.format_line(2:5, formatting) == "L2-L5"
+        @test Documenter.Utilities.Remotes.format_line(100:9999, formatting) == "L100-L9999"
     end
 
-    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoGitlab)
-        @test Documenter.Utilities.format_line(1:1, formatting) == "L1"
-        @test Documenter.Utilities.format_line(123:123, formatting) == "L123"
-        @test Documenter.Utilities.format_line(2:5, formatting) == "L2-5"
-        @test Documenter.Utilities.format_line(100:9999, formatting) == "L100-9999"
+    let formatting = Documenter.Utilities.Remotes.LineRangeFormatting(Documenter.Utilities.Remotes.RepoGitlab)
+        @test Documenter.Utilities.Remotes.format_line(1:1, formatting) == "L1"
+        @test Documenter.Utilities.Remotes.format_line(123:123, formatting) == "L123"
+        @test Documenter.Utilities.Remotes.format_line(2:5, formatting) == "L2-5"
+        @test Documenter.Utilities.Remotes.format_line(100:9999, formatting) == "L100-9999"
     end
 
-    let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoBitbucket)
-        @test Documenter.Utilities.format_line(1:1, formatting) == "1"
-        @test Documenter.Utilities.format_line(123:123, formatting) == "123"
-        @test Documenter.Utilities.format_line(2:5, formatting) == "2:5"
-        @test Documenter.Utilities.format_line(100:9999, formatting) == "100:9999"
+    let formatting = Documenter.Utilities.Remotes.LineRangeFormatting(Documenter.Utilities.Remotes.RepoBitbucket)
+        @test Documenter.Utilities.Remotes.format_line(1:1, formatting) == "1"
+        @test Documenter.Utilities.Remotes.format_line(123:123, formatting) == "123"
+        @test Documenter.Utilities.Remotes.format_line(2:5, formatting) == "2:5"
+        @test Documenter.Utilities.Remotes.format_line(100:9999, formatting) == "100:9999"
     end
 
     let formatting = Documenter.Utilities.LineRangeFormatting(Documenter.Utilities.RepoAzureDevOps)
@@ -182,6 +182,7 @@ end
 
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
+            @test commit isa AbstractString
 
             @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
             @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
@@ -241,7 +242,7 @@ end
             @test isfile(filepath)
 
             @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.Utilities.url(nothing, Documenter, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
@@ -251,6 +252,11 @@ end
             @test Documenter.Utilities.repo_root(tempname()) == nothing
             @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
         end
+
+        # Test Utilities.getremote
+        @show Utilities.getremote(path_repo)
+        #path_repo
+        #@test false
     end
 
     import Documenter.Documents: Document, Page, Globals
@@ -460,7 +466,7 @@ end
             # Ref: #639
             @test jsescape("\u2028") == "\\u2028"
             @test jsescape("\u2029") == "\\u2029"
-            @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
+            @test jsescape("policy to delete.") == "policy to\\u2028 delete."
         end
 
         @testset "json_jsescape" begin

@@ -32,6 +32,14 @@ DocMeta.getdocmeta
 DocMeta.setdocmeta!
 ```
 
+### Remotes
+
+```@docs
+Documenter.Remotes
+Documenter.Remotes.Remote
+Documenter.Remotes.GitHub
+```
+
 ## DocumenterTools
 
 ```@docs

@@ -314,7 +314,7 @@ function latexdoc(io::IO, md::Markdown.MD, page, doc)
         for (markdown, result) in zip(md.content, md.meta[:results])
             latex(io, Writers.MarkdownWriter.dropheaders(markdown), page, doc)
             # When a source link is available then print the link.
-            url = Utilities.url(doc.internal.remote, doc.user.repo, result)
+            url = Utilities.url(doc.user.remote, result)
             if url !== nothing
                 link = "\\href{$url}{\\texttt{source}}"
                 _println(io, "\n", link, "\n")

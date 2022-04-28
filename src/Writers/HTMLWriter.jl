@@ -53,7 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using ...Utilities: Default
+using ...Utilities: Default, Remotes
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
@@ -1179,17 +1179,17 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Set the logo and name for the "Edit on.." button.
     if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
-        host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
-        if host_type == Utilities.RepoGitlab
+        host_type = Remotes.repo_host_from_url(ctx.doc.user.remote)
+        if host_type == Remotes.RepoGitlab
             host = "GitLab"
             logo = "\uf296"
-        elseif host_type == Utilities.RepoGithub
+        elseif host_type == Remotes.RepoGithub
             host = "GitHub"
             logo = "\uf09b"
-        elseif host_type == Utilities.RepoBitbucket
+        elseif host_type == Remotes.RepoBitbucket
             host = "BitBucket"
             logo = "\uf171"
-        elseif host_type == Utilities.RepoAzureDevOps
+        elseif host_type == Remotes.RepoAzureDevOps
             host = "Azure DevOps"
             logo = "\uf3ca" # TODO change to ADO logo when added to FontAwesome
         else
@@ -1207,14 +1207,14 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
                 # need to set users path relative the page itself
                 pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
             end
-            Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
+            Utilities.edit_url(ctx.doc.user.remote, pageurl, commit=edit_branch)
         end
         if url !== nothing
             edit_verb = (edit_branch === nothing) ? "View" : "Edit"
             title = "$(edit_verb)$hoststring"
             push!(navbar_right.nodes,
                 a[".docs-edit-link", :href => url, :title => title](
-                    span[host_type == Utilities.RepoUnknown ? ".docs-icon.fa" : ".docs-icon.fab"](logo),
+                    span[host_type == Remotes.RepoUnknown ? ".docs-icon.fa" : ".docs-icon.fab"](logo),
                     span[".docs-label.is-hidden-touch"](title)
                 )
             )
@@ -1564,7 +1564,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             ret = section(div(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
-                url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
+                url = Utilities.url(ctx.doc.user.remote, result)
                 if url !== nothing
                     push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
                 end

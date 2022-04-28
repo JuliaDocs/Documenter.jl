@@ -4,6 +4,7 @@
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
 * ![Enhancement][badge-enhancement] The phrasing of the outdated version warning in the HTML output has been improved. ([#1805][github-1805])
+* ![Enhancement][badge-enhancement] A more generic API is now available to configure the remote repository URLs by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`) as the `repo` argument of `makedocs`. ([#XXX][github-XXX])
 * ![Bugfix][badge-bugfix] When linkchecking HTTP and HTTPS URLs, Documenter now also passes a realistic `accept-encoding` header along with the request, in order to work around servers that try to block non-browser requests. ([#1807][github-1807])
 
 ## Version `v0.27.16`
