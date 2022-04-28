@@ -252,11 +252,6 @@ end
             @test Documenter.Utilities.repo_root(tempname()) == nothing
             @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
         end
-
-        # Test Utilities.getremote
-        @show Utilities.getremote(path_repo)
-        #path_repo
-        #@test false
     end
 
     import Documenter.Documents: Document, Page, Globals
@@ -466,7 +461,7 @@ end
             # Ref: #639
             @test jsescape("\u2028") == "\\u2028"
             @test jsescape("\u2029") == "\\u2029"
-            @test jsescape("policy to delete.") == "policy to\\u2028 delete."
+            @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
         end
 
         @testset "json_jsescape" begin
