@@ -106,7 +106,7 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
-To filter out certain docstrings by your own criteria, you can provide function with the
+To filter out certain docstrings by your own criteria, you can provide a function with the
 `Filter` keyword:
 
 ````markdown
@@ -297,7 +297,7 @@ if not specified. `Order` and `Modules` behave the same way as in [`@autodocs` b
 and filter out docstrings that do not match one of the modules or categories specified.
 
 Note that the values assigned to `Pages`, `Modules`, and `Order` may be any valid Julia code
-and thus can be something more complex that an array literal if required, i.e.
+and thus can be something more complex than an array literal if required, i.e.
 
 ````markdown
 ```@index
@@ -418,8 +418,8 @@ g(x) = cos(x) - x
 and then we plot `f` over the interval from ``-π`` to ``π``
 
 ```@example 1
-x = linspace(-π, π)
-plot(x, f(x), color = "red")
+x = range(-π, π; length=50)
+plot(x, f.(x), color = "red")
 savefig("f-plot.svg"); nothing # hide
 ```
 
@@ -428,7 +428,7 @@ savefig("f-plot.svg"); nothing # hide
 and then we do the same with `g`
 
 ```@example 1
-plot(x, g(x), color = "blue")
+plot(x, g.(x), color = "blue")
 savefig("g-plot.svg"); nothing # hide
 ```
 
@@ -436,13 +436,35 @@ savefig("g-plot.svg"); nothing # hide
 ````
 
 Note that `@example` blocks are evaluated within the directory of `build` where the file
-will be rendered . This means than in the above example `savefig` will output the `.svg`
+will be rendered . This means that in the above example `savefig` will output the `.svg`
 files into that directory. This allows the images to be easily referenced without needing to
 worry about relative paths.
 
+!!! info
+    If you use [Plots.jl](https://github.com/JuliaPlots/Plots.jl) with the default backend 
+    [GR.jl](https://github.com/jheinen/GR.jl), you will likely see warnings like
+    ```
+    qt.qpa.xcb: could not connect to display 
+    qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+    ```
+    To fix these, you need to set the environment variable `GKSwstype` to `100`. For example,
+    if you use GitHub actions to build your documentation, you can modify the default script to
+    ```
+    - name: Build and deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
+        DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
+        GKSwstype: "100" # https://discourse.julialang.org/t/generation-of-documentation-fails-qt-qpa-xcb-could-not-connect-to-display/60988
+      run: julia --project=docs --color=yes docs/make.jl
+    ```
+    Alternatively, you can set this environment variable directly in Julia using
+    ```julia
+    ENV["GKSwstype"] = "100"
+    ```
+
 `@example` blocks automatically define `ans` which, as in the Julia REPL, is bound to the
 value of the last evaluated expression. This can be useful in situations such as the
-following one where where binding the object returned by `plot` to a named variable would
+following one where binding the object returned by `plot` to a named variable would
 look out of place in the final rendered documentation:
 
 ````markdown
@@ -454,6 +476,42 @@ draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 
 ![](plot.svg)
 ````
+
+**Color output**
+
+`@example` blocks support colored text output by mapping [ANSI escape codes]
+(https://en.wikipedia.org/wiki/ANSI_escape_code) to HTML. For example, this block:
+````markdown
+```@example
+printstyled("Here are some colors:\n"; color=:red, bold=true)
+for color in 0:15
+    print("\e[38;5;$(color);48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
+```
+````
+results in the following input and output blocks:
+```@example
+printstyled("Here are some colors:\n"; color=:red, bold=true)
+for color in 0:15
+    print("\e[38;5;$(color);48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
+```
+
+!!! note "Disable color output"
+    To disable color output globally, pass `ansicolor=false` to [`Documenter.HTML`](@ref),
+    and to disable locally for the block, use `ansicolor=false`, like so:
+
+    ````markdown
+    ```@example; ansicolor=false
+    printstyled("hello, world"; color=:red, bold=true)
+    ```
+    ````
 
 **Delayed Execution of `@example` Blocks**
 
@@ -481,7 +539,8 @@ second block. A block with `continued = true` does not have any output.
 ## `@repl` block
 
 These are similar to `@example` blocks, but add a `julia> ` prompt before each toplevel
-expression. The `# hide` syntax may be used in `@repl` blocks in the same way
+expression and do not fail upon encountering an error.
+The `# hide` syntax may be used in `@repl` blocks in the same way
 as in `@example` blocks. Furthermore, a semicolon `;` at the end of a line will
 suppress the output as in the Julia REPL.
 
@@ -507,6 +566,44 @@ julia> a + b
 3
 ```
 ````
+
+And likewise
+
+````markdown
+```@repl
+sqrt(-1)
+```
+````
+
+will generate
+
+````markdown
+```julia
+julia> sqrt(-1)
+ERROR: DomainError with -1.0:
+sqrt will only return a complex result if called with a complex argument. Try sqrt(Complex(x)).
+```
+````
+
+`@repl` blocks support colored output, just like `@example` blocks. The following block
+````markdown
+```@repl
+printstyled("hello, world"; color=:red, bold=true)
+```
+````
+gives
+```@repl
+printstyled("hello, world"; color=:red, bold=true)
+```
+!!! note "Disable color output"
+    To disable color output globally, pass `ansicolor=false` to [`Documenter.HTML`](@ref),
+    and to disable locally for the block, use `ansicolor=false`, like so:
+
+    ````markdown
+    ```@repl; ansicolor=false
+    printstyled("hello, world"; color=:red, bold=true)
+    ```
+    ````
 
 Named `@repl <name>` blocks behave in the same way as named `@example <name>` blocks.
 
@@ -556,8 +653,8 @@ final document.
 ```@eval
 using PyPlot
 
-x = linspace(-π, π)
-y = sin(x)
+x = range(-π, π; length=50)
+y = sin.(x)
 
 plot(x, y, color = "red")
 savefig("plot.svg")
@@ -593,7 +690,7 @@ filename is not known until evaluation of the block itself.
 !!! note
 
     In most cases `@example` is preferred over `@eval`. Just like in normal Julia code where
-    `eval` should be only be considered as a last resort, `@eval` should be treated in the
+    `eval` should only be considered as a last resort, `@eval` should be treated in the
     same way.
 
 

@@ -17,6 +17,8 @@ Pages = ["showcase.md"]
 Documenter can render all the [Markdown syntax supported by the Julia Markdown parser](https://docs.julialang.org/en/v1/stdlib/Markdown/).
 You can use all the usual markdown syntax, such as **bold text** and _italic text_ and `print("inline code")`.
 
+## Code blocks
+
 Code blocks are rendered as follows:
 
 ```
@@ -32,6 +34,8 @@ function foo(x::Integer)
 end
 ```
 
+## Mathematics
+
 For mathematics, both inline and display equations are available.
 Inline equations should be written as LaTeX between two backticks,
 e.g. ``` ``A x^2 + B x + C = 0`` ```.
@@ -45,8 +49,35 @@ x_{1,2} = \frac{-B \pm \sqrt{B^2 - 4 A C}}{2A}
 
 By default, the HTML output renders equations with [KaTeX](https://katex.org/), but [MathJax](https://www.mathjax.org/) can optionally be used as well.
 
-Finally, admonitions for notes, warnings and such:
+!!! warning
+    Similar to LaTeX, using `$` and `$$` to escape inline and display equations
+    also works. However, doing so is deprecated and this functionality may be
+    removed in a future release.
 
+## Images
+
+Include images using basic Markdown syntax:
+
+![Enter a descriptive caption for the image](assets/logo.png)
+
+The path should be relative to the directory of the current file. Alternatively,
+use `./` to begin a path relative to the `src` of the documents, e.g.,
+`./assets/logo.png`.
+
+## Admonitions
+
+Admonitions are colorful boxes used to highlight parts of the documentation.
+
+Each admonition begins with three `!!!`, and then the content is indented
+underneath with four spaces:
+```
+!!! note "An optional title"
+    Here is something you should pay attention to.
+```
+
+Documenter supports a range of admonition types for different circumstances.
+
+###### Note admonition
 !!! note "'note' admonition"
     Admonitions look like this. This is a `!!! note`-type admonition.
 
@@ -67,25 +98,31 @@ Finally, admonitions for notes, warnings and such:
     ##### Heading 5
     ###### Heading 6
 
+###### Info admonition
 !!! info "'info' admonition"
     This is a `!!! info`-type admonition. This is the same as a `!!! note`-type.
 
+###### Tip admonition
 !!! tip "'tip' admonition"
     This is a `!!! tip`-type admonition.
 
+###### Warning admonition
 !!! warning "'warning' admonition"
     This is a `!!! warning`-type admonition.
 
+###### Danger admonition
 !!! danger "'danger' admonition"
     This is a `!!! danger`-type admonition.
 
+###### Compat admonition
 !!! compat "'compat' admonition"
     This is a `!!! compat`-type admonition.
 
+###### Unknown admonition class
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class. This is a `code example`.
 
-### Lists
+## Lists
 
 Tight lists look as follows
 
@@ -165,7 +202,7 @@ Lists can also be included in other blocks that can contain block level items
 >   - Nulla quis venenatis justo.
 >   - In non _sodales_ eros.
 
-### Tables
+## Tables
 
 | object | implemented |      value |
 |--------|-------------|------------|
@@ -187,19 +224,19 @@ Tables that are too wide should become scrollable.
 | `BBBBBBBBBBBBBBBBBBBB` | ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ | 1000000000000000000000000000000000000000000000000000000.00 |
 
 
-### Footnotes
+## Footnotes
 
 Footnote references can be added with the `[^label]` syntax.[^1] The footnote definitions get collected at the bottom of the page.
 
 The footnote label can be an arbitrary string and even consist of block-level elements.[^Clarke61]
 
-[^1]: A footnote definition uses the `[^label]: ...` sytax in a block scope.
+[^1]: A footnote definition uses the `[^label]: ...` syntax in a block scope.
 
 [^Clarke61]:
     > Any sufficiently advanced technology is indistinguishable from magic.
     Arthur C. Clarke, _Profiles of the Future_ (1961): Clarke's Third Law.
 
-### Headings
+## Headings
 
 Finally, headings render as follows
 
@@ -351,6 +388,66 @@ However, do note that if the block prints to standard output, but also has a fin
 ```@example
 println("Hello World")
 42
+```
+
+### Color output
+
+Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output,
+tranforming ANSI color codes to HTML.
+
+!!! compat "Julia 1.6"
+    Color output requires Julia 1.6 or higher.
+    To enable color output pass `ansicolor=true` to [`Documenter.HTML`](@ref).
+
+#### Colored `@example` block output
+
+**Input:**
+````markdown
+```@example
+code_typed(sqrt, (Float64,))
+```
+````
+
+**Output:**
+```@example
+code_typed(sqrt, (Float64,))
+```
+
+#### Colored `@repl` block output
+
+**Input:**
+````markdown
+```@repl
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+````
+
+**Output:**
+```@repl
+printstyled("This should be in bold cyan.", color=:cyan, bold=true)
+```
+
+**Locally disabled color:**
+````markdown
+```@repl; ansicolor=false
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+````
+```@repl; ansicolor=false
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+
+#### Raw ANSI code output
+
+Regardless of the color setting, when you print the ANSI escape codes directly, coloring is
+enabled.
+```@example
+for color in 0:15
+    print("\e[38;5;$color;48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
 ```
 
 ### REPL-type

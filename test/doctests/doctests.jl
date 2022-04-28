@@ -156,9 +156,11 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("5.stdout"))
     end
 
-    run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], strict=true) do result, success, backtrace, output
-        @test !success
-        @test is_same_as_file(output, rfile("6.stdout"))
+    for strict in (true, :doctest, [:doctest])
+        run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], strict=strict) do result, success, backtrace, output
+            @test !success
+            @test is_same_as_file(output, rfile("6.stdout"))
+        end
     end
 
     run_makedocs(["fooworking.md"]; modules=[FooWorking], strict=true) do result, success, backtrace, output
@@ -178,9 +180,12 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("11.stdout"))
     end
 
-    run_makedocs(["broken.md"]) do result, success, backtrace, output
-        @test success
-        @test is_same_as_file(output, rfile("12.stdout"))
+    # Three options that do not strictly check doctests, including testing the default
+    for strict_kw in ((; strict=false), NamedTuple(), (; strict=[:meta_block]))
+        run_makedocs(["broken.md"]; strict_kw...) do result, success, backtrace, output
+            @test success
+            @test is_same_as_file(output, rfile("12.stdout"))
+        end
     end
 
     # Tests for doctest = :only. The outout should reflect that the docs themselves do not

@@ -33,6 +33,27 @@ The following is required to build the documentation:
   highlighter [Pygments](https://pygments.org/) installed.
 * You need the [_DejaVu Sans_ and _DejaVu Sans Mono_](https://dejavu-fonts.github.io/) fonts installed.
 
+### Compiling using Tectonic 
+
+The documentation can be also built using the
+[Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. It is required to have a `tectonic`
+available in `PATH`, or to provide a path to the binary using the `tectonic` keyword:
+
+```
+using Documenter
+
+# Executable `tectonic` is present in `PATH`
+makedocs(
+    format = Documenter.LaTeX(platform="tectonic"), 
+    ...)
+
+# The path to `tectonic` is provided by the tectonic_jll package
+using tectonic_jll: tectonic
+makedocs(
+    format = Documenter.LaTeX(platform="tectonic", tectonic=tectonic()), 
+    ...)
+```
+
 ### Compiling using docker image
 
 It is also possible to use a prebuilt [docker image](https://hub.docker.com/r/juliadocs/documenter-latex/)
@@ -70,6 +91,34 @@ makedocs(
     ...
 )
 ```
+
+## [Custom LaTeX style](@id custom-latex)
+
+### Load custom packages
+
+We have loaded many common packages in LaTeX,
+such as `fontspec`, `amsmath`, `listings`, `minted`, `tabulary`, `graphicx`,
+and more detailed configurations can be found in [`documenter.sty`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/documenter.sty).
+
+Users can load more custom packages by adding a `custom.sty` to the `assets/` folder,
+and the custom style (`custom.sty`) will be loaded after the default style (`documenter.sty`).
+
+### Custom preamble
+
+If you wish to fully customize the package loading, you need to write a custom preamble.
+
+The default preamble is currently defined in [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/preamble.tex).
+You can override the default preamble completely by adding a custom `preamble.tex` to the `assets/` folder.
+
+There are two examples of custom preambles:
+- Custom [cover page][cover_page_src], ([make.jl][cover_page_makejl])
+- Customizing [the TOC display][toc_display_src], ([make.jl][toc_display_makejl])
+
+[cover_page_src]: https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.cover_page
+[toc_display_src]: https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.toc_style
+[cover_page_makejl]: https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/make.jl#L492-L502
+[toc_display_makejl]: https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/make.jl#L511-L521
+
 
 ## Markdown & MkDocs
 

@@ -18,4 +18,6 @@ using Documenter
 
 makedocs(sitename="-", modules = [ErrorsModule])
 
-@test_throws ErrorException makedocs(modules = [ErrorsModule], strict = true)
+for strict in (true, :doctest, [:doctest])
+    @test_throws ErrorException makedocs(modules = [ErrorsModule], strict = strict)
+end

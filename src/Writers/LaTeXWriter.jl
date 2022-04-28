@@ -27,24 +27,36 @@ makedocs(
 )
 ```
 
-The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document,
-and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment variable is set)
-the version number will be appended to the title.
-The `makedocs` argument `authors` should also be specified, it will be used for the
-`\\authors` field in the tex document.
+The `makedocs` argument `sitename` will be used for the `\\title` field in the tex document.
+The `authors` argument should also be specified and will be used for the `\\authors` field
+in the tex document. Finally, a version number can be specified with the `version` option to
+`LaTeX`, which will be printed in the document and also appended to the output PDF file name.
 
 # Keyword arguments
 
-**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default), `"docker"`,
-or "none" which doesn't compile the tex.
+**`platform`** sets the platform where the tex-file is compiled, either `"native"` (default),
+`"tectonic"`, `"docker"`, or "none" which doesn't compile the tex. The option `tectonic`
+requires a `tectonic` executable to be available in `PATH` or to be pased as the `tectonic`
+keyword.
+
+**`version`** specifies the version number that gets printed on the title page of the manual.
+It defaults to the value in the `TRAVIS_TAG` environment variable (although this behaviour is
+considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
+
+**`tectonic`** path to a `tectonic` executable used for compilation.
 
 See [Other Output Formats](@ref) for more information.
 """
 struct LaTeX <: Documenter.Writer
     platform::String
-    function LaTeX(; platform = "native")
-        platform ∈ ("native", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
-        return new(platform)
+    version::String
+    tectonic::Union{Cmd,String,Nothing}
+    function LaTeX(;
+            platform = "native",
+            version  = get(ENV, "TRAVIS_TAG", ""),
+            tectonic = nothing)
+        platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
+        return new(platform, string(version), tectonic)
     end
 end
 
@@ -58,6 +70,8 @@ import ...Documenter:
     Writers
 
 import Markdown
+
+import ANSIColoredPrinters
 
 mutable struct Context{I <: IO} <: IO
     io::I
@@ -73,6 +87,7 @@ _println(c::Context, args...) = Base.println(c.io, args...)
 
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
+const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
 
 hastex() = (try; success(`latexmk -version`); catch; false; end)
 
@@ -101,18 +116,16 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             name = doc.user.sitename
-            let tag = get(ENV, "TRAVIS_TAG", "")
-                if occursin(Base.VERSION_REGEX, tag)
-                    v = VersionNumber(tag)
-                    name *= "-$(v.major).$(v.minor).$(v.patch)"
-                end
+            if occursin(Base.VERSION_REGEX, settings.version)
+                v = VersionNumber(settings.version)
+                name *= "-$(v.major).$(v.minor).$(v.patch)"
             end
             name = replace(name, " " => "")
             texfile = name * ".tex"
             pdffile = name * ".pdf"
             open(texfile, "w") do io
                 context = Context(io)
-                writeheader(context, doc)
+                writeheader(context, doc, settings)
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
                     empty!(context.footnotes)
@@ -175,6 +188,19 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
         end
+    elseif settings.platform == "tectonic"
+        @info "LaTeXWriter: using tectonic to compile tex."
+        tectonic = isnothing(settings.tectonic) ? Sys.which("tectonic") : settings.tectonic
+        isnothing(tectonic) && (@error "LaTeXWriter: tectonic command not found."; return false)
+        try
+            piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $texfile`)
+            return true
+        catch err
+            logs = cp(pwd(), mktempdir(); force=true)
+            @error "LaTeXWriter: failed to compile tex with tectonic. " *
+                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+            return false
+        end
     elseif settings.platform == "docker"
         Sys.which("docker") === nothing && (@error "LaTeXWriter: docker command not found."; return false)
         @info "LaTeXWriter: using docker to compile tex."
@@ -209,34 +235,29 @@ function piperun(cmd)
                       stderr = verbose ? stderr : "LaTeXWriter.stderr"))
 end
 
-function writeheader(io::IO, doc::Documents.Document)
+function writeheader(io::IO, doc::Documents.Document, settings::LaTeX)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
+
+    custom_preamble_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
+    if isfile(custom_preamble_file)
+        # copy custom preamble.
+        cp(custom_preamble_file, "preamble.tex"; force = true)
+    else # no custom preamble.tex, use default.
+        cp(DEFAULT_PREAMBLE_PATH, "preamble.tex"; force = true)
+    end
     preamble =
         """
-        \\documentclass[oneside]{memoir}
+        % Useful variables
+        \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
+        \\newcommand{\\DocVersion}{$(settings.version)}
+        \\newcommand{\\DocAuthors}{$(doc.user.authors)}
+        \\newcommand{\\JuliaVersion}{$(VERSION)}
 
-        \\usepackage{./documenter}
-        \\usepackage{./custom}
-
-        \\settocdepth{section}
-
-        \\title{
-            {\\HUGE $(doc.user.sitename)}\\\\
-            {\\Large $(get(ENV, "TRAVIS_TAG", ""))}
-        }
-        \\author{$(doc.user.authors)}
-
-        \\begin{document}
-
-        \\frontmatter
-        \\maketitle
-        \\clearpage
-        \\tableofcontents
-
-        \\mainmatter
-
+        % ---- Insert preamble
+        \\input{preamble.tex}
         """
+    # output preamble
     _println(io, preamble)
 end
 
@@ -396,11 +417,14 @@ function latex(io::IO, d::Dict{MIME,Any})
         \\end{figure}
         """)
     elseif haskey(d, MIME"text/latex"())
-        latex(io, Utilities.mdparse(d[MIME"text/latex"()]; mode = :single))
+        # If it has a latex MIME, just write it out directly.
+        _print(io, d[MIME"text/latex"()])
     elseif haskey(d, MIME"text/markdown"())
         latex(io, Markdown.parse(d[MIME"text/markdown"()]))
     elseif haskey(d, MIME"text/plain"())
-        latex(io, Markdown.Code(d[MIME"text/plain"()]))
+        text = d[MIME"text/plain"()]
+        out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
+        latex(io, Markdown.Code(out))
     else
         error("this should never happen.")
     end
@@ -446,6 +470,8 @@ function latex(io::IO, code::Markdown.Code)
     language = isempty(language) ? "none" :
         (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
         language
+    text = IOBuffer(code.code)
+    code.code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code.code
     if language in LEXER
         _print(io, "\n\\begin{minted}")
@@ -470,6 +496,10 @@ function latex(io::IO, code::Markdown.Code)
         end
         _println(io, "\n\\end{lstlisting}\n")
     end
+end
+
+function latex(io::IO, mcb::Documents.MultiCodeBlock)
+    latex(io, Documents.join_multiblock(mcb))
 end
 
 function _print_code_escapes_minted(io, s::AbstractString)
@@ -739,13 +769,16 @@ end
 
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))
 
-function files!(out, p::Pair{S, T}, depth) where {S <: AbstractString, T <: AbstractString}
-    push!(out, (p.first, p.second, depth))
-end
-
-function files!(out, p::Pair{S, V}, depth) where {S <: AbstractString, V}
-    push!(out, (p.first, "", depth))
-    files!(out, p.second, depth)
+function files!(out, p::Pair{<:AbstractString,<:Any}, depth)
+    # Hack time. Because of Julia's typing, something like
+    # `"Introduction" => "index.md"` may get typed as a `Pair{String,Any}`!
+    if p[2] isa AbstractString
+        push!(out, (p.first, p.second, depth))
+    else
+        push!(out, (p.first, "", depth))
+        files!(out, p.second, depth)
+    end
+    return out
 end
 
 files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)

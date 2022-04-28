@@ -19,14 +19,13 @@ makedocs(
         assets = ["assets/favicon.ico"],
         analytics = "UA-136089579-2",
         highlights = ["yaml"],
+        ansicolor = true,
     ),
     clean = false,
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     linkcheck = "linkcheck" in ARGS,
     linkcheck_ignore = [
-        # timelessrepo.com seems to 404 on any CURL request...
-        "http://timelessrepo.com/json-isnt-a-javascript-subset",
         # We'll ignore links that point to GitHub's edit pages, as they redirect to the
         # login screen and cause a warning:
         r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",

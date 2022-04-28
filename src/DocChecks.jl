@@ -8,13 +8,11 @@ import ..Documenter:
     Documenter,
     Documents,
     Utilities,
-    Utilities.Markdown2
+    Utilities.Markdown2,
+    Utilities.@docerror
 
 using DocStringExtensions
 import Markdown
-
-using Logging
-loglevel(doc) = doc.user.strict ? Logging.Error : Logging.Warn
 
 # Missing docstrings.
 # -------------------
@@ -65,8 +63,7 @@ function missingdocs(doc::Documents.Document)
         println(b, """\n
             These are docstrings in the checked modules (configured with the modules keyword)
             that are not included in @docs or @autodocs blocks.""")
-        push!(doc.internal.errors, :missing_docs)
-        @logmsg loglevel(doc) String(take!(b))
+        @docerror(doc, :missing_docs, String(take!(b)))
     end
 end
 
@@ -128,18 +125,15 @@ function footnotes(doc::Documents.Document)
         for (id, (ids, bodies)) in orphans
             # Multiple footnote bodies.
             if bodies > 1
-                push!(doc.internal.errors, :footnote)
-                @logmsg loglevel(doc) "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source))."
+                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source)).")
             end
             # No footnote references for an id.
             if ids === 0
-                push!(doc.internal.errors, :footnote)
-                @logmsg loglevel(doc) "unused footnote named '$id' in $(Utilities.locrepr(page.source))."
+                @docerror(doc, :footnote, "unused footnote named '$id' in $(Utilities.locrepr(page.source)).")
             end
             # No footnote bodies for an id.
             if bodies === 0
-                push!(doc.internal.errors, :footnote)
-                @logmsg loglevel(doc) "no footnotes found for '$id' in $(Utilities.locrepr(page.source))."
+                @docerror(doc, :footnote, "no footnotes found for '$id' in $(Utilities.locrepr(page.source)).")
             end
         end
     end
@@ -181,8 +175,7 @@ function linkcheck(doc::Documents.Document)
                 end
             end
         else
-            push!(doc.internal.errors, :linkcheck)
-            @logmsg loglevel(doc) "linkcheck requires `curl`."
+            @docerror(doc, :linkcheck, "linkcheck requires `curl`.")
         end
     end
     return nothing
@@ -201,15 +194,28 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
     if !haskey(doc.internal.locallinks, link)
         timeout = doc.user.linkcheck_timeout
         null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
-        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(link.url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+        # In some cases, web servers (e.g. docs.github.com as of 2022) will reject requests
+        # that declare a non-browser user agent (curl specifically passes 'curl/X.Y'). In
+        # case of docs.github.com, the server returns a 403 with a page saying "The request
+        # is blocked". However, spoofing a realistic browser User-Agent string is enough to
+        # get around this, and so here we simply pass the example Chrome UA string from the
+        # Mozilla developer docs, but only is it's a HTTP(S) request.
+        #
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
+        fakebrowser  = startswith(uppercase(link.url), "HTTP") ? [
+            "--user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+            "-H",
+            "accept-encoding: gzip, deflate, br",
+        ] : ""
+        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(link.url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result
         try
             # interpolating into backticks escapes spaces so constructing a Cmd is necessary
             result = read(cmd, String)
         catch err
-            push!(doc.internal.errors, :linkcheck)
-            @logmsg loglevel(doc) "$cmd failed:" exception = err
+            @docerror(doc, :linkcheck, "$cmd failed:", exception = err)
             return false
         end
         STATUS_REGEX = r"^(\d+) (\w+)://(?:\S+) (\S+)?$"m
@@ -224,13 +230,13 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
             if (protocol === :HTTP && (status < 300 || status == 302)) ||
                 (protocol === :FTP && (200 <= status < 300 || status == 350))
                 if location !== nothing
-                    @debug "linkcheck '$(link.url)' status: $(status), redirects to $(location)."
+                    @debug "linkcheck '$(link.url)' status: $(status), redirects to '$(location)'"
                 else
                     @debug "linkcheck '$(link.url)' status: $(status)."
                 end
             elseif protocol === :HTTP && status < 400
                 if location !== nothing
-                    @warn "linkcheck '$(link.url)' status: $(status), redirects to $(location)."
+                    @warn "linkcheck '$(link.url)' status: $(status), redirects to '$(location)'"
                 else
                     @warn "linkcheck '$(link.url)' status: $(status)."
                 end
@@ -239,12 +245,10 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
                 @debug "linkcheck '$(link.url)' status: $(status), retrying without `-I`"
                 return linkcheck(link, doc; method=:GET)
             else
-                push!(doc.internal.errors, :linkcheck)
-                @logmsg loglevel(doc) "linkcheck '$(link.url)' status: $(status)."
+                @docerror(doc, :linkcheck, "linkcheck '$(link.url)' status: $(status).")
             end
         else
-            push!(doc.internal.errors, :linkcheck)
-            @logmsg loglevel(doc) "invalid result returned by $cmd:" result
+            @docerror(doc, :linkcheck, "invalid result returned by $cmd:", result)
         end
     end
     return false

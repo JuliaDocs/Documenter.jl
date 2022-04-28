@@ -47,10 +47,18 @@
       @extend .tag;
       @extend .is-primary;
       @extend .is-size-7;
+
+      &:focus {
+        opacity: 1!important;
+      }
     }
   }
 
   &:hover > section > a.docs-sourcelink {
+    opacity: 0.2;
+  }
+
+  &:focus-within > section > a.docs-sourcelink {
     opacity: 0.2;
   }
 

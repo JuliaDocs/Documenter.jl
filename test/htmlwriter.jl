@@ -3,7 +3,7 @@ module HTMLWriterTests
 using Test
 using Documenter
 using Documenter: DocSystem
-using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, expand_versions
+using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
@@ -14,6 +14,13 @@ function verify_version_file(versionfile, entries)
         @test i !== nothing
         idx = last(i)
     end
+end
+
+function verify_redirect_file(redirectfile, version)
+    @test isfile(redirectfile)
+    content = read(redirectfile, String)
+
+    @test occursin("url=./$(version)/", content)
 end
 
 @testset "HTMLWriter" begin
@@ -27,10 +34,26 @@ end
     end
 
     # asset handling
+    function assetlink(src, asset)
+        links = HTMLWriter.asset_links(src, [asset])
+        @test length(links) == 1
+        (; node = links[1], links[1].attributes...)
+    end
+    @test_logs (:error, "Absolute path '/foo' passed to asset_links") HTMLWriter.asset_links(
+        "/foo", HTMLWriter.HTMLAsset[]
+    )
     let asset = asset("https://example.com/foo.js")
         @test asset.uri == "https://example.com/foo.js"
         @test asset.class == :js
         @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        @test link.src == "https://example.com/foo.js"
+    end
+    let asset = asset("https://example.com/foo.js", islocal = false)
+        @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
+        @test link.src == "https://example.com/foo.js"
     end
     let asset = asset("http://example.com/foo.js", class=:ico)
         @test asset.uri == "http://example.com/foo.js"
@@ -41,12 +64,47 @@ end
         @test asset.uri == "foo/bar.css"
         @test asset.class == :css
         @test asset.islocal === true
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :link
+        @test link.href == "../../foo/bar.css"
+        link = assetlink("page.md", asset)
+        @test link.href == "foo/bar.css"
+        link = assetlink("foo/bar.md", asset)
+        @test link.href == "bar.css"
     end
     @test_throws Exception asset("ftp://example.com/foo.js")
     @test_throws Exception asset("example.com/foo.js")
     @test_throws Exception asset("foo.js")
+    @test_throws Exception asset("foo.js", islocal = false)
     @test_throws Exception asset("https://example.com/foo.js?q=1")
     @test_throws Exception asset("https://example.com/foo.js", class=:error)
+    # Edge cases that do not actually quite work correctly:
+    let asset = asset("https://example.com/foo.js", islocal = true)
+        @test asset.uri == "https://example.com/foo.js"
+        @test asset.islocal === true
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        # This actually leads to different results on Windows and Linux (on the former, it
+        # gets treated as an absolute path).
+        if Sys.iswindows()
+            @test endswith(link.src, "example.com/foo.js")
+        else
+            @test link.src == "../../https:/example.com/foo.js"
+        end
+
+    end
+    @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal = true)
+
+    let asset = asset("https://plausible.io/js/plausible.js"; class=:js, attributes=Dict(Symbol("data-domain")=>"example.com", :defer=>""))
+        @test asset.uri == "https://plausible.io/js/plausible.js"
+        @test asset.class == :js
+        @test asset.islocal === false
+        link = assetlink("my/sub/page", asset)
+        @test link.node.name === :script
+        @test link.src == "https://plausible.io/js/plausible.js"
+        @test Base.getproperty(link, Symbol("data-domain")) == "example.com"
+        @test link.defer == ""
+    end
 
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML
@@ -104,17 +162,21 @@ end
 
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")
+        redirectfile = joinpath(tmpdir, "index.html")
+        devurl = "dev"
         versions = ["stable", "dev",
                     "2.1.1", "v2.1.0", "v2.0.1", "v2.0.0",
                     "1.1.1", "v1.1.0", "v1.0.1", "v1.0.0",
                     "0.1.1", "v0.1.0"] # note no `v` on first ones
+
+        # make dummy directories of versioned docs
         cd(tmpdir) do
             for version in versions
                 mkdir(version)
             end
         end
 
-        # expanding versions
+        # case1: default versioning
         versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
         entries, symlinks = expand_versions(tmpdir, versions)
         @test entries == ["stable", "v2.1", "v2.0", "v1.1", "v1.0", "v0.1", "dev"]
@@ -124,7 +186,10 @@ end
                            "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "stable")
 
+        # case2: major released versions
         versions = ["v#"]
         entries, symlinks = expand_versions(tmpdir, versions)
         @test entries == ["v2.1", "v1.1"]
@@ -133,7 +198,10 @@ end
                            "v2.1.1"=>"2.1.1", "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "v2.1")
 
+        # case3: all released versions
         versions = ["v#.#.#"]
         entries, symlinks = expand_versions(tmpdir, versions)
         @test entries == ["v2.1.1", "v2.1.0", "v2.0.1", "v2.0.0", "v1.1.1", "v1.1.0",
@@ -143,7 +211,10 @@ end
                            "v2.0"=>"v2.0.1", "v1.1"=>"1.1.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1"]
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "v2.1.1")
 
+        # case4: invalid versioning
         versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
         entries, symlinks = @test_logs(
             (:warn, "no match for `versions` entry `\"foobar\"`"),
@@ -155,9 +226,37 @@ end
         @test ("devel" => "dev") in symlinks
         generate_version_file(versionfile, entries)
         verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "v2.1")
 
+        # case5: invalid versioning
         versions = ["stable" => "v^", "dev" => "stable"]
         @test_throws ArgumentError expand_versions(tmpdir, versions)
+
+        # case6: default versioning (no released version)
+        cd(tmpdir) do
+            # remove dummy directories
+            for dir in readdir(tmpdir)
+                rm(dir)
+            end
+            mkdir("dev")
+        end
+        versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
+        entries, symlinks = expand_versions(tmpdir, versions)
+        @test entries == ["dev"]
+        @test symlinks == []
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
+        generate_redirect_file(redirectfile, entries)
+        verify_redirect_file(redirectfile, "dev")
+
+        # Case 7: no entries
+        entries = String[]
+        generate_version_file(versionfile, entries)
+        verify_version_file(versionfile, entries)
+        rm(redirectfile)
+        generate_redirect_file(redirectfile, entries)
+        @test !isfile(redirectfile)
     end
 
     # Exhaustive Conversion from Markdown to Nodes.
@@ -170,6 +269,11 @@ end
                 end
             end
         end
+    end
+
+    @testset "Dollar escapes" begin
+        @test string(HTMLWriter.mdconvert("\$1")) == "\$1"
+        @test string(HTMLWriter.mdconvert("\$")) == "<span>\$</span>"
     end
 end
 end

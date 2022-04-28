@@ -20,7 +20,7 @@ should give a good overview of what this package is currently able to do.
 
 Packages that have tagged versions available in the general Registry:
 
-- [Augmentor.jl](https://evizero.github.io/Augmentor.jl/)
+- [Augmentor.jl](https://evizero.github.io/Augmentor.jl/stable/)
 - [BanditOpt.jl](https://v-i-s-h.github.io/BanditOpt.jl/stable/)
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/stable/)
 - [Bio.jl](https://biojulia.net/Bio.jl/stable/)
@@ -34,6 +34,7 @@ Packages that have tagged versions available in the general Registry:
 - [EzXML.jl](https://juliaio.github.io/EzXML.jl/stable/)
 - [FourierFlows.jl](https://fourierflows.github.io/FourierFlowsDocumentation/stable/)
 - [Gadfly.jl](https://gadflyjl.org/stable/)
+- [GeophysicalFlows.jl](https://fourierflows.github.io/GeophysicalFlowsDocumentation/stable/)
 - [GeoStats.jl](https://juliaearth.github.io/GeoStats.jl/stable/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/stable/)
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
@@ -47,7 +48,8 @@ Packages that have tagged versions available in the general Registry:
 - [PhyloNetworks.jl](https://crsl4.github.io/PhyloNetworks.jl/stable/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
 - [Query.jl](https://www.queryverse.org/Query.jl/stable/)
-- [TaylorSeries.jl](https://www.juliadiff.org/TaylorSeries.jl/stable/)
+- [SimGBS.jl](https://kanji709.github.io/SimGBS.jl/dev/)
+- [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)
 - [Weave.jl](https://weavejl.mpastell.com/stable/)
 
 ## Documentation repositories
@@ -56,7 +58,7 @@ Some projects or organizations maintain dedicated documentation repositories tha
 separate from specific packages.
 
 - [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/)
-- [JuliaDocs landing page](https://juliadocs.github.io/dev/)
+- [JuliaDocs landing page](https://juliadocs.github.io/)
 - [JuliaImages](https://juliaimages.org)
 - [JuliaMusic](https://juliamusic.github.io/JuliaMusic_documentation.jl/dev/)
 - [Plots.jl](https://docs.juliaplots.org/dev/)

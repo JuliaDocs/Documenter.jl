@@ -16,7 +16,7 @@ import .Documents:
     EvalNode,
     MetaNode
 
-import .Utilities: Selectors
+import .Utilities: Selectors, @docerror
 
 import Markdown, REPL
 import Base64: stringmime
@@ -250,13 +250,14 @@ end
 function Selectors.runner(::Type{MetaBlocks}, x, page, doc)
     meta = page.globals.meta
     lines = Utilities.find_block_in_file(x.code, page.source)
+    @debug "Evaluating @meta block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
-                push!(doc.internal.errors, :meta_block)
-                @warn("""
+                @docerror(doc, :meta_block,
+                    """
                     failed to evaluate `$(strip(str))` in `@meta` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
@@ -275,14 +276,15 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
     nodes  = Union{DocsNode,Markdown.Admonition}[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
     lines = Utilities.find_block_in_file(x.code, page.source)
+    @debug "Evaluating @docs block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         admonition = Markdown.Admonition("warning", "Missing docstring.",
             Utilities.mdparse("Missing docstring for `$(strip(str))`. Check Documenter's build log for details.", mode=:blocks))
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
-            push!(doc.internal.errors, :docs_block)
-            @warn("""
+            @docerror(doc, :docs_block,
+                """
                 unable to get the binding for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
                 ```$(x.language)
                 $(x.code)
@@ -294,8 +296,8 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         end
         # Undefined `Bindings` get discarded.
         if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
-            push!(doc.internal.errors, :docs_block)
-            @warn("""
+            @docerror(doc, :docs_block,
+                """
                 undefined binding '$(binding)' in `@docs` block in $(Utilities.locrepr(page.source, lines))
                 ```$(x.language)
                 $(x.code)
@@ -309,8 +311,8 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
         object = Utilities.Object(binding, typesig)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
-            push!(doc.internal.errors, :docs_block)
-            @warn("""
+            @docerror(doc, :docs_block,
+                """
                 duplicate docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
                 ```$(x.language)
                 $(x.code)
@@ -330,8 +332,8 @@ function Selectors.runner(::Type{DocsBlocks}, x, page, doc)
 
         # Check that we aren't printing an empty docs list. Skip block when empty.
         if isempty(docs)
-            push!(doc.internal.errors, :docs_block)
-            @warn("""
+            @docerror(doc, :docs_block,
+                """
                 no docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
                 ```$(x.language)
                 $(x.code)
@@ -371,6 +373,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
     lines = Utilities.find_block_in_file(x.code, page.source)
+    @debug "Evaluating @autodocs block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
         if Utilities.isassign(ex)
             try
@@ -380,8 +383,8 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                     fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
                 end
             catch err
-                push!(doc.internal.errors, :autodocs_block)
-                @warn("""
+                @docerror(doc, :autodocs_block,
+                    """
                     failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
@@ -448,8 +451,8 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         nodes = DocsNode[]
         for (mod, path, category, object, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
-                push!(doc.internal.errors, :autodocs_block)
-                @warn("""
+                @docerror(doc, :autodocs_block,
+                    """
                     duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
@@ -472,8 +475,8 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
         end
         page.mapping[x] = DocsNodes(nodes)
     else
-        push!(doc.internal.errors, :autodocs_block)
-        @warn("""
+        @docerror(doc, :autodocs_block,
+            """
             '@autodocs' missing 'Modules = ...' in $(Utilities.locrepr(page.source, lines))
             ```$(x.language)
             $(x.code)
@@ -489,14 +492,18 @@ end
 function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     lines = Utilities.find_block_in_file(x.code, page.source)
+    linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
+                                    basename(page.source))
+    @debug "Evaluating @eval block:\n$(x.code)"
     cd(page.workdir) do
         result = nothing
-        for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
+        for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
+                                              linenumbernode = linenumbernode)
             try
                 result = Core.eval(sandbox, ex)
             catch err
-                push!(doc.internal.errors, :eval_block)
-                @warn("""
+                @docerror(doc, :eval_block,
+                    """
                     failed to evaluate `@eval` block in $(Utilities.locrepr(page.source))
                     ```$(x.language)
                     $(x.code)
@@ -529,16 +536,34 @@ end
 # @example
 # --------
 
+# Find if there is any format with color output
+function _any_color_fmt(doc)
+    idx = findfirst(x -> x isa Documenter.HTML, doc.user.format)
+    idx === nothing && return false
+    return doc.user.format[idx].ansicolor
+end
+
 function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
+    matched = match(r"^@example(?:\s+([^\s;]+))?\s*(;.*)?$", x.language)
+    matched === nothing && error("invalid '@example' syntax: $(x.language)")
+    name, kwargs = matched.captures
     # The sandboxed module -- either a new one or a cached one from this page.
-    name = match(r"^@example[ ]?(.*)$", first(split(x.language, ';', limit = 2)))[1]
     mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
     sym = nameof(mod)
     lines = Utilities.find_block_in_file(x.code, page.source)
 
-    # "parse" keyword arguments to example (we only need to look for continued = true)
-    continued = occursin(r"continued\s*=\s*true", x.language)
+    # "parse" keyword arguments to example
+    continued = false
+    ansicolor = _any_color_fmt(doc)
+    if kwargs !== nothing
+        continued = occursin(r"\bcontinued\s*=\s*true\b", kwargs)
+        matched = match(r"\bansicolor\s*=\s*(true|false)\b", kwargs)
+        if matched !== nothing
+            ansicolor = matched[1] == "true"
+        end
+    end
 
+    @debug "Evaluating @example block:\n$(x.code)"
     # Evaluate the code block. We redirect stdout/stderr to `buffer`.
     result, buffer = nothing, IOBuffer()
     if !continued # run the code
@@ -549,8 +574,11 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
         else
             code = x.code
         end
-        for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false)
-            c = IOCapture.capture(rethrow = InterruptException) do
+        linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
+                                        basename(page.source))
+        for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false,
+                                              linenumbernode = linenumbernode)
+            c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
                 end
@@ -559,13 +587,13 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
             result = c.value
             print(buffer, c.output)
             if c.error
-                push!(doc.internal.errors, :example_block)
-                @warn("""
+                @docerror(doc, :example_block,
+                    """
                     failed to run `@example` block in $(Utilities.locrepr(page.source, lines))
                     ```$(x.language)
                     $(x.code)
                     ```
-                    """, c.value)
+                    """, value = c.value)
                 page.mapping[x] = x
                 return
             end
@@ -579,13 +607,19 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     input   = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Utilities.display_dict, result)
+    output = Base.invokelatest(Utilities.display_dict, result, context = :color => ansicolor)
+    # Remove references to gensym'd module from text/plain
+    m = MIME"text/plain"()
+    if haskey(output, m)
+        output[m] = remove_sandbox_from_output(output[m], mod)
+    end
 
     # Only add content when there's actually something to add.
-    isempty(input)  || push!(content, Markdown.Code("julia", input))
+    isempty(input) || push!(content, Markdown.Code("julia", input))
     if result === nothing
-        code = Documenter.DocTests.sanitise(buffer)
-        isempty(code) || push!(content, Dict{MIME,Any}(MIME"text/plain"() => code))
+        stdouterr = Documenter.DocTests.sanitise(buffer)
+        stdouterr = remove_sandbox_from_output(stdouterr, mod)
+        isempty(stdouterr) || push!(content, Dict{MIME,Any}(MIME"text/plain"() => stdouterr))
     elseif !isempty(output)
         push!(content, output)
     end
@@ -593,58 +627,85 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     page.mapping[x] = Documents.MultiOutput(content)
 end
 
+# Replace references to gensym'd module with Main
+function remove_sandbox_from_output(str, mod::Module)
+    replace(str, Regex(("(Main\\.)?$(nameof(mod))")) => "Main")
+end
+
 # @repl
 # -----
 
 function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
-    matched = match(r"^@repl[ ]?(.*)$", x.language)
+    matched = match(r"^@repl(?:\s+([^\s;]+))?\s*(;.*)?$", x.language)
     matched === nothing && error("invalid '@repl' syntax: $(x.language)")
-    name = matched[1]
+    name, kwargs = matched.captures
+    # The sandboxed module -- either a new one or a cached one from this page.
     mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
-    code = split(x.code, '\n'; limit = 2)[end]
-    result, out = nothing, IOBuffer()
-    for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false)
-        buffer = IOBuffer()
+
+    # "parse" keyword arguments to repl
+    ansicolor = _any_color_fmt(doc)
+    if kwargs !== nothing
+        matched = match(r"\bansicolor\s*=\s*(true|false)\b", kwargs)
+        if matched !== nothing
+            ansicolor = matched[1] == "true"
+        end
+    end
+
+    multicodeblock = Markdown.Code[]
+    linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
+    @debug "Evaluating @repl block:\n$(x.code)"
+    for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
+                                          linenumbernode = linenumbernode)
         input  = droplines(str)
         if VERSION >= v"1.5.0-DEV.178"
             # Use the REPL softscope for REPLBlocks,
             # see https://github.com/JuliaLang/julia/pull/33864
             ex = REPL.softscope!(ex)
         end
-        c = IOCapture.capture(rethrow = InterruptException) do
+        c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
                 Core.eval(mod, ex)
             end
         end
         Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
         result = c.value
+        buf = IOContext(IOBuffer(), :color=>ansicolor)
         output = if !c.error
             hide = REPL.ends_with_semicolon(input)
-            Documenter.DocTests.result_to_string(buffer, hide ? nothing : c.value)
+            Documenter.DocTests.result_to_string(buf, hide ? nothing : c.value)
         else
-            Documenter.DocTests.error_to_string(buffer, c.value, [])
+            Documenter.DocTests.error_to_string(buf, c.value, [])
         end
-        isempty(input) || println(out, prepend_prompt(input))
-        print(out, c.output)
+        if !isempty(input)
+            push!(multicodeblock, Markdown.Code("julia-repl", prepend_prompt(input)))
+        end
+        out = IOBuffer()
+        print(out, c.output) # c.output is std(out|err)
         if isempty(input) || isempty(output)
             println(out)
         else
             println(out, output, "\n")
         end
+
+        outstr = String(take!(out))
+        # Replace references to gensym'd module with Main
+        outstr = remove_sandbox_from_output(outstr, mod)
+        push!(multicodeblock, Markdown.Code("documenter-ansi", rstrip(outstr)))
     end
-    page.mapping[x] = Markdown.Code("julia-repl", rstrip(String(take!(out))))
+    page.mapping[x] = Documents.MultiCodeBlock("julia-repl", multicodeblock)
 end
 
 # @setup
 # ------
 
 function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
-    matched = match(r"^@setup[ ](.+)$", x.language)
+    matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", x.language)
     matched === nothing && error("invalid '@setup <name>' syntax: $(x.language)")
-    # The sandboxed module -- either a new one or a cached one from this page.
     name = matched[1]
+    # The sandboxed module -- either a new one or a cached one from this page.
     mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
 
+    @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
     page.mapping[x] =
     try
@@ -653,8 +714,8 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
         end
         Markdown.MD([])
     catch err
-        push!(doc.internal.errors, :setup_block)
-        @warn("""
+        @docerror(doc, :setup_block,
+            """
             failed to run `@setup` block in $(Utilities.locrepr(page.source))
             ```$(x.language)
             $(x.code)

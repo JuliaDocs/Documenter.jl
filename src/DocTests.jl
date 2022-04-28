@@ -15,7 +15,7 @@ import ..Documenter:
     IdDict
 
 import Markdown, REPL
-import .Utilities: Markdown2
+import .Utilities: Markdown2, @docerror
 import IOCapture
 
 # Julia code block testing.
@@ -97,8 +97,7 @@ function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
-                push!(ctx.doc.internal.errors, :meta_block)
-                @warn "Failed to evaluate `$(strip(str))` in `@meta` block." err
+                @docerror(ctx.doc, :meta_block, "Failed to evaluate `$(strip(str))` in `@meta` block.", exception = err)
             end
         end
     end
@@ -138,10 +137,10 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
                 Meta.parse("($(lang[nextind(lang, idx):end]),)")
             catch e
                 e isa Meta.ParseError || rethrow(e)
-                push!(ctx.doc.internal.errors, :doctest)
                 file = ctx.meta[:CurrentFile]
                 lines = Utilities.find_block_in_file(block.code, file)
-                @warn("""
+                @docerror(ctx.doc, :doctest,
+                    """
                     Unable to parse doctest keyword arguments in $(Utilities.locrepr(file, lines))
                     Use ```jldoctest name; key1 = value1, key2 = value2
 
@@ -153,10 +152,10 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
             end
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
-                    push!(ctx.doc.internal.errors, :doctest)
                     file = ctx.meta[:CurrentFile]
                     lines = Utilities.find_block_in_file(block.code, file)
-                    @warn("""
+                    @docerror(ctx.doc, :doctest,
+                        """
                         invalid syntax for doctest keyword arguments in $(Utilities.locrepr(file, lines))
                         Use ```jldoctest name; key1 = value1, key2 = value2
 
@@ -187,10 +186,10 @@ function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
         elseif occursin(r"^# output$"m, block.code)
             eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         else
-            push!(ctx.doc.internal.errors, :doctest)
             file = ctx.meta[:CurrentFile]
             lines = Utilities.find_block_in_file(block.code, file)
-            @warn("""
+            @docerror(ctx.doc, :doctest,
+                """
                 invalid doctest block in $(Utilities.locrepr(file, lines))
                 Requires `julia> ` or `# output`
 
@@ -275,8 +274,8 @@ end
 
 function filter_doctests(strings::NTuple{2, AbstractString},
                          doc::Documents.Document, meta::Dict)
-    meta_block_filters = get(meta, :DocTestFilters, [])
-    meta_block_filters == nothing && meta_block_filters == []
+    meta_block_filters = get(Vector{Any}, meta, :DocTestFilters)
+    meta_block_filters === nothing && (meta_block_filters = [])
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
     for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
         if all(occursin.((r,), strings))
@@ -382,6 +381,7 @@ import .Utilities.TextDiff
 function report(result::Result, str, doc::Documents.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Utilities.find_block_in_file(result.block.code, result.file)
+    line = lines === nothing ? nothing : first(lines)
     @error("""
         doctest failure in $(Utilities.locrepr(result.file, lines))
 
@@ -401,7 +401,7 @@ function report(result::Result, str, doc::Documents.Document)
 
         $(result.output)
 
-        """, diff)
+        """, diff, _file=result.file, _line=line)
 end
 
 function fix_doctest(result::Result, str, doc::Documents.Document)

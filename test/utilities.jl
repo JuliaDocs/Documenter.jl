@@ -305,6 +305,46 @@ end
         end
     end
 
+    @testset "PR #1634, issue #1655" begin; if VERSION > v"1.6.0"
+        let parse(x) = Documenter.Utilities.parseblock(x, nothing, nothing;
+                           linenumbernode=LineNumberNode(123, "testfile.jl")
+                       )
+            code = """
+            1 + 1
+            2 + 2
+            """
+            exs = parse(code)
+            @test length(exs) == 2
+            @test exs[1][2] == "1 + 1\n"
+            @test exs[1][1].head == :toplevel
+            @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
+            @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
+            @test exs[2][2] == "2 + 2\n"
+            @test exs[2][1].head == :toplevel
+            @test exs[2][1].args[1] == LineNumberNode(125, "testfile.jl")
+            @test exs[2][1].args[2] == Expr(:call, :+, 2, 2)
+
+            # corner case trailing whitespace
+            code1 = """
+            1 + 1
+
+            """
+            # corner case: trailing comment
+            code2 = """
+            1 + 1
+            # comment
+            """
+            for code in (code1, code2)
+                exs = parse(code)
+                @test length(exs) == 1
+                @test exs[1][2] == "1 + 1\n"
+                @test exs[1][1].head == :toplevel
+                @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
+                @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
+            end
+        end
+    end end
+
     @testset "mdparse" begin
         mdparse = Documenter.Utilities.mdparse
 
@@ -466,6 +506,44 @@ end
         @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.Utilities.codelang("\t julia   \tx=y ") == "julia"
         @test Documenter.Utilities.codelang("&%^ ***") == "&%^"
+    end
+
+    @testset "is_strict" begin
+        @test Documenter.Utilities.is_strict(true, :doctest)
+        @test Documenter.Utilities.is_strict([:doctest], :doctest)
+        @test Documenter.Utilities.is_strict(:doctest, :doctest)
+        @test !Documenter.Utilities.is_strict(false, :doctest)
+        @test !Documenter.Utilities.is_strict(:setup_block, :doctest)
+        @test !Documenter.Utilities.is_strict([:setup_block], :doctest)
+
+        @test Documenter.Utilities.is_strict(true, :setup_block)
+        @test !Documenter.Utilities.is_strict(false, :setup_block)
+        @test Documenter.Utilities.is_strict(:setup_block, :setup_block)
+        @test Documenter.Utilities.is_strict([:setup_block], :setup_block)
+    end
+
+    @testset "check_strict_kw" begin
+        @test Documenter.Utilities.check_strict_kw(:setup_block) === nothing
+        @test Documenter.Utilities.check_strict_kw(:doctest) === nothing
+        @test_throws ArgumentError Documenter.Utilities.check_strict_kw(:a)
+        @test_throws ArgumentError Documenter.Utilities.check_strict_kw([:a, :doctest])
+    end
+
+    @testset "@docerror" begin
+        doc = (; internal = (; errors = Symbol[]), user = (; strict = [:doctest, :setup_block]))
+        foo = 123
+        @test_logs (:warn, "meta_block issue 123") (Documenter.Utilities.@docerror(doc, :meta_block, "meta_block issue $foo"))
+        @test :meta_block ∈ doc.internal.errors
+        @test_logs (:error, "doctest issue 123") (Documenter.Utilities.@docerror(doc, :doctest, "doctest issue $foo"))
+        @test :doctest ∈ doc.internal.errors
+        try
+            @macroexpand Documenter.Utilities.@docerror(doc, :foo, "invalid tag")
+            error("unexpected")
+        catch err
+            err isa LoadError && (err = err.error)
+            @test err isa ArgumentError
+            @test err.msg == "tag :foo is not a valid Documenter error"
+        end
     end
 end
 

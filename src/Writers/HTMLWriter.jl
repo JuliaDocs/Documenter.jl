@@ -58,7 +58,12 @@ using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
 
+import ANSIColoredPrinters
+
 export HTML
+
+"Data attribute for the script inserting a wraning for outdated docs."
+const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
 "List of Documenter native themes."
 const THEMES = ["documenter-light", "documenter-dark"]
@@ -73,13 +78,17 @@ struct HTMLAsset
     class :: Symbol
     uri :: String
     islocal :: Bool
+    attributes::Dict{Symbol, String}
 
-    function HTMLAsset(class::Symbol, uri::String, islocal::Bool)
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, attributes::Dict{Symbol, String}=Dict{Symbol,String}())
         if !islocal && match(r"^https?://", uri) === nothing
             error("Remote asset URL must start with http:// or https://")
         end
+        if islocal && isabspath(uri)
+            @error("Local asset should not have an absolute URI: $uri")
+        end
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
-        new(class, uri, islocal)
+        new(class, uri, islocal, attributes)
     end
 end
 
@@ -118,7 +127,7 @@ Documenter.HTML(assets = [
 ])
 ```
 """
-function asset(uri; class = nothing, islocal=false)
+function asset(uri; class = nothing, islocal=false, attributes=Dict{Symbol,String}())
     if class === nothing
         class = assetclass(uri)
         (class === nothing) && error("""
@@ -126,7 +135,7 @@ function asset(uri; class = nothing, islocal=false)
         It can be set explicitly with the `class` keyword argument.
         """)
     end
-    HTMLAsset(class, uri, islocal)
+    HTMLAsset(class, uri, islocal, attributes)
 end
 
 function assetclass(uri)
@@ -312,10 +321,13 @@ This allows search engines to know which version to send their users to. [See
 wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
 Default is `nothing`, in which case no canonical link is set.
 
-**`analytics`** can be used specify the Google Analytics tracking ID.
-
 **`assets`** can be used to include additional assets (JS, CSS, ICO etc. files). See below
 for more information.
+
+**`analytics`** can be used specify the Google Analytics tracking ID.
+
+**`collapselevel`** controls the navigation level visible in the sidebar. Defaults to `2`.
+To show fewer levels by default, set `collapselevel = 1`.
 
 **`sidebar_sitename`** determines whether the site name is shown in the sidebar or not.
 Setting it to `false` can be useful when the logo already contains the name of the package.
@@ -323,7 +335,7 @@ Defaults to `true`.
 
 **`highlights`** can be used to add highlighting for additional languages. By default,
 Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download/)
-languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by"
+languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by
 their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.js) for the
 highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
 you would set `highlights = ["llvm", "yaml"]`. Note that no verification is done whether the
@@ -336,13 +348,28 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 [`MathJax3`](@ref) objects, respectively. The rendering engine can further be customized by
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
+**`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
+the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
+and the [Julia Programming Language](https://julialang.org/)."`.
+
+**`ansicolor`** can be used to enable/disable colored output from `@repl` and `@example` blocks globally.
+
 **`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
 of the top-level `<html>` element, declaring the language of the generated pages. The default
 value is `"en"`.
 
-**`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
-the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
-and the [Julia Programming Language](https://julialang.org/)."`.
+**`warn_outdated`** inserts a warning if the current page is not the newest version of the
+documentation.
+
+## Experimental options
+
+**`prerender`** a boolean (`true` or `false` (default)) for enabling prerendering/build
+time application of syntax highlighting of code blocks. Requires a `node` (NodeJS)
+executable to be available in `PATH` or to be passed as the `node` keyword.
+
+**`node`** path to a `node` (NodeJS) executable used for prerendering.
+
+**`highlightjs`** file path to custom highglight.js library to be used with prerendering.
 
 # Default and custom assets
 
@@ -388,7 +415,12 @@ struct HTML <: Documenter.Writer
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
     footer        :: Union{Markdown.MD, Nothing}
+    ansicolor     :: Bool
     lang          :: String
+    warn_outdated :: Bool
+    prerender     :: Bool
+    node          :: Union{Cmd,String,Nothing}
+    highlightjs   :: Union{String,Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -404,10 +436,22 @@ struct HTML <: Documenter.Writer
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
+            ansicolor     :: Bool = false, # true in 0.28
+            lang          :: String = "en",
+            warn_outdated :: Bool = true,
+
+            # experimental keywords
+            prerender     :: Bool = false,
+            node          :: Union{Cmd,String,Nothing} = nothing,
+            highlightjs   :: Union{String,Nothing} = nothing,
+
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
+        if prerender
+            prerender, node, highlightjs = prepare_prerendering(prerender, node, highlightjs, highlights)
+        end
         assets = map(assets) do asset
             isa(asset, HTMLAsset) && return asset
             isa(asset, AbstractString) && return HTMLAsset(assetclass(asset), asset, true)
@@ -433,8 +477,49 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer, lang)
+            collapselevel, sidebar_sitename, highlights, mathengine, footer,
+            ansicolor, lang, warn_outdated, prerender, node, highlightjs)
     end
+end
+
+# Cache of downloaded highlight.js bundles
+const HLJSFILES = Dict{String,String}()
+# Look for node and highlight.js
+function prepare_prerendering(prerender, node, highlightjs, highlights)
+    node = node === nothing ? Sys.which("node") : node
+    if node === nothing
+        @error "HTMLWriter: no node executable given or found on the system. Setting `prerender=false`."
+        return false, node, highlightjs
+    end
+    if !success(`$node --version`)
+        @error "HTMLWriter: bad node executable at $node. Setting `prerender=false`."
+        return false, node, highlightjs
+    end
+    if highlightjs === nothing
+        # Try to download
+        curl = Sys.which("curl")
+        if curl === nothing
+            @error "HTMLWriter: no highlight.js file given and no curl executable found " *
+                   "on the system. Setting `prerender=false`."
+            return false, node, highlightjs
+        end
+        @debug "HTMLWriter: downloading highlightjs"
+        r = Utilities.JSDependencies.RequireJS([])
+        RD.highlightjs!(r, highlights)
+        libs = sort!(collect(r.libraries); by = first) # puts highlight first
+        key = join((x.first for x in libs), ',')
+        highlightjs = get!(HLJSFILES, key) do
+            path, io = mktemp()
+            for lib in libs
+                println(io, "// $(lib.first)")
+                run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout=io))
+                println(io)
+            end
+            close(io)
+            return path
+        end
+    end
+    return prerender, node, highlightjs
 end
 
 "Provides a namespace for remote dependencies."
@@ -444,21 +529,22 @@ module RD
     using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
-    const google_fonts = "https://fonts.googleapis.com/css?family=Lato|Roboto+Mono"
-    const fontawesome_version = "5.15.0"
+    const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
+    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css"
+    const fontawesome_version = "5.15.3"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/brands.min.css",
     ]
 
-    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js")
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
-    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.6/lunr.min.js")
-    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js")
+    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js")
+    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js")
 
     # headroom
-    const headroom_version = "0.10.3"
+    const headroom_version = "0.12.0"
     const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/headroom.min.js")
     const headroom_jquery = RemoteLibrary(
         "headroom-jquery",
@@ -472,12 +558,12 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "10.5.0"
+        hljs_version = "11.0.1"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
         ))
-        prepend!(languages, ["julia", "julia-repl"])
+        languages = ["julia", "julia-repl", languages...]
         for language in languages
             language = jsescape(language)
             push!(r, RemoteLibrary(
@@ -491,14 +577,14 @@ module RD
             ["\$"],
             raw"""
             $(document).ready(function() {
-                hljs.initHighlighting();
+                hljs.highlightAll();
             })
             """
         ))
     end
 
     # MathJax & KaTeX
-    const katex_version = "0.11.1"
+    const katex_version = "0.13.11"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
     function mathengine!(r::RequireJS, engine::KaTeX)
         push!(r, RemoteLibrary(
@@ -524,7 +610,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax2)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS_HTML" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML" : engine.url
         push!(r, RemoteLibrary(
             "mathjax",
             url,
@@ -537,7 +623,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-svg.js" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
@@ -574,6 +660,7 @@ mutable struct HTMLContext
     scripts :: Vector{String}
     documenter_js :: String
     themeswap_js :: String
+    warner_js :: String
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
@@ -581,7 +668,7 @@ mutable struct HTMLContext
     footnotes :: Vector{Markdown.Footnote}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -656,6 +743,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     ctx = HTMLContext(doc, settings)
     ctx.search_index_js = "search_index.js"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
+    ctx.warner_js = copy_asset("warner.js", doc)
 
     # Generate documenter.js file with all the JS dependencies
     ctx.documenter_js = "assets/documenter.js"
@@ -666,7 +754,9 @@ function render(doc::Documents.Document, settings::HTML=HTML())
             RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
         RD.mathengine!(r, settings.mathengine)
-        RD.highlightjs!(r, settings.highlights)
+        if !settings.prerender
+            RD.highlightjs!(r, settings.highlights)
+        end
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
             endswith(filename, ".js") && isfile(path) || continue
@@ -822,6 +912,7 @@ function render_settings(ctx)
     buildinfo = p(
         "This document was generated with ",
         a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"),
+        " version $(Documenter.DOCUMENTER_VERSION)",
         " on ",
         span[".colophon-date", :title => now_full](now_short),
         ". ",
@@ -849,7 +940,8 @@ function render_head(ctx, navnode)
 
     page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
-        RD.google_fonts,
+        RD.lato,
+        RD.juliamono,
         RD.fontawesome_css...,
         RD.katex_css,
     ]
@@ -859,6 +951,7 @@ function render_head(ctx, navnode)
         title(page_title),
 
         analytics_script(ctx.settings.analytics),
+        warning_script(src, ctx),
 
         canonical_link_element(ctx.settings.canonical, pretty_url(ctx, src)),
 
@@ -894,32 +987,40 @@ function render_head(ctx, navnode)
 end
 
 function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
+    isabspath(src) && @error("Absolute path '$src' passed to asset_links")
     @tags link script
     links = DOM.Node[]
     for asset in assets
         class = asset.class
         url = asset.islocal ? relhref(src, asset.uri) : asset.uri
         node =
-            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon"] :
-            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css"] :
-            class == :js  ? script[:src => url] : continue # Skip non-js/css files.
+            class == :ico ? link[:href  => url, :rel => "icon", :type => "image/x-icon", pairs(asset.attributes)...] :
+            class == :css ? link[:href  => url, :rel => "stylesheet", :type => "text/css", pairs(asset.attributes)...] :
+            class == :js  ? script[:src => url, pairs(asset.attributes)...] : continue # Skip non-js/css files.
         push!(links, node)
     end
     return links
 end
 
-analytics_script(tracking_id::AbstractString) =
-    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : Tag(:script)(
-        """
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+function analytics_script(tracking_id::AbstractString)
+    @tags script
+    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : [
+        script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
+        script("""
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '$(tracking_id)', {'page_path': location.pathname + location.search + location.hash});
+        """)
+    ]
+end
 
-        ga('create', '$(tracking_id)', 'auto');
-        ga('send', 'pageview', {'page': location.pathname + location.search + location.hash});
-        """
-    )
+function warning_script(src, ctx)
+    if ctx.settings.warn_outdated
+        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
+    end
+    return Tag(Symbol("#RAW#"))("")
+end
 
 function canonical_link_element(canonical_link, src)
    @tags link
@@ -1356,13 +1457,45 @@ function expand_versions(dir, versions)
 end
 
 # write version file
-function generate_version_file(versionfile::AbstractString, entries)
+function generate_version_file(versionfile::AbstractString, entries, symlinks = [])
     open(versionfile, "w") do buf
         println(buf, "var DOC_VERSIONS = [")
         for folder in entries
             println(buf, "  \"", folder, "\",")
         end
         println(buf, "];")
+
+        # entries is empty if no versions have been built at all
+        isempty(entries) && return
+
+        # The first element in entries corresponds to the latest version, but is usually not the full version
+        # number. So this essentially follows the symlinks that will be generated to figure out the full
+        # version number (stored in DOCUMENTER_CURRENT_VERSION in siteinfo.js).
+        # Every symlink points to a directory, so this doesn't need to be recursive.
+        newest = first(entries)
+        for s in symlinks
+            if s.first == newest
+                newest = s.second
+                break
+            end
+        end
+        println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
+        println(buf, "var DOCUMENTER_STABLE = \"$(first(entries))\";")
+    end
+end
+
+# write redirect file
+function generate_redirect_file(redirectfile::AbstractString, entries)
+    # The link to the redirected destination is same as outdated-warning. (DOCUMENTER_STABLE)
+
+    comment = "<!--This file is automatically generated by Documenter.jl-->"
+
+    isfile(redirectfile) && !startswith(read(redirectfile, String), comment) && return
+    isempty(entries) && return
+
+    open(redirectfile, "w") do buf
+        println(buf, comment)
+        println(buf, "<meta http-equiv=\"refresh\" content=\"0; url=./$(first(entries))/\"/>")
     end
 end
 
@@ -1390,7 +1523,7 @@ end
 
 function domify(ctx, navnode, node)
     fixlinks!(ctx, navnode, node)
-    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes)
+    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes, settings=ctx.settings)
 end
 
 function domify(ctx, navnode, anchor::Anchors.Anchor)
@@ -1431,7 +1564,7 @@ end
 
 function domify(lb::ListBuilder)
     @tags ul li
-    ul(map(e -> isa(e, ListBuilder) ? domify(e) : li(e), lb.es))
+    ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
 end
 
 function domify(ctx, navnode, contents::Documents.ContentsNode)
@@ -1654,6 +1787,28 @@ function collect_subsections(page::Documents.Page)
     return sections
 end
 
+function domify_ansicoloredtext(text::AbstractString, class = "")
+    @tags pre
+    stack = DOM.Node[pre()] # this `pre` is dummy
+    function cb(io::IO, printer, tag::String, attrs::Dict{Symbol, String})
+        text = String(take!(io))
+        children = stack[end].nodes
+        isempty(text) || push!(children, Tag(Symbol("#RAW#"))(text))
+        if startswith(tag, "/")
+            pop!(stack)
+        else
+            parent = Tag(Symbol(tag))[attrs]
+            push!(children, parent)
+            push!(stack, parent)
+        end
+        return true
+    end
+    ansiclass = isempty(class) ? "ansi" : class * " ansi"
+    printer = ANSIColoredPrinters.HTMLPrinter(IOBuffer(text), callback = cb,
+                                              root_tag = "code", root_class = ansiclass)
+    show(IOBuffer(), MIME"text/html"(), printer)
+    return stack[1].nodes
+end
 
 # mdconvert
 # ------------------------------------------------------------------------------
@@ -1678,7 +1833,17 @@ The `parent` argument is passed to allow for context-dependant conversions.
 """
 mdconvert(md; kwargs...) = mdconvert(md, md; kwargs...)
 
-mdconvert(text::AbstractString, parent; kwargs...) = DOM.Node(text)
+function mdconvert(text::AbstractString, parent; kwargs...)
+    # Javascript LaTeX engines have a hard time dealing with `$` floating around
+    # because they use them as in-line escapes. You can try a few different
+    # solutions that don't work (e.g., HTML symbols &#x24;). The easiest (if
+    # hacky) solution is to wrap dollar signs in a <span>. For now, only do this
+    # when the text coming in is a singleton escaped $ sign.
+    if text == "\$"
+        return Tag(:span)("\$")
+    end
+    return DOM.Node(text)
+end
 
 mdconvert(vec::Vector, parent; kwargs...) = [mdconvert(x, parent; kwargs...) for x in vec]
 
@@ -1688,13 +1853,59 @@ mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconver
 
 mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, parent; kwargs...))
 
-function mdconvert(c::Markdown.Code, parent::MDBlockContext; kwargs...)
+function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
     language = Utilities.codelang(c.language)
+    if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
+        return pre(domify_ansicoloredtext(c.code, "nohighlight hljs"))
+    elseif settings !== nothing && settings.prerender &&
+           !(isempty(language) || language == "nohighlight")
+        r = hljs_prerender(c, settings)
+        r !== nothing && return r
+    end
     class = isempty(language) ? "nohighlight" : "language-$(language)"
-    pre(code[".$class"](c.code))
+    return pre(code[".$(class) .hljs"](c.code))
+end
+function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
+    @tags pre br
+    p = pre()
+    for (i, thing) in enumerate(mcb.content)
+        pre = mdconvert(thing, parent; kwargs...)
+        code = pre.nodes[1]
+        # TODO: This should probably be added to the CSS later on...
+        push!(code.attributes, :style => "display:block;")
+        push!(p.nodes, code)
+        # insert a <br> between output and the next input
+        if i != length(mcb.content) &&
+           findnext(x -> x.language == mcb.language, mcb.content, i + 1) == i + 1
+            push!(p.nodes, br())
+        end
+    end
+    return p
 end
 mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
+
+function hljs_prerender(c::Markdown.Code, settings::HTML)
+    @assert settings.prerender "unreachable"
+    @tags pre code
+    lang = Utilities.codelang(c.language)
+    hljs = settings.highlightjs
+    js = """
+    const hljs = require('$(hljs)');
+    console.log(hljs.highlight($(repr(c.code)), {'language': "$(lang)"}).value);
+    """
+    out, err = IOBuffer(), IOBuffer()
+    try
+        run(pipeline(`$(settings.node) -e "$(js)"`; stdout=out, stderr=err))
+        str = String(take!(out))
+        # prepend nohighlight to stop runtime highlighting
+        # return pre(code[".nohighlight $(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
+        return pre(code[".language-$(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
+    catch e
+        @error "HTMLWriter: prerendering failed" exception=e stderr=String(take!(err))
+    end
+    return nothing
+end
 
 mdconvert(h::Markdown.Header{N}, parent; kwargs...) where {N} = DOM.Tag(Symbol("h$N"))(mdconvert(h.text, h; kwargs...))
 
@@ -1858,10 +2069,10 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
                 svg = replace(svg, "\'" => "%27")
                 sep = "'"
             end
-            
+
             out = Documents.RawHTML(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         end
-        
+
     elseif haskey(d, MIME"image/png"())
         out = Documents.RawHTML(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
     elseif haskey(d, MIME"image/webp"())
@@ -1887,7 +2098,8 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         out = Markdown.parse(d[MIME"text/markdown"()])
     elseif haskey(d, MIME"text/plain"())
         @tags pre
-        return pre[".documenter-example-output"](d[MIME"text/plain"()])
+        text = d[MIME"text/plain"()]
+        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
     else
         error("this should never happen.")
     end

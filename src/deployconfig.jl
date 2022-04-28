@@ -274,7 +274,7 @@ Implementation of `DeployConfig` for deploying from GitHub Actions.
 The following environment variables influences the build
 when using the `GitHubActions` configuration:
 
- - `GITHUB_EVENT_NAME`: must be set to `push`.
+ - `GITHUB_EVENT_NAME`: must be set to `push`, `workflow_dispatch`, or `schedule`.
    This avoids deployment on pull request builds.
 
  - `GITHUB_REPOSITORY`: must match the value of the `repo` keyword to [`deploydocs`](@ref).
@@ -286,7 +286,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/environment-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -327,9 +327,9 @@ function deploy_folder(cfg::GitHubActions;
     println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
     if build_type === :release
         ## Do not deploy for PRs
-        event_ok = cfg.github_event_name == "push"
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
         ## If a tag exist it should be a valid VersionNumber
         m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
         tag_nobuild = version_tag_strip_build(m.captures[1])
@@ -343,9 +343,9 @@ function deploy_folder(cfg::GitHubActions;
         subfolder = m === nothing ? nothing : tag_nobuild
     elseif build_type === :devbranch
         ## Do not deploy for PRs
-        event_ok = cfg.github_event_name == "push"
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.github_ref)
         branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
@@ -362,6 +362,11 @@ function deploy_folder(cfg::GitHubActions;
         pr_ok = pr_number !== nothing
         all_ok &= pr_ok
         println(io, "- $(marker(pr_ok)) ENV[\"GITHUB_REF\"] corresponds to a PR number")
+        if pr_ok
+            pr_origin_matches_repo = verify_github_pull_repository(cfg.github_repository, pr_number)
+            all_ok &= pr_origin_matches_repo
+            println(io, "- $(marker(pr_origin_matches_repo)) PR originates from the same repository")
+        end
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
@@ -478,9 +483,11 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
+            target_url = "https://$(owner).github.io/$(repo)/"
             if subfolder !== nothing
-                json["target_url"] = "https://$(owner).github.io/$(repo)/$(subfolder)/"
+                target_url *= "$(subfolder)/"
             end
+            json["target_url"] = target_url
         elseif type == "error"
             json["description"] = "Documentation build errored"
         elseif type == "failure"
@@ -498,6 +505,48 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
         @debug "Failed to post status"
     end
     return nothing
+end
+
+function verify_github_pull_repository(repo, prnr)
+    try
+        github_token = get(ENV, "GITHUB_TOKEN", nothing)
+        github_token === nothing && error("GITHUB_TOKEN missing")
+        # Construct the curl call
+        cmd = `curl -s`
+        push!(cmd.exec, "-S", "GET")
+        push!(cmd.exec, "-H", "Authorization: token $(github_token)")
+        push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
+        push!(cmd.exec, "-H", "Content-Type: application/json")
+        push!(cmd.exec, "--fail")
+        push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
+        # Run the command (silently)
+        response = run_and_capture(cmd)
+        response = JSON.parse(response.stdout)
+        pr_head_repo = response["head"]["repo"]["full_name"]
+        @debug "pr_head_repo = '$pr_head_repo' vs repo = '$repo'"
+        return (pr_head_repo == repo)
+    catch e
+        @warn "Unable to verify if PR comes from destination repository -- assuming it does."
+        @debug "Running CURL led to an exception:" exception = (e, catch_backtrace())
+        return true
+    end
+end
+
+function run_and_capture(cmd)
+    stdout, stderr = if VERSION < v"1.1"
+        # On Julia 1.0, we can not pass IOBuffer() to pipeline(), so we're using the workaround
+        # described here:
+        # https://discourse.julialang.org/t/how-to-capture-stdout-and-stderr-in-1-1/20712/2
+        stdout_pipe, stderr_pipe = Pipe(), Pipe()
+        run(pipeline(cmd; stdout = stdout_pipe, stderr = stderr_pipe))
+        close(stdout_pipe.in); close(stderr_pipe.in)
+        stdout, stderr = read(stdout_pipe, String), read(stderr_pipe, String)
+    else
+        stdout_buffer, stderr_buffer = IOBuffer(), IOBuffer()
+        run(pipeline(cmd; stdout = stdout_buffer, stderr = stderr_buffer))
+        stdout, stderr = String(take!(stdout_buffer)), String(take!(stderr_buffer))
+    end
+    return (; stdout = stdout, stderr = stderr)
 end
 
 ##########
@@ -560,9 +609,6 @@ function deploy_folder(
     branch_previews = branch,
     kwargs...,
 )
-
-    marker(x) = x ? "✔" : "✘"
-
     io = IOBuffer()
     all_ok = true
 
@@ -705,9 +751,6 @@ function deploy_folder(
     branch_previews = branch,
     kwargs...,
 )
-
-    marker(x) = x ? "✔" : "✘"
-
     io = IOBuffer()
     all_ok = true
 

@@ -8,6 +8,34 @@ import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
+import ..ERROR_NAMES
+
+"""
+    @docerror(doc, tag, msg, exs...)
+
+Add `tag` to the `doc.internal.errors` array and log the message `msg` as an
+error (if `tag` matches the `doc.user.strict` setting) or warning.
+
+- `doc` must be the instance of `Document` used for the Documenter run
+- `tag` must be one of the `Symbol`s in `ERROR_NAMES`
+- `msg` is the explanation of the issue to the user
+- `exs...` are additional expressions that will be included with the message;
+  see `@error` and `@warn`
+"""
+macro docerror(doc, tag, msg, exs...)
+    tag isa QuoteNode || error("invalid call of @docerror")
+    tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
+    esc(quote
+        let
+            push!($(doc).internal.errors, $(tag))
+            if $Utilities.is_strict($(doc).user.strict, $(tag))
+                @error $(msg) $(exs...)
+            else
+                @warn $(msg) $(exs...)
+            end
+        end
+    end)
+end
 
 # escape characters that has a meaning in regex
 regex_escape(str) = sprint(escape_string, str, "\\^\$.|?*+()[{")
@@ -25,13 +53,13 @@ function find_block_in_file(code, file)
     blockidx === nothing && return nothing
     startline = countlines(IOBuffer(content[1:prevind(content, first(blockidx))]))
     endline = startline + countlines(IOBuffer(code)) + 1 # +1 to include the closing ```
-    return ":$(startline)-$(endline)"
+    return startline => endline
 end
 
 # Pretty-printing locations
 function locrepr(file, line=nothing)
     str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
-    line !== nothing && (str = str * "$(line)")
+    line !== nothing && (str = str * ":$(line.first)-$(line.second)")
     return str
 end
 
@@ -88,8 +116,12 @@ The keyword argument `skip = N` drops the leading `N` lines from the input strin
 If `raise=false` is passed, the `Meta.parse` does not raise an exception on parse errors,
 but instead returns an expression that will raise an error when evaluated. `parseblock`
 returns this expression normally and it must be handled appropriately by the caller.
+
+The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
+and starting line number of the block (requires Julia 1.6 or higher).
 """
-function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true)
+function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true,
+                    linenumbernode=nothing)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
@@ -108,20 +140,53 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
                 try
                     Meta.parse(code, cursor; raise=raise)
                 catch err
-                    push!(doc.internal.errors, :parse_error)
-                    @warn "failed to parse exception in $(Utilities.locrepr(file))" exception = err
+                    @docerror(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))", exception = err)
                     break
                 end
             end
         str = SubString(code, cursor, prevind(code, ncursor))
-        if !isempty(strip(str))
+        if !isempty(strip(str)) && ex !== nothing
             push!(results, (ex, str))
         end
         cursor = ncursor
     end
+    if VERSION >= v"1.6.0" # required for Meta.parseall(...)
+        if linenumbernode isa LineNumberNode
+            exs = Meta.parseall(code; filename=linenumbernode.file).args
+            @assert length(exs) == 2 * length(results)
+            for (i, ex) in enumerate(Iterators.partition(exs, 2))
+                @assert ex[1] isa LineNumberNode
+                expr = Expr(:toplevel, ex...) # LineNumberNode + expression
+                # in the REPL each evaluation is considered a new file, e.g.
+                # REPL[1], REPL[2], ..., so try to mimic that by incrementing
+                # the counter for each sub-expression in this code block
+                if linenumbernode.file === Symbol("REPL")
+                    newfile = "REPL[$i]"
+                    # to reset the line counter for each new "file"
+                    lineshift = 1 - ex[1].line
+                    update_linenumbernodes!(expr, newfile, lineshift)
+                else
+                    update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
+                end
+                results[i] = (expr , results[i][2])
+            end
+        end
+    end
     results
 end
 isassign(x) = isexpr(x, :(=), 2) && isa(x.args[1], Symbol)
+
+function update_linenumbernodes!(x::Expr, newfile, lineshift)
+    for i in 1:length(x.args)
+        x.args[i] = update_linenumbernodes!(x.args[i], newfile, lineshift)
+    end
+    return x
+end
+update_linenumbernodes!(x::Any, newfile, lineshift) = x
+function update_linenumbernodes!(x::LineNumberNode, newfile, lineshift)
+    return LineNumberNode(x.line + lineshift, newfile)
+end
+
 
 # Checking arguments.
 
@@ -544,20 +609,21 @@ function mdparse(s::AbstractString; mode=:single)
 end
 
 # Capturing output in different representations similar to IJulia.jl
-function limitstringmime(m::MIME"text/plain", x)
+function limitstringmime(m::MIME"text/plain", x; context = nothing)
     io = IOBuffer()
-    show(IOContext(io, :limit=> true), m, x)
+    ioc = IOContext(context === nothing ? io : IOContext(io, context), :limit => true)
+    show(ioc, m, x)
     return String(take!(io))
 end
-function display_dict(x)
+function display_dict(x; context = nothing)
     out = Dict{MIME,Any}()
     x === nothing && return out
     # Always generate text/plain
-    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x)
+    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context = context)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
               MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
               MIME"text/latex"(), MIME"text/markdown"()]
-        showable(m, x) && (out[m] = stringmime(m, x))
+        showable(m, x) && (out[m] = stringmime(m, x, context = context))
     end
     return out
 end
@@ -594,8 +660,8 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
-function get_sandbox_module!(meta, prefix, name = "")
-    sym = if isempty(name)
+function get_sandbox_module!(meta, prefix, name = nothing)
+    sym = if name === nothing || isempty(name)
         Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
     else
         Symbol("__", prefix, "__named__", name)
@@ -611,6 +677,45 @@ function get_sandbox_module!(meta, prefix, name = "")
         Core.eval(m, :(include(x) = Base.include($m, abspath(x))))
         return m
     end
+end
+
+"""
+    is_strict(strict, val::Symbol) -> Bool
+
+Internal function to check if `strict` is strict about `val`, i.e.
+if errors of type `val` should be fatal, according
+to the setting `strict` (as a keyword to `makedocs`).
+
+Single-argument `is_strict(strict)` provides a curried function.
+"""
+is_strict
+
+is_strict(strict::Bool, ::Symbol) = strict
+is_strict(strict::Symbol, val::Symbol) = strict === val
+is_strict(strict::Vector{Symbol}, val::Symbol) = val ∈ strict
+is_strict(strict) = Base.Fix1(is_strict, strict)
+
+"""
+    check_strict_kw(strict) -> Nothing
+
+Internal function to check if `strict` is a valid value for
+the keyword argument `strict` to `makedocs.` Throws an
+`ArgumentError` if it is not valid.
+"""
+check_strict_kw
+
+check_strict_kw(::Bool) = nothing
+check_strict_kw(s::Symbol) = check_strict_kw(tuple(s))
+function check_strict_kw(strict)
+    extra_names = setdiff(strict, ERROR_NAMES)
+    if !isempty(extra_names)
+        throw(ArgumentError("""
+        Keyword argument `strict` given unknown values: $(extra_names)
+
+        Valid options are: $(ERROR_NAMES)
+        """))
+    end
+    return nothing
 end
 
 include("DOM.jl")

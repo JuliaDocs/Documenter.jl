@@ -1,0 +1,25 @@
+\documentclass[oneside]{memoir}
+\usepackage{./documenter}
+\usepackage{./custom}
+
+%% Title Page
+\title{
+    {\HUGE \DocMainTitle }\\
+    {\Large \DocVersion }
+}
+\author{ \DocAuthors }
+
+%% TOC settings
+% -- TOC depth
+%   value: [part, chapter, section, subsection,
+%           subsubsection, paragraph, subparagraph]
+\settocdepth{chapter}  % show "part+chapter" in TOC
+
+
+%% Main document begin
+\begin{document}
+\frontmatter
+\maketitle
+\clearpage
+\tableofcontents
+\mainmatter

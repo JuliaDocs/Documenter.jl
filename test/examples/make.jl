@@ -197,6 +197,8 @@ htmlbuild_pages = Any[
     "unicode.md",
     "latex.md",
     "example-output.md",
+    "fonts.md",
+    "linenumbers.md",
 ]
 
 function html_doc(build_directory, mathengine)
@@ -325,7 +327,10 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
         format = Documenter.HTML(
-            assets = ["assets/custom.css"],
+            assets = [
+                "assets/custom.css",
+                asset("https://plausible.io/js/plausible.js", class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
+            ],
             prettyurls = false,
             edit_link = nothing,
             repolink = nothing,
@@ -360,7 +365,7 @@ end
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/simple")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple",
         root  = examples_root,
         build = "builds/latex_simple",
@@ -423,7 +428,7 @@ end
 examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_simple_nondocker")
     @quietly makedocs(
-        format = Documenter.LaTeX(),
+        format = Documenter.LaTeX(version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple Non-Docker",
         root  = examples_root,
         build = "builds/latex_simple_nondocker",
@@ -437,6 +442,26 @@ else
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
+
+examples_latex_simple_tectonic_doc = if "latex_simple_tectonic" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_tectonic")
+    using tectonic_jll: tectonic
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform="tectonic", version = v"1.2.3", tectonic=tectonic()),
+        sitename = "Documenter LaTeX Simple Tectonic",
+        root  = examples_root,
+        build = "builds/latex_simple_tectonic",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_tectonic"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
 
 examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_texonly")
@@ -452,6 +477,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
                 "unicode.md",
                 hide("hidden.md"),
                 "example-output.md",
+                "linenumbers.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
             # "Manual" => [
@@ -479,6 +505,44 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_cover_page")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root  = examples_root,
+        build = "builds/latex_cover_page",
+        source = "src.cover_page",
+        pages = ["Home" => "index.md"],
+        authors = "The Julia Project",
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_cover_page"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_toc_style")
+    @quietly makedocs(
+        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root  = examples_root,
+        build = "builds/latex_toc_style",
+        source = "src.toc_style",
+        pages = ["Part-I" => "index.md"],
+        authors = "The Julia Project",
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_toc_style"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end

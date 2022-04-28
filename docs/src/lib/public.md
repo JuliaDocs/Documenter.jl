@@ -41,4 +41,5 @@ Documenter.Remotes.Remote
 ```@docs
 DocumenterTools.generate
 DocumenterTools.genkeys
+DocumenterTools.OutdatedWarning.generate
 ```

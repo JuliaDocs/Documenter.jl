@@ -169,6 +169,24 @@ struct MultiOutput
     content::Vector
 end
 
+struct MultiCodeBlock
+    language::String
+    content::Vector
+end
+function join_multiblock(mcb::MultiCodeBlock)
+    io = IOBuffer()
+    for (i, thing) in enumerate(mcb.content)
+        print(io, thing.code)
+        if i != length(mcb.content)
+            println(io)
+            if findnext(x -> x.language == mcb.language, mcb.content, i + 1) == i + 1
+                println(io)
+            end
+        end
+    end
+    return Markdown.Code(mcb.language, String(take!(io)))
+end
+
 # Navigation
 # ----------------------
 
@@ -223,7 +241,7 @@ struct User
     linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
-    strict::Bool              # Throw an exception when any warnings are encountered.
+    strict::Union{Bool,Symbol,Vector{Symbol}} # Throw an exception when any warnings are encountered.
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     expandfirst::Vector{String} # List of pages that get "expanded" before others
     remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
@@ -276,7 +294,7 @@ function Document(plugins = nothing;
         linkcheck_timeout :: Real    = 10,
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
-        strict::Bool                 = false,
+        strict::Union{Bool,Symbol,Vector{Symbol}} = false,
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         expandfirst :: Vector        = String[],
@@ -287,6 +305,8 @@ function Document(plugins = nothing;
         highlightsig::Bool           = true,
         others...
     )
+
+    Utilities.check_strict_kw(strict)
     Utilities.check_kwargs(others)
 
     if !isa(format, AbstractVector)

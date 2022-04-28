@@ -32,13 +32,32 @@ julia> import Pkg; Pkg.add("Documenter")
 
 The package is tested against, and being developed for, Julia `1.0` and above on Linux, macOS, and Windows.
 
-Support for Julia `0.4`, `0.5`, `0.6` and `0.7` has been dropped in the latest version, but older versions of Documenter may still work (Documenter versions `0.8`, `0.11`, `0.19`, and `0.22` respectively).
-
 ## Questions and Contributions
 
 Usage questions can be posted on the [Julia Discourse forum][discourse-tag-url] under the `documenter` tag, in the #documentation channel of the [Julia Slack](https://julialang.org/community/) and/or in the [JuliaDocs Gitter chat room][gitter-url].
 
 Contributions are very welcome, as are feature requests and suggestions. Please open an [issue][issues-url] if you encounter any problems. The [contributing page][contrib-url] has a few guidelines that should be followed when opening pull requests and contributing code.
+
+## Related packages
+
+There are several packages that extend Documenter in different ways. The JuliaDocs organization maintains:
+
+* [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
+* [DocumenterMarkdown.jl](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
+
+Other third-party packages that can be combined with Documenter include:
+
+* [DemoCards.jl](https://github.com/johnnychen94/DemoCards.jl)
+* [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
+* [Literate.jl](https://github.com/fredrikekre/Literate.jl)
+* [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
+* [QuizQuestions](https://github.com/jverzani/QuizQuestions.jl)
+
+Finally, there are also a few other packages in the Julia ecosystem that are similar to Documenter, but fill a slightly different niche:
+
+* [Franklin.jl](https://github.com/tlienart/Franklin.jl)
+* [Publish.jl](https://github.com/MichaelHatherly/Publish.jl)
+* [Weave.jl](https://github.com/JunoLab/Weave.jl)
 
 [contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter

@@ -276,7 +276,7 @@ end
 """
 Replaces some of the characters in the string with escape sequences so that the strings
 would be valid JS string literals, as per the
-[ECMAScript® 2017 standard](https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals).
+[ECMAScript® 2017 standard](https://262.ecma-international.org/8.0/#sec-literals-string-literals).
 Note that it always escapes both potential `"` and `'` closing quotes.
 """
 function jsescape(s)
@@ -287,7 +287,7 @@ function jsescape(s)
     # > quote code points, U+005C (REVERSE SOLIDUS), U+000D (CARRIAGE RETURN), U+2028 (LINE
     # > SEPARATOR), U+2029 (PARAGRAPH SEPARATOR), and U+000A (LINE FEED).
     #
-    # https://www.ecma-international.org/ecma-262/8.0/index.html#sec-literals-string-literals
+    # https://262.ecma-international.org/8.0/#sec-literals-string-literals
     #
     # Note: in ECMAScript® 2019 (10th edition), U+2028 and U+2029 do not actually need to be
     # escaped anymore:
@@ -295,7 +295,7 @@ function jsescape(s)
     # > Updated syntax includes /--/ allowing U+2028 (LINE SEPARATOR) and U+2029 (PARAGRAPH
     # > SEPARATOR) in string literals to align with JSON.
     #
-    # https://www.ecma-international.org/ecma-262/10.0/index.html#sec-intro
+    # https://262.ecma-international.org/10.0/#sec-intro
     #
     # But we'll  keep these escapes around for now, as not all JS parsers may be compatible
     # with the latest standard yet.
@@ -325,7 +325,7 @@ end
     json_jsescape(args...)
 
 Call `JSON.json(args...)` to generate a `String` of JSON, but then also escape two Unicode
-characters to get valid JS (since [JSON is not a JS subset](http://timelessrepo.com/json-isnt-a-javascript-subset)).
+characters to get valid JS (since [JSON is not a JS subset](https://web.archive.org/web/20200111135746/http://timelessrepo.com/json-isnt-a-javascript-subset)).
 
 !!! note
     Technically, starting with ECMAScript® 2019 (10th edition), this is no longer necessary.
