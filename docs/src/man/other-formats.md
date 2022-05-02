@@ -33,6 +33,27 @@ The following is required to build the documentation:
   highlighter [Pygments](https://pygments.org/) installed.
 * You need the [_DejaVu Sans_ and _DejaVu Sans Mono_](https://dejavu-fonts.github.io/) fonts installed.
 
+### Compiling using Tectonic 
+
+The documentation can be also built using the
+[Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. It is required to have a `tectonic`
+available in `PATH`, or to provide a path to the binary using the `tectonic` keyword:
+
+```
+using Documenter
+
+# Executable `tectonic` is present in `PATH`
+makedocs(
+    format = Documenter.LaTeX(platform="tectonic"), 
+    ...)
+
+# The path to `tectonic` is provided by the tectonic_jll package
+using tectonic_jll: tectonic
+makedocs(
+    format = Documenter.LaTeX(platform="tectonic", tectonic=tectonic()), 
+    ...)
+```
+
 ### Compiling using docker image
 
 It is also possible to use a prebuilt [docker image](https://hub.docker.com/r/juliadocs/documenter-latex/)
