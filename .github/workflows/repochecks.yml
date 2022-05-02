@@ -1,0 +1,35 @@
+name: Repo checks
+
+on:
+  push:
+    branches: '*'
+    tags: '*'
+  pull_request:
+
+jobs:
+  changelog:
+    name: Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: '1.6'
+      - name: Install dependencies
+        run: julia --color=yes --project=scripts/ -e 'using Pkg; Pkg.instantiate()'
+      - name: Test scripts/changelog.jl
+        run: |
+          # Run the unit tests of the changelog.jl script:
+          julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl test
+          # Run changelog.jl with a small, but known good CHANGELOG file and make sure it passes:
+          julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl --file=scripts/changelog-valid.md
+          # Run changelog.jl with a known _bad_ CHANGELOG file, which should exit with a non-zero code:
+          ! julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl --file=scripts/changelog-invalid.md
+      - name: Check CHANGELOG.md
+        run: julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl --github
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: src,scripts
+      - uses: codecov/codecov-action@v1
+        with:
+          file: lcov.info
