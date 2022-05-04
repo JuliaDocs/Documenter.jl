@@ -28,7 +28,7 @@ end
 # Names of possible internal errors
 const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
                      :eval_block, :example_block, :footnote, :linkcheck, :meta_block,
-                     :missing_docs, :parse_error, :setup_block]
+                     :missing_docs, :parse_error, :setup_block, :autodocs_docmeta]
 
 """
     abstract type Plugin end
