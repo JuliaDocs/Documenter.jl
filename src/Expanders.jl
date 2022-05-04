@@ -408,7 +408,19 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 isexported = Base.isexported(mod, binding.var)
                 included = (isexported && public) || (!isexported && private)
                 # What category does the binding belong to?
-                category = Documenter.DocSystem.category(binding)
+                category = try
+                    Documenter.DocSystem.category(binding)
+                catch err
+                    isa(err, UndefVarError) || rethrow(err)
+                    @docerror(doc, :autodocs_block,
+                    """
+                    @autodocs ($(Utilities.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    This is likely due to a bug in the Julia docsystem.
+                    """, exception = err)
+                end
                 if category in order && included
                     # filter the elements after category/order has been evaluated
                     # to ensure that e.g. when `Order = [:type]` is given, the filter
