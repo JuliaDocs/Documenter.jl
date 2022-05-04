@@ -412,7 +412,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                     Documenter.DocSystem.category(binding)
                 catch err
                     isa(err, UndefVarError) || rethrow(err)
-                    @docerror(doc, :autodocs_docmeta,
+                    @docerror(doc, :autodocs_block,
                     """
                     @autodocs ($(Utilities.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
                     ```$(x.language)
@@ -423,12 +423,13 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
 
                       https://github.com/JuliaLang/julia/issues/45174
 
-                    You can ignore this error by disabling strict checking for :autodocs_docmeta
-                    in the makedocs call with e.g.
+                    As a workaround, the docstrings for the functor methods could be included in the docstring
+                    of the type definition. This error can also be ignored by disabling strict checking for
+                    :autodocs_block in the makedocs call with e.g.
 
-                      strict = Documenter.except(:autodocs_docmeta)
+                      strict = Documenter.except(:autodocs_block)
 
-                    However, the relevant docstrings will not be included by the @autodocs block.
+                    However, the relevant docstrings will then not be included by the @autodocs block.
                     """, exception = err)
                     continue # skip this docstring
                 end
