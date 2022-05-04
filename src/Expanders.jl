@@ -420,6 +420,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                     ```
                     This is likely due to a bug in the Julia docsystem.
                     """, exception = err)
+                    continue # skip this docstring
                 end
                 if category in order && included
                     # filter the elements after category/order has been evaluated
