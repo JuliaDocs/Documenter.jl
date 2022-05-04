@@ -4,8 +4,10 @@
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
 * ![Enhancement][badge-enhancement] The phrasing of the outdated version warning in the HTML output has been improved. ([#1805][github-1805])
+* ![Enhancement][badge-enhancement] Documenter now provides the `Documenter.except` function which can be used to "invert" the list of errors that are passed to `makedocs` via the `strict` keyword. ([#1811][github-1811])
 * ![Bugfix][badge-bugfix] When linkchecking HTTP and HTTPS URLs, Documenter now also passes a realistic `accept-encoding` header along with the request, in order to work around servers that try to block non-browser requests. ([#1807][github-1807])
 * ![Bugfix][badge-bugfix] LaTeX build logs are now properly outputted to the `LaTeXWriter.{stdout,stderr}` files when using the Docker build option. ([#1806][github-1806])
+* ![Bugfix][badge-bugfix] `makedocs` no longer fails with an `UndefVarError` if it encounters a specific kind of bad docsystem state related to docstrings attached to the call syntax, but issues an `@autodocs` error/warning instead. ([JuliaLang/julia#45174][julia-45174], [#1192][github-1192], [#1810][github-1810], [#1811][github-1811])
 
 ## Version `v0.27.16`
 
@@ -840,6 +842,7 @@
 [github-1184]: https://github.com/JuliaDocs/Documenter.jl/issues/1184
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
+[github-1192]: https://github.com/JuliaDocs/Documenter.jl/issues/1192
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
 [github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
 [github-1200]: https://github.com/JuliaDocs/Documenter.jl/issues/1200
@@ -1019,10 +1022,13 @@
 [github-1805]: https://github.com/JuliaDocs/Documenter.jl/pull/1805
 [github-1806]: https://github.com/JuliaDocs/Documenter.jl/pull/1806
 [github-1807]: https://github.com/JuliaDocs/Documenter.jl/pull/1807
+[github-1810]: https://github.com/JuliaDocs/Documenter.jl/issues/1810
+[github-1811]: https://github.com/JuliaDocs/Documenter.jl/pull/1811
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
+[julia-45174]: https://github.com/JuliaLang/julia/issues/45174
 [julialangorg-1272]: https://github.com/JuliaLang/www.julialang.org/issues/1272
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
