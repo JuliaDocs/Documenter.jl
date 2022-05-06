@@ -183,7 +183,7 @@ name: Documentation
 on:
   push:
     branches:
-      - master
+      - master # change to name of branch which is to be addressed
     tags: '*'
   pull_request:
 
