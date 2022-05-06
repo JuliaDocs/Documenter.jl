@@ -183,7 +183,7 @@ name: Documentation
 on:
   push:
     branches:
-      - master
+      - master # update to match your development branch (master, main, dev, trunk, ...)
     tags: '*'
   pull_request:
 
