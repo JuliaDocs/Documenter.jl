@@ -16,6 +16,7 @@ include("TestUtilities.jl"); using .TestUtilities
     @quietly include("errors/make.jl")
 
     # Unit tests for module internals.
+    include("except.jl")
     include("utilities.jl")
     include("markdown2.jl")
 
