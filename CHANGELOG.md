@@ -1,6 +1,6 @@
 # Documenter.jl changelog
 
-## Unreleased
+## Version `v0.27.17`
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
 * ![Enhancement][badge-enhancement] The phrasing of the outdated version warning in the HTML output has been improved. ([#1805][github-1805])
