@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Unreleased
+
+* ![Bugfix][badge-bugfix] Build failures now only show fatal errors, rather than all errors. ([#1816][github-1816])
+
 ## Version `v0.27.17`
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
@@ -1024,6 +1028,7 @@
 [github-1807]: https://github.com/JuliaDocs/Documenter.jl/pull/1807
 [github-1810]: https://github.com/JuliaDocs/Documenter.jl/issues/1810
 [github-1811]: https://github.com/JuliaDocs/Documenter.jl/pull/1811
+[github-1816]: https://github.com/JuliaDocs/Documenter.jl/pull/1816
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
