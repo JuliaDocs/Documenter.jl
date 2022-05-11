@@ -251,7 +251,8 @@ function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
     is_doctest_only(doc, "RenderDocument") && return
     # How many fatal errors
     fatal_errors = filter(is_strict(doc.user.strict), doc.internal.errors)
-    if length(fatal_errors) > 0
+    c = length(fatal_errors)
+    if c > 0
         error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ("
         * join(Ref(":") .* string.(fatal_errors), ", ")
         * "). Terminating build before rendering.")
