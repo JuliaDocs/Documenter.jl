@@ -10,7 +10,7 @@
     display: flex;
     flex-grow: 1;
     align-items: stretch;
-    padding: $card-header-padding;
+    padding: $documenter-docstring-header-padding;
 
     background-color: $documenter-docstring-header-background;
     box-shadow: $card-header-shadow;
@@ -31,7 +31,7 @@
 
   > section {
     position: relative;
-    padding: $card-content-padding;
+    padding: $documenter-docstring-body-padding;
 
     border-bottom: 1px solid $border;
     &:last-child {
@@ -42,8 +42,8 @@
       transition: opacity 0.3s;
       opacity: 0;
       position: absolute;
-      right: $card-content-padding-h / 2;
-      bottom: $card-content-padding-v / 2;
+      right: $documenter-docstring-body-padding-h / 2;
+      bottom: $documenter-docstring-body-padding-v / 2;
       @extend .tag;
       @extend .is-primary;
       @extend .is-size-7;

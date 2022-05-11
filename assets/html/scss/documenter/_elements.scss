@@ -39,17 +39,17 @@ pre {
   overflow: hidden;
 
   code, code.hljs {
-    padding: 0 0.5rem !important;
+    padding: 0 $documenter-container-left-padding !important;
     overflow: auto;
     display: block;
   }
 
   code:first-of-type, code.hljs:first-of-type {
-    padding-top: 0.7rem !important;
+    padding-top: 0.5rem !important;
   }
 
   code:last-of-type, code.hljs:last-of-type {
-    padding-bottom: 0.7rem !important;
+    padding-bottom: 0.5rem !important;
   }
 
   .copy-button {
