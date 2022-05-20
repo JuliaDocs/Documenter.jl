@@ -38,20 +38,6 @@ module Mod
     """
     mutable struct T end
 
-    """
-        T(x)
-
-    [`(::T)(x)`](@ref)
-    """
-    T(x) = nothing
-
-    """
-        (::T)(x)
-
-    [`T(x)`](@ref)
-    """
-    (::T)(x) = nothing
-
     @doc raw"""
     Inline: ``\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}``
 
@@ -360,7 +346,7 @@ end
 examples_markdown_doc = if "markdown" in EXAMPLE_BUILDS
     @info("Building mock package docs: MarkdownWriter")
     @quietly makedocs(
-        format = DocumenterMarkdown.Markdown(),
+        format = Markdown(),
         debug = true,
         root  = examples_root,
         build = "builds/markdown",

@@ -16,8 +16,6 @@ Pages = ["lib/functions.md"]
 ```@docs
 func(x)
 T
-T(x)
-(::T)(x)
 ccall
 for
 while
