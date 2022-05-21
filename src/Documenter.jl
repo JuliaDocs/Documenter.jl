@@ -532,9 +532,12 @@ function deploydocs(;
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
+        env = copy(ENV)
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        env["GIT_SSH_COMMAND"] = get(env, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
         str = try
             read(pipeline(ignorestatus(
-                setenv(`git remote show origin`, ["GIT_TERMINAL_PROMPT=0"]; dir=root)
+                setenv(`git remote show origin`, env; dir=root)
             ); stderr=devnull), String)
         catch
             ""
