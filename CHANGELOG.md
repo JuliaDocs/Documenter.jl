@@ -4,7 +4,7 @@
 
 * ![Enhancement][badge-enhancement] The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. ([#1814][github-1814], [#1818][github-1818])
 * ![Bugfix][badge-bugfix] Build failures now only show fatal errors, rather than all errors. ([#1816][github-1816])
-* ![Bugfix][badge-bugfix] Disable git terminal prompt when detecting remote HEAD branch for ssh remotes, and allow ssh-agent authentication (by appending rather than overriding ENV). ([#1797][github-1797])
+* ![Bugfix][badge-bugfix] Disable git terminal prompt when detecting remote HEAD branch for ssh remotes, and allow ssh-agent authentication (by appending rather than overriding ENV). ([#1821][github-1821])
 
 ## Version `v0.27.17`
 
@@ -1033,6 +1033,7 @@
 [github-1814]: https://github.com/JuliaDocs/Documenter.jl/issues/1814
 [github-1816]: https://github.com/JuliaDocs/Documenter.jl/pull/1816
 [github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
+[github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
