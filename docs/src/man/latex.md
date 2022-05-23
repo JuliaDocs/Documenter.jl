@@ -168,4 +168,4 @@ mathengine = MathJax3(Dict(
     ),
 )),
 ```
-`MathJax2`, `MathJax3` and `KaTeX` are available types for `mathengine`.
+[`MathJax2`](@ref), [`MathJax3`](@ref) and [`KaTeX`](@ref) are available types for `mathengine`.
