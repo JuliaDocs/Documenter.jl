@@ -90,6 +90,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
     build  = doc.user.build
     source = doc.user.source
     workdir = doc.user.workdir
+    preprocess = doc.user.preprocess
 
 
     # The .user.source directory must exist.
@@ -128,7 +129,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
 
             if endswith(file, ".md")
                 push!(mdpages, Utilities.srcpath(source, root, file))
-                Documents.addpage!(doc, src, dst, wd)
+                Documents.addpage!(doc, src, dst, wd, preprocess)
             else
                 cp(src, dst; force = true)
             end

@@ -221,6 +221,10 @@ ignored.
 **`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
 return a response before giving up. The default is 10 seconds.
 
+**`preprocess`** allows to specify a function to preprocess the String read from file before
+it is parsed as a Markdown page. The custom function should have the page content as the
+first argument, the page full path as the second one and return a String.
+
 **`strict`** -- if set to `true`, [`makedocs`](@ref) fails the build right before rendering
 if it encountered any errors with the document in the previous build phases. The keyword
 `strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error

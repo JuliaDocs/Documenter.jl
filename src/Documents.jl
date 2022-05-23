@@ -54,8 +54,11 @@ struct Page
     globals  :: Globals
     md2ast   :: Markdown2.MD
 end
-function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
-    mdpage = Markdown.parse(read(source, String))
+function Page(source::AbstractString, build::AbstractString, workdir::AbstractString, preprocess::Function)
+
+    pagecontent = read(source, String)
+    pagecontent = preprocess(pagecontent,source)
+    mdpage      = Markdown.parse(pagecontent)
     md2ast = try
         Markdown2.convert(Markdown2.MD, mdpage)
     catch err
@@ -249,6 +252,7 @@ struct User
     authors :: String
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
+    preprocess::Function # Preprocess a String read from the fyle system before it is parsed as a Markdown page
 end
 
 """
@@ -304,6 +308,7 @@ function Document(plugins = nothing;
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
+        preprocess:: Function        = (page,path) -> page, 
         others...
     )
 
@@ -338,7 +343,8 @@ function Document(plugins = nothing;
         sitename,
         authors,
         version,
-        highlightsig
+        highlightsig,
+        preprocess;
     )
     internal = Internal(
         Utilities.assetsdir(),
@@ -390,8 +396,8 @@ end
 
 ## Methods
 
-function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
-    page = Page(src, dst, wd)
+function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString, preprocess::Function)
+    page = Page(src, dst, wd, preprocess)
     # page's identifier is the path relative to the `doc.user.source` directory
     name = normpath(relpath(src, doc.user.source))
     doc.blueprint.pages[name] = page
