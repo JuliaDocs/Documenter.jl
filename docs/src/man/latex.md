@@ -142,3 +142,30 @@ LaTeXEquation(raw"""
     \end{array}\right]
 """)
 ```
+
+## Set math engine and define macros for LaTeX
+
+The `mathengine` argument to [`Documenter.Writers.HTMLWriter.HTML`](@ref) allows the math rendering engine to be specified, supporting both MathJax and KaTeX (with the latter being the default).
+
+Furthermore, you can also pass custom configuration to the rendering engine. E.g. to add global LaTeX command definitions, you can set `mathengine` to:
+```julia
+mathengine = Documenter.MathJax(Dict(:TeX => Dict(
+    :equationNumbers => Dict(:autoNumber => "AMS"),
+    :Macros => Dict(
+        :ket => ["|#1\\rangle", 1],
+        :bra => ["\\langle#1|", 1],
+    ),
+)))
+```
+Or with MathJax v3, the [physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf) can be loaded:
+```julia
+mathengine = MathJax3(Dict(
+    :loader => Dict("load" => ["[tex]/physics"]),
+    :tex => Dict(
+        "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+        "tags" => "ams",
+        "packages" => ["base", "ams", "autoload", "physics"],
+    ),
+)),
+```
+[`MathJax2`](@ref), [`MathJax3`](@ref) and [`KaTeX`](@ref) are available types for `mathengine`.
