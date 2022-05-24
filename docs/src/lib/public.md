@@ -21,6 +21,7 @@ Pages = ["public.md"]
 ```@docs
 Documenter
 makedocs
+Documenter.except
 hide
 asset
 deploydocs

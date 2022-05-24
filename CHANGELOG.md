@@ -1,11 +1,24 @@
 # Documenter.jl changelog
 
-## Unreleased
+## Version `v0.28.0` (unreleased)
+
+* ![Enhancement][badge-enhancement] A more generic API is now available to configure the remote repository URLs by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`) as the `repo` argument of `makedocs`. ([#1808][github-1808])
+
+## Version `v0.27.18`
+
+* ![Enhancement][badge-enhancement] The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. ([#1814][github-1814], [#1818][github-1818])
+* ![Bugfix][badge-bugfix] When deploying unversioned docs, Documenter now generates a `siteinfo.js` file that disables the version selector, even if a `../versions.js` happens to exists. ([#1667][github-1667], [#1825][github-1825])
+* ![Bugfix][badge-bugfix] Build failures now only show fatal errors, rather than all errors. ([#1816][github-1816])
+* ![Bugfix][badge-bugfix] Disable git terminal prompt when detecting remote HEAD branch for ssh remotes, and allow ssh-agent authentication (by appending rather than overriding ENV). ([#1821][github-1821])
+
+## Version `v0.27.17`
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
 * ![Enhancement][badge-enhancement] The phrasing of the outdated version warning in the HTML output has been improved. ([#1805][github-1805])
-* ![Enhancement][badge-enhancement] A more generic API is now available to configure the remote repository URLs by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`) as the `repo` argument of `makedocs`. ([#1808][github-1808])
+* ![Enhancement][badge-enhancement] Documenter now provides the `Documenter.except` function which can be used to "invert" the list of errors that are passed to `makedocs` via the `strict` keyword. ([#1811][github-1811])
 * ![Bugfix][badge-bugfix] When linkchecking HTTP and HTTPS URLs, Documenter now also passes a realistic `accept-encoding` header along with the request, in order to work around servers that try to block non-browser requests. ([#1807][github-1807])
+* ![Bugfix][badge-bugfix] LaTeX build logs are now properly outputted to the `LaTeXWriter.{stdout,stderr}` files when using the Docker build option. ([#1806][github-1806])
+* ![Bugfix][badge-bugfix] `makedocs` no longer fails with an `UndefVarError` if it encounters a specific kind of bad docsystem state related to docstrings attached to the call syntax, but issues an `@autodocs` error/warning instead. ([JuliaLang/julia#45174][julia-45174], [#1192][github-1192], [#1810][github-1810], [#1811][github-1811])
 
 ## Version `v0.27.16`
 
@@ -840,6 +853,7 @@
 [github-1184]: https://github.com/JuliaDocs/Documenter.jl/issues/1184
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
+[github-1192]: https://github.com/JuliaDocs/Documenter.jl/issues/1192
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
 [github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
 [github-1200]: https://github.com/JuliaDocs/Documenter.jl/issues/1200
@@ -976,6 +990,7 @@
 [github-1658]: https://github.com/JuliaDocs/Documenter.jl/pull/1658
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
+[github-1667]: https://github.com/JuliaDocs/Documenter.jl/issues/1667
 [github-1673]: https://github.com/JuliaDocs/Documenter.jl/pull/1673
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
 [github-1689]: https://github.com/JuliaDocs/Documenter.jl/pull/1689
@@ -1017,12 +1032,21 @@
 [github-1802]: https://github.com/JuliaDocs/Documenter.jl/issues/1802
 [github-1803]: https://github.com/JuliaDocs/Documenter.jl/pull/1803
 [github-1805]: https://github.com/JuliaDocs/Documenter.jl/pull/1805
+[github-1806]: https://github.com/JuliaDocs/Documenter.jl/pull/1806
 [github-1807]: https://github.com/JuliaDocs/Documenter.jl/pull/1807
 [github-1808]: https://github.com/JuliaDocs/Documenter.jl/pull/1808
+[github-1810]: https://github.com/JuliaDocs/Documenter.jl/issues/1810
+[github-1811]: https://github.com/JuliaDocs/Documenter.jl/pull/1811
+[github-1814]: https://github.com/JuliaDocs/Documenter.jl/issues/1814
+[github-1816]: https://github.com/JuliaDocs/Documenter.jl/pull/1816
+[github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
+[github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
+[github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
+[julia-45174]: https://github.com/JuliaLang/julia/issues/45174
 [julialangorg-1272]: https://github.com/JuliaLang/www.julialang.org/issues/1272
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl

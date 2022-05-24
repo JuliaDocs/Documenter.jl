@@ -408,7 +408,31 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 isexported = Base.isexported(mod, binding.var)
                 included = (isexported && public) || (!isexported && private)
                 # What category does the binding belong to?
-                category = Documenter.DocSystem.category(binding)
+                category = try
+                    Documenter.DocSystem.category(binding)
+                catch err
+                    isa(err, UndefVarError) || rethrow(err)
+                    @docerror(doc, :autodocs_block,
+                    """
+                    @autodocs ($(Utilities.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    This is likely due to a bug in the Julia docsystem relating to the handling of
+                    docstrings attached to methods of callable objects. See:
+
+                      https://github.com/JuliaLang/julia/issues/45174
+
+                    As a workaround, the docstrings for the functor methods could be included in the docstring
+                    of the type definition. This error can also be ignored by disabling strict checking for
+                    :autodocs_block in the makedocs call with e.g.
+
+                      strict = Documenter.except(:autodocs_block)
+
+                    However, the relevant docstrings will then not be included by the @autodocs block.
+                    """, exception = err)
+                    continue # skip this docstring
+                end
                 if category in order && included
                     # filter the elements after category/order has been evaluated
                     # to ensure that e.g. when `Order = [:type]` is given, the filter

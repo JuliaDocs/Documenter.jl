@@ -81,19 +81,19 @@ $admonition-header-color: () !default;
   font-weight: $message-header-weight;
   justify-content: space-between;
   line-height: 1.25;
-  padding: $message-header-padding;
+  padding: $documenter-admonition-header-padding;
   position: relative;
 
   &:before {
     @include font-awesome;
-    margin-right: $message-header-padding;
+    margin-right: $documenter-container-left-padding;
     content: "\f06a";
   }
 }
 
 .admonition-body {
   color: $message-body-color;
-  padding: $message-body-padding;
+  padding: $documenter-admonition-body-padding;
 
   pre {
     background-color: $pre-background;

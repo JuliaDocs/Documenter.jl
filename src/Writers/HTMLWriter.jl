@@ -1428,9 +1428,13 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
     end
 end
 
-function generate_siteinfo_file(dir::AbstractString, version::AbstractString)
+function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString,Nothing})
     open(joinpath(dir, "siteinfo.js"), "w") do buf
-        println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+        if version !== nothing
+            println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+        else
+            println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
+        end
     end
 end
 

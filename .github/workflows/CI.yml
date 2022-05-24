@@ -15,6 +15,7 @@ jobs:
       matrix:
         version:
           - '1.0'
+          - '1.6'
           - '1'
           - 'nightly'
         os:
@@ -104,15 +105,14 @@ jobs:
           file: lcov.info
 
   docs:
-    name: 'Documentation: ${{ matrix.makejl }}'
+    name: 'Documentation: ${{ matrix.format }}'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - jlenv: 'docs/'
-            makejl: 'docs/make.jl'
-          - jlenv: 'docs/pdf/'
-            makejl: 'docs/pdf/make.jl'
+        format:
+          - html
+          - pdf
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -120,16 +120,17 @@ jobs:
           version: '1'
       - uses: julia-actions/cache@v1
       - run: |
-          julia --project=${{ matrix.jlenv }} -e '
+          julia --color=yes --project=docs/ -e '
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
-      - run: julia --project=${{ matrix.jlenv }} --color=yes ${{ matrix.makejl }}
+      - run: julia --color=yes --project=docs/ docs/make.jl ${{ matrix.format }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          DOCUMENTER_LATEX_DEBUG: ${{ github.workspace }}/latex-debug-logs
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.makejl == 'docs/pdf/make.jl' }}
+        if: ${{ always() && matrix.format == 'pdf' }}
         with:
-          name: Documenter manual (PDF)
-          path: docs/pdf/build/pdfdir/*.pdf
+          name: PDF build logs
+          path: ${{ github.workspace }}/latex-debug-logs

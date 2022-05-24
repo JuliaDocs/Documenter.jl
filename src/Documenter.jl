@@ -218,6 +218,7 @@ return a response before giving up. The default is 10 seconds.
 if it encountered any errors with the document in the previous build phases. The keyword
 `strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error
 (or errors) should be fatal. Options are: $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
+Use [`Documenter.except`](@ref) to explicitly set non-fatal errors.
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).
@@ -259,6 +260,35 @@ function makedocs(components...; debug = false, format = HTML(), kwargs...)
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end
     debug ? document : nothing
+end
+
+"""
+    Documenter.except(errors...)
+
+Returns the list of all valid error classes that can be passed as the `strict` argument to
+[`makedocs`](@ref), except for the ones specified in the `errors` argument. Each error class
+must be a `Symbol` and passed as a separate argument.
+
+Can be used to easily disable the strict checking of specific error classes while making
+sure that all other error types still lead to the Documenter build failing. E.g. to stop
+Documenter failing on footnote and linkcheck errors, one can set `strict` as
+
+```julia
+makedocs(...,
+    strict = Documenter.except(:linkcheck, :footnote),
+)
+```
+
+Possible valid `Symbol` values are:
+$(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
+"""
+function except(errors::Symbol...)
+    invalid_errors = setdiff(errors, ERROR_NAMES)
+    isempty(invalid_errors) || throw(DomainError(
+        tuple(invalid_errors...),
+        "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
+    ))
+    setdiff(ERROR_NAMES, errors)
 end
 
 """
@@ -495,9 +525,12 @@ function deploydocs(;
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
+        env = copy(ENV)
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        env["GIT_SSH_COMMAND"] = get(env, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
         str = try
             read(pipeline(ignorestatus(
-                setenv(`git remote show origin`, ["GIT_TERMINAL_PROMPT=0"]; dir=root)
+                setenv(`git remote show origin`, env; dir=root)
             ); stderr=devnull), String)
         catch
             ""
@@ -632,7 +665,11 @@ function git_push(
         deploy_dir = subfolder === nothing ? dirname : joinpath(dirname, subfolder)
         gitrm_copy(target_dir, deploy_dir)
 
-        if versions !== nothing
+        if versions === nothing
+            # If the documentation is unversioned and deployed to root, we generate a
+            # siteinfo.js file that would disable the version selector in the docs
+            Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
+        else
             # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
             Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
