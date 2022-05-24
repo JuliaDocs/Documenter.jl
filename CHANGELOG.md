@@ -1,6 +1,6 @@
 # Documenter.jl changelog
 
-## Unreleased
+## Version `v0.27.18`
 
 * ![Enhancement][badge-enhancement] The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. ([#1814][github-1814], [#1818][github-1818])
 * ![Bugfix][badge-bugfix] When deploying unversioned docs, Documenter now generates a `siteinfo.js` file that disables the version selector, even if a `../versions.js` happens to exists. ([#1667][github-1667], [#1825][github-1825])
