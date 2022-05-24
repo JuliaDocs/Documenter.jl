@@ -672,7 +672,11 @@ function git_push(
         deploy_dir = subfolder === nothing ? dirname : joinpath(dirname, subfolder)
         gitrm_copy(target_dir, deploy_dir)
 
-        if versions !== nothing
+        if versions === nothing
+            # If the documentation is unversioned and deployed to root, we generate a
+            # siteinfo.js file that would disable the version selector in the docs
+            Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
+        else
             # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
             Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
