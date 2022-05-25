@@ -1,5 +1,11 @@
 # Documenter.jl changelog
 
+## Version `v0.28.0` (unreleased)
+
+* ![BREAKING][badge-breaking] The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package][documentermarkdown]. ([#1826][github-1826])
+
+  **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
+
 ## Version `v0.27.18`
 
 * ![Enhancement][badge-enhancement] The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. ([#1814][github-1814], [#1818][github-1818])
@@ -1037,6 +1043,7 @@
 [github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
 [github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 [github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
+[github-1826]: https://github.com/JuliaDocs/Documenter.jl/pull/1826
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
