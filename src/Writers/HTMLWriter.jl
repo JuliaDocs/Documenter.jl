@@ -347,7 +347,8 @@ passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) 
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 and the [Julia Programming Language](https://julialang.org/)."`.
 
-**`ansicolor`** can be used to enable/disable colored output from `@repl` and `@example` blocks globally.
+**`ansicolor`** can be used to globally disable colored output from `@repl` and `@example`
+blocks by setting it to `false` (defauly: `true`).
 
 **`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
 of the top-level `<html>` element, declaring the language of the generated pages. The default
@@ -428,7 +429,7 @@ struct HTML <: Documenter.Writer
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
-            ansicolor     :: Bool = false, # true in 0.28
+            ansicolor     :: Bool = true,
             lang          :: String = "en",
             warn_outdated :: Bool = true,
 
