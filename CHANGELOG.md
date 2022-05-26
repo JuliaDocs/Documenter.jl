@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.28.0` (unreleased)
+
+* ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
+
 ## Version `v0.27.18`
 
 * ![Enhancement][badge-enhancement] The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. ([#1814][github-1814], [#1818][github-1818])
@@ -1037,6 +1041,7 @@
 [github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
 [github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 [github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
+[github-1828]: https://github.com/JuliaDocs/Documenter.jl/pull/1828
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
