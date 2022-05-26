@@ -348,7 +348,7 @@ the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com
 and the [Julia Programming Language](https://julialang.org/)."`.
 
 **`ansicolor`** can be used to globally disable colored output from `@repl` and `@example`
-blocks by setting it to `false` (defauly: `true`).
+blocks by setting it to `false` (default: `true`).
 
 **`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
 of the top-level `<html>` element, declaring the language of the generated pages. The default
