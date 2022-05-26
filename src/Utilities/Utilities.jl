@@ -785,45 +785,6 @@ function check_strict_kw(strict)
     return nothing
 end
 
-"""
-Calls `git remote show \$(remotename)` to try to determine the main (development) branch
-of the remote repository. Returns `master` and prints a warning if it was unable to figure
-it out automatically.
-"""
-function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
-    env = copy(ENV)
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GIT_SSH_COMMAND"] = get(env, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
-    cmd = `git remote show $(remotename)`
-    stderr_output = IOBuffer()
-    git_remote_output = try
-        read(pipeline(setenv(cmd, env; dir=root); stderr=stderr_output), String)
-    catch e
-        @warn """
-        Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
-        Calling `git remote` failed with an exception. Set JULIA_DEBUG=Documenter to see the error.
-        Unless this is due to a configuration error, the relevant variable should be set explicitly.
-        """
-        @debug "Command: $cmd" exception = (e, catch_backtrace()) stderr = String(take!(stderr_output))
-        return fallback
-    end
-    m = match(r"^\s*HEAD branch:\s*(.*)$"m, git_remote_output)
-    if m === nothing
-        @warn """
-        Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
-        Failed to parse the `git remote` output. Set JULIA_DEBUG=Documenter to see the output.
-        Unless this is due to a configuration error, the relevant variable should be set explicitly.
-        """
-        @debug """
-        stdout from $cmd:
-        $(git_remote_output)
-        """
-        fallback
-    else
-        String(m[1])
-    end
-end
-
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")

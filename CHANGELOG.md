@@ -3,7 +3,6 @@
 ## Version `v0.28.0` (unreleased)
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
-* ![Enhancement][badge-enhancement] The `edit_link` keyword to `HTML()` automatically tries to figure out if the remote default branch is `main`, `master`, or something else. Documenter will now print a warning if it is unable to unreliably automatically determine `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
 
 ## Version `v0.27.18`
 
@@ -1042,9 +1041,7 @@
 [github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
 [github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 [github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
-[github-1827]: https://github.com/JuliaDocs/Documenter.jl/issues/1827
 [github-1828]: https://github.com/JuliaDocs/Documenter.jl/pull/1828
-[github-1829]: https://github.com/JuliaDocs/Documenter.jl/pull/1829
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079

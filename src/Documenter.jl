@@ -532,7 +532,18 @@ function deploydocs(;
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
-        devbranch = Utilities.git_remote_head_branch("deploydocs(devbranch = ...)", root)
+        env = copy(ENV)
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        env["GIT_SSH_COMMAND"] = get(env, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
+        str = try
+            read(pipeline(ignorestatus(
+                setenv(`git remote show origin`, env; dir=root)
+            ); stderr=devnull), String)
+        catch
+            ""
+        end
+        m = match(r"^\s*HEAD branch:\s*(.*)$"m, str)
+        devbranch = m === nothing ? "master" : String(m[1])
     end
 
     deploy_decision = deploy_folder(deploy_config;
