@@ -189,7 +189,8 @@ on:
 
 jobs:
   build:
-    permissions: write-all
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
