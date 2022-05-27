@@ -955,4 +955,22 @@ function doctest(
     end
 end
 
+function foo(x)
+    x = x + 1
+    x = x + 1
+    x = x + 1
+    x = x + 1
+    x = x + 1
+    x = x + 1
+end
+
+function bar(x)
+    x = x + 1
+    x = x + 1
+    x = x + 1
+    x = x + 1
+    x = x + 1
+    x = x + 1
+end
+
 end # module
