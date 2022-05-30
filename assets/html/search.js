@@ -39,7 +39,7 @@ $(document).ready(function() {
   var index = localStorage.getItem("index")
   if (index === null) {
     // If the index isn't retrievable, clear the store too just in case the regenerated index has changed
-    localStorage.clear()
+    localStorage.removeItem(store)
 
     // list below is the lunr 2.1.3 list minus the intersect with names(Base)
     // (all, any, get, in, is, only, which) and (do, else, for, let, where, while, with)
