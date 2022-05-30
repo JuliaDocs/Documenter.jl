@@ -1,5 +1,5 @@
-// libraries: jquery, lunr, lodash
-// arguments: $, lunr, _
+// libraries: jquery, lunr, lodash, lzstring
+// arguments: $, lunr, _, lzstring
 
 $(document).ready(function() {
   // parseUri 1.2.2
@@ -36,145 +36,168 @@ $(document).ready(function() {
   $("#search-form").submit(function(e) {
     e.preventDefault()
   })
+  var index = localStorage.getItem("index")
+  if (index === null) {
+    // If the index isn't retrievable, clear the store too just in case the regenerated index has changed
+    localStorage.clear()
 
-  // list below is the lunr 2.1.3 list minus the intersect with names(Base)
-  // (all, any, get, in, is, only, which) and (do, else, for, let, where, while, with)
-  // ideally we'd just filter the original list but it's not available as a variable
-  lunr.stopWordFilter = lunr.generateStopWordFilter([
-    'a',
-    'able',
-    'about',
-    'across',
-    'after',
-    'almost',
-    'also',
-    'am',
-    'among',
-    'an',
-    'and',
-    'are',
-    'as',
-    'at',
-    'be',
-    'because',
-    'been',
-    'but',
-    'by',
-    'can',
-    'cannot',
-    'could',
-    'dear',
-    'did',
-    'does',
-    'either',
-    'ever',
-    'every',
-    'from',
-    'got',
-    'had',
-    'has',
-    'have',
-    'he',
-    'her',
-    'hers',
-    'him',
-    'his',
-    'how',
-    'however',
-    'i',
-    'if',
-    'into',
-    'it',
-    'its',
-    'just',
-    'least',
-    'like',
-    'likely',
-    'may',
-    'me',
-    'might',
-    'most',
-    'must',
-    'my',
-    'neither',
-    'no',
-    'nor',
-    'not',
-    'of',
-    'off',
-    'often',
-    'on',
-    'or',
-    'other',
-    'our',
-    'own',
-    'rather',
-    'said',
-    'say',
-    'says',
-    'she',
-    'should',
-    'since',
-    'so',
-    'some',
-    'than',
-    'that',
-    'the',
-    'their',
-    'them',
-    'then',
-    'there',
-    'these',
-    'they',
-    'this',
-    'tis',
-    'to',
-    'too',
-    'twas',
-    'us',
-    'wants',
-    'was',
-    'we',
-    'were',
-    'what',
-    'when',
-    'who',
-    'whom',
-    'why',
-    'will',
-    'would',
-    'yet',
-    'you',
-    'your'
-  ])
+    // list below is the lunr 2.1.3 list minus the intersect with names(Base)
+    // (all, any, get, in, is, only, which) and (do, else, for, let, where, while, with)
+    // ideally we'd just filter the original list but it's not available as a variable
+    lunr.stopWordFilter = lunr.generateStopWordFilter([
+      'a',
+      'able',
+      'about',
+      'across',
+      'after',
+      'almost',
+      'also',
+      'am',
+      'among',
+      'an',
+      'and',
+      'are',
+      'as',
+      'at',
+      'be',
+      'because',
+      'been',
+      'but',
+      'by',
+      'can',
+      'cannot',
+      'could',
+      'dear',
+      'did',
+      'does',
+      'either',
+      'ever',
+      'every',
+      'from',
+      'got',
+      'had',
+      'has',
+      'have',
+      'he',
+      'her',
+      'hers',
+      'him',
+      'his',
+      'how',
+      'however',
+      'i',
+      'if',
+      'into',
+      'it',
+      'its',
+      'just',
+      'least',
+      'like',
+      'likely',
+      'may',
+      'me',
+      'might',
+      'most',
+      'must',
+      'my',
+      'neither',
+      'no',
+      'nor',
+      'not',
+      'of',
+      'off',
+      'often',
+      'on',
+      'or',
+      'other',
+      'our',
+      'own',
+      'rather',
+      'said',
+      'say',
+      'says',
+      'she',
+      'should',
+      'since',
+      'so',
+      'some',
+      'than',
+      'that',
+      'the',
+      'their',
+      'them',
+      'then',
+      'there',
+      'these',
+      'they',
+      'this',
+      'tis',
+      'to',
+      'too',
+      'twas',
+      'us',
+      'wants',
+      'was',
+      'we',
+      'were',
+      'what',
+      'when',
+      'who',
+      'whom',
+      'why',
+      'will',
+      'would',
+      'yet',
+      'you',
+      'your'
+    ])
 
-  // add . as a separator, because otherwise "title": "Documenter.Anchors.add!"
-  // would not find anything if searching for "add!", only for the entire qualification
-  lunr.tokenizer.separator = /[\s\-\.]+/
+    // add . as a separator, because otherwise "title": "Documenter.Anchors.add!"
+    // would not find anything if searching for "add!", only for the entire qualification
+    lunr.tokenizer.separator = /[\s\-\.]+/
 
-  // custom trimmer that doesn't strip @ and !, which are used in julia macro and function names
-  lunr.trimmer = function (token) {
-    return token.update(function (s) {
-      return s.replace(/^[^a-zA-Z0-9@!]+/, '').replace(/[^a-zA-Z0-9@!]+$/, '')
+    // custom trimmer that doesn't strip @ and !, which are used in julia macro and function names
+    lunr.trimmer = function (token) {
+      return token.update(function (s) {
+        return s.replace(/^[^a-zA-Z0-9@!]+/, '').replace(/[^a-zA-Z0-9@!]+$/, '')
+      })
+    }
+
+    lunr.Pipeline.registerFunction(lunr.stopWordFilter, 'juliaStopWordFilter')
+    lunr.Pipeline.registerFunction(lunr.trimmer, 'juliaTrimmer')
+
+    index = lunr(function () {
+      this.ref('location')
+      this.field('title',{boost: 100})
+      this.field('text')
+      documenterSearchIndex['docs'].forEach(function(e) {
+          this.add(e)
+      }, this)
     })
+
+    try {
+      localStorage.setItem("index", lzstring.compress(JSON.stringify(index)))
+    } catch (error) {
+      console.log("Failed to save search index to disk:", error)
+    }
+  } else {
+    index = lunr.Index.load(JSON.parse(lzstring.decompress(index)))
   }
 
-  lunr.Pipeline.registerFunction(lunr.stopWordFilter, 'juliaStopWordFilter')
-  lunr.Pipeline.registerFunction(lunr.trimmer, 'juliaTrimmer')
-
-  var index = lunr(function () {
-    this.ref('location')
-    this.field('title',{boost: 100})
-    this.field('text')
+  var store = localStorage.getItem("store")
+  if (store === null) {
+    store = {}
     documenterSearchIndex['docs'].forEach(function(e) {
-        this.add(e)
-    }, this)
-  })
-  var store = {}
-
-  documenterSearchIndex['docs'].forEach(function(e) {
-      store[e.location] = {title: e.title, category: e.category, page: e.page}
-  })
+        store[e.location] = {title: e.title, category: e.category, page: e.page}
+    })
+    try {
+      localStorage.setItem("store", JSON.stringify(store))
+    } catch (error) {
+      console.log("Failed to save search store to disk:", error)
+    }
+  } else {
+    store = JSON.parse(store)
+  }
 
   $(function(){
     searchresults = $('#documenter-search-results');

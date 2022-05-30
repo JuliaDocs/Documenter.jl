@@ -535,6 +535,7 @@ module RD
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
     const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js")
     const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js")
+    const lzstring = RemoteLibrary("lzstring", "https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js")
 
     # headroom
     const headroom_version = "0.12.0"
@@ -751,7 +752,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "search.js"))
         @warn "not creating 'search.js', provided by the user."
     else
-        r = JSDependencies.RequireJS([RD.jquery, RD.lunr, RD.lodash])
+        r = JSDependencies.RequireJS([RD.jquery, RD.lunr, RD.lodash, RD.lzstring])
         push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
