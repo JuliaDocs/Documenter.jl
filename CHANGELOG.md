@@ -3,7 +3,7 @@
 ## Version `v0.28.0` (unreleased)
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
-* ![Enhancement][badge-enhancement] The `edit_link` keyword to `HTML()` automatically tries to figure out if the remote default branch is `main`, `master`, or something else. Documenter will now print a warning if it is unable to unreliably automatically determine `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
+* ![Enhancement][badge-enhancement] For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
 
 ## Version `v0.27.18`
 
