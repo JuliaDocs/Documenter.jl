@@ -231,6 +231,17 @@ $(document).ready(function() {
     searchbox.keyup(_.debounce(update_search_box, 250))
     searchbox.change(update_search_box)
 
+    // Disable enter-key form submission for the searchbox on the search page
+    // and just re-run search rather than refresh the whole page.
+    $(".docs-search").keypress(
+      function(event){
+        if (event.which == '13') {
+          update_search_box();
+          event.preventDefault();
+        }
+      }
+    );
+
     search_query_uri = parseUri(window.location).queryKey["q"]
     if(search_query_uri !== undefined) {
       search_query = decodeURIComponent(search_query_uri.replace(/\+/g, '%20'))
