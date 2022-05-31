@@ -180,6 +180,7 @@ $(document).ready(function() {
     searchresults = $('#documenter-search-results');
     searchinfo = $('#documenter-search-info');
     searchbox = $('#documenter-search-query');
+    searchform = $('.docs-search');
     function update_search(querystring) {
       tokens = lunr.tokenizer(querystring)
       results = index.query(function (q) {
@@ -233,7 +234,7 @@ $(document).ready(function() {
 
     // Disable enter-key form submission for the searchbox on the search page
     // and just re-run search rather than refresh the whole page.
-    $(".docs-search").keypress(
+    searchform.keypress(
       function(event){
         if (event.which == '13') {
           update_search_box();
