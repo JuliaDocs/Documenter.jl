@@ -5,6 +5,10 @@
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 * ![Enhancement][badge-enhancement] For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
 
+## Version `v0.27.19`
+
+* ![Enhancement][badge-enhancement] On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). ([#1728][github-1728], [#1833][github-1833])
+
 ## Version `v0.27.18`
 
 * ![Enhancement][badge-enhancement] The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. ([#1814][github-1814], [#1818][github-1818])
@@ -1005,6 +1009,7 @@
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
 [github-1727]: https://github.com/JuliaDocs/Documenter.jl/pull/1727
+[github-1728]: https://github.com/JuliaDocs/Documenter.jl/issues/1728
 [github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
 [github-1746]: https://github.com/JuliaDocs/Documenter.jl/issues/1746
 [github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
@@ -1045,6 +1050,7 @@
 [github-1827]: https://github.com/JuliaDocs/Documenter.jl/issues/1827
 [github-1828]: https://github.com/JuliaDocs/Documenter.jl/pull/1828
 [github-1829]: https://github.com/JuliaDocs/Documenter.jl/pull/1829
+[github-1833]: https://github.com/JuliaDocs/Documenter.jl/pull/1833
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
