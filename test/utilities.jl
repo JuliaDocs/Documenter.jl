@@ -6,6 +6,7 @@ include("TestUtilities.jl"); using .TestUtilities
 
 import Documenter
 import Markdown
+using Git: git
 
 module UnitTests
     module SubModule end
@@ -170,15 +171,15 @@ end
         mkpath(path_repo)
         cd(path_repo) do
             # Create a simple mock repo in a temporary directory with a single file.
-            @test success(`git init`)
-            @test success(`git config user.email "tester@example.com"`)
-            @test success(`git config user.name "Test Committer"`)
-            @test success(`git remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
+            @test success(`$(git()) init`)
+            @test success(`$(git()) config user.email "tester@example.com"`)
+            @test success(`$(git()) config user.name "Test Committer"`)
+            @test success(`$(git()) remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             write(filepath, "X")
-            @test success(`git add -A`)
-            @test success(`git commit -m"Initial commit."`)
+            @test success(`$(git()) add -A`)
+            @test success(`$(git()) commit -m"Initial commit."`)
 
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
@@ -198,7 +199,7 @@ end
         # Test worktree
         path_worktree = joinpath(path, "worktree")
         cd("$(path_repo)") do
-            @test success(`git worktree add $(path_worktree)`)
+            @test success(`$(git()) worktree add $(path_worktree)`)
         end
         cd("$(path_worktree)") do
             filepath = abspath(joinpath("src", "SourceFile.jl"))
@@ -221,15 +222,15 @@ end
         path_submodule = joinpath(path, "submodule")
         mkpath(path_submodule)
         cd(path_submodule) do
-            @test success(`git init`)
-            @test success(`git config user.email "tester@example.com"`)
-            @test success(`git config user.name "Test Committer"`)
+            @test success(`$(git()) init`)
+            @test success(`$(git()) config user.email "tester@example.com"`)
+            @test success(`$(git()) config user.name "Test Committer"`)
             # NOTE: the target path in the `git submodule add` command is necessary for
             # Windows builds, since otherwise Git claims that the path is in a .gitignore
             # file.
-            @test success(`git submodule add $(path_repo) repository`)
-            @test success(`git add -A`)
-            @test success(`git commit -m"Initial commit."`)
+            @test success(`$(git()) submodule add $(path_repo) repository`)
+            @test success(`$(git()) add -A`)
+            @test success(`$(git()) commit -m"Initial commit."`)
         end
         path_submodule_repo = joinpath(path, "submodule", "repository")
         @test isdir(path_submodule_repo)
@@ -537,6 +538,15 @@ end
             err isa LoadError && (err = err.error)
             @test err isa ArgumentError
             @test err.msg == "tag :foo is not a valid Documenter error"
+        end
+    end
+
+    @testset "git_remote_head_branch" begin
+        mktempdir() do path
+            cd(path) do
+                mkdir("barerepo")
+                @test success(`$(git()) -C barerepo init --bare`)
+            end
         end
     end
 end

@@ -20,6 +20,7 @@ Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 [compat]
 ANSIColoredPrinters = "0.0.1"
 DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8"
+Git = "1"
 IOCapture = "0.2"
 JSON = "0.19, 0.20, 0.21"
 julia = "1"
@@ -27,7 +28,8 @@ julia = "1"
 [extras]
 DocumenterMarkdown = "997ab1e6-3595-5248-9280-8efb232c3433"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
+Git = "d7ba0133-e1db-5d97-8f8c-041e4b3a1eb2"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [targets]
-test = ["Random", "DocumenterMarkdown", "DocumenterTools"]
+test = ["Random", "DocumenterMarkdown", "DocumenterTools", "Git"]
