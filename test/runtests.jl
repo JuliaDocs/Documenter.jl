@@ -1,3 +1,13 @@
+using Git: git
+mktempdir() do path
+    cd(path) do
+        run(`$(git()) init`)
+        run(`$(git()) config user.email "tester@example.com"`)
+        run(`$(git()) config user.name "Test Committer"`)
+        run(`$(git()) remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
+    end
+end
+
 using Test
 import Documenter
 include("TestUtilities.jl"); using .TestUtilities
