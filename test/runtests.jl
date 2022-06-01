@@ -10,7 +10,7 @@ mktempdir() do path
         end
         run(`$(git()) add -A`)
         run(`$(git()) status`)
-        run(`$(git()) fetch origin`)
+        #run(`$(git()) fetch origin`)
     end
 end
 
