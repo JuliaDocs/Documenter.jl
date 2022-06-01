@@ -189,6 +189,7 @@ $(document).ready(function() {
     searchinfo = $('#documenter-search-info');
     searchbox = $('#documenter-search-query');
     searchform = $('.docs-search');
+    sidebar = $('.docs-sidebar');
     function update_search(querystring) {
       tokens = lunr.tokenizer(querystring)
       results = index.query(function (q) {
@@ -245,6 +246,9 @@ $(document).ready(function() {
     searchform.keypress(
       function(event){
         if (event.which == '13') {
+          if (sidebar.hasClass('visible')) {
+            sidebar.removeClass('visible');
+          }
           update_search_box();
           event.preventDefault();
         }
