@@ -2,7 +2,7 @@
 
 ## Version `v0.27.19`
 
-* ![Enhancement][badge-enhancement] On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). ([#1728][github-1728], [#1833][github-1833])
+* ![Enhancement][badge-enhancement] On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). ([#1728][github-1728], [#1833][github-1833], [#1834][github-1834])
 
 ## Version `v0.27.18`
 
@@ -1043,6 +1043,7 @@
 [github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 [github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
 [github-1833]: https://github.com/JuliaDocs/Documenter.jl/pull/1833
+[github-1834]: https://github.com/JuliaDocs/Documenter.jl/pull/1834
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
