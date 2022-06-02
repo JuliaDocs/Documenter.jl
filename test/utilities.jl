@@ -556,6 +556,8 @@ end
                 # "activate" the non-standard HEAD:
                 head = (head === nothing) ? "master" : head
                 @test trun(`git clone $(path) $(subdir_path)`)
+                @test trun(`git -C $(subdir_path) config user.email "tester@example.com"`)
+                @test trun(`git -C $(subdir_path) config user.name "Test Committer"`)
                 @test trun(`git -C $(subdir_path) checkout -b $(head)`)
                 @test trun(`git -C $(subdir_path) commit --allow-empty -m"initial empty commit"`)
                 @test trun(`git -C $(subdir_path) push --set-upstream origin $(head)`)
