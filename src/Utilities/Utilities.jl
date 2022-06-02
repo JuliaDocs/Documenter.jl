@@ -834,6 +834,14 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
     end
 end
 
+# Check global draft setting
+is_draft(doc) = doc.user.draft
+# Check if the page is built with draft mode
+function is_draft(doc, page)::Bool
+    # Check both Draft and draft from @meta block
+    return get(page.globals.meta, :Draft, get(page.globals.meta, :draft, is_draft(doc)))
+end
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")

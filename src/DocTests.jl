@@ -47,7 +47,16 @@ function doctest(blueprint::Documents.DocumentBlueprint, doc::Documents.Document
     @debug "Running doctests."
     # find all the doctest blocks in the pages
     for (src, page) in blueprint.pages
+        if Utilities.is_draft(doc, page)
+            @debug "Skipping page-doctests in draft mode" page.source
+            continue
+        end
         doctest(page, doc)
+    end
+
+    if Utilities.is_draft(doc)
+        @debug "Skipping docstring-doctests in draft mode"
+        return
     end
 
     # find all the doctest block in all the docstrings (within specified modules)

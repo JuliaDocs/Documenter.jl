@@ -84,6 +84,7 @@ export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset,
         highlightsig = true,
         sitename = "",
         expandfirst = [],
+        draft = false,
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -187,6 +188,11 @@ is enabled by default.
 **`expandfirst`** allows some of the pages to be _expanded_ (i.e. at-blocks evaluated etc.)
 before the others. Documenter normally evaluates the files in the alphabetic order of their
 file paths relative to `src`, but `expandfirst` allows some pages to be prioritized.
+
+**`draft`** can be set to `true` to build a draft version of the document. In draft mode
+some potentially expensive steps are skipped (e.g. running `@example` blocks), which is
+useful when iterating on the documentation. This setting can also be configured per-page
+by setting `Draft = true` in an `@meta` block.
 
 For example, if you have `foo.md` and `bar.md`, `bar.md` would normally be evaluated before
 `foo.md`. But with `expandfirst = ["foo.md"]`, you can force `foo.md` to be evaluated first.
