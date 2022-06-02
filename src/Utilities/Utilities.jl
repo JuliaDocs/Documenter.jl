@@ -800,7 +800,14 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
     cmd = `git remote show $(remotename)`
     stderr_output = IOBuffer()
     git_remote_output = try
-        read(pipeline(setenv(cmd, env; dir=root); stderr=stderr_output), String)
+        # Older Julia versions don't support pipeline-ing into IOBuffer.
+        stderr_redirect = if VERSION >= v"1.6.0"
+            stderr_output
+        else
+            write(stderr_output, "(no output redirect on Julia $VERSION)")
+            devnull
+        end
+        read(pipeline(setenv(cmd, env; dir=root); stderr = stderr_redirect), String)
     catch e
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
