@@ -87,7 +87,15 @@ end
 
 function trun(cmd::Base.AbstractCmd)
     buffer = IOBuffer()
-    cmd_redirected = pipeline(cmd; stdin = devnull, stdout = buffer, stderr = buffer)
+    cmd_redirected = if VERSION < v"1.6.0"
+        # Okay, older Julia versions have a missing method, which don't allow a redirect:
+        #   MethodError: no method matching rawhandle(::Base.GenericIOBuffer{Array{UInt8,1}})
+        # Not sure when it was exactly fixed, but 1.6 seems to work fine.
+        write(buffer, "no output recorded")
+        cmd
+    else
+        pipeline(cmd; stdin = devnull, stdout = buffer, stderr = buffer)
+    end
     try
         run(cmd_redirected)
         return true
