@@ -420,7 +420,7 @@ struct HTML <: Documenter.Writer
     function HTML(;
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
-            edit_link     :: Union{String, Symbol, Nothing, Default} = Default("master"),
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Utilities.git_remote_head_branch("HTML(edit_link = ...)", Utilities.currentdir())),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",

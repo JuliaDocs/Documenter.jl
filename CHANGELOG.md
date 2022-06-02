@@ -7,6 +7,7 @@
 ## Version `v0.27.19`
 
 * ![Enhancement][badge-enhancement] On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). ([#1728][github-1728], [#1833][github-1833], [#1834][github-1834])
+* ![Enhancement][badge-enhancement] For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
 
 ## Version `v0.27.18`
 
@@ -1046,7 +1047,9 @@
 [github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
 [github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 [github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
+[github-1827]: https://github.com/JuliaDocs/Documenter.jl/issues/1827
 [github-1828]: https://github.com/JuliaDocs/Documenter.jl/pull/1828
+[github-1829]: https://github.com/JuliaDocs/Documenter.jl/pull/1829
 [github-1833]: https://github.com/JuliaDocs/Documenter.jl/pull/1833
 [github-1834]: https://github.com/JuliaDocs/Documenter.jl/pull/1834
 <!-- end of issue link definitions -->
