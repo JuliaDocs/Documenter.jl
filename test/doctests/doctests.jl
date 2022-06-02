@@ -36,6 +36,7 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     c = IOCapture.capture(rethrow = InterruptException) do
         makedocs(
             sitename = " ",
+            format = Documenter.HTML(edit_link = "master"),
             root = dir,
             modules = modules;
             kwargs...
