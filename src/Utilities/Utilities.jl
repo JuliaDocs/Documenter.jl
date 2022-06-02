@@ -789,6 +789,9 @@ end
 Calls `git remote show \$(remotename)` to try to determine the main (development) branch
 of the remote repository. Returns `master` and prints a warning if it was unable to figure
 it out automatically.
+
+`root` is the the directory where `git` gets run. `varname` is just informational and used
+to construct the warning messages.
 """
 function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
     env = copy(ENV)
