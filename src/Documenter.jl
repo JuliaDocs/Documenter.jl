@@ -190,7 +190,7 @@ before the others. Documenter normally evaluates the files in the alphabetic ord
 file paths relative to `src`, but `expandfirst` allows some pages to be prioritized.
 
 **`draft`** can be set to `true` to build a draft version of the document. In draft mode
-some potentially expensive steps are skipped (e.g. running `@example` blocks), which is
+some potentially time-consuming steps are skipped (e.g. running `@example` blocks), which is
 useful when iterating on the documentation. This setting can also be configured per-page
 by setting `Draft = true` in an `@meta` block.
 
