@@ -257,6 +257,7 @@ page. Currently recognised keys:
 - `EditURL`: link to where the page can be edited. This defaults to the `.md` page itself,
   but if the source is something else (for example if the `.md` page is generated as part of
   the doc build) this can be set, either as a local link, or an absolute url.
+- `Draft`: boolean for overriding the global draft mode for the page.
 
 Example:
 
