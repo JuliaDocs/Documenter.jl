@@ -150,26 +150,24 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
         end
         cursor = ncursor
     end
-    if VERSION >= v"1.6.0" # required for Meta.parseall(...)
-        if linenumbernode isa LineNumberNode
-            exs = Meta.parseall(code; filename=linenumbernode.file).args
-            @assert length(exs) == 2 * length(results)
-            for (i, ex) in enumerate(Iterators.partition(exs, 2))
-                @assert ex[1] isa LineNumberNode
-                expr = Expr(:toplevel, ex...) # LineNumberNode + expression
-                # in the REPL each evaluation is considered a new file, e.g.
-                # REPL[1], REPL[2], ..., so try to mimic that by incrementing
-                # the counter for each sub-expression in this code block
-                if linenumbernode.file === Symbol("REPL")
-                    newfile = "REPL[$i]"
-                    # to reset the line counter for each new "file"
-                    lineshift = 1 - ex[1].line
-                    update_linenumbernodes!(expr, newfile, lineshift)
-                else
-                    update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
-                end
-                results[i] = (expr , results[i][2])
+    if linenumbernode isa LineNumberNode
+        exs = Meta.parseall(code; filename=linenumbernode.file).args
+        @assert length(exs) == 2 * length(results)
+        for (i, ex) in enumerate(Iterators.partition(exs, 2))
+            @assert ex[1] isa LineNumberNode
+            expr = Expr(:toplevel, ex...) # LineNumberNode + expression
+            # in the REPL each evaluation is considered a new file, e.g.
+            # REPL[1], REPL[2], ..., so try to mimic that by incrementing
+            # the counter for each sub-expression in this code block
+            if linenumbernode.file === Symbol("REPL")
+                newfile = "REPL[$i]"
+                # to reset the line counter for each new "file"
+                lineshift = 1 - ex[1].line
+                update_linenumbernodes!(expr, newfile, lineshift)
+            else
+                update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
             end
+            results[i] = (expr , results[i][2])
         end
     end
     results
@@ -798,14 +796,7 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
     cmd = `git remote show $(remotename)`
     stderr_output = IOBuffer()
     git_remote_output = try
-        # Older Julia versions don't support pipeline-ing into IOBuffer.
-        stderr_redirect = if VERSION >= v"1.6.0"
-            stderr_output
-        else
-            write(stderr_output, "(no output redirect on Julia $VERSION)")
-            devnull
-        end
-        read(pipeline(setenv(cmd, env; dir=root); stderr = stderr_redirect), String)
+        read(pipeline(setenv(cmd, env; dir=root); stderr = stderr_output), String)
     catch e
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".

@@ -17,8 +17,7 @@ using ..TestUtilities: @quietly
     const DocTestFixArray_2468 = Main.ShowWrap("4×1×1 Array{Int64,3}:\n[:, :, 1] =\n 2\n 4\n 6\n 8")
 end
 
-# The version check is necessary due to a behaviour change in https://github.com/JuliaLang/julia/pull/32851
-mktempdir_nocleanup(dir) = VERSION >= v"1.3.0-alpha.112" ? mktempdir(dir, cleanup = false) : mktempdir(dir)
+mktempdir_nocleanup(dir) = mktempdir(dir, cleanup = false)
 
 function normalize_line_endings(filename)
     s = read(filename, String)
