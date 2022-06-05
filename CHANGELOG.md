@@ -9,6 +9,7 @@
 * ![Enhancement][badge-enhancement] Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. ([#1836][github-1836])
 * ![Enhancement][badge-enhancement] On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). ([#1728][github-1728], [#1833][github-1833], [#1834][github-1834])
 * ![Enhancement][badge-enhancement] For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
+* ![Enhancement][badge-enhancement] Profiling showed that a significant amount of the HTML page build time was due to external `git` commands (used to find remote URLs for docstrings). These results are now cached on a per-source-file basis resulting in faster build times. This is particularly useful when using [LiveServer.jl][liveserver]s functionality for live-updating the docs while writing. ([#1838][github-1838])
 
 ## Version `v0.27.18`
 
@@ -1054,6 +1055,7 @@
 [github-1833]: https://github.com/JuliaDocs/Documenter.jl/pull/1833
 [github-1834]: https://github.com/JuliaDocs/Documenter.jl/pull/1834
 [github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
+[github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
@@ -1065,6 +1067,7 @@
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
 [json-jl]: https://github.com/JuliaIO/JSON.jl
 [juliamono]: https://cormullion.github.io/pages/2020-07-26-JuliaMono/
+[liveserver]: https://github.com/tlienart/LiveServer.jl
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg

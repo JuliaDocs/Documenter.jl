@@ -512,19 +512,17 @@ function url(remote, repo, mod, file, linerange)
     end
 end
 
+const GIT_REMOTE_CACHE = Dict{String,String}()
+
 function getremote(dir::AbstractString)
-    remote =
-        try
-            cd(() -> readchomp(`git config --get remote.origin.url`), dir)
-        catch err
+    return get!(GIT_REMOTE_CACHE, dir) do
+        remote = try
+            readchomp(setenv(`git config --get remote.origin.url`; dir=dir))
+        catch
             ""
         end
-    m = match(LibGit2.GITHUB_REGEX, remote)
-    if m === nothing
-        travis = get(ENV, "TRAVIS_REPO_SLUG", "")
-        isempty(travis) ? "" : travis
-    else
-        m[1]
+        m = match(LibGit2.GITHUB_REGEX, remote)
+        return m === nothing ? get(ENV, "TRAVIS_REPO_SLUG", "") : String(m[1])
     end
 end
 
