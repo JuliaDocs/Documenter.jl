@@ -162,23 +162,19 @@ const CACHED = IdDict{Any,Any}()
 """
 $(SIGNATURES)
 
-Find all `DocStr` objects that match the provided arguments:
-
+Find all `DocStr` objects that match the provided arguments exactly.
 - `binding`: the name of the object.
 - `typesig`: the signature of the object. Default: `Union{}`.
-- `compare`: how to compare signatures? Exact (`==`) or subtypes (`<:`). Default: `<:`.
+- `compare`: how to compare signatures? (`==` (default), `<:` or `>:`)
 - `modules`: which modules to search through. Default: *all modules*.
-- `aliases`: check aliases of `binding` when nothing is found. Default: `true`.
 
-Returns a `Vector{DocStr}` ordered by definition order in `0.5` and by
-`type_morespecific` in `0.4`.
+Return a `Vector{DocStr}` ordered by definition order.
 """
-function getdocs(
+function getspecificdocs(
         binding::Docs.Binding,
-        typesig::Type = Union{};
+        typesig::Type = Union{},
         compare = (==),
         modules = Docs.modules,
-        aliases = true,
     )
     # Fall back to searching all modules if user provides no modules.
     modules = isempty(modules) ? Docs.modules : modules
@@ -200,28 +196,35 @@ function getdocs(
             end
         end
     end
-    if compare == (==)
-        # Exact matching of signatures:
-        #
-        # When we get a single match from using `==` as the comparision then we just return
-        # that one result.
-        #
-        # Otherwise we fallback to comparing signatures using `<:` to match, hopefully, a
-        # wider range of possible docstrings.
-        if length(results) == 1
-            results
-        else
-            getdocs(binding, typesig; compare = (<:), modules = modules, aliases = aliases)
-        end
-    else
-        # When nothing is found we check whether the `binding` is an alias of some other
-        # `Binding`. If so then we redo the search using that `Binding` instead.
-        if aliases && isempty(results) && (b = aliasof(binding)) != binding
-            getdocs(b, typesig; compare = compare, modules = modules)
-        else
-            results
+    results
+end
+
+"""
+$(SIGNATURES)
+
+Find all `DocStr` objects that somehow match the provided arguments.
+That is, if [`getspecificdocs`](@ref) fails, get docs for aliases of
+`binding` (unless `aliases` is set to `false). For `compare` being `==` also
+try getting docs for `<:`.
+"""
+function getdocs(
+        binding::Docs.Binding,
+        typesig::Type = Union{};
+        compare = (==),
+        modules = Docs.modules,
+        aliases = true,
+    )
+    results = getspecificdocs(binding, typesig, compare, modules)
+    if isempty(results) && aliases && (b = aliasof(binding)) != binding
+        results = getspecificdocs(b, typesig, compare, modules)
+    end
+    if isempty(results) && compare == (==)
+        results = getspecificdocs(binding, typesig, (<:), modules)
+        if isempty(results) && aliases
+            results = getspecificdocs(b, typesig, (<:), modules)
         end
     end
+    results
 end
 
 """
