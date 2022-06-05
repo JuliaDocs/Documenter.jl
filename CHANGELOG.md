@@ -2,8 +2,8 @@
 
 ## Version `v0.28.0` (unreleased)
 
+* The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
-* ![Maintenance][badge-maintenance] The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
 
 ## Version `v0.27.19`
 
