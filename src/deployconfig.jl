@@ -533,19 +533,9 @@ function verify_github_pull_repository(repo, prnr)
 end
 
 function run_and_capture(cmd)
-    stdout, stderr = if VERSION < v"1.1"
-        # On Julia 1.0, we can not pass IOBuffer() to pipeline(), so we're using the workaround
-        # described here:
-        # https://discourse.julialang.org/t/how-to-capture-stdout-and-stderr-in-1-1/20712/2
-        stdout_pipe, stderr_pipe = Pipe(), Pipe()
-        run(pipeline(cmd; stdout = stdout_pipe, stderr = stderr_pipe))
-        close(stdout_pipe.in); close(stderr_pipe.in)
-        stdout, stderr = read(stdout_pipe, String), read(stderr_pipe, String)
-    else
-        stdout_buffer, stderr_buffer = IOBuffer(), IOBuffer()
-        run(pipeline(cmd; stdout = stdout_buffer, stderr = stderr_buffer))
-        stdout, stderr = String(take!(stdout_buffer)), String(take!(stderr_buffer))
-    end
+    stdout_buffer, stderr_buffer = IOBuffer(), IOBuffer()
+    run(pipeline(cmd; stdout = stdout_buffer, stderr = stderr_buffer))
+    stdout, stderr = String(take!(stdout_buffer)), String(take!(stderr_buffer))
     return (; stdout = stdout, stderr = stderr)
 end
 

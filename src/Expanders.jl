@@ -711,11 +711,9 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
                                           linenumbernode = linenumbernode)
         input  = droplines(str)
-        if VERSION >= v"1.5.0-DEV.178"
-            # Use the REPL softscope for REPLBlocks,
-            # see https://github.com/JuliaLang/julia/pull/33864
-            ex = REPL.softscope!(ex)
-        end
+        # Use the REPL softscope for REPLBlocks,
+        # see https://github.com/JuliaLang/julia/pull/33864
+        ex = REPL.softscope!(ex)
         c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
                 Core.eval(mod, ex)

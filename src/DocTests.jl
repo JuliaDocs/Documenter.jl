@@ -236,11 +236,9 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
         for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = REPL.ends_with_semicolon(str)
-            if VERSION >= v"1.5.0-DEV.178"
-                # Use the REPL softscope for REPL jldoctests,
-                # see https://github.com/JuliaLang/julia/pull/33864
-                ex = REPL.softscope!(ex)
-            end
+            # Use the REPL softscope for REPL jldoctests,
+            # see https://github.com/JuliaLang/julia/pull/33864
+            ex = REPL.softscope!(ex)
             c = IOCapture.capture(rethrow = InterruptException) do
                 Core.eval(sandbox, ex)
             end
