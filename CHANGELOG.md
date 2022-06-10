@@ -5,6 +5,10 @@
 * The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 
+## Version `v0.27.20`
+
+* ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.2` (minor version bump). ([#1844][github-1844])
+
 ## Version `v0.27.19`
 
 * ![Enhancement][badge-enhancement] Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. ([#1836][github-1836])
@@ -1059,6 +1063,7 @@
 [github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
 [github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
 [github-1841]: https://github.com/JuliaDocs/Documenter.jl/pull/1841
+[github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
