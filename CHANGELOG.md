@@ -1070,7 +1070,7 @@
 [github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
 [github-1841]: https://github.com/JuliaDocs/Documenter.jl/pull/1841
 [github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
-[github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
+[github-1846]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
