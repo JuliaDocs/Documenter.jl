@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.20`
+
+* ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.2` (minor version bump). ([#1844][github-1844])
+
 ## Version `v0.27.19`
 
 * ![Enhancement][badge-enhancement] Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. ([#1836][github-1836])
@@ -1051,6 +1055,7 @@
 [github-1834]: https://github.com/JuliaDocs/Documenter.jl/pull/1834
 [github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
 [github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
+[github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
