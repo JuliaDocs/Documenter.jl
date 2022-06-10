@@ -215,12 +215,12 @@ function getdocs(
         aliases = true,
     )
     results = getspecificdocs(binding, typesig, compare, modules)
-    if isempty(results) && aliases && (b = aliasof(binding)) != binding
-        results = getspecificdocs(b, typesig, compare, modules)
-    end
     if isempty(results) && compare == (==)
         results = getspecificdocs(binding, typesig, (<:), modules)
-        if isempty(results) && aliases
+    end
+    if isempty(results) && aliases && (b = aliasof(binding)) != binding
+        results = getspecificdocs(b, typesig, compare, modules)
+        if isempty(results) && compare == (==)
             results = getspecificdocs(b, typesig, (<:), modules)
         end
     end
