@@ -522,8 +522,8 @@ module RD
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
-    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css"
-    const fontawesome_version = "5.15.3"
+    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css"
+    const fontawesome_version = "5.15.4"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
@@ -550,7 +550,7 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "11.0.1"
+        hljs_version = "11.5.1"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -576,7 +576,7 @@ module RD
     end
 
     # MathJax & KaTeX
-    const katex_version = "0.13.11"
+    const katex_version = "0.13.24"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
     function mathengine!(r::RequireJS, engine::KaTeX)
         push!(r, RemoteLibrary(

@@ -2,7 +2,13 @@
 
 ## Version `v0.27.20`
 
-* ![Enhancement][badge-enhancement] MathJax 3 has been updated to `v3.2.2` (minor version bump). ([#1844][github-1844])
+* ![Enhancement][badge-enhancement] The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#1844][github-1844], [#1846][github-1846])
+
+  - MathJax 3 has been updated from `v3.2.0` to `v3.2.2`.
+  - JuliaMono has been updated from `v0.044` to `v0.045`.
+  - Font Awesome has been updated from `v5.15.3` to `v5.15.4`.
+  - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
+  - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
 
 ## Version `v0.27.19`
 
@@ -1056,6 +1062,7 @@
 [github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
 [github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
 [github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
+[github-1846]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
