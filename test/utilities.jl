@@ -52,10 +52,6 @@ module A
 end
 end
 
-# hasfield was added in Julia 1.2. This definition borrowed from Compat.jl (MIT)
-# Note: this can not be inside the testset
-(VERSION < v"1.2.0-DEV.272") && (hasfield(::Type{T}, name::Symbol) where T = Base.fieldindex(T, name, false) > 0)
-
 @testset "Utilities" begin
     let doc = @doc(length)
         a = Documenter.Utilities.filterdocs(doc, Set{Module}())
@@ -299,7 +295,7 @@ end
         end
     end
 
-    @testset "PR #1634, issue #1655" begin; if VERSION > v"1.6.0"
+    @testset "PR #1634, issue #1655" begin
         let parse(x) = Documenter.Utilities.parseblock(x, nothing, nothing;
                            linenumbernode=LineNumberNode(123, "testfile.jl")
                        )
@@ -337,7 +333,7 @@ end
                 @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
             end
         end
-    end end
+    end
 
     @testset "mdparse" begin
         mdparse = Documenter.Utilities.mdparse

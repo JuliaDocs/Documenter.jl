@@ -103,11 +103,7 @@ const DOCUMENT_STRUCTURE = (
 
 # https://github.com/JuliaLang/julia/pull/32851
 function mktempdir(args...; kwargs...)
-    if VERSION < v"1.3.0-alpha.112"
-        return Base.mktempdir(args...; kwargs...)
-    else
-        return Base.mktempdir(args...; cleanup=false, kwargs...)
-    end
+    return Base.mktempdir(args...; cleanup=false, kwargs...)
 end
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())

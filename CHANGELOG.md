@@ -2,7 +2,18 @@
 
 ## Version `v0.28.0` (unreleased)
 
+* The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
+
+## Version `v0.27.20`
+
+* ![Enhancement][badge-enhancement] The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#1844][github-1844], [#1846][github-1846])
+
+  - MathJax 3 has been updated from `v3.2.0` to `v3.2.2`.
+  - JuliaMono has been updated from `v0.044` to `v0.045`.
+  - Font Awesome has been updated from `v5.15.3` to `v5.15.4`.
+  - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
+  - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
 
 ## Version `v0.27.19`
 
@@ -1054,8 +1065,12 @@
 [github-1829]: https://github.com/JuliaDocs/Documenter.jl/pull/1829
 [github-1833]: https://github.com/JuliaDocs/Documenter.jl/pull/1833
 [github-1834]: https://github.com/JuliaDocs/Documenter.jl/pull/1834
+[github-1835]: https://github.com/JuliaDocs/Documenter.jl/issues/1835
 [github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
 [github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
+[github-1841]: https://github.com/JuliaDocs/Documenter.jl/pull/1841
+[github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
+[github-1846]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
