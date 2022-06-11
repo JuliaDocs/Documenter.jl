@@ -15,6 +15,8 @@
   - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
   - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
 
+* ![Bugfix][badge-bugfix] When including docstrings for an alias, Documenter now correctly tries to include the exactly matching docstring first, before checking for signature subtypes. ([#1842][github-1842])
+
 ## Version `v0.27.19`
 
 * ![Enhancement][badge-enhancement] Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. ([#1836][github-1836])
@@ -1069,6 +1071,7 @@
 [github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
 [github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
 [github-1841]: https://github.com/JuliaDocs/Documenter.jl/pull/1841
+[github-1842]: https://github.com/JuliaDocs/Documenter.jl/pull/1842
 [github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
 [github-1846]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
 <!-- end of issue link definitions -->
