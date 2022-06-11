@@ -214,10 +214,19 @@ function getdocs(
         modules = Docs.modules,
         aliases = true,
     )
+    # First, we try to find the docs that _exactly_ match the binding. If you
+    # have aliases, you can have a separate docstring attached to the alias.
     results = getspecificdocs(binding, typesig, compare, modules)
+    # If we don't find anything, we'll loosen the function signature comparison
+    # to allow for subtypes, to find any signatures that would get called in
+    # dispatch for this method (i.e. supertype signatures).
     if isempty(results) && compare == (==)
         results = getspecificdocs(binding, typesig, (<:), modules)
     end
+    # If we still can't find anything, `aliases` is set, and this binding is
+    # indeed an alias, we'll fetch the docstrings for the original object, first
+    # as an exact match (if relevant) and then also falling back to a subtype
+    # search.
     if isempty(results) && aliases && (b = aliasof(binding)) != binding
         results = getspecificdocs(b, typesig, compare, modules)
         if isempty(results) && compare == (==)
