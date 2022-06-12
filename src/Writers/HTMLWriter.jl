@@ -76,6 +76,25 @@ const ASSETS_SASS = joinpath(ASSETS, "scss")
 "Directory for the compiled CSS files of the themes."
 const ASSETS_THEMES = joinpath(ASSETS, "themes")
 
+"""
+    HTMLAsset
+
+Structure to hold a HTML asset.
+
+# Fields:
+
+- `class::Symbol`: symbols indicating the asset type (`:ico`, `:js` or `:css`)
+  They become a `<script>`, `<link rel="stylesheet" type="text/css">` or
+  `<link rel="icon" type="image/x-icon">` elements in `<head>`, respectively.
+
+- `uri::String`: address indicating the source location on the web or in
+  relation to the main page
+
+- `islocal::Bool`: boolean value indicating if the asset is located locally
+  (`islocal=true`)
+
+- `attributes::Dict{Symbol, String}`
+"""
 struct HTMLAsset
     class :: Symbol
     uri :: String
@@ -668,11 +687,13 @@ mutable struct HTMLContext
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
+    asset_list::Vector{HTMLAsset}
 end
 
 HTMLContext(doc, settings=nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
     Documents.NavNode("search", "Search", nothing),
+    HTMLAsset[]
 )
 
 struct DCtx
@@ -803,6 +824,9 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         copy_asset("themes/$(theme).css", doc)
     end
 
+    # read plugin assets and copy the files to the build directory
+    plugin_assets!(ctx)
+
     for page in keys(doc.blueprint.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
         nn = (idx === nothing) ? Documents.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
@@ -847,6 +871,70 @@ function copy_asset(file, doc)
     assetpath = normpath(joinpath("assets", file))
     # Replace any backslashes in links, if building the docs on Windows
     return replace(assetpath, '\\' => '/')
+end
+
+# Plugin
+# ------------------------------------------------------------------------------
+
+"""
+    plugin_html_assets(::Documenter.Plugin)::Tuple{String,Vector{HTMLAsset}}
+
+This function allows plugins to register additional assets to the `HTMLWriter`.
+It should return a tuple with a string and a vector of [`HTMLAsset`](@ref).
+
+The string has to denote the absolute path to the directory containing the
+plugin assets. This will be used to copy the directory to the build plugin
+directory. This string can be empty if no local assets need to be registered
+omiting the copy of a plugin directory.
+The paths of local assets in the [`HTMLAsset`](@ref) vector will be modifyed by
+prepending `plugin/` to their relative `uri`.
+"""
+function plugin_html_assets(::Documenter.Plugin)
+    return "", HTMLAsset[]
+end
+
+"""
+    plugin_assets!(ctx::HTMLContext)
+
+This function will call the registering function [`plugin_html_assets`](@ref)
+for all plugins. In case that they return a vector of [`HTMLAsset`](@ref) those
+will be added to the `asset_list` field of `ctx` ([`HTMLContext`](@ref)).
+In the case that they return a non empty string the denoted directory will be
+copied to the directory `plugins` of build location.
+"""
+function plugin_assets!(ctx::HTMLContext)
+    plugin_dir = joinpath(abspath(ctx.doc.user.build),"plugin")
+    for (type, plugin) in ctx.doc.plugins
+        path, assets = plugin_html_assets(type)
+        # copy provided directory to the build directory
+        if !isempty(path)
+            !ispath(plugin_dir) && mkdir(plugin_dir)
+            target_dir = joinpath(plugin_dir,basename(path))
+            !isabspath(path) && !ispath(path) && error("Source directory '$path' provided by the plugin '$type' is not a valid path!")
+            ispath(target_dir) && @warn "Directory '$target_dir' already exists (overwritten)!"
+            cp(path, target_dir; force=true)
+        end
+        # add the assets to the asset_list vector and modify the path in the case
+        # of local paths
+        if !isempty(assets)
+            for i in 1:length(assets)
+                if assets[i].islocal
+                    file_path = normpath(joinpath(path, "..", assets[i].uri))
+                    if !isfile(file_path)
+                        @warn "File '$file_path' does not exist!"
+                        continue
+                    end
+                    file_path = joinpath(plugin_dir, assets[i].uri)
+                    if !isfile(file_path)
+                        @warn "File '$file_path' not found in build directory!"
+                        continue
+                    end
+                    assets[i] = HTMLAsset(assets[i].class, joinpath("plugin", assets[i].uri), true, assets[i].attributes)
+                end
+            end
+            append!(ctx.asset_list, assets)
+        end
+    end
 end
 
 # Page
@@ -1004,6 +1092,8 @@ function render_head(ctx, navnode)
         script[:src => relhref(src, ctx.themeswap_js)],
         # Custom user-provided assets.
         asset_links(src, ctx.settings.assets),
+        # General list of html assets.
+        asset_links(src, ctx.asset_list),
     )
 end
 
