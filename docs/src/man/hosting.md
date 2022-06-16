@@ -375,7 +375,7 @@ aware that Documenter may overwrite existing content without warning.
 If you wish to create the `gh-pages` branch manually that can be done following
 [these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
 
-You also need to make sure that you have "gh-pages branch" selected as
+You also need to make sure that you have `gh-pages branch` and `/ (root)` selected as
 [the source of the GitHub Pages site in your GitHub repository
 settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
