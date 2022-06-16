@@ -91,7 +91,7 @@ Now add an `index.md` file to the `src/` directory.
 Leave the newly added file empty and then run the following command from the `docs/` directory
 
 ```sh
-$ julia make.jl
+$ julia --project make.jl
 ```
 
 Note that `$` just represents the prompt character. You don't need to type that.
