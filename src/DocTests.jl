@@ -47,7 +47,16 @@ function doctest(blueprint::Documents.DocumentBlueprint, doc::Documents.Document
     @debug "Running doctests."
     # find all the doctest blocks in the pages
     for (src, page) in blueprint.pages
+        if Utilities.is_draft(doc, page)
+            @debug "Skipping page-doctests in draft mode" page.source
+            continue
+        end
         doctest(page, doc)
+    end
+
+    if Utilities.is_draft(doc)
+        @debug "Skipping docstring-doctests in draft mode"
+        return
     end
 
     # find all the doctest block in all the docstrings (within specified modules)
@@ -227,11 +236,9 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
         for (ex, str) in Utilities.parseblock(input, doc, page; keywords = false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = REPL.ends_with_semicolon(str)
-            if VERSION >= v"1.5.0-DEV.178"
-                # Use the REPL softscope for REPL jldoctests,
-                # see https://github.com/JuliaLang/julia/pull/33864
-                ex = REPL.softscope!(ex)
-            end
+            # Use the REPL softscope for REPL jldoctests,
+            # see https://github.com/JuliaLang/julia/pull/33864
+            ex = REPL.softscope!(ex)
             c = IOCapture.capture(rethrow = InterruptException) do
                 Core.eval(sandbox, ex)
             end

@@ -2,11 +2,31 @@
 
 ## Version `v0.28.0` (unreleased)
 
+* The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
 * ![BREAKING][badge-breaking] The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package][documentermarkdown]. ([#1826][github-1826])
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
+
+## Version `v0.27.20`
+
+* ![Enhancement][badge-enhancement] The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#1844][github-1844], [#1846][github-1846])
+
+  - MathJax 3 has been updated from `v3.2.0` to `v3.2.2`.
+  - JuliaMono has been updated from `v0.044` to `v0.045`.
+  - Font Awesome has been updated from `v5.15.3` to `v5.15.4`.
+  - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
+  - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
+
+* ![Bugfix][badge-bugfix] When including docstrings for an alias, Documenter now correctly tries to include the exactly matching docstring first, before checking for signature subtypes. ([#1842][github-1842])
+
+## Version `v0.27.19`
+
+* ![Enhancement][badge-enhancement] Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. ([#1836][github-1836])
+* ![Enhancement][badge-enhancement] On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). ([#1728][github-1728], [#1833][github-1833], [#1834][github-1834])
+* ![Enhancement][badge-enhancement] For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
+* ![Enhancement][badge-enhancement] Profiling showed that a significant amount of the HTML page build time was due to external `git` commands (used to find remote URLs for docstrings). These results are now cached on a per-source-file basis resulting in faster build times. This is particularly useful when using [LiveServer.jl][liveserver]s functionality for live-updating the docs while writing. ([#1838][github-1838])
 
 ## Version `v0.27.18`
 
@@ -1008,6 +1028,7 @@
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
 [github-1727]: https://github.com/JuliaDocs/Documenter.jl/pull/1727
+[github-1728]: https://github.com/JuliaDocs/Documenter.jl/issues/1728
 [github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
 [github-1746]: https://github.com/JuliaDocs/Documenter.jl/issues/1746
 [github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
@@ -1046,7 +1067,18 @@
 [github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 [github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
 [github-1826]: https://github.com/JuliaDocs/Documenter.jl/pull/1826
+[github-1827]: https://github.com/JuliaDocs/Documenter.jl/issues/1827
 [github-1828]: https://github.com/JuliaDocs/Documenter.jl/pull/1828
+[github-1829]: https://github.com/JuliaDocs/Documenter.jl/pull/1829
+[github-1833]: https://github.com/JuliaDocs/Documenter.jl/pull/1833
+[github-1834]: https://github.com/JuliaDocs/Documenter.jl/pull/1834
+[github-1835]: https://github.com/JuliaDocs/Documenter.jl/issues/1835
+[github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
+[github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
+[github-1841]: https://github.com/JuliaDocs/Documenter.jl/pull/1841
+[github-1842]: https://github.com/JuliaDocs/Documenter.jl/pull/1842
+[github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
+[github-1846]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
@@ -1058,6 +1090,7 @@
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
 [json-jl]: https://github.com/JuliaIO/JSON.jl
 [juliamono]: https://cormullion.github.io/pages/2020-07-26-JuliaMono/
+[liveserver]: https://github.com/tlienart/LiveServer.jl
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg

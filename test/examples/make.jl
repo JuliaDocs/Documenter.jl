@@ -19,7 +19,7 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
     ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
-    "html-local"]
+    "html-local", "html-draft"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -338,6 +338,23 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: HTML/local"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# HTML: draft mode
+examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / draft build")
+    @quietly makedocs(
+        debug = true,
+        draft = true,
+        root  = examples_root,
+        build = "builds/html-draft",
+        sitename = "Documenter example (draft)",
+        pages = htmlbuild_pages,
+    )
+else
+    @info "Skipping build: HTML/draft"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
