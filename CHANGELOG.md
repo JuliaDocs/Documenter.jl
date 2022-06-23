@@ -3,7 +3,7 @@
 ## Version `v0.28.0` (unreleased)
 
 * The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
-* ![BREAKING][badge-breaking] The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package][documentermarkdown]. ([#1826][github-1826])
+* ![BREAKING][badge-breaking] The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package][documentermarkdown]. This includes the removal of the exported `Deps` module. ([#1826][github-1826])
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
 
