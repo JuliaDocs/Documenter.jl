@@ -61,10 +61,6 @@ include("TestUtilities.jl"); using .TestUtilities
     # Mock package docs.
     include("examples/tests.jl")
 
-    # Documenter package docs with other formats.
-    @info "Building formats/markdown.jl"
-    @quietly include("formats/markdown.jl")
-
     # A simple build outside of a Git repository
     @info "Building nongit/tests.jl"
     @quietly include("nongit/tests.jl")

@@ -18,7 +18,7 @@ isdefined(@__MODULE__, :examples_root) && error("examples_root is already define
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["markdown", "html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
+    ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft"]
 end
 
@@ -164,7 +164,7 @@ function withassets(f, assets...)
 end
 
 # Build example docs
-using Documenter, DocumenterMarkdown
+using Documenter
 isdefined(@__MODULE__, :TestUtilities) || (include("../TestUtilities.jl"); using .TestUtilities)
 
 examples_root = @__DIR__
@@ -355,23 +355,6 @@ examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: HTML/draft"
-    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
-    nothing
-end
-
-# Markdown
-examples_markdown_doc = if "markdown" in EXAMPLE_BUILDS
-    @info("Building mock package docs: MarkdownWriter")
-    @quietly makedocs(
-        format = Markdown(),
-        debug = true,
-        root  = examples_root,
-        build = "builds/markdown",
-        doctest = false,
-        expandfirst = expandfirst,
-    )
-else
-    @info "Skipping build: Markdown"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end

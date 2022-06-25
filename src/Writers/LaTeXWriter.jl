@@ -312,7 +312,7 @@ function latexdoc(io::IO, md::Markdown.MD, page, doc)
         # each markdown object. The `DocStr` contains data such as file and line info that
         # we need for generating correct scurce links.
         for (markdown, result) in zip(md.content, md.meta[:results])
-            latex(io, Writers.MarkdownWriter.dropheaders(markdown), page, doc)
+            latex(io, Utilities.dropheaders(markdown), page, doc)
             # When a source link is available then print the link.
             url = Utilities.url(doc.internal.remote, doc.user.repo, result)
             if url !== nothing
@@ -323,7 +323,7 @@ function latexdoc(io::IO, md::Markdown.MD, page, doc)
     else
         # Docstrings with no `:results` metadata won't contain source locations so we don't
         # try to print them out. Just print the basic docstring.
-        render(io, mime, dropheaders(md), page, doc)
+        render(io, mime, Utilities.dropheaders(md), page, doc)
     end
 end
 

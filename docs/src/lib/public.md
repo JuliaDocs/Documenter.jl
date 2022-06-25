@@ -25,8 +25,6 @@ Documenter.except
 hide
 asset
 deploydocs
-Deps
-Deps.pip
 doctest
 DocMeta
 DocMeta.getdocmeta

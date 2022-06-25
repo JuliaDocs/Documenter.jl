@@ -1566,7 +1566,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
         # we need for generating correct source links.
         map(zip(md.content, md.meta[:results])) do md
             markdown, result = md
-            ret = section(div(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))))
+            ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
                 url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
@@ -1579,7 +1579,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
     else
         # Docstrings with no `:results` metadata won't contain source locations so we don't
         # try to print them out. Just print the basic docstring.
-        section(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(md)))
+        section(domify(ctx, navnode, Utilities.dropheaders(md)))
     end
 end
 

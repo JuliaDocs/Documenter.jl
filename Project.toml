@@ -25,9 +25,8 @@ JSON = "0.19, 0.20, 0.21"
 julia = "1.6"
 
 [extras]
-DocumenterMarkdown = "997ab1e6-3595-5248-9280-8efb232c3433"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [targets]
-test = ["Random", "DocumenterMarkdown", "DocumenterTools"]
+test = ["Random", "DocumenterTools"]

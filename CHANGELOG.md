@@ -3,6 +3,10 @@
 ## Version `v0.28.0` (unreleased)
 
 * The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
+* ![BREAKING][badge-breaking] The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package][documentermarkdown]. This includes the removal of the exported `Deps` module. ([#1826][github-1826])
+
+  **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
+
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 
 ## Version `v0.27.20`
@@ -1062,6 +1066,7 @@
 [github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
 [github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
 [github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
+[github-1826]: https://github.com/JuliaDocs/Documenter.jl/pull/1826
 [github-1827]: https://github.com/JuliaDocs/Documenter.jl/issues/1827
 [github-1828]: https://github.com/JuliaDocs/Documenter.jl/pull/1828
 [github-1829]: https://github.com/JuliaDocs/Documenter.jl/pull/1829

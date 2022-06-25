@@ -60,7 +60,6 @@ include("Builder.jl")
 include("CrossReferences.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
-include("Deps.jl")
 
 import .Utilities: Selectors
 import .Writers.HTMLWriter: HTML, asset
@@ -69,7 +68,7 @@ import .Writers.LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset,
+export makedocs, deploydocs, hide, doctest, DocMeta, asset,
     KaTeX, MathJax, MathJax2, MathJax3
 
 """
@@ -437,19 +436,6 @@ not exist, a new orphaned branch is created automatically. It defaults to `"gh-p
 **`dirname`** is a subdirectory of `branch` that the docs should be added to. By default,
 it is `""`, which will add the docs to the root directory.
 
-**`deps`** is the function used to install any additional dependencies needed to build the
-documentation. By default nothing is installed.
-
-It can be used e.g. for a Markdown build. The following example installed the `pygments` and
-`mkdocs` Python packages using the [`Deps.pip`](@ref) function:
-
-```julia
-deps = Deps.pip("pygments", "mkdocs")
-```
-
-**`make`** is the function used to specify an additional build phase. By default, nothing gets
-executed.
-
 **`devbranch`** is the branch that "tracks" the in-development version of the generated
 documentation. By default Documenter tries to figure this out using `git`. Can be set
 explicitly as a string (typically `"master"` or `"main"`).
@@ -497,6 +483,12 @@ deployed. It defaults to the value of `repo`.
     Hosting previews requires access to the deploy key.
     Therefore, previews are available only for pull requests that were
     submitted directly from the main repository.
+
+**`deps`** can be set to a function or a callable object and gets called during deployment,
+and is usually used to install additional dependencies. By default, nothing gets executed.
+
+**`make`** can be set to a function or a callable object and gets called during deployment,
+and is usually used to specify additional build steps. By default, nothing gets executed.
 
 # Releases vs development branches
 
@@ -560,8 +552,6 @@ function deploydocs(;
             deploy_subfolder = nothing
         end
 
-        # Add local bin path if needed.
-        Deps.updatepath!()
         # Install dependencies when applicable.
         if deps !== nothing
             @debug "installing dependencies."

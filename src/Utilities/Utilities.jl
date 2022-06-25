@@ -831,6 +831,21 @@ function is_draft(doc, page)::Bool
     return get(page.globals.meta, :Draft, get(page.globals.meta, :draft, is_draft(doc)))
 end
 
+## Markdown Utilities.
+
+# Remove all header nodes from a markdown object and replace them with bold font.
+# Only for use in `text/plain` output, since we'll use some css to make these less obtrusive
+# in the HTML rendering instead of using this hack.
+function dropheaders(md::Markdown.MD)
+    out = Markdown.MD()
+    out.meta = md.meta
+    out.content = map(dropheaders, md.content)
+    out
+end
+dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
+dropheaders(v::Vector) = map(dropheaders, v)
+dropheaders(other) = other
+
 include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
