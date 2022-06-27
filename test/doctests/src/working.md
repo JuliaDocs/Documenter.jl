@@ -36,6 +36,14 @@ xyz
 
 Original issue:
 
+```@meta
+DocTestSetup = quote
+    methods(args...) = println("""
+    # 1 method for generic function "f":
+    [1] f() in Main at none:1
+    """)
+end
+```
 ```jldoctest
 julia> f()=0
 f (generic function with 1 method)
@@ -43,6 +51,9 @@ f (generic function with 1 method)
 julia> methods(f)
 # 1 method for generic function "f":
 [1] f() in Main at none:1
+```
+```@meta
+DocTestSetup = nothing
 ```
 
 Comments at the start:
