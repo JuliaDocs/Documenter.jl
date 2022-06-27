@@ -38,7 +38,7 @@ Original issue:
 
 ```@meta
 DocTestSetup = quote
-    methods(args...) = println("""
+    methods(args...) = Text("""
     # 1 method for generic function "f":
     [1] f() in Main at none:1
     """)
