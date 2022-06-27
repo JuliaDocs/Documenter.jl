@@ -863,7 +863,7 @@ function git(; kwargs...)
         # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
         # We need to set this to something so that Git wouldn't pick up the user
         # templates (e.g. from init.templateDir config).
-        return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" = "/usr/share/git-core/templates")
+        return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
     else
         return Git.git()
     end
