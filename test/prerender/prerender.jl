@@ -55,7 +55,7 @@ for _ in 1:2 # test with and without highlightjs file given
     @test !occursin("<code class=\"language-julia-repl hljs\">julia&gt; function f()", index)
     @test !occursin("<code class=\"language-llvm hljs\">;  @ int.jl:87 within", index)
     @test occursin("<code class=\"language-julia hljs\"><span class=\"hljs-keyword\">function</span> f()", index)
-    @test occursin("<code class=\"language-julia-repl hljs\"><span class=\"hljs-meta\">julia&gt;</span>", index)
+    @test occursin("<code class=\"language-julia-repl hljs\"><span class=\"hljs-meta prompt_\">julia&gt;</span>", index)
     @test occursin("<code class=\"language-llvm hljs\"><span class=\"hljs-comment\">;  @ int.jl:87", index)
     @test length(HLJSFILES) == 1
 end
@@ -82,7 +82,7 @@ index = read_index()
 @test !occursin("<code class=\"language-julia-repl hljs\">julia&gt; function f()", index)
 @test occursin("<code class=\"language-llvm hljs\">;  @ int.jl:87 within", index)
 @test occursin("<code class=\"language-julia hljs\"><span class=\"hljs-keyword\">function</span> f()", index)
-@test occursin("<code class=\"language-julia-repl hljs\"><span class=\"hljs-meta\">julia&gt;</span>", index)
+@test occursin("<code class=\"language-julia-repl hljs\"><span class=\"hljs-meta prompt_\">julia&gt;</span>", index)
 @test !occursin("<code class=\"language-llvm hljs\"><span class=\"hljs-comment\">;  @ int.jl:87", index)
 
 @test length(HLJSFILES) == 2

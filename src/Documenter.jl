@@ -60,7 +60,6 @@ include("Builder.jl")
 include("CrossReferences.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
-include("Deps.jl")
 
 import .Utilities: Selectors, Remotes
 import .Writers.HTMLWriter: HTML, asset
@@ -69,7 +68,7 @@ import .Writers.LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
+export makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
     KaTeX, MathJax, MathJax2, MathJax3
 
 """
@@ -84,6 +83,7 @@ export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
         highlightsig = true,
         sitename = "",
         expandfirst = [],
+        draft = false,
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -186,6 +186,11 @@ For example, if you have `foo.md` and `bar.md`, `bar.md` would normally be evalu
 
 Evaluation order among the `expandfirst` pages is according to the order they appear in the
 argument.
+
+**`draft`** can be set to `true` to build a draft version of the document. In draft mode
+some potentially time-consuming steps are skipped (e.g. running `@example` blocks), which is
+useful when iterating on the documentation. This setting can also be configured per-page
+by setting `Draft = true` in an `@meta` block.
 
 # Experimental keywords
 
@@ -424,19 +429,6 @@ not exist, a new orphaned branch is created automatically. It defaults to `"gh-p
 **`dirname`** is a subdirectory of `branch` that the docs should be added to. By default,
 it is `""`, which will add the docs to the root directory.
 
-**`deps`** is the function used to install any additional dependencies needed to build the
-documentation. By default nothing is installed.
-
-It can be used e.g. for a Markdown build. The following example installed the `pygments` and
-`mkdocs` Python packages using the [`Deps.pip`](@ref) function:
-
-```julia
-deps = Deps.pip("pygments", "mkdocs")
-```
-
-**`make`** is the function used to specify an additional build phase. By default, nothing gets
-executed.
-
 **`devbranch`** is the branch that "tracks" the in-development version of the generated
 documentation. By default Documenter tries to figure this out using `git`. Can be set
 explicitly as a string (typically `"master"` or `"main"`).
@@ -485,6 +477,12 @@ deployed. It defaults to the value of `repo`.
     Therefore, previews are available only for pull requests that were
     submitted directly from the main repository.
 
+**`deps`** can be set to a function or a callable object and gets called during deployment,
+and is usually used to install additional dependencies. By default, nothing gets executed.
+
+**`make`** can be set to a function or a callable object and gets called during deployment,
+and is usually used to specify additional build steps. By default, nothing gets executed.
+
 # Releases vs development branches
 
 [`deploydocs`](@ref) will automatically figure out whether it is deploying the documentation
@@ -525,18 +523,7 @@ function deploydocs(;
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
-        env = copy(ENV)
-        env["GIT_TERMINAL_PROMPT"] = "0"
-        env["GIT_SSH_COMMAND"] = get(env, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
-        str = try
-            read(pipeline(ignorestatus(
-                setenv(`git remote show origin`, env; dir=root)
-            ); stderr=devnull), String)
-        catch
-            ""
-        end
-        m = match(r"^\s*HEAD branch:\s*(.*)$"m, str)
-        devbranch = m === nothing ? "master" : String(m[1])
+        devbranch = Utilities.git_remote_head_branch("deploydocs(devbranch = ...)", root)
     end
 
     deploy_decision = deploy_folder(deploy_config;
@@ -558,8 +545,6 @@ function deploydocs(;
             deploy_subfolder = nothing
         end
 
-        # Add local bin path if needed.
-        Deps.updatepath!()
         # Install dependencies when applicable.
         if deps !== nothing
             @debug "installing dependencies."

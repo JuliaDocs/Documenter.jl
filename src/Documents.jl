@@ -249,6 +249,7 @@ struct User
     authors :: String
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
+    draft :: Bool
 end
 
 """
@@ -303,6 +304,7 @@ function Document(plugins = nothing;
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
+        draft::Bool                  = false,
         others...
     )
 
@@ -358,6 +360,7 @@ function Document(plugins = nothing;
         authors,
         version,
         highlightsig,
+        draft,
     )
     internal = Internal(
         Utilities.assetsdir(),

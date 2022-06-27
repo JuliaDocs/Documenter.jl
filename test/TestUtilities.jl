@@ -2,7 +2,7 @@ module TestUtilities
 using Test
 import IOCapture
 
-export @quietly
+export @quietly, trun
 
 const QUIETLY_LOG = joinpath(@__DIR__, "quietly.log")
 
@@ -83,6 +83,21 @@ is_success(::Test.Pass) = true
 function is_success(x)
     @warn "Unimplemented TestUtilities.is_success method" typeof(x) x
     return false
+end
+
+function trun(cmd::Base.AbstractCmd)
+    buffer = IOBuffer()
+    cmd_redirected = pipeline(cmd; stdin = devnull, stdout = buffer, stderr = buffer)
+    try
+        run(cmd_redirected)
+        return true
+    catch e
+        @error """
+        Running external program $(cmd) failed, output:
+        $(String(take!(buffer)))
+        """ exception = (e, catch_backtrace())
+        return false
+    end
 end
 
 end
