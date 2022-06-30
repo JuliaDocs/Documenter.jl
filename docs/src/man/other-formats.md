@@ -101,7 +101,7 @@ the setup part of the generated TeX code.
 ### Load custom packages
 
 By default, the generated TeX file loads the [`documenter.sty`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/documenter.sty)
-style file, which loads a several packages (such as `fontspec`, `amsmath`, `listings`, `minted`, `tabulary`, `graphicx`)
+style file, which loads several packages (such as `fontspec`, `amsmath`, `listings`, `minted`, `tabulary`, `graphicx`)
 and otherwise configures the TeX build.
 
 Users can load additional packages and declare additional configuration by adding a
