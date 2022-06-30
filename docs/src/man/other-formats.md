@@ -94,31 +94,32 @@ makedocs(
 
 ## [Custom LaTeX style](@id custom-latex)
 
+The PDF/LaTeX backend works by generating a TeX file based on the input Markdown files.
+For users who need or want more control over the generated PDF, it is possible to customize
+the setup part of the generated TeX code.
+
 ### Load custom packages
 
-We have loaded many common packages in LaTeX,
-such as `fontspec`, `amsmath`, `listings`, `minted`, `tabulary`, `graphicx`,
-and more detailed configurations can be found in [`documenter.sty`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/documenter.sty).
+By default, the generated TeX file loads the [`documenter.sty`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/documenter.sty)
+style file, which loads a several packages (such as `fontspec`, `amsmath`, `listings`, `minted`, `tabulary`, `graphicx`)
+and otherwise configures the TeX build.
 
-Users can load more custom packages by adding a `custom.sty` to the `assets/` folder,
-and the custom style (`custom.sty`) will be loaded after the default style (`documenter.sty`).
+Users can load additional packages and declare additional configuration by adding a
+`custom.sty` file to the `assets/` source directory. The custom style file will be loaded
+right after the default style (`documenter.sty`).
 
 ### Custom preamble
 
-If you wish to fully customize the package loading, you need to write a custom preamble.
+By default, Documenter uses the [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/preamble.tex)
+preamble, with only the dynamically generated declarations for the `\DocMainTitle`,
+`\DocVersion`, `\DocAuthors`, and `\JuliaVersion` variables preceding it.
 
-The default preamble is currently defined in [`preamble.tex`](https://github.com/JuliaDocs/Documenter.jl/blob/master/assets/latex/preamble.tex).
-You can override the default preamble completely by adding a custom `preamble.tex` to the `assets/` folder.
+For more control, it is possible to fully replace the preamble by adding a `preamble.tex`
+file into the `assets/` source directory, which will then be used instead of the default
+one. The Documenter tests contain two examples of how a custom preamble can be used:
 
-There are two examples of custom preambles:
-- Custom [cover page][cover_page_src], ([make.jl][cover_page_makejl])
-- Customizing [the TOC display][toc_display_src], ([make.jl][toc_display_makejl])
-
-[cover_page_src]: https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.cover_page
-[toc_display_src]: https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.toc_style
-[cover_page_makejl]: https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/make.jl#L492-L502
-[toc_display_makejl]: https://github.com/JuliaDocs/Documenter.jl/blob/master/test/examples/make.jl#L511-L521
-
+- [To customize the cover page of the manual.](https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.cover_page)
+- [To customize the TOC style.](https://github.com/JuliaDocs/Documenter.jl/tree/master/test/examples/src.toc_style)
 
 ## Markdown & MkDocs
 
