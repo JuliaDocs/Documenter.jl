@@ -122,30 +122,17 @@ end
             @test length(bindings) == 8
             @test Docs.Binding(TestModule, :local_binding) in keys(bindings)
             @test Docs.Binding(TestModule, :local_binding_exported) in keys(bindings)
-
-            # Replicates #1857
             @test Docs.Binding(Dep1, :dep1_private) in keys(bindings)
-
             @test Docs.Binding(Dep1, :dep1_private_2) in keys(bindings)
             @test Docs.Binding(Dep1, :dep1_exported) in keys(bindings)
             @test Docs.Binding(Dep1, :dep1_reexported) in keys(bindings)
             @test Docs.Binding(Dep1, :bar) in keys(bindings)
-
-            # This docstring currently completely disappears from allbindings since it shares
-            # the binding with Dep1.dep1_private
             @test Docs.Binding(Dep2, :dep1_private) in keys(bindings)
-
-            display(bindings)
         end
         let bindings = allbindings(:exports, TestModule)
-            @test_broken length(bindings) == 2; @test length(bindings) == 3
+            @test length(bindings) == 2
             @test Docs.Binding(TestModule, :local_binding_exported) in keys(bindings)
             @test Docs.Binding(Dep1, :dep1_reexported) in keys(bindings)
-
-            # Broken export counting
-            @test_broken Docs.Binding(Dep1, :bar) ∉ keys(bindings)
-
-            display(bindings)
         end
     end
 end

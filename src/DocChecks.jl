@@ -80,7 +80,8 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Bindin
         isa(obj, IdDict{Any,Any}) && continue # is this ever true?!
         @assert obj isa Docs.Binding
         name = nameof(obj)
-        isexported = Base.isexported(mod, name)
+        # We only consider a name exported only if it is actually imported
+        isexported = (obj == Utilities.Binding(mod, name)) && Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
             out[obj] = Set(sigs(doc))
         end
