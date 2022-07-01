@@ -21,11 +21,7 @@ include("TestUtilities.jl"); using .TestUtilities
     include("markdown2.jl")
 
     # DocChecks tests
-    if haskey(ENV, "DOCUMENTER_TEST_LINKCHECK")
-        include("docchecks.jl")
-    else
-        @info "DOCUMENTER_TEST_LINKCHECK not set, skipping online linkcheck tests."
-    end
+    include("docchecks.jl")
 
     # NavNode tests.
     include("navnode.jl")
