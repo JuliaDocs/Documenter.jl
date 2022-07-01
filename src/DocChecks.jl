@@ -78,14 +78,19 @@ function allbindings(checkdocs::Symbol, mods)
 end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
-    for (obj, doc) in meta(mod)
-        isa(obj, IdDict{Any,Any}) && continue # is this ever true?!
-        @assert obj isa Docs.Binding
-        name = nameof(obj)
-        # We only consider a name exported only if it is actually imported
-        isexported = (obj == Utilities.Binding(mod, name)) && Base.isexported(mod, name)
+    for (binding, doc) in meta(mod)
+        # The keys of the docs meta dictonary should always be Docs.Binding objects in
+        # practice. However, the key type is Any, so it is theoretically possible that
+        # some non-binding metadata gets added to the dict. So on the off-chance that has
+        # happened, we simply ignore those entries.
+        isa(binding, Docs.Binding) || continue
+        # We only consider a name exported only if it actually exists in the module, either
+        # by virtue of being defined there, or if it has been brought into the scope with
+        # import/using.
+        name = nameof(binding)
+        isexported = (binding == Utilities.Binding(mod, name)) && Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
-            out[obj] = Set(sigs(doc))
+            out[binding] = Set(sigs(doc))
         end
     end
     out
