@@ -77,11 +77,12 @@ end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
     for (obj, doc) in meta(mod)
-        isa(obj, IdDict{Any,Any}) && continue
+        isa(obj, IdDict{Any,Any}) && continue # is this ever true?!
+        @assert obj isa Docs.Binding
         name = nameof(obj)
         isexported = Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
-            out[Utilities.Binding(mod, name)] = Set(sigs(doc))
+            out[obj] = Set(sigs(doc))
         end
     end
     out
