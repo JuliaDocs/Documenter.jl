@@ -60,9 +60,11 @@ function missingdocs(doc::Documents.Document)
                 println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
             end
         end
-        println(b, """\n
-            These are docstrings in the checked modules (configured with the modules keyword)
-            that are not included in @docs or @autodocs blocks.""")
+        println(b)
+        print(b, """
+        These are docstrings in the checked modules (configured with the modules keyword)
+        that are not included in @docs or @autodocs blocks.
+        """)
         @docerror(doc, :missing_docs, String(take!(b)))
     end
 end
