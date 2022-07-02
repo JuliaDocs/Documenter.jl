@@ -9,7 +9,7 @@ include("TestUtilities.jl"); using .TestUtilities
 
     # Test missing docs
     @info "Building missingdocs/make.jl"
-    @quietly include("missingdocs/make.jl")
+    include("missingdocs/make.jl")
 
     # Error reporting.
     @info "Building errors/make.jl"
