@@ -59,7 +59,9 @@ module TestModule
     "TestModuleDep2: Dep2.dep1_private"
     Dep2.dep1_private(::Any, ::Any) = nothing
 
-    #
+    # This tests the case where there is an undocumented but exported local function
+    # that shares the name with a documented function from another module, potentially
+    # confusing the isexported check.
     const bar = nothing
     export bar
     "Dep1.bar"
