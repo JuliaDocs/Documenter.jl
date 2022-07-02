@@ -20,7 +20,6 @@
   - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
 
 * ![Bugfix][badge-bugfix] When including docstrings for an alias, Documenter now correctly tries to include the exactly matching docstring first, before checking for signature subtypes. ([#1842][github-1842])
-
 * ![Bugfix][badge-bugfix] When checking for missing docstrings, Documenter now correctly handles docstrings for methods that extend bindings from other modules that have not been imported into the current module. ([#1695][github-1695], [#1857][github-1857], [#1861][github-1861])
 
 ## Version `v0.27.19`
