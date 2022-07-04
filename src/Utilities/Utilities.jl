@@ -851,6 +851,7 @@ dropheaders(other) = other
 
 function git(; kwargs...)
     system_git_path = Sys.which("git")
+    isnothing(system_git_path) && error("Unable to find `git`")
     # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
     # We need to set this to something so that Git wouldn't pick up the user
     # templates (e.g. from init.templateDir config).
