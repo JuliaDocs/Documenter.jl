@@ -8,7 +8,6 @@ import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
-using Git: Git
 import ..ERROR_NAMES
 
 """
@@ -851,22 +850,11 @@ dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
 function git(; kwargs...)
-    @static if Sys.isapple()
-        # The Git_jll does not work properly on Macs, so we fall back to the
-        # system binaries here.
-        #
-        # https://github.com/JuliaVersionControl/Git.jl/issues/40#issuecomment-1144307266
-        # https://github.com/JuliaPackaging/Yggdrasil/pull/4987
-        success(`which which`) || error("Unable to find `which`")
-        success(`which git`) || error("Unable to find `git`")
-        system_git_path = strip(read(`which git`, String))
-        # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
-        # We need to set this to something so that Git wouldn't pick up the user
-        # templates (e.g. from init.templateDir config).
-        return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
-    else
-        return Git.git()
-    end
+    system_git_path = Sys.which("git")
+    # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
+    # We need to set this to something so that Git wouldn't pick up the user
+    # templates (e.g. from init.templateDir config).
+    return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
 end
 
 include("DOM.jl")
