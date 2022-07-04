@@ -8,6 +8,7 @@ import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
+using Git: Git
 import ..ERROR_NAMES
 
 """
@@ -425,7 +426,7 @@ end
 
 function repo_commit(file)
     cd(dirname(file)) do
-        readchomp(`git rev-parse HEAD`)
+        readchomp(`$(git()) rev-parse HEAD`)
     end
 end
 
@@ -515,7 +516,7 @@ const GIT_REMOTE_CACHE = Dict{String,String}()
 function getremote(dir::AbstractString)
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
-            readchomp(setenv(`git config --get remote.origin.url`; dir=dir))
+            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
         catch
             ""
         end
@@ -531,7 +532,7 @@ Returns the first 5 characters of the current git commit hash of the directory `
 """
 function get_commit_short(dir)
     commit = cd(dir) do
-        readchomp(`git rev-parse HEAD`)
+        readchomp(`$(git()) rev-parse HEAD`)
     end
     (length(commit) > 5) ? commit[1:5] : commit
 end
@@ -790,13 +791,16 @@ it out automatically.
 to construct the warning messages.
 """
 function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
-    env = copy(ENV)
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GIT_SSH_COMMAND"] = get(env, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
-    cmd = `git remote show $(remotename)`
+    # We need to do addenv() here to merge the new variables with the environment set by
+    # Git_jll and the git() function.
+    cmd = addenv(
+        setenv(`$(git()) remote show $(remotename)`, dir=root),
+        "GIT_TERMINAL_PROMPT" => "0",
+        "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
+    )
     stderr_output = IOBuffer()
     git_remote_output = try
-        read(pipeline(setenv(cmd, env; dir=root); stderr = stderr_output), String)
+        read(pipeline(cmd; stderr = stderr_output), String)
     catch e
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
@@ -845,6 +849,25 @@ end
 dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
 dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
+
+function git(; kwargs...)
+    @static if Sys.isapple()
+        # The Git_jll does not work properly on Macs, so we fall back to the
+        # system binaries here.
+        #
+        # https://github.com/JuliaVersionControl/Git.jl/issues/40#issuecomment-1144307266
+        # https://github.com/JuliaPackaging/Yggdrasil/pull/4987
+        success(`which which`) || error("Unable to find `which`")
+        success(`which git`) || error("Unable to find `git`")
+        system_git_path = strip(read(`which git`, String))
+        # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
+        # We need to set this to something so that Git wouldn't pick up the user
+        # templates (e.g. from init.templateDir config).
+        return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
+    else
+        return Git.git()
+    end
+end
 
 include("DOM.jl")
 include("MDFlatten.jl")
