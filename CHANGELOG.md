@@ -20,6 +20,7 @@
   - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
 
 * ![Bugfix][badge-bugfix] When including docstrings for an alias, Documenter now correctly tries to include the exactly matching docstring first, before checking for signature subtypes. ([#1842][github-1842])
+* ![Bugfix][badge-bugfix] When checking for missing docstrings, Documenter now correctly handles docstrings for methods that extend bindings from other modules that have not been imported into the current module. ([#1695][github-1695], [#1857][github-1857], [#1861][github-1861])
 
 ## Version `v0.27.19`
 
@@ -1020,6 +1021,7 @@
 [github-1689]: https://github.com/JuliaDocs/Documenter.jl/pull/1689
 [github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
 [github-1693]: https://github.com/JuliaDocs/Documenter.jl/issues/1693
+[github-1695]: https://github.com/JuliaDocs/Documenter.jl/issues/1695
 [github-1696]: https://github.com/JuliaDocs/Documenter.jl/pull/1696
 [github-1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
 [github-1699]: https://github.com/JuliaDocs/Documenter.jl/pull/1699
@@ -1079,6 +1081,8 @@
 [github-1842]: https://github.com/JuliaDocs/Documenter.jl/pull/1842
 [github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
 [github-1846]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
+[github-1857]: https://github.com/JuliaDocs/Documenter.jl/issues/1857
+[github-1861]: https://github.com/JuliaDocs/Documenter.jl/pull/1861
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
