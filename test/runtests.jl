@@ -9,7 +9,7 @@ include("TestUtilities.jl"); using .TestUtilities
 
     # Test missing docs
     @info "Building missingdocs/make.jl"
-    @quietly include("missingdocs/make.jl")
+    include("missingdocs/make.jl")
 
     # Error reporting.
     @info "Building errors/make.jl"
@@ -21,11 +21,7 @@ include("TestUtilities.jl"); using .TestUtilities
     include("markdown2.jl")
 
     # DocChecks tests
-    if haskey(ENV, "DOCUMENTER_TEST_LINKCHECK")
-        include("docchecks.jl")
-    else
-        @info "DOCUMENTER_TEST_LINKCHECK not set, skipping online linkcheck tests."
-    end
+    include("docchecks.jl")
 
     # NavNode tests.
     include("navnode.jl")
