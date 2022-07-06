@@ -53,6 +53,7 @@ include("TestUtilities.jl"); using .TestUtilities
 
     # Deployment configurations
     include("deployconfig.jl")
+    include("deploydocs.jl")
 
     # Mock package docs.
     include("examples/tests.jl")
