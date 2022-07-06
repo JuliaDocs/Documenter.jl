@@ -1,10 +1,12 @@
 module UtilitiesTests
 
 using Test
+using Logging: Info
 import Base64: stringmime
 include("TestUtilities.jl"); using .TestUtilities
 
 import Documenter
+using Documenter.Utilities: git
 import Markdown
 
 module UnitTests
@@ -166,15 +168,15 @@ end
         mkpath(path_repo)
         cd(path_repo) do
             # Create a simple mock repo in a temporary directory with a single file.
-            @test trun(`git init`)
-            @test trun(`git config user.email "tester@example.com"`)
-            @test trun(`git config user.name "Test Committer"`)
-            @test trun(`git remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
+            @test trun(`$(git()) init`)
+            @test trun(`$(git()) config user.email "tester@example.com"`)
+            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test trun(`$(git()) remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             write(filepath, "X")
-            @test trun(`git add -A`)
-            @test trun(`git commit -m"Initial commit."`)
+            @test trun(`$(git()) add -A`)
+            @test trun(`$(git()) commit -m"Initial commit."`)
 
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
@@ -194,7 +196,7 @@ end
         # Test worktree
         path_worktree = joinpath(path, "worktree")
         cd("$(path_repo)") do
-            @test trun(`git worktree add $(path_worktree)`)
+            @test trun(`$(git()) worktree add $(path_worktree)`)
         end
         cd("$(path_worktree)") do
             filepath = abspath(joinpath("src", "SourceFile.jl"))
@@ -217,15 +219,15 @@ end
         path_submodule = joinpath(path, "submodule")
         mkpath(path_submodule)
         cd(path_submodule) do
-            @test trun(`git init`)
-            @test trun(`git config user.email "tester@example.com"`)
-            @test trun(`git config user.name "Test Committer"`)
+            @test trun(`$(git()) init`)
+            @test trun(`$(git()) config user.email "tester@example.com"`)
+            @test trun(`$(git()) config user.name "Test Committer"`)
             # NOTE: the target path in the `git submodule add` command is necessary for
             # Windows builds, since otherwise Git claims that the path is in a .gitignore
             # file.
-            @test trun(`git submodule add $(path_repo) repository`)
-            @test trun(`git add -A`)
-            @test trun(`git commit -m"Initial commit."`)
+            @test trun(`$(git()) submodule add $(path_repo) repository`)
+            @test trun(`$(git()) add -A`)
+            @test trun(`$(git()) commit -m"Initial commit."`)
         end
         path_submodule_repo = joinpath(path, "submodule", "repository")
         @test isdir(path_submodule_repo)
@@ -540,7 +542,7 @@ end
 
         function git_create_bare_repo(path; head = nothing)
             mkdir(path)
-            @test trun(`git -C $(path) init --bare`)
+            @test trun(`$(git()) -C $(path) init --bare`)
             @test isfile(joinpath(path, "HEAD"))
             if head !== nothing
                 write(joinpath(path, "HEAD"), """
@@ -551,34 +553,36 @@ end
                 # We need to commit something to the non-standard branch to actually
                 # "activate" the non-standard HEAD:
                 head = (head === nothing) ? "master" : head
-                @test trun(`git clone $(path) $(subdir_path)`)
-                @test trun(`git -C $(subdir_path) config user.email "tester@example.com"`)
-                @test trun(`git -C $(subdir_path) config user.name "Test Committer"`)
-                @test trun(`git -C $(subdir_path) checkout -b $(head)`)
-                @test trun(`git -C $(subdir_path) commit --allow-empty -m"initial empty commit"`)
-                @test trun(`git -C $(subdir_path) push --set-upstream origin $(head)`)
+                @test trun(`$(git()) clone $(path) $(subdir_path)`)
+                @test trun(`$(git()) -C $(subdir_path) config user.email "tester@example.com"`)
+                @test trun(`$(git()) -C $(subdir_path) config user.name "Test Committer"`)
+                @test trun(`$(git()) -C $(subdir_path) checkout -b $(head)`)
+                @test trun(`$(git()) -C $(subdir_path) commit --allow-empty -m"initial empty commit"`)
+                @test trun(`$(git()) -C $(subdir_path) push --set-upstream origin $(head)`)
             end
         end
 
         mktempdir() do path
             cd(path) do
+                # Note: running @test_logs with match_mode=:any here so that the tests would
+                # also pass when e.g. JULIA_DEBUG=Documenter when the tests are being run.
                 # If there is no parent remote repository, we should get a warning and the fallback value:
-                @test (@test_logs (:warn,) Documenter.Utilities.git_remote_head_branch(".", pwd(); fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) Documenter.Utilities.git_remote_head_branch(".", pwd())) == "master"
+                @test (@test_logs (:warn,) match_mode=:any Documenter.Utilities.git_remote_head_branch(".", pwd(); fallback = "fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode=:any Documenter.Utilities.git_remote_head_branch(".", pwd())) == "master"
                 # We'll set up two "remote" bare repositories with non-standard HEADs:
                 git_create_bare_repo("barerepo", head = "maindevbranch")
                 git_create_bare_repo("barerepo_other", head = "main")
                 # Clone barerepo and test git_remote_head_branch:
-                @test trun(`git clone barerepo/ local/`)
+                @test trun(`$(git()) clone barerepo/ local/`)
                 @test Documenter.Utilities.git_remote_head_branch(".", "local") == "maindevbranch"
                 # Now, let's add the other repo as another remote, and fetch the HEAD for that:
-                @test trun(`git -C local/ remote add other ../barerepo_other/`)
-                @test trun(`git -C local/ fetch other`)
+                @test trun(`$(git()) -C local/ remote add other ../barerepo_other/`)
+                @test trun(`$(git()) -C local/ fetch other`)
                 @test Documenter.Utilities.git_remote_head_branch(".", "local") == "maindevbranch"
                 @test Documenter.Utilities.git_remote_head_branch(".", "local"; remotename = "other") == "main"
                 # Asking for a nonsense remote should also warn and drop back to fallback:
-                @test (@test_logs (:warn,) Documenter.Utilities.git_remote_head_branch(".", pwd(); remotename = "nonsense", fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) Documenter.Utilities.git_remote_head_branch(".", pwd(); remotename = "nonsense")) == "master"
+                @test (@test_logs (:warn,) match_mode=:any Documenter.Utilities.git_remote_head_branch(".", pwd(); remotename = "nonsense", fallback = "fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode=:any Documenter.Utilities.git_remote_head_branch(".", pwd(); remotename = "nonsense")) == "master"
             end
         end
     end
