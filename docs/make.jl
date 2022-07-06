@@ -80,16 +80,15 @@ if "pdf" in ARGS
         end
     end
     deploydocs(
-        repo = "github.com/fredrikekre/Documenter.jl.git",
+        repo = "github.com/JuliaDocs/Documenter.jl.git",
         target = "pdf/build-pdf/commit",
         branch = "gh-pages-pdf",
         forcepush = true,
     )
 else
     deploydocs(
-        repo = "github.com/fredrikekre/Documenter.jl.git",
+        repo = "github.com/JuliaDocs/Documenter.jl.git",
         target = "build",
         push_preview = true,
-        archive = "ghpages.tar.gz",
     )
 end
