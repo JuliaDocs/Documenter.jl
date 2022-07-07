@@ -526,11 +526,20 @@ function deploydocs(;
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview::Bool = false,
+
+        archive = nothing, # experimental and undocumented
     )
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
         devbranch = Utilities.git_remote_head_branch("deploydocs(devbranch = ...)", root)
+    end
+
+    if !isnothing(archive)
+        # If archive is a relative path, we'll make it relative to the make.jl
+        # directory (e.g. docs/)
+        archive = joinpath(root, archive)
+        ispath(archive) && error("Output archive exists: $archive")
     end
 
     deploy_decision = deploy_folder(deploy_config;
@@ -587,7 +596,7 @@ function deploydocs(;
                     branch=deploy_branch, dirname=dirname, target=target,
                     sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
                     devurl=devurl, versions=versions, forcepush=forcepush,
-                    is_preview=deploy_is_preview,
+                    is_preview=deploy_is_preview, archive=archive,
                 )
             end
         end
@@ -608,7 +617,7 @@ function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
         versions, forcepush=false, deploy_config, subfolder,
-        is_preview::Bool = false,
+        is_preview::Bool = false, archive,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -693,7 +702,11 @@ function git_push(
         # Add, commit, and push the docs to the remote.
         run(`$(git()) add -A .`)
         if !success(`$(git()) diff --cached --exit-code`)
-            if forcepush
+            if !isnothing(archive)
+                run(`$(git()) commit -m "build based on $sha"`)
+                @info "Skipping push and writing repository to an archive" archive
+                run(`$(git()) archive -o $(archive) HEAD`)
+            elseif forcepush
                 run(`$(git()) commit --amend --date=now -m "build based on $sha"`)
                 run(`$(git()) push -fq upstream HEAD:$branch`)
             else

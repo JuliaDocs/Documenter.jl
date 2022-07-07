@@ -857,9 +857,8 @@ function git(; kwargs...)
         #
         # https://github.com/JuliaVersionControl/Git.jl/issues/40#issuecomment-1144307266
         # https://github.com/JuliaPackaging/Yggdrasil/pull/4987
-        success(`which which`) || error("Unable to find `which`")
-        success(`which git`) || error("Unable to find `git`")
-        system_git_path = strip(read(`which git`, String))
+        system_git_path = Sys.which("git")
+        isnothing(system_git_path) && error("Unable to find `git`")
         # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
         # We need to set this to something so that Git wouldn't pick up the user
         # templates (e.g. from init.templateDir config).
