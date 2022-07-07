@@ -10,6 +10,7 @@
   - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
   - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
 
+* ![Experimental][badge-experimental] `deploydocs` now supports "deploying to tarball" (rather than pushing to the `gh-pages` branch) via the undocumented experiments `archive` keyword. ([#1865][github-1865])
 * ![Bugfix][badge-bugfix] When including docstrings for an alias, Documenter now correctly tries to include the exactly matching docstring first, before checking for signature subtypes. ([#1842][github-1842])
 * ![Bugfix][badge-bugfix] When checking for missing docstrings, Documenter now correctly handles docstrings for methods that extend bindings from other modules that have not been imported into the current module. ([#1695][github-1695], [#1857][github-1857], [#1861][github-1861])
 * ![Bugfix][badge-bugfix] By overriding `GIT_TEMPLATE_DIR`, `git` no longer picks up arbitrary user templates and hooks when internally called by Documenter. ([#1862][github-1862])
@@ -1072,6 +1073,7 @@
 [github-1857]: https://github.com/JuliaDocs/Documenter.jl/issues/1857
 [github-1861]: https://github.com/JuliaDocs/Documenter.jl/pull/1861
 [github-1862]: https://github.com/JuliaDocs/Documenter.jl/pull/1862
+[github-1865]: https://github.com/JuliaDocs/Documenter.jl/pull/1865
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
