@@ -343,9 +343,9 @@ end
 # Display doctesting results.
 
 function result_to_string(buf, value)
-    rng = default_rng() # Avoids hard to replicate global random state mutation in `show`
+    rng = copy(default_rng()) # Avoids hard to replicate global random state mutation in `show`
     value === nothing || Base.invokelatest(show, IOContext(buf, :limit => true), MIME"text/plain"(), value)
-    copyto!(default_rng(), rng)
+    copy!(default_rng(), rng)
     return sanitise(buf)
 end
 
