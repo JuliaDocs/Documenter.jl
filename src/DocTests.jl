@@ -4,6 +4,7 @@ in the documents and docstrings run and are up to date.
 """
 module DocTests
 using DocStringExtensions
+using Random: default_rng
 
 import ..Documenter:
     DocSystem,
@@ -342,7 +343,9 @@ end
 # Display doctesting results.
 
 function result_to_string(buf, value)
+    rng = default_rng() # Avoids hard to replicate global random state mutation in `show`
     value === nothing || Base.invokelatest(show, IOContext(buf, :limit => true), MIME"text/plain"(), value)
+    copy!(default_rng(), rng)
     return sanitise(buf)
 end
 
