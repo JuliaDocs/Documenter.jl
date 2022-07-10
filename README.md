@@ -30,7 +30,7 @@ julia> import Pkg; Pkg.add("Documenter")
 
 ## Project Status
 
-The package is tested against, and being developed for, Julia `1.0` and above on Linux, macOS, and Windows.
+The package is tested against, and being developed for, Julia `1.6` and above on Linux, macOS, and Windows.
 
 ## Questions and Contributions
 
