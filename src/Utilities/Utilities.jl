@@ -427,7 +427,7 @@ end
 
 function repo_commit(file)
     cd(dirname(file)) do
-        readchomp(`git rev-parse HEAD`)
+        readchomp(`$(git()) rev-parse HEAD`)
     end
 end
 
@@ -517,7 +517,7 @@ const GIT_REMOTE_CACHE = Dict{String,String}()
 function getremote(dir::AbstractString)
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
-            readchomp(setenv(`git config --get remote.origin.url`; dir=dir))
+            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
         catch
             ""
         end
@@ -533,7 +533,7 @@ Returns the first 5 characters of the current git commit hash of the directory `
 """
 function get_commit_short(dir)
     commit = cd(dir) do
-        readchomp(`git rev-parse HEAD`)
+        readchomp(`$(git()) rev-parse HEAD`)
     end
     (length(commit) > 5) ? commit[1:5] : commit
 end
@@ -792,10 +792,13 @@ it out automatically.
 to construct the warning messages.
 """
 function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
-    env = copy(ENV)
-    env["GIT_TERMINAL_PROMPT"] = "0"
-    env["GIT_SSH_COMMAND"] = get(env, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\"")
-    cmd = `git remote show $(remotename)`
+    # We need to do addenv() here to merge the new variables with the environment set by
+    # Git_jll and the git() function.
+    cmd = addenv(
+        setenv(`$(git()) remote show $(remotename)`, dir=root),
+        "GIT_TERMINAL_PROMPT" => "0",
+        "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
+    )
     stderr_output = IOBuffer()
     git_remote_output = try
         # Older Julia versions don't support pipeline-ing into IOBuffer.
@@ -805,7 +808,7 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
             write(stderr_output, "(no output redirect on Julia $VERSION)")
             devnull
         end
-        read(pipeline(setenv(cmd, env; dir=root); stderr = stderr_redirect), String)
+        read(pipeline(cmd; stderr = stderr_redirect), String)
     catch e
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
@@ -838,6 +841,40 @@ is_draft(doc) = doc.user.draft
 function is_draft(doc, page)::Bool
     # Check both Draft and draft from @meta block
     return get(page.globals.meta, :Draft, get(page.globals.meta, :draft, is_draft(doc)))
+end
+
+function git(; kwargs...)
+    system_git_path = Sys.which("git")
+    (system_git_path === nothing) && error("Unable to find `git`")
+    # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
+    # We need to set this to something so that Git wouldn't pick up the user
+    # templates (e.g. from init.templateDir config).
+    return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
+end
+
+# On Julia < 1.6 we need the compat for addenv (used in git_remote_head_branch above).
+# Derived from Compat.jl (MIT License):
+#   https://github.com/JuliaLang/Compat.jl/blob/952300c15c5494e52f49c885d4d1b3de0d2e162e/src/Compat.jl#L688-L711
+#
+# https://github.com/JuliaLang/julia/pull/37244
+if VERSION < v"1.6.0-DEV.873" # 18198b1bf85125de6cec266eac404d31ccc2e65c
+    export addenv
+    function addenv(cmd::Cmd, env::Dict)
+        new_env = Dict{String,String}()
+        if cmd.env !== nothing
+            for (k, v) in split.(cmd.env, "=")
+                new_env[string(k)::String] = string(v)::String
+            end
+        end
+        for (k, v) in env
+            new_env[string(k)::String] = string(v)::String
+        end
+        return setenv(cmd, new_env; dir=cmd.dir)
+    end
+
+    function addenv(cmd::Cmd, pairs::Pair{<:AbstractString}...)
+        return addenv(cmd, Dict(k => v for (k, v) in pairs))
+    end
 end
 
 include("DOM.jl")

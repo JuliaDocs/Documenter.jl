@@ -34,13 +34,17 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     touch(joinpath(srcdir, "index.md"))
 
     c = IOCapture.capture(rethrow = InterruptException) do
-        makedocs(
-            sitename = " ",
-            format = Documenter.HTML(edit_link = "master"),
-            root = dir,
-            modules = modules;
-            kwargs...
-        )
+        # In case JULIA_DEBUG is set to something, we'll override that, so that we wouldn't
+        # get some unexpected debug output from makedocs.
+        withenv("JULIA_DEBUG" => "") do
+            makedocs(
+                sitename = " ",
+                format = Documenter.HTML(edit_link = "master"),
+                root = dir,
+                modules = modules;
+                kwargs...
+            )
+        end
     end
 
     @debug """run_makedocs($mdfiles, modules=$modules) -> $(c.error ? "fail" : "success")

@@ -62,7 +62,7 @@ include("DocChecks.jl")
 include("Writers/Writers.jl")
 include("Deps.jl")
 
-import .Utilities: Selectors
+import .Utilities: Selectors, git
 import .Writers.HTMLWriter: HTML, asset
 import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 import .Writers.LaTeXWriter: LaTeX
@@ -534,11 +534,20 @@ function deploydocs(;
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview::Bool = false,
+
+        archive = nothing, # experimental and undocumented
     )
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
         devbranch = Utilities.git_remote_head_branch("deploydocs(devbranch = ...)", root)
+    end
+
+    if archive !== nothing
+        # If archive is a relative path, we'll make it relative to the make.jl
+        # directory (e.g. docs/)
+        archive = joinpath(root, archive)
+        ispath(archive) && error("Output archive exists: $archive")
     end
 
     deploy_decision = deploy_folder(deploy_config;
@@ -574,7 +583,7 @@ function deploydocs(;
             # the working directory has been changed (e.g. if the makedocs' build argument is
             # outside root).
             sha = try
-                readchomp(`git rev-parse --short HEAD`)
+                readchomp(`$(git()) rev-parse --short HEAD`)
             catch
                 # git rev-parse will throw an error and return code 128 if it is not being
                 # run in a git repository, which will make run/readchomp throw an exception.
@@ -597,7 +606,7 @@ function deploydocs(;
                     branch=deploy_branch, dirname=dirname, target=target,
                     sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
                     devurl=devurl, versions=versions, forcepush=forcepush,
-                    is_preview=deploy_is_preview,
+                    is_preview=deploy_is_preview, archive=archive,
                 )
             end
         end
@@ -618,7 +627,7 @@ function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
         versions, forcepush=false, deploy_config, subfolder,
-        is_preview::Bool = false,
+        is_preview::Bool = false, archive,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -628,17 +637,17 @@ function git_push(
     # Generate a closure with common commands for ssh and https
     function git_commands(sshconfig=nothing)
         # Setup git.
-        run(`git init`)
-        run(`git config user.name "Documenter.jl"`)
-        run(`git config user.email "documenter@juliadocs.github.io"`)
+        run(`$(git()) init`)
+        run(`$(git()) config user.name "Documenter.jl"`)
+        run(`$(git()) config user.email "documenter@juliadocs.github.io"`)
         if sshconfig !== nothing
-            run(`git config core.sshCommand "ssh -F $(sshconfig)"`)
+            run(`$(git()) config core.sshCommand "ssh -F $(sshconfig)"`)
         end
 
         # Fetch from remote and checkout the branch.
-        run(`git remote add upstream $upstream`)
+        run(`$(git()) remote add upstream $upstream`)
         try
-            run(`git fetch upstream`)
+            run(`$(git()) fetch upstream`)
         catch e
             @error """
             Git failed to fetch $upstream
@@ -650,7 +659,7 @@ function git_push(
         end
 
         try
-            run(`git checkout -b $branch upstream/$branch`)
+            run(`$(git()) checkout -b $branch upstream/$branch`)
         catch e
             @info """
             Checking out $branch failed, creating a new orphaned branch.
@@ -659,8 +668,8 @@ function git_push(
             from Git in this situation.
             """
             @debug "checking out $branch failed with error: $e"
-            run(`git checkout --orphan $branch`)
-            run(`git commit --allow-empty -m "Initial empty commit for docs"`)
+            run(`$(git()) checkout --orphan $branch`)
+            run(`$(git()) commit --allow-empty -m "Initial empty commit for docs"`)
         end
 
         # Copy docs to `subfolder` directory.
@@ -701,14 +710,18 @@ function git_push(
         end
 
         # Add, commit, and push the docs to the remote.
-        run(`git add -A .`)
-        if !success(`git diff --cached --exit-code`)
-            if forcepush
-                run(`git commit --amend --date=now -m "build based on $sha"`)
-                run(`git push -fq upstream HEAD:$branch`)
+        run(`$(git()) add -A .`)
+        if !success(`$(git()) diff --cached --exit-code`)
+            if archive !== nothing
+                run(`$(git()) commit -m "build based on $sha"`)
+                @info "Skipping push and writing repository to an archive" archive
+                run(`$(git()) archive -o $(archive) HEAD`)
+            elseif forcepush
+                run(`$(git()) commit --amend --date=now -m "build based on $sha"`)
+                run(`$(git()) push -fq upstream HEAD:$branch`)
             else
-                run(`git commit -m "build based on $sha"`)
-                run(`git push -q upstream HEAD:$branch`)
+                run(`$(git()) commit -m "build based on $sha"`)
+                run(`$(git()) push -q upstream HEAD:$branch`)
             end
         else
             @debug "new docs identical to the old -- not committing nor pushing."
@@ -830,7 +843,7 @@ function gitrm_copy(src, dst)
     if isdir(dst)
         for x in filter!(!in((".git", "previews")), readdir(dst))
             # --ignore-unmatch so that we wouldn't get errors if dst does not exist
-            run(`git rm -rf --ignore-unmatch $(joinpath(dst, x))`)
+            run(`$(git()) rm -rf --ignore-unmatch $(joinpath(dst, x))`)
         end
     end
     # git rm also remove parent directories

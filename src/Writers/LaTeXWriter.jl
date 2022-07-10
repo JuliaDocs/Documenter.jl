@@ -190,8 +190,8 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         end
     elseif settings.platform == "tectonic"
         @info "LaTeXWriter: using tectonic to compile tex."
-        tectonic = isnothing(settings.tectonic) ? Sys.which("tectonic") : settings.tectonic
-        isnothing(tectonic) && (@error "LaTeXWriter: tectonic command not found."; return false)
+        tectonic = (settings.tectonic === nothing) ? Sys.which("tectonic") : settings.tectonic
+        (tectonic === nothing) && (@error "LaTeXWriter: tectonic command not found."; return false)
         try
             piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
