@@ -715,10 +715,19 @@ it out automatically.
 to construct the warning messages.
 """
 function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
+    gitcmd = git(nothrow = true)
+    if gitcmd === nothing
+        @warn """
+        Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
+        Unable to find the `git` binary. Unless this is due to a configuration error, the
+        relevant variable should be set explicitly.
+        """
+        return fallback
+    end
     # We need to do addenv() here to merge the new variables with the environment set by
     # Git_jll and the git() function.
     cmd = addenv(
-        setenv(`$(git()) remote show $(remotename)`, dir=root),
+        setenv(`$gitcmd remote show $(remotename)`, dir=root),
         "GIT_TERMINAL_PROMPT" => "0",
         "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
     )
@@ -774,9 +783,11 @@ dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
 dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
-function git(; kwargs...)
+function git(; nothrow = false, kwargs...)
     system_git_path = Sys.which("git")
-    isnothing(system_git_path) && error("Unable to find `git`")
+    if system_git_path === nothing
+        return nothrow ? nothing : error("Unable to find `git`")
+    end
     # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
     # We need to set this to something so that Git wouldn't pick up the user
     # templates (e.g. from init.templateDir config).
