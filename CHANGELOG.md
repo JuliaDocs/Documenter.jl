@@ -9,6 +9,10 @@
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 
+## Version `v0.27.21`
+
+* ![Bugfix][badge-bugfix] Fix a regression where Documenter throws an error on systems that do not have Git available. ([#1870][github-1870], [#1871][github-1871])
+
 ## Version `v0.27.20`
 
 * ![Enhancement][badge-enhancement] The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#1844][github-1844], [#1846][github-1846])
@@ -1087,6 +1091,8 @@
 [github-1861]: https://github.com/JuliaDocs/Documenter.jl/pull/1861
 [github-1862]: https://github.com/JuliaDocs/Documenter.jl/pull/1862
 [github-1865]: https://github.com/JuliaDocs/Documenter.jl/pull/1865
+[github-1870]: https://github.com/JuliaDocs/Documenter.jl/issues/1870
+[github-1871]: https://github.com/JuliaDocs/Documenter.jl/pull/1871
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
