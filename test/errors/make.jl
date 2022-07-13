@@ -55,11 +55,11 @@ end
 if VERSION >= v"1.9.0-DEV.954"
     # The docsystem metadata for the following tests was fixed in
     #   https://github.com/JuliaLang/julia/pull/45529
-    @test ErrorException makedocs(
+    @test makedocs(
         strict = true,
         source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
     ) === nothing
-    @test ErrorException makedocs(
+    @test makedocs(
         strict = :autodocs_block,
         source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
     ) === nothing
