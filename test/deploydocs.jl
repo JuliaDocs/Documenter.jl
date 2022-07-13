@@ -76,7 +76,6 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 @test islink(joinpath("worktree", "v1.1"))
                 @test islink(joinpath("worktree", "stable"))
             end
-            Sys.which("tree") === nothing || run(`tree`)
             # And make sure that archived option didn't modify gh-pages
             @test ! ispath(joinpath("worktree", "2.0.0"))
             @test ! ispath(joinpath("worktree", "v2.0"))
