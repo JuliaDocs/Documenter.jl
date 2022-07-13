@@ -52,14 +52,24 @@ end
     strict=false,
     source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
 ) === nothing
-# The two following tests should start failing once the underlying bug in Base.Docs is fixed,
-# at which point these tests should be removed (or replaced with ones testing against some
-# manually crafted Docs.meta).
-@test_throws ErrorException makedocs(
-    strict = true,
-    source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
-)
-@test_throws ErrorException makedocs(
-    strict = :autodocs_block,
-    source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
-)
+if VERSION >= v"1.9.0-DEV.954"
+    # The docsystem metadata for the following tests was fixed in
+    #   https://github.com/JuliaLang/julia/pull/45529
+    @test makedocs(
+        strict = true,
+        source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
+    ) === nothing
+    @test makedocs(
+        strict = :autodocs_block,
+        source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
+    ) === nothing
+else
+    @test_throws ErrorException makedocs(
+        strict = true,
+        source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
+    )
+    @test_throws ErrorException makedocs(
+        strict = :autodocs_block,
+        source = "src.docmeta", modules = [BadDocmetaModule], sitename="-", checkdocs = :exports,
+    )
+end
