@@ -76,12 +76,10 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v1
-      - run: |
-          julia --project=test/themes/ -e '
-            using Pkg
-            Pkg.instantiate()
-            Pkg.develop(PackageSpec(path=pwd()))'
-      - run: julia --project=test/themes test/themes/themes.jl
+      - name: Install dependencies
+        run: julia --color=yes --project=test/themes/ docs/instantiate.jl test/themes/
+      - name: Verify theme CSS files
+        run: julia --project=test/themes test/themes/themes.jl
 
   prerender:
     name: "NodeJS for prerender"
