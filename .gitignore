@@ -11,6 +11,7 @@ test/nongit/build/
 test/errors/build/
 test/prerender/build/
 test/workdir/builds/
+docs/dev/
 docs/build/
 docs/build-pdf/
 docs/site/
