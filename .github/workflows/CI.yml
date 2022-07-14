@@ -118,8 +118,10 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v1
-      - run: julia --color=yes --project=docs/ docs/instantiate.jl
-      - run: julia --color=yes --project=docs/ docs/make.jl ${{ matrix.format }}
+      - name: Install dependencies
+        run: julia --color=yes --project=docs/ docs/instantiate.jl
+      - name: Build the manual
+        run: julia --color=yes --project=docs/ docs/make.jl ${{ matrix.format }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
@@ -150,7 +152,7 @@ jobs:
         with:
           version: '1.6'
       - name: Install dependencies
-        run: julia --color=yes --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+        run: julia --color=yes --project=docs/ docs/instantiate.jl
       - name: Build and check documentation
         run: julia --color=yes --project=docs/ docs/make.jl linkcheck
 
