@@ -35,8 +35,17 @@ DocMeta.setdocmeta!
 
 ```@docs
 Documenter.Remotes
-Documenter.Remotes.Remote
 Documenter.Remotes.GitHub
+```
+
+The following types and functions and relevant when creating custom
+[`Remote`](@ref Documenter.Remotes.Remote) types:
+
+```@docs
+Documenter.Remotes.Remote
+Documenter.Remotes.repourl
+Documenter.Remotes.fileurl
+Documenter.Remotes.issueurl
 ```
 
 ## DocumenterTools

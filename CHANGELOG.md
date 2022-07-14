@@ -9,6 +9,7 @@
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 * ![Enhancement][badge-enhancement] A more generic API is now available to configure the remote repository URLs by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`) as the `repo` argument of `makedocs`. ([#1808][github-1808])
+* ![Enhancement][badge-enhancement] Invalid issue references now generate `:cross_references` errors that can be caught via the `strict` keyword. ([#1808][github-1808])
 
 ## Version `v0.27.21`
 

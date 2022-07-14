@@ -214,10 +214,12 @@ getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, 
 # -----------------------------
 
 function issue_xref(link::Markdown.Link, num, meta, page, doc)
-    # Update issue links starting with a hash, but only if we are on GitHub
-    if doc.user.remote isa Remotes.GitHub
-        user, repo = doc.user.remote.user, doc.user.remote.repo
-        link.url = "https://github.com/$(user)/$(repo)/issues/$num"
+    # Update issue links starting with a hash, but only if our Remote supports it
+    issue_url = Remotes.issueurl(doc.user.remote, num)
+    if isnothing(issue_url)
+        @docerror(doc, :cross_references, "unable to generate issue reference for '[`#$num`](@ref)' in $(Utilities.locrepr(page.source)).")
+    else
+        link.url = issue_url
     end
 end
 

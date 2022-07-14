@@ -11,49 +11,100 @@ when generating links to files hosted on Git hosting service (such as GitHub, Gi
 For custom or less common Git hosting services, the user can create their own `Remote`
 subtype and pass that as the `repo` argument to [`makedocs`](@ref Main.Documenter.makedocs).
 
-When implementing a new type `T <: Remote`, the following methods should be defined for that
-type:
+When implementing a new type `T <: Remote`, the following functions must be extended for
+that type:
 
-* ```julia
-  Remotes.repourl(remote::T) -> String
-  ```
+* [`Remotes.repourl`](@ref)
+* [`Remotes.fileurl`](@ref)
 
-  Should return a string pointing to the landing page of the remote repository.
+Additionally, it may also extend the following functions:
 
-  E.g. for GitHub it should return `https://github.com/USER/REPO/`.
-
-* ```julia
-  Remotes.fileurl(remote::T, ref::String, filename::String) -> String
-  ```
-
-  Should return the full remote URL to the source file `filename`. `ref` is the Git reference
-  such as a commit SHA, branch name or a tag name. `filename` will contain the full path of
-  the file in the repository without any leading `/` characters.
-
-  E.g. for GitHub, for `ref="master"` and `filename="foo/bar.jl"` it should return
-  `https://github.com/USER/REPO/blob/master/foo/bar.jl`.
-
-* ```julia
-  Remotes.fileurl(remote::T, ref::String, filename::String, linerange::UnitRange{Int}) -> String
-  ```
-
-  Like the the other `fileurl` method, but allows the specification of the line number (if
-  `first(linerange) == last(linerange)`) or a range of lines. Should return the full URL,
-  including the line numbers.
-
-  Implementing this method is optional. If it is not implemented, Documenter will fall back
-  to `Remotes.fileurl(remote, ref, filename)` and resulting links will not refer to specific
-  lines.
-
-  E.g. for GitHub, for `ref="master"`, `filename="foo/bar.jl"` and `linerange=12:12` it
-  would return `https://github.com/USER/REPO/blob/master/foo/bar.jl#L12`.
-
-To avoid duplication, it is a good idea if the `fileurl` implementation(s) call the
-corresponding `repourl` implementation to determine the root part of the URL.
+* [`Remotes.issueurl`](@ref)
 """
 abstract type Remote end
+
+"""
+    Remotes.repourl(remote::T) -> String
+
+An internal Documenter function that **must** be extended when implementing a user-defined
+[`Remote`](@ref). It should return a string pointing to the landing page of the remote
+repository. E.g. for [`GitHub`](@ref) it returns `"https://github.com/USER/REPO/"`.
+"""
 function repourl end
-fileurl(remote::Remote, ref, filename, linerange) = fileurl(remote, ref, filename)
+
+"""
+    Remotes.fileurl(remote::T, ref, filename, linerange) -> String
+
+An internal Documenter function that **must** be extended when implementing a user-defined
+[`Remote`](@ref). Should return the full remote URL to the source file `filename`,
+optionally including the line numbers.
+
+* **`ref`** is string containing the Git reference, such as a commit SHA, branch name or a tag
+  name.
+
+* **`filename`** is a string containing the full path of the file in the repository without any
+  leading `/` characters.
+
+* **`linerange`** either specifies a range of integers or is `nothing`. In the former case it
+  either specifies a line number (if `first(linerange) == last(linerange)`) or a range of
+  lines (`first(linerange) < last(linerange)`). The line information should be accessed only
+  with the `first` and `last` functions (no other interface guarantees are made).
+
+  If `linerange` is `nothing`, the line numbers should be omitted and the returned URL
+  should refer to the full file.
+
+  It is also acceptable for an implementation to completely ignore the value of the
+  `linerange` argument, e.g. when the remote repository does not support direct links to
+  particular line numbers.
+
+E.g. for [`GitHub`](@ref), depending on the input arguments, it would return the following
+strings:
+
+| `ref`       | `filename`     | `linerange` | returned string                                                 |
+| ----------- | -------------- | ----------- | :-------------------------------------------------------------- |
+| `"master"`  | `"foo/bar.jl"` | `nothing`   | `"https://github.com/USER/REPO/blob/master/foo/bar.jl"`         |
+| `"v1.2.3"`  | `"foo/bar.jl"` | `12:12`     | `"https://github.com/USER/REPO/blob/v1.2.3/foo/bar.jl#L12"`     |
+| `"xyz/foo"` | `"README.md"`  | `10:15`     | `"https://github.com/USER/REPO/blob/xyz/foo/README.md#L10-L15"` |
+"""
+function fileurl end
+# We also have a generic 3-argument method that falls back to the 4-argument one
+fileurl(remote::Remote, ref, filename) = fileurl(remote, ref, filename, nothing)
+
+"""
+    Remotes.issueurl(remote::T, issuenumber)
+
+An internal Documenter function that can be extended when implementing a user-defined
+[`Remote`](@ref). It should return a string with the full URL to an issue referenced by
+`issuenumber`, or `nothing` if it is not possible to determine such a URL.
+
+* **`issuenumber`** is a string containing the issue number.
+
+It is not mandatory to define this method for a custom [`Remote`](@ref). In this case it
+just falls back to always returning `nothing`.
+
+E.g. for [`GitHub`](@ref) when `issuenumber = "123"`, it would return
+`"https://github.com/USER/REPO/issues/123"`.
+"""
+function issueurl end
+# Generic fallback always returning nothing
+issueurl(::Remote, ::Any) = nothing
+
+"""
+    repofile(remote::Remote, ref, filename, linerange=nothing)
+
+Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
+to the potentially user-defined `fileurl` implementations.
+"""
+function repofile(remote::Remote, ref, filename, linerange=nothing)
+    # sanitize the file name
+    filename = replace(filename, '\\' => '/') # remove backslashes on Windows
+    filename = lstrip(filename, '/') # remove leading spaces
+    if linerange === nothing
+        fileurl(remote, ref, filename)
+    else
+        fileurl(remote, ref, filename, Int(first(linerange)):Int(last(linerange)))
+    end
+end
 
 """
     GitHub(user :: AbstractString, repo :: AbstractString)
@@ -80,29 +131,13 @@ function GitHub(remote::AbstractString)
     GitHub(user, repo)
 end
 repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
-fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString) = "$(repourl(remote))/blob/$(ref)/$(filename)"
-function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange::UnitRange{Int})
-    url = fileurl(remote, ref, filename)
+function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
+    url = "$(repourl(remote))/blob/$(ref)/$(filename)"
+    isnothing(linerange) && return url
     lstart, lend = first(linerange), last(linerange)
-    (lstart == lend) ? "$(url)#L$(lstart)" : "$(url)#L$(lstart)-L$(lend)"
+    return (lstart == lend) ? "$(url)#L$(lstart)" : "$(url)#L$(lstart)-L$(lend)"
 end
-
-"""
-    repofile(remote::Remote, ref, filename, linerange=nothing)
-
-Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
-to the potentially user-defined `fileurl` implementations.
-"""
-function repofile(remote::Remote, ref, filename, linerange=nothing)
-    # sanitize the file name
-    filename = replace(filename, '\\' => '/') # remove backslashes on Windows
-    filename = lstrip(filename, '/') # remove leading spaces
-    if linerange === nothing
-        fileurl(remote, ref, filename)
-    else
-        fileurl(remote, ref, filename, Int(first(linerange)):Int(last(linerange)))
-    end
-end
+issueurl(remote::GitHub, issuenumber) = "$(repourl(remote))/issues/$issuenumber"
 
 """
 A [`Remote`](@ref) corresponding to the main Julia language repository.
@@ -149,7 +184,7 @@ struct URL <: Remote
     URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
-function fileurl(remote::URL, ref, filename, linerange=nothing)
+function fileurl(remote::URL, ref, filename, linerange)
     hosttype = repo_host_from_url(remote.urltemplate)
     lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
     ref = format_commit(hosttype, ref)

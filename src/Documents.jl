@@ -319,7 +319,7 @@ function Document(plugins = nothing;
         version = "git:$(Utilities.get_commit_short(root))"
     end
 
-    remote = if (repo isa AbstractString) && isempty(repo)
+    remote = if isa(repo, AbstractString) && isempty(repo)
         # If the user does not provide the `repo` argument, we'll try to automatically
         # detect the remote repository by looking at the Git remotes. This only works if
         # the repository is hosted on GitHub.

@@ -1,10 +1,5 @@
 # Defines the modules referred to in the example docs (under src/) and then builds them.
 # It can be called separately to build the examples/, or as part of the test suite.
-#
-# It defines a set of variables (`examples_*`) that can be used in the tests.
-# The `examples_root` should be used to check whether this file has already been included
-# or not and should be kept unique.
-isdefined(@__MODULE__, :examples_root) && error("examples_root is already defined\n$(@__FILE__) included multiple times?")
 
 # The `Mod` and `AutoDocs` modules are assumed to exist in the Main module.
 (@__MODULE__) === Main || error("$(@__FILE__) must be included into Main.")
@@ -323,7 +318,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         sitename = "Documenter example",
         pages = htmlbuild_pages,
         expandfirst = expandfirst,
-
+        repo = "https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
         format = Documenter.HTML(
