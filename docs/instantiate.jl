@@ -9,7 +9,6 @@ cd(@__DIR__) do
         run(`git clone -n https://github.com/JuliaDocs/DocumenterTools.jl.git dev/DocumenterTools`)
     end
     run(`git -C dev/DocumenterTools checkout --detach 336e27eeaf56852838b192b1fc7c0cce129d2d9f`)
-    Pkg.develop(path = "dev/DocumenterTools")
-    Pkg.develop(path = "..")
+    Pkg.develop([PackageSpec(path = "dev/DocumenterTools"), PackageSpec(path = "..")])
     Pkg.instantiate()
 end
