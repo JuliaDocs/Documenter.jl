@@ -516,8 +516,7 @@ function getremote(dir::AbstractString)
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
             readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
-        catch e
-            @error "getremote failed" dir exception = (e, catch_backtrace())
+        catch
             ""
         end
         m = match(LibGit2.GITHUB_REGEX, remote)
