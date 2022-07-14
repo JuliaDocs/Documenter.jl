@@ -322,20 +322,14 @@ function Document(plugins = nothing;
     remote = if isa(repo, AbstractString) && isempty(repo)
         # If the user does not provide the `repo` argument, we'll try to automatically
         # detect the remote repository by looking at the Git remotes. This only works if
-        # the repository is hosted on GitHub.
-        #
-        # Utilities.getremote will first check the 'origin' remote of the repository. If
-        # that fails, it falls back to TRAVIS_REPO_SLUG and then GITHUB_REPOSITORY.
-        remote = Utilities.getremote(root)
-        if isempty(remote)
-            @warn "Unable to determine remote Git URL automatically. Source links may be missing."
-            nothing
-        else
-            Remotes.GitHub(remote)
-        end
+        # the repository is hosted on GitHub. If that fails, it falls back to
+        # TRAVIS_REPO_SLUG and then GITHUB_REPOSITORY.
+        getremote_ci_fallbacks(root)
     elseif repo isa AbstractString
+        # Use the old template string parsing logic if a string was passed.
         Remotes.URL(repo)
     else
+        # Otherwise it should be some Remote object
         repo
     end
 
@@ -392,6 +386,33 @@ function Document(plugins = nothing;
         Utilities.submodules(modules),
     )
     Document(user, internal, plugin_dict, blueprint)
+end
+
+function getremote_ci_fallbacks(dir::AbstractString)
+    # First, try to determine it from repository's origin.url
+    remote = Utilities.getremote(dir)
+    isnothing(remote) || return remote
+    # If that fails, fall back to Travis CI variables
+    remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+    if !isnothing(remote)
+        # It is possible for Remotes.GitHub to throw if there is no /
+        try
+            return Remotes.GitHub(remote)
+        catch
+            @warn "Unable to parse remote: TRAVIS_REPO_SLUG=$(remote)"
+        end
+    end
+    # As a second fallback, check GitHub Actions CI environment variables
+    remote = get(ENV, "GITHUB_REPOSITORY", nothing)
+    if !isnothing(remote)
+        try
+            return Remotes.GitHub(remote)
+        catch e
+            @warn "Unable to parse remote: GITHUB_REPOSITORY=$(remote)"
+        end
+    end
+    @warn "Unable to determine remote Git URL automatically. Source links may be missing."
+    return nothing
 end
 
 """

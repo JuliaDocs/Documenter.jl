@@ -479,7 +479,7 @@ function url(remote::Union{Remote,Nothing}, mod, file, linerange)
     end
 end
 
-const GIT_REMOTE_CACHE = Dict{String,String}()
+const GIT_REMOTE_CACHE = Dict{String,Union{Nothing,Remotes.GitHub}}()
 
 function getremote(dir::AbstractString)
     return get!(GIT_REMOTE_CACHE, dir) do
@@ -489,7 +489,8 @@ function getremote(dir::AbstractString)
             ""
         end
         m = match(LibGit2.GITHUB_REGEX, remote)
-        return m === nothing ? get(ENV, "TRAVIS_REPO_SLUG", "") : String(m[1])
+        isnothing(m) && return nothing
+        return Remotes.GitHub(m[2], m[3])
     end
 end
 
