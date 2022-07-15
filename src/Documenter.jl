@@ -46,6 +46,8 @@ abstract type Plugin end
 
 abstract type Writer end
 
+function setremote! end # implementation in Utilities/Utilities.jl
+
 # Submodules
 # ----------
 
@@ -70,7 +72,7 @@ import .Writers.LaTeXWriter: LaTeX
 # User Interface.
 # ---------------
 export makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
-    KaTeX, MathJax, MathJax2, MathJax3
+    KaTeX, MathJax, MathJax2, MathJax3, setremote!
 
 """
     makedocs(

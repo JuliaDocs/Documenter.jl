@@ -48,6 +48,10 @@ Documenter.Remotes.fileurl
 Documenter.Remotes.issueurl
 ```
 
+```@docs
+Documenter.setremote!
+```
+
 ## DocumenterTools
 
 ```@docs

@@ -10,6 +10,9 @@ if haskey(ENV, "DOCSARGS")
     end
 end
 
+# Make sure that we can find the source links for DocumenterTools docstrings:
+setremote!(DocumenterTools, Remotes.GitHub("JuliaDocs", "DocumenterTools.jl"))
+
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
     format = if "pdf" in ARGS

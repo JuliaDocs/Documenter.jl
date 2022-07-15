@@ -8,7 +8,9 @@ import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, LibGit2
 import Base64: stringmime
+import TOML
 import ..ERROR_NAMES
+import ..setremote!
 
 """
     @docerror(doc, tag, msg, exs...)
@@ -378,17 +380,19 @@ nodocs(::Nothing) = false
 header_level(::Markdown.Header{N}) where {N} = N
 
 """
-    repo_root(file; dbdir=".git")
+    repo_root(path; dbdir=".git")
 
-Tries to determine the root directory of the repository containing `file`. If the file is
+Tries to determine the root directory of the repository containing `path`. If the path is
 not in a repository, the function returns `nothing`.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
 determine if this is a repostory or not. If there is a file called `dbdir`, then it's
 contents is checked under the assumption that it is a Git worktree or a submodule.
+
+Note: this hopefully returns the same as `git rev-parse --show-toplevel`.
 """
-function repo_root(file; dbdir=".git")
-    parent_dir, parent_dir_last = dirname(abspath(file)), ""
+function repo_root(path; dbdir=".git")
+    parent_dir, parent_dir_last = stripfile(abspath(path)), ""
     while parent_dir != parent_dir_last
         dbdir_path = joinpath(parent_dir, dbdir)
         isdir(dbdir_path) && return parent_dir
@@ -407,6 +411,15 @@ function repo_root(file; dbdir=".git")
 end
 
 """
+$(SIGNATURES)
+
+Strips a file name from `path` if it is pointing to a file, but keeps it as is if it already
+is a directory.
+"""
+stripfile(path) = isdir(path) ? path : dirname(path)
+# TODO: strip trailing path separators if path is already a directory?
+
+"""
     $(SIGNATURES)
 
 Returns the path of `file`, relative to the root of the Git repository, or `nothing` if the
@@ -419,19 +432,14 @@ function relpath_from_repo_root(file)
     end
 end
 
-function repo_commit(file)
-    cd(dirname(file)) do
-        readchomp(`$(git()) rev-parse HEAD`)
-    end
-end
-
 # Remote URLs.
 # ------------
 include("Remotes.jl")
 using .Remotes: Remote, repourl, repofile
 
 function edit_url(remote::Union{Remote,Nothing}, file; commit=nothing)
-    remote === nothing && return nothing
+    #remote === nothing && return nothing
+    remote = get_remote(file)
 
     file = abspath(file)
     if !isfile(file)
@@ -439,11 +447,12 @@ function edit_url(remote::Union{Remote,Nothing}, file; commit=nothing)
         return nothing
     end
     file = realpath(file)
-    path = relpath_from_repo_root(file)
+    #path = relpath_from_repo_root(file)
+    path = startswith(file, remote.dir) ? relpath(file, remote.dir) : nothing
     if path === nothing
         nothing
     else
-        repofile(remote, repo_commit(file), path)
+        repofile(remote.remote, remote.rev, path)
     end
 end
 
@@ -451,7 +460,8 @@ url(remote::Union{Remote,Nothing}, doc) = url(remote, doc.data[:module], doc.dat
 
 function url(remote::Union{Remote,Nothing}, mod, file, linerange)
     file === nothing && return nothing # needed on julia v0.6, see #689
-    remote === nothing && return nothing
+    #remote === nothing && return nothing
+    remote = get_remote(file)
 
     # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
     if isfile(file)
@@ -470,27 +480,142 @@ function url(remote::Union{Remote,Nothing}, mod, file, linerange)
         end
         repofile(Remotes.julia, ref, "base/$file", linerange)
     else
-        path = relpath_from_repo_root(file)
+        #path = relpath_from_repo_root(file)
+        path = startswith(file, remote.dir) ? relpath(file, remote.dir) : nothing
         if path === nothing
             nothing
         else
-            repofile(remote, repo_commit(file), path, linerange)
+            repofile(remote.remote, remote.rev, path, linerange)
         end
     end
 end
 
-const GIT_REMOTE_CACHE = Dict{String,Union{Nothing,Remotes.GitHub}}()
+function get_git_commit(path)
+    try
+        readchomp(setenv(`$(git()) rev-parse HEAD`; dir=stripfile(path)))
+    catch
+        println("... $path")
+        nothing
+    end
+end
 
-function getremote(dir::AbstractString)
+"""
+Stores the memoized results of [`get_git_remote`](@ref).
+"""
+const GIT_REMOTE_CACHE = Dict{String, Union{Remotes.GitHub, Nothing}}()
+
+"""
+$(TYPEDSIGNATURES)
+
+Determines the GitHub remote of a directory by checking `remote.origin.url` of the
+repository. Returns a [`Remotes.GitHub`](@ref) or `nothing` is something has gone wrong
+(e.g. it's run on a directory not in a Git repo, or `origin.url` points to a non-GitHub
+remote).
+
+The results for a given directory are memoized in [`GIT_REMOTE_CACHE`](@ref), since calling
+`git` is expensive and it is often called on the same directory over and over again.
+"""
+function get_git_remote(dir::AbstractString)
+    isdir(dir) || error("get_git_remote called with non-directory: $(dir)")
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
             readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
         catch
             ""
         end
+        # TODO: we only match for GitHub repositories automatically. Could we engineer a
+        # system where, if there is a user-created Remote, the user could also define a
+        # matching function here that tries to interpret other URLs?
         m = match(LibGit2.GITHUB_REGEX, remote)
         isnothing(m) && return nothing
         return Remotes.GitHub(m[2], m[3])
+    end
+end
+
+struct RemoteConf
+    dir :: String # must match the key in REMOTES
+    remote :: Remotes.Remote
+    rev :: Union{String,Nothing}
+    edit_link :: Union{String,Nothing}
+
+    RemoteConf(dir, remote; rev = nothing, edit_link = nothing) = new(dir, remote, rev, edit_link)
+end
+
+const REMOTES = Dict{String, Union{RemoteConf, Nothing}}()
+
+"""
+$(TYPEDSIGNATURES)
+"""
+function setremote!(dir::AbstractString, remote::Remotes.Remote; revision = nothing, edit_link = nothing)
+    isdir(dir) || error("Not a directory: $dir")
+    rc = RemoteConf(dir, remote; rev = revision, edit_link = edit_link)
+    if haskey(REMOTES, dir) && (rc != REMOTES[dir])
+        @warn """
+        Overriding a remote for: $(dir)
+        from: $(REMOTES[dir].remote) [revision=$(REMOTES[dir].rev), edit_link=$(REMOTES[dir].edit_link)]
+        to: $remote [revision=$revision, edit_link=$edit_link]
+        """
+    end
+    REMOTES[dir] = rc
+    return nothing
+end
+
+"""
+$(TYPEDSIGNATURES)
+"""
+function setremote!(package::Module, remote::Remotes.Remote; revision = nothing, kwargs...)
+    # pathof(package) should be at src/MyPackage.jl in the package source directory
+    pkgroot = dirname(dirname(pathof(package)))
+    pkgproject = joinpath(pkgroot, "Project.toml")
+    isfile(pkgproject) || error("$package is not a package (missing Project.toml)")
+    # If the user didn't set revision, we'll try to determine it automagically
+    if isnothing(revision)
+        # Try to find the exact commit (if it's a dev dependency in a Git repo)
+        revision = if repo_root(pkgroot) !== nothing
+            get_git_commit(pkgroot)
+        end
+        # If that didn't work, let's try to parse the Project.toml and see if we get the version
+        # number from there.
+        if isnothing(revision)
+            project_toml = TOML.parsefile(pkgproject)
+            haskey(project_toml, "version") || error("$package is not a package (no version in Project.toml)")
+            revision = string("v", project_toml["version"])
+        end
+    end
+    setremote!(pkgroot, remote; revision = revision, kwargs...)
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Determines the remote repository corresponding to the path, returning a
+[`Remotes.Remote`](@ref) object, or `nothing` if the path is not in a known repository.
+"""
+function get_remote(path::AbstractString)
+    # First, we'll try to see if we're in a Git repository. This is important because even
+    # if path is in a known repository already (and we could just match and fetch from
+    # REMOTES), it is possible that is particular sub-path is actually in a nested Git
+    # repository.
+    root = repo_root(path)
+    if isnothing(root)
+        # If the path is not in a repository, we will still try to find a user-configured
+        # remote for this in REMOTES by peeling away the directories one by one until
+        # we find a match.
+        parent_dir, parent_dir_last = stripfile(abspath(path)), ""
+        while parent_dir != parent_dir_last
+            haskey(REMOTES, parent_dir) && return REMOTES[parent_dir]
+            parent_dir, parent_dir_last = dirname(parent_dir), parent_dir
+        end
+        return nothing
+    else
+        # If the file is in a Git repository, we will fetch the remote (user-configured or
+        # previously determined here), or call get_git_remote to try to interpret the
+        # remote.origin.url, hoping it is a GitHub repository.
+        return get!(REMOTES, root) do
+            remote = get_git_remote(root)
+            isnothing(remote) && return nothing
+            RemoteConf(root, remote; rev = get_git_commit(root))
+        end
     end
 end
 

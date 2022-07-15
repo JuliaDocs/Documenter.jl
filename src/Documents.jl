@@ -324,7 +324,7 @@ function Document(plugins = nothing;
         # detect the remote repository by looking at the Git remotes. This only works if
         # the repository is hosted on GitHub. If that fails, it falls back to
         # TRAVIS_REPO_SLUG and then GITHUB_REPOSITORY.
-        getremote_ci_fallbacks(root)
+        get_remote_ci_fallbacks(root)
     elseif repo isa AbstractString
         # Use the old template string parsing logic if a string was passed.
         Remotes.URL(repo)
@@ -388,9 +388,9 @@ function Document(plugins = nothing;
     Document(user, internal, plugin_dict, blueprint)
 end
 
-function getremote_ci_fallbacks(dir::AbstractString)
+function get_remote_ci_fallbacks(dir::AbstractString)
     # First, try to determine it from repository's origin.url
-    remote = Utilities.getremote(dir)
+    remote = Utilities.get_git_remote(dir)
     isnothing(remote) || return remote
     # If that fails, fall back to Travis CI variables
     remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
