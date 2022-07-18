@@ -156,7 +156,7 @@ end
     @test Documenter.Utilities.format_commit("test", Documenter.Utilities.RepoAzureDevOps) == "GBtest"
 
     # URL building
-    filepath = string(first(methods(Documenter.Utilities.url)).file)
+    filepath = string(first(methods(Documenter.Utilities.source_url)).file)
     Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
     let expected_filepath = "/src/Utilities/Utilities.jl"
         Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
@@ -164,6 +164,7 @@ end
     end
 
     mktempdir() do path
+        remote = Documenter.Utilities.Remotes.URL("//blob/{commit}{path}#{line}")
         path_repo = joinpath(path, "repository")
         mkpath(path_repo)
         cd(path_repo) do
@@ -181,8 +182,10 @@ end
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
 
-            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.Utilities.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            # The '//blob/..' remote conflicts with the github.com origin.url of the repository and source_url()
+            # picks the wrong remote currently ()
+            @test_broken Documenter.Utilities.source_url(remote, Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
@@ -203,8 +206,8 @@ end
             # Run tests
             commit = Documenter.Utilities.repo_commit(filepath)
 
-            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.Utilities.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test_broken Documenter.Utilities.source_url(remote, Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
@@ -238,8 +241,8 @@ end
 
             @test isfile(filepath)
 
-            @test Documenter.Utilities.url("//blob/{commit}{path}#{line}", filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.Utilities.url(nothing, "//blob/{commit}{path}#{line}", Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.Utilities.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.source_url(remote, Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test Documenter.Utilities.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
@@ -248,6 +251,28 @@ end
             # We assume that a temporary file is not in a repo
             @test Documenter.Utilities.repo_root(tempname()) == nothing
             @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+        end
+
+        # This tests the case where the origin.url is some unrecognised Git hosting service, in which case we are unable
+        # to parse the remote out of the origin.url value and we fallback to the user-provided remote.
+        path_repo_github = joinpath(path, "repository-not-github")
+        mkpath(path_repo_github)
+        cd(path_repo_github) do
+            # Create a simple mock repo in a temporary directory with a single file.
+            @test trun(`$(git()) init`)
+            @test trun(`$(git()) config user.email "tester@example.com"`)
+            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test trun(`$(git()) remote add origin git@this-is-not-github.com:JuliaDocs/Documenter.jl.git`)
+            mkpath("src")
+            filepath = abspath(joinpath("src", "SourceFile.jl"))
+            write(filepath, "X")
+            @test trun(`$(git()) add -A`)
+            @test trun(`$(git()) commit -m"Initial commit."`)
+
+            # Run tests
+            commit = Documenter.Utilities.repo_commit(filepath)
+            @test Documenter.Utilities.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.Utilities.source_url(remote, Documenter.Utilities, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
         end
     end
 
