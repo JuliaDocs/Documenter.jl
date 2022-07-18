@@ -408,7 +408,6 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
             "Library" => [
                 "lib/functions.md",
                 "lib/autodocs.md",
-                "lib/editurl.md",
             ],
             "Expandorder" => [
                 "expandorder/00.md",
