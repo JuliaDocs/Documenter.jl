@@ -8,6 +8,14 @@
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
+* ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). ([#1808][github-1808])
+* ![Enhancement][badge-enhancement] Broken issue references (i.e. links like `[#1234](@ref)`, but when Documenter is unable to determine the remote GitHub repository) now generate `:cross_references` errors that can be caught via the `strict` keyword. ([#1808][github-1808])
+
+  This is **potentially breaking** as it can cause previously working builds to fail if they are being run in strict mode. However, such builds were already leaving broken links in the generated documentation.
+
+  **For upgrading:** the easiest way to fix the build is to remove the offending `@ref` links. Alternatively, the `repo` argument to `makedocs` can be set to the appropriate `Remotes.Remote` object that implements the `Remotes.issueurl` function, which would make sure that correct URLs are generated.
+
+* ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 
 ## Version `v0.27.21`
 
@@ -1067,6 +1075,7 @@
 [github-1805]: https://github.com/JuliaDocs/Documenter.jl/pull/1805
 [github-1806]: https://github.com/JuliaDocs/Documenter.jl/pull/1806
 [github-1807]: https://github.com/JuliaDocs/Documenter.jl/pull/1807
+[github-1808]: https://github.com/JuliaDocs/Documenter.jl/pull/1808
 [github-1810]: https://github.com/JuliaDocs/Documenter.jl/issues/1810
 [github-1811]: https://github.com/JuliaDocs/Documenter.jl/pull/1811
 [github-1814]: https://github.com/JuliaDocs/Documenter.jl/issues/1814

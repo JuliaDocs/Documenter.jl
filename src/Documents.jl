@@ -16,7 +16,7 @@ import ..Documenter:
     Plugin,
     Writer
 
-import ..Documenter.Utilities.Markdown2
+using ..Documenter.Utilities: Remotes, Markdown2
 using DocStringExtensions
 import Markdown
 using Unicode
@@ -244,7 +244,7 @@ struct User
     strict::Union{Bool,Symbol,Vector{Symbol}} # Throw an exception when any warnings are encountered.
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    repo    :: String  # Template for URL to source code repo
+    remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -257,7 +257,6 @@ Private state used to control the generation process.
 """
 struct Internal
     assets  :: String             # Path where asset files will be copied to.
-    remote  :: String             # The remote repo on github where this package is hosted.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
@@ -300,7 +299,7 @@ function Document(plugins = nothing;
         modules  :: Utilities.ModVec = Module[],
         pages    :: Vector           = Any[],
         expandfirst :: Vector        = String[],
-        repo     :: AbstractString   = "",
+        repo     :: Union{Remotes.Remote, AbstractString} = "",
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -320,6 +319,20 @@ function Document(plugins = nothing;
         version = "git:$(Utilities.get_commit_short(root))"
     end
 
+    remote = if isa(repo, AbstractString) && isempty(repo)
+        # If the user does not provide the `repo` argument, we'll try to automatically
+        # detect the remote repository by looking at the Git repository remote. This only
+        # works if the repository is hosted on GitHub. If that fails, it falls back to
+        # TRAVIS_REPO_SLUG.
+        Utilities.getremote(root)
+    elseif repo isa AbstractString
+        # Use the old template string parsing logic if a string was passed.
+        Remotes.URL(repo)
+    else
+        # Otherwise it should be some Remote object
+        repo
+    end
+
     user = User(
         root,
         source,
@@ -336,7 +349,7 @@ function Document(plugins = nothing;
         strict,
         pages,
         expandfirst,
-        repo,
+        remote,
         sitename,
         authors,
         version,
@@ -345,7 +358,6 @@ function Document(plugins = nothing;
     )
     internal = Internal(
         Utilities.assetsdir(),
-        Utilities.getremote(root),
         [],
         [],
         Anchors.AnchorMap(),

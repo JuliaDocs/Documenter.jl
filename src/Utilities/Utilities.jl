@@ -10,6 +10,13 @@ import Markdown, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
 
+include("Remotes.jl")
+using .Remotes: Remote, repourl, repofile
+# These imports are here to support code that still assumes that these names are defined
+# in the Utilities module.
+using .Remotes: RepoHost, RepoGithub, RepoBitbucket, RepoGitlab, RepoAzureDevOps,
+    RepoUnknown, format_commit, format_line, repo_host_from_url, LineRangeFormatting
+
 """
     @docerror(doc, tag, msg, exs...)
 
@@ -406,10 +413,6 @@ function repo_root(file; dbdir=".git")
     return nothing
 end
 
-# Repository hosts
-#   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
-
 """
     $(SIGNATURES)
 
@@ -429,88 +432,68 @@ function repo_commit(file)
     end
 end
 
-function format_commit(commit::AbstractString, host::RepoHost)
-    if host === RepoAzureDevOps
-        # if commit hash then preceeded by GC, if branch name then preceeded by GB
-        if match(r"[0-9a-fA-F]{40}", commit) !== nothing
-            commit = "GC$commit"
-        else
-            commit = "GB$commit"
-        end
-    else
-        return commit
-    end
-end
-
-function url(repo, file; commit=nothing)
+function edit_url(repo, file; commit=nothing)
     file = abspath(file)
     if !isfile(file)
         @warn "couldn't find file \"$file\" when generating URL"
         return nothing
     end
     file = realpath(file)
-    remote = getremote(dirname(file))
-    isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
+    isnothing(repo) && (repo = getremote(dirname(file)))
+    isnothing(commit) && (commit = repo_commit(file))
     path = relpath_from_repo_root(file)
-    if path === nothing
-        nothing
-    else
-        hosttype = repo_host_from_url(repo)
-        repo = replace(repo, "{commit}" => format_commit(commit === nothing ? repo_commit(file) : commit, hosttype))
-        # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
-        repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
-        repo = replace(repo, "{line}" => "")
-        repo
-    end
+    isnothing(path) || isnothing(repo) ? nothing : repofile(repo, commit, path)
 end
 
-url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
+source_url(repo, doc) = source_url(repo, doc.data[:module], doc.data[:path], linerange(doc))
 
-function url(remote, repo, mod, file, linerange)
+function source_url(repo, mod, file, linerange)
     file === nothing && return nothing # needed on julia v0.6, see #689
     remote = getremote(dirname(file))
-    isabspath(file) && isempty(remote) && isempty(repo) && return nothing
+    isabspath(file) && isnothing(remote) && isnothing(repo) && return nothing
 
     # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
     if isfile(file)
         file = realpath(abspath(file))
     end
 
-    hosttype = repo_host_from_url(repo)
-
-    # Format the line range.
-    line = format_line(linerange, LineRangeFormatting(hosttype))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
     if inbase(mod) || !isabspath(file)
-        file = replace(file, '\\' => '/')
-        base = "https://github.com/JuliaLang/julia/blob"
-        dest = "base/$file#$line"
-        if isempty(Base.GIT_VERSION_INFO.commit)
-            "$base/v$VERSION/$dest"
+        ref = if isempty(Base.GIT_VERSION_INFO.commit)
+            "v$VERSION"
         else
-            commit = Base.GIT_VERSION_INFO.commit
-            "$base/$commit/$dest"
+            Base.GIT_VERSION_INFO.commit
         end
+        repofile(julia_remote, ref, "base/$file", linerange)
     else
         path = relpath_from_repo_root(file)
-        if isempty(repo)
-            repo = "https://github.com/$remote/blob/{commit}{path}#{line}"
-        end
-        if path === nothing
-            nothing
-        else
-            repo = replace(repo, "{commit}" => format_commit(repo_commit(file), hosttype))
-            # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
-            repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
-            repo = replace(repo, "{line}" => line)
-            repo
-        end
+        # If we managed to determine a remote for the current file with getremote,
+        # then we use that information instead of the user-provided repo (doc.user.remote)
+        # argument to generate source links. This means that in the case where some
+        # docstrings come from another repository (like the DocumenterTools doc dependency
+        # for Documenter), then we generate the correct links, since we actually user the
+        # remote determined from the Git repository.
+        #
+        # In principle, this prevents the user from overriding the remote for the main
+        # repository if the repo is cloned from GitHub (e.g. when you clone from a fork, but
+        # want the source links to point to the upstream repository; however, this feels
+        # like a very unlikely edge case). If the repository is cloned from somewhere else
+        # than GitHub, then everything is fine --- getremote will fail and remote is
+        # `nothing`, in which case we fall back to using `repo`.
+        isnothing(remote) && (remote = repo)
+        commit = repo_commit(file)
+        isnothing(path) || isnothing(remote) ? nothing : repofile(remote, commit, path, linerange)
     end
 end
 
-const GIT_REMOTE_CACHE = Dict{String,String}()
+"""
+A [`Remote`](@ref) corresponding to the main Julia language repository.
+"""
+const julia_remote = Remotes.GitHub("JuliaLang", "julia")
+
+const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.GitHub,Nothing}}()
 
 function getremote(dir::AbstractString)
     return get!(GIT_REMOTE_CACHE, dir) do
@@ -520,7 +503,18 @@ function getremote(dir::AbstractString)
             ""
         end
         m = match(LibGit2.GITHUB_REGEX, remote)
-        return m === nothing ? get(ENV, "TRAVIS_REPO_SLUG", "") : String(m[1])
+        if isnothing(m)
+            # TODO: move this fallback out of getremote
+            remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+            try
+                # Remotes.GitHub(remote) can throw if there is no '/' in the string
+                return isnothing(remote) ? nothing : GitHub.Remote(remote)
+            catch
+                return nothing
+            end
+        else
+            return Remotes.GitHub(m[2], m[3])
+        end
     end
 end
 
@@ -545,24 +539,6 @@ function inbase(m::Module)
     end
 end
 
-# Repository host from repository url
-# i.e. "https://github.com/something" => RepoGithub
-#      "https://bitbucket.org/xxx" => RepoBitbucket
-# If no match, returns RepoUnknown
-function repo_host_from_url(repoURL::String)
-    if occursin("bitbucket", repoURL)
-        return RepoBitbucket
-    elseif occursin("github", repoURL) || isempty(repoURL)
-        return RepoGithub
-    elseif occursin("gitlab", repoURL)
-        return RepoGitlab
-    elseif occursin("azure", repoURL)
-        return RepoAzureDevOps
-    else
-        return RepoUnknown
-    end
-end
-
 # Find line numbers.
 # ------------------
 
@@ -577,32 +553,6 @@ function linerange(text, from)
     # and only the odd ones actually contain the docstring text as a string.
     lines = sum(Int[isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
     return lines > 0 ? (from:(from + lines + 1)) : (from:from)
-end
-
-struct LineRangeFormatting
-    prefix::String
-    separator::String
-
-    function LineRangeFormatting(host::RepoHost)
-        if host === RepoAzureDevOps
-            new("&line=", "&lineEnd=")
-        elseif host == RepoBitbucket
-            new("", ":")
-        elseif host == RepoGitlab
-            new("L", "-")
-        else
-            # default is github-style
-            new("L", "-L")
-        end
-    end
-end
-
-function format_line(range::AbstractRange, format::LineRangeFormatting)
-    if length(range) <= 1
-        string(format.prefix, first(range))
-    else
-        string(format.prefix, first(range), format.separator, last(range))
-    end
 end
 
 newlines(s::AbstractString) = count(c -> c === '\n', s)

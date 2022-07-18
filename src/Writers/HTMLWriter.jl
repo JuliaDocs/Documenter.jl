@@ -1180,7 +1180,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Set the logo and name for the "Edit on.." button.
     if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
-        host_type = Utilities.repo_host_from_url(ctx.doc.user.repo)
+        host_type = Utilities.repo_host_from_url(ctx.doc.user.remote)
         if host_type == Utilities.RepoGitlab
             host = "GitLab"
             logo = "\uf296"
@@ -1208,7 +1208,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
                 # need to set users path relative the page itself
                 pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
             end
-            Utilities.url(ctx.doc.user.repo, pageurl, commit=edit_branch)
+            Utilities.edit_url(ctx.doc.user.remote, pageurl, commit=edit_branch)
         end
         if url !== nothing
             edit_verb = (edit_branch === nothing) ? "View" : "Edit"
@@ -1569,7 +1569,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
             ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
-                url = Utilities.url(ctx.doc.internal.remote, ctx.doc.user.repo, result)
+                url = Utilities.source_url(ctx.doc.user.remote, result)
                 if url !== nothing
                     push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
                 end

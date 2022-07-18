@@ -19,6 +19,7 @@ include("TestUtilities.jl"); using .TestUtilities
     include("except.jl")
     include("utilities.jl")
     include("markdown2.jl")
+    include("remotes.jl")
 
     # DocChecks tests
     include("docchecks.jl")

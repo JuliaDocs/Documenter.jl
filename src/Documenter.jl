@@ -61,14 +61,14 @@ include("CrossReferences.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
 
-import .Utilities: Selectors, git
+import .Utilities: Selectors, Remotes, git
 import .Writers.HTMLWriter: HTML, asset
 import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 import .Writers.LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
-export makedocs, deploydocs, hide, doctest, DocMeta, asset,
+export makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
     KaTeX, MathJax, MathJax2, MathJax3
 
 """
@@ -158,23 +158,16 @@ makedocs(
 and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
 
-**`repo`** specifies a template for the "link to source" feature. If you are
-using GitHub, this is automatically generated from the remote. If you are using
-a different host, you can use this option to tell Documenter how URLs should be
-generated. The following placeholders will be replaced with the respective
-value of the generated link:
+**`repo`** specifies the browsable remote repository (e.g. on github.com). This is used for
+generating various remote links, such as the "source" links on docstrings. It can either
+be passed an object that implements the [`Remotes.Remote`](@ref) interface (e.g.
+[`Remotes.GitHub`](@ref)) or a template string. If a string is passed, it is interpreted
+according to the rules described in [`Remotes.URL`](@ref).
 
-  - `{commit}` Git branch or tag name, or commit hash
-  - `{path}` Path to the file in the repository
-  - `{line}` Line (or range of lines) in the source file
-
-BitBucket, GitLab and Azure DevOps are supported along with GitHub, for example:
-
-```julia
-makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\") # GitLab
-makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\") # Azure DevOps
-makedocs(repo = \"https://bitbucket.org/user/project/src/{commit}/{path}#lines-{line}\") # BitBucket
-```
+By default, the repository is assumed to be hosted on GitHub, and the remote URL is
+determined by first checking the URL of the `origin` Git remote, and then falling back to
+checking the `TRAVIS_REPO_SLUG` (for Travis CI) and `GITHUB_REPOSITORY` (for GitHub Actions)
+environment variables. If this automatic procedure fails, a warning is printed.
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
