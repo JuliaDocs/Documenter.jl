@@ -491,7 +491,6 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
             "Library" => [
                 "lib/functions.md",
                 "lib/autodocs.md",
-                "lib/editurl.md",
             ],
             "Expandorder" => [
                 "expandorder/00.md",
