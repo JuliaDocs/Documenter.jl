@@ -96,4 +96,12 @@ end
             @test occursin("languages/julia-repl.min", documenterjs)
         end
     end
+
+    @testset "HTML: repo-*" begin
+        @test examples_html_repo_git_doc.user.remote === Remotes.GitHub("JuliaDocs", "Documenter.jl")
+        @test examples_html_repo_gha_doc.user.remote === Remotes.GitHub("foo", "bar")
+        @test examples_html_repo_travis_doc.user.remote === Remotes.GitHub("bar", "baz")
+        @test examples_html_repo_nothing_doc.user.remote === nothing
+        @test examples_html_repo_error_doc.user.remote === nothing
+    end
 end
