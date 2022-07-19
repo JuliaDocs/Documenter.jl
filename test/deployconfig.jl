@@ -485,6 +485,111 @@ end end
     end
 end end
 
+@testset "Woodpecker CI deploy configuration" begin; with_logger(NullLogger()) do
+    # Regular tag build with PROJECT_ACCESS_TOKEN
+    withenv(
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_BUILD_EVENT" => "push",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/tags/v1.2.3",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                                 devbranch="master", devurl="dev", push_preview=true)
+
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "JuliaDocs/Documenter.jl"
+        @test d.branch == "pages"
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Broken tag build
+    withenv(
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_BUILD_EVENT" => "push",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/tags/not-a-version",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="dev", push_preview=true)
+        @test !d.all_ok
+    end
+    # Regular devbranch build
+    withenv(
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_BUILD_EVENT" => "pull_request",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/heads/master",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "JuliaDocs/Documenter.jl"
+        @test d.branch == "pages"
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                                 devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Regular pull request build
+    withenv(
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_BUILD_EVENT" => "pull_request",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/pull/42/merge",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "JuliaDocs/Documenter.jl"
+        @test d.branch == "pages"
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Missing environment variables
+    withenv(
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_BUILD_EVENT" => "pull_request",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/pull/42/merge",
+            "PROJECT_ACCESS_TOKEN" => nothing,
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+    end
+end end
+
 struct CustomConfig <: Documenter.DeployConfig end
 Documenter.deploy_folder(::CustomConfig; kwargs...) = Documenter.DeployDecision(; all_ok = true, subfolder = "v1.2.3")
 struct BrokenConfig <: Documenter.DeployConfig end
@@ -515,6 +620,24 @@ end end
     end
     withenv("TRAVIS_REPO_SLUG" => nothing,
             "GITHUB_REPOSITORY" => nothing,
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg === nothing
+    end
+    withenv("CI" => "woodpecker",
+            "GITHUB_REPOSITORY" => nothing
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg isa Documenter.Woodpecker
+    end
+    withenv("CI" => "drone",
+            "GITHUB_REPOSITORY" => nothing
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg isa Documenter.Woodpecker
+    end
+    withenv("CI" => nothing,
+            "GITHUB_REPOSITORY" => nothing
         ) do
         cfg = Documenter.auto_detect_deploy_system()
         @test cfg === nothing
