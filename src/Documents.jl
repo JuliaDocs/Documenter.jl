@@ -249,6 +249,7 @@ struct User
     authors :: String
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
+    draft :: Bool
 end
 
 """
@@ -303,6 +304,7 @@ function Document(plugins = nothing;
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
+        draft::Bool                  = false,
         others...
     )
 
@@ -317,23 +319,17 @@ function Document(plugins = nothing;
         version = "git:$(Utilities.get_commit_short(root))"
     end
 
-    repo = if (repo isa AbstractString) && isempty(repo)
+    remote = if isa(repo, AbstractString) && isempty(repo)
         # If the user does not provide the `repo` argument, we'll try to automatically
-        # detect the remote repository by looking at the Git remotes. This only works if
-        # the repository is hosted on GitHub.
-        #
-        # Utilities.getremote will first check the 'origin' remote of the repository. If
-        # that fails, we'll fall back to TRAVIS_REPO_SLUG.
-        remote = Utilities.getremote(root)
-        if isempty(remote)
-            @warn "Unable to determine remote Git URL automatically. Source links may be missing."
-            nothing
-        else
-            Remotes.GitHub(remote)
-        end
+        # detect the remote repository by looking at the Git repository remote. This only
+        # works if the repository is hosted on GitHub. If that fails, it falls back to
+        # TRAVIS_REPO_SLUG.
+        Utilities.getremote(root)
     elseif repo isa AbstractString
+        # Use the old template string parsing logic if a string was passed.
         Remotes.URL(repo)
     else
+        # Otherwise it should be some Remote object
         repo
     end
 
@@ -353,11 +349,12 @@ function Document(plugins = nothing;
         strict,
         pages,
         expandfirst,
-        repo,
+        remote,
         sitename,
         authors,
         version,
         highlightsig,
+        draft,
     )
     internal = Internal(
         Utilities.assetsdir(),

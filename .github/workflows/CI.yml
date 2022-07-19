@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.0'
+          - '1.6'
           - '1'
           - 'nightly'
         os:
@@ -56,7 +56,7 @@ jobs:
             using Pkg
             Pkg.instantiate()
             Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.add(["IOCapture", "DocumenterMarkdown", "tectonic_jll"])'
+            Pkg.add(["IOCapture", "tectonic_jll"])'
       - run: julia --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
@@ -76,12 +76,10 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v1
-      - run: |
-          julia --project=test/themes/ -e '
-            using Pkg
-            Pkg.instantiate()
-            Pkg.develop(PackageSpec(path=pwd()))'
-      - run: julia --project=test/themes test/themes/themes.jl
+      - name: Install dependencies
+        run: julia --color=yes --project=test/themes/ docs/instantiate.jl test/themes/
+      - name: Verify theme CSS files
+        run: julia --project=test/themes test/themes/themes.jl
 
   prerender:
     name: "NodeJS for prerender"
@@ -104,32 +102,81 @@ jobs:
           file: lcov.info
 
   docs:
-    name: 'Documentation: ${{ matrix.makejl }}'
+    name: 'Documentation: ${{ matrix.format }}'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - jlenv: 'docs/'
-            makejl: 'docs/make.jl'
-          - jlenv: 'docs/pdf/'
-            makejl: 'docs/pdf/make.jl'
+        format:
+          - html
+          - pdf
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
       - uses: julia-actions/cache@v1
-      - run: |
-          julia --project=${{ matrix.jlenv }} -e '
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - run: julia --project=${{ matrix.jlenv }} --color=yes ${{ matrix.makejl }}
+      - name: Install dependencies
+        run: julia --color=yes --project=docs/ docs/instantiate.jl
+      - name: Build the manual
+        run: julia --color=yes --project=docs/ docs/make.jl ${{ matrix.format }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          DOCUMENTER_LATEX_DEBUG: ${{ github.workspace }}/latex-debug-logs
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.makejl == 'docs/pdf/make.jl' }}
+        if: ${{ always() && matrix.format == 'pdf' }}
         with:
-          name: Documenter manual (PDF)
-          path: docs/pdf/build/pdfdir/*.pdf
+          name: PDF build logs
+          path: ${{ github.workspace }}/latex-debug-logs
+
+  linkcheck:
+    name: "Linkcheck: online tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: '1.6'
+      - name: Run online linkcheck tests
+        run: julia --color=yes test/run_docchecks.jl
+
+  linkcheck-manual:
+    name: "Linkcheck: Documenter manual"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: '1.6'
+      - name: Install dependencies
+        run: julia --color=yes --project=docs/ docs/instantiate.jl
+      - name: Build and check documentation
+        run: julia --color=yes --project=docs/ docs/make.jl linkcheck
+
+  changelog:
+    name: "Verify CHANGELOG"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: '1.6'
+      - name: Install dependencies
+        run: julia --color=yes --project=scripts/ -e 'using Pkg; Pkg.instantiate()'
+      - name: Test scripts/changelog.jl
+        run: |
+          # Run the unit tests of the changelog.jl script:
+          julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl test
+          # Run changelog.jl with a small, but known good CHANGELOG file and make sure it passes:
+          julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl --file=scripts/changelog-valid.md
+          # Run changelog.jl with a known _bad_ CHANGELOG file, which should exit with a non-zero code:
+          ! julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl --file=scripts/changelog-invalid.md
+      - name: Check CHANGELOG.md
+        run: julia --color=yes --code-coverage --project=scripts/ scripts/changelog.jl --github
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: src,scripts
+      - uses: codecov/codecov-action@v1
+        with:
+          file: lcov.info

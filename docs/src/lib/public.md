@@ -21,19 +21,31 @@ Pages = ["public.md"]
 ```@docs
 Documenter
 makedocs
+Documenter.except
 hide
 asset
 deploydocs
-Deps
-Deps.pip
 doctest
 DocMeta
 DocMeta.getdocmeta
 DocMeta.setdocmeta!
+```
+
+### Remotes
+
+```@docs
 Documenter.Remotes
 Documenter.Remotes.GitHub
-Documenter.Remotes.URL
+```
+
+The following types and functions and relevant when creating custom
+[`Remote`](@ref Documenter.Remotes.Remote) types:
+
+```@docs
 Documenter.Remotes.Remote
+Documenter.Remotes.repourl
+Documenter.Remotes.fileurl
+Documenter.Remotes.issueurl
 ```
 
 ## DocumenterTools

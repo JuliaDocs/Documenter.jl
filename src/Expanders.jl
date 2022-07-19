@@ -53,6 +53,14 @@ function pagecheck(page)
     end
 end
 
+# Draft output code block
+function create_draft_result(x; blocktype="code")
+    content = []
+    push!(content, Markdown.Code("julia", x.code))
+    push!(content, Dict{MIME,Any}(MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>"))
+    return Documents.MultiOutput(content)
+end
+
 
 # Expander Pipeline.
 # ------------------
@@ -408,7 +416,31 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
                 isexported = Base.isexported(mod, binding.var)
                 included = (isexported && public) || (!isexported && private)
                 # What category does the binding belong to?
-                category = Documenter.DocSystem.category(binding)
+                category = try
+                    Documenter.DocSystem.category(binding)
+                catch err
+                    isa(err, UndefVarError) || rethrow(err)
+                    @docerror(doc, :autodocs_block,
+                    """
+                    @autodocs ($(Utilities.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
+                    ```$(x.language)
+                    $(x.code)
+                    ```
+                    This is likely due to a bug in the Julia docsystem relating to the handling of
+                    docstrings attached to methods of callable objects. See:
+
+                      https://github.com/JuliaLang/julia/issues/45174
+
+                    As a workaround, the docstrings for the functor methods could be included in the docstring
+                    of the type definition. This error can also be ignored by disabling strict checking for
+                    :autodocs_block in the makedocs call with e.g.
+
+                      strict = Documenter.except(:autodocs_block)
+
+                    However, the relevant docstrings will then not be included by the @autodocs block.
+                    """, exception = err)
+                    continue # skip this docstring
+                end
                 if category in order && included
                     # filter the elements after category/order has been evaluated
                     # to ensure that e.g. when `Order = [:type]` is given, the filter
@@ -490,6 +522,12 @@ end
 # -----
 
 function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
+    # Bail early if in draft mode
+    if Utilities.is_draft(doc, page)
+        @debug "Skipping evaluation of @eval block in draft mode:\n$(x.code)"
+        page.mapping[x] = create_draft_result(x; blocktype="@eval")
+        return
+    end
     sandbox = Module(:EvalBlockSandbox)
     lines = Utilities.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
@@ -547,6 +585,14 @@ function Selectors.runner(::Type{ExampleBlocks}, x, page, doc)
     matched = match(r"^@example(?:\s+([^\s;]+))?\s*(;.*)?$", x.language)
     matched === nothing && error("invalid '@example' syntax: $(x.language)")
     name, kwargs = matched.captures
+
+    # Bail early if in draft mode
+    if Utilities.is_draft(doc, page)
+        @debug "Skipping evaluation of @example block in draft mode:\n$(x.code)"
+        page.mapping[x] = create_draft_result(x; blocktype="@example")
+        return
+    end
+
     # The sandboxed module -- either a new one or a cached one from this page.
     mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
     sym = nameof(mod)
@@ -639,6 +685,14 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     matched = match(r"^@repl(?:\s+([^\s;]+))?\s*(;.*)?$", x.language)
     matched === nothing && error("invalid '@repl' syntax: $(x.language)")
     name, kwargs = matched.captures
+
+    # Bail early if in draft mode
+    if Utilities.is_draft(doc, page)
+        @debug "Skipping evaluation of @repl block in draft mode:\n$(x.code)"
+        page.mapping[x] = create_draft_result(x; blocktype="@repl")
+        return
+    end
+
     # The sandboxed module -- either a new one or a cached one from this page.
     mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
 
@@ -657,11 +711,9 @@ function Selectors.runner(::Type{REPLBlocks}, x, page, doc)
     for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
                                           linenumbernode = linenumbernode)
         input  = droplines(str)
-        if VERSION >= v"1.5.0-DEV.178"
-            # Use the REPL softscope for REPLBlocks,
-            # see https://github.com/JuliaLang/julia/pull/33864
-            ex = REPL.softscope!(ex)
-        end
+        # Use the REPL softscope for REPLBlocks,
+        # see https://github.com/JuliaLang/julia/pull/33864
+        ex = REPL.softscope!(ex)
         c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
                 Core.eval(mod, ex)
@@ -702,6 +754,14 @@ function Selectors.runner(::Type{SetupBlocks}, x, page, doc)
     matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", x.language)
     matched === nothing && error("invalid '@setup <name>' syntax: $(x.language)")
     name = matched[1]
+
+    # Bail early if in draft mode
+    if Utilities.is_draft(doc, page)
+        @debug "Skipping evaluation of @setup block in draft mode:\n$(x.code)"
+        page.mapping[x] = create_draft_result(x; blocktype="@setup")
+        return
+    end
+
     # The sandboxed module -- either a new one or a cached one from this page.
     mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
 

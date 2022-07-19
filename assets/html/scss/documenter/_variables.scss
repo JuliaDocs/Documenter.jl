@@ -79,10 +79,13 @@ $documenter-main-padding: 1rem !default;
 // to be in px, hence the unit conversion.
 $desktop: round($body-size * ($documenter-max-width + $documenter-sidebar-width + $documenter-sidebar-main-gap + $documenter-main-padding-right - 5rem)/1rem) !default;
 
-// Admonitions
-$message-header-padding: 0.75em;
-$message-body-padding: 1em 1.25em;
-// Docstrings
-$card-content-padding-v: 1rem;
-$card-content-padding-h: 1.25rem;
-$card-content-padding: $card-content-padding-v $card-content-padding-h;
+// Padding for admonitions and docstrings.
+// We'll try to keep the left padding consistent between the various container
+// elements:
+$documenter-container-left-padding: 0.75rem;
+$documenter-admonition-header-padding: 0.5rem $documenter-container-left-padding;
+$documenter-admonition-body-padding: 0.5rem $documenter-container-left-padding;
+$documenter-docstring-header-padding: 0.5rem $documenter-container-left-padding;
+$documenter-docstring-body-padding-h: $documenter-container-left-padding;
+$documenter-docstring-body-padding-v: 0.75rem;
+$documenter-docstring-body-padding: $documenter-docstring-body-padding-v $documenter-docstring-body-padding-h;

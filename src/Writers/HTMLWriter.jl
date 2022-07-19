@@ -312,8 +312,8 @@ point to the master branch.
 
 **`repolink`** can be used to override the URL of the Git repository link in the top navbar
 (if passed a `String`). By default, Documenter attempts to determine the link from the Git
-remote of the repository (e.g. specified via the `remote` argument of [`makedocs`](@ref)).
-Passing a `nothing` disables the repository link.
+remote of the repository (e.g. specified via the `remote` argument of
+[`makedocs`](@ref Documenter.makedocs)). Passing a `nothing` disables the repository link.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend
 you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
@@ -352,7 +352,8 @@ passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) 
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 and the [Julia Programming Language](https://julialang.org/)."`.
 
-**`ansicolor`** can be used to enable/disable colored output from `@repl` and `@example` blocks globally.
+**`ansicolor`** can be used to globally disable colored output from `@repl` and `@example`
+blocks by setting it to `false` (default: `true`).
 
 **`lang`** specifies the [`lang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
 of the top-level `<html>` element, declaring the language of the generated pages. The default
@@ -425,18 +426,17 @@ struct HTML <: Documenter.Writer
     function HTML(;
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
-            edit_link     :: Union{String, Symbol, Nothing, Default} = Default("master"),
             repolink      :: Union{String, Nothing, Default} = Default(nothing),
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Utilities.git_remote_head_branch("HTML(edit_link = ...)", Utilities.currentdir())),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",
             collapselevel :: Integer = 2,
             sidebar_sitename :: Bool = true,
-            lang          :: String = "en",
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
-            ansicolor     :: Bool = false, # true in 0.28
+            ansicolor     :: Bool = true,
             lang          :: String = "en",
             warn_outdated :: Bool = true,
 
@@ -530,8 +530,8 @@ module RD
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
     const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
-    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css"
-    const fontawesome_version = "5.15.3"
+    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css"
+    const fontawesome_version = "5.15.4"
     const fontawesome_css = [
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
@@ -558,7 +558,7 @@ module RD
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "11.0.1"
+        hljs_version = "11.5.1"
         push!(r, RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
@@ -584,7 +584,7 @@ module RD
     end
 
     # MathJax & KaTeX
-    const katex_version = "0.13.11"
+    const katex_version = "0.13.24"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
     function mathengine!(r::RequireJS, engine::KaTeX)
         push!(r, RemoteLibrary(
@@ -623,7 +623,7 @@ module RD
         ))
     end
     function mathengine!(r::RequireJS, engine::MathJax3)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-svg.js" : engine.url
+        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" : engine.url
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
@@ -1244,6 +1244,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
                 user_editurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), user_editurl)
             end
             user_editurl = Utilities.relpath_from_repo_root(user_editurl)
+            #Utilities.edit_url(ctx.doc.user.remote, pageurl, commit=edit_branch)
         end
         @debug "Edit links:" user_editurl ctx.settings.edit_link ctx.doc.user.remote ctx.settings.disable_git edit_page_link
         if (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git && (user_editurl !== nothing) && (ctx.doc.user.remote !== nothing)
@@ -1499,9 +1500,13 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
     end
 end
 
-function generate_siteinfo_file(dir::AbstractString, version::AbstractString)
+function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString,Nothing})
     open(joinpath(dir, "siteinfo.js"), "w") do buf
-        println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+        if version !== nothing
+            println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
+        else
+            println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
+        end
     end
 end
 
@@ -1632,10 +1637,10 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
         # we need for generating correct source links.
         map(zip(md.content, md.meta[:results])) do md
             markdown, result = md
-            ret = section(div(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(markdown))))
+            ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
             # When a source link is available then print the link.
             if !ctx.settings.disable_git
-                url = Utilities.url(ctx.doc.user.remote, result)
+                url = Utilities.source_url(ctx.doc.user.remote, result)
                 if url !== nothing
                     push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
                 end
@@ -1645,7 +1650,7 @@ function domify_doc(ctx, navnode, md::Markdown.MD)
     else
         # Docstrings with no `:results` metadata won't contain source locations so we don't
         # try to print them out. Just print the basic docstring.
-        section(domify(ctx, navnode, Writers.MarkdownWriter.dropheaders(md)))
+        section(domify(ctx, navnode, Utilities.dropheaders(md)))
     end
 end
 

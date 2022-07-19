@@ -60,16 +60,15 @@ include("Builder.jl")
 include("CrossReferences.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
-include("Deps.jl")
 
-import .Utilities: Selectors, Remotes
+import .Utilities: Selectors, Remotes, git
 import .Writers.HTMLWriter: HTML, asset
 import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 import .Writers.LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
-export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
+export makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
     KaTeX, MathJax, MathJax2, MathJax3
 
 """
@@ -84,6 +83,7 @@ export Deps, makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
         highlightsig = true,
         sitename = "",
         expandfirst = [],
+        draft = false,
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -158,29 +158,16 @@ makedocs(
 and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
 
-**`repo`** specifies the remote repository for the "link to source" feature. This can either
-be a [`Remotes.Remote`](@ref) subtype (e.g. [`Remotes.GitHub`](@ref)) or a template string.
+**`repo`** specifies the browsable remote repository (e.g. on github.com). This is used for
+generating various remote links, such as the "source" links on docstrings. It can either
+be passed an object that implements the [`Remotes.Remote`](@ref) interface (e.g.
+[`Remotes.GitHub`](@ref)) or a template string. If a string is passed, it is interpreted
+according to the rules described in [`Remotes.URL`](@ref).
 
-If a string is passed, it is interpreted according to the rules described in
-[`Remotes.URL`](@ref).
-
-    If you are
-using GitHub, this is automatically generated from the remote. If you are using
-a different host, you can use this option to tell Documenter how URLs should be
-generated. The following placeholders will be replaced with the respective
-value of the generated link:
-
-  - `{commit}` Git branch or tag name, or commit hash
-  - `{path}` Path to the file in the repository
-  - `{line}` Line (or range of lines) in the source file
-
-BitBucket, GitLab and Azure DevOps are supported along with GitHub, for example:
-
-```julia
-makedocs(repo = \"https://gitlab.com/user/project/blob/{commit}{path}#{line}\") # GitLab
-makedocs(repo = \"https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1\") # Azure DevOps
-makedocs(repo = \"https://bitbucket.org/user/project/src/{commit}/{path}#lines-{line}\") # BitBucket
-```
+By default, the repository is assumed to be hosted on GitHub, and the remote URL is
+determined by first checking the URL of the `origin` Git remote, and then falling back to
+checking the `TRAVIS_REPO_SLUG` (for Travis CI) and `GITHUB_REPOSITORY` (for GitHub Actions)
+environment variables. If this automatic procedure fails, a warning is printed.
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
@@ -199,6 +186,11 @@ For example, if you have `foo.md` and `bar.md`, `bar.md` would normally be evalu
 
 Evaluation order among the `expandfirst` pages is according to the order they appear in the
 argument.
+
+**`draft`** can be set to `true` to build a draft version of the document. In draft mode
+some potentially time-consuming steps are skipped (e.g. running `@example` blocks), which is
+useful when iterating on the documentation. This setting can also be configured per-page
+by setting `Draft = true` in an `@meta` block.
 
 # Experimental keywords
 
@@ -231,6 +223,7 @@ return a response before giving up. The default is 10 seconds.
 if it encountered any errors with the document in the previous build phases. The keyword
 `strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error
 (or errors) should be fatal. Options are: $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
+Use [`Documenter.except`](@ref) to explicitly set non-fatal errors.
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).
@@ -272,6 +265,35 @@ function makedocs(components...; debug = false, format = HTML(), kwargs...)
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end
     debug ? document : nothing
+end
+
+"""
+    Documenter.except(errors...)
+
+Returns the list of all valid error classes that can be passed as the `strict` argument to
+[`makedocs`](@ref), except for the ones specified in the `errors` argument. Each error class
+must be a `Symbol` and passed as a separate argument.
+
+Can be used to easily disable the strict checking of specific error classes while making
+sure that all other error types still lead to the Documenter build failing. E.g. to stop
+Documenter failing on footnote and linkcheck errors, one can set `strict` as
+
+```julia
+makedocs(...,
+    strict = Documenter.except(:linkcheck, :footnote),
+)
+```
+
+Possible valid `Symbol` values are:
+$(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
+"""
+function except(errors::Symbol...)
+    invalid_errors = setdiff(errors, ERROR_NAMES)
+    isempty(invalid_errors) || throw(DomainError(
+        tuple(invalid_errors...),
+        "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
+    ))
+    setdiff(ERROR_NAMES, errors)
 end
 
 """
@@ -407,19 +429,6 @@ not exist, a new orphaned branch is created automatically. It defaults to `"gh-p
 **`dirname`** is a subdirectory of `branch` that the docs should be added to. By default,
 it is `""`, which will add the docs to the root directory.
 
-**`deps`** is the function used to install any additional dependencies needed to build the
-documentation. By default nothing is installed.
-
-It can be used e.g. for a Markdown build. The following example installed the `pygments` and
-`mkdocs` Python packages using the [`Deps.pip`](@ref) function:
-
-```julia
-deps = Deps.pip("pygments", "mkdocs")
-```
-
-**`make`** is the function used to specify an additional build phase. By default, nothing gets
-executed.
-
 **`devbranch`** is the branch that "tracks" the in-development version of the generated
 documentation. By default Documenter tries to figure this out using `git`. Can be set
 explicitly as a string (typically `"master"` or `"main"`).
@@ -468,6 +477,12 @@ deployed. It defaults to the value of `repo`.
     Therefore, previews are available only for pull requests that were
     submitted directly from the main repository.
 
+**`deps`** can be set to a function or a callable object and gets called during deployment,
+and is usually used to install additional dependencies. By default, nothing gets executed.
+
+**`make`** can be set to a function or a callable object and gets called during deployment,
+and is usually used to specify additional build steps. By default, nothing gets executed.
+
 # Releases vs development branches
 
 [`deploydocs`](@ref) will automatically figure out whether it is deploying the documentation
@@ -504,19 +519,20 @@ function deploydocs(;
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
         push_preview::Bool = false,
+
+        archive = nothing, # experimental and undocumented
     )
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
-        str = try
-            read(pipeline(ignorestatus(
-                setenv(`git remote show origin`, ["GIT_TERMINAL_PROMPT=0"]; dir=root)
-            ); stderr=devnull), String)
-        catch
-            ""
-        end
-        m = match(r"^\s*HEAD branch:\s*(.*)$"m, str)
-        devbranch = m === nothing ? "master" : String(m[1])
+        devbranch = Utilities.git_remote_head_branch("deploydocs(devbranch = ...)", root)
+    end
+
+    if !isnothing(archive)
+        # If archive is a relative path, we'll make it relative to the make.jl
+        # directory (e.g. docs/)
+        archive = joinpath(root, archive)
+        ispath(archive) && error("Output archive exists: $archive")
     end
 
     deploy_decision = deploy_folder(deploy_config;
@@ -538,8 +554,6 @@ function deploydocs(;
             deploy_subfolder = nothing
         end
 
-        # Add local bin path if needed.
-        Deps.updatepath!()
         # Install dependencies when applicable.
         if deps !== nothing
             @debug "installing dependencies."
@@ -552,7 +566,7 @@ function deploydocs(;
             # the working directory has been changed (e.g. if the makedocs' build argument is
             # outside root).
             sha = try
-                readchomp(`git rev-parse --short HEAD`)
+                readchomp(`$(git()) rev-parse --short HEAD`)
             catch
                 # git rev-parse will throw an error and return code 128 if it is not being
                 # run in a git repository, which will make run/readchomp throw an exception.
@@ -575,7 +589,7 @@ function deploydocs(;
                     branch=deploy_branch, dirname=dirname, target=target,
                     sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
                     devurl=devurl, versions=versions, forcepush=forcepush,
-                    is_preview=deploy_is_preview,
+                    is_preview=deploy_is_preview, archive=archive,
                 )
             end
         end
@@ -596,7 +610,7 @@ function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
         versions, forcepush=false, deploy_config, subfolder,
-        is_preview::Bool = false,
+        is_preview::Bool = false, archive,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -606,17 +620,17 @@ function git_push(
     # Generate a closure with common commands for ssh and https
     function git_commands(sshconfig=nothing)
         # Setup git.
-        run(`git init`)
-        run(`git config user.name "Documenter.jl"`)
-        run(`git config user.email "documenter@juliadocs.github.io"`)
+        run(`$(git()) init`)
+        run(`$(git()) config user.name "Documenter.jl"`)
+        run(`$(git()) config user.email "documenter@juliadocs.github.io"`)
         if sshconfig !== nothing
-            run(`git config core.sshCommand "ssh -F $(sshconfig)"`)
+            run(`$(git()) config core.sshCommand "ssh -F $(sshconfig)"`)
         end
 
         # Fetch from remote and checkout the branch.
-        run(`git remote add upstream $upstream`)
+        run(`$(git()) remote add upstream $upstream`)
         try
-            run(`git fetch upstream`)
+            run(`$(git()) fetch upstream`)
         catch e
             @error """
             Git failed to fetch $upstream
@@ -628,7 +642,7 @@ function git_push(
         end
 
         try
-            run(`git checkout -b $branch upstream/$branch`)
+            run(`$(git()) checkout -b $branch upstream/$branch`)
         catch e
             @info """
             Checking out $branch failed, creating a new orphaned branch.
@@ -637,15 +651,19 @@ function git_push(
             from Git in this situation.
             """
             @debug "checking out $branch failed with error: $e"
-            run(`git checkout --orphan $branch`)
-            run(`git commit --allow-empty -m "Initial empty commit for docs"`)
+            run(`$(git()) checkout --orphan $branch`)
+            run(`$(git()) commit --allow-empty -m "Initial empty commit for docs"`)
         end
 
         # Copy docs to `subfolder` directory.
         deploy_dir = subfolder === nothing ? dirname : joinpath(dirname, subfolder)
         gitrm_copy(target_dir, deploy_dir)
 
-        if versions !== nothing
+        if versions === nothing
+            # If the documentation is unversioned and deployed to root, we generate a
+            # siteinfo.js file that would disable the version selector in the docs
+            Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
+        else
             # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
             Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
@@ -675,14 +693,18 @@ function git_push(
         end
 
         # Add, commit, and push the docs to the remote.
-        run(`git add -A .`)
-        if !success(`git diff --cached --exit-code`)
-            if forcepush
-                run(`git commit --amend --date=now -m "build based on $sha"`)
-                run(`git push -fq upstream HEAD:$branch`)
+        run(`$(git()) add -A .`)
+        if !success(`$(git()) diff --cached --exit-code`)
+            if !isnothing(archive)
+                run(`$(git()) commit -m "build based on $sha"`)
+                @info "Skipping push and writing repository to an archive" archive
+                run(`$(git()) archive -o $(archive) HEAD`)
+            elseif forcepush
+                run(`$(git()) commit --amend --date=now -m "build based on $sha"`)
+                run(`$(git()) push -fq upstream HEAD:$branch`)
             else
-                run(`git commit -m "build based on $sha"`)
-                run(`git push -q upstream HEAD:$branch`)
+                run(`$(git()) commit -m "build based on $sha"`)
+                run(`$(git()) push -q upstream HEAD:$branch`)
             end
         else
             @debug "new docs identical to the old -- not committing nor pushing."
@@ -804,7 +826,7 @@ function gitrm_copy(src, dst)
     if isdir(dst)
         for x in filter!(!in((".git", "previews")), readdir(dst))
             # --ignore-unmatch so that we wouldn't get errors if dst does not exist
-            run(`git rm -rf --ignore-unmatch $(joinpath(dst, x))`)
+            run(`$(git()) rm -rf --ignore-unmatch $(joinpath(dst, x))`)
         end
     end
     # git rm also remove parent directories

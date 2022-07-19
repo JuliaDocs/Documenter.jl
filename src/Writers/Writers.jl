@@ -2,7 +2,6 @@
 A module that provides several renderers for `Document` objects. The supported
 formats are currently:
 
-  * `:markdown` -- the default format.
   * `:html` -- generates a complete HTML site with navigation and search included.
   * `:latex` -- generates a PDF using LuaLaTeX.
 
@@ -25,19 +24,15 @@ import .Utilities: Selectors
 
 abstract type FormatSelector <: Selectors.AbstractSelector end
 
-abstract type MarkdownFormat <: FormatSelector end
 abstract type LaTeXFormat    <: FormatSelector end
 abstract type HTMLFormat     <: FormatSelector end
 
-Selectors.order(::Type{MarkdownFormat}) = 1.0
 Selectors.order(::Type{LaTeXFormat})    = 2.0
 Selectors.order(::Type{HTMLFormat})     = 3.0
 
-Selectors.matcher(::Type{MarkdownFormat}, fmt, _) = isa(fmt, MarkdownWriter.Markdown)
 Selectors.matcher(::Type{LaTeXFormat},    fmt, _) = isa(fmt, LaTeXWriter.LaTeX)
 Selectors.matcher(::Type{HTMLFormat},     fmt, _) = isa(fmt, HTMLWriter.HTML)
 
-Selectors.runner(::Type{MarkdownFormat}, fmt, doc) = MarkdownWriter.render(doc, fmt)
 Selectors.runner(::Type{LaTeXFormat},    fmt, doc) = LaTeXWriter.render(doc, fmt)
 Selectors.runner(::Type{HTMLFormat},     fmt, doc) = HTMLWriter.render(doc, fmt)
 
@@ -61,28 +56,6 @@ function render(doc::Documents.Document)
     # Render each format. Additional formats must define an `order`, `matcher`, `runner`, as
     # well as their own rendering methods in a separate module.
     for each in doc.user.format
-        if isa(each, MarkdownWriter.Markdown) && !backends_enabled[:markdown]
-            @warn """Deprecated format
-
-            The Markdown/MkDocs backend must now be imported from a separate package.
-            Add DocumenterMarkdown to your documentation dependencies and add
-
-                using DocumenterMarkdown
-
-            to your make.jl script, and use
-
-                makedocs(
-                    format = Markdown(),
-                    ...
-                )
-
-            in the call to `makedocs`.
-            Built-in support for markdown outpu will be removed completely in a future
-            Documenter version, causing builds to fail completely.
-
-            See the Output Backends section in the manual for more information.
-            """
-        end
         Selectors.dispatch(FormatSelector, each, doc)
     end
     # Revert all local links to their original URLs.
@@ -91,26 +64,7 @@ function render(doc::Documents.Document)
     end
 end
 
-include("MarkdownWriter.jl")
 include("HTMLWriter.jl")
 include("LaTeXWriter.jl")
-
-# This is hack to enable the DocumenterMarkdown shell package to behave as if it provides
-# the MarkdownWriter, even though the actual writer code has not yet been moved out of
-# Documenter (TODO). enable_backend() is not part of the API and will be removed as soon as
-# MarkdownWriter is actually moved out into a separate module.
-backends_enabled = Dict(
-    :markdown => false,
-)
-
-function enable_backend(backend::Symbol)
-    global backends_enabled
-    if backend in keys(backends_enabled)
-        backends_enabled[backend] = true
-    else
-        @error "Unknown backend. Expected one of:" keys(backends_enabled)
-        throw(ArgumentError("Unknown backend $backend."))
-    end
-end
 
 end

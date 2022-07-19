@@ -9,23 +9,20 @@ include("TestUtilities.jl"); using .TestUtilities
 
     # Test missing docs
     @info "Building missingdocs/make.jl"
-    @quietly include("missingdocs/make.jl")
+    include("missingdocs/make.jl")
 
     # Error reporting.
     @info "Building errors/make.jl"
     @quietly include("errors/make.jl")
 
     # Unit tests for module internals.
+    include("except.jl")
     include("utilities.jl")
     include("markdown2.jl")
     include("remotes.jl")
 
     # DocChecks tests
-    if haskey(ENV, "DOCUMENTER_TEST_LINKCHECK")
-        include("docchecks.jl")
-    else
-        @info "DOCUMENTER_TEST_LINKCHECK not set, skipping online linkcheck tests."
-    end
+    include("docchecks.jl")
 
     # NavNode tests.
     include("navnode.jl")
@@ -57,13 +54,10 @@ include("TestUtilities.jl"); using .TestUtilities
 
     # Deployment configurations
     include("deployconfig.jl")
+    include("deploydocs.jl")
 
     # Mock package docs.
     include("examples/tests.jl")
-
-    # Documenter package docs with other formats.
-    @info "Building formats/markdown.jl"
-    @quietly include("formats/markdown.jl")
 
     # A simple build outside of a Git repository
     @info "Building nongit/tests.jl"

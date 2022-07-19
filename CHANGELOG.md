@@ -1,12 +1,64 @@
 # Documenter.jl changelog
 
-## Unreleased
+## Version `v0.28.0` (unreleased)
+
+* The (minimum) required Julia version has been raised from 1.0 to 1.6. For older Julia versions the 0.27.X release can still be used. ([#1835][github-1835], [#1841][github-1841])
+* ![BREAKING][badge-breaking] The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package][documentermarkdown]. This includes the removal of the exported `Deps` module. ([#1826][github-1826])
+
+  **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
+
+* ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
+* ![Enhancement][badge-enhancement] Documenter can now be configured to show a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
+* ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). ([#1808][github-1808])
+* ![Enhancement][badge-enhancement] Broken issue references (i.e. links like `[#1234](@ref)`, but when Documenter is unable to determine the remote GitHub repository) now generate `:cross_references` errors that can be caught via the `strict` keyword. ([#1808][github-1808])
+
+  This is **potentially breaking** as it can cause previously working builds to fail if they are being run in strict mode. However, such builds were already leaving broken links in the generated documentation.
+
+  **For upgrading:** the easiest way to fix the build is to remove the offending `@ref` links. Alternatively, the `repo` argument to `makedocs` can be set to the appropriate `Remotes.Remote` object that implements the `Remotes.issueurl` function, which would make sure that correct URLs are generated.
+
+* ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
+
+## Version `v0.27.21`
+
+* ![Bugfix][badge-bugfix] Fix a regression where Documenter throws an error on systems that do not have Git available. ([#1870][github-1870], [#1871][github-1871])
+
+## Version `v0.27.20`
+
+* ![Enhancement][badge-enhancement] The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#1844][github-1844], [#1846][github-1846])
+
+  - MathJax 3 has been updated from `v3.2.0` to `v3.2.2`.
+  - JuliaMono has been updated from `v0.044` to `v0.045`.
+  - Font Awesome has been updated from `v5.15.3` to `v5.15.4`.
+  - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
+  - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
+
+* ![Experimental][badge-experimental] `deploydocs` now supports "deploying to tarball" (rather than pushing to the `gh-pages` branch) via the undocumented experiments `archive` keyword. ([#1865][github-1865])
+* ![Bugfix][badge-bugfix] When including docstrings for an alias, Documenter now correctly tries to include the exactly matching docstring first, before checking for signature subtypes. ([#1842][github-1842])
+* ![Bugfix][badge-bugfix] When checking for missing docstrings, Documenter now correctly handles docstrings for methods that extend bindings from other modules that have not been imported into the current module. ([#1695][github-1695], [#1857][github-1857], [#1861][github-1861])
+* ![Bugfix][badge-bugfix] By overriding `GIT_TEMPLATE_DIR`, `git` no longer picks up arbitrary user templates and hooks when internally called by Documenter. ([#1862][github-1862])
+
+## Version `v0.27.19`
+
+* ![Enhancement][badge-enhancement] Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. ([#1836][github-1836])
+* ![Enhancement][badge-enhancement] On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). ([#1728][github-1728], [#1833][github-1833], [#1834][github-1834])
+* ![Enhancement][badge-enhancement] For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). ([#1827][github-1827], [#1829][github-1829])
+* ![Enhancement][badge-enhancement] Profiling showed that a significant amount of the HTML page build time was due to external `git` commands (used to find remote URLs for docstrings). These results are now cached on a per-source-file basis resulting in faster build times. This is particularly useful when using [LiveServer.jl][liveserver]s functionality for live-updating the docs while writing. ([#1838][github-1838])
+
+## Version `v0.27.18`
+
+* ![Enhancement][badge-enhancement] The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. ([#1814][github-1814], [#1818][github-1818])
+* ![Bugfix][badge-bugfix] When deploying unversioned docs, Documenter now generates a `siteinfo.js` file that disables the version selector, even if a `../versions.js` happens to exists. ([#1667][github-1667], [#1825][github-1825])
+* ![Bugfix][badge-bugfix] Build failures now only show fatal errors, rather than all errors. ([#1816][github-1816])
+* ![Bugfix][badge-bugfix] Disable git terminal prompt when detecting remote HEAD branch for ssh remotes, and allow ssh-agent authentication (by appending rather than overriding ENV). ([#1821][github-1821])
+
+## Version `v0.27.17`
 
 * ![Enhancement][badge-enhancement] PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. ([#1802][github-1802], [#1803][github-1803])
 * ![Enhancement][badge-enhancement] The phrasing of the outdated version warning in the HTML output has been improved. ([#1805][github-1805])
-* ![Enhancement][badge-enhancement] Documenter can now be configured to show a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
-* ![Enhancement][badge-enhancement] A more generic API is now available to configure the remote repository URLs by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`) as the `repo` argument of `makedocs`. ([#1254][github-1254])
+* ![Enhancement][badge-enhancement] Documenter now provides the `Documenter.except` function which can be used to "invert" the list of errors that are passed to `makedocs` via the `strict` keyword. ([#1811][github-1811])
 * ![Bugfix][badge-bugfix] When linkchecking HTTP and HTTPS URLs, Documenter now also passes a realistic `accept-encoding` header along with the request, in order to work around servers that try to block non-browser requests. ([#1807][github-1807])
+* ![Bugfix][badge-bugfix] LaTeX build logs are now properly outputted to the `LaTeXWriter.{stdout,stderr}` files when using the Docker build option. ([#1806][github-1806])
+* ![Bugfix][badge-bugfix] `makedocs` no longer fails with an `UndefVarError` if it encounters a specific kind of bad docsystem state related to docstrings attached to the call syntax, but issues an `@autodocs` error/warning instead. ([JuliaLang/julia#45174][julia-45174], [#1192][github-1192], [#1810][github-1810], [#1811][github-1811])
 
 ## Version `v0.27.16`
 
@@ -841,6 +893,7 @@
 [github-1184]: https://github.com/JuliaDocs/Documenter.jl/issues/1184
 [github-1186]: https://github.com/JuliaDocs/Documenter.jl/pull/1186
 [github-1189]: https://github.com/JuliaDocs/Documenter.jl/pull/1189
+[github-1192]: https://github.com/JuliaDocs/Documenter.jl/issues/1192
 [github-1194]: https://github.com/JuliaDocs/Documenter.jl/pull/1194
 [github-1195]: https://github.com/JuliaDocs/Documenter.jl/pull/1195
 [github-1200]: https://github.com/JuliaDocs/Documenter.jl/issues/1200
@@ -978,11 +1031,13 @@
 [github-1658]: https://github.com/JuliaDocs/Documenter.jl/pull/1658
 [github-1661]: https://github.com/JuliaDocs/Documenter.jl/pull/1661
 [github-1665]: https://github.com/JuliaDocs/Documenter.jl/pull/1665
+[github-1667]: https://github.com/JuliaDocs/Documenter.jl/issues/1667
 [github-1673]: https://github.com/JuliaDocs/Documenter.jl/pull/1673
 [github-1687]: https://github.com/JuliaDocs/Documenter.jl/pull/1687
 [github-1689]: https://github.com/JuliaDocs/Documenter.jl/pull/1689
 [github-1691]: https://github.com/JuliaDocs/Documenter.jl/pull/1691
 [github-1693]: https://github.com/JuliaDocs/Documenter.jl/issues/1693
+[github-1695]: https://github.com/JuliaDocs/Documenter.jl/issues/1695
 [github-1696]: https://github.com/JuliaDocs/Documenter.jl/pull/1696
 [github-1698]: https://github.com/JuliaDocs/Documenter.jl/issues/1698
 [github-1699]: https://github.com/JuliaDocs/Documenter.jl/pull/1699
@@ -991,6 +1046,7 @@
 [github-1709]: https://github.com/JuliaDocs/Documenter.jl/pull/1709
 [github-1716]: https://github.com/JuliaDocs/Documenter.jl/pull/1716
 [github-1727]: https://github.com/JuliaDocs/Documenter.jl/pull/1727
+[github-1728]: https://github.com/JuliaDocs/Documenter.jl/issues/1728
 [github-1743]: https://github.com/JuliaDocs/Documenter.jl/pull/1743
 [github-1746]: https://github.com/JuliaDocs/Documenter.jl/issues/1746
 [github-1748]: https://github.com/JuliaDocs/Documenter.jl/pull/1748
@@ -1019,17 +1075,47 @@
 [github-1802]: https://github.com/JuliaDocs/Documenter.jl/issues/1802
 [github-1803]: https://github.com/JuliaDocs/Documenter.jl/pull/1803
 [github-1805]: https://github.com/JuliaDocs/Documenter.jl/pull/1805
+[github-1806]: https://github.com/JuliaDocs/Documenter.jl/pull/1806
 [github-1807]: https://github.com/JuliaDocs/Documenter.jl/pull/1807
+[github-1808]: https://github.com/JuliaDocs/Documenter.jl/pull/1808
+[github-1810]: https://github.com/JuliaDocs/Documenter.jl/issues/1810
+[github-1811]: https://github.com/JuliaDocs/Documenter.jl/pull/1811
+[github-1814]: https://github.com/JuliaDocs/Documenter.jl/issues/1814
+[github-1816]: https://github.com/JuliaDocs/Documenter.jl/pull/1816
+[github-1818]: https://github.com/JuliaDocs/Documenter.jl/pull/1818
+[github-1821]: https://github.com/JuliaDocs/Documenter.jl/pull/1821
+[github-1825]: https://github.com/JuliaDocs/Documenter.jl/pull/1825
+[github-1826]: https://github.com/JuliaDocs/Documenter.jl/pull/1826
+[github-1827]: https://github.com/JuliaDocs/Documenter.jl/issues/1827
+[github-1828]: https://github.com/JuliaDocs/Documenter.jl/pull/1828
+[github-1829]: https://github.com/JuliaDocs/Documenter.jl/pull/1829
+[github-1833]: https://github.com/JuliaDocs/Documenter.jl/pull/1833
+[github-1834]: https://github.com/JuliaDocs/Documenter.jl/pull/1834
+[github-1835]: https://github.com/JuliaDocs/Documenter.jl/issues/1835
+[github-1836]: https://github.com/JuliaDocs/Documenter.jl/pull/1836
+[github-1838]: https://github.com/JuliaDocs/Documenter.jl/pull/1838
+[github-1841]: https://github.com/JuliaDocs/Documenter.jl/pull/1841
+[github-1842]: https://github.com/JuliaDocs/Documenter.jl/pull/1842
+[github-1844]: https://github.com/JuliaDocs/Documenter.jl/pull/1844
+[github-1846]: https://github.com/JuliaDocs/Documenter.jl/pull/1846
+[github-1857]: https://github.com/JuliaDocs/Documenter.jl/issues/1857
+[github-1861]: https://github.com/JuliaDocs/Documenter.jl/pull/1861
+[github-1862]: https://github.com/JuliaDocs/Documenter.jl/pull/1862
+[github-1865]: https://github.com/JuliaDocs/Documenter.jl/pull/1865
+[github-1870]: https://github.com/JuliaDocs/Documenter.jl/issues/1870
+[github-1871]: https://github.com/JuliaDocs/Documenter.jl/pull/1871
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
+[julia-45174]: https://github.com/JuliaLang/julia/issues/45174
 [julialangorg-1272]: https://github.com/JuliaLang/www.julialang.org/issues/1272
 
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
 [json-jl]: https://github.com/JuliaIO/JSON.jl
 [juliamono]: https://cormullion.github.io/pages/2020-07-26-JuliaMono/
+[liveserver]: https://github.com/tlienart/LiveServer.jl
 
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg

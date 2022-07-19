@@ -10,6 +10,13 @@ import Markdown, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
 
+include("Remotes.jl")
+using .Remotes: Remote, repourl, repofile
+# These imports are here to support code that still assumes that these names are defined
+# in the Utilities module.
+using .Remotes: RepoHost, RepoGithub, RepoBitbucket, RepoGitlab, RepoAzureDevOps,
+    RepoUnknown, format_commit, format_line, repo_host_from_url, LineRangeFormatting
+
 """
     @docerror(doc, tag, msg, exs...)
 
@@ -150,26 +157,24 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
         end
         cursor = ncursor
     end
-    if VERSION >= v"1.6.0" # required for Meta.parseall(...)
-        if linenumbernode isa LineNumberNode
-            exs = Meta.parseall(code; filename=linenumbernode.file).args
-            @assert length(exs) == 2 * length(results)
-            for (i, ex) in enumerate(Iterators.partition(exs, 2))
-                @assert ex[1] isa LineNumberNode
-                expr = Expr(:toplevel, ex...) # LineNumberNode + expression
-                # in the REPL each evaluation is considered a new file, e.g.
-                # REPL[1], REPL[2], ..., so try to mimic that by incrementing
-                # the counter for each sub-expression in this code block
-                if linenumbernode.file === Symbol("REPL")
-                    newfile = "REPL[$i]"
-                    # to reset the line counter for each new "file"
-                    lineshift = 1 - ex[1].line
-                    update_linenumbernodes!(expr, newfile, lineshift)
-                else
-                    update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
-                end
-                results[i] = (expr , results[i][2])
+    if linenumbernode isa LineNumberNode
+        exs = Meta.parseall(code; filename=linenumbernode.file).args
+        @assert length(exs) == 2 * length(results)
+        for (i, ex) in enumerate(Iterators.partition(exs, 2))
+            @assert ex[1] isa LineNumberNode
+            expr = Expr(:toplevel, ex...) # LineNumberNode + expression
+            # in the REPL each evaluation is considered a new file, e.g.
+            # REPL[1], REPL[2], ..., so try to mimic that by incrementing
+            # the counter for each sub-expression in this code block
+            if linenumbernode.file === Symbol("REPL")
+                newfile = "REPL[$i]"
+                # to reset the line counter for each new "file"
+                lineshift = 1 - ex[1].line
+                update_linenumbernodes!(expr, newfile, lineshift)
+            else
+                update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
             end
+            results[i] = (expr , results[i][2])
         end
     end
     results
@@ -408,10 +413,6 @@ function repo_root(file; dbdir=".git")
     return nothing
 end
 
-# Repository hosts
-#   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
-
 """
     $(SIGNATURES)
 
@@ -419,38 +420,39 @@ Returns the path of `file`, relative to the root of the Git repository, or `noth
 file is not in a Git repository.
 """
 function relpath_from_repo_root(file)
-    file = abspath(file)
-    root = repo_root(file)
-    root !== nothing && startswith(abspath(file), root) ? relpath(file, root) : nothing
+    cd(dirname(file)) do
+        root = repo_root(file)
+        root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
+    end
 end
 
 function repo_commit(file)
-    # TODO: verify this error handling
-    try
-        cd(dirname(file)) do
-            readchomp(`git rev-parse HEAD`)
-        end
-    catch e
-        @warn "Error in running repo_commit for $(file)" e
-        nothing
+    cd(dirname(file)) do
+        readchomp(`$(git()) rev-parse HEAD`)
     end
 end
 
-# Remote URLs.
-# ------------
-include("Remotes.jl")
-using .Remotes: repofile
-
-url(remote, doc::Docs.DocStr) = url(remote, doc.data[:module], doc.data[:path], linerange(doc))
-function url(remote, mod, file, linerange; commit = nothing)
-    # quickly bail if file ===  nothing, which can happen when using e.g. Revise (see #689)
-    if file === nothing
-        @warn "nothing passed as file to url()" remote mod file linerange
-        @debug "Stacktrace" stacktrace()
+function edit_url(repo, file; commit=nothing)
+    file = abspath(file)
+    if !isfile(file)
+        @warn "couldn't find file \"$file\" when generating URL"
         return nothing
     end
-    # make sure we get the true path, as otherwise we will get different paths when we
-    # compute `root` below
+    file = realpath(file)
+    isnothing(repo) && (repo = getremote(dirname(file)))
+    isnothing(commit) && (commit = repo_commit(file))
+    path = relpath_from_repo_root(file)
+    isnothing(path) || isnothing(repo) ? nothing : repofile(repo, commit, path)
+end
+
+source_url(repo, doc) = source_url(repo, doc.data[:module], doc.data[:path], linerange(doc))
+
+function source_url(repo, mod, file, linerange)
+    file === nothing && return nothing # needed on julia v0.6, see #689
+    remote = getremote(dirname(file))
+    isabspath(file) && isnothing(remote) && isnothing(repo) && return nothing
+
+    # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
     if isfile(file)
         file = realpath(abspath(file))
     end
@@ -459,47 +461,61 @@ function url(remote, mod, file, linerange; commit = nothing)
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
     if inbase(mod) || !isabspath(file)
-        ref = isempty(Base.GIT_VERSION_INFO.commit) ? "v$VERSION" : Base.GIT_VERSION_INFO.commit
-        repofile(Remotes.julia, ref, "base/$file", linerange)
+        ref = if isempty(Base.GIT_VERSION_INFO.commit)
+            "v$VERSION"
+        else
+            Base.GIT_VERSION_INFO.commit
+        end
+        repofile(julia_remote, ref, "base/$file", linerange)
     else
         path = relpath_from_repo_root(file)
-        path === nothing && return nothing
-        remote = (remote === nothing) ? Remotes.URL("https://github.com/$(getremote(dirname(file)))/blob/{commit}{path}#{line}") : remote
-        commit = (commit === nothing) ? repo_commit(file) : commit
-        # repo_commit() can return nothing if it runs into an error
-        # TODO: verify this error handling
-        if commit === nothing
-            @warn "Unable to determine remote URL" remote mod file linerange
-            return nothing
-        end
-        repofile(remote, commit, path, linerange)
+        # If we managed to determine a remote for the current file with getremote,
+        # then we use that information instead of the user-provided repo (doc.user.remote)
+        # argument to generate source links. This means that in the case where some
+        # docstrings come from another repository (like the DocumenterTools doc dependency
+        # for Documenter), then we generate the correct links, since we actually user the
+        # remote determined from the Git repository.
+        #
+        # In principle, this prevents the user from overriding the remote for the main
+        # repository if the repo is cloned from GitHub (e.g. when you clone from a fork, but
+        # want the source links to point to the upstream repository; however, this feels
+        # like a very unlikely edge case). If the repository is cloned from somewhere else
+        # than GitHub, then everything is fine --- getremote will fail and remote is
+        # `nothing`, in which case we fall back to using `repo`.
+        isnothing(remote) && (remote = repo)
+        commit = repo_commit(file)
+        isnothing(path) || isnothing(remote) ? nothing : repofile(remote, commit, path, linerange)
     end
 end
 
 """
-    getremote(dir::AbstractString) -> String
-
-Automagically tries to determine the remote repository, either from the Git origin URL, or
-from CI environment variables. `dir` specifies which repository's `origin` it tries to look
-up.
-
-Returns `"\$USER/\$REPOSITORY"`, or an empty string if it was not able to determine the
-remote.
+A [`Remote`](@ref) corresponding to the main Julia language repository.
 """
+const julia_remote = Remotes.GitHub("JuliaLang", "julia")
+
+const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.GitHub,Nothing}}()
+
 function getremote(dir::AbstractString)
-    # First, try to look for the Git repos origin:
-    remote = try
-        cd(() -> readchomp(`git config --get remote.origin.url`), dir)
-    catch err
-        ""
+    return get!(GIT_REMOTE_CACHE, dir) do
+        remote = try
+            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
+        catch
+            ""
+        end
+        m = match(LibGit2.GITHUB_REGEX, remote)
+        if isnothing(m)
+            # TODO: move this fallback out of getremote
+            remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+            try
+                # Remotes.GitHub(remote) can throw if there is no '/' in the string
+                return isnothing(remote) ? nothing : GitHub.Remote(remote)
+            catch
+                return nothing
+            end
+        else
+            return Remotes.GitHub(m[2], m[3])
+        end
     end
-    m = match(LibGit2.GITHUB_REGEX, remote)
-    (m === nothing) || return m[1]
-    # First fallback, should work on Travis:
-    travis_slug = get(ENV, "TRAVIS_REPO_SLUG", "")
-    isempty(travis_slug) || return travis_slug
-    # Second fallback, should work on GitHub Actions:
-    return get(ENV, "GITHUB_REPOSITORY", "")
 end
 
 """
@@ -509,7 +525,7 @@ Returns the first 5 characters of the current git commit hash of the directory `
 """
 function get_commit_short(dir)
     commit = cd(dir) do
-        readchomp(`git rev-parse HEAD`)
+        readchomp(`$(git()) rev-parse HEAD`)
     end
     (length(commit) > 5) ? commit[1:5] : commit
 end
@@ -526,10 +542,7 @@ end
 # Find line numbers.
 # ------------------
 
-function linerange(doc)
-    @info "linerange" doc
-    linerange(doc.text, doc.data[:linenumber])
-end
+linerange(doc) = linerange(doc.text, doc.data[:linenumber])
 
 function linerange(text, from)
     # text is assumed to be a Core.SimpleVector (svec) from the .text field of a Docs.DocStr object.
@@ -716,6 +729,94 @@ function check_strict_kw(strict)
         """))
     end
     return nothing
+end
+
+"""
+Calls `git remote show \$(remotename)` to try to determine the main (development) branch
+of the remote repository. Returns `master` and prints a warning if it was unable to figure
+it out automatically.
+
+`root` is the the directory where `git` gets run. `varname` is just informational and used
+to construct the warning messages.
+"""
+function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
+    gitcmd = git(nothrow = true)
+    if gitcmd === nothing
+        @warn """
+        Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
+        Unable to find the `git` binary. Unless this is due to a configuration error, the
+        relevant variable should be set explicitly.
+        """
+        return fallback
+    end
+    # We need to do addenv() here to merge the new variables with the environment set by
+    # Git_jll and the git() function.
+    cmd = addenv(
+        setenv(`$gitcmd remote show $(remotename)`, dir=root),
+        "GIT_TERMINAL_PROMPT" => "0",
+        "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
+    )
+    stderr_output = IOBuffer()
+    git_remote_output = try
+        read(pipeline(cmd; stderr = stderr_output), String)
+    catch e
+        @warn """
+        Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
+        Calling `git remote` failed with an exception. Set JULIA_DEBUG=Documenter to see the error.
+        Unless this is due to a configuration error, the relevant variable should be set explicitly.
+        """
+        @debug "Command: $cmd" exception = (e, catch_backtrace()) stderr = String(take!(stderr_output))
+        return fallback
+    end
+    m = match(r"^\s*HEAD branch:\s*(.*)$"m, git_remote_output)
+    if m === nothing
+        @warn """
+        Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
+        Failed to parse the `git remote` output. Set JULIA_DEBUG=Documenter to see the output.
+        Unless this is due to a configuration error, the relevant variable should be set explicitly.
+        """
+        @debug """
+        stdout from $cmd:
+        $(git_remote_output)
+        """
+        fallback
+    else
+        String(m[1])
+    end
+end
+
+# Check global draft setting
+is_draft(doc) = doc.user.draft
+# Check if the page is built with draft mode
+function is_draft(doc, page)::Bool
+    # Check both Draft and draft from @meta block
+    return get(page.globals.meta, :Draft, get(page.globals.meta, :draft, is_draft(doc)))
+end
+
+## Markdown Utilities.
+
+# Remove all header nodes from a markdown object and replace them with bold font.
+# Only for use in `text/plain` output, since we'll use some css to make these less obtrusive
+# in the HTML rendering instead of using this hack.
+function dropheaders(md::Markdown.MD)
+    out = Markdown.MD()
+    out.meta = md.meta
+    out.content = map(dropheaders, md.content)
+    out
+end
+dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
+dropheaders(v::Vector) = map(dropheaders, v)
+dropheaders(other) = other
+
+function git(; nothrow = false, kwargs...)
+    system_git_path = Sys.which("git")
+    if system_git_path === nothing
+        return nothrow ? nothing : error("Unable to find `git`")
+    end
+    # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
+    # We need to set this to something so that Git wouldn't pick up the user
+    # templates (e.g. from init.templateDir config).
+    return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
 end
 
 include("DOM.jl")

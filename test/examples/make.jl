@@ -1,10 +1,5 @@
 # Defines the modules referred to in the example docs (under src/) and then builds them.
 # It can be called separately to build the examples/, or as part of the test suite.
-#
-# It defines a set of variables (`examples_*`) that can be used in the tests.
-# The `examples_root` should be used to check whether this file has already been included
-# or not and should be kept unique.
-isdefined(@__MODULE__, :examples_root) && error("examples_root is already defined\n$(@__FILE__) included multiple times?")
 
 # The `Mod` and `AutoDocs` modules are assumed to exist in the Main module.
 (@__MODULE__) === Main || error("$(@__FILE__) must be included into Main.")
@@ -18,8 +13,8 @@ isdefined(@__MODULE__, :examples_root) && error("examples_root is already define
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["markdown", "html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
-    "html-local"]
+    ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
+    "html-local", "html-draft"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -164,7 +159,7 @@ function withassets(f, assets...)
 end
 
 # Build example docs
-using Documenter, DocumenterMarkdown
+using Documenter
 isdefined(@__MODULE__, :TestUtilities) || (include("../TestUtilities.jl"); using .TestUtilities)
 
 examples_root = @__DIR__
@@ -182,7 +177,6 @@ htmlbuild_pages = Any[
     "Library" => [
         "lib/functions.md",
         "lib/autodocs.md",
-        "lib/editurl.md",
     ],
     hide("Hidden Pages" => "hidden/index.md", Any[
         "Page X" => "hidden/x.md",
@@ -199,11 +193,16 @@ htmlbuild_pages = Any[
     "example-output.md",
     "fonts.md",
     "linenumbers.md",
+    "EditURL" => [
+        "editurl/good.md",
+        "editurl/bad.md",
+        "editurl/ugly.md",
+    ],
 ]
 
-function html_doc(build_directory, mathengine)
+function html_doc(build_directory, mathengine; htmlkwargs=(;), kwargs...)
     @quietly withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
-        makedocs(
+        makedocs(;
             debug = true,
             root  = examples_root,
             build = "builds/$(build_directory)",
@@ -212,7 +211,7 @@ function html_doc(build_directory, mathengine)
             pages = htmlbuild_pages,
             expandfirst = expandfirst,
             doctest = false,
-            format = Documenter.HTML(
+            format = Documenter.HTML(;
                 assets = [
                     "assets/favicon.ico",
                     "assets/custom.css",
@@ -225,7 +224,9 @@ function html_doc(build_directory, mathengine)
                 mathengine = mathengine,
                 highlights = ["erlang", "erlang-repl"],
                 footer = "This footer has been customized.",
-            )
+                htmlkwargs...
+            ),
+            kwargs...
         )
     end
 end
@@ -244,6 +245,7 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                 ),
             ),
         )),
+        htmlkwargs = (; edit_link = :commit),
     )
 else
     @info "Skipping build: HTML/deploy"
@@ -323,7 +325,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         sitename = "Documenter example",
         pages = htmlbuild_pages,
         expandfirst = expandfirst,
-
+        repo = "https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
         format = Documenter.HTML(
@@ -344,19 +346,19 @@ else
     nothing
 end
 
-# Markdown
-examples_markdown_doc = if "markdown" in EXAMPLE_BUILDS
-    @info("Building mock package docs: MarkdownWriter")
+# HTML: draft mode
+examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / draft build")
     @quietly makedocs(
-        format = Markdown(),
         debug = true,
+        draft = true,
         root  = examples_root,
-        build = "builds/markdown",
-        doctest = false,
-        expandfirst = expandfirst,
+        build = "builds/html-draft",
+        sitename = "Documenter example (draft)",
+        pages = htmlbuild_pages,
     )
 else
-    @info "Skipping build: Markdown"
+    @info "Skipping build: HTML/draft"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
@@ -408,7 +410,6 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
             "Library" => [
                 "lib/functions.md",
                 "lib/autodocs.md",
-                "lib/editurl.md",
             ],
             "Expandorder" => [
                 "expandorder/00.md",
@@ -492,7 +493,6 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
             "Library" => [
                 "lib/functions.md",
                 "lib/autodocs.md",
-                "lib/editurl.md",
             ],
             "Expandorder" => [
                 "expandorder/00.md",

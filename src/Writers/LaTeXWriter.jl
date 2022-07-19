@@ -103,11 +103,7 @@ const DOCUMENT_STRUCTURE = (
 
 # https://github.com/JuliaLang/julia/pull/32851
 function mktempdir(args...; kwargs...)
-    if VERSION < v"1.3.0-alpha.112"
-        return Base.mktempdir(args...; kwargs...)
-    else
-        return Base.mktempdir(args...; cleanup=false, kwargs...)
-    end
+    return Base.mktempdir(args...; cleanup=false, kwargs...)
 end
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
@@ -115,15 +111,14 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
-            name = doc.user.sitename
+            fileprefix = doc.user.sitename
             if occursin(Base.VERSION_REGEX, settings.version)
                 v = VersionNumber(settings.version)
-                name *= "-$(v.major).$(v.minor).$(v.patch)"
+                fileprefix *= "-$(v.major).$(v.minor).$(v.patch)"
             end
-            name = replace(name, " " => "")
-            texfile = name * ".tex"
-            pdffile = name * ".pdf"
-            open(texfile, "w") do io
+            fileprefix = replace(fileprefix, " " => "")
+
+            open("$(fileprefix).tex", "w") do io
                 context = Context(io)
                 writeheader(context, doc, settings)
                 for (title, filename, depth) in files(doc.user.pages)
@@ -150,7 +145,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             cp(STYLE, "documenter.sty")
 
             # compile .tex
-            status = compile_tex(doc, settings, texfile)
+            status = compile_tex(doc, settings, fileprefix)
 
             # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
             # source files over to a directory under doc.user.root.
@@ -163,6 +158,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
 
             # If the build was successful, copy the PDF or the LaTeX source to the .build directory
             if status && (settings.platform != "none")
+                pdffile = "$(fileprefix).pdf"
                 cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
             elseif status && (settings.platform == "none")
                 cp(pwd(), joinpath(doc.user.root, doc.user.build); force = true)
@@ -175,12 +171,12 @@ end
 
 const DOCKER_IMAGE_TAG = "0.1"
 
-function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
+function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::String)
     if settings.platform == "native"
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
-            piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $texfile`)
+            piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
             logs = cp(pwd(), mktempdir(); force=true)
@@ -193,7 +189,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
         tectonic = isnothing(settings.tectonic) ? Sys.which("tectonic") : settings.tectonic
         isnothing(tectonic) && (@error "LaTeXWriter: tectonic command not found."; return false)
         try
-            piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $texfile`)
+            piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
             logs = cp(pwd(), mktempdir(); force=true)
@@ -208,12 +204,12 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
             mkdir /home/zeptodoctor/build
             cd /home/zeptodoctor/build
             cp -r /mnt/. .
-            latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $texfile
+            latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $(fileprefix).tex
             """
         try
-            piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`)
+            piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`, clearlogs = true)
             piperun(`docker exec -u zeptodoctor latex-container bash -c $(script)`)
-            piperun(`docker cp latex-container:/home/zeptodoctor/build/. .`)
+            piperun(`docker cp latex-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
             return true
         catch err
             logs = cp(pwd(), mktempdir(); force=true)
@@ -229,10 +225,14 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, texfile::String)
     end
 end
 
-function piperun(cmd)
+function piperun(cmd; clearlogs = false)
     verbose = "--verbose" in ARGS || get(ENV, "DOCUMENTER_VERBOSE", "false") == "true"
-    run(pipeline(cmd, stdout = verbose ? stdout : "LaTeXWriter.stdout",
-                      stderr = verbose ? stderr : "LaTeXWriter.stderr"))
+    run(verbose ? cmd : pipeline(
+        cmd,
+        stdout = "LaTeXWriter.stdout",
+        stderr = "LaTeXWriter.stderr",
+        append = !clearlogs,
+    ))
 end
 
 function writeheader(io::IO, doc::Documents.Document, settings::LaTeX)
@@ -312,9 +312,9 @@ function latexdoc(io::IO, md::Markdown.MD, page, doc)
         # each markdown object. The `DocStr` contains data such as file and line info that
         # we need for generating correct scurce links.
         for (markdown, result) in zip(md.content, md.meta[:results])
-            latex(io, Writers.MarkdownWriter.dropheaders(markdown), page, doc)
+            latex(io, Utilities.dropheaders(markdown), page, doc)
             # When a source link is available then print the link.
-            url = Utilities.url(doc.user.remote, result)
+            url = Utilities.source_url(doc.user.remote, result)
             if url !== nothing
                 link = "\\href{$url}{\\texttt{source}}"
                 _println(io, "\n", link, "\n")
@@ -323,7 +323,7 @@ function latexdoc(io::IO, md::Markdown.MD, page, doc)
     else
         # Docstrings with no `:results` metadata won't contain source locations so we don't
         # try to print them out. Just print the basic docstring.
-        render(io, mime, dropheaders(md), page, doc)
+        render(io, mime, Utilities.dropheaders(md), page, doc)
     end
 end
 
