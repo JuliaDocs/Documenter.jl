@@ -12,7 +12,7 @@ test/errors/build/
 test/prerender/build/
 test/themes/dev/
 test/workdir/builds/
-test/quietly.log
+test/quietly-logs/
 docs/dev/
 docs/build/
 docs/build-pdf/
