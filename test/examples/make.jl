@@ -271,6 +271,7 @@ examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
             ),
             url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
         ),
+        htmlkwargs = (; edit_link = nothing, repolink = nothing),
     )
 else
     @info "Skipping build: HTML/deploy MathJax v2 (custom URL)"
@@ -335,8 +336,6 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
                 asset("https://plausible.io/js/plausible.js", class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
             ],
             prettyurls = false,
-            edit_link = nothing,
-            repolink = nothing,
             footer = nothing,
         ),
     )
