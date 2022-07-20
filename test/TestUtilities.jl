@@ -1,4 +1,4 @@
-module TestUtilities
+isdefined(Main, :TestUtilities) || @eval Main module TestUtilities
 using Test
 import IOCapture
 
