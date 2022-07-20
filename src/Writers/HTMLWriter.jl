@@ -1306,7 +1306,7 @@ const host_logo_azure     = (host = "Azure DevOps", logo = "\uf3ca") # microsoft
 const host_logo_fallback  = (host = "",             logo = "\uf841") # git-alt
 host_logo(remote::Remotes.GitHub) = host_logo_github
 host_logo(remote::Remotes.URL) = host_logo(remote.urltemplate)
-host_logo(remote::Remotes.Remote) = host_logo_fallback
+host_logo(remote::Union{Remotes.Remote,Nothing}) = host_logo_fallback
 function host_logo(remoteurl::String)
     occursin("github", remoteurl)    ? host_logo_github    :
     occursin("gitlab", remoteurl)    ? host_logo_gitlab    :
