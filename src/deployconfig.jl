@@ -513,7 +513,7 @@ function verify_github_pull_repository(repo, prnr)
         github_token === nothing && error("GITHUB_TOKEN missing")
         # Construct the curl call
         cmd = `curl -s`
-        push!(cmd.exec, "-S", "GET")
+        push!(cmd.exec, "-X", "GET")
         push!(cmd.exec, "-H", "Authorization: token $(github_token)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
@@ -866,7 +866,7 @@ pipeline:
    docs:
    image: julia
    environment:
-     - FORGE_URL=https://github.com/JuliaDocs/Documenter.jl
+     - FORGE_URL=github.com
    ...
 ```
 
@@ -877,7 +877,7 @@ pipeline:
    docs:
    image: julia
    commands:
-     - export FORGE_URL=https://github.com/JuliaDocs/Documenter.jl
+     - export FORGE_URL=github.com
    ...
 ```
 
@@ -956,7 +956,7 @@ function deploy_folder(
         ## Do not deploy for PRs
         event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
+        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"")
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.woodpecker_ref)
         branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
@@ -969,15 +969,15 @@ function deploy_folder(
         subfolder = devurl
     else # build_type === :preview
         m = match(r"refs\/pull\/(\d+)\/merge", cfg.woodpecker_ref)
-        pr_number = tryparse(Int, m === nothing ? "" : m.captures[1])
-        pr_ok = pr_number !== nothing
+        pr_number1 = tryparse(Int, m === nothing ? "" : m.captures[1])
+        pr_number2 = tryparse(Int, get(ENV, "CI_COMMIT_PULL_REQUEST", nothing) === nothing ? "" : ENV["CI_COMMIT_PULL_REQUEST"])
+        # Check if both are Ints. If both are Ints, then check if they are equal, otherwise, return false
+        pr_numbers_ok = all(x -> x isa Int, [pr_number1, pr_number2]) ? (pr_number1 == pr_number2) : false
+        is_pull_request_ok = get(ENV, "CI_BUILD_EVENT", "") == "pull_request"
+        pr_ok = pr_numbers_ok == is_pull_request_ok
         all_ok &= pr_ok
-        println(io, "- $(marker(pr_ok)) ENV[\"CI_COMMIT_REF\"] corresponds to a PR number")
-        if pr_ok
-            pr_origin_matches_repo = verify_github_pull_repository(cfg.woodpecker_repo, pr_number)
-            all_ok &= pr_origin_matches_repo
-            println(io, "- $(marker(pr_origin_matches_repo)) PR originates from the same repository")
-        end
+        println(io, "- $(marker(pr_numbers_ok)) ENV[\"CI_COMMIT_REF\"] corresponds to a PR")
+        println(io, "- $(marker(is_pull_request_ok)) ENV[\"CI_BUILD_EVENT\"] matches built type: `pull_request`")
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
@@ -985,7 +985,7 @@ function deploy_folder(
         deploy_repo = repo_previews
         is_preview = true
         ## deploydocs to previews/PR
-        subfolder = "previews/PR$(something(pr_number, 0))"
+        subfolder = "previews/PR$(something(pr_number1, 0))"
     end
 
     owner_ok = env_nonempty("CI_REPO_OWNER")
@@ -1023,19 +1023,17 @@ end
 
 authentication_method(::Woodpecker) = Documenter.HTTPS
 function authenticated_repo_url(cfg::Woodpecker)
-    if !isnothing(get(ENV, "FORGE_URL", nothing))
+    if haskey(ENV, "FORGE_URL")
         return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
     else
         # Regex will return the root of the URL e.g. https://github.com/JuliaDocs/Documenter.jl → github.com
-        # `CI_REPO_LINK` is an env var which returns a repository link e.g. https://github.com/JuliaDocs/Documenter.jl
-        m = match(r"https?:\/\/(?:.*\.)*(.+\..+?)\/", get(ENV, "CI_REPO_LINK", ""))      
+        # `CI_REPO_LINK` is a built-in env var which returns a repository link e.g. https://github.com/JuliaDocs/Documenter.jl
+        # See https://woodpecker-ci.org/docs/usage/environment to check the environment-variable 
+        m = match(r"https?:\/\/(?:.*\.)*(.+\..+?)\/", get(ENV, "CI_REPO_LINK", ""))
+        isnothing(m) && @warn "Cannot get root of the URL. Please set a `FORGE_URL` environment-variable as a workaround"
         FORGE_URL=m.captures[1]
-        if !isempty(FORGE_URL)
-            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(FORGE_URL)/$(cfg.woodpecker_repo).git"
-        end
+        return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(FORGE_URL)/$(cfg.woodpecker_repo).git"
     end
-  # Otherwise, raise an error
-    error("No repository URL or link found. Please check link or your `FORGE_URL` environment-variable again.")
 end
 
 ##################
