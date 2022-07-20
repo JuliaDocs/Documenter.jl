@@ -379,7 +379,7 @@ macro examplebuild(name, block)
 end
 function html_repo(name; travis = nothing, gha = nothing, kwargs...)
     withenv("TRAVIS_REPO_SLUG" => travis, "GITHUB_REPOSITORY" => gha) do
-        makedocs(;
+        @quietly makedocs(;
             sitename = "Documenter Repo ($name)",
             build = joinpath(examples_root, "builds/html-repo-$(name)"),
             pages = ["Main section" => ["index.md"]],
