@@ -494,7 +494,7 @@ A [`Remote`](@ref) corresponding to the main Julia language repository.
 const julia_remote = Remotes.GitHub("JuliaLang", "julia")
 
 """
-Stores the memoized results of [`get_git_remote`](@ref).
+Stores the memoized results of [`getremote`](@ref).
 """
 const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.GitHub,Nothing}}()
 
