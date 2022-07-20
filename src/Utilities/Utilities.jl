@@ -510,7 +510,7 @@ The results for a given directory are memoized in [`GIT_REMOTE_CACHE`](@ref), si
 `git` is expensive and it is often called on the same directory over and over again.
 """
 function getremote(dir::AbstractString)
-    #isdir(dir) || error("getremote called with non-directory: $(dir)")
+    isdir(dir) || return nothing
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
             readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))

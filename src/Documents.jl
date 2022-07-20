@@ -212,6 +212,12 @@ mutable struct NavNode
     next           :: Union{NavNode, Nothing}
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
+# This method ensures that we do not print the whole navtree in case we ever happen to print
+# a NavNode in some debug output somewhere.
+function Base.show(io::IO, n::NavNode)
+    parent = isnothing(n.parent) ? "nothing" : "NavNode($(repr(n.parent.page)), ...)"
+    print(io, "NavNode($(repr(n.page)), $(repr(n.title_override)), $(parent))")
+end
 
 """
 Constructs a list of the ancestors of the `navnode` (inclding the `navnode` itself),
