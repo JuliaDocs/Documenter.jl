@@ -1,7 +1,7 @@
-isdefined(@__MODULE__, :TestUtilities) || include("TestUtilities.jl")
 using Documenter: Documenter, deploydocs
 using Documenter.Utilities: git
-using Test, ..TestUtilities
+using Test
+include("TestUtilities.jl"); using Main.TestUtilities
 
 struct TestDeployConfig <: Documenter.DeployConfig
     repo_path :: String

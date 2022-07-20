@@ -1,6 +1,6 @@
 using Test
 import Documenter
-include("TestUtilities.jl"); using .TestUtilities
+include("TestUtilities.jl"); using Main.TestUtilities
 
 @testset "Documenter" begin
     # Build the example docs

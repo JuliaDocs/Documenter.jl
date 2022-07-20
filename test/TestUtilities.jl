@@ -1,26 +1,52 @@
-module TestUtilities
+isdefined(Main, :TestUtilities) || @eval Main module TestUtilities
 using Test
 import IOCapture
 
 export @quietly, trun
 
-const QUIETLY_LOG = joinpath(@__DIR__, "quietly.log")
+const QUIETLY_LOG_DIR = joinpath(@__DIR__, "quietly-logs")
+const QUIETLY_LOG_COUNTER = Ref{Int}(0)
 
-__init__() = isfile(QUIETLY_LOG) && rm(QUIETLY_LOG)
+quietly_logs_enabled() = haskey(ENV, "DOCUMENTER_TEST_QUIETLY")
+
+function quietly_logfile(n)
+    logid = lpad(n, 4, '0')
+    logid, joinpath(QUIETLY_LOG_DIR, "quietly.$(logid).log")
+end
+function quietly_next_log()
+    quietly_logs_enabled() || return nothing, nothing
+    isdir(QUIETLY_LOG_DIR) || mkdir(QUIETLY_LOG_DIR)
+    # Find the next availble log file
+    logid, logfile = quietly_logfile(QUIETLY_LOG_COUNTER[])
+    while isfile(logfile)
+        QUIETLY_LOG_COUNTER[] += 1
+        logid, logfile = quietly_logfile(QUIETLY_LOG_COUNTER[])
+    end
+    return logid, logfile
+end
+
+function __init__()
+    # We only clean up the old log files if DOCUMENTER_TEST_QUIETLY is set
+    quietly_logs_enabled() || return
+    isdir(QUIETLY_LOG_DIR) && rm(QUIETLY_LOG_DIR, recursive=true)
+end
 
 struct QuietlyException <: Exception
+    logid :: Union{String,Nothing}
     exception
     backtrace
 end
 
 function Base.showerror(io::IO, e::QuietlyException)
-    println(io, "@quietly hit an exception ($(typeof(e.exception))):")
+    prefix = isnothing(e.logid) ? "@quietly" : "@quietly[$logid]"
+    println(io, "$(prefix) hit an exception ($(typeof(e.exception))):")
     showerror(io, e.exception, e.backtrace)
 end
 
 function _quietly(f, expr, source)
     c = IOCapture.capture(f; rethrow = InterruptException)
-    haskey(ENV, "DOCUMENTER_TEST_QUIETLY") && open(QUIETLY_LOG; write=true, append=true) do io
+    logid, logfile = quietly_next_log()
+    isnothing(logid) || open(logfile; write=true, append=true) do io
         println(io, "@quietly: c.error = $(c.error) / $(sizeof(c.output)) bytes of output captured")
         println(io, "@quietly: $(source.file):$(source.line)")
         println(io, "@quietly: typeof(result) = ", typeof(c.value))
@@ -35,34 +61,35 @@ function _quietly(f, expr, source)
             println(io, c.value)
         end
     end
+    prefix = isnothing(logid) ? "@quietly" : "@quietly[$logid]"
     if c.error
         @error """
-        An error was thrown in @quietly, $(sizeof(c.output)) bytes of output captured
+        $(prefix): an error was thrown, $(sizeof(c.output)) bytes of output captured
         $(typeof(c.value)) at $(source.file):$(source.line) in expression:
         $(expr)
         """
         if !isempty(c.output)
-            printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
+            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color=:magenta)
             print(c.output)
             last(c.output) != "\n" && println()
-            printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
+            printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color=:magenta)
         end
-        throw(QuietlyException(c.value, c.backtrace))
+        throw(QuietlyException(logid, c.value, c.backtrace))
     elseif c.value isa Test.DefaultTestSet && !is_success(c.value)
         @error """
-        @quietly: a testset with failures, $(sizeof(c.output)) bytes of output captured
+        $(prefix): a testset with failures, $(sizeof(c.output)) bytes of output captured
         $(typeof(c.value)) at $(source.file):$(source.line) in expression:
         $(expr)
         """ TestSet = c.value
         if !isempty(c.output)
-            printstyled("$("="^21) @quietly: output from the expression $("="^21)\n"; color=:magenta)
+            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color=:magenta)
             print(c.output)
             last(c.output) != "\n" && println()
-            printstyled("$("="^27) @quietly: end of output $("="^28)\n"; color=:magenta)
+            printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color=:magenta)
         end
         return c.value
     else
-        printstyled("@quietly: success, $(sizeof(c.output)) bytes of output hidden\n"; color=:magenta)
+        printstyled("$(prefix): success, $(sizeof(c.output)) bytes of output hidden\n"; color=:magenta)
         return c.value
     end
 end

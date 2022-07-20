@@ -1,3 +1,6 @@
+using Documenter
+include("../TestUtilities.jl"); using Main.TestUtilities
+
 # Defines the modules referred to in the example docs (under src/) and then builds them.
 # It can be called separately to build the examples/, or as part of the test suite.
 
@@ -160,8 +163,6 @@ function withassets(f, assets...)
 end
 
 # Build example docs
-using Documenter
-isdefined(@__MODULE__, :TestUtilities) || (include("../TestUtilities.jl"); using .TestUtilities)
 
 examples_root = @__DIR__
 builds_directory = joinpath(examples_root, "builds")
