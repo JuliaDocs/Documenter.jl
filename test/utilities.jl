@@ -1,9 +1,8 @@
 module UtilitiesTests
-
 using Test
 using Logging: Info
 import Base64: stringmime
-include("TestUtilities.jl"); using .TestUtilities
+include("TestUtilities.jl"); using Main.TestUtilities
 
 import Documenter
 using Documenter.Utilities: git

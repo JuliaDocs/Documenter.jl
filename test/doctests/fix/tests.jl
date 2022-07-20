@@ -2,10 +2,9 @@
 #
 # DOCUMENTER_TEST_DEBUG= JULIA_DEBUG=all julia test/doctests/fix/tests.jl
 #
-isdefined(@__MODULE__, :TestUtilities) || (include("../../TestUtilities.jl"); using .TestUtilities)
 module DocTestFixTest
 using Documenter, Test
-using ..TestUtilities: @quietly
+include("../../TestUtilities.jl"); using Main.TestUtilities: @quietly
 
 # Type to reliably show() objects across Julia versions:
 @eval Main begin
