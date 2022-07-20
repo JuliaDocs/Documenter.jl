@@ -8,7 +8,7 @@
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
-* ![Enhancement][badge-enhancement] Documenter can now be configured to show a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
+* ![Enhancement][badge-enhancement] Documenter now shows a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
 * ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). ([#1808][github-1808])
 * ![Enhancement][badge-enhancement] Broken issue references (i.e. links like `[#1234](@ref)`, but when Documenter is unable to determine the remote GitHub repository) now generate `:cross_references` errors that can be caught via the `strict` keyword. ([#1808][github-1808])
 
