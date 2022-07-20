@@ -1,7 +1,7 @@
-isdefined(@__MODULE__, :TestUtilities) || include("../TestUtilities.jl")
 module MissingDocsTests
-using Test, ..TestUtilities
+using Test
 using Documenter
+include("../TestUtilities.jl"); using Main.TestUtilities
 
 module MissingDocs
     export f
