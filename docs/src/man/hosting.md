@@ -417,6 +417,37 @@ jobs:
 
 _This workflow was taken from [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
+## Woodpecker CI
+
+To run a documentation build from Woodpecker CI, one should create an access token
+from their forge of choice: GitHub, GitLab, or Codeberg (or any Gitea instance). 
+This access token should be added to Woodpecker CI as a secret named as
+`project_access_token` - all lowercase. Next, create a new pipeline configuration file
+called `.woodpecker.yml` with the following contents:
+
+```yaml
+pipeline:
+	docs:
+		when:
+			branch: main  # update to match your development branch
+		image: julia
+		commands:
+			- julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+			- julia --project=docs/ docs/make.jl
+		secrets: [ project_access_token ]  # access token is a secret
+
+```
+
+This will pull an image of julia from docker and run the following commands from
+`commands:` which instantiates the project for development and then runs the `make.jl`
+file and builds and deploys the documentation to a branch which defaults to `pages`
+which you can modify to something else e.g. GitHub → gh-pages, Codeberg → pages.
+
+!!! tip
+	The example above is a basic pipeline that suits most projects. Further information
+	on how to customize your pipelines can be found in the official woodpecker
+	documentation: [Woodpecker CI](https://woodpecker-ci.org/docs/intro).
+
 ## Documentation Versions
 
 !!! note
@@ -536,4 +567,5 @@ Documenter.Travis
 Documenter.GitHubActions
 Documenter.GitLab
 Documenter.Buildkite
+Documenter.Woodpecker
 ```
