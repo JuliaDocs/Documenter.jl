@@ -32,12 +32,14 @@ function __init__()
 end
 
 struct QuietlyException <: Exception
+    logid :: Union{String,Nothing}
     exception
     backtrace
 end
 
 function Base.showerror(io::IO, e::QuietlyException)
-    println(io, "@quietly hit an exception ($(typeof(e.exception))):")
+    prefix = isnothing(e.logid) ? "@quietly" : "@quietly[$logid]"
+    println(io, "$(prefix) hit an exception ($(typeof(e.exception))):")
     showerror(io, e.exception, e.backtrace)
 end
 
@@ -62,7 +64,7 @@ function _quietly(f, expr, source)
     prefix = isnothing(logid) ? "@quietly" : "@quietly[$logid]"
     if c.error
         @error """
-        An error was thrown in $(prefix), $(sizeof(c.output)) bytes of output captured
+        $(prefix): an error was thrown, $(sizeof(c.output)) bytes of output captured
         $(typeof(c.value)) at $(source.file):$(source.line) in expression:
         $(expr)
         """
@@ -72,7 +74,7 @@ function _quietly(f, expr, source)
             last(c.output) != "\n" && println()
             printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color=:magenta)
         end
-        throw(QuietlyException(c.value, c.backtrace))
+        throw(QuietlyException(logid, c.value, c.backtrace))
     elseif c.value isa Test.DefaultTestSet && !is_success(c.value)
         @error """
         $(prefix): a testset with failures, $(sizeof(c.output)) bytes of output captured
