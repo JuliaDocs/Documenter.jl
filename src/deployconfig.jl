@@ -881,14 +881,14 @@ pipeline:
    ...
 ```
 
-More about pipeline syntax is documented here: https://woodpecker-ci.org/docs/usage/pipeline-syntax
+More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/pipeline-syntax>
 
 Lastly, another environment-variable used for authentication is
 the `PROJECT_ACCESS_TOKEN` which is an access token you defined by 
 the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea 
 instances. Check their documentation on how to create an access token. 
 This access token should be then added as a secret as documented in 
-https://woodpecker-ci.org/docs/usage/secrets. 
+<https://woodpecker-ci.org/docs/usage/secrets>.
 """
 struct Woodpecker <: DeployConfig
     woodpecker_repo::String
