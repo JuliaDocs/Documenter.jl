@@ -59,6 +59,13 @@ end
     @test length(navpath) == 3
     @test navpath[1] === section
     @test navpath[3] === navlist[5]
+
+    @test repr(navlist[1]) == "NavNode(\"page1.md\", nothing, nothing)"
+    @test repr(navlist[2]) == "NavNode(\"page2.md\", \"Page2\", nothing)"
+    @test repr(navlist[3]) == "NavNode(\"page3.md\", nothing, NavNode(nothing, ...))"
+    @test repr(navlist[4]) == "NavNode(\"page4.md\", \"Page4\", NavNode(nothing, ...))"
+    @test repr(navlist[5]) == "NavNode(\"page5.md\", nothing, NavNode(nothing, ...))"
+    @test repr(navlist[6]) == "NavNode(\"page6.md\", nothing, nothing)"
 end
 
 end

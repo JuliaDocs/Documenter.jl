@@ -17,7 +17,8 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
     ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
-    "html-local", "html-draft"]
+    "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
+    "html-repo-nothing", "html-repo-error"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -271,6 +272,7 @@ examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
             ),
             url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
         ),
+        htmlkwargs = (; edit_link = nothing, repolink = nothing),
     )
 else
     @info "Skipping build: HTML/deploy MathJax v2 (custom URL)"
@@ -335,7 +337,6 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
                 asset("https://plausible.io/js/plausible.js", class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
             ],
             prettyurls = false,
-            edit_branch = nothing,
             footer = nothing,
         ),
     )
@@ -360,6 +361,62 @@ else
     @info "Skipping build: HTML/draft"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
+end
+
+# HTML: A few simple builds testing the repo keyword fallbacks
+macro examplebuild(name, block)
+    docvar = Symbol("examples_html_", replace(name, "-" => "_"), "_doc")
+    fullname = "html-$(name)"
+    quote
+        $(esc(docvar)) = if $(fullname) in EXAMPLE_BUILDS
+            $(block)
+        else
+            @info string("Skipping build: HTML/", $(name))
+            @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+            nothing
+        end
+    end
+end
+function html_repo(name; travis = nothing, gha = nothing, kwargs...)
+    withenv("TRAVIS_REPO_SLUG" => travis, "GITHUB_REPOSITORY" => gha) do
+        @quietly makedocs(;
+            sitename = "Documenter Repo ($name)",
+            build = joinpath(examples_root, "builds/html-repo-$(name)"),
+            pages = ["Main section" => ["index.md"]],
+            doctest = false,
+            debug = true,
+            kwargs...,
+        )
+    end
+end
+@examplebuild "repo-git" begin
+    # should pick up JuliaDocs/Documenter.jl remote from Documenter's repo
+    html_repo("git", root = examples_root, source = "src.latex_simple")
+end
+# The other builds run in a clean directory, so they should try the fallbacks
+@examplebuild "repo-gha" begin
+    mktempdir() do dir
+        cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
+        html_repo("git", root=dir, travis=nothing, gha="foo/bar")
+    end
+end
+@examplebuild "repo-travis" begin
+    mktempdir() do dir
+        cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
+        html_repo("travis", root=dir, travis="bar/baz", gha="foo/bar")
+    end
+end
+@examplebuild "repo-nothing" begin
+    mktempdir() do dir
+        cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
+        html_repo("nothing", root=dir, travis=nothing, gha=nothing)
+    end
+end
+@examplebuild "repo-error" begin
+    mktempdir() do dir
+        cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
+        html_repo("error", root=dir, travis="foo", gha="bar")
+    end
 end
 
 # PDF/LaTeX
