@@ -494,6 +494,7 @@ end end
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/tags/v1.2.3",
+            "CI_COMMIT_TAG" => "v1.2.3",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "FORGE_URL" => nothing,
         ) do
@@ -516,6 +517,7 @@ end end
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/tags/not-a-version",
+            "CI_COMMIT_TAG" => "not-a-version",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "FORGE_URL" => nothing,
         ) do
@@ -532,6 +534,7 @@ end end
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/heads/master",
+            "CI_COMMIT_TAG" => nothing,
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "FORGE_URL" => nothing,
         ) do

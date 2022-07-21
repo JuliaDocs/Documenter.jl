@@ -855,8 +855,16 @@ Implementation of `DeployConfig` for deploying from Woodpecker CI.
 The following environmental variables are built-in from the Woodpecker pipeline
 influences how `Documenter` works:
  - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
+ - `CI_REPO_LINK`: must match the full link to the project repo
  - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
+ - `CI_COMMIT_TAG`: must match to a tag.
+ - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
+ - `CI_REPO_OWNER`: must return the value of the repo owner. Real names are not necessary.
+
+The following user-defined environmental variables influences how `Documenter` works:
+ - `PROJECT_ACCESS_TOKEN`: user generated access token from a forge e.g. GitHub, GitLab, Codeberg to be used as a secret.
+ - `FORGE_URL`: user-defined env var to be used for authentication. Optional.
 
 User can define the `FORGE_URL` variable and add it to their Woodpecker pipeline definition:
 
@@ -891,7 +899,10 @@ This access token should be then added as a secret as documented in
 <https://woodpecker-ci.org/docs/usage/secrets>.
 """
 struct Woodpecker <: DeployConfig
+    woodpecker_repo_link::String
+    woodpecker_forge_url::String
     woodpecker_repo::String
+    woodpecker_tag::String
     woodpecker_event_name::String
     woodpecker_ref::String
 end
@@ -903,10 +914,16 @@ Initialize woodpecker environment-variables. Further info of
 environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
 """
 function Woodpecker()
+    woodpecker_repo_link = get(ENV, "CI_REPO_LINK", "")
+    m = match(r"https?:\/\/(?:.+\.)*(.+\..+?)\/", woodpecker_repo_link)
+    # Get the forge URL, otherwise, if the value is `nothing`,
+    # Then use the woodpecker_repo_link
+    woodpecker_forge_url = isnothing(m) ? woodpecker_repo_link : m.captures[1]
+    woodpecker_tag = get(ENV, "CI_COMMIT_TAG", "")
     woodpecker_repo = get(ENV, "CI_REPO", "")  # repository full name <owner>/<name>
     woodpecker_event_name = get(ENV, "CI_BUILD_EVENT", "")  # build event (push, pull_request, tag, deployment)
     woodpecker_ref = get(ENV, "CI_COMMIT_REF", "")  # commit ref
-    return Woodpecker(woodpecker_repo, woodpecker_event_name, woodpecker_ref)
+    return Woodpecker(woodpecker_repo_link, woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
 end
 
 function deploy_folder(
@@ -931,6 +948,12 @@ function deploy_folder(
 
     println(io, "Deployment criteria for deploying $(build_type) build from Woodpecker-CI")
     ## The deploydocs' repo should match CI_REPO
+    #
+    repo_link_ok = !isempty(cfg.woodpecker_repo_link)  # if repo link is an empty string then it is not valid
+    all_ok &= repo_link_ok
+    forge_url_ok = !isempty(cfg.woodpecker_forge_url)  # if the forge url is an empty string, it is not a valid url
+    all_ok &= forge_url_ok
+
     repo_ok = occursin(cfg.woodpecker_repo, repo)
     all_ok &= repo_ok
     println(io, "- $(marker(repo_ok)) ENV[\"CI_REPO\"]=\"$(cfg.woodpecker_repo)\" occursin in re
@@ -940,17 +963,15 @@ function deploy_folder(
         event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
         all_ok &= event_ok
         println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
-        ## If a tag exist it should be a valid VersionNumber
-        m = match(r"^refs\/tags\/(.*)$", cfg.woodpecker_ref)
-        tag_nobuild = version_tag_strip_build(m.captures[1])
+        tag_nobuild = version_tag_strip_build(cfg.woodpecker_tag)
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
-        println(io, "- $(marker(tag_ok)) ENV[\"CI_COMMIT_REF\"]=\"$(cfg.woodpecker_ref)\" contains a valid VersionNumber")
+        println(io, "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"]=\"$(cfg.woodpecker_tag)\" contains a valid VersionNumber")
         deploy_branch = branch
         deploy_repo = repo
         is_preview = false
         ## Deploy to folder according to the tag
-        subfolder = m === nothing ? nothing : tag_nobuild
+        subfolder = tag_nobuild
     elseif build_type === :devbranch
         ## Do not deploy for PRs
         event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
@@ -958,7 +979,7 @@ function deploy_folder(
         println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"")
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.woodpecker_ref)
-        branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
+        branch_ok = (m === nothing) ? false : String(m.captures[1]) == devbranch
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"CI_COMMIT_REF\"] matches devbranch=\"$(devbranch)\"")
         deploy_branch = branch
@@ -968,7 +989,7 @@ function deploy_folder(
         subfolder = devurl
     else # build_type === :preview
         m = match(r"refs\/pull\/(\d+)\/merge", cfg.woodpecker_ref)
-        pr_number1 = tryparse(Int, m === nothing ? "" : m.captures[1])
+        pr_number1 = tryparse(Int, (m === nothing) ? "" : m.captures[1])
         pr_number2 = tryparse(Int, get(ENV, "CI_COMMIT_PULL_REQUEST", nothing) === nothing ? "" : ENV["CI_COMMIT_PULL_REQUEST"])
         # Check if both are Ints. If both are Ints, then check if they are equal, otherwise, return false
         pr_numbers_ok = all(x -> x isa Int, [pr_number1, pr_number2]) ? (pr_number1 == pr_number2) : false
@@ -987,17 +1008,12 @@ function deploy_folder(
         subfolder = "previews/PR$(something(pr_number1, 0))"
     end
 
-    owner_ok = env_nonempty("CI_REPO_OWNER")
     token_ok = env_nonempty("PROJECT_ACCESS_TOKEN")
-    auth_ok = owner_ok | token_ok
+    auth_ok = token_ok
     all_ok &= auth_ok
 
     if token_ok
         println(io, "- $(marker(token_ok)) ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
-    end
-
-    if owner_ok
-        println(io, "- $(marker(owner_ok)) ENV[\"CI_REPO_OWNER\"] exists and is non-empty")
     end
 
     print(io, "Deploying: $(marker(all_ok))")
@@ -1022,17 +1038,18 @@ end
 
 authentication_method(::Woodpecker) = Documenter.HTTPS
 function authenticated_repo_url(cfg::Woodpecker)
+    # `cfg.woodpecker_forge_url` should be just the root of the URL e.g. github.com, gitlab.com, codeberg.org
+    # otherwise, it will be equal to `cfg.woodpecker_repo_link`
+    # If so, we just split the `http(s)://` from the string we want 
+    # e.g. `https://github.com/JuliaDocs/Documenter.jl` to `github.com/JuliaDocs/Documenter.jl`.
     if haskey(ENV, "FORGE_URL")
         return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
     else
-        # Regex will return the root of the URL e.g. https://github.com/JuliaDocs/Documenter.jl → github.com
-        # `CI_REPO_LINK` is a built-in env var which returns a repository link e.g. https://github.com/JuliaDocs/Documenter.jl
-        # The variable is passed through the pipeline during the runs.
-        # See https://woodpecker-ci.org/docs/usage/environment to check the environment-variable 
-        m = match(r"https?:\/\/(?:.+\.)*(.+\..+?)\/", get(ENV, "CI_REPO_LINK", "")) 
-        forge_url = m !== nothing ? m.captures[1] : ""  # if `nothing`, just give an empty string so deploydocs can use it
-                                                        # even though we know that errors 
-        return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(forge_url)/$(cfg.woodpecker_repo).git"
+        if occursin(cfg.woodpecker_repo, cfg.woodpecker_forge_url)
+            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(split(cfg.woodpecker_forge_url, r"https?://")[2]).git"
+        else
+            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(cfg.woodpecker_forge_url)/$(cfg.woodpecker_repo).git"
+        end
     end
 end
 
