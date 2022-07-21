@@ -1028,11 +1028,12 @@ function authenticated_repo_url(cfg::Woodpecker)
     else
         # Regex will return the root of the URL e.g. https://github.com/JuliaDocs/Documenter.jl → github.com
         # `CI_REPO_LINK` is a built-in env var which returns a repository link e.g. https://github.com/JuliaDocs/Documenter.jl
+        # The variable is passed through the pipeline during the runs.
         # See https://woodpecker-ci.org/docs/usage/environment to check the environment-variable 
-        m = match(r"https?:\/\/(?:.*\.)*(.+\..+?)\/", get(ENV, "CI_REPO_LINK", ""))
-        isnothing(m) && @warn "Cannot get root of the URL. Please set a `FORGE_URL` environment-variable as a workaround"
-        FORGE_URL=m.captures[1]
-        return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(FORGE_URL)/$(cfg.woodpecker_repo).git"
+        m = match(r"https?:\/\/(?:.+\.)*(.+\..+?)\/", get(ENV, "CI_REPO_LINK", "")) 
+        forge_url = m !== nothing ? m.captures[1] : ""  # if `nothing`, just give an empty string so deploydocs can use it
+                                                        # even though we know that errors 
+        return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(forge_url)/$(cfg.woodpecker_repo).git"
     end
 end
 
