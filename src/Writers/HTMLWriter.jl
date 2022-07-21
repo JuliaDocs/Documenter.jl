@@ -53,7 +53,7 @@ import ...Documenter:
     Utilities,
     Writers
 
-using ...Utilities: Default
+using ...Utilities: Default, Remotes
 using ...Utilities.JSDependencies: JSDependencies, json_jsescape
 import ...Utilities.DOM: DOM, Tag, @tags
 using ...Utilities.MDFlatten
@@ -305,10 +305,15 @@ gather information about the current commit hash and file paths, necessary for c
 the links to the remote repository.
 
 **`edit_link`** can be used to specify which branch, tag or commit (when passed a `String`)
-in the remote repository the "Edit on ..." links point to. If a special `Symbol` value
-`:commit` is passed, the current commit will be used instead. If set to `nothing`, the
-link edit link will be hidden altogether. Default value is `"master"`, making the edit link
-point to the master branch.
+in the remote repository the edit buttons point to. If a special `Symbol` value `:commit`
+is passed, the current commit will be used instead. If set to `nothing`, the link edit link
+will be hidden altogether. By default, Documenter tries to determine it automatically by
+looking at the `origin` remote, and falls back to `"master"` if that fails.
+
+**`repolink`** can be used to override the URL of the Git repository link in the top navbar
+(if passed a `String`). By default, Documenter attempts to determine the link from the Git
+remote of the repository (e.g. specified via the `remote` argument of
+[`makedocs`](@ref Documenter.makedocs)). Passing a `nothing` disables the repository link.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend
 you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
@@ -402,6 +407,7 @@ struct HTML <: Documenter.Writer
     prettyurls    :: Bool
     disable_git   :: Bool
     edit_link     :: Union{String, Symbol, Nothing}
+    repolink      :: Union{String, Nothing, Default{Nothing}}
     canonical     :: Union{String, Nothing}
     assets        :: Vector{HTMLAsset}
     analytics     :: String
@@ -420,6 +426,7 @@ struct HTML <: Documenter.Writer
     function HTML(;
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
+            repolink      :: Union{String, Nothing, Default} = Default(nothing),
             edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Utilities.git_remote_head_branch("HTML(edit_link = ...)", Utilities.currentdir())),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
@@ -469,7 +476,7 @@ struct HTML <: Documenter.Writer
             end
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
-        new(prettyurls, disable_git, edit_link, canonical, assets, analytics,
+        new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs)
     end
@@ -718,6 +725,17 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         error("Aborting HTML build: no pages under src/")
     elseif !haskey(doc.blueprint.pages, "index.md")
         @warn "Can't generate landing page (index.html): src/index.md missing" keys(doc.blueprint.pages)
+    end
+
+    if isa(settings.repolink, Default) && (isnothing(doc.user.remote) || Remotes.repourl(doc.user.remote) === nothing)
+        @warn """
+        Unable to determine the repository root URL for the navbar link.
+        This can happen when a string is passed to the `repo` keyword of `makedocs`.
+
+        To remove this warning, either pass a Remotes.Remote object to `repo` to completely
+        specify the remote repository, or explicitly set the remote URL by setting `repolink`
+        via `makedocs(format = HTML(repolink = "..."), ...)`.
+        """
     end
 
     ctx = HTMLContext(doc, settings)
@@ -1178,64 +1196,123 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     # The "Edit on GitHub" links and the hamburger to open the sidebar (on mobile) float right
     navbar_right = div[".docs-right"]
 
-    # Set the logo and name for the "Edit on.." button.
-    if edit_page_link && (ctx.settings.edit_link !== nothing) && !ctx.settings.disable_git
-        host_type = Utilities.repo_host_from_url(ctx.doc.user.remote)
-        if host_type == Utilities.RepoGitlab
-            host = "GitLab"
-            logo = "\uf296"
-        elseif host_type == Utilities.RepoGithub
-            host = "GitHub"
-            logo = "\uf09b"
-        elseif host_type == Utilities.RepoBitbucket
-            host = "BitBucket"
-            logo = "\uf171"
-        elseif host_type == Utilities.RepoAzureDevOps
-            host = "Azure DevOps"
-            logo = "\uf3ca" # TODO change to ADO logo when added to FontAwesome
-        else
-            host = ""
-            logo = "\uf15c"
+    # Set up the link to the root of the remote Git repository
+    #
+    # By default, we try to determine it from the configured remote. If that fails, the link
+    # is not displayed. The user can also pass `repolink` to HTML to either disable it
+    # (repolink = nothing) or override the link URL (if set to a string). In the latter case,
+    # we try to figure out what icon and string we should use based on the URL.
+    if !isnothing(ctx.settings.repolink) && (ctx.settings.repolink isa String || ctx.doc.user.remote isa Remotes.Remote)
+        url, (host, logo) = if ctx.settings.repolink isa String
+            ctx.settings.repolink, host_logo(ctx.settings.repolink)
+        else # ctx.doc.user.remote isa Remotes.Remote
+            Remotes.repourl(ctx.doc.user.remote), host_logo(ctx.doc.user.remote)
         end
-        hoststring = isempty(host) ? " source" : " on $(host)"
-
-        pageurl = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
-        edit_branch = isa(ctx.settings.edit_link, String) ? ctx.settings.edit_link : nothing
-        url = if Utilities.isabsurl(pageurl)
-            pageurl
-        else
-            if !(pageurl == getpage(ctx, navnode).source)
-                # need to set users path relative the page itself
-                pageurl = joinpath(first(splitdir(getpage(ctx, navnode).source)), pageurl)
-            end
-            Utilities.edit_url(ctx.doc.user.remote, pageurl, commit=edit_branch)
-        end
-        if url !== nothing
-            edit_verb = (edit_branch === nothing) ? "View" : "Edit"
-            title = "$(edit_verb)$hoststring"
+        # repourl() can sometimes return a nothing (Remotes.URL)
+        if !isnothing(url)
+            repo_title = "View the repository" * (isempty(host) ? "" : " on $host")
             push!(navbar_right.nodes,
-                a[".docs-edit-link", :href => url, :title => title](
-                    span[host_type == Utilities.RepoUnknown ? ".docs-icon.fa" : ".docs-icon.fab"](logo),
-                    span[".docs-label.is-hidden-touch"](title)
+                a[".docs-navbar-link", :href => url, :title => repo_title](
+                    span[".docs-icon.fab"](logo),
+                    span[".docs-label.is-hidden-touch"](isempty(host) ? "Repository" : host)
                 )
             )
         end
     end
+    # Add an edit link, with just an icon, but only on pages where edit_page_link is true.
+    # Some pages, like search, are special and do not have a source file to link to.
+    edit_page_link && edit_link(ctx, navnode) do logo, title, url
+        push!(navbar_right.nodes,
+            a[".docs-navbar-link", :href => url, :title => title](
+                span[".docs-icon.fas"](logo)
+            )
+        )
+    end
 
     # Settings cog
     push!(navbar_right.nodes, a[
-        "#documenter-settings-button.docs-settings-button.fas.fa-cog",
+        "#documenter-settings-button.docs-settings-button.docs-navbar-link.fas.fa-cog",
         :href => "#", :title => "Settings",
     ])
 
     # Hamburger on mobile
     push!(navbar_right.nodes, a[
-        "#documenter-sidebar-button.docs-sidebar-button.fa.fa-bars.is-hidden-desktop",
-        :href => "#"
+        "#documenter-sidebar-button.docs-sidebar-button.docs-navbar-link.fa.fa-bars.is-hidden-desktop",
+        :href => "#",
     ])
 
     # Construct the main <header> node that should be the first element in div.docs-main
     header[".docs-navbar"](breadcrumb, navbar_right)
+end
+
+"""
+Calls `f(logo, title, url)` if it is possible to create an edit link for the `navnode`.
+"""
+function edit_link(f, ctx, navnode)
+    view_logo, edit_logo = "\uf15c", "\uf044" # 'file-alt' and 'edit', from .fas class
+    # Let's fetch the edit path. Usually this is the source file of the page, but the user
+    # can override it specifying the EditURL option in an @meta block. Usually, it is a
+    # relative path pointing to a file, but can also be set to an absolute URL.
+    editpath = get(getpage(ctx, navnode).globals.meta, :EditURL, getpage(ctx, navnode).source)
+    # If the user has set :EditURL to nothing, then the link will be disabled. Note: the
+    # .source field of a Page is always a String.
+    isnothing(editpath) && return
+    # If the user has set an absolute :EditURL, then we just use that URL without
+    # modifications. The only thing we want to do is to determine the Git remote host name
+    # from the URL, if we can. We also use the "view" verb and logo here, since we do not
+    # know if the remote link allows editing, and so it is the safer option.
+    if Utilities.isabsurl(editpath)
+        host, _ = host_logo(editpath)
+        title = "View source" * (isempty(host) ? "" : " on $(host)")
+        f(view_logo, title, editpath)
+        return
+    end
+    # If the user has disable Git, then we can not determine edit links
+    ctx.settings.disable_git && return
+    # If the user has passed HTML(edit_link = nothing), then all edit links (with relative
+    # paths) are disabled.
+    isnothing(ctx.settings.edit_link) && return
+    # edit_url will call abspath() on the path, but our working directory is set to
+    # makedocs' root argument. The Page .source paths are already relative to that, but
+    # user-provided EditURLs are assumed to be relative to the current page. So we need to
+    # update the path accordingly.
+    if editpath != getpage(ctx, navnode).source
+        editpath = joinpath(dirname(getpage(ctx, navnode).source), editpath)
+    end
+    # If the user has set `ctx.settings.edit_link = :commit` (only non-String value), then
+    # we set pass commit=nothing and let edit_url figure out the commit ref with Git.
+    # We also render a "view" link, instead of the usual "edit" link, since it is usually
+    # not possible to directly modify the repository files if they refer to a particular
+    # commit.
+    verb, logo, commit = if ctx.settings.edit_link === :commit
+        "View", view_logo, nothing
+    else
+        "Edit", edit_logo, ctx.settings.edit_link
+    end
+    host, _ = host_logo(ctx.doc.user.remote)
+    editurl = Utilities.edit_url(ctx.doc.user.remote, editpath, commit=commit)
+    # It is possible for editurl() to return a nothing, if something goes wrong
+    isnothing(editurl) && return
+    # Create the edit link
+    f(logo, "$verb source" * (isempty(host) ? "" : " on $(host)"), editurl)
+    return
+end
+
+# All these logos are from the .fab (brands) class
+const host_logo_github    = (host = "GitHub",       logo = "\uf09b")
+const host_logo_bitbucket = (host = "BitBucket",    logo = "\uf171")
+const host_logo_gitlab    = (host = "GitLab",       logo = "\uf296")
+const host_logo_azure     = (host = "Azure DevOps", logo = "\uf3ca") # microsoft; TODO: change to ADO logo when added to FontAwesome
+const host_logo_fallback  = (host = "",             logo = "\uf841") # git-alt
+host_logo(remote::Remotes.GitHub) = host_logo_github
+host_logo(remote::Remotes.URL) = host_logo(remote.urltemplate)
+host_logo(remote::Union{Remotes.Remote,Nothing}) = host_logo_fallback
+function host_logo(remoteurl::String)
+    occursin("github", remoteurl)    ? host_logo_github    :
+    occursin("gitlab", remoteurl)    ? host_logo_gitlab    :
+    occursin("bitbucket", remoteurl) ? host_logo_bitbucket :
+    occursin("azure", remoteurl)     ? host_logo_azure     :
+    host_logo_fallback
 end
 
 function render_footer(ctx, navnode)
