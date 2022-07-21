@@ -889,7 +889,6 @@ the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea
 instances. Check their documentation on how to create an access token. 
 This access token should be then added as a secret as documented in 
 https://woodpecker-ci.org/docs/usage/secrets. 
-
 """
 struct Woodpecker <: DeployConfig
     woodpecker_repo::String
