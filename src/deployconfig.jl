@@ -900,7 +900,7 @@ end
     Woodpecker()
 
 Initialize woodpecker environment-variables. Further info of
-environment-variables used are in https://woodpecker-ci.org/docs/usage/environment
+environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
 """
 function Woodpecker()
     woodpecker_repo = get(ENV, "CI_REPO", "")  # repository full name <owner>/<name>
