@@ -38,7 +38,7 @@ struct QuietlyException <: Exception
 end
 
 function Base.showerror(io::IO, e::QuietlyException)
-    prefix = isnothing(e.logid) ? "@quietly" : "@quietly[$logid]"
+    prefix = isnothing(e.logid) ? "@quietly" : "@quietly[$(e.logid)]"
     println(io, "$(prefix) hit an exception ($(typeof(e.exception))):")
     showerror(io, e.exception, e.backtrace)
 end

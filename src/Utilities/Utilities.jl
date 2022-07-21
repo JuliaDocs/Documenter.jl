@@ -493,28 +493,36 @@ A [`Remote`](@ref) corresponding to the main Julia language repository.
 """
 const julia_remote = Remotes.GitHub("JuliaLang", "julia")
 
+"""
+Stores the memoized results of [`getremote`](@ref).
+"""
 const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.GitHub,Nothing}}()
 
+"""
+$(TYPEDSIGNATURES)
+
+Determines the GitHub remote of a directory by checking `remote.origin.url` of the
+repository. Returns a [`Remotes.GitHub`](@ref), or `nothing` is something has gone wrong
+(e.g. it's run on a directory not in a Git repo, or `origin.url` points to a non-GitHub
+remote).
+
+The results for a given directory are memoized in [`GIT_REMOTE_CACHE`](@ref), since calling
+`git` is expensive and it is often called on the same directory over and over again.
+"""
 function getremote(dir::AbstractString)
+    isdir(dir) || return nothing
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
             readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
         catch
             ""
         end
+        # TODO: we only match for GitHub repositories automatically. Could we engineer a
+        # system where, if there is a user-created Remote, the user could also define a
+        # matching function here that tries to interpret other URLs?
         m = match(LibGit2.GITHUB_REGEX, remote)
-        if isnothing(m)
-            # TODO: move this fallback out of getremote
-            remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
-            try
-                # Remotes.GitHub(remote) can throw if there is no '/' in the string
-                return isnothing(remote) ? nothing : GitHub.Remote(remote)
-            catch
-                return nothing
-            end
-        else
-            return Remotes.GitHub(m[2], m[3])
-        end
+        isnothing(m) && return nothing
+        return Remotes.GitHub(m[2], m[3])
     end
 end
 

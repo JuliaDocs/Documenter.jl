@@ -9,7 +9,7 @@
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 * ![Enhancement][badge-enhancement] Documenter now shows a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
-* ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). ([#1808][github-1808])
+* ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). Documenter will also try to determine `repo` automatically from the `GITHUB_REPOSITORY` environment variable if other fallbacks have failed. ([#1808][github-1808], [#1881][github-1881])
 * ![Enhancement][badge-enhancement] Broken issue references (i.e. links like `[#1234](@ref)`, but when Documenter is unable to determine the remote GitHub repository) now generate `:cross_references` errors that can be caught via the `strict` keyword. ([#1808][github-1808])
 
   This is **potentially breaking** as it can cause previously working builds to fail if they are being run in strict mode. However, such builds were already leaving broken links in the generated documentation.
@@ -17,6 +17,7 @@
   **For upgrading:** the easiest way to fix the build is to remove the offending `@ref` links. Alternatively, the `repo` argument to `makedocs` can be set to the appropriate `Remotes.Remote` object that implements the `Remotes.issueurl` function, which would make sure that correct URLs are generated.
 
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
+* ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 
 ## Version `v0.27.21`
 
@@ -1104,6 +1105,7 @@
 [github-1865]: https://github.com/JuliaDocs/Documenter.jl/pull/1865
 [github-1870]: https://github.com/JuliaDocs/Documenter.jl/issues/1870
 [github-1871]: https://github.com/JuliaDocs/Documenter.jl/pull/1871
+[github-1881]: https://github.com/JuliaDocs/Documenter.jl/pull/1881
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079

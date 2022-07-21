@@ -212,6 +212,12 @@ mutable struct NavNode
     next           :: Union{NavNode, Nothing}
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
+# This method ensures that we do not print the whole navtree in case we ever happen to print
+# a NavNode in some debug output somewhere.
+function Base.show(io::IO, n::NavNode)
+    parent = isnothing(n.parent) ? "nothing" : "NavNode($(repr(n.parent.page)), ...)"
+    print(io, "NavNode($(repr(n.page)), $(repr(n.title_override)), $(parent))")
+end
 
 """
 Constructs a list of the ancestors of the `navnode` (inclding the `navnode` itself),
@@ -323,8 +329,8 @@ function Document(plugins = nothing;
         # If the user does not provide the `repo` argument, we'll try to automatically
         # detect the remote repository by looking at the Git repository remote. This only
         # works if the repository is hosted on GitHub. If that fails, it falls back to
-        # TRAVIS_REPO_SLUG.
-        Utilities.getremote(root)
+        # TRAVIS_REPO_SLUG and then GITHUB_REPOSITORY.
+        get_remote_ci_fallbacks(root)
     elseif repo isa AbstractString
         # Use the old template string parsing logic if a string was passed.
         Remotes.URL(repo)
@@ -386,6 +392,33 @@ function Document(plugins = nothing;
         Utilities.submodules(modules),
     )
     Document(user, internal, plugin_dict, blueprint)
+end
+
+function get_remote_ci_fallbacks(dir::AbstractString)
+    # First, try to determine it from repository's origin.url
+    remote = Utilities.getremote(dir)
+    isnothing(remote) || return remote
+    # If that fails, fall back to Travis CI variables
+    remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
+    if !isnothing(remote)
+        # It is possible for Remotes.GitHub to throw if there is no /
+        try
+            return Remotes.GitHub(remote)
+        catch
+            @warn "Unable to parse remote: TRAVIS_REPO_SLUG=$(remote)"
+        end
+    end
+    # As a second fallback, check GitHub Actions CI environment variables
+    remote = get(ENV, "GITHUB_REPOSITORY", nothing)
+    if !isnothing(remote)
+        try
+            return Remotes.GitHub(remote)
+        catch e
+            @warn "Unable to parse remote: GITHUB_REPOSITORY=$(remote)"
+        end
+    end
+    @warn "Unable to determine remote Git URL automatically. Source links may be missing."
+    return nothing
 end
 
 """
