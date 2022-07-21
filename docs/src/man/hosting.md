@@ -427,14 +427,14 @@ called `.woodpecker.yml` with the following contents:
 
 ```yaml
 pipeline:
-	docs:
-		when:
-			branch: main  # update to match your development branch
-		image: julia
-		commands:
-			- julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-			- julia --project=docs/ docs/make.jl
-		secrets: [ project_access_token ]  # access token is a secret
+    docs:
+    when:
+        branch: main  # update to match your development branch
+    image: julia
+    commands:
+        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+        - julia --project=docs/ docs/make.jl
+    secrets: [ project_access_token ]  # access token is a secret
 
 ```
 
