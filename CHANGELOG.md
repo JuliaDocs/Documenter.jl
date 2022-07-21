@@ -8,6 +8,7 @@
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package][documentermarkdown]. That package might not immediately support the latest Documenter version, however.
 
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
+* ![Enhancement][badge-enhancement] Documenter now shows a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
 * ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). Documenter will also try to determine `repo` automatically from the `GITHUB_REPOSITORY` environment variable if other fallbacks have failed. ([#1808][github-1808], [#1881][github-1881])
 * ![Enhancement][badge-enhancement] Broken issue references (i.e. links like `[#1234](@ref)`, but when Documenter is unable to determine the remote GitHub repository) now generate `:cross_references` errors that can be caught via the `strict` keyword. ([#1808][github-1808])
 
@@ -904,6 +905,7 @@
 [github-1223]: https://github.com/JuliaDocs/Documenter.jl/pull/1223
 [github-1232]: https://github.com/JuliaDocs/Documenter.jl/pull/1232
 [github-1240]: https://github.com/JuliaDocs/Documenter.jl/pull/1240
+[github-1254]: https://github.com/JuliaDocs/Documenter.jl/pull/1254
 [github-1258]: https://github.com/JuliaDocs/Documenter.jl/pull/1258
 [github-1264]: https://github.com/JuliaDocs/Documenter.jl/pull/1264
 [github-1269]: https://github.com/JuliaDocs/Documenter.jl/pull/1269

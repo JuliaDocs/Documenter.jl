@@ -114,6 +114,7 @@ end
     @test_throws ArgumentError Documenter.HTML(footer="# foo")
     @test_throws ArgumentError Documenter.HTML(footer="")
     @test Documenter.HTML(footer="foo bar [baz](https://github.com)") isa Documenter.HTML
+    @test_throws ErrorException Documenter.HTML(edit_branch = nothing, edit_link=nothing)
 
     # MathEngine
     let katex = KaTeX()
