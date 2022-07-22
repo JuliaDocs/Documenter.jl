@@ -422,8 +422,9 @@ _This workflow was taken from [CliMA/ClimaTimeSteppers.jl](https://github.com/Cl
 To run a documentation build from Woodpecker CI, one should create an access token
 from their forge of choice: GitHub, GitLab, or Codeberg (or any Gitea instance). 
 This access token should be added to Woodpecker CI as a secret named as
-`project_access_token` - all lowercase. Next, create a new pipeline configuration file
-called `.woodpecker.yml` with the following contents:
+`project_access_token`. The case does not matter since this will be passed as
+uppercase environment variables to your pipeline. Next, create a new pipeline 
+configuration file called `.woodpecker.yml` with the following contents:
 
 ```yaml
 pipeline:
