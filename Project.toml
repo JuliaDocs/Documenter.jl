@@ -19,7 +19,7 @@ Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
 ANSIColoredPrinters = "0.0.1"
-DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8"
+DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9"
 IOCapture = "0.2"
 JSON = "0.19, 0.20, 0.21"
 julia = "1"
