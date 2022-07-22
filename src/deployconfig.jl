@@ -956,8 +956,7 @@ function deploy_folder(
 
     repo_ok = occursin(cfg.woodpecker_repo, repo)
     all_ok &= repo_ok
-    println(io, "- $(marker(repo_ok)) ENV[\"CI_REPO\"]=\"$(cfg.woodpecker_repo)\" occursin in re
-    po=\"$(repo)\"")
+    println(io, "- $(marker(repo_ok)) ENV[\"CI_REPO\"]=\"$(cfg.woodpecker_repo)\" occursin in repo=\"$(repo)\"")
 
     if build_type === :release
         event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
