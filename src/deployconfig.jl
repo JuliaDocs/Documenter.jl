@@ -1035,7 +1035,7 @@ function deploy_folder(
     end
 end
 
-authentication_method(::Woodpecker) = Documenter.HTTPS
+authentication_method(::Woodpecker) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::Woodpecker)
     # `cfg.woodpecker_forge_url` should be just the root of the URL e.g. github.com, gitlab.com, codeberg.org
     # otherwise, it will be equal to `cfg.woodpecker_repo_link`
