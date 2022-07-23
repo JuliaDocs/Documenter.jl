@@ -5,7 +5,7 @@ If the instructions in [Authentication: SSH Deploy Keys](@ref) did not work for 
 process. There are three main steps:
 
 1. [Generating an SSH Key](@ref)
-2. [Adding the Public Key to GitHub](@ref)
+2. [Adding the Public Key to GitHub or Gitea such as Codeberg](@ref)
 3. [Adding the Private Key](@ref)
 
 ## Generating an SSH Key
@@ -55,7 +55,7 @@ julia> read("privatekey.pub", String) |> println
 ```
 
 Copy and paste the output somewhere. This is your *public key* and is required for the step
-[Adding the Public Key to GitHub](@ref).
+[Adding the Public Key to GitHub or Gitea such as Codeberg](@ref).
 
 ### If you do not have `ssh-keygen`
 
@@ -83,7 +83,7 @@ Now we need to save the public key somewhere.
 
 * Copy the text in the box titled "Public key for pasting into OpenSSH authorized_keys file"
   and paste it somewhere for later. This is your *public key* and is required for the step
-  [Adding the Public Key to GitHub](@ref)
+  [Adding the Public Key to GitHub or Gitea such as Codeberg](@ref)
 
 Finally, we need to save the private key somewhere.
 
