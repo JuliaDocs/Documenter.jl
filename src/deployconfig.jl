@@ -1008,11 +1008,16 @@ function deploy_folder(
     end
 
     token_ok = env_nonempty("PROJECT_ACCESS_TOKEN")
-    auth_ok = token_ok
+    key_ok = env_nonempty("DOCUMENTER_KEY")
+    auth_ok = token_ok | key_ok
     all_ok &= auth_ok
 
-    if token_ok
+    if key_ok
+        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
+    elseif token_ok
         println(io, "- $(marker(token_ok)) ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
+    else
+        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
     end
 
     print(io, "Deploying: $(marker(all_ok))")
