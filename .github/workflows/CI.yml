@@ -36,6 +36,14 @@ jobs:
           arch: ${{ matrix.arch }}
           show-versioninfo: true
       - uses: julia-actions/cache@v1
+      # Add DocumenterTools here to avoid resolver errors when resolving the test env
+      # see JuliaDocs/Documenter.jl#1887
+      - name: 'Workaround Pkg resolver error on 1.0'
+        shell: julia --project=. {0}
+        run: |
+          using Pkg
+          Pkg.add("DocumenterTools")
+        if: matrix.version == '1.0'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
