@@ -513,7 +513,7 @@ function verify_github_pull_repository(repo, prnr)
         github_token === nothing && error("GITHUB_TOKEN missing")
         # Construct the curl call
         cmd = `curl -s`
-        push!(cmd.exec, "-S", "GET")
+        push!(cmd.exec, "-X", "GET")
         push!(cmd.exec, "-H", "Authorization: token $(github_token)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
@@ -843,6 +843,220 @@ authentication_method(::Buildkite) = Documenter.SSH
 
 documenter_key(::Buildkite) = ENV["DOCUMENTER_KEY"]
 
+#################
+# Woodpecker CI #
+#################
+
+"""
+    Woodpecker <: DeployConfig
+
+Implementation of `DeployConfig` for deploying from Woodpecker CI.
+
+The following environmental variables are built-in from the Woodpecker pipeline
+influences how `Documenter` works:
+ - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
+ - `CI_REPO_LINK`: must match the full link to the project repo
+ - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
+ - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
+ - `CI_COMMIT_TAG`: must match to a tag.
+ - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
+ - `CI_REPO_OWNER`: must return the value of the repo owner. Real names are not necessary.
+
+The following user-defined environmental variables influences how `Documenter` works:
+ - `PROJECT_ACCESS_TOKEN`: user generated access token from a forge e.g. GitHub, GitLab, Codeberg to be used as a secret.
+ - `FORGE_URL`: user-defined env var to be used for authentication. Optional.
+
+User can define the `FORGE_URL` variable and add it to their Woodpecker pipeline definition:
+
+Example `.woodpecker.yml`
+```yaml
+pipeline:
+   docs:
+   image: julia
+   environment:
+     - FORGE_URL=github.com
+   ...
+```
+
+Or
+
+```yaml
+pipeline:
+   docs:
+   image: julia
+   commands:
+     - export FORGE_URL=github.com
+   ...
+```
+
+More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/pipeline-syntax>
+
+Lastly, another environment-variable used for authentication is
+the `PROJECT_ACCESS_TOKEN` which is an access token you defined by 
+the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea 
+instances. Check their documentation on how to create an access token. 
+This access token should be then added as a secret as documented in 
+<https://woodpecker-ci.org/docs/usage/secrets>.
+"""
+struct Woodpecker <: DeployConfig
+    woodpecker_repo_link::String
+    woodpecker_forge_url::String
+    woodpecker_repo::String
+    woodpecker_tag::String
+    woodpecker_event_name::String
+    woodpecker_ref::String
+end
+
+"""
+    Woodpecker()
+
+Initialize woodpecker environment-variables. Further info of
+environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
+"""
+function Woodpecker()
+    woodpecker_repo_link = get(ENV, "CI_REPO_LINK", "")
+    m = match(r"https?:\/\/(?:.+\.)*(.+\..+?)\/", woodpecker_repo_link)
+    # Get the forge URL, otherwise, if the value is `nothing`,
+    # Then use the woodpecker_repo_link
+    woodpecker_forge_url = isnothing(m) ? woodpecker_repo_link : m.captures[1]
+    woodpecker_tag = get(ENV, "CI_COMMIT_TAG", "")
+    woodpecker_repo = get(ENV, "CI_REPO", "")  # repository full name <owner>/<name>
+    woodpecker_event_name = get(ENV, "CI_BUILD_EVENT", "")  # build event (push, pull_request, tag, deployment)
+    woodpecker_ref = get(ENV, "CI_COMMIT_REF", "")  # commit ref
+    return Woodpecker(woodpecker_repo_link, woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
+end
+
+function deploy_folder(
+    cfg::Woodpecker;
+    repo,
+    repo_previews=repo,
+    branch="pages",
+    branch_previews=branch,
+    devbranch,
+    push_preview,
+    devurl,
+    kwargs...)
+    io = IOBuffer()
+    all_ok = true
+    if cfg.woodpecker_event_name == "pull_request"
+        build_type = :preview
+    elseif occursin(r"^refs\/tags\/(.*)$", cfg.woodpecker_ref)
+        build_type = :release
+    else
+        build_type = :devbranch
+    end
+
+    println(io, "Deployment criteria for deploying $(build_type) build from Woodpecker-CI")
+    ## The deploydocs' repo should match CI_REPO
+    #
+    repo_link_ok = !isempty(cfg.woodpecker_repo_link)  # if repo link is an empty string then it is not valid
+    all_ok &= repo_link_ok
+    forge_url_ok = !isempty(cfg.woodpecker_forge_url)  # if the forge url is an empty string, it is not a valid url
+    all_ok &= forge_url_ok
+
+    repo_ok = occursin(cfg.woodpecker_repo, repo)
+    all_ok &= repo_ok
+    println(io, "- $(marker(repo_ok)) ENV[\"CI_REPO\"]=\"$(cfg.woodpecker_repo)\" occursin in repo=\"$(repo)\"")
+
+    if build_type === :release
+        event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
+        all_ok &= event_ok
+        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
+        tag_nobuild = version_tag_strip_build(cfg.woodpecker_tag)
+        tag_ok = tag_nobuild !== nothing
+        all_ok &= tag_ok
+        println(io, "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"]=\"$(cfg.woodpecker_tag)\" contains a valid VersionNumber")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
+        ## Deploy to folder according to the tag
+        subfolder = tag_nobuild
+    elseif build_type === :devbranch
+        ## Do not deploy for PRs
+        event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
+        all_ok &= event_ok
+        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"")
+        ## deploydocs' devbranch should match the current branch
+        m = match(r"^refs\/heads\/(.*)$", cfg.woodpecker_ref)
+        branch_ok = (m === nothing) ? false : String(m.captures[1]) == devbranch
+        all_ok &= branch_ok
+        println(io, "- $(marker(branch_ok)) ENV[\"CI_COMMIT_REF\"] matches devbranch=\"$(devbranch)\"")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
+        ## Deploy to deploydocs devurl kwarg
+        subfolder = devurl
+    else # build_type === :preview
+        m = match(r"refs\/pull\/(\d+)\/merge", cfg.woodpecker_ref)
+        pr_number1 = tryparse(Int, (m === nothing) ? "" : m.captures[1])
+        pr_number2 = tryparse(Int, get(ENV, "CI_COMMIT_PULL_REQUEST", nothing) === nothing ? "" : ENV["CI_COMMIT_PULL_REQUEST"])
+        # Check if both are Ints. If both are Ints, then check if they are equal, otherwise, return false
+        pr_numbers_ok = all(x -> x isa Int, [pr_number1, pr_number2]) ? (pr_number1 == pr_number2) : false
+        is_pull_request_ok = get(ENV, "CI_BUILD_EVENT", "") == "pull_request"
+        pr_ok = pr_numbers_ok == is_pull_request_ok
+        all_ok &= pr_ok
+        println(io, "- $(marker(pr_numbers_ok)) ENV[\"CI_COMMIT_REF\"] corresponds to a PR")
+        println(io, "- $(marker(is_pull_request_ok)) ENV[\"CI_BUILD_EVENT\"] matches built type: `pull_request`")
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+        is_preview = true
+        ## deploydocs to previews/PR
+        subfolder = "previews/PR$(something(pr_number1, 0))"
+    end
+
+    token_ok = env_nonempty("PROJECT_ACCESS_TOKEN")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
+    auth_ok = token_ok | key_ok
+    all_ok &= auth_ok
+
+    if key_ok
+        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
+    elseif token_ok
+        println(io, "- $(marker(token_ok)) ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
+    else
+        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
+    end
+
+    print(io, "Deploying: $(marker(all_ok))")
+    @info String(take!(io))
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.woodpecker_ref == "refs/heads/main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master. Current branch (from \$CI_COMMIT_REF) is "main". 
+        """
+    end
+
+    if all_ok
+        return DeployDecision(; all_ok=true,
+            branch=deploy_branch,
+            is_preview=is_preview,
+            repo=deploy_repo,
+            subfolder=subfolder
+        )
+    else
+        return DeployDecision(; all_ok=false)
+    end
+end
+
+authentication_method(::Woodpecker) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
+function authenticated_repo_url(cfg::Woodpecker)
+    # `cfg.woodpecker_forge_url` should be just the root of the URL e.g. github.com, gitlab.com, codeberg.org
+    # otherwise, it will be equal to `cfg.woodpecker_repo_link`
+    # If so, we just split the `http(s)://` from the string we want 
+    # e.g. `https://github.com/JuliaDocs/Documenter.jl` to `github.com/JuliaDocs/Documenter.jl`.
+    if haskey(ENV, "FORGE_URL")
+        return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
+    else
+        if occursin(cfg.woodpecker_repo, cfg.woodpecker_forge_url)
+            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(split(cfg.woodpecker_forge_url, r"https?://")[2]).git"
+        else
+            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(cfg.woodpecker_forge_url)/$(cfg.woodpecker_repo).git"
+        end
+    end
+end
+
 ##################
 # Auto-detection #
 ##################
@@ -855,7 +1069,14 @@ function auto_detect_deploy_system()
         return GitLab()
     elseif haskey(ENV, "BUILDKITE")
         return Buildkite()
+    elseif get(ENV, "CI", nothing) in ["drone", "woodpecker"]
+        if ENV["CI"] == "drone"
+            @warn """Woodpecker is backward compatible to Drone 
+            but *there will be breaking changes in the future*"""
+        end
+        return Woodpecker()
     else
         return nothing
     end
 end
+
