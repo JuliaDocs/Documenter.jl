@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.22`
+
+* ![Maintenance][badge-maintenance] Documenter is now compatible with DocStringExtensions v0.9. ([#1885][github-1885], [#1886][github-1886])
+
 ## Version `v0.27.21`
 
 * ![Bugfix][badge-bugfix] Fix a regression where Documenter throws an error on systems that do not have Git available. ([#1870][github-1870], [#1871][github-1871])
@@ -1080,6 +1084,8 @@
 [github-1865]: https://github.com/JuliaDocs/Documenter.jl/pull/1865
 [github-1870]: https://github.com/JuliaDocs/Documenter.jl/issues/1870
 [github-1871]: https://github.com/JuliaDocs/Documenter.jl/pull/1871
+[github-1885]: https://github.com/JuliaDocs/Documenter.jl/issues/1885
+[github-1886]: https://github.com/JuliaDocs/Documenter.jl/pull/1886
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
