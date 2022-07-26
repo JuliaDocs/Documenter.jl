@@ -309,14 +309,14 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
         str  = replace(error_to_string(outio, result.value, result.bt), mod_regex => "")
         str  = replace(str, mod_regex_nodot => "Main")
 
-        str, head = filter_doctests((str, head), doc, meta)
+        filteredstr, filteredoutput = filter_doctests((str, head), doc, meta)
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
-        if isempty(head) || !startswith(str, head)
+        if isempty(head) || !startswith(filteredstr, filteredoutput)
             if doc.user.doctest === :fix
                 fix_doctest(result, str, doc)
             else
-                report(result, str, doc)
+                report(result, str, doc; filteredstr=filteredstr, filteredoutput=filteredoutput)
                 @debug "Doctest metadata" meta
                 push!(doc.internal.errors, :doctest)
             end
@@ -332,7 +332,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents
             if doc.user.doctest === :fix
                 fix_doctest(result, str, doc)
             else
-                report(result, str, doc)
+                report(result, str, doc; filteredstr=filteredstr, filteredoutput=filteredoutput)
                 @debug "Doctest metadata" meta
                 push!(doc.internal.errors, :doctest)
             end
@@ -387,30 +387,45 @@ end
 
 import .Utilities.TextDiff
 
-function report(result::Result, str, doc::Documents.Document)
+function report(result::Result, str, doc::Documents.Document; filteredstr, filteredoutput)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Utilities.find_block_in_file(result.block.code, result.file)
     line = lines === nothing ? nothing : first(lines)
-    @error("""
-        doctest failure in $(Utilities.locrepr(result.file, lines))
+    @error "doctest failure in $(Utilities.locrepr(result.file, lines))" _file=result.file _line=line
+    println("""
+    ```$(result.block.language)
+    $(result.block.code)
+    ```
 
-        ```$(result.block.language)
-        $(result.block.code)
-        ```
+    Subexpression:
+    ```
+    $(result.input)
+    ```
 
-        Subexpression:
+    Evaluated output:
+    ```
+    $(rstrip(str))
+    ```
 
-        $(result.input)
+    Expected output:
+    ```
+    $(result.output)
+    ```
 
-        Evaluated output:
+    Evaluated output (filtered):
+    ```
+    $(filteredstr)
+    ```
 
-        $(rstrip(str))
+    Expected output (filtered):
+    ```
+    $(filteredoutput)
+    ```
 
-        Expected output:
-
-        $(result.output)
-
-        """, diff, _file=result.file, _line=line)
+    Diff:
+    ```""")
+    show(diff)
+    println(); println("```")
 end
 
 function fix_doctest(result::Result, str, doc::Documents.Document)
