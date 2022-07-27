@@ -8,6 +8,7 @@ See the Internals section of the manual for internal package docs covering all s
 
 ```@contents
 Pages = ["public.md"]
+Depth = 2:2
 ```
 
 ## Index
