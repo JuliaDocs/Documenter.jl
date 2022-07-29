@@ -831,7 +831,6 @@ include("DOM.jl")
 include("MDFlatten.jl")
 include("TextDiff.jl")
 include("Selectors.jl")
-include("Markdown2.jl")
 include("JSDependencies.jl")
 
 end

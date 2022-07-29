@@ -14,8 +14,9 @@ import ..Documenter:
     Utilities,
     IdDict
 
-import Markdown, REPL
-import .Utilities: Markdown2, @docerror
+import REPL, Markdown, MarkdownAST
+using AbstractTrees: Leaves
+import .Utilities: @docerror
 import IOCapture
 
 # Julia code block testing.
@@ -25,7 +26,7 @@ mutable struct MutableMD2CodeBlock
     language :: String
     code :: String
 end
-MutableMD2CodeBlock(block :: Markdown2.CodeBlock) = MutableMD2CodeBlock(block.language, block.code)
+MutableMD2CodeBlock(block :: MarkdownAST.CodeBlock) = MutableMD2CodeBlock(block.info, block.code)
 
 struct DocTestContext
     file :: String
@@ -72,7 +73,7 @@ end
 function doctest(page::Documents.Page, doc::Documents.Document)
     ctx = DocTestContext(page.source, doc) # FIXME
     ctx.meta[:CurrentFile] = page.source
-    doctest(ctx, page.md2ast)
+    doctest(ctx, page.mdast)
 end
 
 function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
@@ -83,11 +84,11 @@ function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
     while length(md.content) == 1 && isa(first(md.content), Markdown.MD)
         md = first(md.content)
     end
-    md2ast = try
-        Markdown2.convert(Markdown2.MD, md)
+    mdast = try
+        convert(MarkdownAST.Node, md)
     catch err
         @error """
-            Markdown2 conversion error for a docstring in $(mod).
+            MarkdownAST conversion error for a docstring in $(mod).
             This is a bug — please report this on the Documenter issue tracker
             """ docstr.data
         rethrow(err)
@@ -95,11 +96,11 @@ function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
     ctx = DocTestContext(docstr.data[:path], doc)
     merge!(ctx.meta, DocMeta.getdocmeta(mod))
     ctx.meta[:CurrentFile] = get(docstr.data, :path, nothing)
-    doctest(ctx, md2ast)
+    doctest(ctx, mdast)
 end
 
-function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
-    @assert startswith(block.language, "@meta")
+function parse_metablock(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
+    @assert startswith(block.info, "@meta")
     meta = Dict{Symbol, Any}()
     for (ex, str) in Utilities.parseblock(block.code, ctx.doc, ctx.file)
         if Utilities.isassign(ex)
@@ -113,13 +114,13 @@ function parse_metablock(ctx::DocTestContext, block::Markdown2.CodeBlock)
     return meta
 end
 
-function doctest(ctx::DocTestContext, md2ast::Markdown2.MD)
-    Markdown2.walk(md2ast) do node
-        isa(node, Markdown2.CodeBlock) || return true
-        if startswith(node.language, "jldoctest")
-            doctest(ctx, node)
-        elseif startswith(node.language, "@meta")
-            merge!(ctx.meta, parse_metablock(ctx, node))
+function doctest(ctx::DocTestContext, mdast::MarkdownAST.Node)
+    for node in Leaves(mdast)
+        isa(node.element, MarkdownAST.CodeBlock) || return true
+        if startswith(node.element.info, "jldoctest")
+            doctest(ctx, node.element)
+        elseif startswith(node.element.info, "@meta")
+            merge!(ctx.meta, parse_metablock(ctx, node.element))
         else
             return true
         end
@@ -127,8 +128,8 @@ function doctest(ctx::DocTestContext, md2ast::Markdown2.MD)
     end
 end
 
-function doctest(ctx::DocTestContext, block_immutable::Markdown2.CodeBlock)
-    lang = block_immutable.language
+function doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
+    lang = block_immutable.info
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]

@@ -16,9 +16,9 @@ import ..Documenter:
     Plugin,
     Writer
 
-using ..Documenter.Utilities: Remotes, Markdown2
+    using ..Documenter.Utilities: Remotes
 using DocStringExtensions
-import Markdown
+import Markdown, MarkdownAST
 using Unicode
 
 # Pages.
@@ -52,20 +52,20 @@ struct Page
     """
     mapping  :: IdDict{Any,Any}
     globals  :: Globals
-    md2ast   :: Markdown2.MD
+    mdast   :: MarkdownAST.Node{Nothing}
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
     mdpage = Markdown.parse(read(source, String))
-    md2ast = try
-        Markdown2.convert(Markdown2.MD, mdpage)
+    mdast = try
+        convert(MarkdownAST.Node, mdpage)
     catch err
         @error """
-            Markdown2 conversion error on $(source).
+            MarkdownAST conversion error on $(source).
             This is a bug — please report this on the Documenter issue tracker
             """
         rethrow(err)
     end
-    Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), md2ast)
+    Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), mdast)
 end
 
 # FIXME -- special overload for Utilities.parseblock
