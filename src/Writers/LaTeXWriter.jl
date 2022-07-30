@@ -362,6 +362,9 @@ function latex(io::IO, contents::Documents.ContentsNode, page, doc)
     for (count, path, anchor) in contents.elements
         header = anchor.object
         level = Utilities.header_level(header)
+        # Filter out header levels smaller than the requested mindepth
+        level = level - contents.mindepth + 1
+        level < 1 && continue
         id = string(hash(string(anchor.id, "-", anchor.nth)))
         # If we're changing depth, we need to make sure we always print the
         # correct number of \begin{itemize} and \end{itemize} statements.

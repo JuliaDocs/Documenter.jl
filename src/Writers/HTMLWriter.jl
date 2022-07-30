@@ -1584,12 +1584,15 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
     navnode_url = get_url(ctx, navnode)
     lb = ListBuilder()
     for (count, path, anchor) in contents.elements
+        header = anchor.object
+        level = Utilities.header_level(header)
+        # Skip header levels smaller than the requested mindepth
+        level = level - contents.mindepth + 1
+        level < 1 && continue
         path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
-        header = anchor.object
         url = string(path, Anchors.fragment(anchor))
         node = a[:href=>url](mdconvert(header.text; droplinks=true))
-        level = Utilities.header_level(header)
         push!(lb, level, node)
     end
     domify(lb)
