@@ -129,7 +129,7 @@ struct ContentsNode
         if Depth isa Integer
             Depth = 1:Depth
         end
-        new(Pages, Depth.start, Depth.stop, build, source, [])
+        new(Pages, first(Depth), last(Depth), build, source, [])
     end
 end
 
