@@ -116,15 +116,12 @@ end
 
 function doctest(ctx::DocTestContext, mdast::MarkdownAST.Node)
     for node in Leaves(mdast)
-        isa(node.element, MarkdownAST.CodeBlock) || return true
+        isa(node.element, MarkdownAST.CodeBlock) || continue
         if startswith(node.element.info, "jldoctest")
             doctest(ctx, node.element)
         elseif startswith(node.element.info, "@meta")
             merge!(ctx.meta, parse_metablock(ctx, node.element))
-        else
-            return true
         end
-        return false
     end
 end
 

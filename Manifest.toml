@@ -55,7 +55,7 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MarkdownAST]]
 deps = ["AbstractTrees", "Markdown"]
-git-tree-sha1 = "632164920f449de6826beb3fb878384e75d057ad"
+git-tree-sha1 = "050949c7bda83de43b52b87ef3a092dde893c28a"
 repo-rev = "mp/abstractrees"
 repo-url = "https://github.com/JuliaDocs/MarkdownAST.jl.git"
 uuid = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
