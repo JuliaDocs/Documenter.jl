@@ -187,6 +187,38 @@ using the same syntax.
 Note that depending on what the `CurrentModule` is set to, a docstring `@ref` may need to
 be prefixed by the module which defines it.
 
+### Named `@ref`s
+
+It is also possible to override the destination of an `@ref`-link by adding the appropriate
+label to the link, such as a docstring reference or a page heading.
+
+```markdown
+Both of the following references point to `g` found in module `Main.Other`:
+
+* [`Main.Other.g`](@ref)
+* [the `g` function](@ref Main.Other.g)
+
+Both of the following point to the heading "On Something":
+
+* [On Something](@ref)
+* [The section about something.](@ref "On Something")
+```
+
+This can be useful to avoid having to write fully qualified names for references that
+are not imported into the current module, or when the text displayed in the link is
+used to add additional meaning to the surrounding text, such as
+
+```markdown
+Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
+```
+
+!!! note
+
+    Named doc `@ref`s should be used sparingly since writing unqualified names may, in some
+    cases, make it difficult to tell *which* function is being referred to in a particular
+    docstring if there happen to be several modules that provide definitions with the same
+    name.
+
 ### Duplicate Headers
 
 In some cases a document may contain multiple headers with the same name, but on different
@@ -210,40 +242,10 @@ to headers on different pages in the same way as unnamed ones do.
 Duplicate docstring references do not occur since splicing the same docstring into a
 document more than once is disallowed.
 
-### Named doc `@ref`s
+!!! note "Label precedence"
 
-Docstring `@ref`s can also be "named" in a similar way to headers as shown in the
-[Duplicate Headers](@ref) section above. For example
-
-```julia
-module Mod
-
-"""
-Both of the following references point to `g` found in module `Main.Other`:
-
-  * [`Main.Other.g`](@ref)
-  * [`g`](@ref Main.Other.g)
-
-"""
-f(args...) = # ...
-
-end
-```
-
-This can be useful to avoid having to write fully qualified names for references that
-are not imported into the current module, or when the text displayed in the link is
-used to add additional meaning to the surrounding text, such as
-
-```markdown
-Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
-```
-
-!!! note
-
-    Named doc `@ref`s should be used sparingly since writing unqualified names may, in some
-    cases, make it difficult to tell *which* function is being referred to in a particular
-    docstring if there happen to be several modules that provide definitions with the same
-    name.
+    Both user-defined and internally generated header reference labels take precedence over
+    docstring references, in case there is a conflict.
 
 ## `@meta` block
 
@@ -445,10 +447,10 @@ files into that directory. This allows the images to be easily referenced withou
 worry about relative paths.
 
 !!! info
-    If you use [Plots.jl](https://github.com/JuliaPlots/Plots.jl) with the default backend 
+    If you use [Plots.jl](https://github.com/JuliaPlots/Plots.jl) with the default backend
     [GR.jl](https://github.com/jheinen/GR.jl), you will likely see warnings like
     ```
-    qt.qpa.xcb: could not connect to display 
+    qt.qpa.xcb: could not connect to display
     qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
     ```
     To fix these, you need to set the environment variable `GKSwstype` to `100`. For example,

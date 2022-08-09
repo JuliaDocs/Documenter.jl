@@ -104,4 +104,12 @@ end
         @test examples_html_repo_nothing_doc.user.remote === nothing
         @test examples_html_repo_error_doc.user.remote === nothing
     end
+
+    @testset "CrossReferences" begin
+        xref_file = joinpath(examples_root, "builds", "html", "xrefs", "index.html")
+        @test isfile(xref_file)
+        xref_file_html = read(xref_file, String)
+        # Make sure that all the cross-reference links were updated:
+        @test !occursin("@ref", xref_file_html)
+    end
 end
