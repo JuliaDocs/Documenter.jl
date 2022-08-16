@@ -18,6 +18,7 @@
 
 * ![Enhancement][badge-enhancement] Woodpecker CI is now automatically supported for documentation deployment. ([#1880][github-1880])
 * ![Enhancement][badge-enhancement] The `@contents`-block now support `UnitRange`s for the `Depth` argument. This makes it possible to configure also the *minimal* header depth that should be displayed (`Depth = 2:3`, for example). This is supported by the HTML and the LaTeX/PDF backends. ([#245][github-245], [#1890][github-1890])
+* ![Enhancement][badge-enhancement] The code copy buttons in HTML now have `title` and `aria-label` attributes. ([#1903][github-1903])
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 
@@ -1117,6 +1118,7 @@
 [github-1885]: https://github.com/JuliaDocs/Documenter.jl/issues/1885
 [github-1886]: https://github.com/JuliaDocs/Documenter.jl/pull/1886
 [github-1890]: https://github.com/JuliaDocs/Documenter.jl/pull/1890
+[github-1903]: https://github.com/JuliaDocs/Documenter.jl/pull/1903
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
