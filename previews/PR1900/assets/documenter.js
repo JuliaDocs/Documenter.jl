@@ -83,6 +83,9 @@ function addCopyButtonCallbacks() {
   for (const el of document.getElementsByTagName("pre")) {
     const button = document.createElement("button");
     button.classList.add("copy-button", "fas", "fa-copy");
+    button.setAttribute("aria-label", "Copy this code block");
+    button.setAttribute("title", "Copy");
+
     el.appendChild(button);
 
     const success = function () {
