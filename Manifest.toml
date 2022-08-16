@@ -55,11 +55,11 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MarkdownAST]]
 deps = ["AbstractTrees", "Markdown"]
-git-tree-sha1 = "4ff398a1f27296f39625219ac474e5729f4eecc1"
+git-tree-sha1 = "7c60d9a8dbd815d5b63467cfc39a9c75a55eadec"
 repo-rev = "main"
 repo-url = "https://github.com/JuliaDocs/MarkdownAST.jl.git"
 uuid = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
-version = "0.0.1"
+version = "0.0.2-DEV"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
