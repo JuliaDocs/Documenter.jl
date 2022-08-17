@@ -18,7 +18,7 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
 else
     ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
-    "html-repo-nothing", "html-repo-error"]
+    "html-repo-nothing", "html-repo-error", "latex_texonly"]
 end
 
 # Modules `Mod` and `AutoDocs`

@@ -17,6 +17,14 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
+function latex_filename(doc::Documenter.Documents.Document)
+    @test length(doc.user.format) == 1
+    settings = first(doc.user.format)
+    @test settings isa Documenter.LaTeX
+    fileprefix = Documenter.Writers.LaTeXWriter.latex_fileprefix(doc, settings)
+    return "$(fileprefix).tex"
+end
+
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
         (Main.examples_html_doc, "html"),
@@ -103,5 +111,15 @@ end
         @test examples_html_repo_travis_doc.user.remote === Remotes.GitHub("bar", "baz")
         @test examples_html_repo_nothing_doc.user.remote === nothing
         @test examples_html_repo_error_doc.user.remote === nothing
+    end
+
+    @testset "PDF/LaTeX: TeX only" begin
+        doc = Main.examples_latex_texonly_doc
+        @test isa(doc, Documenter.Documents.Document)
+        let build_dir = joinpath(examples_root, "builds", "latex_texonly")
+            filename = latex_filename(doc)
+            @test joinpath(build_dir, filename) |> isfile
+            @test joinpath(build_dir, "documenter.sty") |> isfile
+        end
     end
 end
