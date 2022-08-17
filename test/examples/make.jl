@@ -18,7 +18,8 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
 else
     ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
-    "html-repo-nothing", "html-repo-error", "latex_texonly"]
+    "html-repo-nothing", "html-repo-error", "latex_texonly", "latex_simple_texonly",
+    "latex_showcase_texonly"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -565,6 +566,24 @@ else
     nothing
 end
 
+examples_latex_simple_texonly_doc = if "latex_simple_texonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_texonly")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Simple Non-Docker",
+        root  = examples_root,
+        build = "builds/latex_simple_texonly",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_texonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
 examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_cover_page")
     @quietly makedocs(
@@ -599,6 +618,42 @@ examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: LaTeXWriter/latex_toc_style"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_showcase")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform = "docker", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Showcase",
+        root  = examples_root,
+        build = "builds/latex_showcase",
+        source = "src.latex_showcase",
+        pages = ["Showcase" => ["showcase.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_showcase"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_showcase_texonly")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Showcase",
+        root  = examples_root,
+        build = "builds/latex_showcase_texonly",
+        source = "src.latex_showcase",
+        pages = ["Showcase" => ["showcase.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_showcase_texonly"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
