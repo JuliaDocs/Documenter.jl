@@ -27,12 +27,14 @@ end
 
 # Diffing of output TeX files:
 using Documenter.Utilities.TextDiff: Diff, Lines
-function onormalize_tex(s)
+onormalize_tex(s) = replace(s,
     # We strip URLs and hyperlink hashes, since those may change over time
-    s = replace(s, r"\\(href|hyperlink|hypertarget){[A-Za-z0-9#/_:.-]+}" => s"\\\1{}")
+    r"\\(href|hyperlink|hypertarget){[A-Za-z0-9#/_:.-]+}" => s"\\\1{}",
     # We also write the current Julia version into the TeX file
-    replace(s, r"\\newcommand{\\JuliaVersion}{[0-9.]+}" => "\\newcommand{\\JuliaVersion}{}")
-end
+    r"\\newcommand{\\JuliaVersion}{[0-9.]+}" => "\\newcommand{\\JuliaVersion}{}",
+    # Remove CR parts of newslines, to make Windows happy
+    "\r" => "",
+)
 function printdiff(s1, s2)
     # We fall back: colordiff -> diff -> Documenter's TextDiff
     diff_cmd = Sys.which("colordiff")
