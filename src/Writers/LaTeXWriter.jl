@@ -101,14 +101,9 @@ const DOCUMENT_STRUCTURE = (
     "subparagraph",
 )
 
-# https://github.com/JuliaLang/julia/pull/32851
-function mktempdir(args...; kwargs...)
-    return Base.mktempdir(args...; cleanup=false, kwargs...)
-end
-
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
-    Base.mktempdir() do path
+    mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             fileprefix = doc.user.sitename
@@ -150,7 +145,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
             # source files over to a directory under doc.user.root.
             if haskey(ENV, "DOCUMENTER_LATEX_DEBUG")
-                dst = isempty(ENV["DOCUMENTER_LATEX_DEBUG"]) ? mktempdir(doc.user.root) :
+                dst = isempty(ENV["DOCUMENTER_LATEX_DEBUG"]) ? mktempdir(doc.user.root; cleanup=false) :
                     joinpath(doc.user.root, ENV["DOCUMENTER_LATEX_DEBUG"])
                 sources = cp(pwd(), dst, force=true)
                 @info "LaTeX sources copied for debugging to $(sources)"
@@ -179,7 +174,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
             piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
-            logs = cp(pwd(), mktempdir(); force=true)
+            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
@@ -192,7 +187,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
             piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
-            logs = cp(pwd(), mktempdir(); force=true)
+            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
@@ -212,7 +207,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
             piperun(`docker cp latex-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
             return true
         catch err
-            logs = cp(pwd(), mktempdir(); force=true)
+            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
