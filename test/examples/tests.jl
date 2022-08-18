@@ -31,7 +31,7 @@ function onormalize_tex(s)
     # We strip URLs and hyperlink hashes, since those may change over time
     s = replace(s, r"\\(href|hyperlink|hypertarget){[A-Za-z0-9#/_:.-]+}" => s"\\\1{}")
     # We also write the current Julia version into the TeX file
-    s = replace(s, r"\\newcommand{\\JuliaVersion}{[0-9.]+}" => "\\newcommand{\\JuliaVersion}{}")
+    s = replace(s, r"\\newcommand{\\JuliaVersion}{[A-Za-z0-9+.-]+}" => "\\newcommand{\\JuliaVersion}{}")
     # Remove CR parts of newlines, to make Windows happy
     s = replace(s, '\r' => "")
     return s
