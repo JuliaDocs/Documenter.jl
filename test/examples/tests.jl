@@ -17,6 +17,53 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
+function latex_filename(doc::Documenter.Documents.Document)
+    @test length(doc.user.format) == 1
+    settings = first(doc.user.format)
+    @test settings isa Documenter.LaTeX
+    fileprefix = Documenter.Writers.LaTeXWriter.latex_fileprefix(doc, settings)
+    return "$(fileprefix).tex"
+end
+
+# Diffing of output TeX files:
+using Documenter.Utilities.TextDiff: Diff, Lines
+function onormalize_tex(s)
+    # We strip URLs and hyperlink hashes, since those may change over time
+    s = replace(s, r"\\(href|hyperlink|hypertarget){[A-Za-z0-9#/_:.-]+}" => s"\\\1{}")
+    # We also write the current Julia version into the TeX file
+    s = replace(s, r"\\newcommand{\\JuliaVersion}{[A-Za-z0-9+.-]+}" => "\\newcommand{\\JuliaVersion}{}")
+    # Remove CR parts of newlines, to make Windows happy
+    s = replace(s, '\r' => "")
+    return s
+end
+function printdiff(s1, s2)
+    # We fall back: colordiff -> diff -> Documenter's TextDiff
+    diff_cmd = Sys.which("colordiff")
+    isnothing(diff_cmd) && (diff_cmd = Sys.which("diff"))
+    if isnothing(diff_cmd)
+        show(Diff{Lines}(s1, s2))
+    else
+        mktempdir() do path
+            a, b = joinpath(path, "a"), joinpath(path, "b")
+            write(a, s1); write(b, s2)
+            run(ignorestatus(`$(diff_cmd) $a $b`))
+        end
+    end
+end
+function compare_files(a, b)
+    a_str, b_str = read(a, String), read(b, String)
+    a_str_normalized, b_str_normalized = onormalize_tex(a_str), onormalize_tex(b_str)
+    a_str_normalized == b_str_normalized && return true
+    @error "Generated files did not agree with reference, diff follows." a b
+    printdiff(a_str_normalized, b_str_normalized)
+    println('='^40, " end of diff ", '='^40)
+    if haskey(ENV, "DOCUMENTER_FIXTESTS")
+        @info "Updating reference file: $(b)"
+        cp(a, b, force=true)
+    end
+    return false
+end
+
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
         (Main.examples_html_doc, "html"),
@@ -103,5 +150,36 @@ end
         @test examples_html_repo_travis_doc.user.remote === Remotes.GitHub("bar", "baz")
         @test examples_html_repo_nothing_doc.user.remote === nothing
         @test examples_html_repo_error_doc.user.remote === nothing
+    end
+
+    @testset "PDF/LaTeX: TeX only" begin
+        doc = Main.examples_latex_texonly_doc
+        @test isa(doc, Documenter.Documents.Document)
+        let build_dir = joinpath(examples_root, "builds", "latex_texonly")
+            @test joinpath(build_dir, latex_filename(doc)) |> isfile
+            @test joinpath(build_dir, "documenter.sty") |> isfile
+        end
+    end
+
+    @testset "PDF/LaTeX: simple (TeX only)" begin
+        doc = Main.examples_latex_simple_texonly_doc
+        @test isa(doc, Documenter.Documents.Document)
+        let build_dir = joinpath(examples_root, "builds", "latex_simple_texonly")
+            @test joinpath(build_dir, "documenter.sty") |> isfile
+            texfile = joinpath(build_dir, latex_filename(doc))
+            @test isfile(texfile)
+            @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_simple.tex"))
+        end
+    end
+
+    @testset "PDF/LaTeX: showcase (TeX only)" begin
+        doc = Main.examples_latex_showcase_texonly_doc
+        @test isa(doc, Documenter.Documents.Document)
+        let build_dir = joinpath(examples_root, "builds", "latex_showcase_texonly")
+            @test joinpath(build_dir, "documenter.sty") |> isfile
+            texfile = joinpath(build_dir, latex_filename(doc))
+            @test isfile(texfile)
+            @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_showcase.tex"))
+        end
     end
 end

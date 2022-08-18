@@ -1,0 +1,231 @@
+% Useful variables
+\newcommand{\DocMainTitle}{Documenter LaTeX Simple Non-Docker}
+\newcommand{\DocVersion}{1.2.3}
+\newcommand{\DocAuthors}{}
+\newcommand{\JuliaVersion}{1.7.3}
+
+% ---- Insert preamble
+\input{preamble.tex}
+
+
+\part{Main section}
+
+
+\hypertarget{2404672936622507303}{}
+
+
+\chapter{Simple LaTeX build}
+
+
+
+This build only contains a single paragraph of text to make sure that a near-empty LaTeX builds passes.
+
+
+
+
+\begin{minted}{jlcon}
+julia> 127 % Int8
+127
+\end{minted}
+
+
+
+\hypertarget{7015032742042465691}{}
+
+
+\section{Issue 1119}
+
+
+
+
+\begin{minted}[escapeinside=\#\%]{julia}
+1 #%% 2
+1 #\unicodeveebar% 2
+1 | 2
+\end{minted}
+
+
+
+\hypertarget{11205007439977385833}{}
+
+
+\section{Escaping: {\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.}
+
+
+
+{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.
+
+
+
+\begin{quote}
+\textbf{{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.}
+
+{\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.
+
+\end{quote}
+
+
+\hypertarget{2725380850448218554}{}
+
+
+\section{Issue 1392}
+
+
+
+
+\begin{minted}{jlcon}
+julia> function foo end;
+\end{minted}
+
+
+
+\hypertarget{6410313561210829225}{}
+
+
+\section{Issue 1401: rendering custom LaTeX}
+
+
+
+\hypertarget{8748729638232735390}{}
+
+
+\subsection{@example block / show with \texttt{text/latex} MIME}
+
+
+
+
+\begin{minted}{julia}
+struct Table end
+
+Base.show(io, ::MIME"text/latex", ::Table) = write(io, raw"""
+\begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+""")
+
+Table()
+\end{minted}
+
+\begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+
+
+\hypertarget{12409239921345651831}{}
+
+
+\subsection{@raw block}
+
+
+
+
+\begin{tabular}{r|ccc}
+        & i & y & z\\
+        \hline
+        & Int64 & Char & Int64\\
+        \hline
+        1 & 1 & 'A' & 5 \\
+        2 & 2 & 'B' & 6 \\
+        3 & 3 & 'C' & 7 \\
+        4 & 4 & 'D' & 8 \\
+\end{tabular}
+
+
+
+\hypertarget{6068398623935042956}{}
+
+
+\subsection{Inline LaTeX}
+
+
+
+\emph{Note: this should render as just text, not as a table.}
+
+
+
+{\textbackslash}begin\{tabular\}\{r|ccc\}         \& i \& y \& z{\textbackslash}
+        {\textbackslash}hline         \& Int64 \& Char \& Int64{\textbackslash}
+        {\textbackslash}hline         1 \& 1 \& {\textquotesingle}A{\textquotesingle} \& 5 {\textbackslash}
+        2 \& 2 \& {\textquotesingle}B{\textquotesingle} \& 6 {\textbackslash}
+        3 \& 3 \& {\textquotesingle}C{\textquotesingle} \& 7 {\textbackslash}
+        4 \& 4 \& {\textquotesingle}D{\textquotesingle} \& 8 {\textbackslash}
+{\textbackslash}end\{tabular\}
+
+
+
+\hypertarget{15068950516559662596}{}
+
+
+\section{Printing LaTeX from Julia}
+
+
+
+To pretty-print LaTeX from Julia, overload \texttt{Base.show} for the \texttt{MIME{\textquotedbl}text/latex{\textquotedbl}} type. For example:
+
+
+
+
+\begin{minted}{julia}
+struct LaTeXEquation
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation)
+    # Wrap in $$ for display math printing
+    return print(io, "\$\$ " * x.content * " \$\$")
+end
+
+LaTeXEquation(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+\end{minted}
+
+$$     \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+ $$
+
+
+\begin{minted}{julia}
+struct LaTeXEquation2
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation2)
+    # Wrap in \[...\] for display math printing
+    return print(io, "\\[ " * x.content * " \\]")
+end
+
+LaTeXEquation2(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+\end{minted}
+
+\[     \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+ \]
+
+\end{document}

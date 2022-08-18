@@ -1,0 +1,1012 @@
+% Useful variables
+\newcommand{\DocMainTitle}{Documenter LaTeX Showcase}
+\newcommand{\DocVersion}{1.2.3}
+\newcommand{\DocAuthors}{}
+\newcommand{\JuliaVersion}{1.7.3}
+
+% ---- Insert preamble
+\input{preamble.tex}
+
+
+\part{Showcase}
+
+
+\hypertarget{5026512767271806841}{}
+
+
+\chapter{Style showcase for \LaTeX}
+
+
+
+This page showcases the various page elements that are supported by Documenter.
+
+
+
+\hypertarget{12987125702630500073}{}
+
+
+\section{Table of contents}
+
+
+
+A table of contents can be generated with an \href{@ref}{\texttt{@contents} block}. The one for this page renders as
+
+
+\begin{itemize}
+\item \hyperlink{5026512767271806841}{Style showcase for \LaTeX}
+\begin{itemize}
+\item \hyperlink{12987125702630500073}{Table of contents}
+\item \hyperlink{6205648162622332057}{Basic Markdown}
+\item \hyperlink{9246544299434150790}{Code blocks}
+\item \hyperlink{11449823546914191621}{Mathematics}
+\item \hyperlink{9122787766607047979}{Images}
+\item \hyperlink{7215905182614360565}{Admonitions}
+\item \hyperlink{5671077042730580546}{Lists}
+\item \hyperlink{13092196581825070152}{Tables}
+\item \hyperlink{1021238270223877775}{Footnotes}
+\item \hyperlink{11446774592040147359}{Headings}
+\item \hyperlink{385780392515386912}{Docstrings}
+\item \hyperlink{8484828884733695512}{Doctesting example}
+\item \hyperlink{13668376322529571037}{Running interactive code}
+\item \hyperlink{13368921860596370603}{Doctest showcase}
+\end{itemize}
+\end{itemize}
+
+
+\hypertarget{6205648162622332057}{}
+
+
+\section{Basic Markdown}
+
+
+
+Documenter can render all the \href{https://docs.julialang.org/en/v1/stdlib/Markdown/}{Markdown syntax supported by the Julia Markdown parser}. You can use all the usual markdown syntax, such as \textbf{bold text} and \emph{italic text} and \texttt{print({\textquotedbl}inline code{\textquotedbl})}.
+
+
+
+\hypertarget{9246544299434150790}{}
+
+
+\section{Code blocks}
+
+
+
+Code blocks are rendered as follows:
+
+
+
+
+\begin{lstlisting}
+This is an non-highlighted code block.
+... Rendered in monospace.
+\end{lstlisting}
+
+
+
+When the language is specified for the block, e.g. by starting the block with \texttt{```julia}, the contents gets highlighted appropriately (for the language that are supported by the highlighter).
+
+
+
+
+\begin{minted}{julia}
+function foo(x::Integer)
+    @show x + 1
+end
+\end{minted}
+
+
+
+\hypertarget{11449823546914191621}{}
+
+
+\section{Mathematics}
+
+
+
+For mathematics, both inline and display equations are available. Inline equations should be written as LaTeX between two backticks, e.g. \texttt{``A x{\textasciicircum}2 + B x + C = 0``}. It will render as \(A x^2 + B x + C = 0\).
+
+
+
+The LaTeX for display equations must be wrapped in a \texttt{```math} code block and will render like
+
+
+
+\begin{equation*}
+\begin{split}x_{1,2} = \frac{-B \pm \sqrt{B^2 - 4 A C}}{2A}\end{split}\end{equation*}
+
+
+By default, the HTML output renders equations with \href{https://katex.org/}{KaTeX}, but \href{https://www.mathjax.org/}{MathJax} can optionally be used as well.
+
+
+
+\begin{quote}
+\textbf{Warning}
+
+Similar to LaTeX, using \texttt{\$} and \texttt{\$\$} to escape inline and display equations also works. However, doing so is deprecated and this functionality may be removed in a future release.
+
+\end{quote}
+
+
+\hypertarget{9122787766607047979}{}
+
+
+\section{Images}
+
+
+
+Include images using basic Markdown syntax:
+
+
+
+\begin{figure}
+\centering
+\includegraphics[max width=\linewidth]{logo.png}
+\caption{Enter a descriptive caption for the image}
+\end{figure}
+
+
+
+
+The path should be relative to the directory of the current file. Alternatively, use \texttt{./} to begin a path relative to the \texttt{src} of the documents, e.g., \texttt{./logo.png}.
+
+
+
+\hypertarget{7215905182614360565}{}
+
+
+\section{Admonitions}
+
+
+
+Admonitions are colorful boxes used to highlight parts of the documentation.
+
+
+
+Each admonition begins with three \texttt{!!!}, and then the content is indented underneath with four spaces:
+
+
+
+
+\begin{lstlisting}
+!!! note "An optional title"
+    Here is something you should pay attention to.
+\end{lstlisting}
+
+
+
+Documenter supports a range of admonition types for different circumstances.
+
+
+
+\hypertarget{8401296361138166423}{}
+
+
+\subparagraph{Note admonition}
+
+
+
+\begin{quote}
+\textbf{{\textquotesingle}note{\textquotesingle} admonition}
+
+Admonitions look like this. This is a \texttt{!!! note}-type admonition.
+
+Note that admonitions themselves can contain other block-level elements too, such as code blocks. E.g.
+
+
+\begin{minted}{julia}
+f(x) = x^2
+\end{minted}
+
+However, you \textbf{can not} have at-blocks, docstrings, doctests etc. in an admonition.
+
+Headings are OK though:
+
+\chapter{Heading 1}
+
+\section{Heading 2}
+
+\subsection{Heading 3}
+
+\subsubsection{Heading 4}
+
+\paragraph{Heading 5}
+
+\subparagraph{Heading 6}
+
+\end{quote}
+
+
+\hypertarget{1173158838627777693}{}
+
+
+\subparagraph{Info admonition}
+
+
+
+\begin{quote}
+\textbf{{\textquotesingle}info{\textquotesingle} admonition}
+
+This is a \texttt{!!! info}-type admonition. This is the same as a \texttt{!!! note}-type.
+
+\end{quote}
+
+
+\hypertarget{49684782525411843}{}
+
+
+\subparagraph{Tip admonition}
+
+
+
+\begin{quote}
+\textbf{{\textquotesingle}tip{\textquotesingle} admonition}
+
+This is a \texttt{!!! tip}-type admonition.
+
+\end{quote}
+
+
+\hypertarget{1236827180402526589}{}
+
+
+\subparagraph{Warning admonition}
+
+
+
+\begin{quote}
+\textbf{{\textquotesingle}warning{\textquotesingle} admonition}
+
+This is a \texttt{!!! warning}-type admonition.
+
+\end{quote}
+
+
+\hypertarget{8922495392470806533}{}
+
+
+\subparagraph{Danger admonition}
+
+
+
+\begin{quote}
+\textbf{{\textquotesingle}danger{\textquotesingle} admonition}
+
+This is a \texttt{!!! danger}-type admonition.
+
+\end{quote}
+
+
+\hypertarget{1302833643985131377}{}
+
+
+\subparagraph{Compat admonition}
+
+
+
+\begin{quote}
+\textbf{{\textquotesingle}compat{\textquotesingle} admonition}
+
+This is a \texttt{!!! compat}-type admonition.
+
+\end{quote}
+
+
+\hypertarget{12591784623359533238}{}
+
+
+\subparagraph{Unknown admonition class}
+
+
+
+\begin{quote}
+\textbf{Unknown admonition class}
+
+Admonition with an unknown admonition class. This is a \texttt{code example}.
+
+\end{quote}
+
+
+\hypertarget{5671077042730580546}{}
+
+
+\section{Lists}
+
+
+
+Tight lists look as follows
+
+
+
+\begin{itemize}
+\item Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item Nulla quis venenatis justo.
+
+
+\item In non \emph{sodales} eros.
+
+\end{itemize}
+
+
+If the lists contain paragraphs or other block level elements, they look like this:
+
+
+
+\begin{itemize}
+\item Morbi et varius nisl, eu semper orci.
+
+Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+
+
+\item Nulla molestie aliquet metus, a dapibus ligula.
+
+Morbi pellentesque sodales sollicitudin. Fusce semper placerat suscipit. Aliquam semper tempus ex, non efficitur erat posuere in. Fusce at orci eu ex sagittis commodo.
+
+\begin{quote}
+Fusce tempus scelerisque egestas. Pellentesque varius nulla a varius fringilla.
+
+\end{quote}
+Fusce nec urna eu orci porta blandit.
+
+\end{itemize}
+
+
+Numbered lists are also supported
+
+
+
+\begin{itemize}
+\item[1. ] Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item[2. ] Nulla quis venenatis justo.
+
+
+\item[3. ] In non \emph{sodales} eros.
+
+\end{itemize}
+
+
+As are nested lists
+
+
+
+\begin{itemize}
+\item Morbi et varius nisl, eu semper orci.
+
+Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+
+\begin{itemize}
+\item Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item Nulla quis venenatis justo.
+
+
+\item In non \emph{sodales} eros.
+
+\end{itemize}
+
+\item Nulla molestie aliquet metus, a dapibus ligula.
+
+\begin{itemize}
+\item[1. ] Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item[2. ] Nulla quis venenatis justo.
+
+
+\item[3. ] In non \emph{sodales} eros.
+
+\end{itemize}
+Fusce nec urna eu orci porta blandit.
+
+\end{itemize}
+
+
+Lists can also be included in other blocks that can contain block level items
+
+
+
+\begin{quote}
+\textbf{Bulleted lists in admonitions}
+
+\begin{itemize}
+\item Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item Nulla quis venenatis justo.
+
+
+\item In non \emph{sodales} eros.
+
+\end{itemize}
+\end{quote}
+
+
+\begin{quote}
+\textbf{Large lists in admonitions}
+
+\begin{itemize}
+\item Morbi et varius nisl, eu semper orci.
+
+Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+
+\begin{itemize}
+\item Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item Nulla quis venenatis justo.
+
+
+\item In non \emph{sodales} eros.
+
+\end{itemize}
+
+\item Nulla molestie aliquet metus, a dapibus ligula.
+
+\begin{itemize}
+\item[1. ] Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item[2. ] Nulla quis venenatis justo.
+
+
+\item[3. ] In non \emph{sodales} eros.
+
+\end{itemize}
+Fusce nec urna eu orci porta blandit.
+
+\end{itemize}
+\end{quote}
+
+
+\begin{quote}
+\begin{itemize}
+\item Morbi et varius nisl, eu semper orci.
+
+Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ultricies dignissim ac vitae sem.
+
+\begin{itemize}
+\item Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+
+\item Nulla quis venenatis justo.
+
+
+\item In non \emph{sodales} eros.
+
+\end{itemize}
+\end{itemize}
+\end{quote}
+
+
+\hypertarget{13092196581825070152}{}
+
+
+\section{Tables}
+
+
+
+
+\begin{table}[h]
+
+\begin{tabulary}{\linewidth}{|R|R|R|}
+\hline
+object & implemented & value \\
+\hline
+\texttt{A} & ✓ & 10.00 \\
+\hline
+\texttt{BB} & ✓ & 1000000.00 \\
+\hline
+\end{tabulary}
+
+\end{table}
+
+
+
+With explicit alignment.
+
+
+
+
+\begin{table}[h]
+
+\begin{tabulary}{\linewidth}{|L|C|R|}
+\hline
+object & implemented & value \\
+\hline
+\texttt{A} & ✓ & 10.00 \\
+\hline
+\texttt{BB} & ✓ & 1000000.00 \\
+\hline
+\end{tabulary}
+
+\end{table}
+
+
+
+Tables that are too wide should become scrollable.
+
+
+
+
+\begin{table}[h]
+
+\begin{tabulary}{\linewidth}{|L|C|R|}
+\hline
+object & implemented & value \\
+\hline
+\texttt{A} & ✓ & 10.00 \\
+\hline
+\texttt{BBBBBBBBBBBBBBBBBBBB} & ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ & 1000000000000000000000000000000000000000000000000000000.00 \\
+\hline
+\end{tabulary}
+
+\end{table}
+
+
+
+\hypertarget{1021238270223877775}{}
+
+
+\section{Footnotes}
+
+
+
+Footnote references can be added with the \texttt{[{\textasciicircum}label]} syntax.\footnotemark[1] The footnote definitions get collected at the bottom of the page.
+
+
+
+The footnote label can be an arbitrary string and even consist of block-level elements.\footnotemark[2]
+
+
+
+\footnotetext[1]{A footnote definition uses the \texttt{[{\textasciicircum}label]: ...} syntax in a block scope.
+
+}
+
+
+\footnotetext[2]{\begin{quote}
+Any sufficiently advanced technology is indistinguishable from magic.
+
+\end{quote}
+Arthur C. Clarke, \emph{Profiles of the Future} (1961): Clarke{\textquotesingle}s Third Law.
+
+}
+
+
+\hypertarget{11446774592040147359}{}
+
+
+\section{Headings}
+
+
+
+Finally, headings render as follows
+
+
+
+\hypertarget{13764559889563060878}{}
+
+
+\subsection{Heading level 3}
+
+
+
+\hypertarget{2902134620954407701}{}
+
+
+\subsubsection{Heading level 4}
+
+
+
+\hypertarget{16420992880575752876}{}
+
+
+\paragraph{Heading level 5}
+
+
+
+\hypertarget{3776519259571530207}{}
+
+
+\subparagraph{Heading level 6}
+
+
+
+To see an example of a level 1 heading see the page title and for level 2 heading, see the one just under this paragraph.
+
+
+
+\begin{quote}
+\textbf{Headings in sidebars}
+
+Level 1 and 2 heading show up in the sidebar, for the current page.
+
+\end{quote}
+
+
+\hypertarget{385780392515386912}{}
+
+
+\section{Docstrings}
+
+
+
+The key feature of Documenter, of course, is the ability to automatically include docstrings from your package in the manual. The following example docstrings come from the demo \href{@ref}{\texttt{DocumenterShowcase}} module, the source of which can be found in \texttt{docs/DocumenterShowcase.jl}.
+
+
+\hypertarget{5669384191785722396}{} 
+\hyperlink{5669384191785722396}{\texttt{Main.Mod.func}}  -- {Function.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{minted}{julia}
+func(x)
+\end{minted}
+
+\hyperlink{1885743281855441478}{\texttt{T}}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/20258985a483fc86e1e66520aa799d29b3c93e52/test/examples/make.jl#L27-L31}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{1885743281855441478}{} 
+\hyperlink{1885743281855441478}{\texttt{Main.Mod.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+
+\begin{minted}{julia}
+T
+\end{minted}
+
+\hyperlink{5669384191785722396}{\texttt{func(x)}}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/20258985a483fc86e1e66520aa799d29b3c93e52/test/examples/make.jl#L34-L38}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{15818938160560313688}{} 
+\hyperlink{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}  -- {Function.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Inline: \(\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}\)
+
+Display equation:
+
+\begin{equation*}
+\begin{split}\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}\end{split}\end{equation*}
+\begin{quote}
+\textbf{Long equations in admonitions}
+
+Inline: \(\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}\)
+
+Display equation:
+
+\begin{equation*}
+\begin{split}\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}\end{split}\end{equation*}
+\end{quote}
+Long equations in footnotes.[{\textasciicircum}longeq-footnote]
+
+[{\textasciicircum}longeq-footnote]:
+
+
+\begin{lstlisting}
+Inline: ``\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}``
+
+Display equation:
+
+```math
+\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}
+```
+\end{lstlisting}
+
+
+
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/20258985a483fc86e1e66520aa799d29b3c93e52/test/examples/make.jl#L41-L71}{\texttt{source}}
+
+
+\end{adjustwidth}
+
+\hypertarget{6718907417846028854}{}
+
+
+\subsection{An index of docstrings}
+
+
+
+The \href{@ref}{\texttt{@index} block} can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
+
+
+\begin{itemize}
+\item \hyperlink{1885743281855441478}{\texttt{Main.Mod.T}}
+\item \hyperlink{5669384191785722396}{\texttt{Main.Mod.func}}
+\item \hyperlink{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}
+\end{itemize}
+
+
+\hypertarget{8484828884733695512}{}
+
+
+\section{Doctesting example}
+
+
+
+Often you want to write code example such as this:
+
+
+
+
+\begin{minted}{jlcon}
+julia> f(x) = x^2
+f (generic function with 1 method)
+
+julia> f(3)
+9
+\end{minted}
+
+
+
+If you write them as a \texttt{```jldoctest} code block, Documenter can make sure that the doctest has not become outdated. See \href{@ref}{Doctests} for more information.
+
+
+
+Script-style doctests are supported too:
+
+
+
+
+\begin{minted}{julia}
+2 + 2
+# output
+4
+\end{minted}
+
+
+
+\hypertarget{13668376322529571037}{}
+
+
+\section{Running interactive code}
+
+
+
+\href{@ref}{\texttt{@example} block} run a code snippet and insert the output into the document. E.g. the following Markdown
+
+
+
+
+\begin{lstlisting}
+```@example
+2 + 3
+```
+\end{lstlisting}
+
+
+
+becomes the following code-output block pair
+
+
+
+
+\begin{minted}{julia}
+2 + 3
+\end{minted}
+
+
+\begin{lstlisting}
+5
+\end{lstlisting}
+
+
+
+If the last element can be rendered as \texttt{text/latex}:
+
+
+
+
+\begin{minted}{julia}
+struct LaTeXRender
+    s :: String
+end
+function Base.show(io, ::MIME"text/latex", r::LaTeXRender)
+    write(io, """
+    Rendering \texttt{LaTeXRender}: $(r.s)
+    """)
+end
+\end{minted}
+
+
+
+
+\begin{minted}{julia}
+LaTeXRender("render this")
+\end{minted}
+
+Rendering 	exttt{LaTeXRender}: render this
+
+
+If the last value in an \texttt{@example} block is a \texttt{nothing}, the standard output from the blocks{\textquotesingle} evaluation gets displayed instead
+
+
+
+
+\begin{minted}{julia}
+println("Hello World")
+\end{minted}
+
+
+\begin{lstlisting}
+Hello World
+\end{lstlisting}
+
+
+
+However, do note that if the block prints to standard output, but also has a final non-\texttt{nothing} value, the standard output just gets discarded:
+
+
+
+
+\begin{minted}{julia}
+println("Hello World")
+42
+\end{minted}
+
+
+\begin{lstlisting}
+42
+\end{lstlisting}
+
+
+
+\hypertarget{145108940385614497}{}
+
+
+\subsection{Color output}
+
+
+
+Output from \href{@ref}{\texttt{@repl} block}s and \href{@ref}{\texttt{@example} block}s support colored output, tranforming ANSI color codes to HTML.
+
+
+
+\hypertarget{2007526222437001005}{}
+
+
+\subsubsection{Colored \texttt{@repl} block output}
+
+
+
+\textbf{Input:}
+
+
+
+
+\begin{lstlisting}
+```@repl
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+\end{lstlisting}
+
+
+
+\textbf{Output:}
+
+
+
+
+\begin{minted}{jlcon}
+julia> printstyled("This should be in bold cyan.", color=:cyan, bold=true)
+This should be in bold cyan.
+\end{minted}
+
+
+
+\textbf{Locally disabled color:}
+
+
+
+
+\begin{lstlisting}
+```@repl; ansicolor=false
+printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+```
+\end{lstlisting}
+
+
+
+
+\begin{minted}{jlcon}
+julia> printstyled("This should be in bold light cyan.", color=:light_cyan, bold=true)
+This should be in bold light cyan.
+\end{minted}
+
+
+
+\hypertarget{16879075044857377173}{}
+
+
+\subsubsection{Raw ANSI code output}
+
+
+
+Regardless of the color setting, when you print the ANSI escape codes directly, coloring is enabled.
+
+
+
+
+\begin{minted}{julia}
+for color in 0:15
+    print("\e[38;5;$color;48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
+\end{minted}
+
+
+\begin{lstlisting}
+    0     1     2     3     4     5     6     7
+    8     9    10    11    12    13    14    15
+
+\end{lstlisting}
+
+
+
+\hypertarget{13368921860596370603}{}
+
+
+\section{Doctest showcase}
+
+
+
+Currently exists just so that there would be doctests to run in manual pages of Documenter{\textquotesingle}s manual. This page does not show up in navigation.
+
+
+
+
+\begin{minted}{jlcon}
+julia> 2 + 2
+4
+\end{minted}
+
+
+
+The following doctests needs doctestsetup:
+
+
+
+
+\begin{minted}{jlcon}
+julia> Documenter.Utilities.splitexpr(:(Foo.Bar.baz))
+(:(Foo.Bar), :(:baz))
+\end{minted}
+
+
+
+Let{\textquotesingle}s also try \texttt{@meta} blocks:
+
+
+
+
+
+
+\begin{minted}{jlcon}
+julia> f(2)
+4
+\end{minted}
+
+
+
+
+
+\end{document}

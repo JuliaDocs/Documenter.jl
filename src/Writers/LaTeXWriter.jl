@@ -111,13 +111,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
-            fileprefix = doc.user.sitename
-            if occursin(Base.VERSION_REGEX, settings.version)
-                v = VersionNumber(settings.version)
-                fileprefix *= "-$(v.major).$(v.minor).$(v.patch)"
-            end
-            fileprefix = replace(fileprefix, " " => "")
-
+            fileprefix = latex_fileprefix(doc, settings)
             open("$(fileprefix).tex", "w") do io
                 context = Context(io)
                 writeheader(context, doc, settings)
@@ -167,6 +161,15 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             end
         end
     end
+end
+
+function latex_fileprefix(doc::Documents.Document, settings::LaTeX)
+    fileprefix = doc.user.sitename
+    if occursin(Base.VERSION_REGEX, settings.version)
+        v = VersionNumber(settings.version)
+        fileprefix *= "-$(v.major).$(v.minor).$(v.patch)"
+    end
+    return replace(fileprefix, " " => "")
 end
 
 const DOCKER_IMAGE_TAG = "0.1"
