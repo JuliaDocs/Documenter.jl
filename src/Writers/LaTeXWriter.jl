@@ -302,31 +302,23 @@ function latex(io::IO, node::Documents.DocsNode, page, doc)
 end
 
 function latexdoc(io::IO, md::Markdown.MD, page, doc)
-    if haskey(md.meta, :results)
-        # The `:results` field contains a vector of `Docs.DocStr` objects associated with
-        # each markdown object. The `DocStr` contains data such as file and line info that
-        # we need for generating correct scurce links.
-        for (markdown, result) in zip(md.content, md.meta[:results])
-            latex(io, Utilities.dropheaders(markdown), page, doc)
-            # When a source link is available then print the link.
-            url = Utilities.source_url(doc.user.remote, result)
-            if url !== nothing
-                link = "\\href{$url}{\\texttt{source}}"
-                _println(io, "\n", link, "\n")
-            end
+    # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
+    # is a Markdown.MD objects and that it has the :results meta value set correctly.
+    @assert haskey(md.meta, :results)
+    @assert length(md.content) == length(md.meta[:results])
+    # The `:results` field contains a vector of `Docs.DocStr` objects associated with
+    # each markdown object. The `DocStr` contains data such as file and line info that
+    # we need for generating correct scurce links.
+    for (markdown, result) in zip(md.content, md.meta[:results])
+        latex(io, Utilities.dropheaders(markdown), page, doc)
+        # When a source link is available then print the link.
+        url = Utilities.source_url(doc.user.remote, result)
+        if url !== nothing
+            link = "\\href{$url}{\\texttt{source}}"
+            _println(io, "\n", link, "\n")
         end
-    else
-        # Docstrings with no `:results` metadata won't contain source locations so we don't
-        # try to print them out. Just print the basic docstring.
-        render(io, mime, Utilities.dropheaders(md), page, doc)
     end
 end
-
-function latexdoc(io::IO, other, page, doc)
-    # TODO: properly support non-markdown docstrings at some point.
-    latex(io, other, page, doc)
-end
-
 
 ## Index, Contents, and Eval Nodes.
 
