@@ -32,8 +32,8 @@ function onormalize_tex(s)
     s = replace(s, r"\\(href|hyperlink|hypertarget){[A-Za-z0-9#/_:.-]+}" => s"\\\1{}")
     # We also write the current Julia version into the TeX file
     s = replace(s, r"\\newcommand{\\JuliaVersion}{[0-9.]+}" => "\\newcommand{\\JuliaVersion}{}")
-    # Remove CR parts of newslines, to make Windows happy
-    s = replace(s, "\r" => "")
+    # Remove CR parts of newlines, to make Windows happy
+    s = replace(s, '\r' => "")
     return s
 end
 function printdiff(s1, s2)
