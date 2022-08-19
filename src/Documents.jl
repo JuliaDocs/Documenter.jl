@@ -18,8 +18,10 @@ import ..Documenter:
 
 using ..Documenter.Utilities: Remotes, Markdown2
 using DocStringExtensions
-import Markdown
+import Markdown, MarkdownAST
 using Unicode
+
+abstract type AbstractDocumenterBlock <: MarkdownAST.AbstractBlock end
 
 # Pages.
 # ------
@@ -94,7 +96,7 @@ end
 
 ## IndexNode.
 
-struct IndexNode
+struct IndexNode <: AbstractDocumenterBlock
     pages       :: Vector{String} # Which pages to include in the index? Set by user.
     modules     :: Vector{Module} # Which modules to include? Set by user.
     order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
@@ -118,7 +120,7 @@ end
 
 ## ContentsNode.
 
-struct ContentsNode
+struct ContentsNode <: AbstractDocumenterBlock
     pages       :: Vector{String} # Which pages should be included in contents? Set by user.
     mindepth    :: Int            # Minimum header level that should be displayed. Set by user.
     depth       :: Int            # Down to which level should headers be displayed? Set by user.
@@ -142,7 +144,7 @@ end
 
 ## Other nodes
 
-struct MetaNode
+struct MetaNode <: AbstractDocumenterBlock
     dict :: Dict{Symbol, Any}
 end
 
@@ -151,7 +153,7 @@ struct MethodNode
     visible :: Bool
 end
 
-struct DocsNode
+struct DocsNode <: AbstractDocumenterBlock
     docstr  :: Any
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
@@ -171,7 +173,7 @@ struct RawHTML
     code::String
 end
 
-struct RawNode
+struct RawNode <: MarkdownAST.AbstractBlock
     name::Symbol
     text::String
 end
@@ -622,5 +624,66 @@ walk(f, meta, block::DocsNode)  = walk(f, meta, block.docstr)
 walk(f, meta, block::EvalNode)  = walk(f, meta, block.result)
 walk(f, meta, block::MetaNode)  = (merge!(meta, block.dict); nothing)
 walk(f, meta, block::Anchors.Anchor) = walk(f, meta, block.object)
+
+struct AnchoredHeader <: AbstractDocumenterBlock
+    anchor :: Anchors.Anchor
+end
+MarkdownAST.iscontainer(::AnchoredHeader) = true
+struct DocsNodesBlock <: AbstractDocumenterBlock end
+MarkdownAST.iscontainer(::DocsNodesBlock) = true
+MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
+MarkdownAST.can_contain(::DocsNodesBlock, ::Union{DocsNode, MarkdownAST.Admonition}) = true
+
+function markdownast(page::Page)
+    @assert length(page.elements) >= length(page.mapping)
+    ast = convert(MarkdownAST.Node, Markdown.MD(page.elements))
+    @assert length(ast.children) == length(page.elements)
+    @warn "Converting page: $(page.source)" length(page.elements) length(page.mapping) length(ast.children)
+    # Note: we need to collect() the ast.children because we will be mutating the nodes
+    for (node, element) in zip(collect(ast.children), page.elements)
+        if !haskey(page.mapping, element)
+            @warn "Missing mapping on $(page.source)" element
+            continue
+        end
+        element === page.mapping[element] && continue
+        atnode!(node, element, page.mapping[element])
+    end
+    return ast
+end
+
+function atnode!(::MarkdownAST.Node, element, mapping)
+    @warn """
+    Unknown mapping: $(typeof(mapping)) for $(typeof(element)) element:
+    $(element)
+    """
+    return nothing
+end
+
+atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::AbstractDocumenterBlock) = (node.element = mapping)
+
+# Top-level headers are paired with Anchor objects. We handle them by adding
+# an AnchoredHeader node between the Heading and the Document elements.
+function atnode!(node::MarkdownAST.Node, ::Markdown.Header, anchor::Anchors.Anchor)
+    ah = MarkdownAST.Node(AnchoredHeader(anchor))
+    MarkdownAST.insert_after!(node, ah)
+    push!(ah.children, node)
+    return nothing
+end
+
+function atnode!(node::MarkdownAST.Node, ::Markdown.Code, docs::DocsNodes)
+    @assert node.element isa MarkdownAST.CodeBlock
+    node.element = DocsNodesBlock()
+    for dn in docs.nodes
+        push!(node.children, docsnode(dn))
+    end
+    return nothing
+end
+docsnode(n::DocsNode) = MarkdownAST.Node(n)
+function docsnode(a::Markdown.Admonition)
+    documentnode = convert(MarkdownAST.Node, Markdown.MD([a]))
+    return first(documentnode.children)
+end
+
+Base.show(io::IO, node::Union{DocsNode,IndexNode,ContentsNode,MetaNode}) = print(io, typeof(node), "(...)")
 
 end
