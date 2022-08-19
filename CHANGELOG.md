@@ -26,6 +26,7 @@
 ## Version `v0.27.23`
 
 * ![Enhancement][badge-enhancement] The `native` and `docker` PDF builds now run with the `-interaction=batchmode` (instead of `nonstopmode`) and `-halt-on-error` options to make the LaTeX error logs more readable and to fail the build early. ([#1908][github-1908])
+* ![Bugfix][badge-bugfix] The PDF/LaTeX output now handles hard Markdown line breaks (i.e. `Markdown.LineBreak` nodes). ([#1908][github-1908])
 
 ## Version `v0.27.22`
 
