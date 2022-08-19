@@ -715,6 +715,9 @@ function latexinline(io, hr::Markdown.HorizontalRule)
     _println(io, "\\rule{\\textwidth}{1pt}}")
 end
 
+function latexinline(io, hr::Markdown.LineBreak)
+    _println(io, "\\\\")
+end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
 # rest of the build and so we just leave them in place and print a blank line in their place.
