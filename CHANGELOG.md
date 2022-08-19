@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.23`
+
+* ![Enhancement][badge-enhancement] The `native` and `docker` PDF builds now run with the `-interaction=batchmode` (instead of `nonstopmode`) and `-halt-on-error` options to make the LaTeX error logs more readable and to fail the build early. ([#1908][github-1908])
+
 ## Version `v0.27.22`
 
 * ![Maintenance][badge-maintenance] Documenter is now compatible with DocStringExtensions v0.9. ([#1885][github-1885], [#1886][github-1886])
@@ -1086,6 +1090,7 @@
 [github-1871]: https://github.com/JuliaDocs/Documenter.jl/pull/1871
 [github-1885]: https://github.com/JuliaDocs/Documenter.jl/issues/1885
 [github-1886]: https://github.com/JuliaDocs/Documenter.jl/pull/1886
+[github-1908]: https://github.com/JuliaDocs/Documenter.jl/pull/1908
 <!-- end of issue link definitions -->
 
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079

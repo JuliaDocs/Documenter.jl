@@ -180,7 +180,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
-            piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
+            piperun(`latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
             logs = cp(pwd(), mktempdir(); force=true)
@@ -208,7 +208,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
             mkdir /home/zeptodoctor/build
             cd /home/zeptodoctor/build
             cp -r /mnt/. .
-            latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $(fileprefix).tex
+            latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex
             """
         try
             piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`, clearlogs = true)
