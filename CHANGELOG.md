@@ -23,6 +23,7 @@
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
+* ![Bugfix][badge-bugfix] Previously broken links within the PDF output are now fixed. (Julia issues: [pdf manual 1.5.2 links][julia-38054] and second part of [Dead links in pdf documentation][julia-43652])
 
 ## Version `v0.27.23`
 
@@ -1133,8 +1134,10 @@
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
+[julia-38054]: https://github.com/JuliaLang/julia/issues/38054
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
+[julia-43652]: https://github.com/JuliaLang/julia/issues/43652
 [julia-45174]: https://github.com/JuliaLang/julia/issues/45174
 [julialangorg-1272]: https://github.com/JuliaLang/www.julialang.org/issues/1272
 

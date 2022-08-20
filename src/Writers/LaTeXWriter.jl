@@ -85,6 +85,10 @@ Context(io) = Context{typeof(io)}(io, false, Dict(), 1, "")
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
 
+# Labels in the TeX file are hashes of plain text labels.
+# To keep the plain text label (for debugging), say _hash(x) = x
+_hash(x) = string(hash(x))
+
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
 const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
@@ -273,9 +277,9 @@ function latex(io::IO, vec::Vector, page, doc)
 end
 
 function latex(io::IO, anchor::Anchors.Anchor, page, doc)
-    id = string(hash(string(anchor.id, "-", anchor.nth)))
-    _println(io, "\n\\hypertarget{", id, "}{}\n")
+    id = _hash(Anchors.label(anchor))
     latex(io, anchor.object, page, doc)
+    _println(io, "\n\\label{", id, "}{}\n")
 end
 
 
@@ -288,10 +292,9 @@ function latex(io::IO, node::Documents.DocsNodes, page, doc)
 end
 
 function latex(io::IO, node::Documents.DocsNode, page, doc)
-    id = string(hash(string(node.anchor.id)))
+    id = _hash(Anchors.label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
-    _println(io, "\\hypertarget{", id, "}{} ")
-    _print(io, "\\hyperlink{", id, "}{\\texttt{")
+    _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, string(node.object.binding))
     _print(io, "}} ")
     _println(io, " -- {", Utilities.doccat(node.object), ".}\n")
@@ -329,9 +332,9 @@ function latex(io::IO, index::Documents.IndexNode, page, doc)
 
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
-        id = string(hash(string(Utilities.slugify(object))))
+        id = _hash(string(Utilities.slugify(object)))
         text = string(object.binding)
-        _print(io, "\\item \\hyperlink{")
+        _print(io, "\\item \\hyperlinkref{")
         _print(io, id, "}{\\texttt{")
         latexesc(io, text)
         _println(io, "}}")
@@ -352,7 +355,6 @@ function latex(io::IO, contents::Documents.ContentsNode, page, doc)
         # Filter out header levels smaller than the requested mindepth
         level = level - contents.mindepth + 1
         level < 1 && continue
-        id = string(hash(string(anchor.id, "-", anchor.nth)))
         # If we're changing depth, we need to make sure we always print the
         # correct number of \begin{itemize} and \end{itemize} statements.
         if level > depth
@@ -370,7 +372,8 @@ function latex(io::IO, contents::Documents.ContentsNode, page, doc)
             end
         end
         # Print the corresponding \item statement
-        _print(io, "\\item \\hyperlink{", id, "}{")
+        id = _hash(Anchors.label(anchor))
+        _print(io, "\\item \\hyperlinkref{", id, "}{")
         latexinline(io, header.text)
         _println(io, "}")
     end
@@ -676,8 +679,8 @@ function latexinline(io::IO, md::Markdown.Link)
     else
         if occursin(".md#", md.url)
             file, target = split(md.url, ".md#"; limit = 2)
-            id = string(hash(target))
-            wrapinline(io, "hyperlink") do
+            id = _hash(target)
+            wrapinline(io, "hyperlinkref") do
                 _print(io, id)
             end
         else
