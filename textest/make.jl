@@ -1,6 +1,3 @@
-using Pkg
-using Revise
-Pkg.activate(dirname(@__DIR__))
 using Documenter
 
 """
@@ -26,6 +23,6 @@ function make(format = :pdf)
         build = "build-$(format)",
         sitename = "textest",
         format = (format === :pdf) ? Documenter.LaTeX(platform = "none") : Documenter.HTML(),
-        pages = ["blocks.md", "inlines.md", "x_docstrings.md"],
+        pages = ["blocks.md", "inlines.md", "docstrings.md", "eval.md"],
     )
 end
