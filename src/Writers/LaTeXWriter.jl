@@ -84,8 +84,9 @@ mutable struct Context{I <: IO} <: IO
     buffer::IOBuffer
     page::Union{Documents.Page, Nothing}
     doc::Union{Documents.Document, Nothing}
+    mdast_page::Union{MarkdownAST.Node{Nothing}, Nothing}
 end
-Context(io) = Context{typeof(io)}(io, false, Dict(), 1, "", IOBuffer(), nothing, nothing)
+Context(io) = Context{typeof(io)}(io, false, Dict(), 1, "", IOBuffer(), nothing, nothing, nothing)
 
 _print(c::Context, args...) = Base.print(c.buffer, args...)
 _println(c::Context, args...) = Base.println(c.buffer, args...)
@@ -113,6 +114,7 @@ end
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
+    mdast_pages = Documents.markdownast(doc)
     Base.mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
@@ -131,6 +133,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                         else
                             path = normpath(filename)
                             page = doc.blueprint.pages[path]
+                            context.mdast_page = mdast_pages[path]
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
@@ -287,7 +290,7 @@ function latex(io::IO, page::Documents.Page, doc::Documents.Document)
     end
     original = forward_buffer!(io)
     # New MDAST printing:
-    ast = Documents.markdownast(page)
+    ast = io.mdast_page
     io.page, io.doc = page, doc
     try
         mdast_latex(io, ast.children; toplevel=true)
@@ -532,8 +535,9 @@ function mdast_latex(io::Context, node::Node, contents::Documents.ContentsNode)
     depth = 1
     _println(io, "\\begin{itemize}")
     for (count, path, anchor) in contents.elements
-        header = anchor.object
-        level = Utilities.header_level(header)
+        @assert length(anchor.node.children) == 1
+        header = first(anchor.node.children)
+        level = header.element.level
         # Filter out header levels smaller than the requested mindepth
         level = level - contents.mindepth + 1
         level < 1 && continue
@@ -556,7 +560,7 @@ function mdast_latex(io::Context, node::Node, contents::Documents.ContentsNode)
         end
         # Print the corresponding \item statement
         _print(io, "\\item \\hyperlink{", id, "}{")
-        latexinline(io, header.text) # TODO
+        mdast_latex(io, header.children)
         _println(io, "}")
     end
     # print any remaining missing \end{itemize} statements

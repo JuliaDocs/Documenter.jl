@@ -6,6 +6,7 @@ Defines the [`Anchor`](@ref) and [`AnchorMap`](@ref) types.
 module Anchors
 
 using DocStringExtensions
+import MarkdownAST
 
 # Types.
 # ------
@@ -27,6 +28,9 @@ mutable struct Anchor
     file   :: String
     id     :: String
     nth    :: Int
+    # Reverse-lookup of .object for MarkdownAST trees. This is intentionally
+    # uninitialized until set in Documents.markdownast()
+    node   :: MarkdownAST.Node{Nothing}
     Anchor(object) = new(object, 0, "", "", 1)
 end
 

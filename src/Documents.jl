@@ -634,6 +634,8 @@ MarkdownAST.iscontainer(::DocsNodesBlock) = true
 MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
 MarkdownAST.can_contain(::DocsNodesBlock, ::Union{DocsNode, MarkdownAST.Admonition}) = true
 
+markdownast(doc::Document) = Dict(name => markdownast(page) for (name, page) in doc.blueprint.pages)
+
 function markdownast(page::Page)
     @assert length(page.elements) >= length(page.mapping)
     ast = convert(MarkdownAST.Node, Markdown.MD(page.elements))
@@ -659,14 +661,16 @@ function atnode!(::MarkdownAST.Node, element, mapping)
     return nothing
 end
 
-atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::AbstractDocumenterBlock) = (node.element = mapping)
+atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::Union{AbstractDocumenterBlock,RawNode}) = (node.element = mapping)
 
 # Top-level headers are paired with Anchor objects. We handle them by adding
 # an AnchoredHeader node between the Heading and the Document elements.
-function atnode!(node::MarkdownAST.Node, ::Markdown.Header, anchor::Anchors.Anchor)
+function atnode!(node::MarkdownAST.Node, h::Markdown.Header, anchor::Anchors.Anchor)
+    @show h node
     ah = MarkdownAST.Node(AnchoredHeader(anchor))
     MarkdownAST.insert_after!(node, ah)
     push!(ah.children, node)
+    anchor.node = ah
     return nothing
 end
 
@@ -684,6 +688,6 @@ function docsnode(a::Markdown.Admonition)
     return first(documentnode.children)
 end
 
-Base.show(io::IO, node::Union{DocsNode,IndexNode,ContentsNode,MetaNode}) = print(io, typeof(node), "(...)")
+Base.show(io::IO, node::Union{AnchoredHeader,DocsNode,IndexNode,ContentsNode,MetaNode}) = print(io, typeof(node), "(...)")
 
 end
