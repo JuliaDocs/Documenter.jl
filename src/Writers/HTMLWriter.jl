@@ -1584,12 +1584,15 @@ function domify(ctx, navnode, contents::Documents.ContentsNode)
     navnode_url = get_url(ctx, navnode)
     lb = ListBuilder()
     for (count, path, anchor) in contents.elements
+        header = anchor.object
+        level = Utilities.header_level(header)
+        # Skip header levels smaller than the requested mindepth
+        level = level - contents.mindepth + 1
+        level < 1 && continue
         path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
-        header = anchor.object
         url = string(path, Anchors.fragment(anchor))
         node = a[:href=>url](mdconvert(header.text; droplinks=true))
-        level = Utilities.header_level(header)
         push!(lb, level, node)
     end
     domify(lb)
@@ -1637,26 +1640,24 @@ end
 
 function domify_doc(ctx, navnode, md::Markdown.MD)
     @tags a section footer div
-    if haskey(md.meta, :results)
-        # The `:results` field contains a vector of `Docs.DocStr` objects associated with
-        # each markdown object. The `DocStr` contains data such as file and line info that
-        # we need for generating correct source links.
-        map(zip(md.content, md.meta[:results])) do md
-            markdown, result = md
-            ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
-            # When a source link is available then print the link.
-            if !ctx.settings.disable_git
-                url = Utilities.source_url(ctx.doc.user.remote, result)
-                if url !== nothing
-                    push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
-                end
+    # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
+    # is a Markdown.MD objects and that it has the :results meta value set correctly.
+    @assert haskey(md.meta, :results)
+    @assert length(md.content) == length(md.meta[:results])
+    # The `:results` field contains a vector of `Docs.DocStr` objects associated with
+    # each markdown object. The `DocStr` contains data such as file and line info that
+    # we need for generating correct source links.
+    map(zip(md.content, md.meta[:results])) do md
+        markdown, result = md
+        ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
+        # When a source link is available then print the link.
+        if !ctx.settings.disable_git
+            url = Utilities.source_url(ctx.doc.user.remote, result)
+            if url !== nothing
+                push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
             end
-            return ret
         end
-    else
-        # Docstrings with no `:results` metadata won't contain source locations so we don't
-        # try to print them out. Just print the basic docstring.
-        section(domify(ctx, navnode, Utilities.dropheaders(md)))
+        return ret
     end
 end
 

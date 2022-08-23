@@ -29,6 +29,9 @@ include("TestUtilities.jl"); using Main.TestUtilities
     # DocSystem unit tests.
     include("docsystem.jl")
 
+    # CrossReferences
+    include("crossreferences.jl")
+
     # DocTest unit tests.
     @info "Running tests in doctests/"
     include("doctests/docmeta.jl")

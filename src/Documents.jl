@@ -55,6 +55,13 @@ struct Page
     mdast   :: MarkdownAST.Node{Nothing}
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
+    # The Markdown standard library parser is sensitive to line endings:
+    #   https://github.com/JuliaLang/julia/issues/29344
+    # This can lead to different AST and therefore differently rendered docs, depending on
+    # what platform the docs are being built (e.g. when Git checks out LF files with
+    # CRFL line endings on Windows). To make sure that the docs are always built consistently,
+    # we'll normalize the line endings when parsing Markdown files by removing all CR characters.
+    mdsrc = replace(read(source, String), '\r' => "")
     mdpage = Markdown.parse(read(source, String))
     mdast = try
         convert(MarkdownAST.Node, mdpage)
@@ -113,6 +120,7 @@ end
 
 struct ContentsNode
     pages       :: Vector{String} # Which pages should be included in contents? Set by user.
+    mindepth    :: Int            # Minimum header level that should be displayed. Set by user.
     depth       :: Int            # Down to which level should headers be displayed? Set by user.
     build       :: String         # Same as for `IndexNode`s.
     source      :: String         # Same as for `IndexNode`s.
@@ -120,12 +128,15 @@ struct ContentsNode
 
     function ContentsNode(;
             Pages  = [],
-            Depth  = 2,
+            Depth  = 1:2,
             build  = error("missing value for `build` in `ContentsNode`."),
             source = error("missing value for `source` in `ContentsNode`."),
             others...
         )
-        new(Pages, Depth, build, source, [])
+        if Depth isa Integer
+            Depth = 1:Depth
+        end
+        new(Pages, first(Depth), last(Depth), build, source, [])
     end
 end
 
@@ -493,6 +504,8 @@ function populate!(contents::ContentsNode, document::Document)
         for (file, anchors) in filedict
             for anchor in anchors
                 page = relpath(anchor.file, dirname(contents.build))
+                # Note: This only filters based on contents.depth and *not* contents.mindepth.
+                #       Instead the writers who support this adjust this when rendering.
                 if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end

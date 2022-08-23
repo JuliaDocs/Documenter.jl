@@ -101,14 +101,9 @@ const DOCUMENT_STRUCTURE = (
     "subparagraph",
 )
 
-# https://github.com/JuliaLang/julia/pull/32851
-function mktempdir(args...; kwargs...)
-    return Base.mktempdir(args...; cleanup=false, kwargs...)
-end
-
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
-    Base.mktempdir() do path
+    mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             fileprefix = doc.user.sitename
@@ -150,7 +145,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
             # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
             # source files over to a directory under doc.user.root.
             if haskey(ENV, "DOCUMENTER_LATEX_DEBUG")
-                dst = isempty(ENV["DOCUMENTER_LATEX_DEBUG"]) ? mktempdir(doc.user.root) :
+                dst = isempty(ENV["DOCUMENTER_LATEX_DEBUG"]) ? mktempdir(doc.user.root; cleanup=false) :
                     joinpath(doc.user.root, ENV["DOCUMENTER_LATEX_DEBUG"])
                 sources = cp(pwd(), dst, force=true)
                 @info "LaTeX sources copied for debugging to $(sources)"
@@ -179,7 +174,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
             piperun(`latexmk -f -interaction=nonstopmode -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
-            logs = cp(pwd(), mktempdir(); force=true)
+            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
@@ -192,7 +187,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
             piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $(fileprefix).tex`, clearlogs = true)
             return true
         catch err
-            logs = cp(pwd(), mktempdir(); force=true)
+            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
@@ -212,7 +207,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
             piperun(`docker cp latex-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
             return true
         catch err
-            logs = cp(pwd(), mktempdir(); force=true)
+            logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
                    "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
             return false
@@ -307,31 +302,23 @@ function latex(io::IO, node::Documents.DocsNode, page, doc)
 end
 
 function latexdoc(io::IO, md::Markdown.MD, page, doc)
-    if haskey(md.meta, :results)
-        # The `:results` field contains a vector of `Docs.DocStr` objects associated with
-        # each markdown object. The `DocStr` contains data such as file and line info that
-        # we need for generating correct scurce links.
-        for (markdown, result) in zip(md.content, md.meta[:results])
-            latex(io, Utilities.dropheaders(markdown), page, doc)
-            # When a source link is available then print the link.
-            url = Utilities.source_url(doc.user.remote, result)
-            if url !== nothing
-                link = "\\href{$url}{\\texttt{source}}"
-                _println(io, "\n", link, "\n")
-            end
+    # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
+    # is a Markdown.MD objects and that it has the :results meta value set correctly.
+    @assert haskey(md.meta, :results)
+    @assert length(md.content) == length(md.meta[:results])
+    # The `:results` field contains a vector of `Docs.DocStr` objects associated with
+    # each markdown object. The `DocStr` contains data such as file and line info that
+    # we need for generating correct scurce links.
+    for (markdown, result) in zip(md.content, md.meta[:results])
+        latex(io, Utilities.dropheaders(markdown), page, doc)
+        # When a source link is available then print the link.
+        url = Utilities.source_url(doc.user.remote, result)
+        if url !== nothing
+            link = "\\href{$url}{\\texttt{source}}"
+            _println(io, "\n", link, "\n")
         end
-    else
-        # Docstrings with no `:results` metadata won't contain source locations so we don't
-        # try to print them out. Just print the basic docstring.
-        render(io, mime, Utilities.dropheaders(md), page, doc)
     end
 end
-
-function latexdoc(io::IO, other, page, doc)
-    # TODO: properly support non-markdown docstrings at some point.
-    latex(io, other, page, doc)
-end
-
 
 ## Index, Contents, and Eval Nodes.
 
@@ -362,6 +349,9 @@ function latex(io::IO, contents::Documents.ContentsNode, page, doc)
     for (count, path, anchor) in contents.elements
         header = anchor.object
         level = Utilities.header_level(header)
+        # Filter out header levels smaller than the requested mindepth
+        level = level - contents.mindepth + 1
+        level < 1 && continue
         id = string(hash(string(anchor.id, "-", anchor.nth)))
         # If we're changing depth, we need to make sure we always print the
         # correct number of \begin{itemize} and \end{itemize} statements.
