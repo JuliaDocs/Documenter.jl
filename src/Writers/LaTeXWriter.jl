@@ -347,12 +347,21 @@ end
 function mdast_latex(io::Context, children; toplevel = false)
     @assert eltype(children) <: MarkdownAST.Node
     for node in children
-        otherelement = !isa(node.element, Documents.AbstractDocumenterBlock)
+        otherelement = !isa(node.element, NoExtraTopLevelNewlines)
         toplevel && otherelement && _println(io)
         mdast_latex(io, node)
         toplevel && otherelement && _println(io)
     end
 end
+const NoExtraTopLevelNewlines = Union{
+    Documents.AnchoredHeader,
+    Documents.ContentsNode,
+    Documents.DocsNode,
+    Documents.DocsNodesBlock,
+    Documents.EvalNode,
+    Documents.IndexNode,
+    Documents.MetaNode,
+}
 
 function latex(io::IO, anchor::Anchors.Anchor, page, doc)
     id = string(hash(string(anchor.id, "-", anchor.nth)))
@@ -571,11 +580,21 @@ end
 function latex(io::IO, node::Documents.EvalNode, page, doc)
     node.result === nothing ? nothing : latex(io, node.result, page, doc)
 end
+function mdast_latex(io::Context, node::Node, evalnode::Documents.EvalNode)
+    if evalnode.result !== nothing
+        result_ast = convert(MarkdownAST.Node, evalnode.result)
+        mdast_latex(io, result_ast.children, toplevel = true)
+    end
+end
 
 # Select the "best" representation for LaTeX output.
 using Base64: base64decode
 function latex(io::IO, mo::Documents.MultiOutput)
     foreach(x->Base.invokelatest(latex, io, x), mo.content)
+end
+mdast_latex(io::Context, node::Node, ::Documents.MultiOutput) = mdast_latex(io, node.children)
+function mdast_latex(io::Context, node::Node, moe::Documents.MultiOutputElement)
+    Base.invokelatest(mdast_latex, io, node, moe.element)
 end
 function latex(io::IO, d::Dict{MIME,Any})
     filename = String(rand('a':'z', 7))
@@ -604,6 +623,41 @@ function latex(io::IO, d::Dict{MIME,Any})
         text = d[MIME"text/plain"()]
         out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
         latex(io, Markdown.Code(out))
+    else
+        error("this should never happen.")
+    end
+    return nothing
+end
+function mdast_latex(io::Context, ::Node, d::Dict{MIME,Any})
+    filename = String(rand('a':'z', 7))
+    if haskey(d, MIME"image/png"())
+        write("$(filename).png", base64decode(d[MIME"image/png"()]))
+        _println(io, """
+        \\begin{figure}[H]
+        \\centering
+        \\includegraphics[max width=\\linewidth]{$(filename)}
+        \\end{figure}
+        """)
+    elseif haskey(d, MIME"image/jpeg"())
+        write("$(filename).jpeg", base64decode(d[MIME"image/jpeg"()]))
+        _println(io, """
+        \\begin{figure}[H]
+        \\centering
+        \\includegraphics[max width=\\linewidth]{$(filename)}
+        \\end{figure}
+        """)
+    elseif haskey(d, MIME"text/latex"())
+        # If it has a latex MIME, just write it out directly.
+        _print(io, d[MIME"text/latex"()])
+    elseif haskey(d, MIME"text/markdown"())
+        md = Markdown.parse(d[MIME"text/markdown"()])
+        ast = MarkdownAST.convert(MarkdownAST.Node, md)
+        mdast_latex(io, ast)
+    elseif haskey(d, MIME"text/plain"())
+        text = d[MIME"text/plain"()]
+        out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
+        codeblock = MarkdownAST.CodeBlock("", out)
+        mdast_latex(io, MarkdownAST.Node(codeblock))
     else
         error("this should never happen.")
     end
@@ -724,6 +778,7 @@ end
 function latex(io::IO, mcb::Documents.MultiCodeBlock)
     latex(io, Documents.join_multiblock(mcb))
 end
+mdast_latex(io::Context, node::Node, mcb::Documents.MultiCodeBlock) = mdast_latex(io, node.children)
 
 function _print_code_escapes_minted(io, s::AbstractString)
     for ch in s

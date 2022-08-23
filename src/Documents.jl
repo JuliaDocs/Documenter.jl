@@ -164,7 +164,7 @@ struct DocsNodes
     nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
 end
 
-struct EvalNode
+struct EvalNode <: AbstractDocumenterBlock
     code   :: Markdown.Code
     result :: Any
 end
@@ -173,16 +173,16 @@ struct RawHTML
     code::String
 end
 
-struct RawNode <: MarkdownAST.AbstractBlock
+struct RawNode <: AbstractDocumenterBlock
     name::Symbol
     text::String
 end
 
-struct MultiOutput
+struct MultiOutput <: AbstractDocumenterBlock
     content::Vector
 end
 
-struct MultiCodeBlock
+struct MultiCodeBlock <: AbstractDocumenterBlock
     language::String
     content::Vector
 end
@@ -625,14 +625,27 @@ walk(f, meta, block::EvalNode)  = walk(f, meta, block.result)
 walk(f, meta, block::MetaNode)  = (merge!(meta, block.dict); nothing)
 walk(f, meta, block::Anchors.Anchor) = walk(f, meta, block.object)
 
+###########################################################################################
+# Conversion to MarkdownAST, for writers
+
 struct AnchoredHeader <: AbstractDocumenterBlock
     anchor :: Anchors.Anchor
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
+
 struct DocsNodesBlock <: AbstractDocumenterBlock end
 MarkdownAST.iscontainer(::DocsNodesBlock) = true
 MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
 MarkdownAST.can_contain(::DocsNodesBlock, ::Union{DocsNode, MarkdownAST.Admonition}) = true
+
+MarkdownAST.iscontainer(::MultiCodeBlock) = true
+MarkdownAST.can_contain(::MultiCodeBlock, ::MarkdownAST.Code) = true
+
+struct MultiOutputElement <: AbstractDocumenterBlock
+    element :: Any
+end
+MarkdownAST.iscontainer(::MultiOutput) = true
+MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement,MarkdownAST.CodeBlock}) = true
 
 markdownast(doc::Document) = Dict(name => markdownast(page) for (name, page) in doc.blueprint.pages)
 
@@ -688,6 +701,34 @@ function docsnode(a::Markdown.Admonition)
     return first(documentnode.children)
 end
 
-Base.show(io::IO, node::Union{AnchoredHeader,DocsNode,IndexNode,ContentsNode,MetaNode}) = print(io, typeof(node), "(...)")
+function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mcb::MultiCodeBlock)
+    node.element = mcb
+    code = join_multiblock(mcb)
+    mdast_code = MarkdownAST.CodeBlock(code.language, code.code)
+    push!(node.children, MarkdownAST.Node(mdast_code))
+    return nothing
+end
+
+function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mo::MultiOutput)
+    node.element = mo
+    for e in mo.content
+        push!(node.children, moenode(e))
+    end
+end
+moenode(d::Dict) = MarkdownAST.Node(MultiOutputElement(d))
+moenode(c::Markdown.Code) = MarkdownAST.Node(MarkdownAST.CodeBlock(c.language, c.code))
+
+const DocumenterBlockTypes = Union{
+    AnchoredHeader,
+    DocsNode,
+    IndexNode,
+    ContentsNode,
+    EvalNode,
+    MetaNode,
+    MultiCodeBlock,
+    MultiOutput,
+    MultiOutputElement,
+}
+Base.show(io::IO, node::DocumenterBlockTypes) = print(io, typeof(node), "([...])")
 
 end
