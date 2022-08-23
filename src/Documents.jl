@@ -55,7 +55,14 @@ struct Page
     md2ast   :: Markdown2.MD
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
-    mdpage = Markdown.parse(read(source, String))
+    # The Markdown standard library parser is sensitive to line endings:
+    #   https://github.com/JuliaLang/julia/issues/29344
+    # This can lead to different AST and therefore differently rendered docs, depending on
+    # what platform the docs are being built (e.g. when Git checks out LF files with
+    # CRFL line endings on Windows). To make sure that the docs are always built consistently,
+    # we'll normalize the line endings when parsing Markdown files by removing all CR characters.
+    mdsrc = replace(read(source, String), '\r' => "")
+    mdpage = Markdown.parse(mdsrc)
     md2ast = try
         Markdown2.convert(Markdown2.MD, mdpage)
     catch err
