@@ -40,14 +40,55 @@ end
 # Dispatch to `namedxref` / `docsxref`.
 # -------------------------------------
 
-const NAMED_XREF = r"^@ref (.+)$"
-
 function xref(link::Markdown.Link, meta, page, doc)
-    link.url == "@ref"             ? basicxref(link, meta, page, doc) :
-    occursin(NAMED_XREF, link.url) ? namedxref(link, meta, page, doc) : nothing
-    return false # Stop `walk`ing down this `link` element.
+    # Note: xref will always return `false` to stop `walk`ing down this `link` element.
+    slug = xrefname(link.url)
+    # If the Link does not match an '@ref' link, we'll silently bail right away -- this is some
+    # other link.
+    isnothing(slug) && return false
+    # If the slug is empty, then this is a "basic" x-ref, without a custom name
+    if isempty(slug)
+        basicxref(link, meta, page, doc)
+        return false
+    end
+    # If `slug` is a string referncing a known header, we'll go for that
+    if Anchors.exists(doc.internal.headers, slug)
+        namedxref(link, slug, meta, page, doc)
+        return false
+    end
+    # Next we'll check if name is a "string", in which case it should refer to human readable
+    # heading. We'll slugify the string content, just like in basicxref:
+    stringmatch = match(r"\"(.+)\"", slug)
+    if !isnothing(stringmatch)
+        namedxref(link, Utilities.slugify(stringmatch[1]), meta, page, doc)
+        return false
+    end
+    # Finally, we'll assume that the reference is a Julia expression referring to a docstring.
+    docref = find_docref(slug, meta, page)
+    if haskey(docref, :error)
+        # If this is not a valid docref either, we'll call namedxref().
+        # This should always throw an error because we already determined that
+        # Anchors.exists(doc.internal.headers, slug) is false. But we call it here
+        # so that we wouldn't have to duplicate the @docerror call
+        namedxref(link, slug, meta, page, doc)
+    else
+        docsxref(link, slug, meta, page, doc; docref = docref)
+    end
+    return false
 end
 xref(other, meta, page, doc) = true # Continue to `walk` through element `other`.
+
+"""
+Parse the `link.url` field of an at-ref link. Returns `nothing` if it's not an at-ref,
+an empty string the reference link has no label, or a whitespace-stripped version the
+label.
+"""
+function xrefname(link_url)
+    m = match(XREF_REGEX, link_url)
+    isnothing(m) && return nothing
+    return isnothing(m[1]) ? "" : strip(m[1])
+end
+const XREF_REGEX = r"^\s*@ref(\s.*)?$"
 
 function basicxref(link::Markdown.Link, meta, page, doc)
     if length(link.text) === 1 && isa(link.text[1], Markdown.Code)
@@ -66,23 +107,6 @@ end
 
 # Cross referencing headers.
 # --------------------------
-
-function namedxref(link::Markdown.Link, meta, page, doc)
-    # Extract the `name` from the `(@ref ...)`.
-    slug = match(NAMED_XREF, link.url)[1]
-    if isempty(slug)
-        text = sprint(Markdown.plaininline, link)
-        @docerror(doc, :cross_references, "'$text' missing a name after '#' in $(Utilities.locrepr(page.source)).")
-    else
-        if Anchors.exists(doc.internal.headers, slug)
-            namedxref(link, slug, meta, page, doc)
-        elseif length(link.text) === 1 && isa(link.text[1], Markdown.Code)
-            docsxref(link, slug, meta, page, doc)
-        else
-            namedxref(link, slug, meta, page, doc)
-        end
-    end
-end
 
 function namedxref(link::Markdown.Link, slug, meta, page, doc)
     headers = doc.internal.headers
@@ -107,41 +131,16 @@ end
 # Cross referencing docstrings.
 # -----------------------------
 
-function docsxref(link::Markdown.Link, code, meta, page, doc)
+function docsxref(link::Markdown.Link, code, meta, page, doc; docref = find_docref(code, meta, page))
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[link] = link.url
-    # Parse the link text and find current module.
-    keyword = Symbol(strip(code))
-    local ex
-    if haskey(Docs.keywords, keyword)
-        ex = QuoteNode(keyword)
-    else
-        try
-            ex = Meta.parse(code)
-        catch err
-            !isa(err, Meta.ParseError) && rethrow(err)
-            @docerror(doc, :cross_references, "unable to parse the reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source)).")
-            return
-        end
-    end
-    mod = get(meta, :CurrentModule, Main)
 
-    # Find binding and type signature associated with the link.
-    local binding
-    try
-        binding = Documenter.DocSystem.binding(mod, ex)
-    catch err
-        @docerror(doc, :cross_references, "unable to get the binding for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)", exception = err)
+    # We'll bail if the parsing of the docref wasn't successful
+    if haskey(docref, :error)
+        @docerror(doc, :cross_references, docref.error, exception = docref.exception)
         return
     end
-
-    local typesig
-    try
-        typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
-    catch err
-        @docerror(doc, :cross_references, "unable to evaluate the type signature for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)", exception = err)
-        return
-    end
+    binding, typesig = docref
 
     # Try to find a valid object that we can cross-reference.
     object = find_object(doc, binding, typesig)
@@ -154,6 +153,48 @@ function docsxref(link::Markdown.Link, code, meta, page, doc)
     else
         @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source)).")
     end
+end
+
+function find_docref(code, meta, page)
+    # Parse the link text and find current module.
+    keyword = Symbol(strip(code))
+    local ex
+    if haskey(Docs.keywords, keyword)
+        ex = QuoteNode(keyword)
+    else
+        try
+            ex = Meta.parse(code)
+        catch err
+            isa(err, Meta.ParseError) || rethrow(err)
+            return (error = "unable to parse the reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source)).", exception = nothing)
+        end
+    end
+    mod = get(meta, :CurrentModule, Main)
+
+    # Find binding and type signature associated with the link.
+    local binding
+    try
+        binding = Documenter.DocSystem.binding(mod, ex)
+    catch err
+        return (
+            error = "unable to get the binding for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception = (err, catch_backtrace()),
+        )
+        return
+    end
+
+    local typesig
+    try
+        typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
+    catch err
+        return (
+            error = "unable to evaluate the type signature for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception = (err, catch_backtrace()),
+        )
+        return
+    end
+
+    return (binding = binding, typesig = typesig)
 end
 
 """
