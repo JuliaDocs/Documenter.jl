@@ -85,3 +85,9 @@
 \usepackage{graphicx}
 \usepackage[export]{adjustbox}
 %
+
+% Some internal link targets are implemented with \label, some with \hypertarget,
+% but they require different links. This inserts a \hyperref if a corresponding label exists,
+% and \hyperlink if it doesn't.
+\def\hyperlinkref#1#2{\@ifundefined{r@#1}{\hyperlink{#1}{#2}}{\hyperref[#1]{#2}}}
+%
