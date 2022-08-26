@@ -121,3 +121,9 @@ LaTeXEquation2(raw"""
     \end{array}\right]
 """)
 ```
+
+## `LineBreak` node
+
+This sentence\
+should be over **multiple\
+lines**.
