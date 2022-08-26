@@ -28,6 +28,7 @@
 
 * ![Enhancement][badge-enhancement] The `native` and `docker` PDF builds now run with the `-interaction=batchmode` (instead of `nonstopmode`) and `-halt-on-error` options to make the LaTeX error logs more readable and to fail the build early. ([#1908][github-1908])
 * ![Bugfix][badge-bugfix] The PDF/LaTeX output now handles hard Markdown line breaks (i.e. `Markdown.LineBreak` nodes). ([#1908][github-1908])
+* ![Bugfix][badge-bugfix] Previously broken links within the PDF output are now fixed. ([JuliaLang/julia#38054][julia-38054], [JuliaLang/julia#43652][julia-43652], [#1909][github-1909])
 
 ## Version `v0.27.22`
 
@@ -1130,11 +1131,14 @@
 [github-1903]: https://github.com/JuliaDocs/Documenter.jl/pull/1903
 [github-1906]: https://github.com/JuliaDocs/Documenter.jl/pull/1906
 [github-1908]: https://github.com/JuliaDocs/Documenter.jl/pull/1908
+[github-1909]: https://github.com/JuliaDocs/Documenter.jl/pull/1909
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
+[julia-38054]: https://github.com/JuliaLang/julia/issues/38054
 [julia-38079]: https://github.com/JuliaLang/julia/issues/38079
 [julia-39841]: https://github.com/JuliaLang/julia/pull/39841
+[julia-43652]: https://github.com/JuliaLang/julia/issues/43652
 [julia-45174]: https://github.com/JuliaLang/julia/issues/45174
 [julialangorg-1272]: https://github.com/JuliaLang/www.julialang.org/issues/1272
 
