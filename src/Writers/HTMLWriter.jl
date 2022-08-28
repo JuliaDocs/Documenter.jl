@@ -1640,26 +1640,24 @@ end
 
 function domify_doc(ctx, navnode, md::Markdown.MD)
     @tags a section footer div
-    if haskey(md.meta, :results)
-        # The `:results` field contains a vector of `Docs.DocStr` objects associated with
-        # each markdown object. The `DocStr` contains data such as file and line info that
-        # we need for generating correct source links.
-        map(zip(md.content, md.meta[:results])) do md
-            markdown, result = md
-            ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
-            # When a source link is available then print the link.
-            if !ctx.settings.disable_git
-                url = Utilities.source_url(ctx.doc.user.remote, result)
-                if url !== nothing
-                    push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
-                end
+    # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
+    # is a Markdown.MD objects and that it has the :results meta value set correctly.
+    @assert haskey(md.meta, :results)
+    @assert length(md.content) == length(md.meta[:results])
+    # The `:results` field contains a vector of `Docs.DocStr` objects associated with
+    # each markdown object. The `DocStr` contains data such as file and line info that
+    # we need for generating correct source links.
+    map(zip(md.content, md.meta[:results])) do md
+        markdown, result = md
+        ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
+        # When a source link is available then print the link.
+        if !ctx.settings.disable_git
+            url = Utilities.source_url(ctx.doc.user.remote, result)
+            if url !== nothing
+                push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
             end
-            return ret
         end
-    else
-        # Docstrings with no `:results` metadata won't contain source locations so we don't
-        # try to print them out. Just print the basic docstring.
-        section(domify(ctx, navnode, Utilities.dropheaders(md)))
+        return ret
     end
 end
 
@@ -2035,22 +2033,21 @@ function mdconvert(a::Markdown.Admonition, parent; kwargs...)
     )
 end
 
-mdconvert(html::Documents.RawHTML, parent; kwargs...) = Tag(Symbol("#RAW#"))(html.code)
-
 # Select the "best" representation for HTML output.
 mdconvert(mo::Documents.MultiOutput, parent; kwargs...) =
     Base.invokelatest(mdconvert, mo.content, parent; kwargs...)
 function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
-    if haskey(d, MIME"text/html"())
-        out = Documents.RawHTML(d[MIME"text/html"()])
+    rawhtml(code) = Tag(Symbol("#RAW#"))(code)
+    return if haskey(d, MIME"text/html"())
+        rawhtml(d[MIME"text/html"()])
     elseif haskey(d, MIME"image/svg+xml"())
         svg = d[MIME"image/svg+xml"()]
         svg_tag_match = match(r"<svg[^>]*>", svg)
         if svg_tag_match === nothing
             # There is no svg tag so we don't do any more advanced
-            # processing and just return the svg as RawHTML.
+            # processing and just return the svg as HTML.
             # The svg string should be invalid but that's not our concern here.
-            out = Documents.RawHTML(svg)
+            rawhtml(svg)
         else
             # The xmlns attribute has to be present for data:image/svg+xml
             # to work (https://stackoverflow.com/questions/18467982).
@@ -2084,17 +2081,17 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
                 sep = "'"
             end
 
-            out = Documents.RawHTML(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
+            rawhtml(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         end
 
     elseif haskey(d, MIME"image/png"())
-        out = Documents.RawHTML(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
+        rawhtml(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
     elseif haskey(d, MIME"image/webp"())
-        out = Documents.RawHTML(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
+        rawhtml(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
     elseif haskey(d, MIME"image/gif"())
-        out = Documents.RawHTML(string("<img src=\"data:image/gif;base64,", d[MIME"image/gif"()], "\" />"))
+        rawhtml(string("<img src=\"data:image/gif;base64,", d[MIME"image/gif"()], "\" />"))
     elseif haskey(d, MIME"image/jpeg"())
-        out = Documents.RawHTML(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
+        rawhtml(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
     elseif haskey(d, MIME"text/latex"())
         # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
@@ -2103,13 +2100,15 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
         # Make sure to match multiline strings!
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
         m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
-        if m_bracket === nothing && m_dollars === nothing
-            out = Utilities.mdparse(latex; mode = :single)
+        out = if m_bracket === nothing && m_dollars === nothing
+            Utilities.mdparse(latex; mode = :single)
         else
-            out = Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
+            Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
         end
+        mdconvert(out, parent; kwargs...)
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])
+        mdconvert(out, parent; kwargs...)
     elseif haskey(d, MIME"text/plain"())
         @tags pre
         text = d[MIME"text/plain"()]
@@ -2117,7 +2116,6 @@ function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
     else
         error("this should never happen.")
     end
-    return mdconvert(out, parent; kwargs...)
 end
 
 # Fallback
@@ -2201,8 +2199,5 @@ fixlinks!(ctx, navnode, t::Markdown.Table) = fixlinks!(ctx, navnode, t.rows)
 
 fixlinks!(ctx, navnode, mds::Vector) = map(md -> fixlinks!(ctx, navnode, md), mds)
 fixlinks!(ctx, navnode, md) = nothing
-
-# TODO: do some regex-magic in raw HTML blocks? Currently ignored.
-#fixlinks!(ctx, navnode, md::Documents.RawHTML) = ...
 
 end

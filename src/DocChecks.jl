@@ -8,7 +8,6 @@ import ..Documenter:
     Documenter,
     Documents,
     Utilities,
-    Utilities.Markdown2,
     Utilities.@docerror
 
 using DocStringExtensions

@@ -6,7 +6,7 @@ include("TestUtilities.jl"); using Main.TestUtilities
 
 import Documenter
 using Documenter.Utilities: git
-import Markdown
+import Markdown, MarkdownAST
 
 module UnitTests
     module SubModule end
@@ -276,8 +276,7 @@ end
     end
 
     import Documenter.Documents: Document, Page, Globals
-    import Documenter.Utilities: Markdown2
-    let page = Page("source", "build", :build, [], IdDict{Any,Any}(), Globals(), Markdown2.MD()), doc = Document()
+    let page = Page("source", "build", :build, [], IdDict{Any,Any}(), Globals(), MarkdownAST.@ast MarkdownAST.Document()), doc = Document()
         code = """
         x += 3
         γγγ_γγγ
