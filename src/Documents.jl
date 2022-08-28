@@ -16,9 +16,9 @@ import ..Documenter:
     Plugin,
     Writer
 
-using ..Documenter.Utilities: Remotes, Markdown2
+    using ..Documenter.Utilities: Remotes
 using DocStringExtensions
-import Markdown
+import Markdown, MarkdownAST
 using Unicode
 
 # Pages.
@@ -52,7 +52,7 @@ struct Page
     """
     mapping  :: IdDict{Any,Any}
     globals  :: Globals
-    md2ast   :: Markdown2.MD
+    mdast   :: MarkdownAST.Node{Nothing}
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
     # The Markdown standard library parser is sensitive to line endings:
@@ -62,17 +62,17 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
     # CRFL line endings on Windows). To make sure that the docs are always built consistently,
     # we'll normalize the line endings when parsing Markdown files by removing all CR characters.
     mdsrc = replace(read(source, String), '\r' => "")
-    mdpage = Markdown.parse(mdsrc)
-    md2ast = try
-        Markdown2.convert(Markdown2.MD, mdpage)
+    mdpage = Markdown.parse(read(source, String))
+    mdast = try
+        convert(MarkdownAST.Node, mdpage)
     catch err
         @error """
-            Markdown2 conversion error on $(source).
+            MarkdownAST conversion error on $(source).
             This is a bug — please report this on the Documenter issue tracker
             """
         rethrow(err)
     end
-    Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), md2ast)
+    Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), mdast)
 end
 
 # FIXME -- special overload for Utilities.parseblock

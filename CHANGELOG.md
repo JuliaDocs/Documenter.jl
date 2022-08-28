@@ -23,6 +23,7 @@
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
+* ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892])
 
 ## Version `v0.27.23`
 
@@ -1127,6 +1128,7 @@
 [github-1885]: https://github.com/JuliaDocs/Documenter.jl/issues/1885
 [github-1886]: https://github.com/JuliaDocs/Documenter.jl/pull/1886
 [github-1890]: https://github.com/JuliaDocs/Documenter.jl/pull/1890
+[github-1892]: https://github.com/JuliaDocs/Documenter.jl/pull/1892
 [github-1900]: https://github.com/JuliaDocs/Documenter.jl/pull/1900
 [github-1903]: https://github.com/JuliaDocs/Documenter.jl/pull/1903
 [github-1906]: https://github.com/JuliaDocs/Documenter.jl/pull/1906
@@ -1142,12 +1144,13 @@
 [julia-45174]: https://github.com/JuliaLang/julia/issues/45174
 [julialangorg-1272]: https://github.com/JuliaLang/www.julialang.org/issues/1272
 
+[documenter-issues]: https://github.com/JuliaDocs/Documenter.jl/issues
 [documenterlatex]: https://github.com/JuliaDocs/DocumenterLaTeX.jl
 [documentermarkdown]: https://github.com/JuliaDocs/DocumenterMarkdown.jl
 [json-jl]: https://github.com/JuliaIO/JSON.jl
 [juliamono]: https://cormullion.github.io/pages/2020-07-26-JuliaMono/
 [liveserver]: https://github.com/tlienart/LiveServer.jl
-
+[markdownast]: https://github.com/JuliaDocs/MarkdownAST.jl
 
 [badge-breaking]: https://img.shields.io/badge/BREAKING-red.svg
 [badge-deprecation]: https://img.shields.io/badge/deprecation-orange.svg

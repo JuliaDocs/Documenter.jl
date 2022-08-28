@@ -8,7 +8,7 @@ using CommonMark
 # Configuration:
 
 const LINKREF_EXCEPTIONS = [
-    "json-jl", "juliamono", "documenterlatex", "documentermarkdown", "liveserver",
+    "json-jl", "juliamono", "documenterlatex", "documentermarkdown", "liveserver", "markdownast", "documenter-issues",
     r"^julia-([0-9]+)$",
     r"^julialangorg-([0-9]+)$",
     r"^badge-([a-z]+)$",
