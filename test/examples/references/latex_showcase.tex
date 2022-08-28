@@ -2,7 +2,7 @@
 \newcommand{\DocMainTitle}{Documenter LaTeX Showcase}
 \newcommand{\DocVersion}{1.2.3}
 \newcommand{\DocAuthors}{}
-\newcommand{\JuliaVersion}{1.7.3}
+\newcommand{\JuliaVersion}{1.8.0}
 
 % ---- Insert preamble
 \input{preamble.tex}
@@ -11,64 +11,64 @@
 \part{Showcase}
 
 
-\hypertarget{5026512767271806841}{}
-
-
 \chapter{Style showcase for \LaTeX}
 
+
+
+\label{5852870456629818970}{}
 
 
 This page showcases the various page elements that are supported by Documenter.
 
 
 
-\hypertarget{12987125702630500073}{}
-
-
 \section{Table of contents}
 
+
+
+\label{11192443102986465861}{}
 
 
 A table of contents can be generated with an \href{@ref}{\texttt{@contents} block}. The one for this page renders as
 
 
 \begin{itemize}
-\item \hyperlink{5026512767271806841}{Style showcase for \LaTeX}
+\item \hyperlinkref{5852870456629818970}{Style showcase for \LaTeX}
 \begin{itemize}
-\item \hyperlink{12987125702630500073}{Table of contents}
-\item \hyperlink{6205648162622332057}{Basic Markdown}
-\item \hyperlink{9246544299434150790}{Code blocks}
-\item \hyperlink{11449823546914191621}{Mathematics}
-\item \hyperlink{9122787766607047979}{Images}
-\item \hyperlink{7215905182614360565}{Admonitions}
-\item \hyperlink{5671077042730580546}{Lists}
-\item \hyperlink{13092196581825070152}{Tables}
-\item \hyperlink{1021238270223877775}{Footnotes}
-\item \hyperlink{11446774592040147359}{Headings}
-\item \hyperlink{385780392515386912}{Docstrings}
-\item \hyperlink{8484828884733695512}{Doctesting example}
-\item \hyperlink{13668376322529571037}{Running interactive code}
-\item \hyperlink{13368921860596370603}{Doctest showcase}
+\item \hyperlinkref{11192443102986465861}{Table of contents}
+\item \hyperlinkref{13015211943483912510}{Basic Markdown}
+\item \hyperlinkref{14660894509460337656}{Code blocks}
+\item \hyperlinkref{9406902154236239312}{Mathematics}
+\item \hyperlinkref{5224713065671704740}{Images}
+\item \hyperlinkref{1916796393499649241}{Admonitions}
+\item \hyperlinkref{932242378642137797}{Lists}
+\item \hyperlinkref{6147076236960597988}{Tables}
+\item \hyperlinkref{16845496644619434430}{Footnotes}
+\item \hyperlinkref{5680510222270408269}{Headings}
+\item \hyperlinkref{4859465668994674752}{Docstrings}
+\item \hyperlinkref{10597583416623881668}{Doctesting example}
+\item \hyperlinkref{3545462789522369084}{Running interactive code}
+\item \hyperlinkref{2602340166667619136}{Doctest showcase}
 \end{itemize}
 \end{itemize}
-
-
-\hypertarget{6205648162622332057}{}
 
 
 \section{Basic Markdown}
 
 
 
+\label{13015211943483912510}{}
+
+
 Documenter can render all the \href{https://docs.julialang.org/en/v1/stdlib/Markdown/}{Markdown syntax supported by the Julia Markdown parser}. You can use all the usual markdown syntax, such as \textbf{bold text} and \emph{italic text} and \texttt{print({\textquotedbl}inline code{\textquotedbl})}.
 
 
 
-\hypertarget{9246544299434150790}{}
-
-
 \section{Code blocks}
 
+
+
+\label{14660894509460337656}{}
 
 
 Code blocks are rendered as follows:
@@ -96,11 +96,11 @@ end
 
 
 
-\hypertarget{11449823546914191621}{}
-
-
 \section{Mathematics}
 
+
+
+\label{9406902154236239312}{}
 
 
 For mathematics, both inline and display equations are available. Inline equations should be written as LaTeX between two backticks, e.g. \texttt{``A x{\textasciicircum}2 + B x + C = 0``}. It will render as \(A x^2 + B x + C = 0\).
@@ -127,11 +127,11 @@ Similar to LaTeX, using \texttt{\$} and \texttt{\$\$} to escape inline and displ
 \end{quote}
 
 
-\hypertarget{9122787766607047979}{}
-
-
 \section{Images}
 
+
+
+\label{5224713065671704740}{}
 
 
 Include images using basic Markdown syntax:
@@ -151,11 +151,11 @@ The path should be relative to the directory of the current file. Alternatively,
 
 
 
-\hypertarget{7215905182614360565}{}
-
-
 \section{Admonitions}
 
+
+
+\label{1916796393499649241}{}
 
 
 Admonitions are colorful boxes used to highlight parts of the documentation.
@@ -178,11 +178,11 @@ Documenter supports a range of admonition types for different circumstances.
 
 
 
-\hypertarget{8401296361138166423}{}
-
-
 \subparagraph{Note admonition}
 
+
+
+\label{3427999462323267970}{}
 
 
 \begin{quote}
@@ -216,11 +216,11 @@ Headings are OK though:
 \end{quote}
 
 
-\hypertarget{1173158838627777693}{}
-
-
 \subparagraph{Info admonition}
 
+
+
+\label{3520455154602929669}{}
 
 
 \begin{quote}
@@ -231,11 +231,11 @@ This is a \texttt{!!! info}-type admonition. This is the same as a \texttt{!!! n
 \end{quote}
 
 
-\hypertarget{49684782525411843}{}
-
-
 \subparagraph{Tip admonition}
 
+
+
+\label{8478099471110135607}{}
 
 
 \begin{quote}
@@ -246,11 +246,11 @@ This is a \texttt{!!! tip}-type admonition.
 \end{quote}
 
 
-\hypertarget{1236827180402526589}{}
-
-
 \subparagraph{Warning admonition}
 
+
+
+\label{16113256282093947986}{}
 
 
 \begin{quote}
@@ -261,11 +261,11 @@ This is a \texttt{!!! warning}-type admonition.
 \end{quote}
 
 
-\hypertarget{8922495392470806533}{}
-
-
 \subparagraph{Danger admonition}
 
+
+
+\label{3138459326559650208}{}
 
 
 \begin{quote}
@@ -276,11 +276,11 @@ This is a \texttt{!!! danger}-type admonition.
 \end{quote}
 
 
-\hypertarget{1302833643985131377}{}
-
-
 \subparagraph{Compat admonition}
 
+
+
+\label{8437579397049066350}{}
 
 
 \begin{quote}
@@ -291,11 +291,11 @@ This is a \texttt{!!! compat}-type admonition.
 \end{quote}
 
 
-\hypertarget{12591784623359533238}{}
-
-
 \subparagraph{Unknown admonition class}
 
+
+
+\label{5611698449794175315}{}
 
 
 \begin{quote}
@@ -306,11 +306,11 @@ Admonition with an unknown admonition class. This is a \texttt{code example}.
 \end{quote}
 
 
-\hypertarget{5671077042730580546}{}
-
-
 \section{Lists}
 
+
+
+\label{932242378642137797}{}
 
 
 Tight lists look as follows
@@ -482,11 +482,11 @@ Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ul
 \end{quote}
 
 
-\hypertarget{13092196581825070152}{}
-
-
 \section{Tables}
 
+
+
+\label{6147076236960597988}{}
 
 
 
@@ -548,11 +548,11 @@ object & implemented & value \\
 
 
 
-\hypertarget{1021238270223877775}{}
-
-
 \section{Footnotes}
 
+
+
+\label{16845496644619434430}{}
 
 
 Footnote references can be added with the \texttt{[{\textasciicircum}label]} syntax.\footnotemark[1] The footnote definitions get collected at the bottom of the page.
@@ -577,43 +577,43 @@ Arthur C. Clarke, \emph{Profiles of the Future} (1961): Clarke{\textquotesingle}
 }
 
 
-\hypertarget{11446774592040147359}{}
-
-
 \section{Headings}
 
+
+
+\label{5680510222270408269}{}
 
 
 Finally, headings render as follows
 
 
 
-\hypertarget{13764559889563060878}{}
-
-
 \subsection{Heading level 3}
 
 
 
-\hypertarget{2902134620954407701}{}
+\label{13085847155693612023}{}
 
 
 \subsubsection{Heading level 4}
 
 
 
-\hypertarget{16420992880575752876}{}
+\label{12782044777122551513}{}
 
 
 \paragraph{Heading level 5}
 
 
 
-\hypertarget{3776519259571530207}{}
+\label{9543099701887315540}{}
 
 
 \subparagraph{Heading level 6}
 
+
+
+\label{10897944457118690625}{}
 
 
 To see an example of a level 1 heading see the page title and for level 2 heading, see the one just under this paragraph.
@@ -628,18 +628,17 @@ Level 1 and 2 heading show up in the sidebar, for the current page.
 \end{quote}
 
 
-\hypertarget{385780392515386912}{}
-
-
 \section{Docstrings}
 
+
+
+\label{4859465668994674752}{}
 
 
 The key feature of Documenter, of course, is the ability to automatically include docstrings from your package in the manual. The following example docstrings come from the demo \href{@ref}{\texttt{DocumenterShowcase}} module, the source of which can be found in \texttt{docs/DocumenterShowcase.jl}.
 
 
-\hypertarget{5669384191785722396}{} 
-\hyperlink{5669384191785722396}{\texttt{Main.Mod.func}}  -- {Function.}
+\hypertarget{5669384191785722396}{\texttt{Main.Mod.func}}  -- {Function.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -648,16 +647,15 @@ The key feature of Documenter, of course, is the ability to automatically includ
 func(x)
 \end{minted}
 
-\hyperlink{1885743281855441478}{\texttt{T}}
+\hyperlinkref{1885743281855441478}{\texttt{T}}
 
 
 
-\href{https://github.com/JuliaDocs/Documenter.jl/blob/20258985a483fc86e1e66520aa799d29b3c93e52/test/examples/make.jl#L27-L31}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/14be7fe4efc3d815f4c54c060c5f19202d79308c/test/examples/make.jl#L27-L31}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{1885743281855441478}{} 
-\hyperlink{1885743281855441478}{\texttt{Main.Mod.T}}  -- {Type.}
+\hypertarget{1885743281855441478}{\texttt{Main.Mod.T}}  -- {Type.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -666,16 +664,15 @@ func(x)
 T
 \end{minted}
 
-\hyperlink{5669384191785722396}{\texttt{func(x)}}
+\hyperlinkref{5669384191785722396}{\texttt{func(x)}}
 
 
 
-\href{https://github.com/JuliaDocs/Documenter.jl/blob/20258985a483fc86e1e66520aa799d29b3c93e52/test/examples/make.jl#L34-L38}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/14be7fe4efc3d815f4c54c060c5f19202d79308c/test/examples/make.jl#L34-L38}{\texttt{source}}
 
 
 \end{adjustwidth}
-\hypertarget{15818938160560313688}{} 
-\hyperlink{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}  -- {Function.}
+\hypertarget{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}  -- {Function.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -712,33 +709,33 @@ Display equation:
 
 
 
-\href{https://github.com/JuliaDocs/Documenter.jl/blob/20258985a483fc86e1e66520aa799d29b3c93e52/test/examples/make.jl#L41-L71}{\texttt{source}}
+\href{https://github.com/JuliaDocs/Documenter.jl/blob/14be7fe4efc3d815f4c54c060c5f19202d79308c/test/examples/make.jl#L41-L71}{\texttt{source}}
 
 
 \end{adjustwidth}
 
-\hypertarget{6718907417846028854}{}
-
-
 \subsection{An index of docstrings}
 
+
+
+\label{4901604269105032859}{}
 
 
 The \href{@ref}{\texttt{@index} block} can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
 
 
 \begin{itemize}
-\item \hyperlink{1885743281855441478}{\texttt{Main.Mod.T}}
-\item \hyperlink{5669384191785722396}{\texttt{Main.Mod.func}}
-\item \hyperlink{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}
+\item \hyperlinkref{1885743281855441478}{\texttt{Main.Mod.T}}
+\item \hyperlinkref{5669384191785722396}{\texttt{Main.Mod.func}}
+\item \hyperlinkref{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}
 \end{itemize}
-
-
-\hypertarget{8484828884733695512}{}
 
 
 \section{Doctesting example}
 
+
+
+\label{10597583416623881668}{}
 
 
 Often you want to write code example such as this:
@@ -773,11 +770,11 @@ Script-style doctests are supported too:
 
 
 
-\hypertarget{13668376322529571037}{}
-
-
 \section{Running interactive code}
 
+
+
+\label{3545462789522369084}{}
 
 
 \href{@ref}{\texttt{@example} block} run a code snippet and insert the output into the document. E.g. the following Markdown
@@ -868,22 +865,22 @@ println("Hello World")
 
 
 
-\hypertarget{145108940385614497}{}
-
-
 \subsection{Color output}
 
+
+
+\label{17347250707405175741}{}
 
 
 Output from \href{@ref}{\texttt{@repl} block}s and \href{@ref}{\texttt{@example} block}s support colored output, tranforming ANSI color codes to HTML.
 
 
 
-\hypertarget{2007526222437001005}{}
-
-
 \subsubsection{Colored \texttt{@repl} block output}
 
+
+
+\label{681009610151884915}{}
 
 
 \textbf{Input:}
@@ -932,11 +929,11 @@ This should be in bold light cyan.
 
 
 
-\hypertarget{16879075044857377173}{}
-
-
 \subsubsection{Raw ANSI code output}
 
+
+
+\label{13267379516757075300}{}
 
 
 Regardless of the color setting, when you print the ANSI escape codes directly, coloring is enabled.
@@ -962,11 +959,11 @@ print("\e[m")
 
 
 
-\hypertarget{13368921860596370603}{}
-
-
 \section{Doctest showcase}
 
+
+
+\label{2602340166667619136}{}
 
 
 Currently exists just so that there would be doctests to run in manual pages of Documenter{\textquotesingle}s manual. This page does not show up in navigation.
