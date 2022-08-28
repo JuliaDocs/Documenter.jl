@@ -201,6 +201,7 @@ htmlbuild_pages = Any[
         "editurl/bad.md",
         "editurl/ugly.md",
     ],
+    "xrefs.md",
 ]
 
 function html_doc(build_directory, mathengine; htmlkwargs=(;), kwargs...)

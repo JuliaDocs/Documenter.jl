@@ -152,6 +152,7 @@ end
         @test examples_html_repo_error_doc.user.remote === nothing
     end
 
+<<<<<<< HEAD
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
         @test isa(doc, Documenter.Documents.Document)
@@ -181,5 +182,13 @@ end
             @test isfile(texfile)
             @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_showcase.tex"))
         end
+    end
+
+    @testset "CrossReferences" begin
+        xref_file = joinpath(examples_root, "builds", "html", "xrefs", "index.html")
+        @test isfile(xref_file)
+        xref_file_html = read(xref_file, String)
+        # Make sure that all the cross-reference links were updated:
+        @test !occursin("@ref", xref_file_html)
     end
 end
