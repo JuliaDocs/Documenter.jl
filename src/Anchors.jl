@@ -129,13 +129,15 @@ function anchor(m::AnchorMap, id, file, n)
 end
 
 """
+Create a label from an anchor.
+"""
+label(a::Anchor) = (a.nth == 1) ? a.id : string(a.id, "-", a.nth)
+
+"""
 Create an HTML fragment from an anchor.
 """
 function fragment(a::Anchor)
-    frag = string("#", a.id)
-    if a.nth > 1
-        frag = string(frag, "-", a.nth)
-    end
+    frag = string("#", label(a))
     # TODO: Sanitize the fragment
     return frag
 end

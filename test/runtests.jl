@@ -18,7 +18,6 @@ include("TestUtilities.jl"); using Main.TestUtilities
     # Unit tests for module internals.
     include("except.jl")
     include("utilities.jl")
-    include("markdown2.jl")
     include("remotes.jl")
 
     # DocChecks tests
