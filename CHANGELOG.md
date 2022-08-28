@@ -29,7 +29,7 @@
 
 * ![Enhancement][badge-enhancement] The `native` and `docker` PDF builds now run with the `-interaction=batchmode` (instead of `nonstopmode`) and `-halt-on-error` options to make the LaTeX error logs more readable and to fail the build early. ([#1908][github-1908])
 * ![Bugfix][badge-bugfix] The PDF/LaTeX output now handles hard Markdown line breaks (i.e. `Markdown.LineBreak` nodes). ([#1908][github-1908])
- ![Bugfix][badge-bugfix] Previously broken links within the PDF output are now fixed. ([JuliaLang/julia#38054][julia-38054], [JuliaLang/julia#43652][julia-43652], [#1909][github-1909])
+* ![Bugfix][badge-bugfix] Previously broken links within the PDF output are now fixed. ([JuliaLang/julia#38054][julia-38054], [JuliaLang/julia#43652][julia-43652], [#1909][github-1909])
 
 ## Version `v0.27.22`
 

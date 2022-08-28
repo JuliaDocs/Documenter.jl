@@ -181,6 +181,7 @@ end
             @test isfile(texfile)
             @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_showcase.tex"))
         end
+    end
 
     @testset "CrossReferences" begin
         xref_file = joinpath(examples_root, "builds", "html", "xrefs", "index.html")
