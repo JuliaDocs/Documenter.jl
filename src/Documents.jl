@@ -167,10 +167,6 @@ struct EvalNode
     result :: Any
 end
 
-struct RawHTML
-    code::String
-end
-
 struct RawNode
     name::Symbol
     text::String
@@ -616,7 +612,6 @@ walk(f, meta, block::Markdown.Image)      = f(block) ? walk(f, meta, block.alt) 
 walk(f, meta, block::Markdown.Table)      = f(block) ? walk(f, meta, block.rows)    : nothing
 walk(f, meta, block::Markdown.List)       = f(block) ? walk(f, meta, block.items)   : nothing
 walk(f, meta, block::Markdown.Link)       = f(block) ? walk(f, meta, block.text)    : nothing
-walk(f, meta, block::RawHTML) = nothing
 walk(f, meta, block::DocsNodes) = walk(f, meta, block.nodes)
 walk(f, meta, block::DocsNode)  = walk(f, meta, block.docstr)
 walk(f, meta, block::EvalNode)  = walk(f, meta, block.result)
