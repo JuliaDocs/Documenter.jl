@@ -631,7 +631,7 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
         root  = examples_root,
         build = "builds/latex_showcase",
         source = "src.latex_showcase",
-        pages = ["Showcase" => ["showcase.md"]],
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
         doctest = false,
         debug = true,
     )
@@ -649,7 +649,7 @@ examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUI
         root  = examples_root,
         build = "builds/latex_showcase_texonly",
         source = "src.latex_showcase",
-        pages = ["Showcase" => ["showcase.md"]],
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
         doctest = false,
         debug = true,
     )
