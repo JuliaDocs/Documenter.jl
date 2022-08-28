@@ -1,30 +1,26 @@
 # Docstrings
 
+The following example docstrings come from the demo modules in `make.jl`.
+
 ```@docs
-Main.foo
-Main.bar
+Mod.func
+Mod.T
+Mod.long_equations_in_docstrings
+```
+
+## An index of docstrings
+
+The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
+
+```@index
+Pages = ["docstrings.md"]
 ```
 
 ---
 
+Missing docstring:
+
 ```@docs
-asd
-Main.bar
-```
-
-```@index
-```
-
-```@contents
-```
-
-```@raw html
-foo
-```
-```@raw latex
-bar
-```
-
-```@meta
-CurrentModule = Main
+this_docstring_does_not_exist
+Main.AutoDocs.f
 ```
