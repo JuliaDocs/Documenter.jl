@@ -29,7 +29,7 @@ end
 using Documenter.Utilities.TextDiff: Diff, Lines
 function onormalize_tex(s)
     # We strip hyperlink hashes, since those may change over time
-    s = replace(s, r"\\(hyperlink|hypertarget|label){[0-9]+}" => s"\\\1{}")
+    s = replace(s, r"\\(hyperlink|hypertarget|label|hyperlinkref){[0-9]+}" => s"\\\1{}")
     # We also write the current Julia version into the TeX file
     s = replace(s, r"\\newcommand{\\JuliaVersion}{[A-Za-z0-9+.-]+}" => "\\newcommand{\\JuliaVersion}{}")
     # Remove CR parts of newlines, to make Windows happy
