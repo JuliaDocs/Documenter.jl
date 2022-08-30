@@ -18,7 +18,8 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
 else
     ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
-    "html-repo-nothing", "html-repo-error"]
+    "html-repo-nothing", "html-repo-error", "latex_texonly", "latex_simple_texonly",
+    "latex_showcase_texonly"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -161,6 +162,14 @@ function withassets(f, assets...)
         end
     end
 end
+
+struct TestRemote <: Remotes.Remote end
+Remotes.repourl(::TestRemote) = "https://example.org/Repository.jl"
+function Remotes.fileurl(::TestRemote, ::Any, filename, linerange)
+    L1, L2 = first(linerange), last(linerange)
+    return "https://example.org/Repository.jl/blob/$(filename)#L$(L1)-$(L2)"
+end
+Remotes.issueurl(::TestRemote, issue) = "https://example.org/Repository.jl/blob/$(issue)"
 
 # Build example docs
 
@@ -566,6 +575,24 @@ else
     nothing
 end
 
+examples_latex_simple_texonly_doc = if "latex_simple_texonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_texonly")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Simple Non-Docker",
+        root  = examples_root,
+        build = "builds/latex_simple_texonly",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_texonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
 examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_cover_page")
     @quietly makedocs(
@@ -603,3 +630,50 @@ else
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
+
+# For the latex_showcase tests we need to override the Git remote we use for the source
+# files, so that the links would be deterministic (since they contain the commit hash which
+# keeps changing). Fortunately, we can hack the cache for this purpose.
+examples_remote = Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__]
+Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
+
+examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_showcase")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform = "docker", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Showcase",
+        root  = examples_root,
+        build = "builds/latex_showcase",
+        source = "src.latex_showcase",
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
+        repo = TestRemote(),
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_showcase"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_showcase_texonly")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Showcase",
+        root  = examples_root,
+        build = "builds/latex_showcase_texonly",
+        source = "src.latex_showcase",
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
+        repo = TestRemote(),
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_showcase_texonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# Restore the remote for this directory
+Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = examples_remote

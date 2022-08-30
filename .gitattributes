@@ -2,3 +2,4 @@
 /assets/html/scss/darkly/** linguist-vendored
 /assets/html/scss/highlightjs/** linguist-vendored
 /assets/html/themes/*.css linguist-generated
+/test/examples/references/*.tex linguist-vendored
