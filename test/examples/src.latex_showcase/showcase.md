@@ -249,27 +249,6 @@ To see an example of a level 1 heading see the page title and for level 2 headin
 !!! note "Headings in sidebars"
     Level 1 and 2 heading show up in the sidebar, for the current page.
 
-## Docstrings
-
-The key feature of Documenter, of course, is the ability to automatically include docstrings
-from your package in the manual. The following example docstrings come from the demo
-[`DocumenterShowcase`](@ref) module, the source of which can be found in
-`docs/DocumenterShowcase.jl`.
-
-```@docs
-Mod.func
-Mod.T
-Mod.long_equations_in_docstrings
-```
-
-### An index of docstrings
-
-The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
-
-```@index
-Pages = ["showcase.md"]
-```
-
 ## Doctesting example
 
 Often you want to write code example such as this:
@@ -414,4 +393,20 @@ julia> f(2)
 
 ```@meta
 DocTestSetup = nothing
+```
+
+## at-raw blocks
+
+Only one of them should end up in the output.
+
+```@raw html
+foo
+```
+```@raw latex
+bar
+```
+
+## Contents
+
+```@contents
 ```

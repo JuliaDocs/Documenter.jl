@@ -163,6 +163,14 @@ function withassets(f, assets...)
     end
 end
 
+struct TestRemote <: Remotes.Remote end
+Remotes.repourl(::TestRemote) = "https://example.org/Repository.jl"
+function Remotes.fileurl(::TestRemote, ::Any, filename, linerange)
+    L1, L2 = first(linerange), last(linerange)
+    return "https://example.org/Repository.jl/blob/$(filename)#L$(L1)-$(L2)"
+end
+Remotes.issueurl(::TestRemote, issue) = "https://example.org/Repository.jl/blob/$(issue)"
+
 # Build example docs
 
 examples_root = @__DIR__
@@ -623,6 +631,12 @@ else
     nothing
 end
 
+# For the latex_showcase tests we need to override the Git remote we use for the source
+# files, so that the links would be deterministic (since they contain the commit hash which
+# keeps changing). Fortunately, we can hack the cache for this purpose.
+examples_remote = Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__]
+Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
+
 examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_showcase")
     @quietly makedocs(
@@ -631,7 +645,8 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
         root  = examples_root,
         build = "builds/latex_showcase",
         source = "src.latex_showcase",
-        pages = ["Showcase" => ["showcase.md"]],
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
+        repo = TestRemote(),
         doctest = false,
         debug = true,
     )
@@ -649,7 +664,8 @@ examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUI
         root  = examples_root,
         build = "builds/latex_showcase_texonly",
         source = "src.latex_showcase",
-        pages = ["Showcase" => ["showcase.md"]],
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
+        repo = TestRemote(),
         doctest = false,
         debug = true,
     )
@@ -658,3 +674,6 @@ else
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
+
+# Restore the remote for this directory
+Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = examples_remote

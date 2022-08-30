@@ -64,7 +64,7 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
     # CRFL line endings on Windows). To make sure that the docs are always built consistently,
     # we'll normalize the line endings when parsing Markdown files by removing all CR characters.
     mdsrc = replace(read(source, String), '\r' => "")
-    mdpage = Markdown.parse(read(source, String))
+    mdpage = Markdown.parse(mdsrc)
     mdast = try
         convert(MarkdownAST.Node, mdpage)
     catch err

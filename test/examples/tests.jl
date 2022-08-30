@@ -28,8 +28,8 @@ end
 # Diffing of output TeX files:
 using Documenter.Utilities.TextDiff: Diff, Lines
 function onormalize_tex(s)
-    # We strip URLs and hyperlink hashes, since those may change over time
-    s = replace(s, r"\\(href|hyperlink|hypertarget){[A-Za-z0-9#/_:.-]+}" => s"\\\1{}")
+    # We strip hyperlink hashes, since those may change over time
+    s = replace(s, r"\\(hyperlink|hypertarget|label|hyperlinkref){[0-9]+}" => s"\\\1{}")
     # We also write the current Julia version into the TeX file
     s = replace(s, r"\\newcommand{\\JuliaVersion}{[A-Za-z0-9+.-]+}" => "\\newcommand{\\JuliaVersion}{}")
     # Remove CR parts of newlines, to make Windows happy
@@ -51,16 +51,16 @@ function printdiff(s1, s2)
     end
 end
 function compare_files(a, b)
+    if haskey(ENV, "DOCUMENTER_FIXTESTS")
+        @info "Updating reference file: $(b)"
+        cp(a, b, force=true)
+    end
     a_str, b_str = read(a, String), read(b, String)
     a_str_normalized, b_str_normalized = onormalize_tex(a_str), onormalize_tex(b_str)
     a_str_normalized == b_str_normalized && return true
     @error "Generated files did not agree with reference, diff follows." a b
     printdiff(a_str_normalized, b_str_normalized)
     println('='^40, " end of diff ", '='^40)
-    if haskey(ENV, "DOCUMENTER_FIXTESTS")
-        @info "Updating reference file: $(b)"
-        cp(a, b, force=true)
-    end
     return false
 end
 
@@ -152,7 +152,6 @@ end
         @test examples_html_repo_error_doc.user.remote === nothing
     end
 
-<<<<<<< HEAD
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
         @test isa(doc, Documenter.Documents.Document)

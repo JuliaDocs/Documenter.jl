@@ -2,7 +2,7 @@
 \newcommand{\DocMainTitle}{Documenter LaTeX Simple Non-Docker}
 \newcommand{\DocVersion}{1.2.3}
 \newcommand{\DocAuthors}{}
-\newcommand{\JuliaVersion}{1.7.3}
+\newcommand{\JuliaVersion}{1.8.0}
 
 % ---- Insert preamble
 \input{preamble.tex}
@@ -11,11 +11,11 @@
 \part{Main section}
 
 
-\hypertarget{2404672936622507303}{}
-
-
 \chapter{Simple LaTeX build}
 
+
+
+\label{12986824182765986604}{}
 
 
 This build only contains a single paragraph of text to make sure that a near-empty LaTeX builds passes.
@@ -30,11 +30,11 @@ julia> 127 % Int8
 
 
 
-\hypertarget{7015032742042465691}{}
-
-
 \section{Issue 1119}
 
+
+
+\label{496847156375218796}{}
 
 
 
@@ -46,11 +46,11 @@ julia> 127 % Int8
 
 
 
-\hypertarget{11205007439977385833}{}
-
-
 \section{Escaping: {\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.}
 
+
+
+\label{13534704973354818981}{}
 
 
 {\textasciitilde}, {\textasciicircum}, {\textbackslash}, {\textquotesingle}, {\textquotedbl}, \_, \&, \%, {\textbackslash}, \$, \#, \{ and \}.
@@ -65,11 +65,11 @@ julia> 127 % Int8
 \end{quote}
 
 
-\hypertarget{2725380850448218554}{}
-
-
 \section{Issue 1392}
 
+
+
+\label{987107409634109244}{}
 
 
 
@@ -79,18 +79,18 @@ julia> function foo end;
 
 
 
-\hypertarget{6410313561210829225}{}
-
-
 \section{Issue 1401: rendering custom LaTeX}
 
 
 
-\hypertarget{8748729638232735390}{}
+\label{1766923436598802013}{}
 
 
 \subsection{@example block / show with \texttt{text/latex} MIME}
 
+
+
+\label{12212591717920375664}{}
 
 
 
@@ -125,11 +125,11 @@ Table()
 \end{tabular}
 
 
-\hypertarget{12409239921345651831}{}
-
-
 \subsection{@raw block}
 
+
+
+\label{12968435574917214693}{}
 
 
 
@@ -146,11 +146,11 @@ Table()
 
 
 
-\hypertarget{6068398623935042956}{}
-
-
 \subsection{Inline LaTeX}
 
+
+
+\label{7647595013011656041}{}
 
 
 \emph{Note: this should render as just text, not as a table.}
@@ -167,11 +167,11 @@ Table()
 
 
 
-\hypertarget{15068950516559662596}{}
-
-
 \section{Printing LaTeX from Julia}
 
+
+
+\label{10914504187442884412}{}
 
 
 To pretty-print LaTeX from Julia, overload \texttt{Base.show} for the \texttt{MIME{\textquotedbl}text/latex{\textquotedbl}} type. For example:
@@ -227,5 +227,18 @@ LaTeXEquation2(raw"""
         y
     \end{array}\right]
  \]
+
+\section{\texttt{LineBreak} node}
+
+
+
+\label{18112929726868774212}{}
+
+
+This sentence\\
+should be over \textbf{multiple\\
+lines}.
+
+
 
 \end{document}
