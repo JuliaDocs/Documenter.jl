@@ -370,9 +370,9 @@ end
 function mdast_latex(io::Context, node::Node, ah::Documents.AnchoredHeader)
     anchor = ah.anchor
     # latex(io::IO, anchor::Anchors.Anchor, page, doc)
-    id = string(hash(string(anchor.id, "-", anchor.nth)))
-    _println(io, "\n\\hypertarget{", id, "}{}\n")
+    id = _hash(Anchors.label(anchor))
     mdast_latex(io, node.children; toplevel = istoplevel(node))
+    _println(io, "\n\\label{", id, "}{}\n")
 end
 
 ## Documentation Nodes.
@@ -400,18 +400,17 @@ function latex(io::IO, node::Documents.DocsNode, page, doc)
 end
 function mdast_latex(io::Context, node::Node, docs::Documents.DocsNode)
     page, doc = io.page, io.doc
-    node = docs
+    node, ast = docs, node
     # latex(io::IO, node::Documents.DocsNode, page, doc)
-    id = string(hash(string(node.anchor.id)))
+    id = _hash(Anchors.label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
-    _println(io, "\\hypertarget{", id, "}{} ")
-    _print(io, "\\hyperlink{", id, "}{\\texttt{")
+    _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, string(node.object.binding))
     _print(io, "}} ")
     _println(io, " -- {", Utilities.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
     _println(io, "\\begin{adjustwidth}{2em}{0pt}")
-    mdast_latexdoc(io, node.docstr, page, doc)
+    mdast_latexdoc(io, ast, page, doc)
     _println(io, "\n\\end{adjustwidth}")
 end
 
@@ -434,15 +433,14 @@ function latexdoc(io::IO, md::Markdown.MD, page, doc)
     end
 end
 
-function mdast_latexdoc(io::IO, md::Markdown.MD, page, doc)
+function mdast_latexdoc(io::IO, node::Node, page, doc)
+    @assert node.element isa Documents.DocsNode
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
-    # we need for generating correct scurce links.
-    for (markdown, result) in zip(md.content, md.meta[:results])
-        dropped = Utilities.dropheaders(markdown)
-        ast = convert(MarkdownAST.Node, dropped.content[1])
+    # we need for generating correct source links.
+    for (docstringast, result) in zip(node.element.mdasts, node.element.results)
         _println(io)
-        mdast_latex(io, ast.children)
+        mdast_latex(io, docstringast.children)
         _println(io)
         # When a source link is available then print the link.
         url = Utilities.source_url(doc.user.remote, result)
@@ -478,9 +476,9 @@ function mdast_latex(io::Context, node::Node, index::Documents.IndexNode)
 
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
-        id = string(hash(string(Utilities.slugify(object))))
+        id = _hash(string(Utilities.slugify(object)))
         text = string(object.binding)
-        _print(io, "\\item \\hyperlink{")
+        _print(io, "\\item \\hyperlinkref{")
         _print(io, id, "}{\\texttt{")
         latexesc(io, text)
         _println(io, "}}")
@@ -541,7 +539,6 @@ function mdast_latex(io::Context, node::Node, contents::Documents.ContentsNode)
         # Filter out header levels smaller than the requested mindepth
         level = level - contents.mindepth + 1
         level < 1 && continue
-        id = string(hash(string(anchor.id, "-", anchor.nth)))
         # If we're changing depth, we need to make sure we always print the
         # correct number of \begin{itemize} and \end{itemize} statements.
         if level > depth
@@ -559,7 +556,8 @@ function mdast_latex(io::Context, node::Node, contents::Documents.ContentsNode)
             end
         end
         # Print the corresponding \item statement
-        _print(io, "\\item \\hyperlink{", id, "}{")
+        id = _hash(Anchors.label(anchor))
+        _print(io, "\\item \\hyperlinkref{", id, "}{")
         mdast_latex(io, header.children)
         _println(io, "}")
     end
@@ -1108,8 +1106,8 @@ function mdast_latex(io::Context, node::Node, link::MarkdownAST.Link)
     else
         if occursin(".md#", link.destination)
             file, target = split(link.destination, ".md#"; limit = 2)
-            id = string(hash(target))
-            wrapinline(io, "hyperlink") do
+            id = _hash(target)
+            wrapinline(io, "hyperlinkref") do
                 _print(io, id)
             end
         else

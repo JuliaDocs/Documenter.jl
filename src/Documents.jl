@@ -158,6 +158,12 @@ struct DocsNode <: AbstractDocumenterBlock
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
     page    :: Documents.Page
+    # MarkdownAST support:
+    mdasts  :: Vector{MarkdownAST.Node{Nothing}}
+    results :: Vector{Base.Docs.DocStr}
+    function DocsNode(docstr, anchor, object, page)
+        new(docstr, anchor, object, page, [], [])
+    end
 end
 
 struct DocsNodes
@@ -690,7 +696,29 @@ function atnode!(node::MarkdownAST.Node, ::Markdown.Code, docs::DocsNodes)
     end
     return nothing
 end
-docsnode(n::DocsNode) = MarkdownAST.Node(n)
+function docsnode(n::DocsNode)
+    # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
+    # is a Markdown.MD objects and that it has the :results meta value set correctly.
+    @assert haskey(n.docstr.meta, :results)
+    @assert length(n.docstr.content) == length(n.docstr.meta[:results])
+
+    for (markdown, result) in zip(n.docstr.content, n.docstr.meta[:results])
+        ast = convert(MarkdownAST.Node, markdown.content[1])
+        # The following 'for' corresponds to the old dropheaders() function
+        for headingnode in ast.children
+            headingnode.element isa MarkdownAST.Heading || continue
+            boldnode = MarkdownAST.Node(MarkdownAST.Strong())
+            for textnode in collect(headingnode.children)
+                push!(boldnode.children, textnode)
+            end
+            headingnode.element = MarkdownAST.Paragraph()
+            push!(headingnode.children, boldnode)
+        end
+        push!(n.mdasts, ast)
+        push!(n.results, result)
+    end
+    return MarkdownAST.Node(n)
+end
 function docsnode(a::Markdown.Admonition)
     documentnode = convert(MarkdownAST.Node, Markdown.MD([a]))
     return first(documentnode.children)
