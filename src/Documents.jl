@@ -21,6 +21,9 @@ using DocStringExtensions
 import Markdown, MarkdownAST
 using Unicode
 
+# When processing the AST during the build, in the MarkdownAST representation, we
+# replace various code blocks etc. with Documenter-specific elements that the writers
+# then can dispatch on. All the Documenter elements are subtypes of this node.
 abstract type AbstractDocumenterBlock <: MarkdownAST.AbstractBlock end
 
 # Pages.
@@ -158,7 +161,8 @@ struct DocsNode <: AbstractDocumenterBlock
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
     page    :: Documents.Page
-    # MarkdownAST support:
+    # MarkdownAST support.
+    # TODO: should be the docstring components (i.e. .mdasts) be stored as child nodes?
     mdasts  :: Vector{MarkdownAST.Node{Nothing}}
     results :: Vector{Base.Docs.DocStr}
     function DocsNode(docstr, anchor, object, page)
@@ -180,10 +184,18 @@ struct RawNode <: AbstractDocumenterBlock
     text::String
 end
 
+# MultiOutput contains child nodes in .content that are either code blocks or
+# dictionaries corresponding to the outputs rendered with various MIME types.
+# In the MarkdownAST representation, the dictionaries get converted into
+# MultiOutputElement elements.
 struct MultiOutput <: AbstractDocumenterBlock
     content::Vector
 end
 
+# For @repl blocks we store the inputs and outputs as separate Markdown.Code
+# objects, and then combine them in the writer with join_multiblock(). When we
+# convert to MarkdownAST, a MultiCodeBlock will have exactly one CodeBlock child
+# node that corresponds to the output from join_multiblock().
 struct MultiCodeBlock <: AbstractDocumenterBlock
     language::String
     content::Vector
@@ -634,6 +646,10 @@ struct AnchoredHeader <: AbstractDocumenterBlock
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
+# DocsNodesBlock correspond to one @docs (or @autodocs) code block, and contains
+# a list of docstrings, which are represented as child nodes of the DocsNode type.
+# In addition, the child node can also be an Admonition in case there was an error
+# in splicing in a docstring.
 struct DocsNodesBlock <: AbstractDocumenterBlock end
 MarkdownAST.iscontainer(::DocsNodesBlock) = true
 MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
@@ -668,11 +684,10 @@ function markdownast(page::Page)
 end
 
 function atnode!(::MarkdownAST.Node, element, mapping)
-    @warn """
+    error("""
     Unknown mapping: $(typeof(mapping)) for $(typeof(element)) element:
     $(element)
-    """
-    return nothing
+    """)
 end
 
 atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::Union{AbstractDocumenterBlock,RawNode}) = (node.element = mapping)
