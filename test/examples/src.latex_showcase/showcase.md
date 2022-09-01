@@ -319,6 +319,20 @@ println("Hello World")
 42
 ```
 
+## Setup blocks
+
+`SetupNode` with `x = 5`...
+
+```@setup foo
+x = 5
+```
+
+...makes the following evaluate to...
+
+```@example foo
+x + 1
+```
+
 ### Color output
 
 Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output,
