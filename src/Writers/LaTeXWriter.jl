@@ -275,12 +275,7 @@ end
 istoplevel(n::Node) = !isnothing(n.parent) && isa(n.parent.element, MarkdownAST.Document)
 
 latex(io::Context, node::Node) = latex(io, node, node.element)
-function latex(io::Context, node::Node, e::MarkdownAST.AbstractElement)
-    @warn "Element not implemented: $(typeof(e))" e
-end
-function latex(io::Context, node::Node, e)
-    @warn "Documenter node not implemented: $(typeof(e))" e
-end
+latex(io::Context, node::Node, e) = error("$(typeof(e)) not implemented: $e")
 
 function latex(io::Context, children; toplevel = false)
     @assert eltype(children) <: MarkdownAST.Node
@@ -722,6 +717,9 @@ latex(io::Context, node::Node, ::Documents.MetaNode) = _println(io, "\n")
 
 # In the original AST, SetupNodes were just mapped to empty Markdown.MD() objects.
 latex(io::Context, node::Node, ::Documents.SetupNode) = nothing
+
+# TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
+latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = println()
 
 # Utilities.
 
