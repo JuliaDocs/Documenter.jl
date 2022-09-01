@@ -549,6 +549,18 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
                     """, exception = err)
             end
         end
+        result = if isa(result, Nothing) || isa(result, Markdown.MD)
+            result
+        else
+            # TODO: we could handle the cases where the user provides some of the Markdown library
+            # objects, like Paragraph.
+            @warn """Invalid type of object in @eval: $(typeof(result)). Should be one of:
+             - Nothing
+             - Markdown.MD
+            Falling back to code block representation.
+            """
+            Markdown.Code("", sprint(show, MIME"text/plain"(), result))
+        end
         page.mapping[x] = EvalNode(x, result)
     end
 end
