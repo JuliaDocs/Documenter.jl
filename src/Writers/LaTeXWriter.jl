@@ -719,7 +719,7 @@ latex(io::Context, node::Node, ::Documents.MetaNode) = _println(io, "\n")
 latex(io::Context, node::Node, ::Documents.SetupNode) = nothing
 
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
-latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = println()
+latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io)
 
 # Utilities.
 
