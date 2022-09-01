@@ -80,16 +80,12 @@ mutable struct Context{I <: IO} <: IO
     footnotes::Dict{String, Int}
     depth::Int
     filename::String # currently active source file
-    # ...
-    buffer::IOBuffer
-    page::Union{Documents.Page, Nothing}
-    doc::Union{Documents.Document, Nothing}
-    mdast_page::Union{MarkdownAST.Node{Nothing}, Nothing}
+    doc::Documents.Document
 end
-Context(io) = Context{typeof(io)}(io, false, Dict(), 1, "", IOBuffer(), nothing, nothing, nothing)
+Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
 
-_print(c::Context, args...) = Base.print(c.buffer, args...)
-_println(c::Context, args...) = Base.println(c.buffer, args...)
+_print(c::Context, args...) = Base.print(c.io, args...)
+_println(c::Context, args...) = Base.println(c.io, args...)
 
 # Labels in the TeX file are hashes of plain text labels.
 # To keep the plain text label (for debugging), say _hash(x) = x
@@ -119,7 +115,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
         cd(joinpath(path, "build")) do
             fileprefix = latex_fileprefix(doc, settings)
             open("$(fileprefix).tex", "w") do io
-                context = Context(io)
+                context = Context(io, doc)
                 writeheader(context, doc, settings)
                 for (title, filename, depth) in files(doc.user.pages)
                     context.filename = filename
@@ -132,17 +128,15 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                         else
                             path = normpath(filename)
                             page = doc.blueprint.pages[path]
-                            context.mdast_page = mdast_pages[path]
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
-                                latex(context, page, doc)
+                                mdast_latex(context, mdast_pages[path].children; toplevel=true)
                             end
                         end
                     end
                 end
                 writefooter(context, doc)
-                forward_buffer!(context)
             end
             cp(STYLE, "documenter.sty")
 
@@ -276,48 +270,6 @@ function writefooter(io::IO, doc::Documents.Document)
     _println(io, "\n\\end{document}")
 end
 
-function forward_buffer!(c::Context)
-    buffer = take!(c.buffer)
-    write(c.io, buffer)
-    return buffer
-end
-
-function latex(io::IO, page::Documents.Page, doc::Documents.Document)
-    forward_buffer!(io)
-    for element in page.elements
-        latex(io, page.mapping[element], page, doc)
-    end
-    original = forward_buffer!(io)
-    # New MDAST printing:
-    ast = io.mdast_page
-    io.page, io.doc = page, doc
-    try
-        mdast_latex(io, ast.children; toplevel=true)
-        mdast = take!(io.buffer)
-
-        write(joinpath(doc.user.root, "$(basename(page.source)).mdast.tex"), mdast)
-        write(joinpath(doc.user.root, "$(basename(page.source)).original.tex"), original)
-
-        if original == mdast
-            @info "Outputs match: $(page.source)"
-        else
-            show(ast)
-            #println(Char.(original))
-            #println(Char.(mdast))
-            Base.mktempdir() do path
-                cd(path) do
-                    write("original.tex", original)
-                    write("mdast.tex", mdast)
-                    @show run(ignorestatus(`colordiff original.tex mdast.tex`))
-                end
-            end
-            @warn "Outputs differ: $(page.source)"
-        end
-    catch e
-        @error "mdast_latex errored" exception = (e, catch_backtrace())
-    end
-end
-
 # A few of the nodes are printed differently depending on whether they appear
 # as the top-level blocks of a page, or somewhere deeper in the AST.
 istoplevel(n::Node) = !isnothing(n.parent) && isa(n.parent.element, MarkdownAST.Document)
@@ -329,14 +281,6 @@ end
 function mdast_latex(io::Context, node::Node, e)
     @warn "Documenter node not implemented: $(typeof(e))" e
 end
-
-#= template
-function mdast_latex(io::Context, node::Node, ?::MarkdownAST.?)
-    page, doc = io.page, io.doc
-    # mdast_latex(io, node.children)
-    ...
-end
-=#
 
 function latex(io::IO, vec::Vector, page, doc)
     for each in vec
@@ -399,7 +343,6 @@ function latex(io::IO, node::Documents.DocsNode, page, doc)
     _println(io, "\n\\end{adjustwidth}")
 end
 function mdast_latex(io::Context, node::Node, docs::Documents.DocsNode)
-    page, doc = io.page, io.doc
     node, ast = docs, node
     # latex(io::IO, node::Documents.DocsNode, page, doc)
     id = _hash(Anchors.label(node.anchor))
@@ -410,7 +353,7 @@ function mdast_latex(io::Context, node::Node, docs::Documents.DocsNode)
     _println(io, " -- {", Utilities.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
     _println(io, "\\begin{adjustwidth}{2em}{0pt}")
-    mdast_latexdoc(io, ast, page, doc)
+    mdast_latexdoc(io, ast)
     _println(io, "\n\\end{adjustwidth}")
 end
 
@@ -433,7 +376,7 @@ function latexdoc(io::IO, md::Markdown.MD, page, doc)
     end
 end
 
-function mdast_latexdoc(io::IO, node::Node, page, doc)
+function mdast_latexdoc(io::IO, node::Node)
     @assert node.element isa Documents.DocsNode
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
@@ -443,7 +386,7 @@ function mdast_latexdoc(io::IO, node::Node, page, doc)
         mdast_latex(io, docstringast.children)
         _println(io)
         # When a source link is available then print the link.
-        url = Utilities.source_url(doc.user.remote, result)
+        url = Utilities.source_url(io.doc.user.remote, result)
         if url !== nothing
             link = "\\href{$url}{\\texttt{source}}"
             _println(io, "\n", link, "\n")
@@ -682,7 +625,6 @@ function latex(io::IO, h::Markdown.Header{N}) where N
     _println(io, "}\n")
 end
 function mdast_latex(io::Context, node::Node, heading::MarkdownAST.Heading)
-    page, doc = io.page, io.doc
     N = heading.level
     # latex(io::IO, h::Markdown.Header{N}) where N
     tag = DOCUMENT_STRUCTURE[min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))]
