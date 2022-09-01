@@ -675,7 +675,7 @@ function markdownast(page::Page)
     @assert length(page.elements) >= length(page.mapping)
     ast = convert(MarkdownAST.Node, Markdown.MD(page.elements))
     @assert length(ast.children) == length(page.elements)
-    @warn "Converting page: $(page.source)" length(page.elements) length(page.mapping) length(ast.children)
+    @debug "Converting page: $(page.source)" length(page.elements) length(page.mapping) length(ast.children)
     # Note: we need to collect() the ast.children because we will be mutating the nodes
     for (node, element) in zip(collect(ast.children), page.elements)
         if !haskey(page.mapping, element)
@@ -688,24 +688,17 @@ function markdownast(page::Page)
     return ast
 end
 
-function atnode!(::MarkdownAST.Node, element, mapping)
-    error("""
-    Unknown mapping: $(typeof(mapping)) for $(typeof(element)) element:
-    $(element)
-    """)
-end
+atnode!(::MarkdownAST.Node, element, mapping) = error("Unknown mapping: $(typeof(mapping)) for $(typeof(element)) element: $(element)")
 
-atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::Union{AbstractDocumenterBlock,RawNode}) = (node.element = mapping)
+atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::AbstractDocumenterBlock) = (node.element = mapping)
 
 # Top-level headers are paired with Anchor objects. We handle them by adding
 # an AnchoredHeader node between the Heading and the Document elements.
-function atnode!(node::MarkdownAST.Node, h::Markdown.Header, anchor::Anchors.Anchor)
-    @show h node
+function atnode!(node::MarkdownAST.Node, ::Markdown.Header, anchor::Anchors.Anchor)
     ah = MarkdownAST.Node(AnchoredHeader(anchor))
     MarkdownAST.insert_after!(node, ah)
     push!(ah.children, node)
     anchor.node = ah
-    return nothing
 end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, docs::DocsNodes)
@@ -714,7 +707,6 @@ function atnode!(node::MarkdownAST.Node, ::Markdown.Code, docs::DocsNodes)
     for dn in docs.nodes
         push!(node.children, docsnode(dn))
     end
-    return nothing
 end
 function docsnode(n::DocsNode)
     # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
