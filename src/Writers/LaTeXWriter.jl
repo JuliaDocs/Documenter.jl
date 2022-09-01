@@ -440,7 +440,7 @@ function latex(io::Context, ::Node, d::Dict{MIME,Any})
     elseif haskey(d, MIME"text/markdown"())
         md = Markdown.parse(d[MIME"text/markdown"()])
         ast = MarkdownAST.convert(MarkdownAST.Node, md)
-        latex(io, ast)
+        latex(io, ast.children)
     elseif haskey(d, MIME"text/plain"())
         text = d[MIME"text/plain"()]
         out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
