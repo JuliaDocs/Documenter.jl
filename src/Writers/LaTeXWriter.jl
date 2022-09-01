@@ -1146,6 +1146,9 @@ end
 latex(io::IO, node::Documents.MetaNode, page, doc) = _println(io, "\n")
 mdast_latex(io::Context, node::Node, ::Documents.MetaNode) = _println(io, "\n")
 
+# In the original AST, SetupNodes were just mapped to empty Markdown.MD() objects.
+mdast_latex(io::Context, node::Node, ::Documents.SetupNode) = nothing
+
 # Utilities.
 
 const _latexescape_chars = Dict{Char, AbstractString}(

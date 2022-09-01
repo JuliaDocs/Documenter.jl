@@ -18,3 +18,15 @@ md"""
 **asd**
 """
 ```
+
+`SetupNode`:
+
+```@setup foo
+x = 5
+```
+
+Evaluates to:
+
+```@example foo
+x + 1
+```

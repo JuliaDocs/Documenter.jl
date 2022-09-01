@@ -664,8 +664,13 @@ end
 MarkdownAST.iscontainer(::MultiOutput) = true
 MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement,MarkdownAST.CodeBlock}) = true
 
-markdownast(doc::Document) = Dict(name => markdownast(page) for (name, page) in doc.blueprint.pages)
+# In the SetupBlocks expander, we map @setup nodes to Markdown.MD() objects
+struct SetupNode <: AbstractDocumenterBlock
+    name :: String
+    code :: String
+end
 
+markdownast(doc::Document) = Dict(name => markdownast(page) for (name, page) in doc.blueprint.pages)
 function markdownast(page::Page)
     @assert length(page.elements) >= length(page.mapping)
     ast = convert(MarkdownAST.Node, Markdown.MD(page.elements))
@@ -744,7 +749,6 @@ function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mcb::MultiCodeBlock)
     code = join_multiblock(mcb)
     mdast_code = MarkdownAST.CodeBlock(code.language, code.code)
     push!(node.children, MarkdownAST.Node(mdast_code))
-    return nothing
 end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mo::MultiOutput)
@@ -756,6 +760,13 @@ end
 moenode(d::Dict) = MarkdownAST.Node(MultiOutputElement(d))
 moenode(c::Markdown.Code) = MarkdownAST.Node(MarkdownAST.CodeBlock(c.language, c.code))
 
+function atnode!(node::MarkdownAST.Node, code::Markdown.Code, ::Markdown.MD)
+    matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", code.language)
+    # Only @setup blocks should have a Markdown.MD() mapping, so this should be safe.
+    @assert !isnothing(matched)
+    node.element = SetupNode(matched[1], code.code)
+end
+
 const DocumenterBlockTypes = Union{
     AnchoredHeader,
     DocsNode,
@@ -766,6 +777,7 @@ const DocumenterBlockTypes = Union{
     MultiCodeBlock,
     MultiOutput,
     MultiOutputElement,
+    SetupNode,
 }
 Base.show(io::IO, node::DocumenterBlockTypes) = print(io, typeof(node), "([...])")
 
