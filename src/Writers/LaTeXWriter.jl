@@ -405,6 +405,8 @@ end
 
 function latex(io::Context, node::Node, evalnode::Documents.EvalNode)
     if evalnode.result !== nothing
+        # Note: this convert() here can throw very easily. Basically, we assume that
+        # .result is Markdown.MD().
         result_ast = convert(MarkdownAST.Node, evalnode.result)
         latex(io, result_ast.children, toplevel = true)
     end
