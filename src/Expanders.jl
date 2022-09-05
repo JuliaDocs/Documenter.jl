@@ -567,7 +567,8 @@ function Selectors.runner(::Type{EvalBlocks}, x, page, doc)
             If you are seeing this warning after upgrading Documenter and this used to work,
             please open an issue on the Documenter issue tracker.
             """
-            Markdown.Code("", sprint(show, MIME"text/plain"(), result))
+            code = Markdown.Code("", sprint(show, MIME"text/plain"(), result))
+            Markdown.MD([code])
         end
         page.mapping[x] = EvalNode(x, result)
     end
