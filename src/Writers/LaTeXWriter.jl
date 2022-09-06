@@ -109,6 +109,7 @@ const DOCUMENT_STRUCTURE = (
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
+    # Convert the documentation into MarkdownAST representation
     mdast_pages = Documents.markdownast(doc)
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))

@@ -6,7 +6,7 @@ module Utilities
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
-import MarkdownAST, Markdown, LibGit2
+import Markdown, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
 
