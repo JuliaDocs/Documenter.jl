@@ -41,7 +41,7 @@ then it is intended as the page title. This has two consequences:
 module HTMLWriter
 
 using Dates: Dates, @dateformat_str, now
-import Markdown
+import Markdown, MarkdownAST
 import JSON
 
 import ...Documenter:
@@ -666,9 +666,15 @@ mutable struct HTMLContext
     search_index_js :: String
     search_navnode :: Documents.NavNode
     footnotes :: Vector{Markdown.Footnote}
+    # MarkdownAST support
+    mdast_pages :: Dict{String, MarkdownAST.Node{Nothing}}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(doc, settings, [], "", "", "", "", [], "", Documents.NavNode("search", "Search", nothing), [])
+HTMLContext(doc, settings=HTML()) = HTMLContext(
+    doc, settings, [], "", "", "", "", [], "",
+    Documents.NavNode("search", "Search", nothing), [],
+    Documents.markdownast(doc),
+)
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -716,6 +722,9 @@ Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](
 """
 getpage(ctx, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
+
+mdast_getpage(ctx, path) = ctx.mdast_pages[path]
+mdast_getpage(ctx, navnode::Documents.NavNode) = mdast_getpage(ctx, navnode.page)
 
 
 function render(doc::Documents.Document, settings::HTML=HTML())
@@ -1350,7 +1359,29 @@ end
 # Article (page contents)
 # ------------------------------------------------------------------------------
 
+function write_dom_html(ctx, navnode, dom; suffix)
+    path = joinpath(ctx.doc.user.build, get_url(ctx, navnode) * ".$(suffix)")
+    isdir(dirname(path)) || mkpath(dirname(path))
+    open(io -> show(io, dom), path * ".html", "w")
+    run(ignorestatus(`tidy -o $(path).tidy.html $(path).html`))
+    return path
+end
+
+function render_article_compare(ctx, navnode)
+    @tags html
+    # Check two dom renderings:
+    empty!(ctx.footnotes)
+    dom_old = html(domify(ctx, navnode))
+    html_old = write_dom_html(ctx, navnode, dom_old; suffix = "original")
+    dom_mdast = html(domify_mdast(ctx, navnode))
+    html_new = write_dom_html(ctx, navnode, dom_mdast; suffix = "mdast")
+
+    run(ignorestatus(`colordiff $(html_old).tidy.html $(html_new).tidy.html`))
+end
+
 function render_article(ctx, navnode)
+    render_article_compare(ctx, navnode)
+
     @tags article section ul li hr span a div p
 
     # Build the page itself (and collect any footnotes)
@@ -1519,6 +1550,11 @@ end
 ## domify(...)
 # ------------
 
+function domify_mdast(ctx, navnode, element)
+    @error "Unimplemented element: $(typeof(element))"
+    []
+end
+
 """
 Converts recursively a [`Documents.Page`](@ref), `Markdown` or Documenter
 `*Node` objects into HTML DOM.
@@ -1529,6 +1565,15 @@ function domify(ctx, navnode)
         rec = SearchRecord(ctx, navnode, elem)
         push!(ctx.search_index, rec)
         domify(ctx, navnode, page.mapping[elem])
+    end
+end
+function domify_mdast(ctx, navnode)
+    page = getpage(ctx, navnode)
+    mdast = mdast_getpage(ctx, navnode)
+    map(mdast.children) do node
+        #rec = SearchRecord(ctx, navnode, node.element)
+        #push!(ctx.search_index, rec)
+        domify_mdast(ctx, navnode, node.element)
     end
 end
 
