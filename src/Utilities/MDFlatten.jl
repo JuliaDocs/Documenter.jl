@@ -15,6 +15,7 @@ import Markdown:
     MD, BlockQuote, Bold, Code, Header, HorizontalRule,
     Image, Italic, LaTeX, LineBreak, Link, List, Paragraph, Table,
     Footnote, Admonition
+using MarkdownAST: MarkdownAST, Node
 
 """
 Convert a Markdown object to a `String` of only text (i.e. not formatting info).
@@ -89,6 +90,82 @@ end
 function mdflatten(io, a::Admonition, parent)
     println(io, "$(a.category): $(a.title)")
     mdflatten(io, a.content, a)
+end
+
+# mdflatten for MarkdownAST trees
+mdflatten(io, node::Node) = mdflatten(io, node, node.element)
+
+function mdflatten_children(io, node::Node)
+    # this special case separates top level blocks with newlines
+    newlines = isa(node.element, MarkdownAST.Document)
+    for child in node.children
+        mdflatten(io, child)
+        newlines && print(io, "\n\n")
+    end
+end
+
+mdflatten(io, node::Node, e::MarkdownAST.AbstractElement) = @warn("Unimplemented mdflatted element: $(typeof(e))")
+
+# Most block and inline (container) elements just reduce down to printing out their
+# child nodes.
+mdflatten(io, node::Node, ::Union{
+    MarkdownAST.Document,
+    MarkdownAST.Heading,
+    MarkdownAST.Paragraph,
+    MarkdownAST.BlockQuote,
+    MarkdownAST.ThematicBreak,
+    MarkdownAST.Link,
+    MarkdownAST.Strong,
+    MarkdownAST.Emph,
+}) = mdflatten_children(io, node)
+
+mdflatten(io, node::Node, ::MarkdownAST.ThematicBreak) = mdflatten_children(io, node)
+
+function mdflatten(io, node::Node, list::MarkdownAST.List)
+    for (idx, li) in enumerate(node.children)
+        for (jdx, x) in enumerate(li.children)
+            mdflatten(io, x)
+            jdx == length(li.children) || print(io, '\n')
+        end
+        idx == length(node.children) || print(io, '\n')
+    end
+end
+function mdflatten(io, node::Node, t::MarkdownAST.Table)
+    rows = collect(Iterators.flatten(thtb.children for thtb in node.children))
+    for (idx, row) = enumerate(rows)
+        for (jdx, x) in enumerate(row.children)
+            mdflatten_children(io, x)
+            jdx == length(row.children) || print(io, ' ')
+        end
+        idx == length(rows) || print(io, '\n')
+    end
+end
+
+# Inline nodes
+mdflatten(io, node::Node, e::MarkdownAST.Text) = print(io, e.text)
+function mdflatten(io, node::Node, e::MarkdownAST.Image)
+    print(io, "(Image:")
+    mdflatten_children(io, node)
+    print(io, ")")
+end
+mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath, MarkdownAST.DisplayMath}) = print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
+mdflatten(io, node::Node, e::MarkdownAST.LineBreak) = print(io, '\n')
+
+# Is both inline and block
+mdflatten(io, node::Node, c::Union{MarkdownAST.Code, MarkdownAST.CodeBlock}) = print(io, c.code)
+
+# Special (inline) "node" -- due to JuliaMark's interpolations
+mdflatten(io, node::Node, value::MarkdownAST.JuliaValue) = print(io, value.ref)
+
+mdflatten(io, node::Node, f::MarkdownAST.FootnoteLink) = print(io, "[$(f.id)]")
+function mdflatten(io, node::Node, f::MarkdownAST.FootnoteDefinition)
+    print(io, "[$(f.id)]: ")
+    mdflatten_children(io, node)
+end
+
+function mdflatten(io, node::Node, a::MarkdownAST.Admonition)
+    println(io, "$(a.category): $(a.title)")
+    mdflatten_children(io, node)
 end
 
 end
