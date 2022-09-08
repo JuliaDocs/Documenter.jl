@@ -198,7 +198,7 @@ end
 # node that corresponds to the output from join_multiblock().
 struct MultiCodeBlock <: AbstractDocumenterBlock
     language::String
-    content::Vector
+    content::Vector{Markdown.Code}
 end
 function join_multiblock(mcb::MultiCodeBlock)
     io = IOBuffer()
@@ -738,9 +738,10 @@ end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mcb::MultiCodeBlock)
     node.element = mcb
-    code = join_multiblock(mcb)
-    mdast_code = MarkdownAST.CodeBlock(code.language, code.code)
-    push!(node.children, MarkdownAST.Node(mdast_code))
+    for code in mcb.content
+        codeblock = MarkdownAST.Node(MarkdownAST.CodeBlock(code.language, code.code))
+        push!(node.children, codeblock)
+    end
 end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mo::MultiOutput)

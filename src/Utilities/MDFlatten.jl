@@ -94,6 +94,8 @@ end
 
 # mdflatten for MarkdownAST trees
 mdflatten(io, node::Node) = mdflatten(io, node, node.element)
+# TODO: remove mdflatten_children
+mdflatten(io, children::MarkdownAST.NodeChildren) = mdflatten_children(io, children.parent)
 
 function mdflatten_children(io, node::Node)
     # this special case separates top level blocks with newlines
