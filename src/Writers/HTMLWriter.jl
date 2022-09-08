@@ -1377,17 +1377,16 @@ function render_article_compare(ctx, navnode)
     dom_mdast = html(domify_mdast(DCtx(ctx, navnode)))
 
     dom_old_str, dom_mdast_str = sprint(show, dom_old), sprint(show, dom_mdast)
+    if dom_old_str != dom_mdast_str
+        display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(dom_old_str, dom_mdast_str))
+    end
     if !isnothing(Sys.which("tidy")) && !isnothing(Sys.which("colordiff"))
         html_old = write_dom_html(ctx, navnode, dom_old_str; suffix = "original")
         html_new = write_dom_html(ctx, navnode, dom_mdast_str; suffix = "mdast")
         @info "Comparing DOM for $(navnode)" dom_old_str == dom_mdast_str length(dom_old_str) length(dom_mdast_str)
         run(`colordiff $(html_old).tidy.html $(html_new).tidy.html`)
-        if dom_old_str != dom_mdast_str
-            display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(dom_old_str, dom_mdast_str))
-        end
-    else
-        dom_old_str == dom_mdast_str || error("No match for $(navnode)")
     end
+    dom_old_str != dom_mdast_str && error("No match for $(navnode)")
 end
 
 function render_article(ctx, navnode)
