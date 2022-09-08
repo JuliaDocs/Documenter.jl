@@ -1361,10 +1361,10 @@ end
 # Article (page contents)
 # ------------------------------------------------------------------------------
 
-function write_dom_html(ctx, navnode, dom; suffix)
+function write_dom_html(ctx, navnode, s; suffix)
     path = joinpath(ctx.doc.user.build, get_url(ctx, navnode) * ".$(suffix)")
     isdir(dirname(path)) || mkpath(dirname(path))
-    open(io -> show(io, dom), path * ".html", "w")
+    open(io -> write(io, s), path * ".html", "w")
     run(ignorestatus(`tidy --indent yes -w -q -o $(path).tidy.html $(path).html`))
     return path
 end
@@ -1374,12 +1374,20 @@ function render_article_compare(ctx, navnode)
     # Check two dom renderings:
     empty!(ctx.footnotes)
     dom_old = html(domify(ctx, navnode))
-    html_old = write_dom_html(ctx, navnode, dom_old; suffix = "original")
     dom_mdast = html(domify_mdast(DCtx(ctx, navnode)))
-    html_new = write_dom_html(ctx, navnode, dom_mdast; suffix = "mdast")
 
-    @info "Comparing DOM for $(navnode)"
-    run(`colordiff $(html_old).tidy.html $(html_new).tidy.html`)
+    dom_old_str, dom_mdast_str = sprint(show, dom_old), sprint(show, dom_mdast)
+    if !isnothing(Sys.which("tidy")) && !isnothing(Sys.which("colordiff"))
+        html_old = write_dom_html(ctx, navnode, dom_old_str; suffix = "original")
+        html_new = write_dom_html(ctx, navnode, dom_mdast_str; suffix = "mdast")
+        @info "Comparing DOM for $(navnode)" dom_old_str == dom_mdast_str length(dom_old_str) length(dom_mdast_str)
+        run(`colordiff $(html_old).tidy.html $(html_new).tidy.html`)
+        if dom_old_str != dom_mdast_str
+            display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(dom_old_str, dom_mdast_str))
+        end
+    else
+        dom_old_str == dom_mdast_str || error("No match for $(navnode)")
+    end
 end
 
 function render_article(ctx, navnode)
@@ -1634,7 +1642,7 @@ function domify_mdast(dctx::DCtx, node::Node, ah::Documents.AnchoredHeader)
     legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
     h = first(node.children)
     fixlinks!(ctx, navnode, h) # MarkdownAST TODO
-    Tag(Symbol("h$(h.element.level))"))[:id => lstrip(frag, '#')](
+    Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
         a[".docs-heading-anchor", :href => frag](domify_mdast(dctx, h.children)),
         legacy...,
         a[".docs-heading-anchor-permalink", :href => frag, :title => "Permalink"]
