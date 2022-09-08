@@ -7,6 +7,7 @@ Modules = [
     Documenter.Writers.HTMLWriter.RD,
     Documenter.Writers.LaTeXWriter,
 ]
+Filter = t -> t !== asset
 ```
 ```@docs
 Documenter.Plugin
