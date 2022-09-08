@@ -2207,7 +2207,7 @@ end
 function domify_mdast(dctx::DCtx, node::Node, i::MarkdownAST.Image)
     ctx, navnode = dctx.ctx, dctx.navnode
     alt = mdflatten(node.children)
-    url = i.destination
+    url = fixlink(dctx, i)
     # function mdconvert(i::Markdown.Image, parent; kwargs...)
     # TODO: Implement .title
     @tags video img a
@@ -2243,9 +2243,10 @@ function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
 end
 function domify_mdast(dctx::DCtx, node::Node, link::MarkdownAST.Link)
     droplinks = dctx.droplinks
+    url = fixlink(dctx, link)
     # function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
     link_text = domify_mdast(dctx, node.children)
-    droplinks ? link_text : Tag(:a)[:href => link.destination](link_text)
+    droplinks ? link_text : Tag(:a)[:href => url](link_text)
 end
 
 mdconvert(list::Markdown.List, parent; kwargs...) = (Markdown.isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
@@ -2646,7 +2647,9 @@ function fixlinks!(ctx, navnode, link::Markdown.Link)
     path = replace(path, '\\' => '/')
     link.url = (length(s) > 1) ? "$path#$(last(s))" : String(path)
 end
-function fixlink(ctx, navnode, link::MarkdownAST.Link)
+function fixlink(dctx::DCtx, link::MarkdownAST.Link)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # function fixlinks!(ctx, navnode, link::Markdown.Link)
     link_url = link.destination
     Utilities.isabsurl(link_url) && return link_url
 
@@ -2697,7 +2700,9 @@ function fixlinks!(ctx, navnode, img::Markdown.Image)
         @warn "invalid local image: unresolved path in $(Utilities.locrepr(navnode.page))" link = img.url
     end
 end
-function fixlink(ctx, navnode, img::MarkdownAST.Image)
+function fixlink(dctx::DCtx, img::MarkdownAST.Image)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # function fixlinks!(ctx, navnode, img::Markdown.Image)
     img_url = img.destination
     Utilities.isabsurl(img_url) && return img_url
 
