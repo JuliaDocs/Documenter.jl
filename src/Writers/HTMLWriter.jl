@@ -1569,7 +1569,7 @@ struct DCtx
     settings :: Union{HTML, Nothing}
     footnotes :: Vector{Node{Nothing}}
 
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, ctx.footnotes)
+    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, [])
     DCtx(
         dctx::DCtx;
         navnode = dctx.navnode,
@@ -1607,7 +1607,10 @@ function domify_mdast(dctx::DCtx)
     end
 end
 domify_mdast(dctx::DCtx, node::Node) = domify_mdast(dctx, node, node.element)
-domify_mdast(dctx::DCtx, children::MarkdownAST.NodeChildren) = map(child -> domify_mdast(dctx, child), children)
+function domify_mdast(dctx::DCtx, children)
+    @assert eltype(children) <: Node
+    map(child -> domify_mdast(dctx, child), children)
+end
 
 domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify_mdast(dctx, node.children)
 
@@ -2581,12 +2584,10 @@ function domify_mdast(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
         m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
         out = if m_bracket === nothing && m_dollars === nothing
-            Utilities.mdparse(latex; mode = :single)
+            Utilities.mdparse_mdast(latex; mode = :single)
         else
-            latex = Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
-            Markdown.MD([latex])
+            [MarkdownAST.@ast MarkdownAST.DisplayMath(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])]
         end
-        out = convert(MarkdownAST.Node, out)
         domify_mdast(dctx, out)
     elseif haskey(d, MIME"text/markdown"())
         out = Markdown.parse(d[MIME"text/markdown"()])

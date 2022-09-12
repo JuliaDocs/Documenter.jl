@@ -6,7 +6,7 @@ module Utilities
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
-import Markdown, LibGit2
+import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
 
@@ -626,6 +626,33 @@ function mdparse(s::AbstractString; mode=:single)
             throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
         end
         (mode == :single) ? md.content[1] : md.content[1].content
+    end
+end
+function mdparse_mdast(s::AbstractString; mode=:single)
+    mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
+    mdast = convert(MarkdownAST.Node, Markdown.parse(s))
+    if mode == :blocks
+        MarkdownAST.unlink!.(mdast.children)
+    elseif length(mdast.children) == 0
+        # case where s == "". We'll just return an empty string / paragraph.
+        if mode == :single
+            [MarkdownAST.@ast(MarkdownAST.Paragraph() do; ""; end)]
+        else
+            # If we're in span mode we return a single Text node
+            [MarkdownAST.@ast("")]
+        end
+    elseif (mode == :single || mode == :span) && length(mdast.children) > 1
+        @error "mode == :$(mode) requires the Markdown string to parse into a single block" s mdast
+        throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
+    else
+        @assert length(mdast.children) == 1
+        childnode = first(mdast.children)
+        @assert mode == :span || mode == :single
+        if mode == :span && !isa(childnode.element, MarkdownAST.Paragraph)
+            @error "mode == :$(mode) requires the Markdown string to parse into a MarkdownAST.Paragraph" s mdast
+            throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
+        end
+        (mode == :single) ? [MarkdownAST.unlink!(childnode)] : MarkdownAST.unlink!.(childnode.children)
     end
 end
 
