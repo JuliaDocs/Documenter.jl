@@ -1380,14 +1380,16 @@ function render_article(ctx, navnode)
     dom_old_str, dom_mdast_str = sprint(show, dom_old), sprint(show, dom_mdast)
     if dom_old_str != dom_mdast_str
         display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(dom_old_str, dom_mdast_str))
+
+        if !isnothing(Sys.which("tidy")) && !isnothing(Sys.which("colordiff"))
+            html_old = write_dom_html(ctx, navnode, dom_old_str; suffix = "original")
+            html_new = write_dom_html(ctx, navnode, dom_mdast_str; suffix = "mdast")
+            @info "Comparing DOM for $(navnode)" dom_old_str == dom_mdast_str length(dom_old_str) length(dom_mdast_str)
+            run(`colordiff $(html_old).tidy.html $(html_new).tidy.html`)
+        end
+
+        error("No match for $(navnode)")
     end
-    if !isnothing(Sys.which("tidy")) && !isnothing(Sys.which("colordiff"))
-        html_old = write_dom_html(ctx, navnode, dom_old_str; suffix = "original")
-        html_new = write_dom_html(ctx, navnode, dom_mdast_str; suffix = "mdast")
-        @info "Comparing DOM for $(navnode)" dom_old_str == dom_mdast_str length(dom_old_str) length(dom_mdast_str)
-        run(`colordiff $(html_old).tidy.html $(html_new).tidy.html`)
-    end
-    dom_old_str != dom_mdast_str && error("No match for $(navnode)")
 
     return dom_old
 end
