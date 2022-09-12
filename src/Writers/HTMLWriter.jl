@@ -658,7 +658,7 @@ other recursive functions.
 """
 mutable struct HTMLContext
     doc :: Documents.Document
-    settings :: HTML
+    settings :: Union{HTML, Nothing}
     scripts :: Vector{String}
     documenter_js :: String
     themeswap_js :: String
@@ -672,7 +672,7 @@ mutable struct HTMLContext
     mdast_pages :: Dict{String, MarkdownAST.Node{Nothing}}
 end
 
-HTMLContext(doc, settings=HTML()) = HTMLContext(
+HTMLContext(doc, settings=nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
     Documents.NavNode("search", "Search", nothing), [],
     Documents.markdownast(doc),
@@ -1569,7 +1569,7 @@ struct DCtx
     settings :: Union{HTML, Nothing}
     footnotes :: Vector{Node{Nothing}}
 
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, nothing, [])
+    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, ctx.footnotes)
     DCtx(
         dctx::DCtx;
         navnode = dctx.navnode,
@@ -2085,9 +2085,8 @@ function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTM
     return pre(code[".$(class) .hljs"](c.code))
 end
 function domify_mdast(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
-    ctx, navnode = dctx.ctx, dctx.navnode
+    ctx, navnode, settings = dctx.ctx, dctx.navnode, dctx.settings
     language = c.info
-    settings = dctx.settings
     # function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
     language = Utilities.codelang(language)
