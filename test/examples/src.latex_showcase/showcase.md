@@ -235,6 +235,16 @@ The footnote label can be an arbitrary string and even consist of block-level el
     > Any sufficiently advanced technology is indistinguishable from magic.
     Arthur C. Clarke, _Profiles of the Future_ (1961): Clarke's Third Law.
 
+Footnote with more block contents.[^footblock]
+
+[^footblock]:
+
+    And a link to another footnote[^1].
+
+    !!! note "Admonition.."
+
+        .. in a footnote.
+
 ## Headings
 
 Finally, headings render as follows
@@ -317,6 +327,20 @@ However, do note that if the block prints to standard output, but also has a fin
 ```@example
 println("Hello World")
 42
+```
+
+### at-REPL blocks
+
+```@repl
+(1 // 2)^2
+```
+
+```@repl
+x = 1
+
+x // 2
+
+ans^2
 ```
 
 ## Setup blocks
