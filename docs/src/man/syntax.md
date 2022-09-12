@@ -650,7 +650,8 @@ println(iris)
 
 ## `@eval` block
 
-Evaluates the contents of the block and inserts the resulting value into the final document.
+Evaluates the contents of the block and inserts the resulting value into the final document,
+unless the last expression evaluates to `nothing`.
 
 In the following example we use the PyPlot package to generate a plot and display it in the
 final document.
@@ -671,6 +672,10 @@ nothing
 ![](plot.svg)
 ````
 
+Instead of returning `nothing` in the example above we could have returned a new
+`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
+filename is not known until evaluation of the block itself.
+
 Another example is to generate markdown tables from machine readable data formats such as CSV or JSON.
 
 ````markdown
@@ -684,14 +689,14 @@ mdtable(df,latex=false)
 
 Which will generate a markdown version of the CSV file table.csv and render it in the output format.
 
+The final expression in an `@eval` block must be either `nothing` or a valid `Markdown.MD`
+object. Other objects will generate a warning and will be rendered in text form as a code block,
+but this behavior can change and should not be relied upon.
+
 Note that each `@eval` block evaluates its contents within a separate module. When
 evaluating each block the present working directory, `pwd`, is set to the directory in
 `build` where the file will be written to, and the paths in `include` calls are interpreted
 to be relative to `pwd`.
-
-Also, instead of returning `nothing` in the example above we could have returned a new
-`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
-filename is not known until evaluation of the block itself.
 
 !!! note
 

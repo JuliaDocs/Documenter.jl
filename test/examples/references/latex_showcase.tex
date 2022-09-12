@@ -579,6 +579,21 @@ Arthur C. Clarke, \emph{Profiles of the Future} (1961): Clarke{\textquotesingle}
 }
 
 
+Footnote with more block contents.\footnotemark[3]
+
+
+
+\footnotetext[3]{And a link to another footnote\footnotemark[1].
+
+\begin{quote}
+\textbf{Admonition..}
+
+.. in a footnote.
+
+\end{quote}
+}
+
+
 \section{Headings}
 
 
@@ -761,6 +776,35 @@ println("Hello World")
 \begin{lstlisting}
 42
 \end{lstlisting}
+
+
+
+\subsection{at-REPL blocks}
+
+
+
+\label{9794080512499797594}{}
+
+
+
+\begin{minted}{jlcon}
+julia> (1 // 2)^2
+1//4
+\end{minted}
+
+
+
+
+\begin{minted}{jlcon}
+julia> x = 1
+1
+
+julia> x // 2
+1//2
+
+julia> ans^2
+1//4
+\end{minted}
 
 
 

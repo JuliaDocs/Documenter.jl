@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - release-*
+      - runci/*
     tags: '*'
   pull_request:
 jobs:
