@@ -176,7 +176,7 @@ end
 
 struct EvalNode <: AbstractDocumenterBlock
     code   :: Markdown.Code
-    result :: Any
+    result :: Union{Markdown.MD, Nothing}
 end
 
 struct RawNode <: AbstractDocumenterBlock
