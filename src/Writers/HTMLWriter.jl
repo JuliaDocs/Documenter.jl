@@ -1430,22 +1430,23 @@ function render_article_mdast(dctx)
     # Build the page itself (and collect any footnotes)
     empty!(dctx.footnotes)
     art_body = article["#documenter-page.content"](domify_mdast(dctx))
-    @show dctx.footnotes
     # Footnotes, if there are any
     if !isempty(dctx.footnotes)
         fnotes = map(dctx.footnotes) do f
+            # If there are any nested footnotes, they'll get ignored.
+            dctx_footnote = DCtx(dctx, footnotes = nothing)
             fid = "footnote-$(f.element.id)"
             citerefid = "citeref-$(f.element.id)"
             if length(f.children) == 1 && first(f.children).element isa MarkdownAST.Paragraph
                 li["#$(fid).footnote"](
                     a[".tag.is-link", :href => "#$(citerefid)"](f.element.id),
-                    domify_mdast(dctx, first(f.children).children),
+                    domify_mdast(dctx_footnote, first(f.children).children),
                 )
             else
                 li["#$(fid).footnote"](
                     a[".tag.is-link", :href => "#$(citerefid)"](f.element.id),
                     # passing an empty MD() as `parent` to give it block context
-                    domify_mdast(dctx, f.children),
+                    domify_mdast(dctx_footnote, f.children),
                 )
             end
         end
@@ -1599,7 +1600,7 @@ struct DCtx
     navnode :: Documents.NavNode
     droplinks :: Bool
     settings :: Union{HTML, Nothing}
-    footnotes :: Vector{Node{Nothing}}
+    footnotes :: Union{Vector{Node{Nothing}},Nothing}
 
     DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, [])
     DCtx(
@@ -2391,7 +2392,11 @@ function domify_mdast(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteLink)
     sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
 end
 function domify_mdast(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
-    push!(dctx.footnotes, node)
+    if isnothing(dctx.footnotes)
+        @error "Invalid nested footnote definition in $(Utilities.locrepr(dctx.navnode.page))" f.id
+    else
+        push!(dctx.footnotes, node)
+    end
     return DOM.Node[]
 end
 
