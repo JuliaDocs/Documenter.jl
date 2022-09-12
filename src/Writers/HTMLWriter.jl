@@ -1378,6 +1378,7 @@ function render_article_compare(ctx, navnode)
 
     dom_old_str, dom_mdast_str = sprint(show, dom_old), sprint(show, dom_mdast)
     if dom_old_str != dom_mdast_str
+        @info "no match" dom_old_str dom_mdast_str
         display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(dom_old_str, dom_mdast_str))
     end
     if !isnothing(Sys.which("tidy")) && !isnothing(Sys.which("colordiff"))
