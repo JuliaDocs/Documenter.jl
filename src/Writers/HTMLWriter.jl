@@ -1422,7 +1422,7 @@ function render_article_markdown(ctx, navnode)
     end
     return art_body
 end
-function render_article_mdast(dctx::DCtx)
+function render_article_mdast(dctx)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function render_article(ctx, navnode)
     @tags article section ul li hr span a div p
