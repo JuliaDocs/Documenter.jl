@@ -2392,6 +2392,16 @@ function domify_mdast(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteLink)
     sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
 end
 function domify_mdast(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
+    # As we run through the document to generate the document, we won't render the footnote
+    # definitions right away, and instead store them on dctx.footnotes. They get printed
+    # a little later, at the very end of the page.
+    #
+    # It does mean that we call domify() again later on the actual footnote bodies, and in that
+    # case dctx.footnotes = nothing. In case we then still end up here, it means we have footnote
+    # definitions nested inside footnote definition. We just ignore those and print a warning.
+    #
+    # TODO: this could be rearranged such that we push!() the DOM here into .footnotes, rather
+    # than the Node objects.
     if isnothing(dctx.footnotes)
         @error "Invalid nested footnote definition in $(Utilities.locrepr(dctx.navnode.page))" f.id
     else
