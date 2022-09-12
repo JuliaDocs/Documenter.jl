@@ -2311,20 +2311,6 @@ is_in_tight_list(node::Node) = !isnothing(node.parent) && isa(node.parent.elemen
     !isnothing(node.parent.parent) && isa(node.parent.parent.element, MarkdownAST.List) &&
     node.parent.parent.element.tight
 
-module OverrideMarkdownAST
-    # Will be fixed in MarkdownAST v0.0.2
-    using Markdown
-    import MarkdownAST: _convert_block, _convert, Item, List, Node
-    function _convert_block(b::Markdown.List)
-        tight = !b.loose
-        list = Node(List(b.ordered == -1 ? :bullet : :ordered, tight))
-        for item in b.items
-            push!(list.children, _convert(Item(), _convert_block, item))
-        end
-        return list
-    end
-end
-
 function mdconvert(t::Markdown.Table, parent; kwargs...)
     @tags table tr th td
     alignment_style = map(t.align) do align
@@ -2348,8 +2334,7 @@ function mdconvert(t::Markdown.Table, parent; kwargs...)
     )
 end
 function domify_mdast(dctx::DCtx, node::Node, t::MarkdownAST.Table)
-    rows = Iterators.flatten(thtb.children for thtb in node.children)
-    th_row, tbody_rows = Iterators.peel(rows)
+    th_row, tbody_rows = Iterators.peel(MarkdownAST.tablerows(node))
     # function mdconvert(t::Markdown.Table, parent; kwargs...)
     @tags table tr th td
     alignment_style = map(t.spec) do align

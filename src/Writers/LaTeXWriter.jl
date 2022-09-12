@@ -627,7 +627,7 @@ function latex(io::Context, node::Node, math::MarkdownAST.DisplayMath)
 end
 
 function latex(io::Context, node::Node, table::MarkdownAST.Table)
-    rows = Iterators.flatten(thtb.children for thtb in node.children)
+    rows = MarkdownAST.tablerows(node)
     # latex(io, node.children)
     _println(io, "\n\\begin{table}[h]")
     _print(io, "\n\\begin{tabulary}{\\linewidth}")
