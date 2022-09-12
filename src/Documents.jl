@@ -193,26 +193,13 @@ struct MultiOutput <: AbstractDocumenterBlock
 end
 
 # For @repl blocks we store the inputs and outputs as separate Markdown.Code
-# objects, and then combine them in the writer with join_multiblock(). When we
-# convert to MarkdownAST, a MultiCodeBlock will have exactly one CodeBlock child
-# node that corresponds to the output from join_multiblock().
+# objects, and then combine them in the writer. When converting to MarkdownAST,
+# those separate code blocks become child nodes.
 struct MultiCodeBlock <: AbstractDocumenterBlock
     language::String
-    content::Vector
+    content::Vector{Markdown.Code}
 end
-function join_multiblock(mcb::MultiCodeBlock)
-    io = IOBuffer()
-    for (i, thing) in enumerate(mcb.content)
-        print(io, thing.code)
-        if i != length(mcb.content)
-            println(io)
-            if findnext(x -> x.language == mcb.language, mcb.content, i + 1) == i + 1
-                println(io)
-            end
-        end
-    end
-    return Markdown.Code(mcb.language, String(take!(io)))
-end
+
 
 # Navigation
 # ----------------------
@@ -738,9 +725,10 @@ end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mcb::MultiCodeBlock)
     node.element = mcb
-    code = join_multiblock(mcb)
-    mdast_code = MarkdownAST.CodeBlock(code.language, code.code)
-    push!(node.children, MarkdownAST.Node(mdast_code))
+    for code in mcb.content
+        codeblock = MarkdownAST.Node(MarkdownAST.CodeBlock(code.language, code.code))
+        push!(node.children, codeblock)
+    end
 end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mo::MultiOutput)

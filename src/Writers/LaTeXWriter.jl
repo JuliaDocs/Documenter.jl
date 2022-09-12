@@ -508,7 +508,22 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     end
 end
 
-latex(io::Context, node::Node, mcb::Documents.MultiCodeBlock) = latex(io, node.children)
+latex(io::Context, node::Node, mcb::Documents.MultiCodeBlock) = latex(io, node, join_multiblock(node))
+function join_multiblock(node::Node)
+    @assert node.element isa Documents.MultiCodeBlock
+    io = IOBuffer()
+    codeblocks = [n.element::MarkdownAST.CodeBlock for n in node.children]
+    for (i, thing) in enumerate(codeblocks)
+        print(io, thing.code)
+        if i != length(codeblocks)
+            println(io)
+            if findnext(x -> x.info == node.element.language, codeblocks, i + 1) == i + 1
+                println(io)
+            end
+        end
+    end
+    return MarkdownAST.CodeBlock(node.element.language, String(take!(io)))
+end
 
 function _print_code_escapes_minted(io, s::AbstractString)
     for ch in s
