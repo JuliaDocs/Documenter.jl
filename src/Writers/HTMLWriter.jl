@@ -1369,16 +1369,16 @@ function write_dom_html(ctx, navnode, s; suffix)
     return path
 end
 
-function render_article_compare(ctx, navnode)
+function render_article(ctx, navnode)
     @tags html
     # Check two dom renderings:
     empty!(ctx.footnotes)
-    dom_old = html(domify(ctx, navnode))
-    dom_mdast = html(domify_mdast(DCtx(ctx, navnode)))
+    dom_old = html(render_article_markdown(ctx, navnode))
+    dctx = DCtx(ctx, navnode)
+    dom_mdast = html(render_article_mdast(dctx))
 
     dom_old_str, dom_mdast_str = sprint(show, dom_old), sprint(show, dom_mdast)
     if dom_old_str != dom_mdast_str
-        @info "no match" dom_old_str dom_mdast_str
         display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(dom_old_str, dom_mdast_str))
     end
     if !isnothing(Sys.which("tidy")) && !isnothing(Sys.which("colordiff"))
@@ -1388,17 +1388,16 @@ function render_article_compare(ctx, navnode)
         run(`colordiff $(html_old).tidy.html $(html_new).tidy.html`)
     end
     dom_old_str != dom_mdast_str && error("No match for $(navnode)")
+
+    return dom_old
 end
 
-function render_article(ctx, navnode)
-    render_article_compare(ctx, navnode)
-
+function render_article_markdown(ctx, navnode)
     @tags article section ul li hr span a div p
 
     # Build the page itself (and collect any footnotes)
     empty!(ctx.footnotes)
     art_body = article["#documenter-page.content"](domify(ctx, navnode))
-    @show ctx.footnotes
     # Footnotes, if there are any
     if !isempty(ctx.footnotes)
         fnotes = map(ctx.footnotes) do f
@@ -1414,6 +1413,37 @@ function render_article(ctx, navnode)
                     a[".tag.is-link", :href => "#$(citerefid)"](f.id),
                     # passing an empty MD() as `parent` to give it block context
                     mdconvert(f.text, Markdown.MD()),
+                )
+            end
+        end
+        push!(art_body.nodes, section[".footnotes.is-size-7"](ul(fnotes)))
+    end
+    return art_body
+end
+function render_article_mdast(dctx::DCtx)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # function render_article(ctx, navnode)
+    @tags article section ul li hr span a div p
+
+    # Build the page itself (and collect any footnotes)
+    empty!(dctx.footnotes)
+    art_body = article["#documenter-page.content"](domify_mdast(dctx))
+    @show dctx.footnotes
+    # Footnotes, if there are any
+    if !isempty(dctx.footnotes)
+        fnotes = map(dctx.footnotes) do f
+            fid = "footnote-$(f.element.id)"
+            citerefid = "citeref-$(f.element.id)"
+            if length(f.children) == 1 && first(f.children).element isa MarkdownAST.Paragraph
+                li["#$(fid).footnote"](
+                    a[".tag.is-link", :href => "#$(citerefid)"](f.element.id),
+                    domify_mdast(dctx, first(f.children).children),
+                )
+            else
+                li["#$(fid).footnote"](
+                    a[".tag.is-link", :href => "#$(citerefid)"](f.element.id),
+                    # passing an empty MD() as `parent` to give it block context
+                    domify_mdast(dctx, f.children),
                 )
             end
         end
