@@ -29,8 +29,7 @@ MarkdownAST = "0.0.1"
 julia = "1.6"
 
 [extras]
-DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [targets]
-test = ["Random", "DocumenterTools"]
+test = ["Random"]
