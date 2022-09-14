@@ -1906,7 +1906,7 @@ function domify_mdast(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
         fragment=Anchors.fragment(node.anchor),
         title=string(node.object.binding),
         category=Utilities.doccat(node.object),
-        text = mdflatten(node.docstr))
+        text = mdflatten(mdast_node))
     push!(ctx.search_index_mdast, rec)
 
     article[".docstring"](
