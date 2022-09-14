@@ -122,7 +122,6 @@ By default, the HTML output renders equations with \href{https://katex.org/}{KaT
 
 
 \begin{tcolorbox}[colback=admonition-warning!5!white,colframe=admonition-warning!75!black,title={Warning}]
-
 Similar to LaTeX, using \texttt{\$} and \texttt{\$\$} to escape inline and display equations also works. However, doing so is deprecated and this functionality may be removed in a future release.
 
 \end{tcolorbox}
@@ -187,7 +186,6 @@ Documenter supports a range of admonition types for different circumstances.
 
 
 \begin{tcolorbox}[colback=admonition-note!5!white,colframe=admonition-note!75!black,title={{\textquotesingle}note{\textquotesingle} admonition}]
-
 Admonitions look like this. This is a \texttt{!!! note}-type admonition.
 
 Note that admonitions themselves can contain other block-level elements too, such as code blocks. E.g.
@@ -224,7 +222,6 @@ Headings are OK though:
 
 
 \begin{tcolorbox}[colback=admonition-info!5!white,colframe=admonition-info!75!black,title={{\textquotesingle}info{\textquotesingle} admonition}]
-
 This is a \texttt{!!! info}-type admonition. This is the same as a \texttt{!!! note}-type.
 
 \end{tcolorbox}
@@ -238,7 +235,6 @@ This is a \texttt{!!! info}-type admonition. This is the same as a \texttt{!!! n
 
 
 \begin{tcolorbox}[colback=admonition-tip!5!white,colframe=admonition-tip!75!black,title={{\textquotesingle}tip{\textquotesingle} admonition}]
-
 This is a \texttt{!!! tip}-type admonition.
 
 \end{tcolorbox}
@@ -252,7 +248,6 @@ This is a \texttt{!!! tip}-type admonition.
 
 
 \begin{tcolorbox}[colback=admonition-warning!5!white,colframe=admonition-warning!75!black,title={{\textquotesingle}warning{\textquotesingle} admonition}]
-
 This is a \texttt{!!! warning}-type admonition.
 
 \end{tcolorbox}
@@ -266,7 +261,6 @@ This is a \texttt{!!! warning}-type admonition.
 
 
 \begin{tcolorbox}[colback=admonition-danger!5!white,colframe=admonition-danger!75!black,title={{\textquotesingle}danger{\textquotesingle} admonition}]
-
 This is a \texttt{!!! danger}-type admonition.
 
 \end{tcolorbox}
@@ -280,7 +274,6 @@ This is a \texttt{!!! danger}-type admonition.
 
 
 \begin{tcolorbox}[colback=admonition-compat!5!white,colframe=admonition-compat!75!black,title={{\textquotesingle}compat{\textquotesingle} admonition}]
-
 This is a \texttt{!!! compat}-type admonition.
 
 \end{tcolorbox}
@@ -294,7 +287,6 @@ This is a \texttt{!!! compat}-type admonition.
 
 
 \begin{tcolorbox}[colback=admonition-default!5!white,colframe=admonition-default!75!black,title={Unknown admonition class}]
-
 Admonition with an unknown admonition class. This is a \texttt{code example}.
 
 \end{tcolorbox}
@@ -404,7 +396,6 @@ Lists can also be included in other blocks that can contain block level items
 
 
 \begin{tcolorbox}[colback=admonition-note!5!white,colframe=admonition-note!75!black,title={Bulleted lists in admonitions}]
-
 \begin{itemize}
 \item Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
@@ -415,11 +406,10 @@ Lists can also be included in other blocks that can contain block level items
 \item In non \emph{sodales} eros.
 
 \end{itemize}
-\end{quote}
+\end{tcolorbox}
 
 
 \begin{tcolorbox}[colback=admonition-note!5!white,colframe=admonition-note!75!black,title={Large lists in admonitions}]
-
 \begin{itemize}
 \item Morbi et varius nisl, eu semper orci.
 
@@ -451,7 +441,7 @@ Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ul
 Fusce nec urna eu orci porta blandit.
 
 \end{itemize}
-\end{quote}
+\end{tcolorbox}
 
 
 \begin{quote}
@@ -576,7 +566,6 @@ Footnote with more block contents.\footnotemark[3]
 \footnotetext[3]{And a link to another footnote\footnotemark[1].
 
 \begin{tcolorbox}[colback=admonition-note!5!white,colframe=admonition-note!75!black,title={Admonition..}]
-
 .. in a footnote.
 
 \end{tcolorbox}
@@ -627,7 +616,6 @@ To see an example of a level 1 heading see the page title and for level 2 headin
 
 
 \begin{tcolorbox}[colback=admonition-note!5!white,colframe=admonition-note!75!black,title={Headings in sidebars}]
-
 Level 1 and 2 heading show up in the sidebar, for the current page.
 
 \end{tcolorbox}
@@ -1071,16 +1059,14 @@ Display equation:
 
 \begin{equation*}
 \begin{split}\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}\end{split}\end{equation*}
-\begin{quote}
-\textbf{Long equations in admonitions}
-
+\begin{tcolorbox}[colback=admonition-note!5!white,colframe=admonition-note!75!black,title={Long equations in admonitions}]
 Inline: \(\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}\)
 
 Display equation:
 
 \begin{equation*}
 \begin{split}\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}\end{split}\end{equation*}
-\end{quote}
+\end{tcolorbox}
 Long equations in footnotes.[{\textasciicircum}longeq-footnote]
 
 [{\textasciicircum}longeq-footnote]:
@@ -1128,12 +1114,10 @@ Missing docstring:
 
 
 
-\begin{quote}
-\textbf{Missing docstring.}
-
+\begin{tcolorbox}[colback=admonition-warning!5!white,colframe=admonition-warning!75!black,title={Missing docstring.}]
 Missing docstring for \texttt{this\_docstring\_does\_not\_exist}. Check Documenter{\textquotesingle}s build log for details.
 
-\end{quote}
+\end{tcolorbox}
 
 \hypertarget{5308965026370084775}{\texttt{Main.AutoDocs.f}}  -- {Function.}
 

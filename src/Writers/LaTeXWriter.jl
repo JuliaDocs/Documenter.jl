@@ -566,7 +566,7 @@ function latex(io::Context, node::Node, ::MarkdownAST.BlockQuote)
 end
 
 function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
-    color = "default"
+    color = "admonition-default"
     if md.category in ("danger", "warning", "note", "info", "tip", "compat")
         color = "admonition-$(md.category)"
     end
@@ -576,7 +576,7 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
     latexesc(io, md.title)
     _println(io, "}]")
     latex(io, node.children)
-    _print(io, "\\end{tcolorbox}")
+    _println(io, "\\end{tcolorbox}")
     return
 end
 
