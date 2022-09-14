@@ -790,11 +790,10 @@ function Utilities.MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines
     for node in e.mdasts
         Utilities.MDFlatten.mdflatten(io, node)
-        print(io, "\n\n")
+        # Docstrings are double wrapped in MD objects, and so led to extra newlines
+        # in the old Markdown-based mdflatten()
+        print(io, "\n\n\n\n")
     end
-    # Docstrings are double wrapped in MD objects, and so led to extra newlines
-    # in the old Markdown-based mdflatten()
-    print(io, "\n\n")
 end
 
 end
