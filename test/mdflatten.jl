@@ -3,72 +3,69 @@ module MDFlattenTests
 using Test
 
 import Markdown
-import MarkdownAST
+using MarkdownAST: @ast, Paragraph, Heading
 using Documenter.Utilities.MDFlatten
 
-markdown(s) = Markdown.parse(s)
-markdownast(s) = convert(MarkdownAST.Node, Markdown.parse(s))
+parse(s) = convert(MarkdownAST.Node, Markdown.parse(s))
 
 @testset "MDFlatten" begin
-    @test mdflatten(Markdown.Paragraph("...")) == "..."
-    @test mdflatten(Markdown.Header{1}("...")) == "..."
+    @test mdflatten(@ast(MarkdownAST.Paragraph() do; "..."; end)) == "..."
+    @test mdflatten(@ast(MarkdownAST.Heading(1) do; "..."; end)) == "..."
 
-    @testset for parse in [markdown, markdownast]
-        # a simple test for blocks in top-level (each gets two newline appended to it)
-        @test mdflatten(parse("# Test\nTest")) == "Test\n\nTest\n\n"
-        block_md = parse("""
-        # MDFlatten test
+    # a simple test for blocks in top-level (each gets two newline appended to it)
+    @test mdflatten(parse("# Test\nTest")) == "Test\n\nTest\n\n"
+    block_md = parse("""
+    # MDFlatten test
 
 
-        ^^^ Ignoring extra whitespace.
+    ^^^ Ignoring extra whitespace.
 
-        ```markdown
-        code
-        is forwarded as **is**
-        ```
-        """)
-        block_text = """
-        MDFlatten test
+    ```markdown
+    code
+    is forwarded as **is**
+    ```
+    """)
+    block_text = """
+    MDFlatten test
 
-        ^^^ Ignoring extra whitespace.
+    ^^^ Ignoring extra whitespace.
 
-        code
-        is forwarded as **is**
+    code
+    is forwarded as **is**
 
-        """
-        @test mdflatten(block_md) == block_text
+    """
+    @test mdflatten(block_md) == block_text
 
-        # blocks
-        @test mdflatten(parse("> Test\n> Test\n\n> Test")) == "Test Test\n\nTest\n\n"
-        @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
-        @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
-        @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
+    # blocks
+    @test mdflatten(parse("> Test\n> Test\n\n> Test")) == "Test Test\n\nTest\n\n"
+    @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
+    @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
+    @test mdflatten(parse("HRs\n\n---\n\nto whitespace")) == "HRs\n\n\n\nto whitespace\n\n"
 
-        # test some inline blocks
-        @test mdflatten(parse("`code` *em* normal **strong**")) == "code em normal strong\n\n"
-        @test mdflatten(parse("[link text *parsed*](link/itself/ignored)")) == "link text parsed\n\n"
-        @test mdflatten(parse("- a\n- b\n- c")) == "a\nb\nc\n\n"
-        @test mdflatten(parse("A | B\n---|---\naa|bb\ncc | dd")) == "A B\naa bb\ncc dd\n\n"
+    # test some inline blocks
+    @test mdflatten(parse("`code` *em* normal **strong**")) == "code em normal strong\n\n"
+    @test mdflatten(parse("[link text *parsed*](link/itself/ignored)")) == "link text parsed\n\n"
+    @test mdflatten(parse("- a\n- b\n- c")) == "a\nb\nc\n\n"
+    @test mdflatten(parse("A | B\n---|---\naa|bb\ncc | dd")) == "A B\naa bb\ncc dd\n\n"
 
-        # Math
-        @test mdflatten(parse("\$e=mc^2\$")) == "e=mc^2\n\n"
-        # backticks and blocks for math only in 0.5, i.e. these fail on 0.4
-        @test mdflatten(parse("``e=mc^2``")) == "e=mc^2\n\n"
-        @test mdflatten(parse("```math\n\\(m+n)(m-n)\nx=3\\sin(x)\n```")) == "(m+n)(m-n)\nx=3sin(x)\n\n"
+    # Math
+    @test mdflatten(parse("\$e=mc^2\$")) == "e=mc^2\n\n"
+    # backticks and blocks for math only in 0.5, i.e. these fail on 0.4
+    @test mdflatten(parse("``e=mc^2``")) == "e=mc^2\n\n"
+    @test mdflatten(parse("```math\n\\(m+n)(m-n)\nx=3\\sin(x)\n```")) == "(m+n)(m-n)\nx=3sin(x)\n\n"
 
-        # symbols in markdown
-        @test mdflatten(parse("A \$B C")) == "A B C\n\n"
+    # symbols in markdown
+    @test mdflatten(parse("A \$B C")) == "A B C\n\n"
 
-        # linebreaks
-        @test mdflatten(parse("A\\\nB")) == "A\nB\n\n"
+    # linebreaks
+    @test mdflatten(parse("A\\\nB")) == "A\nB\n\n"
 
-        # footnotes
-        @test mdflatten(parse("[^name]")) == "[name]\n\n"
-        @test mdflatten(parse("[^name]:**Strong** text.")) == "[name]: Strong text.\n\n"
+    # footnotes
+    @test mdflatten(parse("[^name]")) == "[name]\n\n"
+    @test mdflatten(parse("[^name]:**Strong** text.")) == "[name]: Strong text.\n\n"
 
-        # admonitions
-        @test mdflatten(parse("!!! note \"Admonition Title\"\n    Test")) == "note: Admonition Title\nTest\n\n"
-    end
+    # admonitions
+    @test mdflatten(parse("!!! note \"Admonition Title\"\n    Test")) == "note: Admonition Title\nTest\n\n"
 end
 
 end

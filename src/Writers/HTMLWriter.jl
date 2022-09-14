@@ -417,15 +417,13 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
-    footer        :: Union{Markdown.MD, Nothing}
+    footer        :: Union{MarkdownAST.Node, Nothing}
     ansicolor     :: Bool
     lang          :: String
     warn_outdated :: Bool
     prerender     :: Bool
     node          :: Union{Cmd,String,Nothing}
     highlightjs   :: Union{String,Nothing}
-    # mdast support
-    footer_mdast  :: Union{Node, Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -478,12 +476,12 @@ struct HTML <: Documenter.Writer
             if !(length(footer.content) == 1 && footer.content[1] isa Markdown.Paragraph)
                 throw(ArgumentError("footer must be a single-line markdown compatible string."))
             end
+            footer = isnothing(footer) ? nothing : convert(Node, footer)
         end
-        footer_mdast = isnothing(footer) ? nothing : convert(Node, footer)
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, footer,
-            ansicolor, lang, warn_outdated, prerender, node, highlightjs, footer_mdast)
+            ansicolor, lang, warn_outdated, prerender, node, highlightjs)
     end
 end
 
@@ -670,38 +668,33 @@ mutable struct HTMLContext
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
-    footnotes :: Vector{Markdown.Footnote}
     # MarkdownAST support
     mdast_pages :: Dict{String, MarkdownAST.Node{Nothing}}
-    search_index_mdast :: Vector{SearchRecord}
 end
 
 HTMLContext(doc, settings=nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
-    Documents.NavNode("search", "Search", nothing), [],
-    Documents.markdownast(doc), [],
+    Documents.NavNode("search", "Search", nothing),
+    Documents.markdownast(doc),
 )
 
 struct DCtx
     # ctx and navnode were recursively passed to all domify() methods
     ctx :: HTMLContext
     navnode :: Documents.NavNode
-    # .search_index was a field in HTMLContext
-    search_index :: Vector{SearchRecord}
     # The following fields were keyword arguments to mdconvert()
     droplinks :: Bool
     settings :: Union{HTML, Nothing}
     footnotes :: Union{Vector{Node{Nothing}},Nothing}
 
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, [], droplinks, ctx.settings, [])
+    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, [])
     DCtx(
         dctx::DCtx;
         navnode = dctx.navnode,
-        search_index = dctx.search_index,
         droplinks = dctx.droplinks,
         settings = dctx.settings,
         footnotes = dctx.footnotes,
-    ) = new(dctx.ctx, navnode, search_index, droplinks, settings, footnotes)
+    ) = new(dctx.ctx, navnode, droplinks, settings, footnotes)
 end
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
@@ -720,13 +713,6 @@ function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, cat
     )
 end
 
-function SearchRecord(ctx::HTMLContext, navnode, node::Markdown.Header)
-    a = getpage(ctx, navnode).mapping[node]
-    SearchRecord(ctx, navnode;
-        fragment=Anchors.fragment(a),
-        title=mdflatten(node),
-        category="section")
-end
 function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documents.AnchoredHeader)
     a = element.anchor
     SearchRecord(ctx, navnode;
@@ -735,9 +721,6 @@ function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documents.
         category="section")
 end
 
-function SearchRecord(ctx, navnode, node)
-    SearchRecord(ctx, navnode; text=mdflatten(node))
-end
 function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     SearchRecord(ctx, navnode; text=mdflatten(node))
 end
@@ -761,6 +744,7 @@ Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](
 getpage(ctx, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 
+# mdast_getpage returns the MarkdownAST.Node object corresponding to the page
 mdast_getpage(ctx, path) = ctx.mdast_pages[path]
 mdast_getpage(ctx, navnode::Documents.NavNode) = mdast_getpage(ctx, navnode.page)
 mdast_getpage(dctx::DCtx) = mdast_getpage(dctx.ctx, dctx.navnode)
@@ -841,31 +825,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, json_jsescape(ctx.search_index), "\n}")
     end
-    let io = IOBuffer()
-        println(io, "var documenterSearchIndex = {\"docs\":")
-        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
-        println(io, json_jsescape(ctx.search_index_mdast), "\n}")
-
-        index_new = take!(io)
-        index_old = read(joinpath(doc.user.build, ctx.search_index_js))
-        if index_new != index_old
-            display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(String(copy(index_old)), String(copy(index_new))))
-            if !isnothing(Sys.which("jq")) && !isnothing(Sys.which("colordiff")) && !isnothing(Sys.which("sed"))
-                json_new, json_old = joinpath(doc.user.build, "search_index.new.json"), joinpath(doc.user.build, "search_index.old.json")
-                json_prettify(index_new, json_new)
-                json_prettify(index_old, json_old)
-                run(`colordiff $(json_old) $(json_new)`)
-            end
-            error("Mismatching search index")
-        end
-    end
-end
-
-function json_prettify(data, filename)
-    open(filename, "w") do io
-        input = IOBuffer(data)
-        run(pipeline(input, `sed 's/^var documenterSearchIndex = //'`, `jq`, io))
-    end
 end
 
 """
@@ -907,7 +866,6 @@ Constructs and writes the page referred to by the `navnode` to `.build`.
 """
 function render_page(ctx, navnode)
     @tags html div body
-    page = getpage(ctx, navnode)
     head = render_head(ctx, navnode)
     sidebar = render_sidebar(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
@@ -1208,6 +1166,7 @@ end
 function navitem(nctx, nn::Documents.NavNode)
     @tags ul li span a input label i
     ctx, current = nctx.htmlctx, nctx.current
+    dctx = DCtx(nctx.htmlctx, nn, true)
     # We'll do the children first, primarily to determine if this node has any that are
     # visible. If it does not and it itself is not visible (including current), then
     # we'll hide this one as well, returning an empty string Node.
@@ -1217,12 +1176,7 @@ function navitem(nctx, nn::Documents.NavNode)
     end
 
     # construct this item
-    title = mdconvert(pagetitle(ctx, nn); droplinks=true)
-    #> mdast
-    dctx = DCtx(nctx.htmlctx, nn, true)
-    title_mdast = domify_mdast(dctx, pagetitle(dctx))
-    compare_dom(title, title_mdast; msg = "navitem title: $nn")
-    #< mdast
+    title = domify_mdast(dctx, pagetitle(dctx))
     currentclass = (nn === current) ? ".is-active" : ""
     item = if length(nctx.idstack) >= ctx.settings.collapselevel && children.name !== DOM.TEXT
         menuid = "menuitem-$(join(nctx.idstack, '-'))"
@@ -1240,18 +1194,6 @@ function navitem(nctx, nn::Documents.NavNode)
 
     # add the subsections (2nd level headings) from the page
     if (nn === current) && current.page !== nothing
-        subs = collect_subsections(ctx.doc.blueprint.pages[current.page])
-        internal_links = map(subs) do s
-            istoplevel, anchor, text = s
-            _li = istoplevel ? li[".toplevel"] : li[]
-            _li(a[".tocitem", :href => anchor](span(mdconvert(text; droplinks=true))))
-        end
-        # Only create the ul.internal tag if there actually are in-page headers
-        length(internal_links) > 0 && push!(item.nodes, ul[".internal"](internal_links))
-
-        ul_orig = ul[".internal"](internal_links)
-
-        # mdast:
         subs = collect_subsections(ctx.mdast_pages[current.page])
         internal_links = map(subs) do s
             istoplevel, anchor, text = s
@@ -1259,10 +1201,7 @@ function navitem(nctx, nn::Documents.NavNode)
             _li(a[".tocitem", :href => anchor](span(domify_mdast(dctx, text.children))))
         end
         # Only create the ul.internal tag if there actually are in-page headers
-        ul_new = ul[".internal"](internal_links)
-        #length(internal_links) > 0 && push!(item.nodes, ul[".internal"](internal_links))
-
-        compare_dom(ul_orig, ul_new; msg = "navitem ul: $nn")
+        length(internal_links) > 0 && push!(item.nodes, ul[".internal"](internal_links))
     end
 
     # add the visible subsections, if any, as a single list
@@ -1271,28 +1210,14 @@ function navitem(nctx, nn::Documents.NavNode)
     item
 end
 
-function compare_dom(old, new; msg)
-    w = Tag(:wrapper)
-    s_old, s_new = string(w(old)), string(w(new))
-    if s_old != s_new
-        @error "Mismatching DOM: $msg" typeof(old) typeof(new)
-        display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(s_old, s_new))
-        error("Mismatching DOM: $msg")
-    end
-end
-
 function render_navbar(ctx, navnode, edit_page_link::Bool)
     @tags div header nav ul li a span
 
     # The breadcrumb (navigation links on top)
     navpath = Documents.navpath(navnode)
     header_links = map(navpath) do nn
-        title = mdconvert(pagetitle(ctx, nn); droplinks=true)
-        #> mdast
         dctx = DCtx(ctx, nn, true)
-        title_mdast = domify_mdast(dctx, pagetitle(dctx))
-        compare_dom(title, title_mdast; msg = "render navbar $nn")
-        #< mdast
+        title = domify_mdast(dctx, pagetitle(dctx))
         nn.page === nothing ? li(a[".is-disabled"](title)) : li(a[:href => navhref(ctx, nn, navnode)](title))
     end
     header_links[end] = header_links[end][".is-active"]
@@ -1428,22 +1353,14 @@ function render_footer(ctx, navnode)
     # Navigation links (previous/next page), if there are any
     navlinks = DOM.Node[]
     if navnode.prev !== nothing
-        title = mdconvert(pagetitle(ctx, navnode.prev); droplinks=true)
-        #> mdast
         dctx = DCtx(ctx, navnode.prev, true)
-        title_mdast = domify_mdast(dctx, pagetitle(dctx))
-        compare_dom(title, title_mdast; msg = "render_footer 1 $(navnode.prev)")
-        #< mdast
+        title = domify_mdast(dctx, pagetitle(dctx))
         link = a[".docs-footer-prevpage", :href => navhref(ctx, navnode.prev, navnode)]("« ", title)
         push!(navlinks, link)
     end
     if navnode.next !== nothing
-        title = mdconvert(pagetitle(ctx, navnode.next); droplinks=true)
-        #> mdast
         dctx = DCtx(ctx, navnode.next, true)
-        title_mdast = domify_mdast(dctx, pagetitle(dctx))
-        compare_dom(title, title_mdast; msg = "render_footer 2 $(navnode.next)")
-        #< mdast
+        title = domify_mdast(dctx, pagetitle(dctx))
         link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
         push!(navlinks, link)
     end
@@ -1457,11 +1374,7 @@ function render_footer(ctx, navnode)
     end
 
     if footer_content !== nothing
-        footer_container = domify(ctx, navnode, footer_content)
-        #> mdast
-        footer_container_mdast = domify_mdast(DCtx(ctx, navnode), ctx.settings.footer_mdast)
-        compare_dom(footer_container, footer_container_mdast; msg = "footer: $navnode")
-        #< mdast
+        footer_container = domify_mdast(DCtx(ctx, navnode), ctx.settings.footer)
         push!(first(footer_container).attributes, :class => "footer-message")
         push!(nav_children, footer_container)
     end
@@ -1472,69 +1385,8 @@ end
 # Article (page contents)
 # ------------------------------------------------------------------------------
 
-function write_dom_html(ctx, navnode, s; suffix)
-    path = joinpath(ctx.doc.user.build, get_url(ctx, navnode) * ".$(suffix)")
-    isdir(dirname(path)) || mkpath(dirname(path))
-    open(io -> write(io, s), path * ".html", "w")
-    run(ignorestatus(`tidy --indent yes -w -q -o $(path).tidy.html $(path).html`))
-    return path
-end
-
 function render_article(ctx, navnode)
-    @tags html
-    # Check two dom renderings:
-    empty!(ctx.footnotes)
-    dom_old = html(render_article_markdown(ctx, navnode))
     dctx = DCtx(ctx, navnode)
-    dom_mdast = html(render_article_mdast(dctx))
-
-    dom_old_str, dom_mdast_str = sprint(show, dom_old), sprint(show, dom_mdast)
-    if dom_old_str != dom_mdast_str
-        display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(dom_old_str, dom_mdast_str))
-
-        if !isnothing(Sys.which("tidy")) && !isnothing(Sys.which("colordiff"))
-            html_old = write_dom_html(ctx, navnode, dom_old_str; suffix = "original")
-            html_new = write_dom_html(ctx, navnode, dom_mdast_str; suffix = "mdast")
-            @info "Comparing DOM for $(navnode)" dom_old_str == dom_mdast_str length(dom_old_str) length(dom_mdast_str)
-            run(`colordiff $(html_old).tidy.html $(html_new).tidy.html`)
-        end
-
-        error("No match for $(navnode)")
-    end
-
-    return dom_old
-end
-
-function render_article_markdown(ctx, navnode)
-    @tags article section ul li hr span a div p
-
-    # Build the page itself (and collect any footnotes)
-    empty!(ctx.footnotes)
-    art_body = article["#documenter-page.content"](domify(ctx, navnode))
-    # Footnotes, if there are any
-    if !isempty(ctx.footnotes)
-        fnotes = map(ctx.footnotes) do f
-            fid = "footnote-$(f.id)"
-            citerefid = "citeref-$(f.id)"
-            if length(f.text) == 1 && first(f.text) isa Markdown.Paragraph
-                li["#$(fid).footnote"](
-                    a[".tag.is-link", :href => "#$(citerefid)"](f.id),
-                    mdconvert(f.text[1].content),
-                )
-            else
-                li["#$(fid).footnote"](
-                    a[".tag.is-link", :href => "#$(citerefid)"](f.id),
-                    # passing an empty MD() as `parent` to give it block context
-                    mdconvert(f.text, Markdown.MD()),
-                )
-            end
-        end
-        push!(art_body.nodes, section[".footnotes.is-size-7"](ul(fnotes)))
-    end
-    return art_body
-end
-function render_article_mdast(dctx)
-    ctx, navnode = dctx.ctx, dctx.navnode
     # function render_article(ctx, navnode)
     @tags article section ul li hr span a div p
 
@@ -1707,28 +1559,15 @@ end
 # ------------
 
 function domify_mdast(dctx::DCtx, node::Node, element::MarkdownAST.AbstractElement)
-    @error "Unimplemented element: $(typeof(element))"
-    []
+    error("Unimplemented element: $(typeof(element))")
 end
 
-"""
-Converts recursively a [`Documents.Page`](@ref), `Markdown` or Documenter
-`*Node` objects into HTML DOM.
-"""
-function domify(ctx, navnode)
-    page = getpage(ctx, navnode)
-    map(page.elements) do elem
-        rec = SearchRecord(ctx, navnode, elem)
-        push!(ctx.search_index, rec)
-        domify(ctx, navnode, page.mapping[elem])
-    end
-end
 function domify_mdast(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     mdast = mdast_getpage(ctx, navnode)
     map(mdast.children) do node
         rec = SearchRecord(ctx, navnode, node, node.element)
-        push!(ctx.search_index_mdast, rec)
+        push!(ctx.search_index, rec)
         domify_mdast(dctx, node, node.element)
     end
 end
@@ -1740,27 +1579,6 @@ end
 
 domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify_mdast(dctx, node.children)
 
-function domify(ctx, navnode, node)
-    fixlinks!(ctx, navnode, node)
-    mdconvert(node, Markdown.MD(); footnotes=ctx.footnotes, settings=ctx.settings)
-end
-
-function domify(ctx, navnode, anchor::Anchors.Anchor)
-    @tags a
-    frag = Anchors.fragment(anchor)
-    legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
-    if isa(anchor.object, Markdown.Header)
-        h = anchor.object
-        fixlinks!(ctx, navnode, h)
-        DOM.Tag(Symbol("h$(Utilities.header_level(h))"))[:id => lstrip(frag, '#')](
-            a[".docs-heading-anchor", :href => frag](mdconvert(h.text, h)),
-            legacy...,
-            a[".docs-heading-anchor-permalink", :href => frag, :title => "Permalink"]
-        )
-    else
-        a[:id => frag, :href => frag](legacy..., domify(ctx, navnode, anchor.object))
-    end
-end
 function domify_mdast(dctx::DCtx, node::Node, ah::Documents.AnchoredHeader)
     @assert length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Heading)
     ctx, navnode = dctx.ctx, dctx.navnode
@@ -1800,25 +1618,6 @@ function domify(lb::ListBuilder)
     ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
 end
 
-function domify(ctx, navnode, contents::Documents.ContentsNode)
-    @tags a
-    navnode_dir = dirname(navnode.page)
-    navnode_url = get_url(ctx, navnode)
-    lb = ListBuilder()
-    for (count, path, anchor) in contents.elements
-        header = anchor.object
-        level = Utilities.header_level(header)
-        # Skip header levels smaller than the requested mindepth
-        level = level - contents.mindepth + 1
-        level < 1 && continue
-        path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
-        path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
-        url = string(path, Anchors.fragment(anchor))
-        node = a[:href=>url](mdconvert(header.text; droplinks=true))
-        push!(lb, level, node)
-    end
-    domify(lb)
-end
 function domify_mdast(dctx::DCtx, node::Node, contents::Documents.ContentsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function domify(ctx, navnode, contents::Documents.ContentsNode)
@@ -1841,19 +1640,6 @@ function domify_mdast(dctx::DCtx, node::Node, contents::Documents.ContentsNode)
     domify(lb)
 end
 
-function domify(ctx, navnode, index::Documents.IndexNode)
-    @tags a code li ul
-    navnode_dir = dirname(navnode.page)
-    navnode_url = get_url(ctx, navnode)
-    lis = map(index.elements) do el
-        object, doc, path, mod, cat = el
-        path = joinpath(navnode_dir, path) # links in IndexNodes are relative to current page
-        path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
-        url = string(path, "#", Utilities.slugify(object))
-        li(a[:href=>url](code("$(object.binding)")))
-    end
-    ul(lis)
-end
 function domify_mdast(dctx::DCtx, node::Node, index::Documents.IndexNode)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function domify(ctx, navnode, index::Documents.IndexNode)
@@ -1870,32 +1656,8 @@ function domify_mdast(dctx::DCtx, node::Node, index::Documents.IndexNode)
     ul(lis)
 end
 
-function domify(ctx, navnode, docs::Documents.DocsNodes)
-    [domify(ctx, navnode, node) for node in docs.nodes]
-end
 domify_mdast(dctx::DCtx, node::Node, ::Documents.DocsNodesBlock) = domify_mdast(dctx, node.children)
 
-function domify(ctx, navnode, node::Documents.DocsNode)
-    @tags a code article header span
-
-    # push to search index
-    rec = SearchRecord(ctx, navnode;
-        fragment=Anchors.fragment(node.anchor),
-        title=string(node.object.binding),
-        category=Utilities.doccat(node.object),
-        text = mdflatten(node.docstr))
-
-    push!(ctx.search_index, rec)
-
-    article[".docstring"](
-        header(
-            a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
-            " — ", # &mdash;
-            span[".docstring-category"]("$(Utilities.doccat(node.object))")
-        ),
-        domify_doc(ctx, navnode, node.docstr)
-    )
-end
 function domify_mdast(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function domify(ctx, navnode, node::Documents.DocsNode)
@@ -1907,7 +1669,7 @@ function domify_mdast(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
         title=string(node.object.binding),
         category=Utilities.doccat(node.object),
         text = mdflatten(mdast_node))
-    push!(ctx.search_index_mdast, rec)
+    push!(ctx.search_index, rec)
 
     article[".docstring"](
         header(
@@ -1919,28 +1681,6 @@ function domify_mdast(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
     )
 end
 
-function domify_doc(ctx, navnode, md::Markdown.MD)
-    @tags a section footer div
-    # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
-    # is a Markdown.MD objects and that it has the :results meta value set correctly.
-    @assert haskey(md.meta, :results)
-    @assert length(md.content) == length(md.meta[:results])
-    # The `:results` field contains a vector of `Docs.DocStr` objects associated with
-    # each markdown object. The `DocStr` contains data such as file and line info that
-    # we need for generating correct source links.
-    map(zip(md.content, md.meta[:results])) do md
-        markdown, result = md
-        ret = section(div(domify(ctx, navnode, Utilities.dropheaders(markdown))))
-        # When a source link is available then print the link.
-        if !ctx.settings.disable_git
-            url = Utilities.source_url(ctx.doc.user.remote, result)
-            if url !== nothing
-                push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
-            end
-        end
-        return ret
-    end
-end
 function domify_doc(dctx::DCtx, node::Node)
     @assert node.element isa Documents.DocsNode
     ctx, navnode = dctx.ctx, dctx.navnode
@@ -1962,9 +1702,6 @@ function domify_doc(dctx::DCtx, node::Node)
     end
 end
 
-function domify(ctx, navnode, node::Documents.EvalNode)
-    node.result === nothing ? DOM.Node[] : domify(ctx, navnode, node.result)
-end
 function domify_mdast(dctx::DCtx, ::Node, evalnode::Documents.EvalNode)
     if evalnode.result !== nothing
         # Note: this convert() here can throw very easily. Basically, we assume that
@@ -1977,13 +1714,9 @@ function domify_mdast(dctx::DCtx, ::Node, evalnode::Documents.EvalNode)
 end
 
 # nothing to show for MetaNodes, so we just return an empty list
-domify(ctx, navnode, node::Documents.MetaNode) = DOM.Node[]
 domify_mdast(::DCtx, ::Node, ::Documents.MetaNode) = DOM.Node[]
 domify_mdast(::DCtx, ::Node, ::Documents.SetupNode) = DOM.Node[]
 
-function domify(ctx, navnode, raw::Documents.RawNode)
-    raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
-end
 function domify_mdast(::DCtx, ::Node, raw::Documents.RawNode)
     raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
 end
@@ -2061,16 +1794,6 @@ Tries to guess the page title by looking at the `<h1>` headers and returns the
 header contents of the first `<h1>` on a page (or `nothing` if the algorithm
 was unable to find any `<h1>` headers).
 """
-function pagetitle(page::Documents.Page)
-    title = nothing
-    for element in page.elements
-        if isa(element, Markdown.Header{1})
-            title = element.text
-            break
-        end
-    end
-    title
-end
 function pagetitle(page::Node)
     @assert page.element isa MarkdownAST.Document
     # function pagetitle(page::Documents.Page)
@@ -2088,24 +1811,6 @@ function pagetitle(page::Node)
     title
 end
 
-function pagetitle(ctx, navnode::Documents.NavNode)
-    if navnode.title_override !== nothing
-        # parse title_override as markdown
-        md = Markdown.parse(navnode.title_override)
-        # Markdown.parse results in a paragraph so we need to strip that
-        if !(length(md.content) === 1 && isa(first(md.content), Markdown.Paragraph))
-            error("Bad Markdown provided for page title: '$(navnode.title_override)'")
-        end
-        return first(md.content).content
-    end
-
-    if navnode.page !== nothing
-        title = pagetitle(getpage(ctx, navnode))
-        title === nothing || return title
-    end
-
-    "-"
-end
 function pagetitle(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function pagetitle(ctx, navnode::Documents.NavNode)
@@ -2127,18 +1832,8 @@ function pagetitle(dctx::DCtx)
 
     [MarkdownAST.@ast("-")]
 end
-function mdflatten_pagetitle(dctx::DCtx)
-    old = mdflatten(pagetitle(dctx.ctx, dctx.navnode))
-    new = sprint((io, ns) -> foreach(n -> mdflatten(io, n), ns), pagetitle(dctx))
-    if old != new
-        error("""
-        bad mdflatten_pagetitle
-        old: $(old)
-        new: $(old)
-        """)
-    end
-    return old
-end
+
+mdflatten_pagetitle(dctx::DCtx) = sprint((io, ns) -> foreach(n -> mdflatten(io, n), ns), pagetitle(dctx))
 
 """
 Returns an ordered list of tuples, `(toplevel, anchor, text)`, corresponding to level 1 and 2
@@ -2146,23 +1841,6 @@ headings on the `page`. Note that if the first header on the `page` is a level 1
 it is not included -- it is assumed to be the page title and so does not need to be included
 in the navigation menu twice.
 """
-function collect_subsections(page::Documents.Page)
-    sections = []
-    title_found = false
-    for element in page.elements
-        if isa(element, Markdown.Header) && Utilities.header_level(element) < 3
-            toplevel = Utilities.header_level(element) === 1
-            # Don't include the first header if it is `h1`.
-            if toplevel && isempty(sections) && !title_found
-                title_found = true
-                continue
-            end
-            anchor = page.mapping[element]
-            push!(sections, (toplevel, Anchors.fragment(anchor), element.text))
-        end
-    end
-    return sections
-end
 function collect_subsections(page::MarkdownAST.Node)
     @assert page.element isa MarkdownAST.Document
     # function collect_subsections(page::Documents.Page)
@@ -2210,40 +1888,6 @@ function domify_ansicoloredtext(text::AbstractString, class = "")
     return stack[1].nodes
 end
 
-# mdconvert
-# ------------------------------------------------------------------------------
-
-const md_block_nodes = [
-    Markdown.MD,
-    Markdown.BlockQuote,
-    Markdown.List,
-    Markdown.Admonition,
-]
-
-"""
-[`MDBlockContext`](@ref) is a union of all the Markdown nodes whose children should
-be blocks. It can be used to dispatch on all the block-context nodes at once.
-"""
-const MDBlockContext = Union{md_block_nodes...}
-
-"""
-Convert a markdown object to a `DOM.Node` object.
-
-The `parent` argument is passed to allow for context-dependant conversions.
-"""
-mdconvert(md; kwargs...) = mdconvert(md, md; kwargs...)
-
-function mdconvert(text::AbstractString, parent; kwargs...)
-    # Javascript LaTeX engines have a hard time dealing with `$` floating around
-    # because they use them as in-line escapes. You can try a few different
-    # solutions that don't work (e.g., HTML symbols &#x24;). The easiest (if
-    # hacky) solution is to wrap dollar signs in a <span>. For now, only do this
-    # when the text coming in is a singleton escaped $ sign.
-    if text == "\$"
-        return Tag(:span)("\$")
-    end
-    return DOM.Node(text)
-end
 function domify_mdast(dctx::DCtx, node::Node, e::MarkdownAST.Text)
     ctx, navnode = dctx.ctx, dctx.navnode
     text = e.text
@@ -2260,29 +1904,10 @@ function domify_mdast(dctx::DCtx, node::Node, e::MarkdownAST.Text)
     return DOM.Node(text)
 end
 
-mdconvert(vec::Vector, parent; kwargs...) = [mdconvert(x, parent; kwargs...) for x in vec]
-
-mdconvert(md::Markdown.MD, parent; kwargs...) = mdconvert(md.content, md; kwargs...)
-
-mdconvert(b::Markdown.BlockQuote, parent; kwargs...) = Tag(:blockquote)(mdconvert(b.content, b; kwargs...))
 domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.BlockQuote) = Tag(:blockquote)(domify_mdast(dctx, node.children))
 
-mdconvert(b::Markdown.Bold, parent; kwargs...) = Tag(:strong)(mdconvert(b.text, parent; kwargs...))
 domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.Strong) = Tag(:strong)(domify_mdast(dctx, node.children))
 
-function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
-    @tags pre code
-    language = Utilities.codelang(c.language)
-    if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
-        return pre(domify_ansicoloredtext(c.code, "nohighlight hljs"))
-    elseif settings !== nothing && settings.prerender &&
-           !(isempty(language) || language == "nohighlight")
-        r = hljs_prerender(c, settings)
-        r !== nothing && return r
-    end
-    class = isempty(language) ? "nohighlight" : "language-$(language)"
-    return pre(code[".$(class) .hljs"](c.code))
-end
 function domify_mdast(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
     ctx, navnode, settings = dctx.ctx, dctx.navnode, dctx.settings
     language = c.info
@@ -2300,23 +1925,6 @@ function domify_mdast(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
     return pre(code[".$(class) .hljs"](c.code))
 end
 
-function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
-    @tags pre br
-    p = pre()
-    for (i, thing) in enumerate(mcb.content)
-        pre = mdconvert(thing, parent; kwargs...)
-        code = pre.nodes[1]
-        # TODO: This should probably be added to the CSS later on...
-        push!(code.attributes, :style => "display:block;")
-        push!(p.nodes, code)
-        # insert a <br> between output and the next input
-        if i != length(mcb.content) &&
-           findnext(x -> x.language == mcb.language, mcb.content, i + 1) == i + 1
-            push!(p.nodes, br())
-        end
-    end
-    return p
-end
 function domify_mdast(dctx::DCtx, node::Node, mcb::Documents.MultiCodeBlock)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
@@ -2337,30 +1945,8 @@ function domify_mdast(dctx::DCtx, node::Node, mcb::Documents.MultiCodeBlock)
     return p
 end
 
-mdconvert(c::Markdown.Code, parent; kwargs...) = Tag(:code)(c.code)
 domify_mdast(dctx::DCtx, node::Node, c::MarkdownAST.Code) = Tag(:code)(c.code)
 
-function hljs_prerender(c::Markdown.Code, settings::HTML)
-    @assert settings.prerender "unreachable"
-    @tags pre code
-    lang = Utilities.codelang(c.language)
-    hljs = settings.highlightjs
-    js = """
-    const hljs = require('$(hljs)');
-    console.log(hljs.highlight($(repr(c.code)), {'language': "$(lang)"}).value);
-    """
-    out, err = IOBuffer(), IOBuffer()
-    try
-        run(pipeline(`$(settings.node) -e "$(js)"`; stdout=out, stderr=err))
-        str = String(take!(out))
-        # prepend nohighlight to stop runtime highlighting
-        # return pre(code[".nohighlight $(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
-        return pre(code[".language-$(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
-    catch e
-        @error "HTMLWriter: prerendering failed" exception=e stderr=String(take!(err))
-    end
-    return nothing
-end
 function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     @assert settings.prerender "unreachable"
     @tags pre code
@@ -2383,26 +1969,13 @@ function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     return nothing
 end
 
-mdconvert(h::Markdown.Header{N}, parent; kwargs...) where {N} = DOM.Tag(Symbol("h$N"))(mdconvert(h.text, h; kwargs...))
 function domify_mdast(dctx::DCtx, node::Node, h::MarkdownAST.Heading)
     N = h.level
     DOM.Tag(Symbol("h$N"))(domify_mdast(dctx, node.children))
 end
 
-mdconvert(::Markdown.HorizontalRule, parent; kwargs...) = Tag(:hr)()
 domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.ThematicBreak) = Tag(:hr)()
 
-function mdconvert(i::Markdown.Image, parent; kwargs...)
-    @tags video img a
-
-    if occursin(r"\.(webm|mp4|ogg|ogm|ogv|avi)$", i.url)
-        video[:src => i.url, :controls => "true", :title => i.alt](
-            a[:href => i.url](i.alt)
-        )
-    else
-        img[:src => i.url, :alt => i.alt]
-    end
-end
 function domify_mdast(dctx::DCtx, node::Node, i::MarkdownAST.Image)
     ctx, navnode = dctx.ctx, dctx.navnode
     alt = mdflatten(node.children)
@@ -2420,26 +1993,15 @@ function domify_mdast(dctx::DCtx, node::Node, i::MarkdownAST.Image)
     end
 end
 
-mdconvert(i::Markdown.Italic, parent; kwargs...) = Tag(:em)(mdconvert(i.text, i; kwargs...))
 domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = Tag(:em)(domify_mdast(dctx, node.children))
 
-function mdconvert(m::Markdown.LaTeX, ::MDBlockContext; kwargs...)
-    @tags p
-    p[".math-container"](string("\\[", m.formula, "\\]"))
-end
 domify_mdast(dctx::DCtx, node::Node, m::MarkdownAST.DisplayMath) = Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
 
-mdconvert(m::Markdown.LaTeX, parent; kwargs...) = Tag(:span)(string('$', m.formula, '$'))
 domify_mdast(dctx::DCtx, node::Node, m::MarkdownAST.InlineMath) = Tag(:span)(string('$', m.math, '$'))
 
-mdconvert(::Markdown.LineBreak, parent; kwargs...) = Tag(:br)()
 domify_mdast(dctx::DCtx, node::Node, m::MarkdownAST.LineBreak) = Tag(:br)()
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
 
-function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
-    link_text = mdconvert(link.text, link; droplinks=droplinks, kwargs...)
-    droplinks ? link_text : Tag(:a)[:href => link.url](link_text)
-end
 function domify_mdast(dctx::DCtx, node::Node, link::MarkdownAST.Link)
     droplinks = dctx.droplinks
     url = fixlink(dctx, link)
@@ -2448,21 +2010,12 @@ function domify_mdast(dctx::DCtx, node::Node, link::MarkdownAST.Link)
     droplinks ? link_text : Tag(:a)[:href => url](link_text)
 end
 
-mdconvert(list::Markdown.List, parent; kwargs...) = (Markdown.isordered(list) ? Tag(:ol) : Tag(:ul))(map(Tag(:li), mdconvert(list.items, list; kwargs...)))
 function domify_mdast(dctx::DCtx, node::Node, list::MarkdownAST.List)
     isordered = (list.type === :ordered)
     (isordered ? Tag(:ol) : Tag(:ul))(map(Tag(:li), domify_mdast(dctx, node.children)))
 end
 domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.Item) = domify_mdast(dctx, node.children)
 
-mdconvert(paragraph::Markdown.Paragraph, parent; kwargs...) = Tag(:p)(mdconvert(paragraph.content, paragraph; kwargs...))
-
-# For compatibility with versions before Markdown.List got the `loose field, Julia PR #26598
-const list_has_loose_field = :loose in fieldnames(Markdown.List)
-function mdconvert(paragraph::Markdown.Paragraph, parent::Markdown.List; kwargs...)
-    content = mdconvert(paragraph.content, paragraph; kwargs...)
-    return (list_has_loose_field && !parent.loose) ? content : Tag(:p)(content)
-end
 function domify_mdast(dctx::DCtx, node::Node, ::MarkdownAST.Paragraph)
     content = domify_mdast(dctx, node.children)
     # This 'if' here is to render tight/loose lists properly, as they all have Markdown.Paragraph as a child
@@ -2474,28 +2027,6 @@ is_in_tight_list(node::Node) = !isnothing(node.parent) && isa(node.parent.elemen
     !isnothing(node.parent.parent) && isa(node.parent.parent.element, MarkdownAST.List) &&
     node.parent.parent.element.tight
 
-function mdconvert(t::Markdown.Table, parent; kwargs...)
-    @tags table tr th td
-    alignment_style = map(t.align) do align
-        if align == :r
-            "text-align: right"
-        elseif align == :c
-            "text-align: center"
-        else
-            "text-align: left"
-        end
-    end
-    table(
-        tr(map(enumerate(t.rows[1])) do (i, x)
-            th[:style => alignment_style[i]](mdconvert(x, t; kwargs...))
-        end),
-        map(t.rows[2:end]) do x
-            tr(map(enumerate(x)) do (i, y) # each cell in a row
-                td[:style => alignment_style[i]](mdconvert(y, x; kwargs...))
-            end)
-        end
-    )
-end
 function domify_mdast(dctx::DCtx, node::Node, t::MarkdownAST.Table)
     th_row, tbody_rows = Iterators.peel(MarkdownAST.tablerows(node))
     # function mdconvert(t::Markdown.Table, parent; kwargs...)
@@ -2521,20 +2052,8 @@ function domify_mdast(dctx::DCtx, node::Node, t::MarkdownAST.Table)
     )
 end
 
-mdconvert(expr::Union{Expr,Symbol}, parent; kwargs...) = string(expr)
 domify_mdast(dctx::DCtx, node::Node, e::MarkdownAST.JuliaValue) = string(e.ref)
 
-function mdconvert(f::Markdown.Footnote, parent; footnotes = nothing, kwargs...)
-    @tags sup a
-    if f.text === nothing # => Footnote link
-        return sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
-    elseif footnotes !== nothing # Footnote definition
-        push!(footnotes, f)
-    else # => Footnote definition, but nowhere to put it
-        @error "Bad footnote definition."
-    end
-    return []
-end
 function domify_mdast(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteLink)
     @tags sup a
     sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
@@ -2558,40 +2077,6 @@ function domify_mdast(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     return DOM.Node[]
 end
 
-function mdconvert(a::Markdown.Admonition, parent; kwargs...)
-    @tags header div
-    colorclass =
-        (a.category == "danger")  ? ".is-danger"  :
-        (a.category == "warning") ? ".is-warning" :
-        (a.category == "note")    ? ".is-info"    :
-        (a.category == "info")    ? ".is-info"    :
-        (a.category == "tip")     ? ".is-success" :
-        (a.category == "compat")  ? ".is-compat"  : begin
-            # If the admonition category is not one of the standard ones, we tag the
-            # admonition div element with a `is-category-$(category)` class. However, we
-            # first carefully sanitize the category name. Strictly speaking, this is not
-            # necessary when were using the Markdown parser in the Julia standard library,
-            # since it restricts the category to [a-z]+. But it is possible for the users to
-            # construct their own Admonition objects with arbitrary category strings and
-            # pass them onto Documenter.
-            #
-            # (1) remove all characters except A-Z, a-z, 0-9 and -
-            cat_sanitized = replace(a.category, r"[^A-Za-z0-9-]" => "")
-            # (2) remove any dashes from the beginning and end of the string
-            cat_sanitized = replace(cat_sanitized, r"^[-]+" => "")
-            cat_sanitized = replace(cat_sanitized, r"[-]+$" => "")
-            # (3) reduce any duplicate dashes in the middle to single dashes
-            cat_sanitized = replace(cat_sanitized, r"[-]+" => "-")
-            cat_sanitized = lowercase(cat_sanitized)
-            # (4) if nothing is left (or the category was empty to begin with), we don't
-            # apply a class
-            isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
-        end
-    div[".admonition$(colorclass)"](
-        header[".admonition-header"](a.title),
-        div[".admonition-body"](mdconvert(a.content, a; kwargs...))
-    )
-end
 function domify_mdast(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
     @tags header div
     colorclass =
@@ -2628,92 +2113,9 @@ function domify_mdast(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
 end
 
 # Select the "best" representation for HTML output.
-mdconvert(mo::Documents.MultiOutput, parent; kwargs...) =
-    Base.invokelatest(mdconvert, mo.content, parent; kwargs...)
 domify_mdast(dctx::DCtx, node::Node, ::Documents.MultiOutput) = domify_mdast(dctx, node.children)
 domify_mdast(dctx::DCtx, node::Node, moe::Documents.MultiOutputElement) = Base.invokelatest(domify_mdast, dctx, node, moe.element)
 
-function mdconvert(d::Dict{MIME,Any}, parent; kwargs...)
-    rawhtml(code) = Tag(Symbol("#RAW#"))(code)
-    return if haskey(d, MIME"text/html"())
-        rawhtml(d[MIME"text/html"()])
-    elseif haskey(d, MIME"image/svg+xml"())
-        svg = d[MIME"image/svg+xml"()]
-        svg_tag_match = match(r"<svg[^>]*>", svg)
-        if svg_tag_match === nothing
-            # There is no svg tag so we don't do any more advanced
-            # processing and just return the svg as HTML.
-            # The svg string should be invalid but that's not our concern here.
-            rawhtml(svg)
-        else
-            # The xmlns attribute has to be present for data:image/svg+xml
-            # to work (https://stackoverflow.com/questions/18467982).
-            # If it doesn't exist, we splice it into the first svg tag.
-            # This should never invalidate otherwise valid svg.
-            svg_tag = svg_tag_match.match
-            xmlns_present = occursin("xmlns", svg_tag)
-            if !xmlns_present
-                svg = replace(svg, "<svg" => "<svg xmlns=\"http://www.w3.org/2000/svg\"", count = 1)
-            end
-
-            # We can leave the svg as utf8, but the minimum safety precaution we need
-            # is to ensure the src string separator is not in the svg.
-            # That can be either " or ', and the svg will most likely use only one of them
-            # so we check which one occurs more often and use the other as the separator.
-            # This should leave most svg basically intact.
-
-            # Replace % with %25 and # with %23 https://github.com/jakubpawlowicz/clean-css/issues/763#issuecomment-215283553
-            svg = replace(svg, "%" => "%25")
-            svg = replace(svg, "#" => "%23")
-
-            singles = count(==('\''), svg)
-            doubles = count(==('"'), svg)
-            if singles > doubles
-                # Replace every " with %22 because it terminates the src=" string otherwise
-                svg = replace(svg, "\"" => "%22")
-                sep = "\""
-            else
-                # Replace every ' with %27 because it terminates the src=' string otherwise
-                svg = replace(svg, "\'" => "%27")
-                sep = "'"
-            end
-
-            rawhtml(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
-        end
-
-    elseif haskey(d, MIME"image/png"())
-        rawhtml(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
-    elseif haskey(d, MIME"image/webp"())
-        rawhtml(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
-    elseif haskey(d, MIME"image/gif"())
-        rawhtml(string("<img src=\"data:image/gif;base64,", d[MIME"image/gif"()], "\" />"))
-    elseif haskey(d, MIME"image/jpeg"())
-        rawhtml(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
-    elseif haskey(d, MIME"text/latex"())
-        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
-        # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
-        # delimiters around it anyway.
-        latex = d[MIME"text/latex"()]
-        # Make sure to match multiline strings!
-        m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
-        m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
-        out = if m_bracket === nothing && m_dollars === nothing
-            Utilities.mdparse(latex; mode = :single)
-        else
-            Markdown.LaTeX(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])
-        end
-        mdconvert(out, parent; kwargs...)
-    elseif haskey(d, MIME"text/markdown"())
-        out = Markdown.parse(d[MIME"text/markdown"()])
-        mdconvert(out, parent; kwargs...)
-    elseif haskey(d, MIME"text/plain"())
-        @tags pre
-        text = d[MIME"text/plain"()]
-        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
-    else
-        error("this should never happen.")
-    end
-end
 function domify_mdast(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)
     return if haskey(d, MIME"text/html"())
@@ -2797,52 +2199,9 @@ function domify_mdast(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     end
 end
 
-# Fallback
-function mdconvert(x, parent; kwargs...)
-    @debug "Strange inline Markdown node (typeof(x) = $(typeof(x))), falling back to repr()" x
-    repr(x)
-end
-
 # fixlinks!
 # ------------------------------------------------------------------------------
 
-"""
-Replaces URLs in `Markdown.Link` elements (if they point to a local `.md` page) with the
-actual URLs.
-"""
-function fixlinks!(ctx, navnode, link::Markdown.Link)
-    fixlinks!(ctx, navnode, link.text)
-    Utilities.isabsurl(link.url) && return
-
-    # anything starting with mailto: doesn't need fixing
-    startswith(link.url, "mailto:") && return
-
-    # links starting with a # are references within the same file -- there's nothing to fix
-    # for such links
-    startswith(link.url, '#') && return
-
-    s = split(link.url, "#", limit = 2)
-    if Sys.iswindows() && ':' in first(s)
-        @warn "invalid local link: colons not allowed in paths on Windows in $(Utilities.locrepr(navnode.page))" link = link.url
-        return
-    end
-    path = normpath(joinpath(dirname(navnode.page), first(s)))
-
-    if endswith(path, ".md") && path in keys(ctx.doc.blueprint.pages)
-        # make sure that links to different valid pages are correct
-        path = pretty_url(ctx, relhref(get_url(ctx, navnode), get_url(ctx, path)))
-    elseif isfile(joinpath(ctx.doc.user.build, path))
-        # update links to other files that are present in build/ (e.g. either user
-        # provided files or generated by code examples)
-        path = relhref(get_url(ctx, navnode), path)
-    else
-        @warn "invalid local link: unresolved path in $(Utilities.locrepr(navnode.page))" link.text link.url
-    end
-
-    # Replace any backslashes in links, if building the docs on Windows
-    path = replace(path, '\\' => '/')
-    link.url = (length(s) > 1) ? "$path#$(last(s))" : String(path)
-end
 function fixlink(dctx::DCtx, link::MarkdownAST.Link)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function fixlinks!(ctx, navnode, link::Markdown.Link)
@@ -2879,23 +2238,6 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
     return (length(s) > 1) ? "$path#$(last(s))" : String(path)
 end
 
-function fixlinks!(ctx, navnode, img::Markdown.Image)
-    Utilities.isabsurl(img.url) && return
-
-    if Sys.iswindows() && ':' in img.url
-        @warn "invalid local image: colons not allowed in paths on Windows in $(Utilities.locrepr(navnode.page))" link = img.url
-        return
-    end
-
-    path = joinpath(dirname(navnode.page), img.url)
-    if isfile(joinpath(ctx.doc.user.build, path))
-        path = relhref(get_url(ctx, navnode), path)
-        # Replace any backslashes in links, if building the docs on Windows
-        img.url = replace(path, '\\' => '/')
-    else
-        @warn "invalid local image: unresolved path in $(Utilities.locrepr(navnode.page))" link = img.url
-    end
-end
 function fixlink(dctx::DCtx, img::MarkdownAST.Image)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function fixlinks!(ctx, navnode, img::Markdown.Image)
@@ -2917,22 +2259,5 @@ function fixlink(dctx::DCtx, img::MarkdownAST.Image)
         return img_url
     end
 end
-
-fixlinks!(ctx, navnode, md::Markdown.MD) = fixlinks!(ctx, navnode, md.content)
-function fixlinks!(ctx, navnode, a::Markdown.Admonition)
-    fixlinks!(ctx, navnode, a.title)
-    fixlinks!(ctx, navnode, a.content)
-end
-fixlinks!(ctx, navnode, b::Markdown.BlockQuote) = fixlinks!(ctx, navnode, b.content)
-fixlinks!(ctx, navnode, b::Markdown.Bold) = fixlinks!(ctx, navnode, b.text)
-fixlinks!(ctx, navnode, f::Markdown.Footnote) = fixlinks!(ctx, navnode, f.text)
-fixlinks!(ctx, navnode, h::Markdown.Header) = fixlinks!(ctx, navnode, h.text)
-fixlinks!(ctx, navnode, i::Markdown.Italic) = fixlinks!(ctx, navnode, i.text)
-fixlinks!(ctx, navnode, list::Markdown.List) = fixlinks!(ctx, navnode, list.items)
-fixlinks!(ctx, navnode, p::Markdown.Paragraph) = fixlinks!(ctx, navnode, p.content)
-fixlinks!(ctx, navnode, t::Markdown.Table) = fixlinks!(ctx, navnode, t.rows)
-
-fixlinks!(ctx, navnode, mds::Vector) = map(md -> fixlinks!(ctx, navnode, md), mds)
-fixlinks!(ctx, navnode, md) = nothing
 
 end
