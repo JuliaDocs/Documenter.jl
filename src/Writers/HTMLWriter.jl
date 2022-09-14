@@ -705,7 +705,7 @@ struct DCtx
 end
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
-    page_title = mdflatten(pagetitle(ctx, navnode))
+    page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
     if title === nothing
         title = page_title
     end
@@ -1009,7 +1009,7 @@ function render_head(ctx, navnode)
     @tags head meta link script title
     src = get_url(ctx, navnode)
 
-    page_title = "$(mdflatten(pagetitle(ctx, navnode))) · $(ctx.doc.user.sitename)"
+    page_title = "$(mdflatten_pagetitle(DCtx(ctx, navnode))) · $(ctx.doc.user.sitename)"
     css_links = [
         RD.lato,
         RD.juliamono,
@@ -2127,6 +2127,18 @@ function pagetitle(dctx::DCtx)
     end
 
     [MarkdownAST.@ast("-")]
+end
+function mdflatten_pagetitle(dctx::DCtx)
+    old = mdflatten(pagetitle(dctx.ctx, dctx.navnode))
+    new = sprint((io, ns) -> foreach(n -> mdflatten(io, n), ns), pagetitle(dctx))
+    if old != new
+        error("""
+        bad mdflatten_pagetitle
+        old: $(old)
+        new: $(old)
+        """)
+    end
+    return old
 end
 
 """
