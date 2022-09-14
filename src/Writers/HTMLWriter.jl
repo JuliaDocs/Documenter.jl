@@ -670,13 +670,36 @@ mutable struct HTMLContext
     footnotes :: Vector{Markdown.Footnote}
     # MarkdownAST support
     mdast_pages :: Dict{String, MarkdownAST.Node{Nothing}}
+    search_index_mdast :: Vector{SearchRecord}
 end
 
 HTMLContext(doc, settings=nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
     Documents.NavNode("search", "Search", nothing), [],
-    Documents.markdownast(doc),
+    Documents.markdownast(doc), [],
 )
+
+struct DCtx
+    # ctx and navnode were recursively passed to all domify() methods
+    ctx :: HTMLContext
+    navnode :: Documents.NavNode
+    # .search_index was a field in HTMLContext
+    search_index :: Vector{SearchRecord}
+    # The following fields were keyword arguments to mdconvert()
+    droplinks :: Bool
+    settings :: Union{HTML, Nothing}
+    footnotes :: Union{Vector{Node{Nothing}},Nothing}
+
+    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, [], droplinks, ctx.settings, [])
+    DCtx(
+        dctx::DCtx;
+        navnode = dctx.navnode,
+        search_index = dctx.search_index,
+        droplinks = dctx.droplinks,
+        settings = dctx.settings,
+        footnotes = dctx.footnotes,
+    ) = new(dctx.ctx, navnode, search_index, droplinks, settings, footnotes)
+end
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
     page_title = mdflatten(pagetitle(ctx, navnode))
@@ -701,8 +724,18 @@ function SearchRecord(ctx::HTMLContext, navnode, node::Markdown.Header)
         title=mdflatten(node),
         category="section")
 end
+function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documents.AnchoredHeader)
+    a = element.anchor
+    SearchRecord(ctx, navnode;
+        fragment=Anchors.fragment(a),
+        title=mdflatten(node), # AnchoredHeader has Heading as single child
+        category="section")
+end
 
 function SearchRecord(ctx, navnode, node)
+    SearchRecord(ctx, navnode; text=mdflatten(node))
+end
+function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     SearchRecord(ctx, navnode; text=mdflatten(node))
 end
 
@@ -727,6 +760,7 @@ getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
 
 mdast_getpage(ctx, path) = ctx.mdast_pages[path]
 mdast_getpage(ctx, navnode::Documents.NavNode) = mdast_getpage(ctx, navnode.page)
+mdast_getpage(dctx::DCtx) = mdast_getpage(dctx.ctx, dctx.navnode)
 
 
 function render(doc::Documents.Document, settings::HTML=HTML())
@@ -803,6 +837,31 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, json_jsescape(ctx.search_index), "\n}")
+    end
+    let io = IOBuffer()
+        println(io, "var documenterSearchIndex = {\"docs\":")
+        # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
+        println(io, json_jsescape(ctx.search_index_mdast), "\n}")
+
+        index_new = take!(io)
+        index_old = read(joinpath(doc.user.build, ctx.search_index_js))
+        if index_new != index_old
+            @error "Mismatching search index"
+            display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(String(copy(index_old)), String(copy(index_new))))
+            if !isnothing(Sys.which("jq")) && !isnothing(Sys.which("colordiff")) && !isnothing(Sys.which("sed"))
+                json_new, json_old = joinpath(doc.user.build, "search_index.new.json"), joinpath(doc.user.build, "search_index.old.json")
+                json_prettify(index_new, json_new)
+                json_prettify(index_old, json_old)
+                run(`colordiff $(json_old) $(json_new)`)
+            end
+        end
+    end
+end
+
+function json_prettify(data, filename)
+    open(filename, "w") do io
+        input = IOBuffer(data)
+        run(pipeline(input, `sed 's/^var documenterSearchIndex = //'`, `jq`, io))
     end
 end
 
@@ -1595,23 +1654,6 @@ end
 ## domify(...)
 # ------------
 
-struct DCtx
-    ctx :: HTMLContext
-    navnode :: Documents.NavNode
-    droplinks :: Bool
-    settings :: Union{HTML, Nothing}
-    footnotes :: Union{Vector{Node{Nothing}},Nothing}
-
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, [])
-    DCtx(
-        dctx::DCtx;
-        navnode = dctx.navnode,
-        droplinks = dctx.droplinks,
-        settings = dctx.settings,
-        footnotes = dctx.footnotes,
-    ) = new(dctx.ctx, navnode, droplinks, settings, footnotes)
-end
-
 function domify_mdast(dctx::DCtx, node::Node, element::MarkdownAST.AbstractElement)
     @error "Unimplemented element: $(typeof(element))"
     []
@@ -1631,11 +1673,10 @@ function domify(ctx, navnode)
 end
 function domify_mdast(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    page = getpage(ctx, navnode)
     mdast = mdast_getpage(ctx, navnode)
     map(mdast.children) do node
-        #rec = SearchRecord(ctx, navnode, node.element)
-        #push!(ctx.search_index, rec)
+        rec = SearchRecord(ctx, navnode, node, node.element)
+        push!(ctx.search_index_mdast, rec)
         domify_mdast(dctx, node, node.element)
     end
 end
@@ -1810,13 +1851,12 @@ function domify_mdast(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
     @tags a code article header span
 
     # push to search index
-    # rec = SearchRecord(ctx, navnode;
-    #     fragment=Anchors.fragment(node.anchor),
-    #     title=string(node.object.binding),
-    #     category=Utilities.doccat(node.object),
-    #     text = mdflatten(node.docstr))
-
-    # push!(ctx.search_index, rec)
+    rec = SearchRecord(ctx, navnode;
+        fragment=Anchors.fragment(node.anchor),
+        title=string(node.object.binding),
+        category=Utilities.doccat(node.object),
+        text = mdflatten(node.docstr))
+    push!(ctx.search_index_mdast, rec)
 
     article[".docstring"](
         header(
@@ -1980,6 +2020,22 @@ function pagetitle(page::Documents.Page)
     end
     title
 end
+function pagetitle(page::Node)
+    @assert node.element isa MarkdownAST.Document
+    # function pagetitle(page::Documents.Page)
+    title = nothing
+    for node in page.children
+        # AnchoredHeaders should have just one child node, which is the Heading node
+        if isa(node.element, Documents.AnchoredHeader)
+            node = first(node.children)
+        end
+        if isa(node.element, MarkdownAST.Heading) && node.element.level == 1
+            title = collect(node.children)
+            break
+        end
+    end
+    title
+end
 
 function pagetitle(ctx, navnode::Documents.NavNode)
     if navnode.title_override !== nothing
@@ -1998,6 +2054,27 @@ function pagetitle(ctx, navnode::Documents.NavNode)
     end
 
     "-"
+end
+function pagetitle(dctx::DCtx)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # function pagetitle(ctx, navnode::Documents.NavNode)
+    if navnode.title_override !== nothing
+        # parse title_override as markdown
+        md = Markdown.parse(navnode.title_override)
+        # Markdown.parse results in a paragraph so we need to strip that
+        if !(length(md.content) === 1 && isa(first(md.content), Markdown.Paragraph))
+            error("Bad Markdown provided for page title: '$(navnode.title_override)'")
+        end
+        mdast = convert(Node, md)
+        return collect(first(mdast.children).children)
+    end
+
+    if navnode.page !== nothing
+        title = pagetitle(mdast_getpage(dctx))
+        title === nothing || return title
+    end
+
+    [MarkdownAST.@ast("-")]
 end
 
 """

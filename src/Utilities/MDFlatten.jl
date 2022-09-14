@@ -146,7 +146,7 @@ end
 # Inline nodes
 mdflatten(io, node::Node, e::MarkdownAST.Text) = print(io, e.text)
 function mdflatten(io, node::Node, e::MarkdownAST.Image)
-    print(io, "(Image:")
+    print(io, "(Image: ")
     mdflatten_children(io, node)
     print(io, ")")
 end
