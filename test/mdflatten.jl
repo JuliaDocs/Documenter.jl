@@ -3,7 +3,7 @@ module MDFlattenTests
 using Test
 
 import Markdown
-using MarkdownAST: @ast, Paragraph, Heading
+using MarkdownAST: MarkdownAST, @ast
 using Documenter.Utilities.MDFlatten
 
 parse(s) = convert(MarkdownAST.Node, Markdown.parse(s))
