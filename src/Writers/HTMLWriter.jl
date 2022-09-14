@@ -1770,7 +1770,6 @@ function domify_mdast(dctx::DCtx, node::Node, ah::Documents.AnchoredHeader)
     frag = Anchors.fragment(anchor)
     legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
     h = first(node.children)
-    fixlinks!(ctx, navnode, h) # MarkdownAST TODO
     Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
         a[".docs-heading-anchor", :href => frag](domify_mdast(dctx, h.children)),
         legacy...,
