@@ -424,6 +424,8 @@ struct HTML <: Documenter.Writer
     prerender     :: Bool
     node          :: Union{Cmd,String,Nothing}
     highlightjs   :: Union{String,Nothing}
+    # mdast support
+    footer_mdast  :: Union{Node, Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -477,10 +479,11 @@ struct HTML <: Documenter.Writer
                 throw(ArgumentError("footer must be a single-line markdown compatible string."))
             end
         end
+        footer_mdast = isnothing(footer) ? nothing : convert(Node, footer)
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, footer,
-            ansicolor, lang, warn_outdated, prerender, node, highlightjs)
+            ansicolor, lang, warn_outdated, prerender, node, highlightjs, footer_mdast)
     end
 end
 
@@ -1205,7 +1208,6 @@ end
 function navitem(nctx, nn::Documents.NavNode)
     @tags ul li span a input label i
     ctx, current = nctx.htmlctx, nctx.current
-    dctx = DCtx(nctx.htmlctx, nn, true)
     # We'll do the children first, primarily to determine if this node has any that are
     # visible. If it does not and it itself is not visible (including current), then
     # we'll hide this one as well, returning an empty string Node.
@@ -1216,8 +1218,11 @@ function navitem(nctx, nn::Documents.NavNode)
 
     # construct this item
     title = mdconvert(pagetitle(ctx, nn); droplinks=true)
+    #> mdast
+    dctx = DCtx(nctx.htmlctx, nn, true)
     title_mdast = domify_mdast(dctx, pagetitle(dctx))
     compare_dom(title, title_mdast; msg = "navitem title: $nn")
+    #< mdast
     currentclass = (nn === current) ? ".is-active" : ""
     item = if length(nctx.idstack) >= ctx.settings.collapselevel && children.name !== DOM.TEXT
         menuid = "menuitem-$(join(nctx.idstack, '-'))"
@@ -1283,6 +1288,11 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     navpath = Documents.navpath(navnode)
     header_links = map(navpath) do nn
         title = mdconvert(pagetitle(ctx, nn); droplinks=true)
+        #> mdast
+        dctx = DCtx(ctx, nn, true)
+        title_mdast = domify_mdast(dctx, pagetitle(dctx))
+        compare_dom(title, title_mdast; msg = "render navbar $nn")
+        #< mdast
         nn.page === nothing ? li(a[".is-disabled"](title)) : li(a[:href => navhref(ctx, nn, navnode)](title))
     end
     header_links[end] = header_links[end][".is-active"]
@@ -1419,11 +1429,21 @@ function render_footer(ctx, navnode)
     navlinks = DOM.Node[]
     if navnode.prev !== nothing
         title = mdconvert(pagetitle(ctx, navnode.prev); droplinks=true)
+        #> mdast
+        dctx = DCtx(ctx, navnode.prev, true)
+        title_mdast = domify_mdast(dctx, pagetitle(dctx))
+        compare_dom(title, title_mdast; msg = "render_footer 1 $(navnode.prev)")
+        #< mdast
         link = a[".docs-footer-prevpage", :href => navhref(ctx, navnode.prev, navnode)]("« ", title)
         push!(navlinks, link)
     end
     if navnode.next !== nothing
         title = mdconvert(pagetitle(ctx, navnode.next); droplinks=true)
+        #> mdast
+        dctx = DCtx(ctx, navnode.next, true)
+        title_mdast = domify_mdast(dctx, pagetitle(dctx))
+        compare_dom(title, title_mdast; msg = "render_footer 2 $(navnode.next)")
+        #< mdast
         link = a[".docs-footer-nextpage", :href => navhref(ctx, navnode.next, navnode)](title, " »")
         push!(navlinks, link)
     end
@@ -1438,6 +1458,10 @@ function render_footer(ctx, navnode)
 
     if footer_content !== nothing
         footer_container = domify(ctx, navnode, footer_content)
+        #> mdast
+        footer_container_mdast = domify_mdast(DCtx(ctx, navnode), ctx.settings.footer_mdast)
+        compare_dom(footer_container, footer_container_mdast; msg = "footer: $navnode")
+        #< mdast
         push!(first(footer_container).attributes, :class => "footer-message")
         push!(nav_children, footer_container)
     end
