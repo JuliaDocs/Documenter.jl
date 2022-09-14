@@ -846,7 +846,6 @@ function render(doc::Documents.Document, settings::HTML=HTML())
         index_new = take!(io)
         index_old = read(joinpath(doc.user.build, ctx.search_index_js))
         if index_new != index_old
-            @error "Mismatching search index"
             display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(String(copy(index_old)), String(copy(index_new))))
             if !isnothing(Sys.which("jq")) && !isnothing(Sys.which("colordiff")) && !isnothing(Sys.which("sed"))
                 json_new, json_old = joinpath(doc.user.build, "search_index.new.json"), joinpath(doc.user.build, "search_index.old.json")
@@ -854,6 +853,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
                 json_prettify(index_old, json_old)
                 run(`colordiff $(json_old) $(json_new)`)
             end
+            error("Mismatching search index")
         end
     end
 end
@@ -1205,6 +1205,7 @@ end
 function navitem(nctx, nn::Documents.NavNode)
     @tags ul li span a input label i
     ctx, current = nctx.htmlctx, nctx.current
+    dctx = DCtx(nctx.htmlctx, nn, true)
     # We'll do the children first, primarily to determine if this node has any that are
     # visible. If it does not and it itself is not visible (including current), then
     # we'll hide this one as well, returning an empty string Node.
@@ -1215,6 +1216,8 @@ function navitem(nctx, nn::Documents.NavNode)
 
     # construct this item
     title = mdconvert(pagetitle(ctx, nn); droplinks=true)
+    title_mdast = domify_mdast(dctx, pagetitle(dctx))
+    compare_dom(title, title_mdast; msg = "navitem title: $nn")
     currentclass = (nn === current) ? ".is-active" : ""
     item = if length(nctx.idstack) >= ctx.settings.collapselevel && children.name !== DOM.TEXT
         menuid = "menuitem-$(join(nctx.idstack, '-'))"
@@ -1240,12 +1243,37 @@ function navitem(nctx, nn::Documents.NavNode)
         end
         # Only create the ul.internal tag if there actually are in-page headers
         length(internal_links) > 0 && push!(item.nodes, ul[".internal"](internal_links))
+
+        ul_orig = ul[".internal"](internal_links)
+
+        # mdast:
+        subs = collect_subsections(ctx.mdast_pages[current.page])
+        internal_links = map(subs) do s
+            istoplevel, anchor, text = s
+            _li = istoplevel ? li[".toplevel"] : li[]
+            _li(a[".tocitem", :href => anchor](span(domify_mdast(dctx, text.children))))
+        end
+        # Only create the ul.internal tag if there actually are in-page headers
+        ul_new = ul[".internal"](internal_links)
+        #length(internal_links) > 0 && push!(item.nodes, ul[".internal"](internal_links))
+
+        compare_dom(ul_orig, ul_new; msg = "navitem ul: $nn")
     end
 
     # add the visible subsections, if any, as a single list
     (children.name === DOM.TEXT) || push!(item.nodes, children)
 
     item
+end
+
+function compare_dom(old, new; msg)
+    w = Tag(:wrapper)
+    s_old, s_new = string(w(old)), string(w(new))
+    if s_old != s_new
+        @error "Mismatching DOM: $msg" typeof(old) typeof(new)
+        display(Utilities.TextDiff.Diff{Utilities.TextDiff.Words}(s_old, s_new))
+        error("Mismatching DOM: $msg")
+    end
 end
 
 function render_navbar(ctx, navnode, edit_page_link::Bool)
@@ -2021,7 +2049,7 @@ function pagetitle(page::Documents.Page)
     title
 end
 function pagetitle(page::Node)
-    @assert node.element isa MarkdownAST.Document
+    @assert page.element isa MarkdownAST.Document
     # function pagetitle(page::Documents.Page)
     title = nothing
     for node in page.children
@@ -2096,6 +2124,29 @@ function collect_subsections(page::Documents.Page)
             end
             anchor = page.mapping[element]
             push!(sections, (toplevel, Anchors.fragment(anchor), element.text))
+        end
+    end
+    return sections
+end
+function collect_subsections(page::MarkdownAST.Node)
+    @assert page.element isa MarkdownAST.Document
+    # function collect_subsections(page::Documents.Page)
+    sections = []
+    title_found = false
+    for node in page.children
+        @assert !isa(node.element, MarkdownAST.Heading) # all headings should have been replaced
+        isa(node.element, Documents.AnchoredHeader) || continue
+        anchor = node.element.anchor
+        node = first(node.children) # get the Heading node
+        @assert isa(node.element, MarkdownAST.Heading)
+        if node.element.level < 3
+            toplevel = node.element.level === 1
+            # Don't include the first header if it is `h1`.
+            if toplevel && isempty(sections) && !title_found
+                title_found = true
+                continue
+            end
+            push!(sections, (toplevel, Anchors.fragment(anchor), node))
         end
     end
     return sections
