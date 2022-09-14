@@ -91,3 +91,16 @@
 % and \hyperlink if it doesn't.
 \def\hyperlinkref#1#2{\@ifundefined{r@#1}{\hyperlink{#1}{#2}}{\hyperref[#1]{#2}}}
 %
+
+% styling of admonitions. tcolorbox is available in the texlive-latex-extra
+% package
+\usepackage{tcolorbox}
+% These colors are taken from documeter-light.css in the HTML assets.
+\definecolor{admonition-default}{HTML}{363636}
+\definecolor{admonition-danger}{HTML}{da0b00}
+\definecolor{admonition-warning}{HTML}{ffdd57}
+\definecolor{admonition-note}{HTML}{209cee}
+\definecolor{admonition-info}{HTML}{209cee}
+\definecolor{admonition-tip}{HTML}{22c35b}
+\definecolor{admonition-compat}{HTML}{1db5c9}
+%

@@ -566,13 +566,18 @@ function latex(io::Context, node::Node, ::MarkdownAST.BlockQuote)
 end
 
 function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
-    wrapblock(io, "quote") do
-        wrapinline(io, "textbf") do
-            latexesc(io, md.title)
-        end
-        _println(io, "\n")
-        latex(io, node.children)
+    color = "default"
+    if md.category in ("danger", "warning", "note", "info", "tip", "compat")
+        color = "admonition-$(md.category)"
     end
+    _print(io, "\\begin{tcolorbox}[")
+    _print(io, "colback=$(color)!5!white,colframe=$(color)!75!black,")
+    _print(io, "title={")
+    latexinline(io, md.title)
+    _println(io, "}]")
+    latex(io, node.children)
+    _print(io, "\\end{tcolorbox}")
+    return
 end
 
 function latex(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition)
