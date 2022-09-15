@@ -439,7 +439,22 @@ function latex(io::Context, ::Node, d::Dict{MIME,Any})
         """)
     elseif haskey(d, MIME"text/latex"())
         # If it has a latex MIME, just write it out directly.
-        _print(io, d[MIME"text/latex"()])
+        content = d[MIME("text/latex")]
+        if startswith(content, "\\begin{tabular}")
+            # This is a hacky fix for the printing of DataFrames (or any type
+            # that produces a {tabular} environment). The biggest problem is
+            # that tables with may columns will run off the page. An ideal fix
+            # would be for the printing to omit some columns, but we don't have
+            # the luxury here. So instead we just rescale everything until it
+            # fits. This might make the rows too small, but it's arguably better
+            # than having them go off the page.
+            _println(io, "\\begin{table}[h]\n\\centering")
+            _println(io, "\\adjustbox{max width=\\linewidth}{")
+            _print(io, content)
+            _println(io, "}\\end{table}")
+        else
+            _print(io, content)
+        end
     elseif haskey(d, MIME"text/markdown"())
         md = Markdown.parse(d[MIME"text/markdown"()])
         ast = MarkdownAST.convert(MarkdownAST.Node, md)

@@ -113,6 +113,9 @@ Base.show(io, ::MIME"text/latex", ::Table) = write(io, raw"""
 Table()
 \end{minted}
 
+\begin{table}[h]
+\centering
+\adjustbox{max width=\linewidth}{
 \begin{tabular}{r|ccc}
         & i & y & z\\
         \hline
@@ -123,6 +126,7 @@ Table()
         3 & 3 & 'C' & 7 \\
         4 & 4 & 'D' & 8 \\
 \end{tabular}
+}\end{table}
 
 
 \subsection{@raw block}
