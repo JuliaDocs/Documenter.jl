@@ -2181,7 +2181,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
         m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
         out = if m_bracket === nothing && m_dollars === nothing
-            Utilities.mdparse(latex; mode = :single)
+            Utilities.mdparse_mdast(latex; mode = :single)
         else
             [MarkdownAST.@ast MarkdownAST.DisplayMath(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])]
         end
