@@ -1349,6 +1349,37 @@ end
 
 # Article (page contents)
 # ------------------------------------------------------------------------------
+"""
+    unique_footnotes(footnotes)
+
+Iteratively traverse footnotes and check whether current footnote 
+body *and* id are identical to some existing footnote's 
+id and body. If duplicate ids *and* bodies are detected, the 
+footnote is regarded as a duplicate. 
+
+Bodies are deemed identical if their string representations are 
+identical.
+"""
+function unique_footnotes(footnotes)
+    elements = Int[]
+    unique_ids = String[]
+    unique_footnotes = String[]
+    for (i, fn) in enumerate(footnotes)
+        if fn.id ∉ unique_ids
+            push!(elements, i)
+            push!(unique_ids, fn.id)
+        else 
+            for idx in findall(unique_ids .== fn.id)
+                if string.(fn.text) != string.(footnotes[idx].text)
+                    push!(elements, i)
+                    push!(unique_ids, fn.id)
+                end
+            end
+        end 
+    end
+    
+    return footnotes[elements]
+end
 
 function render_article(ctx, navnode)
     @tags article section ul li hr span a div p
@@ -1358,7 +1389,8 @@ function render_article(ctx, navnode)
     art_body = article["#documenter-page.content"](domify(ctx, navnode))
     # Footnotes, if there are any
     if !isempty(ctx.footnotes)
-        fnotes = map(ctx.footnotes) do f
+        # remove duplicate footnotes (if there are any duplicates), then process them
+        fnotes = map(unique_footnotes(ctx.footnotes)) do f
             fid = "footnote-$(f.id)"
             citerefid = "citeref-$(f.id)"
             if length(f.text) == 1 && first(f.text) isa Markdown.Paragraph
