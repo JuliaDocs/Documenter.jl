@@ -190,7 +190,7 @@ function doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
         end
         if occursin(r"^julia> "m, block.code)
             eval_repl(block, sandbox, ctx.meta, ctx.doc, ctx.file)
-        elseif occursin(r"^# output$"m, block.code)
+        elseif occursin(r"^# output\s*$"m, block.code)
             eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         else
             file = ctx.meta[:CurrentFile]
