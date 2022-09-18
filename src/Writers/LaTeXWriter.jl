@@ -466,7 +466,13 @@ function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
     io.in_header = true
     latex(io, node.children)
     io.in_header = false
-    _println(io, "}\n")
+    # {sub}pagragraphs need an explicit `\indent` after them
+    # to ensure the following text is on a new line. Others
+    if endswith(tag, "paragraph")
+        _println(io, "}\\indent\n")
+    else
+        _println(io, "}\n")
+    end
 end
 
 # Whitelisted lexers.
