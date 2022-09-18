@@ -572,7 +572,7 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
     end
     _print(io, "\\begin{tcolorbox}[")
     _print(io, "colback=$(color)!5!white,colframe=$(color)!75!black,")
-    _print(io, "title={")
+    _print(io, "title=\\textbf{")
     latexesc(io, md.title)
     _println(io, "}]")
     latex(io, node.children)
