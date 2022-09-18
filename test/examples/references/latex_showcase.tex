@@ -476,12 +476,14 @@ Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ul
 \begin{table}[h]
 \centering
 \begin{tabulary}{\linewidth}{R R R}
-\hline
+\toprule
 object & implemented & value \\
-\hline
+\toprule
 \texttt{A} & ✓ & 10.00 \\
+\midrule
 \texttt{BB} & ✓ & 1000000.00 \\
-\hline
+\midrule
+\bottomrule
 \end{tabulary}
 
 \end{table}
@@ -496,12 +498,16 @@ With explicit alignment.
 \begin{table}[h]
 \centering
 \begin{tabulary}{\linewidth}{L C R}
-\hline
+\toprule
 object & implemented & value \\
-\hline
+\toprule
 \texttt{A} & ✓ & 10.00 \\
+\midrule
 \texttt{BB} & ✓ & 1000000.00 \\
-\hline
+\midrule
+\texttt{CC} & v & 1000000.00 \\
+\midrule
+\bottomrule
 \end{tabulary}
 
 \end{table}
@@ -516,12 +522,14 @@ Tables that are too wide should become scrollable.
 \begin{table}[h]
 \centering
 \begin{tabulary}{\linewidth}{L C R}
-\hline
+\toprule
 object & implemented & value \\
-\hline
+\toprule
 \texttt{A} & ✓ & 10.00 \\
+\midrule
 \texttt{BBBBBBBBBBBBBBBBBBBB} & ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ & 1000000000000000000000000000000000000000000000000000000.00 \\
-\hline
+\midrule
+\bottomrule
 \end{tabulary}
 
 \end{table}

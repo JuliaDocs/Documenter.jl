@@ -643,7 +643,7 @@ function latex(io::Context, node::Node, table::MarkdownAST.Table)
     _println(io, "\n\\begin{table}[h]\n\\centering")
     _print(io, "\\begin{tabulary}{\\linewidth}")
     _println(io, "{", uppercase(join(spec_to_align.(table.spec), ' ')), "}")
-    _println(io, "\\hline")
+    _println(io, "\\toprule")
     for (i, row) in enumerate(rows)
         for (j, cell) in enumerate(row.children)
             j === 1 || _print(io, " & ")
@@ -651,10 +651,12 @@ function latex(io::Context, node::Node, table::MarkdownAST.Table)
         end
         _println(io, " \\\\")
         if i === 1
-            _println(io, "\\hline")
+            _println(io, "\\toprule")
+        else
+            _println(io, "\\midrule")
         end
     end
-    _println(io, "\\hline")
+    _println(io, "\\bottomrule")
     _println(io, "\\end{tabulary}\n")
     _println(io, "\\end{table}\n")
 end
