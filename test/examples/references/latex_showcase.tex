@@ -731,7 +731,7 @@ struct LaTeXRender
 end
 function Base.show(io, ::MIME"text/latex", r::LaTeXRender)
     write(io, """
-    Rendering \texttt{LaTeXRender}: $(r.s)
+    Rendering \\texttt{LaTeXRender}: $(r.s)
     """)
 end
 \end{minted}
@@ -743,7 +743,7 @@ end
 LaTeXRender("render this")
 \end{minted}
 
-Rendering 	exttt{LaTeXRender}: render this
+Rendering \texttt{LaTeXRender}: render this
 
 
 If the last value in an \texttt{@example} block is a \texttt{nothing}, the standard output from the blocks{\textquotesingle} evaluation gets displayed instead

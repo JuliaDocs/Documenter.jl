@@ -306,7 +306,7 @@ struct LaTeXRender
 end
 function Base.show(io, ::MIME"text/latex", r::LaTeXRender)
     write(io, """
-    Rendering \texttt{LaTeXRender}: $(r.s)
+    Rendering \\texttt{LaTeXRender}: $(r.s)
     """)
 end
 nothing # hide
