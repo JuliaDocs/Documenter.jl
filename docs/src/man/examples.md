@@ -49,6 +49,7 @@ Packages that have tagged versions available in the general Registry:
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
 - [Query.jl](https://www.queryverse.org/Query.jl/stable/)
 - [SimGBS.jl](https://anshess.github.io/SimGBS.jl/stable/)
+- [SymbolicRegression.jl](https://astroautomata.com/SymbolicRegression.jl/stable/)
 - [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)
 - [Weave.jl](https://weavejl.mpastell.com/stable/)
 
