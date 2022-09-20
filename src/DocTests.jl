@@ -192,6 +192,18 @@ function doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
             eval_repl(block, sandbox, ctx.meta, ctx.doc, ctx.file)
         elseif occursin(r"^# output\s*$"m, block.code)
             eval_script(block, sandbox, ctx.meta, ctx.doc, ctx.file)
+        elseif occursin(r"^# output\s+$"m, block.code)
+            file = ctx.meta[:CurrentFile]
+            lines = Utilities.find_block_in_file(block.code, file)
+            @docerror(ctx.doc, :doctest,
+                """
+                invalid doctest block in $(Utilities.locrepr(file, lines))
+                Requires `# output` without trailing whitespace
+
+                ```$(lang)
+                $(block.code)
+                ```
+                """)
         else
             file = ctx.meta[:CurrentFile]
             lines = Utilities.find_block_in_file(block.code, file)
