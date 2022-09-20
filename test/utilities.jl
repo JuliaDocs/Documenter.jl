@@ -426,14 +426,6 @@ end
             MarkdownAST.@ast(MarkdownAST.Paragraph() do; "x"; end),
             MarkdownAST.@ast(MarkdownAST.Paragraph() do; "y"; end),
         ]
-        # let md = mdparse_mdast("!!! adm", mode=:blocks)
-        #     @test md isa Vector{Any}
-        #     @test length(md) == 1
-        # end
-        # let md = mdparse_mdast("x\n\ny", mode=:blocks)
-        #     @test md isa Vector{Any}
-        #     @test length(md) == 2
-        # end
 
         @quietly begin
             @test_throws ArgumentError mdparse_mdast("!!! adm", mode=:span)
