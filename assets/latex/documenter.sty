@@ -22,6 +22,8 @@
 \definecolor{dark-green}{HTML}{3b972e}
 \definecolor{light-purple}{HTML}{aa7dc0}
 \definecolor{dark-purple}{HTML}{945bb0}
+\definecolor{codeblock-background}{gray}{0.96}
+\definecolor{codeblock-border}{gray}{0.8}
 %
 
 % maths
@@ -35,16 +37,17 @@
     basicstyle = \small\ttfamily,
     breaklines = true,
     columns = fullflexible,
-    frame = leftline,
+    rulecolor = \color{codeblock-border},
+    frame = single,
     keepspaces = true,
     showstringspaces = false,
-    xleftmargin = 3pt,
 }
 
 \setminted{
     breaklines = true,
     fontsize = \small,
-    frame = leftline,
+    frame = none,
+    bgcolor = codeblock-background,
 }
 %
 
