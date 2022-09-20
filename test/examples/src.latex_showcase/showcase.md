@@ -215,13 +215,24 @@ With explicit alignment.
 | `A`    |      ✓      |      10.00 |
 | `BB`   |      ✓      | 1000000.00 |
 
-Tables that are too wide should become scrollable.
+Huges tables get scaled down:
+
+```@eval
+using Markdown
+nrows, ncols = 10, 50
+table = Markdown.Table(
+    [[[string(i, "-", j)] for j = 1:ncols] for i = 1:nrows],
+    [:c for _ in 1:ncols],
+)
+Markdown.MD([table])
+```
+
+However, tables with huge cells are not properly handled right now:
 
 | object | implemented |      value |
 | :---   |    :---:    |       ---: |
 | `A`    |      ✓      |      10.00 |
 | `BBBBBBBBBBBBBBBBBBBB` | ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ | 1000000000000000000000000000000000000000000000000000000.00 |
-
 
 ## Footnotes
 
