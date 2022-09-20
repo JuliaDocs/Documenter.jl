@@ -645,7 +645,7 @@ The `mode` keyword argument can be one of the following:
   This requires the string to parse into a single `Markdown.Paragraph`, the contents of
   which gets returned.
 """
-function mdparse_mdast(s::AbstractString; mode=:single)
+function mdparse_mdast(s::AbstractString; mode=:single) :: Vector{MarkdownAST.Node{Nothing}}
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
     mdast = convert(MarkdownAST.Node, Markdown.parse(s))
     if mode == :blocks
