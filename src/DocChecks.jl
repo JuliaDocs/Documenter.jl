@@ -12,6 +12,7 @@ import ..Documenter:
 
 using DocStringExtensions
 import Markdown
+import AbstractTrees, MarkdownAST
 
 # Missing docstrings.
 # -------------------
@@ -122,10 +123,8 @@ function footnotes(doc::Documents.Document)
     for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
         orphans = Dict{String, Tuple{Int, Int}}()
-        for element in page.elements
-            Documents.walk(page.globals.meta, page.mapping[element]) do block
-                footnote(block, orphans)
-            end
+        for node in AbstractTrees.PreOrderDFS(page.mdast)
+            footnote(node.element, orphans)
         end
         footnotes[page] = orphans
     end
@@ -147,19 +146,16 @@ function footnotes(doc::Documents.Document)
     end
 end
 
-function footnote(fn::Markdown.Footnote, orphans::Dict)
+function footnote(fn::MarkdownAST.FootnoteLink, orphans::Dict)
     ids, bodies = get(orphans, fn.id, (0, 0))
-    if fn.text === nothing
-        # Footnote references: syntax `[^1]`.
-        orphans[fn.id] = (ids + 1, bodies)
-        return false # No more footnotes inside footnote references.
-    else
-        # Footnote body: syntax `[^1]:`.
-        orphans[fn.id] = (ids, bodies + 1)
-        return true # Might be footnotes inside footnote bodies.
-    end
+    # Footnote references: syntax `[^1]`.
+    orphans[fn.id] = (ids + 1, bodies)
 end
-
+function footnote(fn::MarkdownAST.FootnoteDefinition, orphans::Dict)
+    ids, bodies = get(orphans, fn.id, (0, 0))
+    # Footnote body: syntax `[^1]:`.
+    orphans[fn.id] = (ids, bodies + 1)
+end
 footnote(other, orphans::Dict) = true
 
 # Link Checks.

@@ -18,7 +18,8 @@ import ..Documenter:
 
     using ..Documenter.Utilities: Remotes
 using DocStringExtensions
-import Markdown, MarkdownAST
+import Markdown
+import MarkdownAST, AbstractTrees
 using Unicode
 
 # When processing the AST during the build, in the MarkdownAST representation, we
@@ -169,14 +170,15 @@ struct DocsNode <: AbstractDocumenterBlock
         new(docstr, anchor, object, page, [], [])
     end
 end
+DocsNode(anchor, object, page) = DocsNode(nothing, anchor, object, page)
 
 struct DocsNodes
     nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
 end
 
 struct EvalNode <: AbstractDocumenterBlock
-    code   :: Markdown.Code
-    result :: Union{Markdown.MD, Nothing}
+    code   :: MarkdownAST.CodeBlock
+    result :: Union{MarkdownAST.Node, Nothing}
 end
 
 struct RawNode <: AbstractDocumenterBlock
@@ -191,6 +193,7 @@ end
 struct MultiOutput <: AbstractDocumenterBlock
     content::Vector
 end
+MultiOutput() = MultiOutput([])
 
 # For @repl blocks we store the inputs and outputs as separate Markdown.Code
 # objects, and then combine them in the writer. When converting to MarkdownAST,
@@ -509,7 +512,7 @@ function populate!(contents::ContentsNode, document::Document)
                 page = relpath(anchor.file, dirname(contents.build))
                 # Note: This only filters based on contents.depth and *not* contents.mindepth.
                 #       Instead the writers who support this adjust this when rendering.
-                if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) ≤ contents.depth
+                if _isvalid(page, contents.pages) && anchor.object.level ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
@@ -529,26 +532,26 @@ end
 function doctest_replace!(doc::Documents.Document)
     for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
-        for element in page.elements
-            page.globals.meta[:CurrentFile] = page.source
-            walk(page.globals.meta, page.mapping[element]) do block
-                doctest_replace!(block)
-            end
-        end
+        doctest_replace!(page.mdast)
     end
 end
-function doctest_replace!(block::Markdown.Code)
-    startswith(block.language, "jldoctest") || return false
+function doctest_replace!(ast::MarkdownAST.Node)
+    for node in AbstractTrees.PreOrderDFS(ast)
+        doctest_replace!(node.element)
+    end
+end
+doctest_replace!(docsnode::DocsNode) = foreach(doctest_replace!, docsnode.mdasts)
+function doctest_replace!(block::MarkdownAST.CodeBlock)
+    startswith(block.info, "jldoctest") || return
     # suppress output for `#output`-style doctests with `output=false` kwarg
-    if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.language)
+    if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.info)
         input = first(split(block.code, "# output\n", limit = 2))
         block.code = rstrip(input)
     end
     # correct the language field
-    block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
-    return false
+    block.info = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
 end
-doctest_replace!(block) = true
+doctest_replace!(@nospecialize _) = nothing
 
 ## Utilities.
 
@@ -572,58 +575,6 @@ end
 _compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
 _isvalid(x, xs) = isempty(xs) || x in xs
 precedence(vec) = Dict(zip(vec, 1:length(vec)))
-
-##############################################
-# walk (previously in the Walkers submodule) #
-##############################################
-"""
-$(SIGNATURES)
-
-Calls `f` on `element` and any of its child elements. `meta` is a `Dict` containing metadata
-such as current module.
-"""
-walk(f, meta, element) = (f(element); nothing)
-
-# Change to the docstring's defining module if it has one. Change back afterwards.
-function walk(f, meta, block::Markdown.MD)
-    tmp = get(meta, :CurrentModule, nothing)
-    mod = get(block.meta, :module, nothing)
-    mod ≡ nothing || (meta[:CurrentModule] = mod)
-    f(block) && walk(f, meta, block.content)
-    tmp ≡ nothing ? delete!(meta, :CurrentModule) : (meta[:CurrentModule] = tmp)
-    nothing
-end
-
-function walk(f, meta, block::Vector)
-    for each in block
-        walk(f, meta, each)
-    end
-end
-
-const MDContentElements = Union{
-    Markdown.BlockQuote,
-    Markdown.Paragraph,
-    Markdown.MD,
-}
-walk(f, meta, block::MDContentElements) = f(block) ? walk(f, meta, block.content) : nothing
-
-const MDTextElements = Union{
-    Markdown.Bold,
-    Markdown.Header,
-    Markdown.Italic,
-}
-walk(f, meta, block::MDTextElements)      = f(block) ? walk(f, meta, block.text)    : nothing
-walk(f, meta, block::Markdown.Footnote)   = f(block) ? walk(f, meta, block.text)    : nothing
-walk(f, meta, block::Markdown.Admonition) = f(block) ? walk(f, meta, block.content) : nothing
-walk(f, meta, block::Markdown.Image)      = f(block) ? walk(f, meta, block.alt)     : nothing
-walk(f, meta, block::Markdown.Table)      = f(block) ? walk(f, meta, block.rows)    : nothing
-walk(f, meta, block::Markdown.List)       = f(block) ? walk(f, meta, block.items)   : nothing
-walk(f, meta, block::Markdown.Link)       = f(block) ? walk(f, meta, block.text)    : nothing
-walk(f, meta, block::DocsNodes) = walk(f, meta, block.nodes)
-walk(f, meta, block::DocsNode)  = walk(f, meta, block.docstr)
-walk(f, meta, block::EvalNode)  = walk(f, meta, block.result)
-walk(f, meta, block::MetaNode)  = (merge!(meta, block.dict); nothing)
-walk(f, meta, block::Anchors.Anchor) = walk(f, meta, block.object)
 
 ###########################################################################################
 # Conversion to MarkdownAST, for writers
@@ -658,22 +609,7 @@ struct SetupNode <: AbstractDocumenterBlock
 end
 
 markdownast(doc::Document) = Dict(name => markdownast(page) for (name, page) in doc.blueprint.pages)
-function markdownast(page::Page)
-    @assert length(page.elements) >= length(page.mapping)
-    ast = convert(MarkdownAST.Node, Markdown.MD(page.elements))
-    @assert length(ast.children) == length(page.elements)
-    @debug "Converting page: $(page.source)" length(page.elements) length(page.mapping) length(ast.children)
-    # Note: we need to collect() the ast.children because we will be mutating the nodes
-    for (node, element) in zip(collect(ast.children), page.elements)
-        if !haskey(page.mapping, element)
-            @warn "Missing mapping on $(page.source)" element
-            continue
-        end
-        element === page.mapping[element] && continue
-        atnode!(node, element, page.mapping[element])
-    end
-    return ast
-end
+markdownast(page::Page) = page.mdast
 
 atnode!(::MarkdownAST.Node, element, mapping) = error("Unknown mapping: $(typeof(mapping)) for $(typeof(element)) element: $(element)")
 
