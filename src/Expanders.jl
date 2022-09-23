@@ -399,7 +399,7 @@ end
 
 const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 
-function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
+function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -524,7 +524,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, x, page, doc)
             push!(get!(doc.internal.bindings, object.binding, Utilities.Object[]), object)
 
             doc.internal.objects[object] = docsnode.element
-            push!(nodes, docsnode)
+            push!(docsnodes, docsnode)
         end
         node.element = Documents.DocsNodesBlock()
         for docsnode in docsnodes
