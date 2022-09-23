@@ -70,7 +70,7 @@ struct UnsupportedElement <: MarkdownAST.AbstractElement end
     @test mdflatten(parse("!!! note \"Admonition Title\"\n    Test")) == "note: Admonition Title\nTest\n\n"
 
     @test mdflatten([@ast("x"), @ast("y"), @ast("z")]) == "xyz"
-    @test_throws Exception mdflatten(@ast(UnsupportedElement))
+    @test_throws Exception mdflatten(@ast(UnsupportedElement()))
 end
 
 end

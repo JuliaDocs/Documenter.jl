@@ -36,7 +36,7 @@ function mdflatten_children(io, node::Node)
     end
 end
 
-mdflatten(io, node::Node, e::MarkdownAST.AbstractElement) = @warn("Unimplemented mdflatted element: $(typeof(e))")
+mdflatten(io, node::Node, e::MarkdownAST.AbstractElement) = error("Unimplemented element for mdflatten: $(typeof(e))")
 
 # Most block and inline (container) elements just reduce down to printing out their
 # child nodes.
