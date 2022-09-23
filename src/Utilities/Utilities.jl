@@ -483,8 +483,10 @@ function source_url(repo, mod, file, linerange)
         # than GitHub, then everything is fine --- getremote will fail and remote is
         # `nothing`, in which case we fall back to using `repo`.
         isnothing(remote) && (remote = repo)
-        commit = repo_commit(file)
-        isnothing(path) || isnothing(remote) ? nothing : repofile(remote, commit, path, linerange)
+        if isnothing(path) || isnothing(remote)
+            return nothing
+        end
+        repofile(remote, repo_commit(file), path, linerange)
     end
 end
 
