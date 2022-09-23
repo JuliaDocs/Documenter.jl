@@ -784,7 +784,7 @@ end
 Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([...])")
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
-Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = Utilities.MDFlatten.mdflatten_children(io, node)
+Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = Utilities.MDFlatten.mdflatten(io, node.children)
 Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = Utilities.MDFlatten.mdflatten(io, node, e.codeblock)
 function Utilities.MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines

@@ -24,13 +24,10 @@ mdflatten(node) = sprint(mdflatten, node)
 
 mdflatten(io, node::Node) = mdflatten(io, node, node.element)
 mdflatten(io, nodes::Vector{T}) where T <: Node = foreach(n -> mdflatten(io, n), nodes)
-# TODO: remove mdflatten_children
-mdflatten(io, children::MarkdownAST.NodeChildren) = mdflatten_children(io, children.parent)
-
-function mdflatten_children(io, node::Node)
+function mdflatten(io, children::MarkdownAST.NodeChildren)
     # this special case separates top level blocks with newlines
-    newlines = isa(node.element, MarkdownAST.Document)
-    for child in node.children
+    newlines = isa(children.parent.element, MarkdownAST.Document)
+    for child in children
         mdflatten(io, child)
         newlines && print(io, "\n\n")
     end
@@ -45,13 +42,10 @@ mdflatten(io, node::Node, ::Union{
     MarkdownAST.Heading,
     MarkdownAST.Paragraph,
     MarkdownAST.BlockQuote,
-    MarkdownAST.ThematicBreak,
     MarkdownAST.Link,
     MarkdownAST.Strong,
     MarkdownAST.Emph,
-}) = mdflatten_children(io, node)
-
-mdflatten(io, node::Node, ::MarkdownAST.ThematicBreak) = mdflatten_children(io, node)
+}) = mdflatten(io, node.children)
 
 function mdflatten(io, node::Node, list::MarkdownAST.List)
     for (idx, li) in enumerate(node.children)
@@ -66,7 +60,7 @@ function mdflatten(io, node::Node, t::MarkdownAST.Table)
     rows = collect(Iterators.flatten(thtb.children for thtb in node.children))
     for (idx, row) = enumerate(rows)
         for (jdx, x) in enumerate(row.children)
-            mdflatten_children(io, x)
+            mdflatten(io, x.children)
             jdx == length(row.children) || print(io, ' ')
         end
         idx == length(rows) || print(io, '\n')
@@ -77,11 +71,12 @@ end
 mdflatten(io, node::Node, e::MarkdownAST.Text) = print(io, e.text)
 function mdflatten(io, node::Node, e::MarkdownAST.Image)
     print(io, "(Image: ")
-    mdflatten_children(io, node)
+    mdflatten(io, node.children)
     print(io, ")")
 end
 mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath, MarkdownAST.DisplayMath}) = print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
 mdflatten(io, node::Node, e::MarkdownAST.LineBreak) = print(io, '\n')
+mdflatten(io, node::Node, ::MarkdownAST.ThematicBreak) = nothing
 
 # Is both inline and block
 mdflatten(io, node::Node, c::Union{MarkdownAST.Code, MarkdownAST.CodeBlock}) = print(io, c.code)
@@ -92,12 +87,12 @@ mdflatten(io, node::Node, value::MarkdownAST.JuliaValue) = print(io, value.ref)
 mdflatten(io, node::Node, f::MarkdownAST.FootnoteLink) = print(io, "[$(f.id)]")
 function mdflatten(io, node::Node, f::MarkdownAST.FootnoteDefinition)
     print(io, "[$(f.id)]: ")
-    mdflatten_children(io, node)
+    mdflatten(io, node.children)
 end
 
 function mdflatten(io, node::Node, a::MarkdownAST.Admonition)
     println(io, "$(a.category): $(a.title)")
-    mdflatten_children(io, node)
+    mdflatten(io, node.children)
 end
 
 end
