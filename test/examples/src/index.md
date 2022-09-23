@@ -604,7 +604,3 @@ Also in block quotes:
 > #### Heading 4
 > ##### Heading 5
 > ###### Heading 6
-
-## Videos
-
-![](https://dl8.webmfiles.org/big-buck-bunny_trailer.webm)
