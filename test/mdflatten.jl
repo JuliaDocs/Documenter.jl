@@ -8,6 +8,8 @@ using Documenter.Utilities.MDFlatten
 
 parse(s) = convert(MarkdownAST.Node, Markdown.parse(s))
 
+struct UnsupportedElement <: MarkdownAST.AbstractElement end
+
 @testset "MDFlatten" begin
     @test mdflatten(@ast(MarkdownAST.Paragraph() do; "..."; end)) == "..."
     @test mdflatten(@ast(MarkdownAST.Heading(1) do; "..."; end)) == "..."
@@ -66,6 +68,9 @@ parse(s) = convert(MarkdownAST.Node, Markdown.parse(s))
 
     # admonitions
     @test mdflatten(parse("!!! note \"Admonition Title\"\n    Test")) == "note: Admonition Title\nTest\n\n"
+
+    @test mdflatten([@ast("x"), @ast("y"), @ast("z")]) == "xyz"
+    @test_throws Exception mdflatten(@ast(UnsupportedElement))
 end
 
 end
