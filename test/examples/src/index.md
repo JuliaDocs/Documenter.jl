@@ -572,3 +572,39 @@ end
 ```@example moduleA
 A.f()
 ```
+
+## Headings in block context
+
+!!! error "Blocks in block context"
+
+    ```julia
+    x^2
+    ```
+
+    Headings:
+
+    # Heading 1
+    ## Heading 2
+    ### Heading 3
+    #### Heading 4
+    ##### Heading 5
+    ###### Heading 6
+
+Also in block quotes:
+
+> ```julia
+> x^2
+> ```
+>
+> Headings:
+>
+> # Heading 1
+> ## Heading 2
+> ### Heading 3
+> #### Heading 4
+> ##### Heading 5
+> ###### Heading 6
+
+## Videos
+
+![](https://dl8.webmfiles.org/big-buck-bunny_trailer.webm)
