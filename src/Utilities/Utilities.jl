@@ -6,7 +6,7 @@ module Utilities
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
-import Markdown, LibGit2
+import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
 
@@ -628,6 +628,50 @@ function mdparse(s::AbstractString; mode=:single)
             throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
         end
         (mode == :single) ? md.content[1] : md.content[1].content
+    end
+end
+
+"""
+    mdparse_mdast(s::AbstractString; mode=:single)
+
+Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
+layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
+keyword. The resulting Markdown AST is converted into an array of `MarkdownAST.Node`s.
+
+The `mode` keyword argument can be one of the following:
+
+* `:single` (default) -- returns a single block-level object (e.g. `Markdown.Paragraph` or
+  `Markdown.Admonition`) and errors if the string parses into multiple blocks.
+* `:blocks` -- the function returns a `Vector{Any}` of Markdown blocks.
+* `:span` -- Returns a `Vector{Any}` of span-level items, stripping away the outer block.
+  This requires the string to parse into a single `Markdown.Paragraph`, the contents of
+  which gets returned.
+"""
+function mdparse_mdast(s::AbstractString; mode=:single) :: Vector{MarkdownAST.Node{Nothing}}
+    mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
+    mdast = convert(MarkdownAST.Node, Markdown.parse(s))
+    if mode == :blocks
+        MarkdownAST.unlink!.(mdast.children)
+    elseif length(mdast.children) == 0
+        # case where s == "". We'll just return an empty string / paragraph.
+        if mode == :single
+            [MarkdownAST.@ast(MarkdownAST.Paragraph() do; ""; end)]
+        else
+            # If we're in span mode we return a single Text node
+            [MarkdownAST.@ast("")]
+        end
+    elseif (mode == :single || mode == :span) && length(mdast.children) > 1
+        @error "mode == :$(mode) requires the Markdown string to parse into a single block" s mdast
+        throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
+    else
+        @assert length(mdast.children) == 1
+        childnode = first(mdast.children)
+        @assert mode == :span || mode == :single
+        if mode == :span && !isa(childnode.element, MarkdownAST.Paragraph)
+            @error "mode == :$(mode) requires the Markdown string to parse into a MarkdownAST.Paragraph" s mdast
+            throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
+        end
+        (mode == :single) ? [MarkdownAST.unlink!(childnode)] : MarkdownAST.unlink!.(childnode.children)
     end
 end
 

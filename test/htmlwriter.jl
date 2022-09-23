@@ -1,6 +1,7 @@
 module HTMLWriterTests
 
 using Test
+import MarkdownAST
 using Documenter
 using Documenter: DocSystem
 using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
@@ -258,23 +259,6 @@ end
         rm(redirectfile)
         generate_redirect_file(redirectfile, entries)
         @test !isfile(redirectfile)
-    end
-
-    # Exhaustive Conversion from Markdown to Nodes.
-    @testset "MD2Node" begin
-        for mod in Base.Docs.modules
-            for (binding, multidoc) in DocSystem.getmeta(mod)
-                for (typesig, docstr) in multidoc.docs
-                    md = Documenter.DocSystem.parsedoc(docstr)
-                    @test string(HTMLWriter.mdconvert(md; footnotes=[])) isa String
-                end
-            end
-        end
-    end
-
-    @testset "Dollar escapes" begin
-        @test string(HTMLWriter.mdconvert("\$1")) == "\$1"
-        @test string(HTMLWriter.mdconvert("\$")) == "<span>\$</span>"
     end
 end
 end
