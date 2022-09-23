@@ -24,3 +24,9 @@ Missing docstring:
 this_docstring_does_not_exist
 Main.AutoDocs.f
 ```
+
+## at-autodocs
+
+```@autodocs
+Modules = [Main.AutoDocs]
+```
