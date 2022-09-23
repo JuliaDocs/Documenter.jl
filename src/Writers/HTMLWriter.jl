@@ -2052,7 +2052,8 @@ function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
     )
 end
 
-domify(dctx::DCtx, node::Node, e::MarkdownAST.JuliaValue) = string(e.ref)
+# TODO: implement support for JuliaValue
+#domify(dctx::DCtx, node::Node, e::MarkdownAST.JuliaValue) = string(e.ref)
 
 function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteLink)
     @tags sup a
