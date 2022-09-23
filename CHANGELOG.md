@@ -29,7 +29,8 @@
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
-* ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892])
+* ![Bugfix][badge-bugfix] `HTMLWriter` no longer complains about invalid URLs in docstrings anymore when `makedocs` is being run multiple time in the same session, as it no longer modifies the underlying docstring objects. ([#505][github-505], [#1924][github-1924])
+* ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892], [#1912][github-1912], [#1924][github-1924])
 
 ## Version `v0.27.23`
 
@@ -794,6 +795,7 @@
 [github-198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [github-245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [github-487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
+[github-505]: https://github.com/JuliaDocs/Documenter.jl/issues/505
 [github-511]: https://github.com/JuliaDocs/Documenter.jl/issues/511
 [github-535]: https://github.com/JuliaDocs/Documenter.jl/issues/535
 [github-618]: https://github.com/JuliaDocs/Documenter.jl/issues/618
@@ -1140,7 +1142,9 @@
 [github-1906]: https://github.com/JuliaDocs/Documenter.jl/pull/1906
 [github-1908]: https://github.com/JuliaDocs/Documenter.jl/pull/1908
 [github-1909]: https://github.com/JuliaDocs/Documenter.jl/pull/1909
+[github-1912]: https://github.com/JuliaDocs/Documenter.jl/pull/1912
 [github-1919]: https://github.com/JuliaDocs/Documenter.jl/pull/1919
+[github-1924]: https://github.com/JuliaDocs/Documenter.jl/pull/1924
 [github-1931]: https://github.com/JuliaDocs/Documenter.jl/issues/1931
 [github-1932]: https://github.com/JuliaDocs/Documenter.jl/pull/1932
 [github-1933]: https://github.com/JuliaDocs/Documenter.jl/issues/1933
