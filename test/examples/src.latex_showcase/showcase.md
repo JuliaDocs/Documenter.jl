@@ -444,6 +444,21 @@ foo
 bar
 ```
 
+## Cross-references
+
+Here we link to the heading [Cross-references](@ref).
+[This](@ref "Cross-references") also links there.
+
+We can also link to other pages, such as: [An index of docstrings](@ref).
+
+Then there are link to docstrings: [`Foo.bar`](@ref), [`foobar`](@ref Foo.bar), [foobar](@ref Foo.bar).
+
+And issue references: [#1245](@ref)
+
+### `@example`-block
+### `@contents`-block
+### `@repl`-block
+
 ## Contents
 
 ```@contents
