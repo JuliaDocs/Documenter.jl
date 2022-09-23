@@ -29,7 +29,7 @@ This page showcases the various page elements that are supported by Documenter.
 \label{11192443102986465861}{}
 
 
-A table of contents can be generated with an \href{@ref}{\texttt{@contents} block}. The one for this page renders as
+A table of contents can be generated with an \hyperlinkref{5495928211144802529}{\texttt{@contents} block}. The one for this page renders as
 
 
 \begin{itemize}
@@ -50,6 +50,7 @@ A table of contents can be generated with an \href{@ref}{\texttt{@contents} bloc
 \item \hyperlinkref{5969831508618549664}{Setup blocks}
 \item \hyperlinkref{2602340166667619136}{Doctest showcase}
 \item \hyperlinkref{14134642751930898430}{at-raw blocks}
+\item \hyperlinkref{12734752257024730942}{Cross-references}
 \item \hyperlinkref{17095889498970318110}{Contents}
 \end{itemize}
 \end{itemize}
@@ -667,7 +668,7 @@ Script-style doctests are supported too:
 \label{3545462789522369084}{}
 
 
-\href{@ref}{\texttt{@example} block} run a code snippet and insert the output into the document. E.g. the following Markdown
+\hyperlinkref{12317204655950454097}{\texttt{@example} block} run a code snippet and insert the output into the document. E.g. the following Markdown
 
 
 
@@ -820,7 +821,7 @@ x + 1
 \label{17347250707405175741}{}
 
 
-Output from \href{@ref}{\texttt{@repl} block}s and \href{@ref}{\texttt{@example} block}s support colored output, tranforming ANSI color codes to HTML.
+Output from \hyperlinkref{16839343392674353047}{\texttt{@repl} block}s and \hyperlinkref{12317204655950454097}{\texttt{@example} block}s support colored output, tranforming ANSI color codes to HTML.
 
 
 
@@ -972,6 +973,50 @@ bar
 
 
 
+\section{Cross-references}
+
+
+
+\label{12734752257024730942}{}
+
+
+Here we link to the heading \hyperlinkref{12734752257024730942}{Cross-references}. \hyperlinkref{12734752257024730942}{This} also links there.
+
+
+
+We can also link to other pages, such as: \hyperlinkref{4901604269105032859}{An index of docstrings}.
+
+
+
+Then there are link to docstrings: \href{@ref}{\texttt{Foo.bar}}, \href{@ref Foo.bar}{\texttt{foobar}}, \href{@ref Foo.bar}{foobar}.
+
+
+
+And issue references: \href{https://example.org/Repository.jl/blob/1245}{\#1245}
+
+
+
+\subsection{\texttt{@example}-block}
+
+
+
+\label{12317204655950454097}{}
+
+
+\subsection{\texttt{@contents}-block}
+
+
+
+\label{5495928211144802529}{}
+
+
+\subsection{\texttt{@repl}-block}
+
+
+
+\label{16839343392674353047}{}
+
+
 \section{Contents}
 
 
@@ -1000,6 +1045,7 @@ bar
 \item \hyperlinkref{5969831508618549664}{Setup blocks}
 \item \hyperlinkref{2602340166667619136}{Doctest showcase}
 \item \hyperlinkref{14134642751930898430}{at-raw blocks}
+\item \hyperlinkref{12734752257024730942}{Cross-references}
 \item \hyperlinkref{17095889498970318110}{Contents}
 \end{itemize}
 \end{itemize}
