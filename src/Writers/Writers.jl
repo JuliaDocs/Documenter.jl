@@ -60,7 +60,7 @@ function render(doc::Documents.Document)
     end
     # Revert all local links to their original URLs.
     for (link, url) in doc.internal.locallinks
-        link.url = url
+        link.destination = url
     end
 end
 

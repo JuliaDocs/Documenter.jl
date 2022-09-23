@@ -288,7 +288,7 @@ struct Internal
     objects :: IdDict{Any,Any}           # Tracks which `Utilities.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
-    locallinks :: Dict{Markdown.Link, String}
+    locallinks :: IdDict{MarkdownAST.Link, String}
     errors::Set{Symbol}
 end
 

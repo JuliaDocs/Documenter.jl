@@ -93,12 +93,12 @@ function basicxref(node::MarkdownAST.Node, meta, page, doc)
     else
         # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
         # TODO: remove this hack (replace with mdflatten?)
-        pnode = Node(MarkdownAST.Paragraph())
+        pnode = MarkdownAST.Node(MarkdownAST.Paragraph())
         push!(pnode.children, MarkdownAST.copy_tree(node))
-        dnode = Node(MarkdownAST.Document())
+        dnode = MarkdownAST.Node(MarkdownAST.Document())
         push!(dnode.children, pnode)
         md = convert(Markdown.MD, dnode)
-        text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].text[1].text)))
+        text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
         if occursin(r"#[0-9]+", text)
             issue_xref(node, lstrip(text, '#'), meta, page, doc)
         else

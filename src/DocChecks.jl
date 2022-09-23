@@ -172,10 +172,8 @@ function linkcheck(doc::Documents.Document)
     if doc.user.linkcheck
         if hascurl()
             for (src, page) in doc.blueprint.pages
-                for element in page.elements
-                    Documents.walk(page.globals.meta, page.mapping[element]) do block
-                        linkcheck(block, doc)
-                    end
+                for node in AbstractTrees.PreOrderDFS(page.mdast)
+                    linkcheck(node, doc)
                 end
             end
         else
@@ -185,13 +183,15 @@ function linkcheck(doc::Documents.Document)
     return nothing
 end
 
-function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=:HEAD)
+function linkcheck(node::MarkdownAST.Node, doc::Documents.Document; method::Symbol=:HEAD)
+    node.element isa MarkdownAST.Link || return
+    link = node.element
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
-        if linkcheck_ismatch(r, link.url)
-            @debug "linkcheck '$(link.url)': ignored."
-            return false
+        if linkcheck_ismatch(r, link.destination)
+            @debug "linkcheck '$(link.destination)': ignored."
+            return
         end
     end
 
@@ -206,13 +206,13 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
         # Mozilla developer docs, but only is it's a HTTP(S) request.
         #
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
-        fakebrowser  = startswith(uppercase(link.url), "HTTP") ? [
+        fakebrowser  = startswith(uppercase(link.destination), "HTTP") ? [
             "--user-agent",
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
             "-H",
             "accept-encoding: gzip, deflate, br",
         ] : ""
-        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(link.url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(link.destination) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result
         try
@@ -234,22 +234,22 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
             if (protocol === :HTTP && (status < 300 || status == 302)) ||
                 (protocol === :FTP && (200 <= status < 300 || status == 350))
                 if location !== nothing
-                    @debug "linkcheck '$(link.url)' status: $(status), redirects to '$(location)'"
+                    @debug "linkcheck '$(link.destination)' status: $(status), redirects to '$(location)'"
                 else
-                    @debug "linkcheck '$(link.url)' status: $(status)."
+                    @debug "linkcheck '$(link.destination)' status: $(status)."
                 end
             elseif protocol === :HTTP && status < 400
                 if location !== nothing
-                    @warn "linkcheck '$(link.url)' status: $(status), redirects to '$(location)'"
+                    @warn "linkcheck '$(link.destination)' status: $(status), redirects to '$(location)'"
                 else
-                    @warn "linkcheck '$(link.url)' status: $(status)."
+                    @warn "linkcheck '$(link.destination)' status: $(status)."
                 end
             elseif protocol === :HTTP && status == 405 && method === :HEAD
                 # when a server doesn't support HEAD requests, fallback to GET
-                @debug "linkcheck '$(link.url)' status: $(status), retrying without `-I`"
+                @debug "linkcheck '$(link.destination)' status: $(status), retrying without `-I`"
                 return linkcheck(link, doc; method=:GET)
             else
-                @docerror(doc, :linkcheck, "linkcheck '$(link.url)' status: $(status).")
+                @docerror(doc, :linkcheck, "linkcheck '$(link.destination)' status: $(status).")
             end
         else
             @docerror(doc, :linkcheck, "invalid result returned by $cmd:", result)
@@ -257,7 +257,6 @@ function linkcheck(link::Markdown.Link, doc::Documents.Document; method::Symbol=
     end
     return false
 end
-linkcheck(other, doc::Documents.Document) = true
 
 linkcheck_ismatch(r::String, url) = (url == r)
 linkcheck_ismatch(r::Regex, url) = occursin(r, url)
