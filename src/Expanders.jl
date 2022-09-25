@@ -312,9 +312,11 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
     lines = Utilities.find_block_in_file(x.code, page.source)
     @debug "Evaluating @docs block:\n$(x.code)"
     for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        admonition = Markdown.Admonition("warning", "Missing docstring.",
-            Utilities.mdparse("Missing docstring for `$(strip(str))`. Check Documenter's build log for details.", mode=:blocks))
-        admonition = first(convert(Node, Markdown.MD([admonition])).children)
+        admonition = first(Utilities.mdparse("""
+        !!! warning "Missing docstring."
+
+            Missing docstring for `$(strip(str))`. Check Documenter's build log for details.
+        """, mode=:blocks))
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
