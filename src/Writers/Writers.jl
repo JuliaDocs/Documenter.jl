@@ -58,10 +58,6 @@ function render(doc::Documents.Document)
     for each in doc.user.format
         Selectors.dispatch(FormatSelector, each, doc)
     end
-    # Revert all local links to their original URLs.
-    for (link, url) in doc.internal.locallinks
-        link.destination = url
-    end
 end
 
 include("HTMLWriter.jl")
