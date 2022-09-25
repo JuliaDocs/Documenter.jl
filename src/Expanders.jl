@@ -62,7 +62,7 @@ function create_draft_result!(node::Node; blocktype="code")
     @assert node.element isa MarkdownAST.CodeBlock
     codeblock = node.element
     codeblock.info = "julia"
-    node.element = Documents.MultiOutput()
+    node.element = Documents.MultiOutput(codeblock)
     push(node.children, Node(codeblock))
     push!(node.children, Node(Documents.MultiOutputElement(
         Dict{MIME,Any}(MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>")
@@ -297,7 +297,7 @@ function Selectors.runner(::Type{MetaBlocks}, node, page, doc)
             end
         end
     end
-    node.element = MetaNode(copy(meta))
+    node.element = MetaNode(x, copy(meta))
 end
 
 # @docs
@@ -388,7 +388,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         doc.internal.objects[object] = docsnode.element
         push!(docsnodes, docsnode)
     end
-    node.element = Documents.DocsNodesBlock()
+    node.element = Documents.DocsNodesBlock(x)
     for docsnode in docsnodes
         push!(node.children, docsnode)
     end
@@ -526,7 +526,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
             doc.internal.objects[object] = docsnode.element
             push!(docsnodes, docsnode)
         end
-        node.element = Documents.DocsNodesBlock()
+        node.element = Documents.DocsNodesBlock(x)
         for docsnode in docsnodes
             push!(node.children, docsnode)
         end
@@ -730,7 +730,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
         push!(content, Node(Documents.MultiOutputElement(output)))
     end
     # ... and finally map the original code block to the newly generated ones.
-    node.element = Documents.MultiOutput()
+    node.element = Documents.MultiOutput(x)
     append!(node.children, content)
 end
 
@@ -815,7 +815,7 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
         outstr = remove_sandbox_from_output(outstr, mod)
         push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", rstrip(outstr)))
     end
-    node.element = Documents.MultiCodeBlock("julia-repl", [])
+    node.element = Documents.MultiCodeBlock(x, "julia-repl", [])
     for element in multicodeblock
         push!(node.children, Node(element))
     end
