@@ -63,7 +63,7 @@ function create_draft_result!(node::Node; blocktype="code")
     codeblock = node.element
     codeblock.info = "julia"
     node.element = Documents.MultiOutput(codeblock)
-    push(node.children, Node(codeblock))
+    push!(node.children, Node(codeblock))
     push!(node.children, Node(Documents.MultiOutputElement(
         Dict{MIME,Any}(MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>")
     )))
