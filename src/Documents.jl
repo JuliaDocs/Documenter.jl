@@ -533,7 +533,6 @@ end
 # some replacements for jldoctest blocks
 function doctest_replace!(doc::Documents.Document)
     for (src, page) in doc.blueprint.pages
-        empty!(page.globals.meta)
         doctest_replace!(page.mdast)
     end
 end

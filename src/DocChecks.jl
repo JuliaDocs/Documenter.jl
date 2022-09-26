@@ -121,7 +121,6 @@ function footnotes(doc::Documents.Document)
     # footnote references and a single footnote body.
     footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
     for (src, page) in doc.blueprint.pages
-        empty!(page.globals.meta)
         orphans = Dict{String, Tuple{Int, Int}}()
         for node in AbstractTrees.PreOrderDFS(page.mdast)
             footnote(node.element, orphans)
