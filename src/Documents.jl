@@ -161,7 +161,6 @@ struct MethodNode
 end
 
 struct DocsNode <: AbstractDocumenterBlock
-    docstr  :: Any
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
     page    :: Documents.Page
@@ -170,11 +169,10 @@ struct DocsNode <: AbstractDocumenterBlock
     mdasts  :: Vector{MarkdownAST.Node{Nothing}}
     results :: Vector{Base.Docs.DocStr}
     metas   :: Vector{Dict{Symbol, Any}}
-    function DocsNode(docstr, anchor, object, page)
-        new(docstr, anchor, object, page, [], [], [])
+    function DocsNode(anchor, object, page)
+        new(anchor, object, page, [], [], [])
     end
 end
-DocsNode(anchor, object, page) = DocsNode(nothing, anchor, object, page)
 
 struct DocsNodes
     nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
