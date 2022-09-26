@@ -169,8 +169,9 @@ struct DocsNode <: AbstractDocumenterBlock
     # TODO: should be the docstring components (i.e. .mdasts) be stored as child nodes?
     mdasts  :: Vector{MarkdownAST.Node{Nothing}}
     results :: Vector{Base.Docs.DocStr}
+    metas   :: Vector{Dict{Symbol, Any}}
     function DocsNode(docstr, anchor, object, page)
-        new(docstr, anchor, object, page, [], [])
+        new(docstr, anchor, object, page, [], [], [])
     end
 end
 DocsNode(anchor, object, page) = DocsNode(nothing, anchor, object, page)
@@ -587,8 +588,8 @@ struct AnchoredHeader <: AbstractDocumenterBlock
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
-# DocsNodesBlock correspond to one @docs (or @autodocs) code block, and contains
-# a list of docstrings, which are represented as child nodes of the DocsNode type.
+# A DocsNodesBlock corresponds to one @docs (or @autodocs) code block, and contains
+# a list of docstrings, which are represented as child nodes of type DocsNode.
 # In addition, the child node can also be an Admonition in case there was an error
 # in splicing in a docstring.
 struct DocsNodesBlock <: AbstractDocumenterBlock

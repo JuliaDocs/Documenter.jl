@@ -26,7 +26,31 @@ their real URLs.
 function crossref(doc::Documents.Document)
     for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
-        for node in AbstractTrees.PreOrderDFS(page.mdast)
+        crossref(doc, page, page.mdast)
+    end
+end
+
+function crossref(doc::Documents.Document, page, mdast::MarkdownAST.Node)
+    for node in AbstractTrees.PreOrderDFS(mdast)
+        if node.element isa Documents.MetaNode
+            merge!(page.globals.meta, node.element.dict)
+        elseif node.element isa Documents.DocsNode
+            # the docstring AST trees are not part of the tree of the page, so we need to explicitly
+            # call crossref() on them to update the links there. We also need up update
+            # the CurrentModule meta key as needed, to make sure we find the correct
+            # relative refs within docstrings
+            tmp = get(page.globals.meta, :CurrentModule, nothing)
+            for (docstr, meta) in zip(node.element.mdasts, node.element.metas)
+                mod = get(meta, :module, nothing)
+                isnothing(mod) || (page.globals.meta[:CurrentModule] = mod)
+                crossref(doc, page, docstr)
+            end
+            if isnothing(tmp)
+                delete!(page.globals.meta, :CurrentModule)
+            else
+                page.globals.meta[:CurrentModule] = tmp
+            end
+        elseif node.element isa MarkdownAST.Link
             xref(node, page.globals.meta, page, doc)
         end
     end
@@ -36,7 +60,7 @@ end
 # -------------------------------------
 
 function xref(node::MarkdownAST.Node, meta, page, doc)
-    node.element isa MarkdownAST.Link || return
+    @assert node.element isa MarkdownAST.Link
     link = node.element
 
     slug = xrefname(link.destination)

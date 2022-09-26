@@ -937,6 +937,7 @@ function create_docsnode(docstrings, results, object, page, doc)
         end
         push!(docsnode.mdasts, ast)
         push!(docsnode.results, result)
+        push!(docsnode.metas, markdown.meta)
     end
     return Node(docsnode)
 end
