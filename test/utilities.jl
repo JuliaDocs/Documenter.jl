@@ -365,72 +365,39 @@ end
 
         @test_throws ArgumentError mdparse("", mode=:foo)
 
-        mdparse("") isa Markdown.Paragraph
-        @test mdparse("foo bar") isa Markdown.Paragraph
-        let md = mdparse("", mode=:span)
-            @test md isa Vector{Any}
-            @test length(md) == 1
-        end
-        let md = mdparse("", mode=:blocks)
-            @test md isa Vector{Any}
-            @test length(md) == 0
-        end
-
-        @test mdparse("!!! adm"; mode=:single) isa Markdown.Admonition
-        let md = mdparse("!!! adm", mode=:blocks)
-            @test md isa Vector{Any}
-            @test length(md) == 1
-        end
-        let md = mdparse("x\n\ny", mode=:blocks)
-            @test md isa Vector{Any}
-            @test length(md) == 2
-        end
-
-        @quietly begin
-            @test_throws ArgumentError mdparse("!!! adm", mode=:span)
-            @test_throws ArgumentError mdparse("x\n\ny")
-            @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
-        end
-    end
-
-    @testset "mdparse_mdast" begin
-        mdparse_mdast = Documenter.Utilities.mdparse_mdast
-
-        @test_throws ArgumentError mdparse_mdast("", mode=:foo)
-
-        @test mdparse_mdast("") == [
+        @test mdparse("") == [
             MarkdownAST.@ast MarkdownAST.Paragraph() do
                 ""
             end
         ]
-        @test mdparse_mdast("foo bar") == [
+        @test mdparse("foo bar") == [
             MarkdownAST.@ast MarkdownAST.Paragraph() do
                 "foo bar"
             end
         ]
-        @test mdparse_mdast("", mode=:span) == [
+        @test mdparse("", mode=:span) == [
             MarkdownAST.@ast(MarkdownAST.Text(""))
         ]
-        @test mdparse_mdast("", mode=:blocks) == []
+        @test mdparse("", mode=:blocks) == []
 
         # Note: Markdown.parse() does not put any child nodes into adminition.contents
         # unless there is something non-empty there, which in turn means that the
         # MarkdownAST Admonition node has no children.
-        @test mdparse_mdast("!!! adm"; mode=:single) == [
+        @test mdparse("!!! adm"; mode=:single) == [
             MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
         ]
-        @test mdparse_mdast("!!! adm"; mode=:blocks) == [
+        @test mdparse("!!! adm"; mode=:blocks) == [
             MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
         ]
-        @test mdparse_mdast("x\n\ny", mode=:blocks) == [
+        @test mdparse("x\n\ny", mode=:blocks) == [
             MarkdownAST.@ast(MarkdownAST.Paragraph() do; "x"; end),
             MarkdownAST.@ast(MarkdownAST.Paragraph() do; "y"; end),
         ]
 
         @quietly begin
-            @test_throws ArgumentError mdparse_mdast("!!! adm", mode=:span)
-            @test_throws ArgumentError mdparse_mdast("x\n\ny")
-            @test_throws ArgumentError mdparse_mdast("x\n\ny", mode=:span)
+            @test_throws ArgumentError mdparse("!!! adm", mode=:span)
+            @test_throws ArgumentError mdparse("x\n\ny")
+            @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
         end
     end
 
