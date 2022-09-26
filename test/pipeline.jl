@@ -46,6 +46,7 @@ end
 module HighlightSig
     using Test
     import Markdown
+    using MarkdownAST: @ast, Node, Document, CodeBlock, ThematicBreak
     import Documenter.Expanders: highlightsig!
 
     @testset "highlightsig!" begin
@@ -54,22 +55,32 @@ module HighlightSig
             ---
                 foo(bar::Baz)
             """
-        original = Markdown.parse(s)
-        md = Markdown.parse(s)
+        md = convert(Node, Markdown.parse(s))
+        @test md == @ast Document() do
+            CodeBlock("", "foo(bar::Baz)")
+            ThematicBreak()
+            CodeBlock("", "foo(bar::Baz)")
+        end
         highlightsig!(md)
-        @test isempty(original.content[1].language)
-        @test md.content[1].language == "julia"
-        @test original.content[end].language == md.content[end].language
+        @test md == @ast Document() do
+            CodeBlock("julia", "foo(bar::Baz)")
+            ThematicBreak()
+            CodeBlock("", "foo(bar::Baz)")
+        end
 
         s = """
             ```lang
              foo(bar::Baz)
             ```
             """
-        original = Markdown.parse(s)
-        md = Markdown.parse(s)
+        md = convert(Node, Markdown.parse(s))
+        @test md == @ast Document() do
+            CodeBlock("lang", " foo(bar::Baz)")
+        end
         highlightsig!(md)
-        @test original == md
+        @test md == @ast Document() do
+            CodeBlock("lang", " foo(bar::Baz)")
+        end
     end
 end
 
