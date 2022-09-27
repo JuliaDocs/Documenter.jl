@@ -611,9 +611,6 @@ struct SetupNode <: AbstractDocumenterBlock
     code :: String
 end
 
-markdownast(doc::Document) = Dict(name => markdownast(page) for (name, page) in doc.blueprint.pages)
-markdownast(page::Page) = page.mdast
-
 # Override the show for DocumenterBlockTypes so that we would not print too much
 # information when we happen to show the AST.
 Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([...])")
