@@ -18,7 +18,8 @@ import ..Documenter:
 
     using ..Documenter.Utilities: Remotes
 using DocStringExtensions
-import Markdown, MarkdownAST
+import Markdown
+import MarkdownAST, AbstractTrees
 using Unicode
 
 # When processing the AST during the build, in the MarkdownAST representation, we
@@ -99,17 +100,16 @@ end
 
 ## IndexNode.
 
-mutable struct IndexNode <: AbstractDocumenterBlock
+struct IndexNode <: AbstractDocumenterBlock
     pages       :: Vector{String} # Which pages to include in the index? Set by user.
     modules     :: Vector{Module} # Which modules to include? Set by user.
     order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
     build       :: String         # Path to the file where this index will appear.
     source      :: String         # Path to the file where this index was written.
     elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
-    # MarkdownAST support
-    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
+    codeblock   :: MarkdownAST.CodeBlock # original code block
 
-    function IndexNode(;
+    function IndexNode(codeblock;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
             #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
             Pages   = [],
@@ -119,23 +119,22 @@ mutable struct IndexNode <: AbstractDocumenterBlock
             source  = error("missing value for `source` in `IndexNode`."),
             others...
         )
-        new(Pages, Modules, Order, build, source, [])
+        new(Pages, Modules, Order, build, source, [], codeblock)
     end
 end
 
 ## ContentsNode.
 
-mutable struct ContentsNode <: AbstractDocumenterBlock
+struct ContentsNode <: AbstractDocumenterBlock
     pages       :: Vector{String} # Which pages should be included in contents? Set by user.
     mindepth    :: Int            # Minimum header level that should be displayed. Set by user.
     depth       :: Int            # Down to which level should headers be displayed? Set by user.
     build       :: String         # Same as for `IndexNode`s.
     source      :: String         # Same as for `IndexNode`s.
     elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
-    # MarkdownAST support
-    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
+    codeblock   :: MarkdownAST.CodeBlock # original code block
 
-    function ContentsNode(;
+    function ContentsNode(codeblock;
             Pages  = [],
             Depth  = 1:2,
             build  = error("missing value for `build` in `ContentsNode`."),
@@ -145,18 +144,15 @@ mutable struct ContentsNode <: AbstractDocumenterBlock
         if Depth isa Integer
             Depth = 1:Depth
         end
-        new(Pages, first(Depth), last(Depth), build, source, [])
+        new(Pages, first(Depth), last(Depth), build, source, [], codeblock)
     end
 end
 
 ## Other nodes
 
-mutable struct MetaNode <: AbstractDocumenterBlock
+struct MetaNode <: AbstractDocumenterBlock
+    codeblock :: MarkdownAST.CodeBlock
     dict :: Dict{Symbol, Any}
-    # MarkdownAST support
-    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
-
-    MetaNode(dict) = new(dict)
 end
 
 struct MethodNode
@@ -164,8 +160,7 @@ struct MethodNode
     visible :: Bool
 end
 
-mutable struct DocsNode <: AbstractDocumenterBlock
-    docstr  :: Any
+struct DocsNode <: AbstractDocumenterBlock
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
     page    :: Documents.Page
@@ -173,8 +168,9 @@ mutable struct DocsNode <: AbstractDocumenterBlock
     # TODO: should be the docstring components (i.e. .mdasts) be stored as child nodes?
     mdasts  :: Vector{MarkdownAST.Node{Nothing}}
     results :: Vector{Base.Docs.DocStr}
-    function DocsNode(docstr, anchor, object, page)
-        new(docstr, anchor, object, page, [], [])
+    metas   :: Vector{Dict{Symbol, Any}}
+    function DocsNode(anchor, object, page)
+        new(anchor, object, page, [], [], [])
     end
 end
 
@@ -182,46 +178,31 @@ struct DocsNodes
     nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
 end
 
-mutable struct EvalNode <: AbstractDocumenterBlock
-    code   :: Markdown.Code
-    result :: Union{Markdown.MD, Nothing}
-    # MarkdownAST support
-    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
-
-    EvalNode(code, result) = new(code, result)
+struct EvalNode <: AbstractDocumenterBlock
+    codeblock :: MarkdownAST.CodeBlock
+    result :: Union{MarkdownAST.Node, Nothing}
 end
 
-mutable struct RawNode <: AbstractDocumenterBlock
+struct RawNode <: AbstractDocumenterBlock
     name::Symbol
     text::String
-    # MarkdownAST support
-    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
-
-    RawNode(name, text) = new(name, text)
 end
 
 # MultiOutput contains child nodes in .content that are either code blocks or
 # dictionaries corresponding to the outputs rendered with various MIME types.
 # In the MarkdownAST representation, the dictionaries get converted into
 # MultiOutputElement elements.
-mutable struct MultiOutput <: AbstractDocumenterBlock
-    content::Vector
-    # MarkdownAST support
-    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
-
-    MultiOutput(content) = new(content)
+struct MultiOutput <: AbstractDocumenterBlock
+    codeblock :: MarkdownAST.CodeBlock
 end
 
 # For @repl blocks we store the inputs and outputs as separate Markdown.Code
 # objects, and then combine them in the writer. When converting to MarkdownAST,
 # those separate code blocks become child nodes.
-mutable struct MultiCodeBlock <: AbstractDocumenterBlock
+struct MultiCodeBlock <: AbstractDocumenterBlock
+    codeblock :: MarkdownAST.CodeBlock
     language::String
     content::Vector{Markdown.Code}
-    # MarkdownAST support
-    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
-
-    MultiCodeBlock(language, content) = new(language, content)
 end
 
 
@@ -309,7 +290,7 @@ struct Internal
     objects :: IdDict{Any,Any}           # Tracks which `Utilities.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
-    locallinks :: Dict{Markdown.Link, String}
+    locallinks :: IdDict{MarkdownAST.Link, String}
     errors::Set{Symbol}
 end
 
@@ -533,7 +514,7 @@ function populate!(contents::ContentsNode, document::Document)
                 page = relpath(anchor.file, dirname(contents.build))
                 # Note: This only filters based on contents.depth and *not* contents.mindepth.
                 #       Instead the writers who support this adjust this when rendering.
-                if _isvalid(page, contents.pages) && Utilities.header_level(anchor.object) ≤ contents.depth
+                if _isvalid(page, contents.pages) && anchor.object.level ≤ contents.depth
                     push!(contents.elements, (anchor.order, page, anchor))
                 end
             end
@@ -552,27 +533,26 @@ end
 # some replacements for jldoctest blocks
 function doctest_replace!(doc::Documents.Document)
     for (src, page) in doc.blueprint.pages
-        empty!(page.globals.meta)
-        for element in page.elements
-            page.globals.meta[:CurrentFile] = page.source
-            walk(page.globals.meta, page.mapping[element]) do block
-                doctest_replace!(block)
-            end
-        end
+        doctest_replace!(page.mdast)
     end
 end
-function doctest_replace!(block::Markdown.Code)
-    startswith(block.language, "jldoctest") || return false
+function doctest_replace!(ast::MarkdownAST.Node)
+    for node in AbstractTrees.PreOrderDFS(ast)
+        doctest_replace!(node.element)
+    end
+end
+doctest_replace!(docsnode::DocsNode) = foreach(doctest_replace!, docsnode.mdasts)
+function doctest_replace!(block::MarkdownAST.CodeBlock)
+    startswith(block.info, "jldoctest") || return
     # suppress output for `#output`-style doctests with `output=false` kwarg
-    if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.language)
+    if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.info)
         input = first(split(block.code, "# output\n", limit = 2))
         block.code = rstrip(input)
     end
     # correct the language field
-    block.language = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
-    return false
+    block.info = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
 end
-doctest_replace!(block) = true
+doctest_replace!(@nospecialize _) = nothing
 
 ## Utilities.
 
@@ -586,7 +566,7 @@ function buildnode(T::Type, block, doc, page)
             end
         end
     end
-    T(; dict...)
+    T(block; dict...)
 end
 
 function _compare(col, ind, a, b)
@@ -597,58 +577,6 @@ _compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
 _isvalid(x, xs) = isempty(xs) || x in xs
 precedence(vec) = Dict(zip(vec, 1:length(vec)))
 
-##############################################
-# walk (previously in the Walkers submodule) #
-##############################################
-"""
-$(SIGNATURES)
-
-Calls `f` on `element` and any of its child elements. `meta` is a `Dict` containing metadata
-such as current module.
-"""
-walk(f, meta, element) = (f(element); nothing)
-
-# Change to the docstring's defining module if it has one. Change back afterwards.
-function walk(f, meta, block::Markdown.MD)
-    tmp = get(meta, :CurrentModule, nothing)
-    mod = get(block.meta, :module, nothing)
-    mod ≡ nothing || (meta[:CurrentModule] = mod)
-    f(block) && walk(f, meta, block.content)
-    tmp ≡ nothing ? delete!(meta, :CurrentModule) : (meta[:CurrentModule] = tmp)
-    nothing
-end
-
-function walk(f, meta, block::Vector)
-    for each in block
-        walk(f, meta, each)
-    end
-end
-
-const MDContentElements = Union{
-    Markdown.BlockQuote,
-    Markdown.Paragraph,
-    Markdown.MD,
-}
-walk(f, meta, block::MDContentElements) = f(block) ? walk(f, meta, block.content) : nothing
-
-const MDTextElements = Union{
-    Markdown.Bold,
-    Markdown.Header,
-    Markdown.Italic,
-}
-walk(f, meta, block::MDTextElements)      = f(block) ? walk(f, meta, block.text)    : nothing
-walk(f, meta, block::Markdown.Footnote)   = f(block) ? walk(f, meta, block.text)    : nothing
-walk(f, meta, block::Markdown.Admonition) = f(block) ? walk(f, meta, block.content) : nothing
-walk(f, meta, block::Markdown.Image)      = f(block) ? walk(f, meta, block.alt)     : nothing
-walk(f, meta, block::Markdown.Table)      = f(block) ? walk(f, meta, block.rows)    : nothing
-walk(f, meta, block::Markdown.List)       = f(block) ? walk(f, meta, block.items)   : nothing
-walk(f, meta, block::Markdown.Link)       = f(block) ? walk(f, meta, block.text)    : nothing
-walk(f, meta, block::DocsNodes) = walk(f, meta, block.nodes)
-walk(f, meta, block::DocsNode)  = walk(f, meta, block.docstr)
-walk(f, meta, block::EvalNode)  = walk(f, meta, block.result)
-walk(f, meta, block::MetaNode)  = (merge!(meta, block.dict); nothing)
-walk(f, meta, block::Anchors.Anchor) = walk(f, meta, block.object)
-
 ###########################################################################################
 # Conversion to MarkdownAST, for writers
 
@@ -657,12 +585,12 @@ struct AnchoredHeader <: AbstractDocumenterBlock
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
-# DocsNodesBlock corresponds to one @docs (or @autodocs) code block, and contains
-# a list of docstrings, which are represented as child nodes of the DocsNode type.
+# A DocsNodesBlock corresponds to one @docs (or @autodocs) code block, and contains
+# a list of docstrings, which are represented as child nodes of type DocsNode.
 # In addition, the child node can also be an Admonition in case there was an error
 # in splicing in a docstring.
 struct DocsNodesBlock <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock # source CodeBlock
+    codeblock :: MarkdownAST.CodeBlock
 end
 MarkdownAST.iscontainer(::DocsNodesBlock) = true
 MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
@@ -679,104 +607,8 @@ MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement,MarkdownAST.Co
 
 # In the SetupBlocks expander, we map @setup nodes to Markdown.MD() objects
 struct SetupNode <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
-    args :: String
+    name :: String
     code :: String
-end
-
-markdownast(doc::Document) = Dict(name => markdownast(page) for (name, page) in doc.blueprint.pages)
-function markdownast(page::Page)
-    @assert length(page.elements) >= length(page.mapping)
-    ast = convert(MarkdownAST.Node, Markdown.MD(page.elements))
-    @assert length(ast.children) == length(page.elements)
-    @debug "Converting page: $(page.source)" length(page.elements) length(page.mapping) length(ast.children)
-    # Note: we need to collect() the ast.children because we will be mutating the nodes
-    for (node, element) in zip(collect(ast.children), page.elements)
-        if !haskey(page.mapping, element)
-            @warn "Missing mapping on $(page.source)" element
-            continue
-        end
-        element === page.mapping[element] && continue
-        atnode!(node, element, page.mapping[element])
-    end
-    return ast
-end
-
-atnode!(::MarkdownAST.Node, element, mapping) = error("Unknown mapping: $(typeof(mapping)) for $(typeof(element)) element: $(element)")
-
-# Fallback for the AbstractDocumenterBlocks that can be mapped trivially
-function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::AbstractDocumenterBlock)
-    mapping.codeblock = node.element
-    node.element = mapping
-end
-
-# Top-level headers are paired with Anchor objects. We handle them by adding
-# an AnchoredHeader node between the Heading and the Document elements.
-function atnode!(node::MarkdownAST.Node, ::Markdown.Header, anchor::Anchors.Anchor)
-    ah = MarkdownAST.Node(AnchoredHeader(anchor))
-    MarkdownAST.insert_after!(node, ah)
-    push!(ah.children, node)
-    anchor.node = ah
-end
-
-function atnode!(node::MarkdownAST.Node, ::Markdown.Code, docs::DocsNodes)
-    node.element = DocsNodesBlock(node.element)
-    for dn in docs.nodes
-        push!(node.children, docsnode(dn))
-    end
-end
-function docsnode(n::DocsNode)
-    # The DocsBlocks Expander should make sure that the .docstr field of a DocsNode
-    # is a Markdown.MD objects and that it has the :results meta value set correctly.
-    @assert haskey(n.docstr.meta, :results)
-    @assert length(n.docstr.content) == length(n.docstr.meta[:results])
-
-    for (markdown, result) in zip(n.docstr.content, n.docstr.meta[:results])
-        ast = convert(MarkdownAST.Node, markdown.content[1])
-        # The following 'for' corresponds to the old dropheaders() function
-        for headingnode in ast.children
-            headingnode.element isa MarkdownAST.Heading || continue
-            boldnode = MarkdownAST.Node(MarkdownAST.Strong())
-            for textnode in collect(headingnode.children)
-                push!(boldnode.children, textnode)
-            end
-            headingnode.element = MarkdownAST.Paragraph()
-            push!(headingnode.children, boldnode)
-        end
-        push!(n.mdasts, ast)
-        push!(n.results, result)
-    end
-    return MarkdownAST.Node(n)
-end
-function docsnode(a::Markdown.Admonition)
-    documentnode = convert(MarkdownAST.Node, Markdown.MD([a]))
-    return first(documentnode.children)
-end
-
-function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mcb::MultiCodeBlock)
-    mcb.codeblock = node.element
-    node.element = mcb
-    for code in mcb.content
-        codeblock = MarkdownAST.Node(MarkdownAST.CodeBlock(code.language, code.code))
-        push!(node.children, codeblock)
-    end
-end
-
-function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mo::MultiOutput)
-    mo.codeblock = node.element
-    node.element = mo
-    for e in mo.content
-        push!(node.children, moenode(e))
-    end
-end
-moenode(d::Dict) = MarkdownAST.Node(MultiOutputElement(d))
-moenode(c::Markdown.Code) = MarkdownAST.Node(MarkdownAST.CodeBlock(c.language, c.code))
-
-function atnode!(node::MarkdownAST.Node, code::Markdown.Code, ::Markdown.MD)
-    matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", code.language)
-    # Only @setup blocks should have a Markdown.MD() mapping, so this should be safe.
-    @assert !isnothing(matched)
-    node.element = SetupNode(node.element, matched[1], code.code)
 end
 
 # Override the show for DocumenterBlockTypes so that we would not print too much
@@ -785,6 +617,8 @@ Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([..
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
 Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = Utilities.MDFlatten.mdflatten(io, node.children)
+Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = Utilities.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
+Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = Utilities.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
 Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = Utilities.MDFlatten.mdflatten(io, node, e.codeblock)
 function Utilities.MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines

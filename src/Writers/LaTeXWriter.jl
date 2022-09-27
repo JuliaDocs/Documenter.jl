@@ -109,8 +109,6 @@ const DOCUMENT_STRUCTURE = (
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
-    # Convert the documentation into MarkdownAST representation
-    mdast_pages = Documents.markdownast(doc)
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
@@ -132,7 +130,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
-                                latex(context, mdast_pages[path].children; toplevel=true)
+                                latex(context, page.mdast.children; toplevel=true)
                             end
                         end
                     end
@@ -406,10 +404,7 @@ end
 
 function latex(io::Context, node::Node, evalnode::Documents.EvalNode)
     if evalnode.result !== nothing
-        # Note: this convert() here can throw very easily. Basically, we assume that
-        # .result is Markdown.MD().
-        result_ast = convert(MarkdownAST.Node, evalnode.result)
-        latex(io, result_ast.children, toplevel = true)
+        latex(io, evalnode.result.children, toplevel = true)
     end
 end
 
