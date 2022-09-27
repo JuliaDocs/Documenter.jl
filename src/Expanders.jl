@@ -248,18 +248,18 @@ function Selectors.runner(::Type{TrackHeaders}, node, page, doc)
     # Get the header slug.
     text =
         if namedheader(node)
+            # If the Header is wrappend in an [](@id) link, we remove the Link element from
+            # the tree.
             link_node = first(node.children)
-            # We remove the Link node from the tree
             MarkdownAST.unlink!(link_node)
-            for child in link_node.children
-                push!(node.children, child)
-            end
+            append!(node.children, link_node.children)
             match(NAMEDHEADER_REGEX, link_node.element.destination)[1]
         else
-            # TODO: remove this hack
-            docnode = Node(MarkdownAST.Document())
-            push!(docnode.children, MarkdownAST.copy_tree(node))
-            md = convert(Markdown.MD, docnode)
+            # TODO: remove this hack (replace with mdflatten?)
+            ast = MarkdownAST.@ast MarkdownAST.Document() do
+                MarkdownAST.copy_tree(node)
+            end
+            md = convert(Markdown.MD, ast)
             sprint(Markdown.plain, Markdown.Paragraph(md.content[1].text))
         end
     slug = Utilities.slugify(text)
