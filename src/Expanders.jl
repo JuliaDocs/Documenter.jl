@@ -786,7 +786,7 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
         input  = droplines(str)
         # Use the REPL softscope for REPLBlocks,
         # see https://github.com/JuliaLang/julia/pull/33864
-        ex = REPL.softscope!(ex)
+        ex = REPL.softscope(ex)
         c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
                 Core.eval(mod, ex)

@@ -248,7 +248,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
             result.hide = REPL.ends_with_semicolon(str)
             # Use the REPL softscope for REPL jldoctests,
             # see https://github.com/JuliaLang/julia/pull/33864
-            ex = REPL.softscope!(ex)
+            ex = REPL.softscope(ex)
             c = IOCapture.capture(rethrow = InterruptException) do
                 Core.eval(sandbox, ex)
             end
