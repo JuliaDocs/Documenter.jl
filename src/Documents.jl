@@ -99,13 +99,15 @@ end
 
 ## IndexNode.
 
-struct IndexNode <: AbstractDocumenterBlock
+mutable struct IndexNode <: AbstractDocumenterBlock
     pages       :: Vector{String} # Which pages to include in the index? Set by user.
     modules     :: Vector{Module} # Which modules to include? Set by user.
     order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
     build       :: String         # Path to the file where this index will appear.
     source      :: String         # Path to the file where this index was written.
     elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
+    # MarkdownAST support
+    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
 
     function IndexNode(;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
@@ -123,13 +125,15 @@ end
 
 ## ContentsNode.
 
-struct ContentsNode <: AbstractDocumenterBlock
+mutable struct ContentsNode <: AbstractDocumenterBlock
     pages       :: Vector{String} # Which pages should be included in contents? Set by user.
     mindepth    :: Int            # Minimum header level that should be displayed. Set by user.
     depth       :: Int            # Down to which level should headers be displayed? Set by user.
     build       :: String         # Same as for `IndexNode`s.
     source      :: String         # Same as for `IndexNode`s.
     elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
+    # MarkdownAST support
+    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
 
     function ContentsNode(;
             Pages  = [],
@@ -147,8 +151,12 @@ end
 
 ## Other nodes
 
-struct MetaNode <: AbstractDocumenterBlock
+mutable struct MetaNode <: AbstractDocumenterBlock
     dict :: Dict{Symbol, Any}
+    # MarkdownAST support
+    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
+
+    MetaNode(dict) = new(dict)
 end
 
 struct MethodNode
@@ -156,7 +164,7 @@ struct MethodNode
     visible :: Bool
 end
 
-struct DocsNode <: AbstractDocumenterBlock
+mutable struct DocsNode <: AbstractDocumenterBlock
     docstr  :: Any
     anchor  :: Anchors.Anchor
     object  :: Utilities.Object
@@ -174,30 +182,46 @@ struct DocsNodes
     nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
 end
 
-struct EvalNode <: AbstractDocumenterBlock
+mutable struct EvalNode <: AbstractDocumenterBlock
     code   :: Markdown.Code
     result :: Union{Markdown.MD, Nothing}
+    # MarkdownAST support
+    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
+
+    EvalNode(code, result) = new(code, result)
 end
 
-struct RawNode <: AbstractDocumenterBlock
+mutable struct RawNode <: AbstractDocumenterBlock
     name::Symbol
     text::String
+    # MarkdownAST support
+    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
+
+    RawNode(name, text) = new(name, text)
 end
 
 # MultiOutput contains child nodes in .content that are either code blocks or
 # dictionaries corresponding to the outputs rendered with various MIME types.
 # In the MarkdownAST representation, the dictionaries get converted into
 # MultiOutputElement elements.
-struct MultiOutput <: AbstractDocumenterBlock
+mutable struct MultiOutput <: AbstractDocumenterBlock
     content::Vector
+    # MarkdownAST support
+    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
+
+    MultiOutput(content) = new(content)
 end
 
 # For @repl blocks we store the inputs and outputs as separate Markdown.Code
 # objects, and then combine them in the writer. When converting to MarkdownAST,
 # those separate code blocks become child nodes.
-struct MultiCodeBlock <: AbstractDocumenterBlock
+mutable struct MultiCodeBlock <: AbstractDocumenterBlock
     language::String
     content::Vector{Markdown.Code}
+    # MarkdownAST support
+    codeblock   :: MarkdownAST.CodeBlock # source CodeBlock
+
+    MultiCodeBlock(language, content) = new(language, content)
 end
 
 
@@ -633,11 +657,13 @@ struct AnchoredHeader <: AbstractDocumenterBlock
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
-# DocsNodesBlock correspond to one @docs (or @autodocs) code block, and contains
+# DocsNodesBlock corresponds to one @docs (or @autodocs) code block, and contains
 # a list of docstrings, which are represented as child nodes of the DocsNode type.
 # In addition, the child node can also be an Admonition in case there was an error
 # in splicing in a docstring.
-struct DocsNodesBlock <: AbstractDocumenterBlock end
+struct DocsNodesBlock <: AbstractDocumenterBlock
+    codeblock :: MarkdownAST.CodeBlock # source CodeBlock
+end
 MarkdownAST.iscontainer(::DocsNodesBlock) = true
 MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
 MarkdownAST.can_contain(::DocsNodesBlock, ::Union{DocsNode, MarkdownAST.Admonition}) = true
@@ -653,7 +679,8 @@ MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement,MarkdownAST.Co
 
 # In the SetupBlocks expander, we map @setup nodes to Markdown.MD() objects
 struct SetupNode <: AbstractDocumenterBlock
-    name :: String
+    codeblock :: MarkdownAST.CodeBlock
+    args :: String
     code :: String
 end
 
@@ -677,7 +704,11 @@ end
 
 atnode!(::MarkdownAST.Node, element, mapping) = error("Unknown mapping: $(typeof(mapping)) for $(typeof(element)) element: $(element)")
 
-atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::AbstractDocumenterBlock) = (node.element = mapping)
+# Fallback for the AbstractDocumenterBlocks that can be mapped trivially
+function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mapping::AbstractDocumenterBlock)
+    mapping.codeblock = node.element
+    node.element = mapping
+end
 
 # Top-level headers are paired with Anchor objects. We handle them by adding
 # an AnchoredHeader node between the Heading and the Document elements.
@@ -689,8 +720,7 @@ function atnode!(node::MarkdownAST.Node, ::Markdown.Header, anchor::Anchors.Anch
 end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, docs::DocsNodes)
-    @assert node.element isa MarkdownAST.CodeBlock
-    node.element = DocsNodesBlock()
+    node.element = DocsNodesBlock(node.element)
     for dn in docs.nodes
         push!(node.children, docsnode(dn))
     end
@@ -724,6 +754,7 @@ function docsnode(a::Markdown.Admonition)
 end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mcb::MultiCodeBlock)
+    mcb.codeblock = node.element
     node.element = mcb
     for code in mcb.content
         codeblock = MarkdownAST.Node(MarkdownAST.CodeBlock(code.language, code.code))
@@ -732,6 +763,7 @@ function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mcb::MultiCodeBlock)
 end
 
 function atnode!(node::MarkdownAST.Node, ::Markdown.Code, mo::MultiOutput)
+    mo.codeblock = node.element
     node.element = mo
     for e in mo.content
         push!(node.children, moenode(e))
@@ -744,21 +776,24 @@ function atnode!(node::MarkdownAST.Node, code::Markdown.Code, ::Markdown.MD)
     matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", code.language)
     # Only @setup blocks should have a Markdown.MD() mapping, so this should be safe.
     @assert !isnothing(matched)
-    node.element = SetupNode(matched[1], code.code)
+    node.element = SetupNode(node.element, matched[1], code.code)
 end
 
-const DocumenterBlockTypes = Union{
-    AnchoredHeader,
-    DocsNode,
-    IndexNode,
-    ContentsNode,
-    EvalNode,
-    MetaNode,
-    MultiCodeBlock,
-    MultiOutput,
-    MultiOutputElement,
-    SetupNode,
-}
-Base.show(io::IO, node::DocumenterBlockTypes) = print(io, typeof(node), "([...])")
+# Override the show for DocumenterBlockTypes so that we would not print too much
+# information when we happen to show the AST.
+Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([...])")
+
+# Extend MDFlatten.mdflatten to support the Documenter-specific elements
+Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = Utilities.MDFlatten.mdflatten(io, node.children)
+Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = Utilities.MDFlatten.mdflatten(io, node, e.codeblock)
+function Utilities.MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
+    # this special case separates top level blocks with newlines
+    for node in e.mdasts
+        Utilities.MDFlatten.mdflatten(io, node)
+        # Docstrings are double wrapped in MD objects, and so led to extra newlines
+        # in the old Markdown-based mdflatten()
+        print(io, "\n\n\n\n")
+    end
+end
 
 end

@@ -2,7 +2,7 @@
 \newcommand{\DocMainTitle}{Documenter LaTeX Showcase}
 \newcommand{\DocVersion}{1.2.3}
 \newcommand{\DocAuthors}{}
-\newcommand{\JuliaVersion}{1.8.0}
+\newcommand{\JuliaVersion}{1.8.1}
 
 % ---- Insert preamble
 \input{preamble.tex}
@@ -29,7 +29,7 @@ This page showcases the various page elements that are supported by Documenter.
 \label{11192443102986465861}{}
 
 
-A table of contents can be generated with an \href{@ref}{\texttt{@contents} block}. The one for this page renders as
+A table of contents can be generated with an \hyperlinkref{5495928211144802529}{\texttt{@contents} block}. The one for this page renders as
 
 
 \begin{itemize}
@@ -50,6 +50,7 @@ A table of contents can be generated with an \href{@ref}{\texttt{@contents} bloc
 \item \hyperlinkref{5969831508618549664}{Setup blocks}
 \item \hyperlinkref{2602340166667619136}{Doctest showcase}
 \item \hyperlinkref{14134642751930898430}{at-raw blocks}
+\item \hyperlinkref{12734752257024730942}{Cross-references}
 \item \hyperlinkref{17095889498970318110}{Contents}
 \end{itemize}
 \end{itemize}
@@ -763,7 +764,7 @@ Script-style doctests are supported too:
 \label{3545462789522369084}{}
 
 
-\href{@ref}{\texttt{@example} block} run a code snippet and insert the output into the document. E.g. the following Markdown
+\hyperlinkref{12317204655950454097}{\texttt{@example} block} run a code snippet and insert the output into the document. E.g. the following Markdown
 
 
 
@@ -916,7 +917,7 @@ x + 1
 \label{17347250707405175741}{}
 
 
-Output from \href{@ref}{\texttt{@repl} block}s and \href{@ref}{\texttt{@example} block}s support colored output, tranforming ANSI color codes to HTML.
+Output from \hyperlinkref{16839343392674353047}{\texttt{@repl} block}s and \hyperlinkref{12317204655950454097}{\texttt{@example} block}s support colored output, tranforming ANSI color codes to HTML.
 
 
 
@@ -1068,6 +1069,50 @@ bar
 
 
 
+\section{Cross-references}
+
+
+
+\label{12734752257024730942}{}
+
+
+Here we link to the heading \hyperlinkref{12734752257024730942}{Cross-references}. \hyperlinkref{12734752257024730942}{This} also links there.
+
+
+
+We can also link to other pages, such as: \hyperlinkref{4901604269105032859}{An index of docstrings}.
+
+
+
+Then there are link to docstrings: \href{@ref}{\texttt{Foo.bar}}, \href{@ref Foo.bar}{\texttt{foobar}}, \href{@ref Foo.bar}{foobar}.
+
+
+
+And issue references: \href{https://example.org/Repository.jl/blob/1245}{\#1245}
+
+
+
+\subsection{\texttt{@example}-block}
+
+
+
+\label{12317204655950454097}{}
+
+
+\subsection{\texttt{@contents}-block}
+
+
+
+\label{5495928211144802529}{}
+
+
+\subsection{\texttt{@repl}-block}
+
+
+
+\label{16839343392674353047}{}
+
+
 \section{Contents}
 
 
@@ -1078,6 +1123,7 @@ bar
 \item \hyperlinkref{4859465668994674752}{Docstrings}
 \begin{itemize}
 \item \hyperlinkref{4901604269105032859}{An index of docstrings}
+\item \hyperlinkref{17848419264812669351}{at-autodocs}
 \end{itemize}
 \item \hyperlinkref{5852870456629818970}{Style showcase for \LaTeX}
 \begin{itemize}
@@ -1096,6 +1142,7 @@ bar
 \item \hyperlinkref{5969831508618549664}{Setup blocks}
 \item \hyperlinkref{2602340166667619136}{Doctest showcase}
 \item \hyperlinkref{14134642751930898430}{at-raw blocks}
+\item \hyperlinkref{12734752257024730942}{Cross-references}
 \item \hyperlinkref{17095889498970318110}{Contents}
 \end{itemize}
 \end{itemize}
@@ -1145,6 +1192,41 @@ T
 
 
 \end{adjustwidth}
+
+\section{An index of docstrings}
+
+
+
+\label{4901604269105032859}{}
+
+
+The \href{@ref}{\texttt{@index} block} can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
+
+
+\begin{itemize}
+\item \hyperlinkref{11302554442225637105}{\texttt{AutoDocs}}
+\item \hyperlinkref{15441025252371609530}{\texttt{Main.AutoDocs.K}}
+\item \hyperlinkref{12338358314596597808}{\texttt{Main.AutoDocs.T}}
+\item \hyperlinkref{1885743281855441478}{\texttt{Main.Mod.T}}
+\item \hyperlinkref{14053004641171891989}{\texttt{Main.AutoDocs.f}}
+\item \hyperlinkref{5669384191785722396}{\texttt{Main.Mod.func}}
+\item \hyperlinkref{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}
+\item \hyperlinkref{7256264955516068825}{\texttt{Main.AutoDocs.@m}}
+\end{itemize}
+
+
+{\rule{\textwidth}{1pt}}
+
+
+Missing docstring:
+
+
+
+\begin{tcolorbox}[colback=admonition-warning!5!white,colframe=admonition-warning!75!black,title=\textbf{Missing docstring.}]
+Missing docstring for \texttt{this\_docstring\_does\_not\_exist}. Check Documenter{\textquotesingle}s build log for details.
+
+\end{tcolorbox}
+
 \hypertarget{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}  -- {Function.}
 
 \begin{adjustwidth}{2em}{0pt}
@@ -1185,37 +1267,49 @@ Display equation:
 
 \end{adjustwidth}
 
-\section{An index of docstrings}
+\section{at-autodocs}
 
 
 
-\label{4901604269105032859}{}
+\label{17848419264812669351}{}
 
+\hypertarget{11302554442225637105}{\texttt{AutoDocs}}  -- {Module.}
 
-The \href{@ref}{\texttt{@index} block} can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
+\begin{adjustwidth}{2em}{0pt}
 
-
-\begin{itemize}
-\item \hyperlinkref{1885743281855441478}{\texttt{Main.Mod.T}}
-\item \hyperlinkref{5308965026370084775}{\texttt{Main.AutoDocs.f}}
-\item \hyperlinkref{5669384191785722396}{\texttt{Main.Mod.func}}
-\item \hyperlinkref{15818938160560313688}{\texttt{Main.Mod.long\_equations\_in\_docstrings}}
-\end{itemize}
-
-
-{\rule{\textwidth}{1pt}}
-
-
-Missing docstring:
+\texttt{AutoDocs} module.
 
 
 
-\begin{tcolorbox}[colback=admonition-warning!5!white,colframe=admonition-warning!75!black,title=\textbf{Missing docstring.}]
-Missing docstring for \texttt{this\_docstring\_does\_not\_exist}. Check Documenter{\textquotesingle}s build log for details.
+\href{https://example.org/Repository.jl/blob/test/examples/make.jl#L75-75}{\texttt{source}}
 
-\end{tcolorbox}
 
-\hypertarget{5308965026370084775}{\texttt{Main.AutoDocs.f}}  -- {Function.}
+\end{adjustwidth}
+\hypertarget{15441025252371609530}{\texttt{Main.AutoDocs.K}}  -- {Constant.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Constant \texttt{K}.
+
+
+
+\href{https://example.org/Repository.jl/blob/test/examples/make.jl#L88-88}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{12338358314596597808}{\texttt{Main.AutoDocs.T}}  -- {Type.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Type \texttt{T}.
+
+
+
+\href{https://example.org/Repository.jl/blob/test/examples/make.jl#L91-91}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{14053004641171891989}{\texttt{Main.AutoDocs.f}}  -- {Method.}
 
 \begin{adjustwidth}{2em}{0pt}
 
@@ -1224,6 +1318,18 @@ Function \texttt{f}.
 
 
 \href{https://example.org/Repository.jl/blob/test/examples/make.jl#L85-85}{\texttt{source}}
+
+
+\end{adjustwidth}
+\hypertarget{7256264955516068825}{\texttt{Main.AutoDocs.@m}}  -- {Macro.}
+
+\begin{adjustwidth}{2em}{0pt}
+
+Macro \texttt{@m}.
+
+
+
+\href{https://example.org/Repository.jl/blob/test/examples/make.jl#L94-94}{\texttt{source}}
 
 
 \end{adjustwidth}

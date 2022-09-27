@@ -699,10 +699,9 @@ function latex(io::Context, node::Node, image::MarkdownAST.Image)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
         url = if Utilities.isabsurl(image.destination)
-            @warn "images with absolute URLs not supported in LaTeX output in $(Utilities.locrepr(io.filename))" url = md.url
+            @warn "images with absolute URLs not supported in LaTeX output in $(Utilities.locrepr(io.filename))" url = image.destination
             # We nevertheless output an \includegraphics with the URL. The LaTeX build will
-            # then give an error, indicating to the user that something wrong. Only the
-            # warning would be drowned by all the output from LaTeX.
+            # then give an error, indicating to the user that something wrong.
             image.destination
         elseif startswith(image.destination, '/')
             # URLs starting with a / are assumed to be relative to the document's root

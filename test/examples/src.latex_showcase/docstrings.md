@@ -5,7 +5,6 @@ The following example docstrings come from the demo modules in `make.jl`.
 ```@docs
 Mod.func
 Mod.T
-Mod.long_equations_in_docstrings
 ```
 
 ## An index of docstrings
@@ -22,5 +21,11 @@ Missing docstring:
 
 ```@docs
 this_docstring_does_not_exist
-Main.AutoDocs.f
+Mod.long_equations_in_docstrings
+```
+
+## at-autodocs
+
+```@autodocs
+Modules = [Main.AutoDocs]
 ```

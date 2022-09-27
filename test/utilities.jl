@@ -393,6 +393,47 @@ end
         end
     end
 
+    @testset "mdparse_mdast" begin
+        mdparse_mdast = Documenter.Utilities.mdparse_mdast
+
+        @test_throws ArgumentError mdparse_mdast("", mode=:foo)
+
+        @test mdparse_mdast("") == [
+            MarkdownAST.@ast MarkdownAST.Paragraph() do
+                ""
+            end
+        ]
+        @test mdparse_mdast("foo bar") == [
+            MarkdownAST.@ast MarkdownAST.Paragraph() do
+                "foo bar"
+            end
+        ]
+        @test mdparse_mdast("", mode=:span) == [
+            MarkdownAST.@ast(MarkdownAST.Text(""))
+        ]
+        @test mdparse_mdast("", mode=:blocks) == []
+
+        # Note: Markdown.parse() does not put any child nodes into adminition.contents
+        # unless there is something non-empty there, which in turn means that the
+        # MarkdownAST Admonition node has no children.
+        @test mdparse_mdast("!!! adm"; mode=:single) == [
+            MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
+        ]
+        @test mdparse_mdast("!!! adm"; mode=:blocks) == [
+            MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
+        ]
+        @test mdparse_mdast("x\n\ny", mode=:blocks) == [
+            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "x"; end),
+            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "y"; end),
+        ]
+
+        @quietly begin
+            @test_throws ArgumentError mdparse_mdast("!!! adm", mode=:span)
+            @test_throws ArgumentError mdparse_mdast("x\n\ny")
+            @test_throws ArgumentError mdparse_mdast("x\n\ny", mode=:span)
+        end
+    end
+
     @testset "JSDependencies" begin
         using Documenter.Utilities.JSDependencies:
             RemoteLibrary, Snippet, RequireJS, verify, writejs, parse_snippet
