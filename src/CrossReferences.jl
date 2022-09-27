@@ -256,7 +256,7 @@ getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, 
 
 function issue_xref(link::Markdown.Link, num, meta, page, doc)
     # Update issue links starting with a hash, but only if our Remote supports it
-    issue_url = Remotes.issueurl(doc.user.remote, num)
+    issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
     if isnothing(issue_url)
         @docerror(doc, :cross_references, "unable to generate issue reference for '[`#$num`](@ref)' in $(Utilities.locrepr(page.source)).")
     else
