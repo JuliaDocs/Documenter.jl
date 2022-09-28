@@ -214,6 +214,7 @@ With explicit alignment.
 | :---   |    :---:    |       ---: |
 | `A`    |      ✓      |      10.00 |
 | `BB`   |      ✓      | 1000000.00 |
+| `CC`   |      v      | 1000000.00 |
 
 Huges tables get scaled down:
 

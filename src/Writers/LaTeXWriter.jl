@@ -650,18 +650,22 @@ end
 function latex(io::Context, node::Node, table::MarkdownAST.Table)
     rows = MarkdownAST.tablerows(node)
     # latex(io, node.children)
-    _println(io, "\n\\begin{table}[h]")
-    _print(io, "\n\\begin{tabulary}{\\linewidth}")
-    _println(io, "{|", uppercase(join(spec_to_align.(table.spec), '|')), "|}")
+    _println(io, "\n\\begin{table}[h]\n\\centering")
+    _print(io, "\\begin{tabulary}{\\linewidth}")
+    _println(io, "{", uppercase(join(spec_to_align.(table.spec), ' ')), "}")
+    rule = "\\toprule"
     for (i, row) in enumerate(rows)
-        i === 1 && _println(io, "\\hline")
+        _println(io, rule)
         for (j, cell) in enumerate(row.children)
             j === 1 || _print(io, " & ")
             latex(io, cell.children)
         end
         _println(io, " \\\\")
-        _println(io, "\\hline")
+        if i === 2
+            rule = "\\midrule"
+        end
     end
+    _println(io, "\\bottomrule")
     _println(io, "\\end{tabulary}\n")
     _println(io, "\\end{table}\n")
 end

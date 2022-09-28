@@ -474,15 +474,15 @@ Donec vel nibh sapien. Maecenas ultricies mauris sapien. Nunc et sem ac justo ul
 
 
 \begin{table}[h]
-
-\begin{tabulary}{\linewidth}{|R|R|R|}
-\hline
+\centering
+\begin{tabulary}{\linewidth}{R R R}
+\toprule
 object & implemented & value \\
-\hline
+\toprule
 \texttt{A} & ✓ & 10.00 \\
-\hline
+\midrule
 \texttt{BB} & ✓ & 1000000.00 \\
-\hline
+\bottomrule
 \end{tabulary}
 
 \end{table}
@@ -495,15 +495,17 @@ With explicit alignment.
 
 
 \begin{table}[h]
-
-\begin{tabulary}{\linewidth}{|L|C|R|}
-\hline
+\centering
+\begin{tabulary}{\linewidth}{L C R}
+\toprule
 object & implemented & value \\
-\hline
+\toprule
 \texttt{A} & ✓ & 10.00 \\
-\hline
+\midrule
 \texttt{BB} & ✓ & 1000000.00 \\
-\hline
+\midrule
+\texttt{CC} & v & 1000000.00 \\
+\bottomrule
 \end{tabulary}
 
 \end{table}
@@ -612,15 +614,15 @@ However, tables with huge cells are not properly handled right now:
 
 
 \begin{table}[h]
-
-\begin{tabulary}{\linewidth}{|L|C|R|}
-\hline
+\centering
+\begin{tabulary}{\linewidth}{L C R}
+\toprule
 object & implemented & value \\
-\hline
+\toprule
 \texttt{A} & ✓ & 10.00 \\
-\hline
+\midrule
 \texttt{BBBBBBBBBBBBBBBBBBBB} & ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ & 1000000000000000000000000000000000000000000000000000000.00 \\
-\hline
+\bottomrule
 \end{tabulary}
 
 \end{table}
