@@ -598,44 +598,6 @@ const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
 layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
-keyword.
-
-The `mode` keyword argument can be one of the following:
-
-* `:single` (default) -- returns a single block-level object (e.g. `Markdown.Paragraph` or
-  `Markdown.Admonition`) and errors if the string parses into multiple blocks.
-* `:blocks` -- the function returns a `Vector{Any}` of Markdown blocks.
-* `:span` -- Returns a `Vector{Any}` of span-level items, stripping away the outer block.
-  This requires the string to parse into a single `Markdown.Paragraph`, the contents of
-  which gets returned.
-"""
-function mdparse(s::AbstractString; mode=:single)
-    mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
-    md = Markdown.parse(s)
-    if mode == :blocks
-        md.content
-    elseif length(md.content) == 0
-        # case where s == "". We'll just return an empty string / paragraph.
-        (mode == :single) ? Markdown.Paragraph(Any[""]) : Any[""]
-    elseif (mode == :single || mode == :span) && length(md.content) > 1
-        @error "mode == :$(mode) requires the Markdown string to parse into a single block" s md.content
-        throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
-    else
-        @assert length(md.content) == 1
-        @assert mode == :span || mode == :single
-        if mode == :span && !isa(md.content[1], Markdown.Paragraph)
-            @error "mode == :$(mode) requires the Markdown string to parse into a Markdown.Paragraph" s md.content
-            throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
-        end
-        (mode == :single) ? md.content[1] : md.content[1].content
-    end
-end
-
-"""
-    mdparse_mdast(s::AbstractString; mode=:single)
-
-Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
-layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
 keyword. The resulting Markdown AST is converted into an array of `MarkdownAST.Node`s.
 
 The `mode` keyword argument can be one of the following:
@@ -647,7 +609,7 @@ The `mode` keyword argument can be one of the following:
   This requires the string to parse into a single `Markdown.Paragraph`, the contents of
   which gets returned.
 """
-function mdparse_mdast(s::AbstractString; mode=:single) :: Vector{MarkdownAST.Node{Nothing}}
+function mdparse(s::AbstractString; mode=:single) :: Vector{MarkdownAST.Node{Nothing}}
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
     mdast = convert(MarkdownAST.Node, Markdown.parse(s))
     if mode == :blocks

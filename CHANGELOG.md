@@ -31,7 +31,8 @@
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
 * ![Bugfix][badge-bugfix] `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. ([#505][github-505], [#1924][github-1924])
-* ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892], [#1912][github-1912], [#1924][github-1924])
+* ![Bugfix][badge-bugfix] Docstring doctests now properly get checked on each `makedocs` run, when run multiple times in the same Julia session. ([#974][github-974], [#1948][github-1948])
+* ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892], [#1912][github-1912], [#1924][github-1924], [#1948][github-1948])
 
 ## Version `v0.27.23`
 
@@ -856,6 +857,7 @@
 [github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
+[github-974]: https://github.com/JuliaDocs/Documenter.jl/issues/974
 [github-980]: https://github.com/JuliaDocs/Documenter.jl/pull/980
 [github-989]: https://github.com/JuliaDocs/Documenter.jl/pull/989
 [github-991]: https://github.com/JuliaDocs/Documenter.jl/pull/991
@@ -1152,6 +1154,7 @@
 [github-1933]: https://github.com/JuliaDocs/Documenter.jl/issues/1933
 [github-1935]: https://github.com/JuliaDocs/Documenter.jl/pull/1935
 [github-1937]: https://github.com/JuliaDocs/Documenter.jl/pull/1937
+[github-1948]: https://github.com/JuliaDocs/Documenter.jl/pull/1948
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
