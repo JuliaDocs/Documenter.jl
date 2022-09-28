@@ -13,6 +13,7 @@
 
 * ![Enhancement][badge-enhancement] Admonitions are now styled with color in the LaTeX output. ([#1931][github-1931], [#1932][github-1932])
 * ![Enhancement][badge-enhancement] Improved the styling of code blocks in the LaTeXWriter. ([#1933][github-1933], [#1935][github-1935])
+* ![Enhancement][badge-enhancement] Automatically resize oversize `tabular` environments from `@example` blocks in LaTeXWriter. ([#1930][github-1930], [#1937][github-1937])
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 * ![Enhancement][badge-enhancement] Documenter now shows a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
 * ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). Documenter will also try to determine `repo` automatically from the `GITHUB_REPOSITORY` environment variable if other fallbacks have failed. ([#1808][github-1808], [#1881][github-1881])
@@ -1147,10 +1148,12 @@
 [github-1912]: https://github.com/JuliaDocs/Documenter.jl/pull/1912
 [github-1919]: https://github.com/JuliaDocs/Documenter.jl/pull/1919
 [github-1924]: https://github.com/JuliaDocs/Documenter.jl/pull/1924
+[github-1930]: https://github.com/JuliaDocs/Documenter.jl/issues/1930
 [github-1931]: https://github.com/JuliaDocs/Documenter.jl/issues/1931
 [github-1932]: https://github.com/JuliaDocs/Documenter.jl/pull/1932
 [github-1933]: https://github.com/JuliaDocs/Documenter.jl/issues/1933
 [github-1935]: https://github.com/JuliaDocs/Documenter.jl/pull/1935
+[github-1937]: https://github.com/JuliaDocs/Documenter.jl/pull/1937
 [github-1948]: https://github.com/JuliaDocs/Documenter.jl/pull/1948
 <!-- end of issue link definitions -->
 
