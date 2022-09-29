@@ -457,7 +457,9 @@ function latex(io::Context, ::Node, d::Dict{MIME,Any})
     elseif haskey(d, MIME"text/plain"())
         text = d[MIME"text/plain"()]
         out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
-        codeblock = MarkdownAST.CodeBlock("", out)
+        # We set a "fake" language as text/plain so that the writer knows how to
+        # deal with it.
+        codeblock = MarkdownAST.CodeBlock("text/plain", out)
         latex(io, MarkdownAST.Node(codeblock))
     else
         error("this should never happen.")
@@ -489,13 +491,16 @@ end
 const LEXER = Set([
     "julia",
     "jlcon",
+    "raw",
 ])
 
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     language = Utilities.codelang(code.info)
-    language = isempty(language) ? "none" :
-        (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
-        language
+    if isempty(language)
+        language = "raw"
+    elseif language == "julia-repl"
+        language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
+    end
     text = IOBuffer(code.code)
     code_code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code_code
