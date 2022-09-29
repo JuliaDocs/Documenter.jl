@@ -587,7 +587,7 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
         color = "admonition-$(md.category)"
     end
     _print(io, "\\begin{tcolorbox}[")
-    _print(io, "colback=$(color)!5!white,colframe=$(color)!75!black,")
+    _print(io, "colback=$(color)!50!white,colframe=$(color),")
     _print(io, "title=\\textbf{")
     latexesc(io, md.title)
     _println(io, "}]")
