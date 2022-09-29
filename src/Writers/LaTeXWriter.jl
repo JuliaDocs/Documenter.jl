@@ -491,13 +491,13 @@ end
 const LEXER = Set([
     "julia",
     "jlcon",
-    "raw",
+    "text",
 ])
 
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     language = Utilities.codelang(code.info)
     if isempty(language)
-        language = "raw"
+        language = "text"
     elseif language == "julia-repl"
         language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
     end
