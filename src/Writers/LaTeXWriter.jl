@@ -587,7 +587,7 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
         color = "admonition-$(md.category)"
     end
     _print(io, "\\begin{tcolorbox}[")
-    _print(io, "colback=$(color)!5!white,colframe=$(color)!75!black,")
+    _print(io, "colback=$(color)!50!white,colframe=$(color),")
     _print(io, "title=\\textbf{")
     latexesc(io, md.title)
     _println(io, "}]")
@@ -649,20 +649,18 @@ end
 
 function latex(io::Context, node::Node, table::MarkdownAST.Table)
     rows = MarkdownAST.tablerows(node)
-    # latex(io, node.children)
     _println(io, "\n\\begin{table}[h]\n\\centering")
     _print(io, "\\begin{tabulary}{\\linewidth}")
     _println(io, "{", uppercase(join(spec_to_align.(table.spec), ' ')), "}")
-    rule = "\\toprule"
+    _println(io, "\\toprule")
     for (i, row) in enumerate(rows)
-        _println(io, rule)
         for (j, cell) in enumerate(row.children)
             j === 1 || _print(io, " & ")
             latex(io, cell.children)
         end
         _println(io, " \\\\")
-        if i === 2
-            rule = "\\midrule"
+        if i === 1
+            _println(io, "\\toprule")
         end
     end
     _println(io, "\\bottomrule")
