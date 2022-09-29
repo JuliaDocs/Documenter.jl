@@ -500,6 +500,9 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
         language = "text"
     elseif language == "julia-repl"
         language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
+    elseif !(language in LEXER) && language != "text/plain"
+        # For all others, like ```python or ```markdown, render as text.
+        language = "text"
     end
     text = IOBuffer(code.code)
     code_code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
@@ -517,6 +520,9 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
         end
         _println(io, "\n\\end{minted}\n")
     else
+        # The only blocks that use {lstlisting} are `text/plain` renders of
+        # Julia output.
+        @assert language == "text/plain"
         _print(io, "\n\\begin{lstlisting}")
         if escape
             _println(io, "[escapeinside=\\%\\%]")
