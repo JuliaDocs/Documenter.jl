@@ -496,9 +496,7 @@ const LEXER = Set([
 
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     language = Utilities.codelang(code.info)
-    if isempty(language)
-        language = "text"
-    elseif language == "julia-repl"
+    if language == "julia-repl"
         language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
     elseif !(language in LEXER) && language != "text/plain"
         # For all others, like ```python or ```markdown, render as text.
@@ -507,32 +505,24 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     text = IOBuffer(code.code)
     code_code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code_code
-    if language in LEXER
-        _print(io, "\n\\begin{minted}")
-        if escape
-            _print(io, "[escapeinside=\\#\\%]")
-        end
-        _println(io, "{", language, "}")
-        if escape
-            _print_code_escapes_minted(io, code_code)
-        else
-            _print(io, code_code)
-        end
-        _println(io, "\n\\end{minted}\n")
-    else
-        # The only blocks that use {lstlisting} are `text/plain` renders of
-        # Julia output.
-        @assert language == "text/plain"
-        _print(io, "\n\\begin{lstlisting}")
-        if escape
-            _println(io, "[escapeinside=\\%\\%]")
-            _print_code_escapes_lstlisting(io, code_code)
-        else
-            _println(io)
-            _print(io, code_code)
-        end
-        _println(io, "\n\\end{lstlisting}\n")
+    _print(io, "\n\\begin{minted}")
+    if escape
+        _print(io, "[escapeinside=\\#\\%")
     end
+    if language == "text/plain"
+        _print(io, escape ? "," : "[")
+        # Special-case the formatting of code outputs from Julia.
+        _println(io, "bgcolor=white,frame=single,rulecolor=codeblock-border]{text}")
+    else
+        _println(io, escape ? "]{" : "{", language, "}")
+    end
+    if escape
+        _print_code_escapes_minted(io, code_code)
+    else
+        _print(io, code_code)
+    end
+    _println(io, "\n\\end{minted}\n")
+    return
 end
 
 latex(io::Context, node::Node, mcb::Documents.MultiCodeBlock) = latex(io, node, join_multiblock(node))
@@ -557,13 +547,6 @@ function _print_code_escapes_minted(io, s::AbstractString)
         ch === '#' ? _print(io, "##%") :
         ch === '%' ? _print(io, "#%%") : # Note: "#\\%%" results in pygmentize error...
         ch === '⊻' ? _print(io, "#\\unicodeveebar%") :
-                     _print(io, ch)
-    end
-end
-function _print_code_escapes_lstlisting(io, s::AbstractString)
-    for ch in s
-        ch === '%' ? _print(io, "%\\%%") :
-        ch === '⊻' ? _print(io, "%\\unicodeveebar%") :
                      _print(io, ch)
     end
 end

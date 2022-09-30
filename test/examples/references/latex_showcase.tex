@@ -761,7 +761,7 @@ Script-style doctests are supported too:
 
 \begin{minted}{text}
 ```@example
-2 + 3
+typeof(π)
 ```
 \end{minted}
 
@@ -773,13 +773,13 @@ becomes the following code-output block pair
 
 
 \begin{minted}{julia}
-2 + 3
+typeof(π)
 \end{minted}
 
 
-\begin{lstlisting}
-5
-\end{lstlisting}
+\begin{minted}[bgcolor=white,frame=single,rulecolor=codeblock-border]{text}
+Irrational{:π}
+\end{minted}
 
 
 
@@ -819,9 +819,9 @@ println("Hello World")
 \end{minted}
 
 
-\begin{lstlisting}
+\begin{minted}[bgcolor=white,frame=single,rulecolor=codeblock-border]{text}
 Hello World
-\end{lstlisting}
+\end{minted}
 
 
 
@@ -836,9 +836,9 @@ println("Hello World")
 \end{minted}
 
 
-\begin{lstlisting}
+\begin{minted}[bgcolor=white,frame=single,rulecolor=codeblock-border]{text}
 42
-\end{lstlisting}
+\end{minted}
 
 
 
@@ -894,9 +894,9 @@ x + 1
 \end{minted}
 
 
-\begin{lstlisting}
+\begin{minted}[bgcolor=white,frame=single,rulecolor=codeblock-border]{text}
 6
-\end{lstlisting}
+\end{minted}
 
 
 
@@ -986,11 +986,11 @@ print("\e[m")
 \end{minted}
 
 
-\begin{lstlisting}
+\begin{minted}[bgcolor=white,frame=single,rulecolor=codeblock-border]{text}
     0     1     2     3     4     5     6     7
     8     9    10    11    12    13    14    15
 
-\end{lstlisting}
+\end{minted}
 
 
 

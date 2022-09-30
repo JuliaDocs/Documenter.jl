@@ -322,14 +322,14 @@ E.g. the following Markdown
 
 ````markdown
 ```@example
-2 + 3
+typeof(π)
 ```
 ````
 
 becomes the following code-output block pair
 
 ```@example
-2 + 3
+typeof(π)
 ```
 
 If the last element can be rendered as `text/latex`:
