@@ -512,7 +512,7 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     if language == "text/plain"
         _print(io, escape ? "," : "[")
         # Special-case the formatting of code outputs from Julia.
-        _println(io, "bgcolor=white,frame=single,rulecolor=codeblock-border]{text}")
+        _println(io, "xleftmargin=-\\fboxsep,xrightmargin=-\\fboxsep,bgcolor=white,frame=single]{text}")
     else
         _println(io, escape ? "]{" : "{", language, "}")
     end
