@@ -597,7 +597,7 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
     if md.category in ("danger", "warning", "note", "info", "tip", "compat")
         color = "admonition-$(md.category)"
     end
-    _print(io, "\\begin{tcolorbox}[")
+    _print(io, "\\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,")
     _print(io, "colback=$(color)!50!white,colframe=$(color),")
     _print(io, "title=\\textbf{")
     latexesc(io, md.title)

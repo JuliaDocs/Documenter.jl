@@ -11,7 +11,7 @@
 
   **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
 
-* ![Enhancement][badge-enhancement] Admonitions are now styled with color in the LaTeX output. ([#1931][github-1931], [#1932][github-1932])
+* ![Enhancement][badge-enhancement] Admonitions are now styled with color in the LaTeX output. ([#1931][github-1931], [#1932][github-1932], [#1946][github-1946], [#1955][github-1955])
 * ![Enhancement][badge-enhancement] Improved the styling of code blocks in the LaTeXWriter. ([#1933][github-1933], [#1935][github-1935], [#1944][github-1944], [#1956][github-1956])
 * ![Enhancement][badge-enhancement] Automatically resize oversize `tabular` environments from `@example` blocks in LaTeXWriter. ([#1930][github-1930], [#1937][github-1937])
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
@@ -1155,7 +1155,9 @@
 [github-1935]: https://github.com/JuliaDocs/Documenter.jl/pull/1935
 [github-1937]: https://github.com/JuliaDocs/Documenter.jl/pull/1937
 [github-1944]: https://github.com/JuliaDocs/Documenter.jl/issues/1944
+[github-1946]: https://github.com/JuliaDocs/Documenter.jl/issues/1946
 [github-1948]: https://github.com/JuliaDocs/Documenter.jl/pull/1948
+[github-1955]: https://github.com/JuliaDocs/Documenter.jl/pull/1955
 [github-1956]: https://github.com/JuliaDocs/Documenter.jl/pull/1956
 <!-- end of issue link definitions -->
 
