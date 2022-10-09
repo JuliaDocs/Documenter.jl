@@ -2,6 +2,8 @@ using Test
 import Documenter
 include("TestUtilities.jl"); using Main.TestUtilities
 
+run(`curl --version`)
+
 @testset "Documenter" begin
     # Build the example docs
     @info "Building example/make.jl"
