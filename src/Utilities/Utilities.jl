@@ -420,7 +420,7 @@ Returns the path of `file`, relative to the root of the Git repository, or `noth
 file is not in a Git repository.
 """
 function relpath_from_repo_root(file)
-    isfile(file) || return nothing
+    isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
     cd(dirname(file)) do
         root = repo_root(file)
         root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
@@ -428,7 +428,7 @@ function relpath_from_repo_root(file)
 end
 
 function repo_commit(file)
-    isfile(file) || return nothing
+    isfile(file) || error("repo_commit called with nonexistent file: $file")
     cd(dirname(file)) do
         readchomp(`$(git()) rev-parse HEAD`)
     end
