@@ -526,9 +526,9 @@ function verify_github_pull_repository(repo, prnr)
         @debug "pr_head_repo = '$pr_head_repo' vs repo = '$repo'"
         return (pr_head_repo == repo)
     catch e
-        @warn "Unable to verify if PR comes from destination repository -- assuming it does."
+        @warn "Unable to verify if PR comes from destination repository -- assuming it doesn't."
         @debug "Running CURL led to an exception:" exception = (e, catch_backtrace())
-        return true
+        return false
     end
 end
 
