@@ -1128,6 +1128,30 @@ function render_sidebar(ctx, navnode)
     navmenu
 end
 
+function page_links(page::Documenter.Documents.Page)
+    mapping_links(x) = []
+    mapping_links(mapping::Documenter.Anchors.Anchor) = [mapping.id]
+    mapping_links(mapping::Documenter.Documents.DocsNode) = mapping_links(mapping.anchor)[1]
+    mapping_links(mapping::Documenter.Documents.DocsNodes) = map(mapping_links, mapping.nodes)
+
+    mappings = map((element) -> page.mapping[element], page.elements)
+    links = Iterators.flatten(map(mapping_links, mappings))
+    return links
+end
+function render_content_toc(ctx, navnode)
+    @tags div a ul li nav
+
+    links = page_links(getpage(ctx, navnode))
+    list_items = [
+        li(a[".content-toc-link", :href => "#$(id)"](id))
+        for id in links
+    ]
+    toc = ul(list_items...)
+    navmenu = nav[".content-toc"](toc)
+    return navmenu
+end
+
+
 function find_image_asset(ctx, name)
     for ext in ["svg", "png", "webp", "gif", "jpg", "jpeg"]
         filename = joinpath("assets", "$(name).$(ext)")
@@ -1407,7 +1431,13 @@ function render_article(ctx, navnode)
         end
         push!(art_body.nodes, section[".footnotes.is-size-7"](ul(fnotes)))
     end
-    return art_body
+
+    content_toc = div[".content-toc-container"](render_content_toc(ctx, navnode))
+    article_container = div["#documenter-page-container"](
+        art_body,
+        content_toc
+    )
+    return article_container
 end
 
 # expand the versions argument from the user

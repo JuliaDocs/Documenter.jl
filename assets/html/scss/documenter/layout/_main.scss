@@ -4,19 +4,43 @@
  */
 #documenter {
   .docs-main {
-    > article {
+   > #documenter-page-container > article,
+   > article {
       // Long inline words can happen, so we'll break them in case that, instead of letting
       // go into overflow. Most likely to happen with inline code snippets.
-      overflow-wrap: break-word;
+     overflow-wrap: break-word;
+     overflow: auto;
 
-      .math-container {
-        overflow-x: auto;
-        overflow-y: hidden;
-      }
-    }
+     .math-container {
+       overflow-x: auto;
+       overflow-y: hidden;
+     }
+   }
+
+   #documenter-page-container {
+     display: flex;
+     flex-direction: row;
+
+     .content-toc-container {
+       > .content-toc {
+         position: sticky;
+         top: 0;
+         padding-left: 0.5rem;
+         font-size: smaller;
+         .content-toc-link::before {
+             content: "*";
+             padding-right: 4px;
+         }
+       }
+       @include touch {
+         display: none;
+       }
+       margin-left: $documenter-page-toc-margin-left;
+     }
+   }
 
     @include desktop {
-      max-width: $documenter-max-width + 2*$documenter-main-padding;
+      max-width: $documenter-max-width + $documenter-page-toc-width + $documenter-page-toc-margin-left + 2*$documenter-main-padding;
       margin-left: $documenter-sidebar-width + $documenter-sidebar-main-gap;
       padding-right: $documenter-main-padding-right;
     }
@@ -24,6 +48,7 @@
     @include touch {
       width: 100%;
 
+      > #documenter-page-container > article,
       > article {
         max-width: $documenter-max-width + 2*$documenter-main-padding;
         margin-left: auto;
