@@ -512,7 +512,7 @@ function verify_github_pull_repository(repo, prnr)
         github_token = get(ENV, "GITHUB_TOKEN", nothing)
         github_token === nothing && error("GITHUB_TOKEN missing")
         # Construct the curl call
-        cmd = `curl -v`
+        cmd = `curl`
         push!(cmd.exec, "-X", "GET")
         push!(cmd.exec, "-H", "Authorization: token $(github_token)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
@@ -521,6 +521,18 @@ function verify_github_pull_repository(repo, prnr)
         push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
         # Run the command (silently)
         response = run_and_capture(cmd)
+        response.exitcode == 0 || throw(ErrorException("""
+            exitcode
+            --------
+            $(response.exitcode)
+            stdout
+            ------
+            $(response.stdout)
+            stderr
+            ------
+            $(response.stderr)
+            """
+        ))
         response = JSON.parse(response.stdout)
         pr_head_repo = response["head"]["repo"]["full_name"]
         @debug "pr_head_repo = '$pr_head_repo' vs repo = '$repo'"
@@ -535,9 +547,9 @@ end
 
 function run_and_capture(cmd)
     stdout_buffer, stderr_buffer = IOBuffer(), IOBuffer()
-    run(pipeline(cmd; stdout = stdout_buffer, stderr = stderr_buffer))
+    proc = run(pipeline(ignorestatus(cmd); stdout = stdout_buffer, stderr = stderr_buffer))
     stdout, stderr = String(take!(stdout_buffer)), String(take!(stderr_buffer))
-    return (; stdout = stdout, stderr = stderr)
+    return (; exitcode = proc.exitcode, stdout = stdout, stderr = stderr)
 end
 
 ##########
