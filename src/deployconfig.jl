@@ -526,9 +526,10 @@ function verify_github_pull_repository(repo, prnr)
         @debug "pr_head_repo = '$pr_head_repo' vs repo = '$repo'"
         return (pr_head_repo == repo)
     catch e
-        @warn "Unable to verify if PR comes from destination repository -- assuming it doesn't."
+        assume_origin_matches_repo = get(ENV, "DOCUMENTER_ASSUME_ORIGIN_MATCHES_REPO", "true") == "true"
+        @warn "Unable to verify if PR comes from destination repository -- assuming it $(assume_origin_matches_repo ? "does" : "doesn't")."
         @debug "Running CURL led to an exception:" exception = (e, catch_backtrace())
-        return false
+        return assume_origin_matches_repo
     end
 end
 
