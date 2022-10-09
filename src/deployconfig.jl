@@ -529,10 +529,6 @@ function verify_github_pull_repository(repo, prnr)
         assume_pr_origin_matches_repo = get(ENV, "DOCUMENTER_ASSUME_PR_ORIGIN_MATCHES_REPO", "true") == "true"
         @warn "Unable to verify if PR comes from destination repository -- assuming it $(assume_pr_origin_matches_repo ? "does" : "doesn't")."
         @debug "Running CURL led to an exception:" exception = (e, catch_backtrace())
-        println("== stdout ==")
-        println(response.stdout)
-        println("== stderr ==")
-        println(response.stderr)
         return assume_pr_origin_matches_repo
     end
 end

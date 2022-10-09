@@ -28,6 +28,8 @@ jobs:
           - os: ubuntu-latest
             version: '1'
             arch: x86
+    env:
+      JULIA_DEBUG: Documenter
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
