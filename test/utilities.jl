@@ -191,8 +191,8 @@ end
             @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
             @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
-            @test Documenter.Utilities.repo_root(tempname()) == nothing
-            @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+            @test_throws ErrorException Documenter.Utilities.repo_root(tempname())
+            @test_throws ErrorException Documenter.Utilities.relpath_from_repo_root(tempname())
         end
 
         # Test worktree
@@ -213,8 +213,8 @@ end
             @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
             @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
-            @test Documenter.Utilities.repo_root(tempname()) == nothing
-            @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+            @test_throws ErrorException Documenter.Utilities.repo_root(tempname())
+            @test_throws ErrorException Documenter.Utilities.relpath_from_repo_root(tempname())
         end
 
         # Test submodule
@@ -248,8 +248,8 @@ end
             @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
             @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
-            @test Documenter.Utilities.repo_root(tempname()) == nothing
-            @test Documenter.Utilities.relpath_from_repo_root(tempname()) == nothing
+            @test_throws ErrorException Documenter.Utilities.repo_root(tempname())
+            @test_throws ErrorException Documenter.Utilities.relpath_from_repo_root(tempname())
         end
 
         # This tests the case where the origin.url is some unrecognised Git hosting service, in which case we are unable
