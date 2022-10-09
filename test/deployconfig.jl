@@ -92,7 +92,7 @@ using Logging
     end
 end end
 
-@testset "GitHub Actions deploy configuration" begin; with_logger(current_logger()) do
+@testset "GitHub Actions deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build with GITHUB_TOKEN
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
