@@ -512,7 +512,7 @@ function verify_github_pull_repository(repo, prnr)
         github_token = get(ENV, "GITHUB_TOKEN", nothing)
         github_token === nothing && error("GITHUB_TOKEN missing")
         # Construct the curl call
-        cmd = `curl -s`
+        cmd = `curl`
         push!(cmd.exec, "-X", "GET")
         push!(cmd.exec, "-H", "Authorization: token $(github_token)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
