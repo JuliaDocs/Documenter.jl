@@ -1,4 +1,14 @@
 using Documenter, DocumenterTools
+
+@info "Checking environment..." get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
+
+r = Documenter.verify_github_pull_repository("JuliaDocs/Documenter.jl", "1967")
+
+@info "Response from verify_github_pull_repository" r
+
+r && error("something wrong")
+
+exit()
 include("DocumenterShowcase.jl")
 
 # The DOCSARGS environment variable can be used to pass additional arguments to make.jl.

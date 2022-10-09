@@ -508,28 +508,32 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
 end
 
 function verify_github_pull_repository(repo, prnr)
-    try
+    # try
         github_token = get(ENV, "GITHUB_TOKEN", nothing)
         github_token === nothing && error("GITHUB_TOKEN missing")
         # Construct the curl call
-        cmd = `curl -s`
+        cmd = `curl -v`
         push!(cmd.exec, "-X", "GET")
         push!(cmd.exec, "-H", "Authorization: token $(github_token)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
         push!(cmd.exec, "--fail")
         push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
+        @info "Running curl command" cmd
         # Run the command (silently)
+        run(cmd)
         response = run_and_capture(cmd)
+        @info "Response" response.stdout
         response = JSON.parse(response.stdout)
         pr_head_repo = response["head"]["repo"]["full_name"]
+        @info "Response parsed" pr_head_repo
         @debug "pr_head_repo = '$pr_head_repo' vs repo = '$repo'"
         return (pr_head_repo == repo)
-    catch e
+    # catch e
         @warn "Unable to verify if PR comes from destination repository -- assuming it does."
         @debug "Running CURL led to an exception:" exception = (e, catch_backtrace())
         return true
-    end
+    # end
 end
 
 function run_and_capture(cmd)
