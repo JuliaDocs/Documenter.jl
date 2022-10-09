@@ -467,7 +467,7 @@ function source_url(repo, mod, file, linerange)
             Base.GIT_VERSION_INFO.commit
         end
         repofile(julia_remote, ref, "base/$file", linerange)
-    else
+    elseif isfile(file)
         path = relpath_from_repo_root(file)
         # If we managed to determine a remote for the current file with getremote,
         # then we use that information instead of the user-provided repo (doc.user.remote)
@@ -487,6 +487,8 @@ function source_url(repo, mod, file, linerange)
             return nothing
         end
         repofile(remote, repo_commit(file), path, linerange)
+    else
+        return nothing
     end
 end
 
