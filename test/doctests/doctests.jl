@@ -90,6 +90,9 @@ function onormalize(s)
     # Remove stacktraces
     s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" => s"\1\\n\3{STACKTRACE}")
 
+    # In Julia 1.9, the printing of UndefVarError has slightly changed (added backticks around binding name)
+    s = replace(s, r"UndefVarError: `([A-Za-z0-9.]+)` not defined"m => s"UndefVarError: \1 not defined")
+
     return s
 end
 

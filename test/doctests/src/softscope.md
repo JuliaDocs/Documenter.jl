@@ -21,7 +21,9 @@ DocTestFilters = [
     # remove stacktraces
     r"Stacktrace:(\n \[[0-9]+\].*)*",
     # remove file paths from at-block URLs
-    r"└ @ .+:[0-9]+"
+    r"└ @ .+:[0-9]+",
+    # Account for the printing change of UndefVarError
+    r"UndefVarError: `?s`? not defined",
 ]
 ```
 
