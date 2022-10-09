@@ -195,6 +195,11 @@ end end
         @test d.subfolder == "previews/PR42"
         @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
         @test d.branch == "gh-pages"
+        withenv("DOCUMENTER_ASSUME_ORIGIN_MATCHES_REPO" => false) do
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="master", devurl="hello-world", push_preview=true)
+            @test !d.all_ok
+        end
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="not-master", devurl="hello-world", push_preview=false)
         @test !d.all_ok
