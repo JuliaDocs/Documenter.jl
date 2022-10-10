@@ -510,7 +510,7 @@ end
 function verify_github_pull_repository(repo, prnr)
     github_token = get(ENV, "GITHUB_TOKEN", nothing)
     if github_token === nothing
-        @warn "Unable to verify if PR comes from destination repository -- assuming it doesn't."
+        @warn "GITHUB_TOKEN is missing, unable to verify if PR comes from destination repository -- assuming it doesn't."
         return false
     end
     # Construct the curl call
