@@ -1,4 +1,4 @@
-using Documenter, DocumenterTools
+using Documenter, DocumenterTools, Plots
 
 @info "Checking environment..." get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
 
