@@ -476,6 +476,8 @@ deployed. It defaults to the value of `repo`.
     Hosting previews requires access to the deploy key.
     Therefore, previews are available only for pull requests that were
     submitted directly from the main repository.
+    On GitHub Actions, `GITHUB_TOKEN` must be present for previews to work, even if
+    `DOCUMENTER_KEY` ise being used to deploy.
 
 **`deps`** can be set to a function or a callable object and gets called during deployment,
 and is usually used to install additional dependencies. By default, nothing gets executed.

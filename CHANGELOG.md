@@ -32,6 +32,7 @@
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
 * ![Bugfix][badge-bugfix] `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. ([#505][github-505], [#1924][github-1924])
 * ![Bugfix][badge-bugfix] Docstring doctests now properly get checked on each `makedocs` run, when run multiple times in the same Julia session. ([#974][github-974], [#1948][github-1948])
+* ![Bugfix][badge-bugfix] The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. ([#1969][github-1969])
 * ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892], [#1912][github-1912], [#1924][github-1924], [#1948][github-1948])
 
 ## Version `v0.27.23`
@@ -1161,6 +1162,7 @@
 [github-1955]: https://github.com/JuliaDocs/Documenter.jl/pull/1955
 [github-1956]: https://github.com/JuliaDocs/Documenter.jl/pull/1956
 [github-1957]: https://github.com/JuliaDocs/Documenter.jl/pull/1957
+[github-1969]: https://github.com/JuliaDocs/Documenter.jl/pull/1969
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
