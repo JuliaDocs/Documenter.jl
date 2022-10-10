@@ -191,7 +191,7 @@ end
             @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
             @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
-            @test_throws ErrorException Documenter.Utilities.repo_root(tempname())
+            @test Documenter.Utilities.repo_root(tempname()) == nothing
             @test_throws ErrorException Documenter.Utilities.relpath_from_repo_root(tempname())
         end
 
@@ -213,7 +213,7 @@ end
             @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
             @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
-            @test_throws ErrorException Documenter.Utilities.repo_root(tempname())
+            @test Documenter.Utilities.repo_root(tempname()) == nothing
             @test_throws ErrorException Documenter.Utilities.relpath_from_repo_root(tempname())
         end
 
@@ -248,7 +248,7 @@ end
             @test Documenter.Utilities.repo_root(filepath; dbdir=".svn") == nothing
             @test Documenter.Utilities.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
-            @test_throws ErrorException Documenter.Utilities.repo_root(tempname())
+            @test Documenter.Utilities.repo_root(tempname()) == nothing
             @test_throws ErrorException Documenter.Utilities.relpath_from_repo_root(tempname())
         end
 
