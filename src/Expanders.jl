@@ -44,13 +44,17 @@ function expand(doc::Documents.Document)
         # of the tree in some cases.
         for node in collect(page.mdast.children)
             Selectors.dispatch(ExpanderPipeline, node, page, doc)
-            recursively_expand(node, page, doc)
+            expand_recursively(node, page, doc)
         end
         pagecheck(page)
     end
 end
 
-function recursively_expand(node, page, doc)
+"""
+Similar to `expand()`, but recursively calls itself on all descendants of `node`
+and applies `NestedExpanderPipeline` instead of `ExpanderPipeline`.
+"""
+function expand_recursively(node, page, doc)
     if typeof(node.element) in (
         MarkdownAST.Admonition,
         MarkdownAST.BlockQuote,
@@ -59,7 +63,7 @@ function recursively_expand(node, page, doc)
     )
         for child in node.children
             Selectors.dispatch(NestedExpanderPipeline, child, page, doc)
-            recursively_expand(child, page, doc)
+            expand_recursively(child, page, doc)
         end
     end
 end
@@ -106,7 +110,9 @@ The default node expander "pipeline", which consists of the following expanders:
 abstract type ExpanderPipeline <: Selectors.AbstractSelector end
 
 """
-The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts (see [`recursively_expand`](@ref).
+The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts.
+
+See also [`expand_recursively`](@ref).
 """
 abstract type NestedExpanderPipeline <: ExpanderPipeline end
 
