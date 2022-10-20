@@ -800,6 +800,7 @@
 [github-198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [github-245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [github-487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
+[github-491]: https://github.com/JuliaDocs/Documenter.jl/issues/491
 [github-505]: https://github.com/JuliaDocs/Documenter.jl/issues/505
 [github-511]: https://github.com/JuliaDocs/Documenter.jl/issues/511
 [github-535]: https://github.com/JuliaDocs/Documenter.jl/issues/535
@@ -1167,6 +1168,7 @@
 [github-1958]: https://github.com/JuliaDocs/Documenter.jl/issues/1958
 [github-1962]: https://github.com/JuliaDocs/Documenter.jl/pull/1962
 [github-1969]: https://github.com/JuliaDocs/Documenter.jl/pull/1969
+[github-1970]: https://github.com/JuliaDocs/Documenter.jl/pull/1970
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
