@@ -163,7 +163,7 @@ Selectors.dispatch(MySelector, args...)
 """
 function dispatch(::Type{T}, x...) where T <: AbstractSelector
     types = get!(selector_subtypes, T) do
-        sort(leave_subtypes(T); by = order)
+        sort(leaf_subtypes(T); by = order)
     end
     for t in types
         if !disable(t) && matcher(t, x...)
@@ -181,7 +181,7 @@ The returned list includes subtypes of subtypes, and it does not distinguish
 between concrete types (i.e. types which are guaranteed not to have subtypes)
 and abstract types (which may or may not have subtypes).
 """
-function leave_subtypes(::Type{T}) where T
+function leaf_subtypes(::Type{T}) where T
     stack = Type[T]
     leaves = Type[]
     while !isempty(stack)
