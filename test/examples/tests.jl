@@ -117,6 +117,20 @@ end
             @test occursin("languages/julia-repl.min", documenterjs)
             @test occursin("languages/erlang-repl.min", documenterjs)
             @test occursin("languages/erlang.min", documenterjs)
+
+            # Issue 491
+            @test isfile(joinpath(build_dir, "issue491", "index.html"))
+            issue_491 = read(joinpath(build_dir, "issue491", "index.html"), String)
+
+            @test occursin("julia&gt; item", issue_491)
+            @test occursin("julia&gt; item_item", issue_491)
+            @test occursin("julia&gt; admonition", issue_491)
+            @test occursin("julia&gt; admonition_blockquote", issue_491)
+
+            @test occursin("expanded_eval", issue_491)
+            @test occursin("expanded_example", issue_491)
+            @test occursin("expanded_setup", issue_491)
+            @test occursin("<p>expanded_raw</p>", issue_491)
         end
     end
 

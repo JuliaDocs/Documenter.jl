@@ -44,8 +44,27 @@ function expand(doc::Documents.Document)
         # of the tree in some cases.
         for node in collect(page.mdast.children)
             Selectors.dispatch(ExpanderPipeline, node, page, doc)
+            expand_recursively(node, page, doc)
         end
         pagecheck(page)
+    end
+end
+
+"""
+Similar to `expand()`, but recursively calls itself on all descendants of `node`
+and applies `NestedExpanderPipeline` instead of `ExpanderPipeline`.
+"""
+function expand_recursively(node, page, doc)
+    if typeof(node.element) in (
+        MarkdownAST.Admonition,
+        MarkdownAST.BlockQuote,
+        MarkdownAST.Item,
+        MarkdownAST.List,
+    )
+        for child in node.children
+            Selectors.dispatch(NestedExpanderPipeline, child, page, doc)
+            expand_recursively(child, page, doc)
+        end
     end
 end
 
@@ -89,6 +108,13 @@ The default node expander "pipeline", which consists of the following expanders:
 
 """
 abstract type ExpanderPipeline <: Selectors.AbstractSelector end
+
+"""
+The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts.
+
+See also [`expand_recursively`](@ref).
+"""
+abstract type NestedExpanderPipeline <: ExpanderPipeline end
 
 """
 Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
@@ -154,9 +180,9 @@ Markdown.parse("![Plot](plot.svg)")
 ```
 ````
 """
-abstract type EvalBlocks <: ExpanderPipeline end
+abstract type EvalBlocks <: NestedExpanderPipeline end
 
-abstract type RawBlocks <: ExpanderPipeline end
+abstract type RawBlocks <: NestedExpanderPipeline end
 
 """
 Parses each code block where the language is `@index` and replaces it with an index of all
@@ -199,18 +225,18 @@ a + b
 ```
 ````
 """
-abstract type ExampleBlocks <: ExpanderPipeline end
+abstract type ExampleBlocks <: NestedExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
 toplevel expression in the final document.
 """
-abstract type REPLBlocks <: ExpanderPipeline end
+abstract type REPLBlocks <: NestedExpanderPipeline end
 
 """
 Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
 """
-abstract type SetupBlocks <: ExpanderPipeline end
+abstract type SetupBlocks <: NestedExpanderPipeline end
 
 Selectors.order(::Type{TrackHeaders})   = 1.0
 Selectors.order(::Type{MetaBlocks})     = 2.0
@@ -239,6 +265,7 @@ Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@ra
 # Default Expander.
 
 Selectors.runner(::Type{ExpanderPipeline}, node, page, doc) = nothing
+Selectors.runner(::Type{NestedExpanderPipeline}, node, page, doc) = nothing
 
 # Track Headers.
 # --------------
