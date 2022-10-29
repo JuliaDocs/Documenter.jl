@@ -752,6 +752,13 @@ latex(io::Context, node::Node, ::Documents.MetaNode) = _println(io, "\n")
 # In the original AST, SetupNodes were just mapped to empty Markdown.MD() objects.
 latex(io::Context, node::Node, ::Documents.SetupNode) = nothing
 
+function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
+    @warn """
+    Unexpected Julia interpolation of type $(typeof(value.ref)) in the Markdown.
+    """ value = value.ref
+    latexesc(io, string(value.ref))
+end
+
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
 latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "\\\\")
 
