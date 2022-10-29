@@ -25,6 +25,12 @@ const DOCUMENTER_VERSION = let
     VersionNumber(m[1])
 end
 
+# Potentially sensitive variables to be removed from environment when not needed
+const NO_KEY_ENV = Dict(
+    "DOCUMENTER_KEY" => nothing,
+    "DOCUMENTER_KEY_PREVIEWS" => nothing,
+)
+
 # Names of possible internal errors
 const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
                      :eval_block, :example_block, :footnote, :linkcheck, :meta_block,
@@ -261,9 +267,9 @@ function makedocs(components...; debug = false, format = HTML(), kwargs...)
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
     empty!(Selectors.selector_subtypes)
-    cd(document.user.root) do
+    cd(document.user.root) do; withenv(NO_KEY_ENV...) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
-    end
+    end end
     debug ? document : nothing
 end
 
@@ -476,6 +482,8 @@ deployed. It defaults to the value of `repo`.
     Hosting previews requires access to the deploy key.
     Therefore, previews are available only for pull requests that were
     submitted directly from the main repository.
+    On GitHub Actions, `GITHUB_TOKEN` must be present for previews to work, even if
+    `DOCUMENTER_KEY` ise being used to deploy.
 
 **`deps`** can be set to a function or a callable object and gets called during deployment,
 and is usually used to install additional dependencies. By default, nothing gets executed.
@@ -750,7 +758,7 @@ function git_push(
                 chmod(sshconfig, 0o600)
                 # git config core.sshCommand requires git 2.10.0, but
                 # GIT_SSH_COMMAND works from 2.3.0 so define both.
-                withenv("GIT_SSH_COMMAND" => "ssh -F $(sshconfig)") do
+                withenv("GIT_SSH_COMMAND" => "ssh -F $(sshconfig)", NO_KEY_ENV...) do
                     cd(() -> git_commands(sshconfig), temp)
                 end
             end
@@ -767,7 +775,7 @@ function git_push(
         # The upstream URL to which we push new content authenticated with token
         upstream = authenticated_repo_url(deploy_config)
         try
-            cd(git_commands, temp)
+            cd(() -> withenv(git_commands, NO_KEY_ENV...), temp)
             post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
         catch e
             @error "Failed to push:" exception=(e, catch_backtrace())

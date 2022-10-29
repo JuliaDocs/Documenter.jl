@@ -668,14 +668,11 @@ mutable struct HTMLContext
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documents.NavNode
-    # MarkdownAST support
-    mdast_pages :: Dict{String, MarkdownAST.Node{Nothing}}
 end
 
 HTMLContext(doc, settings=nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
     Documents.NavNode("search", "Search", nothing),
-    Documents.markdownast(doc),
 )
 
 struct DCtx
@@ -741,14 +738,9 @@ end
 """
 Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
 """
-getpage(ctx, path) = ctx.doc.blueprint.pages[path]
-getpage(ctx, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
-
-# mdast_getpage returns the MarkdownAST.Node object corresponding to the page
-mdast_getpage(ctx, path) = ctx.mdast_pages[path]
-mdast_getpage(ctx, navnode::Documents.NavNode) = mdast_getpage(ctx, navnode.page)
-mdast_getpage(dctx::DCtx) = mdast_getpage(dctx.ctx, dctx.navnode)
-
+getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
+getpage(ctx::HTMLContext, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
+getpage(dctx::DCtx) = getpage(dctx.ctx, dctx.navnode)
 
 function render(doc::Documents.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
@@ -1194,7 +1186,7 @@ function navitem(nctx, nn::Documents.NavNode)
 
     # add the subsections (2nd level headings) from the page
     if (nn === current) && current.page !== nothing
-        subs = collect_subsections(ctx.mdast_pages[current.page])
+        subs = collect_subsections(getpage(ctx, current.page).mdast)
         internal_links = map(subs) do s
             istoplevel, anchor, text = s
             _li = istoplevel ? li[".toplevel"] : li[]
@@ -1564,8 +1556,7 @@ end
 
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    mdast = mdast_getpage(ctx, navnode)
-    map(mdast.children) do node
+    map(getpage(ctx, navnode).mdast.children) do node
         rec = SearchRecord(ctx, navnode, node, node.element)
         push!(ctx.search_index, rec)
         domify(dctx, node, node.element)
@@ -1703,14 +1694,7 @@ function domify_doc(dctx::DCtx, node::Node)
 end
 
 function domify(dctx::DCtx, ::Node, evalnode::Documents.EvalNode)
-    if evalnode.result !== nothing
-        # Note: this convert() here can throw very easily. Basically, we assume that
-        # .result is Markdown.MD().
-        result_ast = convert(MarkdownAST.Node, evalnode.result)
-        domify(dctx, result_ast.children)
-    else
-        DOM.Node[]
-    end
+    isnothing(evalnode.result) ? DOM.Node[] : domify(dctx, evalnode.result.children)
 end
 
 # nothing to show for MetaNodes, so we just return an empty list
@@ -1826,7 +1810,7 @@ function pagetitle(dctx::DCtx)
     end
 
     if navnode.page !== nothing
-        title = pagetitle(mdast_getpage(dctx))
+        title = pagetitle(getpage(dctx).mdast)
         title === nothing || return title
     end
 
@@ -2182,7 +2166,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
         m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
         out = if m_bracket === nothing && m_dollars === nothing
-            Utilities.mdparse_mdast(latex; mode = :single)
+            Utilities.mdparse(latex; mode = :single)
         else
             [MarkdownAST.@ast MarkdownAST.DisplayMath(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])]
         end

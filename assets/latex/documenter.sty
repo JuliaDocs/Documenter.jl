@@ -31,23 +31,13 @@
 %
 
 % listings
-\usepackage{listings, minted}
-
-\lstset{
-    basicstyle = \small\ttfamily,
-    breaklines = true,
-    columns = fullflexible,
-    rulecolor = \color{codeblock-border},
-    frame = single,
-    keepspaces = true,
-    showstringspaces = false,
-}
-
+\usepackage{minted}
 \setminted{
     breaklines = true,
     fontsize = \small,
     frame = none,
     bgcolor = codeblock-background,
+    rulecolor=codeblock-border,
 }
 %
 
@@ -106,4 +96,8 @@
 \definecolor{admonition-info}{HTML}{209cee}
 \definecolor{admonition-tip}{HTML}{22c35b}
 \definecolor{admonition-compat}{HTML}{1db5c9}
+%
+
+% Styling of tables.
+\usepackage{booktabs}
 %

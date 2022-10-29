@@ -109,8 +109,6 @@ const DOCUMENT_STRUCTURE = (
 
 function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
-    # Convert the documentation into MarkdownAST representation
-    mdast_pages = Documents.markdownast(doc)
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
@@ -132,7 +130,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
-                                latex(context, mdast_pages[path].children; toplevel=true)
+                                latex(context, page.mdast.children; toplevel=true)
                             end
                         end
                     end
@@ -406,10 +404,7 @@ end
 
 function latex(io::Context, node::Node, evalnode::Documents.EvalNode)
     if evalnode.result !== nothing
-        # Note: this convert() here can throw very easily. Basically, we assume that
-        # .result is Markdown.MD().
-        result_ast = convert(MarkdownAST.Node, evalnode.result)
-        latex(io, result_ast.children, toplevel = true)
+        latex(io, evalnode.result.children, toplevel = true)
     end
 end
 
@@ -439,7 +434,22 @@ function latex(io::Context, ::Node, d::Dict{MIME,Any})
         """)
     elseif haskey(d, MIME"text/latex"())
         # If it has a latex MIME, just write it out directly.
-        _print(io, d[MIME"text/latex"()])
+        content = d[MIME("text/latex")]
+        if startswith(content, "\\begin{tabular}")
+            # This is a hacky fix for the printing of DataFrames (or any type
+            # that produces a {tabular} environment). The biggest problem is
+            # that tables with may columns will run off the page. An ideal fix
+            # would be for the printing to omit some columns, but we don't have
+            # the luxury here. So instead we just rescale everything until it
+            # fits. This might make the rows too small, but it's arguably better
+            # than having them go off the page.
+            _println(io, "\\begin{table}[h]\n\\centering")
+            _println(io, "\\adjustbox{max width=\\linewidth}{")
+            _print(io, content)
+            _println(io, "}\\end{table}")
+        else
+            _print(io, content)
+        end
     elseif haskey(d, MIME"text/markdown"())
         md = Markdown.parse(d[MIME"text/markdown"()])
         ast = MarkdownAST.convert(MarkdownAST.Node, md)
@@ -447,7 +457,9 @@ function latex(io::Context, ::Node, d::Dict{MIME,Any})
     elseif haskey(d, MIME"text/plain"())
         text = d[MIME"text/plain"()]
         out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
-        codeblock = MarkdownAST.CodeBlock("", out)
+        # We set a "fake" language as text/plain so that the writer knows how to
+        # deal with it.
+        codeblock = MarkdownAST.CodeBlock("text/plain", out)
         latex(io, MarkdownAST.Node(codeblock))
     else
         error("this should never happen.")
@@ -479,39 +491,38 @@ end
 const LEXER = Set([
     "julia",
     "jlcon",
+    "text",
 ])
 
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     language = Utilities.codelang(code.info)
-    language = isempty(language) ? "none" :
-        (language == "julia-repl") ? "jlcon" : # the julia-repl is called "jlcon" in Pygments
-        language
+    if language == "julia-repl"
+        language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
+    elseif !(language in LEXER) && language != "text/plain"
+        # For all others, like ```python or ```markdown, render as text.
+        language = "text"
+    end
     text = IOBuffer(code.code)
     code_code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code_code
-    if language in LEXER
-        _print(io, "\n\\begin{minted}")
-        if escape
-            _print(io, "[escapeinside=\\#\\%]")
-        end
-        _println(io, "{", language, "}")
-        if escape
-            _print_code_escapes_minted(io, code_code)
-        else
-            _print(io, code_code)
-        end
-        _println(io, "\n\\end{minted}\n")
-    else
-        _print(io, "\n\\begin{lstlisting}")
-        if escape
-            _println(io, "[escapeinside=\\%\\%]")
-            _print_code_escapes_lstlisting(io, code_code)
-        else
-            _println(io)
-            _print(io, code_code)
-        end
-        _println(io, "\n\\end{lstlisting}\n")
+    _print(io, "\n\\begin{minted}")
+    if escape
+        _print(io, "[escapeinside=\\#\\%")
     end
+    if language == "text/plain"
+        _print(io, escape ? "," : "[")
+        # Special-case the formatting of code outputs from Julia.
+        _println(io, "xleftmargin=-\\fboxsep,xrightmargin=-\\fboxsep,bgcolor=white,frame=single]{text}")
+    else
+        _println(io, escape ? "]{" : "{", language, "}")
+    end
+    if escape
+        _print_code_escapes_minted(io, code_code)
+    else
+        _print(io, code_code)
+    end
+    _println(io, "\n\\end{minted}\n")
+    return
 end
 
 latex(io::Context, node::Node, mcb::Documents.MultiCodeBlock) = latex(io, node, join_multiblock(node))
@@ -536,13 +547,6 @@ function _print_code_escapes_minted(io, s::AbstractString)
         ch === '#' ? _print(io, "##%") :
         ch === '%' ? _print(io, "#%%") : # Note: "#\\%%" results in pygmentize error...
         ch === '⊻' ? _print(io, "#\\unicodeveebar%") :
-                     _print(io, ch)
-    end
-end
-function _print_code_escapes_lstlisting(io, s::AbstractString)
-    for ch in s
-        ch === '%' ? _print(io, "%\\%%") :
-        ch === '⊻' ? _print(io, "%\\unicodeveebar%") :
                      _print(io, ch)
     end
 end
@@ -576,8 +580,8 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
     if md.category in ("danger", "warning", "note", "info", "tip", "compat")
         color = "admonition-$(md.category)"
     end
-    _print(io, "\\begin{tcolorbox}[")
-    _print(io, "colback=$(color)!5!white,colframe=$(color)!75!black,")
+    _print(io, "\\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,")
+    _print(io, "colback=$(color)!50!white,colframe=$(color),")
     _print(io, "title=\\textbf{")
     latexesc(io, md.title)
     _println(io, "}]")
@@ -639,19 +643,21 @@ end
 
 function latex(io::Context, node::Node, table::MarkdownAST.Table)
     rows = MarkdownAST.tablerows(node)
-    # latex(io, node.children)
-    _println(io, "\n\\begin{table}[h]")
-    _print(io, "\n\\begin{tabulary}{\\linewidth}")
-    _println(io, "{|", uppercase(join(spec_to_align.(table.spec), '|')), "|}")
+    _println(io, "\n\\begin{table}[h]\n\\centering")
+    _print(io, "\\begin{tabulary}{\\linewidth}")
+    _println(io, "{", uppercase(join(spec_to_align.(table.spec), ' ')), "}")
+    _println(io, "\\toprule")
     for (i, row) in enumerate(rows)
-        i === 1 && _println(io, "\\hline")
         for (j, cell) in enumerate(row.children)
             j === 1 || _print(io, " & ")
             latex(io, cell.children)
         end
         _println(io, " \\\\")
-        _println(io, "\\hline")
+        if i === 1
+            _println(io, "\\toprule")
+        end
     end
+    _println(io, "\\bottomrule")
     _println(io, "\\end{tabulary}\n")
     _println(io, "\\end{table}\n")
 end

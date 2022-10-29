@@ -9,6 +9,7 @@ using DocStringExtensions
 import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
 import ..ERROR_NAMES
+import ..NO_KEY_ENV
 
 include("Remotes.jl")
 using .Remotes: Remote, repourl, repofile
@@ -420,6 +421,7 @@ Returns the path of `file`, relative to the root of the Git repository, or `noth
 file is not in a Git repository.
 """
 function relpath_from_repo_root(file)
+    isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
     cd(dirname(file)) do
         root = repo_root(file)
         root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
@@ -427,6 +429,7 @@ function relpath_from_repo_root(file)
 end
 
 function repo_commit(file)
+    isfile(file) || error("repo_commit called with nonexistent file: $file")
     cd(dirname(file)) do
         readchomp(`$(git()) rev-parse HEAD`)
     end
@@ -467,7 +470,7 @@ function source_url(repo, mod, file, linerange)
             Base.GIT_VERSION_INFO.commit
         end
         repofile(julia_remote, ref, "base/$file", linerange)
-    else
+    elseif isfile(file)
         path = relpath_from_repo_root(file)
         # If we managed to determine a remote for the current file with getremote,
         # then we use that information instead of the user-provided repo (doc.user.remote)
@@ -487,6 +490,8 @@ function source_url(repo, mod, file, linerange)
             return nothing
         end
         repofile(remote, repo_commit(file), path, linerange)
+    else
+        return nothing
     end
 end
 
@@ -598,44 +603,6 @@ const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
 layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
-keyword.
-
-The `mode` keyword argument can be one of the following:
-
-* `:single` (default) -- returns a single block-level object (e.g. `Markdown.Paragraph` or
-  `Markdown.Admonition`) and errors if the string parses into multiple blocks.
-* `:blocks` -- the function returns a `Vector{Any}` of Markdown blocks.
-* `:span` -- Returns a `Vector{Any}` of span-level items, stripping away the outer block.
-  This requires the string to parse into a single `Markdown.Paragraph`, the contents of
-  which gets returned.
-"""
-function mdparse(s::AbstractString; mode=:single)
-    mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
-    md = Markdown.parse(s)
-    if mode == :blocks
-        md.content
-    elseif length(md.content) == 0
-        # case where s == "". We'll just return an empty string / paragraph.
-        (mode == :single) ? Markdown.Paragraph(Any[""]) : Any[""]
-    elseif (mode == :single || mode == :span) && length(md.content) > 1
-        @error "mode == :$(mode) requires the Markdown string to parse into a single block" s md.content
-        throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
-    else
-        @assert length(md.content) == 1
-        @assert mode == :span || mode == :single
-        if mode == :span && !isa(md.content[1], Markdown.Paragraph)
-            @error "mode == :$(mode) requires the Markdown string to parse into a Markdown.Paragraph" s md.content
-            throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
-        end
-        (mode == :single) ? md.content[1] : md.content[1].content
-    end
-end
-
-"""
-    mdparse_mdast(s::AbstractString; mode=:single)
-
-Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
-layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
 keyword. The resulting Markdown AST is converted into an array of `MarkdownAST.Node`s.
 
 The `mode` keyword argument can be one of the following:
@@ -647,7 +614,7 @@ The `mode` keyword argument can be one of the following:
   This requires the string to parse into a single `Markdown.Paragraph`, the contents of
   which gets returned.
 """
-function mdparse_mdast(s::AbstractString; mode=:single) :: Vector{MarkdownAST.Node{Nothing}}
+function mdparse(s::AbstractString; mode=:single) :: Vector{MarkdownAST.Node{Nothing}}
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
     mdast = convert(MarkdownAST.Node, Markdown.parse(s))
     if mode == :blocks
@@ -870,7 +837,10 @@ function git(; nothrow = false, kwargs...)
     # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
     # We need to set this to something so that Git wouldn't pick up the user
     # templates (e.g. from init.templateDir config).
-    return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
+    cmd = addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
+    # DOCUMENTER_KEY etc are never needed for git operations
+    cmd = addenv(cmd, NO_KEY_ENV)
+    return cmd
 end
 
 include("DOM.jl")

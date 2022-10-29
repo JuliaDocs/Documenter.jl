@@ -11,8 +11,10 @@
 
   **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
 
-* ![Enhancement][badge-enhancement] Admonitions are now styled with color in the LaTeX output. ([#1931][github-1931], [#1932][github-1932])
-* ![Enhancement][badge-enhancement] Improved the styling of code blocks in the LaTeXWriter. ([#1933][github-1933], [#1935][github-1935])
+* ![Enhancement][badge-enhancement] Documenter is now more careful not to accidentally leak SSH keys (in e.g. error messages) by removing `DOCUMENTER_KEY` from the environment when it is not needed. ([#1958][github-1958], [#1962][github-1962])
+* ![Enhancement][badge-enhancement] Admonitions are now styled with color in the LaTeX output. ([#1931][github-1931], [#1932][github-1932], [#1946][github-1946], [#1955][github-1955])
+* ![Enhancement][badge-enhancement] Improved the styling of code blocks in the LaTeXWriter. ([#1933][github-1933], [#1935][github-1935], [#1936][github-1936], [#1944][github-1944], [#1956][github-1956], [#1957][github-1957])
+* ![Enhancement][badge-enhancement] Automatically resize oversize `tabular` environments from `@example` blocks in LaTeXWriter. ([#1930][github-1930], [#1937][github-1937])
 * ![Enhancement][badge-enhancement] The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). ([#1828][github-1828])
 * ![Enhancement][badge-enhancement] Documenter now shows a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. ([#1254][github-1254])
 * ![Enhancement][badge-enhancement] A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). Documenter will also try to determine `repo` automatically from the `GITHUB_REPOSITORY` environment variable if other fallbacks have failed. ([#1808][github-1808], [#1881][github-1881])
@@ -26,11 +28,14 @@
 * ![Enhancement][badge-enhancement] The `@contents`-block now support `UnitRange`s for the `Depth` argument. This makes it possible to configure also the *minimal* header depth that should be displayed (`Depth = 2:3`, for example). This is supported by the HTML and the LaTeX/PDF backends. ([#245][github-245], [#1890][github-1890])
 * ![Enhancement][badge-enhancement] The code copy buttons in HTML now have `title` and `aria-label` attributes. ([#1903][github-1903])
 * ![Enhancement][badge-enhancement] The at-ref links are now more flexible, allowing arbitrary links to point to both docstrings and section headings. ([#781][github-781], [#1900][github-1900])
+* ![Enhancement][badge-enhancement] Code blocks like `@example` or `@repl` are now also expanded in nested contexts (e.g. admonitions, lists or block quotes). ([#491][github-491], [#1970][github-1970])
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
 * ![Bugfix][badge-bugfix] `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. ([#505][github-505], [#1924][github-1924])
-* ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892], [#1912][github-1912], [#1924][github-1924])
+* ![Bugfix][badge-bugfix] Docstring doctests now properly get checked on each `makedocs` run, when run multiple times in the same Julia session. ([#974][github-974], [#1948][github-1948])
+* ![Bugfix][badge-bugfix] The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. ([#1969][github-1969])
+* ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892], [#1912][github-1912], [#1924][github-1924], [#1948][github-1948])
 
 ## Version `v0.27.23`
 
@@ -795,6 +800,7 @@
 [github-198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [github-245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [github-487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
+[github-491]: https://github.com/JuliaDocs/Documenter.jl/issues/491
 [github-505]: https://github.com/JuliaDocs/Documenter.jl/issues/505
 [github-511]: https://github.com/JuliaDocs/Documenter.jl/issues/511
 [github-535]: https://github.com/JuliaDocs/Documenter.jl/issues/535
@@ -855,6 +861,7 @@
 [github-966]: https://github.com/JuliaDocs/Documenter.jl/pull/966
 [github-967]: https://github.com/JuliaDocs/Documenter.jl/pull/967
 [github-971]: https://github.com/JuliaDocs/Documenter.jl/pull/971
+[github-974]: https://github.com/JuliaDocs/Documenter.jl/issues/974
 [github-980]: https://github.com/JuliaDocs/Documenter.jl/pull/980
 [github-989]: https://github.com/JuliaDocs/Documenter.jl/pull/989
 [github-991]: https://github.com/JuliaDocs/Documenter.jl/pull/991
@@ -1145,10 +1152,23 @@
 [github-1912]: https://github.com/JuliaDocs/Documenter.jl/pull/1912
 [github-1919]: https://github.com/JuliaDocs/Documenter.jl/pull/1919
 [github-1924]: https://github.com/JuliaDocs/Documenter.jl/pull/1924
+[github-1930]: https://github.com/JuliaDocs/Documenter.jl/issues/1930
 [github-1931]: https://github.com/JuliaDocs/Documenter.jl/issues/1931
 [github-1932]: https://github.com/JuliaDocs/Documenter.jl/pull/1932
 [github-1933]: https://github.com/JuliaDocs/Documenter.jl/issues/1933
 [github-1935]: https://github.com/JuliaDocs/Documenter.jl/pull/1935
+[github-1936]: https://github.com/JuliaDocs/Documenter.jl/issues/1936
+[github-1937]: https://github.com/JuliaDocs/Documenter.jl/pull/1937
+[github-1944]: https://github.com/JuliaDocs/Documenter.jl/issues/1944
+[github-1946]: https://github.com/JuliaDocs/Documenter.jl/issues/1946
+[github-1948]: https://github.com/JuliaDocs/Documenter.jl/pull/1948
+[github-1955]: https://github.com/JuliaDocs/Documenter.jl/pull/1955
+[github-1956]: https://github.com/JuliaDocs/Documenter.jl/pull/1956
+[github-1957]: https://github.com/JuliaDocs/Documenter.jl/pull/1957
+[github-1958]: https://github.com/JuliaDocs/Documenter.jl/issues/1958
+[github-1962]: https://github.com/JuliaDocs/Documenter.jl/pull/1962
+[github-1969]: https://github.com/JuliaDocs/Documenter.jl/pull/1969
+[github-1970]: https://github.com/JuliaDocs/Documenter.jl/pull/1970
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
