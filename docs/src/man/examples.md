@@ -52,7 +52,7 @@ Packages that have tagged versions available in the general Registry:
 - [SymbolicRegression.jl](https://astroautomata.com/SymbolicRegression.jl/stable/)
 - [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)
 - [Weave.jl](https://weavejl.mpastell.com/stable/)
-- [WorldDynamics.jl](https://natema.github.io/WorldDynamics.jl/stable/))
+- [WorldDynamics.jl](https://natema.github.io/WorldDynamics.jl/stable/)
 
 ## Documentation repositories
 
