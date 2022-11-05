@@ -51,14 +51,13 @@ import ...Documenter:
     Documents,
     Expanders,
     Documenter,
-    Utilities,
     Writers
 
 using Documenter.Documents: NavNode
-using ...Utilities: Default, Remotes
-using ...Utilities.JSDependencies: JSDependencies, json_jsescape
-import ...Utilities.DOM: DOM, Tag, @tags
-using ...Utilities.MDFlatten
+using ...Documenter: Default, Remotes
+using ...JSDependencies: JSDependencies, json_jsescape
+import ...DOM: DOM, Tag, @tags
+using ...MDFlatten
 
 import ANSIColoredPrinters
 
@@ -429,7 +428,7 @@ struct HTML <: Documenter.Writer
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
             repolink      :: Union{String, Nothing, Default} = Default(nothing),
-            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Utilities.git_remote_head_branch("HTML(edit_link = ...)", Utilities.currentdir())),
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",
@@ -507,7 +506,7 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
             return false, node, highlightjs
         end
         @debug "HTMLWriter: downloading highlightjs"
-        r = Utilities.JSDependencies.RequireJS([])
+        r = Documenter.JSDependencies.RequireJS([])
         RD.highlightjs!(r, highlights)
         libs = sort!(collect(r.libraries); by = first) # puts highlight first
         key = join((x.first for x in libs), ',')
@@ -528,7 +527,7 @@ end
 "Provides a namespace for remote dependencies."
 module RD
     using JSON
-    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
+    using ....Documenter.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
     using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
     const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
@@ -824,7 +823,7 @@ Copies an asset from Documenters `assets/html/` directory to `doc.user.build`.
 Returns the path of the copied asset relative to `.build`.
 """
 function copy_asset(file, doc)
-    src = joinpath(Utilities.assetsdir(), "html", file)
+    src = joinpath(Documenter.assetsdir(), "html", file)
     alt_src = joinpath(doc.user.source, "assets", file)
     dst = joinpath(doc.user.build, "assets", file)
     isfile(src) || error("Asset '$file' not found at $(abspath(src))")
@@ -1286,7 +1285,7 @@ function edit_link(f, ctx, navnode)
     # modifications. The only thing we want to do is to determine the Git remote host name
     # from the URL, if we can. We also use the "view" verb and logo here, since we do not
     # know if the remote link allows editing, and so it is the safer option.
-    if Utilities.isabsurl(editpath)
+    if Documenter.isabsurl(editpath)
         host, _ = host_logo(editpath)
         title = "View source" * (isempty(host) ? "" : " on $(host)")
         f(view_logo, title, editpath)
@@ -1315,7 +1314,7 @@ function edit_link(f, ctx, navnode)
         "Edit", edit_logo, ctx.settings.edit_link
     end
     host, _ = host_logo(ctx.doc.user.remote)
-    editurl = Utilities.edit_url(ctx.doc.user.remote, editpath, commit=commit)
+    editurl = Documenter.edit_url(ctx.doc.user.remote, editpath, commit=commit)
     # It is possible for editurl() to return a nothing, if something goes wrong
     isnothing(editurl) && return
     # Create the edit link
@@ -1641,7 +1640,7 @@ function domify(dctx::DCtx, node::Node, index::Documents.IndexNode)
         object, doc, path, mod, cat = el
         path = joinpath(navnode_dir, path) # links in IndexNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
-        url = string(path, "#", Utilities.slugify(object))
+        url = string(path, "#", Documenter.slugify(object))
         li(a[:href=>url](code("$(object.binding)")))
     end
     ul(lis)
@@ -1658,7 +1657,7 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
     rec = SearchRecord(ctx, navnode;
         fragment=Anchors.fragment(node.anchor),
         title=string(node.object.binding),
-        category=Utilities.doccat(node.object),
+        category=Documenter.doccat(node.object),
         text = mdflatten(mdast_node))
     push!(ctx.search_index, rec)
 
@@ -1666,7 +1665,7 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
         header(
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Utilities.doccat(node.object))")
+            span[".docstring-category"]("$(Documenter.doccat(node.object))")
         ),
         domify_doc(dctx, mdast_node)
     )
@@ -1684,7 +1683,7 @@ function domify_doc(dctx::DCtx, node::Node)
         ret = section(div(domify(dctx, markdown)))
         # When a source link is available then print the link.
         if !ctx.settings.disable_git
-            url = Utilities.source_url(ctx.doc.user.remote, result)
+            url = Documenter.source_url(ctx.doc.user.remote, result)
             if url !== nothing
                 push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
             end
@@ -1897,7 +1896,7 @@ function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
     language = c.info
     # function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
-    language = Utilities.codelang(language)
+    language = Documenter.codelang(language)
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
         return pre(domify_ansicoloredtext(c.code, "nohighlight hljs"))
     elseif settings !== nothing && settings.prerender &&
@@ -1934,7 +1933,7 @@ domify(dctx::DCtx, node::Node, c::MarkdownAST.Code) = Tag(:code)(c.code)
 function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     @assert settings.prerender "unreachable"
     @tags pre code
-    lang = Utilities.codelang(c.info)
+    lang = Documenter.codelang(c.info)
     hljs = settings.highlightjs
     js = """
     const hljs = require('$(hljs)');
@@ -2059,7 +2058,7 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # TODO: this could be rearranged such that we push!() the DOM here into .footnotes, rather
     # than the Node objects.
     if isnothing(dctx.footnotes)
-        @error "Invalid nested footnote definition in $(Utilities.locrepr(dctx.navnode.page))" f.id
+        @error "Invalid nested footnote definition in $(Documenter.locrepr(dctx.navnode.page))" f.id
     else
         push!(dctx.footnotes, node)
     end
@@ -2170,7 +2169,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
         m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
         out = if m_bracket === nothing && m_dollars === nothing
-            Utilities.mdparse(latex; mode = :single)
+            Documenter.mdparse(latex; mode = :single)
         else
             [MarkdownAST.@ast MarkdownAST.DisplayMath(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])]
         end
@@ -2195,7 +2194,7 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function fixlinks!(ctx, navnode, link::Markdown.Link)
     link_url = link.destination
-    Utilities.isabsurl(link_url) && return link_url
+    Documenter.isabsurl(link_url) && return link_url
 
     # anything starting with mailto: doesn't need fixing
     startswith(link_url, "mailto:") && return link_url
@@ -2206,7 +2205,7 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
 
     s = split(link_url, "#", limit = 2)
     if Sys.iswindows() && ':' in first(s)
-        @warn "invalid local link: colons not allowed in paths on Windows in $(Utilities.locrepr(navnode.page))" link_url
+        @warn "invalid local link: colons not allowed in paths on Windows in $(Documenter.locrepr(navnode.page))" link_url
         return link_url
     end
     path = normpath(joinpath(dirname(navnode.page), first(s)))
@@ -2219,7 +2218,7 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
         # provided files or generated by code examples)
         path = relhref(get_url(ctx, navnode), path)
     else
-        @warn "invalid local link: unresolved path in $(Utilities.locrepr(navnode.page))" link_url
+        @warn "invalid local link: unresolved path in $(Documenter.locrepr(navnode.page))" link_url
     end
 
     # Replace any backslashes in links, if building the docs on Windows
@@ -2231,10 +2230,10 @@ function fixlink(dctx::DCtx, img::MarkdownAST.Image)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function fixlinks!(ctx, navnode, img::Markdown.Image)
     img_url = img.destination
-    Utilities.isabsurl(img_url) && return img_url
+    Documenter.isabsurl(img_url) && return img_url
 
     if Sys.iswindows() && ':' in img_url
-        @warn "invalid local image: colons not allowed in paths on Windows in $(Utilities.locrepr(navnode.page))" img_url
+        @warn "invalid local image: colons not allowed in paths on Windows in $(Documenter.locrepr(navnode.page))" img_url
         return img_url
     end
 
@@ -2244,7 +2243,7 @@ function fixlink(dctx::DCtx, img::MarkdownAST.Image)
         # Replace any backslashes in links, if building the docs on Windows
         return replace(path, '\\' => '/')
     else
-        @warn "invalid local image: unresolved path in $(Utilities.locrepr(navnode.page))" link = img_url
+        @warn "invalid local image: unresolved path in $(Documenter.locrepr(navnode.page))" link = img_url
         return img_url
     end
 end

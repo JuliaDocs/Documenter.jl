@@ -6,13 +6,12 @@ module DocChecks
 
 import ..Documenter:
     Documenter,
-    Documents,
-    Utilities,
-    Utilities.@docerror
+    Documents
 
 using DocStringExtensions
 import Markdown
 import AbstractTrees, MarkdownAST
+using Documenter: @docerror
 
 # Missing docstrings.
 # -------------------
@@ -70,14 +69,14 @@ function missingdocs(doc::Documents.Document)
 end
 
 function allbindings(checkdocs::Symbol, mods)
-    out = Dict{Utilities.Binding, Set{Type}}()
+    out = Dict{Documenter.Binding, Set{Type}}()
     for m in mods
         allbindings(checkdocs, m, out)
     end
     out
 end
 
-function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Documenter.Binding, Set{Type}}())
     for (binding, doc) in meta(mod)
         # The keys of the docs meta dictonary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
@@ -88,7 +87,7 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Bindin
         # by virtue of being defined there, or if it has been brought into the scope with
         # import/using.
         name = nameof(binding)
-        isexported = (binding == Utilities.Binding(mod, name)) && Base.isexported(mod, name)
+        isexported = (binding == Documenter.Binding(mod, name)) && Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
             out[binding] = Set(sigs(doc))
         end
@@ -131,15 +130,15 @@ function footnotes(doc::Documents.Document)
         for (id, (ids, bodies)) in orphans
             # Multiple footnote bodies.
             if bodies > 1
-                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source)).")
+                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(Documenter.locrepr(page.source)).")
             end
             # No footnote references for an id.
             if ids === 0
-                @docerror(doc, :footnote, "unused footnote named '$id' in $(Utilities.locrepr(page.source)).")
+                @docerror(doc, :footnote, "unused footnote named '$id' in $(Documenter.locrepr(page.source)).")
             end
             # No footnote bodies for an id.
             if bodies === 0
-                @docerror(doc, :footnote, "no footnotes found for '$id' in $(Utilities.locrepr(page.source)).")
+                @docerror(doc, :footnote, "no footnotes found for '$id' in $(Documenter.locrepr(page.source)).")
             end
         end
     end

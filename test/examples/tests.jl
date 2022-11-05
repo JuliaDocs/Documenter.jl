@@ -26,7 +26,7 @@ function latex_filename(doc::Documenter.Documents.Document)
 end
 
 # Diffing of output TeX files:
-using Documenter.Utilities.TextDiff: Diff, Lines
+using Documenter.TextDiff: Diff, Lines
 function onormalize_tex(s)
     # We strip hyperlink hashes, since those may change over time
     s = replace(s, r"\\(hyperlink|hypertarget|label|hyperlinkref){[0-9]+}" => s"\\\1{}")

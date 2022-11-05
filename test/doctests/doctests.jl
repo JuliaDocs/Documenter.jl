@@ -11,7 +11,7 @@
 module DocTestsTests
 using Test
 using Documenter
-using Documenter.Utilities.TextDiff: Diff, Words
+using Documenter.TextDiff: Diff, Words
 import IOCapture
 
 include("src/FooWorking.jl")

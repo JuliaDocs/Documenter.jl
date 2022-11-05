@@ -446,7 +446,7 @@ julia> 2 + 2
 The following doctests needs doctestsetup:
 
 ```jldoctest; setup=:(using Documenter)
-julia> Documenter.Utilities.splitexpr(:(Foo.Bar.baz))
+julia> Documenter.splitexpr(:(Foo.Bar.baz))
 (:(Foo.Bar), :(:baz))
 ```
 

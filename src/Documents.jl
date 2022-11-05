@@ -12,11 +12,10 @@ module Documents
 import ..Documenter:
     Documenter,
     Anchors,
-    Utilities,
     Plugin,
     Writer
 
-    using ..Documenter.Utilities: Remotes
+using ..Documenter: Remotes
 using DocStringExtensions
 import Markdown
 import MarkdownAST, AbstractTrees
@@ -81,8 +80,8 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
     Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), mdast)
 end
 
-# FIXME -- special overload for Utilities.parseblock
-Utilities.parseblock(code::AbstractString, doc, page::Documents.Page; kwargs...) = Utilities.parseblock(code, doc, page.source; kwargs...)
+# FIXME -- special overload for Documenter.parseblock
+Documenter.parseblock(code::AbstractString, doc, page::Documents.Page; kwargs...) = Documenter.parseblock(code, doc, page.source; kwargs...)
 
 # Document blueprints.
 # --------------------
@@ -162,7 +161,7 @@ end
 
 struct DocsNode <: AbstractDocumenterBlock
     anchor  :: Anchors.Anchor
-    object  :: Utilities.Object
+    object  :: Documenter.Object
     page    :: Documents.Page
     # MarkdownAST support.
     # TODO: should be the docstring components (i.e. .mdasts) be stored as child nodes?
@@ -287,7 +286,7 @@ struct Internal
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings:: IdDict{Any,Any}           # Tracks insertion order of object per-binding.
-    objects :: IdDict{Any,Any}           # Tracks which `Utilities.Objects` are included in the `Document`.
+    objects :: IdDict{Any,Any}           # Tracks which `Documenter.Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
     locallinks :: IdDict{MarkdownAST.Link, String}
@@ -308,7 +307,7 @@ struct Document
 end
 
 function Document(plugins = nothing;
-        root     :: AbstractString   = Utilities.currentdir(),
+        root     :: AbstractString   = Documenter.currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
         workdir  :: Union{Symbol, AbstractString}  = :build,
@@ -321,7 +320,7 @@ function Document(plugins = nothing;
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
         strict::Union{Bool,Symbol,Vector{Symbol}} = false,
-        modules  :: Utilities.ModVec = Module[],
+        modules  :: Documenter.ModVec = Module[],
         pages    :: Vector           = Any[],
         expandfirst :: Vector        = String[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
@@ -333,15 +332,15 @@ function Document(plugins = nothing;
         others...
     )
 
-    Utilities.check_strict_kw(strict)
-    Utilities.check_kwargs(others)
+    Documenter.check_strict_kw(strict)
+    Documenter.check_kwargs(others)
 
     if !isa(format, AbstractVector)
         format = Writer[format]
     end
 
     if version == "git-commit"
-        version = "git:$(Utilities.get_commit_short(root))"
+        version = "git:$(Documenter.get_commit_short(root))"
     end
 
     remote = if isa(repo, AbstractString) && isempty(repo)
@@ -382,7 +381,7 @@ function Document(plugins = nothing;
         draft,
     )
     internal = Internal(
-        Utilities.assetsdir(),
+        Documenter.assetsdir(),
         [],
         [],
         Anchors.AnchorMap(),
@@ -408,14 +407,14 @@ function Document(plugins = nothing;
 
     blueprint = DocumentBlueprint(
         Dict{String, Page}(),
-        Utilities.submodules(modules),
+        Documenter.submodules(modules),
     )
     Document(user, internal, plugin_dict, blueprint)
 end
 
 function get_remote_ci_fallbacks(dir::AbstractString)
     # First, try to determine it from repository's origin.url
-    remote = Utilities.getremote(dir)
+    remote = Documenter.getremote(dir)
     isnothing(remote) || return remote
     # If that fails, fall back to Travis CI variables
     remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
@@ -487,7 +486,7 @@ function populate!(index::IndexNode, document::Document)
         page = relpath(doc.page.build, dirname(index.build))
         mod  = object.binding.mod
         # Include *all* signatures, whether they are `Union{}` or not.
-        cat  = Symbol(lowercase(Utilities.doccat(object.binding, Union{})))
+        cat  = Symbol(lowercase(Documenter.doccat(object.binding, Union{})))
         if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
@@ -554,13 +553,13 @@ function doctest_replace!(block::MarkdownAST.CodeBlock)
 end
 doctest_replace!(@nospecialize _) = nothing
 
-## Utilities.
+## Documenter.
 
 function buildnode(T::Type, block, doc, page)
     mod  = get(page.globals.meta, :CurrentModule, Main)
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in Utilities.parseblock(block.code, doc, page)
-        if Utilities.isassign(ex)
+    for (ex, str) in Documenter.parseblock(block.code, doc, page)
+        if Documenter.isassign(ex)
             cd(dirname(page.source)) do
                 dict[ex.args[1]] = Core.eval(mod, ex.args[2])
             end
@@ -616,14 +615,14 @@ end
 Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([...])")
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
-Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = Utilities.MDFlatten.mdflatten(io, node.children)
-Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = Utilities.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
-Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = Utilities.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
-Utilities.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = Utilities.MDFlatten.mdflatten(io, node, e.codeblock)
-function Utilities.MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
+Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = Documenter.MDFlatten.mdflatten(io, node.children)
+Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = Documenter.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
+Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = Documenter.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
+Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = Documenter.MDFlatten.mdflatten(io, node, e.codeblock)
+function Documenter.MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines
     for node in e.mdasts
-        Utilities.MDFlatten.mdflatten(io, node)
+        Documenter.MDFlatten.mdflatten(io, node)
         # Docstrings are double wrapped in MD objects, and so led to extra newlines
         # in the old Markdown-based mdflatten()
         print(io, "\n\n\n\n")

@@ -52,10 +52,13 @@ abstract type Plugin end
 
 abstract type Writer end
 
-# Submodules
-# ----------
-
-include("Utilities/Utilities.jl")
+include("utilities/DOM.jl")
+include("utilities/JSDependencies.jl")
+include("utilities/MDFlatten.jl")
+include("utilities/Remotes.jl")
+include("utilities/Selectors.jl")
+include("utilities/TextDiff.jl")
+include("utilities/utilities.jl")
 include("DocMeta.jl")
 include("DocSystem.jl")
 include("Anchors.jl")
@@ -67,7 +70,6 @@ include("CrossReferences.jl")
 include("DocChecks.jl")
 include("Writers/Writers.jl")
 
-import .Utilities: Selectors, Remotes, git
 import .Writers.HTMLWriter: HTML, asset
 import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 import .Writers.LaTeXWriter: LaTeX
@@ -508,7 +510,7 @@ using the [`deploydocs`](@ref) function to automatically generate docs and push 
 GitHub.
 """
 function deploydocs(;
-        root   = Utilities.currentdir(),
+        root   = currentdir(),
         target = "build",
         dirname = "",
 
@@ -533,7 +535,7 @@ function deploydocs(;
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
-        devbranch = Utilities.git_remote_head_branch("deploydocs(devbranch = ...)", root)
+        devbranch = git_remote_head_branch("deploydocs(devbranch = ...)", root)
     end
 
     if !isnothing(archive)

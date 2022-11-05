@@ -67,7 +67,6 @@ import ...Documenter:
     Documents,
     Expanders,
     Documenter,
-    Utilities,
     Writers
 
 import Markdown
@@ -185,7 +184,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
-                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
             return false
         end
     elseif settings.platform == "tectonic"
@@ -198,7 +197,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
-                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
             return false
         end
     elseif settings.platform == "docker"
@@ -218,7 +217,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
-                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
             return false
         finally
             try; piperun(`docker stop latex-container`); catch; end
@@ -317,7 +316,7 @@ function latex(io::Context, node::Node, docs::Documents.DocsNode)
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, string(node.object.binding))
     _print(io, "}} ")
-    _println(io, " -- {", Utilities.doccat(node.object), ".}\n")
+    _println(io, " -- {", Documenter.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
     _println(io, "\\begin{adjustwidth}{2em}{0pt}")
     latexdoc(io, ast)
@@ -334,7 +333,7 @@ function latexdoc(io::IO, node::Node)
         latex(io, docstringast.children)
         _println(io)
         # When a source link is available then print the link.
-        url = Utilities.source_url(io.doc.user.remote, result)
+        url = Documenter.source_url(io.doc.user.remote, result)
         if url !== nothing
             link = "\\href{$url}{\\texttt{source}}"
             _println(io, "\n", link, "\n")
@@ -351,7 +350,7 @@ function latex(io::Context, node::Node, index::Documents.IndexNode)
 
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
-        id = _hash(string(Utilities.slugify(object)))
+        id = _hash(string(Documenter.slugify(object)))
         text = string(object.binding)
         _print(io, "\\item \\hyperlinkref{")
         _print(io, id, "}{\\texttt{")
@@ -495,7 +494,7 @@ const LEXER = Set([
 ])
 
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
-    language = Utilities.codelang(code.info)
+    language = Documenter.codelang(code.info)
     if language == "julia-repl"
         language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
     elseif !(language in LEXER) && language != "text/plain"
@@ -689,8 +688,8 @@ function latex(io::Context, node::Node, image::MarkdownAST.Image)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
         _println(io, "\\centering")
-        url = if Utilities.isabsurl(image.destination)
-            @warn "images with absolute URLs not supported in LaTeX output in $(Utilities.locrepr(io.filename))" url = image.destination
+        url = if Documenter.isabsurl(image.destination)
+            @warn "images with absolute URLs not supported in LaTeX output in $(Documenter.locrepr(io.filename))" url = image.destination
             # We nevertheless output an \includegraphics with the URL. The LaTeX build will
             # then give an error, indicating to the user that something wrong.
             image.destination
@@ -762,7 +761,7 @@ end
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
 latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "\\\\")
 
-# Utilities.
+# Documenter.
 
 const _latexescape_chars = Dict{Char, AbstractString}(
     '~' => "{\\textasciitilde}",

@@ -8,12 +8,10 @@ import ..Documenter:
     Builder,
     Documents,
     Expanders,
-    Documenter,
-    Utilities,
-    Utilities.@docerror
+    Documenter
 
 using DocStringExtensions
-using .Utilities: Remotes
+using .Documenter: Remotes, @docerror
 import Markdown
 import AbstractTrees, MarkdownAST
 
@@ -81,7 +79,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     # heading. We'll slugify the string content, just like in basicxref:
     stringmatch = match(r"\"(.+)\"", slug)
     if !isnothing(stringmatch)
-        namedxref(node, Utilities.slugify(stringmatch[1]), meta, page, doc)
+        namedxref(node, Documenter.slugify(stringmatch[1]), meta, page, doc)
         return false
     end
     # Finally, we'll assume that the reference is a Julia expression referring to a docstring.
@@ -127,7 +125,7 @@ function basicxref(node::MarkdownAST.Node, meta, page, doc)
         if occursin(r"#[0-9]+", text)
             issue_xref(node, lstrip(text, '#'), meta, page, doc)
         else
-            name = Utilities.slugify(text)
+            name = Documenter.slugify(text)
             namedxref(node, name, meta, page, doc)
         end
     end
@@ -150,10 +148,10 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc)
             path     = relpath(anchor.file, dirname(page.build))
             node.element.destination = string(path, Anchors.fragment(anchor))
         else
-            @docerror(doc, :cross_references, "'$slug' is not unique in $(Utilities.locrepr(page.source)).")
+            @docerror(doc, :cross_references, "'$slug' is not unique in $(Documenter.locrepr(page.source)).")
         end
     else
-        @docerror(doc, :cross_references, "reference for '$slug' could not be found in $(Utilities.locrepr(page.source)).")
+        @docerror(doc, :cross_references, "reference for '$slug' could not be found in $(Documenter.locrepr(page.source)).")
     end
 end
 
@@ -178,10 +176,10 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_d
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
         path     = relpath(docsnode.page.build, dirname(page.build))
-        slug     = Utilities.slugify(object)
+        slug     = Documenter.slugify(object)
         node.element.destination = string(path, '#', slug)
     else
-        @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source)).")
+        @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
     end
 end
 
@@ -196,7 +194,7 @@ function find_docref(code, meta, page)
             ex = Meta.parse(code)
         catch err
             isa(err, Meta.ParseError) || rethrow(err)
-            return (error = "unable to parse the reference '[`$code`](@ref)' in $(Utilities.locrepr(page.source)).", exception = nothing)
+            return (error = "unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).", exception = nothing)
         end
     end
     mod = get(meta, :CurrentModule, Main)
@@ -207,7 +205,7 @@ function find_docref(code, meta, page)
         binding = Documenter.DocSystem.binding(mod, ex)
     catch err
         return (
-            error = "unable to get the binding for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            error = "unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
             exception = (err, catch_backtrace()),
         )
         return
@@ -218,7 +216,7 @@ function find_docref(code, meta, page)
         typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         return (
-            error = "unable to evaluate the type signature for '[`$code`](@ref)' in $(Utilities.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            error = "unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
             exception = (err, catch_backtrace()),
         )
         return
@@ -235,12 +233,12 @@ heuristic isn't too picky about what matches and will only fail when no `Binding
 `binding` have been included.
 """
 function find_object(doc::Documents.Document, binding, typesig)
-    object = Utilities.Object(binding, typesig)
+    object = Documenter.Object(binding, typesig)
     if haskey(doc.internal.objects, object)
         # Exact object matching the requested one.
         return object
     else
-        objects = get(doc.internal.bindings, binding, Utilities.Object[])
+        objects = get(doc.internal.bindings, binding, Documenter.Object[])
         if isempty(objects)
             # No bindings match the requested object == FAILED.
             return nothing
@@ -264,19 +262,19 @@ function find_object(binding, typesig)
         local λ = Documenter.DocSystem.resolve(binding)
         return find_object(λ, binding, typesig)
     else
-        return Utilities.Object(binding, typesig)
+        return Documenter.Object(binding, typesig)
     end
 end
 function find_object(λ::Union{Function, DataType}, binding, typesig)
     if hasmethod(λ, typesig)
         signature = getsig(λ, typesig)
-        return Utilities.Object(binding, signature)
+        return Documenter.Object(binding, signature)
     else
-        return Utilities.Object(binding, typesig)
+        return Documenter.Object(binding, typesig)
     end
 end
-find_object(::Union{Function, DataType}, binding, ::Union{Union,Type{Union{}}}) = Utilities.Object(binding, Union{})
-find_object(other, binding, typesig) = Utilities.Object(binding, typesig)
+find_object(::Union{Function, DataType}, binding, ::Union{Union,Type{Union{}}}) = Documenter.Object(binding, Union{})
+find_object(other, binding, typesig) = Documenter.Object(binding, typesig)
 
 getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
 
@@ -289,7 +287,7 @@ function issue_xref(node::MarkdownAST.Node, num, meta, page, doc)
     # Update issue links starting with a hash, but only if our Remote supports it
     issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
     if isnothing(issue_url)
-        @docerror(doc, :cross_references, "unable to generate issue reference for '[`#$num`](@ref)' in $(Utilities.locrepr(page.source)).")
+        @docerror(doc, :cross_references, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
     else
         node.element.destination = issue_url
     end

@@ -1,17 +1,10 @@
-"""
-Provides a collection of utility functions and types that are used in other submodules.
-"""
-module Utilities
-
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
-import ..ERROR_NAMES
-import ..NO_KEY_ENV
 
-include("Remotes.jl")
+
 using .Remotes: Remote, repourl, repofile
 # These imports are here to support code that still assumes that these names are defined
 # in the Utilities module.
@@ -149,7 +142,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
                 try
                     Meta.parse(code, cursor; raise=raise)
                 catch err
-                    @docerror(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))", exception = err)
+                    @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
                     break
                 end
             end
@@ -842,12 +835,4 @@ function git(; nothrow = false, kwargs...)
     # DOCUMENTER_KEY etc are never needed for git operations
     cmd = addenv(cmd, NO_KEY_ENV)
     return cmd
-end
-
-include("DOM.jl")
-include("MDFlatten.jl")
-include("TextDiff.jl")
-include("Selectors.jl")
-include("JSDependencies.jl")
-
 end

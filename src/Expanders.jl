@@ -6,8 +6,7 @@ module Expanders
 import ..Documenter:
     Anchors,
     Documents,
-    Documenter,
-    Utilities
+    Documenter
 
 import .Documents:
     MethodNode,
@@ -16,8 +15,8 @@ import .Documents:
     EvalNode,
     MetaNode
 
-import .Utilities: Selectors, @docerror
-using .Utilities.MDFlatten
+import .Documenter: Selectors, @docerror
+using Documenter.MDFlatten
 
 using MarkdownAST: MarkdownAST, Node
 import Markdown, REPL
@@ -72,7 +71,7 @@ end
 function pagecheck(page)
     # make sure there is no "continued code" lingering around
     if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
-        @warn "code from a continued @example block unused in $(Utilities.locrepr(page.source))."
+        @warn "code from a continued @example block unused in $(Documenter.locrepr(page.source))."
     end
 end
 
@@ -289,7 +288,7 @@ function Selectors.runner(::Type{TrackHeaders}, node, page, doc)
             md = convert(Markdown.MD, ast)
             sprint(Markdown.plain, Markdown.Paragraph(md.content[1].text))
         end
-    slug = Utilities.slugify(text)
+    slug = Documenter.slugify(text)
     # Add the header to the document's header map.
     anchor = Anchors.add!(doc.internal.headers, header, slug, page.build)
     # Create an AnchoredHeader node and push the
@@ -307,16 +306,16 @@ function Selectors.runner(::Type{MetaBlocks}, node, page, doc)
     x = node.element
 
     meta = page.globals.meta
-    lines = Utilities.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @meta block:\n$(x.code)"
-    for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        if Utilities.isassign(ex)
+    for (ex, str) in Documenter.parseblock(x.code, doc, page)
+        if Documenter.isassign(ex)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
                 @docerror(doc, :meta_block,
                     """
-                    failed to evaluate `$(strip(str))` in `@meta` block in $(Utilities.locrepr(page.source, lines))
+                    failed to evaluate `$(strip(str))` in `@meta` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -336,10 +335,10 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
 
     docsnodes = Node[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
-    lines = Utilities.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @docs block:\n$(x.code)"
-    for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        admonition = first(Utilities.mdparse("""
+    for (ex, str) in Documenter.parseblock(x.code, doc, page)
+        admonition = first(Documenter.mdparse("""
         !!! warning "Missing docstring."
 
             Missing docstring for `$(strip(str))`. Check Documenter's build log for details.
@@ -349,7 +348,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         catch err
             @docerror(doc, :docs_block,
                 """
-                unable to get the binding for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
+                unable to get the binding for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -362,7 +361,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
             @docerror(doc, :docs_block,
                 """
-                undefined binding '$(binding)' in `@docs` block in $(Utilities.locrepr(page.source, lines))
+                undefined binding '$(binding)' in `@docs` block in $(Documenter.locrepr(page.source, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -372,12 +371,12 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         end
         typesig = Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
 
-        object = Utilities.Object(binding, typesig)
+        object = Documenter.Object(binding, typesig)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
             @docerror(doc, :docs_block,
                 """
-                duplicate docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
+                duplicate docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -398,7 +397,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         if isempty(docs)
             @docerror(doc, :docs_block,
                 """
-                no docs found for '$(strip(str))' in `@docs` block in $(Utilities.locrepr(page.source, lines))
+                no docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
                 ```$(x.info)
                 $(x.code)
                 ```
@@ -412,7 +411,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         docsnode = create_docsnode(docstr, docs, object, page, doc)
 
         # Track the order of insertion of objects per-binding.
-        push!(get!(doc.internal.bindings, binding, Utilities.Object[]), object)
+        push!(get!(doc.internal.bindings, binding, Documenter.Object[]), object)
 
         doc.internal.objects[object] = docsnode.element
         push!(docsnodes, docsnode)
@@ -434,10 +433,10 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
 
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
-    lines = Utilities.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @autodocs block:\n$(x.code)"
-    for (ex, str) in Utilities.parseblock(x.code, doc, page)
-        if Utilities.isassign(ex)
+    for (ex, str) in Documenter.parseblock(x.code, doc, page)
+        if Documenter.isassign(ex)
             try
                 if ex.args[1] == :Filter
                     fields[ex.args[1]] = Core.eval(Main, ex.args[2])
@@ -447,7 +446,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
             catch err
                 @docerror(doc, :autodocs_block,
                     """
-                    failed to evaluate `$(strip(str))` in `@autodocs` block in $(Utilities.locrepr(page.source, lines))
+                    failed to evaluate `$(strip(str))` in `@autodocs` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -476,7 +475,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
                     isa(err, UndefVarError) || rethrow(err)
                     @docerror(doc, :autodocs_block,
                     """
-                    @autodocs ($(Utilities.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
+                    @autodocs ($(Documenter.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -503,7 +502,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
                     if filtered
                         for (typesig, docstr) in multidoc.docs
                             path = normpath(docstr.data[:path])
-                            object = Utilities.Object(binding, typesig)
+                            object = Documenter.Object(binding, typesig)
                             if isempty(pages)
                                 push!(results, (mod, path, category, object, isexported, docstr))
                             else
@@ -539,7 +538,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
             if haskey(doc.internal.objects, object)
                 @docerror(doc, :autodocs_block,
                     """
-                    duplicate docs found for '$(object.binding)' in $(Utilities.locrepr(page.source, lines))
+                    duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -550,7 +549,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
             docsnode = create_docsnode([markdown], [docstr], object, page, doc)
 
             # Track the order of insertion of objects per-binding.
-            push!(get!(doc.internal.bindings, object.binding, Utilities.Object[]), object)
+            push!(get!(doc.internal.bindings, object.binding, Documenter.Object[]), object)
 
             doc.internal.objects[object] = docsnode.element
             push!(docsnodes, docsnode)
@@ -562,7 +561,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
     else
         @docerror(doc, :autodocs_block,
             """
-            '@autodocs' missing 'Modules = ...' in $(Utilities.locrepr(page.source, lines))
+            '@autodocs' missing 'Modules = ...' in $(Documenter.locrepr(page.source, lines))
             ```$(x.info)
             $(x.code)
             ```
@@ -578,26 +577,26 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
     x = node.element
 
     # Bail early if in draft mode
-    if Utilities.is_draft(doc, page)
+    if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @eval block in draft mode:\n$(x.code)"
         create_draft_result!(node; blocktype="@eval")
         return
     end
     sandbox = Module(:EvalBlockSandbox)
-    lines = Utilities.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
                                     basename(page.source))
     @debug "Evaluating @eval block:\n$(x.code)"
     cd(page.workdir) do
         result = nothing
-        for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
+        for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
                                               linenumbernode = linenumbernode)
             try
                 result = Core.eval(sandbox, ex)
             catch err
                 @docerror(doc, :eval_block,
                     """
-                    failed to evaluate `@eval` block in $(Utilities.locrepr(page.source))
+                    failed to evaluate `@eval` block in $(Documenter.locrepr(page.source))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -612,7 +611,7 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
             # TODO: we could handle the cases where the user provides some of the Markdown library
             # objects, like Paragraph.
             @warn """
-            Invalid type of object in @eval in $(Utilities.locrepr(page.source))
+            Invalid type of object in @eval in $(Documenter.locrepr(page.source))
             ```$(x.info)
             $(x.code)
             ```
@@ -676,16 +675,16 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     name, kwargs = matched.captures
 
     # Bail early if in draft mode
-    if Utilities.is_draft(doc, page)
+    if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @example block in draft mode:\n$(x.code)"
         create_draft_result!(node; blocktype="@example")
         return
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
+    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
     sym = nameof(mod)
-    lines = Utilities.find_block_in_file(x.code, page.source)
+    lines = Documenter.find_block_in_file(x.code, page.source)
 
     # "parse" keyword arguments to example
     continued = false
@@ -711,7 +710,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
         end
         linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
                                         basename(page.source))
-        for (ex, str) in Utilities.parseblock(code, doc, page; keywords = false,
+        for (ex, str) in Documenter.parseblock(code, doc, page; keywords = false,
                                               linenumbernode = linenumbernode)
             c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
@@ -724,7 +723,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
             if c.error
                 @docerror(doc, :example_block,
                     """
-                    failed to run `@example` block in $(Utilities.locrepr(page.source, lines))
+                    failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
@@ -742,7 +741,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     input   = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Utilities.display_dict, result, context = :color => ansicolor)
+    output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
@@ -787,14 +786,14 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
     name, kwargs = matched.captures
 
     # Bail early if in draft mode
-    if Utilities.is_draft(doc, page)
+    if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @repl block in draft mode:\n$(x.code)"
         create_draft_result!(node; blocktype="@repl")
         return
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
+    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
 
     # "parse" keyword arguments to repl
     ansicolor = _any_color_fmt(doc)
@@ -808,7 +807,7 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
     multicodeblock = MarkdownAST.CodeBlock[]
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
-    for (ex, str) in Utilities.parseblock(x.code, doc, page; keywords = false,
+    for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
                                           linenumbernode = linenumbernode)
         input  = droplines(str)
         # Use the REPL softscope for REPLBlocks,
@@ -862,14 +861,14 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
     name = matched[1]
 
     # Bail early if in draft mode
-    if Utilities.is_draft(doc, page)
+    if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @setup block in draft mode:\n$(x.code)"
         create_draft_result!(node; blocktype="@setup")
         return
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Utilities.get_sandbox_module!(page.globals.meta, "atexample", name)
+    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
 
     @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
@@ -880,7 +879,7 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
     catch err
         @docerror(doc, :setup_block,
             """
-            failed to run `@setup` block in $(Utilities.locrepr(page.source))
+            failed to run `@setup` block in $(Documenter.locrepr(page.source))
             ```$(x.info)
             $(x.code)
             ```
@@ -901,7 +900,7 @@ function Selectors.runner(::Type{RawBlocks}, node, page, doc)
     node.element = Documents.RawNode(Symbol(m[1]), x.code)
 end
 
-# Utilities.
+# Documenter.
 # ----------
 
 iscode(node::Node, lang) = iscode(node.element, lang)
@@ -944,7 +943,7 @@ end
 
 function create_docsnode(docstrings, results, object, page, doc)
     # Generate a unique name to be used in anchors and links for the docstring.
-    slug = Utilities.slugify(object)
+    slug = Documenter.slugify(object)
     anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
     docsnode = DocsNode(anchor, object, page)
     # Convert docstring to MarkdownAST, convert Heading elements, and push to DocsNode

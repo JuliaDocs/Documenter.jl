@@ -11,10 +11,9 @@ import ..Documenter:
     Anchors,
     DocTests,
     Documents,
-    Documenter,
-    Utilities
+    Documenter
 
-import .Utilities: Selectors, is_strict
+import .Documenter: Selectors, is_strict
 
 using DocStringExtensions
 
@@ -127,7 +126,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
             end
 
             if endswith(file, ".md")
-                push!(mdpages, Utilities.srcpath(source, root, file))
+                push!(mdpages, Documenter.srcpath(source, root, file))
                 Documents.addpage!(doc, src, dst, wd)
             else
                 cp(src, dst; force = true)

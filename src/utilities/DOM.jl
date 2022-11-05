@@ -4,7 +4,7 @@ Provides a domain specific language for representing HTML documents.
 # Examples
 
 ```julia
-using Documenter.Utilities.DOM
+using Documenter.DOM
 
 # `DOM` does not export any HTML tags. Define the ones we actually need.
 @tags div p em strong ul li
@@ -93,8 +93,6 @@ needs a call to `print` to print out a valid HTML document with all nessesary
 text escaped.
 """
 module DOM
-
-import ..Utilities
 
 tostr(p::Pair) = p
 

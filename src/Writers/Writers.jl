@@ -13,10 +13,9 @@ import ..Documenter:
     Builder,
     Documents,
     Expanders,
-    Documenter,
-    Utilities
+    Documenter
 
-import .Utilities: Selectors
+import .Documenter: Selectors
 
 #
 # Format selector definitions.

@@ -9,8 +9,6 @@ module MDFlatten
 
 export mdflatten
 
-import ..Utilities
-
 using MarkdownAST: MarkdownAST, Node
 
 """

@@ -635,8 +635,8 @@ end
 # For the latex_showcase tests we need to override the Git remote we use for the source
 # files, so that the links would be deterministic (since they contain the commit hash which
 # keeps changing). Fortunately, we can hack the cache for this purpose.
-examples_remote = Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__]
-Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
+examples_remote = Documenter.GIT_REMOTE_CACHE[@__DIR__]
+Documenter.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
 
 examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_showcase")
@@ -677,4 +677,4 @@ else
 end
 
 # Restore the remote for this directory
-Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = examples_remote
+Documenter.GIT_REMOTE_CACHE[@__DIR__] = examples_remote

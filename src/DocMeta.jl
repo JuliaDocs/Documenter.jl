@@ -14,7 +14,7 @@ module — a special variable is created in each module that has documentation m
 * `DocTestSetup`: contains the doctest setup code for doctests in the module.
 """
 module DocMeta
-using ..Documenter: Utilities
+import ..Documenter
 using DocStringExtensions
 
 "The unique `Symbol` that is used to store the metadata dictionary in each module."
@@ -71,7 +71,7 @@ function setdocmeta!(m::Module, key::Symbol, value; warn=true, recursive=false)
     key in keys(VALIDMETA) || throw(ArgumentError("Invalid metadata key\nValid keys are: $(join(keys(VALIDMETA), ", "))"))
     isa(value, VALIDMETA[key]) || throw(ArgumentError("Bad value type ($(typeof(value))) for metadata key $(key). Must be <: $(VALIDMETA[key])"))
     if recursive
-        for mod in Utilities.submodules(m)
+        for mod in Documenter.submodules(m)
             setdocmeta!(mod, key, value; warn=warn, recursive=false)
         end
     else
