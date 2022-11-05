@@ -31,18 +31,19 @@ error (if `tag` matches the `doc.user.strict` setting) or warning.
   see `@error` and `@warn`
 """
 macro docerror(doc, tag, msg, exs...)
-    tag isa QuoteNode || error("invalid call of @docerror")
+    isa(tag, QuoteNode) && isa(tag.value, Symbol) || error("invalid call of @docerror: tag=$tag")
     tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
-    esc(quote
+    doc, msg, exs = esc(doc), esc(msg), esc.(exs)
+    quote
         let
             push!($(doc).internal.errors, $(tag))
-            if $Utilities.is_strict($(doc).user.strict, $(tag))
+            if is_strict($(doc).user.strict, $(tag))
                 @error $(msg) $(exs...)
             else
                 @warn $(msg) $(exs...)
             end
         end
-    end)
+    end
 end
 
 # escape characters that has a meaning in regex
