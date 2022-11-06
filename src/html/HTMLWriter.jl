@@ -50,8 +50,7 @@ import ...Documenter:
     Builder,
     Documents,
     Expanders,
-    Documenter,
-    Writers
+    Documenter
 
 using Documenter.Documents: NavNode
 using ...Documenter: Default, Remotes

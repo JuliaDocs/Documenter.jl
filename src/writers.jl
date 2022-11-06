@@ -1,21 +1,8 @@
-"""
-A module that provides several renderers for `Document` objects. The supported
-formats are currently:
-
-  * `:html` -- generates a complete HTML site with navigation and search included.
-  * `:latex` -- generates a PDF using LuaLaTeX.
-
-"""
-module Writers
-
-import ..Documenter:
-    Anchors,
-    Builder,
-    Documents,
-    Expanders,
-    Documenter
-
-import .Documenter: Selectors
+# A module that provides several renderers for `Document` objects. The supported
+# formats are currently:
+#
+#   * `:html` -- generates a complete HTML site with navigation and search included.
+#   * `:latex` -- generates a PDF using LuaLaTeX.
 
 #
 # Format selector definitions.
@@ -57,9 +44,4 @@ function render(doc::Documents.Document)
     for each in doc.user.format
         Selectors.dispatch(FormatSelector, each, doc)
     end
-end
-
-include("HTMLWriter.jl")
-include("LaTeXWriter.jl")
-
 end

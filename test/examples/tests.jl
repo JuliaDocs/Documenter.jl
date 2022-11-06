@@ -21,7 +21,7 @@ function latex_filename(doc::Documenter.Documents.Document)
     @test length(doc.user.format) == 1
     settings = first(doc.user.format)
     @test settings isa Documenter.LaTeX
-    fileprefix = Documenter.Writers.LaTeXWriter.latex_fileprefix(doc, settings)
+    fileprefix = Documenter.LaTeXWriter.latex_fileprefix(doc, settings)
     return "$(fileprefix).tex"
 end
 
@@ -83,10 +83,10 @@ end
             # Test existence of some HTML elements
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
-            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
+            @test occursin(Documenter.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
 
             index_html = read(joinpath(build_dir, "index.html"), String)
-            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
+            @test occursin(Documenter.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
             @test occursin("documenter-example-output", index_html)
             @test occursin("1392-test-language", index_html)
             @test !occursin("1392-extra-info", index_html)

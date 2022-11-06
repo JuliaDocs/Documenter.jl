@@ -5,7 +5,7 @@
 #
 # However, we can still run these tests as part of the CI, and ignore the results as needed.
 using Test
-using Documenter.Writers: HTMLWriter
+using Documenter: HTMLWriter
 using DocumenterTools: Themes
 
 @testset "HTML themes" begin

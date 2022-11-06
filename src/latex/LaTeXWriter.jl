@@ -66,8 +66,7 @@ import ...Documenter:
     Builder,
     Documents,
     Expanders,
-    Documenter,
-    Writers
+    Documenter
 
 import Markdown
 

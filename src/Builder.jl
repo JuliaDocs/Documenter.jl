@@ -257,7 +257,7 @@ function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
         * "). Terminating build before rendering.")
     else
         @info "RenderDocument: rendering document."
-        Documenter.Writers.render(doc)
+        Documenter.render(doc)
     end
 end
 

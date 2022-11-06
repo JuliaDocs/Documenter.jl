@@ -68,11 +68,18 @@ include("DocTests.jl")
 include("Builder.jl")
 include("CrossReferences.jl")
 include("DocChecks.jl")
-include("Writers/Writers.jl")
+include("writers.jl")
+include("html/HTMLWriter.jl")
+include("latex/LaTeXWriter.jl")
 
-import .Writers.HTMLWriter: HTML, asset
-import .Writers.HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
-import .Writers.LaTeXWriter: LaTeX
+# This is to keep DocumenterTools working:
+module Writers
+import ..HTMLWriter
+end
+
+import .HTMLWriter: HTML, asset
+import .HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
+import .LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
@@ -672,21 +679,21 @@ function git_push(
         if versions === nothing
             # If the documentation is unversioned and deployed to root, we generate a
             # siteinfo.js file that would disable the version selector in the docs
-            Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
+            HTMLWriter.generate_siteinfo_file(deploy_dir, nothing)
         else
             # Generate siteinfo-file with DOCUMENTER_CURRENT_VERSION
-            Writers.HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
+            HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
             # Expand the users `versions` vector
-            entries, symlinks = Writers.HTMLWriter.expand_versions(dirname, versions)
+            entries, symlinks = HTMLWriter.expand_versions(dirname, versions)
 
             # Create the versions.js file containing a list of `entries`.
             # This must always happen after the folder copying.
-            Writers.HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
+            HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
 
             # Create the index.html file to redirect ./stable or ./dev.
             # This must always happen after the folder copying.
-            Writers.HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries)
+            HTMLWriter.generate_redirect_file(joinpath(dirname, "index.html"), entries)
 
             # generate the symlinks, make sure we don't overwrite devurl
             cd(dirname) do
