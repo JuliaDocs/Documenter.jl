@@ -48,11 +48,10 @@ import JSON
 import ...Documenter:
     Anchors,
     Builder,
-    Documents,
     Expanders,
     Documenter
 
-using Documenter.Documents: NavNode
+using Documenter: NavNode
 using ...Documenter: Default, Remotes
 using ...JSDependencies: JSDependencies, json_jsescape
 import ...DOM: DOM, Tag, @tags
@@ -643,7 +642,7 @@ end
 
 struct SearchRecord
     src :: String
-    page :: Documents.Page
+    page :: Documenter.Page
     fragment :: String
     category :: String
     title :: String
@@ -656,7 +655,7 @@ end
 other recursive functions.
 """
 mutable struct HTMLContext
-    doc :: Documents.Document
+    doc :: Documenter.Document
     settings :: Union{HTML, Nothing}
     scripts :: Vector{String}
     documenter_js :: String
@@ -665,18 +664,18 @@ mutable struct HTMLContext
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
-    search_navnode :: Documents.NavNode
+    search_navnode :: Documenter.NavNode
 end
 
 HTMLContext(doc, settings=nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
-    Documents.NavNode("search", "Search", nothing),
+    Documenter.NavNode("search", "Search", nothing),
 )
 
 struct DCtx
     # ctx and navnode were recursively passed to all domify() methods
     ctx :: HTMLContext
-    navnode :: Documents.NavNode
+    navnode :: Documenter.NavNode
     # The following fields were keyword arguments to mdconvert()
     droplinks :: Bool
     settings :: Union{HTML, Nothing}
@@ -708,7 +707,7 @@ function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, cat
     )
 end
 
-function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documents.AnchoredHeader)
+function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
     a = element.anchor
     SearchRecord(ctx, navnode;
         fragment=Anchors.fragment(a),
@@ -734,13 +733,13 @@ function JSON.lower(rec::SearchRecord)
 end
 
 """
-Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
+Returns a page (as a [`Documenter.Page`](@ref) object) using the [`HTMLContext`](@ref).
 """
 getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
-getpage(ctx::HTMLContext, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
+getpage(ctx::HTMLContext, navnode::Documenter.NavNode) = getpage(ctx, navnode.page)
 getpage(dctx::DCtx) = getpage(dctx.ctx, dctx.navnode)
 
-function render(doc::Documents.Document, settings::HTML=HTML())
+function render(doc::Documenter.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
@@ -803,7 +802,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     for page in keys(doc.blueprint.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
-        nn = (idx === nothing) ? Documents.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
+        nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
         render_page(ctx, nn)
     end
@@ -1057,10 +1056,10 @@ end
 
 struct NavMenuContext
     htmlctx :: HTMLContext
-    current :: Documents.NavNode
+    current :: Documenter.NavNode
     idstack :: Vector{Int}
 end
-NavMenuContext(ctx::HTMLContext, current::Documents.NavNode) = NavMenuContext(ctx, current, [])
+NavMenuContext(ctx::HTMLContext, current::Documenter.NavNode) = NavMenuContext(ctx, current, [])
 
 function render_sidebar(ctx, navnode)
     @tags a form img input nav div select option span
@@ -1153,7 +1152,7 @@ function navitem(nctx, nns::Vector)
     ulclass = (length(nctx.idstack) >= nctx.htmlctx.settings.collapselevel) ? ".collapsed" : ""
     isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)[ulclass](nodes)
 end
-function navitem(nctx, nn::Documents.NavNode)
+function navitem(nctx, nn::Documenter.NavNode)
     @tags ul li span a input label i
     ctx, current = nctx.htmlctx, nctx.current
     dctx = DCtx(nctx.htmlctx, nn, true)
@@ -1171,7 +1170,7 @@ function navitem(nctx, nn::Documents.NavNode)
     item = if length(nctx.idstack) >= ctx.settings.collapselevel && children.name !== DOM.TEXT
         menuid = "menuitem-$(join(nctx.idstack, '-'))"
         input_attr = ["#$(menuid).collapse-toggle", :type => "checkbox"]
-        nn in Documents.navpath(nctx.current) && push!(input_attr, :checked)
+        nn in Documenter.navpath(nctx.current) && push!(input_attr, :checked)
         li[currentclass](
             input[input_attr...],
             label[".tocitem", :for => menuid](span[".docs-label"](title), i[".docs-chevron"]),
@@ -1204,7 +1203,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     @tags div header nav ul li a span
 
     # The breadcrumb (navigation links on top)
-    navpath = Documents.navpath(navnode)
+    navpath = Documenter.navpath(navnode)
     header_links = map(navpath) do nn
         dctx = DCtx(ctx, nn, true)
         title = domify(dctx, pagetitle(dctx))
@@ -1568,7 +1567,7 @@ end
 
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify(dctx, node.children)
 
-function domify(dctx::DCtx, node::Node, ah::Documents.AnchoredHeader)
+function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     @assert length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Heading)
     ctx, navnode = dctx.ctx, dctx.navnode
     anchor = ah.anchor
@@ -1607,9 +1606,9 @@ function domify(lb::ListBuilder)
     ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
 end
 
-function domify(dctx::DCtx, node::Node, contents::Documents.ContentsNode)
+function domify(dctx::DCtx, node::Node, contents::Documenter.ContentsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, contents::Documents.ContentsNode)
+    # function domify(ctx, navnode, contents::Documenter.ContentsNode)
     @tags a
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
@@ -1629,9 +1628,9 @@ function domify(dctx::DCtx, node::Node, contents::Documents.ContentsNode)
     domify(lb)
 end
 
-function domify(dctx::DCtx, node::Node, index::Documents.IndexNode)
+function domify(dctx::DCtx, node::Node, index::Documenter.IndexNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, index::Documents.IndexNode)
+    # function domify(ctx, navnode, index::Documenter.IndexNode)
     @tags a code li ul
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
@@ -1645,11 +1644,11 @@ function domify(dctx::DCtx, node::Node, index::Documents.IndexNode)
     ul(lis)
 end
 
-domify(dctx::DCtx, node::Node, ::Documents.DocsNodesBlock) = domify(dctx, node.children)
+domify(dctx::DCtx, node::Node, ::Documenter.DocsNodesBlock) = domify(dctx, node.children)
 
-function domify(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
+function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, node::Documents.DocsNode)
+    # function domify(ctx, navnode, node::Documenter.DocsNode)
     @tags a code article header span
 
     # push to search index
@@ -1671,7 +1670,7 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
 end
 
 function domify_doc(dctx::DCtx, node::Node)
-    @assert node.element isa Documents.DocsNode
+    @assert node.element isa Documenter.DocsNode
     ctx, navnode = dctx.ctx, dctx.navnode
     # function domify_doc(ctx, navnode, md::Markdown.MD)
     @tags a section footer div
@@ -1691,15 +1690,15 @@ function domify_doc(dctx::DCtx, node::Node)
     end
 end
 
-function domify(dctx::DCtx, ::Node, evalnode::Documents.EvalNode)
+function domify(dctx::DCtx, ::Node, evalnode::Documenter.EvalNode)
     isnothing(evalnode.result) ? DOM.Node[] : domify(dctx, evalnode.result.children)
 end
 
 # nothing to show for MetaNodes, so we just return an empty list
-domify(::DCtx, ::Node, ::Documents.MetaNode) = DOM.Node[]
-domify(::DCtx, ::Node, ::Documents.SetupNode) = DOM.Node[]
+domify(::DCtx, ::Node, ::Documenter.MetaNode) = DOM.Node[]
+domify(::DCtx, ::Node, ::Documenter.SetupNode) = DOM.Node[]
 
-function domify(::DCtx, ::Node, raw::Documents.RawNode)
+function domify(::DCtx, ::Node, raw::Documenter.RawNode)
     raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
 end
 
@@ -1718,8 +1717,8 @@ function open_output(f, ctx, navnode)
 end
 
 """
-Get the relative hyperlink between two [`Documents.NavNode`](@ref)s. Assumes that both
-[`Documents.NavNode`](@ref)s have an associated [`Documents.Page`](@ref) (i.e. `.page`
+Get the relative hyperlink between two [`Documenter.NavNode`](@ref)s. Assumes that both
+[`Documenter.NavNode`](@ref)s have an associated [`Documenter.Page`](@ref) (i.e. `.page`
 is not `nothing`).
 """
 navhref(ctx, to, from) = pretty_url(ctx, relhref(get_url(ctx, from), get_url(ctx, to)))
@@ -1753,9 +1752,9 @@ function get_url(ctx, path::AbstractString)
 end
 
 """
-Returns the full path of a [`Documents.NavNode`](@ref) relative to `src/`.
+Returns the full path of a [`Documenter.NavNode`](@ref) relative to `src/`.
 """
-get_url(ctx, navnode::Documents.NavNode) = get_url(ctx, navnode.page)
+get_url(ctx, navnode::Documenter.NavNode) = get_url(ctx, navnode.page)
 
 """
 If `prettyurls` for [`HTML`](@ref Documenter.HTML) is enabled, returns a "pretty" version of
@@ -1778,11 +1777,11 @@ was unable to find any `<h1>` headers).
 """
 function pagetitle(page::Node)
     @assert page.element isa MarkdownAST.Document
-    # function pagetitle(page::Documents.Page)
+    # function pagetitle(page::Documenter.Page)
     title = nothing
     for node in page.children
         # AnchoredHeaders should have just one child node, which is the Heading node
-        if isa(node.element, Documents.AnchoredHeader)
+        if isa(node.element, Documenter.AnchoredHeader)
             node = first(node.children)
         end
         if isa(node.element, MarkdownAST.Heading) && node.element.level == 1
@@ -1795,7 +1794,7 @@ end
 
 function pagetitle(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function pagetitle(ctx, navnode::Documents.NavNode)
+    # function pagetitle(ctx, navnode::Documenter.NavNode)
     if navnode.title_override !== nothing
         # parse title_override as markdown
         md = Markdown.parse(navnode.title_override)
@@ -1825,12 +1824,12 @@ in the navigation menu twice.
 """
 function collect_subsections(page::MarkdownAST.Node)
     @assert page.element isa MarkdownAST.Document
-    # function collect_subsections(page::Documents.Page)
+    # function collect_subsections(page::Documenter.Page)
     sections = []
     title_found = false
     for node in page.children
         @assert !isa(node.element, MarkdownAST.Heading) # all headings should have been replaced
-        isa(node.element, Documents.AnchoredHeader) || continue
+        isa(node.element, Documenter.AnchoredHeader) || continue
         anchor = node.element.anchor
         node = first(node.children) # get the Heading node
         @assert isa(node.element, MarkdownAST.Heading)
@@ -1907,9 +1906,9 @@ function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
     return pre(code[".$(class) .hljs"](c.code))
 end
 
-function domify(dctx::DCtx, node::Node, mcb::Documents.MultiCodeBlock)
+function domify(dctx::DCtx, node::Node, mcb::Documenter.MultiCodeBlock)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
+    # function mdconvert(mcb::Documenter.MultiCodeBlock, parent::MDBlockContext; kwargs...)
     @tags pre br
     p = pre()
     for (i, thing) in enumerate(node.children)
@@ -2100,8 +2099,8 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
 end
 
 # Select the "best" representation for HTML output.
-domify(dctx::DCtx, node::Node, ::Documents.MultiOutput) = domify(dctx, node.children)
-domify(dctx::DCtx, node::Node, moe::Documents.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
+domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.children)
+domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)

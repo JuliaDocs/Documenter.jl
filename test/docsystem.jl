@@ -35,8 +35,8 @@ end
     let b = Docs.Binding(@__MODULE__, :DocSystem)
         @test DocSystem.binding(b) == b
     end
-    let b = DocSystem.binding(Documenter.Documents.Document)
-        @test b.mod === Documenter.Documents
+    let b = DocSystem.binding(Documenter.Document)
+        @test b.mod === Documenter
         @test b.var === :Document
     end
     let b = DocSystem.binding(Documenter)

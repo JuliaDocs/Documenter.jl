@@ -5,10 +5,9 @@ module Expanders
 
 import ..Documenter:
     Anchors,
-    Documents,
     Documenter
 
-import .Documents:
+import .Documenter:
     MethodNode,
     DocsNode,
     DocsNodes,
@@ -23,7 +22,7 @@ import Markdown, REPL
 import Base64: stringmime
 import IOCapture
 
-function expand(doc::Documents.Document)
+function expand(doc::Documenter.Document)
     priority_pages = filter(doc.user.expandfirst) do src
         if src in keys(doc.blueprint.pages)
             return true
@@ -80,9 +79,9 @@ function create_draft_result!(node::Node; blocktype="code")
     @assert node.element isa MarkdownAST.CodeBlock
     codeblock = node.element
     codeblock.info = "julia"
-    node.element = Documents.MultiOutput(codeblock)
+    node.element = Documenter.MultiOutput(codeblock)
     push!(node.children, Node(codeblock))
-    push!(node.children, Node(Documents.MultiOutputElement(
+    push!(node.children, Node(Documenter.MultiOutputElement(
         Dict{MIME,Any}(MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>")
     )))
 end
@@ -292,7 +291,7 @@ function Selectors.runner(::Type{TrackHeaders}, node, page, doc)
     # Add the header to the document's header map.
     anchor = Anchors.add!(doc.internal.headers, header, slug, page.build)
     # Create an AnchoredHeader node and push the
-    ah = MarkdownAST.Node(Documents.AnchoredHeader(anchor))
+    ah = MarkdownAST.Node(Documenter.AnchoredHeader(anchor))
     anchor.node = ah
     MarkdownAST.insert_after!(node, ah)
     push!(ah.children, node)
@@ -416,7 +415,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         doc.internal.objects[object] = docsnode.element
         push!(docsnodes, docsnode)
     end
-    node.element = Documents.DocsNodesBlock(x)
+    node.element = Documenter.DocsNodesBlock(x)
     for docsnode in docsnodes
         push!(node.children, docsnode)
     end
@@ -520,14 +519,14 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
         end
 
         # Sort docstrings.
-        modulemap = Documents.precedence(modules)
-        pagesmap = Documents.precedence(pages)
-        ordermap = Documents.precedence(order)
+        modulemap = Documenter.precedence(modules)
+        pagesmap = Documenter.precedence(pages)
+        ordermap = Documenter.precedence(order)
         comparison = function (a, b)
             local t
-            (t = Documents._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
-            (t = Documents._compare(pagesmap,  2, a, b)) == 0 || return t < 0 # page
-            (t = Documents._compare(ordermap,  3, a, b)) == 0 || return t < 0 # category
+            (t = Documenter._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
+            (t = Documenter._compare(pagesmap,  2, a, b)) == 0 || return t < 0 # page
+            (t = Documenter._compare(ordermap,  3, a, b)) == 0 || return t < 0 # category
             string(a[4]) < string(b[4])                                       # name
         end
         sort!(results; lt = comparison)
@@ -554,7 +553,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
             doc.internal.objects[object] = docsnode.element
             push!(docsnodes, docsnode)
         end
-        node.element = Documents.DocsNodesBlock(x)
+        node.element = Documenter.DocsNodesBlock(x)
         for docsnode in docsnodes
             push!(node.children, docsnode)
         end
@@ -639,7 +638,7 @@ function Selectors.runner(::Type{IndexBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
-    indexnode = Documents.buildnode(Documents.IndexNode, x, doc, page)
+    indexnode = Documenter.buildnode(Documenter.IndexNode, x, doc, page)
     push!(doc.internal.indexnodes, indexnode)
     node.element = indexnode
 end
@@ -651,7 +650,7 @@ function Selectors.runner(::Type{ContentsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
-    contentsnode = Documents.buildnode(Documents.ContentsNode, x, doc, page)
+    contentsnode = Documenter.buildnode(Documenter.ContentsNode, x, doc, page)
     push!(doc.internal.contentsnodes, contentsnode)
     node.element = contentsnode
 end
@@ -753,12 +752,12 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     if result === nothing
         stdouterr = Documenter.DocTests.sanitise(buffer)
         stdouterr = remove_sandbox_from_output(stdouterr, mod)
-        isempty(stdouterr) || push!(content, Node(Documents.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
+        isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
-        push!(content, Node(Documents.MultiOutputElement(output)))
+        push!(content, Node(Documenter.MultiOutputElement(output)))
     end
     # ... and finally map the original code block to the newly generated ones.
-    node.element = Documents.MultiOutput(x)
+    node.element = Documenter.MultiOutput(x)
     append!(node.children, content)
 end
 
@@ -843,7 +842,7 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
         outstr = remove_sandbox_from_output(outstr, mod)
         push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", rstrip(outstr)))
     end
-    node.element = Documents.MultiCodeBlock(x, "julia-repl", [])
+    node.element = Documenter.MultiCodeBlock(x, "julia-repl", [])
     for element in multicodeblock
         push!(node.children, Node(element))
     end
@@ -885,7 +884,7 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
             ```
             """, exception=err)
     end
-    node.element = Documents.SetupNode(x.info, x.code)
+    node.element = Documenter.SetupNode(x.info, x.code)
 end
 
 # @raw
@@ -897,7 +896,7 @@ function Selectors.runner(::Type{RawBlocks}, node, page, doc)
 
     m = match(r"@raw[ ](.+)$", x.info)
     m === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
-    node.element = Documents.RawNode(Symbol(m[1]), x.code)
+    node.element = Documenter.RawNode(Symbol(m[1]), x.code)
 end
 
 # Documenter.

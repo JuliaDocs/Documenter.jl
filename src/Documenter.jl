@@ -13,9 +13,14 @@ $(EXPORTS)
 """
 module Documenter
 
+import AbstractTrees
+import Markdown
+import MarkdownAST
+import Unicode
+# Additional imported names
 using Test: @testset, @test
 using DocStringExtensions
-import Base64: base64decode
+using Base64: base64decode
 
 # Version number of Documenter itself
 const DOCUMENTER_VERSION = let
@@ -40,11 +45,11 @@ const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
     abstract type Plugin end
 
 Any plugin that needs to either solicit user input or store information in a
-[`Documents.Document`](@ref) should create a subtype of `Plugin`. The
+[`Document`](@ref) should create a subtype of `Plugin`. The
 subtype, `T <: Documenter.Plugin`, must have an empty constructor `T()` that
 initialized `T` with the appropriate default values.
 
-To retrieve the values stored in `T`, the plugin can call [`Documents.getplugin`](@ref).
+To retrieve the values stored in `T`, the plugin can call [`Documenter.getplugin`](@ref).
 If `T` was passed to [`makedocs`](@ref), the passed type will be returned. Otherwise,
 a new `T` object will be created.
 """
@@ -62,7 +67,7 @@ include("utilities/utilities.jl")
 include("DocMeta.jl")
 include("DocSystem.jl")
 include("Anchors.jl")
-include("Documents.jl")
+include("documents.jl")
 include("Expanders.jl")
 include("DocTests.jl")
 include("Builder.jl")
@@ -271,7 +276,7 @@ A guide detailing how to document a package using Documenter's [`makedocs`](@ref
 in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(components...; debug = false, format = HTML(), kwargs...)
-    document = Documents.Document(components; format=format, kwargs...)
+    document = Documenter.Document(components; format=format, kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.

@@ -6,7 +6,6 @@ module CrossReferences
 import ..Documenter:
     Anchors,
     Builder,
-    Documents,
     Expanders,
     Documenter
 
@@ -18,21 +17,21 @@ import AbstractTrees, MarkdownAST
 """
 $(SIGNATURES)
 
-Traverses a [`Documents.Document`](@ref) and replaces links containg `@ref` URLs with
+Traverses a [`Documenter.Document`](@ref) and replaces links containg `@ref` URLs with
 their real URLs.
 """
-function crossref(doc::Documents.Document)
+function crossref(doc::Documenter.Document)
     for (src, page) in doc.blueprint.pages
         empty!(page.globals.meta)
         crossref(doc, page, page.mdast)
     end
 end
 
-function crossref(doc::Documents.Document, page, mdast::MarkdownAST.Node)
+function crossref(doc::Documenter.Document, page, mdast::MarkdownAST.Node)
     for node in AbstractTrees.PreOrderDFS(mdast)
-        if node.element isa Documents.MetaNode
+        if node.element isa Documenter.MetaNode
             merge!(page.globals.meta, node.element.dict)
-        elseif node.element isa Documents.DocsNode
+        elseif node.element isa Documenter.DocsNode
             # the docstring AST trees are not part of the tree of the page, so we need to explicitly
             # call crossref() on them to update the links there. We also need up update
             # the CurrentModule meta key as needed, to make sure we find the correct
@@ -232,7 +231,7 @@ Find the included `Object` in the `doc` matching `binding` and `typesig`. The ma
 heuristic isn't too picky about what matches and will only fail when no `Binding`s matching
 `binding` have been included.
 """
-function find_object(doc::Documents.Document, binding, typesig)
+function find_object(doc::Documenter.Document, binding, typesig)
     object = Documenter.Object(binding, typesig)
     if haskey(doc.internal.objects, object)
         # Exact object matching the requested one.

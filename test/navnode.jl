@@ -2,8 +2,7 @@ module NavNodeTests
 
 using Test
 
-import Documenter: Documents, Builder
-import Documenter.Documents: NavNode
+import Documenter: Documenter, Builder, NavNode
 
 mutable struct FakeDocumentBlueprint
     pages   :: Dict{String, Nothing}
@@ -20,7 +19,7 @@ mutable struct FakeDocument
 end
 
 @testset "NavNode" begin
-    @test fieldtype(FakeDocumentInternal, :navlist) == fieldtype(Documents.Internal, :navlist)
+    @test fieldtype(FakeDocumentInternal, :navlist) == fieldtype(Documenter.Internal, :navlist)
 
     pages = [
         "page1.md",
@@ -55,7 +54,7 @@ end
     @test section.page === nothing
     @test length(section.children) == 3
 
-    navpath = Documents.navpath(navlist[5])
+    navpath = Documenter.navpath(navlist[5])
     @test length(navpath) == 3
     @test navpath[1] === section
     @test navpath[3] === navlist[5]

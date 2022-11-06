@@ -1,25 +1,4 @@
-"""
-Defines [`Document`](@ref) and its supporting types
-
-- [`Page`](@ref)
-- [`User`](@ref)
-- [`Internal`](@ref)
-- [`Globals`](@ref)
-
-"""
-module Documents
-
-import ..Documenter:
-    Documenter,
-    Anchors,
-    Plugin,
-    Writer
-
-using ..Documenter: Remotes
-using DocStringExtensions
-import Markdown
-import MarkdownAST, AbstractTrees
-using Unicode
+# Defines [`Document`](@ref) and its supporting types
 
 # When processing the AST during the build, in the MarkdownAST representation, we
 # replace various code blocks etc. with Documenter-specific elements that the writers
@@ -80,8 +59,8 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
     Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), mdast)
 end
 
-# FIXME -- special overload for Documenter.parseblock
-Documenter.parseblock(code::AbstractString, doc, page::Documents.Page; kwargs...) = Documenter.parseblock(code, doc, page.source; kwargs...)
+# FIXME -- special overload for parseblock
+parseblock(code::AbstractString, doc, page::Documenter.Page; kwargs...) = parseblock(code, doc, page.source; kwargs...)
 
 # Document blueprints.
 # --------------------
@@ -161,8 +140,8 @@ end
 
 struct DocsNode <: AbstractDocumenterBlock
     anchor  :: Anchors.Anchor
-    object  :: Documenter.Object
-    page    :: Documents.Page
+    object  :: Object
+    page    :: Documenter.Page
     # MarkdownAST support.
     # TODO: should be the docstring components (i.e. .mdasts) be stored as child nodes?
     mdasts  :: Vector{MarkdownAST.Node{Nothing}}
@@ -286,7 +265,7 @@ struct Internal
     headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
     docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings:: IdDict{Any,Any}           # Tracks insertion order of object per-binding.
-    objects :: IdDict{Any,Any}           # Tracks which `Documenter.Objects` are included in the `Document`.
+    objects :: IdDict{Any,Any}           # Tracks which `Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
     indexnodes    :: Vector{IndexNode}
     locallinks :: IdDict{MarkdownAST.Link, String}
@@ -307,11 +286,11 @@ struct Document
 end
 
 function Document(plugins = nothing;
-        root     :: AbstractString   = Documenter.currentdir(),
+        root     :: AbstractString   = currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
         workdir  :: Union{Symbol, AbstractString}  = :build,
-        format   :: Any              = Documenter.HTML(),
+        format   :: Any              = HTML(),
         clean    :: Bool             = true,
         doctest  :: Union{Bool,Symbol} = true,
         linkcheck:: Bool             = false,
@@ -320,7 +299,7 @@ function Document(plugins = nothing;
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
         strict::Union{Bool,Symbol,Vector{Symbol}} = false,
-        modules  :: Documenter.ModVec = Module[],
+        modules  :: ModVec = Module[],
         pages    :: Vector           = Any[],
         expandfirst :: Vector        = String[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
@@ -332,15 +311,15 @@ function Document(plugins = nothing;
         others...
     )
 
-    Documenter.check_strict_kw(strict)
-    Documenter.check_kwargs(others)
+    check_strict_kw(strict)
+    check_kwargs(others)
 
     if !isa(format, AbstractVector)
         format = Writer[format]
     end
 
     if version == "git-commit"
-        version = "git:$(Documenter.get_commit_short(root))"
+        version = "git:$(get_commit_short(root))"
     end
 
     remote = if isa(repo, AbstractString) && isempty(repo)
@@ -381,7 +360,7 @@ function Document(plugins = nothing;
         draft,
     )
     internal = Internal(
-        Documenter.assetsdir(),
+        assetsdir(),
         [],
         [],
         Anchors.AnchorMap(),
@@ -398,7 +377,7 @@ function Document(plugins = nothing;
     if plugins !== nothing
         for plugin in plugins
             plugin isa Plugin ||
-                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Documenter.Plugin`."))
+                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Plugin`."))
             haskey(plugin_dict, typeof(plugin)) &&
                 throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
             plugin_dict[typeof(plugin)] = plugin
@@ -407,14 +386,14 @@ function Document(plugins = nothing;
 
     blueprint = DocumentBlueprint(
         Dict{String, Page}(),
-        Documenter.submodules(modules),
+        submodules(modules),
     )
     Document(user, internal, plugin_dict, blueprint)
 end
 
 function get_remote_ci_fallbacks(dir::AbstractString)
     # First, try to determine it from repository's origin.url
-    remote = Documenter.getremote(dir)
+    remote = getremote(dir)
     isnothing(remote) || return remote
     # If that fails, fall back to Travis CI variables
     remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
@@ -442,8 +421,8 @@ end
 """
     getplugin(doc::Document, T)
 
-Retrieves the [`Plugin`](@ref Documenter.Plugin) type for `T` stored in `doc`. If `T` was passed to
-[`makedocs`](@ref Documenter.makedocs), the passed type will be returned. Otherwise, a new `T` object
+Retrieves the [`Plugin`](@ref Plugin) type for `T` stored in `doc`. If `T` was passed to
+[`makedocs`](@ref makedocs), the passed type will be returned. Otherwise, a new `T` object
 will be created using the default constructor `T()`.
 """
 function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
@@ -486,7 +465,7 @@ function populate!(index::IndexNode, document::Document)
         page = relpath(doc.page.build, dirname(index.build))
         mod  = object.binding.mod
         # Include *all* signatures, whether they are `Union{}` or not.
-        cat  = Symbol(lowercase(Documenter.doccat(object.binding, Union{})))
+        cat  = Symbol(lowercase(doccat(object.binding, Union{})))
         if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
@@ -530,7 +509,7 @@ function populate!(contents::ContentsNode, document::Document)
 end
 
 # some replacements for jldoctest blocks
-function doctest_replace!(doc::Documents.Document)
+function doctest_replace!(doc::Documenter.Document)
     for (src, page) in doc.blueprint.pages
         doctest_replace!(page.mdast)
     end
@@ -553,13 +532,11 @@ function doctest_replace!(block::MarkdownAST.CodeBlock)
 end
 doctest_replace!(@nospecialize _) = nothing
 
-## Documenter.
-
 function buildnode(T::Type, block, doc, page)
     mod  = get(page.globals.meta, :CurrentModule, Main)
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
-    for (ex, str) in Documenter.parseblock(block.code, doc, page)
-        if Documenter.isassign(ex)
+    for (ex, str) in parseblock(block.code, doc, page)
+        if isassign(ex)
             cd(dirname(page.source)) do
                 dict[ex.args[1]] = Core.eval(mod, ex.args[2])
             end
@@ -615,18 +592,16 @@ end
 Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([...])")
 
 # Extend MDFlatten.mdflatten to support the Documenter-specific elements
-Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = Documenter.MDFlatten.mdflatten(io, node.children)
-Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = Documenter.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
-Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = Documenter.MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
-Documenter.MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = Documenter.MDFlatten.mdflatten(io, node, e.codeblock)
-function Documenter.MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = MDFlatten.mdflatten(io, node, e.codeblock)
+function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines
     for node in e.mdasts
-        Documenter.MDFlatten.mdflatten(io, node)
+        MDFlatten.mdflatten(io, node)
         # Docstrings are double wrapped in MD objects, and so led to extra newlines
         # in the old Markdown-based mdflatten()
         print(io, "\n\n\n\n")
     end
-end
-
 end

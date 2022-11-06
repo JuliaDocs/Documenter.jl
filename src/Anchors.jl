@@ -29,7 +29,7 @@ mutable struct Anchor
     id     :: String
     nth    :: Int
     # Reverse-lookup of .object for MarkdownAST trees. This is intentionally
-    # uninitialized until set in Documents.markdownast()
+    # uninitialized until set in Documenter.markdownast()
     node   :: MarkdownAST.Node{Nothing}
     Anchor(object) = new(object, 0, "", "", 1)
 end

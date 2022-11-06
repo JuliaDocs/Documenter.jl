@@ -9,7 +9,6 @@ import ..Documenter:
     DocSystem,
     DocMeta,
     Documenter,
-    Documents,
     Expanders,
     IdDict
 
@@ -30,9 +29,9 @@ MutableMD2CodeBlock(block :: MarkdownAST.CodeBlock) = MutableMD2CodeBlock(block.
 
 struct DocTestContext
     file :: String
-    doc :: Documents.Document
+    doc :: Documenter.Document
     meta :: Dict{Symbol, Any}
-    DocTestContext(file::String, doc::Documents.Document) = new(file, doc, Dict())
+    DocTestContext(file::String, doc::Documenter.Document) = new(file, doc, Dict())
 end
 
 """
@@ -44,7 +43,7 @@ executing doctests.
 Will abort the document generation when an error is thrown. Use `doctest = false`
 keyword in [`Documenter.makedocs`](@ref) to disable doctesting.
 """
-function doctest(blueprint::Documents.DocumentBlueprint, doc::Documents.Document)
+function doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Document)
     @debug "Running doctests."
     # find all the doctest blocks in the pages
     for (src, page) in blueprint.pages
@@ -70,13 +69,13 @@ function doctest(blueprint::Documents.DocumentBlueprint, doc::Documents.Document
     end
 end
 
-function doctest(page::Documents.Page, doc::Documents.Document)
+function doctest(page::Documenter.Page, doc::Documenter.Document)
     ctx = DocTestContext(page.source, doc) # FIXME
     ctx.meta[:CurrentFile] = page.source
     doctest(ctx, page.mdast)
 end
 
-function doctest(docstr::Docs.DocStr, mod::Module, doc::Documents.Document)
+function doctest(docstr::Docs.DocStr, mod::Module, doc::Documenter.Document)
     md = DocSystem.parsedoc(docstr)
     # Note: parsedocs / formatdoc in Base is weird. It double-wraps the docstring Markdown
     # in a Markdown.MD object..
@@ -240,7 +239,7 @@ mutable struct Result
     end
 end
 
-function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
+function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     for (input, output) in repl_splitter(block.code)
         result = Result(block, input, output, meta[:CurrentFile])
         for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise=false)
@@ -265,7 +264,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documents.Document, page)
     end
 end
 
-function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
+function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
@@ -290,7 +289,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documents.Document, page)
 end
 
 function filter_doctests(strings::NTuple{2, AbstractString},
-                         doc::Documents.Document, meta::Dict)
+                         doc::Documenter.Document, meta::Dict)
     meta_block_filters = get(Vector{Any}, meta, :DocTestFilters)
     meta_block_filters === nothing && (meta_block_filters = [])
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
@@ -303,7 +302,7 @@ function filter_doctests(strings::NTuple{2, AbstractString},
 end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
-function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documents.Document)
+function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documenter.Document)
     sandbox_name = nameof(sandbox)
     mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
@@ -395,7 +394,7 @@ end
 
 import .Documenter.TextDiff
 
-function report(result::Result, str, doc::Documents.Document)
+function report(result::Result, str, doc::Documenter.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Documenter.find_block_in_file(result.block.code, result.file)
     line = lines === nothing ? nothing : first(lines)
@@ -421,7 +420,7 @@ function report(result::Result, str, doc::Documents.Document)
         """, diff, _file=result.file, _line=line)
 end
 
-function fix_doctest(result::Result, str, doc::Documents.Document)
+function fix_doctest(result::Result, str, doc::Documenter.Document)
     code = result.block.code
     filename = Base.find_source_file(result.file)
     # read the file containing the code block

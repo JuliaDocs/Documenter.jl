@@ -17,7 +17,7 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
-function latex_filename(doc::Documenter.Documents.Document)
+function latex_filename(doc::Documenter.Documenter.Document)
     @test length(doc.user.format) == 1
     settings = first(doc.user.format)
     @test settings isa Documenter.LaTeX
@@ -71,7 +71,7 @@ end
         (Main.examples_html_mathjax3_doc, "html-mathjax3"),
         (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom")
     ]
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", name)
             @test joinpath(build_dir, "index.html") |> isfile
@@ -137,7 +137,7 @@ end
     @testset "HTML: local" begin
         doc = Main.examples_html_local_doc
 
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", "html-local")
 
@@ -168,7 +168,7 @@ end
 
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_texonly")
             @test joinpath(build_dir, latex_filename(doc)) |> isfile
             @test joinpath(build_dir, "documenter.sty") |> isfile
@@ -177,7 +177,7 @@ end
 
     @testset "PDF/LaTeX: simple (TeX only)" begin
         doc = Main.examples_latex_simple_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple_texonly")
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))
@@ -188,7 +188,7 @@ end
 
     @testset "PDF/LaTeX: showcase (TeX only)" begin
         doc = Main.examples_latex_showcase_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_showcase_texonly")
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))

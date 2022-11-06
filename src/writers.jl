@@ -23,7 +23,7 @@ Selectors.runner(::Type{LaTeXFormat},    fmt, doc) = LaTeXWriter.render(doc, fmt
 Selectors.runner(::Type{HTMLFormat},     fmt, doc) = HTMLWriter.render(doc, fmt)
 
 """
-Writes a [`Documents.Document`](@ref) object to `.user.build` directory in
+Writes a [`Documenter.Document`](@ref) object to `.user.build` directory in
 the formats specified in the `.user.format` vector.
 
 Adding additional formats requires adding new `Selector` definitions as follows:
@@ -38,7 +38,7 @@ Selectors.runner(::Type{CustomFormat}, _, doc) = CustomWriter.render(doc)
 # Definition of `CustomWriter` module below...
 ```
 """
-function render(doc::Documents.Document)
+function render(doc::Documenter.Document)
     # Render each format. Additional formats must define an `order`, `matcher`, `runner`, as
     # well as their own rendering methods in a separate module.
     for each in doc.user.format
