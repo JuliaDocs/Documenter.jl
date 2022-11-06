@@ -8,7 +8,7 @@ Modules = [
     Documenter.LaTeXWriter,
 ]
 Filter = t -> t !== asset
-Pages = ["writers.jl", "html/HTMLWriter.jl", "latex/LaTeXWriter.jl"]
+Pages = ["writers.jl", "html/HTMLWriter.jl", "html/RD.jl", "latex/LaTeXWriter.jl"]
 ```
 ```@docs
 Documenter.Plugin
