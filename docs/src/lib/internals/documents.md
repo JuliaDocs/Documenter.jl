@@ -1,5 +1,6 @@
 # Documents
 
 ```@autodocs
-Modules = [Documenter.Documents]
+Modules = [Documenter]
+Pages = ["documents.jl"]
 ```

@@ -29,7 +29,7 @@ end
 @testset "Examples/LaTeX" begin
     @testset "PDF/LaTeX: simple" begin
         doc = Main.examples_latex_simple_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple")
             @test joinpath(build_dir, "DocumenterLaTeXSimple-1.2.3.pdf") |> isfile
         end
@@ -37,7 +37,7 @@ end
 
     @testset "PDF/LaTeX" begin
         doc = Main.examples_latex_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex")
             @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
         end
@@ -45,7 +45,7 @@ end
 
     @testset "PDF/LaTeX: Custom Cover Page" begin
         doc = Main.examples_latex_cover_page
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_cover_page")
             @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
         end
@@ -53,7 +53,7 @@ end
 
     @testset "PDF/LaTeX: Custom TOC Style" begin
         doc = Main.examples_latex_toc_style
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_toc_style")
             @test joinpath(build_dir, "DocumenterLaTeX$(tagsuffix).pdf") |> isfile
         end
@@ -61,7 +61,7 @@ end
 
     @testset "PDF/LaTeX: tectonic" begin
         doc = Main.examples_latex_simple_tectonic_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple_tectonic")
             @test joinpath(build_dir, "DocumenterLaTeXSimpleTectonic-1.2.3.pdf") |> isfile
         end
@@ -69,7 +69,7 @@ end
 
     @testset "PDF/LaTeX: showcase" begin
         doc = Main.examples_latex_showcase_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_showcase")
             @test joinpath(build_dir, "DocumenterLaTeXShowcase-1.2.3.pdf") |> isfile
         end

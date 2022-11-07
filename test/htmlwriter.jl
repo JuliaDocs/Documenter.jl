@@ -4,7 +4,7 @@ using Test
 import MarkdownAST
 using Documenter
 using Documenter: DocSystem
-using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
+using Documenter.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)

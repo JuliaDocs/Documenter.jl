@@ -48,17 +48,14 @@ import JSON
 import ...Documenter:
     Anchors,
     Builder,
-    Documents,
     Expanders,
-    Documenter,
-    Utilities,
-    Writers
+    Documenter
 
-using Documenter.Documents: NavNode
-using ...Utilities: Default, Remotes
-using ...Utilities.JSDependencies: JSDependencies, json_jsescape
-import ...Utilities.DOM: DOM, Tag, @tags
-using ...Utilities.MDFlatten
+using Documenter: NavNode
+using ...Documenter: Default, Remotes
+using ...JSDependencies: JSDependencies, json_jsescape
+import ...DOM: DOM, Tag, @tags
+using ...MDFlatten
 
 import ANSIColoredPrinters
 
@@ -429,7 +426,7 @@ struct HTML <: Documenter.Writer
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
             repolink      :: Union{String, Nothing, Default} = Default(nothing),
-            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Utilities.git_remote_head_branch("HTML(edit_link = ...)", Utilities.currentdir())),
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",
@@ -507,7 +504,7 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
             return false, node, highlightjs
         end
         @debug "HTMLWriter: downloading highlightjs"
-        r = Utilities.JSDependencies.RequireJS([])
+        r = Documenter.JSDependencies.RequireJS([])
         RD.highlightjs!(r, highlights)
         libs = sort!(collect(r.libraries); by = first) # puts highlight first
         key = join((x.first for x in libs), ',')
@@ -525,127 +522,11 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
     return prerender, node, highlightjs
 end
 
-"Provides a namespace for remote dependencies."
-module RD
-    using JSON
-    using ....Utilities.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
-    using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
-
-    const requirejs_cdn = "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"
-    const lato = "https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css"
-    const juliamono = "https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css"
-    const fontawesome_version = "5.15.4"
-    const fontawesome_css = [
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/fontawesome.min.css",
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/solid.min.css",
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/$(fontawesome_version)/css/brands.min.css",
-    ]
-
-    const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js")
-    const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js")
-    const lunr = RemoteLibrary("lunr", "https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js")
-    const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js")
-
-    # headroom
-    const headroom_version = "0.12.0"
-    const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/headroom.min.js")
-    const headroom_jquery = RemoteLibrary(
-        "headroom-jquery",
-        "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/jQuery.headroom.min.js",
-        deps = ["jquery", "headroom"],
-    )
-
-    # highlight.js
-    "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
-    function highlightjs!(r::RequireJS, languages = String[])
-        # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
-        # When updating this dependency, it is also necessary to update the the CSS
-        # files the CSS files in assets/html/scss/highlightjs
-        hljs_version = "11.5.1"
-        push!(r, RemoteLibrary(
-            "highlight",
-            "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
-        ))
-        languages = ["julia", "julia-repl", languages...]
-        for language in languages
-            language = jsescape(language)
-            push!(r, RemoteLibrary(
-                "highlight-$(language)",
-                "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/languages/$(language).min.js",
-                deps = ["highlight"]
-            ))
-        end
-        push!(r, Snippet(
-            vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
-            ["\$"],
-            raw"""
-            $(document).ready(function() {
-                hljs.highlightAll();
-            })
-            """
-        ))
-    end
-
-    # MathJax & KaTeX
-    const katex_version = "0.13.24"
-    const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
-    function mathengine!(r::RequireJS, engine::KaTeX)
-        push!(r, RemoteLibrary(
-            "katex",
-            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
-        ))
-        push!(r, RemoteLibrary(
-            "katex-auto-render",
-            "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
-            deps = ["katex"],
-        ))
-        push!(r, Snippet(
-            ["jquery", "katex", "katex-auto-render"],
-            ["\$", "katex", "renderMathInElement"],
-            """
-            \$(document).ready(function() {
-              renderMathInElement(
-                document.body,
-                $(json_jsescape(engine.config, 2))
-              );
-            })
-            """
-        ))
-    end
-    function mathengine!(r::RequireJS, engine::MathJax2)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML" : engine.url
-        push!(r, RemoteLibrary(
-            "mathjax",
-            url,
-            exports = "MathJax"
-        ))
-        push!(r, Snippet(["mathjax"], ["MathJax"],
-            """
-            MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
-            """
-        ))
-    end
-    function mathengine!(r::RequireJS, engine::MathJax3)
-        url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" : engine.url
-        push!(r, Snippet([], [],
-            """
-            window.MathJax = $(json_jsescape(engine.config, 2));
-
-            (function () {
-                var script = document.createElement('script');
-                script.src = '$url';
-                script.async = true;
-                document.head.appendChild(script);
-            })();
-            """
-        ))
-    end
-    mathengine(::RequireJS, ::Nothing) = nothing
-end
+include("RD.jl")
 
 struct SearchRecord
     src :: String
-    page :: Documents.Page
+    page :: Documenter.Page
     fragment :: String
     category :: String
     title :: String
@@ -658,7 +539,7 @@ end
 other recursive functions.
 """
 mutable struct HTMLContext
-    doc :: Documents.Document
+    doc :: Documenter.Document
     settings :: Union{HTML, Nothing}
     scripts :: Vector{String}
     documenter_js :: String
@@ -667,18 +548,18 @@ mutable struct HTMLContext
     search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
-    search_navnode :: Documents.NavNode
+    search_navnode :: Documenter.NavNode
 end
 
 HTMLContext(doc, settings=nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
-    Documents.NavNode("search", "Search", nothing),
+    Documenter.NavNode("search", "Search", nothing),
 )
 
 struct DCtx
     # ctx and navnode were recursively passed to all domify() methods
     ctx :: HTMLContext
-    navnode :: Documents.NavNode
+    navnode :: Documenter.NavNode
     # The following fields were keyword arguments to mdconvert()
     droplinks :: Bool
     settings :: Union{HTML, Nothing}
@@ -710,7 +591,7 @@ function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, cat
     )
 end
 
-function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documents.AnchoredHeader)
+function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
     a = element.anchor
     SearchRecord(ctx, navnode;
         fragment=Anchors.fragment(a),
@@ -736,13 +617,13 @@ function JSON.lower(rec::SearchRecord)
 end
 
 """
-Returns a page (as a [`Documents.Page`](@ref) object) using the [`HTMLContext`](@ref).
+Returns a page (as a [`Documenter.Page`](@ref) object) using the [`HTMLContext`](@ref).
 """
 getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
-getpage(ctx::HTMLContext, navnode::Documents.NavNode) = getpage(ctx, navnode.page)
+getpage(ctx::HTMLContext, navnode::Documenter.NavNode) = getpage(ctx, navnode.page)
 getpage(dctx::DCtx) = getpage(dctx.ctx, dctx.navnode)
 
-function render(doc::Documents.Document, settings::HTML=HTML())
+function render(doc::Documenter.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
@@ -805,7 +686,7 @@ function render(doc::Documents.Document, settings::HTML=HTML())
 
     for page in keys(doc.blueprint.pages)
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
-        nn = (idx === nothing) ? Documents.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
+        nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
         render_page(ctx, nn)
     end
@@ -824,7 +705,7 @@ Copies an asset from Documenters `assets/html/` directory to `doc.user.build`.
 Returns the path of the copied asset relative to `.build`.
 """
 function copy_asset(file, doc)
-    src = joinpath(Utilities.assetsdir(), "html", file)
+    src = joinpath(Documenter.assetsdir(), "html", file)
     alt_src = joinpath(doc.user.source, "assets", file)
     dst = joinpath(doc.user.build, "assets", file)
     isfile(src) || error("Asset '$file' not found at $(abspath(src))")
@@ -1059,10 +940,10 @@ end
 
 struct NavMenuContext
     htmlctx :: HTMLContext
-    current :: Documents.NavNode
+    current :: Documenter.NavNode
     idstack :: Vector{Int}
 end
-NavMenuContext(ctx::HTMLContext, current::Documents.NavNode) = NavMenuContext(ctx, current, [])
+NavMenuContext(ctx::HTMLContext, current::Documenter.NavNode) = NavMenuContext(ctx, current, [])
 
 function render_sidebar(ctx, navnode)
     @tags a form img input nav div select option span
@@ -1155,7 +1036,7 @@ function navitem(nctx, nns::Vector)
     ulclass = (length(nctx.idstack) >= nctx.htmlctx.settings.collapselevel) ? ".collapsed" : ""
     isempty(nodes) ? DOM.Node("") : DOM.Tag(:ul)[ulclass](nodes)
 end
-function navitem(nctx, nn::Documents.NavNode)
+function navitem(nctx, nn::Documenter.NavNode)
     @tags ul li span a input label i
     ctx, current = nctx.htmlctx, nctx.current
     dctx = DCtx(nctx.htmlctx, nn, true)
@@ -1173,7 +1054,7 @@ function navitem(nctx, nn::Documents.NavNode)
     item = if length(nctx.idstack) >= ctx.settings.collapselevel && children.name !== DOM.TEXT
         menuid = "menuitem-$(join(nctx.idstack, '-'))"
         input_attr = ["#$(menuid).collapse-toggle", :type => "checkbox"]
-        nn in Documents.navpath(nctx.current) && push!(input_attr, :checked)
+        nn in Documenter.navpath(nctx.current) && push!(input_attr, :checked)
         li[currentclass](
             input[input_attr...],
             label[".tocitem", :for => menuid](span[".docs-label"](title), i[".docs-chevron"]),
@@ -1206,7 +1087,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     @tags div header nav ul li a span
 
     # The breadcrumb (navigation links on top)
-    navpath = Documents.navpath(navnode)
+    navpath = Documenter.navpath(navnode)
     header_links = map(navpath) do nn
         dctx = DCtx(ctx, nn, true)
         title = domify(dctx, pagetitle(dctx))
@@ -1286,7 +1167,7 @@ function edit_link(f, ctx, navnode)
     # modifications. The only thing we want to do is to determine the Git remote host name
     # from the URL, if we can. We also use the "view" verb and logo here, since we do not
     # know if the remote link allows editing, and so it is the safer option.
-    if Utilities.isabsurl(editpath)
+    if Documenter.isabsurl(editpath)
         host, _ = host_logo(editpath)
         title = "View source" * (isempty(host) ? "" : " on $(host)")
         f(view_logo, title, editpath)
@@ -1315,7 +1196,7 @@ function edit_link(f, ctx, navnode)
         "Edit", edit_logo, ctx.settings.edit_link
     end
     host, _ = host_logo(ctx.doc.user.remote)
-    editurl = Utilities.edit_url(ctx.doc.user.remote, editpath, commit=commit)
+    editurl = Documenter.edit_url(ctx.doc.user.remote, editpath, commit=commit)
     # It is possible for editurl() to return a nothing, if something goes wrong
     isnothing(editurl) && return
     # Create the edit link
@@ -1570,7 +1451,7 @@ end
 
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify(dctx, node.children)
 
-function domify(dctx::DCtx, node::Node, ah::Documents.AnchoredHeader)
+function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     @assert length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Heading)
     ctx, navnode = dctx.ctx, dctx.navnode
     anchor = ah.anchor
@@ -1609,9 +1490,9 @@ function domify(lb::ListBuilder)
     ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
 end
 
-function domify(dctx::DCtx, node::Node, contents::Documents.ContentsNode)
+function domify(dctx::DCtx, node::Node, contents::Documenter.ContentsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, contents::Documents.ContentsNode)
+    # function domify(ctx, navnode, contents::Documenter.ContentsNode)
     @tags a
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
@@ -1631,9 +1512,9 @@ function domify(dctx::DCtx, node::Node, contents::Documents.ContentsNode)
     domify(lb)
 end
 
-function domify(dctx::DCtx, node::Node, index::Documents.IndexNode)
+function domify(dctx::DCtx, node::Node, index::Documenter.IndexNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, index::Documents.IndexNode)
+    # function domify(ctx, navnode, index::Documenter.IndexNode)
     @tags a code li ul
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
@@ -1641,24 +1522,24 @@ function domify(dctx::DCtx, node::Node, index::Documents.IndexNode)
         object, doc, path, mod, cat = el
         path = joinpath(navnode_dir, path) # links in IndexNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
-        url = string(path, "#", Utilities.slugify(object))
+        url = string(path, "#", Documenter.slugify(object))
         li(a[:href=>url](code("$(object.binding)")))
     end
     ul(lis)
 end
 
-domify(dctx::DCtx, node::Node, ::Documents.DocsNodesBlock) = domify(dctx, node.children)
+domify(dctx::DCtx, node::Node, ::Documenter.DocsNodesBlock) = domify(dctx, node.children)
 
-function domify(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
+function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, node::Documents.DocsNode)
+    # function domify(ctx, navnode, node::Documenter.DocsNode)
     @tags a code article header span
 
     # push to search index
     rec = SearchRecord(ctx, navnode;
         fragment=Anchors.fragment(node.anchor),
         title=string(node.object.binding),
-        category=Utilities.doccat(node.object),
+        category=Documenter.doccat(node.object),
         text = mdflatten(mdast_node))
     push!(ctx.search_index, rec)
 
@@ -1666,14 +1547,14 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documents.DocsNode)
         header(
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Utilities.doccat(node.object))")
+            span[".docstring-category"]("$(Documenter.doccat(node.object))")
         ),
         domify_doc(dctx, mdast_node)
     )
 end
 
 function domify_doc(dctx::DCtx, node::Node)
-    @assert node.element isa Documents.DocsNode
+    @assert node.element isa Documenter.DocsNode
     ctx, navnode = dctx.ctx, dctx.navnode
     # function domify_doc(ctx, navnode, md::Markdown.MD)
     @tags a section footer div
@@ -1684,7 +1565,7 @@ function domify_doc(dctx::DCtx, node::Node)
         ret = section(div(domify(dctx, markdown)))
         # When a source link is available then print the link.
         if !ctx.settings.disable_git
-            url = Utilities.source_url(ctx.doc.user.remote, result)
+            url = Documenter.source_url(ctx.doc.user.remote, result)
             if url !== nothing
                 push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
             end
@@ -1693,15 +1574,15 @@ function domify_doc(dctx::DCtx, node::Node)
     end
 end
 
-function domify(dctx::DCtx, ::Node, evalnode::Documents.EvalNode)
+function domify(dctx::DCtx, ::Node, evalnode::Documenter.EvalNode)
     isnothing(evalnode.result) ? DOM.Node[] : domify(dctx, evalnode.result.children)
 end
 
 # nothing to show for MetaNodes, so we just return an empty list
-domify(::DCtx, ::Node, ::Documents.MetaNode) = DOM.Node[]
-domify(::DCtx, ::Node, ::Documents.SetupNode) = DOM.Node[]
+domify(::DCtx, ::Node, ::Documenter.MetaNode) = DOM.Node[]
+domify(::DCtx, ::Node, ::Documenter.SetupNode) = DOM.Node[]
 
-function domify(::DCtx, ::Node, raw::Documents.RawNode)
+function domify(::DCtx, ::Node, raw::Documenter.RawNode)
     raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
 end
 
@@ -1720,8 +1601,8 @@ function open_output(f, ctx, navnode)
 end
 
 """
-Get the relative hyperlink between two [`Documents.NavNode`](@ref)s. Assumes that both
-[`Documents.NavNode`](@ref)s have an associated [`Documents.Page`](@ref) (i.e. `.page`
+Get the relative hyperlink between two [`Documenter.NavNode`](@ref)s. Assumes that both
+[`Documenter.NavNode`](@ref)s have an associated [`Documenter.Page`](@ref) (i.e. `.page`
 is not `nothing`).
 """
 navhref(ctx, to, from) = pretty_url(ctx, relhref(get_url(ctx, from), get_url(ctx, to)))
@@ -1755,9 +1636,9 @@ function get_url(ctx, path::AbstractString)
 end
 
 """
-Returns the full path of a [`Documents.NavNode`](@ref) relative to `src/`.
+Returns the full path of a [`Documenter.NavNode`](@ref) relative to `src/`.
 """
-get_url(ctx, navnode::Documents.NavNode) = get_url(ctx, navnode.page)
+get_url(ctx, navnode::Documenter.NavNode) = get_url(ctx, navnode.page)
 
 """
 If `prettyurls` for [`HTML`](@ref Documenter.HTML) is enabled, returns a "pretty" version of
@@ -1780,11 +1661,11 @@ was unable to find any `<h1>` headers).
 """
 function pagetitle(page::Node)
     @assert page.element isa MarkdownAST.Document
-    # function pagetitle(page::Documents.Page)
+    # function pagetitle(page::Documenter.Page)
     title = nothing
     for node in page.children
         # AnchoredHeaders should have just one child node, which is the Heading node
-        if isa(node.element, Documents.AnchoredHeader)
+        if isa(node.element, Documenter.AnchoredHeader)
             node = first(node.children)
         end
         if isa(node.element, MarkdownAST.Heading) && node.element.level == 1
@@ -1797,7 +1678,7 @@ end
 
 function pagetitle(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function pagetitle(ctx, navnode::Documents.NavNode)
+    # function pagetitle(ctx, navnode::Documenter.NavNode)
     if navnode.title_override !== nothing
         # parse title_override as markdown
         md = Markdown.parse(navnode.title_override)
@@ -1827,12 +1708,12 @@ in the navigation menu twice.
 """
 function collect_subsections(page::MarkdownAST.Node)
     @assert page.element isa MarkdownAST.Document
-    # function collect_subsections(page::Documents.Page)
+    # function collect_subsections(page::Documenter.Page)
     sections = []
     title_found = false
     for node in page.children
         @assert !isa(node.element, MarkdownAST.Heading) # all headings should have been replaced
-        isa(node.element, Documents.AnchoredHeader) || continue
+        isa(node.element, Documenter.AnchoredHeader) || continue
         anchor = node.element.anchor
         node = first(node.children) # get the Heading node
         @assert isa(node.element, MarkdownAST.Heading)
@@ -1897,7 +1778,7 @@ function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
     language = c.info
     # function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
-    language = Utilities.codelang(language)
+    language = Documenter.codelang(language)
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
         return pre(domify_ansicoloredtext(c.code, "nohighlight hljs"))
     elseif settings !== nothing && settings.prerender &&
@@ -1909,9 +1790,9 @@ function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
     return pre(code[".$(class) .hljs"](c.code))
 end
 
-function domify(dctx::DCtx, node::Node, mcb::Documents.MultiCodeBlock)
+function domify(dctx::DCtx, node::Node, mcb::Documenter.MultiCodeBlock)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function mdconvert(mcb::Documents.MultiCodeBlock, parent::MDBlockContext; kwargs...)
+    # function mdconvert(mcb::Documenter.MultiCodeBlock, parent::MDBlockContext; kwargs...)
     @tags pre br
     p = pre()
     for (i, thing) in enumerate(node.children)
@@ -1934,7 +1815,7 @@ domify(dctx::DCtx, node::Node, c::MarkdownAST.Code) = Tag(:code)(c.code)
 function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     @assert settings.prerender "unreachable"
     @tags pre code
-    lang = Utilities.codelang(c.info)
+    lang = Documenter.codelang(c.info)
     hljs = settings.highlightjs
     js = """
     const hljs = require('$(hljs)');
@@ -2059,7 +1940,7 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # TODO: this could be rearranged such that we push!() the DOM here into .footnotes, rather
     # than the Node objects.
     if isnothing(dctx.footnotes)
-        @error "Invalid nested footnote definition in $(Utilities.locrepr(dctx.navnode.page))" f.id
+        @error "Invalid nested footnote definition in $(Documenter.locrepr(dctx.navnode.page))" f.id
     else
         push!(dctx.footnotes, node)
     end
@@ -2102,8 +1983,8 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
 end
 
 # Select the "best" representation for HTML output.
-domify(dctx::DCtx, node::Node, ::Documents.MultiOutput) = domify(dctx, node.children)
-domify(dctx::DCtx, node::Node, moe::Documents.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
+domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.children)
+domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)
@@ -2170,7 +2051,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
         m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
         out = if m_bracket === nothing && m_dollars === nothing
-            Utilities.mdparse(latex; mode = :single)
+            Documenter.mdparse(latex; mode = :single)
         else
             [MarkdownAST.@ast MarkdownAST.DisplayMath(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])]
         end
@@ -2195,7 +2076,7 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function fixlinks!(ctx, navnode, link::Markdown.Link)
     link_url = link.destination
-    Utilities.isabsurl(link_url) && return link_url
+    Documenter.isabsurl(link_url) && return link_url
 
     # anything starting with mailto: doesn't need fixing
     startswith(link_url, "mailto:") && return link_url
@@ -2206,7 +2087,7 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
 
     s = split(link_url, "#", limit = 2)
     if Sys.iswindows() && ':' in first(s)
-        @warn "invalid local link: colons not allowed in paths on Windows in $(Utilities.locrepr(navnode.page))" link_url
+        @warn "invalid local link: colons not allowed in paths on Windows in $(Documenter.locrepr(navnode.page))" link_url
         return link_url
     end
     path = normpath(joinpath(dirname(navnode.page), first(s)))
@@ -2219,7 +2100,7 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
         # provided files or generated by code examples)
         path = relhref(get_url(ctx, navnode), path)
     else
-        @warn "invalid local link: unresolved path in $(Utilities.locrepr(navnode.page))" link_url
+        @warn "invalid local link: unresolved path in $(Documenter.locrepr(navnode.page))" link_url
     end
 
     # Replace any backslashes in links, if building the docs on Windows
@@ -2231,10 +2112,10 @@ function fixlink(dctx::DCtx, img::MarkdownAST.Image)
     ctx, navnode = dctx.ctx, dctx.navnode
     # function fixlinks!(ctx, navnode, img::Markdown.Image)
     img_url = img.destination
-    Utilities.isabsurl(img_url) && return img_url
+    Documenter.isabsurl(img_url) && return img_url
 
     if Sys.iswindows() && ':' in img_url
-        @warn "invalid local image: colons not allowed in paths on Windows in $(Utilities.locrepr(navnode.page))" img_url
+        @warn "invalid local image: colons not allowed in paths on Windows in $(Documenter.locrepr(navnode.page))" img_url
         return img_url
     end
 
@@ -2244,7 +2125,7 @@ function fixlink(dctx::DCtx, img::MarkdownAST.Image)
         # Replace any backslashes in links, if building the docs on Windows
         return replace(path, '\\' => '/')
     else
-        @warn "invalid local image: unresolved path in $(Utilities.locrepr(navnode.page))" link = img_url
+        @warn "invalid local image: unresolved path in $(Documenter.locrepr(navnode.page))" link = img_url
         return img_url
     end
 end

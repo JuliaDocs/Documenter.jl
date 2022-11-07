@@ -1,7 +1,7 @@
 module LaTeXWriterTests
 
 using Test
-import Documenter.Writers.LaTeXWriter
+import Documenter.LaTeXWriter
 
 @testset "file ordering" begin
     # Single page returns a single page

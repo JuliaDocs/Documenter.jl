@@ -64,11 +64,8 @@ end
 import ...Documenter:
     Anchors,
     Builder,
-    Documents,
     Expanders,
-    Documenter,
-    Utilities,
-    Writers
+    Documenter
 
 import Markdown
 
@@ -80,7 +77,7 @@ mutable struct Context{I <: IO} <: IO
     footnotes::Dict{String, Int}
     depth::Int
     filename::String # currently active source file
-    doc::Documents.Document
+    doc::Documenter.Document
 end
 Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
 
@@ -107,7 +104,7 @@ const DOCUMENT_STRUCTURE = (
     "subparagraph",
 )
 
-function render(doc::Documents.Document, settings::LaTeX=LaTeX())
+function render(doc::Documenter.Document, settings::LaTeX=LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
     mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
@@ -164,7 +161,7 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
     end
 end
 
-function latex_fileprefix(doc::Documents.Document, settings::LaTeX)
+function latex_fileprefix(doc::Documenter.Document, settings::LaTeX)
     fileprefix = doc.user.sitename
     if occursin(Base.VERSION_REGEX, settings.version)
         v = VersionNumber(settings.version)
@@ -175,7 +172,7 @@ end
 
 const DOCKER_IMAGE_TAG = "0.1"
 
-function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::String)
+function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::String)
     if settings.platform == "native"
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
@@ -185,7 +182,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
-                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
             return false
         end
     elseif settings.platform == "tectonic"
@@ -198,7 +195,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
-                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
             return false
         end
     elseif settings.platform == "docker"
@@ -218,7 +215,7 @@ function compile_tex(doc::Documents.Document, settings::LaTeX, fileprefix::Strin
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
-                   "Logs and partial output can be found in $(Utilities.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
             return false
         finally
             try; piperun(`docker stop latex-container`); catch; end
@@ -239,7 +236,7 @@ function piperun(cmd; clearlogs = false)
     ))
 end
 
-function writeheader(io::IO, doc::Documents.Document, settings::LaTeX)
+function writeheader(io::IO, doc::Documenter.Document, settings::LaTeX)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
 
@@ -265,7 +262,7 @@ function writeheader(io::IO, doc::Documents.Document, settings::LaTeX)
     _println(io, preamble)
 end
 
-function writefooter(io::IO, doc::Documents.Document)
+function writefooter(io::IO, doc::Documenter.Document)
     _println(io, "\n\\end{document}")
 end
 
@@ -286,16 +283,16 @@ function latex(io::Context, children; toplevel = false)
     end
 end
 const NoExtraTopLevelNewlines = Union{
-    Documents.AnchoredHeader,
-    Documents.ContentsNode,
-    Documents.DocsNode,
-    Documents.DocsNodesBlock,
-    Documents.EvalNode,
-    Documents.IndexNode,
-    Documents.MetaNode,
+    Documenter.AnchoredHeader,
+    Documenter.ContentsNode,
+    Documenter.DocsNode,
+    Documenter.DocsNodesBlock,
+    Documenter.EvalNode,
+    Documenter.IndexNode,
+    Documenter.MetaNode,
 }
 
-function latex(io::Context, node::Node, ah::Documents.AnchoredHeader)
+function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     anchor = ah.anchor
     # latex(io::IO, anchor::Anchors.Anchor, page, doc)
     id = _hash(Anchors.label(anchor))
@@ -305,19 +302,19 @@ end
 
 ## Documentation Nodes.
 
-function latex(io::Context, node::Node, ::Documents.DocsNodesBlock)
+function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock)
     latex(io, node.children; toplevel = istoplevel(node))
 end
 
-function latex(io::Context, node::Node, docs::Documents.DocsNode)
+function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     node, ast = docs, node
-    # latex(io::IO, node::Documents.DocsNode, page, doc)
+    # latex(io::IO, node::Documenter.DocsNode, page, doc)
     id = _hash(Anchors.label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, string(node.object.binding))
     _print(io, "}} ")
-    _println(io, " -- {", Utilities.doccat(node.object), ".}\n")
+    _println(io, " -- {", Documenter.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
     _println(io, "\\begin{adjustwidth}{2em}{0pt}")
     latexdoc(io, ast)
@@ -325,7 +322,7 @@ function latex(io::Context, node::Node, docs::Documents.DocsNode)
 end
 
 function latexdoc(io::IO, node::Node)
-    @assert node.element isa Documents.DocsNode
+    @assert node.element isa Documenter.DocsNode
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
@@ -334,7 +331,7 @@ function latexdoc(io::IO, node::Node)
         latex(io, docstringast.children)
         _println(io)
         # When a source link is available then print the link.
-        url = Utilities.source_url(io.doc.user.remote, result)
+        url = Documenter.source_url(io.doc.user.remote, result)
         if url !== nothing
             link = "\\href{$url}{\\texttt{source}}"
             _println(io, "\n", link, "\n")
@@ -344,14 +341,14 @@ end
 
 ## Index, Contents, and Eval Nodes.
 
-function latex(io::Context, node::Node, index::Documents.IndexNode)
+function latex(io::Context, node::Node, index::Documenter.IndexNode)
     # Having an empty itemize block in LaTeX throws an error, so we bail early
     # in that situation:
     isempty(index.elements) && (_println(io); return)
 
     _println(io, "\\begin{itemize}")
     for (object, _, page, mod, cat) in index.elements
-        id = _hash(string(Utilities.slugify(object)))
+        id = _hash(string(Documenter.slugify(object)))
         text = string(object.binding)
         _print(io, "\\item \\hyperlinkref{")
         _print(io, id, "}{\\texttt{")
@@ -361,7 +358,7 @@ function latex(io::Context, node::Node, index::Documents.IndexNode)
     _println(io, "\\end{itemize}\n")
 end
 
-function latex(io::Context, node::Node, contents::Documents.ContentsNode)
+function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
     # Having an empty itemize block in LaTeX throws an error, so we bail early
     # in that situation:
     isempty(contents.elements) && (_println(io); return)
@@ -402,7 +399,7 @@ function latex(io::Context, node::Node, contents::Documents.ContentsNode)
     _println(io)
 end
 
-function latex(io::Context, node::Node, evalnode::Documents.EvalNode)
+function latex(io::Context, node::Node, evalnode::Documenter.EvalNode)
     if evalnode.result !== nothing
         latex(io, evalnode.result.children, toplevel = true)
     end
@@ -410,8 +407,8 @@ end
 
 # Select the "best" representation for LaTeX output.
 using Base64: base64decode
-latex(io::Context, node::Node, ::Documents.MultiOutput) = latex(io, node.children)
-function latex(io::Context, node::Node, moe::Documents.MultiOutputElement)
+latex(io::Context, node::Node, ::Documenter.MultiOutput) = latex(io, node.children)
+function latex(io::Context, node::Node, moe::Documenter.MultiOutputElement)
     Base.invokelatest(latex, io, node, moe.element)
 end
 function latex(io::Context, ::Node, d::Dict{MIME,Any})
@@ -495,7 +492,7 @@ const LEXER = Set([
 ])
 
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
-    language = Utilities.codelang(code.info)
+    language = Documenter.codelang(code.info)
     if language == "julia-repl"
         language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
     elseif !(language in LEXER) && language != "text/plain"
@@ -525,9 +522,9 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     return
 end
 
-latex(io::Context, node::Node, mcb::Documents.MultiCodeBlock) = latex(io, node, join_multiblock(node))
+latex(io::Context, node::Node, mcb::Documenter.MultiCodeBlock) = latex(io, node, join_multiblock(node))
 function join_multiblock(node::Node)
-    @assert node.element isa Documents.MultiCodeBlock
+    @assert node.element isa Documenter.MultiCodeBlock
     io = IOBuffer()
     codeblocks = [n.element::MarkdownAST.CodeBlock for n in node.children]
     for (i, thing) in enumerate(codeblocks)
@@ -663,7 +660,7 @@ function latex(io::Context, node::Node, table::MarkdownAST.Table)
 end
 spec_to_align(spec::Symbol) = Symbol(first(String(spec)))
 
-function latex(io::Context, node::Node, raw::Documents.RawNode)
+function latex(io::Context, node::Node, raw::Documenter.RawNode)
     raw.name === :latex ? _println(io, "\n", raw.text, "\n") : nothing
 end
 
@@ -689,8 +686,8 @@ function latex(io::Context, node::Node, image::MarkdownAST.Image)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
         _println(io, "\\centering")
-        url = if Utilities.isabsurl(image.destination)
-            @warn "images with absolute URLs not supported in LaTeX output in $(Utilities.locrepr(io.filename))" url = image.destination
+        url = if Documenter.isabsurl(image.destination)
+            @warn "images with absolute URLs not supported in LaTeX output in $(Documenter.locrepr(io.filename))" url = image.destination
             # We nevertheless output an \includegraphics with the URL. The LaTeX build will
             # then give an error, indicating to the user that something wrong.
             image.destination
@@ -747,10 +744,10 @@ end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
 # rest of the build and so we just leave them in place and print a blank line in their place.
-latex(io::Context, node::Node, ::Documents.MetaNode) = _println(io, "\n")
+latex(io::Context, node::Node, ::Documenter.MetaNode) = _println(io, "\n")
 
 # In the original AST, SetupNodes were just mapped to empty Markdown.MD() objects.
-latex(io::Context, node::Node, ::Documents.SetupNode) = nothing
+latex(io::Context, node::Node, ::Documenter.SetupNode) = nothing
 
 function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
     @warn """
@@ -762,7 +759,7 @@ end
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
 latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "\\\\")
 
-# Utilities.
+# Documenter.
 
 const _latexescape_chars = Dict{Char, AbstractString}(
     '~' => "{\\textasciitilde}",

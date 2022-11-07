@@ -434,7 +434,7 @@ end
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/simple")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple",
         root  = examples_root,
         build = "builds/latex_simple",
@@ -452,7 +452,7 @@ end
 examples_latex_doc = if "latex" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex",
@@ -597,7 +597,7 @@ end
 examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_cover_page")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_cover_page",
@@ -616,7 +616,7 @@ end
 examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_toc_style")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_toc_style",
@@ -635,8 +635,8 @@ end
 # For the latex_showcase tests we need to override the Git remote we use for the source
 # files, so that the links would be deterministic (since they contain the commit hash which
 # keeps changing). Fortunately, we can hack the cache for this purpose.
-examples_remote = Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__]
-Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
+examples_remote = Documenter.GIT_REMOTE_CACHE[@__DIR__]
+Documenter.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
 
 examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_showcase")
@@ -677,4 +677,4 @@ else
 end
 
 # Restore the remote for this directory
-Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = examples_remote
+Documenter.GIT_REMOTE_CACHE[@__DIR__] = examples_remote

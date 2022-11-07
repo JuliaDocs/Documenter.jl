@@ -1,22 +1,8 @@
-"""
-A module that provides several renderers for `Document` objects. The supported
-formats are currently:
-
-  * `:html` -- generates a complete HTML site with navigation and search included.
-  * `:latex` -- generates a PDF using LuaLaTeX.
-
-"""
-module Writers
-
-import ..Documenter:
-    Anchors,
-    Builder,
-    Documents,
-    Expanders,
-    Documenter,
-    Utilities
-
-import .Utilities: Selectors
+# A module that provides several renderers for `Document` objects. The supported
+# formats are currently:
+#
+#   * `:html` -- generates a complete HTML site with navigation and search included.
+#   * `:latex` -- generates a PDF using LuaLaTeX.
 
 #
 # Format selector definitions.
@@ -37,7 +23,7 @@ Selectors.runner(::Type{LaTeXFormat},    fmt, doc) = LaTeXWriter.render(doc, fmt
 Selectors.runner(::Type{HTMLFormat},     fmt, doc) = HTMLWriter.render(doc, fmt)
 
 """
-Writes a [`Documents.Document`](@ref) object to `.user.build` directory in
+Writes a [`Documenter.Document`](@ref) object to `.user.build` directory in
 the formats specified in the `.user.format` vector.
 
 Adding additional formats requires adding new `Selector` definitions as follows:
@@ -52,15 +38,10 @@ Selectors.runner(::Type{CustomFormat}, _, doc) = CustomWriter.render(doc)
 # Definition of `CustomWriter` module below...
 ```
 """
-function render(doc::Documents.Document)
+function render(doc::Documenter.Document)
     # Render each format. Additional formats must define an `order`, `matcher`, `runner`, as
     # well as their own rendering methods in a separate module.
     for each in doc.user.format
         Selectors.dispatch(FormatSelector, each, doc)
     end
-end
-
-include("HTMLWriter.jl")
-include("LaTeXWriter.jl")
-
 end

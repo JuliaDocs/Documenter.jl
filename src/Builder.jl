@@ -1,7 +1,7 @@
 """
 Defines the `Documenter.jl` build "pipeline" named [`DocumentPipeline`](@ref).
 
-Each stage of the pipeline performs an action on a [`Documents.Document`](@ref) object.
+Each stage of the pipeline performs an action on a [`Documenter.Document`](@ref) object.
 These actions may involve creating directory structures, expanding templates, running
 doctests, etc.
 """
@@ -10,11 +10,9 @@ module Builder
 import ..Documenter:
     Anchors,
     DocTests,
-    Documents,
-    Documenter,
-    Utilities
+    Documenter
 
-import .Utilities: Selectors, is_strict
+import .Documenter: Selectors, is_strict
 
 using DocStringExtensions
 
@@ -79,11 +77,11 @@ Selectors.order(::Type{CheckDocument})         = 4.0
 Selectors.order(::Type{Populate})              = 5.0
 Selectors.order(::Type{RenderDocument})        = 6.0
 
-Selectors.matcher(::Type{T}, doc::Documents.Document) where {T <: DocumentPipeline} = true
+Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: DocumentPipeline} = true
 
 Selectors.strict(::Type{T}) where {T <: DocumentPipeline} = false
 
-function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
+function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
     @info "SetupBuildDirectory: setting up build directory."
 
     # Frequently used fields.
@@ -127,8 +125,8 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
             end
 
             if endswith(file, ".md")
-                push!(mdpages, Utilities.srcpath(source, root, file))
-                Documents.addpage!(doc, src, dst, wd)
+                push!(mdpages, Documenter.srcpath(source, root, file))
+                Documenter.addpage!(doc, src, dst, wd)
             else
                 cp(src, dst; force = true)
             end
@@ -149,7 +147,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documents.Document)
 
     # Finally we populate the .next and .prev fields of the navnodes that point
     # to actual pages.
-    local prev::Union{Documents.NavNode, Nothing} = nothing
+    local prev::Union{Documenter.NavNode, Nothing} = nothing
     for navnode in doc.internal.navlist
         navnode.prev = prev
         if prev !== nothing
@@ -175,8 +173,8 @@ end
 """
 $(SIGNATURES)
 
-Recursively walks through the [`Documents.Document`](@ref)'s `.user.pages` field,
-generating [`Documents.NavNode`](@ref)s and related data structures in the
+Recursively walks through the [`Documenter.Document`](@ref)'s `.user.pages` field,
+generating [`Documenter.NavNode`](@ref)s and related data structures in the
 process.
 
 This implementation is the de facto specification for the `.user.pages` field.
@@ -188,7 +186,7 @@ function walk_navpages(visible, title, src, children, parent, doc)
         src = normpath(src)
         src in keys(doc.blueprint.pages) || error("'$src' is not an existing page!")
     end
-    nn = Documents.NavNode(src, title, parent)
+    nn = Documenter.NavNode(src, title, parent)
     (src === nothing) || push!(doc.internal.navlist, nn)
     nn.visible = parent_visible && visible
     nn.children = walk_navpages(children, nn, doc)
@@ -204,10 +202,10 @@ walk_navpages(title::String, children::Vector, parent, doc) = walk_navpages(true
 walk_navpages(title::String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
 
 walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
-walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documents.NavNode for p in ps]
+walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documenter.NavNode for p in ps]
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
-function Selectors.runner(::Type{Doctest}, doc::Documents.Document)
+function Selectors.runner(::Type{Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
         DocTests.doctest(doc.blueprint, doc)
@@ -220,19 +218,19 @@ function Selectors.runner(::Type{Doctest}, doc::Documents.Document)
     end
 end
 
-function Selectors.runner(::Type{ExpandTemplates}, doc::Documents.Document)
+function Selectors.runner(::Type{ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
     Documenter.Expanders.expand(doc)
 end
 
-function Selectors.runner(::Type{CrossReferences}, doc::Documents.Document)
+function Selectors.runner(::Type{CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
     Documenter.CrossReferences.crossref(doc)
 end
 
-function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
+function Selectors.runner(::Type{CheckDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "CheckDocument") && return
     @info "CheckDocument: running document checks."
     Documenter.DocChecks.missingdocs(doc)
@@ -240,14 +238,14 @@ function Selectors.runner(::Type{CheckDocument}, doc::Documents.Document)
     Documenter.DocChecks.linkcheck(doc)
 end
 
-function Selectors.runner(::Type{Populate}, doc::Documents.Document)
+function Selectors.runner(::Type{Populate}, doc::Documenter.Document)
     is_doctest_only(doc, "Populate") && return
     @info "Populate: populating indices."
-    Documents.doctest_replace!(doc)
-    Documents.populate!(doc)
+    Documenter.doctest_replace!(doc)
+    Documenter.populate!(doc)
 end
 
-function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
+function Selectors.runner(::Type{RenderDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "RenderDocument") && return
     # How many fatal errors
     fatal_errors = filter(is_strict(doc.user.strict), doc.internal.errors)
@@ -258,11 +256,11 @@ function Selectors.runner(::Type{RenderDocument}, doc::Documents.Document)
         * "). Terminating build before rendering.")
     else
         @info "RenderDocument: rendering document."
-        Documenter.Writers.render(doc)
+        Documenter.render(doc)
     end
 end
 
-Selectors.runner(::Type{DocumentPipeline}, doc::Documents.Document) = nothing
+Selectors.runner(::Type{DocumentPipeline}, doc::Documenter.Document) = nothing
 
 function is_doctest_only(doc, stepname)
     if doc.user.doctest in [:fix, :only]

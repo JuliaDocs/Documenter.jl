@@ -17,16 +17,16 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
-function latex_filename(doc::Documenter.Documents.Document)
+function latex_filename(doc::Documenter.Documenter.Document)
     @test length(doc.user.format) == 1
     settings = first(doc.user.format)
     @test settings isa Documenter.LaTeX
-    fileprefix = Documenter.Writers.LaTeXWriter.latex_fileprefix(doc, settings)
+    fileprefix = Documenter.LaTeXWriter.latex_fileprefix(doc, settings)
     return "$(fileprefix).tex"
 end
 
 # Diffing of output TeX files:
-using Documenter.Utilities.TextDiff: Diff, Lines
+using Documenter.TextDiff: Diff, Lines
 function onormalize_tex(s)
     # We strip hyperlink hashes, since those may change over time
     s = replace(s, r"\\(hyperlink|hypertarget|label|hyperlinkref){[0-9]+}" => s"\\\1{}")
@@ -71,7 +71,7 @@ end
         (Main.examples_html_mathjax3_doc, "html-mathjax3"),
         (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom")
     ]
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", name)
             @test joinpath(build_dir, "index.html") |> isfile
@@ -83,10 +83,10 @@ end
             # Test existence of some HTML elements
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
-            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
+            @test occursin(Documenter.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
 
             index_html = read(joinpath(build_dir, "index.html"), String)
-            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
+            @test occursin(Documenter.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
             @test occursin("documenter-example-output", index_html)
             @test occursin("1392-test-language", index_html)
             @test !occursin("1392-extra-info", index_html)
@@ -137,7 +137,7 @@ end
     @testset "HTML: local" begin
         doc = Main.examples_html_local_doc
 
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", "html-local")
 
@@ -168,7 +168,7 @@ end
 
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_texonly")
             @test joinpath(build_dir, latex_filename(doc)) |> isfile
             @test joinpath(build_dir, "documenter.sty") |> isfile
@@ -177,7 +177,7 @@ end
 
     @testset "PDF/LaTeX: simple (TeX only)" begin
         doc = Main.examples_latex_simple_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple_texonly")
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))
@@ -188,7 +188,7 @@ end
 
     @testset "PDF/LaTeX: showcase (TeX only)" begin
         doc = Main.examples_latex_showcase_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_showcase_texonly")
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))
