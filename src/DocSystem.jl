@@ -31,10 +31,10 @@ binding(any::Any) = throw(ArgumentError("cannot convert `$(repr(any))` to a `Bin
 # The simple definitions.
 #
 binding(b::Docs.Binding) = binding(b.mod, b.var)
-binding(d::DataType)     = binding(d.name.module, d.name.name)
+binding(d::DataType)     = binding(parentmodule(d), nameof(d))
 binding(m::Module)       = binding(m, nameof(m))
 binding(s::Symbol)       = binding(Main, s)
-binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name)
+binding(f::Function)     = binding(parentmodule(f), typeof(f).name.mt.name)
 
 #
 # We need a lookup table for `IntrinsicFunction`s since they do not track their
