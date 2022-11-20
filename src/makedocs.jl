@@ -106,6 +106,40 @@ is enabled by default.
 
 **`sitename`** is displayed in the title bar and/or the navigation menu when applicable.
 
+**`pages`** can be use to specify a hierarchical page structure, and the order in which
+the pages appear in the navigation of the rendered output. If omitted, Documenter will
+automatically generate a flat list of pages based on the files present in the source
+directory.
+
+```julia
+pages = [
+    "Overview" => "index.md",
+    "tutorial.md",
+    "Tutorial" => [
+        "tutorial/introduction.md",
+        "Advanced" => "tutorial/features.md",
+    ],
+    "apireference.md",
+]
+```
+
+The `pages` keyword must be a list where each element must be one of the following:
+
+1. A string containing the full path of a Markdown file _within_ the source directory (i.e. relative to the `docs/src/` root in standard deployments).
+2. A `"Page title" => "path/to/page.md"` pair, where `Page title` overrides the page title in the navigation menu (but not on the page itself).
+3. A `"Subsection title" => [...]` pair, indicating a subsection of pages with the given title in the navigation menu. The list of pages for the subsection follow the same rules as the top-level `pages` keyword.
+
+See also [`hide`](@ref), which can be used to hide certain pages in the navigation menu.
+
+Note that, by default, regardless of what is specified in `pages`, Documenter will run and
+render _all_ Markdown files it finds, even if they are not present in `pages`. The
+`pagesonly` keyword can be used to change this behaviour.
+
+**`pagesonly`** can be set to `true` (default: `false`) to make Documenter process only the
+pages listed in with the `pages` keyword. In that case, the Markdown files not present in
+`pages` are ignored, i.e. code blocks do not run, docstrings do not get included, and the
+pages are not rendered in the output in any way.
+
 **`expandfirst`** allows some of the pages to be _expanded_ (i.e. at-blocks evaluated etc.)
 before the others. Documenter normally evaluates the files in the alphabetic order of their
 file paths relative to `src`, but `expandfirst` allows some pages to be prioritized.

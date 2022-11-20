@@ -246,6 +246,7 @@ struct User
     doctestfilters::Vector{Regex} # Filtering for doctests
     strict::Union{Bool,Symbol,Vector{Symbol}} # Throw an exception when any warnings are encountered.
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
+    pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
     remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
     sitename:: String
@@ -301,6 +302,7 @@ function Document(plugins = nothing;
         strict::Union{Bool,Symbol,Vector{Symbol}} = false,
         modules  :: ModVec = Module[],
         pages    :: Vector           = Any[],
+        pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
         sitename :: AbstractString   = "",
@@ -351,6 +353,7 @@ function Document(plugins = nothing;
         doctestfilters,
         strict,
         pages,
+        pagesonly,
         expandfirst,
         remote,
         sitename,
