@@ -19,7 +19,7 @@ else
     ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
     "html-repo-nothing", "html-repo-error", "latex_texonly", "latex_simple_texonly",
-    "latex_showcase_texonly"]
+    "latex_showcase_texonly", "html-pagesonly"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -370,6 +370,30 @@ examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: HTML/draft"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# HTML: pagesonly
+examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / draft build")
+    @quietly makedocs(
+        debug = true,
+        draft = true,
+        root  = examples_root,
+        build = "builds/html-pagesonly",
+        sitename = "Documenter example (pagesonly)",
+        pages = [
+            "**Home**" => "index.md",
+            "Manual" => [
+                "man/tutorial.md",
+                "man/style.md",
+            ],
+        ],
+        pagesonly = true,
+    )
+else
+    @info "Skipping build: HTML/pagesonly"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
