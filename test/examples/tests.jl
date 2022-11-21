@@ -189,7 +189,7 @@ end
                 filename, _ = splitext(filename)
                 htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
                     joinpath(build_dir, dir, filename, "index.html")
-                if mdfile ∈ ("index.md", "man/tutorial.md", "man/style.md")
+                if mdfile ∈ ("index.md", joinpath("man", "tutorial.md"), joinpath("man", "style.md"))
                     @test isfile(htmlpath)
                 else
                     @test !ispath(htmlpath)
