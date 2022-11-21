@@ -88,7 +88,7 @@ end
 
         let build_dir = joinpath(examples_root, "builds", name)
             # Make sure that each .md file has a corresponding generated HTML file
-            for mdfile in all_md_files_in_src
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
                 dir, filename = splitdir(mdfile)
                 filename, _ = splitext(filename)
                 htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
@@ -162,7 +162,7 @@ end
             @test occursin("documenter-example-output", index_html)
 
             # Make sure that each .md file has a corresponding generated HTML file
-            for mdfile in all_md_files_in_src
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
                 dir, filename = splitdir(mdfile)
                 filename, _ = splitext(filename)
                 htmlpath = joinpath(build_dir, dir, "$(filename).html")
@@ -184,7 +184,7 @@ end
 
         let build_dir = joinpath(examples_root, "builds", "html-pagesonly")
             # Make sure that each .md file has a corresponding generated HTML file
-            for mdfile in all_md_files_in_src
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
                 dir, filename = splitdir(mdfile)
                 filename, _ = splitext(filename)
                 htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
