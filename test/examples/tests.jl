@@ -64,6 +64,19 @@ function compare_files(a, b)
     return false
 end
 
+all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
+    for (root, _, pages) in walkdir(srcdir)
+        rootdir = relpath(root, srcdir)
+        rootdir == "." && (rootdir = "")
+        for page in pages
+            endswith(page, ".md") || continue
+            push!(mdfiles, joinpath(rootdir, page))
+        end
+    end
+    mdfiles
+end
+@test length(all_md_files_in_src) == 25
+
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
         (Main.examples_html_doc, "html"),
@@ -74,11 +87,14 @@ end
         @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", name)
-            @test joinpath(build_dir, "index.html") |> isfile
-            @test joinpath(build_dir, "omitted", "index.html") |> isfile
-            @test joinpath(build_dir, "hidden", "index.html") |> isfile
-            @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
-            @test joinpath(build_dir, "man", "style", "index.html") |> isfile
+            # Make sure that each .md file has a corresponding generated HTML file
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
+                dir, filename = splitdir(mdfile)
+                filename, _ = splitext(filename)
+                htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
+                    joinpath(build_dir, dir, filename, "index.html")
+                @test isfile(htmlpath)
+            end
 
             # Test existence of some HTML elements
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
@@ -145,10 +161,40 @@ end
             @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
             @test occursin("documenter-example-output", index_html)
 
-            @test isfile(joinpath(build_dir, "index.html"))
-            @test isfile(joinpath(build_dir, "omitted.html"))
-            @test isfile(joinpath(build_dir, "hidden.html"))
-            @test isfile(joinpath(build_dir, "lib", "autodocs.html"))
+            # Make sure that each .md file has a corresponding generated HTML file
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
+                dir, filename = splitdir(mdfile)
+                filename, _ = splitext(filename)
+                htmlpath = joinpath(build_dir, dir, "$(filename).html")
+                @test isfile(htmlpath)
+            end
+
+            # Assets
+            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
+            @test occursin("languages/julia.min", documenterjs)
+            @test occursin("languages/julia-repl.min", documenterjs)
+        end
+    end
+
+    @testset "HTML: pagesonly" begin
+        doc = Main.examples_html_pagesonly_doc
+
+        @test isa(doc, Documenter.Documenter.Document)
+
+        let build_dir = joinpath(examples_root, "builds", "html-pagesonly")
+            # Make sure that each .md file has a corresponding generated HTML file
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
+                dir, filename = splitdir(mdfile)
+                filename, _ = splitext(filename)
+                htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
+                    joinpath(build_dir, dir, filename, "index.html")
+                if mdfile ∈ ("index.md", joinpath("man", "tutorial.md"), joinpath("man", "style.md"))
+                    @test isfile(htmlpath)
+                else
+                    @test !ispath(htmlpath)
+                end
+            end
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile

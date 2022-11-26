@@ -155,6 +155,15 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
         end
         prev = navnode
     end
+
+    # If the user specified pagesonly, we will remove all the pages not in the navigation
+    # menu (.pages).
+    if doc.user.pagesonly
+        navlist_pages = getfield.(doc.internal.navlist, :page)
+        for page in keys(doc.blueprint.pages)
+            page ∈ navlist_pages || delete!(doc.blueprint.pages, page)
+        end
+    end
 end
 
 """
