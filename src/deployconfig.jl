@@ -423,7 +423,9 @@ function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
 
-function version_tag_strip_build(tag)
+function version_tag_strip_build(tag; tag_prefix="")
+    startswith(tag, tag_prefix) || return nothing
+    tag = replace(tag, tag_prefix => ""; count=1)
     m = match(Base.VERSION_REGEX, tag)
     m === nothing && return nothing
     s0 = startswith(tag, 'v') ? "v" : ""
@@ -432,7 +434,7 @@ function version_tag_strip_build(tag)
     s3 = m[3] === nothing ? "" : ".$(m[3])" # patch
     s4 = m[5] === nothing ? "" : m[5] # pre-release (starting with -)
     # m[7] is the build, which we want to discard
-    "$s0$s1$s2$s3$s4"
+    return tag_prefix * "$s0$s1$s2$s3$s4"
 end
 
 function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwargs...)

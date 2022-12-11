@@ -725,6 +725,20 @@ end
     @test version_tag_strip_build("X.Y.Z") === nothing
     @test version_tag_strip_build("1#2") === nothing
     @test version_tag_strip_build(".1") === nothing
+
+    # Test tag prefixes
+    tag_prefix = "TagPrefix-"
+    @test version_tag_strip_build("v1.2.3"; tag_prefix) === nothing
+    @test version_tag_strip_build("TagPrefix-v1.2.3"; tag_prefix) == "TagPrefix-v1.2.3"
+    @test version_tag_strip_build("TagPrefixTagPrefix-v1.2.3"; tag_prefix) === nothing
+    @test version_tag_strip_build("v1.2.3-TagPrefix-"; tag_prefix) === nothing
+    @test version_tag_strip_build("TagPrefix-1.2"; tag_prefix) == "TagPrefix-1.2"
+    @test version_tag_strip_build("TagPrefix-1.2.3-DEV+build"; tag_prefix) == "TagPrefix-1.2.3-DEV"
+    @test version_tag_strip_build("TagPrefix-"; tag_prefix) === nothing
+    @test version_tag_strip_build("TagPrefix-+A"; tag_prefix) === nothing
+    @test version_tag_strip_build("TagPrefix-X.Y.Z"; tag_prefix) === nothing
+    @test version_tag_strip_build("TagPrefix-1#2"; tag_prefix) === nothing
+    @test version_tag_strip_build("TagPrefix-.1"; tag_prefix) === nothing
 end
 
 @testset "verify_github_pull_repository" begin
