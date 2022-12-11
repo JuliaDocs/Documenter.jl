@@ -168,6 +168,7 @@ function deploy_folder(cfg::Travis;
                        devbranch,
                        push_preview,
                        devurl,
+                       tag_prefix = "",
                        kwargs...)
     io = IOBuffer()
     all_ok = true
@@ -189,7 +190,7 @@ function deploy_folder(cfg::Travis;
         pr_ok = cfg.travis_pull_request == "false"
         println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"")
         all_ok &= pr_ok
-        tag_nobuild = version_tag_strip_build(cfg.travis_tag)
+        tag_nobuild = version_tag_strip_build(cfg.travis_tag; tag_prefix)
         ## If a tag exist it should be a valid VersionNumber
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
@@ -309,6 +310,7 @@ function deploy_folder(cfg::GitHubActions;
                        devbranch,
                        push_preview,
                        devurl,
+                       tag_prefix = "",
                        kwargs...)
     io = IOBuffer()
     all_ok = true
@@ -332,7 +334,7 @@ function deploy_folder(cfg::GitHubActions;
         println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
         ## If a tag exist it should be a valid VersionNumber
         m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
-        tag_nobuild = version_tag_strip_build(m.captures[1])
+        tag_nobuild = version_tag_strip_build(m.captures[1]; tag_prefix)
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"GITHUB_REF\"]=\"$(cfg.github_ref)\" contains a valid VersionNumber")
@@ -423,7 +425,7 @@ function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
 
-function version_tag_strip_build(tag; tag_prefix="")
+function version_tag_strip_build(tag; tag_prefix)
     startswith(tag, tag_prefix) || return nothing
     tag = replace(tag, tag_prefix => ""; count=1)
     m = match(Base.VERSION_REGEX, tag)
@@ -600,6 +602,7 @@ function deploy_folder(
     devurl,
     branch = "gh-pages",
     branch_previews = branch,
+    tag_prefix = "",
     kwargs...,
 )
     io = IOBuffer()
@@ -623,7 +626,7 @@ function deploy_folder(
     println(io, "Detected build type: ", build_type)
 
     if build_type == :release
-        tag_nobuild = version_tag_strip_build(cfg.commit_tag)
+        tag_nobuild = version_tag_strip_build(cfg.commit_tag; tag_prefix)
         ## If a tag exist it should be a valid VersionNumber
         tag_ok = tag_nobuild !== nothing
 
@@ -742,6 +745,7 @@ function deploy_folder(
     devurl,
     branch = "gh-pages",
     branch_previews = branch,
+    tag_prefix = "",
     kwargs...,
 )
     io = IOBuffer()
@@ -763,7 +767,7 @@ function deploy_folder(
     println(io, "Detected build type: ", build_type)
 
     if build_type == :release
-        tag_nobuild = version_tag_strip_build(cfg.commit_tag)
+        tag_nobuild = version_tag_strip_build(cfg.commit_tag; tag_prefix)
         ## If a tag exist it should be a valid VersionNumber
         tag_ok = tag_nobuild !== nothing
 
@@ -938,6 +942,7 @@ function deploy_folder(
     devbranch,
     push_preview,
     devurl,
+    tag_prefix = "",
     kwargs...)
     io = IOBuffer()
     all_ok = true
@@ -965,7 +970,7 @@ function deploy_folder(
         event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
         all_ok &= event_ok
         println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
-        tag_nobuild = version_tag_strip_build(cfg.woodpecker_tag)
+        tag_nobuild = version_tag_strip_build(cfg.woodpecker_tag; tag_prefix)
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"]=\"$(cfg.woodpecker_tag)\" contains a valid VersionNumber")

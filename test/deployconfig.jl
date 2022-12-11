@@ -20,6 +20,26 @@ using Logging
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         @test Documenter.authentication_method(cfg) === Documenter.SSH
     end
+    # Regular tag build - tag prefix 
+    withenv("TRAVIS_CI" => "true",
+            "TRAVIS_PULL_REQUEST" => "false",
+            "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
+            "TRAVIS_BRANCH" => "master",
+            "TRAVIS_TAG" => "MySubPackage-v1.2.3",
+            "TRAVIS_EVENT_TYPE" => nothing,
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Travis()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", tag_prefix="MySubPackage-", 
+                                     devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        @test Documenter.authentication_method(cfg) === Documenter.SSH
+    end
     # Broken tag build
     withenv("TRAVIS_CI" => "true",
             "TRAVIS_PULL_REQUEST" => "false",
@@ -128,6 +148,25 @@ end end
         @test d.branch == "gh-pages"
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Regular tag build with GITHUB_TOKEN and tag_prefix
+    withenv("GITHUB_EVENT_NAME" => "push",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/MySubPackage-v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+        cfg = Documenter.GitHubActions()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true,
+                                     tag_prefix="MySubPackage-")
+        @test d.all_ok
+        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
     # Broken tag build
     withenv("GITHUB_EVENT_NAME" => "push",
@@ -322,6 +361,26 @@ end end
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         @test Documenter.authentication_method(cfg) === Documenter.SSH
     end
+    # Regular tag build with tag_prefix
+    withenv("GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => "MySubPackage-v1.2.3",
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.GitLab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true,
+                                     tag_prefix="MySubPackage-")
+        @test d.all_ok
+        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        @test Documenter.authentication_method(cfg) === Documenter.SSH
+    end
     # Broken tag build
     withenv("GITLAB_CI" => "true",
             "CI_COMMIT_BRANCH" => "master",
@@ -432,6 +491,24 @@ end end
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         @test Documenter.authentication_method(cfg) === Documenter.SSH
     end
+    # Regular tag build with tag_prefix
+    withenv("BUILDKITE" => "true",
+            "BUILDKITE_BRANCH" => "master",
+            "BUILDKITE_PULL_REQUEST" => "false",
+            "BUILDKITE_TAG" => "MySubPackage-v1.2.3",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Buildkite()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true,
+                                     tag_prefix="MySubPackage-")
+        @test d.all_ok
+        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        @test Documenter.authentication_method(cfg) === Documenter.SSH
+    end
     # Broken tag build
     withenv("BUILDKITE" => "true",
             "BUILDKITE_BRANCH" => "master",
@@ -517,6 +594,30 @@ end end
 
         @test d.all_ok
         @test d.subfolder == "v1.2.3"
+        @test d.repo == "JuliaDocs/Documenter.jl"
+        @test d.branch == "pages"
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Regular tag build with PROJECT_ACCESS_TOKEN
+    withenv(
+            "CI_BUILD_EVENT" => "push",
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/tags/MySubPackage-v1.2.3",
+            "CI_COMMIT_TAG" => "MySubPackage-v1.2.3",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                                 devbranch="master", devurl="dev", push_preview=true,
+                                 tag_prefix="MySubPackage-")
+
+        @test d.all_ok
+        @test d.subfolder == "MySubPackage-v1.2.3"
         @test d.repo == "JuliaDocs/Documenter.jl"
         @test d.branch == "pages"
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
