@@ -425,7 +425,7 @@ function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
 
-function version_tag_strip_build(tag; tag_prefix)
+function version_tag_strip_build(tag; tag_prefix="")
     startswith(tag, tag_prefix) || return nothing
     tag = replace(tag, tag_prefix => ""; count=1)
     m = match(Base.VERSION_REGEX, tag)
