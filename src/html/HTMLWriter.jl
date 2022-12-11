@@ -380,7 +380,7 @@ same name, in which case the user's files overrides the Documenter's file.
 This could, in principle, be used for customizing the site's style and scripting.
 
 The HTML output also links certain custom assets to the generated HTML documents,
-specifically a logo and additional javascript files.
+specifically a logo, a preview image, and additional javascript files.
 The asset files that should be linked must be placed in `assets/`, under the source
 directory (e.g `/docs/src/assets`) and must be on the top level (i.e. files in
 the subdirectories of `assets/` are not linked).
@@ -389,6 +389,12 @@ For the **logo**, Documenter checks for the existence of `assets/logo.{svg,png,w
 in this order. The first one it finds gets displayed at the top of the navigation sidebar.
 It will also check for `assets/logo-dark.{svg,png,webp,gif,jpg,jpeg}` and use that for dark
 themes.
+
+Similarly, for the **preview image**, Documenter checks for the existence of
+`assets/preview.{png,webp,gif,jpg,jpeg}` in order. Assuming that `canonical` has
+been set, the canonical URL for the image gets constructed, , and a set of
+HTML `<meta>` tags are generated for the image, ensuring that the image shows
+up in link previews. The preview image will not be shown if `canonical` is not set.
 
 Additional JS, ICO, and CSS assets can be included in the generated pages by passing them as
 a list with the `assets` keyword. Each asset will be included in the `<head>` of every page
@@ -839,8 +845,14 @@ end
 function render_head(ctx, navnode)
     @tags head meta link script title
     src = get_url(ctx, navnode)
+    canonical = canonical_url(ctx, navnode)
 
     page_title = "$(mdflatten_pagetitle(DCtx(ctx, navnode))) · $(ctx.doc.user.sitename)"
+    description = if navnode !== ctx.search_navnode
+        get(getpage(ctx, navnode).globals.meta, :Description, ctx.doc.user.description)
+    else
+        ctx.doc.user.description
+    end
     css_links = [
         RD.lato,
         RD.juliamono,
@@ -850,12 +862,29 @@ function render_head(ctx, navnode)
     head(
         meta[:charset=>"UTF-8"],
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
-        title(page_title),
 
+        # Title tag and meta tags
+        title(page_title),
+        meta[:name => "title", :content => page_title],
+        meta[:property => "og:title", :content => page_title],
+        meta[:property => "twitter:title", :content => page_title],
+
+        # Description meta tags
+        meta[:name => "description", :content => description],
+        meta[:property => "og:description", :content => description],
+        meta[:property => "twitter:description", :content => description],
+
+        # Canonical URL tags
+        isnothing(canonical) ? empty_node() : meta[:property => "og:url", :content => canonical],
+        isnothing(canonical) ? empty_node() : meta[:property => "twitter:url", :content => canonical],
+        isnothing(canonical) ? empty_node() : link[:rel => "canonical", :href => canonical],
+
+        # Preview image meta tags
+        preview_image_meta_tags(ctx),
+
+        # Analytics and warning scripts
         analytics_script(ctx.settings.analytics),
         warning_script(src, ctx),
-
-        canonical_link_element(ctx.settings.canonical, pretty_url(ctx, src)),
 
         # Stylesheets.
         map(css_links) do each
@@ -888,6 +917,33 @@ function render_head(ctx, navnode)
     )
 end
 
+function preview_image_meta_tags(ctx)
+    @tags meta
+    canonical_link = ctx.settings.canonical
+    preview = find_preview_image(ctx)
+    if canonical_link === nothing || preview === nothing
+        # Cannot construct absolute link if canonical URL is not set
+        return empty_node()
+    else
+        # Return OpenGraph and Twitter image meta tags.
+        preview_url = rstrip(canonical_link, '/') * preview
+        tags = DOM.Node[
+            meta[:property => "og:image", :content => preview_url],
+            meta[:property => "twitter:image", :content => preview_url],
+            meta[:property => "twitter:card", :content => "summary_large_image"]
+        ]
+        return tags
+    end
+end
+
+function find_preview_image(ctx)
+    for ext in ["png", "webp", "gif", "jpg", "jpeg"]
+        filename = joinpath("assets", "preview.$(ext)")
+        isfile(joinpath(ctx.doc.user.build, filename)) && return filename
+    end
+    return nothing
+end
+
 function asset_links(src::AbstractString, assets::Vector{HTMLAsset})
     isabspath(src) && @error("Absolute path '$src' passed to asset_links")
     @tags link script
@@ -906,7 +962,7 @@ end
 
 function analytics_script(tracking_id::AbstractString)
     @tags script
-    isempty(tracking_id) ? Tag(Symbol("#RAW#"))("") : [
+    isempty(tracking_id) ? empty_node() : [
         script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
         script("""
           window.dataLayer = window.dataLayer || [];
@@ -921,18 +977,11 @@ function warning_script(src, ctx)
     if ctx.settings.warn_outdated
         return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
     end
-    return Tag(Symbol("#RAW#"))("")
+    return empty_node()
 end
-
-function canonical_link_element(canonical_link, src)
-   @tags link
-   if canonical_link === nothing
-      return Tag(Symbol("#RAW#"))("")
-   else
-      canonical_link_stripped = rstrip(canonical_link, '/')
-      href = "$canonical_link_stripped/$src"
-      return link[:rel => "canonical", :href => href]
-   end
+ 
+function empty_node()
+    return Tag(Symbol("#RAW#"))("")
 end
 
 # Navigation menu
@@ -1652,6 +1701,21 @@ function pretty_url(ctx, path::AbstractString)
         end
     end
     return path
+end
+
+"""
+If `canonical` for [`HTML`](@ref Documenter.HTML) is set, returns the canonical
+URL of a `path` or [`Documenter.NavNode`](@ref), otherwise returns nothing.
+"""
+function canonical_url(ctx, path_or_navnode)
+    canonical_link = ctx.settings.canonical
+    if canonical_link === nothing
+        return nothing
+    else
+        canonical_link_stripped = rstrip(canonical_link, '/')
+        url = pretty_url(ctx, get_url(ctx, path_or_navnode))
+        return "$canonical_link_stripped/$url"
+    end
 end
 
 """
