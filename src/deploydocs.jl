@@ -172,6 +172,7 @@ function deploydocs(;
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
         forcepush::Bool = false,
         deploy_config = auto_detect_deploy_system(),
+        tag_prefix = "",
         push_preview::Bool = false,
 
         archive = nothing, # experimental and undocumented
@@ -196,7 +197,8 @@ function deploydocs(;
                                     devurl=devurl,
                                     push_preview=push_preview,
                                     repo=repo,
-                                    repo_previews=repo_previews)
+                                    repo_previews=repo_previews,
+                                    tag_prefix)
     if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
         deploy_repo = deploy_decision.repo
@@ -243,7 +245,7 @@ function deploydocs(;
                     branch=deploy_branch, dirname=dirname, target=target,
                     sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
                     devurl=devurl, versions=versions, forcepush=forcepush,
-                    is_preview=deploy_is_preview, archive=archive,
+                    is_preview=deploy_is_preview, archive=archive, tag_prefix,
                 )
             end
         end
@@ -264,7 +266,7 @@ function git_push(
         root, temp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
         versions, forcepush=false, deploy_config, subfolder,
-        is_preview::Bool = false, archive,
+        is_preview::Bool = false, archive, tag_prefix="",
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -322,7 +324,7 @@ function git_push(
             HTMLWriter.generate_siteinfo_file(deploy_dir, subfolder)
 
             # Expand the users `versions` vector
-            entries, symlinks = HTMLWriter.expand_versions(dirname, versions)
+            entries, symlinks = HTMLWriter.expand_versions(dirname, versions; tag_prefix)
 
             # Create the versions.js file containing a list of `entries`.
             # This must always happen after the folder copying.
