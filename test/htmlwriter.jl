@@ -282,7 +282,6 @@ end
 
         _prefix_pairlist = (prefix, list) -> map(p -> prefix * p[1] => prefix *  p[2], list)
  
-
         # case1: default versioning
         versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
         entries, symlinks = expand_versions(tmpdir, versions; tag_prefix)

@@ -1304,13 +1304,11 @@ function expand_versions(dir, versions; tag_prefix="")
 
     # filter and sort release folders
     vnum(x) = VersionNumber(replace(x, tag_prefix => ""; count=1))
-
     version_folders = filter(available_folders) do x 
         startswith(x, tag_prefix) || return false
         x = replace(x, tag_prefix => ""; count=1)
         return occursin(Base.VERSION_REGEX, x)
     end
-
     sort!(version_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
     release_folders = filter(x -> (v = vnum(x); v.prerelease == () && v.build == ()), version_folders)
     # pre_release_folders = filter(x -> (v = vnum(x); v.prerelease != () || v.build != ()), version_folders)

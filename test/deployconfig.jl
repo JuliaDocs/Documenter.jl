@@ -20,7 +20,7 @@ using Logging
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         @test Documenter.authentication_method(cfg) === Documenter.SSH
     end
-    # Regular tag build - tag prefix 
+    # Regular tag build with tag prefix
     withenv("TRAVIS_CI" => "true",
             "TRAVIS_PULL_REQUEST" => "false",
             "TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
@@ -149,7 +149,7 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
-    # Regular tag build with GITHUB_TOKEN and tag_prefix
+    # Regular tag build with GITHUB_TOKEN and with tag prefix
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/MySubPackage-v1.2.3",
@@ -599,7 +599,7 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
         @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
-    # Regular tag build with PROJECT_ACCESS_TOKEN
+    # Regular tag build with PROJECT_ACCESS_TOKEN and with tag prefix
     withenv(
             "CI_BUILD_EVENT" => "push",
             "CI" => "woodpecker",
@@ -827,7 +827,7 @@ end
     @test version_tag_strip_build("1#2") === nothing
     @test version_tag_strip_build(".1") === nothing
 
-    # Test tag prefixes
+    # ...and now when there's a non-empty tag_prefix:
     tag_prefix = "TagPrefix-"
     @test version_tag_strip_build("v1.2.3"; tag_prefix) === nothing
     @test version_tag_strip_build("TagPrefix-v1.2.3"; tag_prefix) == "TagPrefix-v1.2.3"

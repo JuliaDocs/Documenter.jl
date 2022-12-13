@@ -69,7 +69,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             @test isfile("ghpages.tar.gz")
 
             #####
-            # ...now repeat same set of tests---this time with a tag_prefix
+            # Repeat same set of tests, this time with a non-empty tag_prefix
             #####
 
             tag_prefix = "MySubPackage-"
