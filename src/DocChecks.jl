@@ -23,7 +23,7 @@ Prints out the name of each object that has not had its docs spliced into the do
 
 Returns the number of missing bindings to allow for automated testing of documentation.
 """
-function missingdocs(doc::Documenter.Document; print=true)
+function missingdocs(doc::Documenter.Document)
     doc.user.checkdocs === :none && return
     bindings = missingbindings(doc)
     n = reduce(+, map(length, values(bindings)), init=0)
