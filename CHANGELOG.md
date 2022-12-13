@@ -11,6 +11,7 @@
 
   **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
 
+* ![Enhancement][badge-enhancement] Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). ([#1989][github-1989])
 * ![Enhancement][badge-enhancement] Documenter is now more careful not to accidentally leak SSH keys (in e.g. error messages) by removing `DOCUMENTER_KEY` from the environment when it is not needed. ([#1958][github-1958], [#1962][github-1962])
 * ![Enhancement][badge-enhancement] Admonitions are now styled with color in the LaTeX output. ([#1931][github-1931], [#1932][github-1932], [#1946][github-1946], [#1955][github-1955])
 * ![Enhancement][badge-enhancement] Improved the styling of code blocks in the LaTeXWriter. ([#1933][github-1933], [#1935][github-1935], [#1936][github-1936], [#1944][github-1944], [#1956][github-1956], [#1957][github-1957])
@@ -1173,6 +1174,7 @@
 [github-1970]: https://github.com/JuliaDocs/Documenter.jl/pull/1970
 [github-1977]: https://github.com/JuliaDocs/Documenter.jl/pull/1977
 [github-1980]: https://github.com/JuliaDocs/Documenter.jl/pull/1980
+[github-1989]: https://github.com/JuliaDocs/Documenter.jl/pull/1989
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
