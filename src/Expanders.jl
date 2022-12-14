@@ -726,7 +726,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, value = c.value)
+                    """, exception = (c.value, c.backtrace))
                 page.mapping[x] = x
                 return
             end
