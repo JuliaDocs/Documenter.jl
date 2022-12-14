@@ -599,7 +599,7 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = err)
+                    """, exception = (err, catch_backtrace()))
             end
         end
         result = if isnothing(result)
@@ -882,7 +882,7 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
             ```$(x.info)
             $(x.code)
             ```
-            """, exception=(err, catch_backtrace())
+            """, exception=(err, catch_backtrace()))
     end
     node.element = Documenter.SetupNode(x.info, x.code)
 end
