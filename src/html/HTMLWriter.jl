@@ -347,6 +347,10 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 [`MathJax3`](@ref) objects, respectively. The rendering engine can further be customized by
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
+**`description`** is the site-wide description that displays in page previews and search
+engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as 
+an argument to [`makedocs`](@ref).
+
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
 and the [Julia Programming Language](https://julialang.org/)."`.
@@ -420,6 +424,7 @@ struct HTML <: Documenter.Writer
     sidebar_sitename :: Bool
     highlights    :: Vector{String}
     mathengine    :: Union{MathEngine,Nothing}
+    description   :: Union{String,Nothing}
     footer        :: Union{MarkdownAST.Node, Nothing}
     ansicolor     :: Bool
     lang          :: String
@@ -440,6 +445,7 @@ struct HTML <: Documenter.Writer
             sidebar_sitename :: Bool = true,
             highlights    :: Vector{String} = String[],
             mathengine    :: Union{MathEngine,Nothing} = KaTeX(),
+            description   :: Union{String, Nothing} = nothing,
             footer        :: Union{String, Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
             ansicolor     :: Bool = true,
             lang          :: String = "en",
@@ -483,7 +489,7 @@ struct HTML <: Documenter.Writer
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
-            collapselevel, sidebar_sitename, highlights, mathengine, footer,
+            collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs)
     end
 end
@@ -848,10 +854,13 @@ function render_head(ctx, navnode)
     canonical = canonical_url(ctx, navnode)
 
     page_title = "$(mdflatten_pagetitle(DCtx(ctx, navnode))) · $(ctx.doc.user.sitename)"
+
     description = if navnode !== ctx.search_navnode
-        get(getpage(ctx, navnode).globals.meta, :Description, ctx.doc.user.description)
+        get(getpage(ctx, navnode).globals.meta, :Description) do
+            default_site_description(ctx)
+        end
     else
-        ctx.doc.user.description
+        default_site_description(ctx)
     end
     css_links = [
         RD.lato,
@@ -933,6 +942,14 @@ function preview_image_meta_tags(ctx)
             meta[:property => "twitter:card", :content => "summary_large_image"]
         ]
         return tags
+    end
+end
+
+function default_site_description(ctx)
+    if isnothing(ctx.settings.description)
+        return "Documentation for $(ctx.doc.user.sitename)."
+    else
+        return ctx.settings.description
     end
 end
 

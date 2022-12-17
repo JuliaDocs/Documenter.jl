@@ -250,7 +250,6 @@ struct User
     expandfirst::Vector{String} # List of pages that get "expanded" before others
     remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
     sitename:: String
-    description::String # Site-wide description for page previews
     authors :: String
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
@@ -307,7 +306,6 @@ function Document(plugins = nothing;
         expandfirst :: Vector        = String[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
         sitename :: AbstractString   = "",
-        description :: AbstractString = "Documentation for $sitename",  
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
@@ -359,7 +357,6 @@ function Document(plugins = nothing;
         expandfirst,
         remote,
         sitename,
-        description,
         authors,
         version,
         highlightsig,
