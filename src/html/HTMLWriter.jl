@@ -851,7 +851,6 @@ end
 function render_head(ctx, navnode)
     @tags head meta link script title
     src = get_url(ctx, navnode)
-    canonical = canonical_url(ctx, navnode)
 
     page_title = "$(mdflatten_pagetitle(DCtx(ctx, navnode))) · $(ctx.doc.user.sitename)"
 
@@ -862,12 +861,14 @@ function render_head(ctx, navnode)
     else
         default_site_description(ctx)
     end
+
     css_links = [
         RD.lato,
         RD.juliamono,
         RD.fontawesome_css...,
         RD.katex_css,
     ]
+
     head(
         meta[:charset=>"UTF-8"],
         meta[:name => "viewport", :content => "width=device-width, initial-scale=1.0"],
@@ -884,9 +885,7 @@ function render_head(ctx, navnode)
         meta[:property => "twitter:description", :content => description],
 
         # Canonical URL tags
-        isnothing(canonical) ? empty_node() : meta[:property => "og:url", :content => canonical],
-        isnothing(canonical) ? empty_node() : meta[:property => "twitter:url", :content => canonical],
-        isnothing(canonical) ? empty_node() : link[:rel => "canonical", :href => canonical],
+        canonical_url_tags(ctx, navnode),
 
         # Preview image meta tags
         preview_image_meta_tags(ctx),
@@ -926,13 +925,28 @@ function render_head(ctx, navnode)
     )
 end
 
+function canonical_url_tags(ctx, navnode)
+    @tags meta link
+    canonical = canonical_url(ctx, navnode)
+    if isnothing(canonical)
+        return DOM.VOID
+    else
+        tags = DOM.Node[
+            meta[:property => "og:url", :content => canonical],
+            meta[:property => "twitter:url", :content => canonical],
+            link[:rel => "canonical", :href => canonical]
+        ]
+        return tags
+    end
+end
+
 function preview_image_meta_tags(ctx)
     @tags meta
     canonical_link = ctx.settings.canonical
     preview = find_preview_image(ctx)
     if canonical_link === nothing || preview === nothing
         # Cannot construct absolute link if canonical URL is not set
-        return empty_node()
+        return DOM.VOID
     else
         # Return OpenGraph and Twitter image meta tags.
         preview_url = rstrip(canonical_link, '/') * preview
@@ -979,7 +993,7 @@ end
 
 function analytics_script(tracking_id::AbstractString)
     @tags script
-    isempty(tracking_id) ? empty_node() : [
+    isempty(tracking_id) ? DOM.VOID : [
         script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
         script("""
           window.dataLayer = window.dataLayer || [];
@@ -994,11 +1008,7 @@ function warning_script(src, ctx)
     if ctx.settings.warn_outdated
         return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
     end
-    return empty_node()
-end
- 
-function empty_node()
-    return Tag(Symbol("#RAW#"))("")
+    return DOM.VOID
 end
 
 # Navigation menu

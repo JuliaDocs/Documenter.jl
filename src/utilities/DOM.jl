@@ -310,4 +310,9 @@ function Base.show(io::IO, doc::HTMLDocument)
     println(io, doc.root)
 end
 
+#
+# Represents an empty DOM `Node`
+#
+const VOID = Tag(Symbol("#RAW#"))("")
+
 end
