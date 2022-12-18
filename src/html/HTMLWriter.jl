@@ -949,7 +949,8 @@ function preview_image_meta_tags(ctx)
         return DOM.VOID
     else
         # Return OpenGraph and Twitter image meta tags.
-        preview_url = rstrip(canonical_link, '/') * preview
+        preview = replace(preview, r"[/\\]+" => "/")
+        preview_url = rstrip(canonical_link, '/') * "/" * preview
         tags = DOM.Node[
             meta[:property => "og:image", :content => preview_url],
             meta[:property => "twitter:image", :content => preview_url],
