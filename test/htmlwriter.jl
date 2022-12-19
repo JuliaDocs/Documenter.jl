@@ -162,7 +162,6 @@ end
         @test mathjax.config[:tex2jax] == 1
     end
 
-    # Verisoning
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")
         redirectfile = joinpath(tmpdir, "index.html")
