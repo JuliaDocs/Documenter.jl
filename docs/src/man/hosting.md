@@ -546,7 +546,9 @@ Here's one example of setting up documentation for a repository that has the fol
 ```
 .
 ├── README.md
-├── docs/make.jl
+├── docs
+|   ├── make.jl
+│   └── Project.toml
 ├── src/...
 ├── PackageA.jl
 │   ├── docs
