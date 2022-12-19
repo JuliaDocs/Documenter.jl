@@ -1304,7 +1304,7 @@ function expand_versions(dir, versions)
 
     # filter and sort release folders
     vnum(x) = VersionNumber(x)
-    version_folders = filter(x -> occursin(Base.VERSION_REGEX, x), available_folders)
+    version_folders = [x for x in available_folders if occursin(Base.VERSION_REGEX, x)]
     sort!(version_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
     release_folders = filter(x -> (v = vnum(x); v.prerelease == () && v.build == ()), version_folders)
     # pre_release_folders = filter(x -> (v = vnum(x); v.prerelease != () || v.build != ()), version_folders)

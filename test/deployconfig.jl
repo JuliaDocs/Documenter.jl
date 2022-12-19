@@ -34,7 +34,7 @@ using Logging
                                      devbranch="master", tag_prefix="MySubPackage-", 
                                      devurl="dev", push_preview=true)
         @test d.all_ok
-        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.subfolder == "v1.2.3"
         @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
         @test d.branch == "gh-pages"
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
@@ -162,7 +162,7 @@ end end
                                      devbranch="master", devurl="dev", push_preview=true,
                                      tag_prefix="MySubPackage-")
         @test d.all_ok
-        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.subfolder == "v1.2.3"
         @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
         @test d.branch == "gh-pages"
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
@@ -375,7 +375,7 @@ end end
                                      devbranch="master", devurl="dev", push_preview=true,
                                      tag_prefix="MySubPackage-")
         @test d.all_ok
-        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.subfolder == "v1.2.3"
         @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
         @test d.branch == "gh-pages"
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
@@ -503,7 +503,7 @@ end end
                                      devbranch="master", devurl="dev", push_preview=true,
                                      tag_prefix="MySubPackage-")
         @test d.all_ok
-        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.subfolder == "v1.2.3"
         @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
         @test d.branch == "gh-pages"
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
@@ -617,7 +617,7 @@ end end
                                  tag_prefix="MySubPackage-")
 
         @test d.all_ok
-        @test d.subfolder == "MySubPackage-v1.2.3"
+        @test d.subfolder == "v1.2.3"
         @test d.repo == "JuliaDocs/Documenter.jl"
         @test d.branch == "pages"
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
@@ -830,11 +830,11 @@ end
     # ...and now when there's a non-empty tag_prefix:
     tag_prefix = "TagPrefix-"
     @test version_tag_strip_build("v1.2.3"; tag_prefix) === nothing
-    @test version_tag_strip_build("TagPrefix-v1.2.3"; tag_prefix) == "TagPrefix-v1.2.3"
+    @test version_tag_strip_build("TagPrefix-v1.2.3"; tag_prefix) == "v1.2.3"
     @test version_tag_strip_build("TagPrefixTagPrefix-v1.2.3"; tag_prefix) === nothing
     @test version_tag_strip_build("v1.2.3-TagPrefix-"; tag_prefix) === nothing
-    @test version_tag_strip_build("TagPrefix-1.2"; tag_prefix) == "TagPrefix-1.2"
-    @test version_tag_strip_build("TagPrefix-1.2.3-DEV+build"; tag_prefix) == "TagPrefix-1.2.3-DEV"
+    @test version_tag_strip_build("TagPrefix-1.2"; tag_prefix) == "1.2"
+    @test version_tag_strip_build("TagPrefix-1.2.3-DEV+build"; tag_prefix) == "1.2.3-DEV"
     @test version_tag_strip_build("TagPrefix-"; tag_prefix) === nothing
     @test version_tag_strip_build("TagPrefix-+A"; tag_prefix) === nothing
     @test version_tag_strip_build("TagPrefix-X.Y.Z"; tag_prefix) === nothing

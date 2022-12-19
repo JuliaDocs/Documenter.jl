@@ -436,7 +436,7 @@ function version_tag_strip_build(tag; tag_prefix="")
     s3 = m[3] === nothing ? "" : ".$(m[3])" # patch
     s4 = m[5] === nothing ? "" : m[5] # pre-release (starting with -)
     # m[7] is the build, which we want to discard
-    return tag_prefix * "$s0$s1$s2$s3$s4"
+    return "$s0$s1$s2$s3$s4"
 end
 
 function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwargs...)
