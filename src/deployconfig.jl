@@ -56,11 +56,12 @@ function documenter_key_previews(cfg::DeployConfig)
 end
 
 """
-    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl, kwargs...)
+    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl, 
+                             tag_prefix, kwargs...)
 
 Return a `DeployDecision`.
-This function is called with the `repo`, `devbranch`, `push_preview` and `devurl`
-arguments from [`deploydocs`](@ref).
+This function is called with the `repo`, `devbranch`, `push_preview`, `tag_prefix`,
+and `devurl` arguments from [`deploydocs`](@ref).
 
 !!! note
     Implementations of this functions should accept trailing `kwargs...` for
