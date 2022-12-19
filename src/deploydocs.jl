@@ -141,8 +141,8 @@ and is usually used to specify additional build steps. By default, nothing gets 
 **`tag_prefix`** can be set to allow prefixed version numbers to determine the version
 number of a release. If `tag_prefix = ""` (the default), only version tags will trigger
 deployment; with a non-empty `tag_prefix`, only version tags with that prefix will
-trigger deployment. See [`version_tag_strip_build](@ref) and the manual section on 
-[Deploying from a monorepo](@ref) for more details and examples.
+trigger deployment. See manual sections on [Documentation Versions](@ref) and
+[Deploying from a monorepo](@ref) for more details.
 
 # Releases vs development branches
 

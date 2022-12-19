@@ -458,13 +458,15 @@ which you can modify to something else e.g. GitHub → gh-pages, Codeberg → pa
 
 By default the documentation is deployed as follows:
 
-- Documentation built for a tag `vX.Y.Z` will be stored in a folder `vX.Y.Z`.
+- Documentation built for a tag `<tag_prefix>vX.Y.Z` will be stored in a folder `vX.Y.Z`, 
+  determined by the `tag_prefix` keyword to [`deploydocs`](@ref) 
+  (`""` by default).
 
 - Documentation built from the `devbranch` branch (`master` by default) is stored in a folder
   determined by the `devurl` keyword to [`deploydocs`](@ref) (`dev` by default).
 
-Which versions that will show up in the version selector is determined by the
-`versions` argument to [`deploydocs`](@ref).
+Which versions will show up in the version selector is determined by the
+`versions` argument to [`deploydocs`](@ref). For examples of non-default `tag_prefix` usage, see [Deploying from a monorepo](@ref).
 
 Unless a custom domain is being used, the pages are found at:
 
@@ -534,6 +536,91 @@ Preview builds are still deployed to the `previews` subfolder.
     The landing page for the [JuliaDocs GitHub organization](https://juliadocs.github.io)
     ([source repository](https://github.com/JuliaDocs/juliadocs.github.io)) is one example
     where this functionality is used.
+
+
+## Deploying from a monorepo
+
+Documenter.jl supports building documentation for a package that lives in a monorepo, e.g., in a repository that contains multiple packages (including one potentially top level-)
+
+Here's one example of setting up documentation for a repository that has the following structure: one top level package and two subpackages PackageA.jl and PackageB.jl:
+```
+.
+├── README.md
+├── docs/make.jl
+├── src/...
+├── PackageA.jl
+│   ├── docs
+|   │   ├── make.jl
+|   │   └── Project.toml
+│   └── src/...
+└── PackageB.jl
+    ├── docs
+    │   ├── make.jl
+    │   └── Project.toml
+    └── src/...
+```
+
+The three respective `make.jl` scripts should contain [`deploydocs`](@ref) settings that look something like
+
+```
+# In ./docs/make.jl
+deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+            # ...any additional kwargs
+            )
+
+# In ./PackageA.jl/docs/make.jl
+deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+             dirname="PackageA",
+             tag_prefix="PackageA-",
+             # ...any additional kwargs
+             )
+
+# In ./PackageB.jl/docs/make.jl
+deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
+             dirname="PackageB",
+             tag_prefix="PackageB-",
+             # ...any additional kwargs
+             )
+```
+
+To build separate docs for each package, create three **separate** buildbot configurations, one for each package. Depending on the service used, the section that calls each `make.jl` script will need to be configured appropriately, e.g., 
+```
+# In the configuration file that builds docs for the top level package
+run: julia --project=docs/ docs/make.jl
+
+# In the configuration file that builds docs for PackageA.jl
+run: julia --project=PackageA.jl/docs/ PackageA.jl/docs/make.jl
+
+# In the configuration file that builds docs for PackageB.jl
+run: julia --project=PackageB.jl/docs/ PackageB.jl/docs/make.jl
+```
+
+Each subpackage should be tagged such that new versions of each package are tagged accordingly and with the above prefix, namely `v0.3.2` (for the top-level package), `PackageA-v0.1.2`, and `PackageB-v3.2+extra_build_tags`. The resultant stucture of branch `gh-branches` will then be
+```
+v0.1.1
+PackageA/v0.1.1/...
+PackageB/v0.1.1/...
+```
+and similarly to [Documentation Versions](@ref), unless a custom domain is being used, these three separate sets of pages will be found at:
+
+```
+https://USER_NAME.github.io/PACKAGE_NAME.jl/vX.Y.Z
+https://USER_NAME.github.io/PACKAGE_NAME.jl/dev
+https://USER_NAME.github.io/PACKAGE_NAME.jl/stable  # Links to most recent top level version
+
+https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/vX.Y.Z
+https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/dev
+https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable  # Links to most recent PackageA version
+
+https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z
+https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/dev
+https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/stable  # Links to most recent PackageB version 
+```
+
+While they won't automatically reference one another, such referencing can be added manually (e.g. by linking to https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable from the docs built for PackageB).
+
+!!! warning
+  When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z, and the rest of the subpackages' documentation will be unavailable.
 
 ---
 
