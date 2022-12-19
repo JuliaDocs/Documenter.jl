@@ -162,7 +162,7 @@ end
         @test mathjax.config[:tex2jax] == 1
     end
 
-    # Verisoning: No tag_prefix
+    # Verisoning
     mktempdir() do tmpdir
         versionfile = joinpath(tmpdir, "versions.js")
         redirectfile = joinpath(tmpdir, "index.html")
@@ -252,109 +252,6 @@ end
         verify_version_file(versionfile, entries)
         generate_redirect_file(redirectfile, entries)
         verify_redirect_file(redirectfile, "dev")
-
-        # Case 7: no entries
-        entries = String[]
-        generate_version_file(versionfile, entries)
-        verify_version_file(versionfile, entries)
-        rm(redirectfile)
-        generate_redirect_file(redirectfile, entries)
-        @test !isfile(redirectfile)
-    end
-
-    # Verisoning: with tag_prefix
-    mktempdir() do tmpdir
-        versionfile = joinpath(tmpdir, "versions.js")
-        redirectfile = joinpath(tmpdir, "index.html")
-        tag_prefix = "TestPrefix-"
-        devurl = tag_prefix * "dev"
-        versions = tag_prefix .* ["stable", "dev",
-                    "2.1.1", "v2.1.0", "v2.0.1", "v2.0.0",
-                    "1.1.1", "v1.1.0", "v1.0.1", "v1.0.0",
-                    "0.1.1", "v0.1.0"] # note no `v` on first ones
-
-        # make dummy directories of versioned docs
-        cd(tmpdir) do
-            for version in versions
-                mkdir(version)
-            end
-        end
-
-        _prefix_pairlist = (prefix, list) -> map(p -> prefix * p[1] => prefix *  p[2], list)
- 
-        # case1: default versioning
-        versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
-        entries, symlinks = expand_versions(tmpdir, versions; tag_prefix)
-        @test entries == tag_prefix .* ["stable", "v2.1", "v2.0", "v1.1", "v1.0", "v0.1", "dev"]
-        @test symlinks == _prefix_pairlist(tag_prefix, ["stable"=>"2.1.1", "v2.1"=>"2.1.1", "v2.0"=>"v2.0.1",
-                                                        "v1.1"=>"1.1.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1",
-                                                        "v2"=>"2.1.1", "v1"=>"1.1.1", "v2.1.1"=>"2.1.1",
-                                                        "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"])
-        generate_version_file(versionfile, entries)
-        verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries)
-        verify_redirect_file(redirectfile, tag_prefix * "stable")
-
-        # case2: major released versions
-        versions = ["v#"]
-        entries, symlinks = expand_versions(tmpdir, versions; tag_prefix)
-        @test entries == tag_prefix .* ["v2.1", "v1.1"]
-        @test symlinks == _prefix_pairlist(tag_prefix, ["v2.1"=>"2.1.1", "v1.1"=>"1.1.1", "v2"=>"2.1.1", "v1"=>"1.1.1",
-                                                        "v2.0"=>"v2.0.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1",
-                                                        "v2.1.1"=>"2.1.1", "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1"])
-        generate_version_file(versionfile, entries)
-        verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries)
-        verify_redirect_file(redirectfile, tag_prefix * "v2.1")
-
-        # case3: all released versions
-        versions = ["v#.#.#"]
-        entries, symlinks = expand_versions(tmpdir, versions; tag_prefix)
-        @test entries == tag_prefix .* ["v2.1.1", "v2.1.0", "v2.0.1", "v2.0.0", "v1.1.1", "v1.1.0",
-                          "v1.0.1", "v1.0.0", "v0.1.1", "v0.1.0"]
-        @test symlinks ==_prefix_pairlist(tag_prefix, ["v2.1.1"=>"2.1.1", "v1.1.1"=>"1.1.1", "v0.1.1"=>"0.1.1",
-                           "v2"=>"2.1.1", "v1"=>"1.1.1", "v2.1"=>"2.1.1",
-                           "v2.0"=>"v2.0.1", "v1.1"=>"1.1.1", "v1.0"=>"v1.0.1", "v0.1"=>"0.1.1"])
-        generate_version_file(versionfile, entries)
-        verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries)
-        verify_redirect_file(redirectfile, tag_prefix * "v2.1.1")
-
-        # case4: invalid versioning
-        versions = ["v^", "devel" => "dev", "foobar", "foo" => "bar"]
-        entries, symlinks = @test_logs(
-            (:warn, "no match for `versions` entry `\"foobar\"`"),
-            (:warn, "no match for `versions` entry `\"foo\" => \"bar\"`"),
-            expand_versions(tmpdir, versions; tag_prefix)
-        )
-        @test entries == tag_prefix .*["v2.1", "devel"]
-        @test (tag_prefix * "v2.1" => tag_prefix * "2.1.1") in symlinks
-        @test (tag_prefix * "devel" => tag_prefix * "dev") in symlinks
-        generate_version_file(versionfile, entries)
-        verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries)
-        verify_redirect_file(redirectfile, tag_prefix * "v2.1")
-
-        # case5: invalid versioning
-        versions = ["stable" => "v^", "dev" => "stable"]
-        @test_throws ArgumentError expand_versions(tmpdir, versions; tag_prefix)
-
-        # case6: default versioning (no released version)
-        cd(tmpdir) do
-            # remove dummy directories
-            for dir in readdir(tmpdir)
-                rm(dir)
-            end
-            mkdir(tag_prefix * "dev")
-        end
-        versions = ["stable" => "v^", "v#.#", "dev" => "dev"] # default to makedocs
-        entries, symlinks = expand_versions(tmpdir, versions; tag_prefix)
-        @test entries == [tag_prefix * "dev"]
-        @test symlinks == []
-        generate_version_file(versionfile, entries)
-        verify_version_file(versionfile, entries)
-        generate_redirect_file(redirectfile, entries)
-        verify_redirect_file(redirectfile, tag_prefix * "dev")
 
         # Case 7: no entries
         entries = String[]

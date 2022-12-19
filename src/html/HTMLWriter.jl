@@ -1293,7 +1293,7 @@ end
 
 # expand the versions argument from the user
 # and return entries and needed symlinks
-function expand_versions(dir, versions; tag_prefix="")
+function expand_versions(dir, versions)
     # output: entries and symlinks
     entries = String[]
     symlinks = Pair{String,String}[]
@@ -1303,12 +1303,8 @@ function expand_versions(dir, versions; tag_prefix="")
     cd(() -> filter!(!islink, available_folders), dir)
 
     # filter and sort release folders
-    vnum(x) = VersionNumber(replace(x, tag_prefix => ""; count=1))
-    version_folders = filter(available_folders) do x 
-        startswith(x, tag_prefix) || return false
-        x = replace(x, tag_prefix => ""; count=1)
-        return occursin(Base.VERSION_REGEX, x)
-    end
+    vnum(x) = VersionNumber(x)
+    version_folders = filter(x -> occursin(Base.VERSION_REGEX, x), available_folders)
     sort!(version_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
     release_folders = filter(x -> (v = vnum(x); v.prerelease == () && v.build == ()), version_folders)
     # pre_release_folders = filter(x -> (v = vnum(x); v.prerelease != () || v.build != ()), version_folders)
@@ -1324,33 +1320,31 @@ function expand_versions(dir, versions; tag_prefix="")
     for entry in versions
         if entry == "v#" # one doc per major release
             for x in major_folders
-                vstr = tag_prefix * "v$(vnum(x).major).$(vnum(x).minor)"
+                vstr = "v$(vnum(x).major).$(vnum(x).minor)"
                 push!(entries, vstr)
                 push!(symlinks, vstr => x)
             end
         elseif entry == "v#.#" # one doc per minor release
             for x in minor_folders
-                vstr = tag_prefix * "v$(vnum(x).major).$(vnum(x).minor)"
+                vstr = "v$(vnum(x).major).$(vnum(x).minor)"
                 push!(entries, vstr)
                 push!(symlinks, vstr => x)
             end
         elseif entry == "v#.#.#" # one doc per patch release
             for x in patch_folders
-                vstr = tag_prefix * "v$(vnum(x).major).$(vnum(x).minor).$(vnum(x).patch)"
+                vstr = "v$(vnum(x).major).$(vnum(x).minor).$(vnum(x).patch)"
                 push!(entries, vstr)
                 push!(symlinks, vstr => x)
             end
         elseif entry == "v^" || (entry isa Pair && entry.second == "v^")
             if !isempty(release_folders)
                 x = first(release_folders)
-                vstr = isa(entry, Pair) ? tag_prefix * entry.first : tag_prefix * "v$(vnum(x).major).$(vnum(x).minor)"
+                vstr = isa(entry, Pair) ? entry.first : "v$(vnum(x).major).$(vnum(x).minor)"
                 push!(entries, vstr)
                 push!(symlinks, vstr => x)
             end
         elseif entry isa Pair
             k, v = entry
-            k = tag_prefix * k
-            v = tag_prefix * v
             i = findfirst(==(v), available_folders)
             if i === nothing
                 @warn "no match for `versions` entry `$(repr(entry))`"
@@ -1365,9 +1359,9 @@ function expand_versions(dir, versions; tag_prefix="")
     unique!(entries) # remove any duplicates
 
     # generate remaining symlinks
-    foreach(x -> push!(symlinks, tag_prefix * "v$(vnum(x).major)" => x), major_folders)
-    foreach(x -> push!(symlinks, tag_prefix * "v$(vnum(x).major).$(vnum(x).minor)" => x), minor_folders)
-    foreach(x -> push!(symlinks, tag_prefix * "v$(vnum(x).major).$(vnum(x).minor).$(vnum(x).patch)" => x), patch_folders)
+    foreach(x -> push!(symlinks, "v$(vnum(x).major)" => x), major_folders)
+    foreach(x -> push!(symlinks, "v$(vnum(x).major).$(vnum(x).minor)" => x), minor_folders)
+    foreach(x -> push!(symlinks, "v$(vnum(x).major).$(vnum(x).minor).$(vnum(x).patch)" => x), patch_folders)
     filter!(x -> x.first != x.second, unique!(symlinks))
 
     # assert that none of the links point to another link
