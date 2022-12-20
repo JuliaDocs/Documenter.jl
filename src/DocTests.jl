@@ -293,9 +293,10 @@ function filter_doctests(strings::NTuple{2, AbstractString},
     meta_block_filters = get(Vector{Any}, meta, :DocTestFilters)
     meta_block_filters === nothing && (meta_block_filters = [])
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
-    for r in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
+    for rs in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
+        r, s = rs isa Pair ? rs : (rs => "")
         if all(occursin.((r,), strings))
-            strings = replace.(strings, (r => "",))
+            strings = replace.(strings, (r => s,))
         end
     end
     return strings
