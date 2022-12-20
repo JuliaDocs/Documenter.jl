@@ -597,13 +597,7 @@ run: julia --project=PackageA.jl/docs/ PackageA.jl/docs/make.jl
 run: julia --project=PackageB.jl/docs/ PackageB.jl/docs/make.jl
 ```
 
-Each subpackage should be tagged such that new versions of each package are tagged accordingly and with the above prefix, namely `v0.3.2` (for the top-level package), `PackageA-v0.1.2`, and `PackageB-v3.2+extra_build_tags`. The resultant stucture of branch `gh-branches` will then be
-```
-v0.1.1
-PackageA/v0.1.1/...
-PackageB/v0.1.1/...
-```
-and similarly to [Documentation Versions](@ref), unless a custom domain is being used, these three separate sets of pages will be found at:
+Releases of each subpackage should be tagged with that same prefix, namely `v0.3.2` (for the top-level package), `PackageA-v0.1.2`, and `PackageB-v3.2+extra_build_tags`. which will then trigger versioned documentation deployments. Similarly to [Documentation Versions](@ref), unless a custom domain is used these three separate sets of pages will be found at:
 
 ```
 https://USER_NAME.github.io/PACKAGE_NAME.jl/vX.Y.Z
@@ -621,8 +615,11 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/stable  # Links to most rec
 
 While they won't automatically reference one another, such referencing can be added manually (e.g. by linking to https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable from the docs built for PackageB).
 
+
 !!! warning
   When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z, and the rest of the subpackages' documentation will be unavailable.
+
+
 
 ---
 
