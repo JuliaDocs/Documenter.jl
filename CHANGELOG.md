@@ -764,7 +764,7 @@
     ```julia
     target = "site"
     deps = Deps.pip("pygments", "mkdocs")
-    make = () -> run(`mkdocs build`)
+    make = () -> ru
     ```
 
   - Explicitly import `DocumenterMarkdown` in `make.jl`. See the `MarkdownWriter` deprecation below.
@@ -1176,6 +1176,7 @@
 [github-1977]: https://github.com/JuliaDocs/Documenter.jl/pull/1977
 [github-1980]: https://github.com/JuliaDocs/Documenter.jl/pull/1980
 [github-1989]: https://github.com/JuliaDocs/Documenter.jl/pull/1989
+[github-1792]: https://github.com/JuliaDocs/Documenter.jl/issues/1792
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
