@@ -11,7 +11,8 @@
 module DocTestsTests
 using Test
 using Documenter
-using Documenter.Utilities.TextDiff: Diff, Words
+using Documenter.TextDiff: Diff, Words
+import IOCapture
 
 include("src/FooWorking.jl")
 include("src/FooBroken.jl")
@@ -28,31 +29,39 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     for mdfile in mdfiles
         cp(joinpath(@__DIR__, "src", mdfile), joinpath(srcdir, mdfile))
     end
+    # Create a dummy index.md file so that we wouldn't generate the "can't generated landing
+    # page" warning.
+    touch(joinpath(srcdir, "index.md"))
 
-    (result, success, backtrace, output) = Documenter.Utilities.withoutput() do
-        makedocs(
-            sitename = " ",
-            root = dir,
-            modules = modules;
-            kwargs...
-        )
+    c = IOCapture.capture(rethrow = InterruptException) do
+        # In case JULIA_DEBUG is set to something, we'll override that, so that we wouldn't
+        # get some unexpected debug output from makedocs.
+        withenv("JULIA_DEBUG" => "") do
+            makedocs(
+                sitename = " ",
+                format = Documenter.HTML(edit_link = "master"),
+                root = dir,
+                modules = modules;
+                kwargs...
+            )
+        end
     end
 
-    @debug """run_makedocs($mdfiles, modules=$modules) -> $(success ? "success" : "fail")
+    @debug """run_makedocs($mdfiles, modules=$modules) -> $(c.error ? "fail" : "success")
     ------------------------------------ output ------------------------------------
-    $(output)
+    $(c.output)
     --------------------------------------------------------------------------------
-    """ result stacktrace(backtrace) dir
+    """ c.value stacktrace(c.backtrace) dir
 
-    write(joinpath(dir, "output"), output)
-    write(joinpath(dir, "output.onormalize"), onormalize(output))
+    write(joinpath(dir, "output"), c.output)
+    write(joinpath(dir, "output.onormalize"), onormalize(c.output))
     open(joinpath(dir, "result"), "w") do io
-        show(io, "text/plain", result)
+        show(io, "text/plain", c.value)
         println(io, "-"^80)
-        show(io, "text/plain", stacktrace(backtrace))
+        show(io, "text/plain", stacktrace(c.backtrace))
     end
 
-    f(result, success, backtrace, output)
+    f(c.value, !c.error, c.backtrace, c.output)
 end
 
 function printoutput(result, success, backtrace, output)
@@ -68,13 +77,22 @@ function onormalize(s)
     # platform / environment / time dependent parts, so that it would actually be possible
     # to compare Documenter output to previously generated reference outputs.
 
+    # We need to make sure that, if we're running the tests on Windows, that we'll have consistent
+    # line breaks. So we'll normalize CRLF to LF.
+    if Sys.iswindows()
+        s = replace(s, "\r\n" => "\n")
+    end
+
     # Remove filesystem paths in doctests failures
     s = replace(s, r"(doctest failure in )(.*)$"m => s"\1{PATH}")
     s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
     s = replace(s, r"(top-level scope at )(.*)$"m => s"\1{PATH}")
 
     # Remove stacktraces
-    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)+" => s"\1\\n\3{STACKTRACE}")
+    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" => s"\1\\n\3{STACKTRACE}")
+
+    # In Julia 1.9, the printing of UndefVarError has slightly changed (added backticks around binding name)
+    s = replace(s, r"UndefVarError: `([A-Za-z0-9.]+)` not defined"m => s"UndefVarError: \1 not defined")
 
     # Remove floating point numbers
     s = replace(s, r"([0-9]*\.[0-9]{8})[0-9]+" => s"\1***")
@@ -150,9 +168,11 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("5.stdout"))
     end
 
-    run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], strict=true) do result, success, backtrace, output
-        @test !success
-        @test is_same_as_file(output, rfile("6.stdout"))
+    for strict in (true, :doctest, [:doctest])
+        run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], strict=strict) do result, success, backtrace, output
+            @test !success
+            @test is_same_as_file(output, rfile("6.stdout"))
+        end
     end
 
     run_makedocs(["fooworking.md"]; modules=[FooWorking], strict=true) do result, success, backtrace, output
@@ -172,9 +192,12 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("11.stdout"))
     end
 
-    run_makedocs(["broken.md"]) do result, success, backtrace, output
-        @test success
-        @test is_same_as_file(output, rfile("12.stdout"))
+    # Three options that do not strictly check doctests, including testing the default
+    for strict_kw in ((; strict=false), NamedTuple(), (; strict=[:meta_block]))
+        run_makedocs(["broken.md"]; strict_kw...) do result, success, backtrace, output
+            @test success
+            @test is_same_as_file(output, rfile("12.stdout"))
+        end
     end
 
     # Tests for doctest = :only. The outout should reflect that the docs themselves do not
@@ -216,19 +239,10 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test is_same_as_file(output, rfile("32.stdout"))
     end
 
-    if VERSION >= v"1.5.0-DEV.178"
-        # Julia 1.5 REPL softscope,
-        # see https://github.com/JuliaLang/julia/pull/33864
-        run_makedocs(["softscope.md"]) do result, success, backtrace, output
-            @test success
-            @test is_same_as_file(output, rfile("41.stdout"))
-        end
-    else
-        # Old REPL scoping behaviour on older Julia version
-        run_makedocs(["hardscope.md"]) do result, success, backtrace, output
-            @test success
-            @test is_same_as_file(output, rfile("42.stdout"))
-        end
+    # Tests for special REPL softscope
+    run_makedocs(["softscope.md"]) do result, success, backtrace, output
+        @test success
+        @test is_same_as_file(output, rfile("41.stdout"))
     end
 end
 

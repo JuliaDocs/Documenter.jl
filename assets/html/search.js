@@ -173,13 +173,15 @@ $(document).ready(function() {
   var store = {}
 
   documenterSearchIndex['docs'].forEach(function(e) {
-      store[e.location] = {title: e.title, category: e.category}
+      store[e.location] = {title: e.title, category: e.category, page: e.page}
   })
 
   $(function(){
     searchresults = $('#documenter-search-results');
     searchinfo = $('#documenter-search-info');
     searchbox = $('#documenter-search-query');
+    searchform = $('.docs-search');
+    sidebar = $('.docs-sidebar');
     function update_search(querystring) {
       tokens = lunr.tokenizer(querystring)
       results = index.query(function (q) {
@@ -187,14 +189,14 @@ $(document).ready(function() {
           q.term(t.toString(), {
             fields: ["title"],
             boost: 100,
-            usePipeline: false,
+            usePipeline: true,
             editDistance: 0,
             wildcard: lunr.Query.wildcard.NONE
           })
           q.term(t.toString(), {
             fields: ["title"],
             boost: 10,
-            usePipeline: false,
+            usePipeline: true,
             editDistance: 2,
             wildcard: lunr.Query.wildcard.NONE
           })
@@ -213,7 +215,11 @@ $(document).ready(function() {
         data = store[result.ref]
         link = $('<a class="docs-label">'+data.title+'</a>')
         link.attr('href', documenterBaseURL+'/'+result.ref)
-        cat = $('<span class="docs-category">('+data.category+')</span>')
+        if (data.category != "page"){
+          cat = $('<span class="docs-category">('+data.category+', '+data.page+')</span>')
+        } else {
+          cat = $('<span class="docs-category">('+data.category+')</span>')
+        }
         li = $('<li>').append(link).append(" ").append(cat)
         searchresults.append(li)
       })
@@ -226,6 +232,20 @@ $(document).ready(function() {
 
     searchbox.keyup(_.debounce(update_search_box, 250))
     searchbox.change(update_search_box)
+
+    // Disable enter-key form submission for the searchbox on the search page
+    // and just re-run search rather than refresh the whole page.
+    searchform.keypress(
+      function(event){
+        if (event.which == '13') {
+          if (sidebar.hasClass('visible')) {
+            sidebar.removeClass('visible');
+          }
+          update_search_box();
+          event.preventDefault();
+        }
+      }
+    );
 
     search_query_uri = parseUri(window.location).queryKey["q"]
     if(search_query_uri !== undefined) {

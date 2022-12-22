@@ -9,11 +9,13 @@
 module DocTestAPITests
 using Test
 using Documenter
+import IOCapture
 
 # Test the Documenter.doctest function
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
-    (result, success, backtrace, output) = Documenter.Utilities.withoutput() do
+    (result, success, backtrace, output) =
+    c = IOCapture.capture(rethrow = InterruptException) do
         # Running inside a Task to make sure that the parent testsets do not interfere.
         t = Task(() -> doctest(args...; kwargs...))
         schedule(t)
@@ -27,13 +29,13 @@ function run_doctest(f, args...; kwargs...)
         end
     end
 
-    @debug """run_doctest($args;, $kwargs) -> $(success ? "success" : "fail")
+    @debug """run_doctest($args;, $kwargs) -> $(c.error ? "fail" : "success")
     ------------------------------------ output ------------------------------------
-    $(output)
+    $(c.output)
     --------------------------------------------------------------------------------
-    """ result stacktrace(backtrace)
+    """ c.value stacktrace(c.backtrace)
 
-    f(result, success, backtrace, output)
+    f(c.value, !c.error, c.backtrace, c.output)
 end
 
 """
@@ -106,6 +108,19 @@ end
 
 """
 ```jldoctest
+julia> println("global filter")
+global FILTER
+```
+
+```jldoctest; filter = r"local (filter|FILTER)"
+julia> println("local filter")
+local FILTER
+```
+"""
+module DoctestFilters end
+
+"""
+```jldoctest
 julia> map(tuple, 1/(i+j) for i=1:2, j=1:2, [1:4;])
 ERROR: syntax: invalid iteration specification
 ```
@@ -155,6 +170,30 @@ module PR1075
     @doc @doc(foo) function bar end
     @doc @doc(bar) function baz end
 end
+
+"""
+```jldoctest;
+julia> 2 + 2
+4
+```
+"""
+module BadDocTestKwargs1 end
+
+"""
+```jldoctest; %%%
+julia> 2 + 2
+4
+```
+"""
+module BadDocTestKwargs2 end
+
+"""
+```jldoctest; foo
+julia> 2 + 2
+4
+```
+"""
+module BadDocTestKwargs3 end
 
 @testset "Documenter.doctest" begin
     # DocTest1
@@ -208,6 +247,12 @@ end
         @test result isa Test.DefaultTestSet
     end
 
+    # DoctestFilters
+    df = [r"global (filter|FILTER)"]
+    run_doctest(nothing, [DoctestFilters], doctestfilters=df) do result, success, backtrace, output
+        @test success
+    end
+
     # Parse errors in doctests (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
     run_doctest(nothing, [ParseErrorSuccess]) do result, success, backtrace, output
         @test success
@@ -226,6 +271,20 @@ end
     run_doctest(nothing, [PR1075]) do result, success, backtrace, output
         @test success
         @test result isa Test.DefaultTestSet
+    end
+
+    # Issue 1556, PR 1557
+    run_doctest(nothing, [BadDocTestKwargs1]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
+    end
+    run_doctest(nothing, [BadDocTestKwargs2]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
+    end
+    run_doctest(nothing, [BadDocTestKwargs3]) do result, success, backtrace, output
+        @test !success
+        @test result isa TestSetException
     end
 end
 

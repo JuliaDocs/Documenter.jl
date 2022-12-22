@@ -1,5 +1,11 @@
 # Utilities
 
 ```@autodocs
-Modules = [Documenter.Utilities]
+Modules = [Documenter]
+Pages = ["utilities/utilities.jl"]
+```
+
+```@docs
+Remotes.URL
+Remotes.repofile
 ```

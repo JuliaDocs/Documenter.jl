@@ -5,6 +5,7 @@ For supported Markdown syntax, see the [documentation for the Markdown standard 
 
 ```@contents
 Pages = ["syntax.md"]
+Depth = 2:2
 ```
 
 ## `@docs` block
@@ -66,13 +67,14 @@ This is equivalent to manually adding all the docstrings in a `@docs` block.
 
 ````markdown
 ```@autodocs
-Modules = [Foo, Bar]
+Modules = [Foo, Bar, Bar.Baz]
 Order   = [:function, :type]
 ```
 ````
 
-The above `@autodocs` block adds all the docstrings found in modules `Foo` and `Bar` that
+The above `@autodocs` block adds all the docstrings found in modules `Foo`, `Bar`, and `Bar.Baz` that
 refer to functions or types to the document.
+Note that a submodule must be listed explicitly in order to include the docstrings within it.
 
 Each module is added in order and so all docs from `Foo` will appear before those of `Bar`.
 Possible values for the `Order` vector are
@@ -105,7 +107,7 @@ docstrings. Note that page matching is done using the end of the provided string
 `a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
 `src/foo/a.jl`.
 
-To filter out certain docstrings by your own criteria, you can provide function with the
+To filter out certain docstrings by your own criteria, you can provide a function with the
 `Filter` keyword:
 
 ````markdown
@@ -185,6 +187,38 @@ using the same syntax.
 Note that depending on what the `CurrentModule` is set to, a docstring `@ref` may need to
 be prefixed by the module which defines it.
 
+### Named `@ref`s
+
+It is also possible to override the destination of an `@ref`-link by adding the appropriate
+label to the link, such as a docstring reference or a page heading.
+
+```markdown
+Both of the following references point to `g` found in module `Main.Other`:
+
+* [`Main.Other.g`](@ref)
+* [the `g` function](@ref Main.Other.g)
+
+Both of the following point to the heading "On Something":
+
+* [On Something](@ref)
+* [The section about something.](@ref "On Something")
+```
+
+This can be useful to avoid having to write fully qualified names for references that
+are not imported into the current module, or when the text displayed in the link is
+used to add additional meaning to the surrounding text, such as
+
+```markdown
+Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
+```
+
+!!! note
+
+    Named doc `@ref`s should be used sparingly since writing unqualified names may, in some
+    cases, make it difficult to tell *which* function is being referred to in a particular
+    docstring if there happen to be several modules that provide definitions with the same
+    name.
+
 ### Duplicate Headers
 
 In some cases a document may contain multiple headers with the same name, but on different
@@ -208,40 +242,10 @@ to headers on different pages in the same way as unnamed ones do.
 Duplicate docstring references do not occur since splicing the same docstring into a
 document more than once is disallowed.
 
-### Named doc `@ref`s
+!!! note "Label precedence"
 
-Docstring `@ref`s can also be "named" in a similar way to headers as shown in the
-[Duplicate Headers](@ref) section above. For example
-
-```julia
-module Mod
-
-"""
-Both of the following references point to `g` found in module `Main.Other`:
-
-  * [`Main.Other.g`](@ref)
-  * [`g`](@ref Main.Other.g)
-
-"""
-f(args...) = # ...
-
-end
-```
-
-This can be useful to avoid having to write fully qualified names for references that
-are not imported into the current module, or when the text displayed in the link is
-used to add additional meaning to the surrounding text, such as
-
-```markdown
-Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
-```
-
-!!! note
-
-    Named doc `@ref`s should be used sparingly since writing unqualified names may, in some
-    cases, make it difficult to tell *which* function is being referred to in a particular
-    docstring if there happen to be several modules that provide definitions with the same
-    name.
+    Both user-defined and internally generated header reference labels take precedence over
+    docstring references, in case there is a conflict.
 
 ## `@meta` block
 
@@ -256,6 +260,7 @@ page. Currently recognised keys:
 - `EditURL`: link to where the page can be edited. This defaults to the `.md` page itself,
   but if the source is something else (for example if the `.md` page is generated as part of
   the doc build) this can be set, either as a local link, or an absolute url.
+- `Draft`: boolean for overriding the global draft mode for the page.
 
 Example:
 
@@ -296,7 +301,7 @@ if not specified. `Order` and `Modules` behave the same way as in [`@autodocs` b
 and filter out docstrings that do not match one of the modules or categories specified.
 
 Note that the values assigned to `Pages`, `Modules`, and `Order` may be any valid Julia code
-and thus can be something more complex that an array literal if required, i.e.
+and thus can be something more complex than an array literal if required, i.e.
 
 ````markdown
 ```@index
@@ -319,12 +324,16 @@ Depth = 5
 ````
 
 As with `@index` if `Pages` is not provided then all pages are included. The default
-`Depth` value is `2`.
+`Depth` value is `2`, i.e. header levels 1 and 2 are included. `Depth` also accepts
+`UnitRange`s, to make it possible to configure also the minimum header level to be shown.
+`Depth = 2:3` can be used to include only headers with levels 2-3, for example.
 
 ## `@example` block
 
-Evaluates the code block and inserts the result into the final document along with the
-original source code.
+Evaluates the code block and inserts the result of the last expression into the final document along with the
+original source code. If the last expression returns `nothing`, the `stdout`
+and `stderr` streams of the whole block are inserted instead. A semicolon `;`
+at the end of the last line has no effect.
 
 ````markdown
 ```@example
@@ -375,17 +384,12 @@ Note that appending `# hide` to every line in an `@example` block will result in
 being hidden in the rendered document. The results block will still be rendered though.
 `@setup` blocks are a convenient shorthand for hiding an entire block, including the output.
 
-**`stdout` and `stderr`**
+**Empty Outputs**
 
-The Julia output streams are redirected to the results block when evaluating `@example`
-blocks in the same way as when running doctest code blocks.
-
-**`nothing` Results**
-
-When the `@example` block evaluates to `nothing` then the second block is not displayed.
-Only the source code block will be shown in the rendered document. Note that if any output
-from either `stdout` or `stderr` is captured then the results block will be displayed even
-if `nothing` is returned.
+When an `@example` block returns `nothing`, the results block will show instead
+the `stdout` and `stderr` streams produced by the whole block. If these are
+empty, the results block is not displayed at all; only the source code block
+will be shown in the rendered document.
 
 **Named `@example` Blocks**
 
@@ -420,8 +424,8 @@ g(x) = cos(x) - x
 and then we plot `f` over the interval from ``-π`` to ``π``
 
 ```@example 1
-x = linspace(-π, π)
-plot(x, f(x), color = "red")
+x = range(-π, π; length=50)
+plot(x, f.(x), color = "red")
 savefig("f-plot.svg"); nothing # hide
 ```
 
@@ -430,7 +434,7 @@ savefig("f-plot.svg"); nothing # hide
 and then we do the same with `g`
 
 ```@example 1
-plot(x, g(x), color = "blue")
+plot(x, g.(x), color = "blue")
 savefig("g-plot.svg"); nothing # hide
 ```
 
@@ -438,13 +442,35 @@ savefig("g-plot.svg"); nothing # hide
 ````
 
 Note that `@example` blocks are evaluated within the directory of `build` where the file
-will be rendered . This means than in the above example `savefig` will output the `.svg`
+will be rendered . This means that in the above example `savefig` will output the `.svg`
 files into that directory. This allows the images to be easily referenced without needing to
 worry about relative paths.
 
+!!! info
+    If you use [Plots.jl](https://github.com/JuliaPlots/Plots.jl) with the default backend
+    [GR.jl](https://github.com/jheinen/GR.jl), you will likely see warnings like
+    ```
+    qt.qpa.xcb: could not connect to display
+    qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+    ```
+    To fix these, you need to set the environment variable `GKSwstype` to `100`. For example,
+    if you use GitHub actions to build your documentation, you can modify the default script to
+    ```
+    - name: Build and deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
+        DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
+        GKSwstype: "100" # https://discourse.julialang.org/t/generation-of-documentation-fails-qt-qpa-xcb-could-not-connect-to-display/60988
+      run: julia --project=docs --color=yes docs/make.jl
+    ```
+    Alternatively, you can set this environment variable directly in Julia using
+    ```julia
+    ENV["GKSwstype"] = "100"
+    ```
+
 `@example` blocks automatically define `ans` which, as in the Julia REPL, is bound to the
 value of the last evaluated expression. This can be useful in situations such as the
-following one where where binding the object returned by `plot` to a named variable would
+following one where binding the object returned by `plot` to a named variable would
 look out of place in the final rendered documentation:
 
 ````markdown
@@ -456,6 +482,42 @@ draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 
 ![](plot.svg)
 ````
+
+**Color output**
+
+`@example` blocks support colored text output by mapping [ANSI escape codes]
+(https://en.wikipedia.org/wiki/ANSI_escape_code) to HTML. For example, this block:
+````markdown
+```@example
+printstyled("Here are some colors:\n"; color=:red, bold=true)
+for color in 0:15
+    print("\e[38;5;$(color);48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
+```
+````
+results in the following input and output blocks:
+```@example
+printstyled("Here are some colors:\n"; color=:red, bold=true)
+for color in 0:15
+    print("\e[38;5;$(color);48;5;$(color)m  ")
+    print("\e[49m", lpad(color, 3), " ")
+    color % 8 == 7 && println()
+end
+print("\e[m")
+```
+
+!!! note "Disable color output"
+    To disable color output globally, pass `ansicolor=false` to [`Documenter.HTML`](@ref),
+    and to disable locally for the block, use `ansicolor=false`, like so:
+
+    ````markdown
+    ```@example; ansicolor=false
+    printstyled("hello, world"; color=:red, bold=true)
+    ```
+    ````
 
 **Delayed Execution of `@example` Blocks**
 
@@ -482,9 +544,11 @@ second block. A block with `continued = true` does not have any output.
 
 ## `@repl` block
 
-These are similar to `@example` blocks, but adds a `julia> ` prompt before each toplevel
-expression. `;` and `# hide` syntax may be used in `@repl` blocks in the same way as in the
-Julia REPL and `@example` blocks.
+These are similar to `@example` blocks, but add a `julia> ` prompt before each toplevel
+expression and do not fail upon encountering an error.
+The `# hide` syntax may be used in `@repl` blocks in the same way
+as in `@example` blocks. Furthermore, a semicolon `;` at the end of a line will
+suppress the output as in the Julia REPL.
 
 ````markdown
 ```@repl
@@ -508,6 +572,44 @@ julia> a + b
 3
 ```
 ````
+
+And likewise
+
+````markdown
+```@repl
+sqrt(-1)
+```
+````
+
+will generate
+
+````markdown
+```julia
+julia> sqrt(-1)
+ERROR: DomainError with -1.0:
+sqrt will only return a complex result if called with a complex argument. Try sqrt(Complex(x)).
+```
+````
+
+`@repl` blocks support colored output, just like `@example` blocks. The following block
+````markdown
+```@repl
+printstyled("hello, world"; color=:red, bold=true)
+```
+````
+gives
+```@repl
+printstyled("hello, world"; color=:red, bold=true)
+```
+!!! note "Disable color output"
+    To disable color output globally, pass `ansicolor=false` to [`Documenter.HTML`](@ref),
+    and to disable locally for the block, use `ansicolor=false`, like so:
+
+    ````markdown
+    ```@repl; ansicolor=false
+    printstyled("hello, world"; color=:red, bold=true)
+    ```
+    ````
 
 Named `@repl <name>` blocks behave in the same way as named `@example <name>` blocks.
 
@@ -548,7 +650,8 @@ println(iris)
 
 ## `@eval` block
 
-Evaluates the contents of the block and inserts the resulting value into the final document.
+Evaluates the contents of the block and inserts the resulting value into the final document,
+unless the last expression evaluates to `nothing`.
 
 In the following example we use the PyPlot package to generate a plot and display it in the
 final document.
@@ -557,8 +660,8 @@ final document.
 ```@eval
 using PyPlot
 
-x = linspace(-π, π)
-y = sin(x)
+x = range(-π, π; length=50)
+y = sin.(x)
 
 plot(x, y, color = "red")
 savefig("plot.svg")
@@ -568,6 +671,10 @@ nothing
 
 ![](plot.svg)
 ````
+
+Instead of returning `nothing` in the example above we could have returned a new
+`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
+filename is not known until evaluation of the block itself.
 
 Another example is to generate markdown tables from machine readable data formats such as CSV or JSON.
 
@@ -582,19 +689,19 @@ mdtable(df,latex=false)
 
 Which will generate a markdown version of the CSV file table.csv and render it in the output format.
 
+The final expression in an `@eval` block must be either `nothing` or a valid `Markdown.MD`
+object. Other objects will generate a warning and will be rendered in text form as a code block,
+but this behavior can change and should not be relied upon.
+
 Note that each `@eval` block evaluates its contents within a separate module. When
 evaluating each block the present working directory, `pwd`, is set to the directory in
 `build` where the file will be written to, and the paths in `include` calls are interpreted
 to be relative to `pwd`.
 
-Also, instead of returning `nothing` in the example above we could have returned a new
-`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
-filename is not known until evaluation of the block itself.
-
 !!! note
 
     In most cases `@example` is preferred over `@eval`. Just like in normal Julia code where
-    `eval` should be only be considered as a last resort, `@eval` should be treated in the
+    `eval` should only be considered as a last resort, `@eval` should be treated in the
     same way.
 
 

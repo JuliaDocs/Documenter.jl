@@ -1,45 +1,51 @@
 module Foo
 """
 ```jldoctest
-julia> Int64[1, 2, 3, 4] * 2
-4-element Array{Int64,1}:
+julia> Main.DocTestFixArray_2468
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  2
  4
  6
  8
 
-julia> Int64[1, 2, 3, 4]
-4-element Array{Int64,1}:
+julia> Main.DocTestFixArray_1234
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  1
  2
  3
  4
 ```
 ```jldoctest
-julia> Int64[1, 2, 3, 4]
-4-element Array{Int64,1}:
+julia> Main.DocTestFixArray_1234
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  1
  2
  3
  4
 
-julia> Int64[1, 2, 3, 4] * 2
-4-element Array{Int64,1}:
+julia> Main.DocTestFixArray_2468
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  2
  4
  6
  8
 ```
 ```jldoctest
-julia> Int64[1, 2, 3, 4] * 2
-4-element Array{Int64,1}:
+julia> Main.DocTestFixArray_2468
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  2
  4
  6
  8
 
-julia> Int64[1, 2, 3, 4] * 2
-4-element Array{Int64,1}:
+julia> Main.DocTestFixArray_2468
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  2
  4
  6
@@ -47,20 +53,22 @@ julia> Int64[1, 2, 3, 4] * 2
 ```
 ```jldoctest
 julia> begin
-          Int64[1, 2, 3, 4] * 2
+           Main.DocTestFixArray_2468
        end
-4-element Array{Int64,1}:
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  2
  4
  6
  8
 ```
 ```jldoctest
-Int64[1, 2, 3, 4] * 2
+Main.DocTestFixArray_2468
 
 # output
 
-4-element Array{Int64,1}:
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
  2
  4
  6
@@ -83,9 +91,10 @@ foo() = 1
     """
     ```jldoctest
     julia> begin
-              Int64[1, 2, 3, 4] * 2
+               Main.DocTestFixArray_2468
            end
-    4-element Array{Int64,1}:
+    4×1×1 Array{Int64,3}:
+    [:, :, 1] =
      2
      4
      6

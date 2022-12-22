@@ -35,6 +35,10 @@
   }
 }
 
+pre, code {
+  font-variant-ligatures: no-contextual;
+}
+
 // We want to be able to disable certain breadcrumb components
 .breadcrumb a.is-disabled {
   cursor: default;
@@ -47,9 +51,7 @@
 // highlight.js background color fix
 .hljs {
   background: initial !important;
-  padding: initial !important;
 }
-
 // There appears to be a rendering bug in Chrome, where elements with `position: absolute` in
 // an overflow container affect whether the outer container is overflowing / needs
 // scrollbars.
@@ -66,8 +68,17 @@
   right: 0;
 }
 
+// fix spacing for math displays, particularly important with overflow scroll bar
+.katex-display, mjx-container, .MathJax_Display {
+  margin: 0.5em 0 !important;
+}
+
 // Set font subpixel rendering to auto on the HTML tag
 html {
   -moz-osx-font-smoothing: auto;
   -webkit-font-smoothing: auto;
+}
+
+li.no-marker {
+  list-style: none
 }

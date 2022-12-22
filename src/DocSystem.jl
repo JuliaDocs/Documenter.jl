@@ -6,7 +6,7 @@ module DocSystem
 
 using DocStringExtensions
 import Markdown
-import Base.Docs: MultiDoc, parsedoc, formatdoc, DocStr
+import Base.Docs: MultiDoc, formatdoc, DocStr
 
 ## Bindings ##
 
@@ -31,10 +31,10 @@ binding(any::Any) = throw(ArgumentError("cannot convert `$(repr(any))` to a `Bin
 # The simple definitions.
 #
 binding(b::Docs.Binding) = binding(b.mod, b.var)
-binding(d::DataType)     = binding(d.name.module, d.name.name)
+binding(d::DataType)     = binding(parentmodule(d), nameof(d))
 binding(m::Module)       = binding(m, nameof(m))
 binding(s::Symbol)       = binding(Main, s)
-binding(f::Function)     = binding(typeof(f).name.module, typeof(f).name.mt.name)
+binding(f::Function)     = binding(parentmodule(f), nameof(f))
 
 #
 # We need a lookup table for `IntrinsicFunction`s since they do not track their
@@ -162,23 +162,19 @@ const CACHED = IdDict{Any,Any}()
 """
 $(SIGNATURES)
 
-Find all `DocStr` objects that match the provided arguments:
-
+Find all `DocStr` objects that match the provided arguments exactly.
 - `binding`: the name of the object.
 - `typesig`: the signature of the object. Default: `Union{}`.
-- `compare`: how to compare signatures? Exact (`==`) or subtypes (`<:`). Default: `<:`.
+- `compare`: how to compare signatures? (`==` (default), `<:` or `>:`)
 - `modules`: which modules to search through. Default: *all modules*.
-- `aliases`: check aliases of `binding` when nothing is found. Default: `true`.
 
-Returns a `Vector{DocStr}` ordered by definition order in `0.5` and by
-`type_morespecific` in `0.4`.
+Return a `Vector{DocStr}` ordered by definition order.
 """
-function getdocs(
+function getspecificdocs(
         binding::Docs.Binding,
-        typesig::Type = Union{};
+        typesig::Type = Union{},
         compare = (==),
         modules = Docs.modules,
-        aliases = true,
     )
     # Fall back to searching all modules if user provides no modules.
     modules = isempty(modules) ? Docs.modules : modules
@@ -200,28 +196,44 @@ function getdocs(
             end
         end
     end
-    if compare == (==)
-        # Exact matching of signatures:
-        #
-        # When we get a single match from using `==` as the comparision then we just return
-        # that one result.
-        #
-        # Otherwise we fallback to comparing signatures using `<:` to match, hopefully, a
-        # wider range of possible docstrings.
-        if length(results) == 1
-            results
-        else
-            getdocs(binding, typesig; compare = (<:), modules = modules, aliases = aliases)
-        end
-    else
-        # When nothing is found we check whether the `binding` is an alias of some other
-        # `Binding`. If so then we redo the search using that `Binding` instead.
-        if aliases && isempty(results) && (b = aliasof(binding)) != binding
-            getdocs(b, typesig; compare = compare, modules = modules)
-        else
-            results
+    results
+end
+
+"""
+$(SIGNATURES)
+
+Find all `DocStr` objects that somehow match the provided arguments.
+That is, if [`getspecificdocs`](@ref) fails, get docs for aliases of
+`binding` (unless `aliases` is set to `false). For `compare` being `==` also
+try getting docs for `<:`.
+"""
+function getdocs(
+        binding::Docs.Binding,
+        typesig::Type = Union{};
+        compare = (==),
+        modules = Docs.modules,
+        aliases = true,
+    )
+    # First, we try to find the docs that _exactly_ match the binding. If you
+    # have aliases, you can have a separate docstring attached to the alias.
+    results = getspecificdocs(binding, typesig, compare, modules)
+    # If we don't find anything, we'll loosen the function signature comparison
+    # to allow for subtypes, to find any signatures that would get called in
+    # dispatch for this method (i.e. supertype signatures).
+    if isempty(results) && compare == (==)
+        results = getspecificdocs(binding, typesig, (<:), modules)
+    end
+    # If we still can't find anything, `aliases` is set, and this binding is
+    # indeed an alias, we'll fetch the docstrings for the original object, first
+    # as an exact match (if relevant) and then also falling back to a subtype
+    # search.
+    if isempty(results) && aliases && (b = aliasof(binding)) != binding
+        results = getspecificdocs(b, typesig, compare, modules)
+        if isempty(results) && compare == (==)
+            results = getspecificdocs(b, typesig, (<:), modules)
         end
     end
+    results
 end
 
 """
@@ -266,5 +278,23 @@ category(::DataType) = :type
 category(x::UnionAll) = category(Base.unwrap_unionall(x))
 category(::Module) = :module
 category(::Any) = :constant
+
+"""
+    DocSystem.parsedoc(docstr::DocStr)
+
+Thin internal wrapper around `Base.Docs.parsedoc` which prints additional debug information
+in case `Base.Docs.parsedoc` fails with an exception.
+"""
+function parsedoc(docstr::DocStr)
+    try
+        Base.Docs.parsedoc(docstr)
+    catch exception
+        @error """
+        parsedoc failed to parse a docstring into Markdown. This indicates a problem with the docstring.
+        """ exception docstr.data collect(docstr.text) docstr.object
+        # Note: collect is there because svec does not print as nicely as a vector
+        rethrow(exception)
+    end
+end
 
 end

@@ -2,8 +2,9 @@
 
 Documenter will, by default, run `jldoctest` code blocks that it finds and makes sure that
 the actual output matches what's in the doctest. This can help to avoid documentation
-examples from becoming outdated, incorrect, or misleading. It's recommended that as many of
-a package's examples be runnable by Documenter's doctest.
+examples from becoming outdated, incorrect, or misleading. It is recommended that as many of
+a package's examples as possible be runnable by Documenter's doctest. Doctest failures during [`makedocs`](@ref) are printed as logging statements by default, but can be made fatal by passing `strict=true` or `strict=:doctest` to `makedocs`.
+
 
 This section of the manual outlines how to go about enabling doctests for code blocks in
 your package's documentation.
@@ -25,10 +26,11 @@ a + b
 ```
 ````
 
-The code block's "language" must be `jldoctest` and must include a line containing the text `#
-output`. The text before this line is the contents of the script which is run. The text that
+The code block's "language" must be `jldoctest` and must include a line containing exactly the text `#
+output`. The text before this line is the contents of the script that is run. The text that
 appears after `# output` is the textual representation that would be shown in the Julia REPL
-if the script had been `include`d.
+if the script had been `include`d. In particular, semicolons `;` at the end of
+a line have no effect.
 
 The actual output produced by running the "script" is compared to the expected result and
 any difference will result in [`makedocs`](@ref) throwing an error and terminating.
@@ -335,6 +337,12 @@ DocTestFilters = nothing
 
 The `DocTestFilters = nothing` is not strictly necessary, but good practice nonetheless to
 help avoid unintentional filtering in following doctest blocks.
+
+!!! info
+    The filter match is replaced with an empty string in both the expected and actual output using
+    `replace`, e.g. `replace(str, filter => "")`. Note that this means that the same filter can match
+    multiple times, and if you need the same filter to match multiple lines your regex need to account
+    for that.
 
 Another option is to use the `filter` keyword argument. This defines a doctest-local filter
 which is only active for the specific doctest. Note that such filters are not shared between

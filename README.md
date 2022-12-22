@@ -5,7 +5,7 @@
 
 | **Documentation**                                                               | **Build Status**                                                                                |
 |:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][GHA-img]][GHA-url] [![][codecov-img]][codecov-url] |
 
 
 ## Installation
@@ -30,15 +30,34 @@ julia> import Pkg; Pkg.add("Documenter")
 
 ## Project Status
 
-The package is tested against, and being developed for, Julia `1.0` and above on Linux, macOS, and Windows.
-
-Support for Julia `0.4`, `0.5`, `0.6` and `0.7` has been dropped in the latest version, but older versions of Documenter may still work (Documenter versions `0.8`, `0.11`, `0.19`, and `0.22` respectively).
+The package is tested against, and being developed for, Julia `1.6` and above on Linux, macOS, and Windows.
 
 ## Questions and Contributions
 
 Usage questions can be posted on the [Julia Discourse forum][discourse-tag-url] under the `documenter` tag, in the #documentation channel of the [Julia Slack](https://julialang.org/community/) and/or in the [JuliaDocs Gitter chat room][gitter-url].
 
 Contributions are very welcome, as are feature requests and suggestions. Please open an [issue][issues-url] if you encounter any problems. The [contributing page][contrib-url] has a few guidelines that should be followed when opening pull requests and contributing code.
+
+## Related packages
+
+There are several packages that extend Documenter in different ways. The JuliaDocs organization maintains:
+
+* [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
+* [DocumenterMarkdown.jl](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
+
+Other third-party packages that can be combined with Documenter include:
+
+* [DemoCards.jl](https://github.com/johnnychen94/DemoCards.jl)
+* [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
+* [Literate.jl](https://github.com/fredrikekre/Literate.jl)
+* [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
+* [QuizQuestions](https://github.com/jverzani/QuizQuestions.jl)
+
+Finally, there are also a few other packages in the Julia ecosystem that are similar to Documenter, but fill a slightly different niche:
+
+* [Franklin.jl](https://github.com/tlienart/Franklin.jl)
+* [Publish.jl](https://github.com/MichaelHatherly/Publish.jl)
+* [Weave.jl](https://github.com/JunoLab/Weave.jl)
 
 [contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
@@ -50,11 +69,8 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://juliadocs.github.io/Documenter.jl/stable
 
-[travis-img]: https://travis-ci.org/JuliaDocs/Documenter.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/JuliaDocs/Documenter.jl
-
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/xx7nimfpnl1r4gx0?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/JuliaDocs/documenter-jl
+[GHA-img]: https://github.com/JuliaDocs/Documenter.jl/workflows/CI/badge.svg
+[GHA-url]: https://github.com/JuliaDocs/Documenter.jl/actions?query=workflows/CI
 
 [codecov-img]: https://codecov.io/gh/JuliaDocs/Documenter.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl

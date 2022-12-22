@@ -6,6 +6,7 @@ Defines the [`Anchor`](@ref) and [`AnchorMap`](@ref) types.
 module Anchors
 
 using DocStringExtensions
+import MarkdownAST
 
 # Types.
 # ------
@@ -27,6 +28,9 @@ mutable struct Anchor
     file   :: String
     id     :: String
     nth    :: Int
+    # Reverse-lookup of .object for MarkdownAST trees. This is intentionally
+    # uninitialized until set in Documenter.markdownast()
+    node   :: MarkdownAST.Node{Nothing}
     Anchor(object) = new(object, 0, "", "", 1)
 end
 
@@ -125,13 +129,15 @@ function anchor(m::AnchorMap, id, file, n)
 end
 
 """
+Create a label from an anchor.
+"""
+label(a::Anchor) = (a.nth == 1) ? a.id : string(a.id, "-", a.nth)
+
+"""
 Create an HTML fragment from an anchor.
 """
 function fragment(a::Anchor)
-    frag = string("#", a.id)
-    if a.nth > 1
-        frag = string(frag, "-", a.nth)
-    end
+    frag = string("#", label(a))
     # TODO: Sanitize the fragment
     return frag
 end

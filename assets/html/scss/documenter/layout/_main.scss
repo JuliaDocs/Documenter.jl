@@ -8,6 +8,11 @@
       // Long inline words can happen, so we'll break them in case that, instead of letting
       // go into overflow. Most likely to happen with inline code snippets.
       overflow-wrap: break-word;
+
+      .math-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
     }
 
     @include desktop {
@@ -58,12 +63,16 @@
           padding: 0;
           margin-left: 0.3em;
         }
-        .docs-settings-button {
-          margin: auto 0 auto 1rem;
-        }
         .docs-sidebar-button {
           font-size: 1.5rem;
-          margin: auto 0 auto 1rem;
+        }
+        .docs-navbar-link {
+          margin: auto 0.5rem auto 0.5rem;
+        }
+        @include touch {
+          .docs-navbar-link {
+            margin: auto 0.75rem auto 0.75rem;
+          }
         }
       }
 
@@ -108,6 +117,7 @@
 
     .docs-footer {
       display: flex;
+      flex-wrap: wrap;
       margin-left: 0;
       margin-right: 0;
       border-top: 1px solid $border;
@@ -124,6 +134,17 @@
       }
       .docs-footer-nextpage {
         text-align: right;
+      }
+
+      .flexbox-break {
+        flex-basis: 100%;
+        height: 0;
+      }
+
+      .footer-message {
+        font-size: 0.8em;
+        margin: 0.5em auto 0 auto;
+        text-align: center;
       }
     }
   }

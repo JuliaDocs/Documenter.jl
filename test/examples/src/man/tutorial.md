@@ -67,7 +67,11 @@ julia> a / b
 ```@eval
 import Markdown
 code = string(sprint(Base.banner), "julia>")
-Markdown.Code(code)
+Markdown.MD([Markdown.Code(code)])
+```
+
+```@eval
+rand(20, 20)
 ```
 
 ```jldoctest
@@ -182,6 +186,8 @@ Base.show(io, ::MIME"image/svg+xml", svg::SVG) = write(io, svg.code)
 end # module
 ```
 
+Without xmlns tag:
+
 ```@example inlinesvg
 using .InlineSVG
 SVG("""
@@ -190,6 +196,81 @@ SVG("""
     <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
     <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
     <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+  </g>
+</svg>
+""")
+```
+
+With xmlns tag:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width="82" height="76" xmlns="http://www.w3.org/2000/svg">
+  <g style="stroke-width: 3">
+    <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+    <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+  </g>
+</svg>
+""")
+```
+
+With single quotes:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width='82' height='76' xmlns='http://www.w3.org/2000/svg'>
+  <g style='stroke-width: 3'>
+    <circle cx='20' cy='56' r='16' style='stroke: #cb3c33; fill: #d5635c' />
+    <circle cx='41' cy='20' r='16' style='stroke: #389826; fill: #60ad51' />
+    <circle cx='62' cy='56' r='16' style='stroke: #9558b2; fill: #aa79c1' />
+  </g>
+</svg>
+""")
+```
+
+With a mixture of single and double quotes:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width='82' height='76' xmlns='http://www.w3.org/2000/svg'>
+  <g style='stroke-width: 3'>
+    <circle cx='20' cy='56' r='16' style='stroke: #cb3c33; fill: #d5635c' />
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+    <circle cx='62' cy='56' r='16' style='stroke: #9558b2; fill: #aa79c1' />
+  </g>
+</svg>
+""")
+```
+
+With viewBox and without xmlns, making the svg really large to test that it is resized correctly:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width="8200" height="7600" viewBox="0 0 82 76">
+  <g style="stroke-width: 3">
+    <circle cx="20" cy="56" r="16" style="stroke: #cb3c33; fill: #d5635c" />
+    <circle cx="41" cy="20" r="16" style="stroke: #389826; fill: #60ad51" />
+    <circle cx="62" cy="56" r="16" style="stroke: #9558b2; fill: #aa79c1" />
+  </g>
+</svg>
+""")
+```
+
+Without viewBox and without xmlns, making the svg really large to test that it is resized correctly:
+
+```@example inlinesvg
+using .InlineSVG
+SVG("""
+<svg width="8200" height="7600">
+  <g style="stroke-width: 300">
+    <circle cx="2000" cy="5600" r="1600" style="stroke: #cb3c33; fill: #d5635c" />
+    <circle cx="4100" cy="2000" r="1600" style="stroke: #389826; fill: #60ad51" />
+    <circle cx="6200" cy="5600" r="1600" style="stroke: #9558b2; fill: #aa79c1" />
   </g>
 </svg>
 """)
@@ -356,17 +437,35 @@ With explicit alignment.
 The following example only works on the deploy build where
 
 ```julia
-mathengine = Documenter.MathJax(Dict(:TeX => Dict(
-    :equationNumbers => Dict(:autoNumber => "AMS"),
-    :Macros => Dict(
-        :ket => ["|#1\\rangle", 1],
-        :bra => ["\\langle#1|", 1],
+mathengine = MathJax2(Dict(
+    :TeX => Dict(
+        :equationNumbers => Dict(:autoNumber => "AMS"),
+        :Macros => Dict(
+            :ket => ["|#1\\rangle", 1],
+            :bra => ["\\langle#1|", 1],
+            :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+        ),
     ),
-)))
+)),
+```
+or on MathJax v3, the
+[physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf)
+can be loaded:
+
+```julia
+mathengine = MathJax3(Dict(
+    :loader => Dict("load" => ["[tex]/physics"]),
+    :tex => Dict(
+        "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+        "tags" => "ams",
+        "packages" => ["base", "ams", "autoload", "physics"],
+    ),
+)),
 ```
 
 ```math
 \bra{x}\ket{y}
+\pdv[n]{f}{x}
 ```
 
 The following at-raw block only renders correctly on the deploy build, where
@@ -385,3 +484,73 @@ Hello World!
 Written in <a href="https://fonts.google.com/specimen/Nanum+Brush+Script">Nanum Brush Script.</a>
 </div>
 ```
+
+## Handling of `text/latex`
+
+You can define a type that has a `Base.show` method for the `text/latex` MIME:
+
+```@example showablelatex
+struct LaTeXEquation
+    code :: String
+end
+Base.show(io, ::MIME"text/latex", latex::LaTeXEquation) = write(io, latex.code)
+nothing # hide
+```
+
+In an `@example` or `@eval` block, it renders as an equation:
+
+```@example showablelatex
+LaTeXEquation(raw"Foo $x^2$ bar.")
+```
+
+Documenter also supports having the LaTeX text being already wrapped in `\[ ... \]`:
+
+```@example showablelatex
+LaTeXEquation(raw"\[\left[ \begin{array}{rr}x&2 x\end{array}\right]\]")
+```
+
+or wrapped in `$$ ... $$`:
+
+```@example showablelatex
+LaTeXEquation(raw"$$\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$$")
+```
+
+---
+
+Extra tests for handling multi-line equations ([#1518](https://github.com/JuliaDocs/Documenter.jl/pull/1518)):
+
+
+```@example showablelatex
+LaTeXEquation(raw"""
+\[
+    \left[
+        \begin{array}{rr}
+            x & 2x
+        \end{array}
+    \right]
+\]
+""")
+```
+
+```@example showablelatex
+LaTeXEquation(raw"""$$
+\begin{bmatrix}
+    1 & 2 \\
+    3 & 4
+\end{bmatrix}
+$$""")
+```
+
+Without `raw""` strings we have to double-escape our `\` and `$`:
+
+```@example showablelatex
+LaTeXEquation("\\[\\left[\\begin{array}{rr} x & 2x \\\\ \n y & y \\end{array}\\right]\\]")
+```
+
+```@example showablelatex
+LaTeXEquation("\$\$\\begin{bmatrix} 1 & 2 \\\\ \n 3 & 4 \\end{bmatrix}\$\$")
+```
+
+## Videos
+
+![](https://dl8.webmfiles.org/big-buck-bunny_trailer.webm)

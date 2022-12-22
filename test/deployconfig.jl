@@ -11,8 +11,12 @@ using Logging
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="dev", push_preview=true) == "v1.2.3"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         @test Documenter.authentication_method(cfg) === Documenter.SSH
     end
@@ -26,8 +30,9 @@ using Logging
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="dev", push_preview=true) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test !d.all_ok
     end
     # Regular/broken devbranch build
     withenv("TRAVIS_CI" => "true",
@@ -39,10 +44,15 @@ using Logging
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=true) == "hello-world"
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="not-master", devurl="hello-world", push_preview=true) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "hello-world"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
     # Regular pull request build
@@ -55,10 +65,15 @@ using Logging
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.Travis()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=true) == "previews/PR42"
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=false) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
     # Missing/broken environment variables
@@ -71,8 +86,9 @@ using Logging
             "DOCUMENTER_KEY" => nothing,
         ) do
         cfg = Documenter.Travis()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=false) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
     end
 end end
 
@@ -86,8 +102,12 @@ end end
             "DOCUMENTER_KEY" => nothing,
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="dev", push_preview=true) == "v1.2.3"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
         @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
@@ -100,8 +120,12 @@ end end
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="dev", push_preview=true) == "v1.2.3"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
@@ -114,8 +138,9 @@ end end
             "DOCUMENTER_KEY" => nothing,
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="dev", push_preview=true) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test !d.all_ok
     end
     # Regular devbranch build with GITHUB_TOKEN
     withenv("GITHUB_EVENT_NAME" => "push",
@@ -126,10 +151,13 @@ end end
             "DOCUMENTER_KEY" => nothing,
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=true) == "hello-world"
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="not-master", devurl="hello-world", push_preview=true) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "hello-world"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
         @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
@@ -142,44 +170,122 @@ end end
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=true) == "hello-world"
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="not-master", devurl="hello-world", push_preview=true) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "hello-world"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
-    # Regular pull request build with GITHUB_TOKEN
-    withenv("GITHUB_EVENT_NAME" => "pull_request",
-            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
-            "GITHUB_REF" => "refs/pull/42/merge",
-            "GITHUB_ACTOR" => "github-actions",
-            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "DOCUMENTER_KEY" => nothing,
-        ) do
-        cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=true) == "previews/PR42"
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="not-master", devurl="hello-world", push_preview=false) === nothing
-        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
-        @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
-    end
-    # Regular pull request build with SSH deploy key (SSH key prioritized)
-    withenv("GITHUB_EVENT_NAME" => "pull_request",
-            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
-            "GITHUB_REF" => "refs/pull/42/merge",
-            "GITHUB_ACTOR" => "github-actions",
-            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
-        ) do
-        cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=true) == "previews/PR42"
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="not-master", devurl="hello-world", push_preview=false) === nothing
-        @test Documenter.authentication_method(cfg) === Documenter.SSH
-        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+
+    # These tests requires GITHUB_TOKEN to be set (and valid) in order to verify the origin
+    # of the PR. Only runs on CI.
+    if get(ENV, "GITHUB_ACTIONS", nothing) == "true" && haskey(ENV, "GITHUB_TOKEN")
+        # Regular pull request build with GITHUB_TOKEN
+        withenv("GITHUB_EVENT_NAME" => "pull_request",
+                "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                "GITHUB_REF" => "refs/pull/1962/merge",
+                "GITHUB_ACTOR" => "github-actions",
+                "DOCUMENTER_KEY" => nothing,
+            ) do
+            cfg = Documenter.GitHubActions()
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="master", devurl="hello-world", push_preview=true)
+            @test d.all_ok
+            @test d.subfolder == "previews/PR1962"
+            @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+            @test d.branch == "gh-pages"
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="not-master", devurl="hello-world", push_preview=false)
+            @test !d.all_ok
+            @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+            @test Documenter.authenticated_repo_url(cfg) == "https://github-actions:$(ENV["GITHUB_TOKEN"])@github.com/JuliaDocs/Documenter.jl.git"
+        end
+        # Regular pull request build with GITHUB_TOKEN, PR from a fork
+        withenv("GITHUB_EVENT_NAME" => "pull_request",
+                "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                "GITHUB_REF" => "refs/pull/1967/merge",
+                "GITHUB_ACTOR" => "github-actions",
+                "DOCUMENTER_KEY" => nothing,
+            ) do
+            cfg = Documenter.GitHubActions()
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="master", devurl="hello-world", push_preview=true)
+            @test !d.all_ok
+        end
+        # Regular pull request build with SSH deploy key (SSH key prioritized)
+        withenv("GITHUB_EVENT_NAME" => "pull_request",
+                "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                "GITHUB_REF" => "refs/pull/1962/merge",
+                "GITHUB_ACTOR" => "github-actions",
+                "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+            ) do
+            cfg = Documenter.GitHubActions()
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="master", devurl="hello-world", push_preview=true)
+            @test d.all_ok
+            @test d.subfolder == "previews/PR1962"
+            @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+            @test d.branch == "gh-pages"
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="not-master", devurl="hello-world", push_preview=false)
+            @test !d.all_ok
+            @test Documenter.authentication_method(cfg) === Documenter.SSH
+            @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        end
+        # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch
+        withenv("GITHUB_EVENT_NAME" => "pull_request",
+                "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                "GITHUB_REF" => "refs/pull/1962/merge",
+                "GITHUB_ACTOR" => "github-actions",
+                "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+            ) do
+            cfg = Documenter.GitHubActions()
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="master", devurl="hello-world", push_preview=true,
+                                         repo_previews="github.com/JuliaDocs/Documenter-previews.jl.git",
+                                         branch_previews="gh-pages-previews")
+            @test d.all_ok
+            @test d.subfolder == "previews/PR1962"
+            @test d.repo == "github.com/JuliaDocs/Documenter-previews.jl.git"
+            @test d.branch == "gh-pages-previews"
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="not-master", devurl="hello-world", push_preview=false,
+                                         repo_previews="",
+                                         branch_previews="")
+            @test !d.all_ok
+            @test Documenter.authentication_method(cfg) === Documenter.SSH
+            @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        end
+        # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch; use a different deploy key for previews
+        withenv("GITHUB_EVENT_NAME" => "pull_request",
+                "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+                "GITHUB_REF" => "refs/pull/1962/merge",
+                "GITHUB_ACTOR" => "github-actions",
+                "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+                "DOCUMENTER_KEY_PREVIEWS" => "SGVsbG8sIHdvcmxkLw==",
+            ) do
+            cfg = Documenter.GitHubActions()
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="master", devurl="hello-world", push_preview=true,
+                                         repo_previews="github.com/JuliaDocs/Documenter-previews.jl.git",
+                                         branch_previews="gh-pages-previews")
+            @test d.all_ok
+            @test d.subfolder == "previews/PR1962"
+            @test d.repo == "github.com/JuliaDocs/Documenter-previews.jl.git"
+            @test d.branch == "gh-pages-previews"
+            d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                         devbranch="not-master", devurl="hello-world", push_preview=false,
+                                         repo_previews="",
+                                         branch_previews="")
+            @test !d.all_ok
+            @test Documenter.authentication_method(cfg) === Documenter.SSH
+            @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+            @test Documenter.documenter_key_previews(cfg) === "SGVsbG8sIHdvcmxkLw=="
+        end
     end
     # Missing environment variables
     withenv("GITHUB_EVENT_NAME" => "push",
@@ -190,22 +296,349 @@ end end
             "DOCUMENTER_KEY" => nothing,
         ) do
         cfg = Documenter.GitHubActions()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="hello-world", push_preview=true) === nothing
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+    end
+end end
+
+@testset "GitLab CI deploy configuration" begin; with_logger(NullLogger()) do
+    # Regular tag build
+    withenv("GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => "v1.2.3",
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.GitLab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        @test Documenter.authentication_method(cfg) === Documenter.SSH
+    end
+    # Broken tag build
+    withenv("GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => "not-a-version",
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.GitLab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test !d.all_ok
+    end
+    # Regular/broken devbranch build
+    withenv(
+            "GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => nothing,
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.GitLab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "hello-world"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Regular pull request build
+    withenv("GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "something",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "42",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => nothing,
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.GitLab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Missing/broken environment variables
+    withenv(
+            "GITLAB_CI" => "true",
+            "CI_COMMIT_BRANCH" => "master",
+            "CI_EXTERNAL_PULL_REQUEST_IID" => "",
+            "CI_PROJECT_PATH_SLUG" => "juliadocs-documenter-jl",
+            "CI_COMMIT_TAG" => "v1.2.3",
+            "CI_PIPELINE_SOURCE" => "push",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+        cfg = Documenter.GitLab()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
+    end
+    # Build on `schedule` jobs
+    withenv("GITHUB_EVENT_NAME" => "schedule",
+            "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
+            "GITHUB_REF" => "refs/tags/v1.2.3",
+            "GITHUB_ACTOR" => "github-actions",
+            "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+        cfg = Documenter.GitHubActions()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+end end
+
+@testset "Buildkite CI deploy configuration" begin; with_logger(NullLogger()) do
+    # Regular tag build
+    withenv("BUILDKITE" => "true",
+            "BUILDKITE_BRANCH" => "master",
+            "BUILDKITE_PULL_REQUEST" => "false",
+            "BUILDKITE_TAG" => "v1.2.3",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Buildkite()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+        @test Documenter.authentication_method(cfg) === Documenter.SSH
+    end
+    # Broken tag build
+    withenv("BUILDKITE" => "true",
+            "BUILDKITE_BRANCH" => "master",
+            "BUILDKITE_PULL_REQUEST" => "false",
+            "BUILDKITE_TAG" => "not-a-version",
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Buildkite()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test !d.all_ok
+    end
+    # Regular/broken devbranch build
+    withenv(
+            "BUILDKITE" => "true",
+            "BUILDKITE_BRANCH" => "master",
+            "BUILDKITE_PULL_REQUEST" => "false",
+            "BUILDKITE_TAG" => nothing,
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Buildkite()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "hello-world"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Regular pull request build
+    withenv("BUILDKITE" => "true",
+            "BUILDKITE_BRANCH" => "something",
+            "BUILDKITE_PULL_REQUEST" => "42",
+            "BUILDKITE_TAG" => nothing,
+            "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
+        ) do
+        cfg = Documenter.Buildkite()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
+        @test d.branch == "gh-pages"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
+        @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+    end
+    # Missing/broken environment variables
+    withenv(
+            "BUILDKITE" => "true",
+            "BUILDKITE_BRANCH" => "master",
+            "BUILDKITE_PULL_REQUEST" => "false",
+            "BUILDKITE_TAG" => "v1.2.3",
+            "DOCUMENTER_KEY" => nothing,
+        ) do
+        cfg = Documenter.Buildkite()
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
+    end
+end end
+
+@testset "Woodpecker CI deploy configuration" begin; with_logger(NullLogger()) do
+    # Regular tag build with PROJECT_ACCESS_TOKEN
+    withenv(
+            "CI_BUILD_EVENT" => "push",
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/tags/v1.2.3",
+            "CI_COMMIT_TAG" => "v1.2.3",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                                 devbranch="master", devurl="dev", push_preview=true)
+
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
+        @test d.repo == "JuliaDocs/Documenter.jl"
+        @test d.branch == "pages"
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Broken tag build
+    withenv(
+            "CI_BUILD_EVENT" => "push",
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/tags/not-a-version",
+            "CI_COMMIT_TAG" => "not-a-version",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="dev", push_preview=true)
+        @test !d.all_ok
+    end
+    # Regular devbranch build
+    withenv(
+            "CI_BUILD_EVENT" => "push",
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/heads/master",
+            "CI_COMMIT_TAG" => nothing,
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "hello-world"
+        @test d.repo == "JuliaDocs/Documenter.jl"
+        @test d.branch == "pages"
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                                 devbranch="not-master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Regular pull request build
+    withenv(
+            "CI_BUILD_EVENT" => "pull_request",
+            "CI_COMMIT_PULL_REQUEST" => "42",
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/pull/42/merge",
+            "CI_BUILD_EVENT" => "pull_request",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "previews/PR42"
+        @test d.repo == "JuliaDocs/Documenter.jl"
+        @test d.branch == "pages"
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=false)
+        @test !d.all_ok
+        @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+    end
+    # Not a pull request
+    withenv(
+            "CI_BUILD_EVENT" => "push",
+            "CI_COMMIT_PULL_REQUEST" => "42",
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/pull/42/merge",
+            "CI_BUILD_EVENT" => "push",
+            "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
+    end
+    # Missing environment variables
+    withenv(
+            "CI" => "woodpecker",
+            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_BUILD_EVENT" => "pull_request",
+            "CI_REPO" => "JuliaDocs/Documenter.jl",
+            "CI_REPO_OWNER" => "JuliaDocs",
+            "CI_COMMIT_REF" => "refs/pull/42/merge",
+            "PROJECT_ACCESS_TOKEN" => nothing,
+            "FORGE_URL" => nothing,
+        ) do
+        cfg = Documenter.Woodpecker()
+        d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                  devbranch="master", devurl="hello-world", push_preview=true)
+        @test !d.all_ok
     end
 end end
 
 struct CustomConfig <: Documenter.DeployConfig end
-Documenter.deploy_folder(::CustomConfig; kwargs...) = "v1.2.3"
+Documenter.deploy_folder(::CustomConfig; kwargs...) = Documenter.DeployDecision(; all_ok = true, subfolder = "v1.2.3")
 struct BrokenConfig <: Documenter.DeployConfig end
 
 @testset "Custom configuration" begin; with_logger(NullLogger()) do
         cfg = CustomConfig()
-        @test Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
-                  devbranch="master", devurl="dev", push_preview=true) == "v1.2.3"
+        d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
+                                     devbranch="master", devurl="dev", push_preview=true)
+        @test d.all_ok
+        @test d.subfolder == "v1.2.3"
         cfg = BrokenConfig()
-        @test (@test_logs (:warn, r"Documenter\.deploy_folder\(::BrokenConfig; kwargs\.\.\.\) not implemented") Documenter.deploy_folder(cfg)) === nothing
-        @test (@test_logs (:warn, r"Documenter could not auto-detect") Documenter.deploy_folder(nothing)) === nothing
+        @test (@test_logs (:warn, r"Documenter\.deploy_folder\(::BrokenConfig; kwargs\.\.\.\) not implemented") Documenter.deploy_folder(cfg)) == Documenter.DeployDecision(; all_ok = false)
+        @test (@test_logs (:warn, r"Documenter could not auto-detect") Documenter.deploy_folder(nothing)) == Documenter.DeployDecision(; all_ok = false)
 end end
 
 @testset "Autodetection of deploy system" begin
@@ -223,6 +656,24 @@ end end
     end
     withenv("TRAVIS_REPO_SLUG" => nothing,
             "GITHUB_REPOSITORY" => nothing,
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg === nothing
+    end
+    withenv("CI" => "woodpecker",
+            "GITHUB_REPOSITORY" => nothing
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg isa Documenter.Woodpecker
+    end
+    withenv("CI" => "drone",
+            "GITHUB_REPOSITORY" => nothing
+        ) do
+        cfg = Documenter.auto_detect_deploy_system()
+        @test cfg isa Documenter.Woodpecker
+    end
+    withenv("CI" => nothing,
+            "GITHUB_REPOSITORY" => nothing
         ) do
         cfg = Documenter.auto_detect_deploy_system()
         @test cfg === nothing
@@ -248,6 +699,7 @@ end
     uhu = Documenter.user_host_upstream("user@subdom.long-page.com:/path/to/repo")
     @test uhu == ("user", "subdom.long-page.com", "user@subdom.long-page.com:path/to/repo")
 
+    @test_throws ErrorException Documenter.user_host_upstream("https://github.com/JuliaDocs/Documenter.jl.git")
     @test_throws ErrorException Documenter.user_host_upstream("user@subdom.long-page.com")
 end
 
@@ -273,4 +725,16 @@ end
     @test version_tag_strip_build("X.Y.Z") === nothing
     @test version_tag_strip_build("1#2") === nothing
     @test version_tag_strip_build(".1") === nothing
+end
+
+@testset "verify_github_pull_repository" begin
+    if Sys.which("curl") === nothing
+        @warn "'curl' binary not found, skipping related tests."
+    else
+        r = Documenter.run_and_capture(`curl --help`)
+        @test haskey(r, :stdout)
+        @test haskey(r, :stderr)
+        @test r.stdout isa String
+        @test length(r.stdout) > 0
+    end
 end

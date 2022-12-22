@@ -8,6 +8,27 @@ Abstract type which new deployment configs should be subtypes of.
 abstract type DeployConfig end
 
 """
+    DeployDecision(; kwargs...)
+
+Struct containing information about the decision to deploy or not deploy.
+
+# Arguments
+
+- `all_ok::Bool` - Should documentation be deployed?
+- `branch::String` - The branch to which documentation should be pushed
+- `is_preview::Bool` - Is this documentation build a pull request?
+- `repo::String` - The repo to which documentation should be pushed
+- `subfolder::String` - The subfolder to which documentation should be pushed
+"""
+Base.@kwdef struct DeployDecision
+    all_ok::Bool
+    branch::String = ""
+    is_preview::Bool = false
+    repo::String = ""
+    subfolder::String = ""
+end
+
+"""
     Documenter.documenter_key(cfg::DeployConfig)
 
 Return the Base64-encoded SSH private key for the repository.
@@ -21,10 +42,23 @@ function documenter_key(::DeployConfig)
 end
 
 """
+    Documenter.documenter_key_previews(cfg::DeployConfig)
+
+Return the Base64-encoded SSH private key for the repository.
+Uses the `DOCUMENTER_KEY_PREVIEWS` environment variable if it is defined,
+otherwise uses the `DOCUMENTER_KEY` environment variable.
+
+This method must be supported by configs that push with SSH, see
+[`Documenter.authentication_method`](@ref).
+"""
+function documenter_key_previews(cfg::DeployConfig)
+    return get(ENV, "DOCUMENTER_KEY_PREVIEWS", documenter_key(cfg))
+end
+
+"""
     Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl, kwargs...)
 
-Return the folder where the documentation should be deployed to, or `nothing`
-if the current build should not deploy.
+Return a `DeployDecision`.
 This function is called with the `repo`, `devbranch`, `push_preview` and `devurl`
 arguments from [`deploydocs`](@ref).
 
@@ -35,11 +69,11 @@ arguments from [`deploydocs`](@ref).
 """
 function deploy_folder(cfg::DeployConfig; kwargs...)
     @warn "Documenter.deploy_folder(::$(typeof(cfg)); kwargs...) not implemented. Skipping deployment."
-    return nothing
+    return DeployDecision(; all_ok = false)
 end
 function deploy_folder(::Nothing; kwargs...)
     @warn "Documenter could not auto-detect the building environment Skipping deployment."
-    return nothing
+    return DeployDecision(; all_ok = false)
 end
 
 @enum AuthenticationMethod SSH HTTPS
@@ -65,9 +99,10 @@ This method must be supported by configs that push with HTTPS, see
 function authenticated_repo_url end
 
 post_status(cfg::Union{DeployConfig,Nothing}; kwargs...) = nothing
-post_status(; kwargs...) = post_status(auto_detect_deploy_system(); kwargs...)
 
 marker(x) = x ? "✔" : "✘"
+
+env_nonempty(key) = !isempty(get(ENV, key, ""))
 
 #############
 # Travis CI #
@@ -125,7 +160,15 @@ function Travis()
 end
 
 # Check criteria for deployment
-function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwargs...)
+function deploy_folder(cfg::Travis;
+                       repo,
+                       repo_previews = repo,
+                       branch = "gh-pages",
+                       branch_previews = branch,
+                       devbranch,
+                       push_preview,
+                       devurl,
+                       kwargs...)
     io = IOBuffer()
     all_ok = true
     ## Determine build type; release, devbranch or preview
@@ -151,6 +194,9 @@ function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwarg
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"TRAVIS_TAG\"] contains a valid VersionNumber")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to folder according to the tag
         subfolder = tag_nobuild
     elseif build_type === :devbranch
@@ -162,6 +208,9 @@ function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwarg
         branch_ok = !isempty(cfg.travis_tag) || cfg.travis_branch == devbranch
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"TRAVIS_BRANCH\"] matches devbranch=\"$(devbranch)\"")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
     else # build_type === :preview
@@ -172,20 +221,44 @@ function deploy_folder(cfg::Travis; repo, devbranch, push_preview, devurl, kwarg
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+        is_preview = true
         ## deploy to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
     end
     ## DOCUMENTER_KEY should exist (just check here and extract the value later)
-    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
     all_ok &= key_ok
-    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     ## Cron jobs should not deploy
     type_ok = cfg.travis_event_type != "cron"
     all_ok &= type_ok
     println(io, "- $(marker(type_ok)) ENV[\"TRAVIS_EVENT_TYPE\"]=\"$(cfg.travis_event_type)\" is not \"cron\"")
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
-    return all_ok ? subfolder : nothing
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.travis_branch == "main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master
+        Documenter's configured primary development branch (`devbranch`) is "master", but the
+        current branch (\$TRAVIS_BRANCH) is "main". This can happen because Documenter uses
+        GitHub's old default primary branch name as the default value for `devbranch`.
+
+        If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
+        to deploydocs.
+
+        See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
+        """
+    end
+    if all_ok
+        return DeployDecision(; all_ok = true,
+                                branch = deploy_branch,
+                                is_preview = is_preview,
+                                repo = deploy_repo,
+                                subfolder = subfolder)
+    else
+        return DeployDecision(; all_ok = false)
+    end
 end
 
 
@@ -201,7 +274,7 @@ Implementation of `DeployConfig` for deploying from GitHub Actions.
 The following environment variables influences the build
 when using the `GitHubActions` configuration:
 
- - `GITHUB_EVENT_NAME`: must be set to `push`.
+ - `GITHUB_EVENT_NAME`: must be set to `push`, `workflow_dispatch`, or `schedule`.
    This avoids deployment on pull request builds.
 
  - `GITHUB_REPOSITORY`: must match the value of the `repo` keyword to [`deploydocs`](@ref).
@@ -213,7 +286,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -228,7 +301,15 @@ function GitHubActions()
 end
 
 # Check criteria for deployment
-function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl, kwargs...)
+function deploy_folder(cfg::GitHubActions;
+                       repo,
+                       repo_previews = repo,
+                       branch = "gh-pages",
+                       branch_previews = branch,
+                       devbranch,
+                       push_preview,
+                       devurl,
+                       kwargs...)
     io = IOBuffer()
     all_ok = true
     ## Determine build type
@@ -246,27 +327,33 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
     println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
     if build_type === :release
         ## Do not deploy for PRs
-        event_ok = cfg.github_event_name == "push"
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
         ## If a tag exist it should be a valid VersionNumber
         m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
         tag_nobuild = version_tag_strip_build(m.captures[1])
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
         println(io, "- $(marker(tag_ok)) ENV[\"GITHUB_REF\"]=\"$(cfg.github_ref)\" contains a valid VersionNumber")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to folder according to the tag
         subfolder = m === nothing ? nothing : tag_nobuild
     elseif build_type === :devbranch
         ## Do not deploy for PRs
-        event_ok = cfg.github_event_name == "push"
+        event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\"")
+        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.github_ref)
         branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
         all_ok &= branch_ok
         println(io, "- $(marker(branch_ok)) ENV[\"GITHUB_REF\"] matches devbranch=\"$(devbranch)\"")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
     else # build_type === :preview
@@ -275,44 +362,63 @@ function deploy_folder(cfg::GitHubActions; repo, devbranch, push_preview, devurl
         pr_ok = pr_number !== nothing
         all_ok &= pr_ok
         println(io, "- $(marker(pr_ok)) ENV[\"GITHUB_REF\"] corresponds to a PR number")
+        if pr_ok
+            pr_origin_matches_repo = verify_github_pull_repository(cfg.github_repository, pr_number)
+            all_ok &= pr_origin_matches_repo
+            println(io, "- $(marker(pr_origin_matches_repo)) PR originates from the same repository")
+        end
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+        is_preview = true
         ## deploydocs to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
     end
     ## GITHUB_ACTOR should exist (just check here and extract the value later)
-    actor_ok = haskey(ENV, "GITHUB_ACTOR")
+    actor_ok = env_nonempty("GITHUB_ACTOR")
     all_ok &= actor_ok
-    println(io, "- $(marker(actor_ok)) ENV[\"GITHUB_ACTOR\"] exists")
+    println(io, "- $(marker(actor_ok)) ENV[\"GITHUB_ACTOR\"] exists and is non-empty")
     ## GITHUB_TOKEN or DOCUMENTER_KEY should exist (just check here and extract the value later)
-    token_ok = haskey(ENV, "GITHUB_TOKEN")
-    key_ok = haskey(ENV, "DOCUMENTER_KEY")
+    token_ok = env_nonempty("GITHUB_TOKEN")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
     auth_ok = token_ok | key_ok
     all_ok &= auth_ok
     if key_ok
-        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists exists")
+        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     elseif token_ok
-        println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists exists")
+        println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
     else
-        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"]  exists")
+        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
     end
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
-    return all_ok ? subfolder : nothing
-end
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.github_ref == "refs/heads/main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master
+        Documenter's configured primary development branch (`devbranch`) is "master", but the
+        current branch (from \$GITHUB_REF) is "main". This can happen because Documenter uses
+        GitHub's old default primary branch name as the default value for `devbranch`.
 
-function authentication_method(::GitHubActions)
-    if haskey(ENV, "DOCUMENTER_KEY")
-        return SSH
+        If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
+        to deploydocs.
+
+        See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
+        """
+    end
+    if all_ok
+        return DeployDecision(; all_ok = true,
+                                branch = deploy_branch,
+                                is_preview = is_preview,
+                                repo = deploy_repo,
+                                subfolder = subfolder)
     else
-        @warn "Currently the GitHub Pages build is not triggered when " *
-              "using `GITHUB_TOKEN` for authentication. See issue #1177 " *
-              "(https://github.com/JuliaDocs/Documenter.jl/issues/1177) " *
-              "for more information."
-        return HTTPS
+        return DeployDecision(; all_ok = false)
     end
 end
+
+authentication_method(::GitHubActions) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
@@ -377,9 +483,11 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
             json["description"] = "Documentation build in progress"
         elseif type == "success"
             json["description"] = "Documentation build succeeded"
+            target_url = "https://$(owner).github.io/$(repo)/"
             if subfolder !== nothing
-                json["target_url"] = "https://$(owner).github.io/$(repo)/$(subfolder)/"
+                target_url *= "$(subfolder)/"
             end
+            json["target_url"] = target_url
         elseif type == "error"
             json["description"] = "Documentation build errored"
         elseif type == "failure"
@@ -399,6 +507,556 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
     return nothing
 end
 
+function verify_github_pull_repository(repo, prnr)
+    github_token = get(ENV, "GITHUB_TOKEN", nothing)
+    if github_token === nothing
+        @warn "GITHUB_TOKEN is missing, unable to verify if PR comes from destination repository -- assuming it doesn't."
+        return false
+    end
+    # Construct the curl call
+    cmd = `curl -s`
+    push!(cmd.exec, "-H", "Authorization: token $(github_token)")
+    push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
+    push!(cmd.exec, "--fail")
+    push!(cmd.exec, "https://api.github.com/repos/$(repo)/pulls/$(prnr)")
+    try
+        # Run the command (silently)
+        response = run_and_capture(cmd)
+        response = JSON.parse(response.stdout)
+        pr_head_repo = response["head"]["repo"]["full_name"]
+        @debug "pr_head_repo = '$pr_head_repo' vs repo = '$repo'"
+        return pr_head_repo == repo
+    catch e
+        @warn "Unable to verify if PR comes from destination repository -- assuming it doesn't."
+        @debug "Running CURL led to an exception:" exception = (e, catch_backtrace())
+        return false
+    end
+end
+
+function run_and_capture(cmd)
+    stdout_buffer, stderr_buffer = IOBuffer(), IOBuffer()
+    run(pipeline(cmd; stdout = stdout_buffer, stderr = stderr_buffer))
+    stdout, stderr = String(take!(stdout_buffer)), String(take!(stderr_buffer))
+    return (; stdout = stdout, stderr = stderr)
+end
+
+##########
+# GitLab #
+##########
+
+"""
+    GitLab <: DeployConfig
+
+GitLab implementation of `DeployConfig`.
+
+The following environment variables influence the build when using the
+`GitLab` configuration:
+
+ - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
+   repository. This variable should be set in the GitLab settings. Make sure this
+   variable is marked **NOT** to be displayed in the build log.
+
+ - `CI_COMMIT_BRANCH`: the name of the commit branch.
+
+ - `CI_EXTERNAL_PULL_REQUEST_IID`: Pull Request ID from GitHub if the pipelines
+   are for external pull requests.
+
+ - `CI_PROJECT_PATH_SLUG`: The namespace with project name. All letters
+   lowercased and non-alphanumeric characters replaced with `-`.
+
+ - `CI_COMMIT_TAG`: The commit tag name. Present only when building tags.
+
+ - `CI_PIPELINE_SOURCE`: Indicates how the pipeline was triggered.
+
+The `CI_*` variables are set automatically on GitLab. More information on how GitLab
+sets the `CI_*` variables can be found in the
+[GitLab documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html).
+"""
+struct GitLab <: DeployConfig
+    commit_branch::String
+    pull_request_iid::String
+    repo_slug::String
+    commit_tag::String
+    pipeline_source::String
+end
+
+function GitLab()
+    commit_branch = get(ENV, "CI_COMMIT_BRANCH", "")
+    pull_request_iid = get(ENV, "CI_EXTERNAL_PULL_REQUEST_IID", "")
+    repo_slug = get(ENV, "CI_PROJECT_PATH_SLUG", "")
+    commit_tag = get(ENV, "CI_COMMIT_TAG", "")
+    pipeline_source = get(ENV, "CI_PIPELINE_SOURCE", "")
+    GitLab(commit_branch, pull_request_iid, repo_slug, commit_tag, pipeline_source)
+end
+
+function deploy_folder(
+    cfg::GitLab;
+    repo,
+    repo_previews = repo,
+    devbranch,
+    push_preview,
+    devurl,
+    branch = "gh-pages",
+    branch_previews = branch,
+    kwargs...,
+)
+    io = IOBuffer()
+    all_ok = true
+
+    println(io, "\nGitLab config:")
+    println(io, "  Commit branch: \"", cfg.commit_branch, "\"")
+    println(io, "  Pull request IID: \"", cfg.pull_request_iid, "\"")
+    println(io, "  Repo slug: \"", cfg.repo_slug, "\"")
+    println(io, "  Commit tag: \"", cfg.commit_tag, "\"")
+    println(io, "  Pipeline source: \"", cfg.pipeline_source, "\"")
+
+    build_type = if cfg.pull_request_iid != ""
+        :preview
+    elseif cfg.commit_tag != ""
+        :release
+    else
+        :devbranch
+    end
+
+    println(io, "Detected build type: ", build_type)
+
+    if build_type == :release
+        tag_nobuild = version_tag_strip_build(cfg.commit_tag)
+        ## If a tag exist it should be a valid VersionNumber
+        tag_ok = tag_nobuild !== nothing
+
+        println(
+            io,
+            "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"] contains a valid VersionNumber",
+        )
+        all_ok &= tag_ok
+
+        is_preview = false
+        subfolder = tag_nobuild
+        deploy_branch = branch
+        deploy_repo = repo
+    elseif build_type == :preview
+        pr_number = tryparse(Int, cfg.pull_request_iid)
+        pr_ok = pr_number !== nothing
+        all_ok &= pr_ok
+        println(
+            io,
+            "- $(marker(pr_ok)) ENV[\"CI_EXTERNAL_PULL_REQUEST_IID\"]=\"$(cfg.pull_request_iid)\" is a number",
+        )
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        is_preview = true
+        println(
+            io,
+            "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`",
+        )
+        ## deploy to previews/PR
+        subfolder = "previews/PR$(something(pr_number, 0))"
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+    else
+        branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
+        all_ok &= branch_ok
+        println(
+            io,
+            "- $(marker(branch_ok)) ENV[\"CI_COMMIT_BRANCH\"] matches devbranch=\"$(devbranch)\"",
+        )
+        is_preview = false
+        subfolder = devurl
+        deploy_branch = branch
+        deploy_repo = repo
+    end
+
+    key_ok = env_nonempty("DOCUMENTER_KEY")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
+    all_ok &= key_ok
+
+    print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
+    @info String(take!(io))
+
+    if all_ok
+        return DeployDecision(;
+            all_ok = true,
+            branch = deploy_branch,
+            repo = deploy_repo,
+            subfolder = subfolder,
+            is_preview = is_preview,
+        )
+    else
+        return DeployDecision(; all_ok = false)
+    end
+end
+
+authentication_method(::GitLab) = Documenter.SSH
+
+documenter_key(::GitLab) = ENV["DOCUMENTER_KEY"]
+
+#############
+# Buildkite #
+#############
+
+"""
+    Buildkite <: DeployConfig
+
+Buildkite implementation of `DeployConfig`.
+
+The following environment variables influence the build when using the
+`Buildkite` configuration:
+
+ - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
+   repository. This variable should be somehow set in the CI environment, e.g.,
+   provisioned by an agent environment plugin.
+
+ - `BUILDKITE_BRANCH`: the name of the commit branch.
+
+ - `BUILDKITE_PULL_REQUEST`: Pull Request ID from GitHub if the pipelines
+   are for external pull requests.
+
+ - `BUILDKITE_TAG`: The commit tag name. Present only when building tags.
+
+The `BUILDKITE_*` variables are set automatically on GitLab. More information on how
+Buildkite sets the `BUILDKITE_*` variables can be found in the
+[Buildkite documentation](https://buildkite.com/docs/pipelines/environment-variables).
+"""
+struct Buildkite <: DeployConfig
+    commit_branch::String
+    pull_request::String
+    commit_tag::String
+end
+
+function Buildkite()
+    commit_branch = get(ENV, "BUILDKITE_BRANCH", "")
+    pull_request = get(ENV, "BUILDKITE_PULL_REQUEST", "false")
+    commit_tag = get(ENV, "BUILDKITE_TAG", "")
+    Buildkite(commit_branch, pull_request, commit_tag)
+end
+
+function deploy_folder(
+    cfg::Buildkite;
+    repo,
+    repo_previews = repo,
+    devbranch,
+    push_preview,
+    devurl,
+    branch = "gh-pages",
+    branch_previews = branch,
+    kwargs...,
+)
+    io = IOBuffer()
+    all_ok = true
+
+    println(io, "\nBuildkite config:")
+    println(io, "  Commit branch: \"", cfg.commit_branch, "\"")
+    println(io, "  Pull request: \"", cfg.pull_request, "\"")
+    println(io, "  Commit tag: \"", cfg.commit_tag, "\"")
+
+    build_type = if cfg.pull_request != "false"
+        :preview
+    elseif cfg.commit_tag != ""
+        :release
+    else
+        :devbranch
+    end
+
+    println(io, "Detected build type: ", build_type)
+
+    if build_type == :release
+        tag_nobuild = version_tag_strip_build(cfg.commit_tag)
+        ## If a tag exist it should be a valid VersionNumber
+        tag_ok = tag_nobuild !== nothing
+
+        println(
+            io,
+            "- $(marker(tag_ok)) ENV[\"BUILDKITE_TAG\"] contains a valid VersionNumber",
+        )
+        all_ok &= tag_ok
+
+        is_preview = false
+        subfolder = tag_nobuild
+        deploy_branch = branch
+        deploy_repo = repo
+    elseif build_type == :preview
+        pr_number = tryparse(Int, cfg.pull_request)
+        pr_ok = pr_number !== nothing
+        all_ok &= pr_ok
+        println(
+            io,
+            "- $(marker(pr_ok)) ENV[\"BUILDKITE_PULL_REQUEST\"]=\"$(cfg.pull_request)\" is a number",
+        )
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        is_preview = true
+        println(
+            io,
+            "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`",
+        )
+        ## deploy to previews/PR
+        subfolder = "previews/PR$(something(pr_number, 0))"
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+    else
+        branch_ok = !isempty(cfg.commit_tag) || cfg.commit_branch == devbranch
+        all_ok &= branch_ok
+        println(
+            io,
+            "- $(marker(branch_ok)) ENV[\"BUILDKITE_BRANCH\"] matches devbranch=\"$(devbranch)\"",
+        )
+        is_preview = false
+        subfolder = devurl
+        deploy_branch = branch
+        deploy_repo = repo
+    end
+
+    key_ok = env_nonempty("DOCUMENTER_KEY")
+    println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
+    all_ok &= key_ok
+
+    print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
+    @info String(take!(io))
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.commit_branch == "main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master
+        Documenter's configured primary development branch (`devbranch`) is "master", but the
+        current branch (\$BUILDKITE_BRANCH) is "main". This can happen because Documenter uses
+        GitHub's old default primary branch name as the default value for `devbranch`.
+
+        If your primary development branch is 'main', you must explicitly pass `devbranch = "main"`
+        to deploydocs.
+
+        See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
+        """
+    end
+
+    if all_ok
+        return DeployDecision(;
+            all_ok = true,
+            branch = deploy_branch,
+            repo = deploy_repo,
+            subfolder = subfolder,
+            is_preview = is_preview,
+        )
+    else
+        return DeployDecision(; all_ok = false)
+    end
+end
+
+authentication_method(::Buildkite) = Documenter.SSH
+
+documenter_key(::Buildkite) = ENV["DOCUMENTER_KEY"]
+
+#################
+# Woodpecker CI #
+#################
+
+"""
+    Woodpecker <: DeployConfig
+
+Implementation of `DeployConfig` for deploying from Woodpecker CI.
+
+The following environmental variables are built-in from the Woodpecker pipeline
+influences how `Documenter` works:
+ - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
+ - `CI_REPO_LINK`: must match the full link to the project repo
+ - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
+ - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
+ - `CI_COMMIT_TAG`: must match to a tag.
+ - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
+ - `CI_REPO_OWNER`: must return the value of the repo owner. Real names are not necessary.
+
+The following user-defined environmental variables influences how `Documenter` works:
+ - `PROJECT_ACCESS_TOKEN`: user generated access token from a forge e.g. GitHub, GitLab, Codeberg to be used as a secret.
+ - `FORGE_URL`: user-defined env var to be used for authentication. Optional.
+
+User can define the `FORGE_URL` variable and add it to their Woodpecker pipeline definition:
+
+Example `.woodpecker.yml`
+```yaml
+pipeline:
+   docs:
+   image: julia
+   environment:
+     - FORGE_URL=github.com
+   ...
+```
+
+Or
+
+```yaml
+pipeline:
+   docs:
+   image: julia
+   commands:
+     - export FORGE_URL=github.com
+   ...
+```
+
+More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/pipeline-syntax>
+
+Lastly, another environment-variable used for authentication is
+the `PROJECT_ACCESS_TOKEN` which is an access token you defined by 
+the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea 
+instances. Check their documentation on how to create an access token. 
+This access token should be then added as a secret as documented in 
+<https://woodpecker-ci.org/docs/usage/secrets>.
+"""
+struct Woodpecker <: DeployConfig
+    woodpecker_repo_link::String
+    woodpecker_forge_url::String
+    woodpecker_repo::String
+    woodpecker_tag::String
+    woodpecker_event_name::String
+    woodpecker_ref::String
+end
+
+"""
+    Woodpecker()
+
+Initialize woodpecker environment-variables. Further info of
+environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
+"""
+function Woodpecker()
+    woodpecker_repo_link = get(ENV, "CI_REPO_LINK", "")
+    m = match(r"https?:\/\/(?:.+\.)*(.+\..+?)\/", woodpecker_repo_link)
+    # Get the forge URL, otherwise, if the value is `nothing`,
+    # Then use the woodpecker_repo_link
+    woodpecker_forge_url = isnothing(m) ? woodpecker_repo_link : m.captures[1]
+    woodpecker_tag = get(ENV, "CI_COMMIT_TAG", "")
+    woodpecker_repo = get(ENV, "CI_REPO", "")  # repository full name <owner>/<name>
+    woodpecker_event_name = get(ENV, "CI_BUILD_EVENT", "")  # build event (push, pull_request, tag, deployment)
+    woodpecker_ref = get(ENV, "CI_COMMIT_REF", "")  # commit ref
+    return Woodpecker(woodpecker_repo_link, woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
+end
+
+function deploy_folder(
+    cfg::Woodpecker;
+    repo,
+    repo_previews=repo,
+    branch="pages",
+    branch_previews=branch,
+    devbranch,
+    push_preview,
+    devurl,
+    kwargs...)
+    io = IOBuffer()
+    all_ok = true
+    if cfg.woodpecker_event_name == "pull_request"
+        build_type = :preview
+    elseif occursin(r"^refs\/tags\/(.*)$", cfg.woodpecker_ref)
+        build_type = :release
+    else
+        build_type = :devbranch
+    end
+
+    println(io, "Deployment criteria for deploying $(build_type) build from Woodpecker-CI")
+    ## The deploydocs' repo should match CI_REPO
+    #
+    repo_link_ok = !isempty(cfg.woodpecker_repo_link)  # if repo link is an empty string then it is not valid
+    all_ok &= repo_link_ok
+    forge_url_ok = !isempty(cfg.woodpecker_forge_url)  # if the forge url is an empty string, it is not a valid url
+    all_ok &= forge_url_ok
+
+    repo_ok = occursin(cfg.woodpecker_repo, repo)
+    all_ok &= repo_ok
+    println(io, "- $(marker(repo_ok)) ENV[\"CI_REPO\"]=\"$(cfg.woodpecker_repo)\" occursin in repo=\"$(repo)\"")
+
+    if build_type === :release
+        event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
+        all_ok &= event_ok
+        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
+        tag_nobuild = version_tag_strip_build(cfg.woodpecker_tag)
+        tag_ok = tag_nobuild !== nothing
+        all_ok &= tag_ok
+        println(io, "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"]=\"$(cfg.woodpecker_tag)\" contains a valid VersionNumber")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
+        ## Deploy to folder according to the tag
+        subfolder = tag_nobuild
+    elseif build_type === :devbranch
+        ## Do not deploy for PRs
+        event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
+        all_ok &= event_ok
+        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"")
+        ## deploydocs' devbranch should match the current branch
+        m = match(r"^refs\/heads\/(.*)$", cfg.woodpecker_ref)
+        branch_ok = (m === nothing) ? false : String(m.captures[1]) == devbranch
+        all_ok &= branch_ok
+        println(io, "- $(marker(branch_ok)) ENV[\"CI_COMMIT_REF\"] matches devbranch=\"$(devbranch)\"")
+        deploy_branch = branch
+        deploy_repo = repo
+        is_preview = false
+        ## Deploy to deploydocs devurl kwarg
+        subfolder = devurl
+    else # build_type === :preview
+        m = match(r"refs\/pull\/(\d+)\/merge", cfg.woodpecker_ref)
+        pr_number1 = tryparse(Int, (m === nothing) ? "" : m.captures[1])
+        pr_number2 = tryparse(Int, get(ENV, "CI_COMMIT_PULL_REQUEST", nothing) === nothing ? "" : ENV["CI_COMMIT_PULL_REQUEST"])
+        # Check if both are Ints. If both are Ints, then check if they are equal, otherwise, return false
+        pr_numbers_ok = all(x -> x isa Int, [pr_number1, pr_number2]) ? (pr_number1 == pr_number2) : false
+        is_pull_request_ok = get(ENV, "CI_BUILD_EVENT", "") == "pull_request"
+        pr_ok = pr_numbers_ok == is_pull_request_ok
+        all_ok &= pr_ok
+        println(io, "- $(marker(pr_numbers_ok)) ENV[\"CI_COMMIT_REF\"] corresponds to a PR")
+        println(io, "- $(marker(is_pull_request_ok)) ENV[\"CI_BUILD_EVENT\"] matches built type: `pull_request`")
+        btype_ok = push_preview
+        all_ok &= btype_ok
+        println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        deploy_branch = branch_previews
+        deploy_repo = repo_previews
+        is_preview = true
+        ## deploydocs to previews/PR
+        subfolder = "previews/PR$(something(pr_number1, 0))"
+    end
+
+    token_ok = env_nonempty("PROJECT_ACCESS_TOKEN")
+    key_ok = env_nonempty("DOCUMENTER_KEY")
+    auth_ok = token_ok | key_ok
+    all_ok &= auth_ok
+
+    if key_ok
+        println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
+    elseif token_ok
+        println(io, "- $(marker(token_ok)) ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
+    else
+        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
+    end
+
+    print(io, "Deploying: $(marker(all_ok))")
+    @info String(take!(io))
+    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.woodpecker_ref == "refs/heads/main"
+        @warn """
+        Possible deploydocs() misconfiguration: main vs master. Current branch (from \$CI_COMMIT_REF) is "main". 
+        """
+    end
+
+    if all_ok
+        return DeployDecision(; all_ok=true,
+            branch=deploy_branch,
+            is_preview=is_preview,
+            repo=deploy_repo,
+            subfolder=subfolder
+        )
+    else
+        return DeployDecision(; all_ok=false)
+    end
+end
+
+authentication_method(::Woodpecker) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
+function authenticated_repo_url(cfg::Woodpecker)
+    # `cfg.woodpecker_forge_url` should be just the root of the URL e.g. github.com, gitlab.com, codeberg.org
+    # otherwise, it will be equal to `cfg.woodpecker_repo_link`
+    # If so, we just split the `http(s)://` from the string we want 
+    # e.g. `https://github.com/JuliaDocs/Documenter.jl` to `github.com/JuliaDocs/Documenter.jl`.
+    if haskey(ENV, "FORGE_URL")
+        return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
+    else
+        if occursin(cfg.woodpecker_repo, cfg.woodpecker_forge_url)
+            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(split(cfg.woodpecker_forge_url, r"https?://")[2]).git"
+        else
+            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(cfg.woodpecker_forge_url)/$(cfg.woodpecker_repo).git"
+        end
+    end
+end
 
 ##################
 # Auto-detection #
@@ -408,7 +1066,18 @@ function auto_detect_deploy_system()
         return Travis()
     elseif haskey(ENV, "GITHUB_REPOSITORY")
         return GitHubActions()
+    elseif haskey(ENV, "GITLAB_CI")
+        return GitLab()
+    elseif haskey(ENV, "BUILDKITE")
+        return Buildkite()
+    elseif get(ENV, "CI", nothing) in ["drone", "woodpecker"]
+        if ENV["CI"] == "drone"
+            @warn """Woodpecker is backward compatible to Drone 
+            but *there will be breaking changes in the future*"""
+        end
+        return Woodpecker()
     else
         return nothing
     end
 end
+

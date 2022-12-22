@@ -61,6 +61,11 @@ Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
 
 ---
 
+!!! warning
+    Similar to LaTeX, using `$` and `$$` to escape inline and display equations
+    also works. However, doing so is deprecated and this functionality may be
+    removed in a future release.
+
 ## Display Equations
 
 ````markdown
@@ -115,3 +120,52 @@ To write a system of equations, use the `aligned` environment:
 ```
 
 These are Maxwell's equations.
+
+## Printing LaTeX from Julia
+
+To pretty-print LaTeX from Julia, overload `Base.show` for the
+`MIME"text/latex"` type. For example:
+```@example
+struct LaTeXEquation
+    content::String
+end
+
+function Base.show(io::IO, ::MIME"text/latex", x::LaTeXEquation)
+    # Wrap in $$ for display math printing
+    return print(io, "\$\$ " * x.content * " \$\$")
+end
+
+LaTeXEquation(raw"""
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+""")
+```
+
+## Set math engine and define macros for LaTeX
+
+The `mathengine` argument to [`Documenter.HTMLWriter.HTML`](@ref) allows the math rendering engine to be specified, supporting both MathJax and KaTeX (with the latter being the default).
+
+Furthermore, you can also pass custom configuration to the rendering engine. E.g. to add global LaTeX command definitions, you can set `mathengine` to:
+```julia
+mathengine = Documenter.MathJax(Dict(:TeX => Dict(
+    :equationNumbers => Dict(:autoNumber => "AMS"),
+    :Macros => Dict(
+        :ket => ["|#1\\rangle", 1],
+        :bra => ["\\langle#1|", 1],
+    ),
+)))
+```
+Or with MathJax v3, the [physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf) can be loaded:
+```julia
+mathengine = MathJax3(Dict(
+    :loader => Dict("load" => ["[tex]/physics"]),
+    :tex => Dict(
+        "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+        "tags" => "ams",
+        "packages" => ["base", "ams", "autoload", "physics"],
+    ),
+)),
+```
+[`MathJax2`](@ref), [`MathJax3`](@ref) and [`KaTeX`](@ref) are available types for `mathengine`.

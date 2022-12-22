@@ -1,0 +1,215 @@
+$ansi-black: $black-ter !default;
+$ansi-red: null !default;
+$ansi-green: null !default;
+$ansi-yellow: null !default;
+$ansi-blue: null !default;
+$ansi-magenta: null !default;
+$ansi-cyan: null !default;
+$ansi-white: null !default;
+
+$ansi-light-black: null !default;
+$ansi-light-red: null !default;
+$ansi-light-green: null !default;
+$ansi-light-yellow: null !default;
+$ansi-light-blue: null !default;
+$ansi-light-magenta: null !default;
+$ansi-light-cyan: null !default;
+$ansi-light-white: $white-ter !default;
+
+@if $documenter-is-dark-theme {
+  $ansi-red: adjust-color($red, $hue: 3, $saturation: 29, $lightness: 17) !default;
+  $ansi-green: adjust-color($green, $hue: -2, $saturation: -28, $lightness: 13) !default;
+  $ansi-yellow: $yellow !default;
+  $ansi-blue: adjust-color($blue, $hue: 5, $saturation: 21, $lightness: 18) !default;
+  $ansi-magenta: adjust-color($purple, $hue: 1, $saturation: 9, $lightness: 16) !default;
+  $ansi-cyan: adjust-color($turquoise, $hue: 2, $saturation: -45, $lightness: 18) !default;
+  $ansi-white: lighten($grey-light, 14) !default;
+
+  $ansi-light-black: darken($ansi-white, 12) !default;
+  $ansi-light-red: adjust-color($ansi-red, $hue: 1, $saturation: 11, $lightness: 6) !default;
+  $ansi-light-green: adjust-color($ansi-green, $hue: -2, $saturation: 6, $lightness: 14) !default;
+  $ansi-light-yellow: adjust-color($ansi-yellow, $hue: 4, $saturation: 10, $lightness: 14) !default;
+  $ansi-light-blue: adjust-color($ansi-blue, $hue: 1, $saturation: 20, $lightness: 7) !default;
+  $ansi-light-magenta: adjust-color($ansi-magenta, $hue: 0, $saturation: 11, $lightness: 9) !default;
+  $ansi-light-cyan: adjust-color($ansi-cyan, $hue: 1, $saturation: 6, $lightness: 10) !default;
+}
+@else {
+  $ansi-light-black: darken($grey, 4) !default;
+  $ansi-light-red: $red !default;
+  $ansi-light-green: adjust-color($green, $hue: 2, $saturation: 21, $lightness: -8) !default;
+  $ansi-light-yellow: adjust-color($yellow, $hue: 2, $saturation: 10, $lightness: -24) !default;
+  $ansi-light-blue: $blue !default;
+  $ansi-light-magenta: adjust-color($purple, $hue: 0, $saturation: -1, $lightness: -1) !default;
+  $ansi-light-cyan: adjust-color($turquoise, $hue: 0, $saturation: 0, $lightness: -4) !default;
+
+  $ansi-red: adjust-color($ansi-light-red, $hue: -3, $saturation: 9, $lightness: -11) !default;
+  $ansi-green: adjust-color($ansi-light-green, $hue: 3, $saturation: 0, $lightness: -4) !default;
+  $ansi-yellow: adjust-color($ansi-light-yellow, $hue: 0, $saturation: 0, $lightness: -7) !default;
+  $ansi-blue: adjust-color($ansi-light-blue, $hue: -3, $saturation: 9, $lightness: -11) !default;
+  $ansi-magenta: adjust-color($ansi-light-magenta, $hue: 0, $saturation: 2, $lightness: -8) !default;
+  $ansi-cyan: adjust-color($ansi-light-cyan, $hue: 0, $saturation: 0, $lightness: -5) !default;
+  $ansi-white: lighten($ansi-light-black, 12) !default;
+}
+
+.ansi span {
+  &.sgr1 {
+    font-weight: bolder;
+  }
+
+  &.sgr2 {
+    font-weight: lighter;
+  }
+
+  &.sgr3 {
+    font-style: italic;
+  }
+
+  &.sgr4 {
+    text-decoration: underline;
+  }
+
+  &.sgr7 {
+    color: $body-background-color;
+    background-color: $text;
+  }
+
+  &.sgr8 {
+    color: transparent;
+
+    span {
+      color: transparent;
+    }
+  }
+
+  &.sgr9 {
+    text-decoration: line-through;
+  }
+
+  &.sgr30 {
+    color: $ansi-black;
+  }
+
+  &.sgr31 {
+    color: $ansi-red;
+  }
+
+  &.sgr32 {
+    color: $ansi-green;
+  }
+
+  &.sgr33 {
+    color: $ansi-yellow;
+  }
+
+  &.sgr34 {
+    color: $ansi-blue;
+  }
+
+  &.sgr35 {
+    color: $ansi-magenta;
+  }
+
+  &.sgr36 {
+    color: $ansi-cyan;
+  }
+
+  &.sgr37 {
+    color: $ansi-white;
+  }
+
+  &.sgr40 {
+    background-color: $ansi-black;
+  }
+
+  &.sgr41 {
+    background-color: $ansi-red;
+  }
+
+  &.sgr42 {
+    background-color: $ansi-green;
+  }
+
+  &.sgr43 {
+    background-color: $ansi-yellow;
+  }
+
+  &.sgr44 {
+    background-color: $ansi-blue;
+  }
+
+  &.sgr45 {
+    background-color: $ansi-magenta;
+  }
+
+  &.sgr46 {
+    background-color: $ansi-cyan;
+  }
+
+  &.sgr47 {
+    background-color: $ansi-white;
+  }
+
+  &.sgr90 {
+    color: $ansi-light-black;
+  }
+
+  &.sgr91 {
+    color: $ansi-light-red;
+  }
+
+  &.sgr92 {
+    color: $ansi-light-green;
+  }
+
+  &.sgr93 {
+    color: $ansi-light-yellow;
+  }
+
+  &.sgr94 {
+    color: $ansi-light-blue;
+  }
+
+  &.sgr95 {
+    color: $ansi-light-magenta;
+  }
+
+  &.sgr96 {
+    color: $ansi-light-cyan;
+  }
+
+  &.sgr97 {
+    color: $ansi-light-white;
+  }
+
+  &.sgr100 {
+    background-color: $ansi-light-black;
+  }
+
+  &.sgr101 {
+    background-color: $ansi-light-red;
+  }
+
+  &.sgr102 {
+    background-color: $ansi-light-green;
+  }
+
+  &.sgr103 {
+    background-color: $ansi-light-yellow;
+  }
+
+  &.sgr104 {
+    background-color: $ansi-light-blue;
+  }
+
+  &.sgr105 {
+    background-color: $ansi-light-magenta;
+  }
+
+  &.sgr106 {
+    background-color: $ansi-light-cyan;
+  }
+
+  &.sgr107 {
+    background-color: $ansi-light-white;
+  }
+}

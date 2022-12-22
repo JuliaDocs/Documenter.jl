@@ -495,3 +495,120 @@ MarkdownOnly("""
 
 # Empty heading
 ##
+
+# Issue 1392
+
+```1392-test-language 1392-extra-info
+julia> function foo end;
+```
+
+# Issue 890
+
+I will pay \$1 if $x^2$ is displayed correctly. People may also write \$s or
+even money bag\$\$.
+
+# Module scrubbing from `@repl` and `@example`
+
+None of these expressions should result in the gensym'd module in the output
+
+```@repl
+@__MODULE__
+println("@__MODULE__ is ", @__MODULE__) # sandbox printed to stdout
+function f()
+    println("@__MODULE__ is ", @__MODULE__)
+    @warn "Main as the module for this log message"
+    @__MODULE__
+end
+f()
+@warn "Main as the module for this log message"
+```
+```@repl
+module A
+    function f()
+        println("@__MODULE__ is ", @__MODULE__)
+        @warn "Main.A as the module for this log message"
+        @__MODULE__
+    end
+end
+A.f()
+```
+
+```@example
+@__MODULE__ # sandbox as return value
+```
+
+```@example
+println("@__MODULE__ is ", @__MODULE__) # sandbox printed to stdout
+```
+
+```@example
+function f()
+    println("@__MODULE__ is ", @__MODULE__)
+end
+f()
+```
+
+```@example
+function f()
+    @__MODULE__
+end
+f()
+```
+
+```@example
+@warn "Main as the module for this log message"
+```
+
+```@example moduleA
+module A
+    function f()
+        println("@__MODULE__ is ", @__MODULE__)
+        @warn "Main.A as the module for this log message"
+        @__MODULE__
+    end
+end
+```
+
+```@example moduleA
+A.f()
+```
+
+## Headings in block context
+
+!!! error "Blocks in block context"
+
+    ```julia
+    x^2
+    ```
+
+    Headings:
+
+    # Heading 1
+    ## Heading 2
+    ### Heading 3
+    #### Heading 4
+    ##### Heading 5
+    ###### Heading 6
+
+Also in block quotes:
+
+> ```julia
+> x^2
+> ```
+>
+> Headings:
+>
+> # Heading 1
+> ## Heading 2
+> ### Heading 3
+> #### Heading 4
+> ##### Heading 5
+> ###### Heading 6
+
+# JuliaValue
+
+It is possible to create pseudo-interpolations with the `Markdown` parser: $foo.
+
+$([1 2 3; 4 5 6])
+
+They do not get evaluated.

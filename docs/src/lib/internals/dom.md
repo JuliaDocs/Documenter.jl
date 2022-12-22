@@ -1,5 +1,5 @@
 # DOM
 
 ```@autodocs
-Modules = [Documenter.Utilities.DOM]
+Modules = [Documenter.DOM]
 ```

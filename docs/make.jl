@@ -12,21 +12,26 @@ end
 
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
-    format = Documenter.HTML(
-        # Use clean URLs, unless built as a "local" build
-        prettyurls = !("local" in ARGS),
-        canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
-        assets = ["assets/favicon.ico"],
-        analytics = "UA-136089579-2",
-        highlights = ["yaml"],
-    ),
+    format = if "pdf" in ARGS
+        Documenter.LaTeX(platform = "docker")
+    else
+        Documenter.HTML(
+            # Use clean URLs, unless built as a "local" build
+            prettyurls = !("local" in ARGS),
+            canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
+            assets = ["assets/favicon.ico"],
+            analytics = "UA-136089579-2",
+            highlights = ["yaml"],
+            ansicolor = true,
+        )
+    end,
+    build = ("pdf" in ARGS) ? "build-pdf" : "build",
+    debug = ("pdf" in ARGS),
     clean = false,
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
-    linkcheck = !("skiplinks" in ARGS),
+    linkcheck = "linkcheck" in ARGS,
     linkcheck_ignore = [
-        # timelessrepo.com seems to 404 on any CURL request...
-        "http://timelessrepo.com/json-isnt-a-javascript-subset",
         # We'll ignore links that point to GitHub's edit pages, as they redirect to the
         # login screen and cause a warning:
         r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
@@ -63,8 +68,27 @@ makedocs(
     doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
-deploydocs(
-    repo = "github.com/JuliaDocs/Documenter.jl.git",
-    target = "build",
-    push_preview = true,
-)
+if "pdf" in ARGS
+    # hack to only deploy the actual pdf-file
+    mkpath(joinpath(@__DIR__, "build-pdf", "commit"))
+    let files = readdir(joinpath(@__DIR__, "build-pdf"))
+        for f in files
+            if startswith(f, "Documenter.jl") && endswith(f, ".pdf")
+                mv(joinpath(@__DIR__, "build-pdf", f),
+                joinpath(@__DIR__, "build-pdf", "commit", f))
+            end
+        end
+    end
+    deploydocs(
+        repo = "github.com/JuliaDocs/Documenter.jl.git",
+        target = "pdf/build-pdf/commit",
+        branch = "gh-pages-pdf",
+        forcepush = true,
+    )
+else
+    deploydocs(
+        repo = "github.com/JuliaDocs/Documenter.jl.git",
+        target = "build",
+        push_preview = true,
+    )
+end

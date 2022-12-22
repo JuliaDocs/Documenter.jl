@@ -2,7 +2,7 @@ module DOMTests
 
 using Test
 
-import Documenter.Utilities.DOM: DOM, @tags, HTMLDocument
+import Documenter.DOM: DOM, @tags, HTMLDocument
 
 @tags div ul li p
 

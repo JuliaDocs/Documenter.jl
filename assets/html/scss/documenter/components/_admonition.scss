@@ -2,7 +2,7 @@
 // Original copyright (c) 2019 Jeremy Thomas, The MIT License (MIT)
 $admonition-colors: (
   'default': $grey-darker, 'info': $info, 'success': $success, 'warning': $warning,
-  'danger': $danger, 'compat': $turquoise,
+  'danger': $danger, 'compat': $compat,
 ) !default;
 
 $admonition-background: () !default;
@@ -10,7 +10,7 @@ $admonition-body-color: () !default;
 $admonition-header-background: () !default;
 $admonition-header-color: () !default;
 @each $name, $color in $admonition-colors {
-  $bg: lighten-color($color, 4);
+  $bg: lighten-color($color, 5);
   @if not map-has-key($admonition-header-background, $name) {
     $admonition-header-background: map-merge($admonition-header-background, ($name: $color)) !global;
   }
@@ -81,19 +81,19 @@ $admonition-header-color: () !default;
   font-weight: $message-header-weight;
   justify-content: space-between;
   line-height: 1.25;
-  padding: $message-header-padding;
+  padding: $documenter-admonition-header-padding;
   position: relative;
 
   &:before {
     @include font-awesome;
-    margin-right: $message-header-padding;
+    margin-right: $documenter-container-left-padding;
     content: "\f06a";
-}
+  }
 }
 
 .admonition-body {
   color: $message-body-color;
-  padding: $message-body-padding;
+  padding: $documenter-admonition-body-padding;
 
   pre {
     background-color: $pre-background;

@@ -36,21 +36,29 @@ In fact, while not recommended, you can actually have a matryoshka of admonition
 module DocumenterShowcase
 
 """
+    foo(::Integer)
+
 Docstring for `foo(::Integer)`.
 """
 foo(::Integer) = nothing
 
 """
+    foo(::AbstractString)
+
 Docstring for `foo(::AbstractString)`.
 """
 foo(::AbstractString) = nothing
 
 """
+    bar(::Integer)
+
 Docstring for `bar(::Integer)`.
 """
 bar(::Integer) = nothing
 
 """
+    bar(::AbstractString)
+
 Docstring for `bar(::AbstractString)`.
 """
 bar(::AbstractString) = nothing
@@ -72,5 +80,14 @@ function Base.show(io, ::MIME"image/svg+xml", c::SVGCircle)
     </svg>
     """)
 end
+
+"The type definition."
+struct Foo{T,S} end
+
+"Constructor `Foo()` with no arguments."
+Foo() = Foo{Nothing,Nothing}()
+
+"Constructor `Foo{T}()` with one parametric argument."
+Foo{T}() where T = Foo{T,Nothing}()
 
 end # module
