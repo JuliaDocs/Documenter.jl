@@ -27,6 +27,8 @@ macro docerror(doc, tag, msg, exs...)
     isa(tag, QuoteNode) && isa(tag.value, Symbol) || error("invalid call of @docerror: tag=$tag")
     tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
     doc, msg = esc(doc), esc(msg)
+    # The `exs` portion can contain variable name / label overrides, i.e. `foo = bar()`
+    # We don't want to apply esc() on new labels, since they get printed as expressions then.
     exs = map(exs) do ex
         if isa(ex, Expr) && ex.head == :(=) && ex.args[1] isa Symbol
             ex.args[2:end] .= esc.(ex.args[2:end])
