@@ -407,7 +407,7 @@ function debug_report(; result, expected_filtered, evaluated, evaluated_filtered
     return r
 end
 
-function collect_doctest_filters(doc::Documents.Document, meta::Dict)
+function collect_doctest_filters(doc::Documenter.Document, meta::Dict)
     meta_block_filters = get(meta, :DocTestFilters, [])
     meta_block_filters == nothing && meta_block_filters == []
     doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
