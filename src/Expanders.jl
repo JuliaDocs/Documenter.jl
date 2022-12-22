@@ -593,7 +593,6 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
             try
                 result = Core.eval(sandbox, ex)
             catch err
-                #bt = Documenter.DocTests.remove_common_backtrace(catch_backtrace(), backtrace())
                 bt = Documenter.remove_common_backtrace(catch_backtrace())
                 @docerror(doc, :eval_block,
                     """

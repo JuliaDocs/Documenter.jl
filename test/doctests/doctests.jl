@@ -242,18 +242,4 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     end
 end
 
-using Documenter.DocTests: remove_common_backtrace
-@testset "DocTest.remove_common_backtrace" begin
-    @test remove_common_backtrace([], []) == []
-    @test remove_common_backtrace([1], []) == [1]
-    @test remove_common_backtrace([1,2], []) == [1,2]
-    @test remove_common_backtrace([1,2,3], [1]) == [1,2,3]
-    @test remove_common_backtrace([1,2,3], [2]) == [1,2,3]
-    @test remove_common_backtrace([1,2,3], [3]) == [1,2]
-    @test remove_common_backtrace([1,2,3], [2,3]) == [1]
-    @test remove_common_backtrace([1,2,3], [1,3]) == [1,2]
-    @test remove_common_backtrace([1,2,3], [1,2,3]) == []
-    @test remove_common_backtrace([1,2,3], [0,1,2,3]) == []
-end
-
 end # module
