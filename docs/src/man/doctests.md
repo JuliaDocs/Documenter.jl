@@ -309,6 +309,12 @@ The doctest filters can be applied globally, on a per-file basis or to each doct
 separately. To apply them globally, i.e. to all doctests in the documentation, a list of
 filters can be passed to [`makedocs`](@ref) with the keyword `doctestfilters`.
 
+Filters are defined with regular expressions, either as a regex/substition pair (e.g. `r"..." => s"..."`)
+or as a single regex (e.g. `r"..."`). In the latter case the match is replaced with `""`.
+In a doctest, each match in the expected output and the actual output is replaced before the two outputs are compared.
+Filters are added globally, i.e. applied to all doctests in the documentation, by passing a list of regular expressions to
+`makedocs` with the keyword `doctestfilters`.
+
 For more fine grained control it is possible to define filters in `@meta` blocks by assigning them
 to the `DocTestFilters` variable, either as a single regular expression (`DocTestFilters = [r"foo"]`)
 or as a vector of several regex (`DocTestFilters = [r"foo", r"bar"]`).
