@@ -593,13 +593,15 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
             try
                 result = Core.eval(sandbox, ex)
             catch err
+                #bt = Documenter.DocTests.remove_common_backtrace(catch_backtrace(), backtrace())
+                bt = Documenter.remove_common_backtrace(catch_backtrace())
                 @docerror(doc, :eval_block,
                     """
                     failed to evaluate `@eval` block in $(Documenter.locrepr(page.source))
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = (err, catch_backtrace()))
+                    """, exception = (err, bt))
             end
         end
         result = if isnothing(result)
@@ -720,13 +722,14 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
             result = c.value
             print(buffer, c.output)
             if c.error
+                bt = Documenter.remove_common_backtrace(c.backtrace)
                 @docerror(doc, :example_block,
                     """
                     failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = (c.value, c.backtrace))
+                    """, exception = (c.value, bt))
                 page.mapping[x] = x
                 return
             end
@@ -876,13 +879,14 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
             include_string(mod, x.code)
         end
     catch err
+        bt = Documenter.remove_common_backtrace(catch_backtrace())
         @docerror(doc, :setup_block,
             """
             failed to run `@setup` block in $(Documenter.locrepr(page.source))
             ```$(x.info)
             $(x.code)
             ```
-            """, exception=(err, catch_backtrace()))
+            """, exception=(err, bt))
     end
     node.element = Documenter.SetupNode(x.info, x.code)
 end

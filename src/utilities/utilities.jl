@@ -26,7 +26,15 @@ error (if `tag` matches the `doc.user.strict` setting) or warning.
 macro docerror(doc, tag, msg, exs...)
     isa(tag, QuoteNode) && isa(tag.value, Symbol) || error("invalid call of @docerror: tag=$tag")
     tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
-    doc, msg, exs = esc(doc), esc(msg), esc.(exs)
+    doc, msg = esc(doc), esc(msg)
+    exs = map(exs) do ex
+        if isa(ex, Expr) && ex.head == :(=) && ex.args[1] isa Symbol
+            ex.args[2:end] .= esc.(ex.args[2:end])
+            ex
+        else
+            esc(ex)
+        end
+    end
     quote
         let
             push!($(doc).internal.errors, $(tag))
@@ -835,4 +843,20 @@ function git(; nothrow = false, kwargs...)
     # DOCUMENTER_KEY etc are never needed for git operations
     cmd = addenv(cmd, NO_KEY_ENV)
     return cmd
+end
+
+function remove_common_backtrace(bt, reference_bt = backtrace())
+    cutoff = nothing
+    # We'll start from the top of the backtrace (end of the array) and go down, checking
+    # if the backtraces agree
+    for ridx in 1:length(bt)
+        # Cancel search if we run out the reference BT or find a non-matching one frames:
+        if ridx > length(reference_bt) || bt[length(bt) - ridx + 1] != reference_bt[length(reference_bt) - ridx + 1]
+            cutoff = length(bt) - ridx + 1
+            break
+        end
+    end
+    # It's possible that the loop does not find anything, i.e. that all BT elements are in
+    # the reference_BT too. In that case we'll just return an empty BT.
+    bt[1:(cutoff === nothing ? 0 : cutoff)]
 end
