@@ -961,6 +961,7 @@
 [github-1311]: https://github.com/JuliaDocs/Documenter.jl/pull/1311
 [github-1315]: https://github.com/JuliaDocs/Documenter.jl/pull/1315
 [github-1320]: https://github.com/JuliaDocs/Documenter.jl/issues/1320
+[github-1321]: https://github.com/JuliaDocs/Documenter.jl/issues/1321
 [github-1323]: https://github.com/JuliaDocs/Documenter.jl/pull/1323
 [github-1328]: https://github.com/JuliaDocs/Documenter.jl/pull/1328
 [github-1337]: https://github.com/JuliaDocs/Documenter.jl/issues/1337
@@ -1174,6 +1175,7 @@
 [github-1970]: https://github.com/JuliaDocs/Documenter.jl/pull/1970
 [github-1977]: https://github.com/JuliaDocs/Documenter.jl/pull/1977
 [github-1980]: https://github.com/JuliaDocs/Documenter.jl/pull/1980
+[github-1991]: https://github.com/JuliaDocs/Documenter.jl/pull/1991
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
