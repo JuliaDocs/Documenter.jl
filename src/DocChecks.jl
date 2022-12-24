@@ -20,9 +20,32 @@ Checks that a [`Documenter.Document`](@ref) contains all available docstrings th
 defined in the `modules` keyword passed to [`Documenter.makedocs`](@ref).
 
 Prints out the name of each object that has not had its docs spliced into the document.
+
+Returns the number of missing bindings to allow for automated testing of documentation.
 """
 function missingdocs(doc::Documenter.Document)
-    doc.user.checkdocs === :none && return
+    doc.user.checkdocs === :none && return 0
+    bindings = missingbindings(doc)
+    n = reduce(+, map(length, values(bindings)), init=0)
+    if n > 0
+        b = IOBuffer()
+        println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
+        for (binding, signatures) in bindings
+            for sig in signatures
+                println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
+            end
+        end
+        println(b)
+        print(b, """
+        These are docstrings in the checked modules (configured with the modules keyword)
+        that are not included in @docs or @autodocs blocks.
+        """)
+        @docerror(doc, :missing_docs, String(take!(b)))
+    end
+    return n
+end
+
+function missingbindings(doc::Documenter.Document)
     @debug "checking for missing docstrings."
     bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
     for object in keys(doc.internal.objects)
@@ -47,22 +70,7 @@ function missingdocs(doc::Documenter.Document)
             end
         end
     end
-    n = reduce(+, map(length, values(bindings)), init=0)
-    if n > 0
-        b = IOBuffer()
-        println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
-        for (binding, signatures) in bindings
-            for sig in signatures
-                println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
-            end
-        end
-        println(b)
-        print(b, """
-        These are docstrings in the checked modules (configured with the modules keyword)
-        that are not included in @docs or @autodocs blocks.
-        """)
-        @docerror(doc, :missing_docs, String(take!(b)))
-    end
+    return bindings
 end
 
 function allbindings(checkdocs::Symbol, mods)

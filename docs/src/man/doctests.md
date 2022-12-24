@@ -266,8 +266,9 @@ julia> foo(2)
 A part of the output of a doctest might be non-deterministic, e.g. pointer addresses and timings.
 It is therefore possible to filter a doctest so that the deterministic part can still be tested.
 
-A filter takes the form of a regular expression.
-In a doctest, each match in the expected output and the actual output is removed before the two outputs are compared.
+Filters are defined with regular expressions, either as a regex/substition pair (e.g. `r"..." => s"..."`)
+or as a single regex (e.g. `r"..."`). In the latter case the match is replaced with `""`.
+In a doctest, each match in the expected output and the actual output is replaced before the two outputs are compared.
 Filters are added globally, i.e. applied to all doctests in the documentation, by passing a list of regular expressions to
 `makedocs` with the keyword `doctestfilters`.
 
