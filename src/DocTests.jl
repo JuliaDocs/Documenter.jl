@@ -358,7 +358,7 @@ end
 
 function error_to_string(buf, er, bt)
     # Remove unimportant backtrace info.
-    bt = remove_common_backtrace(bt, backtrace())
+    bt = Documenter.remove_common_backtrace(bt, backtrace())
     # Remove everything below the last eval call (which should be the one in IOCapture.capture)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
     bt = (index === nothing) ? bt : bt[1:(index - 1)]
@@ -366,22 +366,6 @@ function error_to_string(buf, er, bt)
     print(buf, "ERROR: ")
     Base.invokelatest(showerror, buf, er, bt)
     return sanitise(buf)
-end
-
-function remove_common_backtrace(bt, reference_bt)
-    cutoff = nothing
-    # We'll start from the top of the backtrace (end of the array) and go down, checking
-    # if the backtraces agree
-    for ridx in 1:length(bt)
-        # Cancel search if we run out the reference BT or find a non-matching one frames:
-        if ridx > length(reference_bt) || bt[length(bt) - ridx + 1] != reference_bt[length(reference_bt) - ridx + 1]
-            cutoff = length(bt) - ridx + 1
-            break
-        end
-    end
-    # It's possible that the loop does not find anything, i.e. that all BT elements are in
-    # the reference_BT too. In that case we'll just return an empty BT.
-    bt[1:(cutoff === nothing ? 0 : cutoff)]
 end
 
 # Strip trailing whitespace from each line and return resulting string
