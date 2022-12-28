@@ -90,7 +90,7 @@
 │ julia> error("0123456789")
 │ ERROR: ABCDEFGHIJ
 │ Stacktrace:
-│ [...]
+│  [...]
 │ ```
 │ 
 │ Subexpression:
@@ -110,15 +110,14 @@
 │ 
 │ ERROR: ABCDEFGHIJ
 │ Stacktrace:
-│ [...]
+│  [...]
 │ 
 │   diff =
 │    Warning: Diff output requires color.
 │    ERROR: ABCDEFGHIJ
+│    0123456789
 │    Stacktrace:
-│    [...]0123456789
-│    Stacktrace:
-│     [1] error(s::String)
+│     [...][1] error(s::String)
 │       @ Base ./error.jl:35
 │     [2] top-level scope
 │       @ none:1

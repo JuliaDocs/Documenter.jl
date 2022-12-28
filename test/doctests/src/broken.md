@@ -25,5 +25,5 @@ Stacktrace:
 julia> error("0123456789")
 ERROR: ABCDEFGHIJ
 Stacktrace:
-[...]
+ [...]
 ```
