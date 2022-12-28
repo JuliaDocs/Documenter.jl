@@ -22,7 +22,7 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    -64
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:435
+└ @ Documenter.DocTests src/broken.md:3
 ┌ Error: doctest failure in src/broken.md:10-13
 │ 
 │ ```jldoctest; filter = r"([0-9]+\.[0-9]{8})[0-9]+" => s"\1***"
@@ -45,7 +45,7 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    1.41429999999991.4142135623730951
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:435
+└ @ Documenter.DocTests src/broken.md:10
 ┌ Error: doctest failure in src/broken.md:17-22
 │ 
 │ ```jldoctest
@@ -63,8 +63,10 @@
 │ 
 │ ERROR: 0123456789
 │ Stacktrace:
-│  [1] error(::String) at ./error.jl:33
-│  [2] top-level scope at /home/mortenpi/Julia/JuliaDocs/Documenter/test/doctests/doctests.jl:118
+│  [1] error(s::String)
+│    @ Base ./error.jl:35
+│  [2] top-level scope
+│    @ none:1
 │ 
 │ Expected output:
 │ 
@@ -77,9 +79,11 @@
 │    ERROR: ABCDEFGHIJ
 │    0123456789
 │    Stacktrace:
-│     [...][1] error(::String) at ./error.jl:33
-│     [2] top-level scope at /home/mortenpi/Julia/JuliaDocs/Documenter/test/doctests/doctests.jl:118
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:435
+│     [...][1] error(s::String)
+│       @ Base ./error.jl:35
+│     [2] top-level scope
+│       @ none:1
+└ @ Documenter.DocTests src/broken.md:17
 ┌ Error: doctest failure in src/broken.md:17-22
 │ 
 │ ```jldoctest; filter = r"\b[0-9]+\b"
@@ -97,8 +101,10 @@
 │ 
 │ ERROR: 0123456789
 │ Stacktrace:
-│  [1] error(::String) at ./error.jl:33
-│  [2] top-level scope at /home/mortenpi/Julia/JuliaDocs/Documenter/test/doctests/doctests.jl:118
+│  [1] error(s::String)
+│    @ Base ./error.jl:35
+│  [2] top-level scope
+│    @ none:1
 │ 
 │ Expected output:
 │ 
@@ -112,10 +118,12 @@
 │    Stacktrace:
 │    [...]0123456789
 │    Stacktrace:
-│     [1] error(::String) at ./error.jl:33
-│     [2] top-level scope at /home/mortenpi/Julia/JuliaDocs/Documenter/test/doctests/doctests.jl:118
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:435
-┌ Error: doctest failure in ~/Julia/JuliaDocs/Documenter/test/doctests/src/FooBroken.jl:6-9
+│     [1] error(s::String)
+│       @ Base ./error.jl:35
+│     [2] top-level scope
+│       @ none:1
+└ @ Documenter.DocTests src/broken.md:17
+┌ Error: doctest failure in ~/juliadocs/Documenter/test/doctests/src/FooBroken.jl:6-9
 │ 
 │ ```jldoctest
 │ julia> 2 + 2
@@ -137,4 +145,4 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    424
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:435
+└ @ Documenter.DocTests ~/juliadocs/Documenter/test/doctests/src/FooBroken.jl:6
