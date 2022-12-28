@@ -80,6 +80,7 @@ end
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
         (Main.examples_html_doc, "html"),
+        (Main.examples_html_meta_custom_doc, "html-meta-custom"),
         (Main.examples_html_mathjax2_custom_doc, "html-mathjax2-custom"),
         (Main.examples_html_mathjax3_doc, "html-mathjax3"),
         (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom")
@@ -113,6 +114,27 @@ end
 
             example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
             @test occursin("documenter-example-output", example_output_html)
+
+            # Test for existence of meta tags
+            @test occursin("<meta property=\"og:title\"", index_html)
+            @test occursin("<meta property=\"twitter:title\"", index_html)
+            @test occursin("<meta property=\"og:url\" content=\"https://example.com/stable/\"/>", index_html)
+            @test occursin("<meta property=\"twitter:url\" content=\"https://example.com/stable/\"/>", index_html)
+            if name == "html-meta-custom"
+                @test occursin("<meta name=\"description\" content=\"Example site-wide description.\"/>", index_html)
+                @test occursin("<meta property=\"og:description\" content=\"Example site-wide description.\"/>", index_html)
+                @test occursin("<meta property=\"twitter:description\" content=\"Example site-wide description.\"/>", index_html)
+                @test occursin("<meta property=\"og:image\" content=\"https://example.com/stable/assets/preview.png\"/>", index_html)
+                @test occursin("<meta property=\"twitter:image\" content=\"https://example.com/stable/assets/preview.png\"/>", index_html)
+                @test occursin("<meta property=\"twitter:card\" content=\"summary_large_image\"/>", index_html)
+            else
+                @test occursin("<meta name=\"description\" content=\"Documentation for Documenter example.\"/>", index_html)
+                @test occursin("<meta property=\"og:description\" content=\"Documentation for Documenter example.\"/>", index_html)
+                @test occursin("<meta property=\"twitter:description\" content=\"Documentation for Documenter example.\"/>", index_html)
+                @test !occursin("<meta property=\"og:image\"", index_html)
+                @test !occursin("<meta property=\"twitter:image\"", index_html)
+                @test !occursin("<meta property=\"twitter:card\"", index_html)
+            end
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile

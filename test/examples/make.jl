@@ -16,7 +16,7 @@ include("../TestUtilities.jl"); using Main.TestUtilities
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
+    ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
     "html-repo-nothing", "html-repo-error", "latex_texonly", "latex_simple_texonly",
     "latex_showcase_texonly", "html-pagesonly"]
@@ -213,8 +213,13 @@ htmlbuild_pages = Any[
     "xrefs.md",
 ]
 
-function html_doc(build_directory, mathengine; htmlkwargs=(;), kwargs...)
-    @quietly withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
+function html_doc(
+    build_directory, mathengine;
+    htmlkwargs=(;),
+    image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif"),
+    kwargs...
+)
+    @quietly withassets(image_assets...) do
         makedocs(;
             debug = true,
             root  = examples_root,
@@ -262,6 +267,32 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: HTML/deploy"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# Same as HTML but with custom site description and preview image
+examples_html_meta_custom_doc = if "html-meta-custom" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build (custom meta tags)")
+    html_doc("html-meta-custom",
+        MathJax2(Dict(
+            :TeX => Dict(
+                :equationNumbers => Dict(:autoNumber => "AMS"),
+                :Macros => Dict(
+                    :ket => ["|#1\\rangle", 1],
+                    :bra => ["\\langle#1|", 1],
+                    :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                ),
+            ),
+        )),
+        htmlkwargs = (;
+            edit_link = :commit, 
+            description = "Example site-wide description."
+        ),
+        image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif", "images/preview.png"),
+    )
+else
+    @info "Skipping build: HTML/deploy (custom meta tags)"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
