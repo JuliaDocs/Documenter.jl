@@ -299,8 +299,7 @@ function filter_doctests(filters, strings)
         elseif isa(rs, Regex) || isa(rs, AbstractString)
             rs, ""
         else
-            @error "Invalid doctest filter" typeof(rs) rs
-            error("Invalid doctest filter")
+            error("Invalid doctest filter:\n$rs :: $(typeof(rs))")
         end
         if all(occursin.((r,), strings))
             strings = replace.(strings, (r => s,))
