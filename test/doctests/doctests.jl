@@ -88,7 +88,7 @@ function onormalize(s)
     s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
     s = replace(s, r"(top-level scope at )(.*)$"m => s"\1{PATH}")
     # Remove line numbers from Julia source line references (like in stacktraces)
-    s = replace(s, r"(Base \.[A-Za-z0-9\.\\/]+):[0-9]+\s*$"m => s"\1:LL")
+    s = replace(s, r"Base \.[\\/]([A-Za-z0-9\.]+):[0-9]+\s*$"m => s"Base ./\1:LL")
 
     # Remove stacktraces
     s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" => s"\1\\n\3{STACKTRACE}")
