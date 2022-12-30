@@ -16,10 +16,10 @@ include("../TestUtilities.jl"); using Main.TestUtilities
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["html", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
+    ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
     "html-repo-nothing", "html-repo-error", "latex_texonly", "latex_simple_texonly",
-    "latex_showcase_texonly"]
+    "latex_showcase_texonly", "html-pagesonly"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -213,8 +213,13 @@ htmlbuild_pages = Any[
     "xrefs.md",
 ]
 
-function html_doc(build_directory, mathengine; htmlkwargs=(;), kwargs...)
-    @quietly withassets("images/logo.png", "images/logo.jpg", "images/logo.gif") do
+function html_doc(
+    build_directory, mathengine;
+    htmlkwargs=(;),
+    image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif"),
+    kwargs...
+)
+    @quietly withassets(image_assets...) do
         makedocs(;
             debug = true,
             root  = examples_root,
@@ -262,6 +267,32 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: HTML/deploy"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# Same as HTML but with custom site description and preview image
+examples_html_meta_custom_doc = if "html-meta-custom" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / deployment build (custom meta tags)")
+    html_doc("html-meta-custom",
+        MathJax2(Dict(
+            :TeX => Dict(
+                :equationNumbers => Dict(:autoNumber => "AMS"),
+                :Macros => Dict(
+                    :ket => ["|#1\\rangle", 1],
+                    :bra => ["\\langle#1|", 1],
+                    :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                ),
+            ),
+        )),
+        htmlkwargs = (;
+            edit_link = :commit, 
+            description = "Example site-wide description."
+        ),
+        image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif", "images/preview.png"),
+    )
+else
+    @info "Skipping build: HTML/deploy (custom meta tags)"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
@@ -374,6 +405,30 @@ else
     nothing
 end
 
+# HTML: pagesonly
+examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / draft build")
+    @quietly makedocs(
+        debug = true,
+        draft = true,
+        root  = examples_root,
+        build = "builds/html-pagesonly",
+        sitename = "Documenter example (pagesonly)",
+        pages = [
+            "**Home**" => "index.md",
+            "Manual" => [
+                "man/tutorial.md",
+                "man/style.md",
+            ],
+        ],
+        pagesonly = true,
+    )
+else
+    @info "Skipping build: HTML/pagesonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
 # HTML: A few simple builds testing the repo keyword fallbacks
 macro examplebuild(name, block)
     docvar = Symbol("examples_html_", replace(name, "-" => "_"), "_doc")
@@ -434,7 +489,7 @@ end
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/simple")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple",
         root  = examples_root,
         build = "builds/latex_simple",
@@ -452,7 +507,7 @@ end
 examples_latex_doc = if "latex" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex",
@@ -597,7 +652,7 @@ end
 examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_cover_page")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_cover_page",
@@ -616,7 +671,7 @@ end
 examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_toc_style")
     @quietly makedocs(
-        format = Documenter.Writers.LaTeXWriter.LaTeX(platform = "docker"),
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_toc_style",
@@ -635,8 +690,8 @@ end
 # For the latex_showcase tests we need to override the Git remote we use for the source
 # files, so that the links would be deterministic (since they contain the commit hash which
 # keeps changing). Fortunately, we can hack the cache for this purpose.
-examples_remote = Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__]
-Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
+examples_remote = Documenter.GIT_REMOTE_CACHE[@__DIR__]
+Documenter.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
 
 examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_showcase")
@@ -677,4 +732,4 @@ else
 end
 
 # Restore the remote for this directory
-Documenter.Utilities.GIT_REMOTE_CACHE[@__DIR__] = examples_remote
+Documenter.GIT_REMOTE_CACHE[@__DIR__] = examples_remote

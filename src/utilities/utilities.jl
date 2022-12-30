@@ -1,17 +1,10 @@
-"""
-Provides a collection of utility functions and types that are used in other submodules.
-"""
-module Utilities
-
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
-import ..ERROR_NAMES
-import ..NO_KEY_ENV
 
-include("Remotes.jl")
+
 using .Remotes: Remote, repourl, repofile
 # These imports are here to support code that still assumes that these names are defined
 # in the Utilities module.
@@ -31,18 +24,29 @@ error (if `tag` matches the `doc.user.strict` setting) or warning.
   see `@error` and `@warn`
 """
 macro docerror(doc, tag, msg, exs...)
-    tag isa QuoteNode || error("invalid call of @docerror")
+    isa(tag, QuoteNode) && isa(tag.value, Symbol) || error("invalid call of @docerror: tag=$tag")
     tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
-    esc(quote
+    doc, msg = esc(doc), esc(msg)
+    # The `exs` portion can contain variable name / label overrides, i.e. `foo = bar()`
+    # We don't want to apply esc() on new labels, since they get printed as expressions then.
+    exs = map(exs) do ex
+        if isa(ex, Expr) && ex.head == :(=) && ex.args[1] isa Symbol
+            ex.args[2:end] .= esc.(ex.args[2:end])
+            ex
+        else
+            esc(ex)
+        end
+    end
+    quote
         let
             push!($(doc).internal.errors, $(tag))
-            if $Utilities.is_strict($(doc).user.strict, $(tag))
+            if is_strict($(doc).user.strict, $(tag))
                 @error $(msg) $(exs...)
             else
                 @warn $(msg) $(exs...)
             end
         end
-    end)
+    end
 end
 
 # escape characters that has a meaning in regex
@@ -148,7 +152,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
                 try
                     Meta.parse(code, cursor; raise=raise)
                 catch err
-                    @docerror(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))", exception = err)
+                    @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
                     break
                 end
             end
@@ -843,10 +847,18 @@ function git(; nothrow = false, kwargs...)
     return cmd
 end
 
-include("DOM.jl")
-include("MDFlatten.jl")
-include("TextDiff.jl")
-include("Selectors.jl")
-include("JSDependencies.jl")
-
+function remove_common_backtrace(bt, reference_bt = backtrace())
+    cutoff = nothing
+    # We'll start from the top of the backtrace (end of the array) and go down, checking
+    # if the backtraces agree
+    for ridx in 1:length(bt)
+        # Cancel search if we run out the reference BT or find a non-matching one frames:
+        if ridx > length(reference_bt) || bt[length(bt) - ridx + 1] != reference_bt[length(reference_bt) - ridx + 1]
+            cutoff = length(bt) - ridx + 1
+            break
+        end
+    end
+    # It's possible that the loop does not find anything, i.e. that all BT elements are in
+    # the reference_BT too. In that case we'll just return an empty BT.
+    bt[1:(cutoff === nothing ? 0 : cutoff)]
 end

@@ -2,7 +2,7 @@ module DOMTests
 
 using Test
 
-import Documenter.Utilities.DOM: DOM, @tags, HTMLDocument
+import Documenter.DOM: DOM, @tags, HTMLDocument
 
 @tags div ul li p
 
@@ -87,6 +87,11 @@ import Documenter.Utilities.DOM: DOM, @tags, HTMLDocument
     # HTMLDocument
     @test string(HTMLDocument(div())) == "<!DOCTYPE html>\n<div></div>\n"
     @test string(HTMLDocument("custom doctype", div())) == "<!DOCTYPE custom doctype>\n<div></div>\n"
+
+    @test DOM.VOID.name === Symbol("#RAW#")
+    @test DOM.VOID.text == ""
+    @test DOM.VOID.nodes[1].text == ""
+    @test isempty(DOM.VOID.attributes)
 end
 
 end

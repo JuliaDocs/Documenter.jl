@@ -4,11 +4,7 @@ for checking docs.
 """
 module DocChecks
 
-import ..Documenter:
-    Documenter,
-    Documents,
-    Utilities,
-    Utilities.@docerror
+import ..Documenter: Documenter, @docerror
 
 using DocStringExtensions
 import Markdown
@@ -20,13 +16,36 @@ import AbstractTrees, MarkdownAST
 """
 $(SIGNATURES)
 
-Checks that a [`Documents.Document`](@ref) contains all available docstrings that are
+Checks that a [`Documenter.Document`](@ref) contains all available docstrings that are
 defined in the `modules` keyword passed to [`Documenter.makedocs`](@ref).
 
 Prints out the name of each object that has not had its docs spliced into the document.
+
+Returns the number of missing bindings to allow for automated testing of documentation.
 """
-function missingdocs(doc::Documents.Document)
-    doc.user.checkdocs === :none && return
+function missingdocs(doc::Documenter.Document)
+    doc.user.checkdocs === :none && return 0
+    bindings = missingbindings(doc)
+    n = reduce(+, map(length, values(bindings)), init=0)
+    if n > 0
+        b = IOBuffer()
+        println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
+        for (binding, signatures) in bindings
+            for sig in signatures
+                println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
+            end
+        end
+        println(b)
+        print(b, """
+        These are docstrings in the checked modules (configured with the modules keyword)
+        that are not included in @docs or @autodocs blocks.
+        """)
+        @docerror(doc, :missing_docs, String(take!(b)))
+    end
+    return n
+end
+
+function missingbindings(doc::Documenter.Document)
     @debug "checking for missing docstrings."
     bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
     for object in keys(doc.internal.objects)
@@ -51,33 +70,18 @@ function missingdocs(doc::Documents.Document)
             end
         end
     end
-    n = reduce(+, map(length, values(bindings)), init=0)
-    if n > 0
-        b = IOBuffer()
-        println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
-        for (binding, signatures) in bindings
-            for sig in signatures
-                println(b, "    $binding", sig ≡ Union{} ? "" : " :: $sig")
-            end
-        end
-        println(b)
-        print(b, """
-        These are docstrings in the checked modules (configured with the modules keyword)
-        that are not included in @docs or @autodocs blocks.
-        """)
-        @docerror(doc, :missing_docs, String(take!(b)))
-    end
+    return bindings
 end
 
 function allbindings(checkdocs::Symbol, mods)
-    out = Dict{Utilities.Binding, Set{Type}}()
+    out = Dict{Documenter.Binding, Set{Type}}()
     for m in mods
         allbindings(checkdocs, m, out)
     end
     out
 end
 
-function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Binding, Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Documenter.Binding, Set{Type}}())
     for (binding, doc) in meta(mod)
         # The keys of the docs meta dictonary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
@@ -88,7 +92,7 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Utilities.Bindin
         # by virtue of being defined there, or if it has been brought into the scope with
         # import/using.
         name = nameof(binding)
-        isexported = (binding == Utilities.Binding(mod, name)) && Base.isexported(mod, name)
+        isexported = (binding == Documenter.Binding(mod, name)) && Base.isexported(mod, name)
         if checkdocs === :all || (isexported && checkdocs === :exports)
             out[binding] = Set(sigs(doc))
         end
@@ -110,16 +114,16 @@ sigs(::Any) = Type[Union{}]
 """
 $(SIGNATURES)
 
-Checks footnote links in a [`Documents.Document`](@ref).
+Checks footnote links in a [`Documenter.Document`](@ref).
 """
-function footnotes(doc::Documents.Document)
+function footnotes(doc::Documenter.Document)
     @debug "checking footnote links."
     # A mapping of footnote ids to a tuple counter of how many footnote references and
     # footnote bodies have been found.
     #
     # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
     # footnote references and a single footnote body.
-    footnotes = Dict{Documents.Page, Dict{String, Tuple{Int, Int}}}()
+    footnotes = Dict{Documenter.Page, Dict{String, Tuple{Int, Int}}}()
     for (src, page) in doc.blueprint.pages
         orphans = Dict{String, Tuple{Int, Int}}()
         for node in AbstractTrees.PreOrderDFS(page.mdast)
@@ -131,15 +135,15 @@ function footnotes(doc::Documents.Document)
         for (id, (ids, bodies)) in orphans
             # Multiple footnote bodies.
             if bodies > 1
-                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(Utilities.locrepr(page.source)).")
+                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(Documenter.locrepr(page.source)).")
             end
             # No footnote references for an id.
             if ids === 0
-                @docerror(doc, :footnote, "unused footnote named '$id' in $(Utilities.locrepr(page.source)).")
+                @docerror(doc, :footnote, "unused footnote named '$id' in $(Documenter.locrepr(page.source)).")
             end
             # No footnote bodies for an id.
             if bodies === 0
-                @docerror(doc, :footnote, "no footnotes found for '$id' in $(Utilities.locrepr(page.source)).")
+                @docerror(doc, :footnote, "no footnotes found for '$id' in $(Documenter.locrepr(page.source)).")
             end
         end
     end
@@ -167,7 +171,7 @@ $(SIGNATURES)
 
 Checks external links using curl.
 """
-function linkcheck(doc::Documents.Document)
+function linkcheck(doc::Documenter.Document)
     if doc.user.linkcheck
         if hascurl()
             for (src, page) in doc.blueprint.pages
@@ -182,7 +186,7 @@ function linkcheck(doc::Documents.Document)
     return nothing
 end
 
-function linkcheck(node::MarkdownAST.Node, doc::Documents.Document; method::Symbol=:HEAD)
+function linkcheck(node::MarkdownAST.Node, doc::Documenter.Document; method::Symbol=:HEAD)
     node.element isa MarkdownAST.Link || return
     link = node.element
 

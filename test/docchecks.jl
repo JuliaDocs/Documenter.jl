@@ -3,8 +3,8 @@ module DocCheckTests
 using Test
 
 using Markdown
+import Documenter
 using Documenter.DocChecks: linkcheck, allbindings
-using Documenter.Documents
 
 # The following modules set up a few docstrings for allbindings tests
 module Dep1
@@ -80,23 +80,23 @@ end
                 [HEAD fail GET success](https://codecov.io/gh/invenia/LibPQ.jl)
                 """
 
-            Documents.walk(Dict{Symbol, Any}(), src) do block
-                doc = Documents.Document(; linkcheck=true, linkcheck_timeout=20)
+            Documenter.walk(Dict{Symbol, Any}(), src) do block
+                doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
                 result = linkcheck(block, doc)
                 @test doc.internal.errors == Set{Symbol}()
                 result
             end
 
             src = Markdown.parse("[FILE failure](file://$(@__FILE__))")
-            doc = Documents.Document(; linkcheck=true)
-            Documents.walk(Dict{Symbol, Any}(), src) do block
+            doc = Documenter.Document(; linkcheck=true)
+            Documenter.walk(Dict{Symbol, Any}(), src) do block
                 linkcheck(block, doc)
             end
             @test doc.internal.errors == Set{Symbol}([:linkcheck])
 
             src = Markdown.parse("[Timeout](http://httpbin.org/delay/3)")
-            doc = Documents.Document(; linkcheck=true, linkcheck_timeout=0.1)
-            Documents.walk(Dict{Symbol, Any}(), src) do block
+            doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=0.1)
+            Documenter.walk(Dict{Symbol, Any}(), src) do block
                 linkcheck(block, doc)
             end
             @test doc.internal.errors == Set{Symbol}([:linkcheck])

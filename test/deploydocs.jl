@@ -1,5 +1,4 @@
-using Documenter: Documenter, deploydocs
-using Documenter.Utilities: git
+using Documenter: Documenter, deploydocs, git
 using Test
 include("TestUtilities.jl"); using Main.TestUtilities
 

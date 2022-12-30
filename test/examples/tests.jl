@@ -17,16 +17,16 @@ elseif (@__MODULE__) !== Main && !isdefined(Main, :examples_root)
     error("examples/make.jl has not been loaded into Main.")
 end
 
-function latex_filename(doc::Documenter.Documents.Document)
+function latex_filename(doc::Documenter.Documenter.Document)
     @test length(doc.user.format) == 1
     settings = first(doc.user.format)
     @test settings isa Documenter.LaTeX
-    fileprefix = Documenter.Writers.LaTeXWriter.latex_fileprefix(doc, settings)
+    fileprefix = Documenter.LaTeXWriter.latex_fileprefix(doc, settings)
     return "$(fileprefix).tex"
 end
 
 # Diffing of output TeX files:
-using Documenter.Utilities.TextDiff: Diff, Lines
+using Documenter.TextDiff: Diff, Lines
 function onormalize_tex(s)
     # We strip hyperlink hashes, since those may change over time
     s = replace(s, r"\\(hyperlink|hypertarget|label|hyperlinkref){[0-9]+}" => s"\\\1{}")
@@ -64,29 +64,46 @@ function compare_files(a, b)
     return false
 end
 
+all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
+    for (root, _, pages) in walkdir(srcdir)
+        rootdir = relpath(root, srcdir)
+        rootdir == "." && (rootdir = "")
+        for page in pages
+            endswith(page, ".md") || continue
+            push!(mdfiles, joinpath(rootdir, page))
+        end
+    end
+    mdfiles
+end
+@test length(all_md_files_in_src) == 25
+
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
         (Main.examples_html_doc, "html"),
+        (Main.examples_html_meta_custom_doc, "html-meta-custom"),
         (Main.examples_html_mathjax2_custom_doc, "html-mathjax2-custom"),
         (Main.examples_html_mathjax3_doc, "html-mathjax3"),
         (Main.examples_html_mathjax3_custom_doc, "html-mathjax3-custom")
     ]
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", name)
-            @test joinpath(build_dir, "index.html") |> isfile
-            @test joinpath(build_dir, "omitted", "index.html") |> isfile
-            @test joinpath(build_dir, "hidden", "index.html") |> isfile
-            @test joinpath(build_dir, "lib", "autodocs", "index.html") |> isfile
-            @test joinpath(build_dir, "man", "style", "index.html") |> isfile
+            # Make sure that each .md file has a corresponding generated HTML file
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
+                dir, filename = splitdir(mdfile)
+                filename, _ = splitext(filename)
+                htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
+                    joinpath(build_dir, dir, filename, "index.html")
+                @test isfile(htmlpath)
+            end
 
             # Test existence of some HTML elements
             man_style_html = String(read(joinpath(build_dir, "man", "style", "index.html")))
             @test occursin("is-category-myadmonition", man_style_html)
-            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
+            @test occursin(Documenter.HTMLWriter.OUTDATED_VERSION_ATTR, man_style_html)
 
             index_html = read(joinpath(build_dir, "index.html"), String)
-            @test occursin(Documenter.Writers.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
+            @test occursin(Documenter.HTMLWriter.OUTDATED_VERSION_ATTR, index_html)
             @test occursin("documenter-example-output", index_html)
             @test occursin("1392-test-language", index_html)
             @test !occursin("1392-extra-info", index_html)
@@ -97,6 +114,27 @@ end
 
             example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
             @test occursin("documenter-example-output", example_output_html)
+
+            # Test for existence of meta tags
+            @test occursin("<meta property=\"og:title\"", index_html)
+            @test occursin("<meta property=\"twitter:title\"", index_html)
+            @test occursin("<meta property=\"og:url\" content=\"https://example.com/stable/\"/>", index_html)
+            @test occursin("<meta property=\"twitter:url\" content=\"https://example.com/stable/\"/>", index_html)
+            if name == "html-meta-custom"
+                @test occursin("<meta name=\"description\" content=\"Example site-wide description.\"/>", index_html)
+                @test occursin("<meta property=\"og:description\" content=\"Example site-wide description.\"/>", index_html)
+                @test occursin("<meta property=\"twitter:description\" content=\"Example site-wide description.\"/>", index_html)
+                @test occursin("<meta property=\"og:image\" content=\"https://example.com/stable/assets/preview.png\"/>", index_html)
+                @test occursin("<meta property=\"twitter:image\" content=\"https://example.com/stable/assets/preview.png\"/>", index_html)
+                @test occursin("<meta property=\"twitter:card\" content=\"summary_large_image\"/>", index_html)
+            else
+                @test occursin("<meta name=\"description\" content=\"Documentation for Documenter example.\"/>", index_html)
+                @test occursin("<meta property=\"og:description\" content=\"Documentation for Documenter example.\"/>", index_html)
+                @test occursin("<meta property=\"twitter:description\" content=\"Documentation for Documenter example.\"/>", index_html)
+                @test !occursin("<meta property=\"og:image\"", index_html)
+                @test !occursin("<meta property=\"twitter:image\"", index_html)
+                @test !occursin("<meta property=\"twitter:card\"", index_html)
+            end
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
@@ -137,7 +175,7 @@ end
     @testset "HTML: local" begin
         doc = Main.examples_html_local_doc
 
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
 
         let build_dir = joinpath(examples_root, "builds", "html-local")
 
@@ -145,10 +183,40 @@ end
             @test occursin("<strong>bold</strong> output from MarkdownOnly", index_html)
             @test occursin("documenter-example-output", index_html)
 
-            @test isfile(joinpath(build_dir, "index.html"))
-            @test isfile(joinpath(build_dir, "omitted.html"))
-            @test isfile(joinpath(build_dir, "hidden.html"))
-            @test isfile(joinpath(build_dir, "lib", "autodocs.html"))
+            # Make sure that each .md file has a corresponding generated HTML file
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
+                dir, filename = splitdir(mdfile)
+                filename, _ = splitext(filename)
+                htmlpath = joinpath(build_dir, dir, "$(filename).html")
+                @test isfile(htmlpath)
+            end
+
+            # Assets
+            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
+            @test occursin("languages/julia.min", documenterjs)
+            @test occursin("languages/julia-repl.min", documenterjs)
+        end
+    end
+
+    @testset "HTML: pagesonly" begin
+        doc = Main.examples_html_pagesonly_doc
+
+        @test isa(doc, Documenter.Documenter.Document)
+
+        let build_dir = joinpath(examples_root, "builds", "html-pagesonly")
+            # Make sure that each .md file has a corresponding generated HTML file
+            @testset "md: $mdfile" for mdfile in all_md_files_in_src
+                dir, filename = splitdir(mdfile)
+                filename, _ = splitext(filename)
+                htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
+                    joinpath(build_dir, dir, filename, "index.html")
+                if mdfile ∈ ("index.md", joinpath("man", "tutorial.md"), joinpath("man", "style.md"))
+                    @test isfile(htmlpath)
+                else
+                    @test !ispath(htmlpath)
+                end
+            end
 
             # Assets
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
@@ -168,7 +236,7 @@ end
 
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_texonly")
             @test joinpath(build_dir, latex_filename(doc)) |> isfile
             @test joinpath(build_dir, "documenter.sty") |> isfile
@@ -177,7 +245,7 @@ end
 
     @testset "PDF/LaTeX: simple (TeX only)" begin
         doc = Main.examples_latex_simple_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_simple_texonly")
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))
@@ -188,7 +256,7 @@ end
 
     @testset "PDF/LaTeX: showcase (TeX only)" begin
         doc = Main.examples_latex_showcase_texonly_doc
-        @test isa(doc, Documenter.Documents.Document)
+        @test isa(doc, Documenter.Documenter.Document)
         let build_dir = joinpath(examples_root, "builds", "latex_showcase_texonly")
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))

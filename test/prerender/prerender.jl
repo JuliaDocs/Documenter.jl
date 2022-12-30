@@ -32,7 +32,7 @@ index = read_index()
 @test occursin("<code class=\"language-llvm hljs\">;  @ int.jl:87 within", index)
 
 # With prerender
-HLJSFILES = Documenter.Writers.HTMLWriter.HLJSFILES
+HLJSFILES = Documenter.HTMLWriter.HLJSFILES
 for _ in 1:2 # test with and without highlightjs file given
     makedocs(;
         sitename = "Prerendering code blocks",

@@ -37,6 +37,8 @@ Packages that have tagged versions available in the general Registry:
 - [GeophysicalFlows.jl](https://fourierflows.github.io/GeophysicalFlowsDocumentation/stable/)
 - [GeoStats.jl](https://juliaearth.github.io/GeoStats.jl/stable/)
 - [Highlights.jl](https://juliadocs.github.io/Highlights.jl/stable/)
+- [InvertibleNetworks.jl](https://slimgroup.github.io/InvertibleNetworks.jl/stable/)
+- [JUDI.jl](https://slimgroup.github.io/JUDI.jl/stable/)
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/stable/)
 - [Mimi.jl](https://www.mimiframework.org/Mimi.jl/stable/)
@@ -44,14 +46,17 @@ Packages that have tagged versions available in the general Registry:
 - [NLOptControl.jl](https://huckl3b3rry87.github.io/MPCDocs.jl/stable/)
 - [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
 - [OnlineStats.jl](https://joshday.github.io/OnlineStats.jl/stable/)
+- [PhotoAcoustic.jl](https://slimgroup.github.io/PhotoAcoustic.jl/stable/)
 - [POMDPs.jl](https://juliapomdp.github.io/POMDPs.jl/stable/)
 - [PhyloNetworks.jl](https://crsl4.github.io/PhyloNetworks.jl/stable/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
 - [Query.jl](https://www.queryverse.org/Query.jl/stable/)
 - [SimGBS.jl](https://anshess.github.io/SimGBS.jl/stable/)
+- [SlimOptim.jl](https://slimgroup.github.io/SlimOptim.jl/stable/)
 - [SymbolicRegression.jl](https://astroautomata.com/SymbolicRegression.jl/stable/)
 - [TaylorSeries.jl](https://juliadiff.org/TaylorSeries.jl/stable/)
 - [Weave.jl](https://weavejl.mpastell.com/stable/)
+- [WorldDynamics.jl](https://worlddynamics.github.io/WorldDynamics.jl/stable/)
 
 ## Documentation repositories
 

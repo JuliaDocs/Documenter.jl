@@ -4,7 +4,7 @@ using Test
 
 import Markdown
 using MarkdownAST: MarkdownAST, @ast
-using Documenter.Utilities.MDFlatten
+using Documenter.MDFlatten
 
 parse(s) = convert(MarkdownAST.Node, Markdown.parse(s))
 

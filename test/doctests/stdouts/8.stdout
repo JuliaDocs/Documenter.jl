@@ -1,6 +1,6 @@
 [ Info: SetupBuildDirectory: setting up build directory.
 [ Info: Doctest: running doctests.
-┌ Error: doctest failure in ~/Julia/JuliaDocs/Documenter/test/doctests/src/FooBroken.jl:6-9
+┌ Error: doctest failure in ~/juliadocs/Documenter/test/doctests/src/FooBroken.jl:6-9
 │ 
 │ ```jldoctest
 │ julia> 2 + 2
@@ -22,4 +22,4 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    424
-└ @ Documenter.DocTests ~/Julia/JuliaDocs/Documenter/src/DocTests.jl:336
+└ @ Documenter.DocTests ~/juliadocs/Documenter/test/doctests/src/FooBroken.jl:6
