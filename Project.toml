@@ -16,6 +16,7 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 MarkdownAST = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+SnoopPrecompile = "66db9d55-30c0-4569-8b51-7e840670fc0c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
@@ -26,6 +27,7 @@ DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9"
 IOCapture = "0.2"
 JSON = "0.19, 0.20, 0.21"
 MarkdownAST = "0.1"
+SnoopPrecompile = "1"
 julia = "1.6"
 
 [extras]
