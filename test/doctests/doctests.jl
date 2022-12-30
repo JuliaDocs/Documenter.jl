@@ -1,4 +1,4 @@
-# To fix all the output reference, run this file with
+# To fix all the output reference files, run this file with
 #
 #    DOCUMENTER_FIXTESTS= julia doctests.jl
 #
@@ -86,12 +86,19 @@ function onormalize(s)
     # Remove filesystem paths in doctests failures
     s = replace(s, r"(doctest failure in )(.*)$"m => s"\1{PATH}")
     s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
+    s = replace(s, r"(top-level scope at )(.*)$"m => s"\1{PATH}")
+    # Remove line numbers from Julia source line references (like in stacktraces)
+    # Note: currently only supports top-level files (e.g. ./error.jl, but not ./strings/basic.jl)
+    s = replace(s, r"Base \.[\\/]([A-Za-z0-9\.]+):[0-9]+\s*$"m => s"Base ./\1:LL")
 
     # Remove stacktraces
     s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" => s"\1\\n\3{STACKTRACE}")
 
     # In Julia 1.9, the printing of UndefVarError has slightly changed (added backticks around binding name)
     s = replace(s, r"UndefVarError: `([A-Za-z0-9.]+)` not defined"m => s"UndefVarError: \1 not defined")
+
+    # Remove floating point numbers
+    s = replace(s, r"([0-9]*\.[0-9]{8})[0-9]+" => s"\1***")
 
     return s
 end

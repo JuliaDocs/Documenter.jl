@@ -288,13 +288,19 @@ function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     checkresult(sandbox, result, meta, doc)
 end
 
-function filter_doctests(strings::NTuple{2, AbstractString},
-                         doc::Documenter.Document, meta::Dict)
-    meta_block_filters = get(Vector{Any}, meta, :DocTestFilters)
-    meta_block_filters === nothing && (meta_block_filters = [])
-    doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
-    for rs in [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
-        r, s = rs isa Pair ? rs : (rs => "")
+function filter_doctests(filters, strings)
+    for rs in filters
+        # If a doctest filter is just a string or regex, everything that matches gets
+        # removed before comparing the inputs and outputs of a doctest. However, it can
+        # also be a regex => substitution pair in which case the match gets replaced by
+        # the substitution string.
+        r, s = if isa(rs, Pair{Regex,T} where T <: AbstractString)
+            rs
+        elseif isa(rs, Regex) || isa(rs, AbstractString)
+            rs, ""
+        else
+            error("Invalid doctest filter:\n$rs :: $(typeof(rs))")
+        end
         if all(occursin.((r,), strings))
             strings = replace.(strings, (r => s,))
         end
@@ -308,19 +314,24 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
     mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
     outio = IOContext(result.stdout, :module => sandbox)
+    filters = collect_doctest_filters(doc, meta)
     if isdefined(result, :bt) # An error was thrown and we have a backtrace.
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
         head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex  => "")
         head = replace(head, mod_regex_nodot => "Main")
-        str  = replace(error_to_string(outio, result.value, result.bt), mod_regex => "")
+        str  = error_to_string(outio, result.value, result.bt)
+        str  = replace(str, mod_regex => "")
         str  = replace(str, mod_regex_nodot => "Main")
-
-        str, head = filter_doctests((str, head), doc, meta)
+        filteredstr, filteredhead = filter_doctests(filters, (str, head))
+        @debug debug_report(
+            result=result, filters = filters, expected_filtered = filteredhead,
+            evaluated = rstrip(str), evaluated_filtered = filteredstr
+        )
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
-        if isempty(head) || !startswith(str, head)
+        if isempty(head) || !startswith(filteredstr, filteredhead)
             if doc.user.doctest === :fix
                 fix_doctest(result, str, doc)
             else
@@ -335,7 +346,11 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         str = replace(result_to_string(outio, value), mod_regex => "")
         # Replace a standalone module name with `Main`.
         str = rstrip(replace(str, mod_regex_nodot => "Main"))
-        filteredstr, filteredoutput = filter_doctests((str, output), doc, meta)
+        filteredstr, filteredoutput = filter_doctests(filters, (str, output))
+        @debug debug_report(
+            result=result, filters = filters, expected_filtered = filteredoutput,
+            evaluated = rstrip(str), evaluated_filtered = filteredoutput
+        )
         if filteredstr != filteredoutput
             if doc.user.doctest === :fix
                 fix_doctest(result, str, doc)
@@ -347,6 +362,55 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         end
     end
     return nothing
+end
+
+function debug_report(; result, expected_filtered, evaluated, evaluated_filtered, filters)
+    lines = Utilities.find_block_in_file(result.block.code, result.file)
+    r = """
+    Verifying doctest at $(Utilities.locrepr(result.file, lines))
+
+    ```$(result.block.language)
+    $(result.block.code)
+    ```
+
+    Subexpression:
+
+    $(result.input)
+
+    Evaluated output:
+
+    $(evaluated)
+
+    Expected output:
+
+    $(result.output)
+    """
+    if !isempty(filters)
+        r *= "\n"
+        r *= (length(filters) == 1) ? "1 doctest filter was applied:\n\n" :
+            "$(length(filters)) doctest filters were applied:\n\n"
+        for rs in filters
+            r *= "  $rs\n"
+        end
+        r *= """
+
+        Evaluated output (filtered):
+
+        $(evaluated_filtered)
+
+        Expected output (filtered):
+
+        $(expected_filtered)
+        """
+    end
+    return r
+end
+
+function collect_doctest_filters(doc::Documenter.Document, meta::Dict)
+    meta_block_filters = get(meta, :DocTestFilters, [])
+    meta_block_filters == nothing && meta_block_filters == []
+    doctest_local_filters = get(meta[:LocalDocTestArguments], :filter, [])
+    [doc.user.doctestfilters; meta_block_filters; doctest_local_filters]
 end
 
 # Display doctesting results.
