@@ -249,6 +249,7 @@ struct User
     pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
     remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
+    remotes :: Vector{Pair{String,Tuple{Remotes.Remote,String}}}
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -304,7 +305,8 @@ function Document(plugins = nothing;
         pages    :: Vector           = Any[],
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
-        repo     :: Union{Remotes.Remote, AbstractString} = "",
+        repo     :: Union{Remotes.Remote, AbstractString} = "", # deprecated?
+        remotes  :: Vector{<:Pair} = Pair[],
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -338,6 +340,30 @@ function Document(plugins = nothing;
         repo
     end
 
+    # Populate the list of
+    remotes_checked = Pair{String,Tuple{Remotes.Remote,String}}[]
+    repo_root = git_repo_root(root)
+    # Support for the old 'repo' argument.
+    if !isnothing(remote) && !isnothing(repo_root)
+        push!(remotes_checked, repo_root => (remote, repo_commit(root)))
+    end
+    for (path, remote) in remotes
+        isa(remote[1], Remotes.Remote) || error("Invalid remote in remotes: $(remote)")
+        isdir(path) || error("Invalid local path in remotes: $(path)")
+        path = realpath(path)
+        idx = findfirst(isequal(path), existing_path for (existing_path, _) in remotes_checked)
+        if !isnothing(idx)
+            error("Duplicate remote path: $(path) => $(remote) vs $(remotes_checked[idx])")
+        end
+        push!(remotes_checked, path => remote)
+    end
+    # At this point we assume that all the paths are absolute and fully resolved, so
+    # we can check for subpaths by just doing startswith. This also means that any path
+    # that is longer than another will be a subpath (as we assume they are all directories
+    # as well). So we put the longest names first in the list, and check for subpaths
+    # by just linearly walking through this list.
+    sort!(remotes_checked, by=first, rev=true)
+
     user = User(
         root,
         source,
@@ -356,6 +382,7 @@ function Document(plugins = nothing;
         pagesonly,
         expandfirst,
         remote,
+        remotes_checked,
         sitename,
         authors,
         version,
@@ -419,6 +446,70 @@ function get_remote_ci_fallbacks(dir::AbstractString)
     end
     @warn "Unable to determine remote Git URL automatically. Source links may be missing."
     return nothing
+end
+
+"""
+    $(SIGNATURES)
+
+Returns the path of `file`, relative to the root of the Git repository, or `nothing` if the
+file is not in a Git repository.
+"""
+function relpath_from_remote_root(doc::Document, file::AbstractString)
+    isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
+    isabspath(file) || error("relpath_from_repo_root called with non-absolute path: $file")
+    # We also
+    automagic_repo_root = git_repo_root(file)
+    automagic_remote = isnothing(automagic_repo_root) ? nothing : getremote(automagic_repo_root)
+    automagic_commit = repo_commit(automagic_repo_root)
+    # First, we try to ...
+    idx = findfirst(doc.user.remotes) do (path, _)
+        startswith(file, path)
+    end
+    # If we can't find it, we fall back to the automagic ones
+    # also if automagic is deeper than the declared remote
+    root_path, remote, commit = if isnothing(idx) || !startswith(first(doc.user.remotes[idx]), automagic_repo_root)
+        automagic_repo_root, automagic_remote, automagic_commit
+    else
+        x = doc.user.remotes[idx]
+        x[1], x[2][1], x[2][2]
+    end
+    @assert isnothing(root_path) || startswith(file, root_path)
+    return remote, isnothing(root_path) ? nothing : relpath(file, root_path), commit
+end
+
+function edit_url(doc::Document, file; commit::AbstractString)
+    if !isfile(file)
+        @warn "couldn't find file \"$file\" when generating URL"
+        return nothing
+    end
+    file = realpath(file)
+    remote, relpath, commit = relpath_from_remote_root(doc, file)
+    isnothing(relpath) || isnothing(remote) ? nothing : repofile(remote, commit, relpath)
+end
+
+source_url(doc::Document, docstring) = source_url(
+    doc, docstring.data[:module], docstring.data[:path], linerange(docstring)
+)
+
+function source_url(doc::Document, mod, file, linerange)
+    file === nothing && return nothing # needed since julia v0.6, see #689
+    # Non-absolute paths generally indicate methods from Base.
+    if inbase(mod) || !isabspath(file)
+        ref = if isempty(Base.GIT_VERSION_INFO.commit)
+            "v$VERSION"
+        else
+            Base.GIT_VERSION_INFO.commit
+        end
+        return repofile(julia_remote, ref, "base/$file", linerange)
+    end
+    # Generally, we assume that the Julia source file exists on the system.
+    isfile(file) || return nothing
+    # We want to expand the path properly, including symlinks.
+    file = realpath(file) # note: realpath throws for non-existing files, but we just checked for it
+    # We try to...
+    remote, relpath = relpath_from_remote_root(doc, file)
+    isnothing(relpath) || isnothing(remote) && return nothing
+    return repofile(remote, repo_commit(file), relpath, linerange)
 end
 
 """

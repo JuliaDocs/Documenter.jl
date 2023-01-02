@@ -348,7 +348,7 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
 **`description`** is the site-wide description that displays in page previews and search
-engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as 
+engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as
 an argument to [`makedocs`](@ref).
 
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
@@ -1273,7 +1273,7 @@ function edit_link(f, ctx, navnode)
         "Edit", edit_logo, ctx.settings.edit_link
     end
     host, _ = host_logo(ctx.doc.user.remote)
-    editurl = Documenter.edit_url(ctx.doc.user.remote, editpath, commit=commit)
+    editurl = Documenter.edit_url(ctx.doc, editpath, commit=commit)
     # It is possible for editurl() to return a nothing, if something goes wrong
     isnothing(editurl) && return
     # Create the edit link
@@ -1642,7 +1642,7 @@ function domify_doc(dctx::DCtx, node::Node)
         ret = section(div(domify(dctx, markdown)))
         # When a source link is available then print the link.
         if !ctx.settings.disable_git
-            url = Documenter.source_url(ctx.doc.user.remote, result)
+            url = Documenter.source_url(ctx.doc, result)
             if url !== nothing
                 push!(ret.nodes, a[".docs-sourcelink", :target=>"_blank", :href=>url]("source"))
             end

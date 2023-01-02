@@ -98,6 +98,13 @@ determined by first checking the URL of the `origin` Git remote, and then fallin
 checking the `TRAVIS_REPO_SLUG` (for Travis CI) and `GITHUB_REPOSITORY` (for GitHub Actions)
 environment variables. If this automatic procedure fails, a warning is printed.
 
+**`remotes`** can be used to declare a list additional `(path, remote::Remote)` pairs
+that are used to generate
+
+Documenter
+
+This is useful when the documentation
+
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
 indented code block containing the function signature, then that block would be highlighted
@@ -154,12 +161,6 @@ argument.
 some potentially time-consuming steps are skipped (e.g. running `@example` blocks), which is
 useful when iterating on the documentation. This setting can also be configured per-page
 by setting `Draft = true` in an `@meta` block.
-
-# Experimental keywords
-
-In addition to standard arguments there is a set of non-finalized experimental keyword
-arguments. The behaviour of these may change or they may be removed without deprecation
-when a minor version changes (i.e. except in patch releases).
 
 **`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
 defined in the `modules` keyword that have a docstring attached have the docstring also

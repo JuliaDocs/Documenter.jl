@@ -390,7 +390,7 @@ nodocs(::Nothing) = false
 header_level(::Markdown.Header{N}) where {N} = N
 
 """
-    repo_root(file; dbdir=".git")
+    $(SIGNATURES)
 
 Tries to determine the root directory of the repository containing `file`. If the file is
 not in a repository, the function returns `nothing`.
@@ -399,7 +399,7 @@ The `dbdir` keyword argument specifies the name of the directory we are searchin
 determine if this is a repostory or not. If there is a file called `dbdir`, then it's
 contents is checked under the assumption that it is a Git worktree or a submodule.
 """
-function repo_root(file; dbdir=".git")
+function git_repo_root(file; dbdir=".git")
     parent_dir, parent_dir_last = dirname(abspath(file)), ""
     while parent_dir != parent_dir_last
         dbdir_path = joinpath(parent_dir, dbdir)
@@ -418,84 +418,11 @@ function repo_root(file; dbdir=".git")
     return nothing
 end
 
-"""
-    $(SIGNATURES)
-
-Returns the path of `file`, relative to the root of the Git repository, or `nothing` if the
-file is not in a Git repository.
-"""
-function relpath_from_repo_root(file)
-    isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
-    cd(dirname(file)) do
-        root = repo_root(file)
-        root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
-    end
-end
-
-function repo_commit(file)
-    isfile(file) || error("repo_commit called with nonexistent file: $file")
-    cd(dirname(file)) do
+function repo_commit(path)
+    ispath(path) || error("repo_commit called with nonexistent path: $path")
+    dir = isdir(path) ? path : dirname(path)
+    cd(dir) do
         readchomp(`$(git()) rev-parse HEAD`)
-    end
-end
-
-function edit_url(repo, file; commit=nothing)
-    file = abspath(file)
-    if !isfile(file)
-        @warn "couldn't find file \"$file\" when generating URL"
-        return nothing
-    end
-    file = realpath(file)
-    isnothing(repo) && (repo = getremote(dirname(file)))
-    isnothing(commit) && (commit = repo_commit(file))
-    path = relpath_from_repo_root(file)
-    isnothing(path) || isnothing(repo) ? nothing : repofile(repo, commit, path)
-end
-
-source_url(repo, doc) = source_url(repo, doc.data[:module], doc.data[:path], linerange(doc))
-
-function source_url(repo, mod, file, linerange)
-    file === nothing && return nothing # needed on julia v0.6, see #689
-    remote = getremote(dirname(file))
-    isabspath(file) && isnothing(remote) && isnothing(repo) && return nothing
-
-    # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
-    if isfile(file)
-        file = realpath(abspath(file))
-    end
-
-    # Macro-generated methods such as those produced by `@deprecate` list their file as
-    # `deprecated.jl` since that is where the macro is defined. Use that to help
-    # determine the correct URL.
-    if inbase(mod) || !isabspath(file)
-        ref = if isempty(Base.GIT_VERSION_INFO.commit)
-            "v$VERSION"
-        else
-            Base.GIT_VERSION_INFO.commit
-        end
-        repofile(julia_remote, ref, "base/$file", linerange)
-    elseif isfile(file)
-        path = relpath_from_repo_root(file)
-        # If we managed to determine a remote for the current file with getremote,
-        # then we use that information instead of the user-provided repo (doc.user.remote)
-        # argument to generate source links. This means that in the case where some
-        # docstrings come from another repository (like the DocumenterTools doc dependency
-        # for Documenter), then we generate the correct links, since we actually user the
-        # remote determined from the Git repository.
-        #
-        # In principle, this prevents the user from overriding the remote for the main
-        # repository if the repo is cloned from GitHub (e.g. when you clone from a fork, but
-        # want the source links to point to the upstream repository; however, this feels
-        # like a very unlikely edge case). If the repository is cloned from somewhere else
-        # than GitHub, then everything is fine --- getremote will fail and remote is
-        # `nothing`, in which case we fall back to using `repo`.
-        isnothing(remote) && (remote = repo)
-        if isnothing(path) || isnothing(remote)
-            return nothing
-        end
-        repofile(remote, repo_commit(file), path, linerange)
-    else
-        return nothing
     end
 end
 
