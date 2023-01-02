@@ -507,9 +507,9 @@ function source_url(doc::Document, mod, file, linerange)
     # We want to expand the path properly, including symlinks.
     file = realpath(file) # note: realpath throws for non-existing files, but we just checked for it
     # We try to...
-    remote, relpath = relpath_from_remote_root(doc, file)
+    remote, relpath, commit = relpath_from_remote_root(doc, file)
     isnothing(relpath) || isnothing(remote) && return nothing
-    return repofile(remote, repo_commit(file), relpath, linerange)
+    return repofile(remote, commit, relpath, linerange)
 end
 
 """
