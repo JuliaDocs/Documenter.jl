@@ -44,7 +44,6 @@ julia> include_string(Main, code)
 ERROR: LoadError: UndefVarError: s not defined
 Stacktrace:
  [1] top-level scope at ./string:3
- [2] include_string(::Module, ::String, ::String) at ./loading.jl:1080
 [...]
 ```
 

@@ -621,6 +621,20 @@ end
             end
         end
     end
+
+    using Documenter: remove_common_backtrace
+    @testset "remove_common_backtrace" begin
+        @test remove_common_backtrace([], []) == []
+        @test remove_common_backtrace([1], []) == [1]
+        @test remove_common_backtrace([1,2], []) == [1,2]
+        @test remove_common_backtrace([1,2,3], [1]) == [1,2,3]
+        @test remove_common_backtrace([1,2,3], [2]) == [1,2,3]
+        @test remove_common_backtrace([1,2,3], [3]) == [1,2]
+        @test remove_common_backtrace([1,2,3], [2,3]) == [1]
+        @test remove_common_backtrace([1,2,3], [1,3]) == [1,2]
+        @test remove_common_backtrace([1,2,3], [1,2,3]) == []
+        @test remove_common_backtrace([1,2,3], [0,1,2,3]) == []
+    end
 end
 
 end
