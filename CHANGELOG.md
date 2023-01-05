@@ -32,6 +32,7 @@
 * ![Enhancement][badge-enhancement] Code blocks like `@example` or `@repl` are now also expanded in nested contexts (e.g. admonitions, lists or block quotes). ([#491][github-491], [#1970][github-1970])
 * ![Enhancement][badge-enhancement] The new `pagesonly` keyword to `makedocs` can be used to restrict builds to just the Markdown files listed in `pages` (as opposed to all `.md` files under `src/`). ([#1980][github-1980])
 * ![Enhancement][badge-enhancement] Search engine and social media link previews are now supported, with Documenter generating the relevant HTML `meta` tags. ([#1321][github-1321], [#1991][github-1991])
+* ![Enhancement][badge-enhancement] `deploydocs` now supports custom tag prefixes; see section "Deploying from a monorepo" in the docs. ([#1291][github-1291], [#1792][github-1792], [#1993][github-1993])
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
@@ -952,6 +953,7 @@
 [github-1280]: https://github.com/JuliaDocs/Documenter.jl/pull/1280
 [github-1283]: https://github.com/JuliaDocs/Documenter.jl/pull/1283
 [github-1285]: https://github.com/JuliaDocs/Documenter.jl/pull/1285
+[github-1291]: https://github.com/JuliaDocs/Documenter.jl/issues/1291
 [github-1292]: https://github.com/JuliaDocs/Documenter.jl/pull/1292
 [github-1293]: https://github.com/JuliaDocs/Documenter.jl/pull/1293
 [github-1295]: https://github.com/JuliaDocs/Documenter.jl/pull/1295
@@ -1109,6 +1111,7 @@
 [github-1784]: https://github.com/JuliaDocs/Documenter.jl/pull/1784
 [github-1785]: https://github.com/JuliaDocs/Documenter.jl/pull/1785
 [github-1788]: https://github.com/JuliaDocs/Documenter.jl/pull/1788
+[github-1792]: https://github.com/JuliaDocs/Documenter.jl/issues/1792
 [github-1795]: https://github.com/JuliaDocs/Documenter.jl/pull/1795
 [github-1796]: https://github.com/JuliaDocs/Documenter.jl/pull/1796
 [github-1797]: https://github.com/JuliaDocs/Documenter.jl/pull/1797
@@ -1179,6 +1182,7 @@
 [github-1980]: https://github.com/JuliaDocs/Documenter.jl/pull/1980
 [github-1989]: https://github.com/JuliaDocs/Documenter.jl/pull/1989
 [github-1991]: https://github.com/JuliaDocs/Documenter.jl/pull/1991
+[github-1993]: https://github.com/JuliaDocs/Documenter.jl/pull/1993
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
