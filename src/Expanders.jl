@@ -277,7 +277,9 @@ function Selectors.runner(::Type{TrackHeaders}, node, page, doc)
             # the tree.
             link_node = first(node.children)
             MarkdownAST.unlink!(link_node)
-            append!(node.children, link_node.children)
+            for child in collect(link_node.children)
+                push!(node.children, child)
+            end
             match(NAMEDHEADER_REGEX, link_node.element.destination)[1]
         else
             # TODO: remove this hack (replace with mdflatten?)

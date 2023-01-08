@@ -14,3 +14,5 @@ Named x-refs:
 ## X-ref target
 
 ## [X-ref target with id](@id xreftarget)
+
+## [x-ref with `@code` block](@id xrefcodeblock)
