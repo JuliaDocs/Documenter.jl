@@ -442,7 +442,7 @@ function git_push(
 end
 
 function rm_and_add_symlink(target, link)
-    if ispath(link)
+    if ispath(link) || islink(link)
         @warn "removing `$(link)` and linking `$(link)` to `$(target)`."
         rm(link; force = true, recursive = true)
     end
