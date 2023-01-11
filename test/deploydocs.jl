@@ -1,13 +1,14 @@
 using Documenter: Documenter, deploydocs, git
 using Test
-include("TestUtilities.jl"); using Main.TestUtilities
+include("TestUtilities.jl");
+using Main.TestUtilities;
 
 struct TestDeployConfig <: Documenter.DeployConfig
-    repo_path :: String
-    subfolder :: String
+    repo_path::String
+    subfolder::String
 end
 function Documenter.deploy_folder(c::TestDeployConfig; branch, repo, kwargs...)
-    Documenter.DeployDecision(; all_ok = true, subfolder = c.subfolder, branch, repo)
+    Documenter.DeployDecision(; all_ok=true, subfolder=c.subfolder, branch, repo)
 end
 Documenter.authentication_method(::TestDeployConfig) = Documenter.HTTPS
 Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
@@ -23,40 +24,40 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             write("build/page.html", "...")
             # Create gh-pages and deploy dev/
             @quietly deploydocs(
-                root = pwd(),
-                deploy_config = TestDeployConfig(full_repo_path, "dev"),
-                repo = full_repo_path,
-                devbranch = "master",
+                root=pwd(),
+                deploy_config=TestDeployConfig(full_repo_path, "dev"),
+                repo=full_repo_path,
+                devbranch="master",
             )
             # Deploy 1.0.0 tag
             @quietly deploydocs(
-                root = pwd(),
-                deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
-                repo = full_repo_path,
-                devbranch = "master",
+                root=pwd(),
+                deploy_config=TestDeployConfig(full_repo_path, "1.0.0"),
+                repo=full_repo_path,
+                devbranch="master",
             )
             # Deploy 1.1.0 tag
             @quietly deploydocs(
-                root = pwd(),
-                deploy_config = TestDeployConfig(full_repo_path, "1.1.0"),
-                repo = full_repo_path,
-                devbranch = "master",
+                root=pwd(),
+                deploy_config=TestDeployConfig(full_repo_path, "1.1.0"),
+                repo=full_repo_path,
+                devbranch="master",
             )
             # Deploy 2.0.0 tag, but into an archive (so nothing pushed to gh-pages)
             @quietly deploydocs(
-                root = pwd(),
-                deploy_config = TestDeployConfig(full_repo_path, "2.0.0"),
-                repo = full_repo_path,
-                devbranch = "master",
-                archive = joinpath(pwd(), "ghpages.tar.gz"),
+                root=pwd(),
+                deploy_config=TestDeployConfig(full_repo_path, "2.0.0"),
+                repo=full_repo_path,
+                devbranch="master",
+                archive=joinpath(pwd(), "ghpages.tar.gz"),
             )
             # Deploy 3.0.0 tag with a tag_prefix---which does not change deployment behavior
             @quietly deploydocs(;
-                root = pwd(),
-                deploy_config = TestDeployConfig(full_repo_path, "3.0"),
-                repo = full_repo_path,
-                devbranch = "master",
-                tag_prefix = "MySubPackage-",
+                root=pwd(),
+                deploy_config=TestDeployConfig(full_repo_path, "3.0"),
+                repo=full_repo_path,
+                devbranch="master",
+                tag_prefix="MySubPackage-"
             )
             # Check what we have in gh-pages now:
             run(`$(git()) clone -q -b gh-pages $(full_repo_path) worktree`)
@@ -78,11 +79,11 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             @test islink(joinpath("worktree", "v3"))
             @test islink(joinpath("worktree", "v3.0"))
             @test islink(joinpath("worktree", "v3.0.0"))
-           
+
             # key_prefix does not affect/is not present in worktree directories
-            @test issetequal([".git", "1.0.0", "1.1.0", "3.0", "dev", "index.html", 
-                              "stable", "v1", "v1.0", "v1.0.0", "v1.1", "v1.1.0", 
-                              "v3", "v3.0", "v3.0.0", "versions.js"], readdir("worktree"))
+            @test issetequal([".git", "1.0.0", "1.1.0", "3.0", "dev", "index.html",
+                    "stable", "v1", "v1.0", "v1.0.0", "v1.1", "v1.1.0",
+                    "v3", "v3.0", "v3.0.0", "versions.js"], readdir("worktree"))
         end
     end
 end
@@ -101,27 +102,27 @@ end
             subpackage_doc_dir = joinpath("PackageA.jl", "docs", "build")
             mkpath(joinpath("PackageA.jl", "docs", "build"))
             write(joinpath(subpackage_doc_dir, "page.html"), "...")
-            
+
             # Use different versions for each set of docs to make it easier to see 
             # where the version has been deplyed.
             # Deploy 1.0.0 tag - top level repo
             @quietly deploydocs(
-                root = pwd(),
-                deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
-                repo = full_repo_path,
-                devbranch = "master",
+                root=pwd(),
+                deploy_config=TestDeployConfig(full_repo_path, "1.0.0"),
+                repo=full_repo_path,
+                devbranch="master",
             )
             # Deploy 2.0.0 tag - subpackage
             # Note: setting the `tag_prefix here is not actually necessary or used 
             # BECAUSE we're using a TestDeployConfig, but we're setting it here 
             # anyway so that this example can be used to model true implementation.
             @quietly deploydocs(
-                root = pwd(),
-                deploy_config = TestDeployConfig(full_repo_path, "2.0.0"),
-                repo = full_repo_path,
-                devbranch = "master",
+                root=pwd(),
+                deploy_config=TestDeployConfig(full_repo_path, "2.0.0"),
+                repo=full_repo_path,
+                devbranch="master",
                 dirname="PackageA.jl",
-                tag_prefix="PackageA-", 
+                tag_prefix="PackageA-",
             )
 
             # Check what we have in worktree:
@@ -136,14 +137,14 @@ end
             @test isfile(joinpath("worktree", "index.html"))
             @test isfile(joinpath("worktree", "versions.js"))
             @test isfile(joinpath("worktree", "PackageA.jl", "index.html"))
-            @test isfile(joinpath("worktree",  "PackageA.jl", "versions.js"))
-            
+            @test isfile(joinpath("worktree", "PackageA.jl", "versions.js"))
+
             # ...and check that (because only one release per package) the versions 
             # are identical except for the (intentional) version number
             top_versions = readlines(joinpath("worktree", "versions.js"))
-            subpackage_versions = readlines(joinpath("worktree",  "PackageA.jl", "versions.js"))
+            subpackage_versions = readlines(joinpath("worktree", "PackageA.jl", "versions.js"))
             for (i, (t_line, s_line)) in enumerate(zip(top_versions, subpackage_versions))
-                if i in [3, 5] 
+                if i in [3, 5]
                     @test contains(s_line, "2.0")
                     @test isequal(t_line, replace(s_line, "2.0" => "1.0"))
                 else

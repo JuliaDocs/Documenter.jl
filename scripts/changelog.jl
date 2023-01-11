@@ -44,13 +44,13 @@ function children(n::CommonMark.Node)
     return nodes
 end
 
-function fetch_github_issues(; minratelimit = 30, auth_token = nothing, issues_list_cache = Ref{Vector{Issue}}())
+function fetch_github_issues(; minratelimit=30, auth_token=nothing, issues_list_cache=Ref{Vector{Issue}}())
     if isassigned(issues_list_cache)
         @debug "Using cached issues list" length(issues_list_cache[])
     else
         auth = isnothing(auth_token) ? GitHub.AnonymousAuth() : authenticate(auth_token)
 
-        ratelimit = rate_limit(auth = auth)
+        ratelimit = rate_limit(auth=auth)
         if ratelimit["rate"]["remaining"] < minratelimit
             reset = unix2datetime(ratelimit["rate"]["reset"])
             @warn """
@@ -65,8 +65,8 @@ function fetch_github_issues(; minratelimit = 30, auth_token = nothing, issues_l
         @debug "rate_limit" ratelimit["rate"]["remaining"] reset = unix2datetime(ratelimit["rate"]["reset"]) rate_limit = ratelimit
         issues_list_cache[], _ = issues(
             "JuliaDocs/Documenter.jl",
-            auth = auth,
-            params = Dict(:state => "all", :per_page => 100)
+            auth=auth,
+            params=Dict(:state => "all", :per_page => 100)
         )
     end
     issues_dict = Dict(issue.number => issue for issue in issues_list_cache[])
@@ -86,11 +86,11 @@ function parse_changelog_into_ast(io::IO)
     if !isempty(bad_reflabels)
         # If we found any bad reference labels, we'll add them to the .refmap manually
         # and re-parse the CHANGELOG file
-        refmap = Dict{String, Tuple{String, String}}(
+        refmap = Dict{String,Tuple{String,String}}(
             reflabel => ("#MISSING#", "")
             for reflabel in bad_reflabels
         )
-        return p(changelog, refmap = refmap)
+        return p(changelog, refmap=refmap)
     else
         return ast
     end
@@ -147,7 +147,7 @@ function parse_documenter_linktext(node::CommonMark.Node)
     cs[1].t isa CommonMark.Text || return
     m = match(r"^#([0-9]+)$", cs[1].literal)
     isnothing(m) && return
-    return (number = parse(Int, m[1]), text = cs[1].literal, node = node)
+    return (number=parse(Int, m[1]), text=cs[1].literal, node=node)
 end
 
 function check_reflinks(ast::CommonMark.Node)
@@ -188,13 +188,13 @@ end
 function parse_documenter_url(destination)
     m = match(r"^https://github.com/JuliaDocs/Documenter.jl/(pull|issues)/([0-9]+)$", destination)
     isnothing(m) && return
-    (type = m[1], number = parse(Int, m[2]), url = destination)
+    (type=m[1], number=parse(Int, m[2]), url=destination)
 end
 
 """
 Make sure that all `github-NNN` link reference definitions point to Documenter.
 """
-function check_linkrefs_github_url(ast::CommonMark.Node; ghissues::Union{Dict{Int,Issue},Nothing} = nothing)
+function check_linkrefs_github_url(ast::CommonMark.Node; ghissues::Union{Dict{Int,Issue},Nothing}=nothing)
     badlinks = String[]
     for link in findnodes(CommonMark.LinkReferenceDefinition, ast)
         # Only keep labels that are in the 'github-NNN' format
@@ -255,19 +255,19 @@ function find_github_links(ast::CommonMark.Node)
         m = match(r"^github-([0-9]+)$", node.t.label)
         isnothing(m) && continue
         push!(links, (
-            label = node.t.label,
-            number = parse(Int, m[1]),
-            node = node,
+            label=node.t.label,
+            number=parse(Int, m[1]),
+            node=node,
         ))
     end
     for node in findnodes(CommonMark.LinkReferenceDefinition, ast)
         m = match(r"^github-([0-9]+)$", node.t.label)
         isnothing(m) && continue
         push!(linkdefs, (
-            label = node.t.label,
-            url = node.t.destination,
-            number = parse(Int, m[1]),
-            node = node,
+            label=node.t.label,
+            url=node.t.destination,
+            number=parse(Int, m[1]),
+            node=node,
         ))
     end
     return (; links, linkdefs)
@@ -301,7 +301,7 @@ function check_missing_links(ast)
     return false
 end
 
-function fix_changelog_issue_list(filename; ofile=filename, ghissues::Union{Dict{Int,Issue},Nothing} = nothing)
+function fix_changelog_issue_list(filename; ofile=filename, ghissues::Union{Dict{Int,Issue},Nothing}=nothing)
     # Find the link definition list in the CHANGELOG
     changelog = readlines(filename)
     linkdef_start = findfirst(contains(ISSUE_LIST_START), changelog)
@@ -372,7 +372,7 @@ end
 
 github_issues_list = @interactive if "--github" in ARGS
     @info "Attempting to fetch issue list from GitHub..."
-    issues = fetch_github_issues(auth_token = get(ENV, "GITHUB_TOKEN", nothing))
+    issues = fetch_github_issues(auth_token=get(ENV, "GITHUB_TOKEN", nothing))
     isnothing(issues) || @info "... fetched information on $(length(issues)) issues."
     issues
 end
@@ -389,7 +389,7 @@ end
     noerrors = noerrors & check_reflinks(ast)
     noerrors = noerrors & check_links_not_absolute(ast)
     noerrors = noerrors & check_linkrefs_not_absolute(ast)
-    noerrors = noerrors & check_linkrefs_github_url(ast; ghissues = github_issues_list)
+    noerrors = noerrors & check_linkrefs_github_url(ast; ghissues=github_issues_list)
     noerrors = noerrors & check_missing_links(ast)
     if noerrors
         @info "No errors detected in CHANGELOG.md"
@@ -401,7 +401,7 @@ end
 @interactive if run_mode(ARGS) === :fix
     @info "Updating CHANGELOG.md. This will overwrite the file."
     @assert check_issue_list_delimiters(CHANGELOG)
-    fix_changelog_issue_list(CHANGELOG, ghissues = github_issues_list)
+    fix_changelog_issue_list(CHANGELOG, ghissues=github_issues_list)
 end
 
 # Run with MD string
@@ -446,43 +446,64 @@ rwmds(f, mds::AbstractString) = f(parse_changelog_into_ast(IOBuffer(mds)))
             @test rwmds(check_reflinks, "")
             @test rwmds(check_reflinks, valid_example)
             @test @test_logs (:error,) rwmds(check_reflinks, invalid_example) === false
-            @test rwmds(check_reflinks, """
-            Reference link: [#1234][github-1234]
+            @test rwmds(
+                check_reflinks,
+                """
+Reference link: [#1234][github-1234]
 
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """)
-            @test @test_logs (:error,) rwmds(check_reflinks, """
-            Bad reference link label: [#1234][githb-1234]
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            )
+            @test @test_logs (:error,) rwmds(
+                check_reflinks,
+                """
+Bad reference link label: [#1234][githb-1234]
 
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """) === false
-            @test @test_logs (:error,) rwmds(check_reflinks, """
-            Mismatching issue numbers: [#4321][github-1234]
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            ) === false
+            @test @test_logs (:error,) rwmds(
+                check_reflinks,
+                """
+Mismatching issue numbers: [#4321][github-1234]
 
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """) === false
-            @test @test_logs (:error,) rwmds(check_reflinks, """
-            Link label not '#NNNN': [1234][github-1234]
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            ) === false
+            @test @test_logs (:error,) rwmds(
+                check_reflinks,
+                """
+Link label not '#NNNN': [1234][github-1234]
 
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """) === false
-            @test @test_logs (:error,) rwmds(check_reflinks, """
-            Link label not '#NNNN': [foobar][github-1234]
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            ) === false
+            @test @test_logs (:error,) rwmds(
+                check_reflinks,
+                """
+Link label not '#NNNN': [foobar][github-1234]
 
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """) === false
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            ) === false
         end
 
         @testset "check_links_not_absolute()" begin
             @test rwmds(check_links_not_absolute, "")
             @test rwmds(check_links_not_absolute, valid_example)
             @test @test_logs (:error,) rwmds(check_links_not_absolute, invalid_example) === false
-            @test @test_logs (:error,) rwmds(check_links_not_absolute, """
-            Non-absolute URL: [foobar](github-1234).
-            """) === false
-            @test rwmds(check_links_not_absolute, """
-            Absolute URL: [foobar](https://example.org/).
-            """)
+            @test @test_logs (:error,) rwmds(
+                check_links_not_absolute,
+                """
+Non-absolute URL: [foobar](github-1234).
+"""
+            ) === false
+            @test rwmds(
+                check_links_not_absolute,
+                """
+Absolute URL: [foobar](https://example.org/).
+"""
+            )
         end
 
         @testset "check_linkrefs_not_absolute()" begin
@@ -495,33 +516,51 @@ rwmds(f, mds::AbstractString) = f(parse_changelog_into_ast(IOBuffer(mds)))
             @test rwmds(check_linkrefs_github_url, "")
             @test rwmds(check_linkrefs_github_url, valid_example)
             @test @test_logs (:error,) rwmds(check_linkrefs_github_url, invalid_example) === false
-            @test @test_logs (:error,) rwmds(check_linkrefs_github_url, """
-            [github-1234]: https://githb.com/JuliaDocs/Documenter.jl/issues/1234
-            """) === false
-            @test @test_logs (:error,) rwmds(check_linkrefs_github_url, """
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1235
-            """) === false
-            @test rwmds(check_linkrefs_github_url, """
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """)
+            @test @test_logs (:error,) rwmds(
+                check_linkrefs_github_url,
+                """
+[github-1234]: https://githb.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            ) === false
+            @test @test_logs (:error,) rwmds(
+                check_linkrefs_github_url,
+                """
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1235
+"""
+            ) === false
+            @test rwmds(
+                check_linkrefs_github_url,
+                """
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            )
         end
 
         @testset "check_missing_links()" begin
             @test rwmds(check_missing_links, "")
             @test rwmds(check_missing_links, valid_example)
             @test @test_logs (:error,) rwmds(check_missing_links, invalid_example) === false
-            @test @test_logs (:error,) rwmds(check_missing_links, """
-            [#1234][github-1234]
+            @test @test_logs (:error,) rwmds(
+                check_missing_links,
+                """
+[#1234][github-1234]
 
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """) === false
-            @test @test_logs (:error,)  rwmds(check_missing_links, """
-            [#1234][github-1234]
-            """) === false
-            @test @test_logs (:error,)  rwmds(check_missing_links, """
-            [github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
-            """) === false
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            ) === false
+            @test @test_logs (:error,) rwmds(
+                check_missing_links,
+                """
+[#1234][github-1234]
+"""
+            ) === false
+            @test @test_logs (:error,) rwmds(
+                check_missing_links,
+                """
+[github-1234]: https://github.com/JuliaDocs/Documenter.jl/issues/1234
+"""
+            ) === false
         end
     end
 end

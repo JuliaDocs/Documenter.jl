@@ -33,7 +33,7 @@ import Documenter.DOM: DOM, @tags, HTMLDocument
     @test length(div[".class"]("...").attributes) === 1
     @test div[".class"]("...").attributes[1] == (:class => "class")
     @test div[:attribute].attributes[1] == (:attribute => "")
-    @test div[:attribute => "value"].attributes[1] == (:attribute => "value")
+    @test div[:attribute=>"value"].attributes[1] == (:attribute => "value")
 
     let d = div(ul(map(li, [string(n) for n = 1:10])))
         @test d.name === :div
@@ -63,13 +63,13 @@ import Documenter.DOM: DOM, @tags, HTMLDocument
     @tags script style img
 
     @test string(div(p("one"), p("two"))) == "<div><p>one</p><p>two</p></div>"
-    @test string(div[:key => "value"])    == "<div key=\"value\"></div>"
-    @test string(p(" < > & ' \" "))       == "<p> &lt; &gt; &amp; &#39; &quot; </p>"
-    @test string(img[:src => "source"])   == "<img src=\"source\"/>"
-    @test string(img[:none])              == "<img none/>"
-    @test string(script(" < > & ' \" "))  == "<script> < > & ' \" </script>"
-    @test string(style(" < > & ' \" "))   == "<style> < > & ' \" </style>"
-    @test string(script)                  == "<script>"
+    @test string(div[:key=>"value"]) == "<div key=\"value\"></div>"
+    @test string(p(" < > & ' \" ")) == "<p> &lt; &gt; &amp; &#39; &quot; </p>"
+    @test string(img[:src=>"source"]) == "<img src=\"source\"/>"
+    @test string(img[:none]) == "<img none/>"
+    @test string(script(" < > & ' \" ")) == "<script> < > & ' \" </script>"
+    @test string(style(" < > & ' \" ")) == "<style> < > & ' \" </style>"
+    @test string(script) == "<script>"
 
     function locally_defined()
         @tags button

@@ -142,7 +142,7 @@ Selectors.matcher(::Type{Debug}, x) = true
 Selectors.runner(::Type{Debug}, x) = @show x
 ```
 """
-strict(::Type{T}) where {T <: AbstractSelector} = true
+strict(::Type{T}) where {T<:AbstractSelector} = true
 
 """
 Disable a particular case in a selector so that it is never used.
@@ -151,7 +151,7 @@ Disable a particular case in a selector so that it is never used.
 Selectors.disable(::Type{Debug}) = true
 ```
 """
-disable(::Type{T}) where {T <: AbstractSelector} = false
+disable(::Type{T}) where {T<:AbstractSelector} = false
 
 """
 Call `Selectors.runner(T, args...)` where `T` is a subtype of
@@ -161,9 +161,9 @@ Call `Selectors.runner(T, args...)` where `T` is a subtype of
 Selectors.dispatch(MySelector, args...)
 ```
 """
-function dispatch(::Type{T}, x...) where T <: AbstractSelector
+function dispatch(::Type{T}, x...) where T<:AbstractSelector
     types = get!(selector_subtypes, T) do
-        sort(leaf_subtypes(T); by = order)
+        sort(leaf_subtypes(T); by=order)
     end
     for t in types
         if !disable(t) && matcher(t, x...)

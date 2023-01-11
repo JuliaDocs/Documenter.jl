@@ -32,7 +32,7 @@ function __init__()
 end
 
 struct QuietlyException <: Exception
-    logid :: Union{String,Nothing}
+    logid::Union{String,Nothing}
     exception
     backtrace
 end
@@ -44,7 +44,7 @@ function Base.showerror(io::IO, e::QuietlyException)
 end
 
 function _quietly(f, expr, source)
-    c = IOCapture.capture(f; rethrow = InterruptException)
+    c = IOCapture.capture(f; rethrow=InterruptException)
     logid, logfile = quietly_next_log()
     isnothing(logid) || open(logfile; write=true, append=true) do io
         println(io, "@quietly: c.error = $(c.error) / $(sizeof(c.output)) bytes of output captured")
@@ -114,7 +114,7 @@ end
 
 function trun(cmd::Base.AbstractCmd)
     buffer = IOBuffer()
-    cmd_redirected = pipeline(cmd; stdin = devnull, stdout = buffer, stderr = buffer)
+    cmd_redirected = pipeline(cmd; stdin=devnull, stdout=buffer, stderr=buffer)
     try
         run(cmd_redirected)
         return true

@@ -8,12 +8,12 @@ const pages = [
 ]
 
 @info "Building builds/default"
-makedocs(sitename="Test", pages = pages, build="builds/default")
+makedocs(sitename="Test", pages=pages, build="builds/default")
 
 @info "Building builds/absolute"
 mkdir(joinpath(@__DIR__, "builds/absolute-workdir"))
-makedocs(sitename="Test", pages = pages, build="builds/absolute", workdir=joinpath(@__DIR__, "builds/absolute-workdir"))
+makedocs(sitename="Test", pages=pages, build="builds/absolute", workdir=joinpath(@__DIR__, "builds/absolute-workdir"))
 
 @info "Building builds/relative"
 mkdir(joinpath(@__DIR__, "builds/relative-workdir"))
-makedocs(sitename="Test", pages = pages, build="builds/relative", workdir="builds/relative-workdir")
+makedocs(sitename="Test", pages=pages, build="builds/relative", workdir="builds/relative-workdir")

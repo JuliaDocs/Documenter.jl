@@ -135,7 +135,7 @@ Use [`@tags`](@ref) to define instances of this type rather than manually
 creating them via `Tag(:tagname)`.
 """
 struct Tag
-    name :: Symbol
+    name::Symbol
 end
 
 Base.show(io::IO, t::Tag) = print(io, "<", t.name, ">")
@@ -161,10 +161,12 @@ function template(args...)
 end
 ```
 """
-macro tags(args...) esc(tags(args)) end
+macro tags(args...)
+    esc(tags(args))
+end
 tags(s) = :(($(s...),) = $(map(Tag, s)))
 
-const Attributes = Vector{Pair{Symbol, String}}
+const Attributes = Vector{Pair{Symbol,String}}
 
 """
 Represents an element within an HTML document including any textual content,
@@ -174,10 +176,10 @@ This type should not be constructed directly, but instead via `(...)` and
 `[...]` applied to a [`Tag`](@ref) or another [`Node`](@ref) object.
 """
 struct Node
-    name :: Symbol
-    text :: String
-    attributes :: Attributes
-    nodes :: Vector{Node}
+    name::Symbol
+    text::String
+    attributes::Attributes
+    nodes::Vector{Node}
 
     Node(name::Symbol, attr::Attributes, data::Vector{Node}) = new(name, EMPTY_STRING, attr, data)
     Node(text::AbstractString) = new(TEXT, text)
@@ -200,7 +202,7 @@ attr(args) = flatten!(attributes!, Attributes(), args)
 #
 # Types that must not be flattened when constructing a `Node`'s child vector.
 #
-const Atom = Union{AbstractString, Node, Pair, Symbol}
+const Atom = Union{AbstractString,Node,Pair,Symbol}
 
 """
 # Signatures
@@ -214,13 +216,15 @@ Flatten the contents the third argument into the second after applying the
 function `f!` to the element.
 """
 flatten!(f!, out, x::Atom) = f!(out, x)
-flatten!(f!, out, xs)      = (for x in xs; flatten!(f!, out, x); end; out)
+flatten!(f!, out, xs) = (for x in xs
+    flatten!(f!, out, x)
+end; out)
 
 #
 # Helper methods for handling flattening children elements in `Node` construction.
 #
 nodes!(out, s::AbstractString) = push!(out, Node(s))
-nodes!(out, n::Node)           = push!(out, n)
+nodes!(out, n::Node) = push!(out, n)
 
 #
 # Helper methods for handling flattening in construction of attribute vectors.
@@ -231,11 +235,11 @@ function attributes!(out, s::AbstractString)
         print(startswith(x.match, '.') ? class : id, x.captures[1], ' ')
     end
     position(class) === 0 || push!(out, tostr(:class => rstrip(String(take!(class)))))
-    position(id)    === 0 || push!(out, tostr(:id    => rstrip(String(take!(id)))))
+    position(id) === 0 || push!(out, tostr(:id => rstrip(String(take!(id)))))
     return out
 end
 attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
-attributes!(out, p::Pair)   = push!(out, tostr(p))
+attributes!(out, p::Pair) = push!(out, tostr(p))
 
 function Base.show(io::IO, n::Node)
     if n.name === Symbol("#RAW#")
@@ -283,11 +287,11 @@ function escapehtml(text::AbstractString)
     if occursin(r"[<>&'\"]", text)
         buffer = IOBuffer()
         for char in text
-            char === '<'  ? write(buffer, "&lt;")   :
-            char === '>'  ? write(buffer, "&gt;")   :
-            char === '&'  ? write(buffer, "&amp;")  :
-            char === '\'' ? write(buffer, "&#39;")  :
-            char === '"'  ? write(buffer, "&quot;") : write(buffer, char)
+            char === '<' ? write(buffer, "&lt;") :
+            char === '>' ? write(buffer, "&gt;") :
+            char === '&' ? write(buffer, "&amp;") :
+            char === '\'' ? write(buffer, "&#39;") :
+            char === '"' ? write(buffer, "&quot;") : write(buffer, char)
         end
         String(take!(buffer))
     else
@@ -300,8 +304,8 @@ A HTML node that wraps around the root node of the document and adds a DOCTYPE
 to it.
 """
 mutable struct HTMLDocument
-    doctype :: String
-    root    :: Node
+    doctype::String
+    root::Node
 end
 HTMLDocument(root) = HTMLDocument("html", root)
 

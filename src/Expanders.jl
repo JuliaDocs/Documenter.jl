@@ -236,29 +236,29 @@ Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the fin
 """
 abstract type SetupBlocks <: NestedExpanderPipeline end
 
-Selectors.order(::Type{TrackHeaders})   = 1.0
-Selectors.order(::Type{MetaBlocks})     = 2.0
-Selectors.order(::Type{DocsBlocks})     = 3.0
+Selectors.order(::Type{TrackHeaders}) = 1.0
+Selectors.order(::Type{MetaBlocks}) = 2.0
+Selectors.order(::Type{DocsBlocks}) = 3.0
 Selectors.order(::Type{AutoDocsBlocks}) = 4.0
-Selectors.order(::Type{EvalBlocks})     = 5.0
-Selectors.order(::Type{IndexBlocks})    = 6.0
+Selectors.order(::Type{EvalBlocks}) = 5.0
+Selectors.order(::Type{IndexBlocks}) = 6.0
 Selectors.order(::Type{ContentsBlocks}) = 7.0
-Selectors.order(::Type{ExampleBlocks})  = 8.0
-Selectors.order(::Type{REPLBlocks})     = 9.0
-Selectors.order(::Type{SetupBlocks})    = 10.0
-Selectors.order(::Type{RawBlocks})      = 11.0
+Selectors.order(::Type{ExampleBlocks}) = 8.0
+Selectors.order(::Type{REPLBlocks}) = 9.0
+Selectors.order(::Type{SetupBlocks}) = 10.0
+Selectors.order(::Type{RawBlocks}) = 11.0
 
-Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node.element, MarkdownAST.Heading)
-Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
-Selectors.matcher(::Type{DocsBlocks},     node, page, doc) = iscode(node, "@docs")
+Selectors.matcher(::Type{TrackHeaders}, node, page, doc) = isa(node.element, MarkdownAST.Heading)
+Selectors.matcher(::Type{MetaBlocks}, node, page, doc) = iscode(node, "@meta")
+Selectors.matcher(::Type{DocsBlocks}, node, page, doc) = iscode(node, "@docs")
 Selectors.matcher(::Type{AutoDocsBlocks}, node, page, doc) = iscode(node, "@autodocs")
-Selectors.matcher(::Type{EvalBlocks},     node, page, doc) = iscode(node, "@eval")
-Selectors.matcher(::Type{IndexBlocks},    node, page, doc) = iscode(node, "@index")
+Selectors.matcher(::Type{EvalBlocks}, node, page, doc) = iscode(node, "@eval")
+Selectors.matcher(::Type{IndexBlocks}, node, page, doc) = iscode(node, "@index")
 Selectors.matcher(::Type{ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
-Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@example")
-Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
-Selectors.matcher(::Type{SetupBlocks},    node, page, doc) = iscode(node, r"^@setup")
-Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@raw")
+Selectors.matcher(::Type{ExampleBlocks}, node, page, doc) = iscode(node, r"^@example")
+Selectors.matcher(::Type{REPLBlocks}, node, page, doc) = iscode(node, r"^@repl")
+Selectors.matcher(::Type{SetupBlocks}, node, page, doc) = iscode(node, r"^@setup")
+Selectors.matcher(::Type{RawBlocks}, node, page, doc) = iscode(node, r"^@raw")
 
 # Default Expander.
 
@@ -385,7 +385,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         end
 
         # Find the docs matching `binding` and `typesig`. Only search within the provided modules.
-        docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.blueprint.modules)
+        docs = Documenter.DocSystem.getdocs(binding, typesig; modules=doc.blueprint.modules)
 
         # Include only docstrings from user-provided modules if provided.
         if !isempty(doc.blueprint.modules)
@@ -431,7 +431,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
     x = node.element
 
     curmod = get(page.globals.meta, :CurrentModule, Main)
-    fields = Dict{Symbol, Any}()
+    fields = Dict{Symbol,Any}()
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @autodocs block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(x.code, doc, page)
@@ -473,24 +473,24 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
                 catch err
                     isa(err, UndefVarError) || rethrow(err)
                     @docerror(doc, :autodocs_block,
-                    """
-                    @autodocs ($(Documenter.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
-                    ```$(x.info)
-                    $(x.code)
-                    ```
-                    This is likely due to a bug in the Julia docsystem relating to the handling of
-                    docstrings attached to methods of callable objects. See:
+                        """
+                        @autodocs ($(Documenter.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
+                        ```$(x.info)
+                        $(x.code)
+                        ```
+                        This is likely due to a bug in the Julia docsystem relating to the handling of
+                        docstrings attached to methods of callable objects. See:
 
-                      https://github.com/JuliaLang/julia/issues/45174
+                          https://github.com/JuliaLang/julia/issues/45174
 
-                    As a workaround, the docstrings for the functor methods could be included in the docstring
-                    of the type definition. This error can also be ignored by disabling strict checking for
-                    :autodocs_block in the makedocs call with e.g.
+                        As a workaround, the docstrings for the functor methods could be included in the docstring
+                        of the type definition. This error can also be ignored by disabling strict checking for
+                        :autodocs_block in the makedocs call with e.g.
 
-                      strict = Documenter.except(:autodocs_block)
+                          strict = Documenter.except(:autodocs_block)
 
-                    However, the relevant docstrings will then not be included by the @autodocs block.
-                    """, exception = err)
+                        However, the relevant docstrings will then not be included by the @autodocs block.
+                        """, exception = err)
                     continue # skip this docstring
                 end
                 if category in order && included
@@ -525,11 +525,11 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
         comparison = function (a, b)
             local t
             (t = Documenter._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
-            (t = Documenter._compare(pagesmap,  2, a, b)) == 0 || return t < 0 # page
-            (t = Documenter._compare(ordermap,  3, a, b)) == 0 || return t < 0 # category
+            (t = Documenter._compare(pagesmap, 2, a, b)) == 0 || return t < 0 # page
+            (t = Documenter._compare(ordermap, 3, a, b)) == 0 || return t < 0 # category
             string(a[4]) < string(b[4])                                       # name
         end
-        sort!(results; lt = comparison)
+        sort!(results; lt=comparison)
 
         # Finalise docstrings.
         docsnodes = Node[]
@@ -584,12 +584,12 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     lines = Documenter.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
-                                    basename(page.source))
+        basename(page.source))
     @debug "Evaluating @eval block:\n$(x.code)"
     cd(page.workdir) do
         result = nothing
-        for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
-                                              linenumbernode = linenumbernode)
+        for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords=false,
+            linenumbernode=linenumbernode)
             try
                 result = Core.eval(sandbox, ex)
             catch err
@@ -709,10 +709,10 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
             code = x.code
         end
         linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
-                                        basename(page.source))
-        for (ex, str) in Documenter.parseblock(code, doc, page; keywords = false,
-                                              linenumbernode = linenumbernode)
-            c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
+            basename(page.source))
+        for (ex, str) in Documenter.parseblock(code, doc, page; keywords=false,
+            linenumbernode=linenumbernode)
+            c = IOCapture.capture(rethrow=InterruptException, color=ansicolor) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
                 end
@@ -739,10 +739,10 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     end
     # Splice the input and output into the document.
     content = Node[]
-    input   = droplines(x.code)
+    input = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
+    output = Base.invokelatest(Documenter.display_dict, result, context=:color => ansicolor)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
@@ -801,20 +801,20 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
     multicodeblock = MarkdownAST.CodeBlock[]
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
-    for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
-                                          linenumbernode = linenumbernode)
-        input  = droplines(str)
+    for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords=false,
+        linenumbernode=linenumbernode)
+        input = droplines(str)
         # Use the REPL softscope for REPLBlocks,
         # see https://github.com/JuliaLang/julia/pull/33864
         ex = REPL.softscope(ex)
-        c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
+        c = IOCapture.capture(rethrow=InterruptException, color=ansicolor) do
             cd(page.workdir) do
                 Core.eval(mod, ex)
             end
         end
         Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
         result = c.value
-        buf = IOContext(IOBuffer(), :color=>ansicolor)
+        buf = IOContext(IOBuffer(), :color => ansicolor)
         output = if !c.error
             hide = REPL.ends_with_semicolon(input)
             Documenter.DocTests.result_to_string(buf, hide ? nothing : c.value)
@@ -878,7 +878,7 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
             ```$(x.info)
             $(x.code)
             ```
-            """, exception=(err, bt))
+            """, exception = (err, bt))
     end
     node.element = Documenter.SetupNode(x.info, x.code)
 end
@@ -916,9 +916,9 @@ function namedheader(node::Node)
 end
 
 # Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
-function droplines(code; skip = 0)
+function droplines(code; skip=0)
     buffer = IOBuffer()
-    for line in split(code, r"\r?\n")[(skip + 1):end]
+    for line in split(code, r"\r?\n")[(skip+1):end]
         occursin(r"^(.*)#\s*hide$", line) && continue
         println(buffer, rstrip(line))
     end
@@ -926,7 +926,7 @@ function droplines(code; skip = 0)
 end
 
 function prepend_prompt(input)
-    prompt  = "julia> "
+    prompt = "julia> "
     padding = " "^length(prompt)
     out = IOBuffer()
     for (n, line) in enumerate(split(input, '\n'))

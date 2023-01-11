@@ -11,40 +11,40 @@ if haskey(ENV, "DOCSARGS")
 end
 
 makedocs(
-    modules = [Documenter, DocumenterTools, DocumenterShowcase],
-    format = if "pdf" in ARGS
-        Documenter.LaTeX(platform = "docker")
+    modules=[Documenter, DocumenterTools, DocumenterShowcase],
+    format=if "pdf" in ARGS
+        Documenter.LaTeX(platform="docker")
     else
         Documenter.HTML(
             # Use clean URLs, unless built as a "local" build
-            prettyurls = !("local" in ARGS),
-            canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
-            assets = ["assets/favicon.ico"],
-            analytics = "UA-136089579-2",
-            highlights = ["yaml"],
-            ansicolor = true,
+            prettyurls=!("local" in ARGS),
+            canonical="https://juliadocs.github.io/Documenter.jl/stable/",
+            assets=["assets/favicon.ico"],
+            analytics="UA-136089579-2",
+            highlights=["yaml"],
+            ansicolor=true,
         )
     end,
-    build = ("pdf" in ARGS) ? "build-pdf" : "build",
-    debug = ("pdf" in ARGS),
-    clean = false,
-    sitename = "Documenter.jl",
-    authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
-    linkcheck = "linkcheck" in ARGS,
-    linkcheck_ignore = [
+    build=("pdf" in ARGS) ? "build-pdf" : "build",
+    debug=("pdf" in ARGS),
+    clean=false,
+    sitename="Documenter.jl",
+    authors="Michael Hatherly, Morten Piibeleht, and contributors.",
+    linkcheck="linkcheck" in ARGS,
+    linkcheck_ignore=[
         # We'll ignore links that point to GitHub's edit pages, as they redirect to the
         # login screen and cause a warning:
         r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
-    ] ∪ (get(ENV, "GITHUB_ACTIONS", nothing)  == "true" ? [
+    ] ∪ (get(ENV, "GITHUB_ACTIONS", nothing) == "true" ? [
         # Extra ones we ignore only on CI.
         #
         # It seems that CTAN blocks GitHub Actions?
         "https://ctan.org/pkg/minted",
     ] : []),
-    pages = [
+    pages=[
         "Home" => "index.md",
         "Manual" => Any[
-            "Guide" => "man/guide.md",
+            "Guide"=>"man/guide.md",
             "man/examples.md",
             "man/syntax.md",
             "man/doctests.md",
@@ -56,16 +56,16 @@ makedocs(
         ],
         "showcase.md",
         "Library" => Any[
-            "Public" => "lib/public.md",
-            "Internals" => map(
+            "Public"=>"lib/public.md",
+            "Internals"=>map(
                 s -> "lib/internals/$(s)",
                 sort(readdir(joinpath(@__DIR__, "src/lib/internals")))
             ),
         ],
         "contributing.md",
     ],
-    strict = !("strict=false" in ARGS),
-    doctest = ("doctest=only" in ARGS) ? :only : true,
+    strict=!("strict=false" in ARGS),
+    doctest=("doctest=only" in ARGS) ? :only : true,
 )
 
 if "pdf" in ARGS
@@ -75,20 +75,20 @@ if "pdf" in ARGS
         for f in files
             if startswith(f, "Documenter.jl") && endswith(f, ".pdf")
                 mv(joinpath(@__DIR__, "build-pdf", f),
-                joinpath(@__DIR__, "build-pdf", "commit", f))
+                    joinpath(@__DIR__, "build-pdf", "commit", f))
             end
         end
     end
     deploydocs(
-        repo = "github.com/JuliaDocs/Documenter.jl.git",
-        target = "pdf/build-pdf/commit",
-        branch = "gh-pages-pdf",
-        forcepush = true,
+        repo="github.com/JuliaDocs/Documenter.jl.git",
+        target="pdf/build-pdf/commit",
+        branch="gh-pages-pdf",
+        forcepush=true,
     )
 else
     deploydocs(
-        repo = "github.com/JuliaDocs/Documenter.jl.git",
-        target = "build",
-        push_preview = true,
+        repo="github.com/JuliaDocs/Documenter.jl.git",
+        target="build",
+        push_preview=true,
     )
 end

@@ -5,16 +5,16 @@ using Test
 import Documenter: Documenter, Builder, NavNode
 
 mutable struct FakeDocumentBlueprint
-    pages   :: Dict{String, Nothing}
+    pages::Dict{String,Nothing}
     FakeDocumentBlueprint() = new(Dict())
 end
 mutable struct FakeDocumentInternal
-    navlist :: Vector{NavNode}
+    navlist::Vector{NavNode}
     FakeDocumentInternal() = new([])
 end
 mutable struct FakeDocument
-    internal  :: FakeDocumentInternal
-    blueprint :: FakeDocumentBlueprint
+    internal::FakeDocumentInternal
+    blueprint::FakeDocumentBlueprint
     FakeDocument() = new(FakeDocumentInternal(), FakeDocumentBlueprint())
 end
 
@@ -39,7 +39,7 @@ end
     navlist = doc.internal.navlist
 
     @test length(navlist) == 6
-    for (i,navnode) in enumerate(navlist)
+    for (i, navnode) in enumerate(navlist)
         @test navnode.page == "page$i.md"
     end
 

@@ -36,10 +36,13 @@ function missingdocs(doc::Documenter.Document)
             end
         end
         println(b)
-        print(b, """
-        These are docstrings in the checked modules (configured with the modules keyword)
-        that are not included in @docs or @autodocs blocks.
-        """)
+        print(
+            b,
+            """
+   These are docstrings in the checked modules (configured with the modules keyword)
+   that are not included in @docs or @autodocs blocks.
+   """
+        )
         @docerror(doc, :missing_docs, String(take!(b)))
     end
     return n
@@ -57,7 +60,7 @@ function missingbindings(doc::Documenter.Document)
         binding = if Documenter.DocSystem.defined(object.binding) && !Documenter.DocSystem.iskeyword(object.binding)
             m = Documenter.DocSystem.resolve(object.binding)
             isa(m, Module) && nameof(object.binding.mod) != object.binding.var ?
-                Docs.Binding(m, nameof(m)) : object.binding
+            Docs.Binding(m, nameof(m)) : object.binding
         else
             object.binding
         end
@@ -74,14 +77,14 @@ function missingbindings(doc::Documenter.Document)
 end
 
 function allbindings(checkdocs::Symbol, mods)
-    out = Dict{Documenter.Binding, Set{Type}}()
+    out = Dict{Documenter.Binding,Set{Type}}()
     for m in mods
         allbindings(checkdocs, m, out)
     end
     out
 end
 
-function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Documenter.Binding, Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out=Dict{Documenter.Binding,Set{Type}}())
     for (binding, doc) in meta(mod)
         # The keys of the docs meta dictonary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
@@ -123,9 +126,9 @@ function footnotes(doc::Documenter.Document)
     #
     # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
     # footnote references and a single footnote body.
-    footnotes = Dict{Documenter.Page, Dict{String, Tuple{Int, Int}}}()
+    footnotes = Dict{Documenter.Page,Dict{String,Tuple{Int,Int}}}()
     for (src, page) in doc.blueprint.pages
-        orphans = Dict{String, Tuple{Int, Int}}()
+        orphans = Dict{String,Tuple{Int,Int}}()
         for node in AbstractTrees.PreOrderDFS(page.mdast)
             footnote(node.element, orphans)
         end
@@ -164,7 +167,13 @@ footnote(other, orphans::Dict) = true
 # Link Checks.
 # ------------
 
-hascurl() = (try; success(`curl --version`); catch err; false; end)
+hascurl() = (
+    try
+        success(`curl --version`)
+    catch err
+        false
+    end
+)
 
 """
 $(SIGNATURES)
@@ -209,7 +218,7 @@ function linkcheck(node::MarkdownAST.Node, doc::Documenter.Document; method::Sym
         # Mozilla developer docs, but only is it's a HTTP(S) request.
         #
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
-        fakebrowser  = startswith(uppercase(link.destination), "HTTP") ? [
+        fakebrowser = startswith(uppercase(link.destination), "HTTP") ? [
             "--user-agent",
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
             "-H",
@@ -232,10 +241,10 @@ function linkcheck(node::MarkdownAST.Node, doc::Documenter.Document; method::Sym
             status = parse(Int, status)
             scheme = uppercase(scheme)
             protocol = startswith(scheme, "HTTP") ? :HTTP :
-                startswith(scheme, "FTP") ? :FTP : :UNKNOWN
+                       startswith(scheme, "FTP") ? :FTP : :UNKNOWN
 
             if (protocol === :HTTP && (status < 300 || status == 302)) ||
-                (protocol === :FTP && (200 <= status < 300 || status == 350))
+               (protocol === :FTP && (200 <= status < 300 || status == 350))
                 if location !== nothing
                     @debug "linkcheck '$(link.destination)' status: $(status), redirects to '$(location)'"
                 else

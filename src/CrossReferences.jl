@@ -90,7 +90,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
         # so that we wouldn't have to duplicate the @docerror call
         namedxref(node, slug, meta, page, doc)
     else
-        docsxref(node, slug, meta, page, doc; docref = docref)
+        docsxref(node, slug, meta, page, doc; docref=docref)
     end
     return false
 end
@@ -143,8 +143,8 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc)
     if Anchors.exists(headers, slug)
         if Anchors.isunique(headers, slug)
             # Replace the `@ref` url with a path to the referenced header.
-            anchor   = Anchors.anchor(headers, slug)
-            path     = relpath(anchor.file, dirname(page.build))
+            anchor = Anchors.anchor(headers, slug)
+            path = relpath(anchor.file, dirname(page.build))
             node.element.destination = string(path, Anchors.fragment(anchor))
         else
             @docerror(doc, :cross_references, "'$slug' is not unique in $(Documenter.locrepr(page.source)).")
@@ -157,7 +157,7 @@ end
 # Cross referencing docstrings.
 # -----------------------------
 
-function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_docref(code, meta, page))
+function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref=find_docref(code, meta, page))
     @assert node.element isa MarkdownAST.Link
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
@@ -174,8 +174,8 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_d
     if object !== nothing
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
-        path     = relpath(docsnode.page.build, dirname(page.build))
-        slug     = Documenter.slugify(object)
+        path = relpath(docsnode.page.build, dirname(page.build))
+        slug = Documenter.slugify(object)
         node.element.destination = string(path, '#', slug)
     else
         @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
@@ -193,7 +193,7 @@ function find_docref(code, meta, page)
             ex = Meta.parse(code)
         catch err
             isa(err, Meta.ParseError) || rethrow(err)
-            return (error = "unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).", exception = nothing)
+            return (error="unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).", exception=nothing)
         end
     end
     mod = get(meta, :CurrentModule, Main)
@@ -204,8 +204,8 @@ function find_docref(code, meta, page)
         binding = Documenter.DocSystem.binding(mod, ex)
     catch err
         return (
-            error = "unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
-            exception = (err, catch_backtrace()),
+            error="unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception=(err, catch_backtrace()),
         )
         return
     end
@@ -215,13 +215,13 @@ function find_docref(code, meta, page)
         typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         return (
-            error = "unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
-            exception = (err, catch_backtrace()),
+            error="unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception=(err, catch_backtrace()),
         )
         return
     end
 
-    return (binding = binding, typesig = typesig)
+    return (binding=binding, typesig=typesig)
 end
 
 """
@@ -264,7 +264,7 @@ function find_object(binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-function find_object(λ::Union{Function, DataType}, binding, typesig)
+function find_object(λ::Union{Function,DataType}, binding, typesig)
     if hasmethod(λ, typesig)
         signature = getsig(λ, typesig)
         return Documenter.Object(binding, signature)
@@ -272,10 +272,10 @@ function find_object(λ::Union{Function, DataType}, binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-find_object(::Union{Function, DataType}, binding, ::Union{Union,Type{Union{}}}) = Documenter.Object(binding, Union{})
+find_object(::Union{Function,DataType}, binding, ::Union{Union,Type{Union{}}}) = Documenter.Object(binding, Union{})
 find_object(other, binding, typesig) = Documenter.Object(binding, typesig)
 
-getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
+getsig(λ::Union{Function,DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
 
 
 # Issues/PRs cross referencing.

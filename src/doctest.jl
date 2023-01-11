@@ -23,12 +23,12 @@ function doctest(package::Module; manual=true, testset=nothing, kwargs...)
     end
     source = nothing
     if manual === true
-         source = normpath(joinpath(dirname(pathof(package)), "..", "docs", "src"))
-         isdir(source) || throw(ArgumentError("""
-         Package $(package) does not have a documentation source directory at standard location.
-         Searched at: $(source)
-         If ...
-         """))
+        source = normpath(joinpath(dirname(pathof(package)), "..", "docs", "src"))
+        isdir(source) || throw(ArgumentError("""
+        Package $(package) does not have a documentation source directory at standard location.
+        Searched at: $(source)
+        If ...
+        """))
     end
     testset = (testset === nothing) ? "Doctests: $(package)" : testset
     doctest(source, [package]; testset=testset, kwargs...)
@@ -61,12 +61,12 @@ manual pages can be disabled if `source` is set to `nothing`.
     fixing fails.
 """
 function doctest(
-        source::Union{AbstractString,Nothing},
-        modules::AbstractVector{Module};
-        fix = false,
-        testset = "Doctests",
-        doctestfilters = Regex[],
-    )
+    source::Union{AbstractString,Nothing},
+    modules::AbstractVector{Module};
+    fix=false,
+    testset="Doctests",
+    doctestfilters=Regex[]
+)
     function all_doctests()
         dir = mktempdir()
         try
@@ -76,16 +76,16 @@ function doctest(
                 mkdir(source)
             end
             makedocs(
-                root = dir,
-                source = source,
-                sitename = "",
-                doctest = fix ? :fix : :only,
-                modules = modules,
-                doctestfilters = doctestfilters,
+                root=dir,
+                source=source,
+                sitename="",
+                doctest=fix ? :fix : :only,
+                modules=modules,
+                doctestfilters=doctestfilters,
             )
             true
         catch err
-            @error "Doctesting failed" exception=(err, catch_backtrace())
+            @error "Doctesting failed" exception = (err, catch_backtrace())
             false
         finally
             try

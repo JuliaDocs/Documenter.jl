@@ -119,8 +119,8 @@ The single-argument constructor assumes that the user and repository parts are s
 a slash (e.g. `JuliaDocs/Documenter.jl`).
 """
 struct GitHub <: Remote
-    user :: String
-    repo :: String
+    user::String
+    repo::String
 end
 function GitHub(remote::AbstractString)
     user, repo = split(remote, '/')
@@ -170,8 +170,8 @@ However, an explicit [`Remote`](@ref) object is preferred over using a template 
 configuring Documenter.
 """
 struct URL <: Remote
-    urltemplate :: String
-    repourl :: Union{String, Nothing}
+    urltemplate::String
+    repourl::Union{String,Nothing}
     URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl

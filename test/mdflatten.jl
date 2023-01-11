@@ -11,8 +11,12 @@ parse(s) = convert(MarkdownAST.Node, Markdown.parse(s))
 struct UnsupportedElement <: MarkdownAST.AbstractElement end
 
 @testset "MDFlatten" begin
-    @test mdflatten(@ast(MarkdownAST.Paragraph() do; "..."; end)) == "..."
-    @test mdflatten(@ast(MarkdownAST.Heading(1) do; "..."; end)) == "..."
+    @test mdflatten(@ast(MarkdownAST.Paragraph() do
+        "..."
+    end)) == "..."
+    @test mdflatten(@ast(MarkdownAST.Heading(1) do
+        "..."
+    end)) == "..."
 
     # a simple test for blocks in top-level (each gets two newline appended to it)
     @test mdflatten(parse("# Test\nTest")) == "Test\n\nTest\n\n"

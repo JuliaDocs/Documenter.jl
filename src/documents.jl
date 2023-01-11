@@ -12,8 +12,8 @@ abstract type AbstractDocumenterBlock <: MarkdownAST.AbstractBlock end
 [`Page`](@ref)-local values such as current module that are shared between nodes in a page.
 """
 mutable struct Globals
-    mod  :: Module
-    meta :: Dict{Symbol, Any}
+    mod::Module
+    meta::Dict{Symbol,Any}
 end
 Globals() = Globals(Main, Dict())
 
@@ -21,22 +21,22 @@ Globals() = Globals(Main, Dict())
 Represents a single markdown file.
 """
 struct Page
-    source      :: String
-    build       :: String
-    workdir :: Union{Symbol,String}
+    source::String
+    build::String
+    workdir::Union{Symbol,String}
     """
     Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
     should be considered immutable.
     """
-    elements :: Vector
+    elements::Vector
     """
     Each element in `.elements` maps to an "expanded" element. This may be itself if the
     element does not need expanding or some other object, such as a `DocsNode` in the case
     of `@docs` code blocks.
     """
-    mapping  :: IdDict{Any,Any}
-    globals  :: Globals
-    mdast   :: MarkdownAST.Node{Nothing}
+    mapping::IdDict{Any,Any}
+    globals::Globals
+    mdast::MarkdownAST.Node{Nothing}
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
     # The Markdown standard library parser is sensitive to line endings:
@@ -68,8 +68,8 @@ parseblock(code::AbstractString, doc, page::Documenter.Page; kwargs...) = parseb
 # Should contain all the information that is necessary to build a document.
 # Currently has enough information to just run doctests.
 struct DocumentBlueprint
-    pages :: Dict{String, Page} # Markdown files only.
-    modules :: Set{Module} # Which modules to check for missing docs?
+    pages::Dict{String,Page} # Markdown files only.
+    modules::Set{Module} # Which modules to check for missing docs?
 end
 
 
@@ -79,24 +79,24 @@ end
 ## IndexNode.
 
 struct IndexNode <: AbstractDocumenterBlock
-    pages       :: Vector{String} # Which pages to include in the index? Set by user.
-    modules     :: Vector{Module} # Which modules to include? Set by user.
-    order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
-    build       :: String         # Path to the file where this index will appear.
-    source      :: String         # Path to the file where this index was written.
-    elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
-    codeblock   :: MarkdownAST.CodeBlock # original code block
+    pages::Vector{String} # Which pages to include in the index? Set by user.
+    modules::Vector{Module} # Which modules to include? Set by user.
+    order::Vector{Symbol} # What order should docs be listed in? Set by user.
+    build::String         # Path to the file where this index will appear.
+    source::String         # Path to the file where this index was written.
+    elements::Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
+    codeblock::MarkdownAST.CodeBlock # original code block
 
     function IndexNode(codeblock;
-            # TODO: Fix difference between uppercase and lowercase naming of keys.
-            #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
-            Pages   = [],
-            Modules = [],
-            Order   = [:module, :constant, :type, :function, :macro],
-            build   = error("missing value for `build` in `IndexNode`."),
-            source  = error("missing value for `source` in `IndexNode`."),
-            others...
-        )
+        # TODO: Fix difference between uppercase and lowercase naming of keys.
+        #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
+        Pages=[],
+        Modules=[],
+        Order=[:module, :constant, :type, :function, :macro],
+        build=error("missing value for `build` in `IndexNode`."),
+        source=error("missing value for `source` in `IndexNode`."),
+        others...
+    )
         new(Pages, Modules, Order, build, source, [], codeblock)
     end
 end
@@ -104,21 +104,21 @@ end
 ## ContentsNode.
 
 struct ContentsNode <: AbstractDocumenterBlock
-    pages       :: Vector{String} # Which pages should be included in contents? Set by user.
-    mindepth    :: Int            # Minimum header level that should be displayed. Set by user.
-    depth       :: Int            # Down to which level should headers be displayed? Set by user.
-    build       :: String         # Same as for `IndexNode`s.
-    source      :: String         # Same as for `IndexNode`s.
-    elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
-    codeblock   :: MarkdownAST.CodeBlock # original code block
+    pages::Vector{String} # Which pages should be included in contents? Set by user.
+    mindepth::Int            # Minimum header level that should be displayed. Set by user.
+    depth::Int            # Down to which level should headers be displayed? Set by user.
+    build::String         # Same as for `IndexNode`s.
+    source::String         # Same as for `IndexNode`s.
+    elements::Vector         # (order, page, anchor)-tuple for constructing links.
+    codeblock::MarkdownAST.CodeBlock # original code block
 
     function ContentsNode(codeblock;
-            Pages  = [],
-            Depth  = 1:2,
-            build  = error("missing value for `build` in `ContentsNode`."),
-            source = error("missing value for `source` in `ContentsNode`."),
-            others...
-        )
+        Pages=[],
+        Depth=1:2,
+        build=error("missing value for `build` in `ContentsNode`."),
+        source=error("missing value for `source` in `ContentsNode`."),
+        others...
+    )
         if Depth isa Integer
             Depth = 1:Depth
         end
@@ -129,36 +129,36 @@ end
 ## Other nodes
 
 struct MetaNode <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
-    dict :: Dict{Symbol, Any}
+    codeblock::MarkdownAST.CodeBlock
+    dict::Dict{Symbol,Any}
 end
 
 struct MethodNode
-    method  :: Method
-    visible :: Bool
+    method::Method
+    visible::Bool
 end
 
 struct DocsNode <: AbstractDocumenterBlock
-    anchor  :: Anchors.Anchor
-    object  :: Object
-    page    :: Documenter.Page
+    anchor::Anchors.Anchor
+    object::Object
+    page::Documenter.Page
     # MarkdownAST support.
     # TODO: should be the docstring components (i.e. .mdasts) be stored as child nodes?
-    mdasts  :: Vector{MarkdownAST.Node{Nothing}}
-    results :: Vector{Base.Docs.DocStr}
-    metas   :: Vector{Dict{Symbol, Any}}
+    mdasts::Vector{MarkdownAST.Node{Nothing}}
+    results::Vector{Base.Docs.DocStr}
+    metas::Vector{Dict{Symbol,Any}}
     function DocsNode(anchor, object, page)
         new(anchor, object, page, [], [], [])
     end
 end
 
 struct DocsNodes
-    nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
+    nodes::Vector{Union{DocsNode,Markdown.Admonition}}
 end
 
 struct EvalNode <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
-    result :: Union{MarkdownAST.Node, Nothing}
+    codeblock::MarkdownAST.CodeBlock
+    result::Union{MarkdownAST.Node,Nothing}
 end
 
 struct RawNode <: AbstractDocumenterBlock
@@ -171,14 +171,14 @@ end
 # In the MarkdownAST representation, the dictionaries get converted into
 # MultiOutputElement elements.
 struct MultiOutput <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
+    codeblock::MarkdownAST.CodeBlock
 end
 
 # For @repl blocks we store the inputs and outputs as separate Markdown.Code
 # objects, and then combine them in the writer. When converting to MarkdownAST,
 # those separate code blocks become child nodes.
 struct MultiCodeBlock <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
+    codeblock::MarkdownAST.CodeBlock
     language::String
     content::Vector{Markdown.Code}
 end
@@ -196,17 +196,17 @@ mutable struct NavNode
     `nothing` if the `NavNode` is a non-page node of the navigation tree, otherwise
     the string should be a valid key in `doc.blueprint.pages`
     """
-    page           :: Union{String, Nothing}
+    page::Union{String,Nothing}
     """
     If not `nothing`, specifies the text that should be displayed in navigation
     links etc. instead of the automatically determined text.
     """
-    title_override :: Union{String, Nothing}
-    parent         :: Union{NavNode, Nothing}
-    children       :: Vector{NavNode}
-    visible        :: Bool
-    prev           :: Union{NavNode, Nothing}
-    next           :: Union{NavNode, Nothing}
+    title_override::Union{String,Nothing}
+    parent::Union{NavNode,Nothing}
+    children::Vector{NavNode}
+    visible::Bool
+    prev::Union{NavNode,Nothing}
+    next::Union{NavNode,Nothing}
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
 # This method ensures that we do not print the whole navtree in case we ever happen to print
@@ -222,7 +222,7 @@ ordered so that the root of the navigation tree is the first and `navnode` itsel
 is the last item.
 """
 navpath(navnode::NavNode) = navnode.parent === nothing ? [navnode] :
-    push!(navpath(navnode.parent), navnode)
+                            push!(navpath(navnode.parent), navnode)
 
 
 # Inner Document Fields.
@@ -232,44 +232,44 @@ navpath(navnode::NavNode) = navnode.parent === nothing ? [navnode] :
 User-specified values used to control the generation process.
 """
 struct User
-    root    :: String  # An absolute path to the root directory of the document.
-    source  :: String  # Parent directory is `.root`. Where files are read from.
-    build   :: String  # Parent directory is also `.root`. Where files are written to.
-    workdir :: Union{Symbol,String} # Parent directory is also `.root`. Where code is executed from.
-    format  :: Vector{Writer} # What format to render the final document with?
-    clean   :: Bool           # Empty the `build` directory before starting a new build?
-    doctest :: Union{Bool,Symbol} # Run doctests?
+    root::String  # An absolute path to the root directory of the document.
+    source::String  # Parent directory is `.root`. Where files are read from.
+    build::String  # Parent directory is also `.root`. Where files are written to.
+    workdir::Union{Symbol,String} # Parent directory is also `.root`. Where code is executed from.
+    format::Vector{Writer} # What format to render the final document with?
+    clean::Bool           # Empty the `build` directory before starting a new build?
+    doctest::Union{Bool,Symbol} # Run doctests?
     linkcheck::Bool           # Check external links..
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
     strict::Union{Bool,Symbol,Vector{Symbol}} # Throw an exception when any warnings are encountered.
-    pages   :: Vector{Any}    # Ordering of document pages specified by the user.
-    pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
+    pages::Vector{Any}    # Ordering of document pages specified by the user.
+    pagesonly::Bool         # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
-    sitename:: String
-    authors :: String
-    version :: String # version string used in the version selector by default
+    remote::Union{Remotes.Remote,Nothing} # Remote Git repository information
+    sitename::String
+    authors::String
+    version::String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
-    draft :: Bool
+    draft::Bool
 end
 
 """
 Private state used to control the generation process.
 """
 struct Internal
-    assets  :: String             # Path where asset files will be copied to.
-    navtree :: Vector{NavNode}           # A vector of top-level navigation items.
-    navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
-    headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
-    docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
-    bindings:: IdDict{Any,Any}           # Tracks insertion order of object per-binding.
-    objects :: IdDict{Any,Any}           # Tracks which `Objects` are included in the `Document`.
-    contentsnodes :: Vector{ContentsNode}
-    indexnodes    :: Vector{IndexNode}
-    locallinks :: IdDict{MarkdownAST.Link, String}
+    assets::String             # Path where asset files will be copied to.
+    navtree::Vector{NavNode}           # A vector of top-level navigation items.
+    navlist::Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
+    headers::Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    docs::Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    bindings::IdDict{Any,Any}           # Tracks insertion order of object per-binding.
+    objects::IdDict{Any,Any}           # Tracks which `Objects` are included in the `Document`.
+    contentsnodes::Vector{ContentsNode}
+    indexnodes::Vector{IndexNode}
+    locallinks::IdDict{MarkdownAST.Link,String}
     errors::Set{Symbol}
 end
 
@@ -280,38 +280,38 @@ end
 Represents an entire document.
 """
 struct Document
-    user     :: User     # Set by the user via `makedocs`.
-    internal :: Internal # Computed values.
-    plugins  :: Dict{DataType, Plugin}
-    blueprint :: DocumentBlueprint
+    user::User     # Set by the user via `makedocs`.
+    internal::Internal # Computed values.
+    plugins::Dict{DataType,Plugin}
+    blueprint::DocumentBlueprint
 end
 
-function Document(plugins = nothing;
-        root     :: AbstractString   = currentdir(),
-        source   :: AbstractString   = "src",
-        build    :: AbstractString   = "build",
-        workdir  :: Union{Symbol, AbstractString}  = :build,
-        format   :: Any              = HTML(),
-        clean    :: Bool             = true,
-        doctest  :: Union{Bool,Symbol} = true,
-        linkcheck:: Bool             = false,
-        linkcheck_ignore :: Vector   = [],
-        linkcheck_timeout :: Real    = 10,
-        checkdocs::Symbol            = :all,
-        doctestfilters::Vector{Regex}= Regex[],
-        strict::Union{Bool,Symbol,Vector{Symbol}} = false,
-        modules  :: ModVec = Module[],
-        pages    :: Vector           = Any[],
-        pagesonly:: Bool             = false,
-        expandfirst :: Vector        = String[],
-        repo     :: Union{Remotes.Remote, AbstractString} = "",
-        sitename :: AbstractString   = "",
-        authors  :: AbstractString   = "",
-        version :: AbstractString    = "",
-        highlightsig::Bool           = true,
-        draft::Bool                  = false,
-        others...
-    )
+function Document(plugins=nothing;
+    root::AbstractString=currentdir(),
+    source::AbstractString="src",
+    build::AbstractString="build",
+    workdir::Union{Symbol,AbstractString}=:build,
+    format::Any=HTML(),
+    clean::Bool=true,
+    doctest::Union{Bool,Symbol}=true,
+    linkcheck::Bool=false,
+    linkcheck_ignore::Vector=[],
+    linkcheck_timeout::Real=10,
+    checkdocs::Symbol=:all,
+    doctestfilters::Vector{Regex}=Regex[],
+    strict::Union{Bool,Symbol,Vector{Symbol}}=false,
+    modules::ModVec=Module[],
+    pages::Vector=Any[],
+    pagesonly::Bool=false,
+    expandfirst::Vector=String[],
+    repo::Union{Remotes.Remote,AbstractString}="",
+    sitename::AbstractString="",
+    authors::AbstractString="",
+    version::AbstractString="",
+    highlightsig::Bool=true,
+    draft::Bool=false,
+    others...
+)
 
     check_strict_kw(strict)
     check_kwargs(others)
@@ -372,11 +372,11 @@ function Document(plugins = nothing;
         IdDict{Any,Any}(),
         [],
         [],
-        Dict{Markdown.Link, String}(),
+        Dict{Markdown.Link,String}(),
         Set{Symbol}()
     )
 
-    plugin_dict = Dict{DataType, Plugin}()
+    plugin_dict = Dict{DataType,Plugin}()
     if plugins !== nothing
         for plugin in plugins
             plugin isa Plugin ||
@@ -388,7 +388,7 @@ function Document(plugins = nothing;
     end
 
     blueprint = DocumentBlueprint(
-        Dict{String, Page}(),
+        Dict{String,Page}(),
         submodules(modules),
     )
     Document(user, internal, plugin_dict, blueprint)
@@ -428,7 +428,7 @@ Retrieves the [`Plugin`](@ref Plugin) type for `T` stored in `doc`. If `T` was p
 [`makedocs`](@ref makedocs), the passed type will be returned. Otherwise, a new `T` object
 will be created using the default constructor `T()`.
 """
-function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
+function getplugin(doc::Document, plugin_type::Type{T}) where T<:Plugin
     if !haskey(doc.plugins, plugin_type)
         doc.plugins[plugin_type] = plugin_type()
     end
@@ -466,24 +466,24 @@ function populate!(index::IndexNode, document::Document)
     # Filtering valid index links.
     for (object, doc) in document.internal.objects
         page = relpath(doc.page.build, dirname(index.build))
-        mod  = object.binding.mod
+        mod = object.binding.mod
         # Include *all* signatures, whether they are `Union{}` or not.
-        cat  = Symbol(lowercase(doccat(object.binding, Union{})))
+        cat = Symbol(lowercase(doccat(object.binding, Union{})))
         if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end
     # Sorting index links.
-    pagesmap   = precedence(index.pages)
+    pagesmap = precedence(index.pages)
     modulesmap = precedence(index.modules)
-    ordermap   = precedence(index.order)
-    comparison = function(a, b)
-        (x = _compare(pagesmap,   3, a, b)) == 0 || return x < 0 # page
+    ordermap = precedence(index.order)
+    comparison = function (a, b)
+        (x = _compare(pagesmap, 3, a, b)) == 0 || return x < 0 # page
         (x = _compare(modulesmap, 4, a, b)) == 0 || return x < 0 # module
-        (x = _compare(ordermap,   5, a, b)) == 0 || return x < 0 # category
+        (x = _compare(ordermap, 5, a, b)) == 0 || return x < 0 # category
         string(a[1].binding) < string(b[1].binding)              # object name
     end
-    sort!(index.elements, lt = comparison)
+    sort!(index.elements, lt=comparison)
     return index
 end
 
@@ -502,12 +502,12 @@ function populate!(contents::ContentsNode, document::Document)
         end
     end
     # Sorting contents links.
-    pagesmap   = precedence(contents.pages)
-    comparison = function(a, b)
+    pagesmap = precedence(contents.pages)
+    comparison = function (a, b)
         (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
         a[1] < b[1]                                            # anchor order
     end
-    sort!(contents.elements, lt = comparison)
+    sort!(contents.elements, lt=comparison)
     return contents
 end
 
@@ -527,7 +527,7 @@ function doctest_replace!(block::MarkdownAST.CodeBlock)
     startswith(block.info, "jldoctest") || return
     # suppress output for `#output`-style doctests with `output=false` kwarg
     if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.info)
-        input = first(split(block.code, "# output\n", limit = 2))
+        input = first(split(block.code, "# output\n", limit=2))
         block.code = rstrip(input)
     end
     # correct the language field
@@ -536,8 +536,8 @@ end
 doctest_replace!(@nospecialize _) = nothing
 
 function buildnode(T::Type, block, doc, page)
-    mod  = get(page.globals.meta, :CurrentModule, Main)
-    dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
+    mod = get(page.globals.meta, :CurrentModule, Main)
+    dict = Dict{Symbol,Any}(:source => page.source, :build => page.build)
     for (ex, str) in parseblock(block.code, doc, page)
         if isassign(ex)
             cd(dirname(page.source)) do
@@ -552,7 +552,7 @@ function _compare(col, ind, a, b)
     x, y = a[ind], b[ind]
     haskey(col, x) && haskey(col, y) ? _compare(col[x], col[y]) : 0
 end
-_compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
+_compare(a, b) = a < b ? -1 : a == b ? 0 : 1
 _isvalid(x, xs) = isempty(xs) || x in xs
 precedence(vec) = Dict(zip(vec, 1:length(vec)))
 
@@ -560,7 +560,7 @@ precedence(vec) = Dict(zip(vec, 1:length(vec)))
 # Conversion to MarkdownAST, for writers
 
 struct AnchoredHeader <: AbstractDocumenterBlock
-    anchor :: Anchors.Anchor
+    anchor::Anchors.Anchor
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
@@ -569,25 +569,25 @@ MarkdownAST.iscontainer(::AnchoredHeader) = true
 # In addition, the child node can also be an Admonition in case there was an error
 # in splicing in a docstring.
 struct DocsNodesBlock <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
+    codeblock::MarkdownAST.CodeBlock
 end
 MarkdownAST.iscontainer(::DocsNodesBlock) = true
 MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
-MarkdownAST.can_contain(::DocsNodesBlock, ::Union{DocsNode, MarkdownAST.Admonition}) = true
+MarkdownAST.can_contain(::DocsNodesBlock, ::Union{DocsNode,MarkdownAST.Admonition}) = true
 
 MarkdownAST.iscontainer(::MultiCodeBlock) = true
 MarkdownAST.can_contain(::MultiCodeBlock, ::MarkdownAST.Code) = true
 
 struct MultiOutputElement <: AbstractDocumenterBlock
-    element :: Any
+    element::Any
 end
 MarkdownAST.iscontainer(::MultiOutput) = true
 MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement,MarkdownAST.CodeBlock}) = true
 
 # In the SetupBlocks expander, we map @setup nodes to Markdown.MD() objects
 struct SetupNode <: AbstractDocumenterBlock
-    name :: String
-    code :: String
+    name::String
+    code::String
 end
 
 # Override the show for DocumenterBlockTypes so that we would not print too much

@@ -45,7 +45,8 @@ function printdiff(s1, s2)
     else
         mktempdir() do path
             a, b = joinpath(path, "a"), joinpath(path, "b")
-            write(a, s1); write(b, s2)
+            write(a, s1)
+            write(b, s2)
             run(ignorestatus(`$(diff_cmd) $a $b`))
         end
     end
@@ -93,7 +94,7 @@ end
                 dir, filename = splitdir(mdfile)
                 filename, _ = splitext(filename)
                 htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
-                    joinpath(build_dir, dir, filename, "index.html")
+                           joinpath(build_dir, dir, filename, "index.html")
                 @test isfile(htmlpath)
             end
 
@@ -210,7 +211,7 @@ end
                 dir, filename = splitdir(mdfile)
                 filename, _ = splitext(filename)
                 htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
-                    joinpath(build_dir, dir, filename, "index.html")
+                           joinpath(build_dir, dir, filename, "index.html")
                 if mdfile ∈ ("index.md", joinpath("man", "tutorial.md"), joinpath("man", "style.md"))
                     @test isfile(htmlpath)
                 else

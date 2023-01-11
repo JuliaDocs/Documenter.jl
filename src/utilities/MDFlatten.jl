@@ -21,7 +21,7 @@ then be used as input for search engines.
 mdflatten(node) = sprint(mdflatten, node)
 
 mdflatten(io, node::Node) = mdflatten(io, node, node.element)
-mdflatten(io, nodes::Vector{T}) where T <: Node = foreach(n -> mdflatten(io, n), nodes)
+mdflatten(io, nodes::Vector{T}) where T<:Node = foreach(n -> mdflatten(io, n), nodes)
 function mdflatten(io, children::MarkdownAST.NodeChildren)
     # this special case separates top level blocks with newlines
     newlines = isa(children.parent.element, MarkdownAST.Document)
@@ -72,12 +72,12 @@ function mdflatten(io, node::Node, e::MarkdownAST.Image)
     mdflatten(io, node.children)
     print(io, ")")
 end
-mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath, MarkdownAST.DisplayMath}) = print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
+mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath,MarkdownAST.DisplayMath}) = print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
 mdflatten(io, node::Node, e::MarkdownAST.LineBreak) = print(io, '\n')
 mdflatten(io, node::Node, ::MarkdownAST.ThematicBreak) = nothing
 
 # Is both inline and block
-mdflatten(io, node::Node, c::Union{MarkdownAST.Code, MarkdownAST.CodeBlock}) = print(io, c.code)
+mdflatten(io, node::Node, c::Union{MarkdownAST.Code,MarkdownAST.CodeBlock}) = print(io, c.code)
 
 # Special (inline) "node" -- due to JuliaMark's interpolations
 mdflatten(io, node::Node, value::MarkdownAST.JuliaValue) = print(io, value.ref)

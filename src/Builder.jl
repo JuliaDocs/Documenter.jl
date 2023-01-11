@@ -69,23 +69,23 @@ Writes the document tree to the `build` directory.
 """
 abstract type RenderDocument <: DocumentPipeline end
 
-Selectors.order(::Type{SetupBuildDirectory})   = 1.0
-Selectors.order(::Type{Doctest})               = 1.1
-Selectors.order(::Type{ExpandTemplates})       = 2.0
-Selectors.order(::Type{CrossReferences})       = 3.0
-Selectors.order(::Type{CheckDocument})         = 4.0
-Selectors.order(::Type{Populate})              = 5.0
-Selectors.order(::Type{RenderDocument})        = 6.0
+Selectors.order(::Type{SetupBuildDirectory}) = 1.0
+Selectors.order(::Type{Doctest}) = 1.1
+Selectors.order(::Type{ExpandTemplates}) = 2.0
+Selectors.order(::Type{CrossReferences}) = 3.0
+Selectors.order(::Type{CheckDocument}) = 4.0
+Selectors.order(::Type{Populate}) = 5.0
+Selectors.order(::Type{RenderDocument}) = 6.0
 
-Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: DocumentPipeline} = true
+Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T<:DocumentPipeline} = true
 
-Selectors.strict(::Type{T}) where {T <: DocumentPipeline} = false
+Selectors.strict(::Type{T}) where {T<:DocumentPipeline} = false
 
 function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
     @info "SetupBuildDirectory: setting up build directory."
 
     # Frequently used fields.
-    build  = doc.user.build
+    build = doc.user.build
     source = doc.user.source
     workdir = doc.user.workdir
 
@@ -95,7 +95,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
 
     # We create the .user.build directory.
     # If .user.clean is set, we first clean the existing directory.
-    doc.user.clean && isdir(build) && rm(build; recursive = true)
+    doc.user.clean && isdir(build) && rm(build; recursive=true)
     isdir(build) || mkpath(build)
 
     # We'll walk over all the files in the .user.source directory.
@@ -128,7 +128,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
                 push!(mdpages, Documenter.srcpath(source, root, file))
                 Documenter.addpage!(doc, src, dst, wd)
             else
-                cp(src, dst; force = true)
+                cp(src, dst; force=true)
             end
         end
     end
@@ -147,7 +147,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
 
     # Finally we populate the .next and .prev fields of the navnodes that point
     # to actual pages.
-    local prev::Union{Documenter.NavNode, Nothing} = nothing
+    local prev::Union{Documenter.NavNode,Nothing} = nothing
     for navnode in doc.internal.navlist
         navnode.prev = prev
         if prev !== nothing
@@ -174,8 +174,8 @@ string sorting, except for prioritizing `index.md` (i.e. `index.md` always comes
 """
 function lt_page(a, b)
     # note: length("index.md") == 8
-    a = endswith(a, "index.md") ? chop(a; tail = 8) : a
-    b = endswith(b, "index.md") ? chop(b; tail = 8) : b
+    a = endswith(a, "index.md") ? chop(a; tail=8) : a
+    b = endswith(b, "index.md") ? chop(b; tail=8) : b
     return a < b
 end
 
@@ -261,8 +261,8 @@ function Selectors.runner(::Type{RenderDocument}, doc::Documenter.Document)
     c = length(fatal_errors)
     if c > 0
         error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ("
-        * join(Ref(":") .* string.(fatal_errors), ", ")
-        * "). Terminating build before rendering.")
+              * join(Ref(":") .* string.(fatal_errors), ", ")
+              * "). Terminating build before rendering.")
     else
         @info "RenderDocument: rendering document."
         Documenter.render(doc)

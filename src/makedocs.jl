@@ -218,15 +218,17 @@ information.
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
-function makedocs(components...; debug = false, format = HTML(), kwargs...)
+function makedocs(components...; debug=false, format=HTML(), kwargs...)
     document = Documenter.Document(components; format=format, kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
     empty!(Selectors.selector_subtypes)
-    cd(document.user.root) do; withenv(NO_KEY_ENV...) do
-        Selectors.dispatch(Builder.DocumentPipeline, document)
-    end end
+    cd(document.user.root) do
+        withenv(NO_KEY_ENV...) do
+            Selectors.dispatch(Builder.DocumentPipeline, document)
+        end
+    end
     debug ? document : nothing
 end
 

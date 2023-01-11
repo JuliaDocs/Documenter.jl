@@ -2,37 +2,38 @@ module UtilitiesTests
 using Test
 using Logging: Info
 import Base64: stringmime
-include("TestUtilities.jl"); using Main.TestUtilities
+include("TestUtilities.jl")
+using Main.TestUtilities
 
 import Documenter
 using Documenter: git
 import Markdown, MarkdownAST
 
 module UnitTests
-    module SubModule end
+module SubModule end
 
-    # Does `submodules` collect *all* the submodules?
-    module A
-        module B
-            module C
-                module D end
-            end
-        end
-    end
+# Does `submodules` collect *all* the submodules?
+module A
+module B
+module C
+module D end
+end
+end
+end
 
-    mutable struct T end
-    mutable struct S{T} end
+mutable struct T end
+mutable struct S{T} end
 
-    "Documenter unit tests."
-    Base.length(::T) = 1
+"Documenter unit tests."
+Base.length(::T) = 1
 
-    f(x) = x
+f(x) = x
 
-    const pi = 3.0
+const pi = 3.0
 
-    const TA = Vector{UInt128}
-    const TB = Array{T, 8} where T
-    const TC = Union{Int64, Float64, String}
+const TA = Vector{UInt128}
+const TB = Array{T,8} where T
+const TC = Union{Int64,Float64,String}
 end
 
 module OuterModule
@@ -47,9 +48,9 @@ module ModuleWithAliases
 using ..ExternalModule
 Y = ExternalModule
 module A
-    module B
-    const X = Main
-    end
+module B
+const X = Main
+end
 end
 end
 
@@ -326,8 +327,8 @@ end
 
     @testset "PR #1634, issue #1655" begin
         let parse(x) = Documenter.parseblock(x, nothing, nothing;
-                           linenumbernode=LineNumberNode(123, "testfile.jl")
-                       )
+                linenumbernode=LineNumberNode(123, "testfile.jl")
+            )
             code = """
             1 + 1
             2 + 2
@@ -394,8 +395,12 @@ end
             MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
         ]
         @test mdparse("x\n\ny", mode=:blocks) == [
-            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "x"; end),
-            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "y"; end),
+            MarkdownAST.@ast(MarkdownAST.Paragraph() do
+                "x"
+            end),
+            MarkdownAST.@ast(MarkdownAST.Paragraph() do
+                "y"
+            end),
         ]
 
         @quietly begin
@@ -410,7 +415,7 @@ end
             RemoteLibrary, Snippet, RequireJS, verify, writejs, parse_snippet
         libraries = [
             RemoteLibrary("foo", "example.com/foo"),
-            RemoteLibrary("bar", "example.com/bar"; deps = ["foo"]),
+            RemoteLibrary("bar", "example.com/bar"; deps=["foo"]),
         ]
         snippet = Snippet(["foo", "bar"], ["Foo"], "f(x)")
         let r = RequireJS(libraries)
@@ -455,7 +460,7 @@ end
         # Error conditions: missing dependency
         let r = RequireJS([
                 RemoteLibrary("foo", "example.com/foo"),
-                RemoteLibrary("bar", "example.com/bar"; deps = ["foo", "baz"]),
+                RemoteLibrary("bar", "example.com/bar"; deps=["foo", "baz"]),
             ])
             @test !verify(r)
             push!(r, RemoteLibrary("baz", "example.com/baz"))
@@ -557,7 +562,7 @@ end
     end
 
     @testset "@docerror" begin
-        doc = (; internal = (; errors = Symbol[]), user = (; strict = [:doctest, :setup_block]))
+        doc = (; internal=(; errors=Symbol[]), user=(; strict=[:doctest, :setup_block]))
         foo = 123
         @test_logs (:warn, "meta_block issue 123") (Documenter.@docerror(doc, :meta_block, "meta_block issue $foo"))
         @test :meta_block ∈ doc.internal.errors
@@ -575,14 +580,17 @@ end
 
     @testset "git_remote_head_branch" begin
 
-        function git_create_bare_repo(path; head = nothing)
+        function git_create_bare_repo(path; head=nothing)
             mkdir(path)
             @test trun(`$(git()) -C $(path) init --bare`)
             @test isfile(joinpath(path, "HEAD"))
             if head !== nothing
-                write(joinpath(path, "HEAD"), """
-                ref: refs/heads/$(head)
-                """)
+                write(
+                    joinpath(path, "HEAD"),
+                    """
+ref: refs/heads/$(head)
+"""
+                )
             end
             mktempdir() do subdir_path
                 # We need to commit something to the non-standard branch to actually
@@ -602,11 +610,11 @@ end
                 # Note: running @test_logs with match_mode=:any here so that the tests would
                 # also pass when e.g. JULIA_DEBUG=Documenter when the tests are being run.
                 # If there is no parent remote repository, we should get a warning and the fallback value:
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd())) == "master"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); fallback="fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd())) == "master"
                 # We'll set up two "remote" bare repositories with non-standard HEADs:
-                git_create_bare_repo("barerepo", head = "maindevbranch")
-                git_create_bare_repo("barerepo_other", head = "main")
+                git_create_bare_repo("barerepo", head="maindevbranch")
+                git_create_bare_repo("barerepo_other", head="main")
                 # Clone barerepo and test git_remote_head_branch:
                 @test trun(`$(git()) clone barerepo/ local/`)
                 @test Documenter.git_remote_head_branch(".", "local") == "maindevbranch"
@@ -614,10 +622,10 @@ end
                 @test trun(`$(git()) -C local/ remote add other ../barerepo_other/`)
                 @test trun(`$(git()) -C local/ fetch other`)
                 @test Documenter.git_remote_head_branch(".", "local") == "maindevbranch"
-                @test Documenter.git_remote_head_branch(".", "local"; remotename = "other") == "main"
+                @test Documenter.git_remote_head_branch(".", "local"; remotename="other") == "main"
                 # Asking for a nonsense remote should also warn and drop back to fallback:
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense", fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense")) == "master"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename="nonsense", fallback="fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename="nonsense")) == "master"
             end
         end
     end
@@ -626,14 +634,14 @@ end
     @testset "remove_common_backtrace" begin
         @test remove_common_backtrace([], []) == []
         @test remove_common_backtrace([1], []) == [1]
-        @test remove_common_backtrace([1,2], []) == [1,2]
-        @test remove_common_backtrace([1,2,3], [1]) == [1,2,3]
-        @test remove_common_backtrace([1,2,3], [2]) == [1,2,3]
-        @test remove_common_backtrace([1,2,3], [3]) == [1,2]
-        @test remove_common_backtrace([1,2,3], [2,3]) == [1]
-        @test remove_common_backtrace([1,2,3], [1,3]) == [1,2]
-        @test remove_common_backtrace([1,2,3], [1,2,3]) == []
-        @test remove_common_backtrace([1,2,3], [0,1,2,3]) == []
+        @test remove_common_backtrace([1, 2], []) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [1]) == [1, 2, 3]
+        @test remove_common_backtrace([1, 2, 3], [2]) == [1, 2, 3]
+        @test remove_common_backtrace([1, 2, 3], [3]) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [2, 3]) == [1]
+        @test remove_common_backtrace([1, 2, 3], [1, 3]) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [1, 2, 3]) == []
+        @test remove_common_backtrace([1, 2, 3], [0, 1, 2, 3]) == []
     end
 end
 
