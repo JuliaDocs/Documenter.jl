@@ -81,21 +81,21 @@ end
                 """
 
             Documenter.walk(Dict{Symbol,Any}(), src) do block
-                doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
+                doc = Documenter.Document(; linkcheck = true, linkcheck_timeout = 20)
                 result = linkcheck(block, doc)
                 @test doc.internal.errors == Set{Symbol}()
                 result
             end
 
             src = Markdown.parse("[FILE failure](file://$(@__FILE__))")
-            doc = Documenter.Document(; linkcheck=true)
+            doc = Documenter.Document(; linkcheck = true)
             Documenter.walk(Dict{Symbol,Any}(), src) do block
                 linkcheck(block, doc)
             end
             @test doc.internal.errors == Set{Symbol}([:linkcheck])
 
             src = Markdown.parse("[Timeout](http://httpbin.org/delay/3)")
-            doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=0.1)
+            doc = Documenter.Document(; linkcheck = true, linkcheck_timeout = 0.1)
             Documenter.walk(Dict{Symbol,Any}(), src) do block
                 linkcheck(block, doc)
             end

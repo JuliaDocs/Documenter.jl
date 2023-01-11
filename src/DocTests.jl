@@ -128,7 +128,7 @@ function doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
     lang = block_immutable.info
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
-        name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit=2)[1])[1]
+        name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
         sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
 
         # Normalise line endings.
@@ -242,13 +242,13 @@ end
 function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     for (input, output) in repl_splitter(block.code)
         result = Result(block, input, output, meta[:CurrentFile])
-        for (ex, str) in Documenter.parseblock(input, doc, page; keywords=false, raise=false)
+        for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false)
             # Input containing a semi-colon gets suppressed in the final output.
             result.hide = REPL.ends_with_semicolon(str)
             # Use the REPL softscope for REPL jldoctests,
             # see https://github.com/JuliaLang/julia/pull/33864
             ex = REPL.softscope(ex)
-            c = IOCapture.capture(rethrow=InterruptException) do
+            c = IOCapture.capture(rethrow = InterruptException) do
                 Core.eval(sandbox, ex)
             end
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
@@ -270,12 +270,12 @@ function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     #
     #
     #       to mark `input`/`output` separation.
-    input, output = split(block.code, r"^# output$"m, limit=2)
+    input, output = split(block.code, r"^# output$"m, limit = 2)
     input = rstrip(input, '\n')
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
-    for (ex, str) in Documenter.parseblock(input, doc, page; keywords=false, raise=false)
-        c = IOCapture.capture(rethrow=InterruptException) do
+    for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise = false)
+        c = IOCapture.capture(rethrow = InterruptException) do
             Core.eval(sandbox, ex)
         end
         result.value = c.value
@@ -319,15 +319,15 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
-        head = replace(split(result.output, "\n[...]"; limit=2)[1], mod_regex => "")
+        head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex => "")
         head = replace(head, mod_regex_nodot => "Main")
         str = error_to_string(outio, result.value, result.bt)
         str = replace(str, mod_regex => "")
         str = replace(str, mod_regex_nodot => "Main")
         filteredstr, filteredhead = filter_doctests(filters, (str, head))
         @debug debug_report(
-            result=result, filters=filters, expected_filtered=filteredhead,
-            evaluated=rstrip(str), evaluated_filtered=filteredstr
+            result = result, filters = filters, expected_filtered = filteredhead,
+            evaluated = rstrip(str), evaluated_filtered = filteredstr
         )
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
@@ -348,8 +348,8 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         str = rstrip(replace(str, mod_regex_nodot => "Main"))
         filteredstr, filteredoutput = filter_doctests(filters, (str, output))
         @debug debug_report(
-            result=result, filters=filters, expected_filtered=filteredoutput,
-            evaluated=rstrip(str), evaluated_filtered=filteredoutput
+            result = result, filters = filters, expected_filtered = filteredoutput,
+            evaluated = rstrip(str), evaluated_filtered = filteredoutput
         )
         if filteredstr != filteredoutput
             if doc.user.doctest === :fix
@@ -475,7 +475,7 @@ function fix_doctest(result::Result, str, doc::Documenter.Document)
     # read the file containing the code block
     content = read(filename, String)
     # output stream
-    io = IOBuffer(sizehint=sizeof(content))
+    io = IOBuffer(sizehint = sizeof(content))
     # first look for the entire code block
     # make a regex of the code that matches leading whitespace
     rcode = "(\\h*)" * replace(Documenter.regex_escape(code), "\\n" => "\\n\\h*")
@@ -509,7 +509,7 @@ function fix_doctest(result::Result, str, doc::Documenter.Document)
         newcode *= str
         newcode *= code[nextind(code, last(inputidx)):end]
     else
-        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count=1)
+        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
     end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later

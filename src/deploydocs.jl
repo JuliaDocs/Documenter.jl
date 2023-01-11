@@ -162,18 +162,18 @@ using the [`deploydocs`](@ref) function to automatically generate docs and push 
 GitHub.
 """
 function deploydocs(;
-    root=currentdir(),
-    target="build",
-    dirname="", repo=error("no 'repo' keyword provided."),
-    branch="gh-pages", repo_previews=repo,
-    branch_previews=branch, deps=nothing,
-    make=nothing, devbranch=nothing,
-    devurl="dev",
-    versions=["stable" => "v^", "v#.#", devurl => devurl],
-    forcepush::Bool=false,
-    deploy_config=auto_detect_deploy_system(),
-    push_preview::Bool=false,
-    tag_prefix="", archive=nothing # experimental and undocumented
+    root = currentdir(),
+    target = "build",
+    dirname = "", repo = error("no 'repo' keyword provided."),
+    branch = "gh-pages", repo_previews = repo,
+    branch_previews = branch, deps = nothing,
+    make = nothing, devbranch = nothing,
+    devurl = "dev",
+    versions = ["stable" => "v^", "v#.#", devurl => devurl],
+    forcepush::Bool = false,
+    deploy_config = auto_detect_deploy_system(),
+    push_preview::Bool = false,
+    tag_prefix = "", archive = nothing # experimental and undocumented
 )
 
     # Try to figure out default branch (see #1443 and #1727)
@@ -189,13 +189,13 @@ function deploydocs(;
     end
 
     deploy_decision = deploy_folder(deploy_config;
-        branch=branch,
-        branch_previews=branch_previews,
-        devbranch=devbranch,
-        devurl=devurl,
-        push_preview=push_preview,
-        repo=repo,
-        repo_previews=repo_previews,
+        branch = branch,
+        branch_previews = branch_previews,
+        devbranch = devbranch,
+        devurl = devurl,
+        push_preview = push_preview,
+        repo = repo,
+        repo_previews = repo_previews,
         tag_prefix)
     if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
@@ -240,10 +240,10 @@ function deploydocs(;
             mktempdir() do temp
                 git_push(
                     root, temp, deploy_repo;
-                    branch=deploy_branch, dirname=dirname, target=target,
-                    sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
-                    devurl=devurl, versions=versions, forcepush=forcepush,
-                    is_preview=deploy_is_preview, archive=archive
+                    branch = deploy_branch, dirname = dirname, target = target,
+                    sha = sha, deploy_config = deploy_config, subfolder = deploy_subfolder,
+                    devurl = devurl, versions = versions, forcepush = forcepush,
+                    is_preview = deploy_is_preview, archive = archive
                 )
             end
         end
@@ -262,9 +262,9 @@ The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
     root, temp, repo;
-    branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
-    versions, forcepush=false, deploy_config, subfolder,
-    is_preview::Bool=false, archive
+    branch = "gh-pages", dirname = "", target = "site", sha = "", devurl = "dev",
+    versions, forcepush = false, deploy_config, subfolder,
+    is_preview::Bool = false, archive
 )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
@@ -272,7 +272,7 @@ function git_push(
     target_dir = abspath(target)
 
     # Generate a closure with common commands for ssh and https
-    function git_commands(sshconfig=nothing)
+    function git_commands(sshconfig = nothing)
         # Setup git.
         run(`$(git()) init`)
         run(`$(git()) config user.name "Documenter.jl"`)
@@ -383,7 +383,7 @@ function git_push(
             Make sure that the environment variable is properly set up as a Base64-encoded string
             of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            rm(keyfile; force=true)
+            rm(keyfile; force = true)
             rethrow(e)
         end
         chmod(keyfile, 0o600)
@@ -408,10 +408,10 @@ function git_push(
                     cd(() -> git_commands(sshconfig), temp)
                 end
             end
-            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
+            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
         catch e
             @error "Failed to push:" exception = (e, catch_backtrace())
-            post_status(deploy_config; repo=repo, type="error")
+            post_status(deploy_config; repo = repo, type = "error")
             rethrow(e)
         finally
             # Remove the unencrypted private key.
@@ -422,10 +422,10 @@ function git_push(
         upstream = authenticated_repo_url(deploy_config)
         try
             cd(() -> withenv(git_commands, NO_KEY_ENV...), temp)
-            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
+            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
         catch e
             @error "Failed to push:" exception = (e, catch_backtrace())
-            post_status(deploy_config; repo=repo, type="error")
+            post_status(deploy_config; repo = repo, type = "error")
             rethrow(e)
         end
     end
@@ -434,7 +434,7 @@ end
 function rm_and_add_symlink(target, link)
     if ispath(link) || islink(link)
         @warn "removing `$(link)` and linking `$(link)` to `$(target)`."
-        rm(link; force=true, recursive=true)
+        rm(link; force = true, recursive = true)
     end
     symlink(target, link)
 end
@@ -489,6 +489,6 @@ function gitrm_copy(src, dst)
     # Copy individual entries rather then the full folder since with
     # versions=nothing it would replace the root including e.g. the .git folder
     for x in readdir(src)
-        cp(joinpath(src, x), joinpath(dst, x); force=true)
+        cp(joinpath(src, x), joinpath(dst, x); force = true)
     end
 end

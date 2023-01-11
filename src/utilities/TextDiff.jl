@@ -90,7 +90,7 @@ prefix(::Diff{Words}, ::Symbol) = ""
 function Base.show(io::IO, diff::Diff)
     get(io, :color, false) || println(io, "Warning: Diff output requires color.")
     for (color, text) in diff.diff
-        printstyled(io, prefix(diff, color), text, color=color)
+        printstyled(io, prefix(diff, color), text, color = color)
     end
 end
 

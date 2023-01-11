@@ -54,7 +54,7 @@ end
 function compare_files(a, b)
     if haskey(ENV, "DOCUMENTER_FIXTESTS")
         @info "Updating reference file: $(b)"
-        cp(a, b, force=true)
+        cp(a, b, force = true)
     end
     a_str, b_str = read(a, String), read(b, String)
     a_str_normalized, b_str_normalized = onormalize_tex(a_str), onormalize_tex(b_str)

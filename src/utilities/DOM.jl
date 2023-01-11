@@ -218,7 +218,8 @@ function `f!` to the element.
 flatten!(f!, out, x::Atom) = f!(out, x)
 flatten!(f!, out, xs) = (for x in xs
     flatten!(f!, out, x)
-end; out)
+end;
+out)
 
 #
 # Helper methods for handling flattening children elements in `Node` construction.

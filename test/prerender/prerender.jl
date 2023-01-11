@@ -14,9 +14,9 @@ end
 
     # Regular makedocs
     makedocs(;
-        sitename="Prerendering code blocks",
-        format=Documenter.HTML(
-            highlights=["llvm"],
+        sitename = "Prerendering code blocks",
+        format = Documenter.HTML(
+            highlights = ["llvm"],
         )
     )
     assets = read_assets()
@@ -35,12 +35,12 @@ end
     HLJSFILES = Documenter.HTMLWriter.HLJSFILES
     for _ in 1:2 # test with and without highlightjs file given
         makedocs(;
-            sitename="Prerendering code blocks",
-            format=Documenter.HTML(
-                highlights=["llvm"],
-                prerender=true,
-                node=NodeJS_16_jll.node(),
-                highlightjs=length(HLJSFILES) == 0 ? nothing : last(first(HLJSFILES)),
+            sitename = "Prerendering code blocks",
+            format = Documenter.HTML(
+                highlights = ["llvm"],
+                prerender = true,
+                node = NodeJS_16_jll.node(),
+                highlightjs = length(HLJSFILES) == 0 ? nothing : last(first(HLJSFILES)),
             )
         )
         local assets = read_assets()
@@ -63,10 +63,10 @@ end
     ## missing language (llvm)
     @test_logs (:error, "HTMLWriter: prerendering failed") match_mode = :any begin
         makedocs(;
-            sitename="Prerendering code blocks",
-            format=Documenter.HTML(
-                prerender=true,
-                node=NodeJS_16_jll.node(),
+            sitename = "Prerendering code blocks",
+            format = Documenter.HTML(
+                prerender = true,
+                node = NodeJS_16_jll.node(),
             )
         )
     end
@@ -89,10 +89,10 @@ end
 
     # Some failure modes
     @test_throws Base.IOError makedocs(;
-        sitename="Prerendering code blocks",
-        format=Documenter.HTML(
-            prerender=true,
-            node="nope",
+        sitename = "Prerendering code blocks",
+        format = Documenter.HTML(
+            prerender = true,
+            node = "nope",
         )
     )
 

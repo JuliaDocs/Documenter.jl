@@ -28,7 +28,7 @@ end
 function __init__()
     # We only clean up the old log files if DOCUMENTER_TEST_QUIETLY is set
     quietly_logs_enabled() || return
-    isdir(QUIETLY_LOG_DIR) && rm(QUIETLY_LOG_DIR, recursive=true)
+    isdir(QUIETLY_LOG_DIR) && rm(QUIETLY_LOG_DIR, recursive = true)
 end
 
 struct QuietlyException <: Exception
@@ -44,9 +44,9 @@ function Base.showerror(io::IO, e::QuietlyException)
 end
 
 function _quietly(f, expr, source)
-    c = IOCapture.capture(f; rethrow=InterruptException)
+    c = IOCapture.capture(f; rethrow = InterruptException)
     logid, logfile = quietly_next_log()
-    isnothing(logid) || open(logfile; write=true, append=true) do io
+    isnothing(logid) || open(logfile; write = true, append = true) do io
         println(io, "@quietly: c.error = $(c.error) / $(sizeof(c.output)) bytes of output captured")
         println(io, "@quietly: $(source.file):$(source.line)")
         println(io, "@quietly: typeof(result) = ", typeof(c.value))
@@ -69,10 +69,10 @@ function _quietly(f, expr, source)
         $(expr)
         """
         if !isempty(c.output)
-            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color=:magenta)
+            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color = :magenta)
             print(c.output)
             last(c.output) != "\n" && println()
-            printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color=:magenta)
+            printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color = :magenta)
         end
         throw(QuietlyException(logid, c.value, c.backtrace))
     elseif c.value isa Test.DefaultTestSet && !is_success(c.value)
@@ -82,14 +82,14 @@ function _quietly(f, expr, source)
         $(expr)
         """ TestSet = c.value
         if !isempty(c.output)
-            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color=:magenta)
+            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color = :magenta)
             print(c.output)
             last(c.output) != "\n" && println()
-            printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color=:magenta)
+            printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color = :magenta)
         end
         return c.value
     else
-        printstyled("$(prefix): success, $(sizeof(c.output)) bytes of output hidden\n"; color=:magenta)
+        printstyled("$(prefix): success, $(sizeof(c.output)) bytes of output hidden\n"; color = :magenta)
         return c.value
     end
 end
@@ -114,7 +114,7 @@ end
 
 function trun(cmd::Base.AbstractCmd)
     buffer = IOBuffer()
-    cmd_redirected = pipeline(cmd; stdin=devnull, stdout=buffer, stderr=buffer)
+    cmd_redirected = pipeline(cmd; stdin = devnull, stdout = buffer, stderr = buffer)
     try
         run(cmd_redirected)
         return true

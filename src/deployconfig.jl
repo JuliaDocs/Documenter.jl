@@ -70,11 +70,11 @@ and `devurl` arguments from [`deploydocs`](@ref).
 """
 function deploy_folder(cfg::DeployConfig; kwargs...)
     @warn "Documenter.deploy_folder(::$(typeof(cfg)); kwargs...) not implemented. Skipping deployment."
-    return DeployDecision(; all_ok=false)
+    return DeployDecision(; all_ok = false)
 end
 function deploy_folder(::Nothing; kwargs...)
     @warn "Documenter could not auto-detect the building environment Skipping deployment."
-    return DeployDecision(; all_ok=false)
+    return DeployDecision(; all_ok = false)
 end
 
 @enum AuthenticationMethod SSH HTTPS
@@ -163,13 +163,13 @@ end
 # Check criteria for deployment
 function deploy_folder(cfg::Travis;
     repo,
-    repo_previews=repo,
-    branch="gh-pages",
-    branch_previews=branch,
+    repo_previews = repo,
+    branch = "gh-pages",
+    branch_previews = branch,
     devbranch,
     push_preview,
     devurl,
-    tag_prefix="",
+    tag_prefix = "",
     kwargs...)
     io = IOBuffer()
     all_ok = true
@@ -253,13 +253,13 @@ function deploy_folder(cfg::Travis;
         """
     end
     if all_ok
-        return DeployDecision(; all_ok=true,
-            branch=deploy_branch,
-            is_preview=is_preview,
-            repo=deploy_repo,
-            subfolder=subfolder)
+        return DeployDecision(; all_ok = true,
+            branch = deploy_branch,
+            is_preview = is_preview,
+            repo = deploy_repo,
+            subfolder = subfolder)
     else
-        return DeployDecision(; all_ok=false)
+        return DeployDecision(; all_ok = false)
     end
 end
 
@@ -305,13 +305,13 @@ end
 # Check criteria for deployment
 function deploy_folder(cfg::GitHubActions;
     repo,
-    repo_previews=repo,
-    branch="gh-pages",
-    branch_previews=branch,
+    repo_previews = repo,
+    branch = "gh-pages",
+    branch_previews = branch,
     devbranch,
     push_preview,
     devurl,
-    tag_prefix="",
+    tag_prefix = "",
     kwargs...)
     io = IOBuffer()
     all_ok = true
@@ -411,13 +411,13 @@ function deploy_folder(cfg::GitHubActions;
         """
     end
     if all_ok
-        return DeployDecision(; all_ok=true,
-            branch=deploy_branch,
-            is_preview=is_preview,
-            repo=deploy_repo,
-            subfolder=subfolder)
+        return DeployDecision(; all_ok = true,
+            branch = deploy_branch,
+            is_preview = is_preview,
+            repo = deploy_repo,
+            subfolder = subfolder)
     else
-        return DeployDecision(; all_ok=false)
+        return DeployDecision(; all_ok = false)
     end
 end
 
@@ -426,9 +426,9 @@ function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
 
-function version_tag_strip_build(tag; tag_prefix="")
+function version_tag_strip_build(tag; tag_prefix = "")
     startswith(tag, tag_prefix) || return nothing
-    tag = replace(tag, tag_prefix => ""; count=1)
+    tag = replace(tag, tag_prefix => ""; count = 1)
     m = match(Base.VERSION_REGEX, tag)
     m === nothing && return nothing
     s0 = startswith(tag, 'v') ? "v" : ""
@@ -440,7 +440,7 @@ function version_tag_strip_build(tag; tag_prefix="")
     return "$s0$s1$s2$s3$s4"
 end
 
-function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwargs...)
+function post_status(::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
         # order so no need to check everything again.
@@ -466,7 +466,7 @@ function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwa
     end
 end
 
-function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothing) where S<:String
+function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = nothing) where S<:String
     try
         Sys.which("curl") === nothing && return
         ## Extract owner and repository name
@@ -504,7 +504,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
         push!(cmd.exec, "https://api.github.com/repos/$(owner)/$(repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
-        res = run(pipeline(cmd; stdout=io, stderr=devnull))
+        res = run(pipeline(cmd; stdout = io, stderr = devnull))
         @debug "Response of curl POST request" response = String(take!(io))
     catch
         @debug "Failed to post status"
@@ -540,9 +540,9 @@ end
 
 function run_and_capture(cmd)
     stdout_buffer, stderr_buffer = IOBuffer(), IOBuffer()
-    run(pipeline(cmd; stdout=stdout_buffer, stderr=stderr_buffer))
+    run(pipeline(cmd; stdout = stdout_buffer, stderr = stderr_buffer))
     stdout, stderr = String(take!(stdout_buffer)), String(take!(stderr_buffer))
-    return (; stdout=stdout, stderr=stderr)
+    return (; stdout = stdout, stderr = stderr)
 end
 
 ##########
@@ -597,13 +597,13 @@ end
 function deploy_folder(
     cfg::GitLab;
     repo,
-    repo_previews=repo,
+    repo_previews = repo,
     devbranch,
     push_preview,
     devurl,
-    branch="gh-pages",
-    branch_previews=branch,
-    tag_prefix="",
+    branch = "gh-pages",
+    branch_previews = branch,
+    tag_prefix = "",
     kwargs...
 )
     io = IOBuffer()
@@ -682,14 +682,14 @@ function deploy_folder(
 
     if all_ok
         return DeployDecision(;
-            all_ok=true,
-            branch=deploy_branch,
-            repo=deploy_repo,
-            subfolder=subfolder,
-            is_preview=is_preview
+            all_ok = true,
+            branch = deploy_branch,
+            repo = deploy_repo,
+            subfolder = subfolder,
+            is_preview = is_preview
         )
     else
-        return DeployDecision(; all_ok=false)
+        return DeployDecision(; all_ok = false)
     end
 end
 
@@ -740,13 +740,13 @@ end
 function deploy_folder(
     cfg::Buildkite;
     repo,
-    repo_previews=repo,
+    repo_previews = repo,
     devbranch,
     push_preview,
     devurl,
-    branch="gh-pages",
-    branch_previews=branch,
-    tag_prefix="",
+    branch = "gh-pages",
+    branch_previews = branch,
+    tag_prefix = "",
     kwargs...
 )
     io = IOBuffer()
@@ -836,14 +836,14 @@ function deploy_folder(
 
     if all_ok
         return DeployDecision(;
-            all_ok=true,
-            branch=deploy_branch,
-            repo=deploy_repo,
-            subfolder=subfolder,
-            is_preview=is_preview
+            all_ok = true,
+            branch = deploy_branch,
+            repo = deploy_repo,
+            subfolder = subfolder,
+            is_preview = is_preview
         )
     else
-        return DeployDecision(; all_ok=false)
+        return DeployDecision(; all_ok = false)
     end
 end
 
@@ -937,13 +937,13 @@ end
 function deploy_folder(
     cfg::Woodpecker;
     repo,
-    repo_previews=repo,
-    branch="pages",
-    branch_previews=branch,
+    repo_previews = repo,
+    branch = "pages",
+    branch_previews = branch,
     devbranch,
     push_preview,
     devurl,
-    tag_prefix="",
+    tag_prefix = "",
     kwargs...)
     io = IOBuffer()
     all_ok = true
@@ -1038,14 +1038,14 @@ function deploy_folder(
     end
 
     if all_ok
-        return DeployDecision(; all_ok=true,
-            branch=deploy_branch,
-            is_preview=is_preview,
-            repo=deploy_repo,
-            subfolder=subfolder
+        return DeployDecision(; all_ok = true,
+            branch = deploy_branch,
+            is_preview = is_preview,
+            repo = deploy_repo,
+            subfolder = subfolder
         )
     else
-        return DeployDecision(; all_ok=false)
+        return DeployDecision(; all_ok = false)
     end
 end
 

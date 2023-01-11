@@ -90,11 +90,11 @@ struct IndexNode <: AbstractDocumenterBlock
     function IndexNode(codeblock;
         # TODO: Fix difference between uppercase and lowercase naming of keys.
         #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
-        Pages=[],
-        Modules=[],
-        Order=[:module, :constant, :type, :function, :macro],
-        build=error("missing value for `build` in `IndexNode`."),
-        source=error("missing value for `source` in `IndexNode`."),
+        Pages = [],
+        Modules = [],
+        Order = [:module, :constant, :type, :function, :macro],
+        build = error("missing value for `build` in `IndexNode`."),
+        source = error("missing value for `source` in `IndexNode`."),
         others...
     )
         new(Pages, Modules, Order, build, source, [], codeblock)
@@ -113,10 +113,10 @@ struct ContentsNode <: AbstractDocumenterBlock
     codeblock::MarkdownAST.CodeBlock # original code block
 
     function ContentsNode(codeblock;
-        Pages=[],
-        Depth=1:2,
-        build=error("missing value for `build` in `ContentsNode`."),
-        source=error("missing value for `source` in `ContentsNode`."),
+        Pages = [],
+        Depth = 1:2,
+        build = error("missing value for `build` in `ContentsNode`."),
+        source = error("missing value for `source` in `ContentsNode`."),
         others...
     )
         if Depth isa Integer
@@ -286,30 +286,30 @@ struct Document
     blueprint::DocumentBlueprint
 end
 
-function Document(plugins=nothing;
-    root::AbstractString=currentdir(),
-    source::AbstractString="src",
-    build::AbstractString="build",
-    workdir::Union{Symbol,AbstractString}=:build,
-    format::Any=HTML(),
-    clean::Bool=true,
-    doctest::Union{Bool,Symbol}=true,
-    linkcheck::Bool=false,
-    linkcheck_ignore::Vector=[],
-    linkcheck_timeout::Real=10,
-    checkdocs::Symbol=:all,
-    doctestfilters::Vector{Regex}=Regex[],
-    strict::Union{Bool,Symbol,Vector{Symbol}}=false,
-    modules::ModVec=Module[],
-    pages::Vector=Any[],
-    pagesonly::Bool=false,
-    expandfirst::Vector=String[],
-    repo::Union{Remotes.Remote,AbstractString}="",
-    sitename::AbstractString="",
-    authors::AbstractString="",
-    version::AbstractString="",
-    highlightsig::Bool=true,
-    draft::Bool=false,
+function Document(plugins = nothing;
+    root::AbstractString = currentdir(),
+    source::AbstractString = "src",
+    build::AbstractString = "build",
+    workdir::Union{Symbol,AbstractString} = :build,
+    format::Any = HTML(),
+    clean::Bool = true,
+    doctest::Union{Bool,Symbol} = true,
+    linkcheck::Bool = false,
+    linkcheck_ignore::Vector = [],
+    linkcheck_timeout::Real = 10,
+    checkdocs::Symbol = :all,
+    doctestfilters::Vector{Regex} = Regex[],
+    strict::Union{Bool,Symbol,Vector{Symbol}} = false,
+    modules::ModVec = Module[],
+    pages::Vector = Any[],
+    pagesonly::Bool = false,
+    expandfirst::Vector = String[],
+    repo::Union{Remotes.Remote,AbstractString} = "",
+    sitename::AbstractString = "",
+    authors::AbstractString = "",
+    version::AbstractString = "",
+    highlightsig::Bool = true,
+    draft::Bool = false,
     others...
 )
 
@@ -483,7 +483,7 @@ function populate!(index::IndexNode, document::Document)
         (x = _compare(ordermap, 5, a, b)) == 0 || return x < 0 # category
         string(a[1].binding) < string(b[1].binding)              # object name
     end
-    sort!(index.elements, lt=comparison)
+    sort!(index.elements, lt = comparison)
     return index
 end
 
@@ -507,7 +507,7 @@ function populate!(contents::ContentsNode, document::Document)
         (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
         a[1] < b[1]                                            # anchor order
     end
-    sort!(contents.elements, lt=comparison)
+    sort!(contents.elements, lt = comparison)
     return contents
 end
 
@@ -527,7 +527,7 @@ function doctest_replace!(block::MarkdownAST.CodeBlock)
     startswith(block.info, "jldoctest") || return
     # suppress output for `#output`-style doctests with `output=false` kwarg
     if occursin(r"^# output$"m, block.code) && occursin(r";.*output\h*=\h*false", block.info)
-        input = first(split(block.code, "# output\n", limit=2))
+        input = first(split(block.code, "# output\n", limit = 2))
         block.code = rstrip(input)
     end
     # correct the language field

@@ -31,7 +31,7 @@ struct RemoteLibrary
     deps::Vector{String}
     exports::Union{Nothing,String}
 
-    function RemoteLibrary(name::AbstractString, url::AbstractString; deps=String[], exports=nothing)
+    function RemoteLibrary(name::AbstractString, url::AbstractString; deps = String[], exports = nothing)
         new(name, url, deps, exports)
     end
 end
@@ -91,7 +91,7 @@ struct RequireJS
     libraries::Dict{String,RemoteLibrary}
     snippets::Vector{Snippet}
 
-    function RequireJS(libraries::AbstractVector, snippets::AbstractVector=Snippet[])
+    function RequireJS(libraries::AbstractVector, snippets::AbstractVector = Snippet[])
         all(x -> isa(x, RemoteLibrary), libraries) || throw(ArgumentError("Bad element types for `libraries`: $(typeof.(libraries))"))
         all(x -> isa(x, Snippet), snippets) || throw(ArgumentError("Bad element types for `snippets`: $(typeof.(snippets))"))
         r = new(Dict(), [])
@@ -120,7 +120,7 @@ Base.push!(r::RequireJS, s::Snippet) = push!(r.snippets, s)
 Checks that none of the dependencies are missing (returns `false` if some are). If `verbose`
 is set to `true`, it will also log an error with the missing dependency.
 """
-function verify(r::RequireJS; verbose=false)
+function verify(r::RequireJS; verbose = false)
     isvalid = true
     for (name, lib) in r.libraries
         for dep in lib.deps
@@ -343,7 +343,7 @@ characters to get valid JS (since [JSON is not a JS subset](https://web.archive.
 """
 function json_jsescape(args...)
     escapes = ('\u2028' => "\\u2028", '\u2029' => "\\u2029")
-    reduce(replace, escapes, init=JSON.json(args...))
+    reduce(replace, escapes, init = JSON.json(args...))
 end
 
 end

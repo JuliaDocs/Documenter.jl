@@ -15,7 +15,7 @@ import IOCapture
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
     (result, success, backtrace, output) =
-        c = IOCapture.capture(rethrow=InterruptException) do
+        c = IOCapture.capture(rethrow = InterruptException) do
             # Running inside a Task to make sure that the parent testsets do not interfere.
             t = Task(() -> doctest(args...; kwargs...))
             schedule(t)
@@ -229,7 +229,7 @@ module BadDocTestKwargs3 end
         @test !success
         @test result isa TestSetException
     end
-    DocMeta.setdocmeta!(DocTest4, :DocTestSetup, :(x = 42); recursive=true, warn=false)
+    DocMeta.setdocmeta!(DocTest4, :DocTestSetup, :(x = 42); recursive = true, warn = false)
     run_doctest(nothing, [DocTest4]) do result, success, backtrace, output
         @test success
         @test result isa Test.DefaultTestSet
@@ -249,7 +249,7 @@ module BadDocTestKwargs3 end
 
     # DoctestFilters
     df = [r"global (filter|FILTER)"]
-    run_doctest(nothing, [DoctestFilters], doctestfilters=df) do result, success, backtrace, output
+    run_doctest(nothing, [DoctestFilters], doctestfilters = df) do result, success, backtrace, output
         @test success
     end
 

@@ -95,7 +95,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
 
     # We create the .user.build directory.
     # If .user.clean is set, we first clean the existing directory.
-    doc.user.clean && isdir(build) && rm(build; recursive=true)
+    doc.user.clean && isdir(build) && rm(build; recursive = true)
     isdir(build) || mkpath(build)
 
     # We'll walk over all the files in the .user.source directory.
@@ -128,7 +128,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
                 push!(mdpages, Documenter.srcpath(source, root, file))
                 Documenter.addpage!(doc, src, dst, wd)
             else
-                cp(src, dst; force=true)
+                cp(src, dst; force = true)
             end
         end
     end
@@ -136,7 +136,7 @@ function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
     # If the user hasn't specified the page list, then we'll just default to a
     # flat list of all the markdown files we found, sorted by the filesystem
     # path (it will group them by subdirectory, among others).
-    userpages = isempty(doc.user.pages) ? sort(mdpages, lt=lt_page) : doc.user.pages
+    userpages = isempty(doc.user.pages) ? sort(mdpages, lt = lt_page) : doc.user.pages
 
     # Populating the .navtree and .navlist.
     # We need the for loop because we can't assign to the fields of the immutable
@@ -174,8 +174,8 @@ string sorting, except for prioritizing `index.md` (i.e. `index.md` always comes
 """
 function lt_page(a, b)
     # note: length("index.md") == 8
-    a = endswith(a, "index.md") ? chop(a; tail=8) : a
-    b = endswith(b, "index.md") ? chop(b; tail=8) : b
+    a = endswith(a, "index.md") ? chop(a; tail = 8) : a
+    b = endswith(b, "index.md") ? chop(b; tail = 8) : b
     return a < b
 end
 

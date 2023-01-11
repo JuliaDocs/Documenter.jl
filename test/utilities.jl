@@ -189,7 +189,7 @@ end
 
             # repo_root & relpath_from_repo_root
             @test Documenter.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
-            @test Documenter.repo_root(filepath; dbdir=".svn") == nothing
+            @test Documenter.repo_root(filepath; dbdir = ".svn") == nothing
             @test Documenter.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
             @test Documenter.repo_root(tempname()) == nothing
@@ -211,7 +211,7 @@ end
 
             # repo_root & relpath_from_repo_root
             @test Documenter.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
-            @test Documenter.repo_root(filepath; dbdir=".svn") == nothing
+            @test Documenter.repo_root(filepath; dbdir = ".svn") == nothing
             @test Documenter.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
             @test Documenter.repo_root(tempname()) == nothing
@@ -250,7 +250,7 @@ end
 
             # repo_root & relpath_from_repo_root
             @test Documenter.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
-            @test Documenter.repo_root(filepath; dbdir=".svn") == nothing
+            @test Documenter.repo_root(filepath; dbdir = ".svn") == nothing
             @test Documenter.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
             # We assume that a temporary file is not in a repo
             @test Documenter.repo_root(tempname()) == nothing
@@ -327,7 +327,7 @@ end
 
     @testset "PR #1634, issue #1655" begin
         let parse(x) = Documenter.parseblock(x, nothing, nothing;
-                linenumbernode=LineNumberNode(123, "testfile.jl")
+                linenumbernode = LineNumberNode(123, "testfile.jl")
             )
             code = """
             1 + 1
@@ -368,7 +368,7 @@ end
     @testset "mdparse" begin
         mdparse = Documenter.mdparse
 
-        @test_throws ArgumentError mdparse("", mode=:foo)
+        @test_throws ArgumentError mdparse("", mode = :foo)
 
         @test mdparse("") == [
             MarkdownAST.@ast MarkdownAST.Paragraph() do
@@ -380,21 +380,21 @@ end
                 "foo bar"
             end
         ]
-        @test mdparse("", mode=:span) == [
+        @test mdparse("", mode = :span) == [
             MarkdownAST.@ast(MarkdownAST.Text(""))
         ]
-        @test mdparse("", mode=:blocks) == []
+        @test mdparse("", mode = :blocks) == []
 
         # Note: Markdown.parse() does not put any child nodes into adminition.contents
         # unless there is something non-empty there, which in turn means that the
         # MarkdownAST Admonition node has no children.
-        @test mdparse("!!! adm"; mode=:single) == [
+        @test mdparse("!!! adm"; mode = :single) == [
             MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
         ]
-        @test mdparse("!!! adm"; mode=:blocks) == [
+        @test mdparse("!!! adm"; mode = :blocks) == [
             MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
         ]
-        @test mdparse("x\n\ny", mode=:blocks) == [
+        @test mdparse("x\n\ny", mode = :blocks) == [
             MarkdownAST.@ast(MarkdownAST.Paragraph() do
                 "x"
             end),
@@ -404,9 +404,9 @@ end
         ]
 
         @quietly begin
-            @test_throws ArgumentError mdparse("!!! adm", mode=:span)
+            @test_throws ArgumentError mdparse("!!! adm", mode = :span)
             @test_throws ArgumentError mdparse("x\n\ny")
-            @test_throws ArgumentError mdparse("x\n\ny", mode=:span)
+            @test_throws ArgumentError mdparse("x\n\ny", mode = :span)
         end
     end
 
@@ -415,7 +415,7 @@ end
             RemoteLibrary, Snippet, RequireJS, verify, writejs, parse_snippet
         libraries = [
             RemoteLibrary("foo", "example.com/foo"),
-            RemoteLibrary("bar", "example.com/bar"; deps=["foo"]),
+            RemoteLibrary("bar", "example.com/bar"; deps = ["foo"]),
         ]
         snippet = Snippet(["foo", "bar"], ["Foo"], "f(x)")
         let r = RequireJS(libraries)
@@ -460,7 +460,7 @@ end
         # Error conditions: missing dependency
         let r = RequireJS([
                 RemoteLibrary("foo", "example.com/foo"),
-                RemoteLibrary("bar", "example.com/bar"; deps=["foo", "baz"]),
+                RemoteLibrary("bar", "example.com/bar"; deps = ["foo", "baz"]),
             ])
             @test !verify(r)
             push!(r, RemoteLibrary("baz", "example.com/baz"))
@@ -562,7 +562,7 @@ end
     end
 
     @testset "@docerror" begin
-        doc = (; internal=(; errors=Symbol[]), user=(; strict=[:doctest, :setup_block]))
+        doc = (; internal = (; errors = Symbol[]), user = (; strict = [:doctest, :setup_block]))
         foo = 123
         @test_logs (:warn, "meta_block issue 123") (Documenter.@docerror(doc, :meta_block, "meta_block issue $foo"))
         @test :meta_block ∈ doc.internal.errors
@@ -580,7 +580,7 @@ end
 
     @testset "git_remote_head_branch" begin
 
-        function git_create_bare_repo(path; head=nothing)
+        function git_create_bare_repo(path; head = nothing)
             mkdir(path)
             @test trun(`$(git()) -C $(path) init --bare`)
             @test isfile(joinpath(path, "HEAD"))
@@ -610,11 +610,11 @@ ref: refs/heads/$(head)
                 # Note: running @test_logs with match_mode=:any here so that the tests would
                 # also pass when e.g. JULIA_DEBUG=Documenter when the tests are being run.
                 # If there is no parent remote repository, we should get a warning and the fallback value:
-                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); fallback="fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); fallback = "fallback")) == "fallback"
                 @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd())) == "master"
                 # We'll set up two "remote" bare repositories with non-standard HEADs:
-                git_create_bare_repo("barerepo", head="maindevbranch")
-                git_create_bare_repo("barerepo_other", head="main")
+                git_create_bare_repo("barerepo", head = "maindevbranch")
+                git_create_bare_repo("barerepo_other", head = "main")
                 # Clone barerepo and test git_remote_head_branch:
                 @test trun(`$(git()) clone barerepo/ local/`)
                 @test Documenter.git_remote_head_branch(".", "local") == "maindevbranch"
@@ -622,10 +622,10 @@ ref: refs/heads/$(head)
                 @test trun(`$(git()) -C local/ remote add other ../barerepo_other/`)
                 @test trun(`$(git()) -C local/ fetch other`)
                 @test Documenter.git_remote_head_branch(".", "local") == "maindevbranch"
-                @test Documenter.git_remote_head_branch(".", "local"; remotename="other") == "main"
+                @test Documenter.git_remote_head_branch(".", "local"; remotename = "other") == "main"
                 # Asking for a nonsense remote should also warn and drop back to fallback:
-                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename="nonsense", fallback="fallback")) == "fallback"
-                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename="nonsense")) == "master"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense", fallback = "fallback")) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense")) == "master"
             end
         end
     end

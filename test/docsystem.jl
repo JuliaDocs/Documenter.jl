@@ -67,11 +67,11 @@ end
     let b = DocSystem.binding(DocSystem, :getdocs),
         d_0 = DocSystem.getdocs(b, Tuple{}),
         d_1 = DocSystem.getdocs(b),
-        d_2 = DocSystem.getdocs(b, Union{Tuple{Any},Tuple{Any,Type}}; compare=(==)),
-        d_3 = DocSystem.getdocs(b; modules=Module[Main]),
+        d_2 = DocSystem.getdocs(b, Union{Tuple{Any},Tuple{Any,Type}}; compare = (==)),
+        d_3 = DocSystem.getdocs(b; modules = Module[Main]),
         d_4 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs)),
-        d_5 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs); aliases=false),
-        d_6 = DocSystem.getdocs(b, Union{Tuple{Docs.Binding},Tuple{Docs.Binding,Type}}; compare=(==)),
+        d_5 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs); aliases = false),
+        d_6 = DocSystem.getdocs(b, Union{Tuple{Docs.Binding},Tuple{Docs.Binding,Type}}; compare = (==)),
         d_7 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs), Union{Tuple{Docs.Binding},Tuple{Docs.Binding,Type}})
 
         @test length(d_0) == 0
@@ -152,7 +152,7 @@ end
     @test foo_3[1] ∈ foo_1
 
     # setting 'compare' to subtype, will fetch both docstrings
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :foo), Tuple{Float64}, compare=(<:)) == foo_1
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :foo), Tuple{Float64}, compare = (<:)) == foo_1
 
     # bar is an alias, so falls back to foo
     @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar)) == foo_1
@@ -162,12 +162,12 @@ end
     @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Number}) == foo_5
     @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Any}) == foo_6
     # unless we disable following aliases
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar); aliases=false) |> isempty
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Int}; aliases=false) |> isempty
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Float64}; aliases=false) |> isempty
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{AbstractFloat}; aliases=false) |> isempty
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Number}; aliases=false) |> isempty
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Any}; aliases=false) |> isempty
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar); aliases = false) |> isempty
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Int}; aliases = false) |> isempty
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Float64}; aliases = false) |> isempty
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{AbstractFloat}; aliases = false) |> isempty
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Number}; aliases = false) |> isempty
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :bar), Tuple{Any}; aliases = false) |> isempty
 
     # baz, while an alias of foo, has the same 'structure', but different docstrings..
     baz_1 = Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz))
@@ -195,12 +195,12 @@ end
     @test baz_3[1] ∈ baz_1
 
     # .. even if we disable aliases
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz); aliases=false) == baz_1
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Int}; aliases=false) == baz_2
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Float64}; aliases=false) == baz_3
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{AbstractFloat}; aliases=false) == baz_4
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Number}; aliases=false) == baz_5
-    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Any}; aliases=false) == baz_6
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz); aliases = false) == baz_1
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Int}; aliases = false) == baz_2
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Float64}; aliases = false) == baz_3
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{AbstractFloat}; aliases = false) == baz_4
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Number}; aliases = false) == baz_5
+    @test Documenter.DocSystem.getdocs(Docs.Binding(TestDocstrings, :baz), Tuple{Any}; aliases = false) == baz_6
 end
 
 end

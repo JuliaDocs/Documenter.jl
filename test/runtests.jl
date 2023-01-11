@@ -71,7 +71,7 @@ using Main.TestUtilities;
     @quietly include("workdir/tests.jl")
 
     # Passing a writer positionally (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
-    @test_throws ArgumentError makedocs(sitename="", HTML())
+    @test_throws ArgumentError makedocs(sitename = "", HTML())
 
     # Running doctest() on our own manual
     @info "doctest() Documenter's manual"

@@ -42,7 +42,7 @@ binding(f::Function) = binding(parentmodule(f), nameof(f))
 #
 # Note that `IntrinsicFunction` is exported from `Base` in `0.4`, but not in `0.5`.
 #
-let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all=true)))
+let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all = true)))
     global binding(i::Core.IntrinsicFunction) = binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
 end
 
@@ -172,9 +172,9 @@ Return a `Vector{DocStr}` ordered by definition order.
 """
 function getspecificdocs(
     binding::Docs.Binding,
-    typesig::Type=Union{},
-    compare=(==),
-    modules=Docs.modules,
+    typesig::Type = Union{},
+    compare = (==),
+    modules = Docs.modules,
 )
     # Fall back to searching all modules if user provides no modules.
     modules = isempty(modules) ? Docs.modules : modules
@@ -209,10 +209,10 @@ try getting docs for `<:`.
 """
 function getdocs(
     binding::Docs.Binding,
-    typesig::Type=Union{};
-    compare=(==),
-    modules=Docs.modules,
-    aliases=true
+    typesig::Type = Union{};
+    compare = (==),
+    modules = Docs.modules,
+    aliases = true
 )
     # First, we try to find the docs that _exactly_ match the binding. If you
     # have aliases, you can have a separate docstring attached to the alias.
@@ -244,7 +244,7 @@ searching for the `Binding` in the docsystem.
 
 Note that when conversion fails this method returns an empty `Vector{DocStr}`.
 """
-function getdocs(object::Any, typesig::Type=Union{}; kws...)
+function getdocs(object::Any, typesig::Type = Union{}; kws...)
     binding = aliasof(object, object)
     binding === object ? DocStr[] : getdocs(binding, typesig; kws...)
 end

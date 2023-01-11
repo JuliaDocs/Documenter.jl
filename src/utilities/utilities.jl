@@ -69,7 +69,7 @@ function find_block_in_file(code, file)
 end
 
 # Pretty-printing locations
-function locrepr(file, line=nothing)
+function locrepr(file, line = nothing)
     str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
     line !== nothing && (str = str * ":$(line.first)-$(line.second)")
     return str
@@ -90,7 +90,7 @@ Returns the path to the Documenter `assets` directory.
 """
 assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive=true); mkdir(d))
+cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive = true); mkdir(d))
 
 """
 Find the path of a file relative to the `source` directory. `root` is the path
@@ -132,11 +132,11 @@ returns this expression normally and it must be handled appropriately by the cal
 The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
 and starting line number of the block (requires Julia 1.6 or higher).
 """
-function parseblock(code::AbstractString, doc, file; skip=0, keywords=true, raise=true,
-    linenumbernode=nothing)
+function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
+    linenumbernode = nothing)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
-    code = last(split(code, '\n', limit=skip + 1))
+    code = last(split(code, '\n', limit = skip + 1))
     endofstr = lastindex(code)
     results = []
     cursor = 1
@@ -150,7 +150,7 @@ function parseblock(code::AbstractString, doc, file; skip=0, keywords=true, rais
                 (QuoteNode(keyword), cursor + lastindex(line))
             else
                 try
-                    Meta.parse(code, cursor; raise=raise)
+                    Meta.parse(code, cursor; raise = raise)
                 catch err
                     @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
                     break
@@ -163,7 +163,7 @@ function parseblock(code::AbstractString, doc, file; skip=0, keywords=true, rais
         cursor = ncursor
     end
     if linenumbernode isa LineNumberNode
-        exs = Meta.parseall(code; filename=linenumbernode.file).args
+        exs = Meta.parseall(code; filename = linenumbernode.file).args
         @assert length(exs) == 2 * length(results)
         for (i, ex) in enumerate(Iterators.partition(exs, 2))
             @assert ex[1] isa LineNumberNode
@@ -227,9 +227,9 @@ function submodules(modules::Vector{Module})
     end
     out
 end
-function submodules(root::Module, seen=Set{Module}())
+function submodules(root::Module, seen = Set{Module}())
     push!(seen, root)
-    for name in names(root, all=true)
+    for name in names(root, all = true)
         if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
             if isa(object, Module) && !(object in seen) && parentmodule(object::Module) == root
@@ -399,7 +399,7 @@ The `dbdir` keyword argument specifies the name of the directory we are searchin
 determine if this is a repostory or not. If there is a file called `dbdir`, then it's
 contents is checked under the assumption that it is a Git worktree or a submodule.
 """
-function repo_root(file; dbdir=".git")
+function repo_root(file; dbdir = ".git")
     parent_dir, parent_dir_last = dirname(abspath(file)), ""
     while parent_dir != parent_dir_last
         dbdir_path = joinpath(parent_dir, dbdir)
@@ -439,7 +439,7 @@ function repo_commit(file)
     end
 end
 
-function edit_url(repo, file; commit=nothing)
+function edit_url(repo, file; commit = nothing)
     file = abspath(file)
     if !isfile(file)
         @warn "couldn't find file \"$file\" when generating URL"
@@ -524,7 +524,7 @@ function getremote(dir::AbstractString)
     isdir(dir) || return nothing
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
-            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
+            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir = dir))
         catch
             ""
         end
@@ -618,7 +618,7 @@ The `mode` keyword argument can be one of the following:
   This requires the string to parse into a single `Markdown.Paragraph`, the contents of
   which gets returned.
 """
-function mdparse(s::AbstractString; mode=:single)::Vector{MarkdownAST.Node{Nothing}}
+function mdparse(s::AbstractString; mode = :single)::Vector{MarkdownAST.Node{Nothing}}
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
     mdast = convert(MarkdownAST.Node, Markdown.parse(s))
     if mode == :blocks
@@ -649,21 +649,21 @@ function mdparse(s::AbstractString; mode=:single)::Vector{MarkdownAST.Node{Nothi
 end
 
 # Capturing output in different representations similar to IJulia.jl
-function limitstringmime(m::MIME"text/plain", x; context=nothing)
+function limitstringmime(m::MIME"text/plain", x; context = nothing)
     io = IOBuffer()
     ioc = IOContext(context === nothing ? io : IOContext(io, context), :limit => true)
     show(ioc, m, x)
     return String(take!(io))
 end
-function display_dict(x; context=nothing)
+function display_dict(x; context = nothing)
     out = Dict{MIME,Any}()
     x === nothing && return out
     # Always generate text/plain
-    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context=context)
+    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context = context)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
         MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
         MIME"text/latex"(), MIME"text/markdown"()]
-        showable(m, x) && (out[m] = stringmime(m, x, context=context))
+        showable(m, x) && (out[m] = stringmime(m, x, context = context))
     end
     return out
 end
@@ -700,7 +700,7 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
-function get_sandbox_module!(meta, prefix, name=nothing)
+function get_sandbox_module!(meta, prefix, name = nothing)
     sym = if name === nothing || isempty(name)
         Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
     else
@@ -766,8 +766,8 @@ it out automatically.
 `root` is the the directory where `git` gets run. `varname` is just informational and used
 to construct the warning messages.
 """
-function git_remote_head_branch(varname, root; remotename="origin", fallback="master")
-    gitcmd = git(nothrow=true)
+function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
+    gitcmd = git(nothrow = true)
     if gitcmd === nothing
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
@@ -779,13 +779,13 @@ function git_remote_head_branch(varname, root; remotename="origin", fallback="ma
     # We need to do addenv() here to merge the new variables with the environment set by
     # Git_jll and the git() function.
     cmd = addenv(
-        setenv(`$gitcmd remote show $(remotename)`, dir=root),
+        setenv(`$gitcmd remote show $(remotename)`, dir = root),
         "GIT_TERMINAL_PROMPT" => "0",
         "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
     )
     stderr_output = IOBuffer()
     git_remote_output = try
-        read(pipeline(cmd; stderr=stderr_output), String)
+        read(pipeline(cmd; stderr = stderr_output), String)
     catch e
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
@@ -835,7 +835,7 @@ dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
 dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
-function git(; nothrow=false, kwargs...)
+function git(; nothrow = false, kwargs...)
     system_git_path = Sys.which("git")
     if system_git_path === nothing
         return nothrow ? nothing : error("Unable to find `git`")
@@ -849,7 +849,7 @@ function git(; nothrow=false, kwargs...)
     return cmd
 end
 
-function remove_common_backtrace(bt, reference_bt=backtrace())
+function remove_common_backtrace(bt, reference_bt = backtrace())
     cutoff = nothing
     # We'll start from the top of the backtrace (end of the array) and go down, checking
     # if the backtraces agree

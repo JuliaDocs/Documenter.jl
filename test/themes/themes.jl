@@ -21,7 +21,7 @@ using DocumenterTools: Themes
     mktempdir() do tmpdir
         for theme in HTMLWriter.THEMES
             dst = joinpath(tmpdir, "$(theme).css")
-            Themes.compile_native_theme(theme; dst=dst)
+            Themes.compile_native_theme(theme; dst = dst)
             css_compiled = read(dst)
             css_repo = read(joinpath(HTMLWriter.ASSETS_THEMES, "$(theme).css"))
             @test css_compiled == css_repo

@@ -79,7 +79,7 @@ struct HTMLAsset
     islocal::Bool
     attributes::Dict{Symbol,String}
 
-    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, attributes::Dict{Symbol,String}=Dict{Symbol,String}())
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, attributes::Dict{Symbol,String} = Dict{Symbol,String}())
         if !islocal && match(r"^https?://", uri) === nothing
             error("Remote asset URL must start with http:// or https://")
         end
@@ -126,7 +126,7 @@ Documenter.HTML(assets = [
 ])
 ```
 """
-function asset(uri; class=nothing, islocal=false, attributes=Dict{Symbol,String}())
+function asset(uri; class = nothing, islocal = false, attributes = Dict{Symbol,String}())
     if class === nothing
         class = assetclass(uri)
         (class === nothing) && error("""
@@ -166,7 +166,7 @@ user-provided dictionary is used.
 """
 struct KaTeX <: MathEngine
     config::Dict{Symbol,Any}
-    function KaTeX(config::Union{Dict,Nothing}=nothing, override=false)
+    function KaTeX(config::Union{Dict,Nothing} = nothing, override = false)
         default = Dict(
             :delimiters => [
                 Dict(:left => raw"$", :right => raw"$", display => false),
@@ -202,7 +202,7 @@ use a particular minor version).
 struct MathJax2 <: MathEngine
     config::Dict{Symbol,Any}
     url::String
-    function MathJax2(config::Union{Dict,Nothing}=nothing, override=false; url="")
+    function MathJax2(config::Union{Dict,Nothing} = nothing, override = false; url = "")
         default = Dict(
             :tex2jax => Dict(
                 "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
@@ -228,7 +228,7 @@ struct MathJax2 <: MathEngine
     end
 end
 
-@deprecate MathJax(config::Union{Dict,Nothing}=nothing, override=false) MathJax2(config, override) false
+@deprecate MathJax(config::Union{Dict,Nothing} = nothing, override = false) MathJax2(config, override) false
 @doc "deprecated – Use [`MathJax2`](@ref) instead" MathJax
 
 """
@@ -257,7 +257,7 @@ use a particular minor version).
 struct MathJax3 <: MathEngine
     config::Dict{Symbol,Any}
     url::String
-    function MathJax3(config::Union{Dict,Nothing}=nothing, override=false; url="")
+    function MathJax3(config::Union{Dict,Nothing} = nothing, override = false; url = "")
         default = Dict(
             :tex => Dict(
                 "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
@@ -434,30 +434,30 @@ struct HTML <: Documenter.Writer
     highlightjs::Union{String,Nothing}
 
     function HTML(;
-        prettyurls::Bool=true,
-        disable_git::Bool=false,
-        repolink::Union{String,Nothing,Default}=Default(nothing),
-        edit_link::Union{String,Symbol,Nothing,Default}=Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
-        canonical::Union{String,Nothing}=nothing,
-        assets::Vector=String[],
-        analytics::String="",
-        collapselevel::Integer=2,
-        sidebar_sitename::Bool=true,
-        highlights::Vector{String}=String[],
-        mathengine::Union{MathEngine,Nothing}=KaTeX(),
-        description::Union{String,Nothing}=nothing,
-        footer::Union{String,Nothing}="Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
-        ansicolor::Bool=true,
-        lang::String="en",
-        warn_outdated::Bool=true,
+        prettyurls::Bool = true,
+        disable_git::Bool = false,
+        repolink::Union{String,Nothing,Default} = Default(nothing),
+        edit_link::Union{String,Symbol,Nothing,Default} = Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
+        canonical::Union{String,Nothing} = nothing,
+        assets::Vector = String[],
+        analytics::String = "",
+        collapselevel::Integer = 2,
+        sidebar_sitename::Bool = true,
+        highlights::Vector{String} = String[],
+        mathengine::Union{MathEngine,Nothing} = KaTeX(),
+        description::Union{String,Nothing} = nothing,
+        footer::Union{String,Nothing} = "Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) and the [Julia Programming Language](https://julialang.org/).",
+        ansicolor::Bool = true,
+        lang::String = "en",
+        warn_outdated::Bool = true,
 
         # experimental keywords
-        prerender::Bool=false,
-        node::Union{Cmd,String,Nothing}=nothing,
-        highlightjs::Union{String,Nothing}=nothing,
+        prerender::Bool = false,
+        node::Union{Cmd,String,Nothing} = nothing,
+        highlightjs::Union{String,Nothing} = nothing,
 
         # deprecated keywords
-        edit_branch::Union{String,Nothing,Default}=Default(nothing)
+        edit_branch::Union{String,Nothing,Default} = Default(nothing)
     )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         if prerender
@@ -518,13 +518,13 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
         @debug "HTMLWriter: downloading highlightjs"
         r = Documenter.JSDependencies.RequireJS([])
         RD.highlightjs!(r, highlights)
-        libs = sort!(collect(r.libraries); by=first) # puts highlight first
+        libs = sort!(collect(r.libraries); by = first) # puts highlight first
         key = join((x.first for x in libs), ',')
         highlightjs = get!(HLJSFILES, key) do
             path, io = mktemp()
             for lib in libs
                 println(io, "// $(lib.first)")
-                run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout=io))
+                run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout = io))
                 println(io)
             end
             close(io)
@@ -563,7 +563,7 @@ mutable struct HTMLContext
     search_navnode::Documenter.NavNode
 end
 
-HTMLContext(doc, settings=nothing) = HTMLContext(
+HTMLContext(doc, settings = nothing) = HTMLContext(
     doc, settings, [], "", "", "", "", [], "",
     Documenter.NavNode("search", "Search", nothing),
 )
@@ -577,17 +577,17 @@ struct DCtx
     settings::Union{HTML,Nothing}
     footnotes::Union{Vector{Node{Nothing}},Nothing}
 
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, [])
+    DCtx(ctx, navnode, droplinks = false) = new(ctx, navnode, droplinks, ctx.settings, [])
     DCtx(
         dctx::DCtx;
-        navnode=dctx.navnode,
-        droplinks=dctx.droplinks,
-        settings=dctx.settings,
-        footnotes=dctx.footnotes
+        navnode = dctx.navnode,
+        droplinks = dctx.droplinks,
+        settings = dctx.settings,
+        footnotes = dctx.footnotes
     ) = new(dctx.ctx, navnode, droplinks, settings, footnotes)
 end
 
-function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
+function SearchRecord(ctx::HTMLContext, navnode; fragment = "", title = nothing, category = "page", text = "")
     page_title = mdflatten_pagetitle(DCtx(ctx, navnode))
     if title === nothing
         title = page_title
@@ -606,13 +606,13 @@ end
 function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
     a = element.anchor
     SearchRecord(ctx, navnode;
-        fragment=Anchors.fragment(a),
-        title=mdflatten(node), # AnchoredHeader has Heading as single child
-        category="section")
+        fragment = Anchors.fragment(a),
+        title = mdflatten(node), # AnchoredHeader has Heading as single child
+        category = "section")
 end
 
 function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
-    SearchRecord(ctx, navnode; text=mdflatten(node))
+    SearchRecord(ctx, navnode; text = mdflatten(node))
 end
 
 function JSON.lower(rec::SearchRecord)
@@ -635,7 +635,7 @@ getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx::HTMLContext, navnode::Documenter.NavNode) = getpage(ctx, navnode.page)
 getpage(dctx::DCtx) = getpage(dctx.ctx, dctx.navnode)
 
-function render(doc::Documenter.Document, settings::HTML=HTML())
+function render(doc::Documenter.Document, settings::HTML = HTML())
     @info "HTMLWriter: rendering HTML pages."
     !isempty(doc.user.sitename) || error("HTML output requires `sitename`.")
     if isempty(doc.blueprint.pages)
@@ -677,7 +677,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
             endswith(filename, ".js") && isfile(path) || continue
             push!(r, JSDependencies.parse_snippet(path))
         end
-        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
+        JSDependencies.verify(r; verbose = true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
     end
 
@@ -688,7 +688,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     else
         r = JSDependencies.RequireJS([RD.jquery, RD.lunr, RD.lodash])
         push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
-        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
+        JSDependencies.verify(r; verbose = true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
     end
 
@@ -792,7 +792,7 @@ end
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
+function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node} = DOM.Node[])
     @tags html body div
     DOM.HTMLDocument(
         html[:lang=>ctx.settings.lang](
@@ -1269,7 +1269,7 @@ function edit_link(f, ctx, navnode)
         "Edit", edit_logo, ctx.settings.edit_link
     end
     host, _ = host_logo(ctx.doc.user.remote)
-    editurl = Documenter.edit_url(ctx.doc.user.remote, editpath, commit=commit)
+    editurl = Documenter.edit_url(ctx.doc.user.remote, editpath, commit = commit)
     # It is possible for editurl() to return a nothing, if something goes wrong
     isnothing(editurl) && return
     # Create the edit link
@@ -1278,11 +1278,11 @@ function edit_link(f, ctx, navnode)
 end
 
 # All these logos are from the .fab (brands) class
-const host_logo_github = (host="GitHub", logo="\uf09b")
-const host_logo_bitbucket = (host="BitBucket", logo="\uf171")
-const host_logo_gitlab = (host="GitLab", logo="\uf296")
-const host_logo_azure = (host="Azure DevOps", logo="\uf3ca") # microsoft; TODO: change to ADO logo when added to FontAwesome
-const host_logo_fallback = (host="", logo="\uf841") # git-alt
+const host_logo_github = (host = "GitHub", logo = "\uf09b")
+const host_logo_bitbucket = (host = "BitBucket", logo = "\uf171")
+const host_logo_gitlab = (host = "GitLab", logo = "\uf296")
+const host_logo_azure = (host = "Azure DevOps", logo = "\uf3ca") # microsoft; TODO: change to ADO logo when added to FontAwesome
+const host_logo_fallback = (host = "", logo = "\uf841") # git-alt
 host_logo(remote::Remotes.GitHub) = host_logo_github
 host_logo(remote::Remotes.URL) = host_logo(remote.urltemplate)
 host_logo(remote::Union{Remotes.Remote,Nothing}) = host_logo_fallback
@@ -1343,7 +1343,7 @@ function render_article(ctx, navnode)
     if !isempty(dctx.footnotes)
         fnotes = map(dctx.footnotes) do f
             # If there are any nested footnotes, they'll get ignored.
-            dctx_footnote = DCtx(dctx, footnotes=nothing)
+            dctx_footnote = DCtx(dctx, footnotes = nothing)
             fid = "footnote-$(f.element.id)"
             citerefid = "citeref-$(f.element.id)"
             if length(f.children) == 1 && first(f.children).element isa MarkdownAST.Paragraph
@@ -1378,7 +1378,7 @@ function expand_versions(dir, versions)
     # filter and sort release folders
     vnum(x) = VersionNumber(x)
     version_folders = [x for x in available_folders if occursin(Base.VERSION_REGEX, x)]
-    sort!(version_folders, lt=(x, y) -> vnum(x) < vnum(y), rev=true)
+    sort!(version_folders, lt = (x, y) -> vnum(x) < vnum(y), rev = true)
     release_folders = filter(x -> (v = vnum(x); v.prerelease == () && v.build == ()), version_folders)
     # pre_release_folders = filter(x -> (v = vnum(x); v.prerelease != () || v.build != ()), version_folders)
     major_folders = filter!(x -> (v = vnum(x); v.major != 0),
@@ -1449,7 +1449,7 @@ function expand_versions(dir, versions)
 end
 
 # write version file
-function generate_version_file(versionfile::AbstractString, entries, symlinks=[])
+function generate_version_file(versionfile::AbstractString, entries, symlinks = [])
     open(versionfile, "w") do buf
         println(buf, "var DOC_VERSIONS = [")
         for folder in entries
@@ -1579,7 +1579,7 @@ function domify(dctx::DCtx, node::Node, contents::Documenter.ContentsNode)
         path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
         url = string(path, Anchors.fragment(anchor))
-        node = a[:href=>url](domify(DCtx(dctx, droplinks=true), header.children))
+        node = a[:href=>url](domify(DCtx(dctx, droplinks = true), header.children))
         push!(lb, level, node)
     end
     domify(lb)
@@ -1610,10 +1610,10 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
 
     # push to search index
     rec = SearchRecord(ctx, navnode;
-        fragment=Anchors.fragment(node.anchor),
-        title=string(node.object.binding),
-        category=Documenter.doccat(node.object),
-        text=mdflatten(mdast_node))
+        fragment = Anchors.fragment(node.anchor),
+        title = string(node.object.binding),
+        category = Documenter.doccat(node.object),
+        text = mdflatten(mdast_node))
     push!(ctx.search_index, rec)
 
     article[".docstring"](
@@ -1818,7 +1818,7 @@ function collect_subsections(page::MarkdownAST.Node)
     return sections
 end
 
-function domify_ansicoloredtext(text::AbstractString, class="")
+function domify_ansicoloredtext(text::AbstractString, class = "")
     @tags pre
     stack = DOM.Node[pre()] # this `pre` is dummy
     function cb(io::IO, printer, tag::String, attrs::Dict{Symbol,String})
@@ -1835,8 +1835,8 @@ function domify_ansicoloredtext(text::AbstractString, class="")
         return true
     end
     ansiclass = isempty(class) ? "ansi" : class * " ansi"
-    printer = ANSIColoredPrinters.HTMLPrinter(IOBuffer(text), callback=cb,
-        root_tag="code", root_class=ansiclass)
+    printer = ANSIColoredPrinters.HTMLPrinter(IOBuffer(text), callback = cb,
+        root_tag = "code", root_class = ansiclass)
     show(IOBuffer(), MIME"text/html"(), printer)
     return stack[1].nodes
 end
@@ -1911,7 +1911,7 @@ function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     """
     out, err = IOBuffer(), IOBuffer()
     try
-        run(pipeline(`$(settings.node) -e "$(js)"`; stdout=out, stderr=err))
+        run(pipeline(`$(settings.node) -e "$(js)"`; stdout = out, stderr = err))
         str = String(take!(out))
         # prepend nohighlight to stop runtime highlighting
         # return pre(code[".nohighlight $(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
@@ -2094,7 +2094,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
             svg_tag = svg_tag_match.match
             xmlns_present = occursin("xmlns", svg_tag)
             if !xmlns_present
-                svg = replace(svg, "<svg" => "<svg xmlns=\"http://www.w3.org/2000/svg\"", count=1)
+                svg = replace(svg, "<svg" => "<svg xmlns=\"http://www.w3.org/2000/svg\"", count = 1)
             end
 
             # We can leave the svg as utf8, but the minimum safety precaution we need
@@ -2139,7 +2139,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
         m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
         out = if m_bracket === nothing && m_dollars === nothing
-            Documenter.mdparse(latex; mode=:single)
+            Documenter.mdparse(latex; mode = :single)
         else
             [MarkdownAST.@ast MarkdownAST.DisplayMath(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])]
         end
@@ -2173,7 +2173,7 @@ function fixlink(dctx::DCtx, link::MarkdownAST.Link)
     # for such links
     startswith(link_url, '#') && return link_url
 
-    s = split(link_url, "#", limit=2)
+    s = split(link_url, "#", limit = 2)
     if Sys.iswindows() && ':' in first(s)
         @warn "invalid local link: colons not allowed in paths on Windows in $(Documenter.locrepr(navnode.page))" link_url
         return link_url

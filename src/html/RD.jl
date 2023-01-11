@@ -25,12 +25,12 @@ const headroom = RemoteLibrary("headroom", "https://cdnjs.cloudflare.com/ajax/li
 const headroom_jquery = RemoteLibrary(
     "headroom-jquery",
     "https://cdnjs.cloudflare.com/ajax/libs/headroom/$(headroom_version)/jQuery.headroom.min.js",
-    deps=["jquery", "headroom"],
+    deps = ["jquery", "headroom"],
 )
 
 # highlight.js
 "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
-function highlightjs!(r::RequireJS, languages=String[])
+function highlightjs!(r::RequireJS, languages = String[])
     # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
     # When updating this dependency, it is also necessary to update the the CSS
     # files the CSS files in assets/html/scss/highlightjs
@@ -45,7 +45,7 @@ function highlightjs!(r::RequireJS, languages=String[])
         push!(r, RemoteLibrary(
             "highlight-$(language)",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/languages/$(language).min.js",
-            deps=["highlight"]
+            deps = ["highlight"]
         ))
     end
     push!(r, Snippet(
@@ -70,7 +70,7 @@ function mathengine!(r::RequireJS, engine::KaTeX)
     push!(r, RemoteLibrary(
         "katex-auto-render",
         "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
-        deps=["katex"],
+        deps = ["katex"],
     ))
     push!(r, Snippet(
         ["jquery", "katex", "katex-auto-render"],
@@ -90,7 +90,7 @@ function mathengine!(r::RequireJS, engine::MathJax2)
     push!(r, RemoteLibrary(
         "mathjax",
         url,
-        exports="MathJax"
+        exports = "MathJax"
     ))
     push!(r, Snippet(["mathjax"], ["MathJax"],
         """

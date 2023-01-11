@@ -17,7 +17,7 @@ using Main.TestUtilities: @quietly
     const DocTestFixArray_2468 = Main.ShowWrap("4×1×1 Array{Int64,3}:\n[:, :, 1] =\n 2\n 4\n 6\n 8")
 end
 
-mktempdir_nocleanup(dir) = mktempdir(dir, cleanup=false)
+mktempdir_nocleanup(dir) = mktempdir(dir, cleanup = false)
 
 function normalize_line_endings(filename)
     s = read(filename, String)
@@ -40,13 +40,13 @@ function test_doctest_fix(dir)
     include(joinpath(srcdir, "src.jl"))
     @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
-    @quietly makedocs(sitename="-", modules=[Foo], source=srcdir, build=builddir, doctest=:fix)
+    @quietly makedocs(sitename = "-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
 
     # test that strict = true works
     include(joinpath(srcdir, "src.jl"))
     @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=true"
-    @quietly makedocs(sitename="-", modules=[Foo], source=srcdir, build=builddir, strict=true)
+    @quietly makedocs(sitename = "-", modules = [Foo], source = srcdir, build = builddir, strict = true)
 
     # also test that we obtain the expected output
     @test normalize_line_endings(index_md) == normalize_line_endings(joinpath(@__DIR__, "fixed.md"))

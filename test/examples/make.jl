@@ -152,7 +152,7 @@ function withassets(f, assets...)
     end
     for asset in assets
         isfile(dst(asset)) && @warn "Asset '$asset' present, dirty build directory. Overwriting." src(asset) dst(asset)
-        cp(src(asset), dst(asset), force=true)
+        cp(src(asset), dst(asset), force = true)
     end
     try
         f()
@@ -176,7 +176,7 @@ Remotes.issueurl(::TestRemote, issue) = "https://example.org/Repository.jl/blob/
 
 examples_root = @__DIR__
 builds_directory = joinpath(examples_root, "builds")
-ispath(builds_directory) && rm(builds_directory, recursive=true)
+ispath(builds_directory) && rm(builds_directory, recursive = true)
 
 expandfirst = ["expandorder/AA.md"]
 htmlbuild_pages = Any[
@@ -216,33 +216,33 @@ htmlbuild_pages = Any[
 
 function html_doc(
     build_directory, mathengine;
-    htmlkwargs=(;),
-    image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif"),
+    htmlkwargs = (;),
+    image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif"),
     kwargs...
 )
     @quietly withassets(image_assets...) do
         makedocs(;
-            debug=true,
-            root=examples_root,
-            build="builds/$(build_directory)",
-            doctestfilters=[r"Ptr{0x[0-9]+}"],
-            sitename="Documenter example",
-            pages=htmlbuild_pages,
-            expandfirst=expandfirst,
-            doctest=false,
-            format=Documenter.HTML(;
-                assets=[
+            debug = true,
+            root = examples_root,
+            build = "builds/$(build_directory)",
+            doctestfilters = [r"Ptr{0x[0-9]+}"],
+            sitename = "Documenter example",
+            pages = htmlbuild_pages,
+            expandfirst = expandfirst,
+            doctest = false,
+            format = Documenter.HTML(;
+                assets = [
                     "assets/favicon.ico",
                     "assets/custom.css",
                     asset("https://example.com/resource.js"),
-                    asset("http://example.com/fonts?param=foo", class=:css),
-                    asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class=:css),
+                    asset("http://example.com/fonts?param=foo", class = :css),
+                    asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class = :css),
                 ],
-                prettyurls=true,
-                canonical="https://example.com/stable",
-                mathengine=mathengine,
-                highlights=["erlang", "erlang-repl"],
-                footer="This footer has been customized.",
+                prettyurls = true,
+                canonical = "https://example.com/stable",
+                mathengine = mathengine,
+                highlights = ["erlang", "erlang-repl"],
+                footer = "This footer has been customized.",
                 htmlkwargs...
             ),
             kwargs...
@@ -264,7 +264,7 @@ examples_html_doc = if "html" in EXAMPLE_BUILDS
                 ),
             ),
         )),
-        htmlkwargs=(; edit_link=:commit),
+        htmlkwargs = (; edit_link = :commit),
     )
 else
     @info "Skipping build: HTML/deploy"
@@ -286,11 +286,11 @@ examples_html_meta_custom_doc = if "html-meta-custom" in EXAMPLE_BUILDS
                 ),
             ),
         )),
-        htmlkwargs=(;
-            edit_link=:commit,
-            description="Example site-wide description."
+        htmlkwargs = (;
+            edit_link = :commit,
+            description = "Example site-wide description."
         ),
-        image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif", "images/preview.png"),
+        image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif", "images/preview.png"),
     )
 else
     @info "Skipping build: HTML/deploy (custom meta tags)"
@@ -313,9 +313,9 @@ examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
                     ),
                 ),
             ),
-            url="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
+            url = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
         ),
-        htmlkwargs=(; edit_link=nothing, repolink=nothing),
+        htmlkwargs = (; edit_link = nothing, repolink = nothing),
     )
 else
     @info "Skipping build: HTML/deploy MathJax v2 (custom URL)"
@@ -351,7 +351,7 @@ examples_html_mathjax3_custom_doc = if "html-mathjax3-custom" in EXAMPLE_BUILDS
                     "packages" => ["base", "ams", "autoload", "physics"],
                 ),
             ),
-            url="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
+            url = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
         ),
     )
 else
@@ -364,23 +364,23 @@ end
 examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / local build")
     @quietly makedocs(
-        debug=true,
-        root=examples_root,
-        build="builds/html-local",
-        doctestfilters=[r"Ptr{0x[0-9]+}"],
-        sitename="Documenter example",
-        pages=htmlbuild_pages,
-        expandfirst=expandfirst,
-        repo="https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
-        linkcheck=true,
-        linkcheck_ignore=[r"(x|y).md", "z.md", r":func:.*"],
-        format=Documenter.HTML(
-            assets=[
+        debug = true,
+        root = examples_root,
+        build = "builds/html-local",
+        doctestfilters = [r"Ptr{0x[0-9]+}"],
+        sitename = "Documenter example",
+        pages = htmlbuild_pages,
+        expandfirst = expandfirst,
+        repo = "https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
+        linkcheck = true,
+        linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+        format = Documenter.HTML(
+            assets = [
                 "assets/custom.css",
-                asset("https://plausible.io/js/plausible.js", class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
+                asset("https://plausible.io/js/plausible.js", class = :js, attributes = Dict(Symbol("data-domain") => "example.com", :defer => ""))
             ],
-            prettyurls=false,
-            footer=nothing,
+            prettyurls = false,
+            footer = nothing,
         ),
     )
 else
@@ -393,12 +393,12 @@ end
 examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / draft build")
     @quietly makedocs(
-        debug=true,
-        draft=true,
-        root=examples_root,
-        build="builds/html-draft",
-        sitename="Documenter example (draft)",
-        pages=htmlbuild_pages,
+        debug = true,
+        draft = true,
+        root = examples_root,
+        build = "builds/html-draft",
+        sitename = "Documenter example (draft)",
+        pages = htmlbuild_pages,
     )
 else
     @info "Skipping build: HTML/draft"
@@ -410,19 +410,19 @@ end
 examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / draft build")
     @quietly makedocs(
-        debug=true,
-        draft=true,
-        root=examples_root,
-        build="builds/html-pagesonly",
-        sitename="Documenter example (pagesonly)",
-        pages=[
+        debug = true,
+        draft = true,
+        root = examples_root,
+        build = "builds/html-pagesonly",
+        sitename = "Documenter example (pagesonly)",
+        pages = [
             "**Home**" => "index.md",
             "Manual" => [
                 "man/tutorial.md",
                 "man/style.md",
             ],
         ],
-        pagesonly=true,
+        pagesonly = true,
     )
 else
     @info "Skipping build: HTML/pagesonly"
@@ -444,45 +444,45 @@ macro examplebuild(name, block)
         end
     end
 end
-function html_repo(name; travis=nothing, gha=nothing, kwargs...)
+function html_repo(name; travis = nothing, gha = nothing, kwargs...)
     withenv("TRAVIS_REPO_SLUG" => travis, "GITHUB_REPOSITORY" => gha) do
         @quietly makedocs(;
-            sitename="Documenter Repo ($name)",
-            build=joinpath(examples_root, "builds/html-repo-$(name)"),
-            pages=["Main section" => ["index.md"]],
-            doctest=false,
-            debug=true,
+            sitename = "Documenter Repo ($name)",
+            build = joinpath(examples_root, "builds/html-repo-$(name)"),
+            pages = ["Main section" => ["index.md"]],
+            doctest = false,
+            debug = true,
             kwargs...
         )
     end
 end
 @examplebuild "repo-git" begin
     # should pick up JuliaDocs/Documenter.jl remote from Documenter's repo
-    html_repo("git", root=examples_root, source="src.latex_simple")
+    html_repo("git", root = examples_root, source = "src.latex_simple")
 end
 # The other builds run in a clean directory, so they should try the fallbacks
 @examplebuild "repo-gha" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("git", root=dir, travis=nothing, gha="foo/bar")
+        html_repo("git", root = dir, travis = nothing, gha = "foo/bar")
     end
 end
 @examplebuild "repo-travis" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("travis", root=dir, travis="bar/baz", gha="foo/bar")
+        html_repo("travis", root = dir, travis = "bar/baz", gha = "foo/bar")
     end
 end
 @examplebuild "repo-nothing" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("nothing", root=dir, travis=nothing, gha=nothing)
+        html_repo("nothing", root = dir, travis = nothing, gha = nothing)
     end
 end
 @examplebuild "repo-error" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("error", root=dir, travis="foo", gha="bar")
+        html_repo("error", root = dir, travis = "foo", gha = "bar")
     end
 end
 
@@ -490,14 +490,14 @@ end
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/simple")
     @quietly makedocs(
-        format=Documenter.LaTeXWriter.LaTeX(platform="docker", version=v"1.2.3"),
-        sitename="Documenter LaTeX Simple",
-        root=examples_root,
-        build="builds/latex_simple",
-        source="src.latex_simple",
-        pages=["Main section" => ["index.md"]],
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Simple",
+        root = examples_root,
+        build = "builds/latex_simple",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/simple"
@@ -508,11 +508,11 @@ end
 examples_latex_doc = if "latex" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex")
     @quietly makedocs(
-        format=Documenter.LaTeXWriter.LaTeX(platform="docker"),
-        sitename="Documenter LaTeX",
-        root=examples_root,
-        build="builds/latex",
-        pages=htmlbuild_pages = Any[
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root = examples_root,
+        build = "builds/latex",
+        pages = htmlbuild_pages = Any[
             "General"=>[
                 "index.md",
                 "latex.md",
@@ -540,8 +540,8 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
                 "expandorder/AA.md",
             ],
         ],
-        doctest=false,
-        debug=true,
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex"
@@ -552,14 +552,14 @@ end
 examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_simple_nondocker")
     @quietly makedocs(
-        format=Documenter.LaTeX(version=v"1.2.3"),
-        sitename="Documenter LaTeX Simple Non-Docker",
-        root=examples_root,
-        build="builds/latex_simple_nondocker",
-        source="src.latex_simple",
-        pages=["Main section" => ["index.md"]],
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeX(version = v"1.2.3"),
+        sitename = "Documenter LaTeX Simple Non-Docker",
+        root = examples_root,
+        build = "builds/latex_simple_nondocker",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_simple_nondocker"
@@ -571,14 +571,14 @@ examples_latex_simple_tectonic_doc = if "latex_simple_tectonic" in EXAMPLE_BUILD
     @info("Building mock package docs: LaTeXWriter/latex_simple_tectonic")
     using tectonic_jll: tectonic
     @quietly makedocs(
-        format=Documenter.LaTeX(platform="tectonic", version=v"1.2.3", tectonic=tectonic()),
-        sitename="Documenter LaTeX Simple Tectonic",
-        root=examples_root,
-        build="builds/latex_simple_tectonic",
-        source="src.latex_simple",
-        pages=["Main section" => ["index.md"]],
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeX(platform = "tectonic", version = v"1.2.3", tectonic = tectonic()),
+        sitename = "Documenter LaTeX Simple Tectonic",
+        root = examples_root,
+        build = "builds/latex_simple_tectonic",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_simple_tectonic"
@@ -590,11 +590,11 @@ end
 examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_texonly")
     @quietly makedocs(
-        format=Documenter.LaTeX(platform="none"),
-        sitename="Documenter LaTeX",
-        root=examples_root,
-        build="builds/latex_texonly",
-        pages=htmlbuild_pages = Any[
+        format = Documenter.LaTeX(platform = "none"),
+        sitename = "Documenter LaTeX",
+        root = examples_root,
+        build = "builds/latex_texonly",
+        pages = htmlbuild_pages = Any[
             "General"=>[
                 "index.md",
                 "latex.md",
@@ -623,8 +623,8 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
                 "expandorder/AA.md",
             ],
         ],
-        doctest=false,
-        debug=true,
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"
@@ -635,14 +635,14 @@ end
 examples_latex_simple_texonly_doc = if "latex_simple_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_simple_texonly")
     @quietly makedocs(
-        format=Documenter.LaTeX(platform="none", version=v"1.2.3"),
-        sitename="Documenter LaTeX Simple Non-Docker",
-        root=examples_root,
-        build="builds/latex_simple_texonly",
-        source="src.latex_simple",
-        pages=["Main section" => ["index.md"]],
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Simple Non-Docker",
+        root = examples_root,
+        build = "builds/latex_simple_texonly",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_simple_texonly"
@@ -653,15 +653,15 @@ end
 examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_cover_page")
     @quietly makedocs(
-        format=Documenter.LaTeXWriter.LaTeX(platform="docker"),
-        sitename="Documenter LaTeX",
-        root=examples_root,
-        build="builds/latex_cover_page",
-        source="src.cover_page",
-        pages=["Home" => "index.md"],
-        authors="The Julia Project",
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root = examples_root,
+        build = "builds/latex_cover_page",
+        source = "src.cover_page",
+        pages = ["Home" => "index.md"],
+        authors = "The Julia Project",
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_cover_page"
@@ -672,15 +672,15 @@ end
 examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_toc_style")
     @quietly makedocs(
-        format=Documenter.LaTeXWriter.LaTeX(platform="docker"),
-        sitename="Documenter LaTeX",
-        root=examples_root,
-        build="builds/latex_toc_style",
-        source="src.toc_style",
-        pages=["Part-I" => "index.md"],
-        authors="The Julia Project",
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
+        sitename = "Documenter LaTeX",
+        root = examples_root,
+        build = "builds/latex_toc_style",
+        source = "src.toc_style",
+        pages = ["Part-I" => "index.md"],
+        authors = "The Julia Project",
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_toc_style"
@@ -697,15 +697,15 @@ Documenter.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
 examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_showcase")
     @quietly makedocs(
-        format=Documenter.LaTeX(platform="docker", version=v"1.2.3"),
-        sitename="Documenter LaTeX Showcase",
-        root=examples_root,
-        build="builds/latex_showcase",
-        source="src.latex_showcase",
-        pages=["Showcase" => ["showcase.md", "docstrings.md"]],
-        repo=TestRemote(),
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeX(platform = "docker", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Showcase",
+        root = examples_root,
+        build = "builds/latex_showcase",
+        source = "src.latex_showcase",
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
+        repo = TestRemote(),
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase"
@@ -716,15 +716,15 @@ end
 examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_showcase_texonly")
     @quietly makedocs(
-        format=Documenter.LaTeX(platform="none", version=v"1.2.3"),
-        sitename="Documenter LaTeX Showcase",
-        root=examples_root,
-        build="builds/latex_showcase_texonly",
-        source="src.latex_showcase",
-        pages=["Showcase" => ["showcase.md", "docstrings.md"]],
-        repo=TestRemote(),
-        doctest=false,
-        debug=true,
+        format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Showcase",
+        root = examples_root,
+        build = "builds/latex_showcase_texonly",
+        source = "src.latex_showcase",
+        pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
+        repo = TestRemote(),
+        doctest = false,
+        debug = true,
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase_texonly"

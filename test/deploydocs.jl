@@ -8,7 +8,7 @@ struct TestDeployConfig <: Documenter.DeployConfig
     subfolder::String
 end
 function Documenter.deploy_folder(c::TestDeployConfig; branch, repo, kwargs...)
-    Documenter.DeployDecision(; all_ok=true, subfolder=c.subfolder, branch, repo)
+    Documenter.DeployDecision(; all_ok = true, subfolder = c.subfolder, branch, repo)
 end
 Documenter.authentication_method(::TestDeployConfig) = Documenter.HTTPS
 Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
@@ -24,40 +24,40 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             write("build/page.html", "...")
             # Create gh-pages and deploy dev/
             @quietly deploydocs(
-                root=pwd(),
-                deploy_config=TestDeployConfig(full_repo_path, "dev"),
-                repo=full_repo_path,
-                devbranch="master",
+                root = pwd(),
+                deploy_config = TestDeployConfig(full_repo_path, "dev"),
+                repo = full_repo_path,
+                devbranch = "master",
             )
             # Deploy 1.0.0 tag
             @quietly deploydocs(
-                root=pwd(),
-                deploy_config=TestDeployConfig(full_repo_path, "1.0.0"),
-                repo=full_repo_path,
-                devbranch="master",
+                root = pwd(),
+                deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
+                repo = full_repo_path,
+                devbranch = "master",
             )
             # Deploy 1.1.0 tag
             @quietly deploydocs(
-                root=pwd(),
-                deploy_config=TestDeployConfig(full_repo_path, "1.1.0"),
-                repo=full_repo_path,
-                devbranch="master",
+                root = pwd(),
+                deploy_config = TestDeployConfig(full_repo_path, "1.1.0"),
+                repo = full_repo_path,
+                devbranch = "master",
             )
             # Deploy 2.0.0 tag, but into an archive (so nothing pushed to gh-pages)
             @quietly deploydocs(
-                root=pwd(),
-                deploy_config=TestDeployConfig(full_repo_path, "2.0.0"),
-                repo=full_repo_path,
-                devbranch="master",
-                archive=joinpath(pwd(), "ghpages.tar.gz"),
+                root = pwd(),
+                deploy_config = TestDeployConfig(full_repo_path, "2.0.0"),
+                repo = full_repo_path,
+                devbranch = "master",
+                archive = joinpath(pwd(), "ghpages.tar.gz"),
             )
             # Deploy 3.0.0 tag with a tag_prefix---which does not change deployment behavior
             @quietly deploydocs(;
-                root=pwd(),
-                deploy_config=TestDeployConfig(full_repo_path, "3.0"),
-                repo=full_repo_path,
-                devbranch="master",
-                tag_prefix="MySubPackage-"
+                root = pwd(),
+                deploy_config = TestDeployConfig(full_repo_path, "3.0"),
+                repo = full_repo_path,
+                devbranch = "master",
+                tag_prefix = "MySubPackage-"
             )
             # Check what we have in gh-pages now:
             run(`$(git()) clone -q -b gh-pages $(full_repo_path) worktree`)
@@ -107,22 +107,22 @@ end
             # where the version has been deplyed.
             # Deploy 1.0.0 tag - top level repo
             @quietly deploydocs(
-                root=pwd(),
-                deploy_config=TestDeployConfig(full_repo_path, "1.0.0"),
-                repo=full_repo_path,
-                devbranch="master",
+                root = pwd(),
+                deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
+                repo = full_repo_path,
+                devbranch = "master",
             )
             # Deploy 2.0.0 tag - subpackage
             # Note: setting the `tag_prefix here is not actually necessary or used 
             # BECAUSE we're using a TestDeployConfig, but we're setting it here 
             # anyway so that this example can be used to model true implementation.
             @quietly deploydocs(
-                root=pwd(),
-                deploy_config=TestDeployConfig(full_repo_path, "2.0.0"),
-                repo=full_repo_path,
-                devbranch="master",
-                dirname="PackageA.jl",
-                tag_prefix="PackageA-",
+                root = pwd(),
+                deploy_config = TestDeployConfig(full_repo_path, "2.0.0"),
+                repo = full_repo_path,
+                devbranch = "master",
+                dirname = "PackageA.jl",
+                tag_prefix = "PackageA-",
             )
 
             # Check what we have in worktree:

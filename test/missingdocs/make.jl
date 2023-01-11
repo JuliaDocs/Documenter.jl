@@ -17,12 +17,12 @@ end
 @testset "missing docs" begin
     for (sym, n_expected) in zip([:none, :exports, :all], [0, 1, 2])
         kwargs = (
-            root=dirname(@__FILE__),
-            source=joinpath("src", string(sym)),
-            build=joinpath("build", string(sym)),
-            modules=MissingDocs,
-            checkdocs=sym,
-            sitename="MissingDocs Checks",
+            root = dirname(@__FILE__),
+            source = joinpath("src", string(sym)),
+            build = joinpath("build", string(sym)),
+            modules = MissingDocs,
+            checkdocs = sym,
+            sitename = "MissingDocs Checks",
         )
         @quietly @test makedocs(; kwargs...) === nothing
 
@@ -31,13 +31,13 @@ end
     end
 
     @quietly @test_throws ErrorException makedocs(
-        root=dirname(@__FILE__),
-        source=joinpath("src", "none"),
-        build=joinpath("build", "error"),
-        modules=MissingDocs,
-        checkdocs=:all,
-        strict=true,
-        sitename="MissingDocs Checks",
+        root = dirname(@__FILE__),
+        source = joinpath("src", "none"),
+        build = joinpath("build", "error"),
+        modules = MissingDocs,
+        checkdocs = :all,
+        strict = true,
+        sitename = "MissingDocs Checks",
     )
 end
 

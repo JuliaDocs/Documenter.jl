@@ -17,7 +17,7 @@ will skip doctesting of manual pages altogether.
 
 Additional keywords are passed on to the main [`doctest`](@ref) method.
 """
-function doctest(package::Module; manual=true, testset=nothing, kwargs...)
+function doctest(package::Module; manual = true, testset = nothing, kwargs...)
     if pathof(package) === nothing
         throw(ArgumentError("$(package) is not a top-level package module."))
     end
@@ -31,7 +31,7 @@ function doctest(package::Module; manual=true, testset=nothing, kwargs...)
         """))
     end
     testset = (testset === nothing) ? "Doctests: $(package)" : testset
-    doctest(source, [package]; testset=testset, kwargs...)
+    doctest(source, [package]; testset = testset, kwargs...)
 end
 
 """
@@ -63,9 +63,9 @@ manual pages can be disabled if `source` is set to `nothing`.
 function doctest(
     source::Union{AbstractString,Nothing},
     modules::AbstractVector{Module};
-    fix=false,
-    testset="Doctests",
-    doctestfilters=Regex[]
+    fix = false,
+    testset = "Doctests",
+    doctestfilters = Regex[]
 )
     function all_doctests()
         dir = mktempdir()
@@ -76,12 +76,12 @@ function doctest(
                 mkdir(source)
             end
             makedocs(
-                root=dir,
-                source=source,
-                sitename="",
-                doctest=fix ? :fix : :only,
-                modules=modules,
-                doctestfilters=doctestfilters,
+                root = dir,
+                source = source,
+                sitename = "",
+                doctest = fix ? :fix : :only,
+                modules = modules,
+                doctestfilters = doctestfilters,
             )
             true
         catch err
@@ -89,7 +89,7 @@ function doctest(
             false
         finally
             try
-                rm(dir; recursive=true)
+                rm(dir; recursive = true)
             catch e
                 @warn "Documenter was unable to clean up the temporary directory $(dir)" exception = e
             end

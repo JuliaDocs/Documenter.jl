@@ -34,12 +34,12 @@ using Test
         @test iscorrectisless(a, b)
     end
 
-    @test sort(["foo", "bar"], lt=lt_page) == ["bar", "foo"]
-    @test sort(["foo", "foo/bar"], lt=lt_page) == ["foo", "foo/bar"]
-    @test sort(["foo", "f/bar"], lt=lt_page) == ["f/bar", "foo"]
-    @test sort(["foo", "index.md"], lt=lt_page) == ["index.md", "foo"]
-    @test sort(["foo.md", "foo/index.md", "index.md", "foo/foo.md"], lt=lt_page) == ["index.md", "foo.md", "foo/index.md", "foo/foo.md"]
-    @test sort(["foo.md", "ϕωω/index.md", "index.md", "foo/foo.md"], lt=lt_page) == ["index.md", "foo.md", "foo/foo.md", "ϕωω/index.md"]
+    @test sort(["foo", "bar"], lt = lt_page) == ["bar", "foo"]
+    @test sort(["foo", "foo/bar"], lt = lt_page) == ["foo", "foo/bar"]
+    @test sort(["foo", "f/bar"], lt = lt_page) == ["f/bar", "foo"]
+    @test sort(["foo", "index.md"], lt = lt_page) == ["index.md", "foo"]
+    @test sort(["foo.md", "foo/index.md", "index.md", "foo/foo.md"], lt = lt_page) == ["index.md", "foo.md", "foo/index.md", "foo/foo.md"]
+    @test sort(["foo.md", "ϕωω/index.md", "index.md", "foo/foo.md"], lt = lt_page) == ["index.md", "foo.md", "foo/foo.md", "ϕωω/index.md"]
 end
 
 # Docstring signature syntax highlighting tests.

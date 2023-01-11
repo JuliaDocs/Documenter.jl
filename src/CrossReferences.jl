@@ -90,7 +90,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
         # so that we wouldn't have to duplicate the @docerror call
         namedxref(node, slug, meta, page, doc)
     else
-        docsxref(node, slug, meta, page, doc; docref=docref)
+        docsxref(node, slug, meta, page, doc; docref = docref)
     end
     return false
 end
@@ -157,7 +157,7 @@ end
 # Cross referencing docstrings.
 # -----------------------------
 
-function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref=find_docref(code, meta, page))
+function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_docref(code, meta, page))
     @assert node.element isa MarkdownAST.Link
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
@@ -193,7 +193,7 @@ function find_docref(code, meta, page)
             ex = Meta.parse(code)
         catch err
             isa(err, Meta.ParseError) || rethrow(err)
-            return (error="unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).", exception=nothing)
+            return (error = "unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).", exception = nothing)
         end
     end
     mod = get(meta, :CurrentModule, Main)
@@ -204,8 +204,8 @@ function find_docref(code, meta, page)
         binding = Documenter.DocSystem.binding(mod, ex)
     catch err
         return (
-            error="unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
-            exception=(err, catch_backtrace()),
+            error = "unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception = (err, catch_backtrace()),
         )
         return
     end
@@ -215,13 +215,13 @@ function find_docref(code, meta, page)
         typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         return (
-            error="unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
-            exception=(err, catch_backtrace()),
+            error = "unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception = (err, catch_backtrace()),
         )
         return
     end
 
-    return (binding=binding, typesig=typesig)
+    return (binding = binding, typesig = typesig)
 end
 
 """

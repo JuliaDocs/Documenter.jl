@@ -75,7 +75,7 @@ function pagecheck(page)
 end
 
 # Draft output code block
-function create_draft_result!(node::Node; blocktype="code")
+function create_draft_result!(node::Node; blocktype = "code")
     @assert node.element isa MarkdownAST.CodeBlock
     codeblock = node.element
     codeblock.info = "julia"
@@ -341,7 +341,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         !!! warning "Missing docstring."
 
             Missing docstring for `$(strip(str))`. Check Documenter's build log for details.
-        """, mode=:blocks))
+        """, mode = :blocks))
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
@@ -385,7 +385,7 @@ function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
         end
 
         # Find the docs matching `binding` and `typesig`. Only search within the provided modules.
-        docs = Documenter.DocSystem.getdocs(binding, typesig; modules=doc.blueprint.modules)
+        docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.blueprint.modules)
 
         # Include only docstrings from user-provided modules if provided.
         if !isempty(doc.blueprint.modules)
@@ -529,7 +529,7 @@ function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
             (t = Documenter._compare(ordermap, 3, a, b)) == 0 || return t < 0 # category
             string(a[4]) < string(b[4])                                       # name
         end
-        sort!(results; lt=comparison)
+        sort!(results; lt = comparison)
 
         # Finalise docstrings.
         docsnodes = Node[]
@@ -578,7 +578,7 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @eval block in draft mode:\n$(x.code)"
-        create_draft_result!(node; blocktype="@eval")
+        create_draft_result!(node; blocktype = "@eval")
         return
     end
     sandbox = Module(:EvalBlockSandbox)
@@ -588,8 +588,8 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
     @debug "Evaluating @eval block:\n$(x.code)"
     cd(page.workdir) do
         result = nothing
-        for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords=false,
-            linenumbernode=linenumbernode)
+        for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
+            linenumbernode = linenumbernode)
             try
                 result = Core.eval(sandbox, ex)
             catch err
@@ -677,7 +677,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @example block in draft mode:\n$(x.code)"
-        create_draft_result!(node; blocktype="@example")
+        create_draft_result!(node; blocktype = "@example")
         return
     end
 
@@ -710,9 +710,9 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
         end
         linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
             basename(page.source))
-        for (ex, str) in Documenter.parseblock(code, doc, page; keywords=false,
-            linenumbernode=linenumbernode)
-            c = IOCapture.capture(rethrow=InterruptException, color=ansicolor) do
+        for (ex, str) in Documenter.parseblock(code, doc, page; keywords = false,
+            linenumbernode = linenumbernode)
+            c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
                 end
@@ -742,7 +742,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     input = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Documenter.display_dict, result, context=:color => ansicolor)
+    output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
@@ -782,7 +782,7 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @repl block in draft mode:\n$(x.code)"
-        create_draft_result!(node; blocktype="@repl")
+        create_draft_result!(node; blocktype = "@repl")
         return
     end
 
@@ -801,13 +801,13 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
     multicodeblock = MarkdownAST.CodeBlock[]
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
-    for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords=false,
-        linenumbernode=linenumbernode)
+    for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
+        linenumbernode = linenumbernode)
         input = droplines(str)
         # Use the REPL softscope for REPLBlocks,
         # see https://github.com/JuliaLang/julia/pull/33864
         ex = REPL.softscope(ex)
-        c = IOCapture.capture(rethrow=InterruptException, color=ansicolor) do
+        c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
             cd(page.workdir) do
                 Core.eval(mod, ex)
             end
@@ -857,7 +857,7 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @setup block in draft mode:\n$(x.code)"
-        create_draft_result!(node; blocktype="@setup")
+        create_draft_result!(node; blocktype = "@setup")
         return
     end
 
@@ -916,7 +916,7 @@ function namedheader(node::Node)
 end
 
 # Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
-function droplines(code; skip=0)
+function droplines(code; skip = 0)
     buffer = IOBuffer()
     for line in split(code, r"\r?\n")[(skip+1):end]
         occursin(r"^(.*)#\s*hide$", line) && continue

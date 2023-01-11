@@ -38,7 +38,7 @@ end
     function assetlink(src, asset)
         links = HTMLWriter.asset_links(src, [asset])
         @test length(links) == 1
-        (; node=links[1], links[1].attributes...)
+        (; node = links[1], links[1].attributes...)
     end
     @test_logs (:error, "Absolute path '/foo' passed to asset_links") HTMLWriter.asset_links(
         "/foo", HTMLWriter.HTMLAsset[]
@@ -51,17 +51,17 @@ end
         @test link.node.name === :script
         @test link.src == "https://example.com/foo.js"
     end
-    let asset = asset("https://example.com/foo.js", islocal=false)
+    let asset = asset("https://example.com/foo.js", islocal = false)
         @test asset.islocal === false
         link = assetlink("my/sub/page", asset)
         @test link.src == "https://example.com/foo.js"
     end
-    let asset = asset("http://example.com/foo.js", class=:ico)
+    let asset = asset("http://example.com/foo.js", class = :ico)
         @test asset.uri == "http://example.com/foo.js"
         @test asset.class == :ico
         @test asset.islocal === false
     end
-    let asset = asset("foo/bar.css", islocal=true)
+    let asset = asset("foo/bar.css", islocal = true)
         @test asset.uri == "foo/bar.css"
         @test asset.class == :css
         @test asset.islocal === true
@@ -76,11 +76,11 @@ end
     @test_throws Exception asset("ftp://example.com/foo.js")
     @test_throws Exception asset("example.com/foo.js")
     @test_throws Exception asset("foo.js")
-    @test_throws Exception asset("foo.js", islocal=false)
+    @test_throws Exception asset("foo.js", islocal = false)
     @test_throws Exception asset("https://example.com/foo.js?q=1")
-    @test_throws Exception asset("https://example.com/foo.js", class=:error)
+    @test_throws Exception asset("https://example.com/foo.js", class = :error)
     # Edge cases that do not actually quite work correctly:
-    let asset = asset("https://example.com/foo.js", islocal=true)
+    let asset = asset("https://example.com/foo.js", islocal = true)
         @test asset.uri == "https://example.com/foo.js"
         @test asset.islocal === true
         link = assetlink("my/sub/page", asset)
@@ -94,9 +94,9 @@ end
         end
 
     end
-    @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal=true)
+    @test_logs (:error, "Local asset should not have an absolute URI: /foo/bar.ico") asset("/foo/bar.ico", islocal = true)
 
-    let asset = asset("https://plausible.io/js/plausible.js"; class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
+    let asset = asset("https://plausible.io/js/plausible.js"; class = :js, attributes = Dict(Symbol("data-domain") => "example.com", :defer => ""))
         @test asset.uri == "https://plausible.io/js/plausible.js"
         @test asset.class == :js
         @test asset.islocal === false
@@ -109,13 +109,13 @@ end
 
     # HTML format object
     @test Documenter.HTML() isa Documenter.HTML
-    @test_throws ArgumentError Documenter.HTML(collapselevel=-200)
-    @test_throws Exception Documenter.HTML(assets=["foo.js", 10])
-    @test_throws ArgumentError Documenter.HTML(footer="foo\n\nbar")
-    @test_throws ArgumentError Documenter.HTML(footer="# foo")
-    @test_throws ArgumentError Documenter.HTML(footer="")
-    @test Documenter.HTML(footer="foo bar [baz](https://github.com)") isa Documenter.HTML
-    @test_throws ErrorException Documenter.HTML(edit_branch=nothing, edit_link=nothing)
+    @test_throws ArgumentError Documenter.HTML(collapselevel = -200)
+    @test_throws Exception Documenter.HTML(assets = ["foo.js", 10])
+    @test_throws ArgumentError Documenter.HTML(footer = "foo\n\nbar")
+    @test_throws ArgumentError Documenter.HTML(footer = "# foo")
+    @test_throws ArgumentError Documenter.HTML(footer = "")
+    @test Documenter.HTML(footer = "foo bar [baz](https://github.com)") isa Documenter.HTML
+    @test_throws ErrorException Documenter.HTML(edit_branch = nothing, edit_link = nothing)
 
     # MathEngine
     let katex = KaTeX()

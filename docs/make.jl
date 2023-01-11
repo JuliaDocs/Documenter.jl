@@ -11,27 +11,27 @@ if haskey(ENV, "DOCSARGS")
 end
 
 makedocs(
-    modules=[Documenter, DocumenterTools, DocumenterShowcase],
-    format=if "pdf" in ARGS
-        Documenter.LaTeX(platform="docker")
+    modules = [Documenter, DocumenterTools, DocumenterShowcase],
+    format = if "pdf" in ARGS
+        Documenter.LaTeX(platform = "docker")
     else
         Documenter.HTML(
             # Use clean URLs, unless built as a "local" build
-            prettyurls=!("local" in ARGS),
-            canonical="https://juliadocs.github.io/Documenter.jl/stable/",
-            assets=["assets/favicon.ico"],
-            analytics="UA-136089579-2",
-            highlights=["yaml"],
-            ansicolor=true,
+            prettyurls = !("local" in ARGS),
+            canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
+            assets = ["assets/favicon.ico"],
+            analytics = "UA-136089579-2",
+            highlights = ["yaml"],
+            ansicolor = true,
         )
     end,
-    build=("pdf" in ARGS) ? "build-pdf" : "build",
-    debug=("pdf" in ARGS),
-    clean=false,
-    sitename="Documenter.jl",
-    authors="Michael Hatherly, Morten Piibeleht, and contributors.",
-    linkcheck="linkcheck" in ARGS,
-    linkcheck_ignore=[
+    build = ("pdf" in ARGS) ? "build-pdf" : "build",
+    debug = ("pdf" in ARGS),
+    clean = false,
+    sitename = "Documenter.jl",
+    authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
+    linkcheck = "linkcheck" in ARGS,
+    linkcheck_ignore = [
         # We'll ignore links that point to GitHub's edit pages, as they redirect to the
         # login screen and cause a warning:
         r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
@@ -41,7 +41,7 @@ makedocs(
         # It seems that CTAN blocks GitHub Actions?
         "https://ctan.org/pkg/minted",
     ] : []),
-    pages=[
+    pages = [
         "Home" => "index.md",
         "Manual" => Any[
             "Guide"=>"man/guide.md",
@@ -64,8 +64,8 @@ makedocs(
         ],
         "contributing.md",
     ],
-    strict=!("strict=false" in ARGS),
-    doctest=("doctest=only" in ARGS) ? :only : true,
+    strict = !("strict=false" in ARGS),
+    doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 
 if "pdf" in ARGS
@@ -80,15 +80,15 @@ if "pdf" in ARGS
         end
     end
     deploydocs(
-        repo="github.com/JuliaDocs/Documenter.jl.git",
-        target="pdf/build-pdf/commit",
-        branch="gh-pages-pdf",
-        forcepush=true,
+        repo = "github.com/JuliaDocs/Documenter.jl.git",
+        target = "pdf/build-pdf/commit",
+        branch = "gh-pages-pdf",
+        forcepush = true,
     )
 else
     deploydocs(
-        repo="github.com/JuliaDocs/Documenter.jl.git",
-        target="build",
-        push_preview=true,
+        repo = "github.com/JuliaDocs/Documenter.jl.git",
+        target = "build",
+        push_preview = true,
     )
 end

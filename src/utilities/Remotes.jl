@@ -93,7 +93,7 @@ issueurl(::Remote, ::Any) = nothing
 Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
 to the potentially user-defined `fileurl` implementations.
 """
-function repofile(remote::Remote, ref, filename, linerange=nothing)
+function repofile(remote::Remote, ref, filename, linerange = nothing)
     # sanitize the file name
     filename = replace(filename, '\\' => '/') # remove backslashes on Windows
     filename = lstrip(filename, '/') # remove leading spaces
@@ -172,7 +172,7 @@ configuring Documenter.
 struct URL <: Remote
     urltemplate::String
     repourl::Union{String,Nothing}
-    URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
+    URL(urltemplate, repourl = nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
 function fileurl(remote::URL, ref, filename, linerange)

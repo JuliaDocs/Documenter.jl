@@ -163,7 +163,7 @@ Selectors.dispatch(MySelector, args...)
 """
 function dispatch(::Type{T}, x...) where T<:AbstractSelector
     types = get!(selector_subtypes, T) do
-        sort(leaf_subtypes(T); by=order)
+        sort(leaf_subtypes(T); by = order)
     end
     for t in types
         if !disable(t) && matcher(t, x...)

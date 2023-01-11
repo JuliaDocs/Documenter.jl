@@ -26,7 +26,7 @@ Returns the number of missing bindings to allow for automated testing of documen
 function missingdocs(doc::Documenter.Document)
     doc.user.checkdocs === :none && return 0
     bindings = missingbindings(doc)
-    n = reduce(+, map(length, values(bindings)), init=0)
+    n = reduce(+, map(length, values(bindings)), init = 0)
     if n > 0
         b = IOBuffer()
         println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
@@ -84,7 +84,7 @@ function allbindings(checkdocs::Symbol, mods)
     out
 end
 
-function allbindings(checkdocs::Symbol, mod::Module, out=Dict{Documenter.Binding,Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Documenter.Binding,Set{Type}}())
     for (binding, doc) in meta(mod)
         # The keys of the docs meta dictonary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
@@ -195,7 +195,7 @@ function linkcheck(doc::Documenter.Document)
     return nothing
 end
 
-function linkcheck(node::MarkdownAST.Node, doc::Documenter.Document; method::Symbol=:HEAD)
+function linkcheck(node::MarkdownAST.Node, doc::Documenter.Document; method::Symbol = :HEAD)
     node.element isa MarkdownAST.Link || return
     link = node.element
 
@@ -259,7 +259,7 @@ function linkcheck(node::MarkdownAST.Node, doc::Documenter.Document; method::Sym
             elseif protocol === :HTTP && status == 405 && method === :HEAD
                 # when a server doesn't support HEAD requests, fallback to GET
                 @debug "linkcheck '$(link.destination)' status: $(status), retrying without `-I`"
-                return linkcheck(link, doc; method=:GET)
+                return linkcheck(link, doc; method = :GET)
             else
                 @docerror(doc, :linkcheck, "linkcheck '$(link.destination)' status: $(status).")
             end
