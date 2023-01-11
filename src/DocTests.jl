@@ -365,9 +365,9 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
 end
 
 function debug_report(; result, expected_filtered, evaluated, evaluated_filtered, filters)
-    lines = Utilities.find_block_in_file(result.block.code, result.file)
+    lines = Documenter.find_block_in_file(result.block.code, result.file)
     r = """
-    Verifying doctest at $(Utilities.locrepr(result.file, lines))
+    Verifying doctest at $(Documenter.locrepr(result.file, lines))
 
     ```$(result.block.language)
     $(result.block.code)
