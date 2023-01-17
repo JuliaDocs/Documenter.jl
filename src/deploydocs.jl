@@ -398,7 +398,6 @@ function git_push(
             rm(keyfile; force=true)
             rethrow(e)
         end
-        chmod(keyfile, 0o600)
 
         try
             mktemp() do sshconfig, io
