@@ -365,7 +365,7 @@ function git_push(
         end
 
         # Add, commit, and push the docs to the remote.
-        run(`$(git()) add -A .`)
+        run(`$(git()) add -A -- :!.documenter-identity-file.tmp`)
         if !success(`$(git()) diff --cached --exit-code`)
             if !isnothing(archive)
                 run(`$(git()) commit -m "build based on $sha"`)
