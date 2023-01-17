@@ -388,6 +388,7 @@ function git_push(
                 keycontent = documenter_key(deploy_config)
             end
             write(keyfile, base64decode(keycontent))
+            chmod(keyfile, 0o600) # user-only rw permissions
         catch e
             @error """
             Documenter failed to decode the DOCUMENTER_KEY environment variable.
