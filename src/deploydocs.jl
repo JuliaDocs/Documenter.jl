@@ -379,7 +379,8 @@ function git_push(
         # Get the parts of the repo path and create upstream repo path
         user, host, upstream = user_host_upstream(repo)
 
-        keyfile = abspath(joinpath(root, ".documenter"))
+        keyfile = abspath(joinpath(homedir(), ".documenter-identity-file.tmp"))
+        ispath(keyfile) && error("Keyfile not cleaned up from last run: $(keyfile)")
         try
             if is_preview
                 keycontent = documenter_key_previews(deploy_config)
