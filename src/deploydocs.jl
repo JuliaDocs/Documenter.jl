@@ -281,6 +281,14 @@ function git_push(
 
     target_dir = abspath(target)
 
+    if startswith(homedir(), realpath(target_dir))
+        error("""
+        target can not include home directory
+          target: $(realpath(target_dir))
+          home directory: $(homedir())
+        """)
+    end
+
     # Generate a closure with common commands for ssh and https
     function git_commands(sshconfig=nothing)
         # Setup git.
