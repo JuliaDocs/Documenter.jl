@@ -241,6 +241,11 @@ function deploydocs(;
 
             @debug "setting up target directory."
             isdir(target) || mkpath(target)
+            startswith(realpath(target), realpath(root)) || error("""
+            target must be a subdirectory of root, got:
+              target: $(realpath(target))
+              root: $(realpath(root))
+            """)
             # Run extra build steps defined in `make` if required.
             if make !== nothing
                 @debug "running extra build steps."
