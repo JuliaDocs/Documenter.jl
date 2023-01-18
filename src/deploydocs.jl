@@ -281,14 +281,6 @@ function git_push(
 
     target_dir = abspath(target)
 
-    if startswith(homedir(), realpath(target_dir))
-        error("""
-        target can not include home directory
-          target: $(realpath(target_dir))
-          home directory: $(homedir())
-        """)
-    end
-
     # Generate a closure with common commands for ssh and https
     function git_commands(sshconfig=nothing)
         # Setup git.
@@ -387,7 +379,7 @@ function git_push(
         # Get the parts of the repo path and create upstream repo path
         user, host, upstream = user_host_upstream(repo)
 
-        keyfile = abspath(joinpath(homedir(), ".documenter-identity-file.tmp"))
+        keyfile = abspath(joinpath(root, ".documenter-identity-file.tmp"))
         ispath(keyfile) && error("Keyfile not cleaned up from last run: $(keyfile)")
         try
             if is_preview
