@@ -88,7 +88,7 @@ if "pdf" in ARGS
 else
     deploydocs(
         repo = "github.com/JuliaDocs/Documenter.jl.git",
-        target = "../../..",
+        target = "..",
         push_preview = true,
     )
 end
