@@ -710,7 +710,7 @@ function git_push(
         end
 
         # Add, commit, and push the docs to the remote.
-        run(`$(git()) add -A .`)
+        run(`$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`)
         if !success(`$(git()) diff --cached --exit-code`)
             if archive !== nothing
                 run(`$(git()) commit -m "build based on $sha"`)
@@ -732,7 +732,8 @@ function git_push(
         # Get the parts of the repo path and create upstream repo path
         user, host, upstream = user_host_upstream(repo)
 
-        keyfile = abspath(joinpath(root, ".documenter"))
+        keyfile = abspath(joinpath(root, ".documenter-identity-file.tmp"))
+        ispath(keyfile) && error("Keyfile not cleaned up from last run: $(keyfile)")
         try
             if is_preview
                 keycontent = documenter_key_previews(deploy_config)
@@ -740,6 +741,7 @@ function git_push(
                 keycontent = documenter_key(deploy_config)
             end
             write(keyfile, base64decode(keycontent))
+            chmod(keyfile, 0o600) # user-only rw permissions
         catch e
             @error """
             Documenter failed to decode the DOCUMENTER_KEY environment variable.
@@ -749,7 +751,6 @@ function git_push(
             rm(keyfile; force=true)
             rethrow(e)
         end
-        chmod(keyfile, 0o600)
 
         try
             mktemp() do sshconfig, io

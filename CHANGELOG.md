@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.24`
+
+* ![Security][badge-security] `deploydocs` now takes extra care to avoid committing the temporary SSH key file to the Git repo. ([#2018][github-2018])
+
 ## Version `v0.27.23`
 
 * ![Enhancement][badge-enhancement] The `native` and `docker` PDF builds now run with the `-interaction=batchmode` (instead of `nonstopmode`) and `-halt-on-error` options to make the LaTeX error logs more readable and to fail the build early. ([#1908][github-1908])
@@ -1094,6 +1098,7 @@
 [github-1886]: https://github.com/JuliaDocs/Documenter.jl/pull/1886
 [github-1908]: https://github.com/JuliaDocs/Documenter.jl/pull/1908
 [github-1909]: https://github.com/JuliaDocs/Documenter.jl/pull/1909
+[github-2018]: https://github.com/JuliaDocs/Documenter.jl/pull/2018
 <!-- end of issue link definitions -->
 
 [julia-38054]: https://github.com/JuliaLang/julia/issues/38054
