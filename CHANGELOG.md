@@ -43,6 +43,10 @@
 * ![Maintenance][badge-maintenance] Documenter now uses [MarkdownAST][markdownast] to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker][documenter-issues]. ([#1892][github-1892], [#1912][github-1912], [#1924][github-1924], [#1948][github-1948])
 * ![Maintenance][badge-maintenance] The code layout has changed considerably, with many of the internal submodules removed. This **may be breaking** for code that hooks into various Documenter internals, as various types and functions now live at different code paths. ([#1977][github-1977])
 
+## Version `v0.27.24`
+
+* ![Security][badge-security] `deploydocs` now takes extra care to avoid committing the temporary SSH key file to the Git repo. ([#2018][github-2018])
+
 ## Version `v0.27.23`
 
 * ![Enhancement][badge-enhancement] The `native` and `docker` PDF builds now run with the `-interaction=batchmode` (instead of `nonstopmode`) and `-halt-on-error` options to make the LaTeX error logs more readable and to fail the build early. ([#1908][github-1908])
@@ -1185,6 +1189,7 @@
 [github-1991]: https://github.com/JuliaDocs/Documenter.jl/pull/1991
 [github-1993]: https://github.com/JuliaDocs/Documenter.jl/pull/1993
 [github-2012]: https://github.com/JuliaDocs/Documenter.jl/pull/2012
+[github-2018]: https://github.com/JuliaDocs/Documenter.jl/pull/2018
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
