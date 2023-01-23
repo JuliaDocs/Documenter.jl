@@ -229,7 +229,11 @@ end
             # NOTE: the target path in the `git submodule add` command is necessary for
             # Windows builds, since otherwise Git claims that the path is in a .gitignore
             # file.
-            @test trun(`$(git()) submodule add $(path_repo) repository`)
+            #
+            # protocol.file.allow=always is necessary to work around a changed default
+            # setting that was changed due to a security flaw.
+            # See: https://bugs.launchpad.net/ubuntu/+source/git/+bug/1993586
+            @test trun(`$(git()) -c protocol.file.allow=always submodule add $(path_repo) repository`)
             @test trun(`$(git()) add -A`)
             @test trun(`$(git()) commit -m"Initial commit."`)
         end
