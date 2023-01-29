@@ -763,13 +763,6 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     append!(node.children, content)
 end
 
-# TODO: move into MarkdownAST
-function Base.append!(nodechildren::MarkdownAST.NodeChildren, children)
-    for child in children
-        push!(nodechildren, child)
-    end
-end
-
 # Replace references to gensym'd module with Main
 function remove_sandbox_from_output(str, mod::Module)
     replace(str, Regex(("(Main\\.)?$(nameof(mod))")) => "Main")
