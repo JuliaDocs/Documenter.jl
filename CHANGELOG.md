@@ -34,6 +34,7 @@
 * ![Enhancement][badge-enhancement] Search engine and social media link previews are now supported, with Documenter generating the relevant HTML `meta` tags. ([#1321][github-1321], [#1991][github-1991])
 * ![Enhancement][badge-enhancement] `deploydocs` now supports custom tag prefixes; see section "Deploying from a monorepo" in the docs. ([#1291][github-1291], [#1792][github-1792], [#1993][github-1993])
 * ![Enhancement][badge-enhancement] The `target` keyword of `deploydocs` is now required to point to a subdirectory of `root` (usually the directory where `make.jl` is located). ([#2019][github-2019])
+* ![Enhancement][badge-enhancement] Added keyboard shortcuts for search box (To focus into search box use `ctrl + /` or `cmd + /`, `Esc` to focus out of it). ([#2027][github-2027])
 * ![Bugfix][badge-bugfix] Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. ([#1808][github-1808])
 * ![Bugfix][badge-bugfix] Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. ([#1881][github-1881])
 * ![Bugfix][badge-bugfix] Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906][github-1906])
@@ -1192,6 +1193,7 @@
 [github-2012]: https://github.com/JuliaDocs/Documenter.jl/pull/2012
 [github-2018]: https://github.com/JuliaDocs/Documenter.jl/pull/2018
 [github-2019]: https://github.com/JuliaDocs/Documenter.jl/pull/2019
+[github-2027]: https://github.com/JuliaDocs/Documenter.jl/pull/2027
 <!-- end of issue link definitions -->
 
 [julia-29344]: https://github.com/JuliaLang/julia/issues/29344
