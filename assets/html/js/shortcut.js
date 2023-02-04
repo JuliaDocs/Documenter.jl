@@ -1,19 +1,16 @@
-// libraries: jquery
-// arguments: $
+let searchbox = document.querySelector("#documenter-search-query");
+let sidebar = document.querySelector(".docs-sidebar");
 
-let searchbox = $("#documenter-search-query");
-let sidebar = $(".docs-sidebar");
-
-$(document).keydown(function (event) {
+document.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key === "/") {
-    if (!sidebar.hasClass("visible")) {
-      sidebar.addClass("visible");
+    if (!sidebar.classList.contains("visible")) {
+      sidebar.classList.add("visible");
     }
     searchbox.focus();
     return false;
   } else if (event.key === "Escape") {
-    if (sidebar.hasClass("visible")) {
-      sidebar.removeClass("visible");
+    if (sidebar.classList.contains("visible")) {
+      sidebar.classList.remove("visible");
     }
     searchbox.blur();
     return false;
