@@ -1036,6 +1036,7 @@
 [github-1531]: https://github.com/JuliaDocs/Documenter.jl/issues/1531
 [github-1533]: https://github.com/JuliaDocs/Documenter.jl/pull/1533
 [github-1534]: https://github.com/JuliaDocs/Documenter.jl/issues/1534
+[github-1536]: https://github.com/JuliaDocs/Documenter.jl/issues/1536
 [github-1537]: https://github.com/JuliaDocs/Documenter.jl/issues/1537
 [github-1538]: https://github.com/JuliaDocs/Documenter.jl/pull/1538
 [github-1540]: https://github.com/JuliaDocs/Documenter.jl/pull/1540
