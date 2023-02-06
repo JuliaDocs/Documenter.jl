@@ -39,7 +39,7 @@ function fix_release_line(
     return line
 end
 
-open(joinpath(@__DIR__, "src", "changelog.md"), "r") do in_io
+open(joinpath(dirname(@__DIR__), "CHANGELOG.md"), "r") do in_io
     open(joinpath(@__DIR__, "src", "release_notes.md"), "w") do out_io
         for line in readlines(in_io; keep = true)
             write(out_io, fix_release_line(line))
