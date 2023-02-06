@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
 
-### Enhancement
+### Added
 
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). (#1989), (#1271)
 * Documenter is now more careful not to accidentally leak SSH keys (in e.g. error messages) by removing `DOCUMENTER_KEY` from the environment when it is not needed. (#1958), (#1962)
@@ -72,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.23`
 
-### Enhancement
+### Added
 
 * The `native` and `docker` PDF builds now run with the `-interaction=batchmode` (instead of `nonstopmode`) and `-halt-on-error` options to make the LaTeX error logs more readable and to fail the build early. (#1908)
 
@@ -95,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.20`
 
-### Enhancement
+### Added
 
 * The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. (#1844), (#1846)
 
@@ -105,9 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
   - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
 
-### Experimental
-
-* `deploydocs` now supports "deploying to tarball" (rather than pushing to the `gh-pages` branch) via the undocumented experiments `archive` keyword. (#1865)
+* **Experimental**: `deploydocs` now supports "deploying to tarball" (rather than pushing to the `gh-pages` branch) via the undocumented experiments `archive` keyword. (#1865)
 
 ### Fixed
 
@@ -119,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.19`
 
-### Enhancement
+### Added
 
 * Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. (#1836)
 * On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). (#1728), (#1833), (#1834)
@@ -128,7 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.18`
 
-### Enhancement
+### Added
 
 * The padding of the various container elements in the HTML style has been reduced, to improve the look of the generated HTML pages. (#1814), (#1818)
 
@@ -140,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.17`
 
-### Enhancement
+### Added
 
 * PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. (#1802), (#1803)
 * The phrasing of the outdated version warning in the HTML output has been improved. (#1805)
@@ -154,7 +152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.16`
 
-### Enhancement
+### Added
 
 * Update CSS source file for JuliaMono, so that all font variations are included (not just `JuliaMono Regular`) and that the latest version (0.039 -> 0.044) of the font would be used. (#1780), (#1784)
 
@@ -174,7 +172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.15`
 
-### Enhancement
+### Added
 
 * Documenter now deploys documentation from scheduled jobs (`schedule` on GitHub actions). (#1772), (#1773)
 
@@ -206,7 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.11`
 
-### Enhancement
+### Added
 
 * Documenter now deploys documentation from manually triggered events (`workflow_dispatch` on GitHub actions). (#1554), (#1752)
 
@@ -230,7 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.8`
 
-### Feature
+### Added
 
 * The keyword argument `strict` in `makedocs` is more flexible: in addition to a boolean indicating whether or not any error should result in a failure, `strict` also accepts a `Symbol` or `Vector{Symbol}` indicating which error(s) should result in a build failure. (#1689)
 
@@ -252,7 +250,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.6`
 
-### Feature
+### Added
 
 * Add support for generating `index.html` to redirect to `dev` or `stable`. The redirected destination is the same as the outdated warning. If there's already user-generated `index.html`, Documenter will not overwrite the file. (#937), (#1657), (#1658)
 
@@ -272,13 +270,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.4`
 
-### Feature
+### Added
 
 * `@example`- and `@repl`-blocks now support colored output by mapping ANSI escape sequences to HTML. This requires Julia >= 1.6 and passing `ansicolor=true` to `Documenter.HTML` (e.g. `makedocs(format=Documenter.HTML(ansicolor=true, ...), ...)`). In Documenter 0.28.0 this will be the default so to (preemptively) opt-out pass `ansicolor=false`. (#1441), (#1628), (#1629), (#1647)
 
-### Experimental
-
-* Documenter's HTML output can now prerender syntax highlighting of code blocks, i.e. syntax highlighting is applied when generating the HTML page rather than on the fly in the browser after the page is loaded. This requires (i) passing `prerender=true` to `Documenter.HTML` and (ii) a `node` (NodeJS) executable available in `PATH`. A path to a `node` executable can be specified by passing the `node` keyword argument to `Documenter.HTML` (for example from the `NodeJS_16_jll` Julia package). In addition, the `highlightjs` keyword argument can be used to specify a file path to a highlight.js library (if this is not given the release used by Documenter will be used). Example configuration:
+* **Experimental** Documenter's HTML output can now prerender syntax highlighting of code blocks, i.e. syntax highlighting is applied when generating the HTML page rather than on the fly in the browser after the page is loaded. This requires (i) passing `prerender=true` to `Documenter.HTML` and (ii) a `node` (NodeJS) executable available in `PATH`. A path to a `node` executable can be specified by passing the `node` keyword argument to `Documenter.HTML` (for example from the `NodeJS_16_jll` Julia package). In addition, the `highlightjs` keyword argument can be used to specify a file path to a highlight.js library (if this is not given the release used by Documenter will be used). Example configuration:
   ```julia
   using Documenter, NodeJS_16_jll
 
@@ -292,8 +288,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   )
   ```
   _This feature is experimental and subject to change in future releases._ (#1627)
-
-### Enhancement
 
 * The `julia>` prompt is now colored in green in the `julia-repl` language highlighting. (#1639), (#1641)
 
@@ -311,11 +305,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.3`
 
-### Feature
+### Added
 
 * Documenter can now deploy documentation directly to the "root" instead of versioned folders. (#1615), (#1616)
-
-### Enhancement
 
 * The version of Documenter used for generating a document is now displayed in the build information. (#1609), (#1611)
 
@@ -325,13 +317,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.2`
 
-### Enhancement
+### Added
 
 * The default font has been changed to `Lato Medium` so that the look of the text would be closer to the old Google Fonts version of Lato. (#1602), (#1604)
 
 ## Version `v0.27.1`
 
-### Enhancement
+### Added
 
 * The HTML output now uses [JuliaMono](https://cormullion.github.io/pages/2020-07-26-JuliaMono/) as the default monospace font, retrieved from CDNJS. Relatedly, the Lato font is also now retrieved from CDNJS, and the generated HTML pages no longer depend on Google Fonts. (#618), (#1561), (#1568), (#1569), [JuliaLang/www.julialang.org](https://github.com/JuliaLang/www.julialang.org/issues/1272)
 
@@ -343,7 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.27.0`
 
-### Enhancement
+### Added
 
 * The JS dependencies have been updated to their respective latest versions.
 
@@ -379,19 +371,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `deploydocs` no longer tries to deploy pull request previews from forks on GitHub Actions. (#1534), (#1567)
 
-### Maintenance
+### Other
 
 * Documenter is no longer compatible with IOCapture v0.1 and now requires IOCapture v0.2. (#1549)
 
 ## Version `v0.26.3`
 
-### Maintenance
+### Fixed
 
 * The internal naming of the temporary modules used to run doctests changed to accommodate upcoming printing changes in Julia. (JuliaLang/julia#39841), (#1540)
 
 ## Version `v0.26.2`
 
-### Enhancement
+### Added
 
 * `doctest()` no longer throws an error if cleaning up the temporary directory fails for some reason. (#1513), (#1526)
 
@@ -422,7 +414,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** If using the PDF/LaTeX output, change the `format` argument of `makedocs` to `format = Documenter.LaTeX(...)` and remove all references to the DocumenterLaTeX package (e.g. from `docs/Project.toml`).
 
-### Enhancement
+### Added
 
 * Objects that render as equations and whose `text/latex` representations are wrapped in display equation delimiters `\[ ... \]` or `$$ ... $$` are now handled correctly in the HTML output. (#1278), (#1283), (#1426)
 
@@ -442,11 +434,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.25.4`
 
-### Feature
+### Added
 
 * Documenter can now deploy from Buildkite CI to GitHub Pages with `Documenter.Buildkite`. (#1469)
-
-### Enhancement
 
 * Documenter now support Azure DevOps Repos URL scheme when generating edit and source links pointing to the repository. (#1462), (#1463), (#1471)
 
@@ -458,11 +448,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.25.3`
 
-### Feature
+### Added
 
 * Documenter can now deploy from GitLab CI to GitHub Pages with `Documenter.GitLab`. (#1448)
-
-### Enhancement
 
 * The URL to the MathJax JS module can now be customized by passing the `url` keyword argument to the constructors (`MathJax2`, `MathJax3`). (#1428), (#1430)
 
@@ -496,7 +484,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   )
   ```
 
-### Enhancement
+### Added
 
 * It is now possible to use MathJax v3 as the mathematics rendering in the HTML output. This can be done by passing `Documenter.MathJax3` as the `mathengine` keyword to `HTML`. (#1362), (#1367)
 
@@ -508,13 +496,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now throws away the extra information from the info string of a Markdown code block (i.e. ` ```language extra-info`), to correctly determine the language, which should be a single word. (#1392), (#1400)
 
-### Maintenance
-
 * Documenter now works around a Julia 1.5.0 regression (JuliaLang/julia#36953) which broke doctest fixing if the original doctest output was empty. (#1337), (#1389)
 
 ## Version `v0.25.1`
 
-### Enhancement
+### Added
 
 * When automatically determining the page list (i.e. `pages` is not passed to `makedocs`), Documenter now lists `index.md` before other pages. (#1355)
 
@@ -530,7 +516,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.25.0`
 
-### Enhancement
+### Added
 
 * When deploying with `deploydocs`, any SSH username can now be used (not just `git`), by prepending `username@` to the repository URL in the `repo` argument. (#1285)
 
@@ -560,7 +546,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.24.10`
 
-### Enhancement
+### Added
 
 * The `curl` timeout when checking remote links is now configurable with the `linkcheck_timeout` keyword. (#1057), (#1295)
 
@@ -576,7 +562,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.24.8`
 
-### Enhancement
+### Added
 
 * Non-standard admonition categories are (again) applied to the admonition `<div>` elements in HTML output (as `is-category-$category`). (#1279), (#1280)
 
@@ -590,19 +576,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.24.6`
 
-### Enhancement
+### Added
 
 * Reorganize some of the internal variables in Documenter's Sass sources, to make it easier to create custom themes on top of the Documenter base theme. (#1258)
 
 ## Version `v0.24.5`
 
-### Enhancement
+### Added
 
 * Documenter now correctly emulates the "REPL softscope" (Julia 1.5) in REPL-style doctest blocks and `@repl` blocks. (#1232)
 
 ## Version `v0.24.4`
 
-### Enhancement
+### Added
 
 * Change the inline code to less distracting black color in the HTML light theme. (#1212), (#1222)
 
@@ -616,7 +602,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version `v0.24.2`
 
-### Maintenance
+### Other
 
 * Improvements to logging in `deploydocs`. (#1195)
 
@@ -644,7 +630,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** If using `edit_branch = nothing`, use `edit_link = :commit` instead. If passing a `String` to `edit_branch`, pass that to `edit_link` instead.
 
-### Feature
+### Added
 
 * Documenter can now deploy preview documentation from pull requests (with head branch in the same repository, i.e. not from forks). This is enabled by passing `push_preview=true` to `deploydocs`. (#1180)
 
@@ -653,8 +639,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Documenter now has builtin support for deploying from GitHub Actions. Documenter will autodetect the running system, unless explicitly specified. (#1144), (#1152)
 
 * When using GitHub Actions Documenter will (try to) post a GitHub status with a link to the generated documentation. This is especially useful for pull request preview builds (see above). (#1186)
-
-### Enhancement
 
 * The Documenter HTML front end now uses [KaTeX](https://katex.org/) as the default math rendering engine. (#1097)
 
@@ -730,15 +714,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** Use `DocMeta.setdocmeta!` in `make.jl` to set up a `DocTestSetup` that applies to all the docstrings in a particular module instead and, if applicable, remove the now redundant `@meta` blocks. See the ["Setup code" section under "Doctesting"](https://juliadocs.github.io/Documenter.jl/v0.23.0/man/doctests/#Setup-Code-1) in the manual for more information.
 
-### Feature
+### Added
 
 * `makedocs` now accepts the `doctest = :only` keyword, which allows doctests to be run while most other build steps, such as rendering, are skipped. This makes it more feasible to run doctests as part of the test suite (see the manual for more information). (#198), (#535), (#756), (#774)
 
 * Documenter now exports the `doctest` function, which verifies the doctests in all the docstrings of a given module. This can be used to verify docstring doctests as part of test suite, or to fix doctests right in the REPL. (#198), (#535), (#756), (#774), (#1054)
 
 * `makedocs` now accepts the `expandfirst` argument, which allows specifying a set of pages that should be evaluated before others. (#1027), (#1029)
-
-### Enhancement
 
 * The evaluation order of pages is now fixed (unless customized with `expandfirst`). The pages are evaluated in the alphabetical order of their file paths. (#1027), (#1029)
 
@@ -750,6 +732,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The PDF output now uses the DejaVu Sans  and DejaVu Sans Mono fonts to provide better Unicode coverage. (#803), (#1066)
 
+* **Experimental** The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ (#1013), (#1025)
+
 ### Fixed
 
 * The HTML output now outputs HTML files for pages that are not referenced in the `pages` keyword too (Documenter finds them according to their extension). But they do exists outside of the standard navigation hierarchy (as defined by `pages`). This fixes a bug where these pages could still be referenced by `@ref` links and `@contents` blocks, but in the HTML output, the links ended up being broken. (#1031), (#1047)
@@ -759,10 +743,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Doctesting now also handles doctests that contain invalid syntax and throw parsing errors. (#487), (#1062)
 
 * Stacktraces in doctests that throw an error are now filtered more thoroughly, fixing an issue where too much of the stacktrace was included when `doctest` or `makedocs` was called from a more complicated context. (#1062)
-
-### Experimental
-
-* The current working directory when evaluating `@repl` and `@example` blocks can now be set to a fixed directory by passing the `workdir` keyword to `makedocs`. _The new keyword and its behaviour are experimental and not part of the public API._ (#1013), (#1025)
 
 ## Version `v0.22.6`
 
@@ -800,7 +780,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Error reporting for meta-blocks now handles missing files gracefully instead of throwing. (#996)
 
-### Enhancement
+### Added
 
 * The `sitename` keyword argument to `deploydocs`, which is required for the default HTML output, is now properly documented. (#995)
 
@@ -836,7 +816,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   _**Note:** It is technically possible to specify the same argument twice with different values by passing both variants. In that case the value passed to `makedocs` takes precedence._
 
-### Enhancement
+### Added
 
 * Documentation is no longer deployed on Travis CI cron jobs. (#917)
 
@@ -958,14 +938,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   _**Note:** It is technically possible to specify the same argument twice with different values by passing both variants. In that case the value to the deprecated `html_*` variant takes precedence._
 
-### Feature
+### Added
 
 * Packages extending Documenter can now define subtypes of `Documenter.Plugin`,
   which can be passed to `makedocs` as positional arguments to pass options to the extensions. (#864)
 
 * `@autodocs` blocks now support the `Filter` keyword, which allows passing a user-defined function that will filter the methods spliced in by the at-autodocs block. (#885)
-
-### Enhancement
 
 * `linkcheck` now supports checking URLs using the FTP protocol. (#879)
 
@@ -1055,13 +1033,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** Make sure that the respective extra package is installed and then just add `using DocumenterMarkdown` or `using DocumenterLaTeX` to `make.jl`.
 
-### Enhancement
+### Added
 
 * If Documenter is not able to determine which Git hosting service is being used to host the source, the "Edit on XXX" links become "Edit source" with a generic icon. (#804)
 
 * The at-blocks now support `MIME"text/html"` rendering of objects (e.g. for interactive plots). I.e. if a type has `show(io, ::MIME"text/html", x)` defined, Documenter now uses that when rendering the objects in the document. (#764)
 
-* Enhancements to the sidebar. When loading a page, the sidebar will jump to the current page now. Also, the scrollbar in WebKit-based browsers look less intrusive now. (#792), (#854), (#863)
+* Addeds to the sidebar. When loading a page, the sidebar will jump to the current page now. Also, the scrollbar in WebKit-based browsers look less intrusive now. (#792), (#854), (#863)
 
 * Minor style enhancements to admonitions. (#841)
 
