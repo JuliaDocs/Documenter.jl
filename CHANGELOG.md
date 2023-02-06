@@ -26,13 +26,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). (#1989), (#1271)
+
 * Documenter is now more careful not to accidentally leak SSH keys (in e.g. error messages) by removing `DOCUMENTER_KEY` from the environment when it is not needed. (#1958), (#1962)
+
 * Admonitions are now styled with color in the LaTeX output. (#1931), (#1932), (#1946), (#1955)
+
 * Improved the styling of code blocks in the LaTeXWriter. (#1933), (#1935), (#1936), (#1944), (#1956), (#1957)
+
 * Automatically resize oversize `tabular` environments from `@example` blocks in LaTeXWriter. (#1930), (#1937)
+
 * The `ansicolor` keyword to `HTML()` now defaults to true, meaning that executed outputs from `@example`- and `@repl`-blocks are now by default colored (if they emit colored output). (#1828)
+
 * Documenter now shows a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. (#1254)
+
 * A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). Documenter will also try to determine `repo` automatically from the `GITHUB_REPOSITORY` environment variable if other fallbacks have failed. (#1808), (#1881)
+
 * Broken issue references (i.e. links like `[#1234](@ref)`, but when Documenter is unable to determine the remote GitHub repository) now generate `:cross_references` errors that can be caught via the `strict` keyword. (#1808)
 
   This is **potentially breaking** as it can cause previously working builds to fail if they are being run in strict mode. However, such builds were already leaving broken links in the generated documentation.
@@ -40,28 +48,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   **For upgrading:** the easiest way to fix the build is to remove the offending `@ref` links. Alternatively, the `repo` argument to `makedocs` can be set to the appropriate `Remotes.Remote` object that implements the `Remotes.issueurl` function, which would make sure that correct URLs are generated.
 
 * Woodpecker CI is now automatically supported for documentation deployment. (#1880)
+
 * The `@contents`-block now support `UnitRange`s for the `Depth` argument. This makes it possible to configure also the *minimal* header depth that should be displayed (`Depth = 2:3`, for example). This is supported by the HTML and the LaTeX/PDF backends. (#245), (#1890)
+
 * The code copy buttons in HTML now have `title` and `aria-label` attributes. (#1903)
+
 * The at-ref links are now more flexible, allowing arbitrary links to point to both docstrings and section headings. (#781), (#1900)
+
 * Code blocks like `@example` or `@repl` are now also expanded in nested contexts (e.g. admonitions, lists or block quotes). (#491), (#1970)
+
 * The new `pagesonly` keyword to `makedocs` can be used to restrict builds to just the Markdown files listed in `pages` (as opposed to all `.md` files under `src/`). (#1980)
+
 * Search engine and social media link previews are now supported, with Documenter generating the relevant HTML `meta` tags. (#1321), (#1991)
+
 * `deploydocs` now supports custom tag prefixes; see section "Deploying from a monorepo" in the docs. (#1291), (#1792), (#1993)
+
 * The `target` keyword of `deploydocs` is now required to point to a subdirectory of `root` (usually the directory where `make.jl` is located). (#2019)
 
 ### Fixed
 
 * Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. (#1808)
+
 * Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. (#1881)
+
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. (#1906)
+
 * `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. (#505), (#1924)
+
 * Docstring doctests now properly get checked on each `makedocs` run, when run multiple times in the same Julia session. (#974), (#1948)
+
 * The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. (#1969)
+
 * `deploydocs` now correctly handles version symlinks where the destination directory has been deleted. (#2012)
 
 ### Other
 
 * Documenter now uses [MarkdownAST](https://github.com/JuliaDocs/MarkdownAST.jl) to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues). (#1892), (#1912), (#1924), (#1948)
+
 * The code layout has changed considerably, with many of the internal submodules removed. This **may be breaking** for code that hooks into various Documenter internals, as various types and functions now live at different code paths. (#1977)
 
 ## Version `v0.27.24`
@@ -79,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * The PDF/LaTeX output now handles hard Markdown line breaks (i.e. `Markdown.LineBreak` nodes). (#1908)
+
 * Previously broken links within the PDF output are now fixed. (JuliaLang/julia#38054), (JuliaLang/julia#43652), (#1909)
 
 ## Version `v0.27.22`
@@ -120,8 +144,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Documenter can now build draft version of HTML documentation by passing `draft=true` to `makedocs`. Draft mode skips potentially expensive parts of the building process and can be useful to get faster feedback when writing documentation. Draft mode currently skips doctests, `@example`-, `@repl`-, `@eval`-, and `@setup`-blocks. Draft mode can be disabled (or enabled) on a per-page basis by setting `Draft = true` in an `@meta` block. (#1836)
+
 * On the HTML search page, pressing enter no longer causes the page to refresh (and therefore does not trigger the slow search index rebuild). (#1728), (#1833), (#1834)
+
 * For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). (#1827), (#1829)
+
 * Profiling showed that a significant amount of the HTML page build time was due to external `git` commands (used to find remote URLs for docstrings). These results are now cached on a per-source-file basis resulting in faster build times. This is particularly useful when using [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)s functionality for live-updating the docs while writing. (#1838)
 
 ## Version `v0.27.18`
@@ -133,7 +160,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * When deploying unversioned docs, Documenter now generates a `siteinfo.js` file that disables the version selector, even if a `../versions.js` happens to exists. (#1667), (#1825)
+
 * Build failures now only show fatal errors, rather than all errors. (#1816)
+
 * Disable git terminal prompt when detecting remote HEAD branch for ssh remotes, and allow ssh-agent authentication (by appending rather than overriding ENV). (#1821)
 
 ## Version `v0.27.17`
@@ -141,13 +170,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * PDF/LaTeX output can now be compiled with the [Tectonic](https://tectonic-typesetting.github.io) LaTeX engine. (#1802), (#1803)
+
 * The phrasing of the outdated version warning in the HTML output has been improved. (#1805)
+
 * Documenter now provides the `Documenter.except` function which can be used to "invert" the list of errors that are passed to `makedocs` via the `strict` keyword. (#1811)
 
 ### Fixed
 
 * When linkchecking HTTP and HTTPS URLs, Documenter now also passes a realistic `accept-encoding` header along with the request, in order to work around servers that try to block non-browser requests. (#1807)
+
 * LaTeX build logs are now properly outputted to the `LaTeXWriter.{stdout,stderr}` files when using the Docker build option. (#1806)
+
 * `makedocs` no longer fails with an `UndefVarError` if it encounters a specific kind of bad docsystem state related to docstrings attached to the call syntax, but issues an `@autodocs` error/warning instead. (JuliaLang/julia#45174), (#1192), (#1810), (#1811)
 
 ## Version `v0.27.16`
