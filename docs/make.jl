@@ -15,44 +15,78 @@ end
 # ==============================================================================
 
 function fix_release_line(
-    line::String,
-    url::String = "JuliaDocs/Documenter.jl",
+    line::String;
+    repo::String = "JuliaDocs/Documenter.jl",
 )
-    # (abc#XXXX) -> ([abc#XXXX](abc/issue/XXXX))
+    # Rule: ((abc#XXXX) -> ([abc#XXXX](https://github.com/abc/issue/XXXX))
+    # Description: Replace issue/PR nnumbers with a link to the default repo
+    # Example: (JuliaLang/julia#123) -> ([JuliaLang/julia#123](https://github.com/JuliaLang/julia/issues/123))
+    # There is no need to distinguish between PRs and Issues because GitHub
+    # redirects.
     while (m = match(r"\(([a-zA-Z0-9/]+?)\#([0-9]+)\)", line)) !== nothing
-        new_url, id = m.captures[1], m.captures[2]
-        line = replace(line, m.match => "([$new_url#$id](https://github.com/$new_url/issues/$id))")
+        new_repo, id = m.captures[1], m.captures[2]
+        line = replace(line, m.match => "([$new_repo#$id](https://github.com/$new_repo/issues/$id))")
     end
-    # (#XXXX) -> ([#XXXX](url/issue/XXXX))
+    # Rule: (#XXXX) -> ([#XXXX](https://github.com/url/issue/XXXX))
+    # Description: Replace issue/PR nnumbers with a link to the default repo
+    # Example: (#123) -> ([#123](https://github.com/JuliaDocs/Documenter.jl/issues/123))
+    # There is no need to distinguish between PRs and Issues because GitHub
+    # redirects.
     while (m = match(r"\(\#([0-9]+)\)", line)) !== nothing
         id = m.captures[1]
-        line = replace(line, m.match => "([#$id](https://github.com/$url/issues/$id))")
+        line = replace(line, m.match => "([#$id](https://github.com/$repo/issues/$id))")
     end
-    # ## vX.Y.Z -> ## [vX.Y.Z](url/releases/tag/vX.Y.Z)
-    while (m = match(r"\#\# v([0-9]+.[0-9]+.[0-9]+)", line)) !== nothing
+    # Rule: (@XXXX) -> ([@XXXX](https://github.com/XXXX))
+    # Description: Replace users with a link to their GitHub
+    # Example: (@odow) -> ([@odow](https://github.com/odow))
+    while (m = match(r"\(@(.+?)\)", line)) !== nothing
+        id = m.captures[1]
+        line = replace(line, m.match => "([@$id](https://github.com/$id))")
+    end
+    # Rule: ## Version vX.Y.Z -> ## Version [vX.Y.Z](url/releases/tag/vX.Y.Z)
+    # Description: Replace version headers with a link to the GitHub tag
+    # Example: ## Version v0.27.0 -> ## Version [v0.27.0](https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.0)
+    while (m = match(r"\#\# Version (v[0-9]+.[0-9]+.[0-9]+)", line)) !== nothing
         tag = m.captures[1]
         line = replace(
             line,
-            m.match => "## [v$tag](https://github.com/$url/releases/tag/v$tag)",
+            m.match => "## Version [$tag](https://github.com/$repo/releases/tag/$tag)",
         )
     end
     return line
 end
 
-header = """
-```@meta
-CurrentModule = Documenter
-EditURL = "https://github.com/JuliaDocs/Documenter.jl/blob/master/CHANGELOG.md"
-```
-"""
-open(joinpath(dirname(@__DIR__), "CHANGELOG.md"), "r") do in_io
-    open(joinpath(@__DIR__, "src", "release_notes.md"), "w") do out_io
-        write(out_io, header)
-        for line in readlines(in_io; keep = true)
-            write(out_io, fix_release_line(line))
+function rewrite_changelog(;
+    changelog_filename::String,
+    release_notes_filename::String,
+    current_module::String,
+    repo::String,
+    branch::String = "master",
+)
+    header = """
+    ```@meta
+    CurrentModule = $current_module
+    EditURL = "https://github.com/$repo/blob/$branch/CHANGELOG.md"
+    ```
+    """
+    open(changelog_filename, "r") do in_io
+        open(release_notes_filename, "w") do out_io
+            write(out_io, header)
+            for line in readlines(in_io; keep = true)
+                write(out_io, fix_release_line(line; repo = repo))
+            end
         end
     end
+    return
 end
+
+rewrite_changelog(
+    changelog_filename = joinpath(dirname(@__DIR__), "CHANGELOG.md"),
+    release_notes_filename = joinpath(@__DIR__, "src", "release_notes.md"),
+    current_module = "Documenter",
+    repo = "JuliaDocs/Documenter.jl",
+
+)
 
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
