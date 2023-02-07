@@ -1,7 +1,3 @@
-```@meta
-CurrentModule = Documenter
-```
-
 # Release notes
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -87,13 +83,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The code layout has changed considerably, with many of the internal submodules removed. This **may be breaking** for code that hooks into various Documenter internals, as various types and functions now live at different code paths. (#1977)
 
-## Version `v0.27.24`
+## v0.27.24
 
 ### Security
 
 * `deploydocs` now takes extra care to avoid committing the temporary SSH key file to the Git repo. (#2018)
 
-## Version `v0.27.23`
+## v0.27.23
 
 ### Added
 
@@ -105,29 +101,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Previously broken links within the PDF output are now fixed. (JuliaLang/julia#38054), (JuliaLang/julia#43652), (#1909)
 
-## Version `v0.27.22`
+## v0.27.22
 
 ### Other
 
 * Documenter is now compatible with DocStringExtensions v0.9. (#1885), (#1886)
 
-## Version `v0.27.21`
+## v0.27.21
 
 ### Fixed
 
 * Fix a regression where Documenter throws an error on systems that do not have Git available. (#1870), (#1871)
 
-## Version `v0.27.20`
+## v0.27.20
 
 ### Added
 
 * The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. (#1844), (#1846)
 
-  - MathJax 3 has been updated from `v3.2.0` to `v3.2.2`.
-  - JuliaMono has been updated from `v0.044` to `v0.045`.
-  - Font Awesome has been updated from `v5.15.3` to `v5.15.4`.
-  - highlight.js has been updated from `v11.0.1` to `v11.5.1`.
-  - KaTeX has been updated from `v0.13.11` to `v0.13.24`.
+  - MathJax 3 has been updated from v3.2.0 to v3.2.2.
+  - JuliaMono has been updated from v0.044 to v0.045.
+  - Font Awesome has been updated from v5.15.3 to v5.15.4.
+  - highlight.js has been updated from v11.0.1 to v11.5.1.
+  - KaTeX has been updated from v0.13.11 to v0.13.24.
 
 * **Experimental**: `deploydocs` now supports "deploying to tarball" (rather than pushing to the `gh-pages` branch) via the undocumented experiments `archive` keyword. (#1865)
 
@@ -139,7 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * By overriding `GIT_TEMPLATE_DIR`, `git` no longer picks up arbitrary user templates and hooks when internally called by Documenter. (#1862)
 
-## Version `v0.27.19`
+## v0.27.19
 
 ### Added
 
@@ -151,7 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Profiling showed that a significant amount of the HTML page build time was due to external `git` commands (used to find remote URLs for docstrings). These results are now cached on a per-source-file basis resulting in faster build times. This is particularly useful when using [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)s functionality for live-updating the docs while writing. (#1838)
 
-## Version `v0.27.18`
+## v0.27.18
 
 ### Added
 
@@ -165,7 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Disable git terminal prompt when detecting remote HEAD branch for ssh remotes, and allow ssh-agent authentication (by appending rather than overriding ENV). (#1821)
 
-## Version `v0.27.17`
+## v0.27.17
 
 ### Added
 
@@ -183,7 +179,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `makedocs` no longer fails with an `UndefVarError` if it encounters a specific kind of bad docsystem state related to docstrings attached to the call syntax, but issues an `@autodocs` error/warning instead. (JuliaLang/julia#45174), (#1192), (#1810), (#1811)
 
-## Version `v0.27.16`
+## v0.27.16
 
 ### Added
 
@@ -203,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * When linkchecking HTTP and HTTPS URLs, Documenter now passes a realistic browser (Chrome) `User-Agent` header along with the request, in order to work around servers that try to use the `User-Agent` to block non-browser requests. (#1796)
 
-## Version `v0.27.15`
+## v0.27.15
 
 ### Added
 
@@ -215,13 +211,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Improve the fix for extraneous whitespace in REPL blocks. (#1774)
 
-## Version `v0.27.14`
+## v0.27.14
 
 ### Fixed
 
 * Fix a CSS bug causing REPL code blocks to contain extraneous whitespace. (#1770), (#1771)
 
-## Version `v0.27.13`
+## v0.27.13
 
 ### Fixed
 
@@ -229,37 +225,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix a bug when loading the `copy.js` script for the code copy button. (#1760), (#1762)
 
-## Version `v0.27.12`
+## v0.27.12
 
 ### Fixed
 
 * Fix code copy button in insecure contexts (e.g. pages hosted without https). (#1754)
 
-## Version `v0.27.11`
+## v0.27.11
 
 ### Added
 
 * Documenter now deploys documentation from manually triggered events (`workflow_dispatch` on GitHub actions). (#1554), (#1752)
 
-* MathJax 3 has been updated to `v3.2.0` (minor version bump). (#1743)
+* MathJax 3 has been updated to v3.2.0 (minor version bump). (#1743)
 
 * HTML code blocks now have a copy button. (#1748)
 
 * Documenter now tries to detect the development branch using `git` with the old default (`master`) as fallback. If you use `main` as the development branch you shouldn't need to specify `devbranch = "main"` as an argument to deploydocs anymore. (#1443), (#1727), (#1751)
 
-## Version `v0.27.10`
+## v0.27.10
 
 ### Fixed
 
 * Fix depth of headers in LaTeXWriter. (#1716)
 
-## Version `v0.27.9`
+## v0.27.9
 
 ### Fixed
 
 * Fix some errors with text/latex MIME type in LaTeXWriter. (#1709)
 
-## Version `v0.27.8`
+## v0.27.8
 
 ### Added
 
@@ -271,7 +267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix a few accessibility issues in the HTML output. (#1673)
 
-## Version `v0.27.7`
+## v0.27.7
 
 ### Fixed
 
@@ -281,7 +277,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix an error occuring with `DocTestFilters = nothing` in `@meta` blocks. (#1696)
 
-## Version `v0.27.6`
+## v0.27.6
 
 ### Added
 
@@ -295,13 +291,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Enabled colored printing for each output of `@repl`-blocks. (#1691)
 
-## Version `v0.27.5`
+## v0.27.5
 
 ### Fixed
 
-* Fix an error introduced in version `v0.27.4` (PR(#1634) which was triggered by trailing comments in `@eval`/`@repl`/`@example` blocks. (#1655), (#1661)
+* Fix an error introduced in version v0.27.4 (PR(#1634) which was triggered by trailing comments in `@eval`/`@repl`/`@example` blocks. (#1655), (#1661)
 
-## Version `v0.27.4`
+## v0.27.4
 
 ### Added
 
@@ -336,7 +332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix overflow behavior for math environments to hide unnecessary vertical scrollbars. (#1575), (#1649)
 
-## Version `v0.27.3`
+## v0.27.3
 
 ### Added
 
@@ -348,13 +344,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The HTML front end no longer uses ligatures when displaying code (with JuliaMono). (#1610), (#1617)
 
-## Version `v0.27.2`
+## v0.27.2
 
 ### Added
 
 * The default font has been changed to `Lato Medium` so that the look of the text would be closer to the old Google Fonts version of Lato. (#1602), (#1604)
 
-## Version `v0.27.1`
+## v0.27.1
 
 ### Added
 
@@ -366,27 +362,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter no longer throws an error when generating the version selector if there are no deployed versions. (#1594), (#1596)
 
-## Version `v0.27.0`
+## v0.27.0
 
 ### Added
 
 * The JS dependencies have been updated to their respective latest versions.
 
-  - highlight.js has been updated to `v11.0.1` (major version bump), which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. (#1503), (#1551), (#1590)
+  - highlight.js has been updated to v11.0.1 (major version bump), which also brings various updates to the highlighting of Julia code. Due to the changes in highlight.js, code highlighting will not work on IE11. (#1503), (#1551), (#1590)
 
-  - Headroom.js has been updated to `v0.12.0` (major version bump). (#1590)
+  - Headroom.js has been updated to v0.12.0 (major version bump). (#1590)
 
-  - KaTeX been updated to `v0.13.11` (major version bump). (#1590)
+  - KaTeX been updated to v0.13.11 (major version bump). (#1590)
 
-  - MathJax versions have been updated to `v2.7.7` (patch version bump) and `v3.1.4` (minor version bump), for MathJax 2 and 3, respectively. (#1590)
+  - MathJax versions have been updated to v2.7.7 (patch version bump) and v3.1.4 (minor version bump), for MathJax 2 and 3, respectively. (#1590)
 
-  - jQuery been updated to `v3.6.0` (minor version bump). (#1590)
+  - jQuery been updated to v3.6.0 (minor version bump). (#1590)
 
-  - Font Awesome has been updated to `v5.15.3` (patch version bump). (#1590)
+  - Font Awesome has been updated to v5.15.3 (patch version bump). (#1590)
 
-  - lunr.js has been updated to `v2.3.9` (patch version bump). (#1590)
+  - lunr.js has been updated to v2.3.9 (patch version bump). (#1590)
 
-  - lodash.js has been updated to `v4.17.21` (patch version bump). (#1590)
+  - lodash.js has been updated to v4.17.21 (patch version bump). (#1590)
 
 * `deploydocs` now throws an error if something goes wrong with the Git invocations used to deploy to `gh-pages`. (#1529)
 
@@ -408,13 +404,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter is no longer compatible with IOCapture v0.1 and now requires IOCapture v0.2. (#1549)
 
-## Version `v0.26.3`
+## v0.26.3
 
 ### Fixed
 
 * The internal naming of the temporary modules used to run doctests changed to accommodate upcoming printing changes in Julia. (JuliaLang/julia#39841), (#1540)
 
-## Version `v0.26.2`
+## v0.26.2
 
 ### Added
 
@@ -434,13 +430,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Multiline equations are now correctly handled in at-block outputs. (#1518)
 
-## Version `v0.26.1`
+## v0.26.1
 
 ### Fixed
 
 * HTML assets that are copied directly from Documenters source to the build output now has correct file permissions. (#1497)
 
-## Version `v0.26.0`
+## v0.26.0
 
 ### Breaking
 * The PDF/LaTeX output is again provided as a Documenter built-in and can be enabled by passing an instance of `Documenter.LaTeX` to `format`. The DocumenterLaTeX package has been deprecated. (#1493)
@@ -459,13 +455,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `deploydocs` now prints a warning on GitHub Actions, Travis CI and Buildkite if the current branch is `main`, but `devbranch = "master`, which indicates a possible Documenter misconfiguration due to GitHub changing the default primary branch of a repository to `main`. (#1489)
 
-## Version `v0.25.5`
+## v0.25.5
 
 ### Fixed
 
 * In the HTML output, display equations that are wider than the page now get a scrollbar instead of overflowing. (#1470), (#1476)
 
-## Version `v0.25.4`
+## v0.25.4
 
 ### Added
 
@@ -479,7 +475,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * HTMLWriter no longers prints a warning when encountering `mailto:` URLs in links. (#1472)
 
-## Version `v0.25.3`
+## v0.25.3
 
 ### Added
 
@@ -493,7 +489,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `Selectors.dispatch` function now uses a cache to avoid calling `subtypes` on selectors multiple times during a `makedocs` call to avoid slowdowns due to [`subtypes` being slow][julia-38079]. (#1438), (#1440), (#1452)
 
-## Version `v0.25.2`
+## v0.25.2
 
 ### Deprecated
 
@@ -531,7 +527,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now works around a Julia 1.5.0 regression (JuliaLang/julia#36953) which broke doctest fixing if the original doctest output was empty. (#1337), (#1389)
 
-## Version `v0.25.1`
+## v0.25.1
 
 ### Added
 
@@ -547,7 +543,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * In the PDF/LaTeX output, equations that use the `align` or `align*` environment are no longer further wrapped in `equation*`/`split`. (#1368)
 
-## Version `v0.25.0`
+## v0.25.0
 
 ### Added
 
@@ -571,13 +567,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Docstrings from `@autodocs` blocks are no longer sorted according to an undocumented rule where exported names should come before unexported names. Should this behavior be necessary, the `@autodocs` can be replaced by two separate blocks that use the `Public` and `Private` options to filter out the unexported or exported docstrings in the first or the second block, respectively. (#964), (#1323)
 
-## Version `v0.24.11`
+## v0.24.11
 
 ### Fixed
 
 * Some sections and page titles that were missing from the search results in the HTML backend now show up. (#1311)
 
-## Version `v0.24.10`
+## v0.24.10
 
 ### Added
 
@@ -587,19 +583,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Special characters are now properly escaped in admonition titles in LaTeX/PDF builds and do not cause the PDF build to fail anymore. (#1299)
 
-## Version `v0.24.9`
+## v0.24.9
 
 ### Fixed
 
 * Canonical URLs are now properly prettified (e.g. `/path/` instead of `/path/index.html`) when using `prettyurls=true`. (#1293)
 
-## Version `v0.24.8`
+## v0.24.8
 
 ### Added
 
 * Non-standard admonition categories are (again) applied to the admonition `<div>` elements in HTML output (as `is-category-$category`). (#1279), (#1280)
 
-## Version `v0.24.7`
+## v0.24.7
 
 ### Fixed
 
@@ -607,19 +603,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix errors in LaTeX builds due to bad escaping of certain characters. (#1118), (#1119), (#1200), (#1269)
 
-## Version `v0.24.6`
+## v0.24.6
 
 ### Added
 
 * Reorganize some of the internal variables in Documenter's Sass sources, to make it easier to create custom themes on top of the Documenter base theme. (#1258)
 
-## Version `v0.24.5`
+## v0.24.5
 
 ### Added
 
 * Documenter now correctly emulates the "REPL softscope" (Julia 1.5) in REPL-style doctest blocks and `@repl` blocks. (#1232)
 
-## Version `v0.24.4`
+## v0.24.4
 
 ### Added
 
@@ -627,25 +623,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Add the ability specify the `lang` attribute of the `html` tag in the HTML output, to better support documentation pages in other languages. By default Documenter now defaults to `lang="en"`. (#1223)
 
-## Version `v0.24.3`
+## v0.24.3
 
 ### Fixed
 
 * Fix a case where Documenter's deployment would fail due to git picking up the wrong ssh config file on non-standard systems. (#1216)
 
-## Version `v0.24.2`
+## v0.24.2
 
 ### Other
 
 * Improvements to logging in `deploydocs`. (#1195)
 
-## Version `v0.24.1`
+## v0.24.1
 
 ### Fixed
 
 * Fix a bad `mktempdir` incantation in `LaTeXWriter`. (#1194)
 
-## Version `v0.24.0`
+## v0.24.0
 
 ### Breaking
 
@@ -703,25 +699,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `LaTeXWriter` now outputs valid LaTeX if an `@contents` block is nested by more than two levels, or if `@contents` or `@index` blocks do not contain any items. (#1166)
 
-## Version `v0.23.4`
+## v0.23.4
 
 ### Fixed
 
 * The `include` and `eval` functions are also available in `@setup` blocks now. (#1148), (#1153)
 
-## Version `v0.23.3`
+## v0.23.3
 
 ### Fixed
 
 * Fix file permission error when `Pkg.test`ing Documenter. (#1115)
 
-## Version `v0.23.2`
+## v0.23.2
 
 ### Fixed
 
 * Empty Markdown headings no longer cause Documenter to crash. (#1081), (#1082)
 
-## Version `v0.23.1`
+## v0.23.1
 
 ### Fixed
 
@@ -731,7 +727,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Docstrings parsed into nested `Markdown.MD` objects are now unwrapped correctly and do not cause Documenter to crash with a missing method error anymore. The user can run into that when reusing docstrings with the `@doc @doc(foo) function bar end` pattern. (#1075)
 
-## Version `v0.23.0`
+## v0.23.0
 
 ### Version changes
 
@@ -777,19 +773,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Stacktraces in doctests that throw an error are now filtered more thoroughly, fixing an issue where too much of the stacktrace was included when `doctest` or `makedocs` was called from a more complicated context. (#1062)
 
-## Version `v0.22.6`
+## v0.22.6
 
 ### Other
 
 * Add DocStringExtensions 0.8 as an allowed dependency version. (#1071)
 
-## Version `v0.22.5`
+## v0.22.5
 
 ### Fixed
 
 * Fix a test dependency problem revealed by a bugfix in Julia / Pkg. (#1037)
 
-## Version `v0.22.4`
+## v0.22.4
 
 ### Fixed
 
@@ -801,13 +797,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `makedocs` again exits with an error if `strict=true` and there is a doctest failure. (#1003), (#1014)
 
-## Version `v0.22.3`
+## v0.22.3
 
 ### Fixed
 
 * Fixed filepaths for images included in the .tex file for PDF output on Windows. (#999)
 
-## Version `v0.22.2`
+## v0.22.2
 
 ### Fixed
 
@@ -817,13 +813,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `sitename` keyword argument to `deploydocs`, which is required for the default HTML output, is now properly documented. (#995)
 
-## Version `v0.22.1`
+## v0.22.1
 
 ### Fixed
 
 * Fixed a world-age related bug in doctests. (#994)
 
-## Version `v0.22.0`
+## v0.22.0
 
 ### Deprecated
 
@@ -886,34 +882,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Code lines ending with `# hide` are now properly hidden for CRLF inputs. (#991)
 
-## Version `v0.21.5`
+## v0.21.5
 
 ### Fixed
 
 * Deprecation warnings for `format` now get printed correctly when multiple formats are passed as a `Vector`. (#967)
 
-## Version `v0.21.4`
+## v0.21.4
 
 ### Fixed
 
 * A bug in `jldoctest`-blocks that, in rare cases, resulted in
   wrong output has been fixed. (#959), (#960)
 
-## Version `v0.21.3`
+## v0.21.3
 
 ### Security
 
 * The lunr.js and lodash JavaScript dependencies have been updated to their latest patch versions (from 2.3.1 to 2.3.5 and 4.17.4 to 4.17.11, respectively).
   This is in response to a vulnerability in lodash <4.17.11 ([CVE-2018-16487](https://nvd.nist.gov/vuln/detail/CVE-2018-16487)). (#946)
 
-## Version `v0.21.2`
+## v0.21.2
 
 ### Fixed
 
 * `linkcheck` now handles servers that do not support `HEAD` requests
   and properly checks for status codes of FTP responses. (#934)
 
-## Version `v0.21.1`
+## v0.21.1
 
 ### Fixed
 
@@ -923,7 +919,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `@example`, `@repl` and `@eval` blocks now handle reserved words,
   e.g. `try`/`catch`, correctly. (#886), (#927)
 
-## Version `v0.21.0`
+## v0.21.0
 
 ### Deprecated
 
@@ -989,7 +985,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `deploydocs` now have a `forcepush` keyword argument that can be used to
   force-push the built documentation instead of adding a new commit. (#905)
 
-## Version `v0.20.0`
+## v0.20.0
 
 ### Version changes
 

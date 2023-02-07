@@ -28,19 +28,26 @@ function fix_release_line(
         id = m.captures[1]
         line = replace(line, m.match => "([#$id](https://github.com/$url/issues/$id))")
     end
-    # ## Version `vX.Y.Z` -> ## Version [`vX.Y.Z`](url/releases/tag/vX.Y.Z)
-    while (m = match(r"\#\# Version `v([0-9]+.[0-9]+.[0-9]+)`", line)) !== nothing
+    # ## vX.Y.Z -> ## [vX.Y.Z](url/releases/tag/vX.Y.Z)
+    while (m = match(r"\#\# v([0-9]+.[0-9]+.[0-9]+)", line)) !== nothing
         tag = m.captures[1]
         line = replace(
             line,
-            m.match => "## Version [$tag](https://github.com/$url/releases/tag/v$tag)",
+            m.match => "## [v$tag](https://github.com/$url/releases/tag/v$tag)",
         )
     end
     return line
 end
 
+header = """
+```@meta
+CurrentModule = Documenter
+EditURL = "https://github.com/JuliaDocs/Documenter.jl/blob/master/CHANGELOG.md"
+```
+"""
 open(joinpath(dirname(@__DIR__), "CHANGELOG.md"), "r") do in_io
     open(joinpath(@__DIR__, "src", "release_notes.md"), "w") do out_io
+        write(out_io, header)
         for line in readlines(in_io; keep = true)
             write(out_io, fix_release_line(line))
         end
