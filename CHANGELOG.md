@@ -745,7 +745,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   - Documenter now exports the `DocMeta` module, which provides an alternative way to add `DocTestSetup` to docstrings.
 
-  **For upgrading:** Use `DocMeta.setdocmeta!` in `make.jl` to set up a `DocTestSetup` that applies to all the docstrings in a particular module instead and, if applicable, remove the now redundant `@meta` blocks. See the ["Setup code" section under "Doctesting"](https://juliadocs.github.io/Documenter.jl/v0.23.0/man/doctests/#Setup-Code-1) in the manual for more information.
+  **For upgrading:** Use `DocMeta.setdocmeta!` in `make.jl` to set up a `DocTestSetup` that applies to all the docstrings in a particular module instead and, if applicable, remove the now redundant `@meta` blocks. See the ["Setup code" section under "Doctesting"](https://documenter.juliadocs.org/v0.23/man/doctests/#Setup-Code-1) in the manual for more information.
 
 ### Added
 
