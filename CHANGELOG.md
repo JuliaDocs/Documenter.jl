@@ -691,7 +691,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Page titles are now boosted in the search, yielding better search results. (#631), (#1112), (#1113)
 
-* In the PDF/LaTeX output, images that are wider than the text are now being scaled down to text width automatically. The PDF builds now require the [adjustbox](https://ctan.org/pkg/adjustbox) LaTeX package to be available. (#1137)
+* In the PDF/LaTeX output, images that are wider than the text are now being scaled down to text width automatically. The PDF builds now require the `adjustbox` LaTeX package to be available. (#1137)
 
 * If the TeX compilation fails for the PDF/LaTeX output, `makedocs` now throws an exception. (#1166)
 
