@@ -82,7 +82,7 @@ end
 
 rewrite_changelog(
     changelog_filename = joinpath(dirname(@__DIR__), "CHANGELOG.md"),
-    release_notes_filename = joinpath(@__DIR__, "src", "release_notes.md"),
+    release_notes_filename = joinpath(@__DIR__, "src", "release-notes.md"),
     current_module = "Documenter",
     repo = "JuliaDocs/Documenter.jl",
 
@@ -141,7 +141,7 @@ makedocs(
             ),
         ],
         "contributing.md",
-        "release_notes.md",
+        "release-notes.md",
     ],
     strict = !("strict=false" in ARGS),
     doctest = ("doctest=only" in ARGS) ? :only : true,
