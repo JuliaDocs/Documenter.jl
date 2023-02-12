@@ -1,3 +1,5 @@
+.vscode
+
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
@@ -17,5 +19,4 @@ docs/dev/
 docs/build/
 docs/build-pdf/
 docs/site/
-
-.vscode
+docs/src/release-notes.md
