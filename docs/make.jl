@@ -34,7 +34,7 @@ function fix_release_line(
     # redirects.
     while (m = match(r"\(\#([0-9]+)\)", line)) !== nothing
         id = m.captures[1]
-        line = replace(line, m.match => "([#$id](#$id))")
+        line = replace(line, m.match => "([#$id](https://github.com/$repo/issues/$id))")
     end
     # Rule: (@XXXX) -> ([@XXXX](https://github.com/XXXX))
     # Description: Replace users with a link to their GitHub
