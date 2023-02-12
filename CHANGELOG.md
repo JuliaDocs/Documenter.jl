@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `target` keyword of `deploydocs` is now required to point to a subdirectory of `root` (usually the directory where `make.jl` is located). (#2019)
 
-* Added keyboard shortcuts for search box (`ctrl + /` or `cmd + /` to focus into the search box, `Esc` to focus out of it). (#1536), (#2027)
+* Added keyboard shortcuts for search box (`Ctrl + /` or `Cmd + /` to focus into the search box, `Esc` to focus out of it). (#1536), (#2027)
 
 ### Fixed
 

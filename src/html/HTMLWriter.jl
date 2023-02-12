@@ -1058,7 +1058,7 @@ function render_sidebar(ctx, navnode)
                 "#documenter-search-query.docs-search-query",
                 :name => "q",
                 :type => "text",
-                :placeholder => "Search docs (ctrl + /)",
+                :placeholder => "Search docs (Ctrl + /)",
             ],
         )
     )
