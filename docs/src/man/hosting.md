@@ -398,7 +398,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: gh-pages
       - name: Delete preview and history + push changes
@@ -417,6 +417,12 @@ jobs:
 
 _This workflow was taken from [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
+For this action to execute,
+you must give GitHub workflows write permissions
+under the rep settings, e.g.,
+https://github.com/<USER>/<REPO>.jl/settings/actions
+
+	
 ## Woodpecker CI
 
 To run a documentation build from Woodpecker CI, one should create an access token
