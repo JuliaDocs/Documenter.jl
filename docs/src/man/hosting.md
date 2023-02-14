@@ -396,6 +396,8 @@ on:
 jobs:
   doc-preview-cleanup:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout gh-pages branch
         uses: actions/checkout@v3
@@ -415,15 +417,12 @@ jobs:
             PRNUM: ${{ github.event.number }}
 ```
 
-_This workflow was taken from [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
+_This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
-For this action to execute, you can give GitHub workflows write permissions under the rep settings, e.g. `https://github.com/<USER>/<REPO>.jl/settings/actions`.
-Alternatively, you can modify the yaml file above to include the following lines before the `steps:` line to grant permissions per [GitHub Docs][https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#assigning-permissions-to-a-specific-job]:
-
-```yaml
-permissions:
-  contents: write
-```
+The `permissions:` line above is described in the
+[GitHub Docs][https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#assigning-permissions-to-a-specific-job];
+an alternative is to give GitHub workflows write permissions under the repo settings, e.g.,
+`https://github.com/<USER>/<REPO>.jl/settings/actions`.
 
 	
 ## Woodpecker CI
