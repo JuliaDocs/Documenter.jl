@@ -1,6 +1,6 @@
 using Test
 import Documenter
-include("TestUtilities.jl"); using .TestUtilities
+include("TestUtilities.jl"); using Main.TestUtilities
 
 @testset "Documenter" begin
     # Build the example docs
@@ -18,7 +18,7 @@ include("TestUtilities.jl"); using .TestUtilities
     # Unit tests for module internals.
     include("except.jl")
     include("utilities.jl")
-    include("markdown2.jl")
+    include("remotes.jl")
 
     # DocChecks tests
     include("docchecks.jl")
@@ -28,6 +28,9 @@ include("TestUtilities.jl"); using .TestUtilities
 
     # DocSystem unit tests.
     include("docsystem.jl")
+
+    # CrossReferences
+    include("crossreferences.jl")
 
     # DocTest unit tests.
     @info "Running tests in doctests/"

@@ -1,9 +1,10 @@
 module HTMLWriterTests
 
 using Test
+import MarkdownAST
 using Documenter
 using Documenter: DocSystem
-using Documenter.Writers.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
+using Documenter.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
@@ -114,6 +115,7 @@ end
     @test_throws ArgumentError Documenter.HTML(footer="# foo")
     @test_throws ArgumentError Documenter.HTML(footer="")
     @test Documenter.HTML(footer="foo bar [baz](https://github.com)") isa Documenter.HTML
+    @test_throws ErrorException Documenter.HTML(edit_branch = nothing, edit_link=nothing)
 
     # MathEngine
     let katex = KaTeX()
@@ -257,23 +259,6 @@ end
         rm(redirectfile)
         generate_redirect_file(redirectfile, entries)
         @test !isfile(redirectfile)
-    end
-
-    # Exhaustive Conversion from Markdown to Nodes.
-    @testset "MD2Node" begin
-        for mod in Base.Docs.modules
-            for (binding, multidoc) in DocSystem.getmeta(mod)
-                for (typesig, docstr) in multidoc.docs
-                    md = Documenter.DocSystem.parsedoc(docstr)
-                    @test string(HTMLWriter.mdconvert(md; footnotes=[])) isa String
-                end
-            end
-        end
-    end
-
-    @testset "Dollar escapes" begin
-        @test string(HTMLWriter.mdconvert("\$1")) == "\$1"
-        @test string(HTMLWriter.mdconvert("\$")) == "<span>\$</span>"
     end
 end
 end

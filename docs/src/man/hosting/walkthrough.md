@@ -5,7 +5,7 @@ If the instructions in [Authentication: SSH Deploy Keys](@ref) did not work for 
 process. There are three main steps:
 
 1. [Generating an SSH Key](@ref)
-2. [Adding the Public Key to GitHub](@ref)
+2. [Adding the Public Key to GitHub or Gitea such as Codeberg](@ref)
 3. [Adding the Private Key](@ref)
 
 ## Generating an SSH Key
@@ -55,7 +55,7 @@ julia> read("privatekey.pub", String) |> println
 ```
 
 Copy and paste the output somewhere. This is your *public key* and is required for the step
-[Adding the Public Key to GitHub](@ref).
+[Adding the Public Key to GitHub or Gitea such as Codeberg](@ref).
 
 ### If you do not have `ssh-keygen`
 
@@ -83,7 +83,7 @@ Now we need to save the public key somewhere.
 
 * Copy the text in the box titled "Public key for pasting into OpenSSH authorized_keys file"
   and paste it somewhere for later. This is your *public key* and is required for the step
-  [Adding the Public Key to GitHub](@ref)
+  [Adding the Public Key to GitHub or Gitea such as Codeberg](@ref)
 
 Finally, we need to save the private key somewhere.
 
@@ -102,27 +102,33 @@ set up automatic deployment of your documentation. The next steps are to add the
 GitHub and Travis.
 
 
-## Adding the Public Key to GitHub
+## Adding the Public Key to GitHub or Gitea such as Codeberg
 
-In this section, we explain how to upload a public SSH key to GitHub. By this point, you
-should have generated a public key and saved it to a file. If you haven't done this, go read
+In this section, we explain how to upload a public SSH key to GitHub and Gitea such as Codeberg. By this point
+, you should have generated a public key and saved it to a file. If you haven't done this, go read
 [Generating an SSH Key](@ref).
 
-Go to `https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` and click "Add
-deploy key". You should get to a page that looks like:
+Go to `https://github.com/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` for GitHub and `https://somegiteaname.org/[YOUR_USER_NAME]/[YOUR_REPO_NAME]/settings/keys` and click "Add
+deploy key". You should get to a page that looks like,:
 
-![](github-add-deploy-key.png)
+**GitHub**
+
+![github-add-deploy-key](github-add-deploy-key.png)
+
+**Gitea**
+
+![gitea-codeberg-add-deploy-key](gitea-codeberg-add-deploy-key.png)
 
 Now we need to fill in three pieces of information.
 
 1. Have "Title" be e.g. "Documenter".
 2. Copy and paste the *public key* that we generated in the [Generating an SSH Key](@ref)
-   step into the "Key" field.
+   step into the "Key" or "Content" field.
 3. Make sure that the "Allow write access" box is checked.
 
 Once you're done, click "Add key". Congratulations! You've added the public key
-to GitHub. The next step is to add the private key to Travis or GitHub Secrets.
-
+to GitHub or your Gitea instance. The next step is to add the private key to Travis, GitHub, or 
+Woodpecker Secrets.
 
 ## Adding the Private Key
 
@@ -136,6 +142,15 @@ First, we need to Base64 encode the private key. Open Julia, and run the command
 julia> using Base64
 
 julia> read("path/to/private/key", String) |> base64encode |> println
+```
+
+If you are in a unix and unix-like system, you can just use `openssl` command with `tr` 
+(for truncate) to generate your base64-encoded-key.
+
+```bash
+$ openssl enc -base64 -in path/to/your/private/key -out path/to/your/base/64/encoded/key
+$ # We need to truncate the newlines
+$ cat path/to/your/base/64/encoded/key | tr -d "\n"
 ```
 
 Copy the resulting output.

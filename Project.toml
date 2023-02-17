@@ -1,9 +1,10 @@
 name = "Documenter"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.27.18"
+version = "0.28.0-DEV"
 
 [deps]
 ANSIColoredPrinters = "a4c015fc-c6ff-483c-b24f-f7ea428134e9"
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
@@ -14,21 +15,23 @@ JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
+MarkdownAST = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
 ANSIColoredPrinters = "0.0.1"
-DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8"
+AbstractTrees = "0.4"
+DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9"
 Git = "1"
 IOCapture = "0.2"
 JSON = "0.19, 0.20, 0.21"
+MarkdownAST = "0.1.1"
 julia = "1.6"
 
 [extras]
-DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [targets]
-test = ["Random", "DocumenterTools"]
+test = ["Random"]

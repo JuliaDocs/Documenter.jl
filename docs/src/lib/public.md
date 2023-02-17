@@ -8,6 +8,7 @@ See the Internals section of the manual for internal package docs covering all s
 
 ```@contents
 Pages = ["public.md"]
+Depth = 2:2
 ```
 
 ## Index
@@ -29,6 +30,23 @@ doctest
 DocMeta
 DocMeta.getdocmeta
 DocMeta.setdocmeta!
+```
+
+### Remotes
+
+```@docs
+Documenter.Remotes
+Documenter.Remotes.GitHub
+```
+
+The following types and functions and relevant when creating custom
+[`Remote`](@ref Documenter.Remotes.Remote) types:
+
+```@docs
+Documenter.Remotes.Remote
+Documenter.Remotes.repourl
+Documenter.Remotes.fileurl
+Documenter.Remotes.issueurl
 ```
 
 ## DocumenterTools

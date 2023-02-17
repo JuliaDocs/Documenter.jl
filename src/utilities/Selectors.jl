@@ -163,7 +163,7 @@ Selectors.dispatch(MySelector, args...)
 """
 function dispatch(::Type{T}, x...) where T <: AbstractSelector
     types = get!(selector_subtypes, T) do
-        sort(subtypes(T); by = order)
+        sort(leaf_subtypes(T); by = order)
     end
     for t in types
         if !disable(t) && matcher(t, x...)
@@ -172,6 +172,28 @@ function dispatch(::Type{T}, x...) where T <: AbstractSelector
         end
     end
     runner(T, x...)
+end
+
+"""
+Return a list of all subtypes of `T` which do not have further subtypes.
+
+The returned list includes subtypes of subtypes, and it does not distinguish
+between concrete types (i.e. types which are guaranteed not to have subtypes)
+and abstract types (which may or may not have subtypes).
+"""
+function leaf_subtypes(::Type{T}) where T
+    stack = Type[T]
+    leaves = Type[]
+    while !isempty(stack)
+        t = pop!(stack)
+        s = subtypes(t)
+        if length(s) == 0
+            push!(leaves, t)
+        else
+            append!(stack, s)
+        end
+    end
+    return leaves
 end
 
 # Under certain circumstances, the function `subtypes` can be very slow

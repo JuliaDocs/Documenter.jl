@@ -67,7 +67,11 @@ julia> a / b
 ```@eval
 import Markdown
 code = string(sprint(Base.banner), "julia>")
-Markdown.Code(code)
+Markdown.MD([Markdown.Code(code)])
+```
+
+```@eval
+rand(20, 20)
 ```
 
 ```jldoctest
@@ -546,3 +550,7 @@ LaTeXEquation("\\[\\left[\\begin{array}{rr} x & 2x \\\\ \n y & y \\end{array}\\r
 ```@example showablelatex
 LaTeXEquation("\$\$\\begin{bmatrix} 1 & 2 \\\\ \n 3 & 4 \\end{bmatrix}\$\$")
 ```
+
+## Videos
+
+![](https://dl8.webmfiles.org/big-buck-bunny_trailer.webm)

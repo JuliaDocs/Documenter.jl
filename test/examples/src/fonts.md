@@ -1,7 +1,7 @@
 # Font demo
 
 ```@example generate-font-example
-using Documenter.Utilities.DOM
+using Documenter.DOM
 function font_demo_snippet(weight, style)
     @tags pre code div
     codeblock = pre(code[".language-julia-repl"]("""

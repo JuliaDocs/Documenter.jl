@@ -1,7 +1,7 @@
-isdefined(@__MODULE__, :TestUtilities) || include("../TestUtilities.jl")
 module MissingDocsTests
-using Test, ..TestUtilities
+using Test
 using Documenter
+include("../TestUtilities.jl"); using Main.TestUtilities
 
 module MissingDocs
     export f
@@ -14,15 +14,19 @@ module MissingDocs
 end
 
 @testset "missing docs" begin
-    for sym in [:none, :exports, :all]
-        @quietly @test makedocs(
+    for (sym, n_expected) in zip([:none, :exports, :all], [0, 1, 2])
+        kwargs = (
             root = dirname(@__FILE__),
             source = joinpath("src", string(sym)),
             build = joinpath("build", string(sym)),
             modules = MissingDocs,
             checkdocs = sym,
             sitename = "MissingDocs Checks",
-        ) === nothing
+        )
+        @quietly @test makedocs(; kwargs...) === nothing
+
+        doc = Documenter.Document(; kwargs...)
+        @quietly @test Documenter.DocChecks.missingdocs(doc) == n_expected
     end
 
     @quietly @test_throws ErrorException makedocs(

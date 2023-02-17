@@ -1,15 +1,15 @@
-"""
-Provides a collection of utility functions and types that are used in other submodules.
-"""
-module Utilities
-
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
-import Markdown, LibGit2
+import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
 using Git: Git
-import ..ERROR_NAMES
+
+using .Remotes: Remote, repourl, repofile
+# These imports are here to support code that still assumes that these names are defined
+# in the Utilities module.
+using .Remotes: RepoHost, RepoGithub, RepoBitbucket, RepoGitlab, RepoAzureDevOps,
+    RepoUnknown, format_commit, format_line, repo_host_from_url, LineRangeFormatting
 
 """
     @docerror(doc, tag, msg, exs...)
@@ -24,18 +24,29 @@ error (if `tag` matches the `doc.user.strict` setting) or warning.
   see `@error` and `@warn`
 """
 macro docerror(doc, tag, msg, exs...)
-    tag isa QuoteNode || error("invalid call of @docerror")
+    isa(tag, QuoteNode) && isa(tag.value, Symbol) || error("invalid call of @docerror: tag=$tag")
     tag.value ∈ ERROR_NAMES || throw(ArgumentError("tag $(tag) is not a valid Documenter error"))
-    esc(quote
+    doc, msg = esc(doc), esc(msg)
+    # The `exs` portion can contain variable name / label overrides, i.e. `foo = bar()`
+    # We don't want to apply esc() on new labels, since they get printed as expressions then.
+    exs = map(exs) do ex
+        if isa(ex, Expr) && ex.head == :(=) && ex.args[1] isa Symbol
+            ex.args[2:end] .= esc.(ex.args[2:end])
+            ex
+        else
+            esc(ex)
+        end
+    end
+    quote
         let
             push!($(doc).internal.errors, $(tag))
-            if $Utilities.is_strict($(doc).user.strict, $(tag))
+            if is_strict($(doc).user.strict, $(tag))
                 @error $(msg) $(exs...)
             else
                 @warn $(msg) $(exs...)
             end
         end
-    end)
+    end
 end
 
 # escape characters that has a meaning in regex
@@ -79,7 +90,7 @@ Returns the path to the Documenter `assets` directory.
 """
 assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
 
-cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive = true); mkdir(d))
+cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive=true); mkdir(d))
 
 """
 Find the path of a file relative to the `source` directory. `root` is the path
@@ -121,11 +132,11 @@ returns this expression normally and it must be handled appropriately by the cal
 The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
 and starting line number of the block (requires Julia 1.6 or higher).
 """
-function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true,
-                    linenumbernode=nothing)
+function parseblock(code::AbstractString, doc, file; skip=0, keywords=true, raise=true,
+    linenumbernode=nothing)
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
-    code = last(split(code, '\n', limit = skip + 1))
+    code = last(split(code, '\n', limit=skip + 1))
     endofstr = lastindex(code)
     results = []
     cursor = 1
@@ -134,14 +145,14 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
         line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
         keyword = Symbol(strip(line))
         (ex, ncursor) =
-            # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
+        # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
             if keywords && (haskey(Docs.keywords, keyword) || keyword == Symbol(""))
                 (QuoteNode(keyword), cursor + lastindex(line))
             else
                 try
                     Meta.parse(code, cursor; raise=raise)
                 catch err
-                    @docerror(doc, :parse_error, "failed to parse exception in $(Utilities.locrepr(file))", exception = err)
+                    @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
                     break
                 end
             end
@@ -168,7 +179,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
             else
                 update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
             end
-            results[i] = (expr , results[i][2])
+            results[i] = (expr, results[i][2])
         end
     end
     results
@@ -204,7 +215,7 @@ end
 
 # Finding submodules.
 
-const ModVec = Union{Module, Vector{Module}}
+const ModVec = Union{Module,Vector{Module}}
 
 """
 Returns the set of submodules of a given root module/s.
@@ -216,7 +227,7 @@ function submodules(modules::Vector{Module})
     end
     out
 end
-function submodules(root::Module, seen = Set{Module}())
+function submodules(root::Module, seen=Set{Module}())
     push!(seen, root)
     for name in names(root, all=true)
         if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
@@ -240,8 +251,8 @@ end
 Represents an object stored in the docsystem by its binding and signature.
 """
 struct Object
-    binding   :: Binding
-    signature :: Type
+    binding::Binding
+    signature::Type
 
     function Object(b::Binding, signature::Type)
         m = nameof(b.mod) === b.var ? parentmodule(b.mod) : b.mod
@@ -251,19 +262,19 @@ end
 
 function splitexpr(x::Expr)
     isexpr(x, :macrocall) ? splitexpr(x.args[1]) :
-    isexpr(x, :.)         ? (x.args[1], x.args[2]) :
+    isexpr(x, :.) ? (x.args[1], x.args[2]) :
     error("Invalid @var syntax `$x`.")
 end
 splitexpr(s::Symbol) = :(Main), quot(s)
-splitexpr(other)     = error("Invalid @var syntax `$other`.")
+splitexpr(other) = error("Invalid @var syntax `$other`.")
 
 """
     object(ex, str)
 
 Returns a expression that, when evaluated, returns an [`Object`](@ref) representing `ex`.
 """
-function object(ex::Union{Symbol, Expr}, str::AbstractString)
-    binding   = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
+function object(ex::Union{Symbol,Expr}, str::AbstractString)
+    binding = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
     signature = Base.Docs.signature(ex)
     isexpr(ex, :macrocall, 2) && !endswith(str, "()") && (signature = :(Union{}))
     Expr(:call, Object, binding, signature)
@@ -282,8 +293,8 @@ function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
 end
-print_signature(io::IO, signature::Union{Union, Type{Union{}}}) = nothing
-print_signature(io::IO, signature)        = print(io, '-', signature)
+print_signature(io::IO, signature::Union{Union,Type{Union{}}}) = nothing
+print_signature(io::IO, signature) = print(io, '-', signature)
 
 ## docs
 ## ====
@@ -296,7 +307,7 @@ Returns an expression that, when evaluated, returns the docstrings associated wi
 function docs end
 
 # Macro representation changed between 0.4 and 0.5.
-function docs(ex::Union{Symbol, Expr}, str::AbstractString)
+function docs(ex::Union{Symbol,Expr}, str::AbstractString)
     isexpr(ex, :macrocall, 2) && !endswith(rstrip(str), "()") && (ex = quot(ex))
     :(Base.Docs.@doc $ex)
 end
@@ -306,9 +317,9 @@ docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
 Returns the category name of the provided [`Object`](@ref).
 """
 doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
-    "Macro" : doccat(obj.binding, obj.signature)
+                      "Macro" : doccat(obj.binding, obj.signature)
 
-function doccat(b::Binding, ::Union{Union, Type{Union{}}})
+function doccat(b::Binding, ::Union{Union,Type{Union{}}})
     if b.mod === Main && haskey(Base.Docs.keywords, b.var)
         "Keyword"
     elseif startswith(string(b.var), '@')
@@ -318,13 +329,13 @@ function doccat(b::Binding, ::Union{Union, Type{Union{}}})
     end
 end
 
-doccat(b::Binding, ::Type)  = "Method"
+doccat(b::Binding, ::Type) = "Method"
 
 doccat(::Function) = "Function"
-doccat(::Type)     = "Type"
+doccat(::Type) = "Type"
 doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
-doccat(::Module)   = "Module"
-doccat(::Any)      = "Constant"
+doccat(::Module) = "Module"
+doccat(::Any) = "Constant"
 
 """
     filterdocs(doc, modules)
@@ -407,10 +418,6 @@ function repo_root(file; dbdir=".git")
     return nothing
 end
 
-# Repository hosts
-#   RepoUnknown denotes that the repository type could not be determined automatically
-@enum RepoHost RepoGithub RepoBitbucket RepoGitlab RepoAzureDevOps RepoUnknown
-
 """
     $(SIGNATURES)
 
@@ -418,6 +425,7 @@ Returns the path of `file`, relative to the root of the Git repository, or `noth
 file is not in a Git repository.
 """
 function relpath_from_repo_root(file)
+    isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
     cd(dirname(file)) do
         root = repo_root(file)
         root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
@@ -425,103 +433,107 @@ function relpath_from_repo_root(file)
 end
 
 function repo_commit(file)
+    isfile(file) || error("repo_commit called with nonexistent file: $file")
     cd(dirname(file)) do
         readchomp(`$(git()) rev-parse HEAD`)
     end
 end
 
-function format_commit(commit::AbstractString, host::RepoHost)
-    if host === RepoAzureDevOps
-        # if commit hash then preceeded by GC, if branch name then preceeded by GB
-        if match(r"[0-9a-fA-F]{40}", commit) !== nothing
-            commit = "GC$commit"
-        else
-            commit = "GB$commit"
-        end
-    else
-        return commit
-    end
-end
-
-function url(repo, file; commit=nothing)
+function edit_url(repo, file; commit=nothing)
     file = abspath(file)
     if !isfile(file)
         @warn "couldn't find file \"$file\" when generating URL"
         return nothing
     end
     file = realpath(file)
-    remote = getremote(dirname(file))
-    isempty(repo) && (repo = "https://github.com/$remote/blob/{commit}{path}")
+    isnothing(repo) && (repo = getremote(dirname(file)))
+    isnothing(commit) && (commit = repo_commit(file))
     path = relpath_from_repo_root(file)
-    if path === nothing
-        nothing
-    else
-        hosttype = repo_host_from_url(repo)
-        repo = replace(repo, "{commit}" => format_commit(commit === nothing ? repo_commit(file) : commit, hosttype))
-        # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
-        repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
-        repo = replace(repo, "{line}" => "")
-        repo
-    end
+    isnothing(path) || isnothing(repo) ? nothing : repofile(repo, commit, path)
 end
 
-url(remote, repo, doc) = url(remote, repo, doc.data[:module], doc.data[:path], linerange(doc))
+source_url(repo, doc) = source_url(repo, doc.data[:module], doc.data[:path], linerange(doc))
 
-function url(remote, repo, mod, file, linerange)
+function source_url(repo, mod, file, linerange)
     file === nothing && return nothing # needed on julia v0.6, see #689
     remote = getremote(dirname(file))
-    isabspath(file) && isempty(remote) && isempty(repo) && return nothing
+    isabspath(file) && isnothing(remote) && isnothing(repo) && return nothing
 
     # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
     if isfile(file)
         file = realpath(abspath(file))
     end
 
-    hosttype = repo_host_from_url(repo)
-
-    # Format the line range.
-    line = format_line(linerange, LineRangeFormatting(hosttype))
     # Macro-generated methods such as those produced by `@deprecate` list their file as
     # `deprecated.jl` since that is where the macro is defined. Use that to help
     # determine the correct URL.
     if inbase(mod) || !isabspath(file)
-        file = replace(file, '\\' => '/')
-        base = "https://github.com/JuliaLang/julia/blob"
-        dest = "base/$file#$line"
-        if isempty(Base.GIT_VERSION_INFO.commit)
-            "$base/v$VERSION/$dest"
+        ref = if isempty(Base.GIT_VERSION_INFO.commit)
+            "v$VERSION"
         else
-            commit = Base.GIT_VERSION_INFO.commit
-            "$base/$commit/$dest"
+            Base.GIT_VERSION_INFO.commit
         end
-    else
+        repofile(julia_remote, ref, "base/$file", linerange)
+    elseif isfile(file)
         path = relpath_from_repo_root(file)
-        if isempty(repo)
-            repo = "https://github.com/$remote/blob/{commit}{path}#{line}"
+        # If we managed to determine a remote for the current file with getremote,
+        # then we use that information instead of the user-provided repo (doc.user.remote)
+        # argument to generate source links. This means that in the case where some
+        # docstrings come from another repository (like the DocumenterTools doc dependency
+        # for Documenter), then we generate the correct links, since we actually user the
+        # remote determined from the Git repository.
+        #
+        # In principle, this prevents the user from overriding the remote for the main
+        # repository if the repo is cloned from GitHub (e.g. when you clone from a fork, but
+        # want the source links to point to the upstream repository; however, this feels
+        # like a very unlikely edge case). If the repository is cloned from somewhere else
+        # than GitHub, then everything is fine --- getremote will fail and remote is
+        # `nothing`, in which case we fall back to using `repo`.
+        isnothing(remote) && (remote = repo)
+        if isnothing(path) || isnothing(remote)
+            return nothing
         end
-        if path === nothing
-            nothing
-        else
-            repo = replace(repo, "{commit}" => format_commit(repo_commit(file), hosttype))
-            # Note: replacing any backslashes in path (e.g. if building the docs on Windows)
-            repo = replace(repo, "{path}" => string("/", replace(path, '\\' => '/')))
-            repo = replace(repo, "{line}" => line)
-            repo
-        end
+        repofile(remote, repo_commit(file), path, linerange)
+    else
+        return nothing
     end
 end
 
-const GIT_REMOTE_CACHE = Dict{String,String}()
+"""
+A [`Remote`](@ref) corresponding to the main Julia language repository.
+"""
+const julia_remote = Remotes.GitHub("JuliaLang", "julia")
 
+"""
+Stores the memoized results of [`getremote`](@ref).
+"""
+const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
+
+"""
+$(TYPEDSIGNATURES)
+
+Determines the GitHub remote of a directory by checking `remote.origin.url` of the
+repository. Returns a [`Remotes.GitHub`](@ref), or `nothing` is something has gone wrong
+(e.g. it's run on a directory not in a Git repo, or `origin.url` points to a non-GitHub
+remote).
+
+The results for a given directory are memoized in [`GIT_REMOTE_CACHE`](@ref), since calling
+`git` is expensive and it is often called on the same directory over and over again.
+"""
 function getremote(dir::AbstractString)
+    isdir(dir) || return nothing
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
             readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
         catch
             ""
         end
+        # TODO: we only match for GitHub repositories automatically. Could we engineer a
+        # system where, if there is a user-created Remote, the user could also define a
+        # matching function here that tries to interpret other URLs?
         m = match(LibGit2.GITHUB_REGEX, remote)
-        return m === nothing ? get(ENV, "TRAVIS_REPO_SLUG", "") : String(m[1])
+        isnothing(m) && return nothing
+        return Remotes.GitHub(m[2], m[3])
     end
 end
 
@@ -546,24 +558,6 @@ function inbase(m::Module)
     end
 end
 
-# Repository host from repository url
-# i.e. "https://github.com/something" => RepoGithub
-#      "https://bitbucket.org/xxx" => RepoBitbucket
-# If no match, returns RepoUnknown
-function repo_host_from_url(repoURL::String)
-    if occursin("bitbucket", repoURL)
-        return RepoBitbucket
-    elseif occursin("github", repoURL) || isempty(repoURL)
-        return RepoGithub
-    elseif occursin("gitlab", repoURL)
-        return RepoGitlab
-    elseif occursin("azure", repoURL)
-        return RepoAzureDevOps
-    else
-        return RepoUnknown
-    end
-end
-
 # Find line numbers.
 # ------------------
 
@@ -577,33 +571,7 @@ function linerange(text, from)
     # the .text field seems to become longer than just 1 element and every even element is the interpolated object,
     # and only the odd ones actually contain the docstring text as a string.
     lines = sum(Int[isodd(n) ? newlines(s) : 0 for (n, s) in enumerate(text)])
-    return lines > 0 ? (from:(from + lines + 1)) : (from:from)
-end
-
-struct LineRangeFormatting
-    prefix::String
-    separator::String
-
-    function LineRangeFormatting(host::RepoHost)
-        if host === RepoAzureDevOps
-            new("&line=", "&lineEnd=")
-        elseif host == RepoBitbucket
-            new("", ":")
-        elseif host == RepoGitlab
-            new("L", "-")
-        else
-            # default is github-style
-            new("L", "-L")
-        end
-    end
-end
-
-function format_line(range::AbstractRange, format::LineRangeFormatting)
-    if length(range) <= 1
-        string(format.prefix, first(range))
-    else
-        string(format.prefix, first(range), format.separator, last(range))
-    end
+    return lines > 0 ? (from:(from+lines+1)) : (from:from)
 end
 
 newlines(s::AbstractString) = count(c -> c === '\n', s)
@@ -639,7 +607,7 @@ const ABSURL_REGEX = r"^[[:alpha:]+-.]+://"
 
 Parses the given string as Markdown using `Markdown.parse`, but strips away the surrounding
 layers, such as the outermost `Markdown.MD`. What exactly is returned depends on the `mode`
-keyword.
+keyword. The resulting Markdown AST is converted into an array of `MarkdownAST.Node`s.
 
 The `mode` keyword argument can be one of the following:
 
@@ -650,44 +618,52 @@ The `mode` keyword argument can be one of the following:
   This requires the string to parse into a single `Markdown.Paragraph`, the contents of
   which gets returned.
 """
-function mdparse(s::AbstractString; mode=:single)
+function mdparse(s::AbstractString; mode=:single)::Vector{MarkdownAST.Node{Nothing}}
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
-    md = Markdown.parse(s)
+    mdast = convert(MarkdownAST.Node, Markdown.parse(s))
     if mode == :blocks
-        md.content
-    elseif length(md.content) == 0
+        MarkdownAST.unlink!.(mdast.children)
+    elseif length(mdast.children) == 0
         # case where s == "". We'll just return an empty string / paragraph.
-        (mode == :single) ? Markdown.Paragraph(Any[""]) : Any[""]
-    elseif (mode == :single || mode == :span) && length(md.content) > 1
-        @error "mode == :$(mode) requires the Markdown string to parse into a single block" s md.content
+        if mode == :single
+            [MarkdownAST.@ast(MarkdownAST.Paragraph() do
+                ""
+            end)]
+        else
+            # If we're in span mode we return a single Text node
+            [MarkdownAST.@ast("")]
+        end
+    elseif (mode == :single || mode == :span) && length(mdast.children) > 1
+        @error "mode == :$(mode) requires the Markdown string to parse into a single block" s mdast
         throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
     else
-        @assert length(md.content) == 1
+        @assert length(mdast.children) == 1
+        childnode = first(mdast.children)
         @assert mode == :span || mode == :single
-        if mode == :span && !isa(md.content[1], Markdown.Paragraph)
-            @error "mode == :$(mode) requires the Markdown string to parse into a Markdown.Paragraph" s md.content
+        if mode == :span && !isa(childnode.element, MarkdownAST.Paragraph)
+            @error "mode == :$(mode) requires the Markdown string to parse into a MarkdownAST.Paragraph" s mdast
             throw(ArgumentError("Unsuitable string for mode=:$(mode)"))
         end
-        (mode == :single) ? md.content[1] : md.content[1].content
+        (mode == :single) ? [MarkdownAST.unlink!(childnode)] : MarkdownAST.unlink!.(childnode.children)
     end
 end
 
 # Capturing output in different representations similar to IJulia.jl
-function limitstringmime(m::MIME"text/plain", x; context = nothing)
+function limitstringmime(m::MIME"text/plain", x; context=nothing)
     io = IOBuffer()
     ioc = IOContext(context === nothing ? io : IOContext(io, context), :limit => true)
     show(ioc, m, x)
     return String(take!(io))
 end
-function display_dict(x; context = nothing)
+function display_dict(x; context=nothing)
     out = Dict{MIME,Any}()
     x === nothing && return out
     # Always generate text/plain
-    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context = context)
+    out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context=context)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
-              MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
-              MIME"text/latex"(), MIME"text/markdown"()]
-        showable(m, x) && (out[m] = stringmime(m, x, context = context))
+        MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
+        MIME"text/latex"(), MIME"text/markdown"()]
+        showable(m, x) && (out[m] = stringmime(m, x, context=context))
     end
     return out
 end
@@ -710,7 +686,7 @@ end
 ```
 """
 struct Default{T}
-    value :: T
+    value::T
 end
 Base.getindex(default::Default) = default.value
 
@@ -724,7 +700,7 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
-function get_sandbox_module!(meta, prefix, name = nothing)
+function get_sandbox_module!(meta, prefix, name=nothing)
     sym = if name === nothing || isempty(name)
         Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
     else
@@ -790,17 +766,26 @@ it out automatically.
 `root` is the the directory where `git` gets run. `varname` is just informational and used
 to construct the warning messages.
 """
-function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
+function git_remote_head_branch(varname, root; remotename="origin", fallback="master")
+    gitcmd = git(nothrow=true)
+    if gitcmd === nothing
+        @warn """
+        Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
+        Unable to find the `git` binary. Unless this is due to a configuration error, the
+        relevant variable should be set explicitly.
+        """
+        return fallback
+    end
     # We need to do addenv() here to merge the new variables with the environment set by
     # Git_jll and the git() function.
     cmd = addenv(
-        setenv(`$(git()) remote show $(remotename)`, dir=root),
+        setenv(`$gitcmd remote show $(remotename)`, dir=root),
         "GIT_TERMINAL_PROMPT" => "0",
         "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
     )
     stderr_output = IOBuffer()
     git_remote_output = try
-        read(pipeline(cmd; stderr = stderr_output), String)
+        read(pipeline(cmd; stderr=stderr_output), String)
     catch e
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
@@ -850,29 +835,28 @@ dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
 dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
-function git(; kwargs...)
-    @static if Sys.isapple()
-        # The Git_jll does not work properly on Macs, so we fall back to the
-        # system binaries here.
-        #
-        # https://github.com/JuliaVersionControl/Git.jl/issues/40#issuecomment-1144307266
-        # https://github.com/JuliaPackaging/Yggdrasil/pull/4987
-        system_git_path = Sys.which("git")
-        isnothing(system_git_path) && error("Unable to find `git`")
-        # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
-        # We need to set this to something so that Git wouldn't pick up the user
-        # templates (e.g. from init.templateDir config).
-        return addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
-    else
-        return Git.git()
+function git(; nothrow=false, kwargs...)
+    system_git_path = Sys.which("git")
+    if system_git_path === nothing
+        return nothrow ? nothing : error("Unable to find `git`")
     end
+    # DOCUMENTER_KEY etc are never needed for git operations
+    cmd = addenv(Git.git(), NO_KEY_ENV)
+    return cmd
 end
 
-include("DOM.jl")
-include("MDFlatten.jl")
-include("TextDiff.jl")
-include("Selectors.jl")
-include("Markdown2.jl")
-include("JSDependencies.jl")
-
+function remove_common_backtrace(bt, reference_bt=backtrace())
+    cutoff = nothing
+    # We'll start from the top of the backtrace (end of the array) and go down, checking
+    # if the backtraces agree
+    for ridx in 1:length(bt)
+        # Cancel search if we run out the reference BT or find a non-matching one frames:
+        if ridx > length(reference_bt) || bt[length(bt)-ridx+1] != reference_bt[length(reference_bt)-ridx+1]
+            cutoff = length(bt) - ridx + 1
+            break
+        end
+    end
+    # It's possible that the loop does not find anything, i.e. that all BT elements are in
+    # the reference_BT too. In that case we'll just return an empty BT.
+    bt[1:(cutoff === nothing ? 0 : cutoff)]
 end

@@ -5,6 +5,7 @@ For supported Markdown syntax, see the [documentation for the Markdown standard 
 
 ```@contents
 Pages = ["syntax.md"]
+Depth = 2:2
 ```
 
 ## `@docs` block
@@ -186,6 +187,38 @@ using the same syntax.
 Note that depending on what the `CurrentModule` is set to, a docstring `@ref` may need to
 be prefixed by the module which defines it.
 
+### Named `@ref`s
+
+It is also possible to override the destination of an `@ref`-link by adding the appropriate
+label to the link, such as a docstring reference or a page heading.
+
+```markdown
+Both of the following references point to `g` found in module `Main.Other`:
+
+* [`Main.Other.g`](@ref)
+* [the `g` function](@ref Main.Other.g)
+
+Both of the following point to the heading "On Something":
+
+* [On Something](@ref)
+* [The section about something.](@ref "On Something")
+```
+
+This can be useful to avoid having to write fully qualified names for references that
+are not imported into the current module, or when the text displayed in the link is
+used to add additional meaning to the surrounding text, such as
+
+```markdown
+Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
+```
+
+!!! note
+
+    Named doc `@ref`s should be used sparingly since writing unqualified names may, in some
+    cases, make it difficult to tell *which* function is being referred to in a particular
+    docstring if there happen to be several modules that provide definitions with the same
+    name.
+
 ### Duplicate Headers
 
 In some cases a document may contain multiple headers with the same name, but on different
@@ -209,40 +242,10 @@ to headers on different pages in the same way as unnamed ones do.
 Duplicate docstring references do not occur since splicing the same docstring into a
 document more than once is disallowed.
 
-### Named doc `@ref`s
+!!! note "Label precedence"
 
-Docstring `@ref`s can also be "named" in a similar way to headers as shown in the
-[Duplicate Headers](@ref) section above. For example
-
-```julia
-module Mod
-
-"""
-Both of the following references point to `g` found in module `Main.Other`:
-
-  * [`Main.Other.g`](@ref)
-  * [`g`](@ref Main.Other.g)
-
-"""
-f(args...) = # ...
-
-end
-```
-
-This can be useful to avoid having to write fully qualified names for references that
-are not imported into the current module, or when the text displayed in the link is
-used to add additional meaning to the surrounding text, such as
-
-```markdown
-Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.
-```
-
-!!! note
-
-    Named doc `@ref`s should be used sparingly since writing unqualified names may, in some
-    cases, make it difficult to tell *which* function is being referred to in a particular
-    docstring if there happen to be several modules that provide definitions with the same
-    name.
+    Both user-defined and internally generated header reference labels take precedence over
+    docstring references, in case there is a conflict.
 
 ## `@meta` block
 
@@ -257,6 +260,8 @@ page. Currently recognised keys:
 - `EditURL`: link to where the page can be edited. This defaults to the `.md` page itself,
   but if the source is something else (for example if the `.md` page is generated as part of
   the doc build) this can be set, either as a local link, or an absolute url.
+- `Description`: a page-specific description that gets displayed in search engines and
+  link previews. Overrides the site-wide description in [`makedocs`](@ref). 
 - `Draft`: boolean for overriding the global draft mode for the page.
 
 Example:
@@ -321,7 +326,9 @@ Depth = 5
 ````
 
 As with `@index` if `Pages` is not provided then all pages are included. The default
-`Depth` value is `2`.
+`Depth` value is `2`, i.e. header levels 1 and 2 are included. `Depth` also accepts
+`UnitRange`s, to make it possible to configure also the minimum header level to be shown.
+`Depth = 2:3` can be used to include only headers with levels 2-3, for example.
 
 ## `@example` block
 
@@ -442,10 +449,10 @@ files into that directory. This allows the images to be easily referenced withou
 worry about relative paths.
 
 !!! info
-    If you use [Plots.jl](https://github.com/JuliaPlots/Plots.jl) with the default backend 
+    If you use [Plots.jl](https://github.com/JuliaPlots/Plots.jl) with the default backend
     [GR.jl](https://github.com/jheinen/GR.jl), you will likely see warnings like
     ```
-    qt.qpa.xcb: could not connect to display 
+    qt.qpa.xcb: could not connect to display
     qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
     ```
     To fix these, you need to set the environment variable `GKSwstype` to `100`. For example,
@@ -645,7 +652,8 @@ println(iris)
 
 ## `@eval` block
 
-Evaluates the contents of the block and inserts the resulting value into the final document.
+Evaluates the contents of the block and inserts the resulting value into the final document,
+unless the last expression evaluates to `nothing`.
 
 In the following example we use the PyPlot package to generate a plot and display it in the
 final document.
@@ -666,6 +674,10 @@ nothing
 ![](plot.svg)
 ````
 
+Instead of returning `nothing` in the example above we could have returned a new
+`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
+filename is not known until evaluation of the block itself.
+
 Another example is to generate markdown tables from machine readable data formats such as CSV or JSON.
 
 ````markdown
@@ -679,14 +691,14 @@ mdtable(df,latex=false)
 
 Which will generate a markdown version of the CSV file table.csv and render it in the output format.
 
+The final expression in an `@eval` block must be either `nothing` or a valid `Markdown.MD`
+object. Other objects will generate a warning and will be rendered in text form as a code block,
+but this behavior can change and should not be relied upon.
+
 Note that each `@eval` block evaluates its contents within a separate module. When
 evaluating each block the present working directory, `pwd`, is set to the directory in
 `build` where the file will be written to, and the paths in `include` calls are interpreted
 to be relative to `pwd`.
-
-Also, instead of returning `nothing` in the example above we could have returned a new
-`Markdown.MD` object through `Markdown.parse`. This can be more appropriate when the
-filename is not known until evaluation of the block itself.
 
 !!! note
 

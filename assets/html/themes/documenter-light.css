@@ -7289,11 +7289,13 @@ li.no-marker {
     #documenter .docs-main header.docs-navbar .docs-right .docs-label {
       padding: 0;
       margin-left: 0.3em; }
-    #documenter .docs-main header.docs-navbar .docs-right .docs-settings-button {
-      margin: auto 0 auto 1rem; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
-      font-size: 1.5rem;
-      margin: auto 0 auto 1rem; }
+      font-size: 1.5rem; }
+    #documenter .docs-main header.docs-navbar .docs-right .docs-navbar-link {
+      margin: auto 0.5rem auto 0.5rem; }
+    @media screen and (max-width: 1055px) {
+      #documenter .docs-main header.docs-navbar .docs-right .docs-navbar-link {
+        margin: auto 0.75rem auto 0.75rem; } }
   #documenter .docs-main header.docs-navbar > * {
     margin: auto 0; }
   @media screen and (max-width: 1055px) {

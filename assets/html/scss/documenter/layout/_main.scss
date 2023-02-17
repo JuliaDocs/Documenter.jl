@@ -63,12 +63,16 @@
           padding: 0;
           margin-left: 0.3em;
         }
-        .docs-settings-button {
-          margin: auto 0 auto 1rem;
-        }
         .docs-sidebar-button {
           font-size: 1.5rem;
-          margin: auto 0 auto 1rem;
+        }
+        .docs-navbar-link {
+          margin: auto 0.5rem auto 0.5rem;
+        }
+        @include touch {
+          .docs-navbar-link {
+            margin: auto 0.75rem auto 0.75rem;
+          }
         }
       }
 

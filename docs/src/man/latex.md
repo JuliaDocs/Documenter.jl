@@ -145,7 +145,7 @@ LaTeXEquation(raw"""
 
 ## Set math engine and define macros for LaTeX
 
-The `mathengine` argument to [`Documenter.Writers.HTMLWriter.HTML`](@ref) allows the math rendering engine to be specified, supporting both MathJax and KaTeX (with the latter being the default).
+The `mathengine` argument to [`Documenter.HTMLWriter.HTML`](@ref) allows the math rendering engine to be specified, supporting both MathJax and KaTeX (with the latter being the default).
 
 Furthermore, you can also pass custom configuration to the rendering engine. E.g. to add global LaTeX command definitions, you can set `mathengine` to:
 ```julia
