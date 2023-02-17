@@ -27,7 +27,7 @@ Packages that have tagged versions available in the general Registry:
 - [ControlSystems.jl](https://juliacontrol.github.io/ControlSystems.jl/stable/)
 - [COSMO.jl](https://oxfordcontrol.github.io/COSMO.jl/stable/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
-- [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/)
+- [Documenter.jl](https://documenter.juliadocs.org/stable/)
 - [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
 - [EvolvingGraphs.jl](https://etymoio.github.io/EvolvingGraphs.jl/stable/)
 - [ExtractMacro.jl](https://carlobaldassi.github.io/ExtractMacro.jl/stable/)
@@ -36,7 +36,7 @@ Packages that have tagged versions available in the general Registry:
 - [Gadfly.jl](https://gadflyjl.org/stable/)
 - [GeophysicalFlows.jl](https://fourierflows.github.io/GeophysicalFlowsDocumentation/stable/)
 - [GeoStats.jl](https://juliaearth.github.io/GeoStats.jl/stable/)
-- [Highlights.jl](https://juliadocs.github.io/Highlights.jl/stable/)
+- [Highlights.jl](https://highlights.juliadocs.org/stable/)
 - [InvertibleNetworks.jl](https://slimgroup.github.io/InvertibleNetworks.jl/stable/)
 - [JUDI.jl](https://slimgroup.github.io/JUDI.jl/stable/)
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
@@ -64,7 +64,7 @@ Some projects or organizations maintain dedicated documentation repositories tha
 separate from specific packages.
 
 - [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/)
-- [JuliaDocs landing page](https://juliadocs.github.io/)
+- [JuliaDocs landing page](https://juliadocs.org/)
 - [JuliaImages](https://juliaimages.org)
 - [JuliaMusic](https://juliamusic.github.io/JuliaMusic_documentation.jl/dev/)
 - [Plots.jl](https://docs.juliaplots.org/dev/)
