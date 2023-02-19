@@ -23,7 +23,6 @@ Packages that have tagged versions available in the general Registry:
 - [Augmentor.jl](https://evizero.github.io/Augmentor.jl/stable/)
 - [BanditOpt.jl](http://rajvishnu.in/BanditOpt.jl/stable/)
 - [BeaData.jl](https://stephenbnicar.github.io/BeaData.jl/stable/)
-- [Bio.jl](https://biojulia.net/Bio.jl/stable/)
 - [ControlSystems.jl](https://juliacontrol.github.io/ControlSystems.jl/stable/)
 - [COSMO.jl](https://oxfordcontrol.github.io/COSMO.jl/stable/)
 - [DiscretePredictors.jl](https://github.com/v-i-s-h/DiscretePredictors.jl)
