@@ -29,7 +29,7 @@ jobs:
             version: '1'
             arch: x86
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -52,7 +52,7 @@ jobs:
     name: "PDF/LaTeX backend"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -82,7 +82,7 @@ jobs:
     name: "CSS for HTML themes"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -96,7 +96,7 @@ jobs:
     name: "NodeJS for prerender"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -127,7 +127,7 @@ jobs:
           - html
           - pdf
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -150,7 +150,7 @@ jobs:
     name: "Linkcheck: online tests"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1.6'
@@ -161,7 +161,7 @@ jobs:
     name: "Linkcheck: Documenter manual"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1.6'
