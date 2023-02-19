@@ -39,7 +39,7 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: lcov.info
       - name: Submit coverage to Coveralls
@@ -65,7 +65,7 @@ jobs:
             Pkg.add(["IOCapture", "tectonic_jll"])'
       - run: julia --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: lcov.info
       - name: Submit coverage to Coveralls
@@ -108,7 +108,7 @@ jobs:
             Pkg.develop(PackageSpec(path=pwd()))'
       - run: julia --color=yes --project=test/prerender --code-coverage test/prerender/prerender.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: lcov.info
       - name: Submit coverage to Coveralls
