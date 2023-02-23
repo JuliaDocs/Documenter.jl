@@ -65,7 +65,7 @@ getdocmeta(m::Module, key::Symbol, default=nothing) = get(getdocmeta(m), key, de
 Set the documentation metadata value `key` for module `m` to `value`.
 
 If `recursive` is set to `true`, it sets the same metadata value for all the submodules too.
-If `warn` is `true`, it prints a warning when `key` already exists and is gets rewritten.
+If `warn` is `true`, it prints a warning when `key` already exists and it gets rewritten.
 """
 function setdocmeta!(m::Module, key::Symbol, value; warn=true, recursive=false)
     key in keys(VALIDMETA) || throw(ArgumentError("Invalid metadata key\nValid keys are: $(join(keys(VALIDMETA), ", "))"))
