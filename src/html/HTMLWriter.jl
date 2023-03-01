@@ -315,7 +315,7 @@ remote of the repository (e.g. specified via the `remote` argument of
 [`makedocs`](@ref Documenter.makedocs)). Passing a `nothing` disables the repository link.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend
-you set this to the base url of your stable documentation, e.g. `https://juliadocs.github.io/Documenter.jl/stable`.
+you set this to the base url of your stable documentation, e.g. `https://documenter.juliadocs.org/stable`.
 This allows search engines to know which version to send their users to. [See
 wikipedia for more information](https://en.wikipedia.org/wiki/Canonical_link_element).
 Default is `nothing`, in which case no canonical link is set.
@@ -348,7 +348,7 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
 **`description`** is the site-wide description that displays in page previews and search
-engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as 
+engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as
 an argument to [`makedocs`](@ref).
 
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below

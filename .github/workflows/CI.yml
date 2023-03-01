@@ -29,7 +29,7 @@ jobs:
             version: '1'
             arch: x86
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -39,11 +39,11 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: lcov.info
       - name: Submit coverage to Coveralls
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@v1.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
@@ -52,7 +52,7 @@ jobs:
     name: "PDF/LaTeX backend"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -65,11 +65,11 @@ jobs:
             Pkg.add(["IOCapture", "tectonic_jll"])'
       - run: julia --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: lcov.info
       - name: Submit coverage to Coveralls
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@v1.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
@@ -82,7 +82,7 @@ jobs:
     name: "CSS for HTML themes"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -96,7 +96,7 @@ jobs:
     name: "NodeJS for prerender"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -108,11 +108,11 @@ jobs:
             Pkg.develop(PackageSpec(path=pwd()))'
       - run: julia --color=yes --project=test/prerender --code-coverage test/prerender/prerender.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: lcov.info
       - name: Submit coverage to Coveralls
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@v1.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: lcov.info
@@ -127,7 +127,7 @@ jobs:
           - html
           - pdf
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
@@ -150,7 +150,7 @@ jobs:
     name: "Linkcheck: online tests"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1.6'
@@ -161,7 +161,7 @@ jobs:
     name: "Linkcheck: Documenter manual"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@latest
         with:
           version: '1.6'

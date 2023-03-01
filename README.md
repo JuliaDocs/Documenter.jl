@@ -59,15 +59,15 @@ Finally, there are also a few other packages in the Julia ecosystem that are sim
 * [Publish.jl](https://github.com/MichaelHatherly/Publish.jl)
 * [Weave.jl](https://github.com/JunoLab/Weave.jl)
 
-[contrib-url]: https://juliadocs.github.io/Documenter.jl/dev/contributing/
+[contrib-url]: https://documenter.juliadocs.org/dev/contributing/
 [discourse-tag-url]: https://discourse.julialang.org/tags/documenter
 [gitter-url]: https://gitter.im/juliadocs/users
 
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://juliadocs.github.io/Documenter.jl/dev
+[docs-dev-url]: https://documenter.juliadocs.org/dev
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://juliadocs.github.io/Documenter.jl/stable
+[docs-stable-url]: https://documenter.juliadocs.org/stable
 
 [GHA-img]: https://github.com/JuliaDocs/Documenter.jl/workflows/CI/badge.svg
 [GHA-url]: https://github.com/JuliaDocs/Documenter.jl/actions?query=workflows/CI
