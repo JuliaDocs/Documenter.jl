@@ -25,6 +25,7 @@ using Base64: base64decode
 # Version number of Documenter itself
 const DOCUMENTER_VERSION = let
     project = joinpath(dirname(dirname(pathof(Documenter))), "Project.toml")
+    Base.include_dependency(project) # Retrigger precompilation when Project.toml changes
     toml = read(project, String)
     m = match(r"(*ANYCRLF)^version\s*=\s\"(.*)\"$"m, toml)
     VersionNumber(m[1])
@@ -95,5 +96,10 @@ include("makedocs.jl")
 include("deployconfig.jl")
 include("deploydocs.jl")
 include("doctest.jl")
+
+using SnoopPrecompile
+@precompile_all_calls begin
+    include("docs_precompile/make.jl")
+end
 
 end # module
