@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - highlight.js has been updated from `v11.5.1` to `v11.7.0`.
   - JuliaMono has been updated from `v0.045` to `v0.048`.
   - jQuery UI has been updated from `v1.12.1` to `v1.13.2`.
+  - jquery has been updated from `v3.6.0` to `v3.6.4`.
 
 ### Fixed
 
