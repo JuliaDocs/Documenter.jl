@@ -171,7 +171,7 @@ struct KaTeX <: MathEngine
             :delimiters => [
                 Dict(:left => raw"$",   :right => raw"$",   display => false),
                 Dict(:left => raw"$$",  :right => raw"$$",  display => true),
-                Dict(:left => raw"\[", :right => raw"\]", display => true),
+                Dict(:left => raw"\[",  :right => raw"\]",  display => true),
             ]
         )
         new((config === nothing) ? default : override ? config : merge(default, config))
