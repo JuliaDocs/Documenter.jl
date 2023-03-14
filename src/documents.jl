@@ -34,7 +34,6 @@ struct Page
     element does not need expanding or some other object, such as a `DocsNode` in the case
     of `@docs` code blocks.
     """
-    mapping  :: IdDict{Any,Any}
     globals  :: Globals
     mdast   :: MarkdownAST.Node{Nothing}
 end
@@ -56,7 +55,7 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
             """
         rethrow(err)
     end
-    Page(source, build, workdir, mdpage.content, IdDict{Any,Any}(), Globals(), mdast)
+    Page(source, build, workdir, mdpage.content, Globals(), mdast)
 end
 
 # FIXME -- special overload for parseblock
