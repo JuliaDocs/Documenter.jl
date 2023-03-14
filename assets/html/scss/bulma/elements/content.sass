@@ -1,6 +1,10 @@
+@import "../utilities/mixins"
+
 $content-heading-color: $text-strong !default
 $content-heading-weight: $weight-semibold !default
 $content-heading-line-height: 1.125 !default
+
+$content-block-margin-bottom: 1em !default
 
 $content-blockquote-background-color: $background !default
 $content-blockquote-border-left: 5px solid $border !default
@@ -14,6 +18,7 @@ $content-table-cell-padding: 0.5em 0.75em !default
 $content-table-cell-heading-color: $text-strong !default
 $content-table-head-cell-border-width: 0 0 2px !default
 $content-table-head-cell-color: $text-strong !default
+$content-table-body-last-row-cell-border-bottom-width: 0 !default
 $content-table-foot-cell-border-width: 2px 0 0 !default
 $content-table-foot-cell-color: $text-strong !default
 
@@ -31,7 +36,7 @@ $content-table-foot-cell-color: $text-strong !default
   pre,
   table
     &:not(:last-child)
-      margin-bottom: 1em
+      margin-bottom: $content-block-margin-bottom
   h1,
   h2,
   h3,
@@ -67,11 +72,11 @@ $content-table-foot-cell-color: $text-strong !default
     margin-bottom: 1em
   blockquote
     background-color: $content-blockquote-background-color
-    border-left: $content-blockquote-border-left
+    +ltr-property("border", $content-blockquote-border-left, false)
     padding: $content-blockquote-padding
   ol
     list-style-position: outside
-    margin-left: 2em
+    +ltr-property("margin", 2em, false)
     margin-top: 1em
     &:not([type])
       list-style-type: decimal
@@ -85,7 +90,7 @@ $content-table-foot-cell-color: $text-strong !default
         list-style-type: upper-roman
   ul
     list-style: disc outside
-    margin-left: 2em
+    +ltr-property("margin", 2em, false)
     margin-top: 1em
     ul
       list-style-type: circle
@@ -93,7 +98,7 @@ $content-table-foot-cell-color: $text-strong !default
       ul
         list-style-type: square
   dd
-    margin-left: 2em
+    +ltr-property("margin", 2em, false)
   figure
     margin-left: 2em
     margin-right: 2em
@@ -126,7 +131,7 @@ $content-table-foot-cell-color: $text-strong !default
     th
       color: $content-table-cell-heading-color
       &:not([align])
-        text-align: left
+        text-align: inherit
     thead
       td,
       th
@@ -142,13 +147,15 @@ $content-table-foot-cell-color: $text-strong !default
         &:last-child
           td,
           th
-            border-bottom-width: 0
+            border-bottom-width: $content-table-body-last-row-cell-border-bottom-width
   .tabs
     li + li
       margin-top: 0
   // Sizes
   &.is-small
     font-size: $size-small
+  &.is-normal
+    font-size: $size-normal
   &.is-medium
     font-size: $size-medium
   &.is-large

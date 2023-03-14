@@ -1,15 +1,17 @@
 $file-border-color: $border !default
 $file-radius: $radius !default
 
-$file-cta-background-color: $white-ter !default
-$file-cta-color: $grey-dark !default
-$file-cta-hover-color: $grey-darker !default
-$file-cta-active-color: $grey-darker !default
+$file-cta-background-color: $scheme-main-ter !default
+$file-cta-color: $text !default
+$file-cta-hover-color: $text-strong !default
+$file-cta-active-color: $text-strong !default
 
 $file-name-border-color: $border !default
 $file-name-border-style: solid !default
 $file-name-border-width: 1px 1px 1px 0 !default
 $file-name-max-width: 16em !default
+
+$file-colors: $form-colors !default
 
 .file
   @extend %unselectable
@@ -18,7 +20,7 @@ $file-name-max-width: 16em !default
   justify-content: flex-start
   position: relative
   // Colors
-  @each $name, $pair in $colors
+  @each $name, $pair in $file-colors
     $color: nth($pair, 1)
     $color-invert: nth($pair, 2)
     &.is-#{$name}
@@ -29,24 +31,26 @@ $file-name-max-width: 16em !default
       &:hover,
       &.is-hovered
         .file-cta
-          background-color: darken($color, 2.5%)
+          background-color: bulmaDarken($color, 2.5%)
           border-color: transparent
           color: $color-invert
       &:focus,
       &.is-focused
         .file-cta
           border-color: transparent
-          box-shadow: 0 0 0.5em rgba($color, 0.25)
+          box-shadow: 0 0 0.5em bulmaRgba($color, 0.25)
           color: $color-invert
       &:active,
       &.is-active
         .file-cta
-          background-color: darken($color, 5%)
+          background-color: bulmaDarken($color, 5%)
           border-color: transparent
           color: $color-invert
   // Sizes
   &.is-small
     font-size: $size-small
+  &.is-normal
+    font-size: $size-normal
   &.is-medium
     font-size: $size-medium
     .file-icon
@@ -125,16 +129,16 @@ $file-name-max-width: 16em !default
   position: relative
   &:hover
     .file-cta
-      background-color: darken($file-cta-background-color, 2.5%)
+      background-color: bulmaDarken($file-cta-background-color, 2.5%)
       color: $file-cta-hover-color
     .file-name
-      border-color: darken($file-name-border-color, 2.5%)
+      border-color: bulmaDarken($file-name-border-color, 2.5%)
   &:active
     .file-cta
-      background-color: darken($file-cta-background-color, 5%)
+      background-color: bulmaDarken($file-cta-background-color, 5%)
       color: $file-cta-active-color
     .file-name
-      border-color: darken($file-name-border-color, 5%)
+      border-color: bulmaDarken($file-name-border-color, 5%)
 
 .file-input
   height: 100%
@@ -166,7 +170,7 @@ $file-name-max-width: 16em !default
   display: block
   max-width: $file-name-max-width
   overflow: hidden
-  text-align: left
+  text-align: inherit
   text-overflow: ellipsis
 
 .file-icon
@@ -174,7 +178,7 @@ $file-name-max-width: 16em !default
   display: flex
   height: 1em
   justify-content: center
-  margin-right: 0.5em
+  +ltr-property("margin", 0.5em)
   width: 1em
   .fa
     font-size: 14px

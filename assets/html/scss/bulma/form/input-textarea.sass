@@ -1,3 +1,9 @@
+$textarea-padding: $control-padding-horizontal !default
+$textarea-max-height: 40em !default
+$textarea-min-height: 8em !default
+
+$textarea-colors: $form-colors !default
+
 %input-textarea
   @extend %input
   box-shadow: $input-shadow
@@ -6,7 +12,7 @@
   &[readonly]
     box-shadow: none
   // Colors
-  @each $name, $pair in $colors
+  @each $name, $pair in $textarea-colors
     $color: nth($pair, 1)
     &.is-#{$name}
       border-color: $color
@@ -14,7 +20,7 @@
       &.is-focused,
       &:active,
       &.is-active
-        box-shadow: $input-focus-box-shadow-size rgba($color, 0.25)
+        box-shadow: $input-focus-box-shadow-size bulmaRgba($color, 0.25)
   // Sizes
   &.is-small
     +control-small
@@ -34,8 +40,8 @@
   @extend %input-textarea
   &.is-rounded
     border-radius: $radius-rounded
-    padding-left: 1em
-    padding-right: 1em
+    padding-left: calc(#{$control-padding-horizontal} + 0.375em)
+    padding-right: calc(#{$control-padding-horizontal} + 0.375em)
   &.is-static
     background-color: transparent
     border-color: transparent
@@ -48,11 +54,11 @@
   display: block
   max-width: 100%
   min-width: 100%
-  padding: 0.625em
+  padding: $textarea-padding
   resize: vertical
   &:not([rows])
-    max-height: 600px
-    min-height: 120px
+    max-height: $textarea-max-height
+    min-height: $textarea-min-height
   &[rows]
     height: initial
   // Modifiers
