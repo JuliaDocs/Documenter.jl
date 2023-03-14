@@ -1,5 +1,5 @@
 @charset "UTF-8";
-/* Font Awesome 5 mixin. Can be included in any rule that should render Font Awesome icons. */
+/* Font Awesome 6 mixin. Can be included in any rule that should render Font Awesome icons. */
 @keyframes spinAround {
   from {
     transform: rotate(0deg); }
@@ -6990,7 +6990,7 @@ h1 .docs-heading-anchor-permalink, h2 .docs-heading-anchor-permalink, h3 .docs-h
   margin-left: 0.5em;
   font-size: 0.7rem; }
   h1 .docs-heading-anchor-permalink::before, h2 .docs-heading-anchor-permalink::before, h3 .docs-heading-anchor-permalink::before, h4 .docs-heading-anchor-permalink::before, h5 .docs-heading-anchor-permalink::before, h6 .docs-heading-anchor-permalink::before {
-    font-family: "Font Awesome 5 Free";
+    font-family: "Font Awesome 6 Free";
     font-weight: 900;
     content: "\f0c1"; }
 
@@ -7022,7 +7022,7 @@ pre {
     height: 2.5em;
     background: transparent;
     border: none;
-    font-family: "Font Awesome 5 Free";
+    font-family: "Font Awesome 6 Free";
     color: #222222;
     cursor: pointer;
     text-align: center; }
@@ -7113,7 +7113,7 @@ pre {
   padding: 0.5rem 0.75rem;
   position: relative; }
   .admonition-header:before {
-    font-family: "Font Awesome 5 Free";
+    font-family: "Font Awesome 6 Free";
     font-weight: 900;
     margin-right: 0.75rem;
     content: "\f06a"; }
@@ -7433,7 +7433,7 @@ li.no-marker {
         margin-top: auto;
         margin-bottom: auto; }
         #documenter .docs-sidebar ul.docs-menu label.tocitem .docs-chevron::before {
-          font-family: "Font Awesome 5 Free";
+          font-family: "Font Awesome 6 Free";
           font-weight: 900;
           content: "\f054"; }
     #documenter .docs-sidebar ul.docs-menu input:checked ~ label.tocitem .docs-chevron::before {
