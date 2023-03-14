@@ -63,6 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added keyboard shortcuts for search box (`Ctrl + /` or `Cmd + /` to focus into the search box, `Esc` to focus out of it). (#1536), (#2027)
 
+* KaTeX has been updated from `v0.13.24` to `v0.16.4` (major version bump).
+
 * The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions.
     
   - highlight.js has been updated from `v11.5.1` to `v11.7.0`.

@@ -60,7 +60,7 @@ module RD
     end
 
     # MathJax & KaTeX
-    const katex_version = "0.13.24"
+    const katex_version = "0.16.4"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
     function mathengine!(r::RequireJS, engine::KaTeX)
         push!(r, RemoteLibrary(
