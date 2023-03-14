@@ -1,6 +1,7 @@
+/* https://github.com/jenil/bulmaswatch/blob/v0.8.1/darkly/_overrides.scss */
 // Overrides
 @if $bulmaswatch-import-font {
-    @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);
+  @import url("https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=swap");
 }
 
 hr {
@@ -288,8 +289,12 @@ body > .navbar {
     $color-invert: nth($pair, 2);
 
     &.is-#{$name} {
-      .navbar .navbar-dropdown .navbar-item:hover {
-        background-color: $navbar-dropdown-item-hover-background-color;
+      .navbar {
+        .navbar-dropdown {
+          .navbar-item:hover {
+            background-color: $navbar-dropdown-item-hover-background-color;
+          }
+        }
       }
     }
   }
