@@ -65,6 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * KaTeX has been updated from `v0.13.24` to `v0.16.4` (major version bump).
 
+* Font Awesome has been updated from `v5.15.4` to `v6.3.0` (major version bump).
+
 ### Fixed
 
 * Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. (#1808)
