@@ -73,7 +73,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - jquery has been updated from `v3.6.0` to `v3.6.4`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
-
 ### Fixed
 
 * Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. (#1808)
