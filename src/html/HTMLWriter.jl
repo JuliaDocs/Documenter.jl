@@ -1196,7 +1196,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
             repo_title = "View the repository" * (isempty(host) ? "" : " on $host")
             push!(navbar_right.nodes,
                 a[".docs-navbar-link", :href => url, :title => repo_title](
-                    span[".docs-icon.fab"](logo),
+                    span[".docs-icon.fa-brands"](logo),
                     span[".docs-label.is-hidden-touch"](isempty(host) ? "Repository" : host)
                 )
             )
@@ -1207,20 +1207,20 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
     edit_page_link && edit_link(ctx, navnode) do logo, title, url
         push!(navbar_right.nodes,
             a[".docs-navbar-link", :href => url, :title => title](
-                span[".docs-icon.fas"](logo)
+                span[".docs-icon.fa-solid"](logo)
             )
         )
     end
 
     # Settings cog
     push!(navbar_right.nodes, a[
-        "#documenter-settings-button.docs-settings-button.docs-navbar-link.fas.fa-cog",
+        "#documenter-settings-button.docs-settings-button.docs-navbar-link.fa-solid.fa-gear",
         :href => "#", :title => "Settings",
     ])
 
     # Hamburger on mobile
     push!(navbar_right.nodes, a[
-        "#documenter-sidebar-button.docs-sidebar-button.docs-navbar-link.fa.fa-bars.is-hidden-desktop",
+        "#documenter-sidebar-button.docs-sidebar-button.docs-navbar-link.fa-solid.fa-bars.is-hidden-desktop",
         :href => "#",
     ])
 
@@ -1232,7 +1232,7 @@ end
 Calls `f(logo, title, url)` if it is possible to create an edit link for the `navnode`.
 """
 function edit_link(f, ctx, navnode)
-    view_logo, edit_logo = "\uf15c", "\uf044" # 'file-alt' and 'edit', from .fas class
+    view_logo, edit_logo = "\uf15c", "\uf044" # 'fa-file-lines' and 'fa-pen-to-square', from .fa-solid class
     # Let's fetch the edit path. Usually this is the source file of the page, but the user
     # can override it specifying the EditURL option in an @meta block. Usually, it is a
     # relative path pointing to a file, but can also be set to an absolute URL.
@@ -1281,12 +1281,12 @@ function edit_link(f, ctx, navnode)
     return
 end
 
-# All these logos are from the .fab (brands) class
-const host_logo_github    = (host = "GitHub",       logo = "\uf09b")
-const host_logo_bitbucket = (host = "BitBucket",    logo = "\uf171")
-const host_logo_gitlab    = (host = "GitLab",       logo = "\uf296")
-const host_logo_azure     = (host = "Azure DevOps", logo = "\uf3ca") # microsoft; TODO: change to ADO logo when added to FontAwesome
-const host_logo_fallback  = (host = "",             logo = "\uf841") # git-alt
+# All these logos are from the .fa-brands (brands) class
+const host_logo_github    = (host = "GitHub",       logo = "\uf09b") # fa-github
+const host_logo_bitbucket = (host = "BitBucket",    logo = "\uf171") # fa-bitbucket
+const host_logo_gitlab    = (host = "GitLab",       logo = "\uf296") # fa-gitlab
+const host_logo_azure     = (host = "Azure DevOps", logo = "\uf3ca") # fa-microsoft; TODO: change to ADO logo when added to FontAwesome
+const host_logo_fallback  = (host = "",             logo = "\uf841") # fa-git-alt
 host_logo(remote::Remotes.GitHub) = host_logo_github
 host_logo(remote::Remotes.URL) = host_logo(remote.urltemplate)
 host_logo(remote::Union{Remotes.Remote,Nothing}) = host_logo_fallback

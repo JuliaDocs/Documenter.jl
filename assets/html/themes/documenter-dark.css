@@ -1,5 +1,5 @@
 @charset "UTF-8";
-/* Font Awesome 5 mixin. Can be included in any rule that should render Font Awesome icons. */
+/* Font Awesome 6 mixin. Can be included in any rule that should render Font Awesome icons. */
 @keyframes spinAround {
   from {
     transform: rotate(0deg); }
@@ -7080,7 +7080,7 @@ html.theme--documenter-dark {
     margin-left: 0.5em;
     font-size: 0.7rem; }
     html.theme--documenter-dark h1 .docs-heading-anchor-permalink::before, html.theme--documenter-dark h2 .docs-heading-anchor-permalink::before, html.theme--documenter-dark h3 .docs-heading-anchor-permalink::before, html.theme--documenter-dark h4 .docs-heading-anchor-permalink::before, html.theme--documenter-dark h5 .docs-heading-anchor-permalink::before, html.theme--documenter-dark h6 .docs-heading-anchor-permalink::before {
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f0c1"; }
   html.theme--documenter-dark h1:hover .docs-heading-anchor-permalink, html.theme--documenter-dark h2:hover .docs-heading-anchor-permalink, html.theme--documenter-dark h3:hover .docs-heading-anchor-permalink, html.theme--documenter-dark h4:hover .docs-heading-anchor-permalink, html.theme--documenter-dark h5:hover .docs-heading-anchor-permalink, html.theme--documenter-dark h6:hover .docs-heading-anchor-permalink {
@@ -7109,7 +7109,7 @@ html.theme--documenter-dark {
       height: 2.5em;
       background: transparent;
       border: none;
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       color: #fff;
       cursor: pointer;
       text-align: center; }
@@ -7179,7 +7179,7 @@ html.theme--documenter-dark {
     padding: 0.5rem 0.75rem;
     position: relative; }
     html.theme--documenter-dark .admonition-header:before {
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       font-weight: 900;
       margin-right: 0.75rem;
       content: "\f06a"; }
@@ -7471,7 +7471,7 @@ html.theme--documenter-dark {
           margin-top: auto;
           margin-bottom: auto; }
           html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu label.tocitem .docs-chevron::before {
-            font-family: "Font Awesome 5 Free";
+            font-family: "Font Awesome 6 Free";
             font-weight: 900;
             content: "\f054"; }
       html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu input:checked ~ label.tocitem .docs-chevron::before {
