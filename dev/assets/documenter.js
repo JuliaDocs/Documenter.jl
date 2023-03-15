@@ -82,7 +82,7 @@ require([], function() {
 function addCopyButtonCallbacks() {
   for (const el of document.getElementsByTagName("pre")) {
     const button = document.createElement("button");
-    button.classList.add("copy-button", "fas", "fa-copy");
+    button.classList.add("copy-button", "fa-solid", "fa-copy");
     button.setAttribute("aria-label", "Copy this code block");
     button.setAttribute("title", "Copy");
 
@@ -94,7 +94,7 @@ function addCopyButtonCallbacks() {
     };
 
     const failure = function () {
-      button.classList.add("error", "fa-times");
+      button.classList.add("error", "fa-xmark");
       button.classList.remove("fa-copy");
     };
 
@@ -103,7 +103,7 @@ function addCopyButtonCallbacks() {
 
       setTimeout(function () {
         button.classList.add("fa-copy");
-        button.classList.remove("success", "fa-check", "fa-times");
+        button.classList.remove("success", "fa-check", "fa-xmark");
       }, 5000);
     });
   }
