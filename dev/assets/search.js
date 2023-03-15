@@ -3,7 +3,7 @@ requirejs.config({
   paths: {
     'lunr': 'https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min',
     'lodash': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min',
-    'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min',
+    'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min',
   }
 });
 ////////////////////////////////////////////////////////////////////////////////
