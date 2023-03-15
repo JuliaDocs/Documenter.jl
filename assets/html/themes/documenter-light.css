@@ -1,5 +1,5 @@
 @charset "UTF-8";
-/* Font Awesome 5 mixin. Can be included in any rule that should render Font Awesome icons. */
+/* Font Awesome 6 mixin. Can be included in any rule that should render Font Awesome icons. */
 @keyframes spinAround {
   from {
     transform: rotate(0deg); }
@@ -6990,7 +6990,7 @@ h1 .docs-heading-anchor-permalink, h2 .docs-heading-anchor-permalink, h3 .docs-h
   margin-left: 0.5em;
   font-size: 0.7rem; }
   h1 .docs-heading-anchor-permalink::before, h2 .docs-heading-anchor-permalink::before, h3 .docs-heading-anchor-permalink::before, h4 .docs-heading-anchor-permalink::before, h5 .docs-heading-anchor-permalink::before, h6 .docs-heading-anchor-permalink::before {
-    font-family: "Font Awesome 5 Free";
+    font-family: "Font Awesome 6 Free";
     font-weight: 900;
     content: "\f0c1"; }
 
@@ -7022,7 +7022,7 @@ pre {
     height: 2.5em;
     background: transparent;
     border: none;
-    font-family: "Font Awesome 5 Free";
+    font-family: "Font Awesome 6 Free";
     color: #222222;
     cursor: pointer;
     text-align: center; }
@@ -7113,7 +7113,7 @@ pre {
   padding: 0.5rem 0.75rem;
   position: relative; }
   .admonition-header:before {
-    font-family: "Font Awesome 5 Free";
+    font-family: "Font Awesome 6 Free";
     font-weight: 900;
     margin-right: 0.75rem;
     content: "\f06a"; }
@@ -7433,7 +7433,7 @@ li.no-marker {
         margin-top: auto;
         margin-bottom: auto; }
         #documenter .docs-sidebar ul.docs-menu label.tocitem .docs-chevron::before {
-          font-family: "Font Awesome 5 Free";
+          font-family: "Font Awesome 6 Free";
           font-weight: 900;
           content: "\f054"; }
     #documenter .docs-sidebar ul.docs-menu input:checked ~ label.tocitem .docs-chevron::before {
@@ -7638,6 +7638,7 @@ code.language-julia-repl > span.hljs-meta {
   color: #066f00;
   font-weight: bolder; }
 
+/* https://github.com/highlightjs/highlight.js/blob/11.7.0/src/styles/default.css */
 /*!
   Theme: Default
   Description: Original highlight.js style
@@ -7655,14 +7656,15 @@ Typically this "required" baseline CSS is added by `makestuff.js` during build.
 */
 pre code.hljs {
   display: block;
-  overflow-x: auto; }
+  overflow-x: auto;
+  padding: 1em; }
 
 code.hljs {
   padding: 3px 5px; }
 
 /* end baseline CSS */
 .hljs {
-  background: #F0F0F0;
+  background: #F3F3F3;
   color: #444; }
 
 /* Base color: saturation 0; */
@@ -7671,7 +7673,7 @@ code.hljs {
 
 /* purposely ignored */
 .hljs-comment {
-  color: #888888; }
+  color: #697070; }
 
 .hljs-tag,
 .hljs-punctuation {
@@ -7713,11 +7715,11 @@ code.hljs {
 .hljs-selector-attr,
 .hljs-operator,
 .hljs-selector-pseudo {
-  color: #BC6060; }
+  color: #ab5656; }
 
 /* Language color: hue: 90; */
 .hljs-literal {
-  color: #78A960; }
+  color: #695; }
 
 .hljs-built_in,
 .hljs-bullet,
@@ -7730,7 +7732,7 @@ code.hljs {
   color: #1f7199; }
 
 .hljs-meta .hljs-string {
-  color: #4d99bf; }
+  color: #38a; }
 
 /* Misc effects */
 .hljs-emphasis {
