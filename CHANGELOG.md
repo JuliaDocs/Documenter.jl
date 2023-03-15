@@ -63,7 +63,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added keyboard shortcuts for search box (`Ctrl + /` or `Cmd + /` to focus into the search box, `Esc` to focus out of it). (#1536), (#2027)
 
-* KaTeX has been updated from `v0.13.24` to `v0.16.4` (major version bump).
+* The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. (#2066, #2067)
+
+  - KaTeX has been updated from `v0.13.24` to `v0.16.4` (major version bump).    
+  - highlight.js has been updated from `v11.5.1` to `v11.7.0`.
+  - JuliaMono has been updated from `v0.045` to `v0.048`.
+  - jQuery UI has been updated from `v1.12.1` to `v1.13.2`.
+  - jquery has been updated from `v3.6.0` to `v3.6.4`.
+  - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
 * Font Awesome has been updated from `v5.15.4` to `v6.3.0` (major version bump).
 

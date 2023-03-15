@@ -1056,6 +1056,7 @@ html.theme--documenter-dark {
  *
  * The main container is <div> that is identified by id #documenter.
  */
+  /* https://github.com/highlightjs/highlight.js/blob/11.7.0/src/styles/a11y-dark.css */
   /*!
   Theme: a11y-dark
   Author: @ericwbailey
