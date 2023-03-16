@@ -46,7 +46,7 @@
       bottom: $documenter-docstring-body-padding-v / 2;
       @extend .tag;
       @extend .is-primary;
-      @extend .is-size-7 !optional;
+      @extend .is-size-7;
 
       &:focus {
         opacity: 1!important;
