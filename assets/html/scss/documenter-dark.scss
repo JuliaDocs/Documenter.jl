@@ -54,7 +54,7 @@ $documenter-docstring-shadow: none;
 
 @import "bulma/utilities/all";
 @import "bulma/base/minireset.sass";
-@import "bulma/base/helpers.sass";
+@import "bulma/helpers/all";
 
 // Search box, version selector etc.
 $input-color: $grey-lighter;
