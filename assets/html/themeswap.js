@@ -44,20 +44,20 @@ function set_theme_from_local_storage() {
     // Store the style sheets of inactive themes so that we could disable them
     if(themename !== theme) disabled.push(ss);
   }
-  if(active !== null) {
-    // If we did find an active theme, we'll (1) add the theme--$(theme) class to <html>
-    document.getElementsByTagName('html')[0].className = "theme--" + theme;
-    // and (2) disable all the other theme stylesheets
-    disabled.forEach(function(ss){
-      ss.disabled = true;
-    });
-  }
-  else if(darkTheme !== null && darkPreference === true) {
-    // If we did find an active theme, we'll (1) add the theme--$(theme) class to <html>
-    document.getElementsByTagName('html')[0].className = "theme--" + darkTheme;
-    // and (2) disable all the other theme stylesheets
-    disabled.forEach(function(ss){
+  if (theme === "auto" || (active === null && darkPreference === true && darkTheme !== null)) {
+    // Use the dark theme if the user preference is for dark color scheme and no theme is selected
+    // or if the "auto" theme is selected
+    document.getElementsByTagName("html")[0].className = "theme--" + darkTheme;
+    // Disable all the other theme stylesheets
+    disabled.forEach(function (ss) {
       if (ss.ownerNode.getAttribute("data-theme-name") !== darkTheme) {
+        ss.disabled = true;
+      }
+    });
+  } else {
+    document.getElementsByTagName("html")[0].className = "theme--" + theme;
+    disabled.forEach(function (ss) {
+      if (ss.ownerNode.getAttribute("data-theme-name") !== theme) {
         ss.disabled = true;
       }
     });
