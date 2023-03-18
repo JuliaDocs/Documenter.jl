@@ -136,11 +136,13 @@
         margin-bottom: auto;
         &::before {
           @include font-awesome;
+          // fa-chevron-right
           content: "\f054";
         }
       }
     }
     input:checked ~ label.tocitem .docs-chevron::before {
+      // fa-chevron-down
       content: "\f078";
     }
 
