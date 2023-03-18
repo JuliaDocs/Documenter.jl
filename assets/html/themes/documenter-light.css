@@ -8062,6 +8062,8 @@ pre {
     border-bottom: 1px solid #dbdbdb; }
     .docstring > header code {
       background-color: transparent; }
+    .docstring > header .docstring-article-toggle-button {
+      padding: 0.2rem 0.2rem 0.2rem 0; }
     .docstring > header .docstring-binding {
       margin-right: 0.3em; }
     .docstring > header .docstring-category {
@@ -8202,7 +8204,9 @@ li.no-marker {
     flex-grow: 1; }
   #documenter .docs-main header.docs-navbar .docs-right {
     display: flex;
-    white-space: nowrap; }
+    white-space: nowrap;
+    gap: 1rem;
+    align-items: center; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-icon, #documenter .docs-main header.docs-navbar .docs-right .docs-label, #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
       display: inline-block; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-label {
