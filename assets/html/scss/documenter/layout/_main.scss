@@ -69,6 +69,9 @@
         .docs-navbar-link {
           margin: auto 0.5rem auto 0.5rem;
         }
+        .docs-article-toggle-button {
+          padding: 0.2rem;
+        }
         @include touch {
           .docs-navbar-link {
             margin: auto 0.75rem auto 0.75rem;
