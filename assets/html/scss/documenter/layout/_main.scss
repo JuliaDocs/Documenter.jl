@@ -53,6 +53,11 @@
         flex-grow: 1;
       }
 
+      .docs-left {
+        display: flex;
+        padding-right: 0.5rem;
+      }
+
       .docs-right {
         display: flex;
         .docs-icon, .docs-label, .docs-sidebar-button {
