@@ -1214,7 +1214,7 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Collapse/Expand All articles toggle
     push!(navbar_right.nodes, a[
-        "#documenter-article-toggle-button.docs-article-toggle-button.fas.fa-chevron-up",
+        "#documenter-article-toggle-button.docs-article-toggle-button.fa-solid.fa-chevron-up",
         :href=>"javascript:;", :title=>"Collapse all Articles",
     ])
 
@@ -1628,7 +1628,7 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
 
     article[".docstring"](
         header(
-            a[".docstring-article-toggle-button.fas.fa-chevron-up", :href=>"javascript:;", :title=>"Collapse article"],
+            a[".docstring-article-toggle-button.fa-solid.fa-chevron-up", :href=>"javascript:;", :title=>"Collapse article"],
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
             span[".docstring-category"]("$(Documenter.doccat(node.object))")
