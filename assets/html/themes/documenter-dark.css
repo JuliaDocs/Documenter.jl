@@ -8419,7 +8419,7 @@ html.theme--documenter-dark {
           margin-top: 0.5rem; }
         html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem {
           width: 100%;
-          padding: 0; }
+          padding: 0.3rem; }
           html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem::before {
             content: "⚬";
             margin-right: 0.4em; }

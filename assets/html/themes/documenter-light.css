@@ -8388,7 +8388,7 @@ li.no-marker {
         margin-top: 0.5rem; }
       #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem {
         width: 100%;
-        padding: 0; }
+        padding: 0.3rem; }
         #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem::before {
           content: "⚬";
           margin-right: 0.4em; }
