@@ -280,7 +280,7 @@ end
     end
 
     import Documenter: Document, Page, Globals
-    let page = Page("source", "build", :build, [], IdDict{Any,Any}(), Globals(), MarkdownAST.@ast MarkdownAST.Document()), doc = Document()
+    let page = Page("source", "build", :build, [], Globals(), MarkdownAST.@ast MarkdownAST.Document()), doc = Document()
         code = """
         x += 3
         γγγ_γγγ

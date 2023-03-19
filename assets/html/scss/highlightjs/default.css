@@ -1,3 +1,4 @@
+/* https://github.com/highlightjs/highlight.js/blob/11.7.0/src/styles/default.css */
 /*!
   Theme: Default
   Description: Original highlight.js style
@@ -17,6 +18,7 @@ Typically this "required" baseline CSS is added by `makestuff.js` during build.
 pre code.hljs {
   display: block;
   overflow-x: auto;
+  padding: 1em;
 }
 
 code.hljs {
@@ -25,7 +27,7 @@ code.hljs {
 /* end baseline CSS */
 
 .hljs {
-  background: #F0F0F0;
+  background: #F3F3F3;
   color: #444;
 }
 
@@ -42,7 +44,7 @@ code.hljs {
 .hljs-params {}
 
 .hljs-comment {
-  color: #888888;
+  color: #697070;
 }
 .hljs-tag,
 .hljs-punctuation {
@@ -93,13 +95,13 @@ code.hljs {
 .hljs-selector-attr,
 .hljs-operator,
 .hljs-selector-pseudo {
-  color: #BC6060;
+  color: #ab5656;
 }
 
 /* Language color: hue: 90; */
 
 .hljs-literal {
-  color: #78A960;
+  color: #695;
 }
 
 .hljs-built_in,
@@ -117,7 +119,7 @@ code.hljs {
 }
 
 .hljs-meta .hljs-string {
-  color: #4d99bf;
+  color: #38a;
 }
 
 

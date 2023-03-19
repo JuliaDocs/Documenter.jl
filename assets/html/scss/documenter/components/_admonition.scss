@@ -87,6 +87,7 @@ $admonition-header-color: () !default;
   &:before {
     @include font-awesome;
     margin-right: $documenter-container-left-padding;
+    // fa-circle-exclamation
     content: "\f06a";
   }
 }
