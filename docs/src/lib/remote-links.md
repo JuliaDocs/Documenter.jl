@@ -1,0 +1,90 @@
+# Remote repository links
+
+Documenter, if set up appropriately, can automatically generate various links to publicly hosted Git repositories (e.g. hosted on GitHub).
+Most often this is necessary for linking back to the package or project source code in the repository.
+
+The [`Remotes` API](@ref remotes-api) is used to specify remote repositories and generate the URLs.
+It is also designed to be extended, to support additional Git repository hosting services.
+
+## Remote link types
+
+Broadly speaking, there are two categories of remote repositories that (may) need to be configured for Documenter to be able to determine the various remote links:
+
+1. Project repository remote, specified with the `repo` keyword to [`makedocs`](@ref).
+   This refers to the project as a whole (rather than specific files), and is used for the repository landing page link, issue references etc.
+
+2. File link remotes, specified by the `remotes` keyword to [`makedocs`](@ref).
+   These are used to link a file system file to the corresponding file in the remote repository.
+   In particular, these are used to generate the edit links for manual pages, and Julia source file links for docstrings.
+
+While in the most common case, which is a repository for a simple Julia package, there is usually ever only one remote repository that one needs to be concerned about, there are more complex setups where it is necessary to distinguish between the two cases.
+The defaults to the two keywords try to cater for the most common use case, and [as explained below](@ref repo-remote-interaction), this means that there is some interaction between these two arguments.
+
+## [Remotes for files](@id remotes-for-files)
+
+In a nutshell, when Documenter has to determine a file link to a hosted repository, it is given a local filesystem absolute path as an input.[^1]
+In the case of Markdown files, those local paths are determined by [`makedocs`](@ref) when it reads them.
+The links to Julia files are determined from the docsystem, and point to where the code was loaded from (e.g. for a development dependency of the environment, they come from the `Pkg.develop`ed path; but for normal `Pkg.add` dependencies the source files are generally in `~/.julia/`).
+
+In practice, in most cases, for both Markdown and Julia sources, the files Documenter needs to determine links for will be located within the currently checked out Git repository that contains the Documenter `make.jl` script (e.g. the locally checked out package repository).
+However, sometimes it may also be outside of that repository (in a different repository or not), or in a different repository, but one that is checked out in a subdirectory of the current repository.
+It may also be that the destination file is not within a checked out Git repository at all (e.g. if you're trying to build the documentation in a release tarball).
+
+The `remotes` keyword to [`makedocs`](@ref) is used to set up a `local directory => remote repository` mapping for local file system paths.
+The local directory is assumed to correspond to the root of the Git repository, and any subpath within that directory is then resolved to the corresponding path in the remote repository.
+If there are nested `remotes` configured, Documenter will use the one that matches first as it walks up the directory tree from the original path.
+
+As the most common case is a locally checked out Git repository cloned from GitHub, Documenter will also try to determine such remotes automatically.
+This is done regardless whether any additional remotes have been specified with `remotes` or not.
+
+* When Documenter walks up the directory tree, it checks (by looking for the presence of a `.git` directory or file).
+  Once it finds a valid local repository root, it tries to read its [`origin` remote URL](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes).
+  - If that matches a GitHub repository[^2], Documenter automatically sets up a mapping from that directory, and then uses that to determine the remote URLs.
+  - If Documenter is unable to determine the remote from the repository's `origin` (e.g. `origin` is not set up, or it is hosted somewhere else), it will error, as it will not be able to determine the remote URLs.
+    In this case, the remote should be configured explicitly with `remotes`.
+
+You can think of it as Documenter automatically populating `remotes` with any cloned GitHub repositories it finds.[^3]
+
+!!! note
+
+    The [`Remotes` API](@ref remotes-api) can be used to implement the methods to compute the remote URLs (for now, Documenter only [supports GitHub natively](@ref Remotes.GitHub)).
+
+[^1]: There is an exception to this: links to Julia `Base` module source files.
+      But those are already handled and really only relevant to the Julia main manual build.
+[^2]: GitHub is the most common case, but this could be extended to cover other Git hosting services in the future (as long as the remote can reliably determined from the `origin` URL).
+[^3]: One thing to be aware here is that Documenter builds up a cache of the Git repositories it finds on every `makedocs` call.
+      This is for performance reasons, to reduce the number of file system accesses and, in particular, `git` calls, which are relatively slow.
+
+## [`repo` & `remotes` interaction](@id repo-remote-interaction)
+
+Because the most common and primary use case for Documenter is generating documentation for a simple Julia package, there is some interaction between the `repo` and `remotes` keyword arguments, to automagically determine their defaults.
+This means that usually it is not necessary to specify either explicitly in the `make.jl` script.
+
+The rules are as follows:
+
+* If `repo` _is not_ specified, it is essentially [determined like any other remote link](@ref remotes-for-files), by trying to figure out the repository that contains the `root` path argument of [`makedocs`](@ref) (defaulting to the directory of the `make.jl` script; usually the `docs/` directory).
+  The [`Remote`](@ref Remotes.Remote) object will one of the `remotes`, which in turn may have been determined automatically via the `origin` URL of the containing Git repository.
+
+* If `repo` _is_ specified, but the `remotes` for the repository root is not, `repo` will function as a `remotes` entry for the repository root.
+  This is so that it would not be necessary to specify the same argument twice (i.e. once for general repository links, once for file links).
+
+* If both `repo` and a `remotes` for the repository root are configured, Documenter will throw an error, as it does not really make sense for them to point to two different remotes.[^4]
+
+[^4]: If there is a use case for this, this could be relaxed in the future.
+
+## [Remotes API](@id remotes-api)
+
+```@docs
+Documenter.Remotes
+Documenter.Remotes.GitHub
+```
+
+The following types and functions and relevant when creating custom
+[`Remote`](@ref Documenter.Remotes.Remote) types:
+
+```@docs
+Documenter.Remotes.Remote
+Documenter.Remotes.repourl
+Documenter.Remotes.fileurl
+Documenter.Remotes.issueurl
+```
