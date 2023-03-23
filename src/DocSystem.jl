@@ -204,7 +204,7 @@ $(SIGNATURES)
 
 Find all `DocStr` objects that somehow match the provided arguments.
 That is, if [`getspecificdocs`](@ref) fails, get docs for aliases of
-`binding` (unless `aliases` is set to `false). For `compare` being `==` also
+`binding` (unless `aliases` is set to `false`). For `compare` being `==` also
 try getting docs for `<:`.
 """
 function getdocs(
