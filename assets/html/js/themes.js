@@ -37,7 +37,11 @@ $(document).ready(function() {
   // onchange callback
   $('#documenter-themepicker').change(function themepick_callback(ev){
     var themename = $('#documenter-themepicker option:selected').attr('value');
-    set_theme(themename);
+    if (themename === 'auto') {
+      window.localStorage.removeItem("documenter-theme");
+    } else {
+      set_theme(themename);
+    }
   });
 
   // Make sure that the themepicker displays the correct theme when the theme is retrieved
@@ -50,7 +54,11 @@ $(document).ready(function() {
       })
     } else {
       $('#documenter-themepicker option').each(function(i,e) {
-        e.selected = $("html").hasClass(`theme--${e.value}`);
+        if ($("html").hasClass(`theme--${e.value}`)) {
+          e.selected = true;
+        } else if (e.value === 'auto') {
+          e.selected = true;
+        }
       })
     }
   }
