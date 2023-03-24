@@ -34,6 +34,12 @@ function set_theme(theme) {
 
 // Theme picker setup
 $(document).ready(function() {
+  // Add "auto" option to the dropdown
+  $('#documenter-themepicker').append($('<option>', { 
+    value: 'auto',
+    text : 'Auto' 
+  }));
+
   // onchange callback
   $('#documenter-themepicker').change(function themepick_callback(ev){
     var themename = $('#documenter-themepicker option:selected').attr('value');
