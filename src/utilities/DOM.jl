@@ -89,7 +89,7 @@ tag[...](...) # Has both attributes and children.
 
 All three of the above syntaxes return a new [`Node`](@ref) object. Printing of
 `Node` objects is defined using the standard Julia display functions, so only
-needs a call to `print` to print out a valid HTML document with all nessesary
+needs a call to `print` to print out a valid HTML document with all necessary
 text escaped.
 """
 module DOM

@@ -214,7 +214,7 @@ repo_host_from_url(::Nothing) = RepoUnknown
 
 function format_commit(commit::AbstractString, host::RepoHost)
     if host === RepoAzureDevOps
-        # if commit hash then preceeded by GC, if branch name then preceeded by GB
+        # if commit hash then preceded by GC, if branch name then preceded by GB
         if match(r"[0-9a-fA-F]{40}", commit) !== nothing
             commit = "GC$commit"
         else

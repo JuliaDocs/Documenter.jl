@@ -83,7 +83,7 @@ end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Documenter.Binding, Set{Type}}())
     for (binding, doc) in meta(mod)
-        # The keys of the docs meta dictonary should always be Docs.Binding objects in
+        # The keys of the docs meta dictionary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
         # some non-binding metadata gets added to the dict. So on the off-chance that has
         # happened, we simply ignore those entries.
