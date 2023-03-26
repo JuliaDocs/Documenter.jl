@@ -17,7 +17,7 @@ import AbstractTrees, MarkdownAST
 """
 $(SIGNATURES)
 
-Traverses a [`Documenter.Document`](@ref) and replaces links containg `@ref` URLs with
+Traverses a [`Documenter.Document`](@ref) and replaces links containing `@ref` URLs with
 their real URLs.
 """
 function crossref(doc::Documenter.Document)
