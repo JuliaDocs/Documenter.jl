@@ -291,7 +291,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix a rare logger error for failed doctests. (#1698), (#1699)
 
-* Fix an error occuring with `DocTestFilters = nothing` in `@meta` blocks. (#1696)
+* Fix an error occurring with `DocTestFilters = nothing` in `@meta` blocks. (#1696)
 
 ## Version v0.27.6 - 2021-09-07
 
@@ -489,7 +489,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Type aliases of `Union`s (e.g. `const MyAlias = Union{Foo,Bar}`) are now correctly listed as "Type" in docstrings. (#1466), (#1474)
 
-* HTMLWriter no longers prints a warning when encountering `mailto:` URLs in links. (#1472)
+* HTMLWriter no longer prints a warning when encountering `mailto:` URLs in links. (#1472)
 
 ## Version v0.25.3 - 2020-10-28
 
@@ -573,7 +573,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The LaTeX/PDF backend now supports the `platform="none"` keyword, which outputs only the TeX source files, rather than a compiled PDF. (#1338), (#1339)
 
-* Linkcheck no longer prints a warning when enountering a `302 Found` temporary redirect. (#1344), (#1345)
+* Linkcheck no longer prints a warning when encountering a `302 Found` temporary redirect. (#1344), (#1345)
 
 ### Fixed
 

@@ -61,7 +61,7 @@ import ANSIColoredPrinters
 
 export HTML
 
-"Data attribute for the script inserting a wraning for outdated docs."
+"Data attribute for the script inserting a warning for outdated docs."
 const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
 "List of Documenter native themes."
