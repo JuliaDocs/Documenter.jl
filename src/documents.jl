@@ -216,7 +216,7 @@ function Base.show(io::IO, n::NavNode)
 end
 
 """
-Constructs a list of the ancestors of the `navnode` (inclding the `navnode` itself),
+Constructs a list of the ancestors of the `navnode` (including the `navnode` itself),
 ordered so that the root of the navigation tree is the first and `navnode` itself
 is the last item.
 """

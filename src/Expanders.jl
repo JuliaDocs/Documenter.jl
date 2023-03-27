@@ -701,7 +701,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     # Evaluate the code block. We redirect stdout/stderr to `buffer`.
     result, buffer = nothing, IOBuffer()
     if !continued # run the code
-        # check if there is any code wating
+        # check if there is any code waiting
         if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
             code = page.globals.meta[:ContinuedCode][sym] * '\n' * x.code
             delete!(page.globals.meta[:ContinuedCode], sym)
