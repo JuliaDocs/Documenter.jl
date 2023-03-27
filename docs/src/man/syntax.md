@@ -709,7 +709,7 @@ to be relative to `pwd`.
 
 ## `@raw <format>` block
 
-Allows code to be inserted into the final document verbatim. E.g. to isert custom HTML or
+Allows code to be inserted into the final document verbatim. E.g. to insert custom HTML or
 LaTeX code into the output.
 
 The `format` argument is mandatory and Documenter uses it to determine whether a particular
