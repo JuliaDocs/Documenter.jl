@@ -75,6 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - jquery has been updated from `v3.6.0` to `v3.6.4`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
+* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312, #2076)
+
 ### Fixed
 
 * Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. (#1808)
@@ -289,7 +291,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix a rare logger error for failed doctests. (#1698), (#1699)
 
-* Fix an error occuring with `DocTestFilters = nothing` in `@meta` blocks. (#1696)
+* Fix an error occurring with `DocTestFilters = nothing` in `@meta` blocks. (#1696)
 
 ## Version v0.27.6 - 2021-09-07
 
@@ -487,7 +489,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Type aliases of `Union`s (e.g. `const MyAlias = Union{Foo,Bar}`) are now correctly listed as "Type" in docstrings. (#1466), (#1474)
 
-* HTMLWriter no longers prints a warning when encountering `mailto:` URLs in links. (#1472)
+* HTMLWriter no longer prints a warning when encountering `mailto:` URLs in links. (#1472)
 
 ## Version v0.25.3 - 2020-10-28
 
@@ -571,7 +573,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The LaTeX/PDF backend now supports the `platform="none"` keyword, which outputs only the TeX source files, rather than a compiled PDF. (#1338), (#1339)
 
-* Linkcheck no longer prints a warning when enountering a `302 Found` temporary redirect. (#1344), (#1345)
+* Linkcheck no longer prints a warning when encountering a `302 Found` temporary redirect. (#1344), (#1345)
 
 ### Fixed
 

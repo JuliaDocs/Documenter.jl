@@ -1,5 +1,5 @@
 """
-Provides a consistent interface to retreiving `DocStr` objects from the Julia
+Provides a consistent interface to retrieving `DocStr` objects from the Julia
 docsystem in both `0.4` and `0.5`.
 """
 module DocSystem

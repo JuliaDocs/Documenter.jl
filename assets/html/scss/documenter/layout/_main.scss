@@ -51,20 +51,28 @@
       display: flex;
       .breadcrumb {
         flex-grow: 1;
+        padding-left: 0.5rem;
+      }
+
+      .docs-left {
+        // Manually align with the center line of H
+        padding-top: 2px;
+        padding-right: 0.5rem;
+        .docs-sidebar-button {
+          display: inline-block;
+          font-size: 1.5rem;
+        }
       }
 
       .docs-right {
         display: flex;
-        .docs-icon, .docs-label, .docs-sidebar-button {
+        .docs-icon, .docs-label {
           display: inline-block;
         }
         white-space: nowrap;
         .docs-label {
           padding: 0;
           margin-left: 0.3em;
-        }
-        .docs-sidebar-button {
-          font-size: 1.5rem;
         }
         .docs-navbar-link {
           margin: auto 0.5rem auto 0.5rem;

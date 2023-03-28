@@ -35,7 +35,7 @@ mutable struct Anchor
 end
 
 """
-Tree structure representating anchors in a document and their relationships with eachother.
+Tree structure representing anchors in a document and their relationships with each other.
 
 **Object Hierarchy**
 
@@ -72,14 +72,14 @@ function add!(m::AnchorMap, anchor::Anchor, id, file)
 end
 add!(m::AnchorMap, object, id, file) = add!(m, Anchor(object), id, file)
 
-# Anchor existance.
+# Anchor existence.
 # -----------------
 
 """
 $(SIGNATURES)
 
 Does the given `id` exist within the [`AnchorMap`](@ref)? A `file` and integer `n` may also
-be provided to narrow the search for existance.
+be provided to narrow the search for existence.
 """
 exists(m::AnchorMap, id, file, n) = exists(m, id, file) && 1 ≤ n ≤ length(m.map[id][file])
 exists(m::AnchorMap, id, file)    = exists(m, id) && haskey(m.map[id], file)

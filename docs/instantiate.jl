@@ -1,4 +1,4 @@
-# This script can be used to quickly instantiate the docs/Project.toml enviroment.
+# This script can be used to quickly instantiate the docs/Project.toml environment.
 using Pkg
 documenter_directory = joinpath(@__DIR__, "..")
 project_directory = isempty(ARGS) ? @__DIR__() : joinpath(pwd(), ARGS[1])
