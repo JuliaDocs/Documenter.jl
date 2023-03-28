@@ -34,19 +34,21 @@ function set_theme(theme) {
 
 // Theme picker setup
 $(document).ready(function() {
-  // Add "auto" option to the dropdown
+  // Add "Automatic (OS preference)" option to theme picker
   $('#documenter-themepicker').append($('<option>', { 
     value: 'auto',
-    text : 'Auto' 
+    text : 'Automatic (OS preference)' 
   }));
 
   // onchange callback
   $('#documenter-themepicker').change(function themepick_callback(ev){
     var themename = $('#documenter-themepicker option:selected').attr('value');
     if (themename === 'auto') {
-      window.localStorage.removeItem("documenter-theme");
+      set_theme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      window.localStorage.removeItem('documenter-theme');
     } else {
       set_theme(themename);
+      window.localStorage.setItem('documenter-theme', themename);
     }
   });
 
@@ -62,8 +64,7 @@ $(document).ready(function() {
       $('#documenter-themepicker option').each(function(i,e) {
         if ($("html").hasClass(`theme--${e.value}`)) {
           e.selected = true;
-        } else if (e.value === 'auto') {
-          e.selected = true;
+          set_theme(e.value);
         }
       })
     }

@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Updated theme switcher to include an "Automatic (OS preference)" option that follows the user's OS theme setting. Selecting this option removes the stored theme preference from localStorage. (#2085), (#1745)
+
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). (#1989), (#1271)
 
 * Documenter is now more careful not to accidentally leak SSH keys (in e.g. error messages) by removing `DOCUMENTER_KEY` from the environment when it is not needed. (#1958), (#1962)
