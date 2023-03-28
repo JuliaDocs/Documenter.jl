@@ -169,3 +169,12 @@ jobs:
         run: julia --color=yes --project=docs/ docs/instantiate.jl
       - name: Build and check documentation
         run: julia --color=yes --project=docs/ docs/make.jl linkcheck
+
+  spellcheck:
+    name: "Spellcheck"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run typos for spell checking
+        uses: crate-ci/typos@v1.14.3
+
