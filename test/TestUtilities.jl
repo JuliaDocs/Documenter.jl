@@ -16,7 +16,7 @@ end
 function quietly_next_log()
     quietly_logs_enabled() || return nothing, nothing
     isdir(QUIETLY_LOG_DIR) || mkdir(QUIETLY_LOG_DIR)
-    # Find the next availble log file
+    # Find the next available log file
     logid, logfile = quietly_logfile(QUIETLY_LOG_COUNTER[])
     while isfile(logfile)
         QUIETLY_LOG_COUNTER[] += 1
