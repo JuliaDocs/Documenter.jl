@@ -37,7 +37,7 @@ in the tex document. Finally, a version number can be specified with the `versio
 
 **`platform`** sets the platform where the tex-file is compiled, either `"native"` (default),
 `"tectonic"`, `"docker"`, or "none" which doesn't compile the tex. The option `tectonic`
-requires a `tectonic` executable to be available in `PATH` or to be pased as the `tectonic`
+requires a `tectonic` executable to be available in `PATH` or to be passed as the `tectonic`
 keyword.
 
 **`version`** specifies the version number that gets printed on the title page of the manual.

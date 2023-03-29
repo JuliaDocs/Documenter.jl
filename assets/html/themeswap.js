@@ -1,6 +1,6 @@
 // Small function to quickly swap out themes. Gets put into the <head> tag..
 function set_theme_from_local_storage() {
-  // Intialize the theme to null, which means default
+  // Initialize the theme to null, which means default
   var theme = null;
   // If the browser supports the localstorage and is not disabled then try to get the
   // documenter theme

@@ -158,6 +158,7 @@ mathengine = Documenter.MathJax(Dict(:TeX => Dict(
 )))
 ```
 Or with MathJax v3, the [physics package](http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf) can be loaded:
+
 ```julia
 mathengine = MathJax3(Dict(
     :loader => Dict("load" => ["[tex]/physics"]),
@@ -166,6 +167,7 @@ mathengine = MathJax3(Dict(
         "tags" => "ams",
         "packages" => ["base", "ams", "autoload", "physics"],
     ),
-)),
+))
 ```
+
 [`MathJax2`](@ref), [`MathJax3`](@ref) and [`KaTeX`](@ref) are available types for `mathengine`.

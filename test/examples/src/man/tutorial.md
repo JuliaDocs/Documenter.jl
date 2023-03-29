@@ -280,7 +280,7 @@ _Note: we can't define the `show` method in the `@example` block due to the worl
 counter in Julia 0.6 (Documenter's `makedocs` is not aware of any of the new method
 definitions happening in `eval`s)._
 
-We can also show SVG images with interactivity via the `text/html` MIME to display output that combines HTML, JS and CSS. Assume the following type and method live in the `InlineHTML` modeul
+We can also show SVG images with interactivity via the `text/html` MIME to display output that combines HTML, JS and CSS. Assume the following type and method live in the `InlineHTML` module
 
 ```julia
 struct HTML
@@ -402,7 +402,7 @@ end
 
 ![Julia circles](julia.svg)
 
-Dowload [`data.csv`](data.csv).
+Download [`data.csv`](data.csv).
 
 
 ## [Links](../index.md) in headers

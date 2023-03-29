@@ -203,7 +203,7 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         end
     end
 
-    # Tests for doctest = :only. The outout should reflect that the docs themselves do not
+    # Tests for doctest = :only. The output should reflect that the docs themselves do not
     # get built.
     run_makedocs(["working.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
         @test success

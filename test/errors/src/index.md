@@ -8,15 +8,15 @@ parse error
 ```
 
 ```@meta
-CurrentModule = NonExistantModule
+CurrentModule = NonExistentModule
 ```
 
 ```@autodocs
-Modules = [NonExistantModule]
+Modules = [NonExistentModule]
 ```
 
 ```@eval
-NonExistantModule
+NonExistentModule
 ```
 
 ```@docs

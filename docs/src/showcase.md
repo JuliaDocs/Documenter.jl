@@ -393,7 +393,7 @@ println("Hello World")
 ### Color output
 
 Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output,
-tranforming ANSI color codes to HTML.
+transforming ANSI color codes to HTML.
 
 !!! compat "Julia 1.6"
     Color output requires Julia 1.6 or higher.
