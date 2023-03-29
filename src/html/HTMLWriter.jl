@@ -61,7 +61,7 @@ import ANSIColoredPrinters
 
 export HTML
 
-"Data attribute for the script inserting a wraning for outdated docs."
+"Data attribute for the script inserting a warning for outdated docs."
 const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
 "List of Documenter native themes."
@@ -1162,6 +1162,13 @@ end
 
 function render_navbar(ctx, navnode, edit_page_link::Bool)
     @tags div header nav ul li a span
+    
+    navbar_left = div[".docs-left"]
+    # Hamburger on mobile
+    push!(navbar_left.nodes, a[
+        "#documenter-sidebar-button.docs-sidebar-button.docs-navbar-link.fa-solid.fa-bars.is-hidden-desktop",
+        :href => "#",
+    ])
 
     # The breadcrumb (navigation links on top)
     navpath = Documenter.navpath(navnode)
@@ -1224,14 +1231,8 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         :href => "#", :title => "Settings",
     ])
 
-    # Hamburger on mobile
-    push!(navbar_right.nodes, a[
-        "#documenter-sidebar-button.docs-sidebar-button.docs-navbar-link.fa-solid.fa-bars.is-hidden-desktop",
-        :href => "#",
-    ])
-
     # Construct the main <header> node that should be the first element in div.docs-main
-    header[".docs-navbar"](breadcrumb, navbar_right)
+    header[".docs-navbar"](navbar_left, breadcrumb, navbar_right)
 end
 
 """

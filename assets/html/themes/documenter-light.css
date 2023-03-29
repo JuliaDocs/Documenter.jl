@@ -8201,19 +8201,24 @@ li.no-marker {
   margin-bottom: 1rem;
   display: flex; }
   #documenter .docs-main header.docs-navbar .breadcrumb {
-    flex-grow: 1; }
+    flex-grow: 1;
+    padding-left: 0.5rem; }
+  #documenter .docs-main header.docs-navbar .docs-left {
+    padding-top: 2px;
+    padding-right: 0.5rem; }
+    #documenter .docs-main header.docs-navbar .docs-left .docs-sidebar-button {
+      display: inline-block;
+      font-size: 1.5rem; }
   #documenter .docs-main header.docs-navbar .docs-right {
     display: flex;
     white-space: nowrap;
     gap: 1rem;
     align-items: center; }
-    #documenter .docs-main header.docs-navbar .docs-right .docs-icon, #documenter .docs-main header.docs-navbar .docs-right .docs-label, #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
+    #documenter .docs-main header.docs-navbar .docs-right .docs-icon, #documenter .docs-main header.docs-navbar .docs-right .docs-label {
       display: inline-block; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-label {
       padding: 0;
       margin-left: 0.3em; }
-    #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
-      font-size: 1.5rem; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-navbar-link {
       margin: auto 0.5rem auto 0.5rem; }
     @media screen and (max-width: 1055px) {

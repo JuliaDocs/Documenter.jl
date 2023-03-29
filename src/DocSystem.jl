@@ -1,5 +1,5 @@
 """
-Provides a consistent interface to retreiving `DocStr` objects from the Julia
+Provides a consistent interface to retrieving `DocStr` objects from the Julia
 docsystem in both `0.4` and `0.5`.
 """
 module DocSystem
@@ -204,7 +204,7 @@ $(SIGNATURES)
 
 Find all `DocStr` objects that somehow match the provided arguments.
 That is, if [`getspecificdocs`](@ref) fails, get docs for aliases of
-`binding` (unless `aliases` is set to `false). For `compare` being `==` also
+`binding` (unless `aliases` is set to `false`). For `compare` being `==` also
 try getting docs for `<:`.
 """
 function getdocs(

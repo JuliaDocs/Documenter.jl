@@ -19,7 +19,7 @@ function fix_release_line(
     repo::String = "JuliaDocs/Documenter.jl",
 )
     # Rule: ((abc#XXXX) -> ([abc#XXXX](https://github.com/abc/issue/XXXX))
-    # Description: Replace issue/PR nnumbers with a link to the default repo
+    # Description: Replace issue/PR numbers with a link to the default repo
     # Example: (JuliaLang/julia#123) -> ([JuliaLang/julia#123](https://github.com/JuliaLang/julia/issues/123))
     # There is no need to distinguish between PRs and Issues because GitHub
     # redirects.
@@ -28,7 +28,7 @@ function fix_release_line(
         line = replace(line, m.match => "([$new_repo#$id](https://github.com/$new_repo/issues/$id))")
     end
     # Rule: (#XXXX) -> ([#XXXX](https://github.com/url/issue/XXXX))
-    # Description: Replace issue/PR nnumbers with a link to the default repo
+    # Description: Replace issue/PR numbers with a link to the default repo
     # Example: (#123) -> ([#123](https://github.com/JuliaDocs/Documenter.jl/issues/123))
     # There is no need to distinguish between PRs and Issues because GitHub
     # redirects.
