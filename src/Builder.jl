@@ -7,6 +7,8 @@ doctests, etc.
 """
 module Builder
 
+# availble
+
 import ..Documenter:
     Anchors,
     DocTests,
