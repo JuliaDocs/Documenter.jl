@@ -1,13 +1,11 @@
 """
 Defines the `Documenter.jl` build "pipeline" named [`DocumentPipeline`](@ref).
 
-Each stge of the pipeline performs an action on a [`Documenter.Document`](@ref) object.
+Each stage of the pipeline performs an action on a [`Documenter.Document`](@ref) object.
 These actions may involve creating directory structures, expanding templates, running
 doctests, etc.
 """
 module Builder
-
-# availble
 
 import ..Documenter:
     Anchors,
