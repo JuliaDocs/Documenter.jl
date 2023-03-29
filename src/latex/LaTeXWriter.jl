@@ -171,6 +171,7 @@ function latex_fileprefix(doc::Documenter.Document, settings::LaTeX)
 end
 
 const DOCKER_IMAGE_TAG = "0.1"
+# TODO: const DOCKER_IMAGE_TAG = "1.0"
 
 function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::String)
     if settings.platform == "native"
