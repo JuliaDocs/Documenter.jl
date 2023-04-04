@@ -607,6 +607,17 @@ function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
             nothing
         elseif isa(result, Markdown.MD)
             convert(Node, result)
+        elseif isa(result, MarkdownAST.AbstractBlock)
+            MarkdownAST.@ast MarkdownAST.Document() do
+                result
+            end
+        elseif isa(result, MarkdownAST.AbstractInline)
+            @warn "Inline node!"
+            MarkdownAST.@ast MarkdownAST.Document() do
+                MarkdownAST.Paragraph() do
+                    result
+                end
+            end
         else
             # TODO: we could handle the cases where the user provides some of the Markdown library
             # objects, like Paragraph.
