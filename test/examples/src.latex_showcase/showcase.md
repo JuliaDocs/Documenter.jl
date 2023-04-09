@@ -394,7 +394,7 @@ x + 1
 ### Color output
 
 Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output,
-tranforming ANSI color codes to HTML.
+transforming ANSI color codes to HTML.
 
 #### Colored `@repl` block output
 

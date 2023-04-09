@@ -723,7 +723,7 @@ using the `@raw` block.
 
 ````markdown
 ```@raw html
-<svg style="display: block; margin: 0 auto;" width="5em" heigth="5em">
+<svg style="display: block; margin: 0 auto;" width="5em" height="5em">
 	<circle cx="2.5em" cy="2.5em" r="2em" stroke="black" stroke-width=".1em" fill="red" />
 </svg>
 ```
@@ -732,7 +732,7 @@ using the `@raw` block.
 It will show up as follows, with code having been copied over verbatim to the HTML file.
 
 ```@raw html
-<svg style="display: block; margin: 0 auto;" width="5em" heigth="5em">
+<svg style="display: block; margin: 0 auto;" width="5em" height="5em">
 	<circle cx="2.5em" cy="2.5em" r="2em" stroke="black" stroke-width=".1em" fill="red" />
     (SVG)
 </svg>

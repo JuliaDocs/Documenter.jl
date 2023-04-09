@@ -17,7 +17,7 @@ import AbstractTrees, MarkdownAST
 """
 $(SIGNATURES)
 
-Traverses a [`Documenter.Document`](@ref) and replaces links containg `@ref` URLs with
+Traverses a [`Documenter.Document`](@ref) and replaces links containing `@ref` URLs with
 their real URLs.
 """
 function crossref(doc::Documenter.Document)
@@ -69,7 +69,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
         basicxref(node, meta, page, doc)
         return false
     end
-    # If `slug` is a string referncing a known header, we'll go for that
+    # If `slug` is a string referencing a known header, we'll go for that
     if Anchors.exists(doc.internal.headers, slug)
         namedxref(node, slug, meta, page, doc)
         return false
