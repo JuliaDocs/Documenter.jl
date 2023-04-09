@@ -8109,6 +8109,7 @@ html.theme--documenter-dark {
     box-shadow: none;
     max-width: 100%; }
     html.theme--documenter-dark .docstring > header {
+      cursor: pointer;
       display: flex;
       flex-grow: 1;
       align-items: stretch;

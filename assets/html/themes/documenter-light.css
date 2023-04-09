@@ -8052,6 +8052,7 @@ pre {
   box-shadow: 2px 2px 3px rgba(10, 10, 10, 0.1);
   max-width: 100%; }
   .docstring > header {
+    cursor: pointer;
     display: flex;
     flex-grow: 1;
     align-items: stretch;

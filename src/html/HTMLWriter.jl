@@ -1219,16 +1219,16 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
         )
     end
 
-    # Collapse/Expand All articles toggle
-    push!(navbar_right.nodes, a[
-        "#documenter-article-toggle-button.docs-article-toggle-button.fa-solid.fa-chevron-up",
-        :href=>"javascript:;", :title=>"Collapse all Articles",
-    ])
-
     # Settings cog
     push!(navbar_right.nodes, a[
         "#documenter-settings-button.docs-settings-button.docs-navbar-link.fa-solid.fa-gear",
         :href => "#", :title => "Settings",
+    ])
+
+    # Collapse/Expand All articles toggle
+    push!(navbar_right.nodes, a[
+        "#documenter-article-toggle-button.docs-article-toggle-button.fa-solid.fa-chevron-up",
+        :href=>"javascript:;", :title=>"Collapse all Articles",
     ])
 
     # Construct the main <header> node that should be the first element in div.docs-main
@@ -1629,7 +1629,7 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
 
     article[".docstring"](
         header(
-            a[".docstring-article-toggle-button.fa-solid.fa-chevron-up", :href=>"javascript:;", :title=>"Collapse article"],
+            a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href=>"javascript:;", :title=>"Collapse article"],
             a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
             " — ", # &mdash;
             span[".docstring-category"]("$(Documenter.doccat(node.object))")
