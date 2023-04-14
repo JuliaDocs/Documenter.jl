@@ -39,8 +39,8 @@ const NO_KEY_ENV = Dict(
 
 # Names of possible internal errors
 const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
-                     :eval_block, :example_block, :footnote, :linkcheck, :meta_block,
-                     :missing_docs, :parse_error, :setup_block]
+    :eval_block, :example_block, :footnote, :linkcheck, :meta_block,
+    :missing_docs, :parse_error, :setup_block]
 
 """
     abstract type Plugin end
@@ -77,6 +77,7 @@ include("DocChecks.jl")
 include("writers.jl")
 include("html/HTMLWriter.jl")
 include("latex/LaTeXWriter.jl")
+include("typst/TypstWriter.jl")
 
 # This is to keep DocumenterTools working:
 module Writers
@@ -86,6 +87,7 @@ end
 import .HTMLWriter: HTML, asset
 import .HTMLWriter.RD: KaTeX, MathJax, MathJax2, MathJax3
 import .LaTeXWriter: LaTeX
+import .TypstWriter: Typst
 
 # User Interface.
 # ---------------

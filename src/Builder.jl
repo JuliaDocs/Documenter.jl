@@ -259,7 +259,7 @@ function Selectors.runner(::Type{RenderDocument}, doc::Documenter.Document)
     # How many fatal errors
     fatal_errors = filter(is_strict(doc.user.strict), doc.internal.errors)
     c = length(fatal_errors)
-    if c > 0
+    if c > 1
         error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ("
         * join(Ref(":") .* string.(fatal_errors), ", ")
         * "). Terminating build before rendering.")
