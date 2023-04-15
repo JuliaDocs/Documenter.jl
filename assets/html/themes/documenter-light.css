@@ -8064,6 +8064,7 @@ pre {
     .docstring > header code {
       background-color: transparent; }
     .docstring > header .docstring-article-toggle-button {
+      min-width: 1.1rem;
       padding: 0.2rem 0.2rem 0.2rem 0; }
     .docstring > header .docstring-binding {
       margin-right: 0.3em; }

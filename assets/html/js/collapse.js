@@ -4,7 +4,7 @@
 var isExpanded = true;
 
 $(document).on("click", ".docstring header", function () {
-  let articleToggleTitle = "Expand article";
+  let articleToggleTitle = "Expand docstring";
 
   if ($(this).siblings("section").is(":visible")) {
     $(this)
@@ -17,7 +17,7 @@ $(document).on("click", ".docstring header", function () {
       .removeClass("fa-chevron-right")
       .addClass("fa-chevron-down");
 
-    articleToggleTitle = "Collapse article";
+    articleToggleTitle = "Collapse docstring";
   }
 
   $(this).find(".docstring-article-toggle-button").prop("title", articleToggleTitle);
@@ -25,8 +25,8 @@ $(document).on("click", ".docstring header", function () {
 });
 
 $(document).on("click", ".docs-article-toggle-button", function () {
-  let articleToggleTitle = "Expand article";
-  let navArticleToggleTitle = "Expand all Articles";
+  let articleToggleTitle = "Expand docstring";
+  let navArticleToggleTitle = "Expand all docstrings";
 
   if (isExpanded) {
     $(this).removeClass("fa-chevron-up").addClass("fa-chevron-down");
@@ -44,8 +44,8 @@ $(document).on("click", ".docs-article-toggle-button", function () {
       .addClass("fa-chevron-down");
 
     isExpanded = true;
-    articleToggleTitle = "Collapse article";
-    navArticleToggleTitle = "Collapse all Articles";
+    articleToggleTitle = "Collapse docstring";
+    navArticleToggleTitle = "Collapse all docstrings";
 
     $(".docstring section").slideDown();
   }
