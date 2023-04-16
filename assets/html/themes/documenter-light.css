@@ -8052,6 +8052,7 @@ pre {
   box-shadow: 2px 2px 3px rgba(10, 10, 10, 0.1);
   max-width: 100%; }
   .docstring > header {
+    cursor: pointer;
     display: flex;
     flex-grow: 1;
     align-items: stretch;
@@ -8062,6 +8063,9 @@ pre {
     border-bottom: 1px solid #dbdbdb; }
     .docstring > header code {
       background-color: transparent; }
+    .docstring > header .docstring-article-toggle-button {
+      min-width: 1.1rem;
+      padding: 0.2rem 0.2rem 0.2rem 0; }
     .docstring > header .docstring-binding {
       margin-right: 0.3em; }
     .docstring > header .docstring-category {
@@ -8209,7 +8213,9 @@ li.no-marker {
       font-size: 1.5rem; }
   #documenter .docs-main header.docs-navbar .docs-right {
     display: flex;
-    white-space: nowrap; }
+    white-space: nowrap;
+    gap: 1rem;
+    align-items: center; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-icon, #documenter .docs-main header.docs-navbar .docs-right .docs-label {
       display: inline-block; }
     #documenter .docs-main header.docs-navbar .docs-right .docs-label {
