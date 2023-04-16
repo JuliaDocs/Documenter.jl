@@ -77,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312, #2076)
 
-* Added the ability to expand/collapse individual as well as all docstrings. (#1393)
+* Added the ability to expand/collapse individual as well as all docstrings. (#1393, #2078)
 
 ### Fixed
 
