@@ -16,5 +16,15 @@ jobs:
     steps:
       - uses: JuliaRegistries/TagBot@v1
         with:
+          changelog: |
+            {% if custom %}
+            {{ custom }}
+            {% endif %}
+
+            The changes are documented in the [`CHANGELOG.md`](https://github.com/JuliaDocs/Documenter.jl/blob/{{ version }}/CHANGELOG.md) file.
+
+            {% if previous_release %}
+            [Diff since {{ previous_release }}]({{ compare_url }})
+            {% endif %}
           token: ${{ secrets.GITHUB_TOKEN }}
           ssh: ${{ secrets.DOCUMENTER_KEY }}
