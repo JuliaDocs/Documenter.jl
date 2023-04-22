@@ -761,3 +761,36 @@ It will show up as follows, with code having been copied over verbatim to the HT
     (SVG)
 </svg>
 ```
+
+## `@diagram <format>` block
+
+Uses the [Kroki.jl](https://github.com/bauglir/Kroki.jl/) binding for [kroki](https://kroki.io)
+to generate diagrams in multiple formats.
+
+````markdown
+```@diagram ditaa
++----------------+    +---------------+  +------+
+| @diagram block |--->| Documenter.jl |->| .svg |
++----------------+    +---------------+  +------+
+                       |        ^
+                       v        |
+                      +----------+   +----------+
+                      | Kroki.jl |<->| kroki.io |
+                      +----------+   +----------+
+
+```
+````
+
+It will render and inline the resulting image:
+
+```@diagram ditaa
++----------------+    +---------------+  +------+
+| @diagram block |--->| Documenter.jl |->| .svg |
++----------------+    +---------------+  +------+
+                       |        ^
+                       v        |
+                      +----------+   +----------+
+                      | Kroki.jl |<->| kroki.io |
+                      +----------+   +----------+
+
+```

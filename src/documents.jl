@@ -165,6 +165,11 @@ struct RawNode <: AbstractDocumenterBlock
     text::String
 end
 
+struct DiagramNode <: AbstractDocumenterBlock
+    format::Symbol
+    code::String
+end
+
 # MultiOutput contains child nodes in .content that are either code blocks or
 # dictionaries corresponding to the outputs rendered with various MIME types.
 # In the MarkdownAST representation, the dictionaries get converted into
@@ -597,6 +602,7 @@ Base.show(io::IO, node::AbstractDocumenterBlock) = print(io, typeof(node), "([..
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::AnchoredHeader) = MDFlatten.mdflatten(io, node.children)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::SetupNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock(e.name, e.code))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::RawNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@raw $(e.name)", e.text))
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::DiagramNode) = MDFlatten.mdflatten(io, node, MarkdownAST.CodeBlock("@diagram $(e.format)", e.code))
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, e::AbstractDocumenterBlock) = MDFlatten.mdflatten(io, node, e.codeblock)
 function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
     # this special case separates top level blocks with newlines

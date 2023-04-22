@@ -11,6 +11,7 @@ DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+Kroki = "b3565e16-c1f2-4fe9-b4ab-221c88942068"
 LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -18,6 +19,7 @@ MarkdownAST = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 SnoopPrecompile = "66db9d55-30c0-4569-8b51-7e840670fc0c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
@@ -28,6 +30,7 @@ IOCapture = "0.2"
 JSON = "0.19, 0.20, 0.21"
 MarkdownAST = "0.1.1"
 SnoopPrecompile = "1"
+TranscodingStreams = "=0.9.11"
 julia = "1.6"
 
 [extras]

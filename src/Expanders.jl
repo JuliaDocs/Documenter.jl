@@ -103,6 +103,7 @@ The default node expander "pipeline", which consists of the following expanders:
 - [`ExampleBlocks`](@ref)
 - [`SetupBlocks`](@ref)
 - [`REPLBlocks`](@ref)
+- [`DiagramBlocks`](@ref)
 
 """
 abstract type ExpanderPipeline <: Selectors.AbstractSelector end
@@ -236,6 +237,11 @@ Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the fin
 """
 abstract type SetupBlocks <: NestedExpanderPipeline end
 
+"""
+Similar to the `RawBlocks` expander, but generates diagrams instead.
+"""
+abstract type DiagramBlocks <: NestedExpanderPipeline end
+
 Selectors.order(::Type{TrackHeaders})   = 1.0
 Selectors.order(::Type{MetaBlocks})     = 2.0
 Selectors.order(::Type{DocsBlocks})     = 3.0
@@ -247,6 +253,7 @@ Selectors.order(::Type{ExampleBlocks})  = 8.0
 Selectors.order(::Type{REPLBlocks})     = 9.0
 Selectors.order(::Type{SetupBlocks})    = 10.0
 Selectors.order(::Type{RawBlocks})      = 11.0
+Selectors.order(::Type{DiagramBlocks})  = 12.0
 
 Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node.element, MarkdownAST.Heading)
 Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
@@ -259,6 +266,7 @@ Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@ex
 Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
 Selectors.matcher(::Type{SetupBlocks},    node, page, doc) = iscode(node, r"^@setup")
 Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@raw")
+Selectors.matcher(::Type{DiagramBlocks},  node, page, doc) = iscode(node, r"^@diagram")
 
 # Default Expander.
 
@@ -893,6 +901,19 @@ function Selectors.runner(::Type{RawBlocks}, node, page, doc)
     m === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
     node.element = Documenter.RawNode(Symbol(m[1]), x.code)
 end
+
+# @diagram
+# --------
+
+function Selectors.runner(::Type{DiagramBlocks}, node, page, doc)
+    @assert node.element isa MarkdownAST.CodeBlock
+    x = node.element
+
+    m = match(r"@diagram[ ](.+)$", x.info)
+    m === nothing && error("invalid '@diagram <format>' syntax: $(x.info)")
+    node.element = Documenter.DiagramNode(Symbol(m[1]), x.code)
+end
+
 
 # Documenter.
 # ----------

@@ -664,6 +664,12 @@ function latex(io::Context, node::Node, raw::Documenter.RawNode)
     raw.name === :latex ? _println(io, "\n", raw.text, "\n") : nothing
 end
 
+function latex(io::Context, ::Node, diag::Documenter.DiagramNode)
+    # TODO: Not sure about this.
+    # IDEA: write figure as png/pdf and _println \includegraphics since svg (default) is not very LaTeX-friendly
+    nothing
+end
+
 # Inline Elements.
 
 function latex(io::Context, node::Node, e::MarkdownAST.Text)

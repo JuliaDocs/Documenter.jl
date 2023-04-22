@@ -44,6 +44,7 @@ using Dates: Dates, @dateformat_str, now
 import Markdown
 using MarkdownAST: MarkdownAST, Node
 import JSON
+import Kroki
 
 import ...Documenter:
     Anchors,
@@ -1669,6 +1670,12 @@ domify(::DCtx, ::Node, ::Documenter.SetupNode) = DOM.Node[]
 
 function domify(::DCtx, ::Node, raw::Documenter.RawNode)
     raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
+end
+
+function domify(::DCtx, ::Node, diag::Documenter.DiagramNode)
+    diagram_svg = Kroki.render(Kroki.Diagram(diag.format, diag.code), "svg")
+
+    Tag(Symbol("#RAW#"))(String(diagram_svg))
 end
 
 
