@@ -11,11 +11,15 @@ $(document).ready(function() {
 
   var version_selector = $("#documenter .docs-version-selector");
   var version_selector_select = $("#documenter .docs-version-selector select");
+  var language_selector_select = $("#documenter .docs-language-selector select");
 
-  version_selector_select.change(function(x) {
-    target_href = version_selector_select.children("option:selected").get(0).value;
-    window.location.href = target_href;
-  });
+  let changeCallback = (x) => {
+    let target_ver = version_selector_select.children("option:selected").get(0).value;
+    let target_lan = language_selector_select.children("option:selected").get(0).value;
+    window.location.href = target_lan=="en" ? target_ver : target_ver + "-" + target_lan;
+  }
+  version_selector_select.change(changeCallback);
+  language_selector_select.change(changeCallback);
 
   // add the current version to the selector based on siteinfo.js, but only if the selector is empty
   if (typeof DOCUMENTER_CURRENT_VERSION !== 'undefined' && $('#version-selector > option').length == 0) {

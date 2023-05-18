@@ -8359,6 +8359,9 @@ html.theme--documenter-dark {
       border-top: 1px solid #5e6d6f;
       display: none;
       padding: 0.5rem; }
+      html.theme--documenter-dark #documenter .docs-sidebar .docs-language-selector {
+        border-top: 1px solid #5e6d6f;
+        padding: 0.5rem; }
       html.theme--documenter-dark #documenter .docs-sidebar .docs-version-selector.visible {
         display: flex; }
     html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu {

@@ -1083,6 +1083,21 @@ function render_sidebar(ctx, navnode)
         vs_select = div[".docs-selector.control.is-expanded"](vs_select)
         push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
     end
+    # Language selector
+    let
+        vs_class = ".docs-language-selector.field.has-addons"
+        vs_label = span[".docs-label.button.is-static.is-size-7"]("Language")
+        vs_label = div[".control"](vs_label)
+        vs_select = select["#documenter-language-selector"]
+        if !isempty(ctx.doc.user.version)
+            vs_class = "$(vs_class).visible"
+            opt = option[:value => "#", :selected => "selected", ](ctx.doc.user.version)
+            vs_select = vs_select(opt)
+        end
+        vs_select = div[".select.is-fullwidth.is-size-7"](vs_select)
+        vs_select = div[".docs-selector.control.is-expanded"](vs_select)
+        push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
+    end
     navmenu
 end
 

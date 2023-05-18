@@ -8328,6 +8328,9 @@ li.no-marker {
     border-top: 1px solid #dbdbdb;
     display: none;
     padding: 0.5rem; }
+    #documenter .docs-sidebar .docs-language-selector {
+      border-top: 1px solid #dbdbdb;
+      padding: 0.5rem; }
     #documenter .docs-sidebar .docs-version-selector.visible {
       display: flex; }
   #documenter .docs-sidebar ul.docs-menu {
