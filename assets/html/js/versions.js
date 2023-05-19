@@ -54,17 +54,15 @@ $(document).ready(function() {
   }
 
   // add to other dropdown
-  console.log("here")
-  console.log(language_selector_select)
-  var option = $("<option value='en'>en</option>");
-  language_selector_select.append(option);
+  let languages = ["en", "br", "es"]
+  for (let language of languages) {
+    let isCurrent = language == DOCUMENTER_CURRENT_LANGUAGE
+    let str = "<option value='" + language + "'" + (isCurrent ? "selected='selected'" : "") + ">"+language+"</option>"
+    console.log(str)
+    let option = $(str) ;
+    language_selector_select.append(option);
+  }
 
-  option = $("<option value='br'>br</option>");
-  language_selector_select.append(option);
-
-  option = $("<option value='es'>es</option>");
-
-  language_selector_select.append(option);
   // only show the version selector if the selector has been populated
   if (version_selector_select.children("option").length > 0) {
     version_selector.toggleClass("visible");
