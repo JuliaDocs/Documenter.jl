@@ -87,23 +87,24 @@ makedocs(
 and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
 
-**`repo`** specifies the browsable remote repository (e.g. on github.com). This is used for
-generating various remote links, such as the "source" links on docstrings. It can either
-be passed an object that implements the [`Remotes.Remote`](@ref) interface (e.g.
-[`Remotes.GitHub`](@ref)) or a template string. If a string is passed, it is interpreted
-according to the rules described in [`Remotes.URL`](@ref).
+**`repo`** specifies the remote hosted Git repository (e.g. on `github.com`) related to the
+documentation build. It should be passed an object that subtypes and implements the
+[`Remotes.Remote`](@ref) interface (e.g. [`Remotes.GitHub`](@ref)). A template string can
+also be passed (interpreted according to the rules described in [`Remotes.URL`](@ref)), but
+the use of the template strings is discouraged, in favor of concrete
+[`Remotes.Remote`](@ref) objects.
 
-By default, the repository is assumed to be hosted on GitHub, and the remote URL is
-determined by first checking the URL of the `origin` Git remote, and then falling back to
-checking the `TRAVIS_REPO_SLUG` (for Travis CI) and `GITHUB_REPOSITORY` (for GitHub Actions)
-environment variables. If this automatic procedure fails, a warning is printed.
+**`remotes`** can be used to declare a list additional
+`path::AbstactString => remote::Remote` pairs that are used to determine the remotes
+repository URLs for local filesystem files, such as the edit links for manual Markdown
+pages, or docstring source links. `path` should be an absolute local filesystem path to a
+directory, and will be interpreted as the root of the remote repository specified with
+`remote`.
 
-**`remotes`** can be used to declare a list additional `(path, remote::Remote)` pairs
-that are used to generate
-
-Documenter
-
-This is useful when the documentation
+If `repo` is not passed, `makedocs` will try to determine it automatically, either by
+inspecting the locally checked out Git repository, or via the `remotes` keyword. See the
+manual section on [Remote repository links](@ref) for more information on how the remote
+repository links are handled.
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
