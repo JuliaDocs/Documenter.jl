@@ -95,7 +95,7 @@ the use of the template strings is discouraged, in favor of concrete
 [`Remotes.Remote`](@ref) objects.
 
 **`remotes`** can be used to declare a list additional
-`path::AbstactString => remote::Remote` pairs that are used to determine the remotes
+`path::AbstractString => remote::Remote` pairs that are used to determine the remotes
 repository URLs for local filesystem files, such as the edit links for manual Markdown
 pages, or docstring source links. `path` should be an absolute local filesystem path to a
 directory, and will be interpreted as the root of the remote repository specified with
