@@ -8109,6 +8109,7 @@ html.theme--documenter-dark {
     box-shadow: none;
     max-width: 100%; }
     html.theme--documenter-dark .docstring > header {
+      cursor: pointer;
       display: flex;
       flex-grow: 1;
       align-items: stretch;
@@ -8119,6 +8120,9 @@ html.theme--documenter-dark {
       border-bottom: 1px solid #5e6d6f; }
       html.theme--documenter-dark .docstring > header code {
         background-color: transparent; }
+      html.theme--documenter-dark .docstring > header .docstring-article-toggle-button {
+        min-width: 1.1rem;
+        padding: 0.2rem 0.2rem 0.2rem 0; }
       html.theme--documenter-dark .docstring > header .docstring-binding {
         margin-right: 0.3em; }
       html.theme--documenter-dark .docstring > header .docstring-category {
@@ -8232,17 +8236,24 @@ html.theme--documenter-dark {
     margin-bottom: 1rem;
     display: flex; }
     html.theme--documenter-dark #documenter .docs-main header.docs-navbar .breadcrumb {
-      flex-grow: 1; }
+      flex-grow: 1;
+      padding-left: 0.5rem; }
+    html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-left {
+      padding-top: 2px;
+      padding-right: 0.5rem; }
+      html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-left .docs-sidebar-button {
+        display: inline-block;
+        font-size: 1.5rem; }
     html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right {
       display: flex;
-      white-space: nowrap; }
-      html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-icon, html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-label, html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
+      white-space: nowrap;
+      gap: 1rem;
+      align-items: center; }
+      html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-icon, html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-label {
         display: inline-block; }
       html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-label {
         padding: 0;
         margin-left: 0.3em; }
-      html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-sidebar-button {
-        font-size: 1.5rem; }
       html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-right .docs-navbar-link {
         margin: auto 0.5rem auto 0.5rem; }
       @media screen and (max-width: 1055px) {
