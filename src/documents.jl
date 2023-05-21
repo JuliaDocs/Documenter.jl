@@ -304,7 +304,7 @@ function Document(plugins = nothing;
         pages    :: Vector           = Any[],
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
-        repo     :: Union{Remotes.Remote, AbstractString} = "", # deprecated?
+        repo     :: Union{Remotes.Remote, AbstractString} = "",
         remotes  :: Vector{<:Pair} = Pair[],
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
@@ -325,30 +325,30 @@ function Document(plugins = nothing;
         version = "git:$(get_commit_short(root))"
     end
 
-    remote = if isa(repo, AbstractString) && isempty(repo)
+    # We'll normalize repo to be a `Remotes.Remote` object
+    repo_normalized::Union{Remotes.Remote, Nothing} = if isa(repo, AbstractString) && isempty(repo)
         # If the user does not provide the `repo` argument, we'll try to automatically
-        # detect the remote repository by looking at the Git repository remote. This only
-        # works if the repository is hosted on GitHub. If that fails, it falls back to
-        # TRAVIS_REPO_SLUG and then GITHUB_REPOSITORY.
-        get_remote_ci_fallbacks(root)
+        # detect the remote repository later. But for not, we'll set it to `nothing`.
+        nothing
     elseif repo isa AbstractString
         # Use the old template string parsing logic if a string was passed.
         Remotes.URL(repo)
     else
-        # Otherwise it should be some Remote object
+        # Otherwise it should be some Remote object, so we'll just use that.
         repo
     end
 
-    # Populate the list of
+    # For `remotes`, we'll first validate that the array provided by the user contains
+    # valid path-remote pairs.
     remotes_checked = Pair{String,Tuple{Remotes.Remote,String}}[]
-    repo_root = git_repo_root(root)
-    # Support for the old 'repo' argument.
-    if !isnothing(remote) && !isnothing(repo_root)
-        push!(remotes_checked, repo_root => (remote, repo_commit(root)))
-    end
     for (path, remote) in remotes
-        isa(remote[1], Remotes.Remote) || error("Invalid remote in remotes: $(remote)")
-        isdir(path) || error("Invalid local path in remotes: $(path)")
+        isa(remote, Remotes.Remote) || throw(
+            ArgumentError("Invalid remote in remotes: $(remote) (::$(typeof(remote))), must be ::Remotes.Remote")
+        )
+        # The paths should be relative to the directory containing make.jl (or, more generally, to the root
+        # argument of makedocs)
+        path = joinpath(root, path)
+        isdir(path) || error("Invalid local path in remotes (not a directory): $(path)")
         path = realpath(path)
         idx = findfirst(isequal(path), existing_path for (existing_path, _) in remotes_checked)
         if !isnothing(idx)
@@ -356,6 +356,66 @@ function Document(plugins = nothing;
         end
         push!(remotes_checked, path => remote)
     end
+
+    # Now we sort out the interaction between `repo` and `remotes`. Our goal is to make sure that we have a
+    # value in both remotes for the repository root, and also repo is populated. Although it is possible
+    # that automatically determining those will fail.
+    repo_root, idx = let repo_root = git_repo_root(root)
+        if isnothing(repo_root)
+            nothing, nothing
+        else
+            repo_root = realpath(repo_root)
+            idx = findfirst(isequal(repo_root), path for (path, _) in remotes_checked)
+            repo_root, idx
+        end
+    end
+    # If repo_root is not present in remotes, we'll try to determine the (GitHub) remote from the Git origin
+    # and just push that
+    if isnothing(repo_normalized)
+        # If the user did not provide a repo argument, but we do find one in remotes that corresponds
+        # to the repository root, we just use that. If we can't find one in remotes, however, we will
+        # try to automatically determine the remote from the Git origin.
+        if !isnothing(idx)
+            repo_normalized = remotes_checked[idx][2]
+        elseif !isnothing(repo_root)
+            # This only works for GitHub-bases repositories.
+            repo_normalized = getremote(repo_root)
+            if isnothing(repo_normalized)
+                @warn """
+                Unable to automatically determine the remote repository corresponding to the repository root.
+                This is likely because the repository is not hosted on GitHub. Please explicitly set the `repo`
+                argument in `makedocs`.
+                """ repo_root
+            else
+                # Since repo_root was not present in remotes, we'll push the automatically determined
+                # one to remotes_checked
+                push!(remotes_checked, repo_root => repo_normalized)
+            end
+        else
+            @warn """
+            Unable to automatically determine the remote repository. Various automatically generated
+            links will likely be broken. Please explicitly set the `repo` argument in `makedocs`.
+            """ repo_root
+        end
+    elseif !isnothing(repo_normalized) && isnothing(idx)
+        # If the user did provide a repo argument, but we don't find one in remotes that corresponds
+        # to the repository root, we will push the user-provided one to remotes_checked
+        push!(remotes_checked, repo_root => repo_normalized)
+    else
+        # If the two values for the same directory (from repo and remotes) don't match, we will throw an
+        # error. Note: this does require a sane == implementation for the Remotes.Remote objects.
+        if remotes_checked[idx][2] != repo_normalized
+            throw(ArgumentError("""
+            A remote in remotes conflicts with the `repo` argument:
+              repo = $(repo_normalized)
+              remotes = $(remotes_checked[idx][2])
+              path = $(repo_root)
+            """))
+        end
+        # If the two are equal, then we don't really need to do anything since we have the correct and
+        # matching information in both `remotes` and `repo`.
+    end
+
     # At this point we assume that all the paths are absolute and fully resolved, so
     # we can check for subpaths by just doing startswith. This also means that any path
     # that is longer than another will be a subpath (as we assume they are all directories
@@ -380,7 +440,7 @@ function Document(plugins = nothing;
         pages,
         pagesonly,
         expandfirst,
-        remote,
+        repo_normalized,
         remotes_checked,
         sitename,
         authors,
@@ -418,33 +478,6 @@ function Document(plugins = nothing;
         submodules(modules),
     )
     Document(user, internal, plugin_dict, blueprint)
-end
-
-function get_remote_ci_fallbacks(dir::AbstractString)
-    # First, try to determine it from repository's origin.url
-    remote = getremote(dir)
-    isnothing(remote) || return remote
-    # If that fails, fall back to Travis CI variables
-    remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
-    if !isnothing(remote)
-        # It is possible for Remotes.GitHub to throw if there is no /
-        try
-            return Remotes.GitHub(remote)
-        catch
-            @warn "Unable to parse remote: TRAVIS_REPO_SLUG=$(remote)"
-        end
-    end
-    # As a second fallback, check GitHub Actions CI environment variables
-    remote = get(ENV, "GITHUB_REPOSITORY", nothing)
-    if !isnothing(remote)
-        try
-            return Remotes.GitHub(remote)
-        catch e
-            @warn "Unable to parse remote: GITHUB_REPOSITORY=$(remote)"
-        end
-    end
-    @warn "Unable to determine remote Git URL automatically. Source links may be missing."
-    return nothing
 end
 
 """

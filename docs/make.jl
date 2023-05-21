@@ -105,7 +105,7 @@ makedocs(
     end,
     build = ("pdf" in ARGS) ? "build-pdf" : "build",
     debug = ("pdf" in ARGS),
-    clean = false,
+    clean = true,
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     linkcheck = "linkcheck" in ARGS,
