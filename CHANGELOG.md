@@ -1,5 +1,9 @@
 # Documenter.jl changelog
 
+## Version `v0.27.25`
+
+* ![Bugfix][badge-bugfix] Page headings are now correctly escaped in `LaTeXWriter`. ([#2134][github-2134])
+
 ## Version `v0.27.24`
 
 * ![Security][badge-security] `deploydocs` now takes extra care to avoid committing the temporary SSH key file to the Git repo. ([#2018][github-2018])
@@ -1099,6 +1103,7 @@
 [github-1908]: https://github.com/JuliaDocs/Documenter.jl/pull/1908
 [github-1909]: https://github.com/JuliaDocs/Documenter.jl/pull/1909
 [github-2018]: https://github.com/JuliaDocs/Documenter.jl/pull/2018
+[github-2134]: https://github.com/JuliaDocs/Documenter.jl/pull/2134
 <!-- end of issue link definitions -->
 
 [julia-38054]: https://github.com/JuliaLang/julia/issues/38054
