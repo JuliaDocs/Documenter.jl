@@ -600,7 +600,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
                 "unicode.md",
                 hide("hidden.md"),
                 # The title override tests that we escape headings correctly
-                "`example_output`" => "example-output.md",
+                "`@build_constraint`" => "example-output.md",
                 "linenumbers.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
