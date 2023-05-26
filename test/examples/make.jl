@@ -593,13 +593,14 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         sitename = "Documenter LaTeX",
         root  = examples_root,
         build = "builds/latex_texonly",
-        pages = htmlbuild_pages = Any[
+        pages = Any[
             "General" => [
                 "index.md",
                 "latex.md",
                 "unicode.md",
                 hide("hidden.md"),
-                "example-output.md",
+                # The title override tests that we escape headings correctly
+                "`example_output`" => "example-output.md",
                 "linenumbers.md",
             ],
             # SVG images nor code blocks in footnotes are allowed in LaTeX
