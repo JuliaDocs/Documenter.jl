@@ -83,6 +83,7 @@ Context(io, doc) = Context{typeof(io)}(io, false, Dict(), 1, "", doc)
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
+_print(io, args...) = Base.print(io, args...)
 
 # Labels in the TeX file are hashes of plain text labels.
 # To keep the plain text label (for debugging), say _hash(x) = x
