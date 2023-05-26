@@ -118,7 +118,7 @@ function render(doc::Documenter.Document, settings::LaTeX=LaTeX())
                     empty!(context.footnotes)
                     if 1 <= depth <= length(DOCUMENT_STRUCTURE)
                         header_type = DOCUMENT_STRUCTURE[depth]
-                        header_text = "\n\\$(header_type){$(title)}\n"
+                        header_text = "\n\\$(header_type){$(latexesc(title))}\n"
                         if isempty(filename)
                             _println(context, header_text)
                         else
