@@ -8095,6 +8095,16 @@ html.theme--documenter-dark {
       font-weight: 900;
       margin-right: 0.75rem;
       content: "\f06a"; }
+  html.theme--documenter-dark details.admonition.is-details > .admonition-header {
+    list-style: none; }
+    html.theme--documenter-dark details.admonition.is-details > .admonition-header:before {
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      content: "\f055"; }
+  html.theme--documenter-dark details.admonition.is-details[open] > .admonition-header:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f056"; }
   html.theme--documenter-dark .admonition-body {
     color: #fff;
     padding: 0.5rem 0.75rem; }
