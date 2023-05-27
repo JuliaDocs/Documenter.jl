@@ -8037,6 +8037,18 @@ pre {
     margin-right: 0.75rem;
     content: "\f06a"; }
 
+details.admonition.is-details > .admonition-header {
+  list-style: none; }
+  details.admonition.is-details > .admonition-header:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f055"; }
+
+details.admonition.is-details[open] > .admonition-header:before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  content: "\f056"; }
+
 .admonition-body {
   color: #222222;
   padding: 0.5rem 0.75rem; }
