@@ -34,6 +34,11 @@ $admonition-background: (
   'danger': $background, 'compat': $background
 );
 $admonition-header-background: ('default': $grey);
+// These would normally get initialized in _admonition.scss. However, since we are not
+// loading it on the top level, we need to set them here too to avoid deprecation warnings.
+// https://github.com/JuliaDocs/Documenter.jl/issues/1766
+$admonition-header-color: ();
+$admonition-body-color: ();
 
 $body-size: 16px;
 $documenter-sidebar-background: $grey-darker;
