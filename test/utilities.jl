@@ -493,7 +493,8 @@ end
             # Ref: #639
             @test jsescape("\u2028") == "\\u2028"
             @test jsescape("\u2029") == "\\u2029"
-            @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
+            include("utilities.sample.jl")
+            @test jsescape(U2028_STRING) == "policy to\\u2028 delete."
         end
 
         @testset "json_jsescape" begin
