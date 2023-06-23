@@ -87,6 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Invalid local link warnings during HTML rendering now print a bit more context, helping in pinpointing the offending link. (#2100)
 
+* Admonitions with category `details` are now rendered as (collapsed) `<details>` in the HTML backend. The admonition title is used as the `<summary>`. (#2128)
+
 ### Fixed
 
 * Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. (#1808)
@@ -102,6 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. (#1969)
 
 * `deploydocs` now correctly handles version symlinks where the destination directory has been deleted. (#2012)
+
+* Page headings are now correctly escaped in `LaTeXWriter`. (#2134)
 
 ### Other
 

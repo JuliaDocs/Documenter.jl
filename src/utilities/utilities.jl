@@ -396,7 +396,7 @@ Tries to determine the root directory of the repository containing `file`. If th
 not in a repository, the function returns `nothing`.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
-determine if this is a repostory or not. If there is a file called `dbdir`, then it's
+determine if this is a repository or not. If there is a file called `dbdir`, then it's
 contents is checked under the assumption that it is a Git worktree or a submodule.
 """
 function git_repo_root(file; dbdir=".git")

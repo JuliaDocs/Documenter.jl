@@ -92,6 +92,21 @@ $admonition-header-color: () !default;
   }
 }
 
+details.admonition.is-details > .admonition-header {
+    list-style: none;
+    &:before {
+        @include font-awesome;
+        // fa-circle-plus
+        content: "\f055";
+    }
+}
+
+details[open].admonition.is-details > .admonition-header:before {
+    @include font-awesome;
+    // fa-circle-minus
+    content: "\f056";
+}
+
 .admonition-body {
   color: $message-body-color;
   padding: $documenter-admonition-body-padding;
