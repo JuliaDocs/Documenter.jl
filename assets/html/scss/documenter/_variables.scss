@@ -74,6 +74,10 @@ $documenter-sidebar-main-gap: 2rem !default;
 $documenter-main-padding-right: 1rem !default;
 $documenter-main-padding: 1rem !default;
 
+// Variables used in widescreen centered layout
+$documenter-body-width: calc($documenter-sidebar-width + $documenter-sidebar-main-gap + $documenter-max-width + $documenter-main-padding) !default;
+$documenter-empty-sidespace-half: calc((100% - $documenter-body-width)/2) !default;
+
 // We'll override the Bulma $tablet width, which is the point at which the
 // layout switches between the mobile and tablet modes. Note: $tablet needs
 // to be in px, hence the unit conversion.

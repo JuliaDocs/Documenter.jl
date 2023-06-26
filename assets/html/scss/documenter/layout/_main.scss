@@ -21,6 +21,10 @@
       padding-right: $documenter-main-padding-right;
     }
 
+    @include widescreen {
+      margin-left: calc($documenter-sidebar-width + $documenter-sidebar-main-gap + $documenter-empty-sidespace-half);
+    }
+
     @include touch {
       width: 100%;
 

@@ -36,6 +36,12 @@
     top: 0;
   }
 
+  // In widescreen layout, we center the body and sidebar as a left panel of the dashboard.
+  @include widescreen {
+    left: $documenter-empty-sidespace-half;
+    border-left: 1px solid $border;
+  }
+
   // The top bar of the sidebar bar contains:
   // 1. Logo (optional)
   .docs-logo {

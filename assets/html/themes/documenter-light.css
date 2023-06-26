@@ -8207,6 +8207,10 @@ li.no-marker {
       width: 100%;
       margin: 0; } }
 
+@media screen and (min-width: 1216px) {
+  #documenter .docs-main {
+    margin-left: calc(20rem + (100% - 71rem) / 2); } }
+
 #documenter .docs-main header.docs-navbar {
   background-color: white;
   border-bottom: 1px solid #dbdbdb;
@@ -8318,6 +8322,10 @@ li.no-marker {
     #documenter .docs-sidebar {
       left: 0;
       top: 0; } }
+  @media screen and (min-width: 1216px) {
+    #documenter .docs-sidebar {
+      left: calc((100% - 71rem) / 2);
+      border-left: 1px solid #dbdbdb; } }
   #documenter .docs-sidebar .docs-logo {
     margin-top: 1rem;
     padding: 0 1rem; }
