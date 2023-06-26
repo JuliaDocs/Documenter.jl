@@ -2,6 +2,8 @@ using Test
 import Documenter
 include("TestUtilities.jl"); using .TestUtilities
 
+ENV["JULIA_DEBUG"]="Documenter"
+
 @testset "Documenter" begin
     # Build the example docs
     @info "Building example/make.jl"
