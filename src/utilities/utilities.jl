@@ -392,30 +392,51 @@ header_level(::Markdown.Header{N}) where {N} = N
 """
     $(SIGNATURES)
 
-Tries to determine the root directory of the repository containing `file`. If the file is
-not in a repository, the function returns `nothing`.
+Tries to determine the "root" of the directory hierarchy containing `path`.
+Returns the absolute path to the root directory or `nothing` if no root was found.
+If `path` is a directory, it may itself already be a root.
+
+The predicate `f` gets called with absolute paths to directories and must return `true`
+if the directory is a "root". An example predicate is `is_git_repo_root` that checks if
+the directory is a Git repository root.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
 determine if this is a repository or not. If there is a file called `dbdir`, then it's
 contents is checked under the assumption that it is a Git worktree or a submodule.
 """
-function git_repo_root(file; dbdir=".git")
-    parent_dir, parent_dir_last = dirname(abspath(file)), ""
+function find_root_parent(f, path)
+    path = abspath(path)
+    parent_dir = isdir(path) ? path : dirname(path)
+    parent_dir_last = ""
     while parent_dir != parent_dir_last
-        dbdir_path = joinpath(parent_dir, dbdir)
-        isdir(dbdir_path) && return parent_dir
-        # Let's see if this is a worktree checkout
-        if isfile(dbdir_path)
-            contents = chomp(read(dbdir_path, String))
-            if startswith(contents, "gitdir: ")
-                if isdir(joinpath(parent_dir, contents[9:end]))
-                    return parent_dir
-                end
-            end
-        end
+        f(parent_dir) && return parent_dir
         parent_dir, parent_dir_last = dirname(parent_dir), parent_dir
     end
     return nothing
+end
+
+"""
+    $(SIGNATURES)
+
+Check is `directory` is a Git repository root.
+
+The `dbdir` keyword argument specifies the name of the directory we are searching for to
+determine if this is a repository or not. If there is a file called `dbdir`, then it's
+contents is checked under the assumption that it is a Git worktree or a submodule.
+"""
+function is_git_repo_root(directory::AbstractString; dbdir=".git")
+    isdir(directory) || error("is_git_repo_root called with non-directory path: $directory")
+    dbdir_path = joinpath(directory, dbdir)
+    isdir(dbdir_path) && return true
+    if isfile(dbdir_path)
+        contents = chomp(read(dbdir_path, String))
+        if startswith(contents, "gitdir: ")
+            if isdir(joinpath(directory, contents[9:end]))
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function repo_commit(path)

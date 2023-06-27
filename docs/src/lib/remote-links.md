@@ -10,16 +10,16 @@ It is also designed to be extended, to support additional Git repository hosting
 
 There are two categories of remote repositories that (may) need to be configured for Documenter to be able to determine remote URLs:
 
-1. Project repository remote, specified with the `repo` keyword to [`makedocs`](@ref).
+1. **Project repository remote**, specified with the `repo` keyword to [`makedocs`](@ref).
    This refers to the project as a whole (rather than specific files), and is used for the repository landing page link, issue references etc.
 
-2. File link remotes, specified by the `remotes` keyword to [`makedocs`](@ref).
+2. **File link remotes**, specified by the `remotes` keyword to [`makedocs`](@ref).
    These are used to link a file system file to the corresponding file in the remote repository.
    In particular, these are used to generate the edit links for manual pages, and Julia source file links for docstrings.
 
 For the most common case -- a repository of a simple Julia package -- there is usually only one remote repository that one links to, and the distinction between file links and repository links is not relevant.
-However, there are more complex setups where it is necessary to distinguish between the two cases.
-The defaults to the two keywords try to cater for the most common use case, and [as explained below](@ref repo-remote-interaction), this means that there is some interaction between these two arguments.
+However, in more complex setups it may be necessary to distinguish between the two cases.
+The defaults to the two keywords try to cater for the most common use case, and [as will be explained below](@ref repo-remote-interaction), this means that there has to be some interaction between these two arguments.
 
 ## [Remotes for files](@id remotes-for-files)
 

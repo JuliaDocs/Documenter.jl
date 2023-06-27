@@ -227,6 +227,21 @@ navpath(navnode::NavNode) = navnode.parent === nothing ? [navnode] :
 # Inner Document Fields.
 # ----------------------
 
+# Represents a 'root path' => (Remote, commit/branch) mapping.
+struct RemoteRepository
+    # Path to the root of the repository on the local machine
+    root::String
+    remote::Remotes.Remote
+    # Note: in the HTML output you can override whether edit links
+    # point to commits or main/master. But this here should still be a commit, since
+    # it is predominantly used for source links in docstrings (when manually specified
+    # via the remotes argument).
+    commit::String
+end
+function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
+    RemoteRepository(root, remote, repo_commit(root))
+end
+
 """
 User-specified values used to control the generation process.
 """
@@ -247,8 +262,23 @@ struct User
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
-    remotes :: Vector{Pair{String,Tuple{Remotes.Remote,String}}}
+    # Remote Git repository information
+    #
+    # .remote is the remote corresponding to the main package / project repository.
+    #  It is used for issue references, the repo-wide "GitHub" links and such, but not
+    # to figure out where to link files to.
+    #
+    # .remotes is an array of (path, remote) pairs, where the path is the absolute path
+    # to the root of the directory that contains the repository `remote`. The array
+    # is sorted by having the longer prefixes first, so that you could have nested
+    # repositories as well. When we try to match a file path with a remote, we can just
+    # walk through the list and do a startswith(), and take the first one that matches.
+    #
+    # While the initial list in .remotes is populated when we construct the Document
+    # object, we also dynamically add links to the .remotes array as we check different
+    # files, by looking at .git directories.
+    remote  :: Union{Remotes.Remote,Nothing}
+    remotes :: Vector{RemoteRepository}
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -305,7 +335,7 @@ function Document(plugins = nothing;
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
-        remotes  :: Vector{<:Pair} = Pair[],
+        remotes  :: Dict             = Dict(),
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -328,7 +358,7 @@ function Document(plugins = nothing;
     # We'll normalize repo to be a `Remotes.Remote` object
     repo_normalized::Union{Remotes.Remote, Nothing} = if isa(repo, AbstractString) && isempty(repo)
         # If the user does not provide the `repo` argument, we'll try to automatically
-        # detect the remote repository later. But for not, we'll set it to `nothing`.
+        # detect the remote repository later. But for now, we'll set it to `nothing`.
         nothing
     elseif repo isa AbstractString
         # Use the old template string parsing logic if a string was passed.
@@ -340,27 +370,41 @@ function Document(plugins = nothing;
 
     # For `remotes`, we'll first validate that the array provided by the user contains
     # valid path-remote pairs.
-    remotes_checked = Pair{String,Tuple{Remotes.Remote,String}}[]
-    for (path, remote) in remotes
-        isa(remote, Remotes.Remote) || throw(
-            ArgumentError("Invalid remote in remotes: $(remote) (::$(typeof(remote))), must be ::Remotes.Remote")
-        )
+    remotes_checked = RemoteRepository[]
+    for (path, remoteref) in remotes
         # The paths should be relative to the directory containing make.jl (or, more generally, to the root
         # argument of makedocs)
         path = joinpath(root, path)
-        isdir(path) || error("Invalid local path in remotes (not a directory): $(path)")
-        path = realpath(path)
-        idx = findfirst(isequal(path), existing_path for (existing_path, _) in remotes_checked)
-        if !isnothing(idx)
-            error("Duplicate remote path: $(path) => $(remote) vs $(remotes_checked[idx])")
+        if !isdir(path)
+            throw(ArgumentError(("Invalid local path in remotes (not a directory): $(path)")))
         end
-        push!(remotes_checked, path => remote)
+        path = realpath(path)
+        # We'll also check that there are no duplicate entries.
+        idx = findfirst(isequal(path), remote.root for remote in remotes_checked)
+        if !isnothing(idx)
+            throw(ArgumentError("""
+            Duplicate remote path in remotes: $(path) => $(remote)
+            vs $(remotes_checked[idx])
+            """))
+        end
+        # Now we actually check the remotes themselves
+        remote = if isa(remoteref, Tuple{Remotes.Remote, AbstractString}) && length(remoteref) == 2
+            RemoteRepository(path, remoteref[1], remoteref[2])
+        elseif remoteref isa Remotes.Remote
+            RemoteRepository(path, remoteref[1])
+        else
+            throw(ArgumentError("""
+            Invalid remote in remotes: $(remote) (::$(typeof(remote)))
+            for path $path
+            must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""))
+        end
+        push!(remotes_checked, remote)
     end
 
     # Now we sort out the interaction between `repo` and `remotes`. Our goal is to make sure that we have a
     # value in both remotes for the repository root, and also repo is populated. Although it is possible
     # that automatically determining those will fail.
-    repo_root, idx = let repo_root = git_repo_root(root)
+    repo_root, idx = let repo_root = find_root_parent(is_git_repo_root, root)
         if isnothing(repo_root)
             nothing, nothing
         else
@@ -389,7 +433,7 @@ function Document(plugins = nothing;
             else
                 # Since repo_root was not present in remotes, we'll push the automatically determined
                 # one to remotes_checked
-                push!(remotes_checked, repo_root => repo_normalized)
+                push!(remotes_checked, RemoteRepository(repo_root, repo_normalized))
             end
         else
             @warn """
@@ -400,7 +444,7 @@ function Document(plugins = nothing;
     elseif !isnothing(repo_normalized) && isnothing(idx)
         # If the user did provide a repo argument, but we don't find one in remotes that corresponds
         # to the repository root, we will push the user-provided one to remotes_checked
-        push!(remotes_checked, repo_root => repo_normalized)
+        push!(remotes_checked, RemoteRepository(repo_root, repo_normalized))
     else
         # If the two values for the same directory (from repo and remotes) don't match, we will throw an
         # error. Note: this does require a sane == implementation for the Remotes.Remote objects.
@@ -408,7 +452,7 @@ function Document(plugins = nothing;
             throw(ArgumentError("""
             A remote in remotes conflicts with the `repo` argument:
               repo = $(repo_normalized)
-              remotes = $(remotes_checked[idx][2])
+              remotes = $(remotes_checked[idx])
               path = $(repo_root)
             """))
         end
@@ -421,7 +465,7 @@ function Document(plugins = nothing;
     # that is longer than another will be a subpath (as we assume they are all directories
     # as well). So we put the longest names first in the list, and check for subpaths
     # by just linearly walking through this list.
-    sort!(remotes_checked, by=first, rev=true)
+    sortremotes!(remotes_checked)
 
     user = User(
         root,
@@ -480,6 +524,28 @@ function Document(plugins = nothing;
     Document(user, internal, plugin_dict, blueprint)
 end
 
+function addremote!(doc::Document, remoteref::RemoteRepository)
+    for ref in doc.user.remotes
+        if ref.root == remoteref.root
+            error("Duplicate path in doc.user.remotes: $(remoteref.root)")
+        end
+    end
+    push!(doc.user.remotes, remoteref)
+    sortremotes!(doc.user.remotes)
+    return nothing
+end
+# We'll sort the remotes, first, to make sure that the longer paths come first,
+# so that we could match them first. How the individual paths are sorted is pretty
+# unimportant, but we just want to make sure they are sorted in some well-defined
+# order.
+sortremotes!(remotes::Vector{RemoteRepository}) = sort!(remotes, lt = lt_remotepair)
+function lt_remotepair(r1::RemoteRepository, r2::RemoteRepository)
+    if length(r1.root) == length(r2.root)
+        return r1.root < r2.root
+    end
+    return length(r1.root) > length(r2.root)
+end
+
 """
     $(SIGNATURES)
 
@@ -489,32 +555,60 @@ file is not in a Git repository.
 function relpath_from_remote_root(doc::Document, file::AbstractString)
     isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
     isabspath(file) || error("relpath_from_repo_root called with non-absolute path: $file")
-    # We also
-    automagic_repo_root = git_repo_root(file)
-    automagic_remote = isnothing(automagic_repo_root) ? nothing : getremote(automagic_repo_root)
-    automagic_commit = repo_commit(automagic_repo_root)
-    # First, we try to ...
-    idx = findfirst(doc.user.remotes) do (path, _)
-        startswith(file, path)
+    # We want to expand the path properly, including symlinks, so we call realpath()
+    # Note: it throws for non-existing files, but we just checked for it.
+    file = realpath(file)
+    # Try to see if `file` falls into any of the remotes in .remotes, or if it's a GitHub repository
+    # we can automatically "configure".
+    root_remote::Union{RemoteRepository,Nothing} = nothing
+    root_directory = find_root_parent(file) do directory
+        # First, we'll check the list of existing remotes, to see if the directory is already
+        # listed there. If yes, we just return that.
+        for remoteref in doc.user.remotes
+            if directory == remoteref.root
+                root_remote = remoteref
+                return true
+            end
+        end
+        # If it is not in .remotes, it is still possible that the directory is a Git repository.
+        # In that case, we add it to .remotes.
+        if is_git_repo_root(directory)
+            # getremote() can only detect GitHub repositories right now, so there is a good
+            # chance that it will return `nothing`. In that we also abort the check, because
+            # we won't be able to correctly determine the remote (as we might incorrectly fall
+            # back to the remote of one of the parent directories).
+            remote = getremote(directory)
+            if isnothing(remote)
+                return true
+            else
+                # TODO: we might need the ability to skip the remote auto detection for certain
+                # directories.. This could be done by allowing e.g. `nothing`s in `doc.user.remotes`
+                # and `continue`-ing if we detect that. But let's not add that complexity now.
+                remoteref = RemoteRepository(directory, remote)
+                addremote!(doc, remoteref)
+                root_remote = remoteref
+            end
+            return true
+        end
+        return false
     end
-    # If we can't find it, we fall back to the automagic ones
-    # also if automagic is deeper than the declared remote
-    root_path, remote, commit = if isnothing(idx) || !startswith(first(doc.user.remotes[idx]), automagic_repo_root)
-        automagic_repo_root, automagic_remote, automagic_commit
+    # If we were not able to detect the remote
+    if isnothing(root_remote)
+        return nothing, nothing, nothing
     else
-        x = doc.user.remotes[idx]
-        x[1], x[2][1], x[2][2]
+        # When root_remote is set, so should be root_directory
+        @assert !isnothing(root_directory)
+        return root_remote.remote, relpath(file, root_directory), root_remote.commit
     end
-    @assert isnothing(root_path) || startswith(file, root_path)
-    return remote, isnothing(root_path) ? nothing : relpath(file, root_path), commit
 end
 
 function edit_url(doc::Document, file; commit::AbstractString)
+    # We'll prepend doc.user.root, unless already an absolute path.
+    file = abspath(doc.user.root, file)
     if !isfile(file)
         @warn "couldn't find file \"$file\" when generating URL"
         return nothing
     end
-    file = realpath(file)
     remote, relpath, commit = relpath_from_remote_root(doc, file)
     isnothing(relpath) || isnothing(remote) ? nothing : repofile(remote, commit, relpath)
 end
@@ -536,11 +630,10 @@ function source_url(doc::Document, mod, file, linerange)
     end
     # Generally, we assume that the Julia source file exists on the system.
     isfile(file) || return nothing
-    # We want to expand the path properly, including symlinks.
-    file = realpath(file) # note: realpath throws for non-existing files, but we just checked for it
-    # We try to...
     remote, relpath, commit = relpath_from_remote_root(doc, file)
-    isnothing(relpath) || isnothing(remote) && return nothing
+    if isnothing(relpath) || isnothing(remote)
+        return nothing
+    end
     return repofile(remote, commit, relpath, linerange)
 end
 
