@@ -409,7 +409,7 @@ function Document(plugins = nothing;
             nothing, nothing
         else
             repo_root = realpath(repo_root)
-            idx = findfirst(isequal(repo_root), path for (path, _) in remotes_checked)
+            idx = findfirst(isequal(repo_root), r.root for r in remotes_checked)
             repo_root, idx
         end
     end
