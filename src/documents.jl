@@ -391,7 +391,7 @@ function Document(plugins = nothing;
         remote = if isa(remoteref, Tuple{Remotes.Remote, AbstractString}) && length(remoteref) == 2
             RemoteRepository(path, remoteref[1], remoteref[2])
         elseif remoteref isa Remotes.Remote
-            RemoteRepository(path, remoteref[1])
+            RemoteRepository(path, remoteref)
         else
             throw(ArgumentError("""
             Invalid remote in remotes: $(remote) (::$(typeof(remote)))
@@ -420,7 +420,7 @@ function Document(plugins = nothing;
         # to the repository root, we just use that. If we can't find one in remotes, however, we will
         # try to automatically determine the remote from the Git origin.
         if !isnothing(idx)
-            repo_normalized = remotes_checked[idx][2]
+            repo_normalized = remotes_checked[idx].remote
         elseif !isnothing(repo_root)
             # This only works for GitHub-bases repositories.
             repo_normalized = getremote(repo_root)
@@ -444,7 +444,7 @@ function Document(plugins = nothing;
     elseif !isnothing(repo_normalized) && isnothing(idx)
         # If the user did provide a repo argument, but we don't find one in remotes that corresponds
         # to the repository root, we will push the user-provided one to remotes_checked
-        push!(remotes_checked, RemoteRepository(repo_root, repo_normalized))
+        push!(remotes_checked, RemoteRepository(root, repo_normalized))
     else
         # If the two values for the same directory (from repo and remotes) don't match, we will throw an
         # error. Note: this does require a sane == implementation for the Remotes.Remote objects.
@@ -549,8 +549,8 @@ end
 """
     $(SIGNATURES)
 
-Returns the path of `file`, relative to the root of the Git repository, or `nothing` if the
-file is not in a Git repository.
+Returns the the the remote that contains the file, and the relative path of the
+file withing the repo (or `nothing, nothing` if the file is not in a known repo).
 """
 function relpath_from_remote_root(doc::Document, file::AbstractString)
     isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
@@ -594,23 +594,29 @@ function relpath_from_remote_root(doc::Document, file::AbstractString)
     end
     # If we were not able to detect the remote
     if isnothing(root_remote)
-        return nothing, nothing, nothing
+        return nothing, nothing
     else
         # When root_remote is set, so should be root_directory
         @assert !isnothing(root_directory)
-        return root_remote.remote, relpath(file, root_directory), root_remote.commit
+        return root_remote, relpath(file, root_directory)
     end
 end
 
-function edit_url(doc::Document, file; commit::AbstractString)
+# Determines the Edit URL for a local absolute file path.
+#  - rev: indicates a Git revision; if omitted, the current repo commit is used.
+function edit_url(doc::Document, file; rev::Union{AbstractString,Nothing})
     # We'll prepend doc.user.root, unless already an absolute path.
     file = abspath(doc.user.root, file)
     if !isfile(file)
         @warn "couldn't find file \"$file\" when generating URL"
         return nothing
     end
-    remote, relpath, commit = relpath_from_remote_root(doc, file)
-    isnothing(relpath) || isnothing(remote) ? nothing : repofile(remote, commit, relpath)
+    reporef, relpath = relpath_from_remote_root(doc, file)
+    if isnothing(relpath) || isnothing(reporef)
+        return nothing
+    end
+    rev = isnothing(rev) ? reporef.commit : rev
+    return repofile(reporef.remote, rev, relpath)
 end
 
 source_url(doc::Document, docstring) = source_url(
@@ -630,11 +636,11 @@ function source_url(doc::Document, mod, file, linerange)
     end
     # Generally, we assume that the Julia source file exists on the system.
     isfile(file) || return nothing
-    remote, relpath, commit = relpath_from_remote_root(doc, file)
-    if isnothing(relpath) || isnothing(remote)
+    reporef, relpath = relpath_from_remote_root(doc, file)
+    if isnothing(relpath) || isnothing(reporef)
         return nothing
     end
-    return repofile(remote, commit, relpath, linerange)
+    return repofile(reporef.remote, reporef.commit, relpath, linerange)
 end
 
 """

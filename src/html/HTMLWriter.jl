@@ -1280,7 +1280,7 @@ function edit_link(f, ctx, navnode)
         "Edit", edit_logo, ctx.settings.edit_link
     end
     host, _ = host_logo(ctx.doc.user.remote)
-    editurl = Documenter.edit_url(ctx.doc, editpath, commit=commit)
+    editurl = Documenter.edit_url(ctx.doc, editpath, rev=commit)
     # It is possible for editurl() to return a nothing, if something goes wrong
     isnothing(editurl) && return
     # Create the edit link

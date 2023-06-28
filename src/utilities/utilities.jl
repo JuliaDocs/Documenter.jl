@@ -443,7 +443,12 @@ function repo_commit(path)
     ispath(path) || error("repo_commit called with nonexistent path: $path")
     dir = isdir(path) ? path : dirname(path)
     cd(dir) do
-        readchomp(`$(git()) rev-parse HEAD`)
+        try
+            readchomp(`$(git()) rev-parse HEAD`)
+        catch
+            @error "get rev-parse HEAD failed" dir
+            rethrow()
+        end
     end
 end
 

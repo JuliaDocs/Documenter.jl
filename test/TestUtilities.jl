@@ -67,7 +67,7 @@ function _quietly(f, expr, source)
         $(prefix): an error was thrown, $(sizeof(c.output)) bytes of output captured
         $(typeof(c.value)) at $(source.file):$(source.line) in expression:
         $(expr)
-        """
+        """ exception = (c.error, c.backtrace)
         if !isempty(c.output)
             printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color=:magenta)
             print(c.output)

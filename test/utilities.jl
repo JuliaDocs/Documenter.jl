@@ -157,10 +157,13 @@ end
     # URL building
     filepath = string(first(methods(Documenter.source_url)).file)
     Sys.iswindows() && (filepath = replace(filepath, "/" => "\\")) # work around JuliaLang/julia#26424
-    let expected_filepath = "/src/utilities/utilities.jl"
+    let expected_filepath = "/src/documents.jl"
         Sys.iswindows() && (expected_filepath = replace(expected_filepath, "/" => "\\"))
         @test endswith(filepath, expected_filepath)
     end
+
+    repo_root(filepath) = Documenter.find_root_parent(Documenter.is_git_repo_root, filepath)
+    repo_root(filepath, dbdir) = Documenter.find_root_parent(d -> Documenter.is_git_repo_root(d; dbdir), filepath)
 
     mktempdir() do path
         remote = Documenter.Remotes.URL("//blob/{commit}{path}#{line}")
@@ -180,19 +183,23 @@ end
 
             # Run tests
             commit = Documenter.repo_commit(filepath)
+            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
-            @test Documenter.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
             # The '//blob/..' remote conflicts with the github.com origin.url of the repository and source_url()
             # picks the wrong remote currently ()
-            @test_broken Documenter.source_url(remote, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
-            @test Documenter.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
-            @test Documenter.repo_root(filepath; dbdir=".svn") == nothing
-            @test Documenter.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
+            @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test repo_root(filepath, ".svn") === nothing
+            let (repo, relpath) = Documenter.relpath_from_remote_root(doc, filepath)
+                @test repo.remote === remote
+                @test relpath == joinpath("src", "SourceFile.jl")
+            end
             # We assume that a temporary file is not in a repo
-            @test Documenter.repo_root(tempname()) == nothing
-            @test_throws ErrorException Documenter.relpath_from_repo_root(tempname())
+            @test repo_root(tempname()) === nothing
+            @test_throws ErrorException Documenter.relpath_from_remote_root(doc, tempname())
         end
 
         # Test worktree
@@ -204,17 +211,21 @@ end
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             # Run tests
             commit = Documenter.repo_commit(filepath)
+            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
-            @test Documenter.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test_broken Documenter.source_url(remote, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
-            @test Documenter.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
-            @test Documenter.repo_root(filepath; dbdir=".svn") == nothing
-            @test Documenter.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
+            @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test repo_root(filepath, ".svn") === nothing
+            let (repo, relpath) = Documenter.relpath_from_remote_root(doc, filepath)
+                @test repo.remote === remote
+                @test relpath == joinpath("src", "SourceFile.jl")
+            end
             # We assume that a temporary file is not in a repo
-            @test Documenter.repo_root(tempname()) == nothing
-            @test_throws ErrorException Documenter.relpath_from_repo_root(tempname())
+            @test repo_root(tempname()) === nothing
+            @test_throws ErrorException Documenter.relpath_from_remote_root(doc, tempname())
         end
 
         # Test submodule
@@ -241,19 +252,23 @@ end
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             # Run tests
             commit = Documenter.repo_commit(filepath)
+            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
             @test isfile(filepath)
 
-            @test Documenter.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.source_url(remote, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
-            @test Documenter.repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
-            @test Documenter.repo_root(filepath; dbdir=".svn") == nothing
-            @test Documenter.relpath_from_repo_root(filepath) == joinpath("src", "SourceFile.jl")
+            @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test repo_root(filepath, ".svn") === nothing
+            let (repo, relpath) = Documenter.relpath_from_remote_root(doc, filepath)
+                @test repo.remote === remote
+                @test relpath == joinpath("src", "SourceFile.jl")
+            end
             # We assume that a temporary file is not in a repo
-            @test Documenter.repo_root(tempname()) == nothing
-            @test_throws ErrorException Documenter.relpath_from_repo_root(tempname())
+            @test repo_root(tempname()) === nothing
+            @test_throws ErrorException Documenter.relpath_from_remote_root(doc, tempname())
         end
 
         # This tests the case where the origin.url is some unrecognised Git hosting service, in which case we are unable
@@ -274,8 +289,9 @@ end
 
             # Run tests
             commit = Documenter.repo_commit(filepath)
-            @test Documenter.edit_url(remote, filepath) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.source_url(remote, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
+            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
         end
     end
 

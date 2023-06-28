@@ -17,7 +17,7 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
     ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
-    "html-local", "html-draft", "html-repo-git", "html-repo-gha", "html-repo-travis",
+    "html-local", "html-draft", "html-repo-git",
     "html-repo-nothing", "html-repo-error", "latex_texonly", "latex_simple_texonly",
     "latex_showcase_texonly", "html-pagesonly"]
 end
@@ -286,7 +286,7 @@ examples_html_meta_custom_doc = if "html-meta-custom" in EXAMPLE_BUILDS
             ),
         )),
         htmlkwargs = (;
-            edit_link = :commit, 
+            edit_link = :commit,
             description = "Example site-wide description."
         ),
         image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif", "images/preview.png"),
@@ -443,45 +443,30 @@ macro examplebuild(name, block)
         end
     end
 end
-function html_repo(name; travis = nothing, gha = nothing, kwargs...)
-    withenv("TRAVIS_REPO_SLUG" => travis, "GITHUB_REPOSITORY" => gha) do
-        @quietly makedocs(;
-            sitename = "Documenter Repo ($name)",
-            build = joinpath(examples_root, "builds/html-repo-$(name)"),
-            pages = ["Main section" => ["index.md"]],
-            doctest = false,
-            debug = true,
-            kwargs...,
-        )
-    end
+function html_repo(name; kwargs...)
+    @quietly makedocs(;
+        sitename = "Documenter Repo ($name)",
+        build = joinpath(examples_root, "builds/html-repo-$(name)"),
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+        kwargs...,
+    )
 end
 @examplebuild "repo-git" begin
     # should pick up JuliaDocs/Documenter.jl remote from Documenter's repo
     html_repo("git", root = examples_root, source = "src.latex_simple")
 end
-# The other builds run in a clean directory, so they should try the fallbacks
-@examplebuild "repo-gha" begin
-    mktempdir() do dir
-        cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("git", root=dir, travis=nothing, gha="foo/bar")
-    end
-end
-@examplebuild "repo-travis" begin
-    mktempdir() do dir
-        cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("travis", root=dir, travis="bar/baz", gha="foo/bar")
-    end
-end
 @examplebuild "repo-nothing" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("nothing", root=dir, travis=nothing, gha=nothing)
+        html_repo("nothing", root=dir)
     end
 end
 @examplebuild "repo-error" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("error", root=dir, travis="foo", gha="bar")
+        html_repo("error", root=dir)
     end
 end
 
@@ -688,12 +673,6 @@ else
     nothing
 end
 
-# For the latex_showcase tests we need to override the Git remote we use for the source
-# files, so that the links would be deterministic (since they contain the commit hash which
-# keeps changing). Fortunately, we can hack the cache for this purpose.
-examples_remote = Documenter.GIT_REMOTE_CACHE[@__DIR__]
-Documenter.GIT_REMOTE_CACHE[@__DIR__] = TestRemote()
-
 examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_showcase")
     @quietly makedocs(
@@ -703,7 +682,7 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
         build = "builds/latex_showcase",
         source = "src.latex_showcase",
         pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
-        repo = TestRemote(),
+        remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
     )
@@ -722,7 +701,7 @@ examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUI
         build = "builds/latex_showcase_texonly",
         source = "src.latex_showcase",
         pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
-        repo = TestRemote(),
+        remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
     )
@@ -731,6 +710,3 @@ else
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
-
-# Restore the remote for this directory
-Documenter.GIT_REMOTE_CACHE[@__DIR__] = examples_remote

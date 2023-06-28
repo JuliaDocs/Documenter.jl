@@ -333,7 +333,7 @@ function latexdoc(io::IO, node::Node)
         latex(io, docstringast.children)
         _println(io)
         # When a source link is available then print the link.
-        url = Documenter.source_url(io.doc.user.remote, result)
+        url = Documenter.source_url(io.doc, result)
         if url !== nothing
             link = "\\href{$url}{\\texttt{source}}"
             _println(io, "\n", link, "\n")
