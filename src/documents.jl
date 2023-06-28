@@ -380,7 +380,7 @@ function Document(plugins = nothing;
         end
         path = realpath(path)
         # We'll also check that there are no duplicate entries.
-        idx = findfirst(isequal(path), remote.root for remote in remotes_checked)
+        idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
             throw(ArgumentError("""
             Duplicate remote path in remotes: $(path) => $(remote)
@@ -409,7 +409,7 @@ function Document(plugins = nothing;
             nothing, nothing
         else
             repo_root = realpath(repo_root)
-            idx = findfirst(isequal(repo_root), r.root for r in remotes_checked)
+            idx = findfirst(isequal(repo_root), [r.root for r in remotes_checked])
             repo_root, idx
         end
     end
