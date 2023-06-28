@@ -550,7 +550,7 @@ end
     $(SIGNATURES)
 
 Returns the the the remote that contains the file, and the relative path of the
-file withing the repo (or `nothing, nothing` if the file is not in a known repo).
+file within the repo (or `nothing, nothing` if the file is not in a known repo).
 """
 function relpath_from_remote_root(doc::Document, file::AbstractString)
     isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
