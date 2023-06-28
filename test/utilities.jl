@@ -314,7 +314,11 @@ end
         @test exprs[2][2] == "γγγ_γγγ\n"
 
         @test exprs[3][1] === :γγγ
-        @test exprs[3][2] == "γγγ\n"
+        if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+            @test exprs[3][2] == "γγγ\n\n"
+        else
+            @test exprs[3][2] == "γγγ\n"
+        end
     end
 
     @testset "TextDiff" begin
@@ -333,9 +337,14 @@ end
             for LE in ("\r\n", "\n")
                 l1, l2 = parse("x = Int[]$(LE)$(LE)push!(x, 1)$(LE)")
                 @test l1[1] == :(x = Int[])
-                @test l1[2] == "x = Int[]$(LE)"
                 @test l2[1] == :(push!(x, 1))
-                @test l2[2] == "push!(x, 1)$(LE)"
+                if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+                    @test l1[2] == "x = Int[]$(LE)$(LE)"
+                    @test l2[2] == "push!(x, 1)$(LE)\n"
+                else
+                    @test l1[2] == "x = Int[]$(LE)"
+                    @test l2[2] == "push!(x, 1)$(LE)"
+                end
             end
         end
     end
@@ -354,7 +363,11 @@ end
             @test exs[1][1].head == :toplevel
             @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
             @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
-            @test exs[2][2] == "2 + 2\n"
+            if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+                @test exs[2][2] == "2 + 2\n\n"
+            else
+                @test exs[2][2] == "2 + 2\n"
+            end
             @test exs[2][1].head == :toplevel
             @test exs[2][1].args[1] == LineNumberNode(125, "testfile.jl")
             @test exs[2][1].args[2] == Expr(:call, :+, 2, 2)
@@ -372,7 +385,15 @@ end
             for code in (code1, code2)
                 exs = parse(code)
                 @test length(exs) == 1
-                @test exs[1][2] == "1 + 1\n"
+                if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+                    if code == code1
+                        @test exs[1][2] == "1 + 1\n\n\n"
+                    else
+                        @test exs[1][2] == "1 + 1\n# comment\n\n"
+                    end
+                else
+                    @test exs[1][2] == "1 + 1\n"
+                end
                 @test exs[1][1].head == :toplevel
                 @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
                 @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
@@ -509,7 +530,8 @@ end
             # Ref: #639
             @test jsescape("\u2028") == "\\u2028"
             @test jsescape("\u2029") == "\\u2029"
-            @test jsescape("policy to  delete.") == "policy to\\u2028 delete."
+            include("utilities.sample.jl")
+            @test jsescape(U2028_STRING) == "policy to\\u2028 delete."
         end
 
         @testset "json_jsescape" begin
