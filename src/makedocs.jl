@@ -95,11 +95,14 @@ the use of the template strings is discouraged, in favor of concrete
 [`Remotes.Remote`](@ref) objects.
 
 **`remotes`** can be used to declare a list additional
-`path::AbstractString => remote::Remote` pairs that are used to determine the remotes
+`path::AbstractString => remote` pairs that are used to determine the remote
 repository URLs for local filesystem files, such as the edit links for manual Markdown
 pages, or docstring source links. `path` should be an absolute local filesystem path to a
 directory, and will be interpreted as the root of the remote repository specified with
-`remote`.
+`remote`. `remote` would normally be [`Remote`](@ref Remotes.Remote) object, but can also be
+a `(remote::Remote, commit::AbstractString)` tuple, where the second argument specifies the
+commit within the repository. This is necessary when `path` is not pointing to a proper Git
+repository, and so determining the commit automatically is not possible.
 
 If `repo` is not passed, `makedocs` will try to determine it automatically, either by
 inspecting the locally checked out Git repository, or via the `remotes` keyword. See the
