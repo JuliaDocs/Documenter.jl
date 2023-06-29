@@ -103,6 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Compiling the dark theme with Sass no longer emits deprecation warnings about `!global` assignments. (#1766, #1983, #2145)
 
+* The CSS Documenter ships is now minified. (#2153, #2157)
+
 ### Other
 
 * Documenter now uses [MarkdownAST](https://github.com/JuliaDocs/MarkdownAST.jl) to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues). (#1892), (#1912), (#1924), (#1948)
