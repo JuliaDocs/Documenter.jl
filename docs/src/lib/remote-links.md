@@ -1,7 +1,7 @@
 # Remote repository links
 
-Documenter, if set up appropriately, can automatically generate various links to publicly hosted Git repositories (e.g. hosted on GitHub).
-Most often this is necessary for linking back to the package repository or the project source code.
+Documenter, if set up appropriately, can automatically generate links to publicly hosted Git repositories (such as source and edit links to e.g. repositories hosted on GitHub).
+Usually this is for linking back to the main package repository or the project source code.
 
 The [`Remotes` API](@ref remotes-api) is used to specify remote repositories and generate the URLs.
 It is also designed to be extended, to support additional Git repository hosting services.
@@ -19,7 +19,7 @@ There are two categories of remote repositories that (may) need to be configured
 
 For the most common case -- a repository of a simple Julia package -- there is usually only one remote repository that one links to, and the distinction between file links and repository links is not relevant.
 However, in more complex setups it may be necessary to distinguish between the two cases.
-The defaults to the two keywords try to cater for the most common use case, and [as will be explained below](@ref repo-remote-interaction), this means that there has to be some interaction between these two arguments.
+The defaults to the two keywords try to cater for the most common use case, and [as is explained below](@ref repo-remote-interaction), this means that there has to be some interaction between these two arguments.
 
 ## [Remotes for files](@id remotes-for-files)
 
@@ -28,14 +28,13 @@ In the case of Markdown files, those local paths are determined by [`makedocs`](
 The links to Julia files are determined from the docsystem, and point to where the code was loaded from (e.g. for a development dependency of the environment, they come from the `Pkg.develop`ed path; but for normal `Pkg.add` dependencies the source files are usually in `~/.julia/packages`).
 
 In most cases, for both Markdown and Julia files, the files Documenter is concerned about are located in the currently checked out Git repository that contains the Documenter `make.jl` script (e.g. the locally checked out package repository).
-However, sometimes it may also be outside of that repository (in a different repository or not), or in a different repository, but one that is checked out in a subdirectory of the current repository.
-It may also be that the destination file is not within a checked out Git repository at all (e.g. if you're trying to build the documentation of a release tarball).
+However, sometimes they may also be in a different repository (either in a subdirectory of or outside of the primary repository), or even in a non-Git directory outside of the primary repository (e.g. if you're trying to build the documentation of a release tarball).
 
 To handle those cases, the `remotes` keyword to [`makedocs`](@ref) can be used to set up a `local directory => remote repository` mapping for local file system paths.
 The local directory is assumed to correspond to the root of the Git repository, and any subpath within that directory is then resolved to the corresponding path in the remote repository.
 If there are nested `remotes` configured, Documenter will use the one that matches first as it walks up the directory tree from the original path.
 
-As the most common case is a locally checked out Git repository cloned from GitHub, Documenter will also try to determine such remotes automatically.
+As the common case is a locally checked out Git repository cloned from GitHub, Documenter will also try to determine such remotes automatically.
 This is done regardless whether any additional remotes have been specified with `remotes` or not.
 
 * When Documenter walks up the directory tree, it checks whether the directory is a root of a Git repository (by looking for the presence of a `.git` directory or file).
@@ -51,7 +50,7 @@ You can think of it as Documenter automatically populating `remotes` with any cl
     The [`Remotes` API](@ref remotes-api) can be used to implement the methods to compute the remote URLs (for now, Documenter only [supports GitHub natively](@ref Remotes.GitHub)).
 
 [^1]: There is an exception to this: links to Julia `Base` module source files.
-      But those are already handled and really only relevant to the Julia main manual build.
+      But Documenter already known how to handle those correctly, and they are really only relevant to the Julia main manual build.
 [^2]: GitHub is the most common case, but this could be extended to cover other Git hosting services in the future (as long as the remote can reliably determined from the `origin` URL).
 [^3]: One thing to be aware here is that Documenter builds up a cache of the Git repositories it finds on every `makedocs` call.
       This is for performance reasons, to reduce the number of file system accesses and, in particular, `git` calls, which are relatively slow.
