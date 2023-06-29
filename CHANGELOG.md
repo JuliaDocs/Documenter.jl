@@ -19,11 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
 
-* The handling of remote repository (e.g. GitHub) URLs has been overhauled.
+* The handling of remote repository (e.g. GitHub) URLs has been overhauled. In addition to generating source and edit links for the main repository, Documenter can now also be configured to generate correct links for cases where some files are from a different repository (e.g. with vendored dependencies). (#2081)
 
   The fallbacks to `TRAVIS_REPO_SLUG` and `GITHUB_REPOSITORY` variables have been removed in favor of explicitly specifying the `repo` keyword in the `makedocs` call.
 
-  **For upgrading:** ...
+  **For upgrading:** As the fallbacks to CI variables have been removed, make sure that you have your source checked out as a proper Git repository when building the documentation, so that Documenter could determine the repository link automatically from the Git `origin` URL. On GitHub Actions, this should normally already be the case. In other cases, you can configure the `repo` and/or `remotes` options to `makedocs` appropriately.
 
 ### Added
 
