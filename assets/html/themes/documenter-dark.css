@@ -7143,33 +7143,52 @@ html.theme--documenter-dark {
       background-color: #282f2f;
       border-color: #5e6d6f; }
       html.theme--documenter-dark .admonition.is-default > .admonition-header {
-        background-color: #5e6d6f; }
+        background-color: #5e6d6f;
+        color: #fff; }
+      html.theme--documenter-dark .admonition.is-default > .admonition-body {
+        color: #fff; }
     html.theme--documenter-dark .admonition.is-info {
       background-color: #282f2f;
       border-color: #024c7d; }
       html.theme--documenter-dark .admonition.is-info > .admonition-header {
-        background-color: #024c7d; }
+        background-color: #024c7d;
+        color: #fff; }
+      html.theme--documenter-dark .admonition.is-info > .admonition-body {
+        color: #fff; }
     html.theme--documenter-dark .admonition.is-success {
       background-color: #282f2f;
       border-color: #008438; }
       html.theme--documenter-dark .admonition.is-success > .admonition-header {
-        background-color: #008438; }
+        background-color: #008438;
+        color: #fff; }
+      html.theme--documenter-dark .admonition.is-success > .admonition-body {
+        color: #fff; }
     html.theme--documenter-dark .admonition.is-warning {
       background-color: #282f2f;
       border-color: #ad8100; }
       html.theme--documenter-dark .admonition.is-warning > .admonition-header {
-        background-color: #ad8100; }
+        background-color: #ad8100;
+        color: #fff; }
+      html.theme--documenter-dark .admonition.is-warning > .admonition-body {
+        color: #fff; }
     html.theme--documenter-dark .admonition.is-danger {
       background-color: #282f2f;
       border-color: #9e1b0d; }
       html.theme--documenter-dark .admonition.is-danger > .admonition-header {
-        background-color: #9e1b0d; }
+        background-color: #9e1b0d;
+        color: #fff; }
+      html.theme--documenter-dark .admonition.is-danger > .admonition-body {
+        color: #fff; }
     html.theme--documenter-dark .admonition.is-compat {
       background-color: #282f2f;
       border-color: #137886; }
       html.theme--documenter-dark .admonition.is-compat > .admonition-header {
-        background-color: #137886; }
+        background-color: #137886;
+        color: #fff; }
+      html.theme--documenter-dark .admonition.is-compat > .admonition-body {
+        color: #fff; }
   html.theme--documenter-dark .admonition-header {
+    color: #fff;
     background-color: #5e6d6f;
     align-items: center;
     font-weight: 700;
@@ -7240,6 +7259,7 @@ html.theme--documenter-dark {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     z-index: 999;
     background-color: #282f2f;
+    color: #fff;
     border-bottom: 3px solid #9e1b0d;
     padding: 10px 35px;
     text-align: center;

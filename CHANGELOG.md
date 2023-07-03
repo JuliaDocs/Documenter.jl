@@ -3,6 +3,7 @@
 ## Version `v0.27.25`
 
 * ![Bugfix][badge-bugfix] Page headings are now correctly escaped in `LaTeXWriter`. ([#2134][github-2134])
+* ![Bugfix][badge-bugfix] Compiling the dark theme with Sass no longer emits deprecation warnings about `!global` assignments. ([#1766][github-1766], [#1983][github-1983], [#2145][github-2145])
 
 ## Version `v0.27.24`
 
@@ -1058,6 +1059,7 @@
 [github-1759]: https://github.com/JuliaDocs/Documenter.jl/pull/1759
 [github-1760]: https://github.com/JuliaDocs/Documenter.jl/issues/1760
 [github-1762]: https://github.com/JuliaDocs/Documenter.jl/pull/1762
+[github-1766]: https://github.com/JuliaDocs/Documenter.jl/issues/1766
 [github-1770]: https://github.com/JuliaDocs/Documenter.jl/issues/1770
 [github-1771]: https://github.com/JuliaDocs/Documenter.jl/pull/1771
 [github-1772]: https://github.com/JuliaDocs/Documenter.jl/issues/1772
@@ -1102,8 +1104,10 @@
 [github-1886]: https://github.com/JuliaDocs/Documenter.jl/pull/1886
 [github-1908]: https://github.com/JuliaDocs/Documenter.jl/pull/1908
 [github-1909]: https://github.com/JuliaDocs/Documenter.jl/pull/1909
+[github-1983]: https://github.com/JuliaDocs/Documenter.jl/issues/1983
 [github-2018]: https://github.com/JuliaDocs/Documenter.jl/pull/2018
 [github-2134]: https://github.com/JuliaDocs/Documenter.jl/pull/2134
+[github-2145]: https://github.com/JuliaDocs/Documenter.jl/pull/2145
 <!-- end of issue link definitions -->
 
 [julia-38054]: https://github.com/JuliaLang/julia/issues/38054
