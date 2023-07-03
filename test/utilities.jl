@@ -193,9 +193,9 @@ end
             # repo_root & relpath_from_repo_root
             @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
             @test repo_root(filepath, ".svn") === nothing
-            let (repo, relpath) = Documenter.relpath_from_remote_root(doc, filepath)
-                @test repo.remote === remote
-                @test relpath == joinpath("src", "SourceFile.jl")
+            let remoteref = Documenter.relpath_from_remote_root(doc, filepath)
+                @test remoteref.repo.remote === remote
+                @test remoteref.relpath == joinpath("src", "SourceFile.jl")
             end
             # We assume that a temporary file is not in a repo
             @test repo_root(tempname()) === nothing
@@ -219,9 +219,9 @@ end
             # repo_root & relpath_from_repo_root
             @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
             @test repo_root(filepath, ".svn") === nothing
-            let (repo, relpath) = Documenter.relpath_from_remote_root(doc, filepath)
-                @test repo.remote === remote
-                @test relpath == joinpath("src", "SourceFile.jl")
+            let remoteref = Documenter.relpath_from_remote_root(doc, filepath)
+                @test remoteref.repo.remote === remote
+                @test remoteref.relpath == joinpath("src", "SourceFile.jl")
             end
             # We assume that a temporary file is not in a repo
             @test repo_root(tempname()) === nothing
@@ -262,9 +262,9 @@ end
             # repo_root & relpath_from_repo_root
             @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
             @test repo_root(filepath, ".svn") === nothing
-            let (repo, relpath) = Documenter.relpath_from_remote_root(doc, filepath)
-                @test repo.remote === remote
-                @test relpath == joinpath("src", "SourceFile.jl")
+            let remoteref = Documenter.relpath_from_remote_root(doc, filepath)
+                @test remoteref.repo.remote === remote
+                @test remoteref.relpath == joinpath("src", "SourceFile.jl")
             end
             # We assume that a temporary file is not in a repo
             @test repo_root(tempname()) === nothing
