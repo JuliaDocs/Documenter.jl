@@ -106,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The code layout has changed considerably, with many of the internal submodules removed. This **may be breaking** for code that hooks into various Documenter internals, as various types and functions now live at different code paths. (#1977)
 
 
-## Version v0.27.25 - 2023-01-23
+## Version v0.27.25 - 2023-07-03
 
 ### Fixed
 
