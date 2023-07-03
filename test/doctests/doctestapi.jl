@@ -143,7 +143,56 @@ Stacktrace:
 [...]
 ```
 """
-module ParseErrorSuccess end
+module ParseErrorSuccess_1x00 end
+
+"""
+```jldoctest
+julia> map(tuple, 1/(i+j) for i=1:2, j=1:2, [1:4;])
+ERROR: ParseError:
+# Error @ none:1:44
+map(tuple, 1/(i+j) for i=1:2, j=1:2, [1:4;])
+#                                          └ ── invalid iteration spec: expected one of `=` `in` or `∈`
+Stacktrace:
+[...]
+```
+```jldoctest
+julia> 1.2.3
+ERROR: ParseError:
+# Error @ none:1:1
+1.2.3
+└──┘ ── invalid numeric constant
+# Error @ none:1:5
+1.2.3
+#   ╙ ── extra tokens after end of expression
+Stacktrace:
+[...]
+```
+```jldoctest
+println(9.8.7)
+# output
+ERROR: ParseError:
+# Error @ none:1:9
+println(9.8.7)
+#       └──┘ ── invalid numeric constant
+# Error @ none:1:13
+println(9.8.7)
+#           ╙ ── Expected `)`
+Stacktrace:
+[...]
+```
+```jldoctest
+julia> Meta.ParseError("foo")
+Base.Meta.ParseError("foo", nothing)
+
+julia> Meta.ParseError("foo") |> throw
+ERROR: ParseError("foo")
+Stacktrace:
+[...]
+```
+"""
+module ParseErrorSuccess_1x10 end
+# The JuliaSyntax swap in 1.10 changed the printing of parse errors quite considerably
+ParseErrorSuccess() = (VERSION >= v"1.10.0-DEV.1520") ? ParseErrorSuccess_1x10 : ParseErrorSuccess_1x00
 
 """
 ```jldoctest
@@ -254,7 +303,7 @@ module BadDocTestKwargs3 end
     end
 
     # Parse errors in doctests (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
-    run_doctest(nothing, [ParseErrorSuccess]) do result, success, backtrace, output
+    run_doctest(nothing, [ParseErrorSuccess()]) do result, success, backtrace, output
         @test success
         @test result isa Test.DefaultTestSet
     end

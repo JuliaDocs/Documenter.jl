@@ -84,6 +84,7 @@ Context(io) = Context{typeof(io)}(io, false, Dict(), 1, "")
 
 _print(c::Context, args...) = Base.print(c.io, args...)
 _println(c::Context, args...) = Base.println(c.io, args...)
+_print(io, args...) = Base.print(io, args...)
 
 # Labels in the TeX file are hashes of plain text labels.
 # To keep the plain text label (for debugging), say _hash(x) = x
@@ -134,7 +135,8 @@ function render(doc::Documents.Document, settings::LaTeX=LaTeX())
                     empty!(context.footnotes)
                     if 1 <= depth <= length(DOCUMENT_STRUCTURE)
                         header_type = DOCUMENT_STRUCTURE[depth]
-                        header_text = "\n\\$(header_type){$(title)}\n"
+                        title_text = latexesc("$title")
+                        header_text = "\n\\$(header_type){$title_text}\n"
                         if isempty(filename)
                             _println(context, header_text)
                         else
