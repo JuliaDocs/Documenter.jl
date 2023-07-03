@@ -2,6 +2,7 @@
 
 ## Version `v0.27.25`
 
+* ![Enhancement][badge-enhancement] The CSS Documenter ships is now minified. ([#2153][github-2153], [#2157][github-2157])
 * ![Bugfix][badge-bugfix] Page headings are now correctly escaped in `LaTeXWriter`. ([#2134][github-2134])
 * ![Bugfix][badge-bugfix] Compiling the dark theme with Sass no longer emits deprecation warnings about `!global` assignments. ([#1766][github-1766], [#1983][github-1983], [#2145][github-2145])
 
@@ -1108,6 +1109,8 @@
 [github-2018]: https://github.com/JuliaDocs/Documenter.jl/pull/2018
 [github-2134]: https://github.com/JuliaDocs/Documenter.jl/pull/2134
 [github-2145]: https://github.com/JuliaDocs/Documenter.jl/pull/2145
+[github-2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
+[github-2157]: https://github.com/JuliaDocs/Documenter.jl/pull/2157
 <!-- end of issue link definitions -->
 
 [julia-38054]: https://github.com/JuliaLang/julia/issues/38054
