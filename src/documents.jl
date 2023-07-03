@@ -366,8 +366,10 @@ function Document(plugins = nothing;
         version = "git:$(get_commit_short(root))"
     end
 
+    @show remotes
+
     remote, remotes = if isnothing(remotes)
-        if isa(repo, AbstractString) && isempty(repo)
+        if isa(repo, AbstractString) && !isempty(repo)
             err = """
             When `remotes` is set to `nothing`, `repo` must be unset.
             """

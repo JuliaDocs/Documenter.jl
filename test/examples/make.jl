@@ -466,7 +466,7 @@ end
 @examplebuild "repo-error" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("error", root=dir)
+        html_repo("error", root=dir, remotes=nothing)
     end
 end
 
