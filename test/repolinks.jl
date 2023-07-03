@@ -177,7 +177,7 @@ end
 
 # Trying to set up a remote to a directory that does not have Git repository will throw, because we need to know
 # the commit hash.
-@test_throws Exception Documenter.Document(
+@quietly @test_throws Exception Documenter.Document(
     root = joinpath(mainrepo, "docs"),
     remotes=Dict(
         extdirectory => Remotes.GitHub("AlternateOrg", "ExtRepo.jl"),

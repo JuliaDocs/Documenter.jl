@@ -109,6 +109,10 @@ inspecting the locally checked out Git repository, or via the `remotes` keyword.
 manual section on [Remote repository links](@ref) for more information on how the remote
 repository links are handled.
 
+If `remotes` is set to `nothing`, all remote repository links (repository links, source links,
+edit links, issue links etc.) will be completely disabled. This can be useful when publicly
+deploying documentation for private packages.
+
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
 indented code block containing the function signature, then that block would be highlighted

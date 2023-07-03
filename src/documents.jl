@@ -316,17 +316,6 @@ struct Document
     blueprint :: DocumentBlueprint
 end
 
-# These are special Remotes that Documenter.Document uses to indicate certain special
-# conditions in doc.user.remotes.
-#
-# DisabledRemotes are remote paths that the user has explicitly disabled by setting
-# the remote to `nothing` in the remotes= argument. In these cases, we silently just disable
-# source and edit links.
-struct DisabledRemote <: Remotes.Remote end
-# NotFoundRemote corresponds to an automatically discovered Git repository for which we were
-# not able to determine the remote for.
-struct NotFoundRemote <: Remotes.Remote end
-
 function Document(plugins = nothing;
         root     :: AbstractString   = currentdir(),
         source   :: AbstractString   = "src",
@@ -365,8 +354,6 @@ function Document(plugins = nothing;
     if version == "git-commit"
         version = "git:$(get_commit_short(root))"
     end
-
-    @show remotes
 
     remote, remotes = if isnothing(remotes)
         if isa(repo, AbstractString) && !isempty(repo)
