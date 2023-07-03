@@ -278,7 +278,7 @@ struct User
     # object, we also dynamically add links to the .remotes array as we check different
     # files, by looking at .git directories.
     remote  :: Union{Remotes.Remote,Nothing}
-    remotes :: Vector{RemoteRepository}
+    remotes :: Union{Vector{RemoteRepository},Nothing}
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -346,7 +346,7 @@ function Document(plugins = nothing;
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
-        remotes  :: Dict             = Dict(),
+        remotes  :: Union{Dict, Nothing} = Dict(),
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -366,10 +366,80 @@ function Document(plugins = nothing;
         version = "git:$(get_commit_short(root))"
     end
 
+    remote, remotes = if isnothing(remotes)
+        if isa(repo, AbstractString) && isempty(repo)
+            err = """
+            When `remotes` is set to `nothing`, `repo` must be unset.
+            """
+            throw(ArgumentError(err))
+        end
+        nothing, nothing
+    else
+        interpret_repo_and_remotes(; root, repo, remotes)
+    end
+
+    user = User(
+        root,
+        source,
+        build,
+        workdir,
+        format,
+        clean,
+        doctest,
+        linkcheck,
+        linkcheck_ignore,
+        linkcheck_timeout,
+        checkdocs,
+        doctestfilters,
+        strict,
+        pages,
+        pagesonly,
+        expandfirst,
+        remote,
+        remotes,
+        sitename,
+        authors,
+        version,
+        highlightsig,
+        draft,
+    )
+    internal = Internal(
+        assetsdir(),
+        [],
+        [],
+        Anchors.AnchorMap(),
+        Anchors.AnchorMap(),
+        IdDict{Any,Any}(),
+        IdDict{Any,Any}(),
+        [],
+        [],
+        Dict{Markdown.Link, String}(),
+        Set{Symbol}()
+    )
+
+    plugin_dict = Dict{DataType, Plugin}()
+    if plugins !== nothing
+        for plugin in plugins
+            plugin isa Plugin ||
+                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Plugin`."))
+            haskey(plugin_dict, typeof(plugin)) &&
+                throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
+            plugin_dict[typeof(plugin)] = plugin
+        end
+    end
+
+    blueprint = DocumentBlueprint(
+        Dict{String, Page}(),
+        submodules(modules),
+    )
+    Document(user, internal, plugin_dict, blueprint)
+end
+
+function interpret_repo_and_remotes(; root, repo, remotes)
     # For `remotes`, we'll first validate that the array provided by the user contains
     # valid path-remote pairs.
     remotes_checked = RemoteRepository[]
-    for (path, remoteref) in remotes
+    for (path, remoteref) in something(remotes, ()) # remotes can be nothing
         # The paths should be relative to the directory containing make.jl (or, more generally, to the root
         # argument of makedocs)
         path = joinpath(root, path)
@@ -515,61 +585,7 @@ function Document(plugins = nothing;
         throw(ArgumentError(err))
     end
 
-    user = User(
-        root,
-        source,
-        build,
-        workdir,
-        format,
-        clean,
-        doctest,
-        linkcheck,
-        linkcheck_ignore,
-        linkcheck_timeout,
-        checkdocs,
-        doctestfilters,
-        strict,
-        pages,
-        pagesonly,
-        expandfirst,
-        makedocs_root_remote,
-        remotes_checked,
-        sitename,
-        authors,
-        version,
-        highlightsig,
-        draft,
-    )
-    internal = Internal(
-        assetsdir(),
-        [],
-        [],
-        Anchors.AnchorMap(),
-        Anchors.AnchorMap(),
-        IdDict{Any,Any}(),
-        IdDict{Any,Any}(),
-        [],
-        [],
-        Dict{Markdown.Link, String}(),
-        Set{Symbol}()
-    )
-
-    plugin_dict = Dict{DataType, Plugin}()
-    if plugins !== nothing
-        for plugin in plugins
-            plugin isa Plugin ||
-                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Plugin`."))
-            haskey(plugin_dict, typeof(plugin)) &&
-                throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
-            plugin_dict[typeof(plugin)] = plugin
-        end
-    end
-
-    blueprint = DocumentBlueprint(
-        Dict{String, Page}(),
-        submodules(modules),
-    )
-    Document(user, internal, plugin_dict, blueprint)
+    return (makedocs_root_remote, remotes_checked)
 end
 
 function addremote!(remotes::Vector{RemoteRepository}, remoteref::RemoteRepository)
