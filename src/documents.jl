@@ -672,6 +672,8 @@ function relpath_from_remote_root(remotes::Vector{RemoteRepository}, path::Abstr
     end
 end
 relpath_from_remote_root(doc::Document, path::AbstractString) = relpath_from_remote_root(doc.user.remotes, path)
+# It's possible that doc.user.remotes is set to nothing, in which case we are not able to determine remote links.
+relpath_from_remote_root(doc::Nothing, path::AbstractString) = nothing
 
 # Determines the Edit URL for a local path.
 #  - rev: indicates a Git revision; if omitted, the current repo commit is used.
