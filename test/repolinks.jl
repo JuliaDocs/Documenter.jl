@@ -4,6 +4,7 @@
 # then explicitly test the edit_url and source_url functions.
 module RepoLinkTests
 using Test
+using Random: randstring
 using Documenter: Documenter, Remotes, git, edit_url, source_url
 include("TestUtilities.jl"); using Main.TestUtilities
 
@@ -34,9 +35,9 @@ end
 
 function create_defaultfiles()
     mkpath("docs")
-    touch("foo")
+    write("foo", randstring(10))
     mkpath("bar/baz")
-    touch("bar/baz/qux")
+    write("bar/baz/qux", randstring(10))
 end
 
 # Set up a complex hierarchy of temporary repositories
@@ -54,7 +55,7 @@ subrepo_commit = init_git_repo(
 # Second repository in a subdirectory, but without a remote set up, so this would
 # require it to be set explicitly in remotes.
 subrepo_noremote = joinpath(mainrepo, "bar", "subrepo_noremote")
-init_git_repo(create_defaultfiles, subrepo_noremote; remote=nothing)
+subrepo_noremote_commit = init_git_repo(create_defaultfiles, subrepo_noremote; remote=nothing)
 # A repository outside of the main repository (with remote)
 extrepo = joinpath(tmproot, "extrepo")
 extrepo_commit = init_git_repo(
@@ -164,9 +165,8 @@ end
     @test edit_url(doc, joinpath(extrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/foo"
     @test edit_url(doc, joinpath(extrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/bar/baz/qux"
     # subrepo_noremote: this should point to AlternateOrg/NoRemoteSubdir.jl
-    # TODO: this case should not return mainrepo_commit, but instead it should error during Document() construction
-    @test_broken edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) != "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(mainrepo_commit)/foo"
-    @test_broken edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) != "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(mainrepo_commit)/bar/baz/qux"
+    @test edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/foo"
+    @test edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/bar/baz/qux"
     # extrepo_noremote: we did not touch this
     @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing) === nothing
     @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
@@ -210,6 +210,15 @@ end
     @test source_url(doc, RepoLinkTests, joinpath(mainrepo, "foo"), 5:8) == "https://github.com/AlternateOrg/AlternateRepo.jl/blob/12345/foo#L5-L8"
     @test doc.user.remote == Remotes.GitHub("AlternateOrg", "AlternateRepo.jl")
 end
+
+# Setting both the `repo` and also overriding the same path in `remotes` should error
+@test_throws Exception Documenter.Document(
+    root = joinpath(mainrepo, "docs"),
+    repo = Remotes.GitHub("AlternateOrg", "ExtRepo.jl"),
+    remotes=Dict(
+        mainrepo => (Remotes.GitHub("AlternateOrg", "AlternateRepo.jl"), "12345"),
+    )
+)
 
 rm(tmproot, recursive=true, force=true)
 

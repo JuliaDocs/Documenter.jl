@@ -239,7 +239,15 @@ struct RemoteRepository
     commit::String
 end
 function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
-    RemoteRepository(root, remote, repo_commit(root))
+    try
+        RemoteRepository(root, remote, repo_commit(root))
+    catch e
+        e isa RepoCommitError || rethrow()
+        @error "Unable to determine the commit for the remote repository:\n$(e.msg)" e.directory exception = e.err_bt
+        throw(ArgumentError("""
+        Unable to determine the commit for the remote repository
+          at $(root) => $(remote)"""))
+    end
 end
 
 """
@@ -641,6 +649,7 @@ function relpath_from_remote_root(remotes::Vector{RemoteRepository}, path::Abstr
                 # TODO: we might need the ability to skip the remote auto detection for certain
                 # directories.. This could be done by allowing e.g. `nothing`s in `doc.user.remotes`
                 # and `continue`-ing if we detect that. But let's not add that complexity now.
+                # TODO: the RemoteRepository() call may throw -- we should handle this more gracefully
                 remoteref = RemoteRepository(directory, remote)
                 addremote!(remotes, remoteref)
                 root_remote = remoteref

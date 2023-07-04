@@ -439,15 +439,39 @@ function is_git_repo_root(directory::AbstractString; dbdir=".git")
     return false
 end
 
-function repo_commit(path)
-    ispath(path) || error("repo_commit called with nonexistent path: $path")
-    dir = isdir(path) ? path : dirname(path)
-    cd(dir) do
+struct RepoCommitError <: Exception
+    directory::String
+    msg :: String
+    err_bt :: Union{Tuple{Any,Any},Nothing}
+    RepoCommitError(directory::AbstractString, msg::AbstractString) = new(directory, msg, nothing)
+    RepoCommitError(directory::AbstractString, msg::AbstractString, e, bt) = new(directory, msg, (e, bt))
+end
+
+function repo_commit(repository_root::AbstractString)
+    isdir(repository_root) || throw(RepoCommitError(repository_root, "repository_root not a directory"))
+    cd(repository_root) do
+        try
+            toplevel = readchomp(`$(git()) rev-parse --show-toplevel`)
+            if !ispath(toplevel)
+                throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` returned invalid path: $toplevel"))
+            end
+            if realpath(toplevel) != realpath(repository_root)
+                throw(RepoCommitError(
+                    repository_root,
+                    """
+                    repository_root is not the top-level of the repository
+                      `git rev-parse --show-toplevel`: $toplevel
+                      repository_root: $repository_root
+                    """
+                ))
+            end
+        catch e
+            throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` failed", e, catch_backtrace()))
+        end
         try
             readchomp(`$(git()) rev-parse HEAD`)
-        catch
-            @error "get rev-parse HEAD failed" dir
-            rethrow()
+        catch e
+            throw(RepoCommitError(repository_root, "`git rev-parse HEAD` failed", e, catch_backtrace()))
         end
     end
 end

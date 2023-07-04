@@ -165,6 +165,24 @@ end
     repo_root(filepath) = Documenter.find_root_parent(Documenter.is_git_repo_root, filepath)
     repo_root(filepath, dbdir) = Documenter.find_root_parent(d -> Documenter.is_git_repo_root(d; dbdir), filepath)
 
+    @quietly @testset "repo_commit" begin
+        mktempdir() do path
+            cd(path) do
+                @test_throws Documenter.RepoCommitError Documenter.repo_commit(path)
+                @test trun(`$(git()) init`)
+                @test trun(`$(git()) config user.email "tester@example.com"`)
+                @test trun(`$(git()) config user.name "Test Committer"`)
+                @test_throws Documenter.RepoCommitError Documenter.repo_commit(path)
+                touch("foo")
+                @test trun(`$(git()) add -A`)
+                @test trun(`$(git()) commit -m 1234`)
+                @test Documenter.repo_commit(path) isa AbstractString
+                mkdir("bar")
+                @test_throws Documenter.RepoCommitError Documenter.repo_commit(joinpath(path, "bar"))
+            end
+        end
+    end
+
     mktempdir() do path
         remote = Documenter.Remotes.URL("//blob/{commit}{path}#{line}")
         path_repo = joinpath(path, "repository")
@@ -182,7 +200,7 @@ end
             @test trun(`$(git()) commit -m"Initial commit."`)
 
             # Run tests
-            commit = Documenter.repo_commit(filepath)
+            commit = Documenter.repo_commit(path_repo)
             doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
             @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
@@ -207,10 +225,10 @@ end
         cd("$(path_repo)") do
             @test trun(`$(git()) worktree add $(path_worktree)`)
         end
-        cd("$(path_worktree)") do
+        cd(path_worktree) do
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             # Run tests
-            commit = Documenter.repo_commit(filepath)
+            commit = Documenter.repo_commit(path_worktree)
             doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
             @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
@@ -251,7 +269,7 @@ end
         cd(path_submodule_repo) do
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             # Run tests
-            commit = Documenter.repo_commit(filepath)
+            commit = Documenter.repo_commit(path_submodule_repo)
             doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
             @test isfile(filepath)
@@ -288,7 +306,7 @@ end
             @test trun(`$(git()) commit -m"Initial commit."`)
 
             # Run tests
-            commit = Documenter.repo_commit(filepath)
+            commit = Documenter.repo_commit(path_repo_github)
             doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
             @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
