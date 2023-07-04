@@ -43,7 +43,7 @@ In principle, anything that is not covered by the previous section is, by defini
 
 However, it is worth mentioning a few things explicitly, in particular things that are currently not part of the API, but should be added (in some way) in the future:
 
-* Any time you hook into Documenter's Julia internals some way.
+* Any time you hook into Documenter's internals in some way.
   This includes hooking into the seemingly extensible parts of the internals, such as adding additional build steps, or renderers.
   The long-term aim here is to create clean plugin APIs, but it is unlikely we'll be able to keep the current internals for that.
 * The HTML, TeX, or file structure of the generated documents (unless explicitly documented).
