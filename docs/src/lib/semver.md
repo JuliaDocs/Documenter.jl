@@ -41,14 +41,16 @@ The following APIs and behaviors are guaranteed not to change:
 
 In principle, anything that is not covered by the previous section is, by definition, _not_ part of the public API and is _not_ guaranteed not to break.
 
-However, it is worth mentioning a few things explicitly, in particular things that are currently not part of the API, but should be added in the future:
+However, it is worth mentioning a few things explicitly, in particular things that are currently not part of the API, but should be added (in some way) in the future:
 
 * Any time you hook into Documenter's Julia internals some way.
   This includes hooking into the seemingly extensible parts of the internals, such as adding additional build steps, or renderers.
   The long-term aim here is to create clean plugin APIs, but it is unlikely we'll be able to keep the current internals for that.
 * The HTML, TeX, or file structure of the generated documents (unless explicitly documented).
+  This includes the CSS of the HTML themes, and as such any custom CSS overrides may stop working at any point.
   However, there are many _de facto_ guarantees here that should get documented over time (e.g. for custom themes).
-* Anything explicitly marked experimental (see the note above).
+* The look and feel of the HTML UI and the generated PDF may change considerably from one minor version to another.
+* Anything explicitly marked experimental is not guaranteed to remain stable (see the note above).
 
 
 !!! note "Patch versions are probably okay"
