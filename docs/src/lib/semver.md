@@ -33,7 +33,7 @@ The following APIs and behaviors are guaranteed not to change:
 !!! note "Experimental APIs"
 
     Note that some APIs may explicitly marked experimental.
-    In that case, you can only rely on them _withing a minor version_.
+    In that case, you can only rely on them _within a minor version_.
     The next minor version release may completely change or remove experimental features and APIs.
 
 
