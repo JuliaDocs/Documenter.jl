@@ -138,6 +138,7 @@ makedocs(
                 s -> "lib/internals/$(s)",
                 sort(readdir(joinpath(@__DIR__, "src/lib/internals")))
             ),
+            "Semantic versioning" => "lib/semver.md",
         ],
         "contributing.md",
         "release-notes.md",
