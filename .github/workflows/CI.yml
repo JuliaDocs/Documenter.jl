@@ -153,9 +153,11 @@ jobs:
       - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@latest
         with:
-          version: '1.6'
+          version: '1'
+      - name: Install dependencies
+        run: julia --color=yes --project -e'using Pkg; Pkg.instantiate()'
       - name: Run online linkcheck tests
-        run: julia --color=yes test/run_docchecks.jl
+        run: julia --color=yes --project test/online_linkcheck.jl
 
   linkcheck-manual:
     name: "Linkcheck: Documenter manual"
@@ -164,7 +166,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@latest
         with:
-          version: '1.6'
+          version: '1'
       - name: Install dependencies
         run: julia --color=yes --project=docs/ docs/instantiate.jl
       - name: Build and check documentation
