@@ -83,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Invalid local link warnings during HTML rendering now print a bit more context, helping in pinpointing the offending link. (#2100)
 
+* Admonitions with category `details` are now rendered as (collapsed) `<details>` in the HTML backend. The admonition title is used as the `<summary>`. (#2128)
+
 ### Fixed
 
 * Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. (#1808)
@@ -104,6 +106,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Documenter now uses [MarkdownAST](https://github.com/JuliaDocs/MarkdownAST.jl) to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues). (#1892), (#1912), (#1924), (#1948)
 
 * The code layout has changed considerably, with many of the internal submodules removed. This **may be breaking** for code that hooks into various Documenter internals, as various types and functions now live at different code paths. (#1977)
+
+
+## Version v0.27.25 - 2023-07-03
+
+### Fixed
+
+* Page headings are now correctly escaped in `LaTeXWriter`. (#2134)
+
+* Compiling the dark theme with Sass no longer emits deprecation warnings about `!global` assignments. (#1766, #1983, #2145)
+
+* The CSS Documenter ships is now minified. (#2153, #2157)
 
 ## Version v0.27.24 - 2023-01-23
 
