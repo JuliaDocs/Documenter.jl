@@ -374,6 +374,7 @@ function Document(plugins = nothing;
     else
         interpret_repo_and_remotes(; root, repo, remotes)
     end
+    @debug "Document: remotes" remote remotes
 
     user = User(
         root,
@@ -651,6 +652,7 @@ function relpath_from_remote_root(remotes::Vector{RemoteRepository}, path::Abstr
                 # and `continue`-ing if we detect that. But let's not add that complexity now.
                 # TODO: the RemoteRepository() call may throw -- we should handle this more gracefully
                 remoteref = RemoteRepository(directory, remote)
+                @debug "relpath_from_remote_root: adding remote" remoteref
                 addremote!(remotes, remoteref)
                 root_remote = remoteref
             end
@@ -687,6 +689,7 @@ function edit_url(doc::Document, path; rev::Union{AbstractString,Nothing})
         return nothing
     end
     rev = isnothing(rev) ? remoteref.repo.commit : rev
+    @debug "edit_url" path remoteref rev
     return repofile(remoteref.repo.remote, rev, remoteref.relpath)
 end
 
@@ -711,6 +714,7 @@ function source_url(doc::Document, mod, file, linerange)
     if isnothing(remoteref)
         return nothing
     end
+    @debug "source_url" mod file linerange remoteref
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
 end
 

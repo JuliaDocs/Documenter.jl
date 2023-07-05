@@ -502,7 +502,8 @@ function getremote(dir::AbstractString)
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
             readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
-        catch
+        catch e
+            @debug "git config --get remote.origin.url failed" exception=(e, catch_backtrace())
             ""
         end
         # TODO: we only match for GitHub repositories automatically. Could we engineer a
