@@ -75,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - jquery has been updated from `v3.6.0` to `v3.6.4`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
-* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312, #2076)
+* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312) (#2076) (#2169)
 
 * Added the ability to expand/collapse individual as well as all docstrings. (#1393, #2078)
 

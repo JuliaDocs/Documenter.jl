@@ -7,6 +7,9 @@ $themename: "documenter-dark"; // CSS file must be called `$(themename).css`
 $bulmaswatch-import-font: false;
 
 @import "darkly/variables";
+$body-size: 16px;
+$size-6: 1rem;
+$size-7: 0.75rem;
 
 $documenter-is-dark-theme: true;
 
