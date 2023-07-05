@@ -512,6 +512,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
     end
     makedocs_root_repo = find_root_parent(is_git_repo_root, root)
     makedocs_root_remote = isnothing(makedocs_root_repo) ? nothing : getremote(makedocs_root_repo)
+    @debug "interpret_repo_and_remotes" remotes_checked repo_normalized makedocs_root_remoteref makedocs_root_repo makedocs_root_remote
     if !isnothing(makedocs_root_remoteref) && !isnothing(makedocs_root_repo)
         # If both are set, then there is potential for conflict.
         if makedocs_root_remoteref.root == makedocs_root_repo
