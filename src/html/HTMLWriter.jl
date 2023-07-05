@@ -2051,7 +2051,7 @@ function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
 end
 
 function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
-    @tags header div
+    @tags header div details summary
     colorclass =
         (a.category == "danger")  ? ".is-danger"  :
         (a.category == "warning") ? ".is-warning" :
@@ -2079,10 +2079,18 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-    div[".admonition$(colorclass)"](
-        header[".admonition-header"](a.title),
-        div[".admonition-body"](domify(dctx, node.children))
-    )
+
+    inner_div = div[".admonition-body"](domify(dctx, node.children))
+    if a.category == "details"
+        # details admonitions are rendered as <details><summary> blocks
+        details[".admonition.is-details"](
+            summary[".admonition-header"](a.title), inner_div
+        )
+    else
+        div[".admonition$(colorclass)"](
+            header[".admonition-header"](a.title), inner_div
+        )
+    end
 end
 
 # Select the "best" representation for HTML output.

@@ -118,6 +118,13 @@ Documenter supports a range of admonition types for different circumstances.
 !!! compat "'compat' admonition"
     This is a `!!! compat`-type admonition.
 
+###### Details admonition
+Admonitions with type `details` is rendered as a collapsed `<details>` block in
+the HTML output, with the admonition title as the `<summary>`.
+
+!!! details "'details' admonition"
+    This is a `!!! details`-type admonition.
+
 ###### Unknown admonition class
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class. This is a `code example`.
