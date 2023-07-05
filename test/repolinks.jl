@@ -4,6 +4,7 @@
 # then explicitly test the edit_url and source_url functions.
 module RepoLinkTests
 using Test
+import Logging
 using Random: randstring
 using Documenter: Documenter, Remotes, git, edit_url, source_url
 include("TestUtilities.jl"); using Main.TestUtilities
@@ -81,6 +82,7 @@ cd(create_defaultfiles, extdirectory)
 end
 
 @testset "Defaults (no arguments)" begin
+    @debug Test.get_testset()
     # First, let's test the default behaviours, without arguments,
     # in which case we should pick up all the Git repositories that
     # have valid origins, and throw on others.
@@ -91,7 +93,7 @@ end
     @test source_url(doc, RepoLinkTests, joinpath(mainrepo, "foo"), 5:8) == "https://github.com/TestOrg/TestRepo.jl/blob/$(mainrepo_commit)/foo#L5-L8"
     # Directories are fine too, but non-existent local paths are not
     @test edit_url(doc, joinpath(mainrepo, "bar"); rev=nothing) == "https://github.com/TestOrg/TestRepo.jl/blob/$(mainrepo_commit)/bar"
-    @test @test_logs (:warn,) edit_url(doc, joinpath(mainrepo, "nonext"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(mainrepo, "nonext"); rev=nothing) === nothing
     # We also automatically pick up the Git remote of a subdirectory
     @test edit_url(doc, joinpath(subrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/AnotherRepo.jl/blob/$(subrepo_commit)/foo"
     @test edit_url(doc, joinpath(subrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/AnotherRepo.jl/blob/$(subrepo_commit)/bar/baz/qux"
@@ -99,16 +101,17 @@ end
     @test edit_url(doc, joinpath(extrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/foo"
     @test edit_url(doc, joinpath(extrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/bar/baz/qux"
     # But if you don't have the Git origin set, then we error
-    @test @test_logs (:warn,) edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
     # And the same applies to external directories
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing) === nothing
 end
 
 @testset "Repo only" begin
+    @debug Test.get_testset()
     # If we override the `repo` argument (only), we should override everything in the main repository
     doc = Documenter.Document(root = joinpath(mainrepo, "docs"), repo=Remotes.GitHub("AlternateOrg", "TestRepo.jl"))
     @test edit_url(doc, joinpath(mainrepo, "foo"); rev=nothing) == "https://github.com/AlternateOrg/TestRepo.jl/blob/$(mainrepo_commit)/foo"
@@ -122,16 +125,17 @@ end
     @test edit_url(doc, joinpath(extrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/foo"
     @test edit_url(doc, joinpath(extrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/bar/baz/qux"
     # But if you don't have the Git origin set, then we error
-    @test @test_logs (:warn,) edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
     # And the same applies to external directories
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing) === nothing
 end
 
 @testset "repo for extrepo_noremote" begin
+    @debug Test.get_testset()
     # We normally can't build for extrepo_noremote because we can't detect the remote repository, but if we set repo=,
     # then we will use that.
     doc = Documenter.Document(root = joinpath(extrepo_noremote, "docs"), repo=Remotes.GitHub("ExtRepoOrg", "TestRepo.jl"))
@@ -142,6 +146,7 @@ end
 end
 
 @testset "Remotes overrides" begin
+    @debug Test.get_testset()
     # We'll set up a couple of overrides with remotes here
     doc = Documenter.Document(
         root = joinpath(mainrepo, "docs"),
@@ -168,8 +173,8 @@ end
     @test edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/foo"
     @test edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/bar/baz/qux"
     # extrepo_noremote: we did not touch this
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing) === nothing
-    @test @test_logs (:warn,) edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing) === nothing
+    @test @test_logs min_level=Logging.Warn (:warn,) edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing) === nothing
     # extdirectory: should point to AlternateOrg/ExtRepo.jl
     @test edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing) == "https://github.com/AlternateOrg/ExtRepo.jl/blob/12345/foo"
     @test edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing) == "https://github.com/AlternateOrg/ExtRepo.jl/blob/12345/bar/baz/qux"
@@ -185,6 +190,7 @@ end
 )
 
 @testset "Set repo with remotes" begin
+    @debug Test.get_testset()
     # We'll try to override set repo (~ doc.user.remote) with remotes.
     doc = Documenter.Document(
         root = joinpath(mainrepo, "docs"),
