@@ -251,6 +251,13 @@ function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
 end
 
 """
+$(SIGNATURES)
+
+Returns the first 5 characters of the current Git commit hash of the remote.
+"""
+shortcommit(remoteref::RemoteRepository) = (length(remoteref.commit) > 5) ? remoteref.commit[1:5] : remoteref.commit
+
+"""
 User-specified values used to control the generation process.
 """
 struct User
@@ -359,10 +366,6 @@ function Document(plugins = nothing;
         format = Writer[format]
     end
 
-    if version == "git-commit"
-        version = "git:$(get_commit_short(root))"
-    end
-
     remote, remotes = if isnothing(remotes)
         if isa(repo, AbstractString) && !isempty(repo)
             err = """
@@ -375,6 +378,15 @@ function Document(plugins = nothing;
         interpret_repo_and_remotes(; root, repo, remotes)
     end
     @debug "Document: remotes" remote remotes
+
+    if version == "git-commit"
+        if isnothing(remote)
+            err = """
+            Unable to determine the Git commit of the main repository, but `version` is set to `git-commit`."""
+            throw(ArgumentError(err))
+        end
+        version = "git:$(shortcommit(remote))"
+    end
 
     user = User(
         root,

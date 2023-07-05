@@ -515,18 +515,6 @@ function getremote(dir::AbstractString)
     end
 end
 
-"""
-$(SIGNATURES)
-
-Returns the first 5 characters of the current git commit hash of the directory `dir`.
-"""
-function get_commit_short(dir)
-    commit = cd(dir) do
-        readchomp(`$(git()) rev-parse HEAD`)
-    end
-    (length(commit) > 5) ? commit[1:5] : commit
-end
-
 function inbase(m::Module)
     if m ≡ Base
         true
