@@ -369,7 +369,7 @@ function Document(plugins = nothing;
     remote, remotes = if isnothing(remotes)
         if isa(repo, AbstractString) && !isempty(repo)
             err = """
-            When `remotes` is set to `nothing`, `repo` must be unset.
+            When `remotes` is set to `nothing`, `repo` must not be set.
             """
             throw(ArgumentError(err))
         end
@@ -581,9 +581,11 @@ function interpret_repo_and_remotes(; root, repo, remotes)
             makedocs_root_remote = repo_normalized
         elseif isnothing(makedocs_root_remote)
             err = """
-            Unable to automatically determine remote for main repo -- `repo` is not set, and the Git repository has invalid origin.
-              path: $(makedocs_root_repo)
-            """
+            Unable to automatically determine remote for main repo.
+            > `repo` is not set, and the Git repository has invalid origin.
+            Configure `repo` and/or `remotes` appropriately, or set `remotes = nothing` to disable remote source
+            links altogether (e.g. if not working in a Git repository).
+              path: $(makedocs_root_repo)"""
             throw(ArgumentError(err))
         end
         # Since this path was not in remotes, we also need to add it there.
@@ -591,9 +593,11 @@ function interpret_repo_and_remotes(; root, repo, remotes)
     else
         # Finally, if we're neither in a git repo, and nothing is in remotes,
         err = """
-        Unable to automatically determine remote for main repo: `repo` is not set, and makedocs is not in a Git repository.
-          path: $(makedocs_root_repo)
-        """
+        Unable to automatically determine remote for main repo.
+        > `repo` is not set, and makedocs is not in a Git repository.
+        Configure `repo` and/or `remotes` appropriately, or set `remotes = nothing` to disable remote source
+        links altogether (e.g. if not working in a Git repository).
+          path: $(makedocs_root_repo)"""
         throw(ArgumentError(err))
     end
 
