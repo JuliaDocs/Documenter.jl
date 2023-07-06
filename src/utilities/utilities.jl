@@ -405,7 +405,7 @@ determine if this is a repository or not. If there is a file called `dbdir`, the
 contents is checked under the assumption that it is a Git worktree or a submodule.
 """
 function find_root_parent(f, path)
-    path = abspath(path)
+    path = realpath(path)
     parent_dir = isdir(path) ? path : dirname(path)
     parent_dir_last = ""
     while parent_dir != parent_dir_last

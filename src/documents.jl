@@ -240,7 +240,7 @@ struct RemoteRepository
 end
 function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
     try
-        RemoteRepository(root, remote, repo_commit(root))
+        RemoteRepository(realpath(root), remote, repo_commit(root))
     catch e
         e isa RepoCommitError || rethrow()
         @error "Unable to determine the commit for the remote repository:\n$(e.msg)" e.directory exception = e.err_bt
