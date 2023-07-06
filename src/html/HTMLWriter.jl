@@ -818,7 +818,10 @@ function render_settings(ctx)
     theme_selector = p(
         label[".label"]("Theme"),
         div[".select"](
-            select["#documenter-themepicker"](option[:value=>theme](theme) for theme in THEMES)
+            select["#documenter-themepicker"](
+                (option[:value=>theme](theme) for theme in THEMES)...,
+                option[:value=>"auto"]("Automatic (OS)")
+            )
         )
     )
 
@@ -1163,12 +1166,11 @@ end
 function render_navbar(ctx, navnode, edit_page_link::Bool)
     @tags div header nav ul li a span
 
-    navbar_left = div[".docs-left"]
     # Hamburger on mobile
-    push!(navbar_left.nodes, a[
+    navbar_left = a[
         "#documenter-sidebar-button.docs-sidebar-button.docs-navbar-link.fa-solid.fa-bars.is-hidden-desktop",
         :href => "#",
-    ])
+    ]
 
     # The breadcrumb (navigation links on top)
     navpath = Documenter.navpath(navnode)

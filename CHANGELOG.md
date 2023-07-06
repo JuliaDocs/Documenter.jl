@@ -87,13 +87,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - jquery has been updated from `v3.6.0` to `v3.6.4`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
-* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312, #2076)
+* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312) (#2076) (#2169)
 
 * Added the ability to expand/collapse individual as well as all docstrings. (#1393, #2078)
 
 * Invalid local link warnings during HTML rendering now print a bit more context, helping in pinpointing the offending link. (#2100)
 
 * Admonitions with category `details` are now rendered as (collapsed) `<details>` in the HTML backend. The admonition title is used as the `<summary>`. (#2128)
+
+* Theme switcher now includes an "Automatic (OS preference)" option that makes the site follow the user's OS setting. (#1745), (#2085), (#2170)
 
 ### Fixed
 
