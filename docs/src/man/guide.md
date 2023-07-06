@@ -99,7 +99,7 @@ Note that `$` just represents the prompt character. You don't need to type that.
 If you'd like to see the output from this command in color use
 
 ```sh
-$ julia --color=yes make.jl
+$ julia --color=yes --project make.jl
 ```
 
 When you run that you should see the following output
