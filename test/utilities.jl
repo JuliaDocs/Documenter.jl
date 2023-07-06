@@ -209,7 +209,7 @@ end
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
-            @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test repo_root(filepath) == realpath(joinpath(dirname(filepath), ".."))
             @test repo_root(filepath, ".svn") === nothing
             let remoteref = Documenter.relpath_from_remote_root(doc, filepath)
                 @test remoteref.repo.remote === remote
@@ -235,7 +235,7 @@ end
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
-            @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test repo_root(filepath) == realpath(joinpath(dirname(filepath), ".."))
             @test repo_root(filepath, ".svn") === nothing
             let remoteref = Documenter.relpath_from_remote_root(doc, filepath)
                 @test remoteref.repo.remote === remote
@@ -278,7 +278,7 @@ end
             @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
-            @test repo_root(filepath) == dirname(abspath(joinpath(dirname(filepath), ".."))) # abspath() keeps trailing /, hence dirname()
+            @test repo_root(filepath) == realpath(joinpath(dirname(filepath), ".."))
             @test repo_root(filepath, ".svn") === nothing
             let remoteref = Documenter.relpath_from_remote_root(doc, filepath)
                 @test remoteref.repo.remote === remote
