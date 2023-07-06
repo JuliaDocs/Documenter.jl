@@ -503,6 +503,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
     makedocs_root_remoteref = nothing
     find_root_parent(root) do directory
         for remoteref in remotes_checked
+            @debug "interpret_repo_and_remotes / find_root_parent" directory remoteref.root
             if directory == remoteref.root
                 makedocs_root_remoteref = remoteref
                 return true
