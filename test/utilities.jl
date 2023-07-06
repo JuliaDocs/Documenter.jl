@@ -216,7 +216,7 @@ end
                 @test remoteref.relpath == joinpath("src", "SourceFile.jl")
             end
             # We assume that a temporary file is not in a repo
-            @test repo_root(tempname()) === nothing
+            @test_throws ArgumentError repo_root(tempname())
             @test_throws ErrorException Documenter.relpath_from_remote_root(doc, tempname())
         end
 
@@ -242,7 +242,7 @@ end
                 @test remoteref.relpath == joinpath("src", "SourceFile.jl")
             end
             # We assume that a temporary file is not in a repo
-            @test repo_root(tempname()) === nothing
+            @test_throws ArgumentError repo_root(tempname())
             @test_throws ErrorException Documenter.relpath_from_remote_root(doc, tempname())
         end
 
@@ -285,7 +285,7 @@ end
                 @test remoteref.relpath == joinpath("src", "SourceFile.jl")
             end
             # We assume that a temporary file is not in a repo
-            @test repo_root(tempname()) === nothing
+            @test_throws ArgumentError repo_root(tempname())
             @test_throws ErrorException Documenter.relpath_from_remote_root(doc, tempname())
         end
 

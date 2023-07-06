@@ -691,16 +691,16 @@ relpath_from_remote_root(doc::Nothing, path::AbstractString) = nothing
 #  - rev: indicates a Git revision; if omitted, the current repo commit is used.
 # May return nothing if it is unable to determine the local path.
 function edit_url(doc::Document, path; rev::Union{AbstractString,Nothing})
+    # If the user has disable remote links, we abort immediately
+    isnothing(doc.user.remotes) && return nothing
     # We'll prepend doc.user.root, unless already an absolute path.
     path = abspath(doc.user.root, path)
     if !ispath(path)
-        @warn "Unable to generate remote link (local path does not exists)" path
-        return nothing
+        error("Unable to generate remote link (local path does not exists)\n path: $(path)")
     end
     remoteref = relpath_from_remote_root(doc, path)
     if isnothing(remoteref)
-        @warn "Unable to generate remote link" path
-        return nothing
+        error("Unable to generate remote link\n path: $(path)")
     end
     rev = isnothing(rev) ? remoteref.repo.commit : rev
     @debug "edit_url" path remoteref rev
@@ -712,7 +712,10 @@ source_url(doc::Document, docstring) = source_url(
 )
 
 function source_url(doc::Document, mod, file, linerange)
-    file === nothing && return nothing # needed since julia v0.6, see #689
+    # If the user has disable remote links, we abort immediately
+    isnothing(doc.user.remotes) && return nothing
+    # needed since julia v0.6, see #689
+    file === nothing && return nothing
     # Non-absolute paths generally indicate methods from Base.
     if inbase(mod) || !isabspath(file)
         ref = if isempty(Base.GIT_VERSION_INFO.commit)
@@ -726,7 +729,7 @@ function source_url(doc::Document, mod, file, linerange)
     isfile(file) || return nothing
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
-        return nothing
+        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(path)")
     end
     @debug "source_url" mod file linerange remoteref
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
