@@ -87,16 +87,31 @@ makedocs(
 and so any docstring from the module `Documenter` that is not spliced into the generated
 documentation in `build` will raise a warning.
 
-**`repo`** specifies the browsable remote repository (e.g. on github.com). This is used for
-generating various remote links, such as the "source" links on docstrings. It can either
-be passed an object that implements the [`Remotes.Remote`](@ref) interface (e.g.
-[`Remotes.GitHub`](@ref)) or a template string. If a string is passed, it is interpreted
-according to the rules described in [`Remotes.URL`](@ref).
+**`repo`** specifies the remote hosted Git repository (e.g. on `github.com`) related to the
+documentation build. It should be passed an object that subtypes and implements the
+[`Remotes.Remote`](@ref) interface (e.g. [`Remotes.GitHub`](@ref)). A template string can
+also be passed (interpreted according to the rules described in [`Remotes.URL`](@ref)), but
+the use of the template strings is discouraged, in favor of concrete
+[`Remotes.Remote`](@ref) objects.
 
-By default, the repository is assumed to be hosted on GitHub, and the remote URL is
-determined by first checking the URL of the `origin` Git remote, and then falling back to
-checking the `TRAVIS_REPO_SLUG` (for Travis CI) and `GITHUB_REPOSITORY` (for GitHub Actions)
-environment variables. If this automatic procedure fails, a warning is printed.
+**`remotes`** can be used to declare a list additional
+`path::AbstractString => remote` pairs that are used to determine the remote
+repository URLs for local filesystem files, such as the edit links for manual Markdown
+pages, or docstring source links. `path` should be an absolute local filesystem path to a
+directory, and will be interpreted as the root of the remote repository specified with
+`remote`. `remote` would normally be [`Remote`](@ref Remotes.Remote) object, but can also be
+a `(remote::Remote, commit::AbstractString)` tuple, where the second argument specifies the
+commit within the repository. This is necessary when `path` is not pointing to a proper Git
+repository, and so determining the commit automatically is not possible.
+
+If `repo` is not passed, `makedocs` will try to determine it automatically, either by
+inspecting the locally checked out Git repository, or via the `remotes` keyword. See the
+manual section on [Remote repository links](@ref) for more information on how the remote
+repository links are handled.
+
+If `remotes` is set to `nothing`, all remote repository links (repository links, source links,
+edit links, issue links etc.) will be completely disabled. This can be useful when publicly
+deploying documentation for private packages.
 
 **`highlightsig`** enables or disables automatic syntax highlighting of leading, unlabeled
 code blocks in docstrings (as Julia code). For example, if your docstring begins with an
@@ -154,12 +169,6 @@ argument.
 some potentially time-consuming steps are skipped (e.g. running `@example` blocks), which is
 useful when iterating on the documentation. This setting can also be configured per-page
 by setting `Draft = true` in an `@meta` block.
-
-# Experimental keywords
-
-In addition to standard arguments there is a set of non-finalized experimental keyword
-arguments. The behaviour of these may change or they may be removed without deprecation
-when a minor version changes (i.e. except in patch releases).
 
 **`checkdocs`** instructs [`makedocs`](@ref) to check whether all names within the modules
 defined in the `modules` keyword that have a docstring attached have the docstring also

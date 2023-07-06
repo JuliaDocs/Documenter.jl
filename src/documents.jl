@@ -227,6 +227,36 @@ navpath(navnode::NavNode) = navnode.parent === nothing ? [navnode] :
 # Inner Document Fields.
 # ----------------------
 
+# Represents a 'root path' => (Remote, commit/branch) mapping.
+struct RemoteRepository
+    # Path to the root of the repository on the local machine
+    root::String
+    remote::Remotes.Remote
+    # Note: in the HTML output you can override whether edit links
+    # point to commits or main/master. But this here should still be a commit, since
+    # it is predominantly used for source links in docstrings (when manually specified
+    # via the remotes argument).
+    commit::String
+end
+function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
+    try
+        RemoteRepository(realpath(root), remote, repo_commit(root))
+    catch e
+        e isa RepoCommitError || rethrow()
+        @error "Unable to determine the commit for the remote repository:\n$(e.msg)" e.directory exception = e.err_bt
+        throw(ArgumentError("""
+        Unable to determine the commit for the remote repository
+          at $(root) => $(remote)"""))
+    end
+end
+
+"""
+$(SIGNATURES)
+
+Returns the first 5 characters of the current Git commit hash of the remote.
+"""
+shortcommit(remoteref::RemoteRepository) = (length(remoteref.commit) > 5) ? remoteref.commit[1:5] : remoteref.commit
+
 """
 User-specified values used to control the generation process.
 """
@@ -247,7 +277,23 @@ struct User
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
-    remote  :: Union{Remotes.Remote,Nothing} # Remote Git repository information
+    # Remote Git repository information
+    #
+    # .remote is the remote corresponding to the main package / project repository.
+    #  It is used for issue references, the repo-wide "GitHub" links and such, but not
+    # to figure out where to link files to.
+    #
+    # .remotes is an array of (path, remote) pairs, where the path is the absolute path
+    # to the root of the directory that contains the repository `remote`. The array
+    # is sorted by having the longer prefixes first, so that you could have nested
+    # repositories as well. When we try to match a file path with a remote, we can just
+    # walk through the list and do a startswith(), and take the first one that matches.
+    #
+    # While the initial list in .remotes is populated when we construct the Document
+    # object, we also dynamically add links to the .remotes array as we check different
+    # files, by looking at .git directories.
+    remote  :: Union{Remotes.Remote,Nothing}
+    remotes :: Union{Vector{RemoteRepository},Nothing}
     sitename:: String
     authors :: String
     version :: String # version string used in the version selector by default
@@ -304,6 +350,7 @@ function Document(plugins = nothing;
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
+        remotes  :: Union{Dict, Nothing} = Dict(),
         sitename :: AbstractString   = "",
         authors  :: AbstractString   = "",
         version :: AbstractString    = "",
@@ -319,22 +366,26 @@ function Document(plugins = nothing;
         format = Writer[format]
     end
 
-    if version == "git-commit"
-        version = "git:$(get_commit_short(root))"
-    end
-
-    remote = if isa(repo, AbstractString) && isempty(repo)
-        # If the user does not provide the `repo` argument, we'll try to automatically
-        # detect the remote repository by looking at the Git repository remote. This only
-        # works if the repository is hosted on GitHub. If that fails, it falls back to
-        # TRAVIS_REPO_SLUG and then GITHUB_REPOSITORY.
-        get_remote_ci_fallbacks(root)
-    elseif repo isa AbstractString
-        # Use the old template string parsing logic if a string was passed.
-        Remotes.URL(repo)
+    remote, remotes = if isnothing(remotes)
+        if isa(repo, AbstractString) && !isempty(repo)
+            err = """
+            When `remotes` is set to `nothing`, `repo` must be unset.
+            """
+            throw(ArgumentError(err))
+        end
+        nothing, nothing
     else
-        # Otherwise it should be some Remote object
-        repo
+        interpret_repo_and_remotes(; root, repo, remotes)
+    end
+    @debug "Document: remotes" remote remotes
+
+    if version == "git-commit"
+        if isnothing(remote)
+            err = """
+            Unable to determine the Git commit of the main repository, but `version` is set to `git-commit`."""
+            throw(ArgumentError(err))
+        end
+        version = "git:$(shortcommit(remote))"
     end
 
     user = User(
@@ -355,6 +406,7 @@ function Document(plugins = nothing;
         pagesonly,
         expandfirst,
         remote,
+        remotes,
         sitename,
         authors,
         version,
@@ -393,31 +445,294 @@ function Document(plugins = nothing;
     Document(user, internal, plugin_dict, blueprint)
 end
 
-function get_remote_ci_fallbacks(dir::AbstractString)
-    # First, try to determine it from repository's origin.url
-    remote = getremote(dir)
-    isnothing(remote) || return remote
-    # If that fails, fall back to Travis CI variables
-    remote = get(ENV, "TRAVIS_REPO_SLUG", nothing)
-    if !isnothing(remote)
-        # It is possible for Remotes.GitHub to throw if there is no /
-        try
-            return Remotes.GitHub(remote)
-        catch
-            @warn "Unable to parse remote: TRAVIS_REPO_SLUG=$(remote)"
+function interpret_repo_and_remotes(; root, repo, remotes)
+    # For `remotes`, we'll first validate that the array provided by the user contains
+    # valid path-remote pairs.
+    remotes_checked = RemoteRepository[]
+    for (path, remoteref) in something(remotes, ()) # remotes can be nothing
+        # The paths should be relative to the directory containing make.jl (or, more generally, to the root
+        # argument of makedocs)
+        path = joinpath(root, path)
+        if !isdir(path)
+            throw(ArgumentError(("Invalid local path in remotes (not a directory): $(path)")))
+        end
+        path = realpath(path)
+        # We'll also check that there are no duplicate entries.
+        idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
+        if !isnothing(idx)
+            throw(ArgumentError("""
+            Duplicate remote path in remotes: $(path) => $(remote)
+            vs $(remotes_checked[idx])
+            """))
+        end
+        # Now we actually check the remotes themselves
+        remote = if isa(remoteref, Tuple{Remotes.Remote, AbstractString}) && length(remoteref) == 2
+            RemoteRepository(path, remoteref[1], remoteref[2])
+        elseif remoteref isa Remotes.Remote
+            RemoteRepository(path, remoteref)
+        else
+            throw(ArgumentError("""
+            Invalid remote in remotes: $(remote) (::$(typeof(remote)))
+            for path $path
+            must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""))
+        end
+        addremote!(remotes_checked, remote)
+    end
+
+    # We'll normalize repo to be a `Remotes.Remote` object (or nothing if omitted)
+    repo_normalized::Union{Remotes.Remote, Nothing} = if isa(repo, AbstractString) && isempty(repo)
+        # If the user does not provide the `repo` argument, we'll try to automatically
+        # detect the remote repository later. But for now, we'll set it to `nothing`.
+        nothing
+    elseif repo isa AbstractString
+        # Use the old template string parsing logic if a string was passed.
+        Remotes.URL(repo)
+    else
+        # Otherwise it should be some Remote object, so we'll just use that.
+        repo
+    end
+
+    # Now we sort out the interaction between `repo` and `remotes`. Our goal is to make sure that we have a
+    # value in both remotes for the repository root, and also that we get the correct value for the main
+    # .remote.
+    #
+    # The .root may be either in a Git repository, or inside one for the `remotes`, or both. If it is both,
+    # we need to sort of if one is more specific than the other.
+    #
+    # TODO: figure out how to re-use relpath_from_remote_root here.
+    makedocs_root_remoteref = nothing
+    find_root_parent(root) do directory
+        for remoteref in remotes_checked
+            @debug "interpret_repo_and_remotes / find_root_parent" directory remoteref.root
+            if directory == remoteref.root
+                makedocs_root_remoteref = remoteref
+                return true
+            end
+        end
+        return false
+    end
+    makedocs_root_repo = find_root_parent(is_git_repo_root, root)
+    makedocs_root_remote = isnothing(makedocs_root_repo) ? nothing : getremote(makedocs_root_repo)
+    @debug "interpret_repo_and_remotes" remotes_checked repo_normalized makedocs_root_remoteref makedocs_root_repo makedocs_root_remote
+    if !isnothing(makedocs_root_remoteref) && !isnothing(makedocs_root_repo)
+        # If both are set, then there is potential for conflict.
+        if makedocs_root_remoteref.root == makedocs_root_repo
+            # If they are the same, then the reference from remotes should take priority.
+            @debug "Remotes: remotes takes precedence over automatically determined remote" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
+            # But we must sure that `repo` was not set, since that would conflict.
+            if !isnothing(repo_normalized)
+                err = """
+                Conflicting remote reference for main repo -- `repo` and `remotes` both configure the same path:
+                  path: $(makedocs_root_repo)
+                  remotes entry: $(makedocs_root_remoteref.remote)
+                  repo: $(repo_normalized)
+                """
+                throw(ArgumentError(err))
+            end
+            # If repo is not set, then remotes takes precedence.
+            makedocs_root_remote = makedocs_root_remoteref.remote
+        elseif startswith(makedocs_root_remoteref.root, makedocs_root_repo)
+            # In this case the automatically determined root is outside of a path configured
+            # with remotes. In that case, the remote in `remotes` takes precedence as well.
+            @debug "Remotes: `remotes` takes precedence over automatically determined remote" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
+            makedocs_root_remote = makedocs_root_remoteref.remote
+        elseif  startswith(makedocs_root_remoteref.root, makedocs_root_repo)
+            # In this case we determined that root of the repository is more specific than
+            # whatever we found in remotes. So the main remote will be determined from the Git
+            # repository. This will be a no-op, except that `repo` argument may override the
+            # automatically determined remote.
+            if !isnothing(repo_normalized)
+                @debug "Remotes: repo takes precedence over automatically determined remote" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
+                makedocs_root_remote = repo_normalized
+            else
+                @debug "Remotes: repo not set, using automatically determined remote" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
+            end
+            # Since this path was not in remotes, we also need to add it there.
+            addremote!(remotes_checked, RemoteRepository(makedocs_root_repo, makedocs_root_remote))
+        else
+            # The final case is where the two repo paths have different roots, which should never
+            # happen.
+            error("""
+            Unexpected repository roots -- must have common  prefix.
+            makedocs_root_remoteref.root: $(makedocs_root_remoteref.root)
+            makedocs_root_repo: $(makedocs_root_repo)
+            """)
+        end
+    elseif !isnothing(makedocs_root_remoteref) && isnothing(makedocs_root_repo)
+        # If we found something in remotes, but were not able to determine the root of the Git repository,
+        # we will use the remote from remotes. But we also check for conflicts with `repo`.
+        @debug "Remotes: `repo` not set, using remotes" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
+        if !isnothing(repo_normalized)
+            err = """
+            Conflicting remote reference for main repo -- `repo` and `remotes` both configure the same path:
+              path: $(makedocs_root_remoteref.root)
+              remotes entry: $(makedocs_root_remoteref.remote)
+              repo: $(repo_normalized)
+            """
+            throw(ArgumentError(err))
+        end
+        makedocs_root_remote = makedocs_root_remoteref.remote
+    elseif isnothing(makedocs_root_remoteref) && !isnothing(makedocs_root_repo)
+        # If we found a Git repository, but nothing in remotes, we will use the remote from the
+        # repository, which can optionally be overridden by `repo`. However, if we are unable to
+        # determine the repo from the Git repository, we will throw an error.
+        @debug "Remotes: using automatically determined remote" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
+        if !isnothing(repo_normalized)
+            makedocs_root_remote = repo_normalized
+        elseif isnothing(makedocs_root_remote)
+            err = """
+            Unable to automatically determine remote for main repo -- `repo` is not set, and the Git repository has invalid origin.
+              path: $(makedocs_root_repo)
+            """
+            throw(ArgumentError(err))
+        end
+        # Since this path was not in remotes, we also need to add it there.
+        addremote!(remotes_checked, RemoteRepository(makedocs_root_repo, makedocs_root_remote))
+    else
+        # Finally, if we're neither in a git repo, and nothing is in remotes,
+        err = """
+        Unable to automatically determine remote for main repo: `repo` is not set, and makedocs is not in a Git repository.
+          path: $(makedocs_root_repo)
+        """
+        throw(ArgumentError(err))
+    end
+
+    return (makedocs_root_remote, remotes_checked)
+end
+
+function addremote!(remotes::Vector{RemoteRepository}, remoteref::RemoteRepository)
+    for ref in remotes
+        if ref.root == remoteref.root
+            error("Duplicate path in doc.user.remotes: $(remoteref.root)")
         end
     end
-    # As a second fallback, check GitHub Actions CI environment variables
-    remote = get(ENV, "GITHUB_REPOSITORY", nothing)
-    if !isnothing(remote)
-        try
-            return Remotes.GitHub(remote)
-        catch e
-            @warn "Unable to parse remote: GITHUB_REPOSITORY=$(remote)"
-        end
-    end
-    @warn "Unable to determine remote Git URL automatically. Source links may be missing."
+    push!(remotes, remoteref)
+    # At this point we assume that all the paths are absolute and fully resolved, so
+    # we can check for subpaths by just doing startswith. This also means that any path
+    # that is longer than another will be a subpath (as we assume they are all directories
+    # as well). So we put the longest names first in the list, and check for subpaths
+    # by just linearly walking through this list.
+    sortremotes!(remotes)
     return nothing
+end
+addremote!(doc::Document, remoteref::RemoteRepository) = addremote!(doc.user.remotes, remoteref)
+# We'll sort the remotes, first, to make sure that the longer paths come first,
+# so that we could match them first. How the individual paths are sorted is pretty
+# unimportant, but we just want to make sure they are sorted in some well-defined
+# order.
+sortremotes!(remotes::Vector{RemoteRepository}) = sort!(remotes, lt = lt_remotepair)
+function lt_remotepair(r1::RemoteRepository, r2::RemoteRepository)
+    if length(r1.root) == length(r2.root)
+        return r1.root < r2.root
+    end
+    return length(r1.root) > length(r2.root)
+end
+
+"""
+    $(SIGNATURES)
+
+Returns the the the remote that contains the file, and the relative path of the
+file within the repo (or `nothing, nothing` if the file is not in a known repo).
+"""
+function relpath_from_remote_root(remotes::Vector{RemoteRepository}, path::AbstractString)
+    ispath(path) || error("relpath_from_repo_root called with nonexistent path: $path")
+    isabspath(path) || error("relpath_from_repo_root called with non-absolute path: $path")
+    # We want to expand the path properly, including symlinks, so we call realpath()
+    # Note: it throws for non-existing files, but we just checked for it.
+    path = realpath(path)
+    # Try to see if `path` falls into any of the remotes in .remotes, or if it's a GitHub repository
+    # we can automatically "configure".
+    root_remote::Union{RemoteRepository,Nothing} = nothing
+    root_directory = find_root_parent(path) do directory
+        # First, we'll check the list of existing remotes, to see if the directory is already
+        # listed there. If yes, we just return that.
+        for remoteref in remotes
+            if directory == remoteref.root
+                root_remote = remoteref
+                return true
+            end
+        end
+        # If it is not in .remotes, it is still possible that the directory is a Git repository.
+        # In that case, we add it to .remotes.
+        if is_git_repo_root(directory)
+            # getremote() can only detect GitHub repositories right now, so there is a good
+            # chance that it will return `nothing`. In that we also abort the check, because
+            # we won't be able to correctly determine the remote (as we might incorrectly fall
+            # back to the remote of one of the parent directories).
+            remote = getremote(directory)
+            if !isnothing(remote)
+                # TODO: we might need the ability to skip the remote auto detection for certain
+                # directories.. This could be done by allowing e.g. `nothing`s in `doc.user.remotes`
+                # and `continue`-ing if we detect that. But let's not add that complexity now.
+                # TODO: the RemoteRepository() call may throw -- we should handle this more gracefully
+                remoteref = RemoteRepository(directory, remote)
+                @debug "relpath_from_remote_root: adding remote" remoteref
+                addremote!(remotes, remoteref)
+                root_remote = remoteref
+            end
+            return true
+        end
+        return false
+    end
+    # If we were not able to detect the remote
+    if isnothing(root_remote)
+        return nothing
+    else
+        # When root_remote is set, so should be root_directory
+        @assert !isnothing(root_directory)
+        return (; repo = root_remote, relpath = relpath(path, root_directory))
+    end
+end
+relpath_from_remote_root(doc::Document, path::AbstractString) = relpath_from_remote_root(doc.user.remotes, path)
+# It's possible that doc.user.remotes is set to nothing, in which case we are not able to determine remote links.
+relpath_from_remote_root(doc::Nothing, path::AbstractString) = nothing
+
+# Determines the Edit URL for a local path.
+#  - rev: indicates a Git revision; if omitted, the current repo commit is used.
+# May return nothing if it is unable to determine the local path.
+function edit_url(doc::Document, path; rev::Union{AbstractString,Nothing})
+    # If the user has disable remote links, we abort immediately
+    isnothing(doc.user.remotes) && return nothing
+    # We'll prepend doc.user.root, unless already an absolute path.
+    path = abspath(doc.user.root, path)
+    if !ispath(path)
+        error("Unable to generate remote link (local path does not exists)\n path: $(path)")
+    end
+    remoteref = relpath_from_remote_root(doc, path)
+    if isnothing(remoteref)
+        error("Unable to generate remote link\n path: $(path)")
+    end
+    rev = isnothing(rev) ? remoteref.repo.commit : rev
+    @debug "edit_url" path remoteref rev
+    return repofile(remoteref.repo.remote, rev, remoteref.relpath)
+end
+
+source_url(doc::Document, docstring) = source_url(
+    doc, docstring.data[:module], docstring.data[:path], linerange(docstring)
+)
+
+function source_url(doc::Document, mod, file, linerange)
+    # If the user has disable remote links, we abort immediately
+    isnothing(doc.user.remotes) && return nothing
+    # needed since julia v0.6, see #689
+    file === nothing && return nothing
+    # Non-absolute paths generally indicate methods from Base.
+    if inbase(mod) || !isabspath(file)
+        ref = if isempty(Base.GIT_VERSION_INFO.commit)
+            "v$VERSION"
+        else
+            Base.GIT_VERSION_INFO.commit
+        end
+        return repofile(julia_remote, ref, "base/$file", linerange)
+    end
+    # Generally, we assume that the Julia source file exists on the system.
+    isfile(file) || return nothing
+    remoteref = relpath_from_remote_root(doc, file)
+    if isnothing(remoteref)
+        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(path)")
+    end
+    @debug "source_url" mod file linerange remoteref
+    return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
 end
 
 """
