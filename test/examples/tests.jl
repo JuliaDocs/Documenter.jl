@@ -1,4 +1,5 @@
 using Test
+import JSON
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl. But for the tests we need to make sure that all the relevant builds
