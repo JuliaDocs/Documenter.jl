@@ -180,6 +180,7 @@ Markdown.parse("![Plot](plot.svg)")
 """
 abstract type EvalBlocks <: NestedExpanderPipeline end
 
+abstract type EvalRawBlocks <: NestedExpanderPipeline end
 abstract type RawBlocks <: NestedExpanderPipeline end
 
 """
@@ -246,7 +247,8 @@ Selectors.order(::Type{ContentsBlocks}) = 7.0
 Selectors.order(::Type{ExampleBlocks})  = 8.0
 Selectors.order(::Type{REPLBlocks})     = 9.0
 Selectors.order(::Type{SetupBlocks})    = 10.0
-Selectors.order(::Type{RawBlocks})      = 11.0
+Selectors.order(::Type{EvalRawBlocks})  = 11.0
+Selectors.order(::Type{RawBlocks})      = 12.0
 
 Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node.element, MarkdownAST.Heading)
 Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
@@ -258,6 +260,7 @@ Selectors.matcher(::Type{ContentsBlocks}, node, page, doc) = iscode(node, "@cont
 Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@example")
 Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
 Selectors.matcher(::Type{SetupBlocks},    node, page, doc) = iscode(node, r"^@setup")
+Selectors.matcher(::Type{EvalRawBlocks},  node, page, doc) = iscode(node, r"^@evalraw")
 Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@raw")
 
 # Default Expander.
@@ -880,6 +883,50 @@ function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
             """, exception=(err, bt))
     end
     node.element = Documenter.SetupNode(x.info, x.code)
+end
+
+# @evalraw
+# -----
+
+function Selectors.runner(::Type{EvalRawBlocks}, node, page, doc)
+    @assert node.element isa MarkdownAST.CodeBlock
+    x = node.element
+
+    m = match(r"@evalraw[ ](.+)$", x.info)
+    m === nothing && error("invalid '@evalraw <name>' syntax: $(x.info)")
+
+    # Bail early if in draft mode
+    if Documenter.is_draft(doc, page)
+        @debug "Skipping evaluation of @eval block in draft mode:\n$(x.code)"
+        create_draft_result!(node; blocktype="@eval")
+        return
+    end
+    sandbox = Module(:EvalBlockSandbox)
+    lines = Documenter.find_block_in_file(x.code, page.source)
+    linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
+                                    basename(page.source))
+    @debug "Evaluating @evalraw block:\n$(x.code)"
+    cd(page.workdir) do
+        result = nothing
+        for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
+                                              linenumbernode = linenumbernode)
+            try
+                result = Core.eval(sandbox, ex)
+            catch err
+                bt = Documenter.remove_common_backtrace(catch_backtrace())
+                @docerror(doc, :eval_block,
+                    """
+                    failed to evaluate `@evalraw` block in $(Documenter.locrepr(page.source))
+                    ```$(x.info)
+                    $(x.code)
+                    ```
+                    """, exception = (err, bt))
+            end
+        end
+        result isa String || error("Only String output supported")
+        # TODO: make result a child node
+        node.element = Documenter.RawNode(Symbol(m[1]), result)
+    end
 end
 
 # @raw
