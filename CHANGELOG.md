@@ -97,6 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Theme switcher now includes an "Automatic (OS preference)" option that makes the site follow the user's OS setting. (#1745), (#2085), (#2170)
 
+* Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. (#2181)
+
 ### Fixed
 
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. (#1906)
