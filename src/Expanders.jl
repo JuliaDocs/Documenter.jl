@@ -897,11 +897,11 @@ function Selectors.runner(::Type{EvalRawBlocks}, node, page, doc)
 
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
-        @debug "Skipping evaluation of @eval block in draft mode:\n$(x.code)"
-        create_draft_result!(node; blocktype="@eval")
+        @debug "Skipping evaluation of @evalraw block in draft mode:\n$(x.code)"
+        create_draft_result!(node; blocktype="@evalraw")
         return
     end
-    sandbox = Module(:EvalBlockSandbox)
+    sandbox = Module(:EvalRawBlockSandbox)
     lines = Documenter.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
                                     basename(page.source))
