@@ -245,7 +245,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
         src_lines = Documenter.find_block_in_file(result.block.code, result.file)
         for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
-            @debug "Evaluating doctest REPL line from $(Documenter.locrepr(result.file, src_lines))" unparsed_string = str parsed_expression = ex
+            @debug "Evaluating REPL line from doctest at $(Documenter.locrepr(result.file, src_lines))" unparsed_string = str parsed_expression = ex
             result.hide = REPL.ends_with_semicolon(str)
             # Use the REPL softscope for REPL jldoctests,
             # see https://github.com/JuliaLang/julia/pull/33864
