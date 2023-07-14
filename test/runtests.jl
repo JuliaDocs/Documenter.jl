@@ -47,17 +47,18 @@ ENV["JULIA_DEBUG"]="Documenter"
 
     # Main build pipeline (Builder and Expanders modules)
     include("pipeline.jl")
-    =#
 
     # HTMLWriter
     include("htmlwriter.jl")
 
     # LaTeXWriter
     include("latexwriter.jl")
+    =#
 
     # Deployment configurations
     @info "Deployment configurations"
     include("deployconfig.jl")
+    #=
     include("deploydocs.jl")
 
     # Mock package docs.
@@ -81,4 +82,5 @@ ENV["JULIA_DEBUG"]="Documenter"
     # Running doctest() on our own manual
     @info "doctest() Documenter's manual"
     @quietly include("manual.jl")
+    =#
 end
