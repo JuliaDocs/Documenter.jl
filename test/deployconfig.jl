@@ -1,5 +1,5 @@
 using Logging
-
+#=
 @show @testset "Travis CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
     withenv("TRAVIS_CI" => "true",
@@ -91,9 +91,12 @@ using Logging
         @test !d.all_ok
     end
 end end
+=#
 
+println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
 @show @testset "GitHub Actions deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build with GITHUB_TOKEN
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/v1.2.3",
@@ -101,9 +104,12 @@ end end
             "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "DOCUMENTER_KEY" => nothing,
         ) do
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         cfg = Documenter.GitHubActions()
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="dev", push_preview=true)
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test d.all_ok
         @test d.subfolder == "v1.2.3"
         @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
@@ -111,6 +117,7 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
         @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular tag build with SSH deploy key (SSH key prioritized)
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -119,9 +126,12 @@ end end
             "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         cfg = Documenter.GitHubActions()
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="dev", push_preview=true)
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test d.all_ok
         @test d.subfolder == "v1.2.3"
         @test d.repo == "github.com/JuliaDocs/Documenter.jl.git"
@@ -130,6 +140,7 @@ end end
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
     # Broken tag build
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/tags/not-a-version",
@@ -137,11 +148,15 @@ end end
             "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "DOCUMENTER_KEY" => nothing,
         ) do
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         cfg = Documenter.GitHubActions()
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="dev", push_preview=true)
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test !d.all_ok
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular devbranch build with GITHUB_TOKEN
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -150,17 +165,23 @@ end end
             "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "DOCUMENTER_KEY" => nothing,
         ) do
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         cfg = Documenter.GitHubActions()
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                   devbranch="master", devurl="hello-world", push_preview=true)
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test d.all_ok
         @test d.subfolder == "hello-world"
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="not-master", devurl="hello-world", push_preview=true)
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test !d.all_ok
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
         @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular devbranch build with SSH deploy key (SSH key prioritized)
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -180,6 +201,7 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular pull request build with GITHUB_TOKEN
     withenv("GITHUB_EVENT_NAME" => "pull_request",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -201,6 +223,7 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
         @test Documenter.authenticated_repo_url(cfg) === "https://github-actions:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular pull request build with SSH deploy key (SSH key prioritized)
     withenv("GITHUB_EVENT_NAME" => "pull_request",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -222,6 +245,7 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch
     withenv("GITHUB_EVENT_NAME" => "pull_request",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -247,6 +271,7 @@ end end
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch; use a different deploy key for previews
     withenv("GITHUB_EVENT_NAME" => "pull_request",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -274,6 +299,7 @@ end end
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
         @test Documenter.documenter_key_previews(cfg) === "SGVsbG8sIHdvcmxkLw=="
     end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Missing environment variables
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -288,6 +314,9 @@ end end
         @test !d.all_ok
     end
 end end
+
+println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
+println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
 
 @show @testset "GitLab CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
