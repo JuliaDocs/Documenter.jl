@@ -1,4 +1,5 @@
 using Test
+import JSON
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl. But for the tests we need to make sure that all the relevant builds
@@ -169,6 +170,18 @@ end
             @test occursin("expanded_example", issue_491)
             @test occursin("expanded_setup", issue_491)
             @test occursin("<p>expanded_raw</p>", issue_491)
+
+            # .documenter-siteinfo.json
+            @testset ".documenter-siteinfo.json" begin
+                siteinfo_json_file = joinpath(build_dir, ".documenter-siteinfo.json")
+                @test isfile(siteinfo_json_file)
+                siteinfo_json = JSON.parse(read(siteinfo_json_file, String))
+                @test haskey(siteinfo_json, "documenter")
+                @test siteinfo_json["documenter"] isa Dict
+                @test haskey(siteinfo_json["documenter"], "documenter_version")
+                @test haskey(siteinfo_json["documenter"], "julia_version")
+                @test haskey(siteinfo_json["documenter"], "generation_timestamp")
+            end
         end
     end
 
