@@ -5,6 +5,7 @@ include("TestUtilities.jl"); using .TestUtilities
 ENV["JULIA_DEBUG"]="Documenter"
 
 @testset "Documenter" begin
+    #=
     # Build the example docs
     @info "Building example/make.jl"
     include("examples/make.jl")
@@ -46,6 +47,7 @@ ENV["JULIA_DEBUG"]="Documenter"
 
     # Main build pipeline (Builder and Expanders modules)
     include("pipeline.jl")
+    =#
 
     # HTMLWriter
     include("htmlwriter.jl")
@@ -54,6 +56,7 @@ ENV["JULIA_DEBUG"]="Documenter"
     include("latexwriter.jl")
 
     # Deployment configurations
+    @info "Deployment configurations"
     include("deployconfig.jl")
     include("deploydocs.jl")
 

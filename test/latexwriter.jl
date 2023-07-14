@@ -1,3 +1,5 @@
+@info "$(@__FILE__) START"
+
 module LaTeXWriterTests
 
 using Test
@@ -33,3 +35,5 @@ import Documenter.Writers.LaTeXWriter
 end
 
 end
+
+@info "$(@__FILE__) END"

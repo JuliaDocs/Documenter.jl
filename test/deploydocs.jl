@@ -84,3 +84,5 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
         end
     end
 end
+
+@info "$(@__FILE__) END"

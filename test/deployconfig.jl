@@ -1,6 +1,6 @@
 using Logging
 
-@testset "Travis CI deploy configuration" begin; with_logger(NullLogger()) do
+@show @testset "Travis CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
     withenv("TRAVIS_CI" => "true",
             "TRAVIS_PULL_REQUEST" => "false",
@@ -92,7 +92,7 @@ using Logging
     end
 end end
 
-@testset "GitHub Actions deploy configuration" begin; with_logger(NullLogger()) do
+@show @testset "GitHub Actions deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build with GITHUB_TOKEN
     withenv("GITHUB_EVENT_NAME" => "push",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
@@ -289,7 +289,7 @@ end end
     end
 end end
 
-@testset "GitLab CI deploy configuration" begin; with_logger(NullLogger()) do
+@show @testset "GitLab CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
     withenv("GITLAB_CI" => "true",
             "CI_COMMIT_BRANCH" => "master",
@@ -401,7 +401,7 @@ end end
     end
 end end
 
-@testset "Buildkite CI deploy configuration" begin; with_logger(NullLogger()) do
+@show @testset "Buildkite CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build
     withenv("BUILDKITE" => "true",
             "BUILDKITE_BRANCH" => "master",
@@ -489,7 +489,7 @@ struct CustomConfig <: Documenter.DeployConfig end
 Documenter.deploy_folder(::CustomConfig; kwargs...) = Documenter.DeployDecision(; all_ok = true, subfolder = "v1.2.3")
 struct BrokenConfig <: Documenter.DeployConfig end
 
-@testset "Custom configuration" begin; with_logger(NullLogger()) do
+@show @testset "Custom configuration" begin; with_logger(NullLogger()) do
         cfg = CustomConfig()
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="dev", push_preview=true)
@@ -500,7 +500,7 @@ struct BrokenConfig <: Documenter.DeployConfig end
         @test (@test_logs (:warn, r"Documenter could not auto-detect") Documenter.deploy_folder(nothing)) == Documenter.DeployDecision(; all_ok = false)
 end end
 
-@testset "Autodetection of deploy system" begin
+@show @testset "Autodetection of deploy system" begin
     withenv("TRAVIS_REPO_SLUG" => "JuliaDocs/Documenter.jl",
             "GITHUB_REPOSITORY" => nothing,
         ) do
@@ -521,7 +521,7 @@ end end
     end
 end
 ##
-@testset "Remote repository paths" begin
+@show @testset "Remote repository paths" begin
     uhu = Documenter.user_host_upstream("github.com/JuliaDocs/Documenter.jl.git")
     @test uhu == ("git", "github.com", "git@github.com:JuliaDocs/Documenter.jl.git")
 
@@ -544,7 +544,7 @@ end
     @test_throws ErrorException Documenter.user_host_upstream("user@subdom.long-page.com")
 end
 
-@testset "version_tag_strip_build" begin
+@show @testset "version_tag_strip_build" begin
     using Documenter: version_tag_strip_build
     @test version_tag_strip_build("v1.2.3") == "v1.2.3"
     @test version_tag_strip_build("v1.2.3+build") == "v1.2.3"
@@ -568,7 +568,7 @@ end
     @test version_tag_strip_build(".1") === nothing
 end
 
-@testset "verify_github_pull_repository" begin
+@show @testset "verify_github_pull_repository" begin
     if Sys.which("curl") === nothing
         @warn "'curl' binary not found, skipping related tests."
     else
@@ -579,3 +579,5 @@ end
         @test length(r.stdout) > 0
     end
 end
+
+@info "$(@__FILE__) END"

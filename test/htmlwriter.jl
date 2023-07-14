@@ -277,3 +277,5 @@ end
     end
 end
 end
+
+@info "$(@__FILE__) END"
