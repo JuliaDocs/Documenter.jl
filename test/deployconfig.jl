@@ -95,7 +95,6 @@ end end
 
 println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
 @show @testset "GitHub Actions deploy configuration" begin; with_logger(NullLogger()) do
-        #=
     # Regular tag build with GITHUB_TOKEN
         println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     withenv("GITHUB_EVENT_NAME" => "push",
@@ -246,7 +245,6 @@ println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
-        =#
         println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch
     withenv("GITHUB_EVENT_NAME" => "pull_request",
