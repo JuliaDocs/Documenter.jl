@@ -403,7 +403,12 @@ end
 
 function latex(io::Context, node::Node, evalnode::Documenter.EvalNode)
     if evalnode.result !== nothing
-        latex(io, evalnode.result.children, toplevel = true)
+        result = evalnode.result
+        if isempty(result.children)
+            latex(io, result)
+        else
+            latex(io, result.children, toplevel = true)
+        end
     end
 end
 
@@ -412,6 +417,9 @@ using Base64: base64decode
 latex(io::Context, node::Node, ::Documenter.MultiOutput) = latex(io, node.children)
 function latex(io::Context, node::Node, moe::Documenter.MultiOutputElement)
     Base.invokelatest(latex, io, node, moe.element)
+end
+function latex(io::Context, node::Node, usm::Documenter.UseShowMethods)
+    Base.invokelatest(latex, io, node, usm.element)
 end
 function latex(io::Context, ::Node, d::Dict{MIME,Any})
     filename = String(rand('a':'z', 7))
