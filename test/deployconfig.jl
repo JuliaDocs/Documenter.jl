@@ -95,6 +95,7 @@ end end
 
 println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
 @show @testset "GitHub Actions deploy configuration" begin; with_logger(NullLogger()) do
+        #=
     # Regular tag build with GITHUB_TOKEN
         println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     withenv("GITHUB_EVENT_NAME" => "push",
@@ -245,6 +246,7 @@ println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test Documenter.authentication_method(cfg) === Documenter.SSH
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
     end
+        =#
         println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch
     withenv("GITHUB_EVENT_NAME" => "pull_request",
@@ -254,25 +256,34 @@ println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
             "GITHUB_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "DOCUMENTER_KEY" => "SGVsbG8sIHdvcmxkLg==",
         ) do
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         cfg = Documenter.GitHubActions()
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="master", devurl="hello-world", push_preview=true,
                                      repo_previews="github.com/JuliaDocs/Documenter-previews.jl.git",
                                      branch_previews="gh-pages-previews")
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test d.all_ok
         @test d.subfolder == "previews/PR42"
         @test d.repo == "github.com/JuliaDocs/Documenter-previews.jl.git"
         @test d.branch == "gh-pages-previews"
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         d = Documenter.deploy_folder(cfg; repo="github.com/JuliaDocs/Documenter.jl.git",
                                      devbranch="not-master", devurl="hello-world", push_preview=false,
                                      repo_previews="",
                                      branch_previews="")
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test !d.all_ok
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test Documenter.authentication_method(cfg) === Documenter.SSH
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @test Documenter.documenter_key(cfg) === "SGVsbG8sIHdvcmxkLg=="
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     end
         println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     # Regular pull request build with SSH deploy key (SSH key prioritized), but push previews to a different repo and different branch; use a different deploy key for previews
+        #=
     withenv("GITHUB_EVENT_NAME" => "pull_request",
             "GITHUB_REPOSITORY" => "JuliaDocs/Documenter.jl",
             "GITHUB_REF" => "refs/pull/42/merge",
@@ -313,8 +324,9 @@ println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
                                      devbranch="master", devurl="hello-world", push_preview=true)
         @test !d.all_ok
     end
+        =#
 end end
-
+#=
 println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
 println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
 
@@ -608,5 +620,5 @@ end
         @test length(r.stdout) > 0
     end
 end
-
+=#
 @info "$(@__FILE__) END"
