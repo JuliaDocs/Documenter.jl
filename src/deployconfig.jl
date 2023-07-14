@@ -310,14 +310,19 @@ function deploy_folder(cfg::GitHubActions;
                        push_preview,
                        devurl,
                        kwargs...)
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     io = IOBuffer()
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     all_ok = true
     ## Determine build type
     if cfg.github_event_name == "pull_request"
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         build_type = :preview
     elseif occursin(r"^refs\/tags\/(.*)$", cfg.github_ref)
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         build_type = :release
     else
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         build_type = :devbranch
     end
     println(io, "Deployment criteria for deploying $(build_type) build from GitHub Actions:")
@@ -325,7 +330,9 @@ function deploy_folder(cfg::GitHubActions;
     repo_ok = occursin(cfg.github_repository, repo)
     all_ok &= repo_ok
     println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     if build_type === :release
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         ## Do not deploy for PRs
         event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
@@ -342,6 +349,7 @@ function deploy_folder(cfg::GitHubActions;
         ## Deploy to folder according to the tag
         subfolder = m === nothing ? nothing : tag_nobuild
     elseif build_type === :devbranch
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         ## Do not deploy for PRs
         event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
@@ -357,16 +365,19 @@ function deploy_folder(cfg::GitHubActions;
         ## Deploy to deploydocs devurl kwarg
         subfolder = devurl
     else # build_type === :preview
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         m = match(r"refs\/pull\/(\d+)\/merge", cfg.github_ref)
         pr_number = tryparse(Int, m === nothing ? "" : m.captures[1])
         pr_ok = pr_number !== nothing
         all_ok &= pr_ok
         println(io, "- $(marker(pr_ok)) ENV[\"GITHUB_REF\"] corresponds to a PR number")
         if pr_ok
+            println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
             pr_origin_matches_repo = verify_github_pull_repository(cfg.github_repository, pr_number)
             all_ok &= pr_origin_matches_repo
             println(io, "- $(marker(pr_origin_matches_repo)) PR originates from the same repository")
         end
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
@@ -376,6 +387,7 @@ function deploy_folder(cfg::GitHubActions;
         ## deploydocs to previews/PR
         subfolder = "previews/PR$(something(pr_number, 0))"
     end
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     ## GITHUB_ACTOR should exist (just check here and extract the value later)
     actor_ok = env_nonempty("GITHUB_ACTOR")
     all_ok &= actor_ok
@@ -385,16 +397,23 @@ function deploy_folder(cfg::GitHubActions;
     key_ok = env_nonempty("DOCUMENTER_KEY")
     auth_ok = token_ok | key_ok
     all_ok &= auth_ok
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     if key_ok
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     elseif token_ok
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
     else
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
     end
     print(io, "Deploying: $(marker(all_ok))")
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     @info String(take!(io))
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.github_ref == "refs/heads/main"
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         @warn """
         Possible deploydocs() misconfiguration: main vs master
         Documenter's configured primary development branch (`devbranch`) is "master", but the
@@ -407,13 +426,16 @@ function deploy_folder(cfg::GitHubActions;
         See #1443 for more discussion: https://github.com/JuliaDocs/Documenter.jl/issues/1443
         """
     end
+    println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
     if all_ok
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         return DeployDecision(; all_ok = true,
                                 branch = deploy_branch,
                                 is_preview = is_preview,
                                 repo = deploy_repo,
                                 subfolder = subfolder)
     else
+        println("!!! DEBUG !!! ", @__FILE__, ':', @__LINE__)
         return DeployDecision(; all_ok = false)
     end
 end
