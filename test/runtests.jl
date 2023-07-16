@@ -2,6 +2,16 @@ using Test
 import Documenter
 include("TestUtilities.jl"); using Main.TestUtilities
 
+function testset_include(filename; quietly=false)
+    @testset "$filename" begin
+        if quietly
+            @quietly include(filename)
+        else
+            include(filename)
+        end
+    end
+end
+
 @testset "Documenter" begin
     # Build the example docs
     @info "Building example/make.jl"
@@ -18,7 +28,10 @@ include("TestUtilities.jl"); using Main.TestUtilities
     # Unit tests for module internals.
     include("except.jl")
     include("utilities.jl")
+
+    # Remote repository link handling
     include("remotes.jl")
+    testset_include("repolinks.jl")
 
     # DocChecks tests
     include("docchecks.jl")

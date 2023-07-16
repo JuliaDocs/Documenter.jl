@@ -132,8 +132,9 @@ makedocs(
             "man/other-formats.md",
         ],
         "showcase.md",
-        "Library" => Any[
-            "Public" => "lib/public.md",
+        "Reference" => Any[
+            "Public API" => "lib/public.md",
+            "lib/remote-links.md",
             "Internals" => map(
                 s -> "lib/internals/$(s)",
                 sort(readdir(joinpath(@__DIR__, "src/lib/internals")))

@@ -19,6 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
 
+* The handling of remote repository (e.g. GitHub) URLs has been overhauled. (#1808), (#1881), (#2081)
+
+  In addition to generating source and edit links for the main repository, Documenter can now also be configured to generate correct links for cases where some files are from a different repository (e.g. with vendored dependencies). There have also been changes and fixes to the way the automatic detection of source and edit links works.
+
+  The fallbacks to `TRAVIS_REPO_SLUG` and `GITHUB_REPOSITORY` variables have been removed in favor of explicitly specifying the `repo` keyword in the `makedocs` call.
+
+  Documenter is not also more strict about the cases where it is unable to determine the URLs, and therefore previously successful builds may break.
+
+  **For upgrading:** As the fallbacks to CI variables have been removed, make sure that you have your source checked out as a proper Git repository when building the documentation, so that Documenter could determine the repository link automatically from the Git `origin` URL. On GitHub Actions, this should normally already be the case. In other cases, you can configure the `repo` and/or `remotes` options to `makedocs` appropriately.
+
+  Also, in general, double check that the various remote links (repository links, source links, edits links) have been generated correctly. If you run into any unexpected errors, please open an issue.
+
 ### Added
 
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). (#1989), (#1271)
@@ -35,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now shows a link to the root of the repository in the top navigation bar. The link is determined automatically from the remote repository, unless overridden or disabled via the `repolink` argument of `HTML`. (#1254)
 
-* A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). Documenter will also try to determine `repo` automatically from the `GITHUB_REPOSITORY` environment variable if other fallbacks have failed. (#1808), (#1881)
+* A more general API is now available to configure the remote repository URLs via the `repo` argument of `makedocs` by passing objects that are subtypes of `Remotes.Remote` and implement its interface (e.g. `Remotes.GitHub`). (#1808), (#1881)
 
 * Broken issue references (i.e. links like `[#1234](@ref)`, but when Documenter is unable to determine the remote GitHub repository) now generate `:cross_references` errors that can be caught via the `strict` keyword. (#1808)
 
@@ -75,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - jquery has been updated from `v3.6.0` to `v3.6.4`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
-* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312, #2076)
+* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. (#1312) (#2076) (#2169)
 
 * Added the ability to expand/collapse individual as well as all docstrings. (#1393, #2078)
 
@@ -83,11 +95,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Admonitions with category `details` are now rendered as (collapsed) `<details>` in the HTML backend. The admonition title is used as the `<summary>`. (#2128)
 
+* Theme switcher now includes an "Automatic (OS preference)" option that makes the site follow the user's OS setting. (#1745), (#2085), (#2170)
+
+* Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. (#2181)
+
 ### Fixed
-
-* Documenter now generates the correct source URLs for docstrings from other packages when the `repo` argument to `makedocs` is set (note: the source links to such docstrings only work if the external package is cloned from GitHub and added as a dev-dependency). However, this change **breaks** the case where the `repo` argument is used to override the main package/repository URL, assuming the repository is cloned from GitHub. (#1808)
-
-* Documenter no longer uses the `TRAVIS_REPO_SLUG` environment variable to determine the Git remote of non-main repositories (when inferring it from the Git repository configuration has failed), which could previously lead to bad source links. (#1881)
 
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. (#1906)
 

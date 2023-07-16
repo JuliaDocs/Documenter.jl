@@ -82,6 +82,9 @@ function doctest(
                 doctest = fix ? :fix : :only,
                 modules = modules,
                 doctestfilters = doctestfilters,
+                # When doctesting, we don't really want to get bogged down with issues
+                # related to determining the remote repositories for edit URLs and such
+                remotes = nothing,
             )
             true
         catch err

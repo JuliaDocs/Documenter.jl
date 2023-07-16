@@ -390,29 +390,27 @@ nodocs(::Nothing) = false
 header_level(::Markdown.Header{N}) where {N} = N
 
 """
-    repo_root(file; dbdir=".git")
+    $(SIGNATURES)
 
-Tries to determine the root directory of the repository containing `file`. If the file is
-not in a repository, the function returns `nothing`.
+Tries to determine the "root" of the directory hierarchy containing `path`.
+Returns the absolute path to the root directory or `nothing` if no root was found.
+If `path` is a directory, it may itself already be a root.
+
+The predicate `f` gets called with absolute paths to directories and must return `true`
+if the directory is a "root". An example predicate is `is_git_repo_root` that checks if
+the directory is a Git repository root.
 
 The `dbdir` keyword argument specifies the name of the directory we are searching for to
 determine if this is a repository or not. If there is a file called `dbdir`, then it's
 contents is checked under the assumption that it is a Git worktree or a submodule.
 """
-function repo_root(file; dbdir=".git")
-    parent_dir, parent_dir_last = dirname(abspath(file)), ""
+function find_root_parent(f, path)
+    ispath(path) || throw(ArgumentError("find_root_parent called with non-existent path\n path: $path"))
+    path = realpath(path)
+    parent_dir = isdir(path) ? path : dirname(path)
+    parent_dir_last = ""
     while parent_dir != parent_dir_last
-        dbdir_path = joinpath(parent_dir, dbdir)
-        isdir(dbdir_path) && return parent_dir
-        # Let's see if this is a worktree checkout
-        if isfile(dbdir_path)
-            contents = chomp(read(dbdir_path, String))
-            if startswith(contents, "gitdir: ")
-                if isdir(joinpath(parent_dir, contents[9:end]))
-                    return parent_dir
-                end
-            end
-        end
+        f(parent_dir) && return parent_dir
         parent_dir, parent_dir_last = dirname(parent_dir), parent_dir
     end
     return nothing
@@ -421,81 +419,61 @@ end
 """
     $(SIGNATURES)
 
-Returns the path of `file`, relative to the root of the Git repository, or `nothing` if the
-file is not in a Git repository.
+Check is `directory` is a Git repository root.
+
+The `dbdir` keyword argument specifies the name of the directory we are searching for to
+determine if this is a repository or not. If there is a file called `dbdir`, then it's
+contents is checked under the assumption that it is a Git worktree or a submodule.
 """
-function relpath_from_repo_root(file)
-    isfile(file) || error("relpath_from_repo_root called with nonexistent file: $file")
-    cd(dirname(file)) do
-        root = repo_root(file)
-        root !== nothing && startswith(file, root) ? relpath(file, root) : nothing
-    end
-end
-
-function repo_commit(file)
-    isfile(file) || error("repo_commit called with nonexistent file: $file")
-    cd(dirname(file)) do
-        readchomp(`$(git()) rev-parse HEAD`)
-    end
-end
-
-function edit_url(repo, file; commit=nothing)
-    file = abspath(file)
-    if !isfile(file)
-        @warn "couldn't find file \"$file\" when generating URL"
-        return nothing
-    end
-    file = realpath(file)
-    isnothing(repo) && (repo = getremote(dirname(file)))
-    isnothing(commit) && (commit = repo_commit(file))
-    path = relpath_from_repo_root(file)
-    isnothing(path) || isnothing(repo) ? nothing : repofile(repo, commit, path)
-end
-
-source_url(repo, doc) = source_url(repo, doc.data[:module], doc.data[:path], linerange(doc))
-
-function source_url(repo, mod, file, linerange)
-    file === nothing && return nothing # needed on julia v0.6, see #689
-    remote = getremote(dirname(file))
-    isabspath(file) && isnothing(remote) && isnothing(repo) && return nothing
-
-    # make sure we get the true path, as otherwise we will get different paths when we compute `root` below
-    if isfile(file)
-        file = realpath(abspath(file))
-    end
-
-    # Macro-generated methods such as those produced by `@deprecate` list their file as
-    # `deprecated.jl` since that is where the macro is defined. Use that to help
-    # determine the correct URL.
-    if inbase(mod) || !isabspath(file)
-        ref = if isempty(Base.GIT_VERSION_INFO.commit)
-            "v$VERSION"
-        else
-            Base.GIT_VERSION_INFO.commit
+function is_git_repo_root(directory::AbstractString; dbdir=".git")
+    isdir(directory) || error("is_git_repo_root called with non-directory path: $directory")
+    dbdir_path = joinpath(directory, dbdir)
+    isdir(dbdir_path) && return true
+    if isfile(dbdir_path)
+        contents = chomp(read(dbdir_path, String))
+        if startswith(contents, "gitdir: ")
+            if isdir(joinpath(directory, contents[9:end]))
+                return true
+            end
         end
-        repofile(julia_remote, ref, "base/$file", linerange)
-    elseif isfile(file)
-        path = relpath_from_repo_root(file)
-        # If we managed to determine a remote for the current file with getremote,
-        # then we use that information instead of the user-provided repo (doc.user.remote)
-        # argument to generate source links. This means that in the case where some
-        # docstrings come from another repository (like the DocumenterTools doc dependency
-        # for Documenter), then we generate the correct links, since we actually user the
-        # remote determined from the Git repository.
-        #
-        # In principle, this prevents the user from overriding the remote for the main
-        # repository if the repo is cloned from GitHub (e.g. when you clone from a fork, but
-        # want the source links to point to the upstream repository; however, this feels
-        # like a very unlikely edge case). If the repository is cloned from somewhere else
-        # than GitHub, then everything is fine --- getremote will fail and remote is
-        # `nothing`, in which case we fall back to using `repo`.
-        isnothing(remote) && (remote = repo)
-        if isnothing(path) || isnothing(remote)
-            return nothing
+    end
+    return false
+end
+
+struct RepoCommitError <: Exception
+    directory::String
+    msg :: String
+    err_bt :: Union{Tuple{Any,Any},Nothing}
+    RepoCommitError(directory::AbstractString, msg::AbstractString) = new(directory, msg, nothing)
+    RepoCommitError(directory::AbstractString, msg::AbstractString, e, bt) = new(directory, msg, (e, bt))
+end
+
+function repo_commit(repository_root::AbstractString)
+    isdir(repository_root) || throw(RepoCommitError(repository_root, "repository_root not a directory"))
+    cd(repository_root) do
+        try
+            toplevel = readchomp(`$(git()) rev-parse --show-toplevel`)
+            if !ispath(toplevel)
+                throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` returned invalid path: $toplevel"))
+            end
+            if realpath(toplevel) != realpath(repository_root)
+                throw(RepoCommitError(
+                    repository_root,
+                    """
+                    repository_root is not the top-level of the repository
+                      `git rev-parse --show-toplevel`: $toplevel
+                      repository_root: $repository_root
+                    """
+                ))
+            end
+        catch e
+            throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` failed", e, catch_backtrace()))
         end
-        repofile(remote, repo_commit(file), path, linerange)
-    else
-        return nothing
+        try
+            readchomp(`$(git()) rev-parse HEAD`)
+        catch e
+            throw(RepoCommitError(repository_root, "`git rev-parse HEAD` failed", e, catch_backtrace()))
+        end
     end
 end
 
@@ -525,7 +503,8 @@ function getremote(dir::AbstractString)
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
             readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
-        catch
+        catch e
+            @debug "git config --get remote.origin.url failed" exception=(e, catch_backtrace())
             ""
         end
         # TODO: we only match for GitHub repositories automatically. Could we engineer a
@@ -535,18 +514,6 @@ function getremote(dir::AbstractString)
         isnothing(m) && return nothing
         return Remotes.GitHub(m[2], m[3])
     end
-end
-
-"""
-$(SIGNATURES)
-
-Returns the first 5 characters of the current git commit hash of the directory `dir`.
-"""
-function get_commit_short(dir)
-    commit = cd(dir) do
-        readchomp(`$(git()) rev-parse HEAD`)
-    end
-    (length(commit) > 5) ? commit[1:5] : commit
 end
 
 function inbase(m::Module)
