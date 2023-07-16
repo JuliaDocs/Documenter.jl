@@ -45,6 +45,7 @@ Packages that have tagged versions available in the general Registry:
 - [Mimi.jl](https://www.mimiframework.org/Mimi.jl/stable/)
 - [NumericSuffixes.jl](https://michaelhatherly.github.io/NumericSuffixes.jl/stable/)
 - [NLOptControl.jl](https://huckl3b3rry87.github.io/MPCDocs.jl/stable/)
+- [Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/))
 - [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
 - [OnlineStats.jl](https://joshday.github.io/OnlineStats.jl/stable/)
 - [PhotoAcoustic.jl](https://slimgroup.github.io/PhotoAcoustic.jl/stable/)
