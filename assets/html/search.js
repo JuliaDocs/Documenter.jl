@@ -249,7 +249,7 @@ $(function () {
     let display_result = text.length
       ? '...' +
         text.replace(
-          new RegExp(`\\b${querystring}\\b`, 'i'), // For first occurence
+          new RegExp(`\\b${querystring}\\b`, 'i'), // For first occurrence
           '<span class="search-result-highlight p-1">$&</span>'
         ) +
         '...'
