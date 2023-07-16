@@ -213,22 +213,70 @@ $(function () {
       filter: (result) => result.score >= 1,
     })
 
-    searchinfo.text('Number of results: ' + results.length)
     searchresults.empty()
 
-    results.forEach(function (result) {
-      let link = $('<a class="docs-label">' + result.title + '</a>')
-      link.attr('href', documenterBaseURL + '/' + result.location)
+    let links = []
+    let count = 0
 
-      let cat = ''
-      if (result.category != 'page') {
-        cat = $('<span class="docs-category">(' + result.category + ', ' + result.page + ')</span>')
-      } else {
-        cat = $('<span class="docs-category">(' + result.category + ')</span>')
+    results.forEach(function (result) {
+      if (result.location) {
+        if (!links.includes(result.location)) {
+          searchresults.append(make_search_result(result, querystring))
+          count++
+        }
+
+        links.push(result.location)
       }
-      let li = $('<li>').append(link).append(' ').append(cat)
-      searchresults.append(li)
     })
+
+    searchinfo.text('Number of results: ' + count)
+  }
+
+  function make_search_result(result, querystring) {
+    let display_link =
+      result.location.slice(Math.max(0), Math.min(50, result.location.length)) +
+      (result.location.length > 30 ? '...' : '')
+
+    let textindex = new RegExp(`\\b${querystring}\\b`, 'i').exec(result.text)
+    let text =
+      textindex !== null
+        ? result.text.slice(
+            Math.max(textindex.index - 100, 0),
+            Math.min(textindex.index + querystring.length + 100, result.text.length)
+          )
+        : ''
+
+    let display_result = text.length
+      ? '...' +
+        text.replace(
+          new RegExp(`\\b${querystring}\\b`, 'i'), // For first occurence
+          '<span class="search-result-highlight p-1">$&</span>'
+        ) +
+        '...'
+      : ''
+
+    let result_div = `
+      <a href="${
+        documenterBaseURL + '/' + result.location
+      }" class="search-result-link px-4 py-2 w-100 is-flex is-flex-direction-column gap-2 my-4">
+        <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-center">
+          <div class="search-result-title has-text-weight-semi-bold">${result.title}</div>
+          <div class="property-search-result-badge">${result.category}</div>
+        </div>
+        <p>
+          ${display_result}
+        </p>
+        <div
+          class="has-text-left"
+          style="font-size: smaller;"
+          title="${result.location}"
+        >
+          <i class="fas fa-link"></i> ${display_link}
+        </div>
+      </a>
+      <div class="search-divider"></div>
+    `
+    return result_div
   }
 
   function update_search_box() {

@@ -40,4 +40,57 @@ code.language-julia-repl > span.hljs-meta {
 
 // Workaround to compile in highlightjs theme, so that we could have different
 // themes for both
-@import "highlightjs/default"
+@import "highlightjs/default";
+
+.search-result-link {
+  border-radius: 0.7em;
+  transition: all 300ms;
+}
+
+.search-result-link:hover, .search-result-link:focus {
+  background-color: rgba(0, 128, 128, 0.1);
+}
+
+.search-result-link .property-search-result-badge {
+  transition: all 300ms;
+}
+
+.search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge {
+  color: #f1f5f9 !important;
+  background-color: #333 !important;
+}
+
+.property-search-result-badge {
+  padding: 0.15em 0.5em;
+  font-size: 0.8em;
+  font-style: italic;
+  text-transform: none !important;
+  line-height: 1.5;
+  color: whitesmoke;
+  background-color: #33415580;
+  border-radius: 0.6rem;
+}
+
+.search-result-highlight {
+  background-color: hsl(48, 100%, 67%);
+}
+
+.search-divider {
+  border-bottom: 1px solid #5e6d6f50
+}
+
+.search-result-title {
+  color: #333;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
