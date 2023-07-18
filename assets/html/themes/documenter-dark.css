@@ -8501,6 +8501,38 @@ html.theme--documenter-dark {
       margin-left: 2rem; }
     html.theme--documenter-dark #documenter .docs-main #documenter-search-results .docs-highlight {
       background-color: yellow; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-link {
+      border-radius: 0.7em;
+      transition: all 300ms; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-link:hover, html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-link:focus {
+      background-color: rgba(0, 128, 128, 0.1); }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-link .property-search-result-badge {
+      transition: all 300ms; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .property-search-result-badge {
+      padding: 0.15em 0.5em;
+      font-size: 0.8em;
+      font-style: italic;
+      text-transform: none !important;
+      line-height: 1.5;
+      color: whitesmoke;
+      background-color: #33415580;
+      border-radius: 0.6rem; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-link:hover .property-search-result-badge, html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-link:focus .property-search-result-badge {
+      color: #f1f5f9;
+      background-color: #333; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-highlight {
+      background-color: #ffdd57;
+      color: black !important; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-divider {
+      border-bottom: 1px solid #5e6d6f; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .search-result-title {
+      color: #333; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .w-100 {
+      width: 100%; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .gap-2 {
+      gap: 0.5rem; }
+    html.theme--documenter-dark #documenter .docs-main #documenter-search-results .gap-4 {
+      gap: 1rem; }
   html.theme--documenter-dark {
     background-color: #1f2424;
     font-size: 16px;
@@ -8654,35 +8686,8 @@ html.theme--documenter-dark {
       font-weight: bold; } }
   html.theme--documenter-dark .hljs-subst {
     color: #f8f8f2; }
-  html.theme--documenter-dark .search-result-link {
-    border-radius: 0.7em;
-    transition: all 300ms; }
-  html.theme--documenter-dark .search-result-link:hover, html.theme--documenter-dark .search-result-link:focus {
-    background-color: rgba(0, 128, 128, 0.1); }
-  html.theme--documenter-dark .search-result-link .property-search-result-badge {
-    transition: all 300ms; }
   html.theme--documenter-dark .search-result-link:hover .property-search-result-badge, html.theme--documenter-dark .search-result-link:focus .property-search-result-badge {
     color: #333 !important;
     background-color: #f1f5f9 !important; }
-  html.theme--documenter-dark .property-search-result-badge {
-    padding: 0.15em 0.5em;
-    font-size: 0.8em;
-    font-style: italic;
-    text-transform: none !important;
-    line-height: 1.5;
-    color: whitesmoke;
-    background-color: #33415580;
-    border-radius: 0.6rem; }
   html.theme--documenter-dark .search-result-title {
-    color: whitesmoke; }
-  html.theme--documenter-dark .search-result-highlight {
-    background-color: greenyellow;
-    color: black; }
-  html.theme--documenter-dark .search-divider {
-    border-bottom: 1px solid #5e6d6f50; }
-  html.theme--documenter-dark .w-100 {
-    width: 100%; }
-  html.theme--documenter-dark .gap-2 {
-    gap: 0.5rem; }
-  html.theme--documenter-dark .gap-4 {
-    gap: 1rem; }
+    color: whitesmoke !important; }
