@@ -1,0 +1,13 @@
+# Various build products
+docs/build/
+# Vendored theme stuff
+assets/html/scss/highlightjs/
+# And generated theme stuff
+assets/html/themes/
+
+# Tests contain a bunch of Markdown and such, so we'll just
+# completely ignore it
+test/
+
+# Let's not format Markdown files for now
+*.md
