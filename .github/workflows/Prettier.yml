@@ -3,12 +3,9 @@ name: Prettier (JS format)
 # This action works with pull requests and pushes
 on:
   pull_request:
-    paths:
-      - assets/html/*.js
-      - assets/html/js/*.js
   push:
-    # branches:
-    #   - main
+    branches:
+      - main
 
 jobs:
   prettier:
