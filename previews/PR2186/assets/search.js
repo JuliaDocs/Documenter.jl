@@ -246,7 +246,7 @@ $(document).ready(function () {
               data.category +
               ", " +
               data.page +
-              ")</span>",
+              ")</span>"
           );
         } else {
           cat = $('<span class="docs-category">(' + data.category + ")</span>");
