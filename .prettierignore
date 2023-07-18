@@ -11,3 +11,7 @@ test/
 
 # Let's not format Markdown files for now
 *.md
+# Also the SCSS files, but we should format those eventually
+*.scss
+# And the GitHub workflows, but we should also format those eventually
+.github/**/*.yml
