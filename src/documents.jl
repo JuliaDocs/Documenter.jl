@@ -182,6 +182,21 @@ struct MultiCodeBlock <: AbstractDocumenterBlock
     content::Vector{Markdown.Code}
 end
 
+# Cross-references
+
+struct PageLink <: MarkdownAST.AbstractInline
+    page::Documenter.Page
+    fragment::String
+end
+
+struct LocalLink <: MarkdownAST.AbstractInline
+    path::String
+    fragment::String
+end
+
+struct LocalImage <: MarkdownAST.AbstractInline
+    path::String
+end
 
 # Navigation
 # ----------------------
@@ -759,9 +774,23 @@ end
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
     page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
-    name = normpath(relpath(src, doc.user.source))
+    name = pagekey(doc, page)
+    # This check is here to make sure that the new function matches the old
+    # (correct) implementation.
+    @assert name == normpath(relpath(src, doc.user.source))
     doc.blueprint.pages[name] = page
 end
+
+# The page.source field is relative to doc.user.root, but the keys in
+# doc.blueprint.pages are relative to doc.user.source (which is itself
+# relative to doc.user.root). This function calculates the key corresponding
+# to a page.
+pagekey(doc::Document, page::Page) = normpath(
+    relpath(
+        joinpath(doc.user.root, page.source),
+        joinpath(doc.user.root, doc.user.source)
+    )
+)
 
 """
 $(SIGNATURES)
@@ -925,4 +954,11 @@ function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
         # in the old Markdown-based mdflatten()
         print(io, "\n\n\n\n")
     end
+end
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::PageLink) = MDFlatten.mdflatten(io, node.children)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalLink) = MDFlatten.mdflatten(io, node.children)
+function MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalImage)
+    print(io, "(Image: ")
+    MDFlatten.mdflatten(io, node.children)
+    print(io, ")")
 end
