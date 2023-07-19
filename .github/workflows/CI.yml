@@ -171,3 +171,15 @@ jobs:
         run: julia --color=yes --project=docs/ docs/instantiate.jl
       - name: Build and check documentation
         run: julia --color=yes --project=docs/ docs/make.jl linkcheck
+
+  prettier:
+    name: Prettier (JS code formatting)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actionsx/prettier@v2
+        with:
+          args: --check .

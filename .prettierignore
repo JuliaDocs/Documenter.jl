@@ -1,0 +1,17 @@
+# Various build products
+docs/build/
+# Vendored theme stuff
+assets/html/scss/highlightjs/
+# And generated theme stuff
+assets/html/themes/
+
+# Tests contain a bunch of Markdown and such, so we'll just
+# completely ignore it
+test/
+
+# Let's not format Markdown files for now
+*.md
+# Also the SCSS files, but we should format those eventually
+*.scss
+# And the GitHub workflows, but we should also format those eventually
+.github/**/*.yml
