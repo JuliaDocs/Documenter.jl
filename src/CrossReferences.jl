@@ -228,9 +228,10 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc)
     if Anchors.exists(headers, slug)
         if Anchors.isunique(headers, slug)
             # Replace the `@ref` url with a path to the referenced header.
-            anchor   = Anchors.anchor(headers, slug)
-            path     = relpath(anchor.file, dirname(page.build))
-            node.element.destination = string(path, Anchors.fragment(anchor))
+            anchor = Anchors.anchor(headers, slug)
+            pagekey = relpath(anchor.file, doc.user.build)
+            page = doc.blueprint.pages[pagekey]
+            node.element = Documenter.PageLink(page, Anchors.label(anchor))
         else
             @docerror(doc, :cross_references, "'$slug' is not unique in $(Documenter.locrepr(page.source)).")
         end
@@ -259,9 +260,10 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_d
     if object !== nothing
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
-        path     = relpath(docsnode.page.build, dirname(page.build))
-        slug     = Documenter.slugify(object)
-        node.element.destination = string(path, '#', slug)
+        slug = Documenter.slugify(object)
+        pagekey = relpath(docsnode.page.build, doc.user.build)
+        page = doc.blueprint.pages[pagekey]
+        node.element = Documenter.PageLink(page, slug)
     else
         @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
     end
