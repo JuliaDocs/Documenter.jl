@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Also, in general, double check that the various remote links (repository links, source links, edits links) have been generated correctly. If you run into any unexpected errors, please open an issue.
 
+* Documenter now checks that local links (e.g. to other Markdown files, local images; such as `[see the other page](other.md)`) are pointing to existing files. ([#2130], [#2187])
+
+  This can cause existing builds to fail because previously broken links are now caught by the Documenter's document checks, and this will make `makedocs` error if `strict = true` is passed.
+
+  **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `strict = Documenter.except(:cross_references)`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
+
 ### Added
 
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). ([#1989], [#1271])
@@ -1595,6 +1601,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
+[#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
@@ -1602,6 +1609,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2169]: https://github.com/JuliaDocs/Documenter.jl/issues/2169
 [#2170]: https://github.com/JuliaDocs/Documenter.jl/issues/2170
 [#2181]: https://github.com/JuliaDocs/Documenter.jl/issues/2181
+[#2187]: https://github.com/JuliaDocs/Documenter.jl/issues/2187
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
