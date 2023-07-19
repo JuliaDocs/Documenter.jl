@@ -112,6 +112,7 @@ makedocs(
         # We'll ignore links that point to GitHub's edit pages, as they redirect to the
         # login screen and cause a warning:
         r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
+        "https://nvd.nist.gov/vuln/detail/CVE-2018-16487",
     ] ∪ (get(ENV, "GITHUB_ACTIONS", nothing)  == "true" ? [
         # Extra ones we ignore only on CI.
         #
