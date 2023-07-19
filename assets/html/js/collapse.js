@@ -20,7 +20,9 @@ $(document).on("click", ".docstring header", function () {
     articleToggleTitle = "Collapse docstring";
   }
 
-  $(this).find(".docstring-article-toggle-button").prop("title", articleToggleTitle);
+  $(this)
+    .find(".docstring-article-toggle-button")
+    .prop("title", articleToggleTitle);
   $(this).siblings("section").slideToggle();
 });
 
