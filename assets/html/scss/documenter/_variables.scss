@@ -92,12 +92,10 @@ $documenter-docstring-body-padding: $documenter-docstring-body-padding-v $docume
 
 // Search Results variables
 $search-result-link-hover: rgba(0, 128, 128, 0.1) !default;
-
-$search-333: #333 !default;
-$search-f1f5f9: #f1f5f9 !default;
-$search-whitesmoke: whitesmoke !default;
-
-$search-result-badge-color: $search-whitesmoke !default;
+$search-result-link-text-color: #f1f5f9 !default;
+$search-result-link-text-background-color: #333 !default;
+$search-result-title-text-color: #333 !default; 
+$search-result-badge-color: whitesmoke !default;
 $search-result-badge-background-color: #33415580 !default;
 
 $search-result-highlight: hsl(48, 100%, 67%) !default;

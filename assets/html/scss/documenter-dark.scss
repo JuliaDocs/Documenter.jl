@@ -70,6 +70,10 @@ $input-background-color: $body-background-color;
 $input-border-color: $border;
 $input-placeholder-color: rgba($input-color, 0.3);
 
+$search-result-link-text-color: #333;
+$search-result-link-text-background-color: #f1f5f9;
+$search-result-title-text-color: whitesmoke;
+
 $button-static-color: $grey-lighter;
 $button-static-background-color: $background;
 $button-static-border-color: $border;
@@ -121,14 +125,5 @@ html.theme--#{$themename} {
   // Also, a11y-dark does not highlight string interpolation properly.
   .hljs-subst {
     color: #f8f8f2;
-  }
-  
-  .search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge {
-    color: $search-333 !important;
-    background-color: $search-f1f5f9 !important;
-  }
-  
-  .search-result-title {
-    color: $search-whitesmoke !important;
   }
 }

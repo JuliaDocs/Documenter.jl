@@ -11,9 +11,6 @@
     li {
       margin-left: 2rem;
     }
-    .docs-highlight {
-      background-color: yellow;
-    }
 
     .search-result-link {
       border-radius: 0.7em;
@@ -40,13 +37,13 @@
     }
     
     .search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge {
-      color: $search-f1f5f9;
-      background-color: $search-333;
+      color: $search-result-link-text-color;
+      background-color: $search-result-link-text-background-color;
     }
     
     .search-result-highlight {
       background-color: $search-result-highlight;
-      color: black !important;
+      color: black;
     }
     
     .search-divider {
@@ -54,7 +51,7 @@
     }
     
     .search-result-title {
-      color: $search-333;
+      color: $search-result-title-text-color;
     }
     
     .w-100 {
