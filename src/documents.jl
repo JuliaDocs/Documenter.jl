@@ -748,7 +748,7 @@ function source_url(doc::Document, mod, file, linerange)
     isfile(file) || return nothing
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
-        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(path)")
+        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(file)")
     end
     @debug "source_url" mod file linerange remoteref
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
