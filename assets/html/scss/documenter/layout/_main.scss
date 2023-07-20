@@ -16,20 +16,17 @@
     }
 
     @include desktop {
-      max-width: $documenter-max-width + 2*$documenter-main-padding;
-      margin-left: $documenter-sidebar-width + $documenter-sidebar-main-gap;
-      padding-right: $documenter-main-padding-right;
+      max-width: $documenter-max-width;
     }
 
     @include touch {
       width: 100%;
 
       > article {
-        max-width: $documenter-max-width + 2*$documenter-main-padding;
+        max-width: $documenter-max-width;
         margin-left: auto;
         margin-right: auto;
         margin-bottom: 1rem;
-        padding: 0 $documenter-main-padding;
       }
       > header, > nav {
         max-width: 100%;
@@ -130,11 +127,6 @@
       border-top: 1px solid $border;
       padding-top: 1rem;
       padding-bottom: 1rem;
-
-      @include touch {
-        padding-left: $documenter-main-padding;
-        padding-right: $documenter-main-padding;
-      }
 
       .docs-footer-nextpage, .docs-footer-prevpage {
         flex-grow: 1;

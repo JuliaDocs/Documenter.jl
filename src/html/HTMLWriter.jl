@@ -432,6 +432,7 @@ struct HTML <: Documenter.Writer
     prerender     :: Bool
     node          :: Union{Cmd,String,Nothing}
     highlightjs   :: Union{String,Nothing}
+    topnavigation :: Bool
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -450,6 +451,7 @@ struct HTML <: Documenter.Writer
             ansicolor     :: Bool = true,
             lang          :: String = "en",
             warn_outdated :: Bool = true,
+            topnavigation :: Bool = false,
 
             # experimental keywords
             prerender     :: Bool = false,
@@ -490,7 +492,7 @@ struct HTML <: Documenter.Writer
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
-            ansicolor, lang, warn_outdated, prerender, node, highlightjs)
+            ansicolor, lang, warn_outdated, prerender, node, highlightjs, topnavigation)
     end
 end
 
@@ -754,11 +756,11 @@ Constructs and writes the page referred to by the `navnode` to `.build`.
 function render_page(ctx, navnode)
     @tags html div body
     head = render_head(ctx, navnode)
-    sidebar = render_sidebar(ctx, navnode)
-    navbar = render_navbar(ctx, navnode, true)
+    navbars = render_navbars(ctx, navnode)
+    breadcrumb = render_breadcrumb(ctx, navnode, true)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
-    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
+    htmldoc = render_html(ctx, navnode; head, navbars, breadcrumb, article, footer)
     open_output(ctx, navnode) do io
         print(io, htmldoc)
     end
@@ -771,8 +773,8 @@ function render_search(ctx)
     src = get_url(ctx, ctx.search_navnode)
 
     head = render_head(ctx, ctx.search_navnode)
-    sidebar = render_sidebar(ctx, ctx.search_navnode)
-    navbar = render_navbar(ctx, ctx.search_navnode, false)
+    navbars = render_navbars(ctx, ctx.search_navnode)
+    breadcrumb = render_breadcrumb(ctx, ctx.search_navnode, false)
     article = article(
         p["#documenter-search-info"]("Loading search..."),
         ul["#documenter-search-results"]
@@ -782,7 +784,7 @@ function render_search(ctx)
         script[:src => relhref(src, ctx.search_index_js)],
         script[:src => relhref(src, ctx.search_js)],
     ]
-    htmldoc = render_html(ctx, ctx.search_navnode, head, sidebar, navbar, article, footer, scripts)
+    htmldoc = render_html(ctx, ctx.search_navnode; head, navbars, breadcrumb, article, footer, scripts)
     open_output(ctx, ctx.search_navnode) do io
         print(io, htmldoc)
     end
@@ -794,15 +796,15 @@ end
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
+function render_html(ctx, navnode; head, navbars, breadcrumb, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
     @tags html body div
     DOM.HTMLDocument(
         html[:lang=>ctx.settings.lang](
             head,
             body(
                 div["#documenter"](
-                    sidebar,
-                    div[".docs-main"](navbar, article, footer),
+                    navbars...,
+                    div[".docs-main"](breadcrumb, article, footer),
                     render_settings(ctx),
                 ),
             ),
@@ -1027,6 +1029,59 @@ struct NavMenuContext
 end
 NavMenuContext(ctx::HTMLContext, current::Documenter.NavNode) = NavMenuContext(ctx, current, [])
 
+function render_navbars(ctx, navnode)
+    sidebar = render_sidebar(ctx, navnode)
+    # We generate the .docs-topbar element only if
+    if ctx.settings.topnavigation
+        topbar = render_topbar(ctx, navnode)
+        return [topbar, sidebar]
+    else
+        return [sidebar]
+    end
+end
+
+function render_topbar(ctx, navnode)
+    @tags nav ul li div a
+    @assert ctx.settings.topnavigation
+    top_navnode = first(Documenter.navpath(navnode))
+    topbar_menu_items = map(ctx.doc.internal.navtree) do nn
+        is_active = (nn == top_navnode)
+        dctx = DCtx(ctx, nn, true)
+        title = domify(dctx, pagetitle(dctx))
+        child_navnode = find_first_child_page(nn)
+        href = if isnothing(child_navnode)
+            @warn "Unable to find child navnode" nn
+            "#"
+        else
+            navhref(ctx, child_navnode, navnode)
+        end
+        render_topbar_item(title, href; isactive = is_active)
+    end
+
+    top_menu = ul(topbar_menu_items)
+    nav[".docs-topbar"](
+        top_menu,
+        div[".docs-right"](
+            a("GitHub"),
+            a("Settings"),
+        )
+    )
+end
+function render_topbar_item(name, href; isactive=false)
+    @tags li a
+    li_class = isactive ? [".is-active"] : String[]
+    return li[li_class...](a[:href => href](name))
+end
+
+function find_first_child_page(navnode::Documenter.NavNode)
+    isnothing(navnode.page) || return navnode
+    for nn in navnode.children
+        child_nn = find_first_child_page(nn)
+        isnothing(child_nn) || return child_nn
+    end
+    return nothing
+end
+
 function render_sidebar(ctx, navnode)
     @tags a form img input nav div select option span
     src = get_url(ctx, navnode)
@@ -1069,7 +1124,18 @@ function render_sidebar(ctx, navnode)
     )
 
     # The menu itself
-    menu = navitem(NavMenuContext(ctx, navnode))
+    nmctx = NavMenuContext(ctx, navnode)
+    menu = if ctx.settings.topnavigation
+        top_navnode = first(Documenter.navpath(navnode))
+        if isempty(top_navnode.children)
+            @warn "No second level pages" top_navnode
+            DOM.VOID
+        else
+            navitem(nmctx, top_navnode.children)
+        end
+    else
+        navitem(nmctx)
+    end
     push!(menu.attributes, :class => "docs-menu")
     push!(navmenu.nodes, menu)
 
@@ -1088,7 +1154,7 @@ function render_sidebar(ctx, navnode)
         vs_select = div[".docs-selector.control.is-expanded"](vs_select)
         push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
     end
-    navmenu
+    return div[".docs-sidebar-container"](navmenu)
 end
 
 function find_image_asset(ctx, name)
@@ -1165,7 +1231,7 @@ function navitem(nctx, nn::Documenter.NavNode)
     item
 end
 
-function render_navbar(ctx, navnode, edit_page_link::Bool)
+function render_breadcrumb(ctx, navnode, edit_page_link::Bool)
     @tags div header nav ul li a span
 
     # Hamburger on mobile
@@ -1752,7 +1818,12 @@ end
 """
 Returns the full path of a [`Documenter.NavNode`](@ref) relative to `src/`.
 """
-get_url(ctx, navnode::Documenter.NavNode) = get_url(ctx, navnode.page)
+function get_url(ctx, navnode::Documenter.NavNode)
+    if isnothing(navnode.page)
+        error("get_url called with invalid, non-page NavNode: $navnode")
+    end
+    return get_url(ctx, navnode.page)
+end
 
 """
 If `prettyurls` for [`HTML`](@ref Documenter.HTML) is enabled, returns a "pretty" version of
