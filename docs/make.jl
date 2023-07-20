@@ -18,6 +18,17 @@ rewrite_changelog(;
     repo = "JuliaDocs/Documenter.jl",
 )
 
+# When including make.jl interactively in the REPL, you can call themewatch()
+# to start up a loop that checks for the SCSS files for updates, recompiles them
+# and then updates the build/assets/theme directory of the current docs.
+# This is useful when working on the SCSS styles, and you want to test them
+# by building Documenter's own docs.
+function themewatch()
+    build_assets = joinpath(@__DIR__, "build/assets/themes")
+    DocumenterTools.Themes.themewatcher_start()
+    DocumenterTools.Themes.themewatcher_start(dst = build_assets)
+end
+
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
     format = if "pdf" in ARGS
@@ -31,6 +42,7 @@ makedocs(
             analytics = "UA-136089579-2",
             highlights = ["yaml"],
             ansicolor = true,
+            topnavigation = true, # TODO: disable this?
         )
     end,
     build = ("pdf" in ARGS) ? "build-pdf" : "build",

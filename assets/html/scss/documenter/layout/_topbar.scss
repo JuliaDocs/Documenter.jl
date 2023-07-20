@@ -1,0 +1,61 @@
+#documenter .docs-topbar {
+    background-color: red;
+
+    background-color: rgb(245, 245, 245);
+    border-bottom: 1px solid #dbdbdb;
+    height: 3rem;
+    display: flex;
+
+    .docs-right {
+        display: flex;
+        white-space: nowrap;
+        gap: 1rem;
+        align-items: center;
+        margin-left: auto;
+        // It looks like this hack is needed to make Sass happy? Otherwise it refuses to
+        // properly interpolate the variables into the calc / max expressions.
+        --width: #{$documenter-total-width};
+        margin-right: calc(max(1rem, 100vw - var(--width)));
+    }
+    .docs-right a {
+        margin-left: 1rem;
+    }
+
+    a, span {
+        font-size: 0.95rem;
+        font-weight: bold;
+        color: inherit;
+    }
+
+    ul.d-megadropdown span {
+        text-decoration: underline;
+        font-weight: normal;
+    }
+
+    > ul {
+        display: flex;
+    }
+
+    > ul > li {
+        height: 3rem;
+        margin-top: auto;
+        margin-bottom: auto;
+        display: flex;
+    }
+
+    > ul > li > a {
+        margin-top: auto;
+        margin-bottom: auto;
+        display: block;
+
+        padding: 0 1rem;
+    }
+
+    > ul > li.is-active > a {
+        text-decoration: underline;
+    }
+
+    > ul > li:hover {
+        background-color: rgb(200,200,200);
+    }
+}

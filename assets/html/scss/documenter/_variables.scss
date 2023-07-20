@@ -71,13 +71,12 @@ $documenter-max-width: 50rem !default;
 $documenter-sidebar-width: 18rem !default;
 
 $documenter-sidebar-main-gap: 2rem !default;
-$documenter-main-padding-right: 1rem !default;
-$documenter-main-padding: 1rem !default;
+$documenter-main-margin-right: 1rem !default;
 
 // We'll override the Bulma $tablet width, which is the point at which the
 // layout switches between the mobile and tablet modes. Note: $tablet needs
 // to be in px, hence the unit conversion.
-$desktop: round($body-size * ($documenter-max-width + $documenter-sidebar-width + $documenter-sidebar-main-gap + $documenter-main-padding-right - 5rem)/1rem) !default;
+$desktop: round($body-size * ($documenter-max-width + $documenter-sidebar-width + $documenter-sidebar-main-gap - 5rem)/1rem) !default;
 
 // Padding for admonitions and docstrings.
 // We'll try to keep the left padding consistent between the various container

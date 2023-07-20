@@ -1,22 +1,17 @@
-#documenter .docs-sidebar {
-  display: flex;
-  flex-direction: column;
-
-  color: $documenter-sidebar-color;
+#documenter .docs-sidebar-container {
   background-color: $documenter-sidebar-background;
   border-right: 1px solid $border;
-  padding: 0;
-  flex: 0 0 $documenter-sidebar-width;
-  z-index: 5; // make sure it's on top of the main body and top bar
+}
 
+#documenter .docs-sidebar {
+  color: $documenter-sidebar-color;
   font-size: $documenter-sidebar-size;
 
   // This is mobile-first, so our default state is that the sidebar is hidden away left
   // of the screen.
-  position: fixed;
   left: -$documenter-sidebar-width;
   width: $documenter-sidebar-width;
-  height: 100%;
+  // height: 100%;
   transition: left 0.3s;
   // Clicking on the hamburger on mobile toggles the .visible class on the sidebar
   // If enabled, we'll move the sidebar into view. As it is now floating above the
@@ -29,11 +24,6 @@
       // but the .visible class is still toggled.
       box-shadow: none;
     }
-  }
-  // In the non-mobile layout, we show the sidebar as a left panel of the dashboard.
-  @include desktop {
-    left: 0;
-    top: 0;
   }
 
   // The top bar of the sidebar bar contains:
