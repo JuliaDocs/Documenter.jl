@@ -543,6 +543,27 @@ Preview builds are still deployed to the `previews` subfolder.
     ([source repository](https://github.com/JuliaDocs/juliadocs.github.io)) is one example
     where this functionality is used.
 
+### Out-of-repo deployment
+
+Sometimes the documentation pages can become really large in terms of figures and other
+binaries. In this case, it is useful to deploy the docs in the `gh-pages` of an external
+repository. The following steps can be used to deploy the documentation of a "source"
+repository on a "target" repo:
+
+1. Run `DocumenterTools.genkeys()` to generate a pair of keys
+2. Copy the deploy key to the "target" repository
+3. Copy the secret key to the "source" repository
+4. Adapt `docs/make.jl` to deploy on "target" repository:
+
+```julia
+# url of target repo
+repo = "github.com/target.git"
+
+# deploy with custom environment
+withenv("GITHUB_REPOSITORY" => repo) do
+  deploydocs(repo=repo)
+end
+```
 
 ## Deploying from a monorepo
 
