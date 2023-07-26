@@ -219,7 +219,7 @@ function Selectors.runner(::Type{Doctest}, doc::Documenter.Document)
         @info "Doctest: running doctests."
         DocTests.doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
-        if (doc.user.doctest === :only || is_strict(doc.user.strict, :doctest)) && num_errors > 0
+        if (doc.user.doctest === :only || is_strict(doc, :doctest)) && num_errors > 0
             error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")
         end
     else
@@ -257,7 +257,7 @@ end
 function Selectors.runner(::Type{RenderDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "RenderDocument") && return
     # How many fatal errors
-    fatal_errors = filter(is_strict(doc.user.strict), doc.internal.errors)
+    fatal_errors = filter(is_strict(doc), doc.internal.errors)
     c = length(fatal_errors)
     if c > 0
         error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ("

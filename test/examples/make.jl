@@ -217,6 +217,7 @@ function html_doc(
     build_directory, mathengine;
     htmlkwargs=(;),
     image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif"),
+    warnonly = true,
     kwargs...
 )
     @quietly withassets(image_assets...) do
@@ -244,6 +245,7 @@ function html_doc(
                 footer = "This footer has been customized.",
                 htmlkwargs...
             ),
+            warnonly = warnonly,
             kwargs...
         )
     end

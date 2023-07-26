@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
+* The `strict` keyword argument to `makedocs` has been removed and replaced with `warnonly`. `makedocs` now **fails builds by default** if any of the document checks fails (previously it only issued warnings by default). ()
+
+  **For upgrading:** If you are running with `strict = true`, you can just drop the `strict` option.
+  If you are currently being strict about specific error classes, you can invert the list of error classes with `Documenter.except`.
+
+  If you were not setting the `strict` keyword, but your build is failing now, you should first endeavor to fix the errors that are causing the build to fail.
+  If that is not feasible, you can exclude specific error categories from failing the build (e.g. `warnonly = [:footnotes, :cross_references]`).
+  Finally, setting `warnonly = true` can be used to recover the old `strict = false` default behavior, turning all errors back into warnings.
+
 * The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). This includes the removal of the exported `Deps` module. ([#1826])
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). That package might not immediately support the latest Documenter version, however.

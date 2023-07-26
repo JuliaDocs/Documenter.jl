@@ -288,7 +288,7 @@ struct User
     linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
-    strict::Union{Bool,Symbol,Vector{Symbol}} # Throw an exception when any warnings are encountered.
+    warnonly::Vector{Symbol}  # List of docerror groups that should only warn, rather than cause a build failure
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
@@ -359,7 +359,7 @@ function Document(plugins = nothing;
         linkcheck_timeout :: Real    = 10,
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
-        strict::Union{Bool,Symbol,Vector{Symbol}} = false,
+        warnonly :: Union{Bool,Symbol,Vector{Symbol}} = Symbol[],
         modules  :: ModVec = Module[],
         pages    :: Vector           = Any[],
         pagesonly:: Bool             = false,
@@ -374,7 +374,7 @@ function Document(plugins = nothing;
         others...
     )
 
-    check_strict_kw(strict)
+    warnonly = reduce_warnonly(warnonly) # convert warnonly to Symbol[]
     check_kwargs(others)
 
     if !isa(format, AbstractVector)
@@ -416,7 +416,7 @@ function Document(plugins = nothing;
         linkcheck_timeout,
         checkdocs,
         doctestfilters,
-        strict,
+        warnonly,
         pages,
         pagesonly,
         expandfirst,
@@ -618,6 +618,35 @@ function interpret_repo_and_remotes(; root, repo, remotes)
 
     return (makedocs_root_remote, remotes_checked)
 end
+
+# Converts the warnonly keyword argument to a Vector{Symbol}
+reduce_warnonly(warnonly::Bool) = reduce_warnonly(warnonly ? ERROR_NAMES : Symbol[])
+reduce_warnonly(s::Symbol) = reduce_warnonly(Symbol[s])
+function reduce_warnonly(warnonly)
+    warnonly = Symbol[s for s in warnonly]
+    extra_names = setdiff(warnonly, ERROR_NAMES)
+    if !isempty(extra_names)
+        throw(ArgumentError("""
+        Keyword argument `warnonly` given invalid values: $(extra_names)
+        Valid options are: $(ERROR_NAMES)
+        """))
+    end
+    return warnonly
+end
+
+"""
+    is_strict(::Document, val::Symbol) -> Bool
+
+Internal function to check if Documenter should throw an error or simply
+print a warning when hitting error condition.
+
+Single-argument `is_strict(strict)` provides a curried function.
+"""
+function is_strict(doc::Document, val::Symbol)
+    val in ERROR_NAMES || throw(ArgumentError("Invalid val in is_strict: $val"))
+    return !(val ∈ doc.user.warnonly)
+end
+is_strict(doc::Document) = Base.Fix1(is_strict, doc)
 
 function addremote!(remotes::Vector{RemoteRepository}, remoteref::RemoteRepository)
     for ref in remotes
