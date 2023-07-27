@@ -383,6 +383,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             prettyurls = false,
             footer = nothing,
         ),
+        warnonly = true,
     )
 else
     @info "Skipping build: HTML/local"
