@@ -383,7 +383,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             prettyurls = false,
             footer = nothing,
         ),
-        warnonly = true,
+        warnonly = [:doctest, :footnote, :cross_references, :linkcheck],
     )
 else
     @info "Skipping build: HTML/local"
@@ -401,6 +401,7 @@ examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
         build = "builds/html-draft",
         sitename = "Documenter example (draft)",
         pages = htmlbuild_pages,
+        warnonly = [:footnote, :cross_references],
     )
 else
     @info "Skipping build: HTML/draft"
@@ -425,6 +426,7 @@ examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
             ],
         ],
         pagesonly = true,
+        warnonly = :cross_references,
     )
 else
     @info "Skipping build: HTML/pagesonly"
@@ -613,6 +615,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        warnonly = [:footnote, :cross_references, :example_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"
@@ -707,6 +710,7 @@ examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUI
         remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
+        warnonly = [:docs_block, :cross_references],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase_texonly"
