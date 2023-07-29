@@ -1,20 +1,4 @@
 """
-Provides the [`crossref`](@ref) function used to automatically calculate link URLs.
-"""
-module CrossReferences
-
-import ..Documenter:
-    Anchors,
-    Builder,
-    Expanders,
-    Documenter
-
-using DocStringExtensions
-using .Documenter: Remotes, @docerror
-import Markdown
-import AbstractTrees, MarkdownAST
-
-"""
 $(SIGNATURES)
 
 Traverses a [`Documenter.Document`](@ref) and replaces links containing `@ref` URLs with
@@ -377,6 +361,4 @@ function issue_xref(node::MarkdownAST.Node, num, meta, page, doc)
     else
         node.element.destination = issue_url
     end
-end
-
 end
