@@ -551,15 +551,17 @@ The following steps can be used to deploy the documentation of a "source"
 repository on a "target" repo:
 
 1. Run `DocumenterTools.genkeys()` to generate a pair of keys
-2. Copy the deploy key to the "target" repository
-3. Copy the secret key to the "source" repository
+2. Add the **deploy key** to the **"target"** repository
+3. Add the `DOCUMENTER_KEY` **secret** to the **"source"** repository (that runs the documentation workflow)
 4. Adapt `docs/make.jl` to deploy on "target" repository:
 
 ```julia
 # url of target repo
-repo = "github.com/target.git"
+repo = "github.com/TargetRepoOrg/TargetRepo.git"
 
-# deploy with custom environment
+# You have to override the corresponding environment variable that
+# deplodocs uses to determine if it is deploying to the correct repository.
+# For GitHub, it's the GITHUB_REPOSITORY variable:
 withenv("GITHUB_REPOSITORY" => repo) do
   deploydocs(repo=repo)
 end
