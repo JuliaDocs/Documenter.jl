@@ -545,9 +545,9 @@ Preview builds are still deployed to the `previews` subfolder.
 
 ### Out-of-repo deployment
 
-Sometimes the documentation pages can become really large in terms of figures and other
-binaries. In this case, it is useful to deploy the docs in the `gh-pages` of an external
-repository. The following steps can be used to deploy the documentation of a "source"
+Sometimes the `gh-pages` branch can become really large, either just due to a large number of commits over time, or due figures and other large artifacts.
+In those cases, it can be useful to deploy the docs in the `gh-pages` of a separate repository.
+The following steps can be used to deploy the documentation of a "source"
 repository on a "target" repo:
 
 1. Run `DocumenterTools.genkeys()` to generate a pair of keys
