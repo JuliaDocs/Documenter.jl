@@ -25,7 +25,6 @@ The default document processing "pipeline", which consists of the following acti
 - [`SetupBuildDirectory`](@ref)
 - [`Doctest`](@ref)
 - [`ExpandTemplates`](@ref)
-- [`CrossReferences`](@ref)
 - [`CheckDocument`](@ref)
 - [`Populate`](@ref)
 - [`RenderDocument`](@ref)
@@ -236,7 +235,7 @@ end
 function Selectors.runner(::Type{CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    Documenter.CrossReferences.crossref(doc)
+    Documenter.crossref(doc)
 end
 
 function Selectors.runner(::Type{CheckDocument}, doc::Documenter.Document)
