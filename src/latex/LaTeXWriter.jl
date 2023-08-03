@@ -688,15 +688,8 @@ function latex(io::Context, node::Node, image::Documenter.LocalImage)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
         _println(io, "\\centering")
-        url = if startswith(image.path, '/')
-            # URLs starting with a / are assumed to be relative to the document's root
-            normpath(lstrip(image.path, '/'))
-        else
-            normpath(joinpath(dirname(io.filename), image.path))
-        end
-        url = replace(url, "\\" => "/") # use / on Windows too.
         wrapinline(io, "includegraphics[max width=\\linewidth]") do
-            _print(io, url)
+            _print(io, image.path)
         end
         _println(io)
         wrapinline(io, "caption") do
