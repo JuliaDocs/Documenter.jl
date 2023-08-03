@@ -178,10 +178,7 @@ jobs:
     name: Prettier (JS code formatting)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
+      - uses: actions/checkout@v3
       - uses: actionsx/prettier@v2
         with:
           args: --check .
