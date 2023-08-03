@@ -184,7 +184,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
             return false
         end
     elseif settings.platform == "tectonic"
@@ -724,6 +724,13 @@ function latex(io::Context, node::Node, f::MarkdownAST.FootnoteLink)
 end
 
 function latex(io::Context, node::Node, link::Documenter.PageLink)
+    # If we're in a header, we don't want to print any \hyperlinkref commands,
+    # so we handle this here.
+    if io.in_header
+        latex(io, node.children)
+        return
+    end
+    # This branch is the normal case, when we're not in a header.
     # TODO: this link handling does not seem correct
     if !isempty(link.fragment)
         id = _hash(link.fragment)
@@ -742,6 +749,13 @@ function latex(io::Context, node::Node, link::Documenter.PageLink)
 end
 
 function latex(io::Context, node::Node, link::Documenter.LocalLink)
+    # If we're in a header, we don't want to print any \hyperlinkref commands,
+    # so we handle this here.
+    if io.in_header
+        latex(io, node.children)
+        return
+    end
+    # This branch is the normal case, when we're not in a header.
     # TODO: this link handling does not seem correct
     wrapinline(io, "href") do
         href = isempty(link.fragment) ? link.path : "$(link.path)#($(link.fragment))"
@@ -753,17 +767,20 @@ function latex(io::Context, node::Node, link::Documenter.LocalLink)
 end
 
 function latex(io::Context, node::Node, link::MarkdownAST.Link)
-    # TODO: handle the .title attribute
+    # If we're in a header, we don't want to print any \hyperlinkref commands,
+    # so we handle this here.
     if io.in_header
         latex(io, node.children)
-    else
-        wrapinline(io, "href") do
-            latexesc(io, link.destination)
-        end
-        _print(io, "{")
-        latex(io, node.children)
-        _print(io, "}")
+        return
     end
+    # This branch is the normal case, when we're not in a header.
+    # TODO: handle the .title attribute
+    wrapinline(io, "href") do
+        latexesc(io, link.destination)
+    end
+    _print(io, "{")
+    latex(io, node.children)
+    _print(io, "}")
 end
 
 function latex(io::Context, node::Node, math::MarkdownAST.InlineMath)
