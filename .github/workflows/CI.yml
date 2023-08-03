@@ -57,13 +57,15 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v1
-      - run: |
-          julia --project=test/examples -e '
-            using Pkg
-            Pkg.instantiate()
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.add(["IOCapture", "tectonic_jll"])'
-      - run: julia --project=test/examples --code-coverage test/examples/tests_latex.jl
+      - name: Instantiate Pkg environment
+        shell: julia --color=yes --project=test/examples
+        run: |
+          using Pkg
+          Pkg.instantiate()
+          Pkg.develop(PackageSpec(path=pwd()))
+          Pkg.add(["IOCapture", "tectonic_jll"])
+      - name: Run test/examples/tests_latex.jl
+        run: julia --color=yes --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v3
         with:
