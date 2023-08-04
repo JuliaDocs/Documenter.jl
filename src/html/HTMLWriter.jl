@@ -686,7 +686,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "search.js"))
         @warn "not creating 'search.js', provided by the user."
     else
-        r = JSDependencies.RequireJS([RD.jquery, RD.lunr, RD.lodash])
+        r = JSDependencies.RequireJS([RD.jquery, RD.minisearch, RD.lodash])
         push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
