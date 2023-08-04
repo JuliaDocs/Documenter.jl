@@ -58,7 +58,7 @@ jobs:
           version: '1'
       - uses: julia-actions/cache@v1
       - name: Instantiate Pkg environment
-        shell: julia --color=yes --project=test/examples
+        shell: julia --color=yes --project=test/examples {0}
         run: |
           using Pkg
           Pkg.instantiate()
