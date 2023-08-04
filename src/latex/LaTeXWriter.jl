@@ -197,7 +197,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
             return false
         end
     elseif settings.platform == "docker"
@@ -217,7 +217,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
             return false
         finally
             try; piperun(`docker stop latex-container`); catch; end
