@@ -114,6 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. ([#2181])
 
+* The client-side search engine has been changed from LunrJs to MinisearchJs. Additionally, the search results will now contain additional context and have an improved UI. ([#2141])
+
 ### Fixed
 
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
@@ -1613,6 +1615,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
+[#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
 [#2157]: https://github.com/JuliaDocs/Documenter.jl/issues/2157

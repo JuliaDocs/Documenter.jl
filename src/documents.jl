@@ -189,11 +189,23 @@ struct PageLink <: MarkdownAST.AbstractInline
     fragment::String
 end
 
+"""
+Represents a reference to a local file. The `path` can be assumed to be an "absolute" path
+relative to the document root (i.e. `src/` or `build/` directories).
+
+In the standard setup, when the documentation setup lives in `docs/`, with source files
+in `docs/src`, a link to the file `docs/src/foo/bar.md` would have `path = "foo/bar.md"`.
+"""
 struct LocalLink <: MarkdownAST.AbstractInline
     path::String
     fragment::String
 end
 
+"""
+Represents a reference to a local image. The `path` can be assumed to be an "absolute" path
+relative to the document root (i.e. `src/` or `build/` directories). See [`LocalLink`](@ref)
+for more details.
+"""
 struct LocalImage <: MarkdownAST.AbstractInline
     path::String
 end

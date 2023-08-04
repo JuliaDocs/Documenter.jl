@@ -11,8 +11,59 @@
     li {
       margin-left: 2rem;
     }
-    .docs-highlight {
-      background-color: yellow;
+
+    .search-result-link {
+      border-radius: 0.7em;
+      transition: all 300ms;
+    }
+    
+    .search-result-link:hover, .search-result-link:focus {
+      background-color: $search-result-link-hover;
+    }
+    
+    .search-result-link .property-search-result-badge {
+      transition: all 300ms;
+    }
+    
+    .property-search-result-badge {
+      padding: 0.15em 0.5em;
+      font-size: 0.8em;
+      font-style: italic;
+      text-transform: none !important;
+      line-height: 1.5;
+      color: $search-result-badge-color;
+      background-color: $search-result-badge-background-color;
+      border-radius: 0.6rem;
+    }
+    
+    .search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge {
+      color: $search-result-link-text-color;
+      background-color: $search-result-link-text-background-color;
+    }
+    
+    .search-result-highlight {
+      background-color: $search-result-highlight;
+      color: black;
+    }
+    
+    .search-divider {
+      border-bottom: 1px solid $border;
+    }
+    
+    .search-result-title {
+      color: $search-result-title-text-color;
+    }
+    
+    .w-100 {
+      width: 100%;
+    }
+    
+    .gap-2 {
+      gap: 0.5rem;
+    }
+    
+    .gap-4 {
+      gap: 1rem;
     }
   }
 }
