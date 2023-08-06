@@ -107,6 +107,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The client-side search engine has been changed from LunrJs to MinisearchJs. Additionally, the search results will now contain additional context and have an improved UI. ([#2141])
 
+* The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove those pesky unwanted results. ([#2147])
+
 ### Fixed
 
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
@@ -118,6 +120,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. ([#1969])
 
 * `deploydocs` now correctly handles version symlinks where the destination directory has been deleted. ([#2012])
+
+* Removed some extra space between navbar header icons.
+
+* Fixed, docstring collapse/expand icon not changing when clicking rapidly. Now click all you want! ([#2103])
 
 ### Other
 
@@ -1602,11 +1608,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
+[#2103]: https://github.com/JuliaDocs/Documenter.jl/issues/2103
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
 [#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
+[#2147]: https://github.com/JuliaDocs/Documenter.jl/issues/2147
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
 [#2157]: https://github.com/JuliaDocs/Documenter.jl/issues/2157
 [#2169]: https://github.com/JuliaDocs/Documenter.jl/issues/2169
