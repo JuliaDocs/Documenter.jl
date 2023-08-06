@@ -1,18 +1,85 @@
-let searchbox = document.querySelector("#documenter-search-query");
-let sidebar = document.querySelector(".docs-sidebar");
+// libraries: jquery
+// arguments: $
+
+let search_modal_header = `
+  <header class="modal-card-head">
+    <div class="field mb-0 w-100">
+      <p class="control has-icons-right">
+        <input class="input documenter-search-input" type="text" placeholder="Search" />
+        <span class="icon is-small is-right has-text-primary-dark">
+          <i class="fas fa-magnifying-glass"></i>
+        </span>
+      </p>
+    </div>
+  </header>
+`;
+
+let initial_search_body = `
+  <div class="has-text-centered my-5 py-5">No recent searches!</div>
+`;
+
+let search_modal_footer = `
+  <footer class="modal-card-foot">
+    <span>
+      <kbd class="search-modal-key-hints">Ctrl</kbd> +
+      <kbd class="search-modal-key-hints">/</kbd> to search
+    </span>
+    <span class="ml-3"> <kbd class="search-modal-key-hints">esc</kbd> to close </span>
+  </footer>
+`;
+
+$(document.body).append(
+  `
+    <div class="modal" id="search-modal">
+      <div class="modal-background"></div>
+      <div class="modal-card search-min-width-50">
+        ${search_modal_header}
+        <section class="modal-card-body is-flex is-flex-direction-column gap-4 search-modal-card-body">
+          ${initial_search_body}
+        </section>
+        ${search_modal_footer}
+      </div>
+    </div>
+  `
+);
+
+document.querySelector(".docs-search-query").addEventListener("click", () => {
+  openModal();
+});
 
 document.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key === "/") {
-    if (!sidebar.classList.contains("visible")) {
-      sidebar.classList.add("visible");
-    }
-    searchbox.focus();
-    return false;
+    openModal();
   } else if (event.key === "Escape") {
-    if (sidebar.classList.contains("visible")) {
-      sidebar.classList.remove("visible");
-    }
-    searchbox.blur();
-    return false;
+    closeModal();
   }
+
+  return false;
 });
+
+// Functions to open and close a modal
+function openModal() {
+  let searchModal = document.querySelector("#search-modal");
+
+  searchModal.classList.add("is-active");
+  document.querySelector(".documenter-search-input").focus();
+}
+
+function closeModal() {
+  let searchModal = document.querySelector("#search-modal");
+  let initial_search_body = `
+    <div class="has-text-centered my-5 py-5">No recent searches!</div>
+  `;
+
+  searchModal.classList.remove("is-active");
+  document.querySelector(".documenter-search-input").blur();
+
+  $(".documenter-search-input").val("");
+  $(".search-modal-card-body").html(initial_search_body);
+}
+
+document
+  .querySelector("#search-modal .modal-background")
+  .addEventListener("click", () => {
+    closeModal();
+  });

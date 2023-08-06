@@ -686,7 +686,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "search.js"))
         @warn "not creating 'search.js', provided by the user."
     else
-        r = JSDependencies.RequireJS([RD.jquery, RD.minisearch, RD.lodash])
+        r = JSDependencies.RequireJS([RD.jquery, RD.minisearch])
         push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
@@ -909,6 +909,8 @@ function render_head(ctx, navnode)
             :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
+        script[:src => relhref(src, ctx.search_index_js)],
+        script[:src => relhref(src, ctx.search_js)],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
