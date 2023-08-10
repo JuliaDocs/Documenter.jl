@@ -72,7 +72,7 @@ include("documents.jl")
 include("Expanders.jl")
 include("DocTests.jl")
 include("Builder.jl")
-include("CrossReferences.jl")
+include("cross_references.jl")
 include("DocChecks.jl")
 include("writers.jl")
 include("html/HTMLWriter.jl")
@@ -97,8 +97,8 @@ include("deployconfig.jl")
 include("deploydocs.jl")
 include("doctest.jl")
 
-using SnoopPrecompile
-@precompile_all_calls begin
+import PrecompileTools
+PrecompileTools.@compile_workload begin
     include("docs_precompile/make.jl")
 end
 

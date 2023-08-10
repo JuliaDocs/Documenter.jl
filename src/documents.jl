@@ -182,6 +182,33 @@ struct MultiCodeBlock <: AbstractDocumenterBlock
     content::Vector{Markdown.Code}
 end
 
+# Cross-references
+
+struct PageLink <: MarkdownAST.AbstractInline
+    page::Documenter.Page
+    fragment::String
+end
+
+"""
+Represents a reference to a local file. The `path` can be assumed to be an "absolute" path
+relative to the document root (i.e. `src/` or `build/` directories).
+
+In the standard setup, when the documentation setup lives in `docs/`, with source files
+in `docs/src`, a link to the file `docs/src/foo/bar.md` would have `path = "foo/bar.md"`.
+"""
+struct LocalLink <: MarkdownAST.AbstractInline
+    path::String
+    fragment::String
+end
+
+"""
+Represents a reference to a local image. The `path` can be assumed to be an "absolute" path
+relative to the document root (i.e. `src/` or `build/` directories). See [`LocalLink`](@ref)
+for more details.
+"""
+struct LocalImage <: MarkdownAST.AbstractInline
+    path::String
+end
 
 # Navigation
 # ----------------------
@@ -733,7 +760,7 @@ function source_url(doc::Document, mod, file, linerange)
     isfile(file) || return nothing
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
-        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(path)")
+        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(file)")
     end
     @debug "source_url" mod file linerange remoteref
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
@@ -759,9 +786,23 @@ end
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
     page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
-    name = normpath(relpath(src, doc.user.source))
+    name = pagekey(doc, page)
+    # This check is here to make sure that the new function matches the old
+    # (correct) implementation.
+    @assert name == normpath(relpath(src, doc.user.source))
     doc.blueprint.pages[name] = page
 end
+
+# The page.source field is relative to doc.user.root, but the keys in
+# doc.blueprint.pages are relative to doc.user.source (which is itself
+# relative to doc.user.root). This function calculates the key corresponding
+# to a page.
+pagekey(doc::Document, page::Page) = normpath(
+    relpath(
+        joinpath(doc.user.root, page.source),
+        joinpath(doc.user.root, doc.user.source)
+    )
+)
 
 """
 $(SIGNATURES)
@@ -930,4 +971,11 @@ function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
         # in the old Markdown-based mdflatten()
         print(io, "\n\n\n\n")
     end
+end
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::PageLink) = MDFlatten.mdflatten(io, node.children)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalLink) = MDFlatten.mdflatten(io, node.children)
+function MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalImage)
+    print(io, "(Image: ")
+    MDFlatten.mdflatten(io, node.children)
+    print(io, ")")
 end

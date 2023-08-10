@@ -1,20 +1,4 @@
 """
-Provides the [`crossref`](@ref) function used to automatically calculate link URLs.
-"""
-module CrossReferences
-
-import ..Documenter:
-    Anchors,
-    Builder,
-    Expanders,
-    Documenter
-
-using DocStringExtensions
-using .Documenter: Remotes, @docerror
-import Markdown
-import AbstractTrees, MarkdownAST
-
-"""
 $(SIGNATURES)
 
 Traverses a [`Documenter.Document`](@ref) and replaces links containing `@ref` URLs with
@@ -49,8 +33,91 @@ function crossref(doc::Documenter.Document, page, mdast::MarkdownAST.Node)
             end
         elseif node.element isa MarkdownAST.Link
             xref(node, page.globals.meta, page, doc)
+        elseif node.element isa MarkdownAST.Image
+            # Images must be either local or absolute links (no at-ref syntax for those at the moment)
+            local_links!(node, page.globals.meta, page, doc)
         end
     end
+end
+
+function local_links!(node::MarkdownAST.Node, meta, page, doc)
+    @assert node.element isa Union{MarkdownAST.Link, MarkdownAST.Image}
+    link_url = node.element.destination
+    # If the link is an absolute URL, then there's nothing we need to do. We'll just
+    # keep the Link object as is, and it should become an external hyperlink in the writer.
+    Documenter.isabsurl(link_url) && return
+    # Similarly, mailto: links get passed on
+    startswith(link_url, "mailto:") && return
+
+    # Anything else, however, is assumed to be a local URL, and we check that it is
+    # actually pointing to a file.
+    path, fragment = splitfragment(link_url)
+    # Links starting with a # are references within the same file -- so there's not much
+    # for us to do here, except to just construct the PageLink object. Note that we do
+    # not verify that the fragments are valid -- there might be reasons why people want to
+    # use custom fragments, in particular in the HTML output.
+    if isempty(path)
+        if node.element isa MarkdownAST.Image
+            @docerror(
+                doc, :cross_references,
+                "invalid local image: path missing in $(Documenter.locrepr(page.source))",
+                link=node
+            )
+            return
+        end
+        node.element = Documenter.PageLink(page, fragment)
+        return
+    elseif Sys.iswindows() && ':' in path
+        @docerror(
+            doc, :cross_references,
+            "invalid local link/image: colons not allowed in paths on Windows in $(Documenter.locrepr(page.source))",
+            link=node
+        )
+        return
+    end
+    # This path should be relative to doc.user.build, which is kinda line doc.user.source,
+    # since most non-md files get copied to doc.user.build.
+    path = normpath(joinpath(dirname(Documenter.pagekey(doc, page)), path))
+    if startswith(path, "..")
+        @docerror(
+            doc, :cross_references,
+            "invalid local link/image: path pointing to a file outside of build directory in $(Documenter.locrepr(page.source))",
+            link=node
+        )
+        return
+    elseif path in keys(doc.blueprint.pages)
+        node.element = Documenter.PageLink(doc.blueprint.pages[path], fragment)
+        return
+    elseif isfile(joinpath(doc.user.root, doc.user.build, path))
+        if endswith(path, ".md")
+            @warn "referring to a MD file that is not included in documentation build" path node
+        end
+        if node.element isa MarkdownAST.Image
+            if !isempty(fragment)
+                @docerror(
+                    doc, :cross_references,
+                    "invalid local image: path contains a fragment in $(Documenter.locrepr(page.source))",
+                    link=node
+                )
+            end
+            node.element = Documenter.LocalImage(path)
+        else
+            node.element = Documenter.LocalLink(path, fragment)
+        end
+        return
+    else
+        @docerror(
+            doc, :cross_references,
+            "invalid local link/image: file does not exist in $(Documenter.locrepr(page.source))",
+            link=node
+        )
+        return
+    end
+end
+
+function splitfragment(s)
+    xs = split(s, '#', limit=2)
+    xs[1], get(xs, 2, "")
 end
 
 # Dispatch to `namedxref` / `docsxref`.
@@ -61,25 +128,28 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     link = node.element
 
     slug = xrefname(link.destination)
-    # If the Link does not match an '@ref' link, we'll silently bail right away -- this is some
-    # other link.
-    isnothing(slug) && return false
+    # If the Link does not match an '@ref' link, then this should either be a local link
+    # pointing to an existing file in src/ or an absolute URL.
+    if isnothing(slug)
+        local_links!(node::MarkdownAST.Node, meta, page, doc)
+        return
+    end
     # If the slug is empty, then this is a "basic" x-ref, without a custom name
     if isempty(slug)
         basicxref(node, meta, page, doc)
-        return false
+        return
     end
     # If `slug` is a string referencing a known header, we'll go for that
     if Anchors.exists(doc.internal.headers, slug)
         namedxref(node, slug, meta, page, doc)
-        return false
+        return
     end
     # Next we'll check if name is a "string", in which case it should refer to human readable
     # heading. We'll slugify the string content, just like in basicxref:
     stringmatch = match(r"\"(.+)\"", slug)
     if !isnothing(stringmatch)
         namedxref(node, Documenter.slugify(stringmatch[1]), meta, page, doc)
-        return false
+        return
     end
     # Finally, we'll assume that the reference is a Julia expression referring to a docstring.
     docref = find_docref(slug, meta, page)
@@ -92,7 +162,6 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     else
         docsxref(node, slug, meta, page, doc; docref = docref)
     end
-    return false
 end
 
 """
@@ -143,9 +212,10 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc)
     if Anchors.exists(headers, slug)
         if Anchors.isunique(headers, slug)
             # Replace the `@ref` url with a path to the referenced header.
-            anchor   = Anchors.anchor(headers, slug)
-            path     = relpath(anchor.file, dirname(page.build))
-            node.element.destination = string(path, Anchors.fragment(anchor))
+            anchor = Anchors.anchor(headers, slug)
+            pagekey = relpath(anchor.file, doc.user.build)
+            page = doc.blueprint.pages[pagekey]
+            node.element = Documenter.PageLink(page, Anchors.label(anchor))
         else
             @docerror(doc, :cross_references, "'$slug' is not unique in $(Documenter.locrepr(page.source)).")
         end
@@ -174,9 +244,10 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_d
     if object !== nothing
         # Replace the `@ref` url with a path to the referenced docs.
         docsnode = doc.internal.objects[object]
-        path     = relpath(docsnode.page.build, dirname(page.build))
-        slug     = Documenter.slugify(object)
-        node.element.destination = string(path, '#', slug)
+        slug = Documenter.slugify(object)
+        pagekey = relpath(docsnode.page.build, doc.user.build)
+        page = doc.blueprint.pages[pagekey]
+        node.element = Documenter.PageLink(page, slug)
     else
         @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
     end
@@ -290,6 +361,4 @@ function issue_xref(node::MarkdownAST.Node, num, meta, page, doc)
     else
         node.element.destination = issue_url
     end
-end
-
 end
