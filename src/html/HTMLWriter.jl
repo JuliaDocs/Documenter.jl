@@ -1689,7 +1689,15 @@ function domify_doc(dctx::DCtx, node::Node)
 end
 
 function domify(dctx::DCtx, ::Node, evalnode::Documenter.EvalNode)
-    isnothing(evalnode.result) ? DOM.Node[] : domify(dctx, evalnode.result.children)
+    result = evalnode.result
+    ret = if result === Nothing 
+        DOM.Node[] 
+    elseif isempty(result.children)
+        domify(dctx, result)
+    else
+        domify(dctx, result.children)
+    end
+    return ret
 end
 
 # nothing to show for MetaNodes, so we just return an empty list
@@ -2124,6 +2132,7 @@ end
 # Select the "best" representation for HTML output.
 domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.children)
 domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
+domify(dctx::DCtx, node::Node, usm::Documenter.UseShowMethods) = Base.invokelatest(domify, dctx, node, usm.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)

@@ -943,6 +943,11 @@ end
 MarkdownAST.iscontainer(::MultiOutput) = true
 MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement,MarkdownAST.CodeBlock}) = true
 
+struct UseShowMethods <: AbstractDocumenterBlock
+    element :: Dict{MIME, Any}
+    UseShowMethods(x) = new(display_dict(x))
+end
+
 # In the SetupBlocks expander, we map @setup nodes to Markdown.MD() objects
 struct SetupNode <: AbstractDocumenterBlock
     name :: String
