@@ -693,6 +693,7 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
         remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
+        warnonly = [:docs_block, :cross_references],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase"
