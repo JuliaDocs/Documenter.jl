@@ -533,6 +533,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        warnonly = [:footnote, :cross_references, :example_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex"

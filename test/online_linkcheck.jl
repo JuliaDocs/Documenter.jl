@@ -19,7 +19,7 @@ using Test
         )
         doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
-        @test_logs (:error,) (:error,) @test linkcheck(doc) === nothing
+        @test_logs (:warn,) (:warn,) @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}()
     end
 
