@@ -67,7 +67,7 @@ produce the expected results. See the [Doctests](@ref) manual section for detail
 running doctests.
 
 Setting `doctest` to `:only` allows for doctesting without a full build. In this mode, most
-build stages are skipped and the `strict` keyword is ignored (a doctesting error will always
+build stages are skipped and the `warnonly` keyword is ignored (a doctesting error will always
 make `makedocs` throw an error in this mode).
 
 **`modules`** specifies a vector of modules that should be documented in `source`. If any
@@ -174,15 +174,15 @@ by setting `Draft = true` in an `@meta` block.
 defined in the `modules` keyword that have a docstring attached have the docstring also
 listed in the manual (e.g. there's a `@docs` block with that docstring). Possible values
 are `:all` (check all names; the default), `:exports` (check only exported names) and
-`:none` (no checks are performed). If `strict=true` (or `strict=:missing_docs` or
-`strict=[:missing_docs, ...]`) is also set then the build will fail if any missing
-docstrings are encountered.
+`:none` (no checks are performed).
+
+By default, if the document check detect any errors, it will fail the documentation build.
+This behavior can be relaxed with the `warnonly` keyword.
 
 **`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
 of external-pointing links, to make sure that they are up-to-date. The links and their
-status codes are printed to the standard output. If `strict` is also set to `true`
-(or `:linkcheck` or a `Vector` including `:linkcheck`) then the build will fail if there
-are any broken (400+ status code) links. Default: `false`.
+status codes are printed to the standard output. When enabled, any detected errors will fail
+the build, but this can be overridden by passing `:linkcheck` to `warnonly`. Default: `false`.
 
 **`linkcheck_ignore`** allows certain URLs to be ignored in `linkcheck`. The values should
 be a list of strings (which get matched exactly) or `Regex` objects. By default nothing is
@@ -191,11 +191,17 @@ ignored.
 **`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
 return a response before giving up. The default is 10 seconds.
 
-**`strict`** -- if set to `true`, [`makedocs`](@ref) fails the build right before rendering
-if it encountered any errors with the document in the previous build phases. The keyword
-`strict` can also be set to a `Symbol` or `Vector{Symbol}` to specify which kind of error
-(or errors) should be fatal. Options are: $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
-Use [`Documenter.except`](@ref) to explicitly set non-fatal errors.
+**`warnonly`** can be used to control whether the `makedocs` build fails with an error, or
+simply prints a warning if it detects any issues with the document. Additionally, a `Symbol`
+or a `Vector` of `Symbol`s can be passed to make Documenter warn for only those specified
+error classes (see also: [`Documenter.except`](@ref)). If set to `true`, the build should
+never fail due to document checks. The keyword defaults to `false`.
+
+Note that setting `warnonly = true` in general is not recommended, since it will make it very
+easy to miss Documentation build issues, and will lead to the deployment of broken manuals.
+The only case where you may want to consider passing `true` is when you are automatically
+deploying the documentation for a package release. In that case, `warnonly` should be set
+dynamically by checking the relevant environment variables set by the CI system.
 
 **`workdir`** determines the working directory where `@example` and `@repl` code blocks are
 executed. It can be either a path or the special value `:build` (default).
@@ -242,21 +248,21 @@ end
 """
     Documenter.except(errors...)
 
-Returns the list of all valid error classes that can be passed as the `strict` argument to
+Returns the list of all valid error classes that can be passed as the `warnonly` argument of
 [`makedocs`](@ref), except for the ones specified in the `errors` argument. Each error class
 must be a `Symbol` and passed as a separate argument.
 
-Can be used to easily disable the strict checking of specific error classes while making
-sure that all other error types still lead to the Documenter build failing. E.g. to stop
-Documenter failing on footnote and linkcheck errors, one can set `strict` as
+This can be used to enable strict error checking for only the listed error classes, while having
+other error types simply print a warning. E.g. to make Documenter fail the build only for
+footnote and linkcheck errors, one can set `warnonly` as
 
 ```julia
 makedocs(...,
-    strict = Documenter.except(:linkcheck, :footnote),
+    warnonly = Documenter.except(:linkcheck, :footnote),
 )
 ```
 
-Possible valid `Symbol` values are:
+The possible `Symbol` values that can be passed to the function are:
 $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
 """
 function except(errors::Symbol...)
