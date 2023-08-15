@@ -22,6 +22,7 @@ end
             modules = MissingDocs,
             checkdocs = sym,
             sitename = "MissingDocs Checks",
+            warnonly = true,
         )
         @quietly @test makedocs(; kwargs...) === nothing
 
@@ -35,7 +36,6 @@ end
         build = joinpath("build", "error"),
         modules = MissingDocs,
         checkdocs = :all,
-        strict = true,
         sitename = "MissingDocs Checks",
     )
 end

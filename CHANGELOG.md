@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
+* The `strict` keyword argument to `makedocs` has been removed and replaced with `warnonly`. `makedocs` now **fails builds by default** if any of the document checks fails (previously it only issued warnings by default). ([#2051], [#2194])
+
+  **For upgrading:** If you are running with `strict = true`, you can just drop the `strict` option.
+  If you are currently being strict about specific error classes, you can invert the list of error classes with `Documenter.except`.
+
+  If you were not setting the `strict` keyword, but your build is failing now, you should first endeavor to fix the errors that are causing the build to fail.
+  If that is not feasible, you can exclude specific error categories from failing the build (e.g. `warnonly = [:footnotes, :cross_references]`).
+  Finally, setting `warnonly = true` can be used to recover the old `strict = false` default behavior, turning all errors back into warnings.
+
 * The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). This includes the removal of the exported `Deps` module. ([#1826])
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). That package might not immediately support the latest Documenter version, however.
@@ -106,6 +115,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Theme switcher now includes an "Automatic (OS preference)" option that makes the site follow the user's OS setting. ([#1745], [#2085], [#2170])
 
 * Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. ([#2181])
+
+* The client-side search engine has been changed from LunrJs to MinisearchJs. Additionally, the search results will now contain additional context and have an improved UI. ([#2141])
 
 ### Fixed
 
@@ -1593,6 +1604,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2018]: https://github.com/JuliaDocs/Documenter.jl/issues/2018
 [#2019]: https://github.com/JuliaDocs/Documenter.jl/issues/2019
 [#2027]: https://github.com/JuliaDocs/Documenter.jl/issues/2027
+[#2051]: https://github.com/JuliaDocs/Documenter.jl/issues/2051
 [#2066]: https://github.com/JuliaDocs/Documenter.jl/issues/2066
 [#2067]: https://github.com/JuliaDocs/Documenter.jl/issues/2067
 [#2070]: https://github.com/JuliaDocs/Documenter.jl/issues/2070
@@ -1605,6 +1617,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
+[#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
 [#2157]: https://github.com/JuliaDocs/Documenter.jl/issues/2157
@@ -1612,6 +1625,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2170]: https://github.com/JuliaDocs/Documenter.jl/issues/2170
 [#2181]: https://github.com/JuliaDocs/Documenter.jl/issues/2181
 [#2187]: https://github.com/JuliaDocs/Documenter.jl/issues/2187
+[#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

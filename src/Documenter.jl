@@ -97,8 +97,8 @@ include("deployconfig.jl")
 include("deploydocs.jl")
 include("doctest.jl")
 
-using SnoopPrecompile
-@precompile_all_calls begin
+import PrecompileTools
+PrecompileTools.@compile_workload begin
     include("docs_precompile/make.jl")
 end
 

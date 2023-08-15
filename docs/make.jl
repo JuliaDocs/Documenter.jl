@@ -74,7 +74,7 @@ makedocs(
         "contributing.md",
         "release-notes.md",
     ],
-    strict = !("strict=false" in ARGS),
+    warnonly = ("strict=false" in ARGS),
     doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 

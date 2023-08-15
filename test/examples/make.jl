@@ -217,6 +217,7 @@ function html_doc(
     build_directory, mathengine;
     htmlkwargs=(;),
     image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif"),
+    warnonly = true,
     kwargs...
 )
     @quietly withassets(image_assets...) do
@@ -244,6 +245,7 @@ function html_doc(
                 footer = "This footer has been customized.",
                 htmlkwargs...
             ),
+            warnonly = warnonly,
             kwargs...
         )
     end
@@ -381,6 +383,8 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             prettyurls = false,
             footer = nothing,
         ),
+        # TODO: example_block failure only happens on windows, so that's not actually expected
+        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block],
     )
 else
     @info "Skipping build: HTML/local"
@@ -398,6 +402,7 @@ examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
         build = "builds/html-draft",
         sitename = "Documenter example (draft)",
         pages = htmlbuild_pages,
+        warnonly = [:footnote, :cross_references],
     )
 else
     @info "Skipping build: HTML/draft"
@@ -422,6 +427,7 @@ examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
             ],
         ],
         pagesonly = true,
+        warnonly = :cross_references,
     )
 else
     @info "Skipping build: HTML/pagesonly"
@@ -527,6 +533,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        warnonly = [:footnote, :cross_references, :example_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex"
@@ -610,6 +617,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        warnonly = [:footnote, :cross_references, :example_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"
@@ -685,6 +693,7 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
         remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
+        warnonly = [:docs_block, :cross_references],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase"
@@ -704,6 +713,7 @@ examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUI
         remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
+        warnonly = [:docs_block, :cross_references],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase_texonly"
