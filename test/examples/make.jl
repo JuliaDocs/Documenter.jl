@@ -491,7 +491,7 @@ end
     end
 end
 @examplebuild "sizethreshold-success" begin
-    r = @quietly try
+    @quietly try
         makedocs(;
             sitename = "Megabyte",
             root  = examples_root,
@@ -503,9 +503,6 @@ end
     catch e
         e
     end
-    path = joinpath(@__DIR__, "builds", "sizethreshold-success")
-    run(`ls -Alh $path`)
-    r
 end
 @examplebuild "sizethreshold-ignore-success" begin
     @quietly try
