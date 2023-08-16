@@ -497,7 +497,7 @@ end
             root  = examples_root,
             build = "builds/sizethreshold-success",
             source = "src.megapage",
-            format = Documenter.HTML(size_threshold = 5 * 10^20),
+            format = Documenter.HTML(size_threshold = 5 * 2^20),
             debug = true,
         )
     catch e
