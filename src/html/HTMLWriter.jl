@@ -367,10 +367,14 @@ documentation.
 
 **`size_threshold`** sets the maximum allowed HTML file size (in bytes) that Documenter is allowed to
 generate for a page. If the generated HTML file is larged than this, Documenter will throw an error and
-the build will fail. If set to `nothing`, the file sizes are not checked. Defaults to `100 KiB` (but
+the build will fail. If set to `nothing`, the file sizes are not checked. Defaults to `200 KiB` (but
 increases of this default value will be considered to be non-breaking).
 
-!!! note "Purpose of size_threshold"
+**`size_threshold_warn`**: like `size_threshold`, but going over this limit will only cause Documenter to
+print a warning, instead of throwing an error. Defaults to `100 KiB`, and must be less than or equal to
+`size_threshold`.
+
+!!! note "Purpose of HTML size thresholds"
 
     The size threshold, with a reasonable default, exists so that users would not deploy huge pages
     accidentally (which among other this will result in bad UX for the readers and negatively impacts
@@ -444,6 +448,7 @@ struct HTML <: Documenter.Writer
     node          :: Union{Cmd,String,Nothing}
     highlightjs   :: Union{String,Nothing}
     size_threshold :: Int
+    size_threshold_warn :: Int
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -462,12 +467,11 @@ struct HTML <: Documenter.Writer
             ansicolor     :: Bool = true,
             lang          :: String = "en",
             warn_outdated :: Bool = true,
-
-            # experimental keywords
             prerender     :: Bool = false,
             node          :: Union{Cmd,String,Nothing} = nothing,
             highlightjs   :: Union{String,Nothing} = nothing,
-            size_threshold :: Union{Integer, Nothing} = 100 * 2^10,
+            size_threshold :: Union{Integer, Nothing} = 200 * 2^10,
+            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10,
 
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -500,13 +504,24 @@ struct HTML <: Documenter.Writer
             end
             footer = isnothing(footer) ? nothing : convert(Node, footer)
         end
+        # convert size threshold values to integers, if need be
         if isnothing(size_threshold)
             size_threshold = typemax(Int)
+        elseif size_threshold <= 0
+            throw(ArgumentError("size_threshold must be non-negative, got $(size_threshold)"))
+        end
+        if isnothing(size_threshold_warn)
+            size_threshold_warn = min(typemax(Int), size_threshold)
+        elseif size_threshold_warn <= 0
+            throw(ArgumentError("size_threshold_warn must be non-negative, got $(size_threshold_warn)"))
+        elseif size_threshold_warn > size_threshold
+            throw(ArgumentError("size_threshold_warn ($size_threshold_warn) must be smaller than size_threshold ($size_threshold)"))
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
-            ansicolor, lang, warn_outdated, prerender, node, highlightjs, size_threshold,
+            ansicolor, lang, warn_outdated, prerender, node, highlightjs,
+            size_threshold, size_threshold_warn,
         )
     end
 end
@@ -713,11 +728,15 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         copy_asset("themes/$(theme).css", doc)
     end
 
-    for page in keys(doc.blueprint.pages)
+    size_limit_successes = map(collect(keys(doc.blueprint.pages))) do page
         idx = findfirst(nn -> nn.page == page, doc.internal.navlist)
         nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
         render_page(ctx, nn)
+    end
+    # Check that all HTML files are smaller or equal to size_threshold option
+    if !all(size_limit_successes)
+        error("Some generated HTML files are above size_threshold (see previous errors for details)")
     end
 
     render_search(ctx)
@@ -1718,25 +1737,30 @@ end
 # ------------------------------------------------------------------------------
 
 """
-Opens the output file of the `navnode` in write node. If necessary, the path to the output
-file is created before opening the file.
+Writes the HTML DOM into the HTML file that corresponds to `navnode`.
+Prints a warning/error if the page goes over the `size_threshold` or `size_threshold_warn`
+limits, and in the former case also returns `false`, to report back to the caller that the
+size threshold check failed.
 """
-
-function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DOM.HTMLDocument)
+function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DOM.HTMLDocument) :: Bool
     page_path = get_url(ctx, navnode)
     buf = IOBuffer()
     print(buf, page_html)
-    buf = take!(buf)
-    if length(buf) > ctx.settings.size_threshold
-        error("""
-        HTML page too large: $(page_path)
-          Generated bytes: $(length(buf)) (bytes)
-          Size threshold:  $(ctx.settings.size_threshold) (bytes)
-        """)
-    end
     path = joinpath(ctx.doc.user.build, page_path)
     isdir(dirname(path)) || mkpath(dirname(path))
-    open(io -> write(io, buf), path, "w")
+    file_size = open(io -> write(io, take!(buf)), path; write=true)
+    size_threshold_msg(var::Symbol) = """
+    Generated HTML over $(var) limit: $(page_path)
+        Generated file size: $(file_size) (bytes)
+        size_threshold_warn: $(ctx.settings.size_threshold_warn) (bytes)
+        size_threshold:      $(ctx.settings.size_threshold) (bytes)"""
+    if file_size > ctx.settings.size_threshold
+        @error size_threshold_msg(:size_threshold)
+        return false
+    elseif file_size > ctx.settings.size_threshold_warn
+        @warn size_threshold_msg(:size_threshold_warn)
+    end
+    return true
 end
 
 """
