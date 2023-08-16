@@ -735,9 +735,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         render_page(ctx, nn)
     end
     # Check that all HTML files are smaller or equal to size_threshold option
-    if !all(size_limit_successes)
-        error("Some generated HTML files are above size_threshold (see previous errors for details)")
-    end
+    all(size_limit_successes) || throw(HTMLSizeThresholdError())
 
     render_search(ctx)
 
@@ -748,6 +746,13 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     end
 
     generate_siteinfo_json(doc.user.build)
+end
+
+struct HTMLSizeThresholdError <: Exception end
+function Base.showerror(io::IO, ::HTMLSizeThresholdError)
+    print(io, """
+    HTMLSizeThresholdError: Some generated HTML files are above size_threshold.
+    See logged errors for details.""")
 end
 
 """

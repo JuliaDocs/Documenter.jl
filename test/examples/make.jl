@@ -476,6 +476,63 @@ end
     end
 end
 
+# size thresholds
+@examplebuild "sizethreshold-defaults-fail" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-success" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-success",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold = 5 * 10^20),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-ignore-success" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-ignore-success",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold = nothing),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-override-fail" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-override-fail",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold = 100, size_threshold_warn = nothing),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+
 # PDF/LaTeX
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/simple")
