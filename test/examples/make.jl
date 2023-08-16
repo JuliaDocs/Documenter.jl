@@ -18,8 +18,7 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
 else
     ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
-    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success",
-    "html-sizethreshold-override-fail",
+    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail",
     "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly"]
 end
 
