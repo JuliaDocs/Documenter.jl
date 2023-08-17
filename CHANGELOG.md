@@ -135,6 +135,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `deploydocs` now correctly handles version symlinks where the destination directory has been deleted. ([#2012])
 
+* Removed some extra space between navbar header icons. ([#2215])
+
 ### Other
 
 * Documenter now uses [MarkdownAST](https://github.com/JuliaDocs/MarkdownAST.jl) to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues). ([#1892], [#1912], [#1924], [#1948])
@@ -1634,6 +1636,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
+[#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
