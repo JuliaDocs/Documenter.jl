@@ -45,13 +45,9 @@ import Markdown
 using MarkdownAST: MarkdownAST, Node
 import JSON
 
-import ...Documenter:
-    Builder,
-    Expanders,
-    Documenter
-
+import ..Documenter
 using Documenter: NavNode
-using ...Documenter: Default, Remotes
+using ..Documenter: Default, Remotes
 using ...JSDependencies: JSDependencies, json_jsescape
 import ...DOM: DOM, Tag, @tags
 using ...MDFlatten

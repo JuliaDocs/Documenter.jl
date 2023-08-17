@@ -1,8 +1,8 @@
 module PipeLineTests
 using Test
 
-@testset "Builder.lt_page" begin
-    using Documenter.Builder: lt_page
+@testset "Builder: lt_page" begin
+    using Documenter: lt_page
     # Checks to make sure that only exactly one of a<b, a==b and a>b is true for given a & b
     iscorrectisless(a,b) = sum([lt_page(a, b), a == b, lt_page(b, a)]) == 1
     # Test equal strings:
@@ -47,7 +47,7 @@ module HighlightSig
     using Test
     import Markdown
     using MarkdownAST: @ast, Node, Document, CodeBlock, ThematicBreak
-    import Documenter.Expanders: highlightsig!
+    import Documenter: highlightsig!
 
     @testset "highlightsig!" begin
         s = """

@@ -61,13 +61,8 @@ struct LaTeX <: Documenter.Writer
     end
 end
 
-import ...Documenter:
-    Builder,
-    Expanders,
-    Documenter
-
+import ..Documenter
 import Markdown
-
 import ANSIColoredPrinters
 
 mutable struct Context{I <: IO} <: IO

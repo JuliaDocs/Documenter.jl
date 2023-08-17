@@ -14,8 +14,10 @@ $(EXPORTS)
 module Documenter
 
 import AbstractTrees
+import IOCapture
 import Markdown
-import MarkdownAST
+using MarkdownAST: MarkdownAST, Node
+import REPL
 import Unicode
 # Additional imported names
 using Test: @testset, @test
@@ -69,7 +71,7 @@ include("DocMeta.jl")
 include("DocSystem.jl")
 include("anchors.jl")
 include("documents.jl")
-include("Expanders.jl")
+include("expander_pipeline.jl")
 include("DocTests.jl")
 include("builder_pipeline.jl")
 include("cross_references.jl")

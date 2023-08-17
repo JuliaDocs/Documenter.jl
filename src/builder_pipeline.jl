@@ -219,7 +219,7 @@ end
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    Documenter.Expanders.expand(doc)
+    Documenter.expand(doc)
 end
 
 function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
