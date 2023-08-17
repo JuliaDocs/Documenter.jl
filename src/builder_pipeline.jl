@@ -206,7 +206,7 @@ walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
-        DocTests.doctest(doc.blueprint, doc)
+        _doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
         if (doc.user.doctest === :only || is_strict(doc, :doctest)) && num_errors > 0
             error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")

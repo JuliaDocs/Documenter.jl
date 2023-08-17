@@ -732,7 +732,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
     if result === nothing
-        stdouterr = Documenter.DocTests.sanitise(buffer)
+        stdouterr = Documenter.sanitise(buffer)
         stdouterr = remove_sandbox_from_output(stdouterr, mod)
         isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
@@ -797,9 +797,9 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
         buf = IOContext(IOBuffer(), :color=>ansicolor)
         output = if !c.error
             hide = REPL.ends_with_semicolon(input)
-            Documenter.DocTests.result_to_string(buf, hide ? nothing : c.value)
+            result_to_string(buf, hide ? nothing : c.value)
         else
-            Documenter.DocTests.error_to_string(buf, c.value, [])
+            error_to_string(buf, c.value, [])
         end
         if !isempty(input)
             push!(multicodeblock, MarkdownAST.CodeBlock("julia-repl", prepend_prompt(input)))

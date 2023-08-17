@@ -85,7 +85,7 @@ function onormalize(s)
 
     # Remove filesystem paths in doctests failures
     s = replace(s, r"(doctest failure in )(.*)$"m => s"\1{PATH}")
-    s = replace(s, r"(@ Documenter.DocTests )(.*)$"m => s"\1{PATH}")
+    s = replace(s, r"(@ Documenter )(.*)$"m => s"\1{PATH}")
     s = replace(s, r"(top-level scope at )(.*)$"m => s"\1{PATH}")
     # Remove line numbers from Julia source line references (like in stacktraces)
     # Note: currently only supports top-level files (e.g. ./error.jl, but not ./strings/basic.jl)
