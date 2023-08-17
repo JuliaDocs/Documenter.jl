@@ -1,11 +1,13 @@
 // libraries: jquery, minisearch
 // arguments: $, minisearch
 
+// In general, most search related things will have "search" as a prefix.
+
 let results = [];
 let timer = undefined;
 
-let ms_data = documenterSearchIndex["docs"].map((x, key) => {
-  x["id"] = key;
+let data = documenterSearchIndex["docs"].map((x, key) => {
+  x["id"] = key; // minisearch requires a unique for each object
   return x;
 });
 
@@ -136,6 +138,7 @@ let index = new minisearch({
   },
   // add . as a separator, because otherwise "title": "Documenter.Anchors.add!", would not find anything if searching for "add!", only for the entire qualification
   tokenize: (string) => string.split(/[\s\-\.]+/),
+  // options which will be applied during the search
   searchOptions: {
     boost: { title: 100 },
     fuzzy: 2,
@@ -153,13 +156,14 @@ let index = new minisearch({
   },
 });
 
-index.addAll(ms_data);
+index.addAll(data);
 
-let filters = [...new Set(ms_data.map((x) => x.category))];
+let filters = [...new Set(data.map((x) => x.category))];
 var modal_filters = make_modal_body_filters(filters);
 var filter_results = [];
 
 $(document).on("keyup", ".documenter-search-input", function (event) {
+  // Adding a debounce to prevent disruptions from super-speed typing!
   debounce(() => update_search(filter_results), 300);
 });
 
@@ -170,6 +174,7 @@ $(document).on("click", ".search-filter", function () {
     $(this).addClass("search-filter-selected");
   }
 
+  // Adding a debounce to prevent disruptions from crazy clicking!
   debounce(() => get_filters(), 300);
 });
 
@@ -188,6 +193,7 @@ function update_search(selected_filters = []) {
   if (querystring.trim()) {
     results = index.search(querystring, {
       filter: (result) => {
+        // Filtering results
         if (selected_filters.length === 0) {
           return result.score >= 1;
         } else {
@@ -208,6 +214,7 @@ function update_search(selected_filters = []) {
 
       results.forEach(function (result) {
         if (result.location) {
+          // Checking for duplication of results for the same page
           if (!links.includes(result.location)) {
             search_results += make_search_result(result, querystring);
             count++;
@@ -224,7 +231,7 @@ function update_search(selected_filters = []) {
                 ${modal_filters}
                 ${search_divider}
                 ${result_count}
-                <div class="is-clipped w-100 is-flex is-flex-direction-column gap-4 is-align-items-flex-start has-text-justified mt-1">
+                <div class="is-clipped w-100 is-flex is-flex-direction-column gap-2 is-align-items-flex-start has-text-justified mt-1">
                   ${search_results}
                 </div>
             </div>
@@ -248,6 +255,13 @@ function update_search(selected_filters = []) {
   }
 }
 
+/**
+ * Make the modal filter html
+ *
+ * @param {string[]} filters
+ * @param {string[]} selected_filters
+ * @returns string
+ */
 function make_modal_body_filters(filters, selected_filters = []) {
   let str = ``;
 
@@ -269,11 +283,18 @@ function make_modal_body_filters(filters, selected_filters = []) {
   return filter_html;
 }
 
+/**
+ * Make the result component given a minisearch result data object
+ *
+ * @param {object} result
+ * @param {string} querystring
+ * @returns string
+ */
 function make_search_result(result, querystring) {
   let search_divider = `<div class="search-divider w-100"></div>`;
   let display_link =
     result.location.slice(Math.max(0), Math.min(50, result.location.length)) +
-    (result.location.length > 30 ? "..." : "");
+    (result.location.length > 30 ? "..." : ""); // To cut-off the link because it messes with the overflow of the whole div
 
   let textindex = new RegExp(`\\b${querystring}\\b`, "i").exec(result.text);
   let text =
@@ -285,7 +306,7 @@ function make_search_result(result, querystring) {
             result.text.length
           )
         )
-      : "";
+      : ""; // cut-off text before and after from the match
 
   let display_result = text.length
     ? "..." +
@@ -294,12 +315,12 @@ function make_search_result(result, querystring) {
         '<span class="search-result-highlight p-1">$&</span>'
       ) +
       "..."
-    : "";
+    : ""; // highlights the match
 
   let result_div = `
       <a href="${
         documenterBaseURL + "/" + result.location
-      }" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 p-4">
+      }" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
         <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-center">
           <div class="search-result-title has-text-weight-semi-bold">${
             result.title
@@ -323,6 +344,9 @@ function make_search_result(result, querystring) {
   return result_div;
 }
 
+/**
+ * Get selected filters, remake the filter html and lastly update the search modal
+ */
 function get_filters() {
   let ele = $(".search-filters .search-filter-selected").get();
   filter_results = ele.map((x) => $(x).text().toLowerCase());

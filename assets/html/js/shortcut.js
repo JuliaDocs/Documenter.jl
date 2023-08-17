@@ -2,7 +2,7 @@
 // arguments: $
 
 let search_modal_header = `
-  <header class="modal-card-head">
+  <header class="modal-card-head gap-2 is-align-items-center is-justify-content-space-between w-100 px-3">
     <div class="field mb-0 w-100">
       <p class="control has-icons-right">
         <input class="input documenter-search-input" type="text" placeholder="Search" />
@@ -10,6 +10,9 @@ let search_modal_header = `
           <i class="fas fa-magnifying-glass"></i>
         </span>
       </p>
+    </div>
+    <div class="icon is-size-4 is-clickable close-search-modal">
+      <i class="fas fa-times"></i>
     </div>
   </header>
 `;
@@ -45,6 +48,10 @@ $(document.body).append(
 
 document.querySelector(".docs-search-query").addEventListener("click", () => {
   openModal();
+});
+
+document.querySelector(".close-search-modal").addEventListener("click", () => {
+  closeModal();
 });
 
 document.addEventListener("keydown", (event) => {

@@ -85,10 +85,11 @@ kbd.search-modal-key-hints {
   color: $search-result-title-text-color;
 }
 
+// Search modal custom scrollbar
 #search-modal .modal-card-body::-webkit-scrollbar,
 #search-modal .filter-tabs::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
+  height: 10px;
+  width: 10px;
   background-color: transparent;
 }
 
@@ -104,6 +105,7 @@ kbd.search-modal-key-hints {
   background-color: transparent;
 }
 
+// Helpers for search modal
 .w-100 {
   width: 100%;
 }
