@@ -3,7 +3,7 @@ requirejs.config({
   paths: {
     'minisearch': 'https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min',
     'lodash': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min',
-    'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min',
+    'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min',
   }
 });
 ////////////////////////////////////////////////////////////////////////////////
