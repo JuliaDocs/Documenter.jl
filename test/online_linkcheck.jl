@@ -1,6 +1,6 @@
 module OnlineLinkcheckTests
 using Documenter: Documenter, MarkdownAST, AbstractTrees
-using Documenter.DocChecks: linkcheck
+using Documenter: linkcheck
 using Markdown
 using Test
 

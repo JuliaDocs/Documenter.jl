@@ -219,28 +219,28 @@ end
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    Documenter.expand(doc)
+    expand(doc)
 end
 
 function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    Documenter.crossref(doc)
+    crossref(doc)
 end
 
 function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "CheckDocument") && return
     @info "CheckDocument: running document checks."
-    Documenter.DocChecks.missingdocs(doc)
-    Documenter.DocChecks.footnotes(doc)
-    Documenter.DocChecks.linkcheck(doc)
+    missingdocs(doc)
+    footnotes(doc)
+    linkcheck(doc)
 end
 
 function Selectors.runner(::Type{Builder.Populate}, doc::Documenter.Document)
     is_doctest_only(doc, "Populate") && return
     @info "Populate: populating indices."
-    Documenter.doctest_replace!(doc)
-    Documenter.populate!(doc)
+    doctest_replace!(doc)
+    populate!(doc)
 end
 
 function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Document)
