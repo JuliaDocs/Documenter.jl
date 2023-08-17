@@ -109,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - jquery has been updated from `v3.6.0` to `v3.7.0`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
-* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. ([#1312]) ([#2076]) ([#2169])
+* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. ([#1312], [#2076], [#2169], [#2215], [#2216])
 
 * Added the ability to expand/collapse individual as well as all docstrings. ([#1393], [#2078])
 
@@ -134,8 +134,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. ([#1969])
 
 * `deploydocs` now correctly handles version symlinks where the destination directory has been deleted. ([#2012])
-
-* Removed some extra space between navbar header icons. ([#2215])
 
 ### Other
 
@@ -1637,6 +1635,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
+[#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
