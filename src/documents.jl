@@ -138,7 +138,7 @@ struct MethodNode
 end
 
 struct DocsNode <: AbstractDocumenterBlock
-    anchor  :: Anchors.Anchor
+    anchor  :: Anchor
     object  :: Object
     page    :: Documenter.Page
     # MarkdownAST support.
@@ -335,8 +335,8 @@ struct Internal
     assets  :: String             # Path where asset files will be copied to.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
-    headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
-    docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    headers :: AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    docs    :: AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings:: IdDict{Any,Any}           # Tracks insertion order of object per-binding.
     objects :: IdDict{Any,Any}           # Tracks which `Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
@@ -444,8 +444,8 @@ function Document(plugins = nothing;
         assetsdir(),
         [],
         [],
-        Anchors.AnchorMap(),
-        Anchors.AnchorMap(),
+        AnchorMap(),
+        AnchorMap(),
         IdDict{Any,Any}(),
         IdDict{Any,Any}(),
         [],
@@ -948,7 +948,7 @@ precedence(vec) = Dict(zip(vec, 1:length(vec)))
 # Conversion to MarkdownAST, for writers
 
 struct AnchoredHeader <: AbstractDocumenterBlock
-    anchor :: Anchors.Anchor
+    anchor :: Anchor
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 

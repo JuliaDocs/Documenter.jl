@@ -352,10 +352,10 @@ julia> @time [1,2,3,4]
     or to understand why a filter is not working).
 
     To enable the debug output, you can set the `JULIA_DEBUG` environment variable to
-    Documenter's `DocTests` module, e.g. by doing the following in the `make.jl` script:
+    `Documenter`, e.g. by doing the following in the `make.jl` script:
 
     ```julia
-    ENV["JULIA_DEBUG"] = "DocTests"
+    ENV["JULIA_DEBUG"] = "Documenter"
     ```
 
 ## Doctesting as Part of Testing

@@ -1,12 +1,6 @@
-"""
-Defines the [`Anchor`](@ref) and [`AnchorMap`](@ref) types.
-
-`Anchor`s and `AnchorMap`s are used to represent links between objects within a document.
-"""
-module Anchors
-
-using DocStringExtensions
-import MarkdownAST
+# Defines the [`Anchor`](@ref) and [`AnchorMap`](@ref) types.
+#
+# `Anchor`s and `AnchorMap`s are used to represent links between objects within a document.
 
 # Types.
 # ------
@@ -60,7 +54,7 @@ Adds a new [`Anchor`](@ref) to the [`AnchorMap`](@ref) for a given `id` and `fil
 Either an actual [`Anchor`](@ref) object may be provided or any other object which is
 automatically wrapped in an [`Anchor`](@ref) before being added to the [`AnchorMap`](@ref).
 """
-function add!(m::AnchorMap, anchor::Anchor, id, file)
+function anchor_add!(m::AnchorMap, anchor::Anchor, id, file)
     filemap = get!(m.map, id, Dict{String, Vector{Anchor}}())
     anchors = get!(filemap, file, Anchor[])
     push!(anchors, anchor)
@@ -70,7 +64,7 @@ function add!(m::AnchorMap, anchor::Anchor, id, file)
     anchor.nth   = length(anchors)
     anchor
 end
-add!(m::AnchorMap, object, id, file) = add!(m, Anchor(object), id, file)
+anchor_add!(m::AnchorMap, object, id, file) = anchor_add!(m, Anchor(object), id, file)
 
 # Anchor existence.
 # -----------------
@@ -81,9 +75,9 @@ $(SIGNATURES)
 Does the given `id` exist within the [`AnchorMap`](@ref)? A `file` and integer `n` may also
 be provided to narrow the search for existence.
 """
-exists(m::AnchorMap, id, file, n) = exists(m, id, file) && 1 ≤ n ≤ length(m.map[id][file])
-exists(m::AnchorMap, id, file)    = exists(m, id) && haskey(m.map[id], file)
-exists(m::AnchorMap, id)          = haskey(m.map, id)
+anchor_exists(m::AnchorMap, id, file, n) = anchor_exists(m, id, file) && 1 ≤ n ≤ length(m.map[id][file])
+anchor_exists(m::AnchorMap, id, file)    = anchor_exists(m, id) && haskey(m.map[id], file)
+anchor_exists(m::AnchorMap, id)          = haskey(m.map, id)
 
 # Anchor uniqueness.
 # ------------------
@@ -93,13 +87,13 @@ $(SIGNATURES)
 
 Is the `id` unique within the given [`AnchorMap`](@ref)? May also specify the `file`.
 """
-function isunique(m::AnchorMap, id)
-    exists(m, id) &&
+function anchor_isunique(m::AnchorMap, id)
+    anchor_exists(m, id) &&
     length(m.map[id]) === 1 &&
-    isunique(m, id, first(first(m.map[id])))
+    anchor_isunique(m, id, first(first(m.map[id])))
 end
-function isunique(m::AnchorMap, id, file)
-    exists(m, id, file) &&
+function anchor_isunique(m::AnchorMap, id, file)
+    anchor_exists(m, id, file) &&
     length(m.map[id][file]) === 1
 end
 
@@ -113,17 +107,17 @@ Returns the [`Anchor`](@ref) object matching `id`. `file` and `n` may also be pr
 `Anchor` is returned, or `nothing` in case of no match.
 """
 function anchor(m::AnchorMap, id)
-    isunique(m, id) ?
+    anchor_isunique(m, id) ?
         anchor(m, id, first(first(m.map[id])), 1) :
         nothing
 end
 function anchor(m::AnchorMap, id, file)
-    isunique(m, id, file) ?
+    anchor_isunique(m, id, file) ?
         anchor(m, id, file, 1) :
         nothing
 end
 function anchor(m::AnchorMap, id, file, n)
-    exists(m, id, file, n) ?
+    anchor_exists(m, id, file, n) ?
         m.map[id][file][n]   :
         nothing
 end
@@ -131,16 +125,13 @@ end
 """
 Create a label from an anchor.
 """
-label(a::Anchor) = (a.nth == 1) ? a.id : string(a.id, "-", a.nth)
+anchor_label(a::Anchor) = (a.nth == 1) ? a.id : string(a.id, "-", a.nth)
 
 """
 Create an HTML fragment from an anchor.
 """
-function fragment(a::Anchor)
-    frag = string("#", label(a))
+function anchor_fragment(a::Anchor)
+    frag = string("#", anchor_label(a))
     # TODO: Sanitize the fragment
     return frag
-end
-
-
 end

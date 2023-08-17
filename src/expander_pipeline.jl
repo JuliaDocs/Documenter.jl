@@ -1,26 +1,4 @@
-"""
-Defines node "expanders" that transform nodes from the parsed markdown files.
-"""
-module Expanders
-
-import ..Documenter:
-    Anchors,
-    Documenter
-
-import .Documenter:
-    MethodNode,
-    DocsNode,
-    DocsNodes,
-    EvalNode,
-    MetaNode
-
-import .Documenter: Selectors, @docerror
-using Documenter.MDFlatten
-
-using MarkdownAST: MarkdownAST, Node
-import Markdown, REPL
-import Base64: stringmime
-import IOCapture
+# Defines node "expanders" that transform nodes from the parsed markdown files.
 
 function expand(doc::Documenter.Document)
     priority_pages = filter(doc.user.expandfirst) do src
@@ -41,7 +19,7 @@ function expand(doc::Documenter.Document)
         # We need to collect the child nodes here because we will end up changing the structure
         # of the tree in some cases.
         for node in collect(page.mdast.children)
-            Selectors.dispatch(ExpanderPipeline, node, page, doc)
+            Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
             expand_recursively(node, page, doc)
         end
         pagecheck(page)
@@ -60,7 +38,7 @@ function expand_recursively(node, page, doc)
         MarkdownAST.List,
     )
         for child in node.children
-            Selectors.dispatch(NestedExpanderPipeline, child, page, doc)
+            Selectors.dispatch(Expanders.NestedExpanderPipeline, child, page, doc)
             expand_recursively(child, page, doc)
         end
     end
@@ -88,187 +66,190 @@ end
 
 
 # Expander Pipeline.
-# ------------------
+module Expanders
+    import ..Documenter # for docstring references
+    import ..Documenter.Selectors
 
-"""
-The default node expander "pipeline", which consists of the following expanders:
+    """
+    The default node expander "pipeline", which consists of the following expanders:
 
-- [`TrackHeaders`](@ref)
-- [`MetaBlocks`](@ref)
-- [`DocsBlocks`](@ref)
-- [`AutoDocsBlocks`](@ref)
-- [`EvalBlocks`](@ref)
-- [`IndexBlocks`](@ref)
-- [`ContentsBlocks`](@ref)
-- [`ExampleBlocks`](@ref)
-- [`SetupBlocks`](@ref)
-- [`REPLBlocks`](@ref)
+    - [`TrackHeaders`](@ref)
+    - [`MetaBlocks`](@ref)
+    - [`DocsBlocks`](@ref)
+    - [`AutoDocsBlocks`](@ref)
+    - [`EvalBlocks`](@ref)
+    - [`IndexBlocks`](@ref)
+    - [`ContentsBlocks`](@ref)
+    - [`ExampleBlocks`](@ref)
+    - [`SetupBlocks`](@ref)
+    - [`REPLBlocks`](@ref)
 
-"""
-abstract type ExpanderPipeline <: Selectors.AbstractSelector end
+    """
+    abstract type ExpanderPipeline <: Selectors.AbstractSelector end
 
-"""
-The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts.
+    """
+    The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts.
 
-See also [`expand_recursively`](@ref).
-"""
-abstract type NestedExpanderPipeline <: ExpanderPipeline end
+    See also [`expand_recursively`](@ref Documenter.expand_recursively).
+    """
+    abstract type NestedExpanderPipeline <: ExpanderPipeline end
 
-"""
-Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
-[`Anchors.Anchor`](@ref) object for each one.
-"""
-abstract type TrackHeaders <: ExpanderPipeline end
+    """
+    Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
+    [`Anchor`](@ref Documenter.Anchor) object for each one.
+    """
+    abstract type TrackHeaders <: ExpanderPipeline end
 
-"""
-Parses each code block where the language is `@meta` and evaluates the key/value pairs found
-within the block, i.e.
+    """
+    Parses each code block where the language is `@meta` and evaluates the key/value pairs found
+    within the block, i.e.
 
-````markdown
-```@meta
-CurrentModule = Documenter
-DocTestSetup  = quote
-    using Documenter
+    ````markdown
+    ```@meta
+    CurrentModule = Documenter
+    DocTestSetup  = quote
+        using Documenter
+    end
+    ```
+    ````
+    """
+    abstract type MetaBlocks <: ExpanderPipeline end
+
+    """
+    Parses each code block where the language is `@docs` and evaluates the expressions found
+    within the block. Replaces the block with the docstrings associated with each expression.
+
+    ````markdown
+    ```@docs
+    Documenter
+    makedocs
+    deploydocs
+    ```
+    ````
+    """
+    abstract type DocsBlocks <: ExpanderPipeline end
+
+    """
+    Parses each code block where the language is `@autodocs` and replaces it with all the
+    docstrings that match the provided key/value pairs `Modules = ...` and `Order = ...`.
+
+    ````markdown
+    ```@autodocs
+    Modules = [Foo, Bar]
+    Order   = [:function, :type]
+    ```
+    ````
+    """
+    abstract type AutoDocsBlocks <: ExpanderPipeline end
+
+    """
+    Parses each code block where the language is `@eval` and evaluates it's content. Replaces
+    the block with the value resulting from the evaluation. This can be useful for inserting
+    generated content into a document such as plots.
+
+    ````markdown
+    ```@eval
+    using PyPlot
+    x = linspace(-π, π)
+    y = sin(x)
+    plot(x, y, color = "red")
+    savefig("plot.svg")
+    Markdown.parse("![Plot](plot.svg)")
+    ```
+    ````
+    """
+    abstract type EvalBlocks <: NestedExpanderPipeline end
+
+    abstract type RawBlocks <: NestedExpanderPipeline end
+
+    """
+    Parses each code block where the language is `@index` and replaces it with an index of all
+    docstrings spliced into the document. The pages that are included can be set using a
+    key/value pair `Pages = [...]` such as
+
+    ````markdown
+    ```@index
+    Pages = ["foo.md", "bar.md"]
+    ```
+    ````
+    """
+    abstract type IndexBlocks <: ExpanderPipeline end
+
+    """
+    Parses each code block where the language is `@contents` and replaces it with a nested list
+    of all `Header` nodes in the generated document. The pages and depth of the list can be set
+    using `Pages = [...]` and `Depth = N` where `N` is and integer.
+
+    ````markdown
+    ```@contents
+    Pages = ["foo.md", "bar.md"]
+    Depth = 1
+    ```
+    ````
+    The default `Depth` value is `2`.
+    """
+    abstract type ContentsBlocks <: ExpanderPipeline end
+
+    """
+    Parses each code block where the language is `@example` and evaluates the parsed Julia code
+    found within. The resulting value is then inserted into the final document after the source
+    code.
+
+    ````markdown
+    ```@example
+    a = 1
+    b = 2
+    a + b
+    ```
+    ````
+    """
+    abstract type ExampleBlocks <: NestedExpanderPipeline end
+
+    """
+    Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
+    toplevel expression in the final document.
+    """
+    abstract type REPLBlocks <: NestedExpanderPipeline end
+
+    """
+    Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
+    """
+    abstract type SetupBlocks <: NestedExpanderPipeline end
 end
-```
-````
-"""
-abstract type MetaBlocks <: ExpanderPipeline end
 
-"""
-Parses each code block where the language is `@docs` and evaluates the expressions found
-within the block. Replaces the block with the docstrings associated with each expression.
+Selectors.order(::Type{Expanders.TrackHeaders})   = 1.0
+Selectors.order(::Type{Expanders.MetaBlocks})     = 2.0
+Selectors.order(::Type{Expanders.DocsBlocks})     = 3.0
+Selectors.order(::Type{Expanders.AutoDocsBlocks}) = 4.0
+Selectors.order(::Type{Expanders.EvalBlocks})     = 5.0
+Selectors.order(::Type{Expanders.IndexBlocks})    = 6.0
+Selectors.order(::Type{Expanders.ContentsBlocks}) = 7.0
+Selectors.order(::Type{Expanders.ExampleBlocks})  = 8.0
+Selectors.order(::Type{Expanders.REPLBlocks})     = 9.0
+Selectors.order(::Type{Expanders.SetupBlocks})    = 10.0
+Selectors.order(::Type{Expanders.RawBlocks})      = 11.0
 
-````markdown
-```@docs
-Documenter
-makedocs
-deploydocs
-```
-````
-"""
-abstract type DocsBlocks <: ExpanderPipeline end
-
-"""
-Parses each code block where the language is `@autodocs` and replaces it with all the
-docstrings that match the provided key/value pairs `Modules = ...` and `Order = ...`.
-
-````markdown
-```@autodocs
-Modules = [Foo, Bar]
-Order   = [:function, :type]
-```
-````
-"""
-abstract type AutoDocsBlocks <: ExpanderPipeline end
-
-"""
-Parses each code block where the language is `@eval` and evaluates it's content. Replaces
-the block with the value resulting from the evaluation. This can be useful for inserting
-generated content into a document such as plots.
-
-````markdown
-```@eval
-using PyPlot
-x = linspace(-π, π)
-y = sin(x)
-plot(x, y, color = "red")
-savefig("plot.svg")
-Markdown.parse("![Plot](plot.svg)")
-```
-````
-"""
-abstract type EvalBlocks <: NestedExpanderPipeline end
-
-abstract type RawBlocks <: NestedExpanderPipeline end
-
-"""
-Parses each code block where the language is `@index` and replaces it with an index of all
-docstrings spliced into the document. The pages that are included can be set using a
-key/value pair `Pages = [...]` such as
-
-````markdown
-```@index
-Pages = ["foo.md", "bar.md"]
-```
-````
-"""
-abstract type IndexBlocks <: ExpanderPipeline end
-
-"""
-Parses each code block where the language is `@contents` and replaces it with a nested list
-of all `Header` nodes in the generated document. The pages and depth of the list can be set
-using `Pages = [...]` and `Depth = N` where `N` is and integer.
-
-````markdown
-```@contents
-Pages = ["foo.md", "bar.md"]
-Depth = 1
-```
-````
-The default `Depth` value is `2`.
-"""
-abstract type ContentsBlocks <: ExpanderPipeline end
-
-"""
-Parses each code block where the language is `@example` and evaluates the parsed Julia code
-found within. The resulting value is then inserted into the final document after the source
-code.
-
-````markdown
-```@example
-a = 1
-b = 2
-a + b
-```
-````
-"""
-abstract type ExampleBlocks <: NestedExpanderPipeline end
-
-"""
-Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
-toplevel expression in the final document.
-"""
-abstract type REPLBlocks <: NestedExpanderPipeline end
-
-"""
-Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
-"""
-abstract type SetupBlocks <: NestedExpanderPipeline end
-
-Selectors.order(::Type{TrackHeaders})   = 1.0
-Selectors.order(::Type{MetaBlocks})     = 2.0
-Selectors.order(::Type{DocsBlocks})     = 3.0
-Selectors.order(::Type{AutoDocsBlocks}) = 4.0
-Selectors.order(::Type{EvalBlocks})     = 5.0
-Selectors.order(::Type{IndexBlocks})    = 6.0
-Selectors.order(::Type{ContentsBlocks}) = 7.0
-Selectors.order(::Type{ExampleBlocks})  = 8.0
-Selectors.order(::Type{REPLBlocks})     = 9.0
-Selectors.order(::Type{SetupBlocks})    = 10.0
-Selectors.order(::Type{RawBlocks})      = 11.0
-
-Selectors.matcher(::Type{TrackHeaders},   node, page, doc) = isa(node.element, MarkdownAST.Heading)
-Selectors.matcher(::Type{MetaBlocks},     node, page, doc) = iscode(node, "@meta")
-Selectors.matcher(::Type{DocsBlocks},     node, page, doc) = iscode(node, "@docs")
-Selectors.matcher(::Type{AutoDocsBlocks}, node, page, doc) = iscode(node, "@autodocs")
-Selectors.matcher(::Type{EvalBlocks},     node, page, doc) = iscode(node, "@eval")
-Selectors.matcher(::Type{IndexBlocks},    node, page, doc) = iscode(node, "@index")
-Selectors.matcher(::Type{ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
-Selectors.matcher(::Type{ExampleBlocks},  node, page, doc) = iscode(node, r"^@example")
-Selectors.matcher(::Type{REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
-Selectors.matcher(::Type{SetupBlocks},    node, page, doc) = iscode(node, r"^@setup")
-Selectors.matcher(::Type{RawBlocks},      node, page, doc) = iscode(node, r"^@raw")
+Selectors.matcher(::Type{Expanders.TrackHeaders},   node, page, doc) = isa(node.element, MarkdownAST.Heading)
+Selectors.matcher(::Type{Expanders.MetaBlocks},     node, page, doc) = iscode(node, "@meta")
+Selectors.matcher(::Type{Expanders.DocsBlocks},     node, page, doc) = iscode(node, "@docs")
+Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) = iscode(node, "@autodocs")
+Selectors.matcher(::Type{Expanders.EvalBlocks},     node, page, doc) = iscode(node, "@eval")
+Selectors.matcher(::Type{Expanders.IndexBlocks},    node, page, doc) = iscode(node, "@index")
+Selectors.matcher(::Type{Expanders.ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
+Selectors.matcher(::Type{Expanders.ExampleBlocks},  node, page, doc) = iscode(node, r"^@example")
+Selectors.matcher(::Type{Expanders.REPLBlocks},     node, page, doc) = iscode(node, r"^@repl")
+Selectors.matcher(::Type{Expanders.SetupBlocks},    node, page, doc) = iscode(node, r"^@setup")
+Selectors.matcher(::Type{Expanders.RawBlocks},      node, page, doc) = iscode(node, r"^@raw")
 
 # Default Expander.
 
-Selectors.runner(::Type{ExpanderPipeline}, node, page, doc) = nothing
-Selectors.runner(::Type{NestedExpanderPipeline}, node, page, doc) = nothing
+Selectors.runner(::Type{Expanders.ExpanderPipeline}, node, page, doc) = nothing
+Selectors.runner(::Type{Expanders.NestedExpanderPipeline}, node, page, doc) = nothing
 
 # Track Headers.
 # --------------
 
-function Selectors.runner(::Type{TrackHeaders}, node, page, doc)
+function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
     header = node.element
     # Get the header slug.
     text =
@@ -289,7 +270,7 @@ function Selectors.runner(::Type{TrackHeaders}, node, page, doc)
         end
     slug = Documenter.slugify(text)
     # Add the header to the document's header map.
-    anchor = Anchors.add!(doc.internal.headers, header, slug, page.build)
+    anchor = Documenter.anchor_add!(doc.internal.headers, header, slug, page.build)
     # Create an AnchoredHeader node and push the
     ah = MarkdownAST.Node(Documenter.AnchoredHeader(anchor))
     anchor.node = ah
@@ -300,7 +281,7 @@ end
 # @meta
 # -----
 
-function Selectors.runner(::Type{MetaBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -328,7 +309,7 @@ end
 # @docs
 # -----
 
-function Selectors.runner(::Type{DocsBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -426,7 +407,7 @@ end
 
 const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 
-function Selectors.runner(::Type{AutoDocsBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -571,7 +552,7 @@ end
 # @eval
 # -----
 
-function Selectors.runner(::Type{EvalBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -635,7 +616,7 @@ end
 # @index
 # ------
 
-function Selectors.runner(::Type{IndexBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.IndexBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -647,7 +628,7 @@ end
 # @contents
 # ---------
 
-function Selectors.runner(::Type{ContentsBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.ContentsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -666,7 +647,7 @@ function _any_color_fmt(doc)
     return doc.user.format[idx].ansicolor
 end
 
-function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -751,7 +732,7 @@ function Selectors.runner(::Type{ExampleBlocks}, node, page, doc)
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
     if result === nothing
-        stdouterr = Documenter.DocTests.sanitise(buffer)
+        stdouterr = Documenter.sanitise(buffer)
         stdouterr = remove_sandbox_from_output(stdouterr, mod)
         isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
@@ -770,7 +751,7 @@ end
 # @repl
 # -----
 
-function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -816,9 +797,9 @@ function Selectors.runner(::Type{REPLBlocks}, node, page, doc)
         buf = IOContext(IOBuffer(), :color=>ansicolor)
         output = if !c.error
             hide = REPL.ends_with_semicolon(input)
-            Documenter.DocTests.result_to_string(buf, hide ? nothing : c.value)
+            result_to_string(buf, hide ? nothing : c.value)
         else
-            Documenter.DocTests.error_to_string(buf, c.value, [])
+            error_to_string(buf, c.value, [])
         end
         if !isempty(input)
             push!(multicodeblock, MarkdownAST.CodeBlock("julia-repl", prepend_prompt(input)))
@@ -845,7 +826,7 @@ end
 # @setup
 # ------
 
-function Selectors.runner(::Type{SetupBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -885,7 +866,7 @@ end
 # @raw
 # ----
 
-function Selectors.runner(::Type{RawBlocks}, node, page, doc)
+function Selectors.runner(::Type{Expanders.RawBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
 
@@ -938,7 +919,7 @@ end
 function create_docsnode(docstrings, results, object, page, doc)
     # Generate a unique name to be used in anchors and links for the docstring.
     slug = Documenter.slugify(object)
-    anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
+    anchor = Documenter.anchor_add!(doc.internal.docs, object, slug, page.build)
     docsnode = DocsNode(anchor, object, page)
     # Convert docstring to MarkdownAST, convert Heading elements, and push to DocsNode
     for (markdown, result) in zip(docstrings, results)
@@ -969,6 +950,4 @@ function highlightsig!(node::Node)
     if node.element isa MarkdownAST.CodeBlock && isempty(node.element.info)
         node.element.info = "julia"
     end
-end
-
 end

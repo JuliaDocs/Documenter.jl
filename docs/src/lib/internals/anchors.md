@@ -1,5 +1,6 @@
 # Anchors
 
 ```@autodocs
-Modules = [Documenter.Anchors]
+Modules = [Documenter]
+Pages = ["anchors.jl"]
 ```

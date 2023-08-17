@@ -140,7 +140,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
         return
     end
     # If `slug` is a string referencing a known header, we'll go for that
-    if Anchors.exists(doc.internal.headers, slug)
+    if anchor_exists(doc.internal.headers, slug)
         namedxref(node, slug, meta, page, doc)
         return
     end
@@ -156,7 +156,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     if haskey(docref, :error)
         # If this is not a valid docref either, we'll call namedxref().
         # This should always throw an error because we already determined that
-        # Anchors.exists(doc.internal.headers, slug) is false. But we call it here
+        # anchor_exists(doc.internal.headers, slug) is false. But we call it here
         # so that we wouldn't have to duplicate the @docerror call
         namedxref(node, slug, meta, page, doc)
     else
@@ -209,13 +209,13 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc)
     doc.internal.locallinks[node.element] = node.element.destination
     # Error checking: `slug` should exist and be unique.
     # TODO: handle non-unique slugs.
-    if Anchors.exists(headers, slug)
-        if Anchors.isunique(headers, slug)
+    if anchor_exists(headers, slug)
+        if anchor_isunique(headers, slug)
             # Replace the `@ref` url with a path to the referenced header.
-            anchor = Anchors.anchor(headers, slug)
+            anchor = Documenter.anchor(headers, slug)
             pagekey = relpath(anchor.file, doc.user.build)
             page = doc.blueprint.pages[pagekey]
-            node.element = Documenter.PageLink(page, Anchors.label(anchor))
+            node.element = Documenter.PageLink(page, anchor_label(anchor))
         else
             @docerror(doc, :cross_references, "'$slug' is not unique in $(Documenter.locrepr(page.source)).")
         end

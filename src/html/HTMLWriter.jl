@@ -45,14 +45,9 @@ import Markdown
 using MarkdownAST: MarkdownAST, Node
 import JSON
 
-import ...Documenter:
-    Anchors,
-    Builder,
-    Expanders,
-    Documenter
-
+import ..Documenter
 using Documenter: NavNode
-using ...Documenter: Default, Remotes
+using ..Documenter: Default, Remotes
 using ...JSDependencies: JSDependencies, json_jsescape
 import ...DOM: DOM, Tag, @tags
 using ...MDFlatten
@@ -638,7 +633,7 @@ end
 function SearchRecord(ctx::HTMLContext, navnode, node::Node, element::Documenter.AnchoredHeader)
     a = element.anchor
     SearchRecord(ctx, navnode;
-        fragment=Anchors.fragment(a),
+        fragment=Documenter.anchor_fragment(a),
         title=mdflatten(node), # AnchoredHeader has Heading as single child
         category="section")
 end
@@ -1605,9 +1600,9 @@ function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     @assert length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Heading)
     ctx, navnode = dctx.ctx, dctx.navnode
     anchor = ah.anchor
-    # function domify(ctx, navnode, anchor::Anchors.Anchor)
+    # function domify(ctx, navnode, anchor::Anchor)
     @tags a
-    frag = Anchors.fragment(anchor)
+    frag = Documenter.anchor_fragment(anchor)
     legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
     h = first(node.children)
     Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
@@ -1655,7 +1650,7 @@ function domify(dctx::DCtx, node::Node, contents::Documenter.ContentsNode)
         level < 1 && continue
         path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
-        url = string(path, Anchors.fragment(anchor))
+        url = string(path, Documenter.anchor_fragment(anchor))
         node = a[:href=>url](domify(DCtx(dctx, droplinks=true), header.children))
         push!(lb, level, node)
     end
@@ -1687,7 +1682,7 @@ function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
 
     # push to search index
     rec = SearchRecord(ctx, navnode;
-        fragment=Anchors.fragment(node.anchor),
+        fragment=Documenter.anchor_fragment(node.anchor),
         title=string(node.object.binding),
         category=Documenter.doccat(node.object),
         text = mdflatten(mdast_node))
@@ -1907,7 +1902,7 @@ function collect_subsections(page::MarkdownAST.Node)
                 title_found = true
                 continue
             end
-            push!(sections, (toplevel, Anchors.fragment(anchor), node))
+            push!(sections, (toplevel, Documenter.anchor_fragment(anchor), node))
         end
     end
     return sections
