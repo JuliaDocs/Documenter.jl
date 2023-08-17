@@ -591,29 +591,44 @@ end
         @test Documenter.codelang("&%^ ***") == "&%^"
     end
 
-    @testset "is_strict" begin
-        @test Documenter.is_strict(true, :doctest)
-        @test Documenter.is_strict([:doctest], :doctest)
-        @test Documenter.is_strict(:doctest, :doctest)
-        @test !Documenter.is_strict(false, :doctest)
-        @test !Documenter.is_strict(:setup_block, :doctest)
-        @test !Documenter.is_strict([:setup_block], :doctest)
-
-        @test Documenter.is_strict(true, :setup_block)
-        @test !Documenter.is_strict(false, :setup_block)
-        @test Documenter.is_strict(:setup_block, :setup_block)
-        @test Documenter.is_strict([:setup_block], :setup_block)
+    @testset "check_strict_kw" begin
+        @test Documenter.reduce_warnonly(:setup_block) == [:setup_block]
+        @test Documenter.reduce_warnonly(:doctest) == [:doctest]
+        @test Documenter.reduce_warnonly([:doctest, :setup_block]) == [:doctest, :setup_block]
+        @test Documenter.reduce_warnonly([]) == Symbol[]
+        @test Documenter.reduce_warnonly(false) == Symbol[]
+        @test Documenter.reduce_warnonly(true) == Documenter.ERROR_NAMES
+        @test_throws ArgumentError Documenter.reduce_warnonly(:a)
+        @test_throws ArgumentError Documenter.reduce_warnonly([:a, :doctest])
     end
 
-    @testset "check_strict_kw" begin
-        @test Documenter.check_strict_kw(:setup_block) === nothing
-        @test Documenter.check_strict_kw(:doctest) === nothing
-        @test_throws ArgumentError Documenter.check_strict_kw(:a)
-        @test_throws ArgumentError Documenter.check_strict_kw([:a, :doctest])
+    @testset "warnonly" begin
+        @test_throws ArgumentError Documenter.Document(; warnonly = :a)
+        @test_throws ArgumentError Documenter.Document(; warnonly = [:a, :b])
+        let doc = Documenter.Document(; warnonly = false)
+            @test Documenter.is_strict(doc, :doctest)
+            @test Documenter.is_strict(doc, :setup_block)
+            @test_throws ArgumentError Documenter.is_strict(doc, :a)
+        end
+        let doc = Documenter.Document(; warnonly = true)
+            @test !Documenter.is_strict(doc, :doctest)
+            @test !Documenter.is_strict(doc, :setup_block)
+            @test_throws ArgumentError Documenter.is_strict(doc, :a)
+        end
+        let doc = Documenter.Document(; warnonly = :doctest)
+            @test !Documenter.is_strict(doc, :doctest)
+            @test Documenter.is_strict(doc, :setup_block)
+            @test_throws ArgumentError Documenter.is_strict(doc, :a)
+        end
+        let doc = Documenter.Document(; warnonly = [:doctest])
+            @test !Documenter.is_strict(doc, :doctest)
+            @test Documenter.is_strict(doc, :setup_block)
+            @test_throws ArgumentError Documenter.is_strict(doc, :a)
+        end
     end
 
     @testset "@docerror" begin
-        doc = (; internal = (; errors = Symbol[]), user = (; strict = [:doctest, :setup_block]))
+        doc = Documenter.Document(; warnonly = [:meta_block, :setup_block])
         foo = 123
         @test_logs (:warn, "meta_block issue 123") (Documenter.@docerror(doc, :meta_block, "meta_block issue $foo"))
         @test :meta_block ∈ doc.internal.errors

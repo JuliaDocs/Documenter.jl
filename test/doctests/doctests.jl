@@ -146,58 +146,58 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     # with strict = true to make sure that the doctests are indeed failing.
     #
     # Some tests are broken due to https://github.com/JuliaDocs/Documenter.jl/issues/974
-    run_makedocs(["working.md"]; strict=true) do result, success, backtrace, output
+    run_makedocs(["working.md"]) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("1.stdout"))
     end
 
-    run_makedocs(["broken.md"]; strict=true) do result, success, backtrace, output
+    run_makedocs(["broken.md"]) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile("2.stdout"))
     end
 
-    run_makedocs(["working.md", "fooworking.md"]; modules=[FooWorking], strict=true) do result, success, backtrace, output
+    run_makedocs(["working.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("3.stdout"))
     end
 
-    run_makedocs(["working.md", "foobroken.md"]; modules=[FooBroken], strict=true) do result, success, backtrace, output
+    run_makedocs(["working.md", "foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile("4.stdout"))
     end
 
-    run_makedocs(["broken.md", "fooworking.md"]; modules=[FooWorking], strict=true) do result, success, backtrace, output
+    run_makedocs(["broken.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile("5.stdout"))
     end
 
-    for strict in (true, :doctest, [:doctest])
-        run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], strict=strict) do result, success, backtrace, output
+    for warnonly in (false, :autodocs_block, Documenter.except(:doctest))
+        run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], warnonly) do result, success, backtrace, output
             @test !success
             @test is_same_as_file(output, rfile("6.stdout"))
         end
     end
 
-    run_makedocs(["fooworking.md"]; modules=[FooWorking], strict=true) do result, success, backtrace, output
+    run_makedocs(["fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("7.stdout"))
     end
 
-    run_makedocs(["foobroken.md"]; modules=[FooBroken], strict=true) do result, success, backtrace, output
+    run_makedocs(["foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile("8.stdout"))
     end
 
     # Here we try the default (strict = false) -- output should say that doctest failed, but
     # success should still be true.
-    run_makedocs(["working.md"]) do result, success, backtrace, output
+    run_makedocs(["working.md"]; warnonly=true) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("11.stdout"))
     end
 
     # Three options that do not strictly check doctests, including testing the default
-    for strict_kw in ((; strict=false), NamedTuple(), (; strict=[:meta_block]))
-        run_makedocs(["broken.md"]; strict_kw...) do result, success, backtrace, output
+    for warnonly_kw in ((; warnonly=true), (; warnonly=Documenter.except(:meta_block)))
+        run_makedocs(["broken.md"]; warnonly_kw...) do result, success, backtrace, output
             @test success
             @test is_same_as_file(output, rfile("12.stdout"))
         end
@@ -224,8 +224,8 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
         @test !success
         @test is_same_as_file(output, rfile("24.stdout"))
     end
-    # strict gets ignored with doctest = :only
-    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, strict=false) do result, success, backtrace, output
+    # warnonly gets ignored with doctest = :only
+    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, warnonly=true) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile("25.stdout"))
     end
@@ -243,7 +243,7 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     end
 
     # Tests for special REPL softscope
-    run_makedocs(["softscope.md"]) do result, success, backtrace, output
+    run_makedocs(["softscope.md"]; warnonly=true) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile("41.stdout"))
     end

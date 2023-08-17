@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
+* The `strict` keyword argument to `makedocs` has been removed and replaced with `warnonly`. `makedocs` now **fails builds by default** if any of the document checks fails (previously it only issued warnings by default). ([#2051], [#2194])
+
+  **For upgrading:** If you are running with `strict = true`, you can just drop the `strict` option.
+  If you are currently being strict about specific error classes, you can invert the list of error classes with `Documenter.except`.
+
+  If you were not setting the `strict` keyword, but your build is failing now, you should first endeavor to fix the errors that are causing the build to fail.
+  If that is not feasible, you can exclude specific error categories from failing the build (e.g. `warnonly = [:footnotes, :cross_references]`).
+  Finally, setting `warnonly = true` can be used to recover the old `strict = false` default behavior, turning all errors back into warnings.
+
 * The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). This includes the removal of the exported `Deps` module. ([#1826])
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). That package might not immediately support the latest Documenter version, however.
@@ -36,6 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   This can cause existing builds to fail because previously broken links are now caught by the Documenter's document checks, and this will make `makedocs` error if `strict = true` is passed.
 
   **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `strict = Documenter.except(:cross_references)`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
+
+* The HTML output now enforces size thresholds for the generated HTML files, to catch cases where Documenter is deploying extremely large HTML files (usually due to generated content, like figures).
+  If any generated HTML file is above either of the thresholds, Documenter will either error and fail the build (if above `size_threshold`), or warn (if above `size_threshold_warn`). ([#2142], [#2205])
+
+  **For upgrading:** If your builds are now failing due to the size threshold checks, you should first investigate why the generated HTML files are so large (e.g. you are likely automatically generating too much HTML, like extremely large inline SVG figures), and try to reduce them below the default thresholds.
+  If you are unable to reduce the generated file size, you can increase the `size_threshold` value to just above the maximum size, or disable the enforcement of size threshold checks altogether by setting `size_threshold = nothing`.
+
 
 ### Added
 
@@ -81,16 +97,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added keyboard shortcuts for search box (`Ctrl + /` or `Cmd + /` to focus into the search box, `Esc` to focus out of it). ([#1536], [#2027])
 
-* The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#2066], [#2067], [#2070], [#2071])
+* The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#2066], [#2067], [#2070], [#2071], [#2213])
 
-  - KaTeX has been updated from `v0.13.24` to `v0.16.4` (major version bump).
-  - Font Awesome has been updated from `v5.15.4` to `v6.3.0` (major version bump).
+  - KaTeX has been updated from `v0.13.24` to `v0.16.8` (major version bump).
+  - Font Awesome has been updated from `v5.15.4` to `v6.4.2` (major version bump).
   - bulma.sass has been updated from `v0.7.5` to `v0.9.4` (major version bump).
   - darkly.scss been updated to `v0.8.1`.
-  - highlight.js has been updated from `v11.5.1` to `v11.7.0`.
-  - JuliaMono has been updated from `v0.045` to `v0.048`.
+  - highlight.js has been updated from `v11.5.1` to `v11.8.0`.
+  - JuliaMono has been updated from `v0.045` to `v0.050`.
   - jQuery UI has been updated from `v1.12.1` to `v1.13.2`.
-  - jquery has been updated from `v3.6.0` to `v3.6.4`.
+  - jquery has been updated from `v3.6.0` to `v3.7.0`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
 * Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. ([#1312]) ([#2076]) ([#2169])
@@ -1599,6 +1615,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2018]: https://github.com/JuliaDocs/Documenter.jl/issues/2018
 [#2019]: https://github.com/JuliaDocs/Documenter.jl/issues/2019
 [#2027]: https://github.com/JuliaDocs/Documenter.jl/issues/2027
+[#2051]: https://github.com/JuliaDocs/Documenter.jl/issues/2051
 [#2066]: https://github.com/JuliaDocs/Documenter.jl/issues/2066
 [#2067]: https://github.com/JuliaDocs/Documenter.jl/issues/2067
 [#2070]: https://github.com/JuliaDocs/Documenter.jl/issues/2070
@@ -1613,6 +1630,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
 [#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
+[#2142]: https://github.com/JuliaDocs/Documenter.jl/issues/2142
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
 [#2147]: https://github.com/JuliaDocs/Documenter.jl/issues/2147
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
@@ -1621,6 +1639,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2170]: https://github.com/JuliaDocs/Documenter.jl/issues/2170
 [#2181]: https://github.com/JuliaDocs/Documenter.jl/issues/2181
 [#2187]: https://github.com/JuliaDocs/Documenter.jl/issues/2187
+[#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
+[#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
+[#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

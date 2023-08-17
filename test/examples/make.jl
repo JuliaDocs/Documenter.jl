@@ -17,9 +17,9 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
     ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
-    "html-local", "html-draft", "html-repo-git",
-    "html-repo-nothing", "html-repo-error", "latex_texonly", "latex_simple_texonly",
-    "latex_showcase_texonly", "html-pagesonly"]
+    "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
+    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail",
+    "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -217,6 +217,7 @@ function html_doc(
     build_directory, mathengine;
     htmlkwargs=(;),
     image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif"),
+    warnonly = true,
     kwargs...
 )
     @quietly withassets(image_assets...) do
@@ -244,6 +245,7 @@ function html_doc(
                 footer = "This footer has been customized.",
                 htmlkwargs...
             ),
+            warnonly = warnonly,
             kwargs...
         )
     end
@@ -381,6 +383,8 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             prettyurls = false,
             footer = nothing,
         ),
+        # TODO: example_block failure only happens on windows, so that's not actually expected
+        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block],
     )
 else
     @info "Skipping build: HTML/local"
@@ -398,6 +402,7 @@ examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
         build = "builds/html-draft",
         sitename = "Documenter example (draft)",
         pages = htmlbuild_pages,
+        warnonly = [:footnote, :cross_references],
     )
 else
     @info "Skipping build: HTML/draft"
@@ -422,6 +427,7 @@ examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
             ],
         ],
         pagesonly = true,
+        warnonly = :cross_references,
     )
 else
     @info "Skipping build: HTML/pagesonly"
@@ -467,6 +473,63 @@ end
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
         html_repo("error", root=dir, remotes=nothing)
+    end
+end
+
+# size thresholds
+@examplebuild "sizethreshold-defaults-fail" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-success" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-success",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold = 5 * 2^20),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-ignore-success" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-ignore-success",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold = nothing),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-override-fail" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-override-fail",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold = 100, size_threshold_warn = nothing),
+            debug = true,
+        )
+    catch e
+        e
     end
 end
 
@@ -527,6 +590,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        warnonly = [:footnote, :cross_references, :example_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex"
@@ -610,6 +674,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
+        warnonly = [:footnote, :cross_references, :example_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"
@@ -685,6 +750,7 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
         remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
+        warnonly = [:docs_block, :cross_references],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase"
@@ -704,6 +770,7 @@ examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUI
         remotes = Dict(@__DIR__() => (TestRemote(), "6ef16754bc5da93f67a4323fb204c5bd3e64f336")),
         doctest = false,
         debug = true,
+        warnonly = [:docs_block, :cross_references],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_showcase_texonly"
