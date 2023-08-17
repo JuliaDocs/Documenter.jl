@@ -245,6 +245,13 @@ end
         @test examples_html_repo_error_doc.user.remote === nothing
     end
 
+    @testset "HTML: sizethreshold" begin
+        @test examples_html_sizethreshold_defaults_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+        @test examples_html_sizethreshold_success_doc isa Documenter.Document
+        @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
+        @test examples_html_sizethreshold_override_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+    end
+
     @testset "PDF/LaTeX: TeX only" begin
         doc = Main.examples_latex_texonly_doc
         @test isa(doc, Documenter.Documenter.Document)

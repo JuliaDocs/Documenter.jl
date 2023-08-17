@@ -260,5 +260,40 @@ end
         generate_redirect_file(redirectfile, entries)
         @test !isfile(redirectfile)
     end
+
+    @testset "HTML: size_threshold" begin
+        @test_throws ArgumentError Documenter.HTML(size_threshold = 0)
+        @test_throws ArgumentError Documenter.HTML(size_threshold = -100)
+        @test_throws ArgumentError Documenter.HTML(size_threshold_warn = 0)
+        @test_throws ArgumentError Documenter.HTML(size_threshold_warn = -100)
+        @test_throws ArgumentError Documenter.HTML(size_threshold = -100, size_threshold_warn = -100)
+        @test_throws ArgumentError Documenter.HTML(size_threshold = 1, size_threshold_warn = 2)
+        # Less than size_threshold_warn:
+        @test_throws ArgumentError Documenter.HTML(size_threshold = 1)
+
+        html = Documenter.HTML()
+        @test html.size_threshold == 200 * 2^10
+        @test html.size_threshold_warn == 100 * 2^10
+
+        html = Documenter.HTML(size_threshold = nothing)
+        @test html.size_threshold == typemax(Int)
+        @test html.size_threshold_warn == 100 * 2^10
+
+        html = Documenter.HTML(size_threshold = nothing, size_threshold_warn = 1234)
+        @test html.size_threshold == typemax(Int)
+        @test html.size_threshold_warn == 1234
+
+        html = Documenter.HTML(size_threshold_warn = nothing)
+        @test html.size_threshold == 200 * 2^10
+        @test html.size_threshold_warn == 200 * 2^10
+
+        html = Documenter.HTML(size_threshold = 1234, size_threshold_warn = nothing)
+        @test html.size_threshold == 1234
+        @test html.size_threshold_warn == 1234
+
+        html = Documenter.HTML(size_threshold = 12345, size_threshold_warn = 1234)
+        @test html.size_threshold == 12345
+        @test html.size_threshold_warn == 1234
+    end
 end
 end
