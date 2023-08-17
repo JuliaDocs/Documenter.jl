@@ -22,4 +22,4 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    424
-└ @ Documenter.DocTests ~/juliadocs/Documenter/test/doctests/src/FooBroken.jl:6
+└ @ Documenter ~/juliadocs/Documenter/test/doctests/src/FooBroken.jl:6
