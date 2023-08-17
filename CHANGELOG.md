@@ -97,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added keyboard shortcuts for search box (`Ctrl + /` or `Cmd + /` to focus into the search box, `Esc` to focus out of it). ([#1536], [#2027])
 
-* The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#2066], [#2067], [#2070], [#2071])
+* The various JS and font dependencies of the HTML backend have been updated to the latest non-breaking versions. ([#2066], [#2067], [#2070], [#2071], [#2213])
 
   - KaTeX has been updated from `v0.13.24` to `v0.16.8` (major version bump).
   - Font Awesome has been updated from `v5.15.4` to `v6.4.2` (major version bump).
@@ -1623,6 +1623,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
 [#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
+[#2142]: https://github.com/JuliaDocs/Documenter.jl/issues/2142
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
 [#2157]: https://github.com/JuliaDocs/Documenter.jl/issues/2157
@@ -1631,6 +1632,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2181]: https://github.com/JuliaDocs/Documenter.jl/issues/2181
 [#2187]: https://github.com/JuliaDocs/Documenter.jl/issues/2187
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
+[#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
+[#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
