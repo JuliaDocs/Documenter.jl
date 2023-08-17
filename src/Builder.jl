@@ -8,7 +8,6 @@ doctests, etc.
 module Builder
 
 import ..Documenter:
-    Anchors,
     DocTests,
     Documenter
 

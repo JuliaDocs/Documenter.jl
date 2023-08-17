@@ -4,7 +4,6 @@ Defines node "expanders" that transform nodes from the parsed markdown files.
 module Expanders
 
 import ..Documenter:
-    Anchors,
     Documenter
 
 import .Documenter:
@@ -116,7 +115,7 @@ abstract type NestedExpanderPipeline <: ExpanderPipeline end
 
 """
 Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
-[`Anchors.Anchor`](@ref) object for each one.
+[`Anchor`](@ref Documenter.Anchor) object for each one.
 """
 abstract type TrackHeaders <: ExpanderPipeline end
 
@@ -289,7 +288,7 @@ function Selectors.runner(::Type{TrackHeaders}, node, page, doc)
         end
     slug = Documenter.slugify(text)
     # Add the header to the document's header map.
-    anchor = Anchors.add!(doc.internal.headers, header, slug, page.build)
+    anchor = Documenter.anchor_add!(doc.internal.headers, header, slug, page.build)
     # Create an AnchoredHeader node and push the
     ah = MarkdownAST.Node(Documenter.AnchoredHeader(anchor))
     anchor.node = ah
@@ -938,7 +937,7 @@ end
 function create_docsnode(docstrings, results, object, page, doc)
     # Generate a unique name to be used in anchors and links for the docstring.
     slug = Documenter.slugify(object)
-    anchor = Anchors.add!(doc.internal.docs, object, slug, page.build)
+    anchor = Documenter.anchor_add!(doc.internal.docs, object, slug, page.build)
     docsnode = DocsNode(anchor, object, page)
     # Convert docstring to MarkdownAST, convert Heading elements, and push to DocsNode
     for (markdown, result) in zip(docstrings, results)
