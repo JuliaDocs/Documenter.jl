@@ -488,7 +488,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
             throw(ArgumentError("""
-            Duplicate remote path in remotes: $(path) => $(remote)
+            Duplicate remote path in remotes: $(path) => $(remoteref)
             vs $(remotes_checked[idx])
             """))
         end
