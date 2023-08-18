@@ -493,13 +493,13 @@ function interpret_repo_and_remotes(; root, repo, remotes)
             """))
         end
         # Now we actually check the remotes themselves
-        remote = if isa(remoteref, Tuple{Remotes.Remote, AbstractString}) && length(remoteref) == 2
+        remote = if remoteref isa Tuple{Remotes.Remote, AbstractString}
             RemoteRepository(path, remoteref[1], remoteref[2])
         elseif remoteref isa Remotes.Remote
             RemoteRepository(path, remoteref)
         else
             throw(ArgumentError("""
-            Invalid remote in remotes: $(remote) (::$(typeof(remote)))
+            Invalid remote in remotes: $(remoteref) (::$(typeof(remoteref)))
             for path $path
             must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""))
         end
