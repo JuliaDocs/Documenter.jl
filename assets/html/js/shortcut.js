@@ -18,7 +18,7 @@ let search_modal_header = `
 `;
 
 let initial_search_body = `
-  <div class="has-text-centered my-5 py-5">No recent searches!</div>
+  <div class="has-text-centered my-5 py-5">Type something to get started!</div>
 `;
 
 let search_modal_footer = `
@@ -35,9 +35,9 @@ $(document.body).append(
   `
     <div class="modal" id="search-modal">
       <div class="modal-background"></div>
-      <div class="modal-card search-min-width-50">
+      <div class="modal-card search-min-width-50 search-min-height-100 is-justify-content-center">
         ${search_modal_header}
-        <section class="modal-card-body is-flex is-flex-direction-column gap-4 search-modal-card-body">
+        <section class="modal-card-body is-flex is-flex-direction-column is-justify-content-center gap-4 search-modal-card-body">
           ${initial_search_body}
         </section>
         ${search_modal_footer}

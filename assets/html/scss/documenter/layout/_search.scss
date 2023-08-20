@@ -18,6 +18,10 @@ kbd.search-modal-key-hints {
   min-width: 50%;
 }
 
+.search-min-height-100 {
+  min-height: 100%;
+}
+
 .search-modal-card-body {
   max-height: 500px;
 }
@@ -82,7 +86,13 @@ kbd.search-modal-key-hints {
 }
 
 .search-result-title {
+  width: 85%;
   color: $search-result-title-text-color;
+}
+
+.search-result-code-title {
+  font-size: 15px;
+  font-family: $family-monospace;
 }
 
 // Search modal custom scrollbar

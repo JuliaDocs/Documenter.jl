@@ -2,6 +2,7 @@
 // arguments: $, minisearch
 
 // In general, most search related things will have "search" as a prefix.
+// To get an in-depth about the thought process you can refer: https://hetarth02.hashnode.dev/series/gsoc
 
 let results = [];
 let timer = undefined;
@@ -178,14 +179,25 @@ $(document).on("click", ".search-filter", function () {
   debounce(() => get_filters(), 300);
 });
 
+/**
+ * A debounce function, takes a function and an optional timeout in milliseconds
+ *
+ * @function callback
+ * @param {number} timeout
+ */
 function debounce(callback, timeout = 300) {
   clearTimeout(timer);
   timer = setTimeout(callback, timeout);
 }
 
+/**
+ * Make/Update the search component
+ *
+ * @param {string[]} selected_filters
+ */
 function update_search(selected_filters = []) {
   let initial_search_body = `
-      <div class="has-text-centered my-5 py-5">No recent searches!</div>
+      <div class="has-text-centered my-5 py-5">Type something to get started!</div>
     `;
 
   let querystring = $(".documenter-search-input").val();
@@ -247,10 +259,19 @@ function update_search(selected_filters = []) {
        `;
     }
 
+    if ($(".search-modal-card-body").hasClass("is-justify-content-center")) {
+      $(".search-modal-card-body").removeClass("is-justify-content-center");
+    }
+
     $(".search-modal-card-body").html(search_result_container);
   } else {
     filter_results = [];
     modal_filters = make_modal_body_filters(filters, filter_results);
+
+    if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
+      $(".search-modal-card-body").addClass("is-justify-content-center");
+    }
+
     $(".search-modal-card-body").html(initial_search_body);
   }
 }
@@ -284,7 +305,8 @@ function make_modal_body_filters(filters, selected_filters = []) {
 }
 
 /**
- * Make the result component given a minisearch result data object
+ * Make the result component given a minisearch result data object and the value of the search input as queryString.
+ * To view the result object structure, refer: https://lucaong.github.io/minisearch/modules/_minisearch_.html#searchresult
  *
  * @param {object} result
  * @param {string} querystring
@@ -295,6 +317,10 @@ function make_search_result(result, querystring) {
   let display_link =
     result.location.slice(Math.max(0), Math.min(50, result.location.length)) +
     (result.location.length > 30 ? "..." : ""); // To cut-off the link because it messes with the overflow of the whole div
+
+  if (result.page !== "") {
+    display_link += ` (${result.page})`;
+  }
 
   let textindex = new RegExp(`\\b${querystring}\\b`, "i").exec(result.text);
   let text =
@@ -317,14 +343,20 @@ function make_search_result(result, querystring) {
       "..."
     : ""; // highlights the match
 
+  let in_code = false;
+  if (!["page", "section"].includes(result.category.toLowerCase())) {
+    in_code = true;
+  }
+
+  // We encode the full url to escape some special characters which can lead to broken links
   let result_div = `
-      <a href="${
+      <a href="${encodeURI(
         documenterBaseURL + "/" + result.location
-      }" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
-        <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-center">
-          <div class="search-result-title has-text-weight-semi-bold">${
-            result.title
-          }</div>
+      )}" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
+        <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
+          <div class="search-result-title has-text-weight-bold ${
+            in_code ? "search-result-code-title" : ""
+          }">${result.title}</div>
           <div class="property-search-result-badge">${result.category}</div>
         </div>
         <p>

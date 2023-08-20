@@ -1092,14 +1092,7 @@ function render_sidebar(ctx, navnode)
 
     # Search box
     push!(navmenu.nodes,
-        form[".docs-search", :action => navhref(ctx, ctx.search_navnode, navnode)](
-            input[
-                "#documenter-search-query.docs-search-query",
-                :name => "q",
-                :type => "text",
-                :placeholder => "Search docs (Ctrl + /)",
-            ],
-        )
+        div["#documenter-search-query.docs-search-query.input.is-rounded.is-small.is-clickable.my-2.mx-auto.py-1.px-2"]("Search docs (Ctrl + /)")
     )
 
     # The menu itself
