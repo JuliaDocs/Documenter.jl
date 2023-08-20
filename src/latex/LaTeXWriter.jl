@@ -61,14 +61,8 @@ struct LaTeX <: Documenter.Writer
     end
 end
 
-import ...Documenter:
-    Anchors,
-    Builder,
-    Expanders,
-    Documenter
-
+import ..Documenter
 import Markdown
-
 import ANSIColoredPrinters
 
 mutable struct Context{I <: IO} <: IO
@@ -296,8 +290,8 @@ const NoExtraTopLevelNewlines = Union{
 
 function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     anchor = ah.anchor
-    # latex(io::IO, anchor::Anchors.Anchor, page, doc)
-    id = _hash(Anchors.label(anchor))
+    # latex(io::IO, anchor::Anchor, page, doc)
+    id = _hash(Documenter.anchor_label(anchor))
     latex(io, node.children; toplevel = istoplevel(node))
     _println(io, "\n\\label{", id, "}{}\n")
 end
@@ -311,7 +305,7 @@ end
 function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     node, ast = docs, node
     # latex(io::IO, node::Documenter.DocsNode, page, doc)
-    id = _hash(Anchors.label(node.anchor))
+    id = _hash(Documenter.anchor_label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, string(node.object.binding))
@@ -391,7 +385,7 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
             end
         end
         # Print the corresponding \item statement
-        id = _hash(Anchors.label(anchor))
+        id = _hash(Documenter.anchor_label(anchor))
         _print(io, "\\item \\hyperlinkref{", id, "}{")
         latex(io, header.children)
         _println(io, "}")

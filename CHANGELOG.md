@@ -141,7 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now uses [MarkdownAST](https://github.com/JuliaDocs/MarkdownAST.jl) to internally represent Markdown documents. While this change should not lead to any visible changes to the user, it is a major refactoring of the code. Please report any novel errors or unexpected behavior you encounter when upgrading to 0.28 on the [Documenter issue tracker](https://github.com/JuliaDocs/Documenter.jl/issues). ([#1892], [#1912], [#1924], [#1948])
 
-* The code layout has changed considerably, with many of the internal submodules removed. This **may be breaking** for code that hooks into various Documenter internals, as various types and functions now live at different code paths. ([#1977])
+* The code layout has changed considerably, with many of the internal submodules removed. This **may be breaking** for code that hooks into various Documenter internals, as various types and functions now live at different code paths. ([#1976], [#1977], [#2191], [#2214])
 
 
 ## Version [v0.27.25] - 2023-07-03
@@ -1601,6 +1601,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1962]: https://github.com/JuliaDocs/Documenter.jl/issues/1962
 [#1969]: https://github.com/JuliaDocs/Documenter.jl/issues/1969
 [#1970]: https://github.com/JuliaDocs/Documenter.jl/issues/1970
+[#1976]: https://github.com/JuliaDocs/Documenter.jl/issues/1976
 [#1977]: https://github.com/JuliaDocs/Documenter.jl/issues/1977
 [#1980]: https://github.com/JuliaDocs/Documenter.jl/issues/1980
 [#1983]: https://github.com/JuliaDocs/Documenter.jl/issues/1983
@@ -1634,9 +1635,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2170]: https://github.com/JuliaDocs/Documenter.jl/issues/2170
 [#2181]: https://github.com/JuliaDocs/Documenter.jl/issues/2181
 [#2187]: https://github.com/JuliaDocs/Documenter.jl/issues/2187
+[#2191]: https://github.com/JuliaDocs/Documenter.jl/issues/2191
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
+[#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

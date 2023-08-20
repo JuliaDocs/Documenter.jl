@@ -1,5 +1,6 @@
 # DocChecks
 
 ```@autodocs
-Modules = [Documenter.DocChecks]
+Modules = [Documenter]
+Pages = ["docchecks.jl"]
 ```

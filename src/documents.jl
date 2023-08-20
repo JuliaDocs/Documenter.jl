@@ -138,7 +138,7 @@ struct MethodNode
 end
 
 struct DocsNode <: AbstractDocumenterBlock
-    anchor  :: Anchors.Anchor
+    anchor  :: Anchor
     object  :: Object
     page    :: Documenter.Page
     # MarkdownAST support.
@@ -335,8 +335,8 @@ struct Internal
     assets  :: String             # Path where asset files will be copied to.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
-    headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
-    docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    headers :: AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    docs    :: AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings:: IdDict{Any,Any}           # Tracks insertion order of object per-binding.
     objects :: IdDict{Any,Any}           # Tracks which `Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
@@ -444,8 +444,8 @@ function Document(plugins = nothing;
         assetsdir(),
         [],
         [],
-        Anchors.AnchorMap(),
-        Anchors.AnchorMap(),
+        AnchorMap(),
+        AnchorMap(),
         IdDict{Any,Any}(),
         IdDict{Any,Any}(),
         [],
@@ -488,18 +488,18 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
             throw(ArgumentError("""
-            Duplicate remote path in remotes: $(path) => $(remote)
+            Duplicate remote path in remotes: $(path) => $(remoteref)
             vs $(remotes_checked[idx])
             """))
         end
         # Now we actually check the remotes themselves
-        remote = if isa(remoteref, Tuple{Remotes.Remote, AbstractString}) && length(remoteref) == 2
+        remote = if remoteref isa Tuple{Remotes.Remote, AbstractString}
             RemoteRepository(path, remoteref[1], remoteref[2])
         elseif remoteref isa Remotes.Remote
             RemoteRepository(path, remoteref)
         else
             throw(ArgumentError("""
-            Invalid remote in remotes: $(remote) (::$(typeof(remote)))
+            Invalid remote in remotes: $(remoteref) (::$(typeof(remoteref)))
             for path $path
             must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""))
         end
@@ -948,7 +948,7 @@ precedence(vec) = Dict(zip(vec, 1:length(vec)))
 # Conversion to MarkdownAST, for writers
 
 struct AnchoredHeader <: AbstractDocumenterBlock
-    anchor :: Anchors.Anchor
+    anchor :: Anchor
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 

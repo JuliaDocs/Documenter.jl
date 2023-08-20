@@ -1,5 +1,6 @@
 # Builder
 
 ```@autodocs
-Modules = [Documenter.Builder]
+Modules = [Documenter, Documenter.Builder]
+Pages = ["builder_pipeline.jl"]
 ```
