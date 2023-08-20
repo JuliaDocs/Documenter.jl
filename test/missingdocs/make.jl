@@ -27,7 +27,7 @@ end
         @quietly @test makedocs(; kwargs...) === nothing
 
         doc = Documenter.Document(; kwargs...)
-        @quietly @test Documenter.DocChecks.missingdocs(doc) == n_expected
+        @quietly @test Documenter.missingdocs(doc) == n_expected
     end
 
     @quietly @test_throws ErrorException makedocs(

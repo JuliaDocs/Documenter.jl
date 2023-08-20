@@ -35,7 +35,7 @@ end
     ]
     doc = FakeDocument()
     doc.blueprint.pages = Dict(map(i -> "page$i.md" => nothing, 1:8))
-    navtree = Builder.walk_navpages(pages, nothing, doc)
+    navtree = Documenter.walk_navpages(pages, nothing, doc)
     navlist = doc.internal.navlist
 
     @test length(navlist) == 6
