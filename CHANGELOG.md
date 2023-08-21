@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   The fallbacks to `TRAVIS_REPO_SLUG` and `GITHUB_REPOSITORY` variables have been removed in favor of explicitly specifying the `repo` keyword in the `makedocs` call.
 
-  Documenter is not also more strict about the cases where it is unable to determine the URLs, and therefore previously successful builds may break.
+  Documenter is now also more strict about the cases where it is unable to determine the URLs, and therefore previously successful builds may break.
 
   **For upgrading:** As the fallbacks to CI variables have been removed, make sure that you have your source checked out as a proper Git repository when building the documentation, so that Documenter could determine the repository link automatically from the Git `origin` URL. On GitHub Actions, this should normally already be the case. In other cases, you can configure the `repo` and/or `remotes` options to `makedocs` appropriately.
 
