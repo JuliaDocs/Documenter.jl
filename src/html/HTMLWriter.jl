@@ -732,8 +732,6 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
 
-    render_search(ctx)
-
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
@@ -796,28 +794,6 @@ function render_page(ctx, navnode)
     footer = render_footer(ctx, navnode)
     htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
     write_html(ctx, navnode, htmldoc)
-end
-
-## Search page
-function render_search(ctx)
-    @tags article body h1 header hr html li nav p span ul script
-
-    src = get_url(ctx, ctx.search_navnode)
-
-    head = render_head(ctx, ctx.search_navnode)
-    sidebar = render_sidebar(ctx, ctx.search_navnode)
-    navbar = render_navbar(ctx, ctx.search_navnode, false)
-    article = article(
-        p["#documenter-search-info"]("Loading search..."),
-        ul["#documenter-search-results"]
-    )
-    footer = render_footer(ctx, ctx.search_navnode)
-    scripts = [
-        script[:src => relhref(src, ctx.search_index_js)],
-        script[:src => relhref(src, ctx.search_js)],
-    ]
-    htmldoc = render_html(ctx, ctx.search_navnode, head, sidebar, navbar, article, footer, scripts)
-    write_html(ctx, ctx.search_navnode, htmldoc)
 end
 
 ## Rendering HTML elements
@@ -1062,7 +1038,7 @@ end
 NavMenuContext(ctx::HTMLContext, current::Documenter.NavNode) = NavMenuContext(ctx, current, [])
 
 function render_sidebar(ctx, navnode)
-    @tags a form img input nav div select option span
+    @tags a form img input nav div button select option span
     src = get_url(ctx, navnode)
     navmenu = nav[".docs-sidebar"]
 
@@ -1092,7 +1068,7 @@ function render_sidebar(ctx, navnode)
 
     # Search box
     push!(navmenu.nodes,
-        div["#documenter-search-query.docs-search-query.input.is-rounded.is-small.is-clickable.my-2.mx-auto.py-1.px-2"]("Search docs (Ctrl + /)")
+        button["#documenter-search-query.docs-search-query.input.is-rounded.is-small.is-clickable.my-2.mx-auto.py-1.px-2"]("Search docs (Ctrl + /)")
     )
 
     # The menu itself

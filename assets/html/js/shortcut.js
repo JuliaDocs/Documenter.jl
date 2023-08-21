@@ -54,6 +54,10 @@ document.querySelector(".close-search-modal").addEventListener("click", () => {
   closeModal();
 });
 
+$(document).on("click", ".search-result-link", function () {
+  closeModal();
+});
+
 document.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key === "/") {
     openModal();
@@ -75,11 +79,15 @@ function openModal() {
 function closeModal() {
   let searchModal = document.querySelector("#search-modal");
   let initial_search_body = `
-    <div class="has-text-centered my-5 py-5">No recent searches!</div>
+    <div class="has-text-centered my-5 py-5">Type something to get started!</div>
   `;
 
   searchModal.classList.remove("is-active");
   document.querySelector(".documenter-search-input").blur();
+
+  if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
+    $(".search-modal-card-body").addClass("is-justify-content-center");
+  }
 
   $(".documenter-search-input").val("");
   $(".search-modal-card-body").html(initial_search_body);

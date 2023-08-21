@@ -79,7 +79,7 @@ $button-static-color: $grey-lighter;
 $button-static-background-color: $background;
 $button-static-border-color: $border;
 
-$docs-search-query-text-color: rgba(219, 222, 224, 0.3);
+$documenter-search-query-text-color: rgba(219, 222, 224, 0.3);
 
 // All secondary themes have to be nested in a theme--$(themename) class. When Documenter
 // switches themes, it applies this class to <html> and then disables the primary

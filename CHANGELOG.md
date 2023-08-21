@@ -121,9 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. ([#2181])
 
-* The client-side search engine has been changed from LunrJs to MinisearchJs. Additionally, the search results will now contain additional context and have an improved UI. ([#2141])
-
-* The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove those pesky unwanted results. ([#2147])
+* The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove unwanted results. The client-side search engine has been changed from LunrJs to MinisearchJs. ([#2141], [#2147])
 
 ### Fixed
 

@@ -23,7 +23,7 @@ kbd.search-modal-key-hints {
 }
 
 .search-modal-card-body {
-  max-height: 500px;
+  max-height: calc(100vh - 15rem);
 }
 
 .search-result-link {
@@ -91,7 +91,7 @@ kbd.search-modal-key-hints {
 }
 
 .search-result-code-title {
-  font-size: 15px;
+  font-size: 0.875rem;
   font-family: $family-monospace;
 }
 
