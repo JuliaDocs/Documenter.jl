@@ -184,7 +184,6 @@ Stacktrace:
 """
 module ParseErrorSuccess_1x10 end
 # The JuliaSyntax swap in 1.10 changed the printing of parse errors quite considerably
-# (v"1.10.0-DEV.1520" <= VERSION < v"1.10.0-beta3") || (v"1.11.0-" < VERSION < v"1.11.0-DEV.293")
 ParseErrorSuccess() = (VERSION >= v"1.10.0-DEV.1520") ? ParseErrorSuccess_1x10 : ParseErrorSuccess_1x00
 
 """
