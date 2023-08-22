@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   The fallbacks to `TRAVIS_REPO_SLUG` and `GITHUB_REPOSITORY` variables have been removed in favor of explicitly specifying the `repo` keyword in the `makedocs` call.
 
-  Documenter is not also more strict about the cases where it is unable to determine the URLs, and therefore previously successful builds may break.
+  Documenter is now also more strict about the cases where it is unable to determine the URLs, and therefore previously successful builds may break.
 
   **For upgrading:** As the fallbacks to CI variables have been removed, make sure that you have your source checked out as a proper Git repository when building the documentation, so that Documenter could determine the repository link automatically from the Git `origin` URL. On GitHub Actions, this should normally already be the case. In other cases, you can configure the `repo` and/or `remotes` options to `makedocs` appropriately.
 
@@ -109,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - jquery has been updated from `v3.6.0` to `v3.7.0`.
   - MathJax 2 has been updated  from `v2.7.7` to `v2.7.9`.
 
-* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. ([#1312]) ([#2076]) ([#2169])
+* Move the mobile layout sidebar toggle (hamburger) from the right side to the left side. ([#1312], [#2076], [#2169], [#2215], [#2216])
 
 * Added the ability to expand/collapse individual as well as all docstrings. ([#1393], [#2078])
 
@@ -1637,6 +1637,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
+[#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
+[#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
