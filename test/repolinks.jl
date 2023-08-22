@@ -100,13 +100,13 @@ end
     @test edit_url(doc, joinpath(extrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/foo"
     @test edit_url(doc, joinpath(extrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/bar/baz/qux"
     # But if you don't have the Git origin set, then we error
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
     # And the same applies to external directories
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
 end
 
 @testset "Repo only" begin
@@ -124,13 +124,13 @@ end
     @test edit_url(doc, joinpath(extrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/foo"
     @test edit_url(doc, joinpath(extrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/bar/baz/qux"
     # But if you don't have the Git origin set, then we error
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
     # And the same applies to external directories
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
 end
 
 @testset "repo for extrepo_noremote" begin
@@ -172,8 +172,8 @@ end
     @test edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/foo"
     @test edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/bar/baz/qux"
     # extrepo_noremote: we did not touch this
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
     # extdirectory: should point to AlternateOrg/ExtRepo.jl
     @test edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing) == "https://github.com/AlternateOrg/ExtRepo.jl/blob/12345/foo"
     @test edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing) == "https://github.com/AlternateOrg/ExtRepo.jl/blob/12345/bar/baz/qux"
