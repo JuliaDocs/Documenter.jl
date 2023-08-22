@@ -795,33 +795,6 @@ function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
 end
 
-struct MissingRemoteError <: Exception
-    path::String
-    linerange::Any
-    mod::Union{Module, Nothing}
-
-    function MissingRemoteError(;
-        path::AbstractString,
-        linerange=nothing,
-        mod::Union{Module, Nothing}=nothing
-    )
-        new(path, linerange, mod)
-    end
-end
-
-function Base.showerror(io::IO, e::MissingRemoteError)
-    print(io, "MissingRemoteError: unable to generate source url\n  path: $(e.path)")
-    isnothing(e.linerange) || print(io, ':', e.linerange)
-    println(io)
-    isnothing(e.mod) || println(io, "  module: ", e.mod)
-    print(io, """
-    Documenter was unable to automatically determine the remote repository for this file.
-    This can happen if you are including docstrings or pages from secondary packages. Those packages
-    must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
-    must be configured appropriately. See the 'Remote repository links' section in the manual for
-    more information.""")
-end
-
 """
     getplugin(doc::Document, T)
 
