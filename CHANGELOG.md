@@ -121,7 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. ([#2181])
 
-* The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove unwanted results. The client-side search engine has been changed from LunrJs to MinisearchJs. ([#2141], [#2147])
+* The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove unwanted results. The client-side search engine has been changed from LunrJs to MinisearchJs. ([#1437], [#2141], [#2147], [#2202])
 
 ### Fixed
 
@@ -1411,6 +1411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1428]: https://github.com/JuliaDocs/Documenter.jl/issues/1428
 [#1430]: https://github.com/JuliaDocs/Documenter.jl/issues/1430
 [#1435]: https://github.com/JuliaDocs/Documenter.jl/issues/1435
+[#1437]: https://github.com/JuliaDocs/Documenter.jl/issues/1437
 [#1438]: https://github.com/JuliaDocs/Documenter.jl/issues/1438
 [#1440]: https://github.com/JuliaDocs/Documenter.jl/issues/1440
 [#1441]: https://github.com/JuliaDocs/Documenter.jl/issues/1441
@@ -1635,6 +1636,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2187]: https://github.com/JuliaDocs/Documenter.jl/issues/2187
 [#2191]: https://github.com/JuliaDocs/Documenter.jl/issues/2191
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
+[#2202]: https://github.com/JuliaDocs/Documenter.jl/issues/2202
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
