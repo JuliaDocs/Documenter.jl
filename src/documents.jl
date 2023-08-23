@@ -760,7 +760,7 @@ function edit_url(doc::Document, path; rev::Union{AbstractString,Nothing})
     end
     remoteref = relpath_from_remote_root(doc, path)
     if isnothing(remoteref)
-        error("Unable to generate remote link\n path: $(path)")
+        throw(MissingRemoteError(; path))
     end
     rev = isnothing(rev) ? remoteref.repo.commit : rev
     @debug "edit_url" path remoteref rev
@@ -771,7 +771,7 @@ source_url(doc::Document, docstring) = source_url(
     doc, docstring.data[:module], docstring.data[:path], linerange(docstring)
 )
 
-function source_url(doc::Document, mod, file, linerange)
+function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
     # If the user has disable remote links, we abort immediately
     isnothing(doc.user.remotes) && return nothing
     # needed since julia v0.6, see #689
@@ -789,7 +789,7 @@ function source_url(doc::Document, mod, file, linerange)
     isfile(file) || return nothing
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
-        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(file)")
+        throw(MissingRemoteError(; path = file, linerange, mod))
     end
     @debug "source_url" mod file linerange remoteref
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
