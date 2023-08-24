@@ -543,6 +543,29 @@ Preview builds are still deployed to the `previews` subfolder.
     ([source repository](https://github.com/JuliaDocs/juliadocs.github.io)) is one example
     where this functionality is used.
 
+### Out-of-repo deployment
+
+Sometimes the `gh-pages` branch can become really large, either just due to a large number of commits over time, or due figures and other large artifacts.
+In those cases, it can be useful to deploy the docs in the `gh-pages` of a separate repository.
+The following steps can be used to deploy the documentation of a "source"
+repository on a "target" repo:
+
+1. Run `DocumenterTools.genkeys()` to generate a pair of keys
+2. Add the **deploy key** to the **"target"** repository
+3. Add the `DOCUMENTER_KEY` **secret** to the **"source"** repository (that runs the documentation workflow)
+4. Adapt `docs/make.jl` to deploy on "target" repository:
+
+```julia
+# url of target repo
+repo = "github.com/TargetRepoOrg/TargetRepo.git"
+
+# You have to override the corresponding environment variable that
+# deplodocs uses to determine if it is deploying to the correct repository.
+# For GitHub, it's the GITHUB_REPOSITORY variable:
+withenv("GITHUB_REPOSITORY" => repo) do
+  deploydocs(repo=repo)
+end
+```
 
 ## Deploying from a monorepo
 
@@ -621,11 +644,8 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/stable  # Links to most rec
 
 While they won't automatically reference one another, such referencing can be added manually (e.g. by linking to https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable from the docs built for PackageB).
 
-
 !!! warning
-  When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z, and the rest of the subpackages' documentation will be unavailable.
-
-
+    When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z, and the rest of the subpackages' documentation will be unavailable.
 
 ---
 

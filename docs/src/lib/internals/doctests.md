@@ -1,5 +1,6 @@
 # DocTests
 
 ```@autodocs
-Modules = [Documenter.DocTests]
+Modules = [Documenter]
+Pages = ["doctests.jl"]
 ```

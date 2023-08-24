@@ -229,6 +229,12 @@
     margin-bottom: 0.5rem;
   }
 
+  #documenter-search-query {
+    color: $documenter-search-query-text-color;
+    width: 0.8 * $documenter-sidebar-width;
+    box-shadow: inset 0 1px 2px rgba(10,10,10,0.1);
+  }
+
   /* Setting up a nicer theme style for the scrollbar */
   @mixin sidebar-scroll {
     overflow-y: auto;

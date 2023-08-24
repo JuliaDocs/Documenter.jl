@@ -1,5 +1,6 @@
 # Expanders
 
 ```@autodocs
-Modules = [Documenter.Expanders]
+Modules = [Documenter, Documenter.Expanders]
+Pages = ["expander_pipeline.jl"]
 ```

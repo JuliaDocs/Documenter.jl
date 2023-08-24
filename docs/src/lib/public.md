@@ -24,6 +24,7 @@ Documenter
 makedocs
 Documenter.except
 hide
+Documenter.MissingRemoteError
 asset
 deploydocs
 doctest

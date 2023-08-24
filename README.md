@@ -5,7 +5,7 @@
 
 | **Documentation**                                                               | **Build Status**                                                                                |
 |:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][GHA-img]][GHA-url] [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][GHA-img]][GHA-url] [![][codecov-img]][codecov-url] [![PkgEval][pkgeval-img]][pkgeval-url] |
 
 
 ## Installation
@@ -78,3 +78,6 @@ Finally, there are also a few other packages in the Julia ecosystem that are sim
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl
 
 [issues-url]: https://github.com/JuliaDocs/Documenter.jl/issues
+
+[pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/D/Documenter.svg
+[pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/D/Documenter.html

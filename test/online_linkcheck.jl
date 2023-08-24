@@ -1,6 +1,6 @@
 module OnlineLinkcheckTests
 using Documenter: Documenter, MarkdownAST, AbstractTrees
-using Documenter.DocChecks: linkcheck
+using Documenter: linkcheck
 using Markdown
 using Test
 
@@ -27,13 +27,13 @@ using Test
         src = convert(MarkdownAST.Node, Markdown.parse("[FILE failure](file://$(@__FILE__))"))
         doc = Documenter.Document(; linkcheck=true)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
-        @test_logs (:warn,) @test linkcheck(doc) === nothing
+        @test_logs (:error,) @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}([:linkcheck])
 
         src = Markdown.parse("[Timeout](http://httpbin.org/delay/3)")
         doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=0.1)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
-        @test_logs (:warn,) @test linkcheck(doc) === nothing
+        @test_logs (:error,) @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}([:linkcheck])
     end
 end

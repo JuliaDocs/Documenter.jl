@@ -22,11 +22,12 @@ end
             modules = MissingDocs,
             checkdocs = sym,
             sitename = "MissingDocs Checks",
+            warnonly = true,
         )
         @quietly @test makedocs(; kwargs...) === nothing
 
         doc = Documenter.Document(; kwargs...)
-        @quietly @test Documenter.DocChecks.missingdocs(doc) == n_expected
+        @quietly @test Documenter.missingdocs(doc) == n_expected
     end
 
     @quietly @test_throws ErrorException makedocs(
@@ -35,7 +36,6 @@ end
         build = joinpath("build", "error"),
         modules = MissingDocs,
         checkdocs = :all,
-        strict = true,
         sitename = "MissingDocs Checks",
     )
 end

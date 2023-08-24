@@ -138,7 +138,7 @@ struct MethodNode
 end
 
 struct DocsNode <: AbstractDocumenterBlock
-    anchor  :: Anchors.Anchor
+    anchor  :: Anchor
     object  :: Object
     page    :: Documenter.Page
     # MarkdownAST support.
@@ -182,6 +182,33 @@ struct MultiCodeBlock <: AbstractDocumenterBlock
     content::Vector{Markdown.Code}
 end
 
+# Cross-references
+
+struct PageLink <: MarkdownAST.AbstractInline
+    page::Documenter.Page
+    fragment::String
+end
+
+"""
+Represents a reference to a local file. The `path` can be assumed to be an "absolute" path
+relative to the document root (i.e. `src/` or `build/` directories).
+
+In the standard setup, when the documentation setup lives in `docs/`, with source files
+in `docs/src`, a link to the file `docs/src/foo/bar.md` would have `path = "foo/bar.md"`.
+"""
+struct LocalLink <: MarkdownAST.AbstractInline
+    path::String
+    fragment::String
+end
+
+"""
+Represents a reference to a local image. The `path` can be assumed to be an "absolute" path
+relative to the document root (i.e. `src/` or `build/` directories). See [`LocalLink`](@ref)
+for more details.
+"""
+struct LocalImage <: MarkdownAST.AbstractInline
+    path::String
+end
 
 # Navigation
 # ----------------------
@@ -273,7 +300,7 @@ struct User
     linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
-    strict::Union{Bool,Symbol,Vector{Symbol}} # Throw an exception when any warnings are encountered.
+    warnonly::Vector{Symbol}  # List of docerror groups that should only warn, rather than cause a build failure
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
     pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
@@ -308,8 +335,8 @@ struct Internal
     assets  :: String             # Path where asset files will be copied to.
     navtree :: Vector{NavNode}           # A vector of top-level navigation items.
     navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
-    headers :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
-    docs    :: Anchors.AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    headers :: AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    docs    :: AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
     bindings:: IdDict{Any,Any}           # Tracks insertion order of object per-binding.
     objects :: IdDict{Any,Any}           # Tracks which `Objects` are included in the `Document`.
     contentsnodes :: Vector{ContentsNode}
@@ -344,7 +371,7 @@ function Document(plugins = nothing;
         linkcheck_timeout :: Real    = 10,
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
-        strict::Union{Bool,Symbol,Vector{Symbol}} = false,
+        warnonly :: Union{Bool,Symbol,Vector{Symbol}} = Symbol[],
         modules  :: ModVec = Module[],
         pages    :: Vector           = Any[],
         pagesonly:: Bool             = false,
@@ -359,7 +386,7 @@ function Document(plugins = nothing;
         others...
     )
 
-    check_strict_kw(strict)
+    warnonly = reduce_warnonly(warnonly) # convert warnonly to Symbol[]
     check_kwargs(others)
 
     if !isa(format, AbstractVector)
@@ -401,7 +428,7 @@ function Document(plugins = nothing;
         linkcheck_timeout,
         checkdocs,
         doctestfilters,
-        strict,
+        warnonly,
         pages,
         pagesonly,
         expandfirst,
@@ -417,8 +444,8 @@ function Document(plugins = nothing;
         assetsdir(),
         [],
         [],
-        Anchors.AnchorMap(),
-        Anchors.AnchorMap(),
+        AnchorMap(),
+        AnchorMap(),
         IdDict{Any,Any}(),
         IdDict{Any,Any}(),
         [],
@@ -461,18 +488,18 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
             throw(ArgumentError("""
-            Duplicate remote path in remotes: $(path) => $(remote)
+            Duplicate remote path in remotes: $(path) => $(remoteref)
             vs $(remotes_checked[idx])
             """))
         end
         # Now we actually check the remotes themselves
-        remote = if isa(remoteref, Tuple{Remotes.Remote, AbstractString}) && length(remoteref) == 2
+        remote = if remoteref isa Tuple{Remotes.Remote, AbstractString}
             RemoteRepository(path, remoteref[1], remoteref[2])
         elseif remoteref isa Remotes.Remote
             RemoteRepository(path, remoteref)
         else
             throw(ArgumentError("""
-            Invalid remote in remotes: $(remote) (::$(typeof(remote)))
+            Invalid remote in remotes: $(remoteref) (::$(typeof(remoteref)))
             for path $path
             must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""))
         end
@@ -604,6 +631,35 @@ function interpret_repo_and_remotes(; root, repo, remotes)
     return (makedocs_root_remote, remotes_checked)
 end
 
+# Converts the warnonly keyword argument to a Vector{Symbol}
+reduce_warnonly(warnonly::Bool) = reduce_warnonly(warnonly ? ERROR_NAMES : Symbol[])
+reduce_warnonly(s::Symbol) = reduce_warnonly(Symbol[s])
+function reduce_warnonly(warnonly)
+    warnonly = Symbol[s for s in warnonly]
+    extra_names = setdiff(warnonly, ERROR_NAMES)
+    if !isempty(extra_names)
+        throw(ArgumentError("""
+        Keyword argument `warnonly` given invalid values: $(extra_names)
+        Valid options are: $(ERROR_NAMES)
+        """))
+    end
+    return warnonly
+end
+
+"""
+    is_strict(::Document, val::Symbol) -> Bool
+
+Internal function to check if Documenter should throw an error or simply
+print a warning when hitting error condition.
+
+Single-argument `is_strict(strict)` provides a curried function.
+"""
+function is_strict(doc::Document, val::Symbol)
+    val in ERROR_NAMES || throw(ArgumentError("Invalid val in is_strict: $val"))
+    return !(val ∈ doc.user.warnonly)
+end
+is_strict(doc::Document) = Base.Fix1(is_strict, doc)
+
 function addremote!(remotes::Vector{RemoteRepository}, remoteref::RemoteRepository)
     for ref in remotes
         if ref.root == remoteref.root
@@ -704,7 +760,7 @@ function edit_url(doc::Document, path; rev::Union{AbstractString,Nothing})
     end
     remoteref = relpath_from_remote_root(doc, path)
     if isnothing(remoteref)
-        error("Unable to generate remote link\n path: $(path)")
+        throw(MissingRemoteError(; path))
     end
     rev = isnothing(rev) ? remoteref.repo.commit : rev
     @debug "edit_url" path remoteref rev
@@ -715,7 +771,7 @@ source_url(doc::Document, docstring) = source_url(
     doc, docstring.data[:module], docstring.data[:path], linerange(docstring)
 )
 
-function source_url(doc::Document, mod, file, linerange)
+function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
     # If the user has disable remote links, we abort immediately
     isnothing(doc.user.remotes) && return nothing
     # needed since julia v0.6, see #689
@@ -733,7 +789,7 @@ function source_url(doc::Document, mod, file, linerange)
     isfile(file) || return nothing
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
-        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(path)")
+        throw(MissingRemoteError(; path = file, linerange, mod))
     end
     @debug "source_url" mod file linerange remoteref
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
@@ -759,9 +815,23 @@ end
 function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::AbstractString)
     page = Page(src, dst, wd)
     # page's identifier is the path relative to the `doc.user.source` directory
-    name = normpath(relpath(src, doc.user.source))
+    name = pagekey(doc, page)
+    # This check is here to make sure that the new function matches the old
+    # (correct) implementation.
+    @assert name == normpath(relpath(src, doc.user.source))
     doc.blueprint.pages[name] = page
 end
+
+# The page.source field is relative to doc.user.root, but the keys in
+# doc.blueprint.pages are relative to doc.user.source (which is itself
+# relative to doc.user.root). This function calculates the key corresponding
+# to a page.
+pagekey(doc::Document, page::Page) = normpath(
+    relpath(
+        joinpath(doc.user.root, page.source),
+        joinpath(doc.user.root, doc.user.source)
+    )
+)
 
 """
 $(SIGNATURES)
@@ -878,7 +948,7 @@ precedence(vec) = Dict(zip(vec, 1:length(vec)))
 # Conversion to MarkdownAST, for writers
 
 struct AnchoredHeader <: AbstractDocumenterBlock
-    anchor :: Anchors.Anchor
+    anchor :: Anchor
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
@@ -925,4 +995,11 @@ function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
         # in the old Markdown-based mdflatten()
         print(io, "\n\n\n\n")
     end
+end
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::PageLink) = MDFlatten.mdflatten(io, node.children)
+MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalLink) = MDFlatten.mdflatten(io, node.children)
+function MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalImage)
+    print(io, "(Image: ")
+    MDFlatten.mdflatten(io, node.children)
+    print(io, ")")
 end

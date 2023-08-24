@@ -161,10 +161,6 @@ ERROR: ParseError:
 # Error @ none:1:1
 1.2.3
 └──┘ ── invalid numeric constant
-# Error @ none:1:5
-1.2.3
-#   ╙ ── extra tokens after end of expression
-Stacktrace:
 [...]
 ```
 ```jldoctest
@@ -174,10 +170,6 @@ ERROR: ParseError:
 # Error @ none:1:9
 println(9.8.7)
 #       └──┘ ── invalid numeric constant
-# Error @ none:1:13
-println(9.8.7)
-#           ╙ ── Expected `)`
-Stacktrace:
 [...]
 ```
 ```jldoctest

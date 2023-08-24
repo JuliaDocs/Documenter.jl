@@ -13,7 +13,7 @@
 │ 
 │ Evaluated output:
 │ 
-│ ERROR: UndefVarError: baz not defined
+│ ERROR: UndefVarError: `baz` not defined
 │ Stacktrace:
 │  [1] top-level scope
 │    @ none:1
@@ -24,8 +24,8 @@
 │ 
 │   diff =
 │    Warning: Diff output requires color.
-│    40ERROR: UndefVarError: baz not defined
+│    40ERROR: UndefVarError: `baz` not defined
 │    Stacktrace:
 │     [1] top-level scope
 │       @ none:1
-└ @ Documenter.DocTests ~/juliadocs/Documenter/test/doctests/src/NoMeta.jl:6
+└ @ Documenter ~/juliadocs/Documenter/test/doctests/src/NoMeta.jl:6

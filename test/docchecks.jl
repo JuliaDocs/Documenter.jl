@@ -4,7 +4,7 @@ using Test
 
 using Markdown
 import Documenter
-using Documenter.DocChecks: linkcheck, allbindings
+using Documenter: linkcheck, allbindings
 
 # The following modules set up a few docstrings for allbindings tests
 module Dep1
@@ -68,7 +68,7 @@ module TestModule
     Dep1.bar(::Any) = nothing
 end
 
-@testset "DocChecks" begin
+@testset "doc checks" begin
     if haskey(ENV, "DOCUMENTER_TEST_ONLINE_LINKCHECK")
         include("online_linkcheck.jl")
     else

@@ -10,82 +10,12 @@ if haskey(ENV, "DOCSARGS")
     end
 end
 
-# ==============================================================================
-#  Modify the release notes
-# ==============================================================================
-
-function fix_release_line(
-    line::String;
-    repo::String = "JuliaDocs/Documenter.jl",
-)
-    # Rule: ((abc#XXXX) -> ([abc#XXXX](https://github.com/abc/issue/XXXX))
-    # Description: Replace issue/PR numbers with a link to the default repo
-    # Example: (JuliaLang/julia#123) -> ([JuliaLang/julia#123](https://github.com/JuliaLang/julia/issues/123))
-    # There is no need to distinguish between PRs and Issues because GitHub
-    # redirects.
-    while (m = match(r"\(([a-zA-Z0-9/]+?)\#([0-9]+)\)", line)) !== nothing
-        new_repo, id = m.captures[1], m.captures[2]
-        line = replace(line, m.match => "([$new_repo#$id](https://github.com/$new_repo/issues/$id))")
-    end
-    # Rule: (#XXXX) -> ([#XXXX](https://github.com/url/issue/XXXX))
-    # Description: Replace issue/PR numbers with a link to the default repo
-    # Example: (#123) -> ([#123](https://github.com/JuliaDocs/Documenter.jl/issues/123))
-    # There is no need to distinguish between PRs and Issues because GitHub
-    # redirects.
-    while (m = match(r"\(\#([0-9]+)\)", line)) !== nothing
-        id = m.captures[1]
-        line = replace(line, m.match => "([#$id](https://github.com/$repo/issues/$id))")
-    end
-    # Rule: (@XXXX) -> ([@XXXX](https://github.com/XXXX))
-    # Description: Replace users with a link to their GitHub
-    # Example: (@odow) -> ([@odow](https://github.com/odow))
-    while (m = match(r"\(@(.+?)\)", line)) !== nothing
-        id = m.captures[1]
-        line = replace(line, m.match => "([@$id](https://github.com/$id))")
-    end
-    # Rule: ## Version vX.Y.Z -> ## Version [vX.Y.Z](url/releases/tag/vX.Y.Z)
-    # Description: Replace version headers with a link to the GitHub tag
-    # Example: ## Version v0.27.0 -> ## Version [v0.27.0](https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.0)
-    while (m = match(r"\#\# Version (v[0-9]+.[0-9]+.[0-9]+)", line)) !== nothing
-        tag = m.captures[1]
-        line = replace(
-            line,
-            m.match => "## Version [$tag](https://github.com/$repo/releases/tag/$tag)",
-        )
-    end
-    return line
-end
-
-function rewrite_changelog(;
-    changelog_filename::String,
-    release_notes_filename::String,
-    current_module::String,
-    repo::String,
-    branch::String = "master",
-)
-    header = """
-    ```@meta
-    CurrentModule = $current_module
-    EditURL = "https://github.com/$repo/blob/$branch/CHANGELOG.md"
-    ```
-    """
-    open(changelog_filename, "r") do in_io
-        open(release_notes_filename, "w") do out_io
-            write(out_io, header)
-            for line in readlines(in_io; keep = true)
-                write(out_io, fix_release_line(line; repo = repo))
-            end
-        end
-    end
-    return
-end
-
-rewrite_changelog(
-    changelog_filename = joinpath(dirname(@__DIR__), "CHANGELOG.md"),
-    release_notes_filename = joinpath(@__DIR__, "src", "release-notes.md"),
-    current_module = "Documenter",
+# Generate a Documenter-friendly changelog from CHANGELOG.md
+include("changelog.jl")
+rewrite_changelog(;
+    changelog_inputfile = joinpath(dirname(@__DIR__), "CHANGELOG.md"),
+    changelog_outputfile = joinpath(@__DIR__, "src", "release-notes.md"),
     repo = "JuliaDocs/Documenter.jl",
-
 )
 
 makedocs(
@@ -112,6 +42,7 @@ makedocs(
         # We'll ignore links that point to GitHub's edit pages, as they redirect to the
         # login screen and cause a warning:
         r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
+        "https://nvd.nist.gov/vuln/detail/CVE-2018-16487",
     ] ∪ (get(ENV, "GITHUB_ACTIONS", nothing)  == "true" ? [
         # Extra ones we ignore only on CI.
         #
@@ -143,7 +74,7 @@ makedocs(
         "contributing.md",
         "release-notes.md",
     ],
-    strict = !("strict=false" in ARGS),
+    warnonly = ("strict=false" in ARGS),
     doctest = ("doctest=only" in ARGS) ? :only : true,
 )
 

@@ -14,8 +14,10 @@ $(EXPORTS)
 module Documenter
 
 import AbstractTrees
+import IOCapture
 import Markdown
-import MarkdownAST
+using MarkdownAST: MarkdownAST, Node
+import REPL
 import Unicode
 # Additional imported names
 using Test: @testset, @test
@@ -67,13 +69,13 @@ include("utilities/TextDiff.jl")
 include("utilities/utilities.jl")
 include("DocMeta.jl")
 include("DocSystem.jl")
-include("Anchors.jl")
+include("anchors.jl")
 include("documents.jl")
-include("Expanders.jl")
-include("DocTests.jl")
-include("Builder.jl")
-include("CrossReferences.jl")
-include("DocChecks.jl")
+include("expander_pipeline.jl")
+include("doctests.jl")
+include("builder_pipeline.jl")
+include("cross_references.jl")
+include("docchecks.jl")
 include("writers.jl")
 include("html/HTMLWriter.jl")
 include("latex/LaTeXWriter.jl")
@@ -97,8 +99,8 @@ include("deployconfig.jl")
 include("deploydocs.jl")
 include("doctest.jl")
 
-using SnoopPrecompile
-@precompile_all_calls begin
+import PrecompileTools
+PrecompileTools.@compile_workload begin
     include("docs_precompile/make.jl")
 end
 
