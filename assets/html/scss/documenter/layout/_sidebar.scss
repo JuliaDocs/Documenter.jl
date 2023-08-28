@@ -230,7 +230,9 @@
   }
 
   #documenter-search-query {
-    color: $documenter-search-query-text-color;
+    // The search query box is a fake text input, so we re-use the
+    // $input-* styling here.
+    color: $input-placeholder-color;
     width: 0.8 * $documenter-sidebar-width;
     box-shadow: inset 0 1px 2px rgba(10,10,10,0.1);
   }
