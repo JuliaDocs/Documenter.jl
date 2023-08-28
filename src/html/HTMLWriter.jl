@@ -584,14 +584,13 @@ mutable struct HTMLContext
     documenter_js :: String
     themeswap_js :: String
     warner_js :: String
-    search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documenter.NavNode
 end
 
 HTMLContext(doc, settings=nothing) = HTMLContext(
-    doc, settings, [], "", "", "", "", [], "",
+    doc, settings, [], "", "", "", [], "",
     Documenter.NavNode("search", "Search", nothing),
 )
 
@@ -693,7 +692,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery, RD.minisearch,
         ])
         RD.mathengine!(r, settings.mathengine)
         if !settings.prerender
@@ -706,17 +705,6 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         end
         JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
-    end
-
-    # Generate search.js file with all the JS dependencies
-    ctx.search_js = "assets/search.js"
-    if isfile(joinpath(doc.user.source, "assets", "search.js"))
-        @warn "not creating 'search.js', provided by the user."
-    else
-        r = JSDependencies.RequireJS([RD.jquery, RD.minisearch])
-        push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
-        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
-        JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
     end
 
     for theme in THEMES
@@ -918,7 +906,6 @@ function render_head(ctx, navnode)
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
         script[:src => relhref(src, ctx.search_index_js)],
-        script[:src => relhref(src, ctx.search_js)],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],

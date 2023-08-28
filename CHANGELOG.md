@@ -52,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   **For upgrading:** If your builds are now failing due to the size threshold checks, you should first investigate why the generated HTML files are so large (e.g. you are likely automatically generating too much HTML, like extremely large inline SVG figures), and try to reduce them below the default thresholds.
   If you are unable to reduce the generated file size, you can increase the `size_threshold` value to just above the maximum size, or disable the enforcement of size threshold checks altogether by setting `size_threshold = nothing`.
 
+* User-provided `assets/search.js` files no longer override Documenter's default search implementation, and the user-provided now gets ignored by default. ([????])
+
+  **For upgrading:** The JS file can still be include by passing it to the `assets` keyword of `format = HTML(...)`. However, it will likely conflict with Documenter's default search implementation. If you require an API to override Documenter's search engine, please open an issue.
 
 ### Added
 
