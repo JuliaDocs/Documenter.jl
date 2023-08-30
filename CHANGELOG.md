@@ -36,9 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Documenter is now also more strict about the cases where it is unable to determine the URLs, and therefore previously successful builds may break.
 
-  **For upgrading:** As the fallbacks to CI variables have been removed, make sure that you have your source checked out as a proper Git repository when building the documentation, so that Documenter could determine the repository link automatically from the Git `origin` URL. On GitHub Actions, this should normally already be the case. In other cases, you can configure the `repo` and/or `remotes` options to `makedocs` appropriately.
+  **For upgrading:** As the fallbacks to CI variables have been removed, make sure that you have your source checked out as a proper Git repository when building the documentation, so that Documenter could determine the repository link automatically from the Git `origin` URL. On GitHub Actions, this should normally already be the case, and user action is unlikely to be necessary. In other cases, if necessary, you can configure the `repo` and/or `remotes` keywords of `makedocs` appropriately.
 
-  Also, in general, double check that the various remote links (repository links, source links, edits links) have been generated correctly. If you run into any unexpected errors, please open an issue.
+  These changes should mostly affect more complex builds that include docstrings or files from various sources, such as when including docstrings from multiple packages. In the latter case in particular, you should make sure that all the relevant packages are also fully cloned and added as development dependencies to the `docs/Project.toml` (or equivalent) environment (or that the `remotes` keyword is configured for the `Pkg.add`-ed packages).
+
+  Finally, in general, even if the build succeeds, double check that the various remote links (repository links, source links, edits links) have been generated correctly. If you run into any unexpected errors, please open an issue.
 
 * Documenter now checks that local links (e.g. to other Markdown files, local images; such as `[see the other page](other.md)`) are pointing to existing files. ([#2130], [#2187])
 
