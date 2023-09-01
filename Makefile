@@ -9,7 +9,7 @@ docs: docs-instantiate
 	${JULIA} --project=docs docs/make.jl
 
 changelog:
-	${JULIA} docs/changelog.jl
+	${JULIA} --project=docs docs/changelog.jl
 
 themes: docs-instantiate
 	${JULIA} --project=docs -e 'using DocumenterTools; DocumenterTools.Themes.compile_native_themes()'
