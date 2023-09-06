@@ -44,6 +44,7 @@ using Dates: Dates, @dateformat_str, now
 import Markdown
 using MarkdownAST: MarkdownAST, Node
 import JSON
+using SHA
 
 import ..Documenter
 using Documenter: NavNode
@@ -1757,6 +1758,36 @@ function get_url(ctx, path::AbstractString)
 end
 
 """
+Returns the full path corresponding to the path of an example generated image file.
+The the input and output paths are assumed to be relative to `src/`.
+The path has a suffix of the SHA generated from contents of a generated image.
+"""
+function get_image_url(ctx, path::AbstractString)
+    sha = get_contents_sha(path)
+    if ctx.settings.prettyurls
+        d = if basename(path) == "index.md"
+            string(dirname(path), "-", sha)
+        else
+            string(first(splitext(path)))
+        end
+        isempty(d) ? "index-$sha.png" : "$d/index-$sha.png"
+    else
+        string(first(splitext(path)), "-", sha, ".png")
+    end
+end
+
+function get_contents_sha(path; length=8)::String
+    if !isfile(path)
+        @warn "Cannot take checksum of $(path) - does not exist."
+        return repeat("0", length)
+    end
+    full_sha = open(path) do f
+        bytes2hex(sha2_256(f))
+    end
+    return first(full_sha, length)
+end
+
+"""
 Returns the full path of a [`Documenter.NavNode`](@ref) relative to `src/`.
 """
 get_url(ctx, navnode::Documenter.NavNode) = get_url(ctx, navnode.page)
@@ -2133,6 +2164,7 @@ domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.chi
 domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
+    ctx, navnode = dctx.ctx, dctx.navnode
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)
     return if haskey(d, MIME"text/html"())
         rawhtml(d[MIME"text/html"()])
@@ -2181,7 +2213,15 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         end
 
     elseif haskey(d, MIME"image/png"())
-        rawhtml(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
+        if ctx.settings.size_threshold > length(d[MIME"image/png"()])
+            image_path = get_image_url(ctx, navnode)
+            open(image_path, "w") do f
+                write(f, d[MIME"image/png"()])
+            end
+            rawhtml(string("<img src=\"$(image_path)"\" />"))
+        else
+            rawhtml(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
+        end
     elseif haskey(d, MIME"image/webp"())
         rawhtml(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
     elseif haskey(d, MIME"image/gif"())
