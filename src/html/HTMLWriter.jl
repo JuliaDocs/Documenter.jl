@@ -44,7 +44,8 @@ using Dates: Dates, @dateformat_str, now
 import Markdown
 using MarkdownAST: MarkdownAST, Node
 import JSON
-using SHA
+import Base64
+import SHA
 
 import ..Documenter
 using Documenter: NavNode
@@ -361,6 +362,12 @@ value is `"en"`.
 **`warn_outdated`** inserts a warning if the current page is not the newest version of the
 documentation.
 
+**`example_size_threshold`** specifies the size threshold above which the `@example` and other block
+outputs get written to files, rather than being included in the HTML page. This mechanism is present
+to reduce the size of the generated HTML files that contain a lot of figures etc.
+Setting it to `nothing` will disable writing to files, and setting to `0` means that all files
+will be written to files. Defaults to `1 KiB`.
+
 **`size_threshold`** sets the maximum allowed HTML file size (in bytes) that Documenter is allowed to
 generate for a page. If the generated HTML file is larged than this, Documenter will throw an error and
 the build will fail. If set to `nothing`, the file sizes are not checked. Defaults to `200 KiB` (but
@@ -445,6 +452,7 @@ struct HTML <: Documenter.Writer
     highlightjs   :: Union{String,Nothing}
     size_threshold :: Int
     size_threshold_warn :: Int
+    example_size_threshold :: Int
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -466,8 +474,9 @@ struct HTML <: Documenter.Writer
             prerender     :: Bool = false,
             node          :: Union{Cmd,String,Nothing} = nothing,
             highlightjs   :: Union{String,Nothing} = nothing,
-            size_threshold :: Union{Integer, Nothing} = 200 * 2^10,
-            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10,
+            size_threshold :: Union{Integer, Nothing} = 200 * 2^10, # 200 KiB
+            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10, # 100 KiB
+            example_size_threshold :: Union{Integer, Nothing} = 2^10, # 1 KiB
 
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -513,11 +522,16 @@ struct HTML <: Documenter.Writer
         elseif size_threshold_warn > size_threshold
             throw(ArgumentError("size_threshold_warn ($size_threshold_warn) must be smaller than size_threshold ($size_threshold)"))
         end
+        if isnothing(example_size_threshold)
+            example_size_threshold = typemax(Int)
+        elseif example_size_threshold <= 0
+            throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
-            size_threshold, size_threshold_warn,
+            size_threshold, size_threshold_warn, example_size_threshold,
         )
     end
 end
@@ -1758,33 +1772,90 @@ function get_url(ctx, path::AbstractString)
 end
 
 """
-Returns the full path corresponding to the path of an example generated image file.
-The the input and output paths are assumed to be relative to `src/`.
-The path has a suffix of the SHA generated from contents of a generated image.
+Generates a unique file for the output of an at-example block if it goes over the configured
+size threshold, and returns the filename (that should be in the same directory are the
+corresponding HTML file). If the data is under the threshold, no file is created, and the
+function returns `nothing`.
 """
-function get_image_url(ctx, path::AbstractString)
-    sha = get_contents_sha(path)
-    if ctx.settings.prettyurls
-        d = if basename(path) == "index.md"
-            string(dirname(path), "-", sha)
-        else
-            string(first(splitext(path)))
-        end
-        isempty(d) ? "index-$sha.png" : "$d/index-$sha.png"
-    else
-        string(first(splitext(path)), "-", sha, ".png")
+function write_data_file(dctx::DCtx, data::Union{Vector{UInt8},AbstractString}; suffix::AbstractString)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # If we're under the threshold, we return `nothing`, indicating to the caller that
+    # they should inline the file instead.
+    if length(data) < ctx.settings.example_size_threshold
+        return nothing
     end
+    slug = dataslug(data)
+    datafile = data_filename(dctx, slug, suffix)
+    mkpath(dirname(datafile.path)) # generally, the directory for the HTML page will not exist yet
+    write(datafile.path, data)
+    # In all cases the file should be places in the same directory as the HTML file,
+    # so we only need the filename to generate a valid relative href.
+    return datafile.filename
 end
 
-function get_contents_sha(path; length=8)::String
-    if !isfile(path)
-        @warn "Cannot take checksum of $(path) - does not exist."
-        return repeat("0", length)
+function data_filename(dctx::DCtx, slug::AbstractString, suffix::AbstractString)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # We want to
+    dir, pagename = splitdir(navnode.page)
+    # Let's normalize the filename of the page by removing .md extensions (if present).
+    # We'll keep other extensions though.
+    if endswith(pagename, ".md")
+        pagename = first(splitext(pagename))
     end
-    full_sha = open(path) do f
-        bytes2hex(sha2_256(f))
+
+    filename_prefix = if ctx.settings.prettyurls
+        # If pretty URLs are enabled, we would normally have
+        # foo/bar.md -> foo/bar/index.html, and we then generate files
+        # like foo/bar/$(slug).png
+        # However, if we have foo/index.md, then it becomes foo/index.html,
+        # and so we want to differentiate the data filenames just in case,
+        # and so they become foo/index-$(slug).png
+        if pagename == "index"
+            string("index-", slug)
+        else
+            # We also need to update dir from foo/ to foo/bar here, since we want the
+            # file to end up at foo/bar/$(slug).png
+            dir = joinpath(dir, pagename)
+            slug
+        end
+    else
+        # If pretty URLs are disabled, then
+        # foo/bar.md becomes foo/bar.html, and we always want to add the
+        # Markdown filename to the data filename, i.e. foo/bar-$(slug).png
+        string(pagename, "-", slug)
     end
-    return first(full_sha, length)
+    # Now we need to find a valid file name, in case there are existing duplicates.
+    filename = find_valid_data_file(joinpath(ctx.doc.user.build, dir), filename_prefix, suffix)
+    return (;
+        filename,
+        path = joinpath(ctx.doc.user.build, dir, filename),
+    )
+end
+
+function find_valid_data_file(directory::AbstractString, prefix::AbstractString, suffix::AbstractString)
+    # We'll try 10_000 different filename.. if this doesn't work, then something is probably really
+    # badly wrong, and so we just crash.
+    for i in 0:10_000
+        filename = if i == 0
+            string(prefix, suffix)
+        else
+            string(prefix, '-', lpad(string(i), 3, '0'), suffix)
+        end
+        ispath(joinpath(directory, filename)) || return filename
+    end
+    error("""
+    Unable to find valid file name for an at-example output:
+      directory = $(directory)
+      prefix = $(prefix)
+      suffix = $(suffix)""")
+end
+
+"""
+Returns the first `limit` characters of the hex SHA1 of the data `bytes`.
+"""
+function dataslug(bytes::Union{Vector{UInt8},AbstractString}; limit=8)::String
+    full_sha = bytes2hex(SHA.sha1(bytes))
+    return first(full_sha, limit)
 end
 
 """
@@ -2164,6 +2235,7 @@ domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.chi
 domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
+    @tags img
     ctx, navnode = dctx.ctx, dctx.navnode
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)
     return if haskey(d, MIME"text/html"())
@@ -2213,14 +2285,16 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         end
 
     elseif haskey(d, MIME"image/png"())
-        if ctx.settings.size_threshold > length(d[MIME"image/png"()])
-            image_path = get_image_url(ctx, navnode)
-            open(image_path, "w") do f
-                write(f, d[MIME"image/png"()])
-            end
-            rawhtml(string("<img src=\"$(image_path)"\" />"))
+        # When we construct `d` in the expander pipeline, we call `stringmime`, which
+        # base64-encodes the bytes.
+        bytes = Base64.base64decode(d[MIME"image/png"()])
+        filename = write_data_file(dctx, bytes; suffix=".png")
+        alt = (:alt => "Example block output")
+        if isnothing(filename)
+            src = string("data:image/png;base64,", d[MIME"image/png"()])
+            img[:src => src, alt]
         else
-            rawhtml(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
+            img[:src => filename, alt]
         end
     elseif haskey(d, MIME"image/webp"())
         rawhtml(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
