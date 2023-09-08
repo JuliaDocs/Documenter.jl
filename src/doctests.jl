@@ -1,22 +1,5 @@
-"""
-Provides the [`doctest`](@ref) function that makes sure that the `jldoctest` code blocks
-in the documents and docstrings run and are up to date.
-"""
-module DocTests
-using DocStringExtensions
-
-import ..Documenter:
-    DocSystem,
-    DocMeta,
-    Documenter,
-    Expanders,
-    IdDict
-
-using Documenter: @docerror
-
-import REPL, Markdown, MarkdownAST
-using AbstractTrees: Leaves
-import IOCapture
+# Provides the [`doctest`](@ref) function that makes sure that the `jldoctest` code blocks
+# in the documents and docstrings run and are up to date.
 
 # Julia code block testing.
 # -------------------------
@@ -43,7 +26,7 @@ executing doctests.
 Will abort the document generation when an error is thrown. Use `doctest = false`
 keyword in [`Documenter.makedocs`](@ref) to disable doctesting.
 """
-function doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Document)
+function _doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Document)
     @debug "Running doctests."
     # find all the doctest blocks in the pages
     for (src, page) in blueprint.pages
@@ -51,7 +34,7 @@ function doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Docume
             @debug "Skipping page-doctests in draft mode" page.source
             continue
         end
-        doctest(page, doc)
+        _doctest(page, doc)
     end
 
     if Documenter.is_draft(doc)
@@ -63,19 +46,19 @@ function doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Docume
     for mod in blueprint.modules
         for (binding, multidoc) in DocSystem.getmeta(mod)
             for signature in multidoc.order
-                doctest(multidoc.docs[signature], mod, doc)
+                _doctest(multidoc.docs[signature], mod, doc)
             end
         end
     end
 end
 
-function doctest(page::Documenter.Page, doc::Documenter.Document)
+function _doctest(page::Documenter.Page, doc::Documenter.Document)
     ctx = DocTestContext(page.source, doc) # FIXME
     ctx.meta[:CurrentFile] = page.source
-    doctest(ctx, page.mdast)
+    _doctest(ctx, page.mdast)
 end
 
-function doctest(docstr::Docs.DocStr, mod::Module, doc::Documenter.Document)
+function _doctest(docstr::Docs.DocStr, mod::Module, doc::Documenter.Document)
     md = DocSystem.parsedoc(docstr)
     # Note: parsedocs / formatdoc in Base is weird. It double-wraps the docstring Markdown
     # in a Markdown.MD object..
@@ -95,7 +78,7 @@ function doctest(docstr::Docs.DocStr, mod::Module, doc::Documenter.Document)
     ctx = DocTestContext(docstr.data[:path], doc)
     merge!(ctx.meta, DocMeta.getdocmeta(mod))
     ctx.meta[:CurrentFile] = get(docstr.data, :path, nothing)
-    doctest(ctx, mdast)
+    _doctest(ctx, mdast)
 end
 
 function parse_metablock(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
@@ -113,18 +96,18 @@ function parse_metablock(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
     return meta
 end
 
-function doctest(ctx::DocTestContext, mdast::MarkdownAST.Node)
-    for node in Leaves(mdast)
+function _doctest(ctx::DocTestContext, mdast::MarkdownAST.Node)
+    for node in AbstractTrees.Leaves(mdast)
         isa(node.element, MarkdownAST.CodeBlock) || continue
         if startswith(node.element.info, "jldoctest")
-            doctest(ctx, node.element)
+            _doctest(ctx, node.element)
         elseif startswith(node.element.info, "@meta")
             merge!(ctx.meta, parse_metablock(ctx, node.element))
         end
     end
 end
 
-function doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
+function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
     lang = block_immutable.info
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
@@ -220,7 +203,7 @@ function doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
     end
     false
 end
-doctest(ctx::DocTestContext, block) = true
+_doctest(ctx::DocTestContext, block) = true
 
 # Doctest evaluation.
 
@@ -240,10 +223,12 @@ mutable struct Result
 end
 
 function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
+    src_lines = Documenter.find_block_in_file(block.code, meta[:CurrentFile])
     for (input, output) in repl_splitter(block.code)
         result = Result(block, input, output, meta[:CurrentFile])
         for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
+            @debug "Evaluating REPL line from doctest at $(Documenter.locrepr(result.file, src_lines))" unparsed_string = str parsed_expression = ex
             result.hide = REPL.ends_with_semicolon(str)
             # Use the REPL softscope for REPL jldoctests,
             # see https://github.com/JuliaLang/julia/pull/33864
@@ -573,6 +558,4 @@ function takeuntil!(r, buf, lines)
             break
         end
     end
-end
-
 end

@@ -7,6 +7,9 @@ $themename: "documenter-dark"; // CSS file must be called `$(themename).css`
 $bulmaswatch-import-font: false;
 
 @import "darkly/variables";
+$body-size: 16px;
+$size-6: 1rem;
+$size-7: 0.75rem;
 
 $documenter-is-dark-theme: true;
 
@@ -65,7 +68,12 @@ $documenter-docstring-shadow: none;
 $input-color: $grey-lighter;
 $input-background-color: $body-background-color;
 $input-border-color: $border;
-$input-placeholder-color: rgba($input-color, 0.3);
+$input-placeholder-color: #868c98;
+
+$search-result-link-text-color: #333;
+$search-result-link-text-background-color: #f1f5f9;
+$search-result-title-text-color: whitesmoke;
+$search-modal-kbd-color: rgba(245, 245, 245, 0.6);
 
 $button-static-color: $grey-lighter;
 $button-static-background-color: $background;

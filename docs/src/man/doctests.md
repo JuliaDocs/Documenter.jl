@@ -3,7 +3,8 @@
 Documenter will, by default, run `jldoctest` code blocks that it finds and makes sure that
 the actual output matches what's in the doctest. This can help to avoid documentation
 examples from becoming outdated, incorrect, or misleading. It is recommended that as many of
-a package's examples as possible be runnable by Documenter's doctest. Doctest failures during [`makedocs`](@ref) are printed as logging statements by default, but can be made fatal by passing `strict=true` or `strict=:doctest` to `makedocs`.
+a package's examples as possible be runnable by Documenter's doctest.
+Doctest failures during [`makedocs`](@ref) are fatal by default, but can be turned into just warnings by passing `warnonly=:doctest` to `makedocs`.
 
 
 This section of the manual outlines how to go about enabling doctests for code blocks in
@@ -351,10 +352,10 @@ julia> @time [1,2,3,4]
     or to understand why a filter is not working).
 
     To enable the debug output, you can set the `JULIA_DEBUG` environment variable to
-    Documenter's `DocTests` module, e.g. by doing the following in the `make.jl` script:
+    `Documenter`, e.g. by doing the following in the `make.jl` script:
 
     ```julia
-    ENV["JULIA_DEBUG"] = "DocTests"
+    ENV["JULIA_DEBUG"] = "Documenter"
     ```
 
 ## Doctesting as Part of Testing

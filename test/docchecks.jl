@@ -4,7 +4,7 @@ using Test
 
 using Markdown
 import Documenter
-using Documenter.DocChecks: linkcheck, allbindings
+using Documenter: linkcheck, allbindings
 
 # The following modules set up a few docstrings for allbindings tests
 module Dep1
@@ -68,42 +68,11 @@ module TestModule
     Dep1.bar(::Any) = nothing
 end
 
-@testset "DocChecks" begin
-    @testset "linkcheck" begin
-        if haskey(ENV, "DOCUMENTER_TEST_LINKCHECK")
-            src = md"""
-                [HTTP (HTTP/1.1) success](http://www.google.com)
-                [HTTPS (HTTP/2) success](https://www.google.com)
-                [FTP success](ftp://ftp.iana.org/tz/data/etcetera)
-                [FTP (no proto) success](ftp.iana.org/tz/data/etcetera)
-                [Redirect success](google.com)
-                [HEAD fail GET success](https://codecov.io/gh/invenia/LibPQ.jl)
-                """
-
-            Documenter.walk(Dict{Symbol, Any}(), src) do block
-                doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
-                result = linkcheck(block, doc)
-                @test doc.internal.errors == Set{Symbol}()
-                result
-            end
-
-            src = Markdown.parse("[FILE failure](file://$(@__FILE__))")
-            doc = Documenter.Document(; linkcheck=true)
-            Documenter.walk(Dict{Symbol, Any}(), src) do block
-                linkcheck(block, doc)
-            end
-            @test doc.internal.errors == Set{Symbol}([:linkcheck])
-
-            src = Markdown.parse("[Timeout](http://httpbin.org/delay/3)")
-            doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=0.1)
-            Documenter.walk(Dict{Symbol, Any}(), src) do block
-                linkcheck(block, doc)
-            end
-            @test doc.internal.errors == Set{Symbol}([:linkcheck])
-        else
-            @info "DOCUMENTER_TEST_LINKCHECK not set, skipping online linkcheck tests."
-            @test_broken false
-        end
+@testset "doc checks" begin
+    if haskey(ENV, "DOCUMENTER_TEST_ONLINE_LINKCHECK")
+        include("online_linkcheck.jl")
+    else
+        @info "Online linkchecks skipped (DOCUMENTER_TEST_ONLINE_LINKCHECK not set)"
     end
 
     @testset "allbindings" begin

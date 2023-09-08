@@ -51,17 +51,14 @@
       display: flex;
       .breadcrumb {
         flex-grow: 1;
-        padding-left: 0.5rem;
       }
 
-      .docs-left {
+      .docs-sidebar-button {
+        display: block;
+        font-size: 1.5rem;
         // Manually align with the center line of H
-        padding-top: 2px;
-        padding-right: 0.5rem;
-        .docs-sidebar-button {
-          display: inline-block;
-          font-size: 1.5rem;
-        }
+        padding-bottom: 0.1rem;
+        margin-right: 1rem;
       }
 
       .docs-right {
@@ -76,12 +73,10 @@
           padding: 0;
           margin-left: 0.3em;
         }
-        .docs-navbar-link {
-          margin: auto 0.5rem auto 0.5rem;
-        }
         @include touch {
           .docs-navbar-link {
-            margin: auto 0.75rem auto 0.75rem;
+            margin-left: 0.4rem;
+            margin-right: 0.4rem;
           }
         }
       }

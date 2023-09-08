@@ -61,14 +61,8 @@ struct LaTeX <: Documenter.Writer
     end
 end
 
-import ...Documenter:
-    Anchors,
-    Builder,
-    Expanders,
-    Documenter
-
+import ..Documenter
 import Markdown
-
 import ANSIColoredPrinters
 
 mutable struct Context{I <: IO} <: IO
@@ -184,7 +178,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
             return false
         end
     elseif settings.platform == "tectonic"
@@ -197,7 +191,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
             return false
         end
     elseif settings.platform == "docker"
@@ -217,7 +211,7 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))." exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
             return false
         finally
             try; piperun(`docker stop latex-container`); catch; end
@@ -296,8 +290,8 @@ const NoExtraTopLevelNewlines = Union{
 
 function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     anchor = ah.anchor
-    # latex(io::IO, anchor::Anchors.Anchor, page, doc)
-    id = _hash(Anchors.label(anchor))
+    # latex(io::IO, anchor::Anchor, page, doc)
+    id = _hash(Documenter.anchor_label(anchor))
     latex(io, node.children; toplevel = istoplevel(node))
     _println(io, "\n\\label{", id, "}{}\n")
 end
@@ -311,7 +305,7 @@ end
 function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     node, ast = docs, node
     # latex(io::IO, node::Documenter.DocsNode, page, doc)
-    id = _hash(Anchors.label(node.anchor))
+    id = _hash(Documenter.anchor_label(node.anchor))
     # Docstring header based on the name of the binding and it's category.
     _print(io, "\\hypertarget{", id, "}{\\texttt{")
     latexesc(io, string(node.object.binding))
@@ -333,7 +327,7 @@ function latexdoc(io::IO, node::Node)
         latex(io, docstringast.children)
         _println(io)
         # When a source link is available then print the link.
-        url = Documenter.source_url(io.doc.user.remote, result)
+        url = Documenter.source_url(io.doc, result)
         if url !== nothing
             link = "\\href{$url}{\\texttt{source}}"
             _println(io, "\n", link, "\n")
@@ -391,7 +385,7 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
             end
         end
         # Print the corresponding \item statement
-        id = _hash(Anchors.label(anchor))
+        id = _hash(Documenter.anchor_label(anchor))
         _print(io, "\\item \\hyperlinkref{", id, "}{")
         latex(io, header.children)
         _println(io, "}")
@@ -684,22 +678,29 @@ function latex(io::Context, node::Node, e::MarkdownAST.Emph)
     end
 end
 
+function latex(io::Context, node::Node, image::Documenter.LocalImage)
+    # TODO: also print the .title field somehow
+    wrapblock(io, "figure") do
+        _println(io, "\\centering")
+        wrapinline(io, "includegraphics[max width=\\linewidth]") do
+            _print(io, image.path)
+        end
+        _println(io)
+        wrapinline(io, "caption") do
+            latex(io, node.children)
+        end
+        _println(io)
+    end
+end
+
 function latex(io::Context, node::Node, image::MarkdownAST.Image)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
         _println(io, "\\centering")
-        url = if Documenter.isabsurl(image.destination)
-            @warn "images with absolute URLs not supported in LaTeX output in $(Documenter.locrepr(io.filename))" url = image.destination
-            # We nevertheless output an \includegraphics with the URL. The LaTeX build will
-            # then give an error, indicating to the user that something wrong.
-            image.destination
-        elseif startswith(image.destination, '/')
-            # URLs starting with a / are assumed to be relative to the document's root
-            normpath(lstrip(image.destination, '/'))
-        else
-            normpath(joinpath(dirname(io.filename), image.destination))
-        end
-        url = replace(url, "\\" => "/") # use / on Windows too.
+        @warn "images with absolute URLs not supported in LaTeX output in $(Documenter.locrepr(io.filename))" url = image.destination
+        # We nevertheless output an \includegraphics with the URL. The LaTeX build will
+        # then give an error, indicating to the user that something wrong.
+        url = replace(image.destination, "\\" => "/") # use / on Windows too.
         wrapinline(io, "includegraphics[max width=\\linewidth]") do
             _print(io, url)
         end
@@ -716,26 +717,64 @@ function latex(io::Context, node::Node, f::MarkdownAST.FootnoteLink)
     _print(io, "\\footnotemark[", id, "]")
 end
 
-function latex(io::Context, node::Node, link::MarkdownAST.Link)
-    # TODO: handle the .title attribute
+function latex(io::Context, node::Node, link::Documenter.PageLink)
+    # If we're in a header, we don't want to print any \hyperlinkref commands,
+    # so we handle this here.
     if io.in_header
         latex(io, node.children)
-    else
-        if occursin(".md#", link.destination)
-            file, target = split(link.destination, ".md#"; limit = 2)
-            id = _hash(target)
-            wrapinline(io, "hyperlinkref") do
-                _print(io, id)
-            end
-        else
-            wrapinline(io, "href") do
-                latexesc(io, link.destination)
-            end
-        end
-        _print(io, "{")
-        latex(io, node.children)
-        _print(io, "}")
+        return
     end
+    # This branch is the normal case, when we're not in a header.
+    # TODO: this link handling does not seem correct
+    if !isempty(link.fragment)
+        id = _hash(link.fragment)
+        wrapinline(io, "hyperlinkref") do
+            _print(io, id)
+        end
+    else
+        wrapinline(io, "href") do
+            path = Documenter.pagekey(io.doc, link.page)
+            latexesc(io, path)
+        end
+    end
+    _print(io, "{")
+    latex(io, node.children)
+    _print(io, "}")
+end
+
+function latex(io::Context, node::Node, link::Documenter.LocalLink)
+    # If we're in a header, we don't want to print any \hyperlinkref commands,
+    # so we handle this here.
+    if io.in_header
+        latex(io, node.children)
+        return
+    end
+    # This branch is the normal case, when we're not in a header.
+    # TODO: this link handling does not seem correct
+    wrapinline(io, "href") do
+        href = isempty(link.fragment) ? link.path : "$(link.path)#($(link.fragment))"
+        latexesc(io, href)
+    end
+    _print(io, "{")
+    latex(io, node.children)
+    _print(io, "}")
+end
+
+function latex(io::Context, node::Node, link::MarkdownAST.Link)
+    # If we're in a header, we don't want to print any \hyperlinkref commands,
+    # so we handle this here.
+    if io.in_header
+        latex(io, node.children)
+        return
+    end
+    # This branch is the normal case, when we're not in a header.
+    # TODO: handle the .title attribute
+    wrapinline(io, "href") do
+        latexesc(io, link.destination)
+    end
+    _print(io, "{")
+    latex(io, node.children)
+    _print(io, "}")
 end
 
 function latex(io::Context, node::Node, math::MarkdownAST.InlineMath)

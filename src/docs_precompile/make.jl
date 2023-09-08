@@ -6,6 +6,7 @@ makedocs(
     pages = Any[
         "Home" => "index.md",
     ],
-    build = mktempdir()
+    build = mktempdir(),
+    remotes = nothing,
 )
 end

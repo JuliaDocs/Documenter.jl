@@ -1,94 +1,83 @@
 """
 Defines the `Documenter.jl` build "pipeline" named [`DocumentPipeline`](@ref).
 
-Each stage of the pipeline performs an action on a [`Documenter.Document`](@ref) object.
+Each stage of the pipeline performs an action on a [`Document`](@ref Documenter.Document) object.
 These actions may involve creating directory structures, expanding templates, running
 doctests, etc.
 """
 module Builder
+    import ..Documenter
+    import ..Documenter.Selectors
 
-import ..Documenter:
-    Anchors,
-    DocTests,
-    Documenter
+    """
+    The default document processing "pipeline", which consists of the following actions:
 
-import .Documenter: Selectors, is_strict
+    - [`SetupBuildDirectory`](@ref)
+    - [`Doctest`](@ref)
+    - [`ExpandTemplates`](@ref)
+    - [`CheckDocument`](@ref)
+    - [`Populate`](@ref)
+    - [`RenderDocument`](@ref)
 
-using DocStringExtensions
+    """
+    abstract type DocumentPipeline <: Selectors.AbstractSelector end
 
-# Document Pipeline.
-# ------------------
+    """
+    Creates the correct directory layout within the `build` folder and parses markdown files.
+    """
+    abstract type SetupBuildDirectory <: DocumentPipeline end
 
-"""
-The default document processing "pipeline", which consists of the following actions:
+    """
+    Runs all the doctests in all docstrings and Markdown files.
+    """
+    abstract type Doctest <: DocumentPipeline end
 
-- [`SetupBuildDirectory`](@ref)
-- [`Doctest`](@ref)
-- [`ExpandTemplates`](@ref)
-- [`CrossReferences`](@ref)
-- [`CheckDocument`](@ref)
-- [`Populate`](@ref)
-- [`RenderDocument`](@ref)
+    """
+    Executes a sequence of actions on each node of the parsed markdown files in turn.
+    """
+    abstract type ExpandTemplates <: DocumentPipeline end
 
-"""
-abstract type DocumentPipeline <: Selectors.AbstractSelector end
+    """
+    Finds and sets URLs for each `@ref` link in the document to the correct destinations.
+    """
+    abstract type CrossReferences <: DocumentPipeline end
 
-"""
-Creates the correct directory layout within the `build` folder and parses markdown files.
-"""
-abstract type SetupBuildDirectory <: DocumentPipeline end
+    """
+    Checks that all documented objects are included in the document and runs doctests on all
+    valid Julia code blocks.
+    """
+    abstract type CheckDocument <: DocumentPipeline end
 
-"""
-Runs all the doctests in all docstrings and Markdown files.
-"""
-abstract type Doctest <: DocumentPipeline end
+    """
+    Populates the `ContentsNode`s and `IndexNode`s with links.
+    """
+    abstract type Populate <: DocumentPipeline end
 
-"""
-Executes a sequence of actions on each node of the parsed markdown files in turn.
-"""
-abstract type ExpandTemplates <: DocumentPipeline end
+    """
+    Writes the document tree to the `build` directory.
+    """
+    abstract type RenderDocument <: DocumentPipeline end
+end
 
-"""
-Finds and sets URLs for each `@ref` link in the document to the correct destinations.
-"""
-abstract type CrossReferences <: DocumentPipeline end
+Selectors.order(::Type{Builder.SetupBuildDirectory}) = 1.0
+Selectors.order(::Type{Builder.Doctest})             = 1.1
+Selectors.order(::Type{Builder.ExpandTemplates})     = 2.0
+Selectors.order(::Type{Builder.CrossReferences})     = 3.0
+Selectors.order(::Type{Builder.CheckDocument})       = 4.0
+Selectors.order(::Type{Builder.Populate})            = 5.0
+Selectors.order(::Type{Builder.RenderDocument})      = 6.0
 
-"""
-Checks that all documented objects are included in the document and runs doctests on all
-valid Julia code blocks.
-"""
-abstract type CheckDocument <: DocumentPipeline end
+Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: Builder.DocumentPipeline} = true
 
-"""
-Populates the `ContentsNode`s and `IndexNode`s with links.
-"""
-abstract type Populate <: DocumentPipeline end
+Selectors.strict(::Type{T}) where {T <: Builder.DocumentPipeline} = false
 
-"""
-Writes the document tree to the `build` directory.
-"""
-abstract type RenderDocument <: DocumentPipeline end
-
-Selectors.order(::Type{SetupBuildDirectory})   = 1.0
-Selectors.order(::Type{Doctest})               = 1.1
-Selectors.order(::Type{ExpandTemplates})       = 2.0
-Selectors.order(::Type{CrossReferences})       = 3.0
-Selectors.order(::Type{CheckDocument})         = 4.0
-Selectors.order(::Type{Populate})              = 5.0
-Selectors.order(::Type{RenderDocument})        = 6.0
-
-Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: DocumentPipeline} = true
-
-Selectors.strict(::Type{T}) where {T <: DocumentPipeline} = false
-
-function Selectors.runner(::Type{SetupBuildDirectory}, doc::Documenter.Document)
+function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.Document)
     @info "SetupBuildDirectory: setting up build directory."
 
     # Frequently used fields.
     build  = doc.user.build
     source = doc.user.source
     workdir = doc.user.workdir
-
 
     # The .user.source directory must exist.
     isdir(source) || error("source directory '$(abspath(source))' is missing.")
@@ -182,8 +171,8 @@ end
 """
 $(SIGNATURES)
 
-Recursively walks through the [`Documenter.Document`](@ref)'s `.user.pages` field,
-generating [`Documenter.NavNode`](@ref)s and related data structures in the
+Recursively walks through the [`Document`](@ref)'s `.user.pages` field,
+generating [`NavNode`](@ref)s and related data structures in the
 process.
 
 This implementation is the de facto specification for the `.user.pages` field.
@@ -214,12 +203,12 @@ walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, d
 walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documenter.NavNode for p in ps]
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
-function Selectors.runner(::Type{Doctest}, doc::Documenter.Document)
+function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
-        DocTests.doctest(doc.blueprint, doc)
+        _doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
-        if (doc.user.doctest === :only || is_strict(doc.user.strict, :doctest)) && num_errors > 0
+        if (doc.user.doctest === :only || is_strict(doc, :doctest)) && num_errors > 0
             error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")
         end
     else
@@ -227,49 +216,49 @@ function Selectors.runner(::Type{Doctest}, doc::Documenter.Document)
     end
 end
 
-function Selectors.runner(::Type{ExpandTemplates}, doc::Documenter.Document)
+function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    Documenter.Expanders.expand(doc)
+    expand(doc)
 end
 
-function Selectors.runner(::Type{CrossReferences}, doc::Documenter.Document)
+function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    Documenter.CrossReferences.crossref(doc)
+    crossref(doc)
 end
 
-function Selectors.runner(::Type{CheckDocument}, doc::Documenter.Document)
+function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "CheckDocument") && return
     @info "CheckDocument: running document checks."
-    Documenter.DocChecks.missingdocs(doc)
-    Documenter.DocChecks.footnotes(doc)
-    Documenter.DocChecks.linkcheck(doc)
+    missingdocs(doc)
+    footnotes(doc)
+    linkcheck(doc)
 end
 
-function Selectors.runner(::Type{Populate}, doc::Documenter.Document)
+function Selectors.runner(::Type{Builder.Populate}, doc::Documenter.Document)
     is_doctest_only(doc, "Populate") && return
     @info "Populate: populating indices."
-    Documenter.doctest_replace!(doc)
-    Documenter.populate!(doc)
+    doctest_replace!(doc)
+    populate!(doc)
 end
 
-function Selectors.runner(::Type{RenderDocument}, doc::Documenter.Document)
+function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "RenderDocument") && return
     # How many fatal errors
-    fatal_errors = filter(is_strict(doc.user.strict), doc.internal.errors)
+    fatal_errors = filter(is_strict(doc), doc.internal.errors)
     c = length(fatal_errors)
     if c > 0
-        error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ("
+        error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ["
         * join(Ref(":") .* string.(fatal_errors), ", ")
-        * "). Terminating build before rendering.")
+        * "] -- terminating build before rendering.")
     else
         @info "RenderDocument: rendering document."
         Documenter.render(doc)
     end
 end
 
-Selectors.runner(::Type{DocumentPipeline}, doc::Documenter.Document) = nothing
+Selectors.runner(::Type{Builder.DocumentPipeline}, doc::Documenter.Document) = nothing
 
 function is_doctest_only(doc, stepname)
     if doc.user.doctest in [:fix, :only]
@@ -277,6 +266,4 @@ function is_doctest_only(doc, stepname)
         return true
     end
     return false
-end
-
 end

@@ -1,4 +1,5 @@
 using Test
+import JSON
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl. But for the tests we need to make sure that all the relevant builds
@@ -169,6 +170,18 @@ end
             @test occursin("expanded_example", issue_491)
             @test occursin("expanded_setup", issue_491)
             @test occursin("<p>expanded_raw</p>", issue_491)
+
+            # .documenter-siteinfo.json
+            @testset ".documenter-siteinfo.json" begin
+                siteinfo_json_file = joinpath(build_dir, ".documenter-siteinfo.json")
+                @test isfile(siteinfo_json_file)
+                siteinfo_json = JSON.parse(read(siteinfo_json_file, String))
+                @test haskey(siteinfo_json, "documenter")
+                @test siteinfo_json["documenter"] isa Dict
+                @test haskey(siteinfo_json["documenter"], "documenter_version")
+                @test haskey(siteinfo_json["documenter"], "julia_version")
+                @test haskey(siteinfo_json["documenter"], "generation_timestamp")
+            end
         end
     end
 
@@ -228,10 +241,15 @@ end
 
     @testset "HTML: repo-*" begin
         @test examples_html_repo_git_doc.user.remote === Remotes.GitHub("JuliaDocs", "Documenter.jl")
-        @test examples_html_repo_gha_doc.user.remote === Remotes.GitHub("foo", "bar")
-        @test examples_html_repo_travis_doc.user.remote === Remotes.GitHub("bar", "baz")
         @test examples_html_repo_nothing_doc.user.remote === nothing
         @test examples_html_repo_error_doc.user.remote === nothing
+    end
+
+    @testset "HTML: sizethreshold" begin
+        @test examples_html_sizethreshold_defaults_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+        @test examples_html_sizethreshold_success_doc isa Documenter.Document
+        @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
+        @test examples_html_sizethreshold_override_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
     end
 
     @testset "PDF/LaTeX: TeX only" begin

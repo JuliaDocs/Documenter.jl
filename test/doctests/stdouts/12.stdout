@@ -22,7 +22,7 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    -64
-└ @ Documenter.DocTests src/broken.md:3
+└ @ Documenter src/broken.md:3
 ┌ Error: doctest failure in src/broken.md:10-13
 │ 
 │ ```jldoctest; filter = r"([0-9]+\.[0-9]{8})[0-9]+" => s"\1***"
@@ -45,7 +45,7 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    1.41429999999991.4142135623730951
-└ @ Documenter.DocTests src/broken.md:10
+└ @ Documenter src/broken.md:10
 ┌ Error: doctest failure in src/broken.md:17-22
 │ 
 │ ```jldoctest
@@ -83,7 +83,7 @@
 │       @ Base ./error.jl:35
 │     [2] top-level scope
 │       @ none:1
-└ @ Documenter.DocTests src/broken.md:17
+└ @ Documenter src/broken.md:17
 ┌ Error: doctest failure in src/broken.md:17-22
 │ 
 │ ```jldoctest; filter = r"\b[0-9]+\b"
@@ -121,7 +121,7 @@
 │       @ Base ./error.jl:35
 │     [2] top-level scope
 │       @ none:1
-└ @ Documenter.DocTests src/broken.md:17
+└ @ Documenter src/broken.md:17
 [ Info: ExpandTemplates: expanding markdown templates.
 [ Info: CrossReferences: building cross-references.
 [ Info: CheckDocument: running document checks.
