@@ -182,6 +182,12 @@ end
                 @test haskey(siteinfo_json["documenter"], "julia_version")
                 @test haskey(siteinfo_json["documenter"], "generation_timestamp")
             end
+
+            @testset "at-example outputs" begin
+                @show build_dir
+                @test isfile(joinpath(build_dir, "index-40245173.png"))
+                @test read(joinpath(build_dir, "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+            end
         end
     end
 

@@ -142,6 +142,15 @@ module AutoDocs
     end
 end
 
+struct MIMEBytes{M <: MIME}
+    bytes :: Vector{UInt8}
+    MIMEBytes(mime::AbstractString, bytes::AbstractVector{UInt8}) = new{MIME{Symbol(mime)}}(bytes)
+end
+Base.show(io::IO, ::M, obj::MIMEBytes{M}) where {M <: MIME} = write(io, obj.bytes)
+
+const BIGPNG = MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "big.png")))
+const TINYPNG = MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "tiny.png")))
+
 # Helper functions
 function withassets(f, assets...)
     src(asset) = joinpath(@__DIR__, asset)
