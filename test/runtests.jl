@@ -25,6 +25,10 @@ end
     @info "Building errors/make.jl"
     @quietly include("errors/make.jl")
 
+    # Plugin API
+    @info "Building plugins/make.jl"
+    @quietly include("plugins/make.jl")
+
     # Unit tests for module internals.
     include("except.jl")
     include("utilities.jl")
