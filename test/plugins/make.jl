@@ -84,7 +84,7 @@ A = _TestPluginA(false)
     plugins=[_RunPluginTests(true), A],
     sitename="-", modules = [PluginsTestModule], warnonly=false
 ) === nothing
-@test A.processed = true
+@test A.processed
 
 
 # Errors
@@ -115,5 +115,16 @@ catch exc
     @test occursin(r"only one copy of .*_TestPluginA may be passed", exc.msg)
 end
 
+
+# Doctests  - the `doctest` function must also be able to process plugins
+
+A = _TestPluginA(false)
+@test !(A.processed)
+doctest(
+    joinpath(@__DIR__, "src"),
+    [PluginsTestModule];
+    plugins=[_RunPluginTests(true), A]
+)
+@test A.processed
 
 end

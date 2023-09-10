@@ -46,12 +46,15 @@ manual pages can be disabled if `source` is set to `nothing`.
 
 # Keywords
 
-**`testset`** specifies the name of test testset (default `Doctests`).
+**`testset`** specifies the name of test testset (default `"Doctests"`).
 
 **`doctestfilters`** vector of regex to filter tests (see the manual on [Filtering Doctests](@ref))
 
 **`fix`**, if set to `true`, updates all the doctests that fail with the correct output
 (default `false`).
+
+**`plugins`** is a list of [`Documenter.Plugin`](@ref) objects to be forwarded to
+[`makedocs`](@ref). Use as directed by the documentation of a third-party plugin.
 
 !!! warning
     When running `doctest(...; fix=true)`, Documenter will modify the Markdown and Julia
@@ -66,6 +69,7 @@ function doctest(
         fix = false,
         testset = "Doctests",
         doctestfilters = Regex[],
+        plugins = Plugin[],
     )
     function all_doctests()
         dir = mktempdir()
@@ -75,7 +79,7 @@ function doctest(
                 source = joinpath(dir, "src")
                 mkdir(source)
             end
-            makedocs(
+            makedocs(;
                 root = dir,
                 source = source,
                 sitename = "",
@@ -85,6 +89,7 @@ function doctest(
                 # When doctesting, we don't really want to get bogged down with issues
                 # related to determining the remote repositories for edit URLs and such
                 remotes = nothing,
+                plugins = plugins,
             )
             true
         catch err

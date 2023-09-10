@@ -132,6 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove unwanted results. The client-side search engine has been changed from LunrJs to MinisearchJs. ([#1437], [#2141], [#2147], [#2202])
 
+* The `doctest` routine can now receive the same `plugins` keyword argument as `makedocs`. This enables `doctest` to run if any plugin with a mandatory `Plugin` object is loaded, e.g., [DocumenterCitations](https://github.com/JuliaDocs/DocumenterCitations.jl). ([#2245])
+
 ### Fixed
 
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
