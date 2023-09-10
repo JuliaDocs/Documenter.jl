@@ -48,13 +48,15 @@ const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
     abstract type Plugin end
 
 Any plugin that needs to either solicit user input or store information in a
-[`Document`](@ref) should create a subtype of `Plugin`. The
-subtype, `T <: Documenter.Plugin`, must have an empty constructor `T()` that
-initialized `T` with the appropriate default values.
+[`Document`](@ref) should create a subtype of `Plugin`, i.e., `T <: DocumenterPlugin`.
 
-To retrieve the values stored in `T`, the plugin can call [`Documenter.getplugin`](@ref).
-If `T` was passed to [`makedocs`](@ref), the passed type will be returned. Otherwise,
-a new `T` object will be created.
+Initialized objects of type `T` can be elements of the list of `plugins` passed as a
+keyword argument to [`makedocs`](@ref).
+
+A plugin may retrieve the existing object holding its state via the
+[`Documenter.getplugin`](@ref) function. Alternatively, `getplugin` can also instantiate
+`T()` on demand, if there is no existing object. This requires that `T` implements an empty
+constructor `T()`.
 """
 abstract type Plugin end
 

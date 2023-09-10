@@ -60,6 +60,11 @@ function Documenter.Selectors.runner(::Type{_TestPlugins}, doc)
         B.processed = true
         @test B isa _TestPluginB
 
+        # subsequent calls to getplugin() should return the same object
+        B2 = Documenter.getplugin(doc, _TestPluginB)
+        @test B2.processed
+        @test B2 === B
+
         # Missing object (no empty constructor)
         @test !(_TestPluginC in keys(doc.plugins))
         @test_throws MethodError begin
@@ -75,8 +80,8 @@ end
 A = _TestPluginA(false)
 @test !(A.processed)
 @test !(_TestPluginB().processed)
-@test makedocs(
-    _RunPluginTests(true), A;
+@test makedocs(;
+    plugins=[_RunPluginTests(true), A],
     sitename="-", modules = [PluginsTestModule], warnonly=false
 ) === nothing
 @test A.processed = true
@@ -89,9 +94,10 @@ A = _TestPluginA(false)
 # class instead of a plugin object to `makedocs` was a possibility. This was
 # never true, and we check here the specific error that is being thrown if
 # someone were to try it.
-@test_throws ArgumentError("DataType is not a subtype of `Plugin`.") begin
-    makedocs(
-        _RunPluginTests(false), _TestPluginB;
+err_msg = "DataType in `plugins=` is not a subtype of `Documenter.Plugin`."
+@test_throws ArgumentError(err_msg) begin
+    makedocs(;
+        plugins=[_RunPluginTests(false), _TestPluginB],
         sitename="-", modules = [PluginsTestModule], warnonly=false
     )
 end
@@ -99,8 +105,8 @@ end
 
 # Only one instance of any given Plugin can be passed.
 try  # Use try-catch get get around @test_throws limitations in Julia 1.6
-    makedocs(
-        _RunPluginTests(false), _TestPluginA(true), _TestPluginA(false);
+    makedocs(;
+        plugins=[_RunPluginTests(false), _TestPluginA(true), _TestPluginA(false)],
         sitename="-", modules = [PluginsTestModule], warnonly=false
     )
     @test false  # makedocs should have thrown an ArgumentError
