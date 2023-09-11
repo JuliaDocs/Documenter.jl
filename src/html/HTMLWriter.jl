@@ -2235,8 +2235,6 @@ domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.chi
 domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
-    @tags img
-    ctx, navnode = dctx.ctx, dctx.navnode
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)
     return if haskey(d, MIME"text/html"())
         rawhtml(d[MIME"text/html"()])
@@ -2285,23 +2283,13 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         end
 
     elseif haskey(d, MIME"image/png"())
-        # When we construct `d` in the expander pipeline, we call `stringmime`, which
-        # base64-encodes the bytes.
-        bytes = Base64.base64decode(d[MIME"image/png"()])
-        filename = write_data_file(dctx, bytes; suffix=".png")
-        alt = (:alt => "Example block output")
-        if isnothing(filename)
-            src = string("data:image/png;base64,", d[MIME"image/png"()])
-            img[:src => src, alt]
-        else
-            img[:src => filename, alt]
-        end
+        domify_show_image(dctx, "png", d)
     elseif haskey(d, MIME"image/webp"())
-        rawhtml(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
+        domify_show_image(dctx, "webp", d)
     elseif haskey(d, MIME"image/gif"())
-        rawhtml(string("<img src=\"data:image/gif;base64,", d[MIME"image/gif"()], "\" />"))
+        domify_show_image(dctx, "gif", d)
     elseif haskey(d, MIME"image/jpeg"())
-        rawhtml(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
+        domify_show_image(dctx, "jpeg", d)
     elseif haskey(d, MIME"text/latex"())
         # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
@@ -2326,6 +2314,24 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
     else
         error("this should never happen.")
+    end
+end
+
+function domify_show_image(dctx::DCtx, filetype::AbstractString, d::Dict{MIME,Any})
+    @tags img
+    mime_name = "image/$filetype"
+    mime = MIME{Symbol(mime_name)}()
+    # When we construct `d` in the expander pipeline, we call `stringmime`, which
+    # base64-encodes the bytes, so the values in the dictionary are base64-encoded.
+    # So if we do write it to a file, we need to decode it first.
+    data_base64 = d[mime]
+    filename = write_data_file(dctx, Base64.base64decode(data_base64); suffix=".$filetype")
+    alt = (:alt => "Example block output")
+    if isnothing(filename)
+        src = string("data:$(mime_name);base64,", data_base64)
+        img[:src => src, alt]
+    else
+        img[:src => filename, alt]
     end
 end
 

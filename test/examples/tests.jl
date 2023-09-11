@@ -1,5 +1,6 @@
 using Test
 import JSON
+import Base64
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl. But for the tests we need to make sure that all the relevant builds
@@ -76,7 +77,7 @@ all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
     end
     mdfiles
 end
-@test length(all_md_files_in_src) == 25
+@test length(all_md_files_in_src) == 27
 
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
@@ -183,19 +184,27 @@ end
                 @test haskey(siteinfo_json["documenter"], "generation_timestamp")
             end
 
-            @testset "at-example outputs" begin
-                # From src/index.md
-                @test isfile(joinpath(build_dir, "index-40245173.png"))
-                @test read(joinpath(build_dir, "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
-                # From src/example-output.md
-                @test isfile(joinpath(build_dir, "example-output", "40245173.png"))
-                @test read(joinpath(build_dir, "example-output", "40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
-                # From src/outputs/index.md
-                @test isfile(joinpath(build_dir, "outputs", "index-40245173.png"))
-                @test read(joinpath(build_dir, "outputs", "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
-                # From src/outputs/outputs.md
-                @test isfile(joinpath(build_dir, "outputs", "outputs", "40245173.png"))
-                @test read(joinpath(build_dir, "outputs", "outputs", "40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
+                if size === :tiny
+                    encoded_data = Base64.base64encode(data.bytes)
+                    @test occursin(encoded_data, read(joinpath(build_dir, "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "example-output", "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "outputs", "index.html"), String))
+                else # size === :big
+                    # From src/index.md
+                    @test isfile(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/example-output.md
+                    @test isfile(joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/index.md
+                    @test isfile(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/outputs.md
+                    @test isfile(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)")) == data.bytes
+                end
             end
         end
     end
@@ -225,18 +234,28 @@ end
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
 
-            # From src/index.md
-            @test isfile(joinpath(build_dir, "index-40245173.png"))
-            @test read(joinpath(build_dir, "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
-            # From src/example-output.md
-            @test isfile(joinpath(build_dir, "example-output-40245173.png"))
-            @test read(joinpath(build_dir, "example-output-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
-            # From src/outputs/index.md
-            @test isfile(joinpath(build_dir, "outputs", "index-40245173.png"))
-            @test read(joinpath(build_dir, "outputs", "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
-            # From src/outputs/outputs.md
-            @test isfile(joinpath(build_dir, "outputs", "outputs-40245173.png"))
-            @test read(joinpath(build_dir, "outputs", "outputs-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
+                if size === :tiny
+                    encoded_data = Base64.base64encode(data.bytes)
+                    @test occursin(encoded_data, read(joinpath(build_dir, "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "example-output.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "outputs.html"), String))
+                else # size === :big
+                    # From src/index.md
+                    @test isfile(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/example-output.md
+                    @test isfile(joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/index.md
+                    @test isfile(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/outputs.md
+                    @test isfile(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)")) == data.bytes
+                end
+            end
         end
     end
 

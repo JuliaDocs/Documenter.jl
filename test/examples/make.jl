@@ -1,3 +1,4 @@
+import SHA
 using Documenter
 include("../TestUtilities.jl"); using Main.TestUtilities
 
@@ -144,12 +145,22 @@ end
 
 struct MIMEBytes{M <: MIME}
     bytes :: Vector{UInt8}
-    MIMEBytes(mime::AbstractString, bytes::AbstractVector{UInt8}) = new{MIME{Symbol(mime)}}(bytes)
+    hash_slug :: String
+    function MIMEBytes(mime::AbstractString, bytes::AbstractVector{UInt8})
+        hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
+        new{MIME{Symbol(mime)}}(bytes, hash_slug)
+    end
 end
 Base.show(io::IO, ::M, obj::MIMEBytes{M}) where {M <: MIME} = write(io, obj.bytes)
 
-const BIGPNG = MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "big.png")))
-const TINYPNG = MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "tiny.png")))
+const AT_EXAMPLE_FILES = Dict(
+    ("png", :big) => MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "big.png"))),
+    ("png", :tiny) => MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "tiny.png"))),
+    ("webp", :big) => MIMEBytes("image/webp", read(joinpath(@__DIR__, "images", "big.webp"))),
+    ("webp", :tiny) => MIMEBytes("image/webp", read(joinpath(@__DIR__, "images", "tiny.webp"))),
+    ("gif", :big) => MIMEBytes("image/gif", read(joinpath(@__DIR__, "images", "big.gif"))),
+    ("jpeg", :tiny) => MIMEBytes("image/jpeg", read(joinpath(@__DIR__, "images", "tiny.jpeg"))),
+)
 
 # Helper functions
 function withassets(f, assets...)

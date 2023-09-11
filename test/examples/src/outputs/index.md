@@ -3,8 +3,20 @@
 ## `@example` outputs to file
 
 ```@example
-Main.BIGPNG
+Main.AT_EXAMPLE_FILES[("png", :big)]
 ```
 ```@example
-Main.TINYPNG
+Main.AT_EXAMPLE_FILES[("png", :tiny)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("webp", :big)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("webp", :tiny)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("gif", :big)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
 ```
