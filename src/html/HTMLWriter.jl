@@ -2247,7 +2247,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
             # processing and just return the svg as HTML.
             # The svg string should be invalid but that's not our concern here.
             rawhtml(svg)
-        elseif length(svg) > dctx.ctx.settings.example_size_threshold
+        elseif length(svg) >= dctx.ctx.settings.example_size_threshold
             filename = write_data_file(dctx, svg; suffix=".svg")
             @assert !isnothing(filename)
             img[:src => filename, :alt => "Example block output"]
