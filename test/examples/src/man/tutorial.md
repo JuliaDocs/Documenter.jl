@@ -276,13 +276,6 @@ SVG("""
 """)
 ```
 
-Large inline SVG to exceed size threashold.
-
-```@example inlinesvg
-# jlcolors = download(https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia-colors.svg)
-# open(io->read(io, String), jlcolors) |> SVG
-```
-
 _Note: we can't define the `show` method in the `@example` block due to the world age
 counter in Julia 0.6 (Documenter's `makedocs` is not aware of any of the new method
 definitions happening in `eval`s)._

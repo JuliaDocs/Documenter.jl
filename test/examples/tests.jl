@@ -215,6 +215,12 @@ end
             documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
+
+            @testset "at-example outputs" begin
+                @show build_dir
+                @test isfile(joinpath(build_dir, "index-40245173.png"))
+                @test read(joinpath(build_dir, "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+            end
         end
     end
 
