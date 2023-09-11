@@ -220,6 +220,10 @@ htmlbuild_pages = Any[
         "editurl/ugly.md",
     ],
     "xrefs.md",
+    "Outputs" => [
+        "outputs/index.md",
+        "outputs/outputs.md",
+    ],
 ]
 
 function html_doc(

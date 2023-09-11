@@ -184,9 +184,18 @@ end
             end
 
             @testset "at-example outputs" begin
-                @show build_dir
+                # From src/index.md
                 @test isfile(joinpath(build_dir, "index-40245173.png"))
                 @test read(joinpath(build_dir, "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+                # From src/example-output.md
+                @test isfile(joinpath(build_dir, "example-output", "40245173.png"))
+                @test read(joinpath(build_dir, "example-output", "40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+                # From src/outputs/index.md
+                @test isfile(joinpath(build_dir, "outputs", "index-40245173.png"))
+                @test read(joinpath(build_dir, "outputs", "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+                # From src/outputs/outputs.md
+                @test isfile(joinpath(build_dir, "outputs", "outputs", "40245173.png"))
+                @test read(joinpath(build_dir, "outputs", "outputs", "40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
             end
         end
     end
@@ -216,11 +225,18 @@ end
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
 
-            @testset "at-example outputs" begin
-                @show build_dir
-                @test isfile(joinpath(build_dir, "index-40245173.png"))
-                @test read(joinpath(build_dir, "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
-            end
+            # From src/index.md
+            @test isfile(joinpath(build_dir, "index-40245173.png"))
+            @test read(joinpath(build_dir, "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+            # From src/example-output.md
+            @test isfile(joinpath(build_dir, "example-output-40245173.png"))
+            @test read(joinpath(build_dir, "example-output-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+            # From src/outputs/index.md
+            @test isfile(joinpath(build_dir, "outputs", "index-40245173.png"))
+            @test read(joinpath(build_dir, "outputs", "index-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
+            # From src/outputs/outputs.md
+            @test isfile(joinpath(build_dir, "outputs", "outputs-40245173.png"))
+            @test read(joinpath(build_dir, "outputs", "outputs-40245173.png")) == read(joinpath(@__DIR__, "images", "big.png"))
         end
     end
 

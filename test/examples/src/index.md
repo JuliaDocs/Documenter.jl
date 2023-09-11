@@ -656,7 +656,7 @@ They do not get evaluated.
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class.
 
-## Example outputs to file
+## `@example` outputs to file
 
 ```@example
 Main.BIGPNG

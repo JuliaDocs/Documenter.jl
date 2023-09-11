@@ -9,3 +9,12 @@ Checking that `@example` output is contained in a specific HTML class.
 ```@example
 println("hello")
 ```
+
+## `@example` outputs to file
+
+```@example
+Main.BIGPNG
+```
+```@example
+Main.TINYPNG
+```
