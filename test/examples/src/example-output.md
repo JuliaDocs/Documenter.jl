@@ -30,3 +30,9 @@ Main.AT_EXAMPLE_FILES[("gif", :big)]
 ```@example
 Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
 ```
+
+### SVG output
+
+```@example
+Main.SVG_BIG
+```

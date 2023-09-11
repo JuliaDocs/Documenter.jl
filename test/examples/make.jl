@@ -161,6 +161,7 @@ const AT_EXAMPLE_FILES = Dict(
     ("gif", :big) => MIMEBytes("image/gif", read(joinpath(@__DIR__, "images", "big.gif"))),
     ("jpeg", :tiny) => MIMEBytes("image/jpeg", read(joinpath(@__DIR__, "images", "tiny.jpeg"))),
 )
+SVG_BIG = MIMEBytes("image/svg+xml", read(joinpath(@__DIR__, "images", "big.svg")))
 
 # Helper functions
 function withassets(f, assets...)

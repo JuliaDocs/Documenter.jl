@@ -2239,6 +2239,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     return if haskey(d, MIME"text/html"())
         rawhtml(d[MIME"text/html"()])
     elseif haskey(d, MIME"image/svg+xml"())
+        @tags img
         svg = d[MIME"image/svg+xml"()]
         svg_tag_match = match(r"<svg[^>]*>", svg)
         if svg_tag_match === nothing
@@ -2246,6 +2247,10 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
             # processing and just return the svg as HTML.
             # The svg string should be invalid but that's not our concern here.
             rawhtml(svg)
+        elseif length(svg) > dctx.ctx.settings.example_size_threshold
+            filename = write_data_file(dctx, svg; suffix=".svg")
+            @assert !isnothing(filename)
+            img[:src => filename, :alt => "Example block output"]
         else
             # The xmlns attribute has to be present for data:image/svg+xml
             # to work (https://stackoverflow.com/questions/18467982).
@@ -2283,13 +2288,13 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         end
 
     elseif haskey(d, MIME"image/png"())
-        domify_show_image(dctx, "png", d)
+        domify_show_image_binary(dctx, "png", d)
     elseif haskey(d, MIME"image/webp"())
-        domify_show_image(dctx, "webp", d)
+        domify_show_image_binary(dctx, "webp", d)
     elseif haskey(d, MIME"image/gif"())
-        domify_show_image(dctx, "gif", d)
+        domify_show_image_binary(dctx, "gif", d)
     elseif haskey(d, MIME"image/jpeg"())
-        domify_show_image(dctx, "jpeg", d)
+        domify_show_image_binary(dctx, "jpeg", d)
     elseif haskey(d, MIME"text/latex"())
         # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
@@ -2317,7 +2322,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     end
 end
 
-function domify_show_image(dctx::DCtx, filetype::AbstractString, d::Dict{MIME,Any})
+function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{MIME,Any})
     @tags img
     mime_name = "image/$filetype"
     mime = MIME{Symbol(mime_name)}()

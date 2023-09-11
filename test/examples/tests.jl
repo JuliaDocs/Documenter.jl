@@ -206,6 +206,9 @@ end
                     @test read(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)")) == data.bytes
                 end
             end
+            # SVG on src/example-output.md
+            @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg"))
+            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
         end
     end
 
@@ -256,6 +259,9 @@ end
                     @test read(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)")) == data.bytes
                 end
             end
+            # SVG on src/example-output.md
+            @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg"))
+            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
         end
     end
 
