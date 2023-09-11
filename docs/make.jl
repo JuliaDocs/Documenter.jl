@@ -66,12 +66,15 @@ makedocs(
         "Reference" => Any[
             "Public API" => "lib/public.md",
             "lib/remote-links.md",
+            "Semantic versioning" => "lib/semver.md",
+        ],
+        "Developers" => [
+            "contributing.md",
             "Internals" => map(
                 s -> "lib/internals/$(s)",
                 sort(readdir(joinpath(@__DIR__, "src/lib/internals")))
             ),
         ],
-        "contributing.md",
         "release-notes.md",
     ],
     warnonly = ("strict=false" in ARGS),
