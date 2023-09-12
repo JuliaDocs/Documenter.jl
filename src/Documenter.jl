@@ -14,11 +14,14 @@ $(EXPORTS)
 module Documenter
 
 import AbstractTrees
+import Downloads
 import IOCapture
 import Markdown
 using MarkdownAST: MarkdownAST, Node
 import REPL
 import Unicode
+import Pkg
+import RegistryInstances
 # Additional imported names
 using Test: @testset, @test
 using DocStringExtensions
@@ -41,8 +44,8 @@ const NO_KEY_ENV = Dict(
 
 # Names of possible internal errors
 const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
-                     :eval_block, :example_block, :footnote, :linkcheck, :meta_block,
-                     :missing_docs, :parse_error, :setup_block]
+                     :eval_block, :example_block, :footnote, :githubcheck, :linkcheck,
+                     :meta_block, :missing_docs, :parse_error, :setup_block]
 
 """
     abstract type Plugin end
