@@ -48,11 +48,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `strict = Documenter.except(:cross_references)`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
 
-* The HTML output now enforces size thresholds for the generated HTML files, to catch cases where Documenter is deploying extremely large HTML files (usually due to generated content, like figures).
-  If any generated HTML file is above either of the thresholds, Documenter will either error and fail the build (if above `size_threshold`), or warn (if above `size_threshold_warn`). ([#2142], [#2205])
+* The HTML output now enforces size thresholds for the generated HTML files, to catch cases where Documenter is deploying extremely large HTML files (usually due to generated content, like figures). If any generated HTML file is above either of the thresholds, Documenter will either error and fail the build (if above `size_threshold`), or warn (if above `size_threshold_warn`). The size threshold can also be ignored for specific pages with `size_threshold_ignore`. ([#2142], [#2205], [#2211], [#2252])
 
   **For upgrading:** If your builds are now failing due to the size threshold checks, you should first investigate why the generated HTML files are so large (e.g. you are likely automatically generating too much HTML, like extremely large inline SVG figures), and try to reduce them below the default thresholds.
   If you are unable to reduce the generated file size, you can increase the `size_threshold` value to just above the maximum size, or disable the enforcement of size threshold checks altogether by setting `size_threshold = nothing`.
+  If it is just a few specific pages that are offending, you can also ignore those with `size_threshold_ignore`.
 
 * User-provided `assets/search.js` files no longer override Documenter's default search implementation, and the user-provided now gets ignored by default. ([#2236])
 
