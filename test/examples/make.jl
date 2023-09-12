@@ -18,7 +18,7 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
 else
     ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
-    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail",
+    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
     "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly"]
 end
 
@@ -526,6 +526,35 @@ end
             build = "builds/sizethreshold-override-fail",
             source = "src.megapage",
             format = Documenter.HTML(size_threshold = 100, size_threshold_warn = nothing),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-ignore-success" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold_ignore = ["index.md"]),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-ignore-fail" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            # Note: it's fine to pass non-existent pages to size_threshold_ignore
+            format = Documenter.HTML(size_threshold_ignore = ["foo.md"]),
             debug = true,
         )
     catch e
