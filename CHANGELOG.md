@@ -128,6 +128,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove unwanted results. The client-side search engine has been changed from LunrJs to MinisearchJs. ([#1437], [#2141], [#2147], [#2202])
 
+* The HTML output will automatically write larger `@example`-block outputs to files, to make the generated HTML files smaller. The size threshold can be controlled with the `example_size_threshold` option to `HTML`. ([#2143], [#2247])
+
 ### Fixed
 
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])

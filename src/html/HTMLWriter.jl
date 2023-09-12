@@ -366,7 +366,7 @@ documentation.
 outputs get written to files, rather than being included in the HTML page. This mechanism is present
 to reduce the size of the generated HTML files that contain a lot of figures etc.
 Setting it to `nothing` will disable writing to files, and setting to `0` means that all examples
-will be written to files. Defaults to `1 KiB`.
+will be written to files. Defaults to `8 KiB`.
 
 **`size_threshold`** sets the maximum allowed HTML file size (in bytes) that Documenter is allowed to
 generate for a page. If the generated HTML file is larged than this, Documenter will throw an error and
@@ -476,7 +476,10 @@ struct HTML <: Documenter.Writer
             highlightjs   :: Union{String,Nothing} = nothing,
             size_threshold :: Union{Integer, Nothing} = 200 * 2^10, # 200 KiB
             size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10, # 100 KiB
-            example_size_threshold :: Union{Integer, Nothing} = 2^10, # 1 KiB
+            # The choice of the default here is that having ~10 figures on a page
+            # seems reasonable, and that would lead to ~80 KiB, which is still fine
+            # and leaves a buffer before hitting `size_threshold_warn`.
+            example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
 
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -2236,21 +2239,33 @@ domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invoke
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)
-    return if haskey(d, MIME"text/html"())
-        rawhtml(d[MIME"text/html"()])
-    elseif haskey(d, MIME"image/svg+xml"())
+    # Our first preference for the MIME type is 'text/html', which we can natively include
+    # in the HTML. But it might happen that it's too large (above example_size_threshold),
+    # in which case we move on to trying to write it as an image.
+    has_text_html = false
+    if haskey(d, MIME"text/html"())
+        if length(d[MIME"text/html"()]) < dctx.ctx.settings.example_size_threshold
+            # If the size threshold is met, we can just return right away
+            return rawhtml(d[MIME"text/html"()])
+        end
+        # We'll set has_text_html to distinguish it from the case where the 'text/html' MIME
+        # show() method was simply missing.
+        has_text_html = true
+    end
+    # If text/html failed, we try to write the output as an image, possibly to a file.
+    image = if haskey(d, MIME"image/svg+xml"())
         @tags img
         svg = d[MIME"image/svg+xml"()]
         svg_tag_match = match(r"<svg[^>]*>", svg)
-        if svg_tag_match === nothing
+        dom = if length(svg) >= dctx.ctx.settings.example_size_threshold
+            filename = write_data_file(dctx, svg; suffix=".svg")
+            @assert !isnothing(filename)
+            img[:src => filename, :alt => "Example block output"]
+        elseif svg_tag_match === nothing
             # There is no svg tag so we don't do any more advanced
             # processing and just return the svg as HTML.
             # The svg string should be invalid but that's not our concern here.
             rawhtml(svg)
-        elseif length(svg) >= dctx.ctx.settings.example_size_threshold
-            filename = write_data_file(dctx, svg; suffix=".svg")
-            @assert !isnothing(filename)
-            img[:src => filename, :alt => "Example block output"]
         else
             # The xmlns attribute has to be present for data:image/svg+xml
             # to work (https://stackoverflow.com/questions/18467982).
@@ -2286,7 +2301,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
 
             rawhtml(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         end
-
+        (; dom = dom, mime = "image/svg+xml")
     elseif haskey(d, MIME"image/png"())
         domify_show_image_binary(dctx, "png", d)
     elseif haskey(d, MIME"image/webp"())
@@ -2295,7 +2310,26 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         domify_show_image_binary(dctx, "gif", d)
     elseif haskey(d, MIME"image/jpeg"())
         domify_show_image_binary(dctx, "jpeg", d)
-    elseif haskey(d, MIME"text/latex"())
+    end
+    # If image is nothing, then the object did not have any of the supported image
+    # representations. In that case, if the 'text/html' representation exists, we use that,
+    # but with a warning because it goes over the size limit. If 'text/html' was missing too,
+    # we carry on to additional MIME types.
+    if has_text_html && isnothing(image)
+        @warn """
+        The 'text/html' representation of an @example block is above the threshold, but no supported image representation is present as an alternative.
+        """ page = dctx.navnode.page example_size = length(d[MIME"text/html"()]) example_size_threshold = dctx.ctx.settings.example_size_threshold
+        return rawhtml(d[MIME"text/html"()])
+    elseif has_text_html && !isnothing(image)
+        @warn """
+        The 'text/html' representation of an @example block is above the threshold, falling back to '$(image.mime)' representation.
+        """ page = dctx.navnode.page example_size = length(d[MIME"text/html"()]) example_size_threshold = dctx.ctx.settings.example_size_threshold
+        return image.dom
+    elseif !has_text_html && !isnothing(image)
+        return image.dom
+    end
+    # Check for some 'fallback' MIMEs, defaulting to 'text/plain' if we can't find any of them.
+    return if haskey(d, MIME"text/latex"())
         # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
         # delimiters around it anyway.
@@ -2316,7 +2350,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     elseif haskey(d, MIME"text/plain"())
         @tags pre
         text = d[MIME"text/plain"()]
-        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
+        pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
     else
         error("this should never happen.")
     end
@@ -2332,12 +2366,13 @@ function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{
     data_base64 = d[mime]
     filename = write_data_file(dctx, Base64.base64decode(data_base64); suffix=".$filetype")
     alt = (:alt => "Example block output")
-    if isnothing(filename)
+    dom = if isnothing(filename)
         src = string("data:$(mime_name);base64,", data_base64)
         img[:src => src, alt]
     else
         img[:src => filename, alt]
     end
+    (; dom, mime = mime_name)
 end
 
 # filehrefs
