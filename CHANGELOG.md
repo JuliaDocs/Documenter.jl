@@ -1643,11 +1643,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
 [#2202]: https://github.com/JuliaDocs/Documenter.jl/issues/2202
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
+[#2211]: https://github.com/JuliaDocs/Documenter.jl/issues/2211
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
 [#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
+[#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
