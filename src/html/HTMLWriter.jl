@@ -524,7 +524,7 @@ struct HTML <: Documenter.Writer
         end
         if isnothing(example_size_threshold)
             example_size_threshold = typemax(Int)
-        elseif example_size_threshold <= 0
+        elseif example_size_threshold < 0
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
