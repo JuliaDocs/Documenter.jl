@@ -532,6 +532,34 @@ end
         e
     end
 end
+@examplebuild "sizethreshold-ignore-success" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold_ignore = ["index.md"]),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-ignore-fail" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold_ignore = ["foo.md"]),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
 
 # PDF/LaTeX
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS

@@ -250,6 +250,8 @@ end
         @test examples_html_sizethreshold_success_doc isa Documenter.Document
         @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
         @test examples_html_sizethreshold_override_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+        @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
+        @test examples_html_sizethreshold_ignore_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
     end
 
     @testset "PDF/LaTeX: TeX only" begin
