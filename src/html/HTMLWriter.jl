@@ -371,8 +371,8 @@ print a warning, instead of throwing an error. Defaults to `100 KiB`, and must b
 
 **`size_threshold_ignore`** can be passed a list of pages for which the size thresholds are completely
 ignored (silently). The arguments should be the same file paths as for the `pages` argument of
-[`makedocs`](@ref). Using this argument to ignore a few specific pages is preferred over setting
-a high general limit, or disabling the size checking altogether.
+[`makedocs`](@ref Documenter.makedocs). Using this argument to ignore a few specific pages is preferred
+over setting a high general limit, or disabling the size checking altogether.
 
 !!! note "Purpose of HTML size thresholds"
 
