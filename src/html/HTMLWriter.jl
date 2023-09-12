@@ -1719,7 +1719,6 @@ function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DO
         Generated file size: $(file_size) (bytes)
         size_threshold_warn: $(ctx.settings.size_threshold_warn) (bytes)
         size_threshold:      $(ctx.settings.size_threshold) (bytes)"""
-    @show navnode.page
     if navnode.page in ctx.settings.size_threshold_ignore
         if file_size > ctx.settings.size_threshold_warn
             @debug """
