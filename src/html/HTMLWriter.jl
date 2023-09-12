@@ -365,7 +365,7 @@ documentation.
 **`example_size_threshold`** specifies the size threshold above which the `@example` and other block
 outputs get written to files, rather than being included in the HTML page. This mechanism is present
 to reduce the size of the generated HTML files that contain a lot of figures etc.
-Setting it to `nothing` will disable writing to files, and setting to `0` means that all files
+Setting it to `nothing` will disable writing to files, and setting to `0` means that all examples
 will be written to files. Defaults to `1 KiB`.
 
 **`size_threshold`** sets the maximum allowed HTML file size (in bytes) that Documenter is allowed to
