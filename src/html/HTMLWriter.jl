@@ -377,6 +377,11 @@ increases of this default value will be considered to be non-breaking).
 print a warning, instead of throwing an error. Defaults to `100 KiB`, and must be less than or equal to
 `size_threshold`.
 
+**`size_threshold_ignore`** can be passed a list of pages for which the size thresholds are completely
+ignored (silently). The arguments should be the same file paths as for the `pages` argument of
+[`makedocs`](@ref Documenter.makedocs). Using this argument to ignore a few specific pages is preferred
+over setting a high general limit, or disabling the size checking altogether.
+
 !!! note "Purpose of HTML size thresholds"
 
     The size threshold, with a reasonable default, exists so that users would not deploy huge pages
@@ -452,6 +457,7 @@ struct HTML <: Documenter.Writer
     highlightjs   :: Union{String,Nothing}
     size_threshold :: Int
     size_threshold_warn :: Int
+    size_threshold_ignore :: Vector{String}
     example_size_threshold :: Int
 
     function HTML(;
@@ -479,6 +485,9 @@ struct HTML <: Documenter.Writer
             # The choice of the default here is that having ~10 figures on a page
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
+            size_threshold :: Union{Integer, Nothing} = 200 * 2^10,
+            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10,
+            size_threshold_ignore :: Vector = String[],
             example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
 
             # deprecated keywords
@@ -534,7 +543,7 @@ struct HTML <: Documenter.Writer
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
-            size_threshold, size_threshold_warn, example_size_threshold,
+            size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
         )
     end
 end
@@ -1730,7 +1739,14 @@ function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DO
         Generated file size: $(file_size) (bytes)
         size_threshold_warn: $(ctx.settings.size_threshold_warn) (bytes)
         size_threshold:      $(ctx.settings.size_threshold) (bytes)"""
-    if file_size > ctx.settings.size_threshold
+    if navnode.page in ctx.settings.size_threshold_ignore
+        if file_size > ctx.settings.size_threshold_warn
+            @debug """
+            $(size_threshold_msg(:size_threshold_warn))
+            Hard limit ignored due to 'size_threshold_ignore'.
+            """ size_threshold_ignore = ctx.settings.size_threshold_ignore
+        end
+    elseif file_size > ctx.settings.size_threshold
         @error size_threshold_msg(:size_threshold)
         return false
     elseif file_size > ctx.settings.size_threshold_warn
