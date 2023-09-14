@@ -1,3 +1,4 @@
+import SHA
 using Documenter
 include("../TestUtilities.jl"); using Main.TestUtilities
 
@@ -142,6 +143,39 @@ module AutoDocs
     end
 end
 
+struct MIMEBytes{M <: MIME}
+    bytes :: Vector{UInt8}
+    hash_slug :: String
+    function MIMEBytes(mime::AbstractString, bytes::AbstractVector{UInt8})
+        hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
+        new{MIME{Symbol(mime)}}(bytes, hash_slug)
+    end
+end
+Base.show(io::IO, ::M, obj::MIMEBytes{M}) where {M <: MIME} = write(io, obj.bytes)
+
+const AT_EXAMPLE_FILES = Dict(
+    ("png", :big) => MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "big.png"))),
+    ("png", :tiny) => MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "tiny.png"))),
+    ("webp", :big) => MIMEBytes("image/webp", read(joinpath(@__DIR__, "images", "big.webp"))),
+    ("webp", :tiny) => MIMEBytes("image/webp", read(joinpath(@__DIR__, "images", "tiny.webp"))),
+    ("gif", :big) => MIMEBytes("image/gif", read(joinpath(@__DIR__, "images", "big.gif"))),
+    ("jpeg", :tiny) => MIMEBytes("image/jpeg", read(joinpath(@__DIR__, "images", "tiny.jpeg"))),
+)
+SVG_BIG = MIMEBytes("image/svg+xml", read(joinpath(@__DIR__, "images", "big.svg")))
+SVG_HTML = MIMEBytes("text/html", read(joinpath(@__DIR__, "images", "big.svg")))
+
+struct MultiMIMESVG
+    bytes :: Vector{UInt8}
+    hash_slug :: String
+    function MultiMIMESVG(bytes::AbstractVector{UInt8})
+        hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
+        new(bytes, hash_slug)
+    end
+end
+Base.show(io::IO, ::MIME"image/svg+xml", obj::MultiMIMESVG) = write(io, obj.bytes)
+Base.show(io::IO, ::MIME"text/html", obj::MultiMIMESVG) = write(io, obj.bytes)
+SVG_MULTI = MultiMIMESVG(read(joinpath(@__DIR__, "images", "big.svg")))
+
 # Helper functions
 function withassets(f, assets...)
     src(asset) = joinpath(@__DIR__, asset)
@@ -211,6 +245,10 @@ htmlbuild_pages = Any[
         "editurl/ugly.md",
     ],
     "xrefs.md",
+    "Outputs" => [
+        "outputs/index.md",
+        "outputs/outputs.md",
+    ],
 ]
 
 function html_doc(
