@@ -58,6 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** The JS file can still be include by passing it to the `assets` keyword of `format = HTML(...)`. However, it will likely conflict with Documenter's default search implementation. If you require an API to override Documenter's search engine, please open an issue.
 
+* Plugin objects which were formally passed as (undocumented) positional keyword arguments to `makedocs` are now given as elements of a list `plugins` passed as a keyword argument ([#2245], [#2249])
+
+  **For upgrading:** If you are passing any plugin objects to `makedocs` (positionally), pass them via the `plugins` keyword instead.
+
 ### Added
 
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). ([#1989], [#1271])
@@ -127,6 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. ([#2181])
 
 * The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove unwanted results. The client-side search engine has been changed from LunrJs to MinisearchJs. ([#1437], [#2141], [#2147], [#2202])
+
+* The `doctest` routine can now receive the same `plugins` keyword argument as `makedocs`. This enables `doctest` to run if any plugin with a mandatory `Plugin` object is loaded, e.g., [DocumenterCitations](https://github.com/JuliaDocs/DocumenterCitations.jl). ([#2245])
 
 ### Fixed
 

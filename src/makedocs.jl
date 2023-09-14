@@ -1,7 +1,7 @@
 # Implements the makedocs() and functions directly related to it.
 
 """
-    makedocs(
+    makedocs(;
         root    = "<current-directory>",
         source  = "src",
         build   = "build",
@@ -13,6 +13,7 @@
         sitename = "",
         expandfirst = [],
         draft = false,
+        others...
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -217,6 +218,10 @@ determined from the source file path. E.g. for `src/foo.md` it is set to `build/
 
 Note that `workdir` does not affect doctests.
 
+**`plugins`** is a list of [`Documenter.Plugin`](@ref) objects. Use as directed by the
+documentation of a third-party plugin. For any subtype `T <: Plugin`, the
+`plugins` list may contain at most a single object of type `T`.
+
 ## Output formats
 
 **`format`** allows the output format to be specified. The default format is
@@ -233,8 +238,8 @@ information.
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
-function makedocs(components...; debug = false, format = HTML(), kwargs...)
-    document = Documenter.Document(components; format=format, kwargs...)
+function makedocs(; debug = false, format = HTML(), kwargs...)
+    document = Documenter.Document(; format=format, kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
