@@ -773,6 +773,8 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
                 - $(n_warnings) blocks had '$(fallback)' fallback image representation available, using that.
                 """
             end
+            pages = sort(unique(w.page for w in warnings))
+            msg *= "  On pages: $(join(pages, ", "))\n"
         end
         @warn(msg)
     end
