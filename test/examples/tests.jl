@@ -209,6 +209,11 @@ end
             # SVG on src/example-output.md
             @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg"))
             @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # SVG on src/example-output.md, from Main.SVG_MULTI
+            @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-001.svg"))
+            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # .. but, crucially, Main.SVG_HTML did _not_ get written out.
+            @test !isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-002.svg"))
         end
     end
 
@@ -262,6 +267,11 @@ end
             # SVG on src/example-output.md
             @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg"))
             @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # SVG on src/example-output.md, from Main.SVG_MULTI
+            @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-001.svg"))
+            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # .. but, crucially, Main.SVG_HTML did _not_ get written out.
+            @test !isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-002.svg"))
         end
     end
 

@@ -36,3 +36,17 @@ Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
 ```@example
 Main.SVG_BIG
 ```
+
+### `text/html` fallbacks
+
+SVG with just `text/html` output (in practice, `DataFrame`s and such would fall into this category):
+
+```@example
+Main.SVG_HTML
+```
+
+SVG with both `text/html` and `image/svg+xml` MIME, in which case we expect to pick the image one (because text is too big) and write it to a file.
+
+```@example
+Main.SVG_MULTI
+```

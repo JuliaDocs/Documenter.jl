@@ -162,6 +162,19 @@ const AT_EXAMPLE_FILES = Dict(
     ("jpeg", :tiny) => MIMEBytes("image/jpeg", read(joinpath(@__DIR__, "images", "tiny.jpeg"))),
 )
 SVG_BIG = MIMEBytes("image/svg+xml", read(joinpath(@__DIR__, "images", "big.svg")))
+SVG_HTML = MIMEBytes("text/html", read(joinpath(@__DIR__, "images", "big.svg")))
+
+struct MultiMIMESVG
+    bytes :: Vector{UInt8}
+    hash_slug :: String
+    function MultiMIMESVG(bytes::AbstractVector{UInt8})
+        hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
+        new(bytes, hash_slug)
+    end
+end
+Base.show(io::IO, ::MIME"image/svg+xml", obj::MultiMIMESVG) = write(io, obj.bytes)
+Base.show(io::IO, ::MIME"text/html", obj::MultiMIMESVG) = write(io, obj.bytes)
+SVG_MULTI = MultiMIMESVG(read(joinpath(@__DIR__, "images", "big.svg")))
 
 # Helper functions
 function withassets(f, assets...)
