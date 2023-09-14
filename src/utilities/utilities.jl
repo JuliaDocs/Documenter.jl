@@ -487,7 +487,7 @@ Stores the memoized results of [`getremote`](@ref).
 """
 const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
 
-function parse_remote_url(remote)
+function parse_remote_url(remote::AbstractString)
     # TODO: we only match for GitHub repositories automatically. Could we engineer a
     # system where, if there is a user-created Remote, the user could also define a
     # matching function here that tries to interpret other URLs?
