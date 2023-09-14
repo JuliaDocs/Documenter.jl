@@ -541,8 +541,8 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         end
         return false
     end
-    makedocs_root_repo = find_root_parent(is_git_repo_root, root)
-    makedocs_root_remote = isnothing(makedocs_root_repo) ? nothing : getremote(makedocs_root_repo)
+    makedocs_root_repo::Union{String, Nothing} = find_root_parent(is_git_repo_root, root)
+    makedocs_root_remote::Union{Remotes.Remote, Nothing} = isnothing(makedocs_root_repo) ? nothing : getremote(makedocs_root_repo)
     @debug "interpret_repo_and_remotes" remotes_checked repo_normalized makedocs_root_remoteref makedocs_root_repo makedocs_root_remote
     if !isnothing(makedocs_root_remoteref) && !isnothing(makedocs_root_repo)
         # If both are set, then there is potential for conflict.
@@ -622,12 +622,18 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         addremote!(remotes_checked, RemoteRepository(makedocs_root_repo, makedocs_root_remote))
     else
         # Finally, if we're neither in a git repo, and nothing is in remotes,
-        err = """
-        Unable to automatically determine remote for main repo.
-        > `repo` is not set, and makedocs is not in a Git repository.
-        Configure `repo` and/or `remotes` appropriately, or set `remotes = nothing` to disable remote source
-        links altogether (e.g. if not working in a Git repository).
-          path: $(makedocs_root_repo)"""
+        err = "Unable to automatically determine remote for main repo."
+        err *= '\n'
+        err *= if isnothing(repo_normalized)
+            """> `repo` is not set, and makedocs is not in a Git repository.
+            Configure `repo` and/or `remotes` appropriately, or set `remotes = nothing` to disable remote source
+            links altogether (e.g. if not working in a Git repository)."""
+        else
+            """> `repo` is set but makedocs is not in a Git repository. You should configure `remotes` instead,
+            with the appropriate local path pointing to the repository root."""
+        end
+        err *= '\n'
+        err *= "  repo: $(repo_normalized)"
         throw(ArgumentError(err))
     end
 
