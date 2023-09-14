@@ -360,7 +360,7 @@ struct Document
     blueprint :: DocumentBlueprint
 end
 
-function Document(plugins = nothing;
+function Document(;
         root     :: AbstractString   = currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
@@ -378,6 +378,7 @@ function Document(plugins = nothing;
         pages    :: Vector           = Any[],
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
+        plugins  :: Vector           = Plugin[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
         remotes  :: Union{Dict, Nothing} = Dict(),
         sitename :: AbstractString   = "",
@@ -459,14 +460,12 @@ function Document(plugins = nothing;
     )
 
     plugin_dict = Dict{DataType, Plugin}()
-    if plugins !== nothing
-        for plugin in plugins
-            plugin isa Plugin ||
-                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Plugin`."))
-            haskey(plugin_dict, typeof(plugin)) &&
-                throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
-            plugin_dict[typeof(plugin)] = plugin
-        end
+    for plugin in plugins
+        plugin isa Plugin ||
+            throw(ArgumentError("$(typeof(plugin)) in `plugins=` is not a subtype of `Documenter.Plugin`."))
+        haskey(plugin_dict, typeof(plugin)) &&
+            throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
+        plugin_dict[typeof(plugin)] = plugin
     end
 
     blueprint = DocumentBlueprint(
@@ -873,11 +872,12 @@ function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
 end
 
 """
-    getplugin(doc::Document, T)
+    Documenter.getplugin(doc::Document, T) -> Plugin
 
-Retrieves the [`Plugin`](@ref Plugin) type for `T` stored in `doc`. If `T` was passed to
-[`makedocs`](@ref makedocs), the passed type will be returned. Otherwise, a new `T` object
-will be created using the default constructor `T()`.
+Retrieves the object for the [`Plugin`](@ref Plugin) sub-type `T` stored in `doc`. If an
+object of type `T` was an element of the `plugins` list passed to [`makedocs`](@ref makedocs),
+that object will be returned. Otherwise, a new `T` object will be created using the default
+constructor `T()`. Subsequent calls to `getplugin(doc, T)` return the same object.
 """
 function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
     if !haskey(doc.plugins, plugin_type)

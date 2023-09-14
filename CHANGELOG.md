@@ -48,15 +48,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `strict = Documenter.except(:cross_references)`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
 
-* The HTML output now enforces size thresholds for the generated HTML files, to catch cases where Documenter is deploying extremely large HTML files (usually due to generated content, like figures).
-  If any generated HTML file is above either of the thresholds, Documenter will either error and fail the build (if above `size_threshold`), or warn (if above `size_threshold_warn`). ([#2142], [#2205])
+* The HTML output now enforces size thresholds for the generated HTML files, to catch cases where Documenter is deploying extremely large HTML files (usually due to generated content, like figures). If any generated HTML file is above either of the thresholds, Documenter will either error and fail the build (if above `size_threshold`), or warn (if above `size_threshold_warn`). The size threshold can also be ignored for specific pages with `size_threshold_ignore`. ([#2142], [#2205], [#2211], [#2252])
 
   **For upgrading:** If your builds are now failing due to the size threshold checks, you should first investigate why the generated HTML files are so large (e.g. you are likely automatically generating too much HTML, like extremely large inline SVG figures), and try to reduce them below the default thresholds.
   If you are unable to reduce the generated file size, you can increase the `size_threshold` value to just above the maximum size, or disable the enforcement of size threshold checks altogether by setting `size_threshold = nothing`.
+  If it is just a few specific pages that are offending, you can also ignore those with `size_threshold_ignore`.
 
 * User-provided `assets/search.js` files no longer override Documenter's default search implementation, and the user-provided now gets ignored by default. ([#2236])
 
   **For upgrading:** The JS file can still be include by passing it to the `assets` keyword of `format = HTML(...)`. However, it will likely conflict with Documenter's default search implementation. If you require an API to override Documenter's search engine, please open an issue.
+
+* Plugin objects which were formally passed as (undocumented) positional keyword arguments to `makedocs` are now given as elements of a list `plugins` passed as a keyword argument ([#2245], [#2249])
+
+  **For upgrading:** If you are passing any plugin objects to `makedocs` (positionally), pass them via the `plugins` keyword instead.
 
 ### Added
 
@@ -127,6 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Documenter now generates a `.documenter-siteinfo.json` file in the HTML build, that contains some metadata about the build. ([#2181])
 
 * The search UI has had a complete overhaul, with a fresh new modal UI with better context for search results and a filter mechanism to remove unwanted results. The client-side search engine has been changed from LunrJs to MinisearchJs. ([#1437], [#2141], [#2147], [#2202])
+
+* The `doctest` routine can now receive the same `plugins` keyword argument as `makedocs`. This enables `doctest` to run if any plugin with a mandatory `Plugin` object is loaded, e.g., [DocumenterCitations](https://github.com/JuliaDocs/DocumenterCitations.jl). ([#2245])
 
 ### Fixed
 
@@ -1643,12 +1649,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
 [#2202]: https://github.com/JuliaDocs/Documenter.jl/issues/2202
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
+[#2211]: https://github.com/JuliaDocs/Documenter.jl/issues/2211
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
 [#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
+[#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
