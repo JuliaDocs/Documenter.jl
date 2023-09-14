@@ -51,7 +51,7 @@ include("repolink_helpers.jl")
 
         # Gets an error on check
         @test_logs (:error,) @test githubcheck(doc) === nothing
-        @test doc.internal.errors == Set{Symbol}([:githubcheck])
+        @test doc.internal.errors == Set{Symbol}([:linkcheck_remotes])
     end
 end
 

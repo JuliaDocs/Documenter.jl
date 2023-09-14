@@ -342,11 +342,11 @@ function githubcheck(doc::Document)
         tag_guess = remote_repo.commit
         tag_ref = tag(repo, tag_guess)
         if tag_ref === nothing
-            @docerror(doc, :githubcheck, "githubcheck '$(repo)' error while getting tag '$(tag_guess)'. $(GITHUB_ERROR_ADVICE)")
+            @docerror(doc, :linkcheck_remotes, "linkcheck (remote) '$(repo)' error while getting tag '$(tag_guess)'. $(GITHUB_ERROR_ADVICE)")
             return
         end
         if tag_ref["object"]["type"] != "commit"
-            @docerror(doc, :githubcheck, "githubcheck '$(repo)' tag '$(tag_guess)' does not point to a commit. $(GITHUB_ERROR_ADVICE)")
+            @docerror(doc, :linkcheck_remotes, "linkcheck (remote) '$(repo)' tag '$(tag_guess)' does not point to a commit. $(GITHUB_ERROR_ADVICE)")
             return
         end
         commit_sha = tag_ref["object"]["sha"]
@@ -355,8 +355,8 @@ function githubcheck(doc::Document)
         if string(tree_hash) != actual_tree_hash
             @docerror(
                 doc,
-                :githubcheck,
-                "githubcheck '$(repo)' tag '$(tag_guess)' points to tree hash $(actual_tree_hash), but package entry has $(tree_hash). $(GITHUB_ERROR_ADVICE)"
+                :linkcheck_remotes,
+                "linkcheck (remote) '$(repo)' tag '$(tag_guess)' points to tree hash $(actual_tree_hash), but package entry has $(tree_hash). $(GITHUB_ERROR_ADVICE)"
             )
         end
     end
