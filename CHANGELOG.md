@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
 
-* The handling of remote repository (e.g. GitHub) URLs has been overhauled. ([#1808], [#1881], [#2081])
+* The handling of remote repository (e.g. GitHub) URLs has been overhauled. ([#1808], [#1881], [#2081], [#2232])
 
   In addition to generating source and edit links for the main repository, Documenter can now also be configured to generate correct links for cases where some files are from a different repository (e.g. with vendored dependencies). There have also been changes and fixes to the way the automatic detection of source and edit links works.
 
@@ -1647,6 +1647,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
 [#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
+[#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
