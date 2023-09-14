@@ -598,6 +598,12 @@ struct SearchRecord
     text :: String
 end
 
+Base.@kwdef struct AtExampleFallbackWarning
+    page::String
+    size_bytes::Int
+    fallback::Union{String,Nothing}
+end
+
 """
 [`HTMLWriter`](@ref)-specific globals that are passed to `domify` and
 other recursive functions.
@@ -612,12 +618,14 @@ mutable struct HTMLContext
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documenter.NavNode
-end
+    atexample_warnings::Vector{AtExampleFallbackWarning}
 
-HTMLContext(doc, settings=nothing) = HTMLContext(
-    doc, settings, [], "", "", "", [], "",
-    Documenter.NavNode("search", "Search", nothing),
-)
+    HTMLContext(doc, settings=nothing) = new(
+        doc, settings, [], "", "", "", [], "",
+        Documenter.NavNode("search", "Search", nothing),
+        AtExampleFallbackWarning[],
+    )
+end
 
 struct DCtx
     # ctx and navnode were recursively passed to all domify() methods
@@ -741,6 +749,32 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
         render_page(ctx, nn)
+    end
+    # ctx::HTMLContext might have accumulated some warnings about large at-example blocks
+    # If so, we'll report them here in one big warning (rather than one each).
+    if !isempty(ctx.atexample_warnings)
+        msg = """
+        For $(length(ctx.atexample_warnings)) @example blocks, the 'text/html' representation of the resulting
+        object is above the the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
+        """
+        fallbacks = unique(w.fallback for w in ctx.atexample_warnings)
+        # We'll impose some regular order, but importantly we want 'nothing'-s on the top
+        for fallback in sort(fallbacks, by = s -> isnothing(s) ? "" : s)
+            warnings = filter(w -> w.fallback == fallback, ctx.atexample_warnings)
+            n_warnings = length(warnings)
+            largest_size = maximum(w -> w.size_bytes, warnings)
+            msg *= if isnothing(fallback)
+                """
+                - $(n_warnings) blocks had no image MIME show() method representation as an alternative.
+                  Sticking to the 'text/html' representation (largest block is $(largest_size) bytes).
+                """
+            else
+                """
+                - $(n_warnings) blocks had '$(fallback)' fallback image representation available, using that.
+                """
+            end
+        end
+        @warn(msg)
     end
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
@@ -2330,14 +2364,22 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     # but with a warning because it goes over the size limit. If 'text/html' was missing too,
     # we carry on to additional MIME types.
     if has_text_html && isnothing(image)
-        @warn """
-        The 'text/html' representation of an @example block is above the threshold, but no supported image representation is present as an alternative.
-        """ page = dctx.navnode.page example_size = length(d[MIME"text/html"()]) example_size_threshold = dctx.ctx.settings.example_size_threshold
+        # The 'text/html' representation of an @example block is above the threshold, but no
+        # supported image representation is present as an alternative.
+        push!(dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
+            page = dctx.navnode.page,
+            size_bytes = length(d[MIME"text/html"()]),
+            fallback = nothing,
+        ))
         return rawhtml(d[MIME"text/html"()])
     elseif has_text_html && !isnothing(image)
-        @warn """
-        The 'text/html' representation of an @example block is above the threshold, falling back to '$(image.mime)' representation.
-        """ page = dctx.navnode.page example_size = length(d[MIME"text/html"()]) example_size_threshold = dctx.ctx.settings.example_size_threshold
+        # The 'text/html' representation of an @example block is above the threshold,
+        # falling back to '$(image.mime)' representation.
+        push!(dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
+            page = dctx.navnode.page,
+            size_bytes = length(d[MIME"text/html"()]),
+            fallback = image.mime,
+        ))
         return image.dom
     elseif !has_text_html && !isnothing(image)
         return image.dom
