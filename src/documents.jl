@@ -753,7 +753,7 @@ end
 Returns the the the remote that contains the file, and the relative path of the
 file within the repo (or `nothing, nothing` if the file is not in a known repo).
 """
-function relpath_from_remote_root(doc::Union{Document, Nothing}, path::AbstractString)
+function relpath_from_remote_root(doc::Document, path::AbstractString)
     remotes = doc.user.remotes
     if remotes === nothing
         # It's possible that doc.user.remotes is set to nothing, in which case
