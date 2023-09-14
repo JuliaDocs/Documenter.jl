@@ -31,7 +31,7 @@ makedocs(
             analytics = "UA-136089579-2",
             highlights = ["yaml"],
             ansicolor = true,
-            size_threshold_ignore = ["release-notes/index.html"],
+            size_threshold_ignore = ["release-notes.md"],
         )
     end,
     build = ("pdf" in ARGS) ? "build-pdf" : "build",
