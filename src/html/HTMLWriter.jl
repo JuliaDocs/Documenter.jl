@@ -482,12 +482,10 @@ struct HTML <: Documenter.Writer
             highlightjs   :: Union{String,Nothing} = nothing,
             size_threshold :: Union{Integer, Nothing} = 200 * 2^10, # 200 KiB
             size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10, # 100 KiB
+            size_threshold_ignore :: Vector = String[],
             # The choice of the default here is that having ~10 figures on a page
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
-            size_threshold :: Union{Integer, Nothing} = 200 * 2^10,
-            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10,
-            size_threshold_ignore :: Vector = String[],
             example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
 
             # deprecated keywords
