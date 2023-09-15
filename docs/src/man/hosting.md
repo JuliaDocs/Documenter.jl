@@ -569,7 +569,7 @@ end
 
 ## Deploying from a monorepo
 
-Documenter.jl supports building documentation for a package that lives in a monorepo, e.g., in a repository that contains multiple packages (including one potentially top level-)
+Documenter.jl supports building documentation for a package that lives in a monorepo, e.g., in a repository that contains multiple packages (including one potentially top level)
 
 Here's one example of setting up documentation for a repository that has the following structure: one top level package and two subpackages PackageA.jl and PackageB.jl:
 ```
@@ -593,7 +593,7 @@ Here's one example of setting up documentation for a repository that has the fol
 
 The three respective `make.jl` scripts should contain [`deploydocs`](@ref) settings that look something like
 
-```
+```julia
 # In ./docs/make.jl
 deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
             # ...any additional kwargs
@@ -642,21 +642,10 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/dev
 https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/stable  # Links to most recent PackageB version
 ```
 
-While they won't automatically reference one another, such referencing can be added manually (e.g. by linking to https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable from the docs built for PackageB).
+While they won't automatically reference one another, such referencing can be added manually (e.g. by linking to `https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable` from the docs built for PackageB).
 
 !!! warning
-    When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z, and the rest of the subpackages' documentation will be unavailable.
-
----
-
-**Final Remarks**
-
-That should be all that is needed to enable automatic documentation building. Pushing new
-commits to your `master` branch should trigger doc builds. **Note that other branches do not
-trigger these builds and neither do pull requests by potential contributors.**
-
-If you would like to see a more complete example of how this process is setup then take a
-look at this package's repository for some inspiration.
+    When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at `https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z`, and the rest of the subpackages' documentation will be unavailable.
 
 ## Deployment systems
 
