@@ -422,7 +422,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             footer = nothing,
         ),
         # TODO: example_block failure only happens on windows, so that's not actually expected
-        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block],
+        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block, :eval_block],
     )
 else
     @info "Skipping build: HTML/local"
