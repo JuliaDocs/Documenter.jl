@@ -24,9 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). That package might not immediately support the latest Documenter version, however.
 
-* `@eval` blocks now require the last expression to be either `nothing` or of type `Markdown.MD`, with other cases now issuing a warning and falling back to a text representation in a code block. ([#1919])
+* `@eval` blocks now require the last expression to be either `nothing` or of type `Markdown.MD`, with other cases now issuing an `:eval_block` error, and falling back to a text representation of the object. ([#1919], [#2260])
 
-  **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
+  **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case. The error can be ignored by passing `:eval_block` to the `warnonly` keyword.
 
 * The handling of remote repository (e.g. GitHub) URLs has been overhauled. ([#1808], [#1881], [#2081], [#2232])
 
@@ -1668,6 +1668,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2249]: https://github.com/JuliaDocs/Documenter.jl/issues/2249
 [#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
 [#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
+[#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
