@@ -24,9 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). That package might not immediately support the latest Documenter version, however.
 
-* `@eval` blocks now require the last expression to be either `nothing` or of type `Markdown.MD`, with other cases now issuing a warning and falling back to a text representation in a code block. ([#1919])
+* `@eval` blocks now require the last expression to be either `nothing` or of type `Markdown.MD`, with other cases now issuing an `:eval_block` error, and falling back to a text representation of the object. ([#1919], [#2260])
 
-  **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
+  **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case. The error can be ignored by passing `:eval_block` to the `warnonly` keyword.
 
 * The handling of remote repository (e.g. GitHub) URLs has been overhauled. ([#1808], [#1881], [#2081], [#2232])
 
@@ -139,6 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The `doctest` routine can now receive the same `plugins` keyword argument as `makedocs`. This enables `doctest` to run if any plugin with a mandatory `Plugin` object is loaded, e.g., [DocumenterCitations](https://github.com/JuliaDocs/DocumenterCitations.jl). ([#2245])
 
 * The HTML output will automatically write larger `@example`-block outputs to files, to make the generated HTML files smaller. The size threshold can be controlled with the `example_size_threshold` option to `HTML`. ([#2143], [#2247])
+
+* The `@docs` and `@autodocs` blocks can now be declared non-canonical, allowing multiple copied of the same docstring to be included in the manual. ([#1079], [#1570], [#2237])
 
 ### Fixed
 
@@ -1337,6 +1339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1075]: https://github.com/JuliaDocs/Documenter.jl/issues/1075
 [#1076]: https://github.com/JuliaDocs/Documenter.jl/issues/1076
 [#1077]: https://github.com/JuliaDocs/Documenter.jl/issues/1077
+[#1079]: https://github.com/JuliaDocs/Documenter.jl/issues/1079
 [#1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [#1082]: https://github.com/JuliaDocs/Documenter.jl/issues/1082
 [#1088]: https://github.com/JuliaDocs/Documenter.jl/issues/1088
@@ -1481,6 +1484,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1567]: https://github.com/JuliaDocs/Documenter.jl/issues/1567
 [#1568]: https://github.com/JuliaDocs/Documenter.jl/issues/1568
 [#1569]: https://github.com/JuliaDocs/Documenter.jl/issues/1569
+[#1570]: https://github.com/JuliaDocs/Documenter.jl/issues/1570
 [#1575]: https://github.com/JuliaDocs/Documenter.jl/issues/1575
 [#1577]: https://github.com/JuliaDocs/Documenter.jl/issues/1577
 [#1590]: https://github.com/JuliaDocs/Documenter.jl/issues/1590
@@ -1664,11 +1668,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
+[#2237]: https://github.com/JuliaDocs/Documenter.jl/issues/2237
 [#2245]: https://github.com/JuliaDocs/Documenter.jl/issues/2245
 [#2247]: https://github.com/JuliaDocs/Documenter.jl/issues/2247
 [#2249]: https://github.com/JuliaDocs/Documenter.jl/issues/2249
 [#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
 [#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
+[#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054

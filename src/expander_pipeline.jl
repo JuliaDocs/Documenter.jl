@@ -231,8 +231,8 @@ Selectors.order(::Type{Expanders.RawBlocks})      = 11.0
 
 Selectors.matcher(::Type{Expanders.TrackHeaders},   node, page, doc) = isa(node.element, MarkdownAST.Heading)
 Selectors.matcher(::Type{Expanders.MetaBlocks},     node, page, doc) = iscode(node, "@meta")
-Selectors.matcher(::Type{Expanders.DocsBlocks},     node, page, doc) = iscode(node, "@docs")
-Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) = iscode(node, "@autodocs")
+Selectors.matcher(::Type{Expanders.DocsBlocks},     node, page, doc) = iscode(node, r"^@docs")
+Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) = iscode(node, r"^@autodocs")
 Selectors.matcher(::Type{Expanders.EvalBlocks},     node, page, doc) = iscode(node, "@eval")
 Selectors.matcher(::Type{Expanders.IndexBlocks},    node, page, doc) = iscode(node, "@index")
 Selectors.matcher(::Type{Expanders.ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
@@ -306,13 +306,54 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
     node.element = MetaNode(x, copy(meta))
 end
 
+# @docs / @autodocs utils
+# -----------------------
+
+function parse_docs_args(tag, info)
+    matched = match(Regex("^@$tag\\s*(;.*)?\$"), info)
+    matched === nothing && error("invalid '@$tag' syntax: $(info)")
+    kwargs = matched.captures[1]
+    is_canonical = true
+    if kwargs !== nothing
+        matched = match(r"\bcanonical\s*=\s*(true|false)\b", kwargs)
+        if matched !== nothing
+            is_canonical = matched[1] == "true"
+        end
+    end
+    return is_canonical
+end
+
+function slugify_pagekey(page_ref)
+    page_ref = slugify(page_ref)
+    page_ref = replace(page_ref, "/" => "-")
+    page_ref = replace(page_ref, r"\.md$" => "")
+    return page_ref
+end
+
+function make_object(binding, typesig, is_canonical, doc, page)
+    object = Documenter.Object(binding, typesig)
+    if !is_canonical
+        primary_anchor = string(object)
+        counter = get!(page.globals.meta, :noncanonical_docs_counter, Dict())
+        frag_extra = slugify_pagekey(pagekey(doc, page))
+        if primary_anchor in keys(counter)
+            counter[primary_anchor] += 1
+            frag_extra *= "-$(counter[primary_anchor])"
+        else
+            counter[primary_anchor] = 1
+        end
+        object = Documenter.Object(binding, typesig, frag_extra)
+    end
+    return object
+end
+
 # @docs
 # -----
 
 function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-
+    is_canonical = parse_docs_args("docs", x.info)
     docsnodes = Node[]
     curmod = get(page.globals.meta, :CurrentModule, Main)
     lines = Documenter.find_block_in_file(x.code, page.source)
@@ -350,8 +391,7 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             continue
         end
         typesig = Core.eval(curmod, Documenter.DocSystem.signature(ex, str))
-
-        object = Documenter.Object(binding, typesig)
+        object = make_object(binding, typesig, is_canonical, doc, page)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
             @docerror(doc, :docs_block,
@@ -410,7 +450,7 @@ const AUTODOCS_DEFAULT_ORDER = [:module, :constant, :type, :function, :macro]
 function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-
+    is_canonical = parse_docs_args("autodocs", x.info)
     curmod = get(page.globals.meta, :CurrentModule, Main)
     fields = Dict{Symbol, Any}()
     lines = Documenter.find_block_in_file(x.code, page.source)
@@ -482,7 +522,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     if filtered
                         for (typesig, docstr) in multidoc.docs
                             path = normpath(docstr.data[:path])
-                            object = Documenter.Object(binding, typesig)
+                            object = make_object(binding, typesig, is_canonical, doc, page)
                             if isempty(pages)
                                 push!(results, (mod, path, category, object, isexported, docstr))
                             else
@@ -591,19 +631,19 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
         else
             # TODO: we could handle the cases where the user provides some of the Markdown library
             # objects, like Paragraph.
-            @warn """
+            @docerror(doc, :eval_block, """
             Invalid type of object in @eval in $(Documenter.locrepr(page.source))
             ```$(x.info)
             $(x.code)
             ```
-            Evaluate to `$(typeof(result))`, should be one of
+            Evaluated to `$(typeof(result))`, but should be one of
              - Nothing
              - Markdown.MD
-            Falling back to code block representation.
+            Falling back to textual code block representation.
 
-            If you are seeing this warning after upgrading Documenter and this used to work,
+            If you are seeing this warning/error after upgrading Documenter and this used to work,
             please open an issue on the Documenter issue tracker.
-            """
+            """)
             MarkdownAST.@ast MarkdownAST.Document() do
                 MarkdownAST.CodeBlock("", sprint(show, MIME"text/plain"(), result))
             end

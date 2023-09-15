@@ -422,7 +422,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             footer = nothing,
         ),
         # TODO: example_block failure only happens on windows, so that's not actually expected
-        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block],
+        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block, :eval_block],
     )
 else
     @info "Skipping build: HTML/local"
@@ -657,7 +657,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
-        warnonly = [:footnote, :cross_references, :example_block],
+        warnonly = [:footnote, :cross_references, :example_block, :eval_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex"
@@ -741,7 +741,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
-        warnonly = [:footnote, :cross_references, :example_block],
+        warnonly = [:footnote, :cross_references, :example_block, :eval_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"

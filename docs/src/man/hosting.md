@@ -490,23 +490,6 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
 It is recommended to use this link, rather than the versioned links, since it will be updated
 with new releases.
 
-!!! info "Fixing broken release deployments"
-
-    It can happen that, for one reason or another, the documentation for a tagged version of
-    your package fails to deploy and a fix would require changes to the source code (e.g. a
-    misconfigured `make.jl`). However, as registered tags should not be changed, you can not
-    simply update the original tag (e.g. `v1.2.3`) with the fix.
-
-    In this situation, you can manually create and push a tag for the commit with the fix
-    that has the same version number, but also some build metadata (e.g. `v1.2.3+doc1`). For
-    Git, this is a completely different tag, so it won't interfere with anything. But when
-    Documenter runs on this tag, it will ignore the build metadata and deploy the docs as if
-    they were for version `v1.2.3`.
-
-    Note that, as with normal tag builds, you need to make sure that your CI that runs
-    Documenter is configured to run on such tags (e.g. that the regex constraining the
-    branches the CI runs on is broad enough etc).
-
 Once your documentation has been pushed to the `gh-pages` branch you should add links to
 your `README.md` pointing to the `stable` (and perhaps `dev`) documentation URLs. It is common
 practice to make use of "badges" similar to those used for Travis and AppVeyor build
@@ -523,6 +506,23 @@ and text of the image can be changed by altering `docs-stable-blue` as described
 [shields.io](https://shields.io), though it is recommended that package authors follow this
 standard to make it easier for potential users to find documentation links across multiple
 package README files.
+
+### Fixing broken release deployments
+
+It can happen that, for one reason or another, the documentation for a tagged version of
+your package fails to deploy and a fix would require changes to the source code (e.g. a
+misconfigured `make.jl`). However, as registered tags should not be changed, you can not
+simply update the original tag (e.g. `v1.2.3`) with the fix.
+
+In this situation, you can manually create and push a tag for the commit with the fix
+that has the same version number, but also some build metadata (e.g. `v1.2.3+doc1`). For
+Git, this is a completely different tag, so it won't interfere with anything. But when
+Documenter runs on this tag, it will ignore the build metadata and deploy the docs as if
+they were for version `v1.2.3`.
+
+Note that, as with normal tag builds, you need to make sure that your CI that runs
+Documenter is configured to run on such tags (e.g. that the regex constraining the
+branches the CI runs on is broad enough etc).
 
 ### Deploying without the versioning scheme
 
