@@ -389,8 +389,15 @@ function Document(;
         others...
     )
 
+    if !isempty(others)
+        msg = "makedocs() got passed invalid keyword arguments:"
+        for (k, v) in others
+            msg *= string("\n  ", k, " = ", repr(v))
+        end
+        throw(ArgumentError(msg))
+    end
+
     warnonly = reduce_warnonly(warnonly) # convert warnonly to Symbol[]
-    check_kwargs(others)
 
     if !isa(format, AbstractVector)
         format = Writer[format]

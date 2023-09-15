@@ -62,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** If you are passing any plugin objects to `makedocs` (positionally), pass them via the `plugins` keyword instead.
 
+* `makedocs` will now throw an error if it gets passed an unsupported keyword argument. ([#2259])
+
+  **For upgrading:** Remove the listed keyword arguments from the `makedocs` call. If the keyword was previously valid, consult this CHANGELOG for upgrade instructions.
+
 ### Added
 
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). ([#1989], [#1271])
@@ -1639,6 +1643,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
 [#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
 [#2142]: https://github.com/JuliaDocs/Documenter.jl/issues/2142
+[#2143]: https://github.com/JuliaDocs/Documenter.jl/issues/2143
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
 [#2147]: https://github.com/JuliaDocs/Documenter.jl/issues/2147
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
@@ -1658,7 +1663,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
+[#2245]: https://github.com/JuliaDocs/Documenter.jl/issues/2245
+[#2247]: https://github.com/JuliaDocs/Documenter.jl/issues/2247
+[#2249]: https://github.com/JuliaDocs/Documenter.jl/issues/2249
 [#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
+[#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
