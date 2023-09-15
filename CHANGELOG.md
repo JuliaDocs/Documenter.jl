@@ -62,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** If you are passing any plugin objects to `makedocs` (positionally), pass them via the `plugins` keyword instead.
 
+* `makedocs` will now throw an error if it gets passed an unsupported keyword argument.
+
+  **For upgrading:** Remove the listed keyword arguments from the `makedocs` call. If the keyword was previously valid, consult this CHANGELOG for upgrade instructions.
+
 ### Added
 
 * Doctest filters can now be specified as regex/substitution pairs, i.e. `r"..." => s"..."`, in order to control the replacement (which defaults to the empty string, `""`). ([#1989], [#1271])
