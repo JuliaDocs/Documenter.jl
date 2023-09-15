@@ -32,6 +32,7 @@ IOCapture = "0.2"
 JSON = "0.19, 0.20, 0.21"
 MarkdownAST = "0.1.1"
 PrecompileTools = "1"
+RegistryInstances = "0.1"
 julia = "1.6"
 
 [extras]
