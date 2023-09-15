@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.0.0] - 2023-09-15
 
 ### Version changes
 
@@ -54,9 +54,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   If you are unable to reduce the generated file size, you can increase the `size_threshold` value to just above the maximum size, or disable the enforcement of size threshold checks altogether by setting `size_threshold = nothing`.
   If it is just a few specific pages that are offending, you can also ignore those with `size_threshold_ignore`.
 
-* User-provided `assets/search.js` files no longer override Documenter's default search implementation, and the user-provided now gets ignored by default. ([#2236])
+* User-provided `assets/search.js` file no longer overrides Documenter's default search implementation, and the user-provided files will now be ignored by default. ([#2236])
 
-  **For upgrading:** The JS file can still be include by passing it to the `assets` keyword of `format = HTML(...)`. However, it will likely conflict with Documenter's default search implementation. If you require an API to override Documenter's search engine, please open an issue.
+  **For upgrading:** The JS file can still be included via the `assets` keyword of `format = HTML(...)`. However, it will likely conflict with Documenter's default search implementation. If you require an API to override Documenter's search engine, please open an issue.
 
 * Plugin objects which were formally passed as (undocumented) positional keyword arguments to `makedocs` are now given as elements of a list `plugins` passed as a keyword argument ([#2245], [#2249])
 
@@ -144,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
+* Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][JuliaLang/julia#29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
 
 * `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. ([#505], [#1924])
 
@@ -1236,6 +1236,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.27.23]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.23
 [v0.27.24]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.24
 [v0.27.25]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.25
+[v1.0.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1674,6 +1675,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
 [#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
 [#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
+[JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
