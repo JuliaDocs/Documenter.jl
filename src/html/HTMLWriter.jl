@@ -1769,10 +1769,11 @@ function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DO
     isdir(dirname(path)) || mkpath(dirname(path))
     file_size = open(io -> write(io, take!(buf)), path; write=true)
     size_threshold_msg(var::Symbol) = """
-    Generated HTML over $(var) limit: $(page_path)
+    Generated HTML over $(var) limit: $(navnode.page)
         Generated file size: $(file_size) (bytes)
         size_threshold_warn: $(ctx.settings.size_threshold_warn) (bytes)
-        size_threshold:      $(ctx.settings.size_threshold) (bytes)"""
+        size_threshold:      $(ctx.settings.size_threshold) (bytes)
+        HTML file:           $(page_path)"""
     if navnode.page in ctx.settings.size_threshold_ignore
         if file_size > ctx.settings.size_threshold_warn
             @debug """

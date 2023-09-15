@@ -198,21 +198,6 @@ function update_linenumbernodes!(x::LineNumberNode, newfile, lineshift)
 end
 
 
-# Checking arguments.
-
-"""
-Prints a formatted warning to the user listing unrecognised keyword arguments.
-"""
-function check_kwargs(kws)
-    isempty(kws) && return
-    out = IOBuffer()
-    println(out, "Unknown keywords:\n")
-    for (k, v) in kws
-        println(out, "  ", k, " = ", v)
-    end
-    @warn(String(take!(out)))
-end
-
 # Finding submodules.
 
 const ModVec = Union{Module, Vector{Module}}

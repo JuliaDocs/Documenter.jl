@@ -631,19 +631,19 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
         else
             # TODO: we could handle the cases where the user provides some of the Markdown library
             # objects, like Paragraph.
-            @warn """
+            @docerror(doc, :eval_block, """
             Invalid type of object in @eval in $(Documenter.locrepr(page.source))
             ```$(x.info)
             $(x.code)
             ```
-            Evaluate to `$(typeof(result))`, should be one of
+            Evaluated to `$(typeof(result))`, but should be one of
              - Nothing
              - Markdown.MD
-            Falling back to code block representation.
+            Falling back to textual code block representation.
 
-            If you are seeing this warning after upgrading Documenter and this used to work,
+            If you are seeing this warning/error after upgrading Documenter and this used to work,
             please open an issue on the Documenter issue tracker.
-            """
+            """)
             MarkdownAST.@ast MarkdownAST.Document() do
                 MarkdownAST.CodeBlock("", sprint(show, MIME"text/plain"(), result))
             end

@@ -143,7 +143,7 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
 @testset "doctesting" begin
     # So, we have 4 doctests: 2 in a docstring, 2 in an .md file. One of either pair is
     # OK, other is broken. Here we first test all possible combinations of these doctest
-    # with strict = true to make sure that the doctests are indeed failing.
+    # to make sure that the doctests are indeed failing.
     #
     # Some tests are broken due to https://github.com/JuliaDocs/Documenter.jl/issues/974
     run_makedocs(["working.md"]) do result, success, backtrace, output
