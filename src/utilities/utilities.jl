@@ -198,21 +198,6 @@ function update_linenumbernodes!(x::LineNumberNode, newfile, lineshift)
 end
 
 
-# Checking arguments.
-
-"""
-Prints a formatted warning to the user listing unrecognised keyword arguments.
-"""
-function check_kwargs(kws)
-    isempty(kws) && return
-    out = IOBuffer()
-    println(out, "Unknown keywords:\n")
-    for (k, v) in kws
-        println(out, "  ", k, " = ", v)
-    end
-    @warn(String(take!(out)))
-end
-
 # Finding submodules.
 
 const ModVec = Union{Module, Vector{Module}}
@@ -487,6 +472,15 @@ Stores the memoized results of [`getremote`](@ref).
 """
 const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
 
+function parse_remote_url(remote::AbstractString)
+    # TODO: we only match for GitHub repositories automatically. Could we engineer a
+    # system where, if there is a user-created Remote, the user could also define a
+    # matching function here that tries to interpret other URLs?
+    m = match(LibGit2.GITHUB_REGEX, remote)
+    isnothing(m) && return nothing
+    return Remotes.GitHub(m[2], m[3])
+end
+
 """
 $(TYPEDSIGNATURES)
 
@@ -507,12 +501,7 @@ function getremote(dir::AbstractString)
             @debug "git config --get remote.origin.url failed" exception=(e, catch_backtrace())
             ""
         end
-        # TODO: we only match for GitHub repositories automatically. Could we engineer a
-        # system where, if there is a user-created Remote, the user could also define a
-        # matching function here that tries to interpret other URLs?
-        m = match(LibGit2.GITHUB_REGEX, remote)
-        isnothing(m) && return nothing
-        return Remotes.GitHub(m[2], m[3])
+        return parse_remote_url(remote)
     end
 end
 

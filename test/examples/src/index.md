@@ -655,3 +655,24 @@ They do not get evaluated.
 
 !!! ukw "Unknown admonition class"
     Admonition with an unknown admonition class.
+
+## `@example` outputs to file
+
+```@example
+Main.AT_EXAMPLE_FILES[("png", :big)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("png", :tiny)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("webp", :big)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("webp", :tiny)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("gif", :big)]
+```
+```@example
+Main.AT_EXAMPLE_FILES[("jpeg", :tiny)]
+```

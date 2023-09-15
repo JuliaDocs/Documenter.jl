@@ -5,7 +5,9 @@
 module RepoLinkTests
 using Test
 using Random: randstring
-using Documenter: Documenter, Remotes, git, edit_url, source_url
+using Documenter: Documenter, Remotes, git, edit_url, source_url, MarkdownAST, walk_navpages, expand
+using Documenter.HTMLWriter: render_article, HTMLContext, HTML
+using Markdown
 include("TestUtilities.jl"); using Main.TestUtilities
 
 function init_git_repo(f, path;
@@ -100,13 +102,13 @@ end
     @test edit_url(doc, joinpath(extrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/foo"
     @test edit_url(doc, joinpath(extrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/bar/baz/qux"
     # But if you don't have the Git origin set, then we error
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
     # And the same applies to external directories
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
 end
 
 @testset "Repo only" begin
@@ -124,13 +126,13 @@ end
     @test edit_url(doc, joinpath(extrepo, "foo"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/foo"
     @test edit_url(doc, joinpath(extrepo, "bar", "baz", "qux"); rev=nothing) == "https://github.com/TestOrg/ExtRepo.jl/blob/$(extrepo_commit)/bar/baz/qux"
     # But if you don't have the Git origin set, then we error
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
     # And the same applies to external directories
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing)
 end
 
 @testset "repo for extrepo_noremote" begin
@@ -172,8 +174,8 @@ end
     @test edit_url(doc, joinpath(subrepo_noremote, "foo"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/foo"
     @test edit_url(doc, joinpath(subrepo_noremote, "bar", "baz", "qux"); rev=nothing) == "https://github.com/AlternateOrg/NoRemoteSubdir.jl/blob/$(subrepo_noremote_commit)/bar/baz/qux"
     # extrepo_noremote: we did not touch this
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
-    @test_throws ErrorException edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "foo"); rev=nothing)
+    @test_throws Documenter.MissingRemoteError edit_url(doc, joinpath(extrepo_noremote, "bar", "baz", "qux"); rev=nothing)
     # extdirectory: should point to AlternateOrg/ExtRepo.jl
     @test edit_url(doc, joinpath(extdirectory, "foo"); rev=nothing) == "https://github.com/AlternateOrg/ExtRepo.jl/blob/12345/foo"
     @test edit_url(doc, joinpath(extdirectory, "bar", "baz", "qux"); rev=nothing) == "https://github.com/AlternateOrg/ExtRepo.jl/blob/12345/bar/baz/qux"
@@ -226,5 +228,44 @@ end
 )
 
 rm(tmproot, recursive=true, force=true)
+
+include("repolink_helpers.jl")
+
+@testset "Pkg.add() guesses github tag" begin
+    src = convert(
+        MarkdownAST.Node,
+        md"""
+        ```@meta
+        CurrentModule = Main.RepoLinkTests.TestHelperModule
+        ```
+        ```@docs
+        MarkdownAST.Node
+        ```
+        """
+    )
+    doc, html = render_expand_doc(src)
+
+    # Links to repo
+    re = r"<a[^>]+ href=['\"]?https://github.com/JuliaDocs/MarkdownAST.jl"
+    @test occursin(re, string(html))
+
+    src = convert(
+        MarkdownAST.Node,
+        md"""
+        ```@meta
+        CurrentModule = Main.RepoLinkTests.TestHelperModule
+        ```
+        This will result in a 404 because this version isn't tagged
+        ```@docs
+        RegistryInstances
+        ```
+        """
+    )
+    doc, html = render_expand_doc(src)
+
+    # Links to repo
+    re = r"<a[^>]+ href=['\"]?https://github.com/GunnarFarneback/RegistryInstances.jl"
+    @test occursin(re, string(html))
+end
 
 end

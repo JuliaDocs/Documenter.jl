@@ -1,5 +1,6 @@
 using Test
 import JSON
+import Base64
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl. But for the tests we need to make sure that all the relevant builds
@@ -76,7 +77,7 @@ all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
     end
     mdfiles
 end
-@test length(all_md_files_in_src) == 25
+@test length(all_md_files_in_src) == 27
 
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
@@ -182,6 +183,37 @@ end
                 @test haskey(siteinfo_json["documenter"], "julia_version")
                 @test haskey(siteinfo_json["documenter"], "generation_timestamp")
             end
+
+            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
+                if size === :tiny
+                    encoded_data = Base64.base64encode(data.bytes)
+                    @test occursin(encoded_data, read(joinpath(build_dir, "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "example-output", "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "outputs", "index.html"), String))
+                else # size === :big
+                    # From src/index.md
+                    @test isfile(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/example-output.md
+                    @test isfile(joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/index.md
+                    @test isfile(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/outputs.md
+                    @test isfile(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)")) == data.bytes
+                end
+            end
+            # SVG on src/example-output.md
+            @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg"))
+            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # SVG on src/example-output.md, from Main.SVG_MULTI
+            @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-001.svg"))
+            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # .. but, crucially, Main.SVG_HTML did _not_ get written out.
+            @test !isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-002.svg"))
         end
     end
 
@@ -209,6 +241,37 @@ end
             documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
+
+            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
+                if size === :tiny
+                    encoded_data = Base64.base64encode(data.bytes)
+                    @test occursin(encoded_data, read(joinpath(build_dir, "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "example-output.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "index.html"), String))
+                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "outputs.html"), String))
+                else # size === :big
+                    # From src/index.md
+                    @test isfile(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/example-output.md
+                    @test isfile(joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/index.md
+                    @test isfile(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    # From src/outputs/outputs.md
+                    @test isfile(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)"))
+                    @test read(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)")) == data.bytes
+                end
+            end
+            # SVG on src/example-output.md
+            @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg"))
+            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # SVG on src/example-output.md, from Main.SVG_MULTI
+            @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-001.svg"))
+            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            # .. but, crucially, Main.SVG_HTML did _not_ get written out.
+            @test !isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-002.svg"))
         end
     end
 
@@ -250,6 +313,8 @@ end
         @test examples_html_sizethreshold_success_doc isa Documenter.Document
         @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
         @test examples_html_sizethreshold_override_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+        @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
+        @test examples_html_sizethreshold_ignore_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
     end
 
     @testset "PDF/LaTeX: TeX only" begin

@@ -11,6 +11,7 @@ test/formats/builds/
 test/missingdocs/build/
 test/nongit/build/
 test/errors/build/
+test/plugins/build/
 test/prerender/build/
 test/themes/dev/
 test/workdir/builds/

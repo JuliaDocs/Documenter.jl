@@ -254,3 +254,110 @@ end
 
 linkcheck_ismatch(r::String, url) = (url == r)
 linkcheck_ismatch(r::Regex, url) = occursin(r, url)
+
+# Automatic Pkg.add() GitHub remote check
+# ---------------------------------------
+
+function gh_get_json(path)
+    io = IOBuffer()
+    url = "https://api.github.com$(path)"
+    @debug "request: GET $url"
+    resp = Downloads.request(
+        url,
+        output=io,
+        headers=Dict(
+            "Accept" => "application/vnd.github.v3+json",
+            "X-GitHub-Api-Version" => "2022-11-28"
+        )
+    )
+    return resp.status, JSON.parse(String(take!(io)))
+end
+
+function tag(repo, tag_ref)
+    status, result = gh_get_json("/repos/$(repo)/git/ref/tags/$(tag_ref)")
+    if status == 404
+        return nothing
+    elseif status != 200
+        error("Unexpected error code $(status) '$(repo)' while getting tag '$(tag_ref)'.")
+    end
+    if result["object"]["type"] == "tag"
+        status, result = gh_get_json("/repos/$(repo)/git/tags/$(result["object"]["sha"])")
+        if status == 404
+            return nothing
+        elseif status != 200
+            error("Unexpected error code $(status) '$(repo)' while getting tag '$(tag_ref)'.")
+        end
+    end
+    return result
+end
+
+function gitcommit(repo, commit_tag)
+    status, result = gh_get_json("/repos/$(repo)/git/commits/$(commit_tag)")
+    if status != 200
+        error("Unexpected error code $(status) '$(repo)' while getting commit '$(commit_tag)'.")
+    end
+    return result
+end
+
+GITHUB_ERROR_ADVICE = (
+    "This means automatically finding the source URL link for this package failed. " *
+    "Please add the source URL link manually to the `remotes` field " *
+    "in `makedocs` or install the package using `Pkg.develop()``."
+)
+
+function githubcheck(doc::Document)
+    if !doc.user.linkcheck
+        return
+    end
+    # When we add GitHub links based on packages which have been added with
+    # Pkg.add(), we don't have much git information, so we simply use a guessed
+    # tag based on the version `v$VERSION`, as this tag is added by the popular
+    # TagBot action.
+    #
+    # This check uses the GitHub API to check whether the tag exists, and if
+    # so, whether the tree hash matches the tree hash of the package entry
+    # in the manifest.
+    src_to_uuid = get_src_to_uuid(doc)
+    for remote_repo in doc.user.remotes
+        if !(remote_repo.remote isa Remotes.GitHub)
+            continue
+        end
+        if !(remote_repo.root in keys(src_to_uuid))
+            continue
+        end
+        uuid = src_to_uuid[remote_repo.root]
+        repo_info = uuid_to_repo(doc, uuid)
+        if repo_info === nothing
+            continue
+        end
+        if remote_repo.remote != repo_info[1] || remote_repo.commit != repo_info[2]
+            continue
+        end
+        # Looks like it's been guessed -- let's check if it matches the
+        # tree hash from the package entry
+        uuid_to_version_info = get_uuid_to_version_info(doc)
+        tree_hash = uuid_to_version_info[uuid][2]
+        remote = remote_repo.remote
+        repo = remote.user * "/" * remote.repo
+        tag_guess = remote_repo.commit
+        tag_ref = tag(repo, tag_guess)
+        if tag_ref === nothing
+            @docerror(doc, :linkcheck_remotes, "linkcheck (remote) '$(repo)' error while getting tag '$(tag_guess)'. $(GITHUB_ERROR_ADVICE)")
+            return
+        end
+        if tag_ref["object"]["type"] != "commit"
+            @docerror(doc, :linkcheck_remotes, "linkcheck (remote) '$(repo)' tag '$(tag_guess)' does not point to a commit. $(GITHUB_ERROR_ADVICE)")
+            return
+        end
+        commit_sha = tag_ref["object"]["sha"]
+        git_commit = gitcommit(repo, commit_sha)
+        actual_tree_hash = git_commit["tree"]["sha"]
+        if string(tree_hash) != actual_tree_hash
+            @docerror(
+                doc,
+                :linkcheck_remotes,
+                "linkcheck (remote) '$(repo)' tag '$(tag_guess)' points to tree hash $(actual_tree_hash), but package entry has $(tree_hash). $(GITHUB_ERROR_ADVICE)"
+            )
+        end
+    end
+end

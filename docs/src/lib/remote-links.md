@@ -34,8 +34,7 @@ To handle those cases, the `remotes` keyword to [`makedocs`](@ref) can be used t
 The local directory is assumed to correspond to the root of the Git repository, and any subpath within that directory is then resolved to the corresponding path in the remote repository.
 If there are nested `remotes` configured, Documenter will use the one that matches first as it walks up the directory tree from the original path.
 
-As the common case is a locally checked out Git repository cloned from GitHub, Documenter will also try to determine such remotes automatically.
-This is done regardless whether any additional remotes have been specified with `remotes` or not.
+As the common cases are a locally checked out Git repository (added with `Pkg.develop` to the docs environment), or a released package which is hosted on GitHub (`Pkg.add`ed to the environment), Documenter will also try to determine such remotes automatically.
 
 * When Documenter walks up the directory tree, it checks whether the directory is a root of a Git repository (by looking for the presence of a `.git` directory or file).
   Once it finds a valid local repository root, it tries to read its [`origin` remote URL](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes).
@@ -44,6 +43,13 @@ This is done regardless whether any additional remotes have been specified with 
     In this case, the remote should be configured explicitly with `remotes`.
 
 You can think of it as Documenter automatically populating `remotes` with any cloned GitHub repositories it finds.[^3]
+
+For released packages (those added using `Pkg.add(...)` rather than `Pkg.develop(...)`), the version and repository can be determined from the package metadata, but a commit hash is not readily available.
+In this case, Documenter will guess that a tag `v$VERSION` exists in the repository on GitHub.
+Note that these tags are created automatically by the widely used JuliaRegistries/TagBot action.
+Since this is sometimes not the case, and could cause dead or incorrect links, setting the `linkcheck` keyword to `true` to [`makedocs`](@ref) will check these guessed links have an existing target and that the existing target matches the published package.
+(Note this will also all other external links from your documentation.)
+Note that enabling this option can cause documentation builds to fail due to network errors or intermittent downtime of external services.
 
 !!! note
 
