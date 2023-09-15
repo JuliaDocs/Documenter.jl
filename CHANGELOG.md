@@ -140,6 +140,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The HTML output will automatically write larger `@example`-block outputs to files, to make the generated HTML files smaller. The size threshold can be controlled with the `example_size_threshold` option to `HTML`. ([#2143], [#2247])
 
+* The `@docs` and `@autodocs` blocks can now be declared non-canonical, allowing multiple copied of the same docstring to be included in the manual. ([#1079], [#1570], [#2237])
+
 ### Fixed
 
 * Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
@@ -1336,6 +1338,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1075]: https://github.com/JuliaDocs/Documenter.jl/issues/1075
 [#1076]: https://github.com/JuliaDocs/Documenter.jl/issues/1076
 [#1077]: https://github.com/JuliaDocs/Documenter.jl/issues/1077
+[#1079]: https://github.com/JuliaDocs/Documenter.jl/issues/1079
 [#1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [#1082]: https://github.com/JuliaDocs/Documenter.jl/issues/1082
 [#1088]: https://github.com/JuliaDocs/Documenter.jl/issues/1088
@@ -1480,6 +1483,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1567]: https://github.com/JuliaDocs/Documenter.jl/issues/1567
 [#1568]: https://github.com/JuliaDocs/Documenter.jl/issues/1568
 [#1569]: https://github.com/JuliaDocs/Documenter.jl/issues/1569
+[#1570]: https://github.com/JuliaDocs/Documenter.jl/issues/1570
 [#1575]: https://github.com/JuliaDocs/Documenter.jl/issues/1575
 [#1577]: https://github.com/JuliaDocs/Documenter.jl/issues/1577
 [#1590]: https://github.com/JuliaDocs/Documenter.jl/issues/1590
@@ -1663,6 +1667,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
+[#2237]: https://github.com/JuliaDocs/Documenter.jl/issues/2237
 [#2245]: https://github.com/JuliaDocs/Documenter.jl/issues/2245
 [#2247]: https://github.com/JuliaDocs/Documenter.jl/issues/2247
 [#2249]: https://github.com/JuliaDocs/Documenter.jl/issues/2249

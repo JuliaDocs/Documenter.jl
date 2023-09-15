@@ -947,7 +947,7 @@ function populate!(index::IndexNode, document::Document)
         mod  = object.binding.mod
         # Include *all* signatures, whether they are `Union{}` or not.
         cat  = Symbol(lowercase(doccat(object.binding, Union{})))
-        if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
+        if is_canonical(object) && _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end

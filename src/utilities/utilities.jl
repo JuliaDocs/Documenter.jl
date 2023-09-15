@@ -238,12 +238,15 @@ Represents an object stored in the docsystem by its binding and signature.
 struct Object
     binding   :: Binding
     signature :: Type
+    noncanonical_extra :: Union{String, Nothing}
 
-    function Object(b::Binding, signature::Type)
+    function Object(b::Binding, signature::Type, noncanonical_extra=nothing)
         m = nameof(b.mod) === b.var ? parentmodule(b.mod) : b.mod
-        new(Binding(m, b.var), signature)
+        new(Binding(m, b.var), signature, noncanonical_extra)
     end
 end
+
+is_canonical(o::Object) = o.noncanonical_extra === nothing
 
 function splitexpr(x::Expr)
     isexpr(x, :macrocall) ? splitexpr(x.args[1]) :
@@ -277,7 +280,10 @@ end
 function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
+    print_extra(io, obj.noncanonical_extra)
 end
+print_extra(io::IO, noncanonical_extra::Nothing ) = nothing
+print_extra(io::IO, noncanonical_extra::String ) = print(io, "-", noncanonical_extra)
 print_signature(io::IO, signature::Union{Union, Type{Union{}}}) = nothing
 print_signature(io::IO, signature)        = print(io, '-', signature)
 

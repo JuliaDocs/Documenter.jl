@@ -29,7 +29,7 @@ function missingdocs(doc::Document)
         println(b)
         print(b, """
         These are docstrings in the checked modules (configured with the modules keyword)
-        that are not included in @docs or @autodocs blocks.
+        that are not included in canonical @docs or @autodocs blocks.
         """)
         @docerror(doc, :missing_docs, String(take!(b)))
     end
@@ -40,6 +40,9 @@ function missingbindings(doc::Document)
     @debug "checking for missing docstrings."
     bindings = allbindings(doc.user.checkdocs, doc.blueprint.modules)
     for object in keys(doc.internal.objects)
+        if !is_canonical(object)
+            continue
+        end
         # The module references in docs blocks can yield a binding like
         # Docs.Binding(Mod, :SubMod) for a module SubMod, a submodule of Mod. However, the
         # module bindings that come from Docs.meta() always appear to be of the form
