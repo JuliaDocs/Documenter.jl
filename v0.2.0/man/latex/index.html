@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
-    
-      
-        <title>LaTeX Syntax - Documenter.jl</title>
-      
-      
-      
-      
-        <meta name="author" content="Michael Hatherly">
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Documenter.jl">
-    <meta property="og:image" content="None/../../">
-    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
+<!DOCTYPE html><HTML class="no-js"><head><meta charset="utf-8"/><meta content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" name="viewport"/><title>LaTeX Syntax - Documenter.jl</title><meta content="Michael Hatherly" name="author"/><meta content="None" property="og:url"/><meta content="Documenter.jl" property="og:title"/><meta content="None/../../" property="og:image"/><meta content="Documenter.jl" name="apple-mobile-web-app-title"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><link href="../../assets/images/favicon-e565ddfa3b.ico" rel="shortcut icon" type="image/x-icon"/><link href="../../assets/images/favicon-e565ddfa3b.ico" rel="icon" type="image/x-icon"/><style>
       @font-face {
       	font-family: 'Icon';
       	src: url('../../assets/fonts/icon.eot?52m981');
@@ -42,537 +13,168 @@
       	font-weight: normal;
       	font-style: normal;
       }
-    </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
-    
-    
-      
-      
-      
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
+    </style><link href="../../assets/stylesheets/application-a422ff04cc.css" rel="stylesheet"/><link href="../../assets/stylesheets/palettes-05ab2406df.css" rel="stylesheet"/><link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono" rel="stylesheet"/><style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         }
         pre, code {
           font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
         }
-      </style>
-    
-    
-      <link rel="stylesheet" href="../../assets/Documenter.css">
-    
-    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
-    
-  </head>
-  
-  
-  
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
+      </style><link href="../../assets/Documenter.css" rel="stylesheet"/><script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body class="palette-primary-indigo palette-accent-blue"><div class="backdrop"><div class="backdrop-paper"></div></div><input class="toggle" id="toggle-drawer" type="checkbox"/><input class="toggle" id="toggle-search" type="checkbox"/><label class="toggle-button overlay" for="toggle-drawer"></label><header class="header"><nav aria-label="Header"><div class="bar default"><div aria-label="Menu" class="button button-menu" role="button"><label class="toggle-button icon icon-menu" for="toggle-drawer"><span></span></label></div><div class="stretch"><div class="title"><span class="path">
             
               
-                Manual <i class="icon icon-link"></i>
-              
-            
-          </span>
+                Manual <i class="icon icon-link"></i></span>
         
         LaTeX Syntax
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
+      </div></div><div aria-label="Search" class="button button-search" role="button"><label class="toggle-button icon icon-search" for="toggle-search" title="Search"></label></div></div><div class="bar search"><div aria-label="Close" class="button button-close" role="button"><label class="toggle-button icon icon-back" for="toggle-search"></label></div><div class="stretch"><div class="field"><input autocapitalize="off" autocomplete="off" autocorrect="off" class="query" placeholder="Search" spellcheck="" type="text"/></div></div><div aria-label="Search" class="button button-reset" role="button"><button class="toggle-button icon icon-close" id="reset-search"></button></div></div></nav></header><main class="main"><div class="drawer"><nav aria-label="Navigation"><a class="project" href="https://github.com/JuliaDocs/Documenter.jl"><div class="banner"><div class="name"><strong>
           Documenter.jl
-          <span class="version">
-            
-          </span>
-        </strong>
-        
-          <br>
+          <span class="version"></span></strong><br/>
           JuliaDocs/Documenter.jl
         
-      </div>
-    </div>
-  </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="../..">
+      </div></div></a><div class="scrollable"><div class="wrapper"><ul class="repo"><li class="repo-download"><a data-action="download" href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download"><i class="icon icon-download"></i> Download
+            </a></li><li class="repo-stars"><a data-action="star" href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers"><i class="icon icon-star"></i> Stars
+              <span class="count">–</span></a></li></ul><hr/><div class="toc"><ul><li><a class="" href="../.." title="Home">
       Home
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Manual</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Guide" href="../guide/">
+    </a></li><li><span class="section">Manual</span><ul><li><a class="" href="../guide/" title="Guide">
       Guide
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Examples" href="../examples/">
+    </a></li><li><a class="" href="../examples/" title="Examples">
       Examples
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Syntax" href="../syntax/">
+    </a></li><li><a class="" href="../syntax/" title="Syntax">
       Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Doctests" href="../doctests/">
+    </a></li><li><a class="" href="../doctests/" title="Doctests">
       Doctests
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Hosting Documentation" href="../hosting/">
+    </a></li><li><a class="" href="../hosting/" title="Hosting Documentation">
       Hosting Documentation
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="current" title="LaTeX Syntax" href="./">
+    </a></li><li><a class="current" href="./" title="LaTeX Syntax">
       LaTeX Syntax
-    </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Julia 0.4" href="#julia-04">
+    </a><ul><li class="anchor"><a href="#julia-04" title="Julia 0.4">
                 Julia 0.4
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Julia 0.5" href="#julia-05">
+              </a></li><li class="anchor"><a href="#julia-05" title="Julia 0.5">
                 Julia 0.5
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="MkDocs and MathJax" href="#mkdocs-and-mathjax">
+              </a></li><li class="anchor"><a href="#mkdocs-and-mathjax" title="MkDocs and MathJax">
                 MkDocs and MathJax
-              </a>
-            </li>
-          
-        </ul>
-      
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../internals/">
+              </a></li></ul></li><li><a class="" href="../internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Library</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Public" href="../../lib/public/">
+    </a></li></ul></li><li><span class="section">Library</span><ul><li><a class="" href="../../lib/public/" title="Public">
       Public
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <span class="section">Internals</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Internals" href="../../lib/internals/">
+    </a></li><li><span class="section">Internals</span><ul><li><a class="" href="../../lib/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Anchors" href="../../lib/internals/anchors/">
+    </a></li><li><a class="" href="../../lib/internals/anchors/" title="Anchors">
       Anchors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Builder" href="../../lib/internals/builder/">
+    </a></li><li><a class="" href="../../lib/internals/builder/" title="Builder">
       Builder
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="CrossReferences" href="../../lib/internals/cross-references/">
+    </a></li><li><a class="" href="../../lib/internals/cross-references/" title="CrossReferences">
       CrossReferences
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocChecks" href="../../lib/internals/docchecks/">
+    </a></li><li><a class="" href="../../lib/internals/docchecks/" title="DocChecks">
       DocChecks
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocSystem" href="../../lib/internals/docsystem/">
+    </a></li><li><a class="" href="../../lib/internals/docsystem/" title="DocSystem">
       DocSystem
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Documents" href="../../lib/internals/documents/">
+    </a></li><li><a class="" href="../../lib/internals/documents/" title="Documents">
       Documents
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DOM" href="../../lib/internals/dom/">
+    </a></li><li><a class="" href="../../lib/internals/dom/" title="DOM">
       DOM
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Expanders" href="../../lib/internals/expanders/">
+    </a></li><li><a class="" href="../../lib/internals/expanders/" title="Expanders">
       Expanders
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Formats" href="../../lib/internals/formats/">
+    </a></li><li><a class="" href="../../lib/internals/formats/" title="Formats">
       Formats
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Generator" href="../../lib/internals/generator/">
+    </a></li><li><a class="" href="../../lib/internals/generator/" title="Generator">
       Generator
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Selectors" href="../../lib/internals/selectors/">
+    </a></li><li><a class="" href="../../lib/internals/selectors/" title="Selectors">
       Selectors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Utilities" href="../../lib/internals/utilities/">
+    </a></li><li><a class="" href="../../lib/internals/utilities/" title="Utilities">
       Utilities
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Walkers" href="../../lib/internals/walkers/">
+    </a></li><li><a class="" href="../../lib/internals/walkers/" title="Walkers">
       Walkers
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Writers" href="../../lib/internals/writers/">
+    </a></li><li><a class="" href="../../lib/internals/writers/" title="Writers">
       Writers
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
-          
-          <p><a id='latex_syntax-1'></a></p>
-<h1 id="latex-syntax">$\LaTeX$ syntax</h1>
-<p>The following section describes how to add equations written using $\LaTeX$ to your documentation. There are some differences between Julia <code>0.4</code> and <code>0.5</code> that need to be taken into account when reading this section of the manual. These differences are outlined in the next two sections.</p>
-<p><a id='Julia-0.4-1'></a></p>
-<h2 id="julia-04">Julia <code>0.4</code></h2>
-<p><a id='Inline-equations-1'></a></p>
-<h3 id="inline-equations">Inline equations</h3>
-<p>Surround inline equations and mathematical symbols in <code>$</code> characters, i.e.</p>
-<div class="codehilite"><pre><span></span>Here&#39;s some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.
-</pre></div>
-
-
-<p>which will be displayed as</p>
-<hr />
-<p>Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</p>
-<hr />
-<p><a id='Display-equations-1'></a></p>
-<h3 id="display-equations">Display equations</h3>
-<p>Use the same single <code>$</code> characters to wrap the equation, but also add a newline above and below it, i.e.</p>
-<div class="codehilite"><pre><span></span>Here&#39;s an equation:
+    </a></li></ul></li></ul></li></ul></div></div></div></nav></div><article class="article"><div class="wrapper"><p><a id="latex_syntax-1"></a></p><h1 id="latex-syntax">$\LaTeX$ syntax</h1><p>The following section describes how to add equations written using $\LaTeX$ to your documentation. There are some differences between Julia <code>0.4</code> and <code>0.5</code> that need to be taken into account when reading this section of the manual. These differences are outlined in the next two sections.</p><p><a id="Julia-0.4-1"></a></p><h2 id="julia-04">Julia <code>0.4</code></h2><p><a id="Inline-equations-1"></a></p><h3 id="inline-equations">Inline equations</h3><p>Surround inline equations and mathematical symbols in <code>$</code> characters, i.e.</p><div class="codehilite"><pre><span></span>Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.
+</pre></div><p>which will be displayed as</p><hr/><p>Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</p><hr/><p><a id="Display-equations-1"></a></p><h3 id="display-equations">Display equations</h3><p>Use the same single <code>$</code> characters to wrap the equation, but also add a newline above and below it, i.e.</p><div class="codehilite"><pre><span></span>Here's an equation:
 
 $\frac{n!}{k!(n - k)!} = \binom{n}{k}$
 
 This is the binomial coefficient.
-</pre></div>
-
-
-<p>which will be displayed as</p>
-<hr />
-<p>Here's an equation:</p>
-<p>
-<script type="math/tex; mode=display">
+</pre></div><p>which will be displayed as</p><hr/><p>Here's an equation:</p><p><script type="math/tex; mode=display">
 \frac{n!}{k!(n - k)!} = \binom{n}{k}
-</script>
-</p>
-<p>This is the binomial coefficient.</p>
-<hr />
-<p><a id='Escaping-characters-in-docstrings-1'></a></p>
-<h3 id="escaping-characters-in-docstrings">Escaping characters in docstrings</h3>
-<p>Since some characters used in $\LaTeX$ syntax are treated differently in docstrings they need to be escaped using a <code>\</code> character as in the following example:</p>
-<div class="codehilite"><pre><span></span><span class="s">&quot;&quot;&quot;</span>
-<span class="s">Here&#39;s some inline maths: \$</span><span class="se">\\</span><span class="s">sqrt[n]{1 + x + x^2 + </span><span class="se">\\</span><span class="s">ldots}\$.</span>
+</script></p><p>This is the binomial coefficient.</p><hr/><p><a id="Escaping-characters-in-docstrings-1"></a></p><h3 id="escaping-characters-in-docstrings">Escaping characters in docstrings</h3><p>Since some characters used in $\LaTeX$ syntax are treated differently in docstrings they need to be escaped using a <code>\</code> character as in the following example:</p><div class="codehilite"><pre><span></span><span class="s">"""</span>
+<span class="s">Here's some inline maths: \$</span><span class="se">\\</span><span class="s">sqrt[n]{1 + x + x^2 + </span><span class="se">\\</span><span class="s">ldots}\$.</span>
 
-<span class="s">Here&#39;s an equation:</span>
+<span class="s">Here's an equation:</span>
 
 <span class="s">\$</span><span class="se">\\</span><span class="s">frac{n!}{k!(n - k)!} = </span><span class="se">\\</span><span class="s">binom{n}{k}\$</span>
 
 <span class="s">This is the binomial coefficient.</span>
-<span class="s">&quot;&quot;&quot;</span>
+<span class="s">"""</span>
 <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="c"># ...</span>
-</pre></div>
+</pre></div><p>To avoid needing to escape the special characters the <code>doc""</code> string macro can be used:</p><div class="codehilite"><pre><span></span><span class="n">doc</span><span class="s">"""</span>
+<span class="s">Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</span>
 
-
-<p>To avoid needing to escape the special characters the <code>doc""</code> string macro can be used:</p>
-<div class="codehilite"><pre><span></span><span class="n">doc</span><span class="s">&quot;&quot;&quot;</span>
-<span class="s">Here&#39;s some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</span>
-
-<span class="s">Here&#39;s an equation:</span>
+<span class="s">Here's an equation:</span>
 
 <span class="s">$</span><span class="se">\f</span><span class="s">rac{n!}{k!(n - k)!} = </span><span class="se">\b</span><span class="s">inom{n}{k}$</span>
 
 <span class="s">This is the binomial coefficient.</span>
-<span class="s">&quot;&quot;&quot;</span>
+<span class="s">"""</span>
 <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="c"># ...</span>
-</pre></div>
-
-
-<p><a id='Julia-0.5-1'></a></p>
-<h2 id="julia-05">Julia <code>0.5</code></h2>
-<p>The syntax from above, using <code>$</code>s, will still work in <code>0.5</code>, but it is recommended, if possible, to use the following double backtick syntax instead since it avoids overloading the meaning of the <code>$</code> character within docstrings.</p>
-<p><a id='Inline-equations-2'></a></p>
-<h3 id="inline-equations_1">Inline equations</h3>
-<div class="codehilite"><pre><span></span>Here&#39;s some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
-</pre></div>
-
-
-<p>which will be displayed as</p>
-<hr />
-<p>Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</p>
-<hr />
-<p><a id='Display-equations-2'></a></p>
-<h3 id="display-equations_1">Display equations</h3>
-<div class="codehilite"><pre><span></span>Here&#39;s an equation:
+</pre></div><p><a id="Julia-0.5-1"></a></p><h2 id="julia-05">Julia <code>0.5</code></h2><p>The syntax from above, using <code>$</code>s, will still work in <code>0.5</code>, but it is recommended, if possible, to use the following double backtick syntax instead since it avoids overloading the meaning of the <code>$</code> character within docstrings.</p><p><a id="Inline-equations-2"></a></p><h3 id="inline-equations_1">Inline equations</h3><div class="codehilite"><pre><span></span>Here's some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
+</pre></div><p>which will be displayed as</p><hr/><p>Here's some inline maths: $\sqrt[n]{1 + x + x^2 + \ldots}$.</p><hr/><p><a id="Display-equations-2"></a></p><h3 id="display-equations_1">Display equations</h3><div class="codehilite"><pre><span></span>Here's an equation:
 
 ```math
 \frac{n!}{k!(n - k)!} = \binom{n}{k}
 ```
 
 This is the binomial coefficient.
-</pre></div>
-
-
-<p>which will be displayed as</p>
-<hr />
-<p>Here's an equation:</p>
-<p>
-<script type="math/tex; mode=display">
+</pre></div><p>which will be displayed as</p><hr/><p>Here's an equation:</p><p><script type="math/tex; mode=display">
 \frac{n!}{k!(n - k)!} = \binom{n}{k}
-</script>
-</p>
-<p>This is the binomial coefficient.</p>
-<hr />
-<p><a id='Escaping-characters-in-docstrings-2'></a></p>
-<h3 id="escaping-characters-in-docstrings_1">Escaping characters in docstrings</h3>
-<p>In the same way as in Julia <code>0.4</code> <code>\</code> characters in docstrings must be escaped using a <code>\</code>.</p>
-<p><a id='MkDocs-and-MathJax-1'></a></p>
-<h2 id="mkdocs-and-mathjax">MkDocs and MathJax</h2>
-<p>To get MkDocs to display $\LaTeX$ equations correctly we need to update several of this configuration files described in the <a href="../guide/#Package-Guide-1">Package Guide</a>.</p>
-<p><code>docs/make.jl</code> should add the <code>python-markdown-math</code> dependency to allow for equations to be rendered correctly.</p>
-<div class="codehilite"><pre><span></span><span class="c"># ...</span>
+</script></p><p>This is the binomial coefficient.</p><hr/><p><a id="Escaping-characters-in-docstrings-2"></a></p><h3 id="escaping-characters-in-docstrings_1">Escaping characters in docstrings</h3><p>In the same way as in Julia <code>0.4</code><code>\</code> characters in docstrings must be escaped using a <code>\</code>.</p><p><a id="MkDocs-and-MathJax-1"></a></p><h2 id="mkdocs-and-mathjax">MkDocs and MathJax</h2><p>To get MkDocs to display $\LaTeX$ equations correctly we need to update several of this configuration files described in the <a href="../guide/#Package-Guide-1">Package Guide</a>.</p><p><code>docs/make.jl</code> should add the <code>python-markdown-math</code> dependency to allow for equations to be rendered correctly.</p><div class="codehilite"><pre><span></span><span class="c"># ...</span>
 
 <span class="n">deploydocs</span><span class="p">(</span>
-    <span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="o">.</span><span class="n">pip</span><span class="p">(</span><span class="s">&quot;pygments&quot;</span><span class="p">,</span> <span class="s">&quot;mkdocs&quot;</span><span class="p">,</span> <span class="s">&quot;python-markdown-math&quot;</span><span class="p">),</span>
+    <span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="o">.</span><span class="n">pip</span><span class="p">(</span><span class="s">"pygments"</span><span class="p">,</span> <span class="s">"mkdocs"</span><span class="p">,</span> <span class="s">"python-markdown-math"</span><span class="p">),</span>
     <span class="c"># ...</span>
 <span class="p">)</span>
-</pre></div>
-
-
-<p>This package should also be installed locally so that you can preview the generated documentation prior to pushing new commits to a repository.</p>
-<div class="codehilite"><pre><span></span>$ pip install python-markdown-math
-</pre></div>
-
-
-<p>The <code>docs/mkdocs.yml</code> file must add the <code>python-markdown-math</code> extension, called <code>mdx_math</code>, as well as two MathJax JavaScript files:</p>
-<div class="codehilite"><pre><span></span><span class="c1"># ...</span>
+</pre></div><p>This package should also be installed locally so that you can preview the generated documentation prior to pushing new commits to a repository.</p><div class="codehilite"><pre><span></span>$ pip install python-markdown-math
+</pre></div><p>The <code>docs/mkdocs.yml</code> file must add the <code>python-markdown-math</code> extension, called <code>mdx_math</code>, as well as two MathJax JavaScript files:</p><div class="codehilite"><pre><span></span><span class="c1"># ...</span>
 <span class="l l-Scalar l-Scalar-Plain">markdown_extensions</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mdx_math</span>
   <span class="c1"># ...</span>
@@ -581,12 +183,7 @@ This is the binomial coefficient.
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">assets/mathjaxhelper.js</span>
 <span class="c1"># ...</span>
-</pre></div>
-
-
-<p><strong>Final Remarks</strong></p>
-<p>Following this guide and adding the necessary changes to the configuration files should enable properly rendered mathematical equations within your documentation both locally and when built and deployed using the Travis built service.</p>
-          <aside class="copyright" role="note">
+</pre></div><p><strong>Final Remarks</strong></p><p>Following this guide and adding the necessary changes to the configuration files should enable properly rendered mathematical equations within your documentation both locally and when built and deployed using the Travis built service.</p><aside class="copyright" role="note">
             
             Documentation built with
             <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
@@ -595,74 +192,15 @@ This is the binomial coefficient.
               Material
             </a>
             theme.
-          </aside>
-          
-            <footer class="footer">
-              
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
-      
-        <a href="../hosting/" title="Hosting Documentation">
-          <span class="direction">
+          </aside><footer class="footer"><nav aria-label="Footer" class="pagination"><div class="previous"><a href="../hosting/" title="Hosting Documentation"><span class="direction">
             Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
-            </div>
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div aria-label="Previous" class="button button-previous" role="button"><i class="icon icon-back"></i></div><div class="stretch"><div class="title">
                 Hosting Documentation
-              </div>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../internals/" title="Internals">
-          <span class="direction">
+              </div></div></div></a></div><div class="next"><a href="../internals/" title="Internals"><span class="direction">
             Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div class="stretch"><div class="title">
                 Internals
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
+              </div></div><div aria-label="Next" class="button button-next" role="button"><i class="icon icon-forward"></i></div></div></a></div></nav></footer></div></article><div aria-live="polite" class="results" role="status"><div class="scrollable"><div class="wrapper"><div class="meta"></div><div class="list"></div></div></div></div></main><script>
       var base_url = '../..';
       var repo_id  = 'JuliaDocs/Documenter.jl';
-    </script>
-    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
-    
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-    
-      <script src="../../assets/mathjaxhelper.js"></script>
-    
-    
-  </body>
-</html>
+    </script><script src="../../assets/javascripts/application-997097ee0c.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script><script src="../../assets/mathjaxhelper.js"></script></body></HTML>

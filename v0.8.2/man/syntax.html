@@ -1,16 +1,57 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Syntax · Documenter.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../../versions.js"></script></head><body><nav class="toc"><a href="../index.html"><img class="logo" src="../assets/logo.png" alt="Documenter.jl logo"/></a><h1>Documenter.jl</h1><form class="search" action="../search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../index.html">Home</a></li><li><span class="toctext">Manual</span><ul><li><a class="toctext" href="guide.html">Guide</a></li><li><a class="toctext" href="examples.html">Examples</a></li><li class="current"><a class="toctext" href="syntax.html">Syntax</a><ul class="internal"><li><a class="toctext" href="#@docs-block-1"><code>@docs</code> block</a></li><li><a class="toctext" href="#@autodocs-block-1"><code>@autodocs</code> block</a></li><li><a class="toctext" href="#@ref-link-1"><code>@ref</code> link</a></li><li><a class="toctext" href="#@meta-block-1"><code>@meta</code> block</a></li><li><a class="toctext" href="#@index-block-1"><code>@index</code> block</a></li><li><a class="toctext" href="#@contents-block-1"><code>@contents</code> block</a></li><li><a class="toctext" href="#@example-block-1"><code>@example</code> block</a></li><li><a class="toctext" href="#@repl-block-1"><code>@repl</code> block</a></li><li><a class="toctext" href="#@setup-name-block-1"><code>@setup &lt;name&gt;</code> block</a></li><li><a class="toctext" href="#@eval-block-1"><code>@eval</code> block</a></li></ul></li><li><a class="toctext" href="doctests.html">Doctests</a></li><li><a class="toctext" href="hosting.html">Hosting Documentation</a></li><li><a class="toctext" href="latex.html"><span>$\LaTeX$</span> syntax</a></li><li><a class="toctext" href="internals.html">Package Internals</a></li><li><a class="toctext" href="contributing.html">Contributing</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="../lib/public.html">Public</a></li><li><a class="toctext" href="../lib/internals.html">Internals</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href="syntax.html">Syntax</a></li></ul><a class="edit-page" href="https://github.com/JuliaDocs/Documenter.jl/tree/b985e524f2808be5b1a6dea58350d9969a47c6c1/docs/src/man/syntax.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" id="Syntax-1" href="#Syntax-1">Syntax</a></h1><p>This section of the manual describes the syntax used by Documenter to build documentation.</p><ul><li><a href="syntax.html#Syntax-1">Syntax</a></li><ul><li><a href="syntax.html#@docs-block-1"><code>@docs</code> block</a></li><li><a href="syntax.html#@autodocs-block-1"><code>@autodocs</code> block</a></li><li><a href="syntax.html#@ref-link-1"><code>@ref</code> link</a></li><li><a href="syntax.html#@meta-block-1"><code>@meta</code> block</a></li><li><a href="syntax.html#@index-block-1"><code>@index</code> block</a></li><li><a href="syntax.html#@contents-block-1"><code>@contents</code> block</a></li><li><a href="syntax.html#@example-block-1"><code>@example</code> block</a></li><li><a href="syntax.html#@repl-block-1"><code>@repl</code> block</a></li><li><a href="syntax.html#@setup-name-block-1"><code>@setup &lt;name&gt;</code> block</a></li><li><a href="syntax.html#@eval-block-1"><code>@eval</code> block</a></li></ul></ul><h2><a class="nav-anchor" id="@docs-block-1" href="#@docs-block-1"><code>@docs</code> block</a></h2><p>Splice one or more docstrings into a document in place of the code block, i.e.</p><pre><code class="language-markdown">```@docs
+<!DOCTYPE html><HTML lang="en"><head><meta charset="UTF-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>Syntax · Documenter.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script data-main="../assets/documenter.js" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"></script><script src="../../versions.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body><nav class="toc"><a href="../index.html"><img alt="Documenter.jl logo" class="logo" src="../assets/logo.png"/></a><h1>Documenter.jl</h1><form action="../search.html" class="search"><select id="version-selector" onchange="window.location.href=this.value"><option disabled="disabled" selected="selected" value="#">Version</option></select><input id="search-query" name="q" placeholder="Search docs" type="text"/></form><ul><li><a class="toctext" href="../index.html">Home</a></li><li><span class="toctext">Manual</span><ul><li><a class="toctext" href="guide.html">Guide</a></li><li><a class="toctext" href="examples.html">Examples</a></li><li class="current"><a class="toctext" href="syntax.html">Syntax</a><ul class="internal"><li><a class="toctext" href="#@docs-block-1"><code>@docs</code> block</a></li><li><a class="toctext" href="#@autodocs-block-1"><code>@autodocs</code> block</a></li><li><a class="toctext" href="#@ref-link-1"><code>@ref</code> link</a></li><li><a class="toctext" href="#@meta-block-1"><code>@meta</code> block</a></li><li><a class="toctext" href="#@index-block-1"><code>@index</code> block</a></li><li><a class="toctext" href="#@contents-block-1"><code>@contents</code> block</a></li><li><a class="toctext" href="#@example-block-1"><code>@example</code> block</a></li><li><a class="toctext" href="#@repl-block-1"><code>@repl</code> block</a></li><li><a class="toctext" href="#@setup-name-block-1"><code>@setup &lt;name&gt;</code> block</a></li><li><a class="toctext" href="#@eval-block-1"><code>@eval</code> block</a></li></ul></li><li><a class="toctext" href="doctests.html">Doctests</a></li><li><a class="toctext" href="hosting.html">Hosting Documentation</a></li><li><a class="toctext" href="latex.html"><span>$\LaTeX$</span> syntax</a></li><li><a class="toctext" href="internals.html">Package Internals</a></li><li><a class="toctext" href="contributing.html">Contributing</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="../lib/public.html">Public</a></li><li><a class="toctext" href="../lib/internals.html">Internals</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href="syntax.html">Syntax</a></li></ul><a class="edit-page" href="https://github.com/JuliaDocs/Documenter.jl/tree/b985e524f2808be5b1a6dea58350d9969a47c6c1/docs/src/man/syntax.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" href="#Syntax-1" id="Syntax-1">Syntax</a></h1><p>This section of the manual describes the syntax used by Documenter to build documentation.</p><ul><li><a href="syntax.html#Syntax-1">Syntax</a></li><ul><li><a href="syntax.html#@docs-block-1"><code>@docs</code> block</a></li><li><a href="syntax.html#@autodocs-block-1"><code>@autodocs</code> block</a></li><li><a href="syntax.html#@ref-link-1"><code>@ref</code> link</a></li><li><a href="syntax.html#@meta-block-1"><code>@meta</code> block</a></li><li><a href="syntax.html#@index-block-1"><code>@index</code> block</a></li><li><a href="syntax.html#@contents-block-1"><code>@contents</code> block</a></li><li><a href="syntax.html#@example-block-1"><code>@example</code> block</a></li><li><a href="syntax.html#@repl-block-1"><code>@repl</code> block</a></li><li><a href="syntax.html#@setup-name-block-1"><code>@setup &lt;name&gt;</code> block</a></li><li><a href="syntax.html#@eval-block-1"><code>@eval</code> block</a></li></ul></ul><h2><a class="nav-anchor" href="#@docs-block-1" id="@docs-block-1"><code>@docs</code> block</a></h2><p>Splice one or more docstrings into a document in place of the code block, i.e.</p><pre><code class="language-markdown">```@docs
 Documenter
 makedocs
 deploydocs
 ```</code></pre><p>This block type is evaluated within the <code>CurrentModule</code> module if defined, otherwise within <code>current_module()</code>, and so each object listed in the block should be visible from that module. Undefined objects will raise warnings during documentation generation and cause the code block to be rendered in the final document unchanged.</p><p>Objects may not be listed more than once within the document. When duplicate objects are detected an error will be raised and the build process will be terminated.</p><p>To ensure that all docstrings from a module are included in the final document the <code>modules</code> keyword for <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a> can be set to the desired module or modules, i.e.</p><pre><code class="language-julia">makedocs(
     modules = [Documenter],
-)</code></pre><p>which will cause any unlisted docstrings to raise warnings when <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a> is called. If <code>modules</code> is not defined then no warnings are printed, even if a document has missing docstrings.</p><h2><a class="nav-anchor" id="@autodocs-block-1" href="#@autodocs-block-1"><code>@autodocs</code> block</a></h2><p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>@docs</code> block.</p><pre><code class="language-markdown">```@autodocs
+)</code></pre><p>which will cause any unlisted docstrings to raise warnings when <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a> is called. If <code>modules</code> is not defined then no warnings are printed, even if a document has missing docstrings.</p><h2><a class="nav-anchor" href="#@autodocs-block-1" id="@autodocs-block-1"><code>@autodocs</code> block</a></h2><p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>@docs</code> block.</p><pre><code class="language-markdown">```@autodocs
 Modules = [Foo, Bar]
 Order   = [:function, :type]
 ```</code></pre><p>The above <code>@autodocs</code> block adds all the docstrings found in modules <code>Foo</code> and <code>Bar</code> that refer to functions or types to the document.</p><p>Each module is added in order and so all docs from <code>Foo</code> will appear before those of <code>Bar</code>. Possible values for the <code>Order</code> vector are</p><ul><li><p><code>:module</code></p></li><li><p><code>:constant</code></p></li><li><p><code>:type</code></p></li><li><p><code>:function</code></p></li><li><p><code>:macro</code></p></li></ul><p>If no <code>Order</code> is provided then the order listed above is used.</p><p>When a potential docstring is found in one of the listed modules, but does not match any value from <code>Order</code> then it will be omitted from the document. Hence <code>Order</code> acts as a basic filter as well as sorter.</p><p>In addition to <code>Order</code>, a <code>Pages</code> vector may be included in <code>@autodocs</code> to filter docstrings based on the source file in which they are defined:</p><pre><code class="language-markdown">```@autodocs
 Modules = [Foo]
-Pages   = [&quot;a.jl&quot;, &quot;b.jl&quot;]
+Pages   = ["a.jl", "b.jl"]
 ```</code></pre><p>In the above example docstrings from module <code>Foo</code> found in source files that end in <code>a.jl</code> and <code>b.jl</code> are included. The page order provided by <code>Pages</code> is also used to sort the docstrings. Note that page matching is done using the end of the provided strings and so <code>a.jl</code> will be matched by <em>any</em> source file that ends in <code>a.jl</code>, i.e. <code>src/a.jl</code> or <code>src/foo/a.jl</code>.</p><p>To include only the exported names from the modules listed in <code>Modules</code> use <code>Private = false</code>. In a similar way <code>Public = false</code> can be used to only show the unexported names. By default both of these are set to <code>true</code> so that all names will be shown.</p><pre><code class="language-markdown">Functions exported from `Foo`:
 
 ```@autodocs
@@ -25,7 +66,7 @@ Private types in module `Foo`:
 Modules = [Foo]
 Public = false
 Order = [:type]
-```</code></pre><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p></div></div><h2><a class="nav-anchor" id="@ref-link-1" href="#@ref-link-1"><code>@ref</code> link</a></h2><p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.</p><pre><code class="language-markdown"># Syntax
+```</code></pre><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p></div></div><h2><a class="nav-anchor" href="#@ref-link-1" id="@ref-link-1"><code>@ref</code> link</a></h2><p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.</p><pre><code class="language-markdown"># Syntax
 
 ... [`makedocs`](@ref) ...
 
@@ -37,38 +78,38 @@ makedocs
 
 ... [Syntax](@ref) ...
 
-... [#42](@ref) ...</code></pre><p>Plain text in the &quot;text&quot; part of a link will either cross-reference a header, or, when it is a number preceded by a <code>#</code>, a GitHub issue/pull request. Text wrapped in backticks will cross-reference a docstring from a <code>@docs</code> block.</p><p><code>@ref</code>s may refer to docstrings or headers on different pages as well as the current page using the same syntax.</p><p>Note that depending on what the <code>CurrentModule</code> is set to, a docstring <code>@ref</code> may need to be prefixed by the module which defines it.</p><h3><a class="nav-anchor" id="Duplicate-Headers-1" href="#Duplicate-Headers-1">Duplicate Headers</a></h3><p>In some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow <code>@ref</code> to cross-reference a duplicate header it must be given a name as in the following example</p><pre><code class="language-markdown"># [Header](@id my_custom_header_name)
+... [#42](@ref) ...</code></pre><p>Plain text in the "text" part of a link will either cross-reference a header, or, when it is a number preceded by a <code>#</code>, a GitHub issue/pull request. Text wrapped in backticks will cross-reference a docstring from a <code>@docs</code> block.</p><p><code>@ref</code>s may refer to docstrings or headers on different pages as well as the current page using the same syntax.</p><p>Note that depending on what the <code>CurrentModule</code> is set to, a docstring <code>@ref</code> may need to be prefixed by the module which defines it.</p><h3><a class="nav-anchor" href="#Duplicate-Headers-1" id="Duplicate-Headers-1">Duplicate Headers</a></h3><p>In some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow <code>@ref</code> to cross-reference a duplicate header it must be given a name as in the following example</p><pre><code class="language-markdown"># [Header](@id my_custom_header_name)
 
 ...
 
 ## Header
 
-... [Custom Header](@ref my_custom_header_name) ...</code></pre><p>The link that wraps the named header is removed in the final document. The text for a named <code>@ref ...</code> does not need to match the header that it references. Named <code>@ref ...</code>s may refer to headers on different pages in the same way as unnamed ones do.</p><p>Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed.</p><h3><a class="nav-anchor" id="Named-doc-@refs-1" href="#Named-doc-@refs-1">Named doc <code>@ref</code>s</a></h3><p>Docstring <code>@ref</code>s can also be &quot;named&quot; in a similar way to headers as shown in the <a href="syntax.html#Duplicate-Headers-1">Duplicate Headers</a> section above. For example</p><pre><code class="language-julia">module Mod
+... [Custom Header](@ref my_custom_header_name) ...</code></pre><p>The link that wraps the named header is removed in the final document. The text for a named <code>@ref ...</code> does not need to match the header that it references. Named <code>@ref ...</code>s may refer to headers on different pages in the same way as unnamed ones do.</p><p>Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed.</p><h3><a class="nav-anchor" href="#Named-doc-@refs-1" id="Named-doc-@refs-1">Named doc <code>@ref</code>s</a></h3><p>Docstring <code>@ref</code>s can also be "named" in a similar way to headers as shown in the <a href="syntax.html#Duplicate-Headers-1">Duplicate Headers</a> section above. For example</p><pre><code class="language-julia">module Mod
 
-&quot;&quot;&quot;
+"""
 Both of the following references point to `g` found in module `Main.Other`:
 
   * [`Main.Other.g`](@ref)
   * [`g`](@ref Main.Other.g)
 
-&quot;&quot;&quot;
+"""
 f(args...) = # ...
 
-end</code></pre><p>This can be useful to avoid having to write fully qualified names for references that are not imported into the current module, or when the text displayed in the link is used to add additional meaning to the surrounding text, such as</p><pre><code class="language-markdown">Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.</code></pre><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>Named doc <code>@ref</code>s should be used sparingly since writing unqualified names may, in some cases, make it difficult to tell <em>which</em> function is being referred to in a particular docstring if there happen to be several modules that provide definitions with the same name.</p></div></div><h2><a class="nav-anchor" id="@meta-block-1" href="#@meta-block-1"><code>@meta</code> block</a></h2><p>This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently <code>CurrentModule</code> and <code>DocTestSetup</code> are the only recognised keys.</p><pre><code class="language-markdown">```@meta
+end</code></pre><p>This can be useful to avoid having to write fully qualified names for references that are not imported into the current module, or when the text displayed in the link is used to add additional meaning to the surrounding text, such as</p><pre><code class="language-markdown">Use [`for i = 1:10 ...`](@ref for) to loop over all the numbers from 1 to 10.</code></pre><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>Named doc <code>@ref</code>s should be used sparingly since writing unqualified names may, in some cases, make it difficult to tell <em>which</em> function is being referred to in a particular docstring if there happen to be several modules that provide definitions with the same name.</p></div></div><h2><a class="nav-anchor" href="#@meta-block-1" id="@meta-block-1"><code>@meta</code> block</a></h2><p>This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently <code>CurrentModule</code> and <code>DocTestSetup</code> are the only recognised keys.</p><pre><code class="language-markdown">```@meta
 CurrentModule = FooBar
 DocTestSetup  = quote
     using MyPackage
 end
-```</code></pre><p>Note that <code>@meta</code> blocks are always evaluated with the <code>current_module()</code>, which is typically <code>Main</code>.</p><p>See <a href="doctests.html#Setup-Code-1">Setup Code</a> section of the Doctests page for an explanation of <code>DocTestSetup</code>.</p><h2><a class="nav-anchor" id="@index-block-1" href="#@index-block-1"><code>@index</code> block</a></h2><p>Generates a list of links to docstrings that have been spliced into a document. Valid settings are <code>Pages</code>, <code>Modules</code>, and <code>Order</code>. For example:</p><pre><code class="language-markdown">```@index
-Pages   = [&quot;foo.md&quot;]
+```</code></pre><p>Note that <code>@meta</code> blocks are always evaluated with the <code>current_module()</code>, which is typically <code>Main</code>.</p><p>See <a href="doctests.html#Setup-Code-1">Setup Code</a> section of the Doctests page for an explanation of <code>DocTestSetup</code>.</p><h2><a class="nav-anchor" href="#@index-block-1" id="@index-block-1"><code>@index</code> block</a></h2><p>Generates a list of links to docstrings that have been spliced into a document. Valid settings are <code>Pages</code>, <code>Modules</code>, and <code>Order</code>. For example:</p><pre><code class="language-markdown">```@index
+Pages   = ["foo.md"]
 Modules = [Foo, Bar]
 Order   = [:function, :type]
 ```</code></pre><p>When <code>Pages</code> or <code>Modules</code> are not provided then all pages or modules are included. <code>Order</code> defaults to</p><pre><code class="language-julia">[:module, :constant, :type, :function, :macro]</code></pre><p>if not specified. <code>Order</code> and <code>Modules</code> behave the same way as in <a href="syntax.html#@autodocs-block-1"><code>@autodocs</code> block</a>s and filter out docstrings that do not match one of the modules or categories specified.</p><p>Note that the values assigned to <code>Pages</code>, <code>Modules</code>, and <code>Order</code> may be any valid Julia code and thus can be something more complex that an array literal if required, i.e.</p><pre><code class="language-markdown">```@index
-Pages = map(file -&gt; joinpath(&quot;man&quot;, file), readdir(&quot;man&quot;))
-```</code></pre><p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals as much as possible.</p><h2><a class="nav-anchor" id="@contents-block-1" href="#@contents-block-1"><code>@contents</code> block</a></h2><p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p><pre><code class="language-markdown">```@contents
-Pages = [&quot;foo.md&quot;]
+Pages = map(file -&gt; joinpath("man", file), readdir("man"))
+```</code></pre><p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals as much as possible.</p><h2><a class="nav-anchor" href="#@contents-block-1" id="@contents-block-1"><code>@contents</code> block</a></h2><p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p><pre><code class="language-markdown">```@contents
+Pages = ["foo.md"]
 Depth = 5
-```</code></pre><p>As with <code>@index</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p><h2><a class="nav-anchor" id="@example-block-1" href="#@example-block-1"><code>@example</code> block</a></h2><p>Evaluates the code block and inserts the result into the final document along with the original source code.</p><pre><code class="language-markdown">```@example
+```</code></pre><p>As with <code>@index</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p><h2><a class="nav-anchor" href="#@example-block-1" id="@example-block-1"><code>@example</code> block</a></h2><p>Evaluates the code block and inserts the result into the final document along with the original source code.</p><pre><code class="language-markdown">```@example
 a = 1
 b = 2
 a + b
@@ -103,8 +144,8 @@ and then we plot `f` over the interval from ``-π`` to ``π``
 
 ```@example 1
 x = linspace(-π, π)
-plot(x, f(x), color = &quot;red&quot;)
-savefig(&quot;f-plot.svg&quot;); nothing # hide
+plot(x, f(x), color = "red")
+savefig("f-plot.svg"); nothing # hide
 ```
 
 ![](f-plot.svg)
@@ -112,17 +153,17 @@ savefig(&quot;f-plot.svg&quot;); nothing # hide
 and then we do the same with `g`
 
 ```@example 1
-plot(x, g(x), color = &quot;blue&quot;)
-savefig(&quot;g-plot.svg&quot;); nothing # hide
+plot(x, g(x), color = "blue")
+savefig("g-plot.svg"); nothing # hide
 ```
 
 ![](g-plot.svg)</code></pre><p>Note that <code>@example</code> blocks are evaluated within the directory of <code>build</code> where the file will be rendered . This means than in the above example <code>savefig</code> will output the <code>.svg</code> files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.</p><p><code>@example</code> blocks automatically define <code>ans</code> which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by <code>plot</code> to a named variable would look out of place in the final rendered documentation:</p><pre><code class="language-markdown">```@example
 using Gadfly # hide
 plot([sin, x -&gt; 2sin(x) + x], -2π, 2π)
-draw(SVG(&quot;plot.svg&quot;, 6inch, 4inch), ans); nothing # hide
+draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
-![](plot.svg)</code></pre><h2><a class="nav-anchor" id="@repl-block-1" href="#@repl-block-1"><code>@repl</code> block</a></h2><p>These are similar to <code>@example</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>@repl</code> blocks in the same way as in the Julia REPL and <code>@example</code> blocks.</p><pre><code class="language-markdown">```@repl
+![](plot.svg)</code></pre><h2><a class="nav-anchor" href="#@repl-block-1" id="@repl-block-1"><code>@repl</code> block</a></h2><p>These are similar to <code>@example</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>@repl</code> blocks in the same way as in the Julia REPL and <code>@example</code> blocks.</p><pre><code class="language-markdown">```@repl
 a = 1
 b = 2
 a + b
@@ -135,24 +176,24 @@ julia&gt; b = 2
 
 julia&gt; a + b
 3
-```</code></pre><p>Named <code>@repl &lt;name&gt;</code> blocks behave in the same way as named <code>@example &lt;name&gt;</code> blocks.</p><h2><a class="nav-anchor" id="@setup-name-block-1" href="#@setup-name-block-1"><code>@setup &lt;name&gt;</code> block</a></h2><p>These are similar to <code>@example</code> blocks, but both the input and output are hidden from the final document. This can be convenient if there are several lines of setup code that need to be hidden.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>Unlike <code>@example</code> and <code>@repl</code> blocks, <code>@setup</code> requires a <code>&lt;name&gt;</code> attribute to associate it with downstream <code>@example &lt;name&gt;</code> and <code>@repl &lt;name&gt;</code> blocks.</p></div></div><pre><code class="language-markdown">```@setup abc
+```</code></pre><p>Named <code>@repl &lt;name&gt;</code> blocks behave in the same way as named <code>@example &lt;name&gt;</code> blocks.</p><h2><a class="nav-anchor" href="#@setup-name-block-1" id="@setup-name-block-1"><code>@setup &lt;name&gt;</code> block</a></h2><p>These are similar to <code>@example</code> blocks, but both the input and output are hidden from the final document. This can be convenient if there are several lines of setup code that need to be hidden.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>Unlike <code>@example</code> and <code>@repl</code> blocks, <code>@setup</code> requires a <code>&lt;name&gt;</code> attribute to associate it with downstream <code>@example &lt;name&gt;</code> and <code>@repl &lt;name&gt;</code> blocks.</p></div></div><pre><code class="language-markdown">```@setup abc
 using RDatasets
 using DataFrames
-iris = dataset(&quot;datasets&quot;, &quot;iris&quot;)
+iris = dataset("datasets", "iris")
 ```
 
 ```@example abc
 println(iris)
-```</code></pre><h2><a class="nav-anchor" id="@eval-block-1" href="#@eval-block-1"><code>@eval</code> block</a></h2><p>Evaluates the contents of the block and inserts the resulting value into the final document.</p><p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p><pre><code class="language-markdown">```@eval
+```</code></pre><h2><a class="nav-anchor" href="#@eval-block-1" id="@eval-block-1"><code>@eval</code> block</a></h2><p>Evaluates the contents of the block and inserts the resulting value into the final document.</p><p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p><pre><code class="language-markdown">```@eval
 using PyPlot
 
 x = linspace(-π, π)
 y = sin(x)
 
-plot(x, y, color = &quot;red&quot;)
-savefig(&quot;plot.svg&quot;)
+plot(x, y, color = "red")
+savefig("plot.svg")
 
 nothing
 ```
 
-![](plot.svg)</code></pre><p>Note that each <code>@eval</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p><p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.MD</code> object through <code>Markdown.parse</code>. This can be more appropriate when the filename is not known until evaluation of the block itself.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>In most cases <code>@example</code> is preferred over <code>@eval</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>@eval</code> should be treated in the same way.</p></div></div><footer><hr/><a class="previous" href="examples.html"><span class="direction">Previous</span><span class="title">Examples</span></a><a class="next" href="doctests.html"><span class="direction">Next</span><span class="title">Doctests</span></a></footer></article></body></html>
+![](plot.svg)</code></pre><p>Note that each <code>@eval</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p><p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.MD</code> object through <code>Markdown.parse</code>. This can be more appropriate when the filename is not known until evaluation of the block itself.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>In most cases <code>@example</code> is preferred over <code>@eval</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>@eval</code> should be treated in the same way.</p></div></div><footer><hr/><a class="previous" href="examples.html"><span class="direction">Previous</span><span class="title">Examples</span></a><a class="next" href="doctests.html"><span class="direction">Next</span><span class="title">Doctests</span></a></footer></article></body></HTML>

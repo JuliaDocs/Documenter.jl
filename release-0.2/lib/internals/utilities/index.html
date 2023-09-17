@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
-    
-      
-        <title>Utilities - Documenter.jl</title>
-      
-      
-      
-      
-        <meta name="author" content="Michael Hatherly">
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Documenter.jl">
-    <meta property="og:image" content="None/../../../">
-    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
+<!DOCTYPE html><HTML class="no-js"><head><meta charset="utf-8"/><meta content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" name="viewport"/><title>Utilities - Documenter.jl</title><meta content="Michael Hatherly" name="author"/><meta content="None" property="og:url"/><meta content="Documenter.jl" property="og:title"/><meta content="None/../../../" property="og:image"/><meta content="Documenter.jl" name="apple-mobile-web-app-title"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><link href="../../../assets/images/favicon-e565ddfa3b.ico" rel="shortcut icon" type="image/x-icon"/><link href="../../../assets/images/favicon-e565ddfa3b.ico" rel="icon" type="image/x-icon"/><style>
       @font-face {
       	font-family: 'Icon';
       	src: url('../../../assets/fonts/icon.eot?52m981');
@@ -42,521 +13,131 @@
       	font-weight: normal;
       	font-style: normal;
       }
-    </style>
-    <link rel="stylesheet" href="../../../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../../../assets/stylesheets/palettes-05ab2406df.css">
-    
-    
-      
-      
-      
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
+    </style><link href="../../../assets/stylesheets/application-a422ff04cc.css" rel="stylesheet"/><link href="../../../assets/stylesheets/palettes-05ab2406df.css" rel="stylesheet"/><link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono" rel="stylesheet"/><style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         }
         pre, code {
           font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
         }
-      </style>
-    
-    
-      <link rel="stylesheet" href="../../../assets/Documenter.css">
-    
-    <script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
-    
-  </head>
-  
-  
-  
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
+      </style><link href="../../../assets/Documenter.css" rel="stylesheet"/><script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body class="palette-primary-indigo palette-accent-blue"><div class="backdrop"><div class="backdrop-paper"></div></div><input class="toggle" id="toggle-drawer" type="checkbox"/><input class="toggle" id="toggle-search" type="checkbox"/><label class="toggle-button overlay" for="toggle-drawer"></label><header class="header"><nav aria-label="Header"><div class="bar default"><div aria-label="Menu" class="button button-menu" role="button"><label class="toggle-button icon icon-menu" for="toggle-drawer"><span></span></label></div><div class="stretch"><div class="title"><span class="path">
             
               
                 Library <i class="icon icon-link"></i>
               
             
               
-                Internals <i class="icon icon-link"></i>
-              
-            
-          </span>
+                Internals <i class="icon icon-link"></i></span>
         
         Utilities
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
+      </div></div><div aria-label="Search" class="button button-search" role="button"><label class="toggle-button icon icon-search" for="toggle-search" title="Search"></label></div></div><div class="bar search"><div aria-label="Close" class="button button-close" role="button"><label class="toggle-button icon icon-back" for="toggle-search"></label></div><div class="stretch"><div class="field"><input autocapitalize="off" autocomplete="off" autocorrect="off" class="query" placeholder="Search" spellcheck="" type="text"/></div></div><div aria-label="Search" class="button button-reset" role="button"><button class="toggle-button icon icon-close" id="reset-search"></button></div></div></nav></header><main class="main"><div class="drawer"><nav aria-label="Navigation"><a class="project" href="https://github.com/JuliaDocs/Documenter.jl"><div class="banner"><div class="name"><strong>
           Documenter.jl
-          <span class="version">
-            
-          </span>
-        </strong>
-        
-          <br>
+          <span class="version"></span></strong><br/>
           JuliaDocs/Documenter.jl
         
-      </div>
-    </div>
-  </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="../../..">
+      </div></div></a><div class="scrollable"><div class="wrapper"><ul class="repo"><li class="repo-download"><a data-action="download" href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download"><i class="icon icon-download"></i> Download
+            </a></li><li class="repo-stars"><a data-action="star" href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers"><i class="icon icon-star"></i> Stars
+              <span class="count">–</span></a></li></ul><hr/><div class="toc"><ul><li><a class="" href="../../.." title="Home">
       Home
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Manual</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Guide" href="../../../man/guide/">
+    </a></li><li><span class="section">Manual</span><ul><li><a class="" href="../../../man/guide/" title="Guide">
       Guide
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Examples" href="../../../man/examples/">
+    </a></li><li><a class="" href="../../../man/examples/" title="Examples">
       Examples
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Syntax" href="../../../man/syntax/">
+    </a></li><li><a class="" href="../../../man/syntax/" title="Syntax">
       Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Doctests" href="../../../man/doctests/">
+    </a></li><li><a class="" href="../../../man/doctests/" title="Doctests">
       Doctests
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Hosting Documentation" href="../../../man/hosting/">
+    </a></li><li><a class="" href="../../../man/hosting/" title="Hosting Documentation">
       Hosting Documentation
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="LaTeX Syntax" href="../../../man/latex/">
+    </a></li><li><a class="" href="../../../man/latex/" title="LaTeX Syntax">
       LaTeX Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../../../man/internals/">
+    </a></li><li><a class="" href="../../../man/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Contributing" href="../../../man/contributing/">
+    </a></li><li><a class="" href="../../../man/contributing/" title="Contributing">
       Contributing
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Library</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Public" href="../../public/">
+    </a></li></ul></li><li><span class="section">Library</span><ul><li><a class="" href="../../public/" title="Public">
       Public
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <span class="section">Internals</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Internals" href="../">
+    </a></li><li><span class="section">Internals</span><ul><li><a class="" href="../" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Anchors" href="../anchors/">
+    </a></li><li><a class="" href="../anchors/" title="Anchors">
       Anchors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Builder" href="../builder/">
+    </a></li><li><a class="" href="../builder/" title="Builder">
       Builder
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="CrossReferences" href="../cross-references/">
+    </a></li><li><a class="" href="../cross-references/" title="CrossReferences">
       CrossReferences
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocChecks" href="../docchecks/">
+    </a></li><li><a class="" href="../docchecks/" title="DocChecks">
       DocChecks
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocSystem" href="../docsystem/">
+    </a></li><li><a class="" href="../docsystem/" title="DocSystem">
       DocSystem
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Documents" href="../documents/">
+    </a></li><li><a class="" href="../documents/" title="Documents">
       Documents
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DOM" href="../dom/">
+    </a></li><li><a class="" href="../dom/" title="DOM">
       DOM
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Expanders" href="../expanders/">
+    </a></li><li><a class="" href="../expanders/" title="Expanders">
       Expanders
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Formats" href="../formats/">
+    </a></li><li><a class="" href="../formats/" title="Formats">
       Formats
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Generator" href="../generator/">
+    </a></li><li><a class="" href="../generator/" title="Generator">
       Generator
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Selectors" href="../selectors/">
+    </a></li><li><a class="" href="../selectors/" title="Selectors">
       Selectors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="current" title="Utilities" href="./">
+    </a></li><li><a class="current" href="./" title="Utilities">
       Utilities
-    </a>
-    
-      
-        
-      
-      
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Walkers" href="../walkers/">
+    </a></li><li><a class="" href="../walkers/" title="Walkers">
       Walkers
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Writers" href="../writers/">
+    </a></li><li><a class="" href="../writers/" title="Writers">
       Writers
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
-          
-          <p><a id='Utilities-1'></a></p>
-<h1 id="utilities">Utilities</h1>
-<p><a id='Documenter.Utilities' href='#Documenter.Utilities'>#</a>
-<strong><code>Documenter.Utilities</code></strong> &mdash; <em>Module</em>.</p>
-<p>Provides a collection of utility functions and types that are used in other submodules.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L1-L3' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.Object' href='#Documenter.Utilities.Object'>#</a>
-<strong><code>Documenter.Utilities.Object</code></strong> &mdash; <em>Type</em>.</p>
-<p>Represents an object stored in the docsystem by its binding and signature.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L212-L214' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.assetsdir-Tuple{}' href='#Documenter.Utilities.assetsdir-Tuple{}'>#</a>
-<strong><code>Documenter.Utilities.assetsdir</code></strong> &mdash; <em>Method</em>.</p>
-<p>Returns the path to the Documenter <code>assets</code> directory.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L81-L83' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.check_kwargs-Tuple{Any}' href='#Documenter.Utilities.check_kwargs-Tuple{Any}'>#</a>
-<strong><code>Documenter.Utilities.check_kwargs</code></strong> &mdash; <em>Method</em>.</p>
-<p>Prints a formatted warning to the user listing unrecognised keyword arguments.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L150-L152' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.currentdir-Tuple{}' href='#Documenter.Utilities.currentdir-Tuple{}'>#</a>
-<strong><code>Documenter.Utilities.currentdir</code></strong> &mdash; <em>Method</em>.</p>
-<p>Returns the current directory.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L73-L75' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.doccat-Tuple{Documenter.Utilities.Object}' href='#Documenter.Utilities.doccat-Tuple{Documenter.Utilities.Object}'>#</a>
-<strong><code>Documenter.Utilities.doccat</code></strong> &mdash; <em>Method</em>.</p>
-<p>Returns the category name of the provided <a href="./#Documenter.Utilities.Object"><code>Object</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L284-L286' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.docs' href='#Documenter.Utilities.docs'>#</a>
-<strong><code>Documenter.Utilities.docs</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>docs(ex, str)
-</pre></div>
-
-
-<p>Returns an expression that, when evaluated, returns the docstrings associated with <code>ex</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L264-L268' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}' href='#Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}'>#</a>
-<strong><code>Documenter.Utilities.filterdocs</code></strong> &mdash; <em>Method</em>.</p>
-<div class="codehilite"><pre><span></span>filterdocs(doc, modules)
-</pre></div>
-
-
-<p>Remove docstrings from the markdown object, <code>doc</code>, that are not from one of <code>modules</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L307-L311' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.issubmodule-Tuple{Any,Any}' href='#Documenter.Utilities.issubmodule-Tuple{Any,Any}'>#</a>
-<strong><code>Documenter.Utilities.issubmodule</code></strong> &mdash; <em>Method</em>.</p>
-<div class="codehilite"><pre><span></span>issubmodule(sub, mod)
-</pre></div>
-
-
-<p>Checks whether <code>sub</code> is a submodule of <code>mod</code>. A module is also considered to be its own submodule.</p>
-<p>E.g. <code>A.B.C</code> is a submodule of <code>A</code>, <code>A.B</code> and <code>A.B.C</code>, but it is not a submodule of <code>D</code>, <code>A.D</code> nor <code>A.B.C.D</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L508-L516' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.log-Tuple{Any}' href='#Documenter.Utilities.log-Tuple{Any}'>#</a>
-<strong><code>Documenter.Utilities.log</code></strong> &mdash; <em>Method</em>.</p>
-<p>Format and print a message to the user.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L18-L20' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.logging-Tuple{Bool}' href='#Documenter.Utilities.logging-Tuple{Bool}'>#</a>
-<strong><code>Documenter.Utilities.logging</code></strong> &mdash; <em>Method</em>.</p>
-<div class="codehilite"><pre><span></span>logging(flag::Bool)
-</pre></div>
-
-
-<p>Enable or disable logging output for <a href="./#Documenter.Utilities.log-Tuple{Any}"><code>log</code></a> and <a href="./#Documenter.Utilities.warn-Tuple{Any,Any}"><code>warn</code></a>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L11-L15' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.nodocs-Tuple{Any}' href='#Documenter.Utilities.nodocs-Tuple{Any}'>#</a>
-<strong><code>Documenter.Utilities.nodocs</code></strong> &mdash; <em>Method</em>.</p>
-<p>Does the given docstring represent actual documentation or a no docs error message?</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L351-L353' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.object-Tuple{Union{Expr,Symbol},AbstractString}' href='#Documenter.Utilities.object-Tuple{Union{Expr,Symbol},AbstractString}'>#</a>
-<strong><code>Documenter.Utilities.object</code></strong> &mdash; <em>Method</em>.</p>
-<div class="codehilite"><pre><span></span>object(ex, str)
-</pre></div>
-
-
-<p>Returns a expression that, when evaluated, returns an <a href="./#Documenter.Utilities.Object"><code>Object</code></a> representing <code>ex</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L233-L237' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.parseblock-Tuple{AbstractString,Any,Any}' href='#Documenter.Utilities.parseblock-Tuple{AbstractString,Any,Any}'>#</a>
-<strong><code>Documenter.Utilities.parseblock</code></strong> &mdash; <em>Method</em>.</p>
-<p>Returns a vector of parsed expressions and their corresponding raw strings.</p>
-<p>The keyword argument <code>skip = N</code> drops the leading <code>N</code> lines from the input string.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L112-L116' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.slugify-Tuple{AbstractString}' href='#Documenter.Utilities.slugify-Tuple{AbstractString}'>#</a>
-<strong><code>Documenter.Utilities.slugify</code></strong> &mdash; <em>Method</em>.</p>
-<p>Slugify a string into a suitable URL.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L98-L100' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.srcpath-Tuple{Any,Any,Any}' href='#Documenter.Utilities.srcpath-Tuple{Any,Any,Any}'>#</a>
-<strong><code>Documenter.Utilities.srcpath</code></strong> &mdash; <em>Method</em>.</p>
-<p>Find the path of a file relative to the <code>source</code> directory. <code>root</code> is the path to the directory containing the file <code>file</code>.</p>
-<p>It is meant to be used with <code>walkdir(source)</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L88-L93' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.submodules-Tuple{Array{Module,1}}' href='#Documenter.Utilities.submodules-Tuple{Array{Module,1}}'>#</a>
-<strong><code>Documenter.Utilities.submodules</code></strong> &mdash; <em>Method</em>.</p>
-<p>Returns the set of submodules of a given root module/s.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L167-L169' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.warn-Tuple{Any,Any}' href='#Documenter.Utilities.warn-Tuple{Any,Any}'>#</a>
-<strong><code>Documenter.Utilities.warn</code></strong> &mdash; <em>Method</em>.</p>
-<div class="codehilite"><pre><span></span>warn(file, msg)
+    </a></li></ul></li></ul></li></ul></div></div></div></nav></div><article class="article"><div class="wrapper"><p><a id="Utilities-1"></a></p><h1 id="utilities">Utilities</h1><p><a href="#Documenter.Utilities" id="Documenter.Utilities">#</a><strong><code>Documenter.Utilities</code></strong> — <em>Module</em>.</p><p>Provides a collection of utility functions and types that are used in other submodules.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L1-L3" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.Object" id="Documenter.Utilities.Object">#</a><strong><code>Documenter.Utilities.Object</code></strong> — <em>Type</em>.</p><p>Represents an object stored in the docsystem by its binding and signature.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L212-L214" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.assetsdir-Tuple{}" id="Documenter.Utilities.assetsdir-Tuple{}">#</a><strong><code>Documenter.Utilities.assetsdir</code></strong> — <em>Method</em>.</p><p>Returns the path to the Documenter <code>assets</code> directory.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L81-L83" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.check_kwargs-Tuple{Any}" id="Documenter.Utilities.check_kwargs-Tuple{Any}">#</a><strong><code>Documenter.Utilities.check_kwargs</code></strong> — <em>Method</em>.</p><p>Prints a formatted warning to the user listing unrecognised keyword arguments.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L150-L152" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.currentdir-Tuple{}" id="Documenter.Utilities.currentdir-Tuple{}">#</a><strong><code>Documenter.Utilities.currentdir</code></strong> — <em>Method</em>.</p><p>Returns the current directory.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L73-L75" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.doccat-Tuple{Documenter.Utilities.Object}" id="Documenter.Utilities.doccat-Tuple{Documenter.Utilities.Object}">#</a><strong><code>Documenter.Utilities.doccat</code></strong> — <em>Method</em>.</p><p>Returns the category name of the provided <a href="./#Documenter.Utilities.Object"><code>Object</code></a>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L284-L286" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.docs" id="Documenter.Utilities.docs">#</a><strong><code>Documenter.Utilities.docs</code></strong> — <em>Function</em>.</p><div class="codehilite"><pre><span></span>docs(ex, str)
+</pre></div><p>Returns an expression that, when evaluated, returns the docstrings associated with <code>ex</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L264-L268" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}" id="Documenter.Utilities.filterdocs-Tuple{Base.Markdown.MD,Set{Module}}">#</a><strong><code>Documenter.Utilities.filterdocs</code></strong> — <em>Method</em>.</p><div class="codehilite"><pre><span></span>filterdocs(doc, modules)
+</pre></div><p>Remove docstrings from the markdown object, <code>doc</code>, that are not from one of <code>modules</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L307-L311" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.issubmodule-Tuple{Any,Any}" id="Documenter.Utilities.issubmodule-Tuple{Any,Any}">#</a><strong><code>Documenter.Utilities.issubmodule</code></strong> — <em>Method</em>.</p><div class="codehilite"><pre><span></span>issubmodule(sub, mod)
+</pre></div><p>Checks whether <code>sub</code> is a submodule of <code>mod</code>. A module is also considered to be its own submodule.</p><p>E.g. <code>A.B.C</code> is a submodule of <code>A</code>, <code>A.B</code> and <code>A.B.C</code>, but it is not a submodule of <code>D</code>, <code>A.D</code> nor <code>A.B.C.D</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L508-L516" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.log-Tuple{Any}" id="Documenter.Utilities.log-Tuple{Any}">#</a><strong><code>Documenter.Utilities.log</code></strong> — <em>Method</em>.</p><p>Format and print a message to the user.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L18-L20" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.logging-Tuple{Bool}" id="Documenter.Utilities.logging-Tuple{Bool}">#</a><strong><code>Documenter.Utilities.logging</code></strong> — <em>Method</em>.</p><div class="codehilite"><pre><span></span>logging(flag::Bool)
+</pre></div><p>Enable or disable logging output for <a href="./#Documenter.Utilities.log-Tuple{Any}"><code>log</code></a> and <a href="./#Documenter.Utilities.warn-Tuple{Any,Any}"><code>warn</code></a>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L11-L15" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.nodocs-Tuple{Any}" id="Documenter.Utilities.nodocs-Tuple{Any}">#</a><strong><code>Documenter.Utilities.nodocs</code></strong> — <em>Method</em>.</p><p>Does the given docstring represent actual documentation or a no docs error message?</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L351-L353" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.object-Tuple{Union{Expr,Symbol},AbstractString}" id="Documenter.Utilities.object-Tuple{Union{Expr,Symbol},AbstractString}">#</a><strong><code>Documenter.Utilities.object</code></strong> — <em>Method</em>.</p><div class="codehilite"><pre><span></span>object(ex, str)
+</pre></div><p>Returns a expression that, when evaluated, returns an <a href="./#Documenter.Utilities.Object"><code>Object</code></a> representing <code>ex</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L233-L237" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.parseblock-Tuple{AbstractString,Any,Any}" id="Documenter.Utilities.parseblock-Tuple{AbstractString,Any,Any}">#</a><strong><code>Documenter.Utilities.parseblock</code></strong> — <em>Method</em>.</p><p>Returns a vector of parsed expressions and their corresponding raw strings.</p><p>The keyword argument <code>skip = N</code> drops the leading <code>N</code> lines from the input string.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L112-L116" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.slugify-Tuple{AbstractString}" id="Documenter.Utilities.slugify-Tuple{AbstractString}">#</a><strong><code>Documenter.Utilities.slugify</code></strong> — <em>Method</em>.</p><p>Slugify a string into a suitable URL.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L98-L100" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.srcpath-Tuple{Any,Any,Any}" id="Documenter.Utilities.srcpath-Tuple{Any,Any,Any}">#</a><strong><code>Documenter.Utilities.srcpath</code></strong> — <em>Method</em>.</p><p>Find the path of a file relative to the <code>source</code> directory. <code>root</code> is the path to the directory containing the file <code>file</code>.</p><p>It is meant to be used with <code>walkdir(source)</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L88-L93" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.submodules-Tuple{Array{Module,1}}" id="Documenter.Utilities.submodules-Tuple{Array{Module,1}}">#</a><strong><code>Documenter.Utilities.submodules</code></strong> — <em>Method</em>.</p><p>Returns the set of submodules of a given root module/s.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L167-L169" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.warn-Tuple{Any,Any}" id="Documenter.Utilities.warn-Tuple{Any,Any}">#</a><strong><code>Documenter.Utilities.warn</code></strong> — <em>Method</em>.</p><div class="codehilite"><pre><span></span>warn(file, msg)
 warn(msg)
-</pre></div>
-
-
-<p>Format and print a warning message to the user. Passing a <code>file</code> will include the filename where the warning was raised.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L31-L37' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.withoutput-Tuple{Any}' href='#Documenter.Utilities.withoutput-Tuple{Any}'>#</a>
-<strong><code>Documenter.Utilities.withoutput</code></strong> &mdash; <em>Method</em>.</p>
-<p>Call a function and capture all <code>STDOUT</code> and <code>STDERR</code> output.</p>
-<div class="codehilite"><pre><span></span>withoutput(f) --&gt; (result, success, backtrace, output)
-</pre></div>
-
-
-<p>where</p>
-<ul>
-<li><code>result</code> is the value returned from calling function <code>f</code>.</li>
-<li><code>success</code> signals whether <code>f</code> has thrown an error, in which case <code>result</code> stores the <code>Exception</code> that was raised.</li>
-<li><code>backtrace</code> a <code>Vector{Ptr{Void}}</code> produced by <code>catch_backtrace()</code> if an error is thrown.</li>
-<li><code>output</code> is the combined output of <code>STDOUT</code> and <code>STDERR</code> during execution of <code>f</code>.</li>
-</ul>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L459-L472' class='documenter-source'>source</a><br></p>
-          <aside class="copyright" role="note">
+</pre></div><p>Format and print a warning message to the user. Passing a <code>file</code> will include the filename where the warning was raised.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L31-L37" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.withoutput-Tuple{Any}" id="Documenter.Utilities.withoutput-Tuple{Any}">#</a><strong><code>Documenter.Utilities.withoutput</code></strong> — <em>Method</em>.</p><p>Call a function and capture all <code>STDOUT</code> and <code>STDERR</code> output.</p><div class="codehilite"><pre><span></span>withoutput(f) --&gt; (result, success, backtrace, output)
+</pre></div><p>where</p><ul><li><code>result</code> is the value returned from calling function <code>f</code>.</li><li><code>success</code> signals whether <code>f</code> has thrown an error, in which case <code>result</code> stores the <code>Exception</code> that was raised.</li><li><code>backtrace</code> a <code>Vector{Ptr{Void}}</code> produced by <code>catch_backtrace()</code> if an error is thrown.</li><li><code>output</code> is the combined output of <code>STDOUT</code> and <code>STDERR</code> during execution of <code>f</code>.</li></ul><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Utilities/Utilities.jl#L459-L472" target="_blank">source</a><br/></p><aside class="copyright" role="note">
             
             Documentation built with
             <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
@@ -565,74 +146,15 @@ warn(msg)
               Material
             </a>
             theme.
-          </aside>
-          
-            <footer class="footer">
-              
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
-      
-        <a href="../selectors/" title="Selectors">
-          <span class="direction">
+          </aside><footer class="footer"><nav aria-label="Footer" class="pagination"><div class="previous"><a href="../selectors/" title="Selectors"><span class="direction">
             Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
-            </div>
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div aria-label="Previous" class="button button-previous" role="button"><i class="icon icon-back"></i></div><div class="stretch"><div class="title">
                 Selectors
-              </div>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../walkers/" title="Walkers">
-          <span class="direction">
+              </div></div></div></a></div><div class="next"><a href="../walkers/" title="Walkers"><span class="direction">
             Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div class="stretch"><div class="title">
                 Walkers
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
+              </div></div><div aria-label="Next" class="button button-next" role="button"><i class="icon icon-forward"></i></div></div></a></div></nav></footer></div></article><div aria-live="polite" class="results" role="status"><div class="scrollable"><div class="wrapper"><div class="meta"></div><div class="list"></div></div></div></div></main><script>
       var base_url = '../../..';
       var repo_id  = 'JuliaDocs/Documenter.jl';
-    </script>
-    <script src="../../../assets/javascripts/application-997097ee0c.js"></script>
-    
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-    
-      <script src="../../../assets/mathjaxhelper.js"></script>
-    
-    
-  </body>
-</html>
+    </script><script src="../../../assets/javascripts/application-997097ee0c.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script><script src="../../../assets/mathjaxhelper.js"></script></body></HTML>

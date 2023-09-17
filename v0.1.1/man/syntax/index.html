@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
-    
-      
-        <title>Syntax - Documenter.jl</title>
-      
-      
-      
-      
-        <meta name="author" content="Michael Hatherly">
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Documenter.jl">
-    <meta property="og:image" content="None/../../">
-    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../None">
-    <link rel="icon" type="image/x-icon" href="../../None">
-    <style>
+<!DOCTYPE html><HTML class="no-js"><head><meta charset="utf-8"/><meta content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" name="viewport"/><title>Syntax - Documenter.jl</title><meta content="Michael Hatherly" name="author"/><meta content="None" property="og:url"/><meta content="Documenter.jl" property="og:title"/><meta content="None/../../" property="og:image"/><meta content="Documenter.jl" name="apple-mobile-web-app-title"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><link href="../../None" rel="shortcut icon" type="image/x-icon"/><link href="../../None" rel="icon" type="image/x-icon"/><style>
       @font-face {
       	font-family: 'Icon';
       	src: url('../../assets/fonts/icon.eot?52m981');
@@ -42,378 +13,119 @@
       	font-weight: normal;
       	font-style: normal;
       }
-    </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-0dac3e5884.css">
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
-    
-    
-      
-      
-      
-      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
+    </style><link href="../../assets/stylesheets/application-0dac3e5884.css" rel="stylesheet"/><link href="../../assets/stylesheets/palettes-05ab2406df.css" rel="stylesheet"/><link href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono" rel="stylesheet"/><style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         }
         pre, code {
           font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
         }
-      </style>
-    
-    
-      <link rel="stylesheet" href="../../assets/Documenter.css">
-    
-    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
-    
-  </head>
-  
-  
-  
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
+      </style><link href="../../assets/Documenter.css" rel="stylesheet"/><script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body class="palette-primary-indigo palette-accent-blue"><div class="backdrop"><div class="backdrop-paper"></div></div><input class="toggle" id="toggle-drawer" type="checkbox"/><input class="toggle" id="toggle-search" type="checkbox"/><label class="toggle-button overlay" for="toggle-drawer"></label><header class="header"><nav aria-label="Header"><div class="bar default"><div aria-label="Menu" class="button button-menu" role="button"><label class="toggle-button icon icon-menu" for="toggle-drawer"><span></span></label></div><div class="stretch"><div class="title"><span class="path">
             
               
-                Manual <i class="icon icon-link"></i>
-              
-            
-          </span>
+                Manual <i class="icon icon-link"></i></span>
         
         Syntax
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
+      </div></div><div aria-label="Search" class="button button-search" role="button"><label class="toggle-button icon icon-search" for="toggle-search" title="Search"></label></div></div><div class="bar search"><div aria-label="Close" class="button button-close" role="button"><label class="toggle-button icon icon-back" for="toggle-search"></label></div><div class="stretch"><div class="field"><input autocapitalize="off" autocomplete="off" autocorrect="off" class="query" placeholder="Search" spellcheck="" type="text"/></div></div><div aria-label="Search" class="button button-reset" role="button"><button class="toggle-button icon icon-close" id="reset-search"></button></div></div></nav></header><main class="main"><div class="drawer"><nav aria-label="Navigation"><a class="project" href="https://github.com/JuliaDocs/Documenter.jl"><div class="banner"><div class="name"><strong>
           Documenter.jl
-          <span class="version">
-            
-          </span>
-        </strong>
-        
-          <br>
+          <span class="version"></span></strong><br/>
           JuliaDocs/Documenter.jl
         
-      </div>
-    </div>
-  </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="../..">
+      </div></div></a><div class="scrollable"><div class="wrapper"><ul class="repo"><li class="repo-download"><a data-action="download" href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download"><i class="icon icon-download"></i> Download
+            </a></li><li class="repo-stars"><a data-action="star" href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers"><i class="icon icon-star"></i> Stars
+              <span class="count">–</span></a></li></ul><hr/><div class="toc"><ul><li><a class="" href="../.." title="Home">
       Home
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Manual</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Guide" href="../guide/">
+    </a></li><li><span class="section">Manual</span><ul><li><a class="" href="../guide/" title="Guide">
       Guide
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Examples" href="../examples/">
+    </a></li><li><a class="" href="../examples/" title="Examples">
       Examples
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="current" title="Syntax" href="./">
+    </a></li><li><a class="current" href="./" title="Syntax">
       Syntax
-    </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="@docs block" href="#docs-block">
+    </a><ul><li class="anchor"><a href="#docs-block" title="@docs block">
                 @docs block
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@autodocs block" href="#autodocs-block">
+              </a></li><li class="anchor"><a href="#autodocs-block" title="@autodocs block">
                 @autodocs block
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@ref link" href="#ref-link">
+              </a></li><li class="anchor"><a href="#ref-link" title="@ref link">
                 @ref link
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@meta block" href="#meta-block">
+              </a></li><li class="anchor"><a href="#meta-block" title="@meta block">
                 @meta block
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@index block" href="#index-block">
+              </a></li><li class="anchor"><a href="#index-block" title="@index block">
                 @index block
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@contents block" href="#contents-block">
+              </a></li><li class="anchor"><a href="#contents-block" title="@contents block">
                 @contents block
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@example block" href="#example-block">
+              </a></li><li class="anchor"><a href="#example-block" title="@example block">
                 @example block
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@repl block" href="#repl-block">
+              </a></li><li class="anchor"><a href="#repl-block" title="@repl block">
                 @repl block
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="@eval block" href="#eval-block">
+              </a></li><li class="anchor"><a href="#eval-block" title="@eval block">
                 @eval block
-              </a>
-            </li>
-          
-        </ul>
-      
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Doctests" href="../doctests/">
+              </a></li></ul></li><li><a class="" href="../doctests/" title="Doctests">
       Doctests
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Hosting Documentation" href="../hosting/">
+    </a></li><li><a class="" href="../hosting/" title="Hosting Documentation">
       Hosting Documentation
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="LaTeX Syntax" href="../latex/">
+    </a></li><li><a class="" href="../latex/" title="LaTeX Syntax">
       LaTeX Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../internals/">
+    </a></li><li><a class="" href="../internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Library</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Public" href="../../lib/public/">
+    </a></li></ul></li><li><span class="section">Library</span><ul><li><a class="" href="../../lib/public/" title="Public">
       Public
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../../lib/internals/">
+    </a></li><li><a class="" href="../../lib/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
-          
-          <p><a id='Syntax-1'></a></p>
-<h1 id="syntax">Syntax</h1>
-<p>This section of the manual describes the syntax used by Documenter to build documentation.</p>
-<ul>
-<li><a href="./#Syntax-1">Syntax</a><ul>
-<li><a href="./#@docs-block-1"><code>@docs</code> block</a></li>
-<li><a href="./#@autodocs-block-1"><code>@autodocs</code> block</a></li>
-<li><a href="./#@ref-link-1"><code>@ref</code> link</a></li>
-<li><a href="./#@meta-block-1"><code>@meta</code> block</a></li>
-<li><a href="./#@index-block-1"><code>@index</code> block</a></li>
-<li><a href="./#@contents-block-1"><code>@contents</code> block</a></li>
-<li><a href="./#@example-block-1"><code>@example</code> block</a></li>
-<li><a href="./#@repl-block-1"><code>@repl</code> block</a></li>
-<li><a href="./#@eval-block-1"><code>@eval</code> block</a></li>
-</ul>
-</li>
-</ul>
-<p><a id='@docs-block-1'></a></p>
-<h2 id="docs-block"><code>@docs</code> block</h2>
-<p>Splice one or more docstrings into a document in place of the code block, i.e.</p>
-<div class="codehilite"><pre><span></span>```@docs
+    </a></li></ul></li></ul></div></div></div></nav></div><article class="article"><div class="wrapper"><p><a id="Syntax-1"></a></p><h1 id="syntax">Syntax</h1><p>This section of the manual describes the syntax used by Documenter to build documentation.</p><ul><li><a href="./#Syntax-1">Syntax</a><ul><li><a href="./#@docs-block-1"><code>@docs</code> block</a></li><li><a href="./#@autodocs-block-1"><code>@autodocs</code> block</a></li><li><a href="./#@ref-link-1"><code>@ref</code> link</a></li><li><a href="./#@meta-block-1"><code>@meta</code> block</a></li><li><a href="./#@index-block-1"><code>@index</code> block</a></li><li><a href="./#@contents-block-1"><code>@contents</code> block</a></li><li><a href="./#@example-block-1"><code>@example</code> block</a></li><li><a href="./#@repl-block-1"><code>@repl</code> block</a></li><li><a href="./#@eval-block-1"><code>@eval</code> block</a></li></ul></li></ul><p><a id="@docs-block-1"></a></p><h2 id="docs-block"><code>@docs</code> block</h2><p>Splice one or more docstrings into a document in place of the code block, i.e.</p><div class="codehilite"><pre><span></span>```@docs
 Documenter
 makedocs
 deploydocs
 ```
-</pre></div>
-
-
-<p>This block type is evaluated within the <code>CurrentModule</code> module if defined, otherwise within <code>current_module()</code>, and so each object listed in the block should be visible from that module. Undefined objects will raise warnings during documentation generation and cause the code block to be rendered in the final document unchanged.</p>
-<p>Objects may not be listed more than once within the document. When duplicate objects are detected an error will be raised and the build process will be terminated.</p>
-<p>To ensure that all docstrings from a module are included in the final document the <code>modules</code> keyword for <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> can be set to the desired module or modules, i.e.</p>
-<div class="codehilite"><pre><span></span><span class="n">makedocs</span><span class="p">(</span>
+</pre></div><p>This block type is evaluated within the <code>CurrentModule</code> module if defined, otherwise within <code>current_module()</code>, and so each object listed in the block should be visible from that module. Undefined objects will raise warnings during documentation generation and cause the code block to be rendered in the final document unchanged.</p><p>Objects may not be listed more than once within the document. When duplicate objects are detected an error will be raised and the build process will be terminated.</p><p>To ensure that all docstrings from a module are included in the final document the <code>modules</code> keyword for <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> can be set to the desired module or modules, i.e.</p><div class="codehilite"><pre><span></span><span class="n">makedocs</span><span class="p">(</span>
     <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">Documenter</span><span class="p">],</span>
 <span class="p">)</span>
-</pre></div>
-
-
-<p>which will cause any unlisted docstrings to raise warnings when <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> is called. If <code>modules</code> is not defined then no warnings are printed, even if a document has missing docstrings.</p>
-<p><a id='@autodocs-block-1'></a></p>
-<h2 id="autodocs-block"><code>@autodocs</code> block</h2>
-<p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>@docs</code> block.</p>
-<div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">autodocs</span>
+</pre></div><p>which will cause any unlisted docstrings to raise warnings when <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> is called. If <code>modules</code> is not defined then no warnings are printed, even if a document has missing docstrings.</p><p><a id="@autodocs-block-1"></a></p><h2 id="autodocs-block"><code>@autodocs</code> block</h2><p>Automatically splices all docstrings from the provided modules in place of the code block. This is equivalent to manually adding all the docstrings in a <code>@docs</code> block.</p><div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">autodocs</span>
 <span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Bar</span><span class="o">]</span>
 <span class="n">Order</span>   <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">function</span><span class="p">,</span> <span class="p">:</span><span class="n">type</span><span class="o">]</span>
 <span class="err">```</span>
-</pre></div>
-
-
-<p>The above <code>@autodocs</code> block adds all the docstrings found in modules <code>Foo</code> and <code>Bar</code> that refer to functions or types to the document.</p>
-<p>Each module is added in order and so all docs from <code>Foo</code> will appear before those of <code>Bar</code>. Possible values for the <code>Order</code> vector are</p>
-<ul>
-<li><code>:module</code></li>
-<li><code>:constant</code></li>
-<li><code>:type</code></li>
-<li><code>:function</code></li>
-<li><code>:macro</code></li>
-</ul>
-<p>If no <code>Order</code> is provided then the order listed above is used.</p>
-<p>When a potential docstring is found in one of the listed modules, but does not match any value from <code>Order</code> then it will be omitted from the document. Hence <code>Order</code> acts as a basic filter as well as sorter.</p>
-<p><strong>Note</strong></p>
-<p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p>
-<p><a id='@ref-link-1'></a></p>
-<h2 id="ref-link"><code>@ref</code> link</h2>
-<p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.</p>
-<div class="codehilite"><pre><span></span># Syntax
+</pre></div><p>The above <code>@autodocs</code> block adds all the docstrings found in modules <code>Foo</code> and <code>Bar</code> that refer to functions or types to the document.</p><p>Each module is added in order and so all docs from <code>Foo</code> will appear before those of <code>Bar</code>. Possible values for the <code>Order</code> vector are</p><ul><li><code>:module</code></li><li><code>:constant</code></li><li><code>:type</code></li><li><code>:function</code></li><li><code>:macro</code></li></ul><p>If no <code>Order</code> is provided then the order listed above is used.</p><p>When a potential docstring is found in one of the listed modules, but does not match any value from <code>Order</code> then it will be omitted from the document. Hence <code>Order</code> acts as a basic filter as well as sorter.</p><p><strong>Note</strong></p><p>When more complex sorting and filtering is needed then use <code>@docs</code> to define it explicitly.</p><p><a id="@ref-link-1"></a></p><h2 id="ref-link"><code>@ref</code> link</h2><p>Used in markdown links as the URL to tell Documenter to generate a cross-reference automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue number.</p><div class="codehilite"><pre><span></span># Syntax
 
 ... [`makedocs`](@ref) ...
 
@@ -426,89 +138,38 @@ makedocs
 ... [Syntax](@ref) ...
 
 ... [#42](@ref) ...
-</pre></div>
-
-
-<p>Plain text in the "text" part of a link will either cross-reference a header, or, when it is a number preceded by a <code>#</code>, a GitHub issue/pull request. Text wrapped in backticks will cross-reference a docstring from a <code>@docs</code> block.</p>
-<p><code>@ref</code>s may refer to docstrings or headers on different pages as well as the current page using the same syntax.</p>
-<p>Note that depending on what the <code>CurrentModule</code> is set to, a docstring <code>@ref</code> may need to be prefixed by the module which defines it.</p>
-<p><strong>Duplicate Headers</strong></p>
-<p>In some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow <code>@ref</code> to cross-reference a duplicate header it must be given a name as in the following example</p>
-<div class="codehilite"><pre><span></span><span class="cp"># [Header](@id my_custom_header_name)</span>
+</pre></div><p>Plain text in the "text" part of a link will either cross-reference a header, or, when it is a number preceded by a <code>#</code>, a GitHub issue/pull request. Text wrapped in backticks will cross-reference a docstring from a <code>@docs</code> block.</p><p><code>@ref</code>s may refer to docstrings or headers on different pages as well as the current page using the same syntax.</p><p>Note that depending on what the <code>CurrentModule</code> is set to, a docstring <code>@ref</code> may need to be prefixed by the module which defines it.</p><p><strong>Duplicate Headers</strong></p><p>In some cases a document may contain multiple headers with the same name, but on different pages or of different levels. To allow <code>@ref</code> to cross-reference a duplicate header it must be given a name as in the following example</p><div class="codehilite"><pre><span></span><span class="cp"># [Header](@id my_custom_header_name)</span>
 
 <span class="p">...</span>
 
 <span class="cp">## Header</span>
 
 <span class="p">...</span> <span class="p">[</span><span class="n">Custom</span> <span class="n">Header</span><span class="p">](@</span><span class="n">ref</span> <span class="n">my_custom_header_name</span><span class="p">)</span> <span class="p">...</span>
-</pre></div>
-
-
-<p>The link that wraps the named header is removed in the final document. The text for a named <code>@ref ...</code> does not need to match the header that it references. Named <code>@ref ...</code>s may refer to headers on different pages in the same way as unnamed ones do.</p>
-<p>Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed.</p>
-<p><a id='@meta-block-1'></a></p>
-<h2 id="meta-block"><code>@meta</code> block</h2>
-<p>This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently <code>CurrentModule</code> and <code>DocTestSetup</code> are the only recognised keys.</p>
-<div class="codehilite"><pre><span></span>```@meta
+</pre></div><p>The link that wraps the named header is removed in the final document. The text for a named <code>@ref ...</code> does not need to match the header that it references. Named <code>@ref ...</code>s may refer to headers on different pages in the same way as unnamed ones do.</p><p>Duplicate docstring references do not occur since splicing the same docstring into a document more than once is disallowed.</p><p><a id="@meta-block-1"></a></p><h2 id="meta-block"><code>@meta</code> block</h2><p>This block type is used to define metadata key/value pairs that can be used elsewhere in the page. Currently <code>CurrentModule</code> and <code>DocTestSetup</code> are the only recognised keys.</p><div class="codehilite"><pre><span></span>```@meta
 CurrentModule = FooBar
 DocTestSetup  = quote
     using MyPackage
 end
 ```
-</pre></div>
-
-
-<p>Note that <code>@meta</code> blocks are always evaluated with the <code>current_module()</code>, which is typically <code>Main</code>.</p>
-<p>See <a href="../doctests/#Setup-Code-1">Setup Code</a> section of the Doctests page for an explanation of <code>DocTestSetup</code>.</p>
-<p><a id='@index-block-1'></a></p>
-<h2 id="index-block"><code>@index</code> block</h2>
-<p>Generates a list of links to docstrings that have been spliced into a document. Valid settings are <code>Pages</code>, <code>Modules</code>, and <code>Order</code>. For example:</p>
-<div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">index</span>
-<span class="n">Pages</span>   <span class="o">=</span> <span class="o">[</span><span class="s">&quot;foo.md&quot;</span><span class="o">]</span>
+</pre></div><p>Note that <code>@meta</code> blocks are always evaluated with the <code>current_module()</code>, which is typically <code>Main</code>.</p><p>See <a href="../doctests/#Setup-Code-1">Setup Code</a> section of the Doctests page for an explanation of <code>DocTestSetup</code>.</p><p><a id="@index-block-1"></a></p><h2 id="index-block"><code>@index</code> block</h2><p>Generates a list of links to docstrings that have been spliced into a document. Valid settings are <code>Pages</code>, <code>Modules</code>, and <code>Order</code>. For example:</p><div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">index</span>
+<span class="n">Pages</span>   <span class="o">=</span> <span class="o">[</span><span class="s">"foo.md"</span><span class="o">]</span>
 <span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Bar</span><span class="o">]</span>
 <span class="n">Order</span>   <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">function</span><span class="p">,</span> <span class="p">:</span><span class="n">type</span><span class="o">]</span>
 <span class="err">```</span>
-</pre></div>
-
-
-<p>When <code>Pages</code> or <code>Modules</code> are not provided then all pages or modules are included. <code>Order</code> defaults to</p>
-<div class="codehilite"><pre><span></span>[:module, :constant, :type, :function, :macro]
-</pre></div>
-
-
-<p>if not specified. <code>Order</code> and <code>Modules</code> behave the same way as in <a href="./#@autodocs-block-1"><code>@autodocs</code> block</a>s and filter out docstrings that do not match one of the modules or categories specified.</p>
-<p>Note that the values assigned to <code>Pages</code>, <code>Modules</code>, and <code>Order</code> may be any valid Julia code and thus can be something more complex that an array literal if required, i.e.</p>
-<div class="codehilite"><pre><span></span>```@index
-Pages = map(file -&gt; joinpath(&quot;man&quot;, file), readdir(&quot;man&quot;))
+</pre></div><p>When <code>Pages</code> or <code>Modules</code> are not provided then all pages or modules are included. <code>Order</code> defaults to</p><div class="codehilite"><pre><span></span>[:module, :constant, :type, :function, :macro]
+</pre></div><p>if not specified. <code>Order</code> and <code>Modules</code> behave the same way as in <a href="./#@autodocs-block-1"><code>@autodocs</code> block</a>s and filter out docstrings that do not match one of the modules or categories specified.</p><p>Note that the values assigned to <code>Pages</code>, <code>Modules</code>, and <code>Order</code> may be any valid Julia code and thus can be something more complex that an array literal if required, i.e.</p><div class="codehilite"><pre><span></span>```@index
+Pages = map(file -&gt; joinpath("man", file), readdir("man"))
 ```
-</pre></div>
-
-
-<p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals as much as possible.</p>
-<p><a id='@contents-block-1'></a></p>
-<h2 id="contents-block"><code>@contents</code> block</h2>
-<p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p>
-<div class="codehilite"><pre><span></span>```@contents
-Pages = [&quot;foo.md&quot;]
+</pre></div><p>It should be noted though that in this case <code>Pages</code> may not be sorted in the order that is expected by the user. Try to stick to array literals as much as possible.</p><p><a id="@contents-block-1"></a></p><h2 id="contents-block"><code>@contents</code> block</h2><p>Generates a nested list of links to document sections. Valid settings are <code>Pages</code> and <code>Depth</code>.</p><div class="codehilite"><pre><span></span>```@contents
+Pages = ["foo.md"]
 Depth = 5
 ```
-</pre></div>
-
-
-<p>As with <code>@index</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p>
-<p><a id='@example-block-1'></a></p>
-<h2 id="example-block"><code>@example</code> block</h2>
-<p>Evaluates the code block and inserts the result into the final document along with the original source code.</p>
-<div class="codehilite"><pre><span></span>```@example
+</pre></div><p>As with <code>@index</code> if <code>Pages</code> is not provided then all pages are included. The default <code>Depth</code> value is <code>2</code>.</p><p><a id="@example-block-1"></a></p><h2 id="example-block"><code>@example</code> block</h2><p>Evaluates the code block and inserts the result into the final document along with the original source code.</p><div class="codehilite"><pre><span></span>```@example
 a = 1
 b = 2
 a + b
 ```
-</pre></div>
-
-
-<p>The above <code>@example</code> block will splice the following into the final document</p>
-<div class="codehilite"><pre><span></span>```julia
+</pre></div><p>The above <code>@example</code> block will splice the following into the final document</p><div class="codehilite"><pre><span></span>```julia
 a = 1
 b = 2
 a + b
@@ -517,41 +178,20 @@ a + b
 ```
 3
 ```
-</pre></div>
-
-
-<p>Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace on each line is also removed.</p>
-<p><strong>Hiding Source Code</strong></p>
-<p>Code blocks may have some content that does not need to be displayed in the final document. <code># hide</code> comments can be appended to lines that should not be rendered, i.e.</p>
-<div class="codehilite"><pre><span></span>```@example
+</pre></div><p>Leading and trailing newlines are removed from the rendered code blocks. Trailing whitespace on each line is also removed.</p><p><strong>Hiding Source Code</strong></p><p>Code blocks may have some content that does not need to be displayed in the final document. <code># hide</code> comments can be appended to lines that should not be rendered, i.e.</p><div class="codehilite"><pre><span></span>```@example
 srand(1) # hide
 A = rand(3, 3)
 b = [1, 2, 3]
 A \ b
 ```
-</pre></div>
-
-
-<p>Note that appending <code># hide</code> to every line in an <code>@example</code> block will result in the block being hidden in the rendered document. The results block will still be rendered though.</p>
-<p><strong><code>STDOUT</code> and <code>STDERR</code></strong></p>
-<p>The Julia output streams are redirected to the results block when evaluating <code>@example</code> blocks in the same way as when running doctest code blocks.</p>
-<p><strong><code>nothing</code> Results</strong></p>
-<p>When the <code>@example</code> block evaluates to <code>nothing</code> then the second block is not displayed. Only the source code block will be shown in the rendered document. Note that if any output from either <code>STDOUT</code> or <code>STDERR</code> is captured then the results block will be displayed even if <code>nothing</code> is returned.</p>
-<p><strong>Named <code>@example</code> Blocks</strong></p>
-<p>By default <code>@example</code> blocks are run in their own anonymous <code>Module</code>s to avoid side-effects between blocks. To share the same module between different blocks on a page the <code>@example</code> can be named with the following syntax</p>
-<div class="codehilite"><pre><span></span>```@example 1
+</pre></div><p>Note that appending <code># hide</code> to every line in an <code>@example</code> block will result in the block being hidden in the rendered document. The results block will still be rendered though.</p><p><strong><code>STDOUT</code> and <code>STDERR</code></strong></p><p>The Julia output streams are redirected to the results block when evaluating <code>@example</code> blocks in the same way as when running doctest code blocks.</p><p><strong><code>nothing</code> Results</strong></p><p>When the <code>@example</code> block evaluates to <code>nothing</code> then the second block is not displayed. Only the source code block will be shown in the rendered document. Note that if any output from either <code>STDOUT</code> or <code>STDERR</code> is captured then the results block will be displayed even if <code>nothing</code> is returned.</p><p><strong>Named <code>@example</code> Blocks</strong></p><p>By default <code>@example</code> blocks are run in their own anonymous <code>Module</code>s to avoid side-effects between blocks. To share the same module between different blocks on a page the <code>@example</code> can be named with the following syntax</p><div class="codehilite"><pre><span></span>```@example 1
 a = 1
 ```
 
 ```@example 1
 println(a)
 ```
-</pre></div>
-
-
-<p>The name can be any text, not just integers as in the example above, i.e. <code>@example foo</code>.</p>
-<p>Named <code>@example</code> blocks can be useful when generating documentation that requires intermediate explanation or multimedia such as plots as illustrated in the following example</p>
-<div class="codehilite"><pre><span></span>First we define some functions
+</pre></div><p>The name can be any text, not just integers as in the example above, i.e. <code>@example foo</code>.</p><p>Named <code>@example</code> blocks can be useful when generating documentation that requires intermediate explanation or multimedia such as plots as illustrated in the following example</p><div class="codehilite"><pre><span></span>First we define some functions
 
 ```@example 1
 using PyPlot # hide
@@ -563,8 +203,8 @@ and then we plot `f` over the interval from ``-π`` to ``π``
 
 ```@example 1
 x = linspace(-π, π)
-plot(x, f(x), color = &quot;red&quot;)
-savefig(&quot;f-plot.svg&quot;); nothing # hide
+plot(x, f(x), color = "red")
+savefig("f-plot.svg"); nothing # hide
 ```
 
 ![](f-plot.svg)
@@ -572,39 +212,24 @@ savefig(&quot;f-plot.svg&quot;); nothing # hide
 and then we do the same with `g`
 
 ```@example 1
-plot(x, g(x), color = &quot;blue&quot;)
-savefig(&quot;g-plot.svg&quot;); nothing # hide
+plot(x, g(x), color = "blue")
+savefig("g-plot.svg"); nothing # hide
 ```
 
 ![](g-plot.svg)
-</pre></div>
-
-
-<p>Note that <code>@example</code> blocks are evaluated within the directory of <code>build</code> where the file will be rendered . This means than in the above example <code>savefig</code> will output the <code>.svg</code> files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.</p>
-<p><code>@example</code> blocks automatically define <code>ans</code> which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by <code>plot</code> to a named variable would look out of place in the final rendered documentation:</p>
-<div class="codehilite"><pre><span></span>```@example
+</pre></div><p>Note that <code>@example</code> blocks are evaluated within the directory of <code>build</code> where the file will be rendered . This means than in the above example <code>savefig</code> will output the <code>.svg</code> files into that directory. This allows the images to be easily referenced without needing to worry about relative paths.</p><p><code>@example</code> blocks automatically define <code>ans</code> which, as in the Julia REPL, is bound to the value of the last evaluated expression. This can be useful in situations such as the following one where where binding the object returned by <code>plot</code> to a named variable would look out of place in the final rendered documentation:</p><div class="codehilite"><pre><span></span>```@example
 using Gadfly # hide
 plot([sin, x -&gt; 2sin(x) + x], -2π, 2π)
-draw(SVG(&quot;plot.svg&quot;, 6inch, 4inch), ans); nothing # hide
+draw(SVG("plot.svg", 6inch, 4inch), ans); nothing # hide
 ```
 
 ![](plot.svg)
-</pre></div>
-
-
-<p><a id='@repl-block-1'></a></p>
-<h2 id="repl-block"><code>@repl</code> block</h2>
-<p>These are similar to <code>@example</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>@repl</code> blocks in the same way as in the Julia REPL and <code>@example</code> blocks.</p>
-<div class="codehilite"><pre><span></span>```@repl
+</pre></div><p><a id="@repl-block-1"></a></p><h2 id="repl-block"><code>@repl</code> block</h2><p>These are similar to <code>@example</code> blocks, but adds a <code>julia&gt;</code> prompt before each toplevel expression. <code>;</code> and <code># hide</code> syntax may be used in <code>@repl</code> blocks in the same way as in the Julia REPL and <code>@example</code> blocks.</p><div class="codehilite"><pre><span></span>```@repl
 a = 1
 b = 2
 a + b
 ```
-</pre></div>
-
-
-<p>will generate</p>
-<div class="codehilite"><pre><span></span>```julia
+</pre></div><p>will generate</p><div class="codehilite"><pre><span></span>```julia
 julia&gt; a = 1
 1
 
@@ -614,35 +239,20 @@ julia&gt; b = 2
 julia&gt; a + b
 3
 ```
-</pre></div>
-
-
-<p>Named <code>@repl &lt;name&gt;</code> blocks behave in the same way as named <code>@example &lt;name&gt;</code> blocks.</p>
-<p><a id='@eval-block-1'></a></p>
-<h2 id="eval-block"><code>@eval</code> block</h2>
-<p>Evaluates the contents of the block and inserts the resulting value into the final document.</p>
-<p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p>
-<div class="codehilite"><pre><span></span>```@eval
+</pre></div><p>Named <code>@repl &lt;name&gt;</code> blocks behave in the same way as named <code>@example &lt;name&gt;</code> blocks.</p><p><a id="@eval-block-1"></a></p><h2 id="eval-block"><code>@eval</code> block</h2><p>Evaluates the contents of the block and inserts the resulting value into the final document.</p><p>In the following example we use the PyPlot package to generate a plot and display it in the final document.</p><div class="codehilite"><pre><span></span>```@eval
 using PyPlot
 
 x = linspace(-π, π)
 y = sin(x)
 
-plot(x, y, color = &quot;red&quot;)
-savefig(&quot;plot.svg&quot;)
+plot(x, y, color = "red")
+savefig("plot.svg")
 
 nothing
 ```
 
 ![](plot.svg)
-</pre></div>
-
-
-<p>Note that each <code>@eval</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p>
-<p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.Image</code> object directly. This can be more appropriate when the filename is not known until evaluation of the block itself.</p>
-<p><strong>Note</strong></p>
-<p>In most cases <code>@example</code> is preferred over <code>@eval</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>@eval</code> should be treated in the same way.</p>
-          <aside class="copyright" role="note">
+</pre></div><p>Note that each <code>@eval</code> block evaluates its contents within a separate module. When evaluating each block the present working directory, <code>pwd</code>, is set to the directory in <code>build</code> where the file will be written to.</p><p>Also, instead of returning <code>nothing</code> in the example above we could have returned a new <code>Markdown.Image</code> object directly. This can be more appropriate when the filename is not known until evaluation of the block itself.</p><p><strong>Note</strong></p><p>In most cases <code>@example</code> is preferred over <code>@eval</code>. Just like in normal Julia code where <code>eval</code> should be only be considered as a last resort, <code>@eval</code> should be treated in the same way.</p><aside class="copyright" role="note">
             
             Documentation built with
             <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
@@ -651,74 +261,15 @@ nothing
               Material
             </a>
             theme.
-          </aside>
-          
-            <footer class="footer">
-              
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
-      
-        <a href="../examples/" title="Examples">
-          <span class="direction">
+          </aside><footer class="footer"><nav aria-label="Footer" class="pagination"><div class="previous"><a href="../examples/" title="Examples"><span class="direction">
             Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
-            </div>
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div aria-label="Previous" class="button button-previous" role="button"><i class="icon icon-back"></i></div><div class="stretch"><div class="title">
                 Examples
-              </div>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../doctests/" title="Doctests">
-          <span class="direction">
+              </div></div></div></a></div><div class="next"><a href="../doctests/" title="Doctests"><span class="direction">
             Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div class="stretch"><div class="title">
                 Doctests
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
+              </div></div><div aria-label="Next" class="button button-next" role="button"><i class="icon icon-forward"></i></div></div></a></div></nav></footer></div></article><div aria-live="polite" class="results" role="status"><div class="scrollable"><div class="wrapper"><div class="meta"></div><div class="list"></div></div></div></div></main><script>
       var base_url = '../..';
       var repo_id  = 'JuliaDocs/Documenter.jl';
-    </script>
-    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
-    
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-    
-      <script src="../../assets/mathjaxhelper.js"></script>
-    
-    
-  </body>
-</html>
+    </script><script src="../../assets/javascripts/application-997097ee0c.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script><script src="../../assets/mathjaxhelper.js"></script></body></HTML>

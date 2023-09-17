@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
-    
-      
-        <title>DOM - Documenter.jl</title>
-      
-      
-      
-      
-        <meta name="author" content="Michael Hatherly">
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Documenter.jl">
-    <meta property="og:image" content="None/../../../">
-    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
+<!DOCTYPE html><HTML class="no-js"><head><meta charset="utf-8"/><meta content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" name="viewport"/><title>DOM - Documenter.jl</title><meta content="Michael Hatherly" name="author"/><meta content="None" property="og:url"/><meta content="Documenter.jl" property="og:title"/><meta content="None/../../../" property="og:image"/><meta content="Documenter.jl" name="apple-mobile-web-app-title"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><link href="../../../assets/images/favicon-e565ddfa3b.ico" rel="shortcut icon" type="image/x-icon"/><link href="../../../assets/images/favicon-e565ddfa3b.ico" rel="icon" type="image/x-icon"/><style>
       @font-face {
       	font-family: 'Icon';
       	src: url('../../../assets/fonts/icon.eot?52m981');
@@ -42,512 +13,158 @@
       	font-weight: normal;
       	font-style: normal;
       }
-    </style>
-    <link rel="stylesheet" href="../../../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../../../assets/stylesheets/palettes-05ab2406df.css">
-    
-    
-      
-      
-      
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
+    </style><link href="../../../assets/stylesheets/application-a422ff04cc.css" rel="stylesheet"/><link href="../../../assets/stylesheets/palettes-05ab2406df.css" rel="stylesheet"/><link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono" rel="stylesheet"/><style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         }
         pre, code {
           font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
         }
-      </style>
-    
-    
-      <link rel="stylesheet" href="../../../assets/Documenter.css">
-    
-    <script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
-    
-  </head>
-  
-  
-  
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
+      </style><link href="../../../assets/Documenter.css" rel="stylesheet"/><script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body class="palette-primary-indigo palette-accent-blue"><div class="backdrop"><div class="backdrop-paper"></div></div><input class="toggle" id="toggle-drawer" type="checkbox"/><input class="toggle" id="toggle-search" type="checkbox"/><label class="toggle-button overlay" for="toggle-drawer"></label><header class="header"><nav aria-label="Header"><div class="bar default"><div aria-label="Menu" class="button button-menu" role="button"><label class="toggle-button icon icon-menu" for="toggle-drawer"><span></span></label></div><div class="stretch"><div class="title"><span class="path">
             
               
                 Library <i class="icon icon-link"></i>
               
             
               
-                Internals <i class="icon icon-link"></i>
-              
-            
-          </span>
+                Internals <i class="icon icon-link"></i></span>
         
         DOM
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
+      </div></div><div aria-label="Search" class="button button-search" role="button"><label class="toggle-button icon icon-search" for="toggle-search" title="Search"></label></div></div><div class="bar search"><div aria-label="Close" class="button button-close" role="button"><label class="toggle-button icon icon-back" for="toggle-search"></label></div><div class="stretch"><div class="field"><input autocapitalize="off" autocomplete="off" autocorrect="off" class="query" placeholder="Search" spellcheck="" type="text"/></div></div><div aria-label="Search" class="button button-reset" role="button"><button class="toggle-button icon icon-close" id="reset-search"></button></div></div></nav></header><main class="main"><div class="drawer"><nav aria-label="Navigation"><a class="project" href="https://github.com/JuliaDocs/Documenter.jl"><div class="banner"><div class="name"><strong>
           Documenter.jl
-          <span class="version">
-            
-          </span>
-        </strong>
-        
-          <br>
+          <span class="version"></span></strong><br/>
           JuliaDocs/Documenter.jl
         
-      </div>
-    </div>
-  </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="../../..">
+      </div></div></a><div class="scrollable"><div class="wrapper"><ul class="repo"><li class="repo-download"><a data-action="download" href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download"><i class="icon icon-download"></i> Download
+            </a></li><li class="repo-stars"><a data-action="star" href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers"><i class="icon icon-star"></i> Stars
+              <span class="count">–</span></a></li></ul><hr/><div class="toc"><ul><li><a class="" href="../../.." title="Home">
       Home
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Manual</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Guide" href="../../../man/guide/">
+    </a></li><li><span class="section">Manual</span><ul><li><a class="" href="../../../man/guide/" title="Guide">
       Guide
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Examples" href="../../../man/examples/">
+    </a></li><li><a class="" href="../../../man/examples/" title="Examples">
       Examples
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Syntax" href="../../../man/syntax/">
+    </a></li><li><a class="" href="../../../man/syntax/" title="Syntax">
       Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Doctests" href="../../../man/doctests/">
+    </a></li><li><a class="" href="../../../man/doctests/" title="Doctests">
       Doctests
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Hosting Documentation" href="../../../man/hosting/">
+    </a></li><li><a class="" href="../../../man/hosting/" title="Hosting Documentation">
       Hosting Documentation
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="LaTeX Syntax" href="../../../man/latex/">
+    </a></li><li><a class="" href="../../../man/latex/" title="LaTeX Syntax">
       LaTeX Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../../../man/internals/">
+    </a></li><li><a class="" href="../../../man/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Library</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Public" href="../../public/">
+    </a></li></ul></li><li><span class="section">Library</span><ul><li><a class="" href="../../public/" title="Public">
       Public
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <span class="section">Internals</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Internals" href="../">
+    </a></li><li><span class="section">Internals</span><ul><li><a class="" href="../" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Anchors" href="../anchors/">
+    </a></li><li><a class="" href="../anchors/" title="Anchors">
       Anchors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Builder" href="../builder/">
+    </a></li><li><a class="" href="../builder/" title="Builder">
       Builder
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="CrossReferences" href="../cross-references/">
+    </a></li><li><a class="" href="../cross-references/" title="CrossReferences">
       CrossReferences
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocChecks" href="../docchecks/">
+    </a></li><li><a class="" href="../docchecks/" title="DocChecks">
       DocChecks
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocSystem" href="../docsystem/">
+    </a></li><li><a class="" href="../docsystem/" title="DocSystem">
       DocSystem
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Documents" href="../documents/">
+    </a></li><li><a class="" href="../documents/" title="Documents">
       Documents
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="current" title="DOM" href="./">
+    </a></li><li><a class="current" href="./" title="DOM">
       DOM
-    </a>
-    
-      
-        
-      
-      
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Expanders" href="../expanders/">
+    </a></li><li><a class="" href="../expanders/" title="Expanders">
       Expanders
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Formats" href="../formats/">
+    </a></li><li><a class="" href="../formats/" title="Formats">
       Formats
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Generator" href="../generator/">
+    </a></li><li><a class="" href="../generator/" title="Generator">
       Generator
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Selectors" href="../selectors/">
+    </a></li><li><a class="" href="../selectors/" title="Selectors">
       Selectors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Utilities" href="../utilities/">
+    </a></li><li><a class="" href="../utilities/" title="Utilities">
       Utilities
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Walkers" href="../walkers/">
+    </a></li><li><a class="" href="../walkers/" title="Walkers">
       Walkers
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Writers" href="../writers/">
+    </a></li><li><a class="" href="../writers/" title="Writers">
       Writers
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
-          
-          <p><a id='DOM-1'></a></p>
-<h1 id="dom">DOM</h1>
-<p><a id='Documenter.Utilities.DOM' href='#Documenter.Utilities.DOM'>#</a>
-<strong><code>Documenter.Utilities.DOM</code></strong> &mdash; <em>Module</em>.</p>
-<p>Provides a domain specific language for representing HTML documents.</p>
-<p><strong>Examples</strong></p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span><span class="o">.</span><span class="n">Utilities</span><span class="o">.</span><span class="n">DOM</span>
+    </a></li></ul></li></ul></li></ul></div></div></div></nav></div><article class="article"><div class="wrapper"><p><a id="DOM-1"></a></p><h1 id="dom">DOM</h1><p><a href="#Documenter.Utilities.DOM" id="Documenter.Utilities.DOM">#</a><strong><code>Documenter.Utilities.DOM</code></strong> — <em>Module</em>.</p><p>Provides a domain specific language for representing HTML documents.</p><p><strong>Examples</strong></p><div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span><span class="o">.</span><span class="n">Utilities</span><span class="o">.</span><span class="n">DOM</span>
 
 <span class="c"># `DOM` does not export any HTML tags. Define the ones we actually need.</span>
 <span class="p">@</span><span class="n">tags</span> <span class="n">div</span> <span class="n">p</span> <span class="n">em</span> <span class="n">strong</span> <span class="n">ul</span> <span class="n">li</span>
 
 <span class="n">div</span><span class="p">(</span>
-    <span class="n">p</span><span class="p">(</span><span class="s">&quot;This &quot;</span><span class="p">,</span> <span class="n">em</span><span class="p">(</span><span class="s">&quot;is&quot;</span><span class="p">),</span> <span class="s">&quot; a &quot;</span><span class="p">,</span> <span class="n">strong</span><span class="p">(</span><span class="s">&quot;paragraph.&quot;</span><span class="p">),</span>
-    <span class="n">p</span><span class="p">(</span><span class="s">&quot;And this is &quot;</span><span class="p">,</span> <span class="n">strong</span><span class="p">(</span><span class="s">&quot;another&quot;</span><span class="p">),</span> <span class="s">&quot; one&quot;</span><span class="p">),</span>
+    <span class="n">p</span><span class="p">(</span><span class="s">"This "</span><span class="p">,</span> <span class="n">em</span><span class="p">(</span><span class="s">"is"</span><span class="p">),</span> <span class="s">" a "</span><span class="p">,</span> <span class="n">strong</span><span class="p">(</span><span class="s">"paragraph."</span><span class="p">),</span>
+    <span class="n">p</span><span class="p">(</span><span class="s">"And this is "</span><span class="p">,</span> <span class="n">strong</span><span class="p">(</span><span class="s">"another"</span><span class="p">),</span> <span class="s">" one"</span><span class="p">),</span>
     <span class="n">ul</span><span class="p">(</span>
-        <span class="n">li</span><span class="p">(</span><span class="s">&quot;and&quot;</span><span class="p">),</span>
-        <span class="n">li</span><span class="p">(</span><span class="s">&quot;an&quot;</span><span class="p">),</span>
-        <span class="n">li</span><span class="p">(</span><span class="s">&quot;unordered&quot;</span><span class="p">),</span>
-        <span class="n">li</span><span class="p">(</span><span class="s">&quot;list&quot;</span><span class="p">)</span>
+        <span class="n">li</span><span class="p">(</span><span class="s">"and"</span><span class="p">),</span>
+        <span class="n">li</span><span class="p">(</span><span class="s">"an"</span><span class="p">),</span>
+        <span class="n">li</span><span class="p">(</span><span class="s">"unordered"</span><span class="p">),</span>
+        <span class="n">li</span><span class="p">(</span><span class="s">"list"</span><span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
-</pre></div>
-
-
-<p><em>Notes</em></p>
-<p>All the arguments passed to a node are flattened into a single vector rather than preserving any nested structure. This means that passing two vectors of nodes to a <code>div</code> will result in a <code>div</code> node with a single vector of children (the concatenation of the two vectors) rather than two vector children. The only arguments that are not flattened are nested nodes.</p>
-<p>String arguments are automatically converted into text nodes. Text nodes do not have any children or attributes and when displayed the string is escaped using <a href="./#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}"><code>escapehtml</code></a>.</p>
-<p><strong>Attributes</strong></p>
-<p>As well as plain nodes shown in the previous example, nodes can have attributes added to them using the following syntax.</p>
-<div class="codehilite"><pre><span></span><span class="n">div</span><span class="p">[</span><span class="s">&quot;.my-class&quot;</span><span class="p">](</span>
-    <span class="n">img</span><span class="p">[:</span><span class="n">src</span> <span class="o">=&gt;</span> <span class="s">&quot;foo.jpg&quot;</span><span class="p">],</span>
-    <span class="n">input</span><span class="p">[</span><span class="s">&quot;#my-id&quot;</span><span class="p">,</span> <span class="p">:</span><span class="n">disabled</span><span class="p">]</span>
+</pre></div><p><em>Notes</em></p><p>All the arguments passed to a node are flattened into a single vector rather than preserving any nested structure. This means that passing two vectors of nodes to a <code>div</code> will result in a <code>div</code> node with a single vector of children (the concatenation of the two vectors) rather than two vector children. The only arguments that are not flattened are nested nodes.</p><p>String arguments are automatically converted into text nodes. Text nodes do not have any children or attributes and when displayed the string is escaped using <a href="./#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}"><code>escapehtml</code></a>.</p><p><strong>Attributes</strong></p><p>As well as plain nodes shown in the previous example, nodes can have attributes added to them using the following syntax.</p><div class="codehilite"><pre><span></span><span class="n">div</span><span class="p">[</span><span class="s">".my-class"</span><span class="p">](</span>
+    <span class="n">img</span><span class="p">[:</span><span class="n">src</span> <span class="o">=&gt;</span> <span class="s">"foo.jpg"</span><span class="p">],</span>
+    <span class="n">input</span><span class="p">[</span><span class="s">"#my-id"</span><span class="p">,</span> <span class="p">:</span><span class="n">disabled</span><span class="p">]</span>
 <span class="p">)</span>
-</pre></div>
-
-
-<p>In the above example we add a <code>class = "my-class"</code> attribute to the <code>div</code> node, a <code>src = "foo.jpg"</code> to the <code>img</code>, and <code>id = "my-id" disabled</code> attributes to the <code>input</code> node.</p>
-<p>The following syntax is supported within <code>[...]</code>:</p>
-<div class="codehilite"><pre><span></span><span class="n">tag</span><span class="p">[</span><span class="s">&quot;#id&quot;</span><span class="p">]</span>
-<span class="n">tag</span><span class="p">[</span><span class="s">&quot;.class&quot;</span><span class="p">]</span>
-<span class="n">tag</span><span class="p">[</span><span class="s">&quot;.class#id&quot;</span><span class="p">]</span>
+</pre></div><p>In the above example we add a <code>class = "my-class"</code> attribute to the <code>div</code> node, a <code>src = "foo.jpg"</code> to the <code>img</code>, and <code>id = "my-id" disabled</code> attributes to the <code>input</code> node.</p><p>The following syntax is supported within <code>[...]</code>:</p><div class="codehilite"><pre><span></span><span class="n">tag</span><span class="p">[</span><span class="s">"#id"</span><span class="p">]</span>
+<span class="n">tag</span><span class="p">[</span><span class="s">".class"</span><span class="p">]</span>
+<span class="n">tag</span><span class="p">[</span><span class="s">".class#id"</span><span class="p">]</span>
 <span class="n">tag</span><span class="p">[:</span><span class="n">disabled</span><span class="p">]</span>
-<span class="n">tag</span><span class="p">[:</span><span class="n">src</span> <span class="o">=&gt;</span> <span class="s">&quot;foo.jpg&quot;</span><span class="p">]</span>
+<span class="n">tag</span><span class="p">[:</span><span class="n">src</span> <span class="o">=&gt;</span> <span class="s">"foo.jpg"</span><span class="p">]</span>
 <span class="c"># ... or any combination of the above arguments.</span>
-</pre></div>
-
-
-<p><strong>Internal Representation</strong></p>
-<p>The <a href="./#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}"><code>@tags</code></a> macro defines named <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> objects as follows</p>
-<div class="codehilite"><pre><span></span><span class="p">@</span><span class="n">tags</span> <span class="n">div</span> <span class="n">p</span> <span class="n">em</span> <span class="n">strong</span>
-</pre></div>
-
-
-<p>expands to</p>
-<div class="codehilite"><pre><span></span><span class="kd">const</span> <span class="n">div</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">em</span><span class="p">,</span> <span class="n">strong</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">div</span><span class="p">),</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">p</span><span class="p">),</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">em</span><span class="p">),</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">strong</span><span class="p">)</span>
-</pre></div>
-
-
-<p>These <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> objects are lightweight representations of empty HTML elements without any attributes and cannot be used to represent a complete document. To create an actual tree of HTML elements that can be rendered we need to add some attributes and/or child elements using <code>getindex</code> or <code>call</code> syntax. Applying either to a <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> object will construct a new <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object.</p>
-<div class="codehilite"><pre><span></span><span class="n">tag</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>      <span class="c"># No attributes.</span>
+</pre></div><p><strong>Internal Representation</strong></p><p>The <a href="./#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}"><code>@tags</code></a> macro defines named <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> objects as follows</p><div class="codehilite"><pre><span></span><span class="p">@</span><span class="n">tags</span> <span class="n">div</span> <span class="n">p</span> <span class="n">em</span> <span class="n">strong</span>
+</pre></div><p>expands to</p><div class="codehilite"><pre><span></span><span class="kd">const</span> <span class="n">div</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">em</span><span class="p">,</span> <span class="n">strong</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">div</span><span class="p">),</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">p</span><span class="p">),</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">em</span><span class="p">),</span> <span class="n">Tag</span><span class="p">(:</span><span class="n">strong</span><span class="p">)</span>
+</pre></div><p>These <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> objects are lightweight representations of empty HTML elements without any attributes and cannot be used to represent a complete document. To create an actual tree of HTML elements that can be rendered we need to add some attributes and/or child elements using <code>getindex</code> or <code>call</code> syntax. Applying either to a <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> object will construct a new <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object.</p><div class="codehilite"><pre><span></span><span class="n">tag</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>      <span class="c"># No attributes.</span>
 <span class="n">tag</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>      <span class="c"># No children.</span>
 <span class="n">tag</span><span class="p">[</span><span class="o">...</span><span class="p">](</span><span class="o">...</span><span class="p">)</span> <span class="c"># Has both attributes and children.</span>
-</pre></div>
-
-
-<p>All three of the above syntaxes return a new <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object. Printing of <code>Node</code> objects is defined using the standard Julia display functions, so only needs a call to <code>print</code> to print out a valid HTML document with all nessesary text escaped.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L1-L94' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}' href='#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}'>#</a>
-<strong><code>Documenter.Utilities.DOM.@tags</code></strong> &mdash; <em>Macro</em>.</p>
-<p>Define a collection of <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> objects and bind them to constants with the same names.</p>
-<p><strong>Examples</strong></p>
-<p>Defined globally within a module:</p>
-<div class="codehilite"><pre><span></span><span class="p">@</span><span class="n">tags</span> <span class="n">div</span> <span class="n">ul</span> <span class="n">li</span>
-</pre></div>
-
-
-<p>Defined within the scope of a function to avoid cluttering the global namespace:</p>
-<div class="codehilite"><pre><span></span><span class="k">function</span><span class="nf"> template</span><span class="p">(</span><span class="n">args</span><span class="o">...</span><span class="p">)</span>
+</pre></div><p>All three of the above syntaxes return a new <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object. Printing of <code>Node</code> objects is defined using the standard Julia display functions, so only needs a call to <code>print</code> to print out a valid HTML document with all nessesary text escaped.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L1-L94" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}" id="Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}">#</a><strong><code>Documenter.Utilities.DOM.@tags</code></strong> — <em>Macro</em>.</p><p>Define a collection of <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> objects and bind them to constants with the same names.</p><p><strong>Examples</strong></p><p>Defined globally within a module:</p><div class="codehilite"><pre><span></span><span class="p">@</span><span class="n">tags</span> <span class="n">div</span> <span class="n">ul</span> <span class="n">li</span>
+</pre></div><p>Defined within the scope of a function to avoid cluttering the global namespace:</p><div class="codehilite"><pre><span></span><span class="k">function</span><span class="nf"> template</span><span class="p">(</span><span class="n">args</span><span class="o">...</span><span class="p">)</span>
     <span class="p">@</span><span class="n">tags</span> <span class="n">div</span> <span class="n">ul</span> <span class="n">li</span>
     <span class="c"># ...</span>
 <span class="k">end</span>
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L150-L170' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.DOM.Node' href='#Documenter.Utilities.DOM.Node'>#</a>
-<strong><code>Documenter.Utilities.DOM.Node</code></strong> &mdash; <em>Type</em>.</p>
-<p>Represents an element within an HTML document including any textual content, children <code>Node</code>s, and attributes.</p>
-<p>This type should not be constructed directly, but instead via <code>(...)</code> and <code>[...]</code> applied to a <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> or another <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L176-L182' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.DOM.Tag' href='#Documenter.Utilities.DOM.Tag'>#</a>
-<strong><code>Documenter.Utilities.DOM.Tag</code></strong> &mdash; <em>Type</em>.</p>
-<p>Represents a empty and attribute-less HTML element.</p>
-<p>Use <a href="./#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}"><code>@tags</code></a> to define instances of this type rather than manually creating them via <code>Tag(:tagname)</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L138-L143' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}' href='#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}'>#</a>
-<strong><code>Documenter.Utilities.DOM.escapehtml</code></strong> &mdash; <em>Method</em>.</p>
-<p>Escape characters in the provided string. This converts the following characters:</p>
-<ul>
-<li><code>&lt;</code> to <code>&amp;lt;</code></li>
-<li><code>&gt;</code> to <code>&amp;gt;</code></li>
-<li><code>&amp;</code> to <code>&amp;amp;</code></li>
-<li><code>'</code> to <code>&amp;#39;</code></li>
-<li><code>"</code> to <code>&amp;quot;</code></li>
-</ul>
-<p>When no escaping is needed then the same object is returned, otherwise a new string is constructed with the characters escaped. The returned object should always be treated as an immutable copy and compared using <code>==</code> rather than <code>===</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L274-L286' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString,Documenter.Utilities.DOM.Node,Pair,Symbol}}' href='#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString,Documenter.Utilities.DOM.Node,Pair,Symbol}}'>#</a>
-<strong><code>Documenter.Utilities.DOM.flatten!</code></strong> &mdash; <em>Method</em>.</p>
-<p><strong>Signatures</strong></p>
-<div class="codehilite"><pre><span></span><span class="n">flatten!</span><span class="p">(</span><span class="n">f!</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">x</span><span class="p">::</span><span class="n">Atom</span><span class="p">)</span>
+</pre></div><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L150-L170" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.DOM.Node" id="Documenter.Utilities.DOM.Node">#</a><strong><code>Documenter.Utilities.DOM.Node</code></strong> — <em>Type</em>.</p><p>Represents an element within an HTML document including any textual content, children <code>Node</code>s, and attributes.</p><p>This type should not be constructed directly, but instead via <code>(...)</code> and <code>[...]</code> applied to a <a href="./#Documenter.Utilities.DOM.Tag"><code>Tag</code></a> or another <a href="./#Documenter.Utilities.DOM.Node"><code>Node</code></a> object.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L176-L182" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.DOM.Tag" id="Documenter.Utilities.DOM.Tag">#</a><strong><code>Documenter.Utilities.DOM.Tag</code></strong> — <em>Type</em>.</p><p>Represents a empty and attribute-less HTML element.</p><p>Use <a href="./#Documenter.Utilities.DOM.@tags-Tuple{Vararg{Any,N}}"><code>@tags</code></a> to define instances of this type rather than manually creating them via <code>Tag(:tagname)</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L138-L143" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}" id="Documenter.Utilities.DOM.escapehtml-Tuple{AbstractString}">#</a><strong><code>Documenter.Utilities.DOM.escapehtml</code></strong> — <em>Method</em>.</p><p>Escape characters in the provided string. This converts the following characters:</p><ul><li><code>&lt;</code> to <code>&amp;lt;</code></li><li><code>&gt;</code> to <code>&amp;gt;</code></li><li><code>&amp;</code> to <code>&amp;amp;</code></li><li><code>'</code> to <code>&amp;#39;</code></li><li><code>"</code> to <code>&amp;quot;</code></li></ul><p>When no escaping is needed then the same object is returned, otherwise a new string is constructed with the characters escaped. The returned object should always be treated as an immutable copy and compared using <code>==</code> rather than <code>===</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L274-L286" target="_blank">source</a><br/></p><p><a href="#Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString,Documenter.Utilities.DOM.Node,Pair,Symbol}}" id="Documenter.Utilities.DOM.flatten!-Tuple{Any,Any,Union{AbstractString,Documenter.Utilities.DOM.Node,Pair,Symbol}}">#</a><strong><code>Documenter.Utilities.DOM.flatten!</code></strong> — <em>Method</em>.</p><p><strong>Signatures</strong></p><div class="codehilite"><pre><span></span><span class="n">flatten!</span><span class="p">(</span><span class="n">f!</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">x</span><span class="p">::</span><span class="n">Atom</span><span class="p">)</span>
 <span class="n">flatten!</span><span class="p">(</span><span class="n">f!</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
-</pre></div>
-
-
-<p>Flatten the contents the third argument into the second after applying the function <code>f!</code> to the element.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L212-L222' class='documenter-source'>source</a><br></p>
-          <aside class="copyright" role="note">
+</pre></div><p>Flatten the contents the third argument into the second after applying the function <code>f!</code> to the element.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/25a6f2f56a9d73713393f6ada254f6884fc5d2c7/src/Utilities/DOM.jl#L212-L222" target="_blank">source</a><br/></p><aside class="copyright" role="note">
             
             Documentation built with
             <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
@@ -556,74 +173,15 @@
               Material
             </a>
             theme.
-          </aside>
-          
-            <footer class="footer">
-              
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
-      
-        <a href="../documents/" title="Documents">
-          <span class="direction">
+          </aside><footer class="footer"><nav aria-label="Footer" class="pagination"><div class="previous"><a href="../documents/" title="Documents"><span class="direction">
             Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
-            </div>
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div aria-label="Previous" class="button button-previous" role="button"><i class="icon icon-back"></i></div><div class="stretch"><div class="title">
                 Documents
-              </div>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../expanders/" title="Expanders">
-          <span class="direction">
+              </div></div></div></a></div><div class="next"><a href="../expanders/" title="Expanders"><span class="direction">
             Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div class="stretch"><div class="title">
                 Expanders
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
+              </div></div><div aria-label="Next" class="button button-next" role="button"><i class="icon icon-forward"></i></div></div></a></div></nav></footer></div></article><div aria-live="polite" class="results" role="status"><div class="scrollable"><div class="wrapper"><div class="meta"></div><div class="list"></div></div></div></div></main><script>
       var base_url = '../../..';
       var repo_id  = 'JuliaDocs/Documenter.jl';
-    </script>
-    <script src="../../../assets/javascripts/application-997097ee0c.js"></script>
-    
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-    
-      <script src="../../../assets/mathjaxhelper.js"></script>
-    
-    
-  </body>
-</html>
+    </script><script src="../../../assets/javascripts/application-997097ee0c.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script><script src="../../../assets/mathjaxhelper.js"></script></body></HTML>

@@ -1,35 +1,4 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
-    
-      
-        <title>Documenter.jl - Julia package documentation generator.</title>
-      
-      
-        <meta name="description" content="Julia package documentation generator.">
-      
-      
-      
-        <meta name="author" content="Michael Hatherly">
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Documenter.jl">
-    <meta property="og:image" content="None/./">
-    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="./assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="./assets/images/favicon-e565ddfa3b.ico">
-    <style>
+<!DOCTYPE html><HTML class="no-js"><head><meta charset="utf-8"/><meta content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" name="viewport"/><title>Documenter.jl - Julia package documentation generator.</title><meta content="Julia package documentation generator." name="description"/><meta content="Michael Hatherly" name="author"/><meta content="None" property="og:url"/><meta content="Documenter.jl" property="og:title"/><meta content="None/./" property="og:image"/><meta content="Documenter.jl" name="apple-mobile-web-app-title"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><link href="./assets/images/favicon-e565ddfa3b.ico" rel="shortcut icon" type="image/x-icon"/><link href="./assets/images/favicon-e565ddfa3b.ico" rel="icon" type="image/x-icon"/><style>
       @font-face {
       	font-family: 'Icon';
       	src: url('./assets/fonts/icon.eot?52m981');
@@ -44,526 +13,122 @@
       	font-weight: normal;
       	font-style: normal;
       }
-    </style>
-    <link rel="stylesheet" href="./assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="./assets/stylesheets/palettes-05ab2406df.css">
-    
-    
-      
-      
-      
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
+    </style><link href="./assets/stylesheets/application-a422ff04cc.css" rel="stylesheet"/><link href="./assets/stylesheets/palettes-05ab2406df.css" rel="stylesheet"/><link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono" rel="stylesheet"/><style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         }
         pre, code {
           font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
         }
-      </style>
-    
-    
-      <link rel="stylesheet" href="./assets/Documenter.css">
-    
-    <script src="./assets/javascripts/modernizr-4ab42b99fd.js"></script>
-    
-  </head>
-  
-  
-  
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
-            
-          </span>
+      </style><link href="./assets/Documenter.css" rel="stylesheet"/><script src="./assets/javascripts/modernizr-4ab42b99fd.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body class="palette-primary-indigo palette-accent-blue"><div class="backdrop"><div class="backdrop-paper"></div></div><input class="toggle" id="toggle-drawer" type="checkbox"/><input class="toggle" id="toggle-search" type="checkbox"/><label class="toggle-button overlay" for="toggle-drawer"></label><header class="header"><nav aria-label="Header"><div class="bar default"><div aria-label="Menu" class="button button-menu" role="button"><label class="toggle-button icon icon-menu" for="toggle-drawer"><span></span></label></div><div class="stretch"><div class="title"><span class="path"></span>
         
         Documenter.jl
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
+      </div></div><div aria-label="Search" class="button button-search" role="button"><label class="toggle-button icon icon-search" for="toggle-search" title="Search"></label></div></div><div class="bar search"><div aria-label="Close" class="button button-close" role="button"><label class="toggle-button icon icon-back" for="toggle-search"></label></div><div class="stretch"><div class="field"><input autocapitalize="off" autocomplete="off" autocorrect="off" class="query" placeholder="Search" spellcheck="" type="text"/></div></div><div aria-label="Search" class="button button-reset" role="button"><button class="toggle-button icon icon-close" id="reset-search"></button></div></div></nav></header><main class="main"><div class="drawer"><nav aria-label="Navigation"><a class="project" href="https://github.com/JuliaDocs/Documenter.jl"><div class="banner"><div class="name"><strong>
           Documenter.jl
-          <span class="version">
-            
-          </span>
-        </strong>
-        
-          <br>
+          <span class="version"></span></strong><br/>
           JuliaDocs/Documenter.jl
         
-      </div>
-    </div>
-  </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="current" title="Home" href=".">
+      </div></div></a><div class="scrollable"><div class="wrapper"><ul class="repo"><li class="repo-download"><a data-action="download" href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download"><i class="icon icon-download"></i> Download
+            </a></li><li class="repo-stars"><a data-action="star" href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers"><i class="icon icon-star"></i> Stars
+              <span class="count">–</span></a></li></ul><hr/><div class="toc"><ul><li><a class="current" href="." title="Home">
       Home
-    </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Package Features" href="#package-features">
+    </a><ul><li class="anchor"><a href="#package-features" title="Package Features">
                 Package Features
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Manual Outline" href="#manual-outline">
+              </a></li><li class="anchor"><a href="#manual-outline" title="Manual Outline">
                 Manual Outline
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Library Outline" href="#library-outline">
+              </a></li><li class="anchor"><a href="#library-outline" title="Library Outline">
                 Library Outline
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Index" href="#index">
+              </a></li><li class="anchor"><a href="#index" title="Index">
                 Index
-              </a>
-            </li>
-          
-        </ul>
-      
-    
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Manual</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Guide" href="man/guide/">
+              </a></li></ul></li><li><span class="section">Manual</span><ul><li><a class="" href="man/guide/" title="Guide">
       Guide
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Examples" href="man/examples/">
+    </a></li><li><a class="" href="man/examples/" title="Examples">
       Examples
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Syntax" href="man/syntax/">
+    </a></li><li><a class="" href="man/syntax/" title="Syntax">
       Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Doctests" href="man/doctests/">
+    </a></li><li><a class="" href="man/doctests/" title="Doctests">
       Doctests
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Hosting Documentation" href="man/hosting/">
+    </a></li><li><a class="" href="man/hosting/" title="Hosting Documentation">
       Hosting Documentation
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="LaTeX Syntax" href="man/latex/">
+    </a></li><li><a class="" href="man/latex/" title="LaTeX Syntax">
       LaTeX Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="man/internals/">
+    </a></li><li><a class="" href="man/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Library</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Public" href="lib/public/">
+    </a></li></ul></li><li><span class="section">Library</span><ul><li><a class="" href="lib/public/" title="Public">
       Public
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <span class="section">Internals</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Internals" href="lib/internals/">
+    </a></li><li><span class="section">Internals</span><ul><li><a class="" href="lib/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Anchors" href="lib/internals/anchors/">
+    </a></li><li><a class="" href="lib/internals/anchors/" title="Anchors">
       Anchors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Builder" href="lib/internals/builder/">
+    </a></li><li><a class="" href="lib/internals/builder/" title="Builder">
       Builder
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="CrossReferences" href="lib/internals/cross-references/">
+    </a></li><li><a class="" href="lib/internals/cross-references/" title="CrossReferences">
       CrossReferences
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocChecks" href="lib/internals/docchecks/">
+    </a></li><li><a class="" href="lib/internals/docchecks/" title="DocChecks">
       DocChecks
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocSystem" href="lib/internals/docsystem/">
+    </a></li><li><a class="" href="lib/internals/docsystem/" title="DocSystem">
       DocSystem
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Documents" href="lib/internals/documents/">
+    </a></li><li><a class="" href="lib/internals/documents/" title="Documents">
       Documents
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DOM" href="lib/internals/dom/">
+    </a></li><li><a class="" href="lib/internals/dom/" title="DOM">
       DOM
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Expanders" href="lib/internals/expanders/">
+    </a></li><li><a class="" href="lib/internals/expanders/" title="Expanders">
       Expanders
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Formats" href="lib/internals/formats/">
+    </a></li><li><a class="" href="lib/internals/formats/" title="Formats">
       Formats
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Generator" href="lib/internals/generator/">
+    </a></li><li><a class="" href="lib/internals/generator/" title="Generator">
       Generator
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Selectors" href="lib/internals/selectors/">
+    </a></li><li><a class="" href="lib/internals/selectors/" title="Selectors">
       Selectors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Utilities" href="lib/internals/utilities/">
+    </a></li><li><a class="" href="lib/internals/utilities/" title="Utilities">
       Utilities
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Walkers" href="lib/internals/walkers/">
+    </a></li><li><a class="" href="lib/internals/walkers/" title="Walkers">
       Walkers
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Writers" href="lib/internals/writers/">
+    </a></li><li><a class="" href="lib/internals/writers/" title="Writers">
       Writers
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
-          
-          <p><a id='Documenter.jl-1'></a></p>
-<h1 id="documenterjl">Documenter.jl</h1>
-<p><em>A documentation generator for Julia.</em></p>
-<p>A package for building documentation from docstrings and markdown files.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Please read through the <a href="http://docs.julialang.org/en/release-0.4/manual/documentation/">Documentation</a> section of the main Julia manual if this is your first time using Julia's documentation system. Once you've read through how to write documentation for your code then come back here.</p>
-</div>
-<p><a id='Package-Features-1'></a></p>
-<h2 id="package-features">Package Features</h2>
-<ul>
-<li>Write all your documentation in <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a>.</li>
-<li>Minimal configuration.</li>
-<li>Supports Julia <code>0.4</code> and <code>0.5-dev</code>.</li>
-<li>Doctests Julia code blocks.</li>
-<li>Cross references for docs and section headers.</li>
-<li><a href="man/latex/#latex_syntax-1">$\LaTeX$ syntax</a> support.</li>
-<li>Checks for missing docstrings and incorrect cross references.</li>
-<li>Generates tables of contents and docstring indexes.</li>
-<li>Use <code>git push</code> to automatically build and deploy docs from Travis to GitHub Pages.</li>
-</ul>
-<p>The <a href="man/guide/#Package-Guide-1">Package Guide</a> provides a tutorial explaining how to get started using Documenter.</p>
-<p>Some examples of packages using Documenter can be found on the <a href="man/examples/#Examples-1">Examples</a> page.</p>
-<p>See the <a href=".#main-index-1">Index</a> for the complete list of documented functions and types.</p>
-<p><a id='Manual-Outline-1'></a></p>
-<h2 id="manual-outline">Manual Outline</h2>
-<ul>
-<li><a href="man/guide/#Package-Guide-1">Package Guide</a><ul>
-<li><a href="man/guide/#Installation-1">Installation</a></li>
-<li><a href="man/guide/#Usage-1">Usage</a></li>
-</ul>
-</li>
-<li><a href="man/examples/#Examples-1">Examples</a><ul>
-<li><a href="man/examples/#Registered-1">Registered</a></li>
-<li><a href="man/examples/#Unregistered-1">Unregistered</a></li>
-</ul>
-</li>
-<li><a href="man/syntax/#Syntax-1">Syntax</a><ul>
-<li><a href="man/syntax/#@docs-block-1"><code>@docs</code> block</a></li>
-<li><a href="man/syntax/#@autodocs-block-1"><code>@autodocs</code> block</a></li>
-<li><a href="man/syntax/#@ref-link-1"><code>@ref</code> link</a></li>
-<li><a href="man/syntax/#@meta-block-1"><code>@meta</code> block</a></li>
-<li><a href="man/syntax/#@index-block-1"><code>@index</code> block</a></li>
-<li><a href="man/syntax/#@contents-block-1"><code>@contents</code> block</a></li>
-<li><a href="man/syntax/#@example-block-1"><code>@example</code> block</a></li>
-<li><a href="man/syntax/#@repl-block-1"><code>@repl</code> block</a></li>
-<li><a href="man/syntax/#@eval-block-1"><code>@eval</code> block</a></li>
-</ul>
-</li>
-<li><a href="man/doctests/#Doctests-1">Doctests</a><ul>
-<li><a href="man/doctests/#&quot;Script&quot;-Examples-1">"Script" Examples</a></li>
-<li><a href="man/doctests/#REPL-Examples-1">REPL Examples</a></li>
-<li><a href="man/doctests/#Exceptions-1">Exceptions</a></li>
-<li><a href="man/doctests/#Skipping-Doctests-1">Skipping Doctests</a></li>
-<li><a href="man/doctests/#Setup-Code-1">Setup Code</a></li>
-</ul>
-</li>
-<li><a href="man/hosting/#Hosting-Documentation-1">Hosting Documentation</a><ul>
-<li><a href="man/hosting/#Overview-1">Overview</a></li>
-<li><a href="man/hosting/#Deploy-Keys-1">Deploy Keys</a></li>
-<li><a href="man/hosting/#Travis-Environment-Settings-1">Travis Environment Settings</a></li>
-<li><a href="man/hosting/#.travis.yml-Configuration-1"><code>.travis.yml</code> Configuration</a></li>
-<li><a href="man/hosting/#The-deploydocs-Function-1">The <code>deploydocs</code> Function</a></li>
-<li><a href="man/hosting/#The-MkDocs-mkdocs.yml-File-1">The MkDocs <code>mkdocs.yml</code> File</a></li>
-<li><a href="man/hosting/#.gitignore-1"><code>.gitignore</code></a></li>
-<li><a href="man/hosting/#gh-pages-Branch-1"><code>gh-pages</code> Branch</a></li>
-<li><a href="man/hosting/#Documentation-Versions-1">Documentation Versions</a></li>
-</ul>
-</li>
-<li><a href="man/latex/#latex_syntax-1">$\LaTeX$ syntax</a><ul>
-<li><a href="man/latex/#Julia-0.4-1">Julia <code>0.4</code></a></li>
-<li><a href="man/latex/#Julia-0.5-1">Julia <code>0.5</code></a></li>
-<li><a href="man/latex/#MkDocs-and-MathJax-1">MkDocs and MathJax</a></li>
-</ul>
-</li>
-</ul>
-<p><a id='Library-Outline-1'></a></p>
-<h2 id="library-outline">Library Outline</h2>
-<ul>
-<li><a href="lib/public/#Public-Documentation-1">Public Documentation</a><ul>
-<li><a href="lib/public/#Contents-1">Contents</a></li>
-<li><a href="lib/public/#Index-1">Index</a></li>
-<li><a href="lib/public/#Documenter-1">Documenter</a></li>
-</ul>
-</li>
-<li><a href="lib/internals/#Internal-Documentation-1">Internal Documentation</a><ul>
-<li><a href="lib/internals/#Contents-1">Contents</a></li>
-<li><a href="lib/internals/#Index-1">Index</a></li>
-</ul>
-</li>
-</ul>
-<p><a id='main-index-1'></a></p>
-<h2 id="index">Index</h2>
-<p><a id='Modules-1'></a></p>
-<h3 id="modules">Modules</h3>
-<ul>
-<li><a href="lib/public/#Documenter"><code>Documenter</code></a></li>
-<li><a href="lib/public/#Documenter.Deps"><code>Documenter.Deps</code></a></li>
-<li><a href="lib/public/#Documenter.Travis"><code>Documenter.Travis</code></a></li>
-</ul>
-<p><a id='Functions-1'></a></p>
-<h3 id="functions">Functions</h3>
-<ul>
-<li><a href="lib/public/#Documenter.Deps.pip"><code>Documenter.Deps.pip</code></a></li>
-<li><a href="lib/public/#Documenter.Travis.genkeys"><code>Documenter.Travis.genkeys</code></a></li>
-<li><a href="lib/public/#Documenter.deploydocs"><code>Documenter.deploydocs</code></a></li>
-<li><a href="lib/public/#Documenter.generate"><code>Documenter.generate</code></a></li>
-<li><a href="lib/public/#Documenter.makedocs"><code>Documenter.makedocs</code></a></li>
-</ul>
-<p><a id='Types-1'></a></p>
-<h3 id="types">Types</h3>
-          <aside class="copyright" role="note">
+    </a></li></ul></li></ul></li></ul></div></div></div></nav></div><article class="article"><div class="wrapper"><p><a id="Documenter.jl-1"></a></p><h1 id="documenterjl">Documenter.jl</h1><p><em>A documentation generator for Julia.</em></p><p>A package for building documentation from docstrings and markdown files.</p><div class="admonition note"><p class="admonition-title">Note</p><p>Please read through the <a href="http://docs.julialang.org/en/release-0.4/manual/documentation/">Documentation</a> section of the main Julia manual if this is your first time using Julia's documentation system. Once you've read through how to write documentation for your code then come back here.</p></div><p><a id="Package-Features-1"></a></p><h2 id="package-features">Package Features</h2><ul><li>Write all your documentation in <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a>.</li><li>Minimal configuration.</li><li>Supports Julia <code>0.4</code> and <code>0.5-dev</code>.</li><li>Doctests Julia code blocks.</li><li>Cross references for docs and section headers.</li><li><a href="man/latex/#latex_syntax-1">$\LaTeX$ syntax</a> support.</li><li>Checks for missing docstrings and incorrect cross references.</li><li>Generates tables of contents and docstring indexes.</li><li>Use <code>git push</code> to automatically build and deploy docs from Travis to GitHub Pages.</li></ul><p>The <a href="man/guide/#Package-Guide-1">Package Guide</a> provides a tutorial explaining how to get started using Documenter.</p><p>Some examples of packages using Documenter can be found on the <a href="man/examples/#Examples-1">Examples</a> page.</p><p>See the <a href=".#main-index-1">Index</a> for the complete list of documented functions and types.</p><p><a id="Manual-Outline-1"></a></p><h2 id="manual-outline">Manual Outline</h2><ul><li><a href="man/guide/#Package-Guide-1">Package Guide</a><ul><li><a href="man/guide/#Installation-1">Installation</a></li><li><a href="man/guide/#Usage-1">Usage</a></li></ul></li><li><a href="man/examples/#Examples-1">Examples</a><ul><li><a href="man/examples/#Registered-1">Registered</a></li><li><a href="man/examples/#Unregistered-1">Unregistered</a></li></ul></li><li><a href="man/syntax/#Syntax-1">Syntax</a><ul><li><a href="man/syntax/#@docs-block-1"><code>@docs</code> block</a></li><li><a href="man/syntax/#@autodocs-block-1"><code>@autodocs</code> block</a></li><li><a href="man/syntax/#@ref-link-1"><code>@ref</code> link</a></li><li><a href="man/syntax/#@meta-block-1"><code>@meta</code> block</a></li><li><a href="man/syntax/#@index-block-1"><code>@index</code> block</a></li><li><a href="man/syntax/#@contents-block-1"><code>@contents</code> block</a></li><li><a href="man/syntax/#@example-block-1"><code>@example</code> block</a></li><li><a href="man/syntax/#@repl-block-1"><code>@repl</code> block</a></li><li><a href="man/syntax/#@eval-block-1"><code>@eval</code> block</a></li></ul></li><li><a href="man/doctests/#Doctests-1">Doctests</a><ul><li><a href="man/doctests/#&quot;Script&quot;-Examples-1">"Script" Examples</a></li><li><a href="man/doctests/#REPL-Examples-1">REPL Examples</a></li><li><a href="man/doctests/#Exceptions-1">Exceptions</a></li><li><a href="man/doctests/#Skipping-Doctests-1">Skipping Doctests</a></li><li><a href="man/doctests/#Setup-Code-1">Setup Code</a></li></ul></li><li><a href="man/hosting/#Hosting-Documentation-1">Hosting Documentation</a><ul><li><a href="man/hosting/#Overview-1">Overview</a></li><li><a href="man/hosting/#Deploy-Keys-1">Deploy Keys</a></li><li><a href="man/hosting/#Travis-Environment-Settings-1">Travis Environment Settings</a></li><li><a href="man/hosting/#.travis.yml-Configuration-1"><code>.travis.yml</code> Configuration</a></li><li><a href="man/hosting/#The-deploydocs-Function-1">The <code>deploydocs</code> Function</a></li><li><a href="man/hosting/#The-MkDocs-mkdocs.yml-File-1">The MkDocs <code>mkdocs.yml</code> File</a></li><li><a href="man/hosting/#.gitignore-1"><code>.gitignore</code></a></li><li><a href="man/hosting/#gh-pages-Branch-1"><code>gh-pages</code> Branch</a></li><li><a href="man/hosting/#Documentation-Versions-1">Documentation Versions</a></li></ul></li><li><a href="man/latex/#latex_syntax-1">$\LaTeX$ syntax</a><ul><li><a href="man/latex/#Julia-0.4-1">Julia <code>0.4</code></a></li><li><a href="man/latex/#Julia-0.5-1">Julia <code>0.5</code></a></li><li><a href="man/latex/#MkDocs-and-MathJax-1">MkDocs and MathJax</a></li></ul></li></ul><p><a id="Library-Outline-1"></a></p><h2 id="library-outline">Library Outline</h2><ul><li><a href="lib/public/#Public-Documentation-1">Public Documentation</a><ul><li><a href="lib/public/#Contents-1">Contents</a></li><li><a href="lib/public/#Index-1">Index</a></li><li><a href="lib/public/#Documenter-1">Documenter</a></li></ul></li><li><a href="lib/internals/#Internal-Documentation-1">Internal Documentation</a><ul><li><a href="lib/internals/#Contents-1">Contents</a></li><li><a href="lib/internals/#Index-1">Index</a></li></ul></li></ul><p><a id="main-index-1"></a></p><h2 id="index">Index</h2><p><a id="Modules-1"></a></p><h3 id="modules">Modules</h3><ul><li><a href="lib/public/#Documenter"><code>Documenter</code></a></li><li><a href="lib/public/#Documenter.Deps"><code>Documenter.Deps</code></a></li><li><a href="lib/public/#Documenter.Travis"><code>Documenter.Travis</code></a></li></ul><p><a id="Functions-1"></a></p><h3 id="functions">Functions</h3><ul><li><a href="lib/public/#Documenter.Deps.pip"><code>Documenter.Deps.pip</code></a></li><li><a href="lib/public/#Documenter.Travis.genkeys"><code>Documenter.Travis.genkeys</code></a></li><li><a href="lib/public/#Documenter.deploydocs"><code>Documenter.deploydocs</code></a></li><li><a href="lib/public/#Documenter.generate"><code>Documenter.generate</code></a></li><li><a href="lib/public/#Documenter.makedocs"><code>Documenter.makedocs</code></a></li></ul><p><a id="Types-1"></a></p><h3 id="types">Types</h3><aside class="copyright" role="note">
             
             Documentation built with
             <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
@@ -572,58 +137,11 @@
               Material
             </a>
             theme.
-          </aside>
-          
-            <footer class="footer">
-              
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
-      
-    </div>
-    <div class="next">
-      
-        <a href="man/guide/" title="Guide">
-          <span class="direction">
+          </aside><footer class="footer"><nav aria-label="Footer" class="pagination"><div class="previous"></div><div class="next"><a href="man/guide/" title="Guide"><span class="direction">
             Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div class="stretch"><div class="title">
                 Guide
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
+              </div></div><div aria-label="Next" class="button button-next" role="button"><i class="icon icon-forward"></i></div></div></a></div></nav></footer></div></article><div aria-live="polite" class="results" role="status"><div class="scrollable"><div class="wrapper"><div class="meta"></div><div class="list"></div></div></div></div></main><script>
       var base_url = '.';
       var repo_id  = 'JuliaDocs/Documenter.jl';
-    </script>
-    <script src="./assets/javascripts/application-997097ee0c.js"></script>
-    
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-    
-      <script src="./assets/mathjaxhelper.js"></script>
-    
-    
-  </body>
-</html>
+    </script><script src="./assets/javascripts/application-997097ee0c.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script><script src="./assets/mathjaxhelper.js"></script></body></HTML>

@@ -1,42 +1,83 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Guide · Documenter.jl</title><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+<!DOCTYPE html><HTML lang="en"><head><meta charset="UTF-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>Guide · Documenter.jl</title><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
 ga('create', 'UA-89508993-1', 'auto');
 ga('send', 'pageview');
-</script><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../../versions.js"></script></head><body><nav class="toc"><a href="../index.html"><img class="logo" src="../assets/logo.png" alt="Documenter.jl logo"/></a><h1>Documenter.jl</h1><form class="search" action="../search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../index.html">Home</a></li><li><span class="toctext">Manual</span><ul><li class="current"><a class="toctext" href="guide.html">Guide</a><ul class="internal"><li><a class="toctext" href="#Installation-1">Installation</a></li><li><a class="toctext" href="#Usage-1">Usage</a></li><li><a class="toctext" href="#Output-formats-1">Output formats</a></li></ul></li><li><a class="toctext" href="examples.html">Examples</a></li><li><a class="toctext" href="syntax.html">Syntax</a></li><li><a class="toctext" href="doctests.html">Doctests</a></li><li><a class="toctext" href="hosting.html">Hosting Documentation</a></li><li><a class="toctext" href="latex.html"><span>$\LaTeX$</span> syntax</a></li><li><a class="toctext" href="internals.html">Package Internals</a></li><li><a class="toctext" href="contributing.html">Contributing</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="../lib/public.html">Public</a></li><li><a class="toctext" href="../lib/internals.html">Internals</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href="guide.html">Guide</a></li></ul><a class="edit-page" href="https://github.com/JuliaDocs/Documenter.jl/tree/194db3d1abaec7156289ce8985adf783fd3a2d6d/docs/src/man/guide.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" id="Package-Guide-1" href="#Package-Guide-1">Package Guide</a></h1><h2><a class="nav-anchor" id="Installation-1" href="#Installation-1">Installation</a></h2><p>Documenter is a registered package and so can be installed via <code>Pkg.add</code>.</p><pre><code class="language-julia">Pkg.add(&quot;Documenter&quot;)</code></pre><p>This package supports Julia <code>0.4</code> and <code>0.5</code>.</p><h2><a class="nav-anchor" id="Usage-1" href="#Usage-1">Usage</a></h2><p>Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia&#39;s docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document.</p><h3><a class="nav-anchor" id="Setting-up-the-folder-structure-1" href="#Setting-up-the-folder-structure-1">Setting up the folder structure</a></h3><p>Firstly, we need a Julia module to document. This could be a package generated via <code>PkgDev.generate</code> or a single <code>.jl</code> script accessible via Julia&#39;s <code>LOAD_PATH</code>. For this guide we&#39;ll be using a package called <code>Example.jl</code> that has the following directory layout:</p><pre><code class="language-none">Example/
+</script><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script data-main="../assets/documenter.js" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"></script><script src="../../versions.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body><nav class="toc"><a href="../index.html"><img alt="Documenter.jl logo" class="logo" src="../assets/logo.png"/></a><h1>Documenter.jl</h1><form action="../search.html" class="search"><select id="version-selector" onchange="window.location.href=this.value"><option disabled="disabled" selected="selected" value="#">Version</option></select><input id="search-query" name="q" placeholder="Search docs" type="text"/></form><ul><li><a class="toctext" href="../index.html">Home</a></li><li><span class="toctext">Manual</span><ul><li class="current"><a class="toctext" href="guide.html">Guide</a><ul class="internal"><li><a class="toctext" href="#Installation-1">Installation</a></li><li><a class="toctext" href="#Usage-1">Usage</a></li><li><a class="toctext" href="#Output-formats-1">Output formats</a></li></ul></li><li><a class="toctext" href="examples.html">Examples</a></li><li><a class="toctext" href="syntax.html">Syntax</a></li><li><a class="toctext" href="doctests.html">Doctests</a></li><li><a class="toctext" href="hosting.html">Hosting Documentation</a></li><li><a class="toctext" href="latex.html"><span>$\LaTeX$</span> syntax</a></li><li><a class="toctext" href="internals.html">Package Internals</a></li><li><a class="toctext" href="contributing.html">Contributing</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="../lib/public.html">Public</a></li><li><a class="toctext" href="../lib/internals.html">Internals</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href="guide.html">Guide</a></li></ul><a class="edit-page" href="https://github.com/JuliaDocs/Documenter.jl/tree/194db3d1abaec7156289ce8985adf783fd3a2d6d/docs/src/man/guide.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" href="#Package-Guide-1" id="Package-Guide-1">Package Guide</a></h1><h2><a class="nav-anchor" href="#Installation-1" id="Installation-1">Installation</a></h2><p>Documenter is a registered package and so can be installed via <code>Pkg.add</code>.</p><pre><code class="language-julia">Pkg.add("Documenter")</code></pre><p>This package supports Julia <code>0.4</code> and <code>0.5</code>.</p><h2><a class="nav-anchor" href="#Usage-1" id="Usage-1">Usage</a></h2><p>Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document.</p><h3><a class="nav-anchor" href="#Setting-up-the-folder-structure-1" id="Setting-up-the-folder-structure-1">Setting up the folder structure</a></h3><p>Firstly, we need a Julia module to document. This could be a package generated via <code>PkgDev.generate</code> or a single <code>.jl</code> script accessible via Julia's <code>LOAD_PATH</code>. For this guide we'll be using a package called <code>Example.jl</code> that has the following directory layout:</p><pre><code class="language-none">Example/
     src/
         Example.jl
-    ...</code></pre><p>Note that the <code>...</code> just represent unimportant files and folders.</p><p>We must decide on a location where we&#39;d like to store the documentation for this package. It&#39;s recommended to use a folder named <code>docs/</code> in the toplevel of the package, like so</p><pre><code class="language-none">Example/
+    ...</code></pre><p>Note that the <code>...</code> just represent unimportant files and folders.</p><p>We must decide on a location where we'd like to store the documentation for this package. It's recommended to use a folder named <code>docs/</code> in the toplevel of the package, like so</p><pre><code class="language-none">Example/
     docs/
         ...
     src/
         Example.jl
     ...</code></pre><p>Inside the <code>docs/</code> folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommended</p><pre><code class="language-none">docs/
     src/
-    make.jl</code></pre><h3><a class="nav-anchor" id="Building-an-empty-document-1" href="#Building-an-empty-document-1">Building an empty document</a></h3><p>With our <code>docs/</code> directory now setup we&#39;re going to build our first document. It&#39;ll just be a single empty file at the moment, but we&#39;ll be adding to it later on.</p><p>Add the following to your <code>make.jl</code> file</p><pre><code class="language-julia">using Documenter, Example
+    make.jl</code></pre><h3><a class="nav-anchor" href="#Building-an-empty-document-1" id="Building-an-empty-document-1">Building an empty document</a></h3><p>With our <code>docs/</code> directory now setup we're going to build our first document. It'll just be a single empty file at the moment, but we'll be adding to it later on.</p><p>Add the following to your <code>make.jl</code> file</p><pre><code class="language-julia">using Documenter, Example
 
-makedocs()</code></pre><p>This assumes you&#39;ve installed Documenter as discussed in <a href="guide.html#Installation-1">Installation</a> and that your <code>Example.jl</code> package can be found by Julia.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>If your source directory is not accessible through Julia&#39;s LOAD_PATH, you might wish to add the following line at the top of make.jl</p><pre><code class="language-julia">push!(LOAD_PATH,&quot;../src/&quot;)</code></pre></div></div><p>Now add an <code>index.md</code> file to the <code>src/</code> directory. The name has no particular significance though and you may name it whatever you like. We&#39;ll stick to <code>index.md</code> for this guide.</p><p>Leave the newly added file empty and then run the following command from the <code>docs/</code> directory</p><pre><code class="language-sh">$ julia make.jl</code></pre><p>Note that <code>$</code> just represents the prompt character. You don&#39;t need to type that.</p><p>If you&#39;d like to see the output from this command in color use</p><pre><code class="language-sh">$ julia --color=yes make.jl</code></pre><p>When you run that you should see the following output</p><pre><code class="language-none">Documenter: setting up build directory.
+makedocs()</code></pre><p>This assumes you've installed Documenter as discussed in <a href="guide.html#Installation-1">Installation</a> and that your <code>Example.jl</code> package can be found by Julia.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>If your source directory is not accessible through Julia's LOAD_PATH, you might wish to add the following line at the top of make.jl</p><pre><code class="language-julia">push!(LOAD_PATH,"../src/")</code></pre></div></div><p>Now add an <code>index.md</code> file to the <code>src/</code> directory. The name has no particular significance though and you may name it whatever you like. We'll stick to <code>index.md</code> for this guide.</p><p>Leave the newly added file empty and then run the following command from the <code>docs/</code> directory</p><pre><code class="language-sh">$ julia make.jl</code></pre><p>Note that <code>$</code> just represents the prompt character. You don't need to type that.</p><p>If you'd like to see the output from this command in color use</p><pre><code class="language-sh">$ julia --color=yes make.jl</code></pre><p>When you run that you should see the following output</p><pre><code class="language-none">Documenter: setting up build directory.
 Documenter: expanding markdown templates.
 Documenter: building cross-references.
 Documenter: running document checks.
 Documenter: rendering document.
 Documenter: populating indices.
-Documenter: copying assets to build directory.</code></pre><p>The <code>docs/</code> folder should contain a new directory – called <code>build/</code>. It&#39;s structure should look like the following</p><pre><code class="language-none">build/
+Documenter: copying assets to build directory.</code></pre><p>The <code>docs/</code> folder should contain a new directory – called <code>build/</code>. It's structure should look like the following</p><pre><code class="language-none">build/
     assets/
         Documenter.css
         mathjaxhelper.js
-    index.md</code></pre><div class="admonition warning"><div class="admonition-title">Warning</div><div class="admonition-text"><p><strong>Never</strong> <code>git commit</code> the contents of <code>build</code> (or any other content generated by Documenter) to your repository&#39;s <code>master</code> branch. Always commit generated files to the <code>gh-pages</code> branch of your repository. This helps to avoid including unnessesary changes for anyone reviewing commits that happen to include documentation changes.</p><p>See the <a href="hosting.html#Hosting-Documentation-1">Hosting Documentation</a> section for details regarding how you should go about setting this up correctly.</p></div></div><p>At the moment <code>build/index.md</code> should be empty since <code>src/index.md</code> is empty.</p><p>At this point you can add some text to <code>src/index.md</code> and rerun the <code>make.jl</code> file to see the changes if you&#39;d like to.</p><h3><a class="nav-anchor" id="Adding-some-docstrings-1" href="#Adding-some-docstrings-1">Adding some docstrings</a></h3><p>Next we&#39;ll splice a docstring defined in the <code>Example</code> module into the <code>index.md</code> file. To do this first document a function in that module:</p><pre><code class="language-julia">module Example
+    index.md</code></pre><div class="admonition warning"><div class="admonition-title">Warning</div><div class="admonition-text"><p><strong>Never</strong><code>git commit</code> the contents of <code>build</code> (or any other content generated by Documenter) to your repository's <code>master</code> branch. Always commit generated files to the <code>gh-pages</code> branch of your repository. This helps to avoid including unnessesary changes for anyone reviewing commits that happen to include documentation changes.</p><p>See the <a href="hosting.html#Hosting-Documentation-1">Hosting Documentation</a> section for details regarding how you should go about setting this up correctly.</p></div></div><p>At the moment <code>build/index.md</code> should be empty since <code>src/index.md</code> is empty.</p><p>At this point you can add some text to <code>src/index.md</code> and rerun the <code>make.jl</code> file to see the changes if you'd like to.</p><h3><a class="nav-anchor" href="#Adding-some-docstrings-1" id="Adding-some-docstrings-1">Adding some docstrings</a></h3><p>Next we'll splice a docstring defined in the <code>Example</code> module into the <code>index.md</code> file. To do this first document a function in that module:</p><pre><code class="language-julia">module Example
 
 export func
 
-&quot;&quot;&quot;
+"""
     func(x)
 
 Returns double the number `x` plus `1`.
-&quot;&quot;&quot;
+"""
 func(x) = 2x + 1
 
 end</code></pre><p>Then in the <code>src/index.md</code> file add the following</p><pre><code class="language-markdown"># Example.jl Documentation
@@ -51,13 +92,13 @@ CurrentModule = Documenter
 
 ```@docs
 func(x)
-```</code></pre><h4><a class="nav-anchor" id="Filtering-Included-Docstrings-1" href="#Filtering-Included-Docstrings-1">Filtering Included Docstrings</a></h4><p>In some cases you may want to include a docstring for a <code>Method</code> that extends a <code>Function</code> from a different module – such as <code>Base</code>. In the following example we extend <code>Base.length</code> with a new definition for type <code>T</code> and also add a docstring:</p><pre><code class="language-julia">type T
+```</code></pre><h4><a class="nav-anchor" href="#Filtering-Included-Docstrings-1" id="Filtering-Included-Docstrings-1">Filtering Included Docstrings</a></h4><p>In some cases you may want to include a docstring for a <code>Method</code> that extends a <code>Function</code> from a different module – such as <code>Base</code>. In the following example we extend <code>Base.length</code> with a new definition for type <code>T</code> and also add a docstring:</p><pre><code class="language-julia">type T
     # ...
 end
 
-&quot;&quot;&quot;
+"""
 Custom `length` docs for `T`.
-&quot;&quot;&quot;
+"""
 Base.length(::T) = 1</code></pre><p>When trying to include this docstring with</p><pre><code class="language-markdown">```@docs
 length
 ```</code></pre><p>all the docs for <code>length</code> will be included – even those from other modules. There are two ways to solve this problem. Either include the type in the signature with</p><pre><code class="language-markdown">```@docs
@@ -65,14 +106,14 @@ length(::T)
 ```</code></pre><p>or declare the specific modules that <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a> should include with</p><pre><code class="language-julia">makedocs(
     # options
     modules = [MyModule]
-)</code></pre><h3><a class="nav-anchor" id="Cross-Referencing-1" href="#Cross-Referencing-1">Cross Referencing</a></h3><p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter&#39;s cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p><pre><code class="language-markdown"># Example.jl Documentation
+)</code></pre><h3><a class="nav-anchor" href="#Cross-Referencing-1" id="Cross-Referencing-1">Cross Referencing</a></h3><p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p><pre><code class="language-markdown"># Example.jl Documentation
 
 ```@docs
 func(x)
 ```
 
 - link to [Example.jl Documentation](@ref)
-- link to [`func(x)`](@ref)</code></pre><p>So we just have to replace each link&#39;s url with <code>@ref</code> and write the name of the thing we&#39;d link to cross-reference. For document headers it&#39;s just plain text that matches the name of the header and for docstrings enclose the object in backticks.</p><p>This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document.</p><h3><a class="nav-anchor" id="Navigation-1" href="#Navigation-1">Navigation</a></h3><p>Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We&#39;ll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p><pre><code class="language-markdown"># Example.jl Documentation
+- link to [`func(x)`](@ref)</code></pre><p>So we just have to replace each link's url with <code>@ref</code> and write the name of the thing we'd link to cross-reference. For document headers it's just plain text that matches the name of the header and for docstrings enclose the object in backticks.</p><p>This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document.</p><h3><a class="nav-anchor" href="#Navigation-1" id="Navigation-1">Navigation</a></h3><p>Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p><pre><code class="language-markdown"># Example.jl Documentation
 
 ```@contents
 ```
@@ -87,24 +128,24 @@ func(x)
 
 ```@index
 ```</code></pre><p>The <code>@contents</code> block will generate a nested list of links to all the section headers in the document. By default it will gather all the level 1 and 2 headers from every page in the document, but this can be adjusted using <code>Pages</code> and <code>Depth</code> settings as in the following</p><pre><code class="language-markdown">```@contents
-Pages = [&quot;foo.md&quot;, &quot;bar.md&quot;]
+Pages = ["foo.md", "bar.md"]
 Depth = 3
-```</code></pre><p>The <code>@index</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>@docs</code> blocks. As with the <code>@contents</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>@index</code>.</p><h2><a class="nav-anchor" id="Output-formats-1" href="#Output-formats-1">Output formats</a></h2><p>Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based <a href="http://www.mkdocs.org/">MkDocs</a> is usually used to convert the Markdown files into a set of HTML pages. See <a href="hosting.html#Hosting-Documentation-1">Hosting Documentation</a> for further information on configuring MkDocs for Documenter.</p><div class="admonition note"><div class="admonition-title">Native HTML output</div><div class="admonition-text"><p>There is experimental support for native HTML output in Documenter. It can be enabled by passing the <code>format = :html</code> option to <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a>. It also requires the <code>pages</code> and <code>sitename</code> options. <code>make.jl</code> should then look something like</p><pre><code class="language-julia">makedocs(
+```</code></pre><p>The <code>@index</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>@docs</code> blocks. As with the <code>@contents</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>@index</code>.</p><h2><a class="nav-anchor" href="#Output-formats-1" id="Output-formats-1">Output formats</a></h2><p>Documenter produces a set of Markdown files, which then have to be converted into a user-readable format for distribution. While in principle any Markdown parser would do (as long as it supports the required Markdown extensions), the Python-based <a href="http://www.mkdocs.org/">MkDocs</a> is usually used to convert the Markdown files into a set of HTML pages. See <a href="hosting.html#Hosting-Documentation-1">Hosting Documentation</a> for further information on configuring MkDocs for Documenter.</p><div class="admonition note"><div class="admonition-title">Native HTML output</div><div class="admonition-text"><p>There is experimental support for native HTML output in Documenter. It can be enabled by passing the <code>format = :html</code> option to <a href="../lib/public.html#Documenter.makedocs"><code>makedocs</code></a>. It also requires the <code>pages</code> and <code>sitename</code> options. <code>make.jl</code> should then look something like</p><pre><code class="language-julia">makedocs(
     ...,
     format = :html,
-    sitename = &quot;Package name&quot;,
+    sitename = "Package name",
     pages = [
-        &quot;page.md&quot;,
-        &quot;Page title&quot; =&gt; &quot;page2.md&quot;,
-        &quot;Subsection&quot; =&gt; [
+        "page.md",
+        "Page title" =&gt; "page2.md",
+        "Subsection" =&gt; [
             ...
         ]
     ]
 )
 
 deploydocs(
-    repo   = &quot;github.com/USER/PKG.jl.git&quot;,
-    target = &quot;build&quot;,
+    repo   = "github.com/USER/PKG.jl.git",
+    target = "build",
     deps   = nothing,
     make   = nothing
-)</code></pre><p>Since Documenter&#39;s docs are already built using HTML output, a fully working example of the configuration can be found in <code>docs/make.jl</code>. Note that with this configuration, <code>mkdocs.yml</code> is not required.</p><p>It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to <a href="https://github.com/JuliaDocs/Documenter.jl/issues">Documenter.jl&#39;s issue tracker</a>.</p><h1>Additional <code>makedocs</code> options for HTML output</h1><p><strong><code>sitename</code></strong> is the site&#39;s title displayed in the title bar and at the top of the navigation menu.</p><p><strong><code>pages</code></strong> defines the hierarchy of the navigation menu.</p></div></div><footer><hr/><a class="previous" href="../index.html"><span class="direction">Previous</span><span class="title">Home</span></a><a class="next" href="examples.html"><span class="direction">Next</span><span class="title">Examples</span></a></footer></article></body></html>
+)</code></pre><p>Since Documenter's docs are already built using HTML output, a fully working example of the configuration can be found in <code>docs/make.jl</code>. Note that with this configuration, <code>mkdocs.yml</code> is not required.</p><p>It is still under development, may contain bugs, and undergo changes. However, any feedback is very welcome and early adopters are encouraged to try it out. Issues and suggestions should be posted to <a href="https://github.com/JuliaDocs/Documenter.jl/issues">Documenter.jl's issue tracker</a>.</p><h1>Additional <code>makedocs</code> options for HTML output</h1><p><strong><code>sitename</code></strong> is the site's title displayed in the title bar and at the top of the navigation menu.</p><p><strong><code>pages</code></strong> defines the hierarchy of the navigation menu.</p></div></div><footer><hr/><a class="previous" href="../index.html"><span class="direction">Previous</span><span class="title">Home</span></a><a class="next" href="examples.html"><span class="direction">Next</span><span class="title">Examples</span></a></footer></article></body></HTML>

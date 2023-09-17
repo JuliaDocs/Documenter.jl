@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
-    
-      
-        <title>Expanders - Documenter.jl</title>
-      
-      
-      
-      
-        <meta name="author" content="Michael Hatherly">
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Documenter.jl">
-    <meta property="og:image" content="None/../../../">
-    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
+<!DOCTYPE html><HTML class="no-js"><head><meta charset="utf-8"/><meta content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" name="viewport"/><title>Expanders - Documenter.jl</title><meta content="Michael Hatherly" name="author"/><meta content="None" property="og:url"/><meta content="Documenter.jl" property="og:title"/><meta content="None/../../../" property="og:image"/><meta content="Documenter.jl" name="apple-mobile-web-app-title"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><link href="../../../assets/images/favicon-e565ddfa3b.ico" rel="shortcut icon" type="image/x-icon"/><link href="../../../assets/images/favicon-e565ddfa3b.ico" rel="icon" type="image/x-icon"/><style>
       @font-face {
       	font-family: 'Icon';
       	src: url('../../../assets/fonts/icon.eot?52m981');
@@ -42,518 +13,158 @@
       	font-weight: normal;
       	font-style: normal;
       }
-    </style>
-    <link rel="stylesheet" href="../../../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../../../assets/stylesheets/palettes-05ab2406df.css">
-    
-    
-      
-      
-      
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
+    </style><link href="../../../assets/stylesheets/application-a422ff04cc.css" rel="stylesheet"/><link href="../../../assets/stylesheets/palettes-05ab2406df.css" rel="stylesheet"/><link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono" rel="stylesheet"/><style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         }
         pre, code {
           font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
         }
-      </style>
-    
-    
-      <link rel="stylesheet" href="../../../assets/Documenter.css">
-    
-    <script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
-    
-  </head>
-  
-  
-  
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
+      </style><link href="../../../assets/Documenter.css" rel="stylesheet"/><script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body class="palette-primary-indigo palette-accent-blue"><div class="backdrop"><div class="backdrop-paper"></div></div><input class="toggle" id="toggle-drawer" type="checkbox"/><input class="toggle" id="toggle-search" type="checkbox"/><label class="toggle-button overlay" for="toggle-drawer"></label><header class="header"><nav aria-label="Header"><div class="bar default"><div aria-label="Menu" class="button button-menu" role="button"><label class="toggle-button icon icon-menu" for="toggle-drawer"><span></span></label></div><div class="stretch"><div class="title"><span class="path">
             
               
                 Library <i class="icon icon-link"></i>
               
             
               
-                Internals <i class="icon icon-link"></i>
-              
-            
-          </span>
+                Internals <i class="icon icon-link"></i></span>
         
         Expanders
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
+      </div></div><div aria-label="Search" class="button button-search" role="button"><label class="toggle-button icon icon-search" for="toggle-search" title="Search"></label></div></div><div class="bar search"><div aria-label="Close" class="button button-close" role="button"><label class="toggle-button icon icon-back" for="toggle-search"></label></div><div class="stretch"><div class="field"><input autocapitalize="off" autocomplete="off" autocorrect="off" class="query" placeholder="Search" spellcheck="" type="text"/></div></div><div aria-label="Search" class="button button-reset" role="button"><button class="toggle-button icon icon-close" id="reset-search"></button></div></div></nav></header><main class="main"><div class="drawer"><nav aria-label="Navigation"><a class="project" href="https://github.com/JuliaDocs/Documenter.jl"><div class="banner"><div class="name"><strong>
           Documenter.jl
-          <span class="version">
-            
-          </span>
-        </strong>
-        
-          <br>
+          <span class="version"></span></strong><br/>
           JuliaDocs/Documenter.jl
         
-      </div>
-    </div>
-  </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="../../..">
+      </div></div></a><div class="scrollable"><div class="wrapper"><ul class="repo"><li class="repo-download"><a data-action="download" href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download"><i class="icon icon-download"></i> Download
+            </a></li><li class="repo-stars"><a data-action="star" href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers"><i class="icon icon-star"></i> Stars
+              <span class="count">–</span></a></li></ul><hr/><div class="toc"><ul><li><a class="" href="../../.." title="Home">
       Home
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Manual</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Guide" href="../../../man/guide/">
+    </a></li><li><span class="section">Manual</span><ul><li><a class="" href="../../../man/guide/" title="Guide">
       Guide
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Examples" href="../../../man/examples/">
+    </a></li><li><a class="" href="../../../man/examples/" title="Examples">
       Examples
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Syntax" href="../../../man/syntax/">
+    </a></li><li><a class="" href="../../../man/syntax/" title="Syntax">
       Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Doctests" href="../../../man/doctests/">
+    </a></li><li><a class="" href="../../../man/doctests/" title="Doctests">
       Doctests
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Hosting Documentation" href="../../../man/hosting/">
+    </a></li><li><a class="" href="../../../man/hosting/" title="Hosting Documentation">
       Hosting Documentation
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="LaTeX Syntax" href="../../../man/latex/">
+    </a></li><li><a class="" href="../../../man/latex/" title="LaTeX Syntax">
       LaTeX Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../../../man/internals/">
+    </a></li><li><a class="" href="../../../man/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Contributing" href="../../../man/contributing/">
+    </a></li><li><a class="" href="../../../man/contributing/" title="Contributing">
       Contributing
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Library</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Public" href="../../public/">
+    </a></li></ul></li><li><span class="section">Library</span><ul><li><a class="" href="../../public/" title="Public">
       Public
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <span class="section">Internals</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Internals" href="../">
+    </a></li><li><span class="section">Internals</span><ul><li><a class="" href="../" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Anchors" href="../anchors/">
+    </a></li><li><a class="" href="../anchors/" title="Anchors">
       Anchors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Builder" href="../builder/">
+    </a></li><li><a class="" href="../builder/" title="Builder">
       Builder
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="CrossReferences" href="../cross-references/">
+    </a></li><li><a class="" href="../cross-references/" title="CrossReferences">
       CrossReferences
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocChecks" href="../docchecks/">
+    </a></li><li><a class="" href="../docchecks/" title="DocChecks">
       DocChecks
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DocSystem" href="../docsystem/">
+    </a></li><li><a class="" href="../docsystem/" title="DocSystem">
       DocSystem
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Documents" href="../documents/">
+    </a></li><li><a class="" href="../documents/" title="Documents">
       Documents
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="DOM" href="../dom/">
+    </a></li><li><a class="" href="../dom/" title="DOM">
       DOM
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="current" title="Expanders" href="./">
+    </a></li><li><a class="current" href="./" title="Expanders">
       Expanders
-    </a>
-    
-      
-        
-      
-      
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Formats" href="../formats/">
+    </a></li><li><a class="" href="../formats/" title="Formats">
       Formats
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Generator" href="../generator/">
+    </a></li><li><a class="" href="../generator/" title="Generator">
       Generator
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Selectors" href="../selectors/">
+    </a></li><li><a class="" href="../selectors/" title="Selectors">
       Selectors
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Utilities" href="../utilities/">
+    </a></li><li><a class="" href="../utilities/" title="Utilities">
       Utilities
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Walkers" href="../walkers/">
+    </a></li><li><a class="" href="../walkers/" title="Walkers">
       Walkers
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Writers" href="../writers/">
+    </a></li><li><a class="" href="../writers/" title="Writers">
       Writers
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
-          
-          <p><a id='Expanders-1'></a></p>
-<h1 id="expanders">Expanders</h1>
-<p><a id='Documenter.Expanders' href='#Documenter.Expanders'>#</a>
-<strong><code>Documenter.Expanders</code></strong> &mdash; <em>Module</em>.</p>
-<p>Defines node "expanders" that transform nodes from the parsed markdown files.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L1-L3' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.AutoDocsBlocks' href='#Documenter.Expanders.AutoDocsBlocks'>#</a>
-<strong><code>Documenter.Expanders.AutoDocsBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Parses each code block where the language is <code>@autodocs</code> and replaces it with all the docstrings that match the provided key/value pairs <code>Modules = ...</code> and <code>Order = ...</code>.</p>
-<div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">autodocs</span>
+    </a></li></ul></li></ul></li></ul></div></div></div></nav></div><article class="article"><div class="wrapper"><p><a id="Expanders-1"></a></p><h1 id="expanders">Expanders</h1><p><a href="#Documenter.Expanders" id="Documenter.Expanders">#</a><strong><code>Documenter.Expanders</code></strong> — <em>Module</em>.</p><p>Defines node "expanders" that transform nodes from the parsed markdown files.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L1-L3" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.AutoDocsBlocks" id="Documenter.Expanders.AutoDocsBlocks">#</a><strong><code>Documenter.Expanders.AutoDocsBlocks</code></strong> — <em>Type</em>.</p><p>Parses each code block where the language is <code>@autodocs</code> and replaces it with all the docstrings that match the provided key/value pairs <code>Modules = ...</code> and <code>Order = ...</code>.</p><div class="codehilite"><pre><span></span><span class="err">```@</span><span class="n">autodocs</span>
 <span class="n">Modules</span> <span class="o">=</span> <span class="o">[</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Bar</span><span class="o">]</span>
 <span class="n">Order</span>   <span class="o">=</span> <span class="o">[</span><span class="p">:</span><span class="n">function</span><span class="p">,</span> <span class="p">:</span><span class="n">type</span><span class="o">]</span>
 <span class="err">```</span>
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L89-L99' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.ContentsBlocks' href='#Documenter.Expanders.ContentsBlocks'>#</a>
-<strong><code>Documenter.Expanders.ContentsBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Parses each code block where the language is <code>@contents</code> and replaces it with a nested list of all <code>Header</code> nodes in the generated document. The pages and depth of the list can be set using <code>Pages = [...]</code> and <code>Depth = N</code> where <code>N</code> is and integer.</p>
-<div class="codehilite"><pre><span></span>```@contents
-Pages = [&quot;foo.md&quot;, &quot;bar.md&quot;]
+</pre></div><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L89-L99" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.ContentsBlocks" id="Documenter.Expanders.ContentsBlocks">#</a><strong><code>Documenter.Expanders.ContentsBlocks</code></strong> — <em>Type</em>.</p><p>Parses each code block where the language is <code>@contents</code> and replaces it with a nested list of all <code>Header</code> nodes in the generated document. The pages and depth of the list can be set using <code>Pages = [...]</code> and <code>Depth = N</code> where <code>N</code> is and integer.</p><div class="codehilite"><pre><span></span>```@contents
+Pages = ["foo.md", "bar.md"]
 Depth = 1
 ```
-</pre></div>
-
-
-<p>The default <code>Depth</code> value is <code>2</code>.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L133-L145' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.DocsBlocks' href='#Documenter.Expanders.DocsBlocks'>#</a>
-<strong><code>Documenter.Expanders.DocsBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Parses each code block where the language is <code>@docs</code> and evaluates the expressions found within the block. Replaces the block with the docstrings associated with each expression.</p>
-<div class="codehilite"><pre><span></span>```@docs
+</pre></div><p>The default <code>Depth</code> value is <code>2</code>.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L133-L145" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.DocsBlocks" id="Documenter.Expanders.DocsBlocks">#</a><strong><code>Documenter.Expanders.DocsBlocks</code></strong> — <em>Type</em>.</p><p>Parses each code block where the language is <code>@docs</code> and evaluates the expressions found within the block. Replaces the block with the docstrings associated with each expression.</p><div class="codehilite"><pre><span></span>```@docs
 Documenter
 makedocs
 deploydocs
 ```
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L75-L86' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.EvalBlocks' href='#Documenter.Expanders.EvalBlocks'>#</a>
-<strong><code>Documenter.Expanders.EvalBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Parses each code block where the language is <code>@eval</code> and evaluates it's content. Replaces the block with the value resulting from the evaluation. This can be useful for inserting generated content into a document such as plots.</p>
-<div class="codehilite"><pre><span></span>```@eval
+</pre></div><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L75-L86" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.EvalBlocks" id="Documenter.Expanders.EvalBlocks">#</a><strong><code>Documenter.Expanders.EvalBlocks</code></strong> — <em>Type</em>.</p><p>Parses each code block where the language is <code>@eval</code> and evaluates it's content. Replaces the block with the value resulting from the evaluation. This can be useful for inserting generated content into a document such as plots.</p><div class="codehilite"><pre><span></span>```@eval
 using PyPlot
 x = linspace(-π, π)
 y = sin(x)
-plot(x, y, color = &quot;red&quot;)
-savefig(&quot;plot.svg&quot;)
-Markdown.parse(&quot;![Plot](plot.svg)&quot;)
+plot(x, y, color = "red")
+savefig("plot.svg")
+Markdown.parse("![Plot](plot.svg)")
 ```
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L102-L117' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.ExampleBlocks' href='#Documenter.Expanders.ExampleBlocks'>#</a>
-<strong><code>Documenter.Expanders.ExampleBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Parses each code block where the language is <code>@example</code> and evaluates the parsed Julia code found within. The resulting value is then inserted into the final document after the source code.</p>
-<div class="codehilite"><pre><span></span>```@example
+</pre></div><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L102-L117" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.ExampleBlocks" id="Documenter.Expanders.ExampleBlocks">#</a><strong><code>Documenter.Expanders.ExampleBlocks</code></strong> — <em>Type</em>.</p><p>Parses each code block where the language is <code>@example</code> and evaluates the parsed Julia code found within. The resulting value is then inserted into the final document after the source code.</p><div class="codehilite"><pre><span></span>```@example
 a = 1
 b = 2
 a + b
 ```
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L148-L160' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.ExpanderPipeline' href='#Documenter.Expanders.ExpanderPipeline'>#</a>
-<strong><code>Documenter.Expanders.ExpanderPipeline</code></strong> &mdash; <em>Type</em>.</p>
-<p>The default node expander "pipeline", which consists of the following expanders:</p>
-<ul>
-<li><a href="./#Documenter.Expanders.TrackHeaders"><code>TrackHeaders</code></a></li>
-<li><a href="./#Documenter.Expanders.MetaBlocks"><code>MetaBlocks</code></a></li>
-<li><a href="./#Documenter.Expanders.DocsBlocks"><code>DocsBlocks</code></a></li>
-<li><a href="./#Documenter.Expanders.AutoDocsBlocks"><code>AutoDocsBlocks</code></a></li>
-<li><a href="./#Documenter.Expanders.EvalBlocks"><code>EvalBlocks</code></a></li>
-<li><a href="./#Documenter.Expanders.IndexBlocks"><code>IndexBlocks</code></a></li>
-<li><a href="./#Documenter.Expanders.ContentsBlocks"><code>ContentsBlocks</code></a></li>
-<li><a href="./#Documenter.Expanders.ExampleBlocks"><code>ExampleBlocks</code></a></li>
-<li><a href="./#Documenter.Expanders.REPLBlocks"><code>REPLBlocks</code></a></li>
-</ul>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L38-L51' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.IndexBlocks' href='#Documenter.Expanders.IndexBlocks'>#</a>
-<strong><code>Documenter.Expanders.IndexBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Parses each code block where the language is <code>@index</code> and replaces it with an index of all docstrings spliced into the document. The pages that are included can be set using a key/value pair <code>Pages = [...]</code> such as</p>
-<div class="codehilite"><pre><span></span>```@index
-Pages = [&quot;foo.md&quot;, &quot;bar.md&quot;]
+</pre></div><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L148-L160" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.ExpanderPipeline" id="Documenter.Expanders.ExpanderPipeline">#</a><strong><code>Documenter.Expanders.ExpanderPipeline</code></strong> — <em>Type</em>.</p><p>The default node expander "pipeline", which consists of the following expanders:</p><ul><li><a href="./#Documenter.Expanders.TrackHeaders"><code>TrackHeaders</code></a></li><li><a href="./#Documenter.Expanders.MetaBlocks"><code>MetaBlocks</code></a></li><li><a href="./#Documenter.Expanders.DocsBlocks"><code>DocsBlocks</code></a></li><li><a href="./#Documenter.Expanders.AutoDocsBlocks"><code>AutoDocsBlocks</code></a></li><li><a href="./#Documenter.Expanders.EvalBlocks"><code>EvalBlocks</code></a></li><li><a href="./#Documenter.Expanders.IndexBlocks"><code>IndexBlocks</code></a></li><li><a href="./#Documenter.Expanders.ContentsBlocks"><code>ContentsBlocks</code></a></li><li><a href="./#Documenter.Expanders.ExampleBlocks"><code>ExampleBlocks</code></a></li><li><a href="./#Documenter.Expanders.REPLBlocks"><code>REPLBlocks</code></a></li></ul><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L38-L51" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.IndexBlocks" id="Documenter.Expanders.IndexBlocks">#</a><strong><code>Documenter.Expanders.IndexBlocks</code></strong> — <em>Type</em>.</p><p>Parses each code block where the language is <code>@index</code> and replaces it with an index of all docstrings spliced into the document. The pages that are included can be set using a key/value pair <code>Pages = [...]</code> such as</p><div class="codehilite"><pre><span></span>```@index
+Pages = ["foo.md", "bar.md"]
 ```
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L120-L130' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.MetaBlocks' href='#Documenter.Expanders.MetaBlocks'>#</a>
-<strong><code>Documenter.Expanders.MetaBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Parses each code block where the language is <code>@meta</code> and evaluates the key/value pairs found within the block, i.e.</p>
-<div class="codehilite"><pre><span></span>```@meta
+</pre></div><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L120-L130" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.MetaBlocks" id="Documenter.Expanders.MetaBlocks">#</a><strong><code>Documenter.Expanders.MetaBlocks</code></strong> — <em>Type</em>.</p><p>Parses each code block where the language is <code>@meta</code> and evaluates the key/value pairs found within the block, i.e.</p><div class="codehilite"><pre><span></span>```@meta
 CurrentModule = Documenter
 DocTestSetup  = quote
     using Documenter
 end
 ```
-</pre></div>
-
-
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L60-L72' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.REPLBlocks' href='#Documenter.Expanders.REPLBlocks'>#</a>
-<strong><code>Documenter.Expanders.REPLBlocks</code></strong> &mdash; <em>Type</em>.</p>
-<p>Similar to the <a href="./#Documenter.Expanders.ExampleBlocks"><code>ExampleBlocks</code></a> expander, but inserts a Julia REPL prompt before each toplevel expression in the final document.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L163-L166' class='documenter-source'>source</a><br></p>
-<p><a id='Documenter.Expanders.TrackHeaders' href='#Documenter.Expanders.TrackHeaders'>#</a>
-<strong><code>Documenter.Expanders.TrackHeaders</code></strong> &mdash; <em>Type</em>.</p>
-<p>Tracks all <code>Markdown.Header</code> nodes found in the parsed markdown files and stores an <a href="../anchors/#Documenter.Anchors.Anchor"><code>Anchors.Anchor</code></a> object for each one.</p>
-<p><a target='_blank' href='https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L54-L57' class='documenter-source'>source</a><br></p>
-          <aside class="copyright" role="note">
+</pre></div><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L60-L72" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.REPLBlocks" id="Documenter.Expanders.REPLBlocks">#</a><strong><code>Documenter.Expanders.REPLBlocks</code></strong> — <em>Type</em>.</p><p>Similar to the <a href="./#Documenter.Expanders.ExampleBlocks"><code>ExampleBlocks</code></a> expander, but inserts a Julia REPL prompt before each toplevel expression in the final document.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L163-L166" target="_blank">source</a><br/></p><p><a href="#Documenter.Expanders.TrackHeaders" id="Documenter.Expanders.TrackHeaders">#</a><strong><code>Documenter.Expanders.TrackHeaders</code></strong> — <em>Type</em>.</p><p>Tracks all <code>Markdown.Header</code> nodes found in the parsed markdown files and stores an <a href="../anchors/#Documenter.Anchors.Anchor"><code>Anchors.Anchor</code></a> object for each one.</p><p><a class="documenter-source" href="https://github.com/JuliaDocs/Documenter.jl/tree/c5be239597babe9b7ffc1c93ffed425a2f149c9f/src/Expanders.jl#L54-L57" target="_blank">source</a><br/></p><aside class="copyright" role="note">
             
             Documentation built with
             <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
@@ -562,74 +173,15 @@ end
               Material
             </a>
             theme.
-          </aside>
-          
-            <footer class="footer">
-              
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
-      
-        <a href="../dom/" title="DOM">
-          <span class="direction">
+          </aside><footer class="footer"><nav aria-label="Footer" class="pagination"><div class="previous"><a href="../dom/" title="DOM"><span class="direction">
             Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
-            </div>
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div aria-label="Previous" class="button button-previous" role="button"><i class="icon icon-back"></i></div><div class="stretch"><div class="title">
                 DOM
-              </div>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../formats/" title="Formats">
-          <span class="direction">
+              </div></div></div></a></div><div class="next"><a href="../formats/" title="Formats"><span class="direction">
             Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div class="stretch"><div class="title">
                 Formats
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
+              </div></div><div aria-label="Next" class="button button-next" role="button"><i class="icon icon-forward"></i></div></div></a></div></nav></footer></div></article><div aria-live="polite" class="results" role="status"><div class="scrollable"><div class="wrapper"><div class="meta"></div><div class="list"></div></div></div></div></main><script>
       var base_url = '../../..';
       var repo_id  = 'JuliaDocs/Documenter.jl';
-    </script>
-    <script src="../../../assets/javascripts/application-997097ee0c.js"></script>
-    
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-    
-      <script src="../../../assets/mathjaxhelper.js"></script>
-    
-    
-  </body>
-</html>
+    </script><script src="../../../assets/javascripts/application-997097ee0c.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script><script src="../../../assets/mathjaxhelper.js"></script></body></HTML>

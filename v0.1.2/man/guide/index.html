@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
-    
-      
-        <title>Guide - Documenter.jl</title>
-      
-      
-      
-      
-        <meta name="author" content="Michael Hatherly">
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Documenter.jl">
-    <meta property="og:image" content="None/../../">
-    <meta name="apple-mobile-web-app-title" content="Documenter.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
+<!DOCTYPE html><HTML class="no-js"><head><meta charset="utf-8"/><meta content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1" name="viewport"/><title>Guide - Documenter.jl</title><meta content="Michael Hatherly" name="author"/><meta content="None" property="og:url"/><meta content="Documenter.jl" property="og:title"/><meta content="None/../../" property="og:image"/><meta content="Documenter.jl" name="apple-mobile-web-app-title"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><link href="../../assets/images/favicon-e565ddfa3b.ico" rel="shortcut icon" type="image/x-icon"/><link href="../../assets/images/favicon-e565ddfa3b.ico" rel="icon" type="image/x-icon"/><style>
       @font-face {
       	font-family: 'Icon';
       	src: url('../../assets/fonts/icon.eot?52m981');
@@ -42,337 +13,112 @@
       	font-weight: normal;
       	font-style: normal;
       }
-    </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
-    
-    
-      
-      
-      
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
+    </style><link href="../../assets/stylesheets/application-a422ff04cc.css" rel="stylesheet"/><link href="../../assets/stylesheets/palettes-05ab2406df.css" rel="stylesheet"/><link href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono" rel="stylesheet"/><style>
         body, input {
           font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
         }
         pre, code {
           font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
         }
-      </style>
-    
-    
-      <link rel="stylesheet" href="../../assets/Documenter.css">
-    
-    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
-    
-  </head>
-  
-  
-  
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
+      </style><link href="../../assets/Documenter.css" rel="stylesheet"/><script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script><script data-outdated-warner="">function maybeAddWarning () {
+    const head = document.getElementsByTagName('head')[0];
+
+    // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
+    if (document.body.querySelector('meta[name="robots"]') === null) {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+
+        head.appendChild(meta);
+    };
+
+    // Add a stylesheet to avoid inline styling
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode('.outdated-warning-overlay {  position: fixed;  top: 0;  left: 0;  right: 0;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  z-index: 999;  background-color: #ffaba7;  color: rgba(0, 0, 0, 0.7);  border-bottom: 3px solid #da0b00;  padding: 10px 35px;  text-align: center;  font-size: 15px; }  .outdated-warning-overlay .outdated-warning-closer {    position: absolute;    top: calc(50% - 10px);    right: 18px;    cursor: pointer;    width: 12px; }  .outdated-warning-overlay a {    color: #2e63b8; }    .outdated-warning-overlay a:hover {      color: #363636; }'));
+    head.appendChild(style);
+
+    const div = document.createElement('div');
+    div.classList.add('outdated-warning-overlay');
+    const closer = document.createElement('div');
+    closer.classList.add('outdated-warning-closer');
+
+    // Icon by font-awesome (license: https://fontawesome.com/license, link: https://fontawesome.com/icons/times?style=solid)
+    closer.innerHTML = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>';
+    closer.addEventListener('click', function () {
+        document.body.removeChild(div);
+    });
+    let href = '/stable';
+    if (window.documenterBaseURL) {
+        href = window.documenterBaseURL + '/../stable';
+    }
+    div.innerHTML = 'This documentation is not for the latest version. <br> <a href="' + href + '">Go to the latest documentation</a>.';
+    div.appendChild(closer);
+    document.body.appendChild(div);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', maybeAddWarning);
+} else {
+    maybeAddWarning();
+};
+</script></head><body class="palette-primary-indigo palette-accent-blue"><div class="backdrop"><div class="backdrop-paper"></div></div><input class="toggle" id="toggle-drawer" type="checkbox"/><input class="toggle" id="toggle-search" type="checkbox"/><label class="toggle-button overlay" for="toggle-drawer"></label><header class="header"><nav aria-label="Header"><div class="bar default"><div aria-label="Menu" class="button button-menu" role="button"><label class="toggle-button icon icon-menu" for="toggle-drawer"><span></span></label></div><div class="stretch"><div class="title"><span class="path">
             
               
-                Manual <i class="icon icon-link"></i>
-              
-            
-          </span>
+                Manual <i class="icon icon-link"></i></span>
         
         Guide
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/JuliaDocs/Documenter.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
+      </div></div><div aria-label="Search" class="button button-search" role="button"><label class="toggle-button icon icon-search" for="toggle-search" title="Search"></label></div></div><div class="bar search"><div aria-label="Close" class="button button-close" role="button"><label class="toggle-button icon icon-back" for="toggle-search"></label></div><div class="stretch"><div class="field"><input autocapitalize="off" autocomplete="off" autocorrect="off" class="query" placeholder="Search" spellcheck="" type="text"/></div></div><div aria-label="Search" class="button button-reset" role="button"><button class="toggle-button icon icon-close" id="reset-search"></button></div></div></nav></header><main class="main"><div class="drawer"><nav aria-label="Navigation"><a class="project" href="https://github.com/JuliaDocs/Documenter.jl"><div class="banner"><div class="name"><strong>
           Documenter.jl
-          <span class="version">
-            
-          </span>
-        </strong>
-        
-          <br>
+          <span class="version"></span></strong><br/>
           JuliaDocs/Documenter.jl
         
-      </div>
-    </div>
-  </a>
-  <div class="scrollable">
-    <div class="wrapper">
-      
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
-      
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="../..">
+      </div></div></a><div class="scrollable"><div class="wrapper"><ul class="repo"><li class="repo-download"><a data-action="download" href="https://github.com/JuliaDocs/Documenter.jl/archive/master.zip" target="_blank" title="Download"><i class="icon icon-download"></i> Download
+            </a></li><li class="repo-stars"><a data-action="star" href="https://github.com/JuliaDocs/Documenter.jl/stargazers" target="_blank" title="Stargazers"><i class="icon icon-star"></i> Stars
+              <span class="count">–</span></a></li></ul><hr/><div class="toc"><ul><li><a class="" href="../.." title="Home">
       Home
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Manual</span>
-    <ul>
-      
-        
-  <li>
-    <a class="current" title="Guide" href="./">
+    </a></li><li><span class="section">Manual</span><ul><li><a class="current" href="./" title="Guide">
       Guide
-    </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Installation" href="#installation">
+    </a><ul><li class="anchor"><a href="#installation" title="Installation">
                 Installation
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Usage" href="#usage">
+              </a></li><li class="anchor"><a href="#usage" title="Usage">
                 Usage
-              </a>
-            </li>
-          
-        </ul>
-      
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Examples" href="../examples/">
+              </a></li></ul></li><li><a class="" href="../examples/" title="Examples">
       Examples
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Syntax" href="../syntax/">
+    </a></li><li><a class="" href="../syntax/" title="Syntax">
       Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Doctests" href="../doctests/">
+    </a></li><li><a class="" href="../doctests/" title="Doctests">
       Doctests
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Hosting Documentation" href="../hosting/">
+    </a></li><li><a class="" href="../hosting/" title="Hosting Documentation">
       Hosting Documentation
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="LaTeX Syntax" href="../latex/">
+    </a></li><li><a class="" href="../latex/" title="LaTeX Syntax">
       LaTeX Syntax
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../internals/">
+    </a></li><li><a class="" href="../internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Library</span>
-    <ul>
-      
-        
-  <li>
-    <a class="" title="Public" href="../../lib/public/">
+    </a></li></ul></li><li><span class="section">Library</span><ul><li><a class="" href="../../lib/public/" title="Public">
       Public
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Internals" href="../../lib/internals/">
+    </a></li><li><a class="" href="../../lib/internals/" title="Internals">
       Internals
-    </a>
-    
-  </li>
-
-      
-    </ul>
-  </li>
-
-          
-        </ul>
-        
-      </div>
-    </div>
-  </div>
-</nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
-          
-          <p><a id='Package-Guide-1'></a></p>
-<h1 id="package-guide">Package Guide</h1>
-<p><a id='Installation-1'></a></p>
-<h2 id="installation">Installation</h2>
-<p>Documenter is a registered package and so can be installed via <code>Pkg.add</code>.</p>
-<div class="codehilite"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;Documenter&quot;</span><span class="p">)</span>
-</pre></div>
-
-
-<p>This package supports Julia <code>0.4</code> and <code>0.5</code>.</p>
-<p><a id='Usage-1'></a></p>
-<h2 id="usage">Usage</h2>
-<p>Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document.</p>
-<p><a id='Setting-up-the-folder-structure-1'></a></p>
-<h3 id="setting-up-the-folder-structure">Setting up the folder structure</h3>
-<p>Firstly, we need a Julia module to document. This could be a package generated via <code>PkgDev.generate</code> or a single <code>.jl</code> script. For this guide we'll be using a package called <code>Example.jl</code> that has the following directory layout:</p>
-<div class="codehilite"><pre><span></span>Example/
+    </a></li></ul></li></ul></div></div></div></nav></div><article class="article"><div class="wrapper"><p><a id="Package-Guide-1"></a></p><h1 id="package-guide">Package Guide</h1><p><a id="Installation-1"></a></p><h2 id="installation">Installation</h2><p>Documenter is a registered package and so can be installed via <code>Pkg.add</code>.</p><div class="codehilite"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">"Documenter"</span><span class="p">)</span>
+</pre></div><p>This package supports Julia <code>0.4</code> and <code>0.5</code>.</p><p><a id="Usage-1"></a></p><h2 id="usage">Usage</h2><p>Documenter is designed to do one thing – combine markdown files and inline docstrings from Julia's docsystem into a single inter-linked document. What follows is a step-by-step guide to creating a simple document.</p><p><a id="Setting-up-the-folder-structure-1"></a></p><h3 id="setting-up-the-folder-structure">Setting up the folder structure</h3><p>Firstly, we need a Julia module to document. This could be a package generated via <code>PkgDev.generate</code> or a single <code>.jl</code> script. For this guide we'll be using a package called <code>Example.jl</code> that has the following directory layout:</p><div class="codehilite"><pre><span></span>Example/
     src/
         Example.jl
     ...
-</pre></div>
-
-
-<p>Note that the <code>...</code> just represent unimportant files and folders.</p>
-<p>We must decide on a location where we'd like to store the documentation for this package. It's recommended to use a folder named <code>docs/</code> in the toplevel of the package, like so</p>
-<div class="codehilite"><pre><span></span>Example/
+</pre></div><p>Note that the <code>...</code> just represent unimportant files and folders.</p><p>We must decide on a location where we'd like to store the documentation for this package. It's recommended to use a folder named <code>docs/</code> in the toplevel of the package, like so</p><div class="codehilite"><pre><span></span>Example/
     docs/
         ...
     src/
         Example.jl
     ...
-</pre></div>
-
-
-<p>Inside the <code>docs/</code> folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommended</p>
-<div class="codehilite"><pre><span></span>docs/
+</pre></div><p>Inside the <code>docs/</code> folder we need to add two things. A source folder which will contain the markdown files that will be used to build the finished document and a Julia script that will be used to control the build process. The following names are recommended</p><div class="codehilite"><pre><span></span>docs/
     src/
     make.jl
-</pre></div>
-
-
-<p><a id='Building-an-empty-document-1'></a></p>
-<h3 id="building-an-empty-document">Building an empty document</h3>
-<p>With our <code>docs/</code> directory now setup we're going to build our first document. It'll just be a single empty file at the moment, but we'll be adding to it later on.</p>
-<p>Add the following to your <code>make.jl</code> file</p>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span><span class="p">,</span> <span class="n">Example</span>
+</pre></div><p><a id="Building-an-empty-document-1"></a></p><h3 id="building-an-empty-document">Building an empty document</h3><p>With our <code>docs/</code> directory now setup we're going to build our first document. It'll just be a single empty file at the moment, but we'll be adding to it later on.</p><p>Add the following to your <code>make.jl</code> file</p><div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Documenter</span><span class="p">,</span> <span class="n">Example</span>
 
 <span class="n">makedocs</span><span class="p">()</span>
-</pre></div>
-
-
-<p>This assumes you've installed Documenter as discussed in <a href="./#Installation-1">Installation</a> and that your Examples package can be found by Julia.</p>
-<p>Now add an <code>index.md</code> file to the <code>src/</code> directory. The name has no particular significance though and you may name it whatever you like. We'll stick to <code>index.md</code> for this guide.</p>
-<p>Leave the newly added file empty and then run the following command from the <code>docs/</code> directory</p>
-<div class="codehilite"><pre><span></span>$ julia make.jl
-</pre></div>
-
-
-<p>Note that <code>$</code> just represents the prompt character. You don't need to type that.</p>
-<p>If you'd like to see the output from this command in color use</p>
-<div class="codehilite"><pre><span></span>$ julia --color<span class="o">=</span>yes make.jl
-</pre></div>
-
-
-<p>When you run that you should see the following output</p>
-<div class="codehilite"><pre><span></span><span class="n">Documenter</span><span class="o">:</span> <span class="n">setting</span> <span class="n">up</span> <span class="n">build</span> <span class="n">directory</span><span class="o">.</span>
+</pre></div><p>This assumes you've installed Documenter as discussed in <a href="./#Installation-1">Installation</a> and that your Examples package can be found by Julia.</p><p>Now add an <code>index.md</code> file to the <code>src/</code> directory. The name has no particular significance though and you may name it whatever you like. We'll stick to <code>index.md</code> for this guide.</p><p>Leave the newly added file empty and then run the following command from the <code>docs/</code> directory</p><div class="codehilite"><pre><span></span>$ julia make.jl
+</pre></div><p>Note that <code>$</code> just represents the prompt character. You don't need to type that.</p><p>If you'd like to see the output from this command in color use</p><div class="codehilite"><pre><span></span>$ julia --color<span class="o">=</span>yes make.jl
+</pre></div><p>When you run that you should see the following output</p><div class="codehilite"><pre><span></span><span class="n">Documenter</span><span class="o">:</span> <span class="n">setting</span> <span class="n">up</span> <span class="n">build</span> <span class="n">directory</span><span class="o">.</span>
 <span class="n">Documenter</span><span class="o">:</span> <span class="n">redirecting</span> <span class="n">output</span> <span class="n">streams</span><span class="o">.</span>
 <span class="n">Documenter</span><span class="o">:</span> <span class="n">expanding</span> <span class="n">markdown</span> <span class="n">templates</span><span class="o">.</span>
 <span class="n">Documenter</span><span class="o">:</span> <span class="n">building</span> <span class="n">cross</span><span class="o">-</span><span class="n">references</span><span class="o">.</span>
@@ -380,50 +126,29 @@
 <span class="n">Documenter</span><span class="o">:</span> <span class="n">restoring</span> <span class="n">output</span> <span class="n">streams</span><span class="o">.</span>
 <span class="n">Documenter</span><span class="o">:</span> <span class="n">rendering</span> <span class="n">document</span><span class="o">.</span>
 <span class="n">Documenter</span><span class="o">:</span> <span class="n">copying</span> <span class="n">assets</span> <span class="n">to</span> <span class="n">build</span> <span class="n">directory</span><span class="o">.</span>
-</pre></div>
-
-
-<p>The <code>docs/</code> folder should contain a new directory – called <code>build/</code>. It's structure should look like the following</p>
-<div class="codehilite"><pre><span></span>build/
+</pre></div><p>The <code>docs/</code> folder should contain a new directory – called <code>build/</code>. It's structure should look like the following</p><div class="codehilite"><pre><span></span>build/
     assets/
         Documenter.css
         mathjaxhelper.js
     index.md
-</pre></div>
-
-
-<p>At the moment <code>build/index.md</code> should be empty since <code>src/index.md</code> is empty.</p>
-<p>At this point you can add some text to <code>src/index.md</code> and rerun the <code>make.jl</code> file to see the changes if you'd like to.</p>
-<p><a id='Adding-some-docstrings-1'></a></p>
-<h3 id="adding-some-docstrings">Adding some docstrings</h3>
-<p>Next we'll splice a docstring defined in the <code>Example</code> module into the <code>index.md</code> file. To do this first document a function in that module:</p>
-<div class="codehilite"><pre><span></span><span class="k">module</span> <span class="n">Example</span>
+</pre></div><p>At the moment <code>build/index.md</code> should be empty since <code>src/index.md</code> is empty.</p><p>At this point you can add some text to <code>src/index.md</code> and rerun the <code>make.jl</code> file to see the changes if you'd like to.</p><p><a id="Adding-some-docstrings-1"></a></p><h3 id="adding-some-docstrings">Adding some docstrings</h3><p>Next we'll splice a docstring defined in the <code>Example</code> module into the <code>index.md</code> file. To do this first document a function in that module:</p><div class="codehilite"><pre><span></span><span class="k">module</span> <span class="n">Example</span>
 
 <span class="k">export</span> <span class="n">func</span>
 
-<span class="s">&quot;&quot;&quot;</span>
+<span class="s">"""</span>
 <span class="s">    func(x)</span>
 
 <span class="s">Returns double the number `x` plus `1`.</span>
-<span class="s">&quot;&quot;&quot;</span>
+<span class="s">"""</span>
 <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
 
 <span class="k">end</span>
-</pre></div>
-
-
-<p>Then in the <code>src/index.md</code> file add the following</p>
-<div class="codehilite"><pre><span></span># Example.jl Documentation
+</pre></div><p>Then in the <code>src/index.md</code> file add the following</p><div class="codehilite"><pre><span></span># Example.jl Documentation
 
 ```@docs
 func(x)
 ```
-</pre></div>
-
-
-<p>When we next run <code>make.jl</code> the docstring for <code>Example.func(x)</code> should appear in place of the <code>@docs</code> block in <code>build/index.md</code>. Note that <em>more than one</em> object can be referenced inside a <code>@docs</code> block – just place each one on a separate line.</p>
-<p>Note that the module in which a <code>@docs</code> block is evaluated is determined by <code>current_module()</code> and so will more than likely be <code>Main</code>. This means that each object listed in the block must be visible there. The module can be changed to something else on a per-page basis with a <code>@meta</code> block as in the following</p>
-<div class="codehilite"><pre><span></span># Example.jl Documentation
+</pre></div><p>When we next run <code>make.jl</code> the docstring for <code>Example.func(x)</code> should appear in place of the <code>@docs</code> block in <code>build/index.md</code>. Note that <em>more than one</em> object can be referenced inside a <code>@docs</code> block – just place each one on a separate line.</p><p>Note that the module in which a <code>@docs</code> block is evaluated is determined by <code>current_module()</code> and so will more than likely be <code>Main</code>. This means that each object listed in the block must be visible there. The module can be changed to something else on a per-page basis with a <code>@meta</code> block as in the following</p><div class="codehilite"><pre><span></span># Example.jl Documentation
 
 ```@meta
 CurrentModule = Documenter
@@ -432,49 +157,25 @@ CurrentModule = Documenter
 ```@docs
 func(x)
 ```
-</pre></div>
-
-
-<p><a id='Filtering-Included-Docstrings-1'></a></p>
-<h4 id="filtering-included-docstrings">Filtering Included Docstrings</h4>
-<p>In some cases you may want to include a docstring for a <code>Method</code> that extends a <code>Function</code> from a different module – such as <code>Base</code>. In the following example we extend <code>Base.length</code> with a new definition for type <code>T</code> and also add a docstring:</p>
-<div class="codehilite"><pre><span></span><span class="k">type</span><span class="nc"> T</span>
+</pre></div><p><a id="Filtering-Included-Docstrings-1"></a></p><h4 id="filtering-included-docstrings">Filtering Included Docstrings</h4><p>In some cases you may want to include a docstring for a <code>Method</code> that extends a <code>Function</code> from a different module – such as <code>Base</code>. In the following example we extend <code>Base.length</code> with a new definition for type <code>T</code> and also add a docstring:</p><div class="codehilite"><pre><span></span><span class="k">type</span><span class="nc"> T</span>
     <span class="c"># ...</span>
 <span class="k">end</span>
 
-<span class="s">&quot;&quot;&quot;</span>
+<span class="s">"""</span>
 <span class="s">Custom `length` docs for `T`.</span>
-<span class="s">&quot;&quot;&quot;</span>
+<span class="s">"""</span>
 <span class="n">Base</span><span class="o">.</span><span class="n">length</span><span class="p">(::</span><span class="n">T</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
-</pre></div>
-
-
-<p>When trying to include this docstring with</p>
-<div class="codehilite"><pre><span></span>```@docs
+</pre></div><p>When trying to include this docstring with</p><div class="codehilite"><pre><span></span>```@docs
 length
 ```
-</pre></div>
-
-
-<p>all the docs for <code>length</code> will be included – even those from other modules. There are two ways to solve this problem. Either include the type in the signature with</p>
-<div class="codehilite"><pre><span></span>```@docs
+</pre></div><p>all the docs for <code>length</code> will be included – even those from other modules. There are two ways to solve this problem. Either include the type in the signature with</p><div class="codehilite"><pre><span></span>```@docs
 length(::T)
 ```
-</pre></div>
-
-
-<p>or declare the specific modules that <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> should include with</p>
-<div class="codehilite"><pre><span></span><span class="n">makedocs</span><span class="p">(</span>
+</pre></div><p>or declare the specific modules that <a href="../../lib/public/#Documenter.makedocs"><code>makedocs</code></a> should include with</p><div class="codehilite"><pre><span></span><span class="n">makedocs</span><span class="p">(</span>
     <span class="c"># options</span>
     <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">MyModule</span><span class="p">]</span>
 <span class="p">)</span>
-</pre></div>
-
-
-<p><a id='Cross-Referencing-1'></a></p>
-<h3 id="cross-referencing">Cross Referencing</h3>
-<p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p>
-<div class="codehilite"><pre><span></span># Example.jl Documentation
+</pre></div><p><a id="Cross-Referencing-1"></a></p><h3 id="cross-referencing">Cross Referencing</h3><p>It may be necessary to refer to a particular docstring or section of your document from elsewhere in the document. To do this we can make use of Documenter's cross-referencing syntax which looks pretty similar to normal markdown link syntax. Replace the contents of <code>src/index.md</code> with the following</p><div class="codehilite"><pre><span></span># Example.jl Documentation
 
 ```@docs
 func(x)
@@ -482,15 +183,7 @@ func(x)
 
 - link to [Example.jl Documentation](@ref)
 - link to [`func(x)`](@ref)
-</pre></div>
-
-
-<p>So we just have to replace each link's url with <code>@ref</code> and write the name of the thing we'd link to cross-reference. For document headers it's just plain text that matches the name of the header and for docstrings enclose the object in backticks.</p>
-<p>This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document.</p>
-<p><a id='Navigation-1'></a></p>
-<h3 id="navigation">Navigation</h3>
-<p>Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p>
-<div class="codehilite"><pre><span></span># Example.jl Documentation
+</pre></div><p>So we just have to replace each link's url with <code>@ref</code> and write the name of the thing we'd link to cross-reference. For document headers it's just plain text that matches the name of the header and for docstrings enclose the object in backticks.</p><p>This also works across different pages in the same way. Note that these sections and docstrings must be unique within a document.</p><p><a id="Navigation-1"></a></p><h3 id="navigation">Navigation</h3><p>Documenter can auto-generate tables of contents and docstring indexes for your document with the following syntax. We'll illustrate these features using our <code>index.md</code> file from the previous sections. Add the following to that file</p><div class="codehilite"><pre><span></span># Example.jl Documentation
 
 ```@contents
 ```
@@ -505,19 +198,11 @@ func(x)
 
 ```@index
 ```
-</pre></div>
-
-
-<p>The <code>@contents</code> block will generate a nested list of links to all the section headers in the document. By default it will gather all the level 1 and 2 headers from every page in the document, but this can be adjusted using <code>Pages</code> and <code>Depth</code> settings as in the following</p>
-<div class="codehilite"><pre><span></span>```@contents
-Pages = [&quot;foo.md&quot;, &quot;bar.md&quot;]
+</pre></div><p>The <code>@contents</code> block will generate a nested list of links to all the section headers in the document. By default it will gather all the level 1 and 2 headers from every page in the document, but this can be adjusted using <code>Pages</code> and <code>Depth</code> settings as in the following</p><div class="codehilite"><pre><span></span>```@contents
+Pages = ["foo.md", "bar.md"]
 Depth = 3
 ```
-</pre></div>
-
-
-<p>The <code>@index</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>@docs</code> blocks. As with the <code>@contents</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>@index</code>.</p>
-          <aside class="copyright" role="note">
+</pre></div><p>The <code>@index</code> block will generate a flat list of links to all the docs that that have been spliced into the document using <code>@docs</code> blocks. As with the <code>@contents</code> block the pages to be included can be set with a <code>Pages = [...]</code> line. Since the list is not nested <code>Depth</code> is not supported for <code>@index</code>.</p><aside class="copyright" role="note">
             
             Documentation built with
             <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
@@ -526,74 +211,15 @@ Depth = 3
               Material
             </a>
             theme.
-          </aside>
-          
-            <footer class="footer">
-              
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
-      
-        <a href="../.." title="Home">
-          <span class="direction">
+          </aside><footer class="footer"><nav aria-label="Footer" class="pagination"><div class="previous"><a href="../.." title="Home"><span class="direction">
             Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
-            </div>
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div aria-label="Previous" class="button button-previous" role="button"><i class="icon icon-back"></i></div><div class="stretch"><div class="title">
                 Home
-              </div>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../examples/" title="Examples">
-          <span class="direction">
+              </div></div></div></a></div><div class="next"><a href="../examples/" title="Examples"><span class="direction">
             Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </span><div class="page"><div class="stretch"><div class="title">
                 Examples
-              </div>
-            </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
-            </div>
-          </div>
-        </a>
-      
-    </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
+              </div></div><div aria-label="Next" class="button button-next" role="button"><i class="icon icon-forward"></i></div></div></a></div></nav></footer></div></article><div aria-live="polite" class="results" role="status"><div class="scrollable"><div class="wrapper"><div class="meta"></div><div class="list"></div></div></div></div></main><script>
       var base_url = '../..';
       var repo_id  = 'JuliaDocs/Documenter.jl';
-    </script>
-    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
-    
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-    
-      <script src="../../assets/mathjaxhelper.js"></script>
-    
-    
-  </body>
-</html>
+    </script><script src="../../assets/javascripts/application-997097ee0c.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script><script src="../../assets/mathjaxhelper.js"></script></body></HTML>
