@@ -138,7 +138,8 @@ module AutoDocs
         "random constant"
         qq = 3.14
 
-        "random function"
+        using Markdown: @doc_str
+        @doc doc"random function"
         function qqq end
     end
 end

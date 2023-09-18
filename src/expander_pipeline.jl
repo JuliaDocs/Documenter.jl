@@ -565,7 +565,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     """)
                 continue
             end
-            markdown = Documenter.DocSystem.parsedoc(docstr)
+            markdown::Markdown.MD = Documenter.DocSystem.parsedoc(docstr)
             docsnode = create_docsnode([markdown], [docstr], object, page, doc)
 
             # Track the order of insertion of objects per-binding.
@@ -963,8 +963,7 @@ function create_docsnode(docstrings, results, object, page, doc)
     docsnode = DocsNode(anchor, object, page)
     # Convert docstring to MarkdownAST, convert Heading elements, and push to DocsNode
     for (markdown, result) in zip(docstrings, results)
-        # parsedoc() does this double MD wrapping..
-        ast = convert(Node, markdown.content[1])
+        ast = convert(Node, markdown)
         doc.user.highlightsig && highlightsig!(ast)
         # The following 'for' corresponds to the old dropheaders() function
         for headingnode in ast.children
