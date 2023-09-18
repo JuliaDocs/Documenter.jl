@@ -33,8 +33,9 @@ package repository:
 - If the documentation is built successfully, the bot will attempt to push the generated
   HTML pages back to GitHub.
 
-Note that the hosted documentation does not update when you make pull requests; you see
-updates only when you merge to `master` or push new tags.
+Note that the hosted documentation does not update when you (or other contributors)
+make pull requests; you see updates only when you merge to the trunk branch (typically,
+`master` or `main`) or push new tags.
 
 In the upcoming sections we describe how to configure the build service to run
 the documentation build stage. In general it is easiest to choose the same
