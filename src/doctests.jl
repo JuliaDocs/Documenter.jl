@@ -59,13 +59,7 @@ function _doctest(page::Documenter.Page, doc::Documenter.Document)
 end
 
 function _doctest(docstr::Docs.DocStr, mod::Module, doc::Documenter.Document)
-    md = DocSystem.parsedoc(docstr)
-    # Note: parsedocs / formatdoc in Base is weird. It double-wraps the docstring Markdown
-    # in a Markdown.MD object..
-    @assert isa(md, Markdown.MD) # relying on Julia internals here
-    while length(md.content) == 1 && isa(first(md.content), Markdown.MD)
-        md = first(md.content)
-    end
+    md::Markdown.MD = DocSystem.parsedoc(docstr)
     mdast = try
         convert(MarkdownAST.Node, md)
     catch err
