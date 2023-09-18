@@ -309,7 +309,11 @@ function parsedoc(docstr::DocStr)
     #
     # This heuristic should work for checking the double wrapping:
     while length(md.content) == 1 && isa(first(md.content), Markdown.MD)
-        md = first(md.content)
+        inner_md = only(md.content)
+        # The docstring's outer Markdown.MD contains necessary metadata, however, so we need to
+        # retain it.
+        inner_md.meta = md.meta
+        md = inner_md
     end
     return md
 end
