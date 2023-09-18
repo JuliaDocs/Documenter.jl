@@ -44,9 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now checks that local links (e.g. to other Markdown files, local images; such as `[see the other page](other.md)`) are pointing to existing files. ([#2130], [#2187])
 
-  This can cause existing builds to fail because previously broken links are now caught by the Documenter's document checks, and this will make `makedocs` error if `strict = true` is passed.
+  This can cause existing builds to fail because previously broken links are now caught by the Documenter's document checks, in particular because Documenter now runs in strict mode by default.
 
-  **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `strict = Documenter.except(:cross_references)`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
+  **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `warnonly = :cross_references`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
 
 * The HTML output now enforces size thresholds for the generated HTML files, to catch cases where Documenter is deploying extremely large HTML files (usually due to generated content, like figures). If any generated HTML file is above either of the thresholds, Documenter will either error and fail the build (if above `size_threshold`), or warn (if above `size_threshold_warn`). The size threshold can also be ignored for specific pages with `size_threshold_ignore`. ([#2142], [#2205], [#2211], [#2252])
 
