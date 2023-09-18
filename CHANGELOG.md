@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.0.1] - 2023-09-18
+
+### Fixed
+
+* Docstring with an unwrapped `Markdown.MD` object, such as the ones created when the `Markdown.@doc_str` macro is used, are correctly handled again. ([#2269])
+
 ## Version [v1.0.0] - 2023-09-15
 
 ### Version changes
@@ -1237,6 +1243,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.27.24]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.24
 [v0.27.25]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.25
 [v1.0.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.0
+[v1.0.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1675,6 +1682,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
 [#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
 [#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
+[#2269]: https://github.com/JuliaDocs/Documenter.jl/issues/2269
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
