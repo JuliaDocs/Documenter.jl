@@ -328,7 +328,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         filteredstr, filteredoutput = filter_doctests(filters, (str, output))
         @debug debug_report(
             result=result, filters = filters, expected_filtered = filteredoutput,
-            evaluated = rstrip(str), evaluated_filtered = filteredoutput
+            evaluated = rstrip(str), evaluated_filtered = filteredstr
         )
         if filteredstr != filteredoutput
             if doc.user.doctest === :fix
