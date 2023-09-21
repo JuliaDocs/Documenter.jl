@@ -135,6 +135,44 @@ function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, 
 end
 issueurl(remote::GitHub, issuenumber) = "$(repourl(remote))/issues/$issuenumber"
 
+"""
+    GitLab(host, user, repo)
+    GitLab(user, repo)
+    GitLab(remote)
+
+Represents a remote Git repository hosted on GitLab. The repository is
+identified by the host, name of the user (or organization), and the
+repository. For example:
+
+```julia
+makedocs(
+    repo = GitLab("JuliaDocs", "Documenter.jl")
+)
+```
+
+The single argument constructor assumes that the end user and
+repository parts are separated by a slash (e.g.,
+`JuliaDocs/Documenter.jl`).
+"""
+struct GitLab <: Remote
+    host :: String
+    user :: String
+    repo :: String
+end
+GitLab(user::AbstractString, repo::AbstractString) = GitLab("gitlab.com", user, repo)
+function GitLab(remote::AbstractString)
+    user, repo = split(remote, '/')
+    GitLab(user, repo)
+end
+repourl(remote::GitLab) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
+function fileurl(remote::GitLab, ref::AbstractString, filename::AbstractString, linerange)
+    url = "$(repourl(remote))/-/tree/$(ref)/$(filename)"
+    isnothing(linerange) && return url
+    lstart, lend = first(linerange), last(linerange)
+    return (lstart == lend) ? "$(url)#L$(lstart)" : "$(url)#L$(lstart)-L$(lend)"
+end
+issueurl(remote::GitLab, issuenumber) = "$(repourl(remote))/-/issues/$issuenumber"
+
 ############################################################################
 # Handling of URL string templates (deprecated, for backwards compatibility)
 #
@@ -155,7 +193,7 @@ For example, the template URLs might look something like:
 
 * GitLab:
   ```
-  https://gitlab.com/user/project/blob/{commit}{path}#{line}
+  https://gitlab.com/user/project/-/tree/{commit}{path}#{line}
   ```
 * Azure DevOps:
   ```

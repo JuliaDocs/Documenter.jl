@@ -53,7 +53,7 @@ Note that enabling this option can cause documentation builds to fail due to net
 
 !!! note
 
-    The [`Remotes` API](@ref remotes-api) can be used to implement the methods to compute the remote URLs (for now, Documenter only [supports GitHub natively](@ref Remotes.GitHub)).
+    The [`Remotes` API](@ref remotes-api) can be used to implement the methods to compute the remote URLs (for now, Documenter only supports [GitHub](@ref Remotes.GitHub) and [GitLab](@ref Remotes.GitLab) natively).
 
 [^1]: There is an exception to this: links to Julia `Base` module source files.
       But Documenter already known how to handle those correctly, and they are really only relevant to the Julia main manual build.
@@ -83,6 +83,7 @@ The rules are as follows:
 ```@docs
 Documenter.Remotes
 Documenter.Remotes.GitHub
+Documenter.Remotes.GitLab
 ```
 
 The following types and functions and relevant when creating custom
