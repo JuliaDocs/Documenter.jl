@@ -2395,7 +2395,7 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
         latex = d[MIME"text/latex"()]
         # Make sure to match multiline strings!
         m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
-        m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
+        m_dollars = match(r"\s*\$\$?(.*?)\$?\$\s*"s, latex)
         out = if m_bracket === nothing && m_dollars === nothing
             Documenter.mdparse(latex; mode = :single)
         else
