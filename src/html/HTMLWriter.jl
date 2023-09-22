@@ -2420,7 +2420,7 @@ function _strip_latex_math_delimiters(latex::AbstractString)
         return true, m_bracket[1]
     end
     # This regex matches the strings "$ ... $" and "$$ ... $$", but not
-    # strings with mis-matched dollar signs such as "$ ... $$" or "$$ ... $"
+    # strings with miss-matched dollar signs such as "$ ... $$" or "$$ ... $"
     m_dollars = match(r"^\s*(\${1,2})([^\$]*)\1\s*$"s, latex)
     if m_dollars !== nothing
         return true, m_dollars[2]

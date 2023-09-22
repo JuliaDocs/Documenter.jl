@@ -315,7 +315,7 @@ end
                     @test _strip_latex_math_delimiters(input) == output
                 end
             end
-            # Test that mis-matched delimiters are not treated as math
+            # Test that miss-matched delimiters are not treated as math
             # delimiters
             for (left, right) in [
                 ("\\[", ""),
@@ -341,4 +341,5 @@ end
             end
         end
     end
+end
 end
