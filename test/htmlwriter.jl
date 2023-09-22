@@ -315,6 +315,30 @@ end
                     @test _strip_latex_math_delimiters(input) == output
                 end
             end
+            # Test that mis-matched delimiters are not treated as math
+            # delimiters
+            for (left, right) in [
+                ("\\[", ""),
+                ("\$", ""),
+                ("\$\$", ""),
+                ("", "\\]"),
+                ("", "\$"),
+                ("", "\$\$"),
+                ("\$", "\\]"),
+                ("\$\$", "\$"),
+                ("\$", "\$\$"),
+            ]
+                for input in [
+                    content,
+                    "$left$content$right",
+                    " $left$content$right",
+                    "$left$content$right ",
+                    "\t$left$content$right  ",
+                    " \t$left$content$right\t\t",
+                ]
+                    @test _strip_latex_math_delimiters(input) == (false, input)
+                end
+            end
         end
     end
 end
