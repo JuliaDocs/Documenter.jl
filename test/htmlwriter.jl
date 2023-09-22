@@ -4,7 +4,7 @@ using Test
 import MarkdownAST
 using Documenter
 using Documenter: DocSystem
-using Documenter.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions
+using Documenter.HTMLWriter: HTMLWriter, generate_version_file, generate_redirect_file, expand_versions, _strip_latex_math_delimiters
 
 function verify_version_file(versionfile, entries)
     @test isfile(versionfile)
@@ -295,5 +295,26 @@ end
         @test html.size_threshold == 12345
         @test html.size_threshold_warn == 1234
     end
-end
+
+    @testset "HTML: _strip_latex_math_delimiters" begin
+        for content in [
+            "a",
+            "x_1",
+            "x_{1} + x_{2}",
+            "\\begin{array}x_1\\\nx_2\\end{array}",
+        ]
+            for (left, right) in [("\\[", "\\]"), ("\$", "\$"), ("\$\$", "\$\$")]
+                for (input, output) in [
+                    content => (false, content),
+                    "$left$content$right" => (true, content),
+                    " $left$content$right" => (true, content),
+                    "$left$content$right " => (true, content),
+                    "\t$left$content$right  " => (true, content),
+                    " \t$left$content$right\t\t" => (true, content),
+                ]
+                    @test _strip_latex_math_delimiters(input) == output
+                end
+            end
+        end
+    end
 end
