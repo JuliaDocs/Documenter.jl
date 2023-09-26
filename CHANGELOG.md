@@ -150,7 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser](JuliaLang/julia#29344) where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
+* Line endings in Markdown source files are now normalized to `LF` before parsing, to work around a bug in the Julia Markdown parser where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([JuliaLang/julia#29344], [#1906])
 
 * `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. ([#505], [#1924])
 
