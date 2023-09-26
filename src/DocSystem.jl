@@ -280,14 +280,14 @@ category(::Module) = :module
 category(::Any) = :constant
 
 """
-    DocSystem.parsedoc(docstr::DocStr)
+    DocSystem.parsedoc(docstr::DocStr) -> Markdown.MD
 
 Thin internal wrapper around `Base.Docs.parsedoc` which prints additional debug information
 in case `Base.Docs.parsedoc` fails with an exception.
 """
 function parsedoc(docstr::DocStr)
-    try
-        Base.Docs.parsedoc(docstr)
+    md = try
+        Base.Docs.parsedoc(docstr) :: Markdown.MD
     catch exception
         @error """
         parsedoc failed to parse a docstring into Markdown. This indicates a problem with the docstring.
@@ -295,6 +295,27 @@ function parsedoc(docstr::DocStr)
         # Note: collect is there because svec does not print as nicely as a vector
         rethrow(exception)
     end
+    # Normally, the docsystem double wraps the docstrings in Markdown.MD, and so we need to unwrap
+    # it. _However_, if the MD object is attached directly with the @doc macro, which can happen,
+    # for example, when using the @doc_str macro, i.e.
+    #
+    #   @doc doc"""
+    #   ...
+    #   """ function foo end
+    #
+    # Then it does _not_ get double wrapped. So what we promise here is that DocSystem.parsedoc
+    # will return the unwrapped Markdown.MD object, which we can e.g. pass to MarkdownAST conversion
+    # directly. But we need to check if it actually is double wrapped or not.
+    #
+    # This heuristic should work for checking the double wrapping:
+    while length(md.content) == 1 && isa(first(md.content), Markdown.MD)
+        inner_md = only(md.content)
+        # The docstring's outer Markdown.MD contains necessary metadata, however, so we need to
+        # retain it.
+        inner_md.meta = md.meta
+        md = inner_md
+    end
+    return md
 end
 
 end

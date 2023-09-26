@@ -1,7 +1,7 @@
 # Implements the makedocs() and functions directly related to it.
 
 """
-    makedocs(
+    makedocs(;
         root    = "<current-directory>",
         source  = "src",
         build   = "build",
@@ -13,6 +13,7 @@
         sitename = "",
         expandfirst = [],
         draft = false,
+        others...
     )
 
 Combines markdown files and inline docstrings into an interlinked document.
@@ -217,6 +218,10 @@ determined from the source file path. E.g. for `src/foo.md` it is set to `build/
 
 Note that `workdir` does not affect doctests.
 
+**`plugins`** is a list of [`Documenter.Plugin`](@ref) objects. Use as directed by the
+documentation of a third-party plugin. For any subtype `T <: Plugin`, the
+`plugins` list may contain at most a single object of type `T`.
+
 ## Output formats
 
 **`format`** allows the output format to be specified. The default format is
@@ -233,8 +238,8 @@ information.
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
-function makedocs(components...; debug = false, format = HTML(), kwargs...)
-    document = Documenter.Document(components; format=format, kwargs...)
+function makedocs(; debug = false, format = HTML(), kwargs...)
+    document = Documenter.Document(; format=format, kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
@@ -323,3 +328,38 @@ makedocs(
 """
 hide(root::Pair, children) = (true, root.first, root.second, map(hide, children))
 hide(root::AbstractString, children) = (true, nothing, root, map(hide, children))
+
+"""
+    struct MissingRemoteError <: Exception
+
+This error is thrown by [`makedocs`](@ref) when it is unable to determine the remote repository link
+for a Markdown file or a docstring.
+
+See the [Remote repository links](@ref) section in the manualfor more information.
+"""
+struct MissingRemoteError <: Exception
+    path::String
+    linerange::Any
+    mod::Union{Module, Nothing}
+
+    function MissingRemoteError(;
+        path::AbstractString,
+        linerange=nothing,
+        mod::Union{Module, Nothing}=nothing
+    )
+        new(path, linerange, mod)
+    end
+end
+
+function Base.showerror(io::IO, e::MissingRemoteError)
+    print(io, "MissingRemoteError: unable to generate source url\n  path: $(e.path)")
+    isnothing(e.linerange) || print(io, ':', e.linerange)
+    println(io)
+    isnothing(e.mod) || println(io, "  module: ", e.mod)
+    print(io, """
+    Documenter was unable to automatically determine the remote repository for this file.
+    This can happen if you are including docstrings or pages from secondary packages. Those packages
+    must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
+    must be configured appropriately. See the 'Remote repository links' section in the manual for
+    more information.""")
+end

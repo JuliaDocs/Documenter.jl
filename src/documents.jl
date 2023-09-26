@@ -343,6 +343,8 @@ struct Internal
     indexnodes    :: Vector{IndexNode}
     locallinks :: IdDict{MarkdownAST.Link, String}
     errors::Set{Symbol}
+    src_to_uuid::Dict{String, Base.UUID} # These two are used to cache information from Pkg
+    uuid_to_version_info::Dict{Base.UUID, Tuple{VersionNumber, String}}
 end
 
 # Document.
@@ -358,7 +360,7 @@ struct Document
     blueprint :: DocumentBlueprint
 end
 
-function Document(plugins = nothing;
+function Document(;
         root     :: AbstractString   = currentdir(),
         source   :: AbstractString   = "src",
         build    :: AbstractString   = "build",
@@ -376,6 +378,7 @@ function Document(plugins = nothing;
         pages    :: Vector           = Any[],
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],
+        plugins  :: Vector           = Plugin[],
         repo     :: Union{Remotes.Remote, AbstractString} = "",
         remotes  :: Union{Dict, Nothing} = Dict(),
         sitename :: AbstractString   = "",
@@ -386,8 +389,15 @@ function Document(plugins = nothing;
         others...
     )
 
+    if !isempty(others)
+        msg = "makedocs() got passed invalid keyword arguments:"
+        for (k, v) in others
+            msg *= string("\n  ", k, " = ", repr(v))
+        end
+        throw(ArgumentError(msg))
+    end
+
     warnonly = reduce_warnonly(warnonly) # convert warnonly to Symbol[]
-    check_kwargs(others)
 
     if !isa(format, AbstractVector)
         format = Writer[format]
@@ -451,18 +461,18 @@ function Document(plugins = nothing;
         [],
         [],
         Dict{Markdown.Link, String}(),
-        Set{Symbol}()
+        Set{Symbol}(),
+        Dict{String, String}(),
+        Dict{String, Tuple{String, String}}()
     )
 
     plugin_dict = Dict{DataType, Plugin}()
-    if plugins !== nothing
-        for plugin in plugins
-            plugin isa Plugin ||
-                throw(ArgumentError("$(typeof(plugin)) is not a subtype of `Plugin`."))
-            haskey(plugin_dict, typeof(plugin)) &&
-                throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
-            plugin_dict[typeof(plugin)] = plugin
-        end
+    for plugin in plugins
+        plugin isa Plugin ||
+            throw(ArgumentError("$(typeof(plugin)) in `plugins=` is not a subtype of `Documenter.Plugin`."))
+        haskey(plugin_dict, typeof(plugin)) &&
+            throw(ArgumentError("only one copy of $(typeof(plugin)) may be passed."))
+        plugin_dict[typeof(plugin)] = plugin
     end
 
     blueprint = DocumentBlueprint(
@@ -538,8 +548,8 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         end
         return false
     end
-    makedocs_root_repo = find_root_parent(is_git_repo_root, root)
-    makedocs_root_remote = isnothing(makedocs_root_repo) ? nothing : getremote(makedocs_root_repo)
+    makedocs_root_repo::Union{String, Nothing} = find_root_parent(is_git_repo_root, root)
+    makedocs_root_remote::Union{Remotes.Remote, Nothing} = isnothing(makedocs_root_repo) ? nothing : getremote(makedocs_root_repo)
     @debug "interpret_repo_and_remotes" remotes_checked repo_normalized makedocs_root_remoteref makedocs_root_repo makedocs_root_remote
     if !isnothing(makedocs_root_remoteref) && !isnothing(makedocs_root_repo)
         # If both are set, then there is potential for conflict.
@@ -619,12 +629,18 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         addremote!(remotes_checked, RemoteRepository(makedocs_root_repo, makedocs_root_remote))
     else
         # Finally, if we're neither in a git repo, and nothing is in remotes,
-        err = """
-        Unable to automatically determine remote for main repo.
-        > `repo` is not set, and makedocs is not in a Git repository.
-        Configure `repo` and/or `remotes` appropriately, or set `remotes = nothing` to disable remote source
-        links altogether (e.g. if not working in a Git repository).
-          path: $(makedocs_root_repo)"""
+        err = "Unable to automatically determine remote for main repo."
+        err *= '\n'
+        err *= if isnothing(repo_normalized)
+            """> `repo` is not set, and makedocs is not in a Git repository.
+            Configure `repo` and/or `remotes` appropriately, or set `remotes = nothing` to disable remote source
+            links altogether (e.g. if not working in a Git repository)."""
+        else
+            """> `repo` is set but makedocs is not in a Git repository. You should configure `remotes` instead,
+            with the appropriate local path pointing to the repository root."""
+        end
+        err *= '\n'
+        err *= "  repo: $(repo_normalized)"
         throw(ArgumentError(err))
     end
 
@@ -688,13 +704,74 @@ function lt_remotepair(r1::RemoteRepository, r2::RemoteRepository)
     return length(r1.root) > length(r2.root)
 end
 
+function build_dep_info_dicts(doc::Document)
+    for (uuid, dep) in pairs(Pkg.dependencies())
+        doc.internal.src_to_uuid[dep.source] = uuid
+        if dep.version === nothing || dep.tree_hash === nothing
+            continue
+        end
+        doc.internal.uuid_to_version_info[uuid] = (dep.version, dep.tree_hash)
+    end
+end
+
+function get_src_to_uuid(doc::Document)
+    if isempty(doc.internal.src_to_uuid)
+        build_dep_info_dicts(doc)
+    end
+    return doc.internal.src_to_uuid
+end
+
+function get_uuid_to_version_info(doc::Document)
+    if isempty(doc.internal.uuid_to_version_info)
+        build_dep_info_dicts(doc)
+    end
+    return doc.internal.uuid_to_version_info
+end
+
+function get_pkginfo(uuid)
+    for registry in RegistryInstances.reachable_registries()
+        for (registry_uuid, pkg) in registry.pkgs
+            if registry_uuid == uuid
+                return RegistryInstances.registry_info(pkg)
+            end
+        end
+    end
+end
+
+function uuid_to_repo(doc, uuid)
+    pkginfo = get_pkginfo(uuid)
+    uuid_to_version_info = get_uuid_to_version_info(doc)
+    if !(uuid in keys(uuid_to_version_info))
+        return nothing
+    end
+    version = uuid_to_version_info[uuid][1]
+    if pkginfo === nothing
+        @debug "package not found in registries" uuid
+        return nothing
+    end
+    remote = parse_remote_url(pkginfo.repo)
+    if !(remote isa Remotes.GitHub)
+        @debug "could not get hash from repo -- only GitHub supported for now" pkginfo.repo
+        return nothing
+    end
+    tag_guess = "v" * string(version)
+    return (remote, tag_guess)
+end
+
+
 """
     $(SIGNATURES)
 
 Returns the the the remote that contains the file, and the relative path of the
 file within the repo (or `nothing, nothing` if the file is not in a known repo).
 """
-function relpath_from_remote_root(remotes::Vector{RemoteRepository}, path::AbstractString)
+function relpath_from_remote_root(doc::Document, path::AbstractString)
+    remotes = doc.user.remotes
+    if remotes === nothing
+        # It's possible that doc.user.remotes is set to nothing, in which case
+        # we are not able to determine remote links.
+        return nothing
+    end
     ispath(path) || error("relpath_from_repo_root called with nonexistent path: $path")
     isabspath(path) || error("relpath_from_repo_root called with non-absolute path: $path")
     # We want to expand the path properly, including symlinks, so we call realpath()
@@ -726,11 +803,26 @@ function relpath_from_remote_root(remotes::Vector{RemoteRepository}, path::Abstr
                 # and `continue`-ing if we detect that. But let's not add that complexity now.
                 # TODO: the RemoteRepository() call may throw -- we should handle this more gracefully
                 remoteref = RemoteRepository(directory, remote)
-                @debug "relpath_from_remote_root: adding remote" remoteref
+                @debug "relpath_from_remote_root: adding .git directory -based remote" remoteref
                 addremote!(remotes, remoteref)
                 root_remote = remoteref
             end
             return true
+        end
+        # Finally, we can try figuring out the remote from information
+        # obtainable through Pkg
+        src_to_uuid = get_src_to_uuid(doc)
+        if haskey(src_to_uuid, directory)
+            uuid = src_to_uuid[directory]
+            repo_info = uuid_to_repo(doc, uuid)
+
+            if repo_info !== nothing
+                remoteref = RemoteRepository(directory, repo_info[1], repo_info[2])
+                @debug "relpath_from_remote_root: adding pkg registry -based remote" remoteref
+                addremote!(remotes, remoteref)
+                root_remote = remoteref
+                return true
+            end
         end
         return false
     end
@@ -743,9 +835,6 @@ function relpath_from_remote_root(remotes::Vector{RemoteRepository}, path::Abstr
         return (; repo = root_remote, relpath = relpath(path, root_directory))
     end
 end
-relpath_from_remote_root(doc::Document, path::AbstractString) = relpath_from_remote_root(doc.user.remotes, path)
-# It's possible that doc.user.remotes is set to nothing, in which case we are not able to determine remote links.
-relpath_from_remote_root(doc::Nothing, path::AbstractString) = nothing
 
 # Determines the Edit URL for a local path.
 #  - rev: indicates a Git revision; if omitted, the current repo commit is used.
@@ -760,7 +849,7 @@ function edit_url(doc::Document, path; rev::Union{AbstractString,Nothing})
     end
     remoteref = relpath_from_remote_root(doc, path)
     if isnothing(remoteref)
-        error("Unable to generate remote link\n path: $(path)")
+        throw(MissingRemoteError(; path))
     end
     rev = isnothing(rev) ? remoteref.repo.commit : rev
     @debug "edit_url" path remoteref rev
@@ -771,7 +860,7 @@ source_url(doc::Document, docstring) = source_url(
     doc, docstring.data[:module], docstring.data[:path], linerange(docstring)
 )
 
-function source_url(doc::Document, mod, file, linerange)
+function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
     # If the user has disable remote links, we abort immediately
     isnothing(doc.user.remotes) && return nothing
     # needed since julia v0.6, see #689
@@ -789,18 +878,19 @@ function source_url(doc::Document, mod, file, linerange)
     isfile(file) || return nothing
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
-        error("Unable to generate source url for $(mod) @ $(file):$(linerange)\n path: $(file)")
+        throw(MissingRemoteError(; path = file, linerange, mod))
     end
     @debug "source_url" mod file linerange remoteref
     return repofile(remoteref.repo.remote, remoteref.repo.commit, remoteref.relpath, linerange)
 end
 
 """
-    getplugin(doc::Document, T)
+    Documenter.getplugin(doc::Document, T) -> Plugin
 
-Retrieves the [`Plugin`](@ref Plugin) type for `T` stored in `doc`. If `T` was passed to
-[`makedocs`](@ref makedocs), the passed type will be returned. Otherwise, a new `T` object
-will be created using the default constructor `T()`.
+Retrieves the object for the [`Plugin`](@ref Plugin) sub-type `T` stored in `doc`. If an
+object of type `T` was an element of the `plugins` list passed to [`makedocs`](@ref makedocs),
+that object will be returned. Otherwise, a new `T` object will be created using the default
+constructor `T()`. Subsequent calls to `getplugin(doc, T)` return the same object.
 """
 function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
     if !haskey(doc.plugins, plugin_type)
@@ -857,7 +947,7 @@ function populate!(index::IndexNode, document::Document)
         mod  = object.binding.mod
         # Include *all* signatures, whether they are `Union{}` or not.
         cat  = Symbol(lowercase(doccat(object.binding, Union{})))
-        if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
+        if is_canonical(object) && _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end

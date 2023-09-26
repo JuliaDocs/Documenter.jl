@@ -5,7 +5,7 @@
 
 | **Documentation**                                                               | **Build Status**                                                                                |
 |:-------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][GHA-img]][GHA-url] [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][GHA-img]][GHA-url] [![][codecov-img]][codecov-url] [![PkgEval][pkgeval-img]][pkgeval-url] |
 
 
 ## Installation
@@ -47,7 +47,7 @@ There are several packages that extend Documenter in different ways. The JuliaDo
 
 Other third-party packages that can be combined with Documenter include:
 
-* [DemoCards.jl](https://github.com/johnnychen94/DemoCards.jl)
+* [DemoCards.jl](https://github.com/JuliaDocs/DemoCards.jl)
 * [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
 * [Literate.jl](https://github.com/fredrikekre/Literate.jl)
 * [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
@@ -78,3 +78,6 @@ Finally, there are also a few other packages in the Julia ecosystem that are sim
 [codecov-url]: https://codecov.io/gh/JuliaDocs/Documenter.jl
 
 [issues-url]: https://github.com/JuliaDocs/Documenter.jl/issues
+
+[pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/D/Documenter.svg
+[pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/D/Documenter.html

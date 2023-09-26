@@ -234,6 +234,7 @@ function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Documen
     missingdocs(doc)
     footnotes(doc)
     linkcheck(doc)
+    githubcheck(doc)
 end
 
 function Selectors.runner(::Type{Builder.Populate}, doc::Documenter.Document)

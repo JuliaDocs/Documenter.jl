@@ -1,3 +1,4 @@
+import SHA
 using Documenter
 include("../TestUtilities.jl"); using Main.TestUtilities
 
@@ -18,7 +19,7 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
 else
     ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
-    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail",
+    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
     "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly"]
 end
 
@@ -137,10 +138,44 @@ module AutoDocs
         "random constant"
         qq = 3.14
 
-        "random function"
+        using Markdown: @doc_str
+        @doc doc"random function"
         function qqq end
     end
 end
+
+struct MIMEBytes{M <: MIME}
+    bytes :: Vector{UInt8}
+    hash_slug :: String
+    function MIMEBytes(mime::AbstractString, bytes::AbstractVector{UInt8})
+        hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
+        new{MIME{Symbol(mime)}}(bytes, hash_slug)
+    end
+end
+Base.show(io::IO, ::M, obj::MIMEBytes{M}) where {M <: MIME} = write(io, obj.bytes)
+
+const AT_EXAMPLE_FILES = Dict(
+    ("png", :big) => MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "big.png"))),
+    ("png", :tiny) => MIMEBytes("image/png", read(joinpath(@__DIR__, "images", "tiny.png"))),
+    ("webp", :big) => MIMEBytes("image/webp", read(joinpath(@__DIR__, "images", "big.webp"))),
+    ("webp", :tiny) => MIMEBytes("image/webp", read(joinpath(@__DIR__, "images", "tiny.webp"))),
+    ("gif", :big) => MIMEBytes("image/gif", read(joinpath(@__DIR__, "images", "big.gif"))),
+    ("jpeg", :tiny) => MIMEBytes("image/jpeg", read(joinpath(@__DIR__, "images", "tiny.jpeg"))),
+)
+SVG_BIG = MIMEBytes("image/svg+xml", read(joinpath(@__DIR__, "images", "big.svg")))
+SVG_HTML = MIMEBytes("text/html", read(joinpath(@__DIR__, "images", "big.svg")))
+
+struct MultiMIMESVG
+    bytes :: Vector{UInt8}
+    hash_slug :: String
+    function MultiMIMESVG(bytes::AbstractVector{UInt8})
+        hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
+        new(bytes, hash_slug)
+    end
+end
+Base.show(io::IO, ::MIME"image/svg+xml", obj::MultiMIMESVG) = write(io, obj.bytes)
+Base.show(io::IO, ::MIME"text/html", obj::MultiMIMESVG) = write(io, obj.bytes)
+SVG_MULTI = MultiMIMESVG(read(joinpath(@__DIR__, "images", "big.svg")))
 
 # Helper functions
 function withassets(f, assets...)
@@ -211,6 +246,10 @@ htmlbuild_pages = Any[
         "editurl/ugly.md",
     ],
     "xrefs.md",
+    "Outputs" => [
+        "outputs/index.md",
+        "outputs/outputs.md",
+    ],
 ]
 
 function html_doc(
@@ -384,7 +423,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
             footer = nothing,
         ),
         # TODO: example_block failure only happens on windows, so that's not actually expected
-        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block],
+        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block, :eval_block],
     )
 else
     @info "Skipping build: HTML/local"
@@ -532,6 +571,35 @@ end
         e
     end
 end
+@examplebuild "sizethreshold-ignore-success" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            format = Documenter.HTML(size_threshold_ignore = ["index.md"]),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
+@examplebuild "sizethreshold-ignore-fail" begin
+    @quietly try
+        makedocs(;
+            sitename = "Megabyte",
+            root  = examples_root,
+            build = "builds/sizethreshold-defaults-fail",
+            source = "src.megapage",
+            # Note: it's fine to pass non-existent pages to size_threshold_ignore
+            format = Documenter.HTML(size_threshold_ignore = ["foo.md"]),
+            debug = true,
+        )
+    catch e
+        e
+    end
+end
 
 # PDF/LaTeX
 examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
@@ -590,7 +658,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
-        warnonly = [:footnote, :cross_references, :example_block],
+        warnonly = [:footnote, :cross_references, :example_block, :eval_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex"
@@ -674,7 +742,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
         ],
         doctest = false,
         debug = true,
-        warnonly = [:footnote, :cross_references, :example_block],
+        warnonly = [:footnote, :cross_references, :example_block, :eval_block],
     )
 else
     @info "Skipping build: LaTeXWriter/latex_texonly"

@@ -13,7 +13,7 @@ cd(project_directory) do
     else
         run(`git clone -n https://github.com/JuliaDocs/DocumenterTools.jl.git dev/DocumenterTools`)
     end
-    run(`git -C dev/DocumenterTools checkout documenter-v0.1.17+0.28.0-DEV`)
+    run(`git -C dev/DocumenterTools checkout documenter-v0.1.17+1.0.0`)
     Pkg.develop([
         PackageSpec(path = documenter_directory),
         PackageSpec(path = "dev/DocumenterTools"),

@@ -33,8 +33,9 @@ package repository:
 - If the documentation is built successfully, the bot will attempt to push the generated
   HTML pages back to GitHub.
 
-Note that the hosted documentation does not update when you make pull requests; you see
-updates only when you merge to `master` or push new tags.
+Note that the hosted documentation does not update when you (or other contributors)
+make pull requests; you see updates only when you merge to the trunk branch (typically,
+`master` or `main`) or push new tags.
 
 In the upcoming sections we describe how to configure the build service to run
 the documentation build stage. In general it is easiest to choose the same
@@ -295,7 +296,7 @@ are uploaded to Codecov:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
 ```
 
 ## `docs/Project.toml`
@@ -490,23 +491,6 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/stable
 It is recommended to use this link, rather than the versioned links, since it will be updated
 with new releases.
 
-!!! info "Fixing broken release deployments"
-
-    It can happen that, for one reason or another, the documentation for a tagged version of
-    your package fails to deploy and a fix would require changes to the source code (e.g. a
-    misconfigured `make.jl`). However, as registered tags should not be changed, you can not
-    simply update the original tag (e.g. `v1.2.3`) with the fix.
-
-    In this situation, you can manually create and push a tag for the commit with the fix
-    that has the same version number, but also some build metadata (e.g. `v1.2.3+doc1`). For
-    Git, this is a completely different tag, so it won't interfere with anything. But when
-    Documenter runs on this tag, it will ignore the build metadata and deploy the docs as if
-    they were for version `v1.2.3`.
-
-    Note that, as with normal tag builds, you need to make sure that your CI that runs
-    Documenter is configured to run on such tags (e.g. that the regex constraining the
-    branches the CI runs on is broad enough etc).
-
 Once your documentation has been pushed to the `gh-pages` branch you should add links to
 your `README.md` pointing to the `stable` (and perhaps `dev`) documentation URLs. It is common
 practice to make use of "badges" similar to those used for Travis and AppVeyor build
@@ -523,6 +507,23 @@ and text of the image can be changed by altering `docs-stable-blue` as described
 [shields.io](https://shields.io), though it is recommended that package authors follow this
 standard to make it easier for potential users to find documentation links across multiple
 package README files.
+
+### Fixing broken release deployments
+
+It can happen that, for one reason or another, the documentation for a tagged version of
+your package fails to deploy and a fix would require changes to the source code (e.g. a
+misconfigured `make.jl`). However, as registered tags should not be changed, you can not
+simply update the original tag (e.g. `v1.2.3`) with the fix.
+
+In this situation, you can manually create and push a tag for the commit with the fix
+that has the same version number, but also some build metadata (e.g. `v1.2.3+doc1`). For
+Git, this is a completely different tag, so it won't interfere with anything. But when
+Documenter runs on this tag, it will ignore the build metadata and deploy the docs as if
+they were for version `v1.2.3`.
+
+Note that, as with normal tag builds, you need to make sure that your CI that runs
+Documenter is configured to run on such tags (e.g. that the regex constraining the
+branches the CI runs on is broad enough etc).
 
 ### Deploying without the versioning scheme
 
@@ -569,7 +570,7 @@ end
 
 ## Deploying from a monorepo
 
-Documenter.jl supports building documentation for a package that lives in a monorepo, e.g., in a repository that contains multiple packages (including one potentially top level-)
+Documenter.jl supports building documentation for a package that lives in a monorepo, e.g., in a repository that contains multiple packages (including one potentially top level)
 
 Here's one example of setting up documentation for a repository that has the following structure: one top level package and two subpackages PackageA.jl and PackageB.jl:
 ```
@@ -593,7 +594,7 @@ Here's one example of setting up documentation for a repository that has the fol
 
 The three respective `make.jl` scripts should contain [`deploydocs`](@ref) settings that look something like
 
-```
+```julia
 # In ./docs/make.jl
 deploydocs(; repo = "github.com/USER_NAME/PACKAGE_NAME.jl.git",
             # ...any additional kwargs
@@ -642,24 +643,10 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/dev
 https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/stable  # Links to most recent PackageB version
 ```
 
-While they won't automatically reference one another, such referencing can be added manually (e.g. by linking to https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable from the docs built for PackageB).
-
+While they won't automatically reference one another, such referencing can be added manually (e.g. by linking to `https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageA/stable` from the docs built for PackageB).
 
 !!! warning
-  When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z, and the rest of the subpackages' documentation will be unavailable.
-
-
-
----
-
-**Final Remarks**
-
-That should be all that is needed to enable automatic documentation building. Pushing new
-commits to your `master` branch should trigger doc builds. **Note that other branches do not
-trigger these builds and neither do pull requests by potential contributors.**
-
-If you would like to see a more complete example of how this process is setup then take a
-look at this package's repository for some inspiration.
+    When building multiple subpackages in the same repo, unique `dirname`s must be specified in each package's `deploydocs`; otherwise, only the most recently built package for a given version over the entire monorepo will be present at `https://USER_NAME.github.io/PACKAGE_NAME.jl/PackageB/vX.Y.Z`, and the rest of the subpackages' documentation will be unavailable.
 
 ## Deployment systems
 
