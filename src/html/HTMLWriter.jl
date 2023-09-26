@@ -44,6 +44,8 @@ using Dates: Dates, @dateformat_str, now
 import Markdown
 using MarkdownAST: MarkdownAST, Node
 import JSON
+import Base64
+import SHA
 
 import ..Documenter
 using Documenter: NavNode
@@ -360,6 +362,12 @@ value is `"en"`.
 **`warn_outdated`** inserts a warning if the current page is not the newest version of the
 documentation.
 
+**`example_size_threshold`** specifies the size threshold above which the `@example` and other block
+outputs get written to files, rather than being included in the HTML page. This mechanism is present
+to reduce the size of the generated HTML files that contain a lot of figures etc.
+Setting it to `nothing` will disable writing to files, and setting to `0` means that all examples
+will be written to files. Defaults to `8 KiB`.
+
 **`size_threshold`** sets the maximum allowed HTML file size (in bytes) that Documenter is allowed to
 generate for a page. If the generated HTML file is larged than this, Documenter will throw an error and
 the build will fail. If set to `nothing`, the file sizes are not checked. Defaults to `200 KiB` (but
@@ -368,6 +376,11 @@ increases of this default value will be considered to be non-breaking).
 **`size_threshold_warn`**: like `size_threshold`, but going over this limit will only cause Documenter to
 print a warning, instead of throwing an error. Defaults to `100 KiB`, and must be less than or equal to
 `size_threshold`.
+
+**`size_threshold_ignore`** can be passed a list of pages for which the size thresholds are completely
+ignored (silently). The arguments should be the same file paths as for the `pages` argument of
+[`makedocs`](@ref Documenter.makedocs). Using this argument to ignore a few specific pages is preferred
+over setting a high general limit, or disabling the size checking altogether.
 
 !!! note "Purpose of HTML size thresholds"
 
@@ -444,6 +457,8 @@ struct HTML <: Documenter.Writer
     highlightjs   :: Union{String,Nothing}
     size_threshold :: Int
     size_threshold_warn :: Int
+    size_threshold_ignore :: Vector{String}
+    example_size_threshold :: Int
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -465,8 +480,13 @@ struct HTML <: Documenter.Writer
             prerender     :: Bool = false,
             node          :: Union{Cmd,String,Nothing} = nothing,
             highlightjs   :: Union{String,Nothing} = nothing,
-            size_threshold :: Union{Integer, Nothing} = 200 * 2^10,
-            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10,
+            size_threshold :: Union{Integer, Nothing} = 200 * 2^10, # 200 KiB
+            size_threshold_warn :: Union{Integer, Nothing} = 100 * 2^10, # 100 KiB
+            size_threshold_ignore :: Vector = String[],
+            # The choice of the default here is that having ~10 figures on a page
+            # seems reasonable, and that would lead to ~80 KiB, which is still fine
+            # and leaves a buffer before hitting `size_threshold_warn`.
+            example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
 
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -512,11 +532,16 @@ struct HTML <: Documenter.Writer
         elseif size_threshold_warn > size_threshold
             throw(ArgumentError("size_threshold_warn ($size_threshold_warn) must be smaller than size_threshold ($size_threshold)"))
         end
+        if isnothing(example_size_threshold)
+            example_size_threshold = typemax(Int)
+        elseif example_size_threshold < 0
+            throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
+        end
         isa(edit_link, Default) && (edit_link = edit_link[])
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
-            size_threshold, size_threshold_warn,
+            size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
         )
     end
 end
@@ -573,6 +598,12 @@ struct SearchRecord
     text :: String
 end
 
+Base.@kwdef struct AtExampleFallbackWarning
+    page::String
+    size_bytes::Int
+    fallback::Union{String,Nothing}
+end
+
 """
 [`HTMLWriter`](@ref)-specific globals that are passed to `domify` and
 other recursive functions.
@@ -584,16 +615,17 @@ mutable struct HTMLContext
     documenter_js :: String
     themeswap_js :: String
     warner_js :: String
-    search_js :: String
     search_index :: Vector{SearchRecord}
     search_index_js :: String
     search_navnode :: Documenter.NavNode
-end
+    atexample_warnings::Vector{AtExampleFallbackWarning}
 
-HTMLContext(doc, settings=nothing) = HTMLContext(
-    doc, settings, [], "", "", "", "", [], "",
-    Documenter.NavNode("search", "Search", nothing),
-)
+    HTMLContext(doc, settings=nothing) = new(
+        doc, settings, [], "", "", "", [], "",
+        Documenter.NavNode("search", "Search", nothing),
+        AtExampleFallbackWarning[],
+    )
+end
 
 struct DCtx
     # ctx and navnode were recursively passed to all domify() methods
@@ -693,7 +725,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery, RD.minisearch,
         ])
         RD.mathengine!(r, settings.mathengine)
         if !settings.prerender
@@ -708,17 +740,6 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         JSDependencies.writejs(joinpath(doc.user.build, "assets", "documenter.js"), r)
     end
 
-    # Generate search.js file with all the JS dependencies
-    ctx.search_js = "assets/search.js"
-    if isfile(joinpath(doc.user.source, "assets", "search.js"))
-        @warn "not creating 'search.js', provided by the user."
-    else
-        r = JSDependencies.RequireJS([RD.jquery, RD.minisearch])
-        push!(r, JSDependencies.parse_snippet(joinpath(ASSETS, "search.js")))
-        JSDependencies.verify(r; verbose=true) || error("RequireJS declaration is invalid")
-        JSDependencies.writejs(joinpath(doc.user.build, "assets", "search.js"), r)
-    end
-
     for theme in THEMES
         copy_asset("themes/$(theme).css", doc)
     end
@@ -728,6 +749,34 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         nn = (idx === nothing) ? Documenter.NavNode(page, nothing, nothing) : doc.internal.navlist[idx]
         @debug "Rendering $(page) [$(repr(idx))]"
         render_page(ctx, nn)
+    end
+    # ctx::HTMLContext might have accumulated some warnings about large at-example blocks
+    # If so, we'll report them here in one big warning (rather than one each).
+    if !isempty(ctx.atexample_warnings)
+        msg = """
+        For $(length(ctx.atexample_warnings)) @example blocks, the 'text/html' representation of the resulting
+        object is above the the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
+        """
+        fallbacks = unique(w.fallback for w in ctx.atexample_warnings)
+        # We'll impose some regular order, but importantly we want 'nothing'-s on the top
+        for fallback in sort(fallbacks, by = s -> isnothing(s) ? "" : s)
+            warnings = filter(w -> w.fallback == fallback, ctx.atexample_warnings)
+            n_warnings = length(warnings)
+            largest_size = maximum(w -> w.size_bytes, warnings)
+            msg *= if isnothing(fallback)
+                """
+                - $(n_warnings) blocks had no image MIME show() method representation as an alternative.
+                  Sticking to the 'text/html' representation (largest block is $(largest_size) bytes).
+                """
+            else
+                """
+                - $(n_warnings) blocks had '$(fallback)' fallback image representation available, using that.
+                """
+            end
+            pages = sort(unique(w.page for w in warnings))
+            msg *= "  On pages: $(join(pages, ", "))\n"
+        end
+        @warn(msg)
     end
     # Check that all HTML files are smaller or equal to size_threshold option
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
@@ -918,7 +967,6 @@ function render_head(ctx, navnode)
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
         script[:src => relhref(src, ctx.search_index_js)],
-        script[:src => relhref(src, ctx.search_js)],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
@@ -1721,11 +1769,19 @@ function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DO
     isdir(dirname(path)) || mkpath(dirname(path))
     file_size = open(io -> write(io, take!(buf)), path; write=true)
     size_threshold_msg(var::Symbol) = """
-    Generated HTML over $(var) limit: $(page_path)
+    Generated HTML over $(var) limit: $(navnode.page)
         Generated file size: $(file_size) (bytes)
         size_threshold_warn: $(ctx.settings.size_threshold_warn) (bytes)
-        size_threshold:      $(ctx.settings.size_threshold) (bytes)"""
-    if file_size > ctx.settings.size_threshold
+        size_threshold:      $(ctx.settings.size_threshold) (bytes)
+        HTML file:           $(page_path)"""
+    if navnode.page in ctx.settings.size_threshold_ignore
+        if file_size > ctx.settings.size_threshold_warn
+            @debug """
+            $(size_threshold_msg(:size_threshold_warn))
+            Hard limit ignored due to 'size_threshold_ignore'.
+            """ size_threshold_ignore = ctx.settings.size_threshold_ignore
+        end
+    elseif file_size > ctx.settings.size_threshold
         @error size_threshold_msg(:size_threshold)
         return false
     elseif file_size > ctx.settings.size_threshold_warn
@@ -1767,6 +1823,93 @@ function get_url(ctx, path::AbstractString)
         # change extension to .html
         string(splitext(path)[1], ".html")
     end
+end
+
+"""
+Generates a unique file for the output of an at-example block if it goes over the configured
+size threshold, and returns the filename (that should be in the same directory are the
+corresponding HTML file). If the data is under the threshold, no file is created, and the
+function returns `nothing`.
+"""
+function write_data_file(dctx::DCtx, data::Union{Vector{UInt8},AbstractString}; suffix::AbstractString)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # If we're under the threshold, we return `nothing`, indicating to the caller that
+    # they should inline the file instead.
+    if length(data) < ctx.settings.example_size_threshold
+        return nothing
+    end
+    slug = dataslug(data)
+    datafile = data_filename(dctx, slug, suffix)
+    mkpath(dirname(datafile.path)) # generally, the directory for the HTML page will not exist yet
+    write(datafile.path, data)
+    # In all cases the file should be places in the same directory as the HTML file,
+    # so we only need the filename to generate a valid relative href.
+    return datafile.filename
+end
+
+function data_filename(dctx::DCtx, slug::AbstractString, suffix::AbstractString)
+    ctx, navnode = dctx.ctx, dctx.navnode
+    # We want to
+    dir, pagename = splitdir(navnode.page)
+    # Let's normalize the filename of the page by removing .md extensions (if present).
+    # We'll keep other extensions though.
+    if endswith(pagename, ".md")
+        pagename = first(splitext(pagename))
+    end
+
+    filename_prefix = if ctx.settings.prettyurls
+        # If pretty URLs are enabled, we would normally have
+        # foo/bar.md -> foo/bar/index.html, and we then generate files
+        # like foo/bar/$(slug).png
+        # However, if we have foo/index.md, then it becomes foo/index.html,
+        # and so we want to differentiate the data filenames just in case,
+        # and so they become foo/index-$(slug).png
+        if pagename == "index"
+            string("index-", slug)
+        else
+            # We also need to update dir from foo/ to foo/bar here, since we want the
+            # file to end up at foo/bar/$(slug).png
+            dir = joinpath(dir, pagename)
+            slug
+        end
+    else
+        # If pretty URLs are disabled, then
+        # foo/bar.md becomes foo/bar.html, and we always want to add the
+        # Markdown filename to the data filename, i.e. foo/bar-$(slug).png
+        string(pagename, "-", slug)
+    end
+    # Now we need to find a valid file name, in case there are existing duplicates.
+    filename = find_valid_data_file(joinpath(ctx.doc.user.build, dir), filename_prefix, suffix)
+    return (;
+        filename,
+        path = joinpath(ctx.doc.user.build, dir, filename),
+    )
+end
+
+function find_valid_data_file(directory::AbstractString, prefix::AbstractString, suffix::AbstractString)
+    # We'll try 10_000 different filename.. if this doesn't work, then something is probably really
+    # badly wrong, and so we just crash.
+    for i in 0:10_000
+        filename = if i == 0
+            string(prefix, suffix)
+        else
+            string(prefix, '-', lpad(string(i), 3, '0'), suffix)
+        end
+        ispath(joinpath(directory, filename)) || return filename
+    end
+    error("""
+    Unable to find valid file name for an at-example output:
+      directory = $(directory)
+      prefix = $(prefix)
+      suffix = $(suffix)""")
+end
+
+"""
+Returns the first `limit` characters of the hex SHA1 of the data `bytes`.
+"""
+function dataslug(bytes::Union{Vector{UInt8},AbstractString}; limit=8)::String
+    full_sha = bytes2hex(SHA.sha1(bytes))
+    return first(full_sha, limit)
 end
 
 """
@@ -2147,12 +2290,29 @@ domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invoke
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     rawhtml(code) = Tag(Symbol("#RAW#"))(code)
-    return if haskey(d, MIME"text/html"())
-        rawhtml(d[MIME"text/html"()])
-    elseif haskey(d, MIME"image/svg+xml"())
+    # Our first preference for the MIME type is 'text/html', which we can natively include
+    # in the HTML. But it might happen that it's too large (above example_size_threshold),
+    # in which case we move on to trying to write it as an image.
+    has_text_html = false
+    if haskey(d, MIME"text/html"())
+        if length(d[MIME"text/html"()]) < dctx.ctx.settings.example_size_threshold
+            # If the size threshold is met, we can just return right away
+            return rawhtml(d[MIME"text/html"()])
+        end
+        # We'll set has_text_html to distinguish it from the case where the 'text/html' MIME
+        # show() method was simply missing.
+        has_text_html = true
+    end
+    # If text/html failed, we try to write the output as an image, possibly to a file.
+    image = if haskey(d, MIME"image/svg+xml"())
+        @tags img
         svg = d[MIME"image/svg+xml"()]
         svg_tag_match = match(r"<svg[^>]*>", svg)
-        if svg_tag_match === nothing
+        dom = if length(svg) >= dctx.ctx.settings.example_size_threshold
+            filename = write_data_file(dctx, svg; suffix=".svg")
+            @assert !isnothing(filename)
+            img[:src => filename, :alt => "Example block output"]
+        elseif svg_tag_match === nothing
             # There is no svg tag so we don't do any more advanced
             # processing and just return the svg as HTML.
             # The svg string should be invalid but that's not our concern here.
@@ -2192,16 +2352,43 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
 
             rawhtml(string("<img src=", sep, "data:image/svg+xml;utf-8,", svg, sep, "/>"))
         end
-
+        (; dom = dom, mime = "image/svg+xml")
     elseif haskey(d, MIME"image/png"())
-        rawhtml(string("<img src=\"data:image/png;base64,", d[MIME"image/png"()], "\" />"))
+        domify_show_image_binary(dctx, "png", d)
     elseif haskey(d, MIME"image/webp"())
-        rawhtml(string("<img src=\"data:image/webp;base64,", d[MIME"image/webp"()], "\" />"))
+        domify_show_image_binary(dctx, "webp", d)
     elseif haskey(d, MIME"image/gif"())
-        rawhtml(string("<img src=\"data:image/gif;base64,", d[MIME"image/gif"()], "\" />"))
+        domify_show_image_binary(dctx, "gif", d)
     elseif haskey(d, MIME"image/jpeg"())
-        rawhtml(string("<img src=\"data:image/jpeg;base64,", d[MIME"image/jpeg"()], "\" />"))
-    elseif haskey(d, MIME"text/latex"())
+        domify_show_image_binary(dctx, "jpeg", d)
+    end
+    # If image is nothing, then the object did not have any of the supported image
+    # representations. In that case, if the 'text/html' representation exists, we use that,
+    # but with a warning because it goes over the size limit. If 'text/html' was missing too,
+    # we carry on to additional MIME types.
+    if has_text_html && isnothing(image)
+        # The 'text/html' representation of an @example block is above the threshold, but no
+        # supported image representation is present as an alternative.
+        push!(dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
+            page = dctx.navnode.page,
+            size_bytes = length(d[MIME"text/html"()]),
+            fallback = nothing,
+        ))
+        return rawhtml(d[MIME"text/html"()])
+    elseif has_text_html && !isnothing(image)
+        # The 'text/html' representation of an @example block is above the threshold,
+        # falling back to '$(image.mime)' representation.
+        push!(dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
+            page = dctx.navnode.page,
+            size_bytes = length(d[MIME"text/html"()]),
+            fallback = image.mime,
+        ))
+        return image.dom
+    elseif !has_text_html && !isnothing(image)
+        return image.dom
+    end
+    # Check for some 'fallback' MIMEs, defaulting to 'text/plain' if we can't find any of them.
+    return if haskey(d, MIME"text/latex"())
         # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
         # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
         # delimiters around it anyway.
@@ -2222,10 +2409,29 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     elseif haskey(d, MIME"text/plain"())
         @tags pre
         text = d[MIME"text/plain"()]
-        return pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
+        pre[".documenter-example-output"](domify_ansicoloredtext(text, "nohighlight hljs"))
     else
         error("this should never happen.")
     end
+end
+
+function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{MIME,Any})
+    @tags img
+    mime_name = "image/$filetype"
+    mime = MIME{Symbol(mime_name)}()
+    # When we construct `d` in the expander pipeline, we call `stringmime`, which
+    # base64-encodes the bytes, so the values in the dictionary are base64-encoded.
+    # So if we do write it to a file, we need to decode it first.
+    data_base64 = d[mime]
+    filename = write_data_file(dctx, Base64.base64decode(data_base64); suffix=".$filetype")
+    alt = (:alt => "Example block output")
+    dom = if isnothing(filename)
+        src = string("data:$(mime_name);base64,", data_base64)
+        img[:src => src, alt]
+    else
+        img[:src => filename, alt]
+    end
+    (; dom, mime = mime_name)
 end
 
 # filehrefs

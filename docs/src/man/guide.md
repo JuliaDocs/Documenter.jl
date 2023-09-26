@@ -122,7 +122,6 @@ look like the following
 build/
 ├── assets
 │   ├── documenter.js
-│   ├── search.js
 │   ├── themes
 │   │   ├── documenter-dark.css
 │   │   └── documenter-light.css
@@ -378,7 +377,7 @@ During the build process, Documenter looks for suitable
 graphic images in the `src/assets/` directory and
 automatically copies them to `/build/assets/`.
 
-You can use SVG, PNG, WEBP, GIF, or JPEG images. 
+You can use SVG, PNG, WEBP, GIF, or JPEG images.
 
 Documenter looks for files `logo.svg`, `logo.png`,
 `logo.webp`, `logo.gif`, `logo.jpg`, or `logo.jpeg`, in that
@@ -391,7 +390,7 @@ called `logo-dark.svg` (or PNG/WEBP/GIF/JPEG).
 Files don't need to be square. Images with transparent
 backgrounds can look better, particularly for dark themes.
 
-There's a `sidebar_sitename` keyword option for 
+There's a `sidebar_sitename` keyword option for
 [`Documenter.HTML`](@ref) that lets you hide the sitename
 that's usually displayed below a logo. This is useful if the
 logo already contains the name.

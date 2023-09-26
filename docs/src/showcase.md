@@ -310,6 +310,20 @@ DocumenterShowcase.bar
 
 If you have very many docstrings, you may also want to consider using the [`@autodocs` block](@ref) which can include a whole set of docstrings automatically based on certain filtering options
 
+Both `@docs` and `@autodocs` support the [`canonical=false` keyword argument](@ref noncanonical-block). This can be used to include a docstring more than once
+
+````markdown
+```@docs; canonical=false
+DocumenterShowcase.bar
+```
+````
+
+We then see the same docstring as above
+
+```@docs; canonical=false
+DocumenterShowcase.bar
+```
+
 ### An index of docstrings
 
 The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows

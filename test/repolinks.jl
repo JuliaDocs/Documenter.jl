@@ -5,7 +5,9 @@
 module RepoLinkTests
 using Test
 using Random: randstring
-using Documenter: Documenter, Remotes, git, edit_url, source_url
+using Documenter: Documenter, Remotes, git, edit_url, source_url, MarkdownAST, walk_navpages, expand
+using Documenter.HTMLWriter: render_article, HTMLContext, HTML
+using Markdown
 include("TestUtilities.jl"); using Main.TestUtilities
 
 function init_git_repo(f, path;
@@ -226,5 +228,44 @@ end
 )
 
 rm(tmproot, recursive=true, force=true)
+
+include("repolink_helpers.jl")
+
+@testset "Pkg.add() guesses github tag" begin
+    src = convert(
+        MarkdownAST.Node,
+        md"""
+        ```@meta
+        CurrentModule = Main.RepoLinkTests.TestHelperModule
+        ```
+        ```@docs
+        MarkdownAST.Node
+        ```
+        """
+    )
+    doc, html = render_expand_doc(src)
+
+    # Links to repo
+    re = r"<a[^>]+ href=['\"]?https://github.com/JuliaDocs/MarkdownAST.jl"
+    @test occursin(re, string(html))
+
+    src = convert(
+        MarkdownAST.Node,
+        md"""
+        ```@meta
+        CurrentModule = Main.RepoLinkTests.TestHelperModule
+        ```
+        This will result in a 404 because this version isn't tagged
+        ```@docs
+        RegistryInstances
+        ```
+        """
+    )
+    doc, html = render_expand_doc(src)
+
+    # Links to repo
+    re = r"<a[^>]+ href=['\"]?https://github.com/GunnarFarneback/RegistryInstances.jl"
+    @test occursin(re, string(html))
+end
 
 end

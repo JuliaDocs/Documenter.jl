@@ -25,6 +25,10 @@ end
     @info "Building errors/make.jl"
     @quietly include("errors/make.jl")
 
+    # Plugin API
+    @info "Building plugins/make.jl"
+    @quietly include("plugins/make.jl")
+
     # Unit tests for module internals.
     include("except.jl")
     include("utilities.jl")
@@ -83,7 +87,7 @@ end
     @quietly include("workdir/tests.jl")
 
     # Passing a writer positionally (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
-    @test_throws ArgumentError makedocs(sitename="", HTML())
+    @test_throws MethodError makedocs(sitename="", HTML())
 
     # Running doctest() on our own manual
     @info "doctest() Documenter's manual"

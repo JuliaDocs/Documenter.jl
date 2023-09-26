@@ -68,7 +68,7 @@ $documenter-docstring-shadow: none;
 $input-color: $grey-lighter;
 $input-background-color: $body-background-color;
 $input-border-color: $border;
-$input-placeholder-color: rgba($input-color, 0.3);
+$input-placeholder-color: #868c98;
 
 $search-result-link-text-color: #333;
 $search-result-link-text-background-color: #f1f5f9;
@@ -78,8 +78,6 @@ $search-modal-kbd-color: rgba(245, 245, 245, 0.6);
 $button-static-color: $grey-lighter;
 $button-static-background-color: $background;
 $button-static-border-color: $border;
-
-$documenter-search-query-text-color: rgba(219, 222, 224, 0.3);
 
 // All secondary themes have to be nested in a theme--$(themename) class. When Documenter
 // switches themes, it applies this class to <html> and then disables the primary

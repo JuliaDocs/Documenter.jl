@@ -198,21 +198,6 @@ function update_linenumbernodes!(x::LineNumberNode, newfile, lineshift)
 end
 
 
-# Checking arguments.
-
-"""
-Prints a formatted warning to the user listing unrecognised keyword arguments.
-"""
-function check_kwargs(kws)
-    isempty(kws) && return
-    out = IOBuffer()
-    println(out, "Unknown keywords:\n")
-    for (k, v) in kws
-        println(out, "  ", k, " = ", v)
-    end
-    @warn(String(take!(out)))
-end
-
 # Finding submodules.
 
 const ModVec = Union{Module, Vector{Module}}
@@ -253,12 +238,15 @@ Represents an object stored in the docsystem by its binding and signature.
 struct Object
     binding   :: Binding
     signature :: Type
+    noncanonical_extra :: Union{String, Nothing}
 
-    function Object(b::Binding, signature::Type)
+    function Object(b::Binding, signature::Type, noncanonical_extra=nothing)
         m = nameof(b.mod) === b.var ? parentmodule(b.mod) : b.mod
-        new(Binding(m, b.var), signature)
+        new(Binding(m, b.var), signature, noncanonical_extra)
     end
 end
+
+is_canonical(o::Object) = o.noncanonical_extra === nothing
 
 function splitexpr(x::Expr)
     isexpr(x, :macrocall) ? splitexpr(x.args[1]) :
@@ -292,7 +280,10 @@ end
 function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
+    print_extra(io, obj.noncanonical_extra)
 end
+print_extra(io::IO, noncanonical_extra::Nothing ) = nothing
+print_extra(io::IO, noncanonical_extra::String ) = print(io, "-", noncanonical_extra)
 print_signature(io::IO, signature::Union{Union, Type{Union{}}}) = nothing
 print_signature(io::IO, signature)        = print(io, '-', signature)
 
@@ -487,6 +478,15 @@ Stores the memoized results of [`getremote`](@ref).
 """
 const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
 
+function parse_remote_url(remote::AbstractString)
+    # TODO: we only match for GitHub repositories automatically. Could we engineer a
+    # system where, if there is a user-created Remote, the user could also define a
+    # matching function here that tries to interpret other URLs?
+    m = match(LibGit2.GITHUB_REGEX, remote)
+    isnothing(m) && return nothing
+    return Remotes.GitHub(m[2], m[3])
+end
+
 """
 $(TYPEDSIGNATURES)
 
@@ -507,12 +507,7 @@ function getremote(dir::AbstractString)
             @debug "git config --get remote.origin.url failed" exception=(e, catch_backtrace())
             ""
         end
-        # TODO: we only match for GitHub repositories automatically. Could we engineer a
-        # system where, if there is a user-created Remote, the user could also define a
-        # matching function here that tries to interpret other URLs?
-        m = match(LibGit2.GITHUB_REGEX, remote)
-        isnothing(m) && return nothing
-        return Remotes.GitHub(m[2], m[3])
+        return parse_remote_url(remote)
     end
 end
 

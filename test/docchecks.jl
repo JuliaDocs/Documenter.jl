@@ -71,6 +71,7 @@ end
 @testset "doc checks" begin
     if haskey(ENV, "DOCUMENTER_TEST_ONLINE_LINKCHECK")
         include("online_linkcheck.jl")
+        include("online_githubcheck.jl")
     else
         @info "Online linkchecks skipped (DOCUMENTER_TEST_ONLINE_LINKCHECK not set)"
     end

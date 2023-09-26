@@ -23,6 +23,16 @@ while
 @assert
 ```
 
+```@docs; canonical=false
+func(x)
+T
+ccall
+for
+while
+@time
+@assert
+```
+
 # Foo
 
 ```@example

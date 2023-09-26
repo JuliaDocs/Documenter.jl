@@ -27,6 +27,10 @@ module TestDocstrings
 
     "baz(::Float64)"
     baz(::Float64)
+
+    using Markdown: @doc_str
+    @doc doc"qux(::Float64)"
+    qux(::Float64)
 end
 
 @testset "DocSystem" begin
