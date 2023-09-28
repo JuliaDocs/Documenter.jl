@@ -309,7 +309,7 @@ GITHUB_ERROR_ADVICE = (
 )
 
 function githubcheck(doc::Document)
-    if !doc.user.linkcheck
+    if !doc.user.linkcheck || (doc.user.remotes === nothing)
         return
     end
     # When we add GitHub links based on packages which have been added with
