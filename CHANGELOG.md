@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added `Remotes.GitLab` for specifying a `Remote` hosted on gitlab.com or a self-hosted GitLab instance.
+* Added `Remotes.GitLab` for specifying a `Remote` hosted on gitlab.com or a self-hosted GitLab instance. ([#2279])
 
 ## Version [v1.0.1] - 2023-09-18
 
