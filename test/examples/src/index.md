@@ -151,6 +151,15 @@ foobuu
 ```
 
 ```@meta
+DocTestFilters = nothing
+```
+
+```jldoctest
+julia> print("foobar")
+foobar
+```
+
+```@meta
 DocTestFilters = []
 ```
 

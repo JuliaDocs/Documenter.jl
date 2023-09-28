@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed a crash in GitHub remote link checking when `remotes = nothing`. ([#2274], [#2285])
+* Fix an error occurring with `DocTestFilters = nothing` in `@meta` blocks. ([#2273], [#1696])
 
 ## Version [v1.0.1] - 2023-09-18
 
