@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* Fixed display of inline LaTeX math `$ ... $` in HTMLWriter ([#2281])
+
 ## Version [v1.0.1] - 2023-09-18
 
 ### Fixed
@@ -1683,6 +1689,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
 [#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
 [#2269]: https://github.com/JuliaDocs/Documenter.jl/issues/2269
+[#2281]: https://github.com/JuliaDocs/Documenter.jl/issues/2281
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
