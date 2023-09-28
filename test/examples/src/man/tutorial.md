@@ -551,6 +551,12 @@ LaTeXEquation("\\[\\left[\\begin{array}{rr} x & 2x \\\\ \n y & y \\end{array}\\r
 LaTeXEquation("\$\$\\begin{bmatrix} 1 & 2 \\\\ \n 3 & 4 \\end{bmatrix}\$\$")
 ```
 
+Inline-ish `text/latex` bytes:
+
+```@example showablelatex
+LaTeXEquation("\$ x_{1} + x_{2} \$")
+```
+
 ## Videos
 
 ![](https://dl8.webmfiles.org/big-buck-bunny_trailer.webm)
