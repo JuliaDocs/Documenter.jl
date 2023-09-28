@@ -389,8 +389,15 @@ function Document(;
         others...
     )
 
+    if !isempty(others)
+        msg = "makedocs() got passed invalid keyword arguments:"
+        for (k, v) in others
+            msg *= string("\n  ", k, " = ", repr(v))
+        end
+        throw(ArgumentError(msg))
+    end
+
     warnonly = reduce_warnonly(warnonly) # convert warnonly to Symbol[]
-    check_kwargs(others)
 
     if !isa(format, AbstractVector)
         format = Writer[format]
@@ -940,7 +947,7 @@ function populate!(index::IndexNode, document::Document)
         mod  = object.binding.mod
         # Include *all* signatures, whether they are `Union{}` or not.
         cat  = Symbol(lowercase(doccat(object.binding, Union{})))
-        if _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
+        if is_canonical(object) && _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end

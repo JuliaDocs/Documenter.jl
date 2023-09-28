@@ -3,7 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.0.1] - 2023-09-18
+
+### Fixed
+
+* Docstring with an unwrapped `Markdown.MD` object, such as the ones created when the `Markdown.@doc_str` macro is used, are correctly handled again. ([#2269])
+
+## Version [v1.0.0] - 2023-09-15
 
 ### Version changes
 
@@ -24,9 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   **For upgrading:** To keep using the Markdown backend, refer to the [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). That package might not immediately support the latest Documenter version, however.
 
-* `@eval` blocks now require the last expression to be either `nothing` or of type `Markdown.MD`, with other cases now issuing a warning and falling back to a text representation in a code block. ([#1919])
+* `@eval` blocks now require the last expression to be either `nothing` or of type `Markdown.MD`, with other cases now issuing an `:eval_block` error, and falling back to a text representation of the object. ([#1919], [#2260])
 
-  **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case.
+  **For upgrading:** The cases where an `@eval` results in a object that is not `nothing` or `::Markdown.MD`, the returned object should be reviewed. In case the resulting object is of some `Markdown` node type (e.g. `Markdown.Paragraph` or `Markdown.Table`), it can simply be wrapped in `Markdown.MD([...])` for block nodes, or `Markdown.MD([Markdown.Paragraph([...])])` for inline nodes. In other cases Documenter was likely not handling the returned object in a correct way, but please open an issue if this change has broken a previously working use case. The error can be ignored by passing `:eval_block` to the `warnonly` keyword.
 
 * The handling of remote repository (e.g. GitHub) URLs has been overhauled. ([#1808], [#1881], [#2081], [#2232])
 
@@ -44,9 +50,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Documenter now checks that local links (e.g. to other Markdown files, local images; such as `[see the other page](other.md)`) are pointing to existing files. ([#2130], [#2187])
 
-  This can cause existing builds to fail because previously broken links are now caught by the Documenter's document checks, and this will make `makedocs` error if `strict = true` is passed.
+  This can cause existing builds to fail because previously broken links are now caught by the Documenter's document checks, in particular because Documenter now runs in strict mode by default.
 
-  **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `strict = Documenter.except(:cross_references)`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
+  **For upgrading:** You should double check and fix all the offending links. Alternatively, you can also set `warnonly = :cross_references`, so that the errors would be reduced to warnings (however, this is not recommended, as you will have broken links in your generated documentation).
 
 * The HTML output now enforces size thresholds for the generated HTML files, to catch cases where Documenter is deploying extremely large HTML files (usually due to generated content, like figures). If any generated HTML file is above either of the thresholds, Documenter will either error and fail the build (if above `size_threshold`), or warn (if above `size_threshold_warn`). The size threshold can also be ignored for specific pages with `size_threshold_ignore`. ([#2142], [#2205], [#2211], [#2252])
 
@@ -54,13 +60,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   If you are unable to reduce the generated file size, you can increase the `size_threshold` value to just above the maximum size, or disable the enforcement of size threshold checks altogether by setting `size_threshold = nothing`.
   If it is just a few specific pages that are offending, you can also ignore those with `size_threshold_ignore`.
 
-* User-provided `assets/search.js` files no longer override Documenter's default search implementation, and the user-provided now gets ignored by default. ([#2236])
+* User-provided `assets/search.js` file no longer overrides Documenter's default search implementation, and the user-provided files will now be ignored by default. ([#2236])
 
-  **For upgrading:** The JS file can still be include by passing it to the `assets` keyword of `format = HTML(...)`. However, it will likely conflict with Documenter's default search implementation. If you require an API to override Documenter's search engine, please open an issue.
+  **For upgrading:** The JS file can still be included via the `assets` keyword of `format = HTML(...)`. However, it will likely conflict with Documenter's default search implementation. If you require an API to override Documenter's search engine, please open an issue.
 
 * Plugin objects which were formally passed as (undocumented) positional keyword arguments to `makedocs` are now given as elements of a list `plugins` passed as a keyword argument ([#2245], [#2249])
 
   **For upgrading:** If you are passing any plugin objects to `makedocs` (positionally), pass them via the `plugins` keyword instead.
+
+* `makedocs` will now throw an error if it gets passed an unsupported keyword argument. ([#2259])
+
+  **For upgrading:** Remove the listed keyword arguments from the `makedocs` call. If the keyword was previously valid, consult this CHANGELOG for upgrade instructions.
 
 ### Added
 
@@ -136,9 +146,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The HTML output will automatically write larger `@example`-block outputs to files, to make the generated HTML files smaller. The size threshold can be controlled with the `example_size_threshold` option to `HTML`. ([#2143], [#2247])
 
+* The `@docs` and `@autodocs` blocks can now be declared non-canonical, allowing multiple copied of the same docstring to be included in the manual. ([#1079], [#1570], [#2237])
+
 ### Fixed
 
-* Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][julia-29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
+* Line endings in Markdown source files are now normalized to `LF` before parsing, to work around [a bug in the Julia Markdown parser][JuliaLang/julia#29344] where parsing is sensitive to line endings, and can therefore cause platform-dependent behavior. ([#1906])
 
 * `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. ([#505], [#1924])
 
@@ -1230,6 +1242,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.27.23]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.23
 [v0.27.24]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.24
 [v0.27.25]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.25
+[v1.0.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.0
+[v1.0.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1332,6 +1346,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1075]: https://github.com/JuliaDocs/Documenter.jl/issues/1075
 [#1076]: https://github.com/JuliaDocs/Documenter.jl/issues/1076
 [#1077]: https://github.com/JuliaDocs/Documenter.jl/issues/1077
+[#1079]: https://github.com/JuliaDocs/Documenter.jl/issues/1079
 [#1081]: https://github.com/JuliaDocs/Documenter.jl/issues/1081
 [#1082]: https://github.com/JuliaDocs/Documenter.jl/issues/1082
 [#1088]: https://github.com/JuliaDocs/Documenter.jl/issues/1088
@@ -1476,6 +1491,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1567]: https://github.com/JuliaDocs/Documenter.jl/issues/1567
 [#1568]: https://github.com/JuliaDocs/Documenter.jl/issues/1568
 [#1569]: https://github.com/JuliaDocs/Documenter.jl/issues/1569
+[#1570]: https://github.com/JuliaDocs/Documenter.jl/issues/1570
 [#1575]: https://github.com/JuliaDocs/Documenter.jl/issues/1575
 [#1577]: https://github.com/JuliaDocs/Documenter.jl/issues/1577
 [#1590]: https://github.com/JuliaDocs/Documenter.jl/issues/1590
@@ -1639,6 +1655,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
 [#2141]: https://github.com/JuliaDocs/Documenter.jl/issues/2141
 [#2142]: https://github.com/JuliaDocs/Documenter.jl/issues/2142
+[#2143]: https://github.com/JuliaDocs/Documenter.jl/issues/2143
 [#2145]: https://github.com/JuliaDocs/Documenter.jl/issues/2145
 [#2147]: https://github.com/JuliaDocs/Documenter.jl/issues/2147
 [#2153]: https://github.com/JuliaDocs/Documenter.jl/issues/2153
@@ -1658,7 +1675,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
+[#2237]: https://github.com/JuliaDocs/Documenter.jl/issues/2237
+[#2245]: https://github.com/JuliaDocs/Documenter.jl/issues/2245
+[#2247]: https://github.com/JuliaDocs/Documenter.jl/issues/2247
+[#2249]: https://github.com/JuliaDocs/Documenter.jl/issues/2249
 [#2252]: https://github.com/JuliaDocs/Documenter.jl/issues/2252
+[#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
+[#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
+[#2269]: https://github.com/JuliaDocs/Documenter.jl/issues/2269
+[JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

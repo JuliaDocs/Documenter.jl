@@ -40,10 +40,10 @@ function test_doctest_fix(dir)
     @debug "Running doctest/fix doctests with doctest=:fix"
     @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
 
-    # test that strict = true works
+    # check that the doctests are passing now
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=true"
-    @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, strict = true)
+    @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir)
 
     # also test that we obtain the expected output
     @test normalize_line_endings(index_md) == normalize_line_endings(joinpath(@__DIR__, "fixed.md"))

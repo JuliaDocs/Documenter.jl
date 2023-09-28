@@ -1,6 +1,6 @@
 name = "Documenter"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "0.28.0-DEV"
+version = "1.0.1"
 
 [deps]
 ANSIColoredPrinters = "a4c015fc-c6ff-483c-b24f-f7ea428134e9"
@@ -32,6 +32,7 @@ IOCapture = "0.2"
 JSON = "0.19, 0.20, 0.21"
 MarkdownAST = "0.1.1"
 PrecompileTools = "1"
+RegistryInstances = "0.1"
 julia = "1.6"
 
 [extras]
