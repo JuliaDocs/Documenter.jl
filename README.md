@@ -47,7 +47,7 @@ There are several packages that extend Documenter in different ways. The JuliaDo
 
 Other third-party packages that can be combined with Documenter include:
 
-* [DemoCards.jl](https://github.com/johnnychen94/DemoCards.jl)
+* [DemoCards.jl](https://github.com/JuliaDocs/DemoCards.jl)
 * [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
 * [Literate.jl](https://github.com/fredrikekre/Literate.jl)
 * [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)

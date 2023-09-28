@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fixed display of inline LaTeX math `$ ... $` in HTMLWriter ([#2281])
+* Fixed a crash in GitHub remote link checking when `remotes = nothing`. ([#2274], [#2285])
 
 ## Version [v1.0.1] - 2023-09-18
 
