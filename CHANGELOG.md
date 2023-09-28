@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* Added `Remotes.GitLab` for specifying a `Remote` hosted on gitlab.com or a self-hosted GitLab instance. ([#2279])
+
 ### Fixed
 
 * Fixed display of inline LaTeX math `$ ... $` from `show` methods in HTMLWriter. ([#2280], [#2281])
