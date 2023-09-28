@@ -3,11 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## In-Development
+## Unreleased
 
 ### Added
 
 * Added `Remotes.GitLab` for specifying a `Remote` hosted on gitlab.com or a self-hosted GitLab instance. ([#2279])
+
+### Fixed
+
+* Fixed a crash in GitHub remote link checking when `remotes = nothing`. ([#2274], [#2285])
 
 ## Version [v1.0.1] - 2023-09-18
 
