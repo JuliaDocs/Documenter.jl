@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   If you are currently being strict about specific error classes, you can invert the list of error classes with `Documenter.except`.
 
   If you were not setting the `strict` keyword, but your build is failing now, you should first endeavor to fix the errors that are causing the build to fail.
-  If that is not feasible, you can exclude specific error categories from failing the build (e.g. `warnonly = [:footnotes, :cross_references]`).
+  If that is not feasible, you can exclude specific error categories from failing the build (e.g. `warnonly = [:footnote, :cross_references]`).
   Finally, setting `warnonly = true` can be used to recover the old `strict = false` default behavior, turning all errors back into warnings.
 
 * The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). This includes the removal of the exported `Deps` module. ([#1826])
