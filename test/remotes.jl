@@ -1,7 +1,7 @@
 module RemoteTests
 using Test
 using Documenter
-using .Remotes: repofile, repourl, issueurl, URL, GitHub
+using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab
 
 @testset "RepositoryRemote" begin
     let r = URL("https://github.com/FOO/BAR/blob/{commit}{path}#{line}")
@@ -66,6 +66,34 @@ using .Remotes: repofile, repourl, issueurl, URL, GitHub
         @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5"
         @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://github.com/JuliaDocs/Documenter.jl/blob/mybranch/src/foo.jl#L5-L8"
         @test issueurl(r, "123") == "https://github.com/JuliaDocs/Documenter.jl/issues/123"
+    end
+
+    # GitLab remote
+    let r = GitLab("JuliaDocs", "Documenter.jl")
+        @test repourl(r) == "https://gitlab.com/JuliaDocs/Documenter.jl"
+        @test repofile(r, "mybranch", "src/foo.jl") == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl"
+        @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5-L8"
+        @test issueurl(r, "123") == "https://gitlab.com/JuliaDocs/Documenter.jl/-/issues/123"
+    end
+
+    let r = GitLab("my-gitlab.com", "JuliaDocs", "Documenter.jl")
+        @test repourl(r) == "https://my-gitlab.com/JuliaDocs/Documenter.jl"
+        @test repofile(r, "mybranch", "src/foo.jl") == "https://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl"
+        @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5-L8"
+        @test issueurl(r, "123") == "https://my-gitlab.com/JuliaDocs/Documenter.jl/-/issues/123"
+    end
+
+    let r = GitLab("JuliaDocs/Documenter.jl")
+        @test repourl(r) == "https://gitlab.com/JuliaDocs/Documenter.jl"
+        @test repofile(r, "mybranch", "src/foo.jl") == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl"
+        @test repofile(r, "mybranch", "src/foo.jl", 5) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5-L8"
+        @test issueurl(r, "123") == "https://gitlab.com/JuliaDocs/Documenter.jl/-/issues/123"
     end
 end
 

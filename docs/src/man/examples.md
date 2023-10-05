@@ -53,6 +53,7 @@ Packages that have tagged versions available in the general Registry:
 - [PhyloNetworks.jl](https://crsl4.github.io/PhyloNetworks.jl/stable/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
 - [Query.jl](https://www.queryverse.org/Query.jl/stable/)
+- [QuestDBClient.jl](https://ochibobo.github.io/QuestDBClient.jl/dev/)
 - [SimGBS.jl](https://anshess.github.io/SimGBS.jl/stable/)
 - [SlimOptim.jl](https://slimgroup.github.io/SlimOptim.jl/stable/)
 - [SymbolicRegression.jl](https://astroautomata.com/SymbolicRegression.jl/stable/)
