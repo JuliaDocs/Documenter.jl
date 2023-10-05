@@ -1,8 +1,8 @@
 // libraries: jquery
 // arguments: $
 
+let timer = 0;
 var isExpanded = true;
-let timer = undefined;
 
 $(document).on("click", ".docstring header", function () {
   let articleToggleTitle = "Expand docstring";
@@ -26,7 +26,7 @@ $(document).on("click", ".docstring header", function () {
       .find(".docstring-article-toggle-button")
       .prop("title", articleToggleTitle);
     $(this).siblings("section").slideToggle();
-  }, 300);
+  });
 });
 
 $(document).on("click", ".docs-article-toggle-button", function () {
@@ -58,10 +58,15 @@ $(document).on("click", ".docs-article-toggle-button", function () {
 
     $(this).prop("title", navArticleToggleTitle);
     $(".docstring-article-toggle-button").prop("title", articleToggleTitle);
-  }, 300);
+  });
 });
 
 function debounce(callback, timeout = 300) {
+  if (Date.now() - timer > timeout) {
+    callback();
+  }
+
   clearTimeout(timer);
-  timer = setTimeout(callback, timeout);
+
+  timer = Date.now();
 }
