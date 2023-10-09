@@ -35,7 +35,7 @@ Packages that have tagged versions available in the general Registry:
 - [FourierFlows.jl](https://fourierflows.github.io/FourierFlowsDocumentation/stable/)
 - [Gadfly.jl](https://gadflyjl.org/stable/)
 - [GeophysicalFlows.jl](https://fourierflows.github.io/GeophysicalFlowsDocumentation/stable/)
-- [GeoStats.jl](https://juliaearth.github.io/GeoStats.jl/stable/)
+- [GeoStats.jl](https://juliaearth.github.io/GeoStatsDocs/stable/)
 - [Highlights.jl](https://highlights.juliadocs.org/stable/)
 - [HypothesisTests.jl](https://juliastats.org/HypothesisTests.jl/stable/)
 - [InvertibleNetworks.jl](https://slimgroup.github.io/InvertibleNetworks.jl/stable/)
