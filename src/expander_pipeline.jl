@@ -508,7 +508,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     of the type definition. This error can also be ignored by disabling strict checking for
                     :autodocs_block in the makedocs call with e.g.
 
-                      strict = Documenter.except(:autodocs_block)
+                      warnonly = [:autodocs_block]
 
                     However, the relevant docstrings will then not be included by the @autodocs block.
                     """, exception = err)
