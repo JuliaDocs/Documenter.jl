@@ -49,6 +49,7 @@ Packages that have tagged versions available in the general Registry:
 - [OhMyREPL.jl](https://github.com/KristofferC/OhMyREPL.jl)
 - [OnlineStats.jl](https://joshday.github.io/OnlineStats.jl/stable/)
 - [PhotoAcoustic.jl](https://slimgroup.github.io/PhotoAcoustic.jl/stable/)
+- [Pigeons.jl](https://pigeons.run/dev/)
 - [POMDPs.jl](https://juliapomdp.github.io/POMDPs.jl/stable/)
 - [PhyloNetworks.jl](https://crsl4.github.io/PhyloNetworks.jl/stable/)
 - [PrivateModules.jl](https://michaelhatherly.github.io/PrivateModules.jl/stable/)
