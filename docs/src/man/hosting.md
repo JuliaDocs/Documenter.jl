@@ -280,7 +280,7 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+[Encrypted secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 for more information.
 
 ### Add code coverage from documentation builds
