@@ -195,7 +195,7 @@ jobs:
       statuses: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1.6'
@@ -280,7 +280,7 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+[Encrypted secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 for more information.
 
 ### Add code coverage from documentation builds
@@ -399,7 +399,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: gh-pages
       - name: Delete preview and history + push changes
