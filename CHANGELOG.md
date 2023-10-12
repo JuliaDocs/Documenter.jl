@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.1.1] - 2023-10-12
+
+### Fixed
+
+* Fixed, docstring collapse/expand icon not changing correctly when clicking rapidly. ([#2103], [#2217])
+
 ## Version [v1.1.0] - 2023-09-28
 
 ### Added
@@ -167,8 +173,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `HTMLWriter` no longer complains about invalid URLs in docstrings when `makedocs` gets run multiple time in a Julia session, as it no longer modifies the underlying docstring objects. ([#505], [#1924])
 
 * Docstring doctests now properly get checked on each `makedocs` run, when run multiple times in the same Julia session. ([#974], [#1948])
-
-* Fixed, docstring collapse/expand icon not changing when clicking rapidly. Now click all you want! ([#2103])
 
 * The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. ([#1969])
 
