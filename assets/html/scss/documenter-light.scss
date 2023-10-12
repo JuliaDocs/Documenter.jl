@@ -41,3 +41,7 @@ code.language-julia-repl > span.hljs-meta {
 // Workaround to compile in highlightjs theme, so that we could have different
 // themes for both
 @import "highlightjs/default";
+
+.gap-4 {
+  gap: 1rem;
+}

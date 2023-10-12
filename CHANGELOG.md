@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.1.1] - 2023-10-12
+
+### Fixed
+
+* Fixed, docstring collapse/expand icon not changing correctly when clicking rapidly. ([#2103], [#2217])
+
 ## Version [v1.1.0] - 2023-09-28
 
 ### Added
@@ -1256,6 +1262,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.27.25]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.25
 [v1.0.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.0
 [v1.0.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.1
+[v1.1.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.0
+[v1.1.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1662,6 +1670,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
+[#2103]: https://github.com/JuliaDocs/Documenter.jl/issues/2103
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
@@ -1685,6 +1694,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
 [#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
+[#2217]: https://github.com/JuliaDocs/Documenter.jl/issues/2217
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
 [#2237]: https://github.com/JuliaDocs/Documenter.jl/issues/2237
