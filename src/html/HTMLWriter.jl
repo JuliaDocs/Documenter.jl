@@ -2389,17 +2389,15 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     end
     # Check for some 'fallback' MIMEs, defaulting to 'text/plain' if we can't find any of them.
     return if haskey(d, MIME"text/latex"())
-        # If the show(io, ::MIME"text/latex", x) output is already wrapped in \[ ... \] or $$ ... $$, we
-        # unwrap it first, since when we output Markdown.LaTeX objects we put the correct
-        # delimiters around it anyway.
         latex = d[MIME"text/latex"()]
-        # Make sure to match multiline strings!
-        m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
-        m_dollars = match(r"\s*\$\$(.*)\$\$\s*"s, latex)
-        out = if m_bracket === nothing && m_dollars === nothing
+        # If the show(io, ::MIME"text/latex", x) output is already wrapped in
+        # \[ ... \] or $$ ... $$, we unwrap it first, since when we output
+        # Markdown.LaTeX objects we put the correct delimiters around it anyway.
+        has_math, latex = _strip_latex_math_delimiters(latex)
+        out = if !has_math
             Documenter.mdparse(latex; mode = :single)
         else
-            [MarkdownAST.@ast MarkdownAST.DisplayMath(m_bracket !== nothing ? m_bracket[1] : m_dollars[1])]
+            [MarkdownAST.@ast MarkdownAST.DisplayMath(latex)]
         end
         domify(dctx, out)
     elseif haskey(d, MIME"text/markdown"())
@@ -2413,6 +2411,21 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
     else
         error("this should never happen.")
     end
+end
+
+function _strip_latex_math_delimiters(latex::AbstractString)
+    # Make sure to match multiline strings!
+    m_bracket = match(r"\s*\\\[(.*)\\\]\s*"s, latex)
+    if m_bracket !== nothing
+        return true, m_bracket[1]
+    end
+    # This regex matches the strings "$ ... $" and "$$ ... $$", but not
+    # strings with miss-matched dollar signs such as "$ ... $$" or "$$ ... $"
+    m_dollars = match(r"^\s*(\${1,2})([^\$]*)\1\s*$"s, latex)
+    if m_dollars !== nothing
+        return true, m_dollars[2]
+    end
+    return false, latex
 end
 
 function domify_show_image_binary(dctx::DCtx, filetype::AbstractString, d::Dict{MIME,Any})

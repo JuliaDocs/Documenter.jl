@@ -3,6 +3,24 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.1.1] - 2023-10-12
+
+### Fixed
+
+* Fixed, docstring collapse/expand icon not changing correctly when clicking rapidly. ([#2103], [#2217])
+
+## Version [v1.1.0] - 2023-09-28
+
+### Added
+
+* Added `Remotes.GitLab` for specifying a `Remote` hosted on gitlab.com or a self-hosted GitLab instance. ([#2279])
+
+### Fixed
+
+* Fixed display of inline LaTeX math `$ ... $` from `show` methods in HTMLWriter. ([#2280], [#2281])
+* Fixed a crash in GitHub remote link checking when `remotes = nothing`. ([#2274], [#2285])
+* Fix an error occurring with `DocTestFilters = nothing` in `@meta` blocks. ([#2273], [#1696])
+
 ## Version [v1.0.1] - 2023-09-18
 
 ### Fixed
@@ -23,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   If you are currently being strict about specific error classes, you can invert the list of error classes with `Documenter.except`.
 
   If you were not setting the `strict` keyword, but your build is failing now, you should first endeavor to fix the errors that are causing the build to fail.
-  If that is not feasible, you can exclude specific error categories from failing the build (e.g. `warnonly = [:footnotes, :cross_references]`).
+  If that is not feasible, you can exclude specific error categories from failing the build (e.g. `warnonly = [:footnote, :cross_references]`).
   Finally, setting `warnonly = true` can be used to recover the old `strict = false` default behavior, turning all errors back into warnings.
 
 * The Markdown backend has been fully removed from the Documenter package, in favor of the external [DocumenterMarkdown package](https://github.com/JuliaDocs/DocumenterMarkdown.jl). This includes the removal of the exported `Deps` module. ([#1826])
@@ -1244,6 +1262,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.27.25]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.25
 [v1.0.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.0
 [v1.0.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.1
+[v1.1.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.0
+[v1.1.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1650,6 +1670,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
+[#2103]: https://github.com/JuliaDocs/Documenter.jl/issues/2103
 [#2128]: https://github.com/JuliaDocs/Documenter.jl/issues/2128
 [#2130]: https://github.com/JuliaDocs/Documenter.jl/issues/2130
 [#2134]: https://github.com/JuliaDocs/Documenter.jl/issues/2134
@@ -1673,6 +1694,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2214]: https://github.com/JuliaDocs/Documenter.jl/issues/2214
 [#2215]: https://github.com/JuliaDocs/Documenter.jl/issues/2215
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
+[#2217]: https://github.com/JuliaDocs/Documenter.jl/issues/2217
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
 [#2237]: https://github.com/JuliaDocs/Documenter.jl/issues/2237
@@ -1683,6 +1705,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2259]: https://github.com/JuliaDocs/Documenter.jl/issues/2259
 [#2260]: https://github.com/JuliaDocs/Documenter.jl/issues/2260
 [#2269]: https://github.com/JuliaDocs/Documenter.jl/issues/2269
+[#2273]: https://github.com/JuliaDocs/Documenter.jl/issues/2273
+[#2274]: https://github.com/JuliaDocs/Documenter.jl/issues/2274
+[#2279]: https://github.com/JuliaDocs/Documenter.jl/issues/2279
+[#2280]: https://github.com/JuliaDocs/Documenter.jl/issues/2280
+[#2281]: https://github.com/JuliaDocs/Documenter.jl/issues/2281
+[#2285]: https://github.com/JuliaDocs/Documenter.jl/issues/2285
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054

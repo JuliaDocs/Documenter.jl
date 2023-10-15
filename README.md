@@ -42,13 +42,13 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 
 There are several packages that extend Documenter in different ways. The JuliaDocs organization maintains:
 
+* [DocumenterCitations.jl](https://github.com/JuliaDocs/DocumenterCitations.jl)
 * [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
 * [DocumenterMarkdown.jl](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
 
 Other third-party packages that can be combined with Documenter include:
 
 * [DemoCards.jl](https://github.com/JuliaDocs/DemoCards.jl)
-* [DocumenterCitations.jl](https://github.com/ali-ramadhan/DocumenterCitations.jl)
 * [Literate.jl](https://github.com/fredrikekre/Literate.jl)
 * [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
 * [QuizQuestions.jl](https://github.com/jverzani/QuizQuestions.jl)
