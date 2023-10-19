@@ -87,3 +87,10 @@ julia> 1 + 2
 julia> 3 + 4
 7
 ```
+```jldoctest
+julia> a = (1,2)
+(1, 2)
+
+julia> a
+(1, 2)
+```

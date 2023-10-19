@@ -78,3 +78,8 @@ julia> 1 + 2
 
 julia> 3 + 4
 ```
+```jldoctest
+julia> a = (1,2)
+
+julia> a
+```
