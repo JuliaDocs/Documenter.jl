@@ -127,3 +127,7 @@ LaTeXEquation2(raw"""
 This sentence\
 should be over **multiple\
 lines**.
+
+## Issue 2300
+
+You Shall Not Break! You Shall Not Break! You Shall Not Break!
