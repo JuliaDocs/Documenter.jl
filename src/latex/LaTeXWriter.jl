@@ -804,6 +804,7 @@ latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "\\\\")
 
 const _latexescape_chars = Dict{Char, AbstractString}(
     '~' => "{\\textasciitilde}",
+    '\u00A0' => "~",  # nonbreaking space
     '^' => "{\\textasciicircum}",
     '\\' => "{\\textbackslash}",
     '\'' => "{\\textquotesingle}",
