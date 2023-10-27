@@ -961,12 +961,13 @@ function create_docsnode(docstrings, results, object, page, doc)
     slug = Documenter.slugify(object)
     anchor = Documenter.anchor_add!(doc.internal.docs, object, slug, page.build)
     docsnode = DocsNode(anchor, object, page)
-    # Convert docstring to MarkdownAST, convert Heading elements, and push to DocsNode
-    for (markdown, result) in zip(docstrings, results)
-        ast = convert(Node, markdown)
-        doc.user.highlightsig && highlightsig!(ast)
-        # The following 'for' corresponds to the old dropheaders() function
+    function recursive_heading_to_bold!(ast)
         for headingnode in ast.children
+            if headingnode.element isa MarkdownAST.List
+                for child in headingnode.children
+                    recursive_heading_to_bold!(child)
+                end
+            end
             headingnode.element isa MarkdownAST.Heading || continue
             boldnode = Node(MarkdownAST.Strong())
             for textnode in collect(headingnode.children)
@@ -975,6 +976,12 @@ function create_docsnode(docstrings, results, object, page, doc)
             headingnode.element = MarkdownAST.Paragraph()
             push!(headingnode.children, boldnode)
         end
+    end
+    # Convert docstring to MarkdownAST, convert Heading elements, and push to DocsNode
+    for (markdown, result) in zip(docstrings, results)
+        ast = convert(Node, markdown)
+        doc.user.highlightsig && highlightsig!(ast)
+        recursive_heading_to_bold!(ast)
         push!(docsnode.mdasts, ast)
         push!(docsnode.results, result)
         push!(docsnode.metas, markdown.meta)
