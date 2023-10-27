@@ -31,23 +31,21 @@
     .docstring-binding {
       margin-right: 0.3em;
     }
-
     .docstring-category {
       margin-left: 0.3em;
     }
   }
 
-  >section {
+  > section {
     position: relative;
     padding: $documenter-docstring-body-padding;
 
     border-bottom: 1px solid $border;
-
     &:last-child {
       border-bottom: none;
     }
 
-    >a.docs-sourcelink {
+    > a.docs-sourcelink {
       transition: opacity 0.3s;
       opacity: 0;
       position: absolute;
@@ -58,20 +56,20 @@
       @extend .is-size-7;
 
       &:focus {
-        opacity: 1 !important;
+        opacity: 1!important;
       }
     }
   }
 
-  &:hover>section>a.docs-sourcelink {
+  &:hover > section > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  &:focus-within>section>a.docs-sourcelink {
+  &:focus-within > section > a.docs-sourcelink {
     opacity: 0.2;
   }
 
-  &>section:hover a.docs-sourcelink {
+  & > section:hover a.docs-sourcelink {
     opacity: 1;
   }
 }
