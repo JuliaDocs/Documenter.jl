@@ -3,13 +3,17 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## UNRELEASED
+
+### Fixed
+
+* Enabled text wrapping in docstring header on smaller screens. ([#2293], [#2307])
+
 ## Version [v1.1.2] - 2023-10-23
 
 ### Fixed
 
 * Non-breaking spaces are now properly converted as "~" in the `LaTeXWriter`. ([#2300])
-* Enabled text wrapping in docstring header on smaller screens. ([#2293]) 
-
 
 ## Version [v1.1.1] - 2023-10-12
 
@@ -1722,6 +1726,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2285]: https://github.com/JuliaDocs/Documenter.jl/issues/2285
 [#2293]: https://github.com/JuliaDocs/Documenter.jl/issues/2293
 [#2300]: https://github.com/JuliaDocs/Documenter.jl/issues/2300
+[#2307]: https://github.com/JuliaDocs/Documenter.jl/issues/2307
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
