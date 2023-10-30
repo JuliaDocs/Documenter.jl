@@ -169,11 +169,12 @@ mathengine = MathJax3(Dict(
     ),
 ))
 ```
+
 The syntax is slightly different if using KaTeX, the following example is what you might include in your `makedocs` function:
 
 ```julia
 makedocs(
-format = Documenter.HTML(; mathengine=
+    format = Documenter.HTML(; mathengine=
         Documenter.KaTeX(
             Dict(:delimiters => [
                 Dict(:left => raw"$",   :right => raw"$",   display => false),
@@ -191,4 +192,5 @@ format = Documenter.HTML(; mathengine=
     )
 )
 ```
+
 [`MathJax2`](@ref), [`MathJax3`](@ref) and [`KaTeX`](@ref) are available types for `mathengine`.
