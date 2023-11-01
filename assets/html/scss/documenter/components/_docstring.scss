@@ -17,6 +17,7 @@
     box-shadow: $card-header-shadow;
     box-shadow: none;
     border-bottom: 1px solid $border;
+    overflow: auto;
 
     code {
       background-color: transparent;
