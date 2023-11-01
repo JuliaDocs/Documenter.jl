@@ -8,6 +8,8 @@ This is the [`DocumenterShowcase`](@ref), which contains
 
     This showcase page is included in Documenter version 0.24.0 and above.
 
+Headings that are part of docstrings are not rendered as headings but rather as bold text. Just like:
+
 # Contents
 
 Docstrings can contain admonitions and other block-level nodes.
@@ -62,6 +64,26 @@ bar(::Integer) = nothing
 Docstring for `bar(::AbstractString)`.
 """
 bar(::AbstractString) = nothing
+
+"""
+    baz(x, f, k)
+
+Docstring for a more complex function.
+
+# Arguments
+- `x::Integer`: the first argument
+- `f`: a function with multiple allowable arguments itself  
+
+  ## Pattern
+  - `f(a::Integer)`
+  - `f(a::Real)`
+  - `f(a::Real, b::Real)`
+
+- `k::Integer`: the third argument
+
+See also [`bar`](@ref).
+"""
+baz(x::Integer, f, k::Integer) = nothing
 
 function hello(who)
     println("Hello, $(who)!")

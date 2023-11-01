@@ -961,22 +961,6 @@ function create_docsnode(docstrings, results, object, page, doc)
     slug = Documenter.slugify(object)
     anchor = Documenter.anchor_add!(doc.internal.docs, object, slug, page.build)
     docsnode = DocsNode(anchor, object, page)
-    function recursive_heading_to_bold!(ast)
-        for headingnode in ast.children
-            if headingnode.element isa MarkdownAST.List
-                for child in headingnode.children
-                    recursive_heading_to_bold!(child)
-                end
-            end
-            headingnode.element isa MarkdownAST.Heading || continue
-            boldnode = Node(MarkdownAST.Strong())
-            for textnode in collect(headingnode.children)
-                push!(boldnode.children, textnode)
-            end
-            headingnode.element = MarkdownAST.Paragraph()
-            push!(headingnode.children, boldnode)
-        end
-    end
     # Convert docstring to MarkdownAST, convert Heading elements, and push to DocsNode
     for (markdown, result) in zip(docstrings, results)
         ast = convert(Node, markdown)
@@ -995,5 +979,23 @@ function highlightsig!(node::Node)
     node = first(node.children)
     if node.element isa MarkdownAST.CodeBlock && isempty(node.element.info)
         node.element.info = "julia"
+    end
+end
+
+function recursive_heading_to_bold!(ast::MarkdownAST.Node)
+    for node in ast.children
+        if node.element isa MarkdownAST.List
+            for child in node.children
+                recursive_heading_to_bold!(child)
+            end
+        end
+        node.element isa MarkdownAST.Heading || continue
+        # node is a headingnode
+        boldnode = Node(MarkdownAST.Strong())
+        for textnode in collect(node.children)
+            push!(boldnode.children, textnode)
+        end
+        node.element = MarkdownAST.Paragraph()
+        push!(node.children, boldnode)
     end
 end

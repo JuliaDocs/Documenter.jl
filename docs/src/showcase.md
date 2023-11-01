@@ -324,6 +324,12 @@ We then see the same docstring as above
 DocumenterShowcase.bar
 ```
 
+We can also use nested lists and headings in docstrings
+
+```@docs
+DocumenterShowcase.baz
+```
+
 ### An index of docstrings
 
 The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
