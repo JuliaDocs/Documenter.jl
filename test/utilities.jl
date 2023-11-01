@@ -716,10 +716,12 @@ end
             "my-heading" => "my-heading",
             "documenter.jl/abc" => "documenter.jl/abc",
             "https://documenter.jl/abc" => "https://documenter.jl/abc",
-            "2nd" => "2nd",
-            "123" => "123",
+            # Leading numbers are stripped
+            "2nd" => "nd",
+            "2nd-2" => "nd-2",
+            "123a" => "a",
             # Spaces get replaced by -
-            "2nd feature" => "2nd-feature",
+            "2nd feature" => "nd-feature",
             # & gets replaced by -and-
             "a & b" => "a-and-b",
             # Multiple -- are reduced
