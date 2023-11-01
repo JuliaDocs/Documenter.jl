@@ -107,8 +107,6 @@ Slugify a string into a suitable URL.
 """
 function slugify(s::AbstractString)
     s = replace(s, r"\s+" => "-")
-    # Before HTML5, id could not start with a number
-    s = replace(s, r"^\d+" => "")
     s = replace(s, r"&" => "-and-")
     s = replace(s, r"[^\p{L}\p{P}\d\-]+" => "")
     s = strip(replace(s, r"\-\-+" => "-"), '-')
