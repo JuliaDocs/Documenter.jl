@@ -233,21 +233,63 @@ Other formats can be enabled by using other addon-packages. For example, the
 the original Markdown -> Markdown output. See the [Other Output Formats](@ref) for more
 information.
 
+# Errors
+
+`makedocs` will throw a [`DocumenterError`](@ref) if it has a "controlled failure", e.g. due
+document checks failing, or some other issue that is likely due to user configuration problems.
+`makedocs` throwing something other than [`DocumenterError`](@ref) should, generally be considered
+an error.
+
 # See Also
 
 A guide detailing how to document a package using Documenter's [`makedocs`](@ref) is provided
 in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(; debug = false, format = HTML(), kwargs...)
-    document = Documenter.Document(; format=format, kwargs...)
-    # Before starting the build pipeline, we empty out the subtype cache used by
-    # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
-    # may have been added to the selector pipelines between makedocs calls.
-    empty!(Selectors.selector_subtypes)
-    cd(document.user.root) do; withenv(NO_KEY_ENV...) do
-        Selectors.dispatch(Builder.DocumentPipeline, document)
-    end end
-    debug ? document : nothing
+    try
+        document = Documenter.Document(; format=format, kwargs...)
+        # Before starting the build pipeline, we empty out the subtype cache used by
+        # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
+        # may have been added to the selector pipelines between makedocs calls.
+        empty!(Selectors.selector_subtypes)
+        cd(document.user.root) do
+            withenv(NO_KEY_ENV...) do
+                Selectors.dispatch(Builder.DocumentPipeline, document)
+            end
+        end
+        return debug ? document : nothing
+    catch e
+        if isa(e, DocumenterBuildException)
+            throw(DocumenterError(:makedocs, (e, catch_backtrace())))
+        end
+        rethrow(e)
+    end
+end
+
+"""
+    struct DocumenterError <: Exception
+
+Documenter throws this error when it fails in a "controlled" way (e.g. when docchecks or
+doctests have failed).
+
+!!! note
+
+    Documenter is not fully consistent about using this exception yet. So while Documenter
+    throwing a different error object should be considered a bug, it may still be indicating
+    a user error (rather than Documenter itself breaking in some way).
+"""
+struct DocumenterError <: Exception
+    fn::Symbol
+    exception::Union{Tuple{Any,Any},Nothing}
+end
+
+function Base.showerror(io::IO, e::DocumenterError)
+    println(io, "DocumenterError ($(e.fn)): Documenter build failed to complete.")
+    if !isnothing(e.exception)
+        println("Underlying exception:")
+        showerror(io, e.exception[1])
+    end
+    print(io, "Please check the error logs above as well.")
 end
 
 """

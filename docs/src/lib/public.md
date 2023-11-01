@@ -31,6 +31,7 @@ doctest
 DocMeta
 DocMeta.getdocmeta
 DocMeta.setdocmeta!
+Documenter.DocumenterError
 ```
 
 ## DocumenterTools

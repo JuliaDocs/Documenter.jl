@@ -65,6 +65,14 @@ abstract type Plugin end
 
 abstract type Writer end
 
+"""
+    abstract type DocumenterBuildException <: Exception
+
+Internal abstract supertype for all the exceptions that get propagated to the user as
+[`DocumenterError`](@ref)s.
+"""
+abstract type DocumenterBuildException <: Exception end
+
 include("utilities/DOM.jl")
 include("utilities/JSDependencies.jl")
 include("utilities/MDFlatten.jl")
