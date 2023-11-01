@@ -989,7 +989,9 @@ function recursive_heading_to_bold!(ast::MarkdownAST.Node)
                 recursive_heading_to_bold!(child)
             end
         end
-        node.element isa MarkdownAST.Heading || continue
+        if !(node.element isa MarkdownAST.Heading)
+            continue
+        end
         # node is a headingnode
         boldnode = Node(MarkdownAST.Strong())
         for textnode in collect(node.children)
@@ -998,4 +1000,5 @@ function recursive_heading_to_bold!(ast::MarkdownAST.Node)
         node.element = MarkdownAST.Paragraph()
         push!(node.children, boldnode)
     end
+    return
 end
