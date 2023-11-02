@@ -718,7 +718,8 @@ end
             "https://documenter.jl/abc" => "https://documenter.jl/abc",
             "2nd" => "2nd",
             "2nd-2" => "2nd-2",
-            "123a" => "123",
+            "123" => "123",
+            "123a" => "123a",
             # Spaces get replaced by -
             "2nd feature" => "2nd-feature",
             # & gets replaced by -and-
