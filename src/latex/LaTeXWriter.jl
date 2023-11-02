@@ -791,10 +791,17 @@ latex(io::Context, node::Node, ::Documenter.MetaNode) = _println(io, "\n")
 latex(io::Context, node::Node, ::Documenter.SetupNode) = nothing
 
 function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
-    @warn """
-    Unexpected Julia interpolation of type $(typeof(value.ref)) in the Markdown.
-    """ value = value.ref
-    latexesc(io, string(value.ref))
+    @warn("""
+    Unexpected Julia interpolation in the Markdown. This probably means that you
+    have an unbalanced or un-escaped \$ in the text.
+
+    To write the dollar sign, escape it with `\\\$`
+
+    We don't have the file or line number available, but we got given the value:
+
+    `$(value.ref)` which is of type `$(typeof(value.ref))`
+    """)
+    return latexesc(io, string(value.ref))
 end
 
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
