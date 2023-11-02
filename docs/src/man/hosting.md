@@ -413,13 +413,12 @@ jobs:
               git config user.name "Documenter.jl"
               git config user.email "documenter@juliadocs.github.io"
               git rm -rf "${preview_dir}"
-              git commit -m "Delete preview for #${PR}"
+              git commit -m "delete preview"
               git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
               git push --force origin gh-pages-new:gh-pages
           fi
         env:
           preview_dir: previews/PR${{ github.event.number }}
-          PR: ${{ github.event.number }}
 ```
 
 _This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
