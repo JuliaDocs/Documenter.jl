@@ -392,6 +392,11 @@ on:
   pull_request:
     types: [closed]
 
+# Ensure that only one "Doc Preview Cleanup" workflow is force pushing at a time
+concurrency:
+  group: doc-preview-cleanup
+  cancel-in-progress: false
+
 jobs:
   doc-preview-cleanup:
     runs-on: ubuntu-latest
