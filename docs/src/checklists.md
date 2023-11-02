@@ -16,7 +16,8 @@ In preparation for a release, use the following checklist.
         * If the release is breaking, increment MAJOR
         * If the release adds a new user-visible feature, increment MINOR
         * Otherwise (bug-fixes, documentation improvements), increment PATCH
- - [ ] Update `CHANGELOG.md`, following the existing style
+ - [ ] Update `CHANGELOG.md`, following the existing style (in particular, make sure that the change log for this version has the correct version number and date)
+ - [ ] Run `make changelog`, to make sure that all the issue references in `CHANGELOG.md` are up to date.
  - [ ] Check that the commit messages in this PR do not contain `[ci skip]`
 
 ## The release
