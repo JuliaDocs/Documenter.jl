@@ -25,9 +25,13 @@ In preparation for a release, use the following checklist.
 
 ## The release
 
- - [ ] After merging this pull request, comment `[at]JuliaRegistrator register`
-       in the GitHub commit. This should automatically publish a new version to
-       the Julia registry, as well as create a tag, and rebuild the
+ - [ ] After merging this pull request, tag the release. There are two options for this:
+ 
+       1. [Comment `[at]JuliaRegistrator register` on the GitHub commit.](https://github.com/JuliaRegistries/Registrator.jl#via-the-github-app)
+       2. Use [JuliaHub's package registration feature](https://help.juliahub.com/juliahub/stable/contribute/#registrator) to trigger the registration.
+ 
+       Either of those should automatically publish a new version to the Julia registry.
+       Once registered, the `TagBot.yml` workflow should create a tag, and rebuild the
        documentation for this tag. These steps can take quite a bit of time (1
        hour or more), so don't be surprised if the new documentation takes a
        while to appear.
