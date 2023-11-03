@@ -13,19 +13,19 @@ module InvalidLinks
 end
 
 
-@testset "invalid links" begin
+@testset "invalid links in docstring" begin
     c = IOCapture.capture(; rethrow=Union{}) do
         makedocs(;
             root = dirname(@__FILE__),
             modules = InvalidLinks,
             sitename = "InvalidLinks Checks",
             warnonly = false,
-            linkcheck=true,
-            debug=false
+            linkcheck = true,
+            debug = false
         )
     end
     @test contains(c.output, r"Error:.*http://domain.invalid/index.html")
-    @test_broken contains(c.output, r"Error:.*http://domain.invalid/docstring.html")
+    @test contains(c.output, r"Error:.*http://domain.invalid/docstring.html")
     @test c.value isa ErrorException
     @test contains(c.value.msg, "`makedocs` encountered an error [:linkcheck]")
 end
