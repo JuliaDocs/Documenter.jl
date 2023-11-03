@@ -246,6 +246,7 @@ A guide detailing how to document a package using Documenter's [`makedocs`](@ref
 in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(; debug = false, format = HTML(), kwargs...)
+    exception = nothing
     try
         document = Documenter.Document(; format=format, kwargs...)
         # Before starting the build pipeline, we empty out the subtype cache used by
@@ -260,10 +261,15 @@ function makedocs(; debug = false, format = HTML(), kwargs...)
         return debug ? document : nothing
     catch e
         if isa(e, DocumenterBuildException)
-            throw(DocumenterError(:makedocs, (e, catch_backtrace())))
+            exc_error_log = IOBuffer()
+            showerror(exc_error_log, e, catch_backtrace())
+            @debug String(take!(exc_error_log))
+            exception = DocumenterError(:makedocs, (e, catch_backtrace()))
+        else
+            rethrow(e)
         end
-        rethrow(e)
     end
+    isnothing(exception) || throw(exception)
 end
 
 """
