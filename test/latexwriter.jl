@@ -1,6 +1,7 @@
 module LaTeXWriterTests
 
 using Test
+import Documenter
 import Documenter.LaTeXWriter
 
 @testset "file ordering" begin
@@ -31,5 +32,40 @@ import Documenter.LaTeXWriter
         ("", "c.md", 3),
     ]
 end
+
+
+function _dummy_lctx()
+    doc = Documenter.Document()
+    buffer = IOBuffer()
+    return LaTeXWriter.Context(buffer, doc)
+end
+
+function _latexesc(str)
+    lctx = _dummy_lctx()
+    LaTeXWriter.latexesc(lctx, str)
+    return String(take!(lctx.io))
+end
+
+function _md_to_latex(mdstr)
+    lctx = _dummy_lctx()
+    ast = Documenter.mdparse(mdstr; mode=:single)[1]
+    LaTeXWriter.latex(lctx, ast.children)  # should use latexesc internally
+    return String(take!(lctx.io))
+end
+
+
+@testset "latex escapes" begin
+
+    md = "~ Ref.\u00A0[1], O'Reilly, \"Book #1\""
+    tex = "{\\textasciitilde} Ref.~[1], O{\\textquotesingle}Reilly, {\\textquotedbl}Book \\#1{\\textquotedbl}"
+    @test _latexesc(md) == tex
+    @test _md_to_latex(md) == tex
+
+    md = "[DocumenterCitations.jl](https://github.com/JuliaDocs/DocumenterCitations.jl#readme)"
+    tex = "\\href{https://github.com/JuliaDocs/DocumenterCitations.jl\\#readme}{DocumenterCitations.jl}"
+    @test _md_to_latex(md) == tex
+
+end
+
 
 end

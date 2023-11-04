@@ -3,6 +3,23 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## UNRELEASED
+
+### Changed
+
+* `id` anchors may now start with a numeric digit. ([#744]), ([#2325])
+
+### Fixed
+
+* Enabled text wrapping in docstring header on smaller screens. ([#2293], [#2307])
+* Fixed breadcrumb overflow with long page title on narrow screens (mobile). ([#2317])
+
+## Version [v1.1.2] - 2023-10-23
+
+### Fixed
+
+* Non-breaking spaces are now properly converted as "~" in the `LaTeXWriter`. ([#2300])
+
 ## Version [v1.1.1] - 2023-10-12
 
 ### Fixed
@@ -1264,6 +1281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.0.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.0.1
 [v1.1.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.0
 [v1.1.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.1
+[v1.1.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.2
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1275,6 +1293,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#631]: https://github.com/JuliaDocs/Documenter.jl/issues/631
 [#697]: https://github.com/JuliaDocs/Documenter.jl/issues/697
 [#706]: https://github.com/JuliaDocs/Documenter.jl/issues/706
+[#744]: https://github.com/JuliaDocs/Documenter.jl/issues/744
 [#756]: https://github.com/JuliaDocs/Documenter.jl/issues/756
 [#764]: https://github.com/JuliaDocs/Documenter.jl/issues/764
 [#774]: https://github.com/JuliaDocs/Documenter.jl/issues/774
@@ -1711,6 +1730,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2280]: https://github.com/JuliaDocs/Documenter.jl/issues/2280
 [#2281]: https://github.com/JuliaDocs/Documenter.jl/issues/2281
 [#2285]: https://github.com/JuliaDocs/Documenter.jl/issues/2285
+[#2293]: https://github.com/JuliaDocs/Documenter.jl/issues/2293
+[#2300]: https://github.com/JuliaDocs/Documenter.jl/issues/2300
+[#2307]: https://github.com/JuliaDocs/Documenter.jl/issues/2307
+[#2317]: https://github.com/JuliaDocs/Documenter.jl/issues/2317
+[#2323]: https://github.com/JuliaDocs/Documenter.jl/issues/2325
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054

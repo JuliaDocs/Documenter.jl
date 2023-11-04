@@ -706,6 +706,37 @@ end
         @test remove_common_backtrace([1,2,3], [1,2,3]) == []
         @test remove_common_backtrace([1,2,3], [0,1,2,3]) == []
     end
+
+    @testset "slugify" begin
+        for (test, answer) in [
+            # Nonstrings get converted to strings
+            1 => "1",
+            # Good strings stay good
+            "a" => "a",
+            "my-heading" => "my-heading",
+            "documenter.jl/abc" => "documenter.jl/abc",
+            "https://documenter.jl/abc" => "https://documenter.jl/abc",
+            "2nd" => "2nd",
+            "2nd-2" => "2nd-2",
+            "123" => "123",
+            "123a" => "123a",
+            # Spaces get replaced by -
+            "2nd feature" => "2nd-feature",
+            # & gets replaced by -and-
+            "a & b" => "a-and-b",
+            # Multiple -- are reduced
+            "a---b" => "a-b",
+            # Leading and trailing - are stripped
+            "-a---b-" => "a-b",
+            # A combination of things
+            "   a & b" => "a-and-b",
+            "--a & b" => "a-and-b",
+            # Non letter, punctuation, digit, or `-` characters are removed
+            "a\0a" => "aa"
+        ]
+            @test Documenter.slugify(test) == answer
+        end
+    end
 end
 
 end

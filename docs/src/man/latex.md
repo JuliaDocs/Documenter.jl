@@ -170,4 +170,27 @@ mathengine = MathJax3(Dict(
 ))
 ```
 
+The syntax is slightly different if using KaTeX, the following example is what you might include in your `makedocs` function:
+
+```julia
+makedocs(
+    format = Documenter.HTML(; mathengine=
+        Documenter.KaTeX(
+            Dict(:delimiters => [
+                Dict(:left => raw"$",   :right => raw"$",   display => false),
+                Dict(:left => raw"$$",  :right => raw"$$",  display => true),
+                Dict(:left => raw"\[",  :right => raw"\]",  display => true),
+                ],
+                :macros => Dict("\\RR" => "\\mathbb{R}",
+                    raw"\Xi" => raw"X_{i}",
+                    raw"\Ru" => raw"R_{\mathrm{univ.}}",
+                    raw"\Pstd" => raw"P_{\mathrm{std}}",
+                    raw"\Tstd" => raw"T_{\mathrm{std}}",
+                ),
+            )
+        )
+    )
+)
+```
+
 [`MathJax2`](@ref), [`MathJax3`](@ref) and [`KaTeX`](@ref) are available types for `mathengine`.
