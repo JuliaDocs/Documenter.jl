@@ -1,0 +1,39 @@
+name: PkgEval
+on:
+  push:
+    #branches:
+    #  - pkgeval
+    #  - 'release-*'
+jobs:
+  test:
+    name: Check PkgEval
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - uses: actions/checkout@v4
+        with:
+          repository: 'JuliaCI/PkgEval.jl'
+      - name: Instantiate PkgEval
+        run: julia --project=. -e 'import Pkg; Pkg.instantiate()'
+      - name: Run PkgEval
+        shell: julia --project=. {0}
+        run: |
+          BRANCH = ENV["GITHUB_REF_NAME"]
+          using PkgEval
+          config = Configuration(; julia="nightly");
+          package = Package(; name="Documenter", rev=BRANCH)
+          println("##################################################")
+          @show config
+          @show package
+          println("##################################################")
+          result = PkgEval.evaluate_test(config, package; echo=true)
+          println("##################################################")
+          @show result.version
+          @show result.duration
+          @show result.status
+          @show result.reason
+          exit(result.status == :ok ? 0 : 1)
