@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## UNRELEASED
 
+### Changed
+
+* `id` anchors may now start with a numeric digit. ([#744]), ([#2325])
+
 ### Fixed
 
 * Enabled text wrapping in docstring header on smaller screens. ([#2293], [#2307])
@@ -1290,6 +1294,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#631]: https://github.com/JuliaDocs/Documenter.jl/issues/631
 [#697]: https://github.com/JuliaDocs/Documenter.jl/issues/697
 [#706]: https://github.com/JuliaDocs/Documenter.jl/issues/706
+[#744]: https://github.com/JuliaDocs/Documenter.jl/issues/744
 [#756]: https://github.com/JuliaDocs/Documenter.jl/issues/756
 [#764]: https://github.com/JuliaDocs/Documenter.jl/issues/764
 [#774]: https://github.com/JuliaDocs/Documenter.jl/issues/774
@@ -1731,6 +1736,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2307]: https://github.com/JuliaDocs/Documenter.jl/issues/2307
 [#2308]: https://github.com/JuliaDocs/Documenter.jl/issues/2308
 [#2317]: https://github.com/JuliaDocs/Documenter.jl/issues/2317
+[#2323]: https://github.com/JuliaDocs/Documenter.jl/issues/2325
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
