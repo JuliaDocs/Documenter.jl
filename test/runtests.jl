@@ -21,10 +21,6 @@ end
     @info "Building missingdocs/make.jl"
     include("missingdocs/make.jl")
 
-    # Test invalid links (linkcheck option)
-    @info "Building invalidlinks/make.jl"
-    include("invalidlinks/make.jl")
-
     # Error reporting.
     @info "Building errors/make.jl"
     @quietly include("errors/make.jl")

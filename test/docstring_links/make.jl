@@ -1,4 +1,4 @@
-module InvalidLinksTests
+module DocstringLinkTests
 using Test
 using Documenter
 import IOCapture
