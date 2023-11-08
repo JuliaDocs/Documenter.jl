@@ -8,7 +8,7 @@ This is the [`DocumenterShowcase`](@ref), which contains
 
     This showcase page is included in Documenter version 0.24.0 and above.
 
-Headings that are part of docstrings are not rendered as headings but rather as bold text. Just like:
+Headings that are part of docstrings are not rendered as headings but rather as bold text:
 
 # Contents
 
