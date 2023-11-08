@@ -40,11 +40,8 @@ macro docerror(doc, tag, msg, exs...)
     quote
         let doc = $(doc)
             push!(doc.internal.errors, $(tag))
-            if is_strict(doc, $(tag))
-                @error $(msg) $(exs...)
-            else
-                @warn $(msg) $(exs...)
-            end
+            level = is_strict(doc, $(tag)) ? Logging.Error : Logging.Warn
+            @logmsg level $(msg) $(exs...) _file=$(__source__.file) _line=$(__source__.line)
         end
     end
 end
