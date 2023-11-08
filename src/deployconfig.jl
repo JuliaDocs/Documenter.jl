@@ -863,39 +863,18 @@ Implementation of `DeployConfig` for deploying from Woodpecker CI.
 The following environmental variables are built-in from the Woodpecker pipeline
 influences how `Documenter` works:
  - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
- - `CI_REPO_LINK`: must match the full link to the project repo
  - `CI_PIPELINE_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
  - `CI_COMMIT_TAG`: must match to a tag.
  - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
  - `CI_REPO_OWNER`: must return the value of the repo owner. Real names are not necessary.
+ - `CI_FORGE_URL`: env var to build the url to be used for authentication.
+ - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
+   repository. This variable should be somehow set in the CI environment, e.g.,
+   provisioned by an agent environment plugin.
 
 The following user-defined environmental variables influences how `Documenter` works:
  - `PROJECT_ACCESS_TOKEN`: user generated access token from a forge e.g. GitHub, GitLab, Codeberg to be used as a secret.
- - `FORGE_URL`: user-defined env var to be used for authentication. Optional.
-
-User can define the `FORGE_URL` variable and add it to their Woodpecker pipeline definition:
-
-Example `.woodpecker.yml`
-```yaml
-steps:
-   docs:
-   image: julia
-   environment:
-     - FORGE_URL=github.com
-   ...
-```
-
-Or
-
-```yaml
-steps:
-   docs:
-   image: julia
-   commands:
-     - export FORGE_URL=github.com
-   ...
-```
 
 More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/pipeline-syntax>
 
@@ -907,7 +886,6 @@ This access token should be then added as a secret as documented in
 <https://woodpecker-ci.org/docs/usage/secrets>.
 """
 struct Woodpecker <: DeployConfig
-    woodpecker_repo_link::String
     woodpecker_forge_url::String
     woodpecker_repo::String
     woodpecker_tag::String
@@ -922,16 +900,12 @@ Initialize woodpecker environment-variables. Further info of
 environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
 """
 function Woodpecker()
-    woodpecker_repo_link = get(ENV, "CI_REPO_LINK", "")
-    m = match(r"https?:\/\/(?:.+\.)*(.+\..+?)\/", woodpecker_repo_link)
-    # Get the forge URL, otherwise, if the value is `nothing`,
-    # Then use the woodpecker_repo_link
-    woodpecker_forge_url = isnothing(m) ? woodpecker_repo_link : m.captures[1]
+    woodpecker_forge_url = get(ENV, "CI_FORGE_URL", "")
     woodpecker_tag = get(ENV, "CI_COMMIT_TAG", "")
     woodpecker_repo = get(ENV, "CI_REPO", "")  # repository full name <owner>/<name>
     woodpecker_event_name = get(ENV, "CI_PIPELINE_EVENT", "")  # build event (push, pull_request, tag, deployment)
     woodpecker_ref = get(ENV, "CI_COMMIT_REF", "")  # commit ref
-    return Woodpecker(woodpecker_repo_link, woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
+    return Woodpecker(woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
 end
 
 function deploy_folder(
@@ -958,8 +932,6 @@ function deploy_folder(
     println(io, "Deployment criteria for deploying $(build_type) build from Woodpecker-CI")
     ## The deploydocs' repo should match CI_REPO
     #
-    repo_link_ok = !isempty(cfg.woodpecker_repo_link)  # if repo link is an empty string then it is not valid
-    all_ok &= repo_link_ok
     forge_url_ok = !isempty(cfg.woodpecker_forge_url)  # if the forge url is an empty string, it is not a valid url
     all_ok &= forge_url_ok
 
@@ -1051,19 +1023,10 @@ end
 
 authentication_method(::Woodpecker) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTTPS
 function authenticated_repo_url(cfg::Woodpecker)
-    # `cfg.woodpecker_forge_url` should be just the root of the URL e.g. github.com, gitlab.com, codeberg.org
-    # otherwise, it will be equal to `cfg.woodpecker_repo_link`
-    # If so, we just split the `http(s)://` from the string we want 
-    # e.g. `https://github.com/JuliaDocs/Documenter.jl` to `github.com/JuliaDocs/Documenter.jl`.
-    if haskey(ENV, "FORGE_URL")
-        return "https://$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
-    else
-        if occursin(cfg.woodpecker_repo, cfg.woodpecker_forge_url)
-            return "https://$(ENV["PROJECT_ACCESS_TOKEN"])@$(split(cfg.woodpecker_forge_url, r"https?://")[2]).git"
-        else
-            return "https://$(ENV["PROJECT_ACCESS_TOKEN"])@$(cfg.woodpecker_forge_url)/$(cfg.woodpecker_repo).git"
-        end
-    end
+    # https://codeberg.org -> codeberg.org
+    forge_domain = split(cfg.woodpecker_forge_url,  r"https?://")[2]
+
+    return "https://$(ENV["PROJECT_ACCESS_TOKEN"])@$(forge_domain)/$(cfg.woodpecker_repo).git"
 end
 
 ##################
