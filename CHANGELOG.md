@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * `id` anchors may now start with a numeric digit. ([#744]), ([#2325])
+* Documenter now warns when it encounters invalid keys in the various key-value at-blocks. ([#2306], [#2324])
 
 ### Fixed
 
