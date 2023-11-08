@@ -8,8 +8,6 @@ This is the [`DocumenterShowcase`](@ref), which contains
 
     This showcase page is included in Documenter version 0.24.0 and above.
 
-Headings that are part of docstrings are not rendered as headings but rather as bold text:
-
 # Contents
 
 Docstrings can contain admonitions and other block-level nodes.
@@ -69,6 +67,7 @@ bar(::AbstractString) = nothing
     baz(x, f, k)
 
 Function with a more complex docstring.
+Headings that are part of docstrings are not rendered as headings but rather as bold text:
 
 # Arguments
 - `x::Integer`: the first argument
