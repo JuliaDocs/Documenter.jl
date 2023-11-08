@@ -597,7 +597,7 @@ end end
         @test d.repo == "JuliaDocs/Documenter.jl"
         @test d.branch == "pages"
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
-        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+        @test Documenter.authenticated_repo_url(cfg) === "https://SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
     # Regular tag build with PROJECT_ACCESS_TOKEN and with tag prefix
     withenv(
@@ -621,7 +621,7 @@ end end
         @test d.repo == "JuliaDocs/Documenter.jl"
         @test d.branch == "pages"
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
-        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+        @test Documenter.authenticated_repo_url(cfg) === "https://SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
     # Broken tag build
     withenv(
@@ -663,7 +663,7 @@ end end
                                  devbranch="not-master", devurl="hello-world", push_preview=true)
         @test !d.all_ok
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
-        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+        @test Documenter.authenticated_repo_url(cfg) === "https://SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
     # Regular pull request build
     withenv(
@@ -689,7 +689,7 @@ end end
                   devbranch="master", devurl="hello-world", push_preview=false)
         @test !d.all_ok
         @test Documenter.authentication_method(cfg) === Documenter.HTTPS
-        @test Documenter.authenticated_repo_url(cfg) === "https://JuliaDocs:SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
+        @test Documenter.authenticated_repo_url(cfg) === "https://SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
     end
     # Not a pull request
     withenv(
