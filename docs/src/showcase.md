@@ -257,6 +257,12 @@ To see an example of a level 1 heading see the page title and for level 2 headin
 !!! note "Headings in sidebars"
     Level 1 and 2 heading show up in the sidebar, for the current page.
 
+Note that in docstrings, the headings get rewritten as just bold text right now:
+
+```@docs
+DocumenterShowcase.baz
+```
+
 ## Docstrings
 
 The key feature of Documenter, of course, is the ability to automatically include docstrings
@@ -322,7 +328,6 @@ We then see the same docstring as above
 
 ```@docs; canonical=false
 DocumenterShowcase.bar
-DocumenterShowcase.baz
 ```
 
 ### An index of docstrings
