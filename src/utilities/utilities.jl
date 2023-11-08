@@ -3,7 +3,7 @@ import Base: isdeprecated, Docs.Binding
 using DocStringExtensions
 import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
-
+import Logging
 
 using .Remotes: Remote, repourl, repofile
 # These imports are here to support code that still assumes that these names are defined
@@ -41,7 +41,7 @@ macro docerror(doc, tag, msg, exs...)
         let doc = $(doc)
             push!(doc.internal.errors, $(tag))
             level = is_strict(doc, $(tag)) ? Logging.Error : Logging.Warn
-            @logmsg level $(msg) $(exs...) _file=$(__source__.file) _line=$(__source__.line)
+            Logging.@logmsg level $(msg) $(exs...) _file=$(__source__.file) _line=$(__source__.line)
         end
     end
 end
