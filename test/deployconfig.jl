@@ -580,13 +580,12 @@ end end
     withenv(
             "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
-            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_FORGE_URL" => "https://github.com",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/tags/v1.2.3",
             "CI_COMMIT_TAG" => "v1.2.3",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "FORGE_URL" => nothing,
         ) do
         cfg = Documenter.Woodpecker()
         d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
@@ -603,13 +602,12 @@ end end
     withenv(
             "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
-            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_FORGE_URL" => "https://github.com",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/tags/MySubPackage-v1.2.3",
             "CI_COMMIT_TAG" => "MySubPackage-v1.2.3",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "FORGE_URL" => nothing,
         ) do
         cfg = Documenter.Woodpecker()
         d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
@@ -627,13 +625,12 @@ end end
     withenv(
             "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
-            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_FORGE_URL" => "https://github.com",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/tags/not-a-version",
             "CI_COMMIT_TAG" => "not-a-version",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "FORGE_URL" => nothing,
         ) do
         cfg = Documenter.Woodpecker()
         d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
@@ -644,13 +641,12 @@ end end
     withenv(
             "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
-            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_FORGE_URL" => "https://github.com",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/heads/master",
             "CI_COMMIT_TAG" => nothing,
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "FORGE_URL" => nothing,
         ) do
         cfg = Documenter.Woodpecker()
         d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
@@ -670,13 +666,12 @@ end end
             "CI_PIPELINE_EVENT" => "pull_request",
             "CI_COMMIT_PULL_REQUEST" => "42",
             "CI" => "woodpecker",
-            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_FORGE_URL" => "https://github.com",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/pull/42/merge",
             "CI_PIPELINE_EVENT" => "pull_request",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "FORGE_URL" => nothing,
         ) do
         cfg = Documenter.Woodpecker()
         d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
@@ -696,13 +691,12 @@ end end
             "CI_PIPELINE_EVENT" => "push",
             "CI_COMMIT_PULL_REQUEST" => "42",
             "CI" => "woodpecker",
-            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_FORGE_URL" => "https://github.com",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/pull/42/merge",
             "CI_PIPELINE_EVENT" => "push",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
-            "FORGE_URL" => nothing,
         ) do
         cfg = Documenter.Woodpecker()
         d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
@@ -712,13 +706,12 @@ end end
     # Missing environment variables
     withenv(
             "CI" => "woodpecker",
-            "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
+            "CI_FORGE_URL" => "https://github.com",
             "CI_PIPELINE_EVENT" => "pull_request",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/pull/42/merge",
             "PROJECT_ACCESS_TOKEN" => nothing,
-            "FORGE_URL" => nothing,
         ) do
         cfg = Documenter.Woodpecker()
         d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
