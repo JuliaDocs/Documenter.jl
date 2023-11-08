@@ -322,11 +322,6 @@ We then see the same docstring as above
 
 ```@docs; canonical=false
 DocumenterShowcase.bar
-```
-
-We can also use nested lists and headings in docstrings
-
-```@docs
 DocumenterShowcase.baz
 ```
 
