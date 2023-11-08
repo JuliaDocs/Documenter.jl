@@ -965,16 +965,7 @@ function create_docsnode(docstrings, results, object, page, doc)
     for (markdown, result) in zip(docstrings, results)
         ast = convert(Node, markdown)
         doc.user.highlightsig && highlightsig!(ast)
-        # The following 'for' corresponds to the old dropheaders() function
-        for headingnode in ast.children
-            headingnode.element isa MarkdownAST.Heading || continue
-            boldnode = Node(MarkdownAST.Strong())
-            for textnode in collect(headingnode.children)
-                push!(boldnode.children, textnode)
-            end
-            headingnode.element = MarkdownAST.Paragraph()
-            push!(headingnode.children, boldnode)
-        end
+        recursive_heading_to_bold!(ast)
         push!(docsnode.mdasts, ast)
         push!(docsnode.results, result)
         push!(docsnode.metas, markdown.meta)
@@ -989,4 +980,25 @@ function highlightsig!(node::Node)
     if node.element isa MarkdownAST.CodeBlock && isempty(node.element.info)
         node.element.info = "julia"
     end
+end
+
+function recursive_heading_to_bold!(ast::MarkdownAST.Node)
+    for node in ast.children
+        if node.element isa MarkdownAST.List
+            for child in node.children
+                recursive_heading_to_bold!(child)
+            end
+        end
+        if !(node.element isa MarkdownAST.Heading)
+            continue
+        end
+        # node is a headingnode
+        boldnode = Node(MarkdownAST.Strong())
+        for textnode in collect(node.children)
+            push!(boldnode.children, textnode)
+        end
+        node.element = MarkdownAST.Paragraph()
+        push!(node.children, boldnode)
+    end
+    return
 end

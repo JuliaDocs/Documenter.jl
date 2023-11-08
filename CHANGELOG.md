@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Enabled text wrapping in docstring header on smaller screens. ([#2293], [#2307])
 * Fixed breadcrumb overflow with long page title on narrow screens (mobile). ([#2317])
 * Fixed `linkcheck` not checking inside of docstrings. ([#2329], [#2330])
+* Headings are now rewritten to `<strong>` in lists found in docstrings. ([#2308], [#2313])
 
 ## Version [v1.1.2] - 2023-10-23
 
@@ -1734,8 +1735,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2293]: https://github.com/JuliaDocs/Documenter.jl/issues/2293
 [#2300]: https://github.com/JuliaDocs/Documenter.jl/issues/2300
 [#2307]: https://github.com/JuliaDocs/Documenter.jl/issues/2307
+[#2308]: https://github.com/JuliaDocs/Documenter.jl/issues/2308
+[#2313]: https://github.com/JuliaDocs/Documenter.jl/issues/2313
 [#2317]: https://github.com/JuliaDocs/Documenter.jl/issues/2317
-[#2323]: https://github.com/JuliaDocs/Documenter.jl/issues/2325
+[#2325]: https://github.com/JuliaDocs/Documenter.jl/issues/2325
+[#2329]: https://github.com/JuliaDocs/Documenter.jl/issues/2329
+[#2330]: https://github.com/JuliaDocs/Documenter.jl/issues/2330
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
