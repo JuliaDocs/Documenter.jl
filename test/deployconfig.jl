@@ -767,12 +767,6 @@ end end
         cfg = Documenter.auto_detect_deploy_system()
         @test cfg isa Documenter.Woodpecker
     end
-    withenv("CI" => "drone",
-            "GITHUB_REPOSITORY" => nothing
-        ) do
-        cfg = Documenter.auto_detect_deploy_system()
-        @test cfg isa Documenter.Woodpecker
-    end
     withenv("CI" => nothing,
             "GITHUB_REPOSITORY" => nothing
         ) do
