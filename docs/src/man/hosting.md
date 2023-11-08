@@ -392,6 +392,11 @@ on:
   pull_request:
     types: [closed]
 
+# Ensure that only one "Doc Preview Cleanup" workflow is force pushing at a time
+concurrency:
+  group: doc-preview-cleanup
+  cancel-in-progress: false
+
 jobs:
   doc-preview-cleanup:
     runs-on: ubuntu-latest
@@ -404,16 +409,16 @@ jobs:
           ref: gh-pages
       - name: Delete preview and history + push changes
         run: |
-            if [ -d "previews/PR$PRNUM" ]; then
+          if [ -d "${preview_dir}" ]; then
               git config user.name "Documenter.jl"
               git config user.email "documenter@juliadocs.github.io"
-              git rm -rf "previews/PR$PRNUM"
+              git rm -rf "${preview_dir}"
               git commit -m "delete preview"
               git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
               git push --force origin gh-pages-new:gh-pages
-            fi
+          fi
         env:
-            PRNUM: ${{ github.event.number }}
+          preview_dir: previews/PR${{ github.event.number }}
 ```
 
 _This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._

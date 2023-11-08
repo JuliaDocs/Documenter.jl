@@ -1,0 +1,79 @@
+name: regression-tests
+on:
+  workflow_dispatch:
+jobs:
+  test-dependent-packages:
+    name: run-tests-${{ matrix.package }}
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE: ${{ matrix.package }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: 'DocumenterCitations'
+          - package: 'DocumenterMermaid'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - uses: actions/cache@v3
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: Test
+        shell: julia --color=yes {0}
+        run: |
+          import Pkg
+          Pkg.develop(Pkg.PackageSpec(; path = pwd()))
+          Pkg.develop(ENV["PACKAGE"])
+          Pkg.test(ENV["PACKAGE"])
+  test-documentation-build:
+    name: doc-build-${{ matrix.package }}
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE: ${{ matrix.package }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: 'MathOptInterface'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - uses: actions/cache@v3
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}- 
+      - name: install-and-build-documentation
+        shell: julia --color=yes {0}
+        run: |
+          import Pkg
+          # Install the PACKAGE into `Pkg.devdir()`
+          Pkg.develop(ENV["PACKAGE"])
+          # Assume that there is an docs/Project.toml
+          doc_path = joinpath(Pkg.devdir(), ENV["PACKAGE"], "docs")
+          Pkg.activate(doc_path)
+          # Change the TOML to include the package and this version of Documenter
+          Pkg.develop(ENV["PACKAGE"])
+          Pkg.develop(Pkg.PackageSpec(path=pwd()))
+          # Install
+          Pkg.instantiate()
+          # Build the docs
+          include(joinpath(doc_path, "make.jl"))
