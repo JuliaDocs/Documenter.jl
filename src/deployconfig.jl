@@ -1056,12 +1056,12 @@ function authenticated_repo_url(cfg::Woodpecker)
     # If so, we just split the `http(s)://` from the string we want 
     # e.g. `https://github.com/JuliaDocs/Documenter.jl` to `github.com/JuliaDocs/Documenter.jl`.
     if haskey(ENV, "FORGE_URL")
-        return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
+        return "https://$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
     else
         if occursin(cfg.woodpecker_repo, cfg.woodpecker_forge_url)
-            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(split(cfg.woodpecker_forge_url, r"https?://")[2]).git"
+            return "https://$(ENV["PROJECT_ACCESS_TOKEN"])@$(split(cfg.woodpecker_forge_url, r"https?://")[2]).git"
         else
-            return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(cfg.woodpecker_forge_url)/$(cfg.woodpecker_repo).git"
+            return "https://$(ENV["PROJECT_ACCESS_TOKEN"])@$(cfg.woodpecker_forge_url)/$(cfg.woodpecker_repo).git"
         end
     end
 end
