@@ -169,9 +169,7 @@ function linkcheck(doc::Document)
     if doc.user.linkcheck
         if hascurl()
             for (src, page) in doc.blueprint.pages
-                for node in AbstractTrees.PreOrderDFS(page.mdast)
-                    linkcheck(node, doc)
-                end
+                linkcheck(page.mdast, doc)
             end
         else
             @docerror(doc, :linkcheck, "linkcheck requires `curl`.")
@@ -180,9 +178,20 @@ function linkcheck(doc::Document)
     return nothing
 end
 
-function linkcheck(node::MarkdownAST.Node, doc::Document; method::Symbol=:HEAD)
-    node.element isa MarkdownAST.Link || return
-    link = node.element
+function linkcheck(mdast::MarkdownAST.Node, doc::Document)
+    for node in AbstractTrees.PreOrderDFS(mdast)
+        linkcheck(node, node.element, doc)
+    end
+end
+
+function linkcheck(node::MarkdownAST.Node, element::MarkdownAST.AbstractElement, doc::Document)
+    # The linkcheck is only active for specific `element` types
+    # (`MarkdownAST.Link`, most importantly), which are defined below as more
+    # specific methods
+    return nothing
+end
+
+function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document; method::Symbol=:HEAD)
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
@@ -244,7 +253,7 @@ function linkcheck(node::MarkdownAST.Node, doc::Document; method::Symbol=:HEAD)
             elseif protocol === :HTTP && status == 405 && method === :HEAD
                 # when a server doesn't support HEAD requests, fallback to GET
                 @debug "linkcheck '$(link.destination)' status: $(status), retrying without `-I`"
-                return linkcheck(link, doc; method=:GET)
+                return linkcheck(node, link, doc; method=:GET)
             else
                 @docerror(doc, :linkcheck, "linkcheck '$(link.destination)' status: $(status).")
             end
@@ -254,6 +263,14 @@ function linkcheck(node::MarkdownAST.Node, doc::Document; method::Symbol=:HEAD)
     end
     return false
 end
+
+
+function linkcheck(node::MarkdownAST.Node, docs_node::Documenter.DocsNode, doc::Document)
+    for mdast in docs_node.mdasts
+        linkcheck(mdast, doc)
+    end
+end
+
 
 linkcheck_ismatch(r::String, url) = (url == r)
 linkcheck_ismatch(r::Regex, url) = occursin(r, url)
