@@ -41,7 +41,7 @@ macro docerror(doc, tag, msg, exs...)
         let doc = $(doc)
             push!(doc.internal.errors, $(tag))
             level = is_strict(doc, $(tag)) ? Logging.Error : Logging.Warn
-            Logging.@logmsg level $(msg) $(exs...) _file=$(__source__.file) _line=$(__source__.line)
+            Logging.@logmsg level $(msg) $(exs...) _file=$(__source__.file === nothing ? "?" : String(__source__.file::Symbol)) _line=$(__source__.line)
         end
     end
 end
