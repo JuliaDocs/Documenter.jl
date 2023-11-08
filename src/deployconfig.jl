@@ -864,7 +864,7 @@ The following environmental variables are built-in from the Woodpecker pipeline
 influences how `Documenter` works:
  - `CI_REPO`: must match the full name of the repository <owner>/<name> e.g. `JuliaDocs/Documenter.jl`
  - `CI_REPO_LINK`: must match the full link to the project repo
- - `CI_BUILD_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
+ - `CI_PIPELINE_EVENT`: must be set to `push`, `tag`, `pull_request`, and `deployment`
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
  - `CI_COMMIT_TAG`: must match to a tag.
  - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
@@ -929,7 +929,7 @@ function Woodpecker()
     woodpecker_forge_url = isnothing(m) ? woodpecker_repo_link : m.captures[1]
     woodpecker_tag = get(ENV, "CI_COMMIT_TAG", "")
     woodpecker_repo = get(ENV, "CI_REPO", "")  # repository full name <owner>/<name>
-    woodpecker_event_name = get(ENV, "CI_BUILD_EVENT", "")  # build event (push, pull_request, tag, deployment)
+    woodpecker_event_name = get(ENV, "CI_PIPELINE_EVENT", "")  # build event (push, pull_request, tag, deployment)
     woodpecker_ref = get(ENV, "CI_COMMIT_REF", "")  # commit ref
     return Woodpecker(woodpecker_repo_link, woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
 end
@@ -970,7 +970,7 @@ function deploy_folder(
     if build_type === :release
         event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
+        println(io, "- $(marker(event_ok)) ENV[\"CI_PIPELINE_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
         tag_nobuild = version_tag_strip_build(cfg.woodpecker_tag; tag_prefix)
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
@@ -984,7 +984,7 @@ function deploy_folder(
         ## Do not deploy for PRs
         event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"CI_BUILD_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"")
+        println(io, "- $(marker(event_ok)) ENV[\"CI_PIPELINE_EVENT\"]=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"")
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.woodpecker_ref)
         branch_ok = (m === nothing) ? false : String(m.captures[1]) == devbranch
@@ -1001,11 +1001,11 @@ function deploy_folder(
         pr_number2 = tryparse(Int, get(ENV, "CI_COMMIT_PULL_REQUEST", nothing) === nothing ? "" : ENV["CI_COMMIT_PULL_REQUEST"])
         # Check if both are Ints. If both are Ints, then check if they are equal, otherwise, return false
         pr_numbers_ok = all(x -> x isa Int, [pr_number1, pr_number2]) ? (pr_number1 == pr_number2) : false
-        is_pull_request_ok = get(ENV, "CI_BUILD_EVENT", "") == "pull_request"
+        is_pull_request_ok = get(ENV, "CI_PIPELINE_EVENT", "") == "pull_request"
         pr_ok = pr_numbers_ok == is_pull_request_ok
         all_ok &= pr_ok
         println(io, "- $(marker(pr_numbers_ok)) ENV[\"CI_COMMIT_REF\"] corresponds to a PR")
-        println(io, "- $(marker(is_pull_request_ok)) ENV[\"CI_BUILD_EVENT\"] matches built type: `pull_request`")
+        println(io, "- $(marker(is_pull_request_ok)) ENV[\"CI_PIPELINE_EVENT\"] matches built type: `pull_request`")
         btype_ok = push_preview
         all_ok &= btype_ok
         println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
@@ -1078,11 +1078,7 @@ function auto_detect_deploy_system()
         return GitLab()
     elseif haskey(ENV, "BUILDKITE")
         return Buildkite()
-    elseif get(ENV, "CI", nothing) in ["drone", "woodpecker"]
-        if ENV["CI"] == "drone"
-            @warn """Woodpecker is backward compatible to Drone 
-            but *there will be breaking changes in the future*"""
-        end
+    elseif get(ENV, "CI", nothing) in ["woodpecker"]
         return Woodpecker()
     else
         return nothing

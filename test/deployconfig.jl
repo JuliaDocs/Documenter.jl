@@ -578,7 +578,7 @@ end end
 @testset "Woodpecker CI deploy configuration" begin; with_logger(NullLogger()) do
     # Regular tag build with PROJECT_ACCESS_TOKEN
     withenv(
-            "CI_BUILD_EVENT" => "push",
+            "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
             "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
@@ -601,7 +601,7 @@ end end
     end
     # Regular tag build with PROJECT_ACCESS_TOKEN and with tag prefix
     withenv(
-            "CI_BUILD_EVENT" => "push",
+            "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
             "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
@@ -625,7 +625,7 @@ end end
     end
     # Broken tag build
     withenv(
-            "CI_BUILD_EVENT" => "push",
+            "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
             "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
@@ -642,7 +642,7 @@ end end
     end
     # Regular devbranch build
     withenv(
-            "CI_BUILD_EVENT" => "push",
+            "CI_PIPELINE_EVENT" => "push",
             "CI" => "woodpecker",
             "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
@@ -667,14 +667,14 @@ end end
     end
     # Regular pull request build
     withenv(
-            "CI_BUILD_EVENT" => "pull_request",
+            "CI_PIPELINE_EVENT" => "pull_request",
             "CI_COMMIT_PULL_REQUEST" => "42",
             "CI" => "woodpecker",
             "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/pull/42/merge",
-            "CI_BUILD_EVENT" => "pull_request",
+            "CI_PIPELINE_EVENT" => "pull_request",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "FORGE_URL" => nothing,
         ) do
@@ -693,14 +693,14 @@ end end
     end
     # Not a pull request
     withenv(
-            "CI_BUILD_EVENT" => "push",
+            "CI_PIPELINE_EVENT" => "push",
             "CI_COMMIT_PULL_REQUEST" => "42",
             "CI" => "woodpecker",
             "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/pull/42/merge",
-            "CI_BUILD_EVENT" => "push",
+            "CI_PIPELINE_EVENT" => "push",
             "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
             "FORGE_URL" => nothing,
         ) do
@@ -713,7 +713,7 @@ end end
     withenv(
             "CI" => "woodpecker",
             "CI_REPO_LINK" => "https://github.com/JuliaDocs/Documenter.jl",
-            "CI_BUILD_EVENT" => "pull_request",
+            "CI_PIPELINE_EVENT" => "pull_request",
             "CI_REPO" => "JuliaDocs/Documenter.jl",
             "CI_REPO_OWNER" => "JuliaDocs",
             "CI_COMMIT_REF" => "refs/pull/42/merge",

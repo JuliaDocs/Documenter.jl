@@ -439,7 +439,7 @@ uppercase environment variables to your pipeline. Next, create a new pipeline
 configuration file called `.woodpecker.yml` with the following contents:
 
 ```yaml
-pipeline:
+steps:
     docs:
     when:
         branch: main  # update to match your development branch
