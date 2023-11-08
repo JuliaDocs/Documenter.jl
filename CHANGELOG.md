@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Enabled text wrapping in docstring header on smaller screens. ([#2293], [#2307])
 * Fixed breadcrumb overflow with long page title on narrow screens (mobile). ([#2317])
-* Fixed heading rewrites to strong within docstings to find headingnodes in lists. ([#2308])
+* Fixed `linkcheck` not checking inside of docstrings. ([#2329], [#2330])
+* Headings are now rewritten to `<strong>` in lists found in docstrings. ([#2308], [#2313])
 
 ## Version [v1.1.2] - 2023-10-23
 
