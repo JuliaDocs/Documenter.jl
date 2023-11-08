@@ -2212,10 +2212,17 @@ function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
 end
 
 function domify(dctx::DCtx, node::Node, e::MarkdownAST.JuliaValue)
-    @warn """
-    Unexpected Julia interpolation of type $(typeof(e.ref)) in the Markdown.
-    """ value = e.ref
-    string(e.ref)
+    @warn("""
+    Unexpected Julia interpolation in the Markdown. This probably means that you
+    have an unbalanced or un-escaped \$ in the text.
+
+    To write the dollar sign, escape it with `\\\$`
+
+    We don't have the file or line number available, but we got given the value:
+
+    `$(e.ref)` which is of type `$(typeof(e.ref))`
+    """)
+    return string(e.ref)
 end
 
 function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteLink)

@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* `id` anchors may now start with a numeric digit. ([#744]), ([#2325])
+* `id` anchors may now start with a numeric digit. ([#744], [#2325])
+* Documenter prints a more informative warning now if there is unexpected Julia interpolation in the Markdown (e.g. from errant `$` signs). ([#2288], [#2327])
 
 ### Fixed
 
