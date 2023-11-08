@@ -68,7 +68,7 @@ bar(::AbstractString) = nothing
 """
     baz(x, f, k)
 
-Docstring for a more complex function.
+Function with a more complex docstring.
 
 # Arguments
 - `x::Integer`: the first argument
