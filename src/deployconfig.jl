@@ -878,7 +878,7 @@ User can define the `FORGE_URL` variable and add it to their Woodpecker pipeline
 
 Example `.woodpecker.yml`
 ```yaml
-pipeline:
+steps:
    docs:
    image: julia
    environment:
@@ -889,7 +889,7 @@ pipeline:
 Or
 
 ```yaml
-pipeline:
+steps:
    docs:
    image: julia
    commands:
