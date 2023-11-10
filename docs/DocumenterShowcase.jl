@@ -63,6 +63,27 @@ Docstring for `bar(::AbstractString)`.
 """
 bar(::AbstractString) = nothing
 
+"""
+    baz(x, f, k)
+
+Function with a more complex docstring.
+Headings that are part of docstrings are not rendered as headings but rather as bold text:
+
+# Arguments
+- `x::Integer`: the first argument
+- `f`: a function with multiple allowable arguments itself  
+
+  ## Pattern
+  - `f(a::Integer)`
+  - `f(a::Real)`
+  - `f(a::Real, b::Real)`
+
+- `k::Integer`: the third argument
+
+See also [`bar`](@ref).
+"""
+baz(x::Integer, f, k::Integer) = nothing
+
 function hello(who)
     println("Hello, $(who)!")
 end
