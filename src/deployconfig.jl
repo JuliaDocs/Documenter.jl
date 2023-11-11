@@ -954,7 +954,7 @@ Initialize woodpecker environment-variables. Further info of
 environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
 """
 function Woodpecker()
-    m = match(r"(next)?-*", ENV["CI_SYSTEM_VERSION"])
+    m = match(r"(next)-?*", ENV["CI_SYSTEM_VERSION"])
     if !isnothing(m.captures[1])
         @warn "You are currently using an unreleased version of Woodpecker CI. Creating dummy version to temporarily resolve the issue."
         woodpecker_ci_version = v"1000"
