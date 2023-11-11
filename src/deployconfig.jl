@@ -70,11 +70,11 @@ and `devurl` arguments from [`deploydocs`](@ref).
 """
 function deploy_folder(cfg::DeployConfig; kwargs...)
     @warn "Documenter.deploy_folder(::$(typeof(cfg)); kwargs...) not implemented. Skipping deployment."
-    return DeployDecision(; all_ok = false)
+    return DeployDecision(; all_ok=false)
 end
 function deploy_folder(::Nothing; kwargs...)
     @warn "Documenter could not auto-detect the building environment Skipping deployment."
-    return DeployDecision(; all_ok = false)
+    return DeployDecision(; all_ok=false)
 end
 
 @enum AuthenticationMethod SSH HTTPS
@@ -151,26 +151,26 @@ struct Travis <: DeployConfig
     travis_event_type::String
 end
 function Travis()
-    travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
-    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
-    travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
-    travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_event_type   = get(ENV, "TRAVIS_EVENT_TYPE",    "")
+    travis_branch = get(ENV, "TRAVIS_BRANCH", "")
+    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST", "")
+    travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "")
+    travis_tag = get(ENV, "TRAVIS_TAG", "")
+    travis_event_type = get(ENV, "TRAVIS_EVENT_TYPE", "")
     return Travis(travis_branch, travis_pull_request,
         travis_repo_slug, travis_tag, travis_event_type)
 end
 
 # Check criteria for deployment
 function deploy_folder(cfg::Travis;
-                       repo,
-                       repo_previews = repo,
-                       branch = "gh-pages",
-                       branch_previews = branch,
-                       devbranch,
-                       push_preview,
-                       devurl,
-                       tag_prefix = "",
-                       kwargs...)
+    repo,
+    repo_previews=repo,
+    branch="gh-pages",
+    branch_previews=branch,
+    devbranch,
+    push_preview,
+    devurl,
+    tag_prefix="",
+    kwargs...)
     io = IOBuffer()
     all_ok = true
     ## Determine build type; release, devbranch or preview
@@ -253,13 +253,13 @@ function deploy_folder(cfg::Travis;
         """
     end
     if all_ok
-        return DeployDecision(; all_ok = true,
-                                branch = deploy_branch,
-                                is_preview = is_preview,
-                                repo = deploy_repo,
-                                subfolder = subfolder)
+        return DeployDecision(; all_ok=true,
+            branch=deploy_branch,
+            is_preview=is_preview,
+            repo=deploy_repo,
+            subfolder=subfolder)
     else
-        return DeployDecision(; all_ok = false)
+        return DeployDecision(; all_ok=false)
     end
 end
 
@@ -298,21 +298,21 @@ end
 function GitHubActions()
     github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
     github_event_name = get(ENV, "GITHUB_EVENT_NAME", "") # "push", "pull_request" or "cron" (?)
-    github_ref        = get(ENV, "GITHUB_REF",        "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
+    github_ref = get(ENV, "GITHUB_REF", "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
     return GitHubActions(github_repository, github_event_name, github_ref)
 end
 
 # Check criteria for deployment
 function deploy_folder(cfg::GitHubActions;
-                       repo,
-                       repo_previews = repo,
-                       branch = "gh-pages",
-                       branch_previews = branch,
-                       devbranch,
-                       push_preview,
-                       devurl,
-                       tag_prefix = "",
-                       kwargs...)
+    repo,
+    repo_previews=repo,
+    branch="gh-pages",
+    branch_previews=branch,
+    devbranch,
+    push_preview,
+    devurl,
+    tag_prefix="",
+    kwargs...)
     io = IOBuffer()
     all_ok = true
     ## Determine build type
@@ -411,13 +411,13 @@ function deploy_folder(cfg::GitHubActions;
         """
     end
     if all_ok
-        return DeployDecision(; all_ok = true,
-                                branch = deploy_branch,
-                                is_preview = is_preview,
-                                repo = deploy_repo,
-                                subfolder = subfolder)
+        return DeployDecision(; all_ok=true,
+            branch=deploy_branch,
+            is_preview=is_preview,
+            repo=deploy_repo,
+            subfolder=subfolder)
     else
-        return DeployDecision(; all_ok = false)
+        return DeployDecision(; all_ok=false)
     end
 end
 
@@ -454,7 +454,7 @@ function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwa
             if haskey(event, "pull_request") &&
                haskey(event["pull_request"], "head") &&
                haskey(event["pull_request"]["head"], "sha")
-               sha = event["pull_request"]["head"]["sha"]
+                sha = event["pull_request"]["head"]["sha"]
             end
         elseif get(ENV, "GITHUB_EVENT_NAME", nothing) == "push"
             sha = get(ENV, "GITHUB_SHA", nothing)
@@ -466,7 +466,7 @@ function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwa
     end
 end
 
-function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothing) where S <: String
+function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothing) where {S<:String}
     try
         Sys.which("curl") === nothing && return
         ## Extract owner and repository name
@@ -483,7 +483,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
         push!(cmd.exec, "-H", "Authorization: token $(auth)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
-        json = Dict{String,Any}("context" => "documenter/deploy", "state"=>type)
+        json = Dict{String,Any}("context" => "documenter/deploy", "state" => type)
         if type == "pending"
             json["description"] = "Documentation build in progress"
         elseif type == "success"
@@ -505,7 +505,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
         # Run the command (silently)
         io = IOBuffer()
         res = run(pipeline(cmd; stdout=io, stderr=devnull))
-        @debug "Response of curl POST request" response=String(take!(io))
+        @debug "Response of curl POST request" response = String(take!(io))
     catch
         @debug "Failed to post status"
     end
@@ -540,9 +540,9 @@ end
 
 function run_and_capture(cmd)
     stdout_buffer, stderr_buffer = IOBuffer(), IOBuffer()
-    run(pipeline(cmd; stdout = stdout_buffer, stderr = stderr_buffer))
+    run(pipeline(cmd; stdout=stdout_buffer, stderr=stderr_buffer))
     stdout, stderr = String(take!(stdout_buffer)), String(take!(stderr_buffer))
-    return (; stdout = stdout, stderr = stderr)
+    return (; stdout=stdout, stderr=stderr)
 end
 
 ##########
@@ -597,13 +597,13 @@ end
 function deploy_folder(
     cfg::GitLab;
     repo,
-    repo_previews = repo,
+    repo_previews=repo,
     devbranch,
     push_preview,
     devurl,
-    branch = "gh-pages",
-    branch_previews = branch,
-    tag_prefix = "",
+    branch="gh-pages",
+    branch_previews=branch,
+    tag_prefix="",
     kwargs...,
 )
     io = IOBuffer()
@@ -682,14 +682,14 @@ function deploy_folder(
 
     if all_ok
         return DeployDecision(;
-            all_ok = true,
-            branch = deploy_branch,
-            repo = deploy_repo,
-            subfolder = subfolder,
-            is_preview = is_preview,
+            all_ok=true,
+            branch=deploy_branch,
+            repo=deploy_repo,
+            subfolder=subfolder,
+            is_preview=is_preview,
         )
     else
-        return DeployDecision(; all_ok = false)
+        return DeployDecision(; all_ok=false)
     end
 end
 
@@ -740,13 +740,13 @@ end
 function deploy_folder(
     cfg::Buildkite;
     repo,
-    repo_previews = repo,
+    repo_previews=repo,
     devbranch,
     push_preview,
     devurl,
-    branch = "gh-pages",
-    branch_previews = branch,
-    tag_prefix = "",
+    branch="gh-pages",
+    branch_previews=branch,
+    tag_prefix="",
     kwargs...,
 )
     io = IOBuffer()
@@ -836,14 +836,14 @@ function deploy_folder(
 
     if all_ok
         return DeployDecision(;
-            all_ok = true,
-            branch = deploy_branch,
-            repo = deploy_repo,
-            subfolder = subfolder,
-            is_preview = is_preview,
+            all_ok=true,
+            branch=deploy_branch,
+            repo=deploy_repo,
+            subfolder=subfolder,
+            is_preview=is_preview,
         )
     else
-        return DeployDecision(; all_ok = false)
+        return DeployDecision(; all_ok=false)
     end
 end
 
@@ -954,13 +954,18 @@ Initialize woodpecker environment-variables. Further info of
 environment-variables used are in <https://woodpecker-ci.org/docs/usage/environment>
 """
 function Woodpecker()
-    woodpecker_ci_version = VersionNumber(ENV["CI_SYSTEM_VERSION"])
-    @warn "Current Woodpecker version is $(woodpecker_ci_version). Make sure this is correct."
-    if ENV["CI"] == "drone" && (v"1.0.0" > VersionNumber(ENV["CI_SYSTEM_VERSION"]) >= v"0.15.0")
-        @warn """Woodpecker prior version 1.0.0 is backward compatible to Drone 
-        but *there will be breaking changes in the future*. Please update to a newer version"""
+    m = match(r"(next)-?*", ENV["CI_SYSTEM_VERSION"])
+    if !isnothing(m.captures[1])
+        @warn "You are currently using an unreleased version of Woodpecker CI. Creating dummy version to temporarily resolve the issue."
+        woodpecker_ci_version = v"1000"
+    else
+        woodpecker_ci_version = VersionNumber(ENV["CI_SYSTEM_VERSION"])
+        @warn "Current Woodpecker version is $(woodpecker_ci_version). Make sure this is correct."
+        if ENV["CI"] == "drone" && (v"1.0.0" > VersionNumber(ENV["CI_SYSTEM_VERSION"]) >= v"0.15.0")
+            @warn """Woodpecker prior version 1.0.0 is backward compatible to Drone 
+            but *there will be breaking changes in the future*. Please update to a newer version"""
+        end
     end
-
     # Woodpecker skipped 0.16.x and went to 1.0.0 and onwards
     # Woodpecker integration on Documenter.jl started with Woodpecker 0.15.0
     if v"1.0.0" > woodpecker_ci_version >= v"0.15.0"
