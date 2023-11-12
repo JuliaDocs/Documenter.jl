@@ -267,6 +267,9 @@ struct RemoteRepository
 end
 function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
     try
+        @info "RemoteRepository" root remote
+        @info " >" realpath(root)
+        @info " >" repo_commit(root)
         RemoteRepository(realpath(root), remote, repo_commit(root))
     catch e
         e isa RepoCommitError || rethrow()
