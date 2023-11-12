@@ -1036,11 +1036,16 @@ end end
                     "CI_COMMIT_TAG" => "v1.2.3",
                     "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
                 ) do
-                @test_warn r"You are currently using an unreleased version of Woodpecker*" Documenter.Woodpecker()
+                @test_warn r"(You are currently using an unreleased version of Woodpecker)*" Documenter.Woodpecker()
                 cfg = Documenter.Woodpecker()
                 d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
                           devbranch="master", devurl="dev", push_preview=true)
-                @test !d.all_ok
+                @test d.all_ok
+                @test d.subfolder == "v1.2.3"
+                @test d.repo == "JuliaDocs/Documenter.jl"
+                @test d.branch == "pages"
+                @test Documenter.authentication_method(cfg) === Documenter.HTTPS
+                @test Documenter.authenticated_repo_url(cfg) === "https://SGVsbG8sIHdvcmxkLg==@github.com/JuliaDocs/Documenter.jl.git"
             end
             # Incorrect `next` version
             withenv(
