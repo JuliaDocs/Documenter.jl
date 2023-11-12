@@ -1023,6 +1023,38 @@ end end
                 @test_throws KeyError cfg = Documenter.Woodpecker()
             end
         end end
+        @testset "Woodpecker CI Unreleased Versions" begin; with_logger(NullLogger()) do
+            # NOTE Unreleased versions starts with `next-<commit hash>`
+            # Regular tag build with PROJECT_ACCESS_TOKEN with next unreleased version.
+            withenv(
+                    "CI_SYSTEM_VERSION" => "next-woodpeckerversion",
+                    "CI_PIPELINE_EVENT" => "push",
+                    "CI" => "woodpecker",
+                    "CI_REPO" => "JuliaDocs/Documenter.jl",
+                    "CI_COMMIT_REF" => "refs/tags/v1.2.3",
+                    "CI_FORGE_URL" => "https://github.com",
+                    "CI_COMMIT_TAG" => "v1.2.3",
+                    "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+                ) do
+                @test_warn "You are currently using an unreleased version of Woodpecker*" cfg = Documenter.Woodpecker()
+                d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
+                          devbranch="master", devurl="dev", push_preview=true)
+                @test !d.all_ok
+            end
+            # Incorrect `next` version
+            withenv(
+                    "CI_SYSTEM_VERSION" => "notnext-indeed",
+                    "CI_PIPELINE_EVENT" => "push",
+                    "CI" => "woodpecker",
+                    "CI_REPO" => "JuliaDocs/Documenter.jl",
+                    "CI_COMMIT_REF" => "refs/tags/v1.2.3",
+                    "CI_FORGE_URL" => "https://github.com",
+                    "CI_COMMIT_TAG" => "v1.2.3",
+                    "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
+                ) do
+                @test_throws ArgumentError cfg = Documenter.Woodpecker()
+            end
+        end end
 end end
 
 struct CustomConfig <: Documenter.DeployConfig end
