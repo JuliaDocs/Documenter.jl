@@ -1036,7 +1036,8 @@ end end
                     "CI_COMMIT_TAG" => "v1.2.3",
                     "PROJECT_ACCESS_TOKEN" => "SGVsbG8sIHdvcmxkLg==",
                 ) do
-                @test_warn "You are currently using an unreleased version of Woodpecker*" cfg = Documenter.Woodpecker()
+                @test_warn r"You are currently using an unreleased version of Woodpecker*" Documenter.Woodpecker()
+                cfg = Documenter.Woodpecker()
                 d = Documenter.deploy_folder(cfg; repo="JuliaDocs/Documenter.jl",
                           devbranch="master", devurl="dev", push_preview=true)
                 @test !d.all_ok
