@@ -289,7 +289,17 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @meta block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(x.code, doc, page)
+        # If not `isassign`, this might be a comment, or any code that the user
+        # wants to hide. We should probably warn, but it is common enough that
+        # we will silently skip for now.
         if Documenter.isassign(ex)
+            if !(ex.args[1] in (:Currentmodule, :DocTestSetup, :DocTestFilters, :EditURL, :Description, :Draft))
+                source = Documenter.locrepr(page.source, lines)
+                @warn(
+                    "In $source: `@meta` block has an unsupported " *
+                    "keyword argument: $(ex.args[1])",
+                )
+            end
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
@@ -460,8 +470,14 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
             try
                 if ex.args[1] == :Filter
                     fields[ex.args[1]] = Core.eval(Main, ex.args[2])
-                else
+                elseif ex.args[1] in (:Modules, :Order, :Pages, :Public, :Private)
                     fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
+                else
+                    source = Documenter.locrepr(page.source, lines)
+                    @warn(
+                        "In $source: `@autodocs` block has an unsupported " *
+                        "keyword argument: $(ex.args[1])",
+                    )
                 end
             catch err
                 @docerror(doc, :autodocs_block,
