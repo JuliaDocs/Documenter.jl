@@ -1798,9 +1798,11 @@ end
 """
 Calculates and converts bytes to appropriate format.
 """
-function format_units(size, unit = "bytes")
+function format_units(size)
+    unit = "bytes"
+
     if size == typemax(Int)
-        return "No Limit"
+        return "(no limit)"
     end
     if size >= 1024
         size = size / 1024

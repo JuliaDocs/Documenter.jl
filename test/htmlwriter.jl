@@ -24,25 +24,6 @@ function verify_redirect_file(redirectfile, version)
     @test occursin("url=./$(version)/", content)
 end
 
-function format_units(size, unit = "bytes")
-    @test isinteger(size)
-    @test isfinite(size)
-
-    if size == typemax(Int)
-        return "No Limit"
-    end
-    if size >= 1024
-        size = size / 1024
-        unit = "KiB"
-        if size >= 1024
-            size = size / 1024
-            unit = "MiB"
-        end
-    end
-
-    return string(round(size, digits = 2), " (", unit, ")")
-end
-
 @testset "HTMLWriter" begin
     @test isdir(HTMLWriter.ASSETS)
     @test isdir(HTMLWriter.ASSETS_SASS)
@@ -315,9 +296,16 @@ end
         @test html.size_threshold_warn == 1234
     end
 
-    @testset "HTML: size_threshold_result_formats" begin
-        @test typeof(format_units(1024)) == String
-        @test typeof(format_units(typemax(Int))) == String
+    @testset "HTML: format_units" begin
+        @test typeof(HTMLWriter.format_units(1024)) == String
+        @test typeof(HTMLWriter.format_units(typemax(Int))) == String
+        @test HTMLWriter.format_units(0) == "0.0 (bytes)"
+        @test HTMLWriter.format_units(1) == "1.0 (bytes)"
+        @test HTMLWriter.format_units(1023) == "1023.0 (bytes)"
+        @test HTMLWriter.format_units(1024) == "1.0 (KiB)"
+        @test HTMLWriter.format_units(4000) == "3.91 (KiB)"
+        @test HTMLWriter.format_units(2^20 + 123) == "1.0 (MiB)"
+        @test HTMLWriter.format_units(typemax(Int)) == "(no limit)"
     end
 
     @testset "HTML: _strip_latex_math_delimiters" begin
