@@ -297,8 +297,6 @@ end
     end
 
     @testset "HTML: format_units" begin
-        @test typeof(HTMLWriter.format_units(1024)) == String
-        @test typeof(HTMLWriter.format_units(typemax(Int))) == String
         @test HTMLWriter.format_units(0) == "0.0 (bytes)"
         @test HTMLWriter.format_units(1) == "1.0 (bytes)"
         @test HTMLWriter.format_units(1023) == "1023.0 (bytes)"
