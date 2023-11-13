@@ -24,6 +24,25 @@ function verify_redirect_file(redirectfile, version)
     @test occursin("url=./$(version)/", content)
 end
 
+function format_units(size, unit = "bytes")
+    @test isinteger(size)
+    @test isfinite(size)
+
+    if size == typemax(Int)
+        return "No Limit"
+    end
+    if size >= 1024
+        size = size / 1024
+        unit = "KiB"
+        if size >= 1024
+            size = size / 1024
+            unit = "MiB"
+        end
+    end
+
+    return string(round(size, digits = 2), " (", unit, ")")
+end
+
 @testset "HTMLWriter" begin
     @test isdir(HTMLWriter.ASSETS)
     @test isdir(HTMLWriter.ASSETS_SASS)
@@ -294,6 +313,11 @@ end
         html = Documenter.HTML(size_threshold = 12345, size_threshold_warn = 1234)
         @test html.size_threshold == 12345
         @test html.size_threshold_warn == 1234
+    end
+
+    @testset "HTML: size_threshold_result_formats" begin
+        @test typeof(format_units(1024)) == String
+        @test typeof(format_units(typemax(Int))) == String
     end
 
     @testset "HTML: _strip_latex_math_delimiters" begin

@@ -1775,9 +1775,9 @@ function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DO
 
     size_threshold_msg(var::Symbol) = """
     Generated HTML over $(var) limit: $(navnode.page)
-        Generated file size: $(file_size_format_results.size) $(file_size_format_results.unit == "" ? "" : "($(file_size_format_results.unit))")
-        size_threshold_warn: $(size_threshold_warn_format_results.size) $(size_threshold_warn_format_results.unit == "" ? "" : "($(size_threshold_warn_format_results.unit))")
-        size_threshold:      $(size_threshold_format_results.size) $(size_threshold_format_results.unit == "" ? "" : "($(size_threshold_format_results.unit))")
+        Generated file size: $file_size_format_results
+        size_threshold_warn: $size_threshold_warn_format_results
+        size_threshold:      $size_threshold_format_results
         HTML file:           $(page_path)"""
     if navnode.page in ctx.settings.size_threshold_ignore
         if file_size > ctx.settings.size_threshold_warn
@@ -1800,20 +1800,18 @@ Calculates and converts bytes to appropriate format.
 """
 function format_units(size, unit = "bytes")
     if size == typemax(Int)
-        return (size = "No Limit", unit = "")
+        return "No Limit"
     end
-
     if size >= 1024
         size = size / 1024
         unit = "KiB"
-
         if size >= 1024
             size = size / 1024
             unit = "MiB"
         end
     end
 
-    return (size = round(size, digits = 2), unit = unit)
+    return string(round(size, digits = 2), " (", unit, ")")
 end
 
 """
