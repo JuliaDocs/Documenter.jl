@@ -96,6 +96,13 @@ struct IndexNode <: AbstractDocumenterBlock
             source  = error("missing value for `source` in `IndexNode`."),
             others...
         )
+        if !isempty(others)
+            @warn(
+                "In file $source: the following unsupported keyword " *
+                "arguments have been set in the `@index` node:\n" *
+                join([string(k, " = ", v) for (k, v) in others], "\n"),
+            )
+        end
         new(Pages, Modules, Order, build, source, [], codeblock)
     end
 end
@@ -120,6 +127,13 @@ struct ContentsNode <: AbstractDocumenterBlock
         )
         if Depth isa Integer
             Depth = 1:Depth
+        end
+        if !isempty(others)
+            @warn(
+                "In file $source: the following unsupported keyword " *
+                "arguments have been set in the `@contents` node:\n" *
+                join([string(k, " = ", v) for (k, v) in others], "\n"),
+            )
         end
         new(Pages, first(Depth), last(Depth), build, source, [], codeblock)
     end
