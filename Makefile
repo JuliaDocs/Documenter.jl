@@ -14,6 +14,9 @@ changelog:
 themes: docs-instantiate
 	${JULIA} --project=docs -e 'using DocumenterTools; DocumenterTools.Themes.compile_native_themes()'
 
+test:
+	${JULIA} --project -e 'using Pkg; Pkg.test()'
+
 help:
 	@echo "The following make commands are available:"
 	@echo " - make changelog: update all links in CHANGELOG.md's footer"
