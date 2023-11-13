@@ -443,7 +443,8 @@ function repo_commit(repository_root::AbstractString)
     isdir(repository_root) || throw(RepoCommitError(repository_root, "repository_root not a directory"))
     cd(repository_root) do
         try
-            toplevel = readchomp(`$(git()) rev-parse --show-toplevel`)
+            toplevel = readchomp(`$(git()) rev-parse --show-toplevel --path-format=absolute`)
+            @show toplevel
             if !ispath(toplevel)
                 throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` returned invalid path: $toplevel"))
             end
