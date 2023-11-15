@@ -758,14 +758,14 @@ dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
 function git(; nothrow = false, kwargs...)
-    system_git_path = Sys.which("git")
+    #=system_git_path = Sys.which("git")
     if system_git_path === nothing
         return nothrow ? nothing : error("Unable to find `git`")
-    end
+    end=#
     # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
     # We need to set this to something so that Git wouldn't pick up the user
     # templates (e.g. from init.templateDir config).
-    cmd = addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
+    cmd = addenv(Git.git(), "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
     # DOCUMENTER_KEY etc are never needed for git operations
     cmd = addenv(cmd, NO_KEY_ENV)
     return cmd
