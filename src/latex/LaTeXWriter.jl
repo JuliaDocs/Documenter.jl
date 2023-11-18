@@ -177,6 +177,17 @@ const DOCKER_IMAGE_TAG = "0.1"
 
 function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::String)
     if settings.platform == "native"
+        @info "LaTeXWriter: attempting to find native platform."
+        native_platform = hastex()
+        if !isempty(native_platform)
+            @info "LaTeXWriter: found native platform $native_platform."
+            settings.platform = native_platform
+            return compile_tex(doc,settings,fileprefix)
+        else
+            @error "LaTeXWriter: no native platform found."
+            return false
+        end
+    elseif settings.platform == "latexmk"
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
@@ -186,6 +197,18 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
                    "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
+            return false
+        end
+    elseif settings.platform == "texify"
+        @info "LaTeXWriter: using texify to compile tex."
+        texify = Sys.which("texify")
+        isnothing(texify) && (@error "LaTeXWriter: texify command not found."; return false)
+        try
+            piperun(`$(texify) -p -b --engine=luatex --tex-option=--shell-escape $(fileprefix).tex`, clearlogs=true)
+            return true
+        catch err
+            logs = cp(pwd(), mktempdir(; cleanup = false); force = true)
+            @error "LaTeXWriter: failed to compile tex with texify. " * "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
             return false
         end
     elseif settings.platform == "tectonic"
