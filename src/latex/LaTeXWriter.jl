@@ -56,7 +56,7 @@ struct LaTeX <: Documenter.Writer
             platform = "native",
             version  = get(ENV, "TRAVIS_TAG", ""),
             tectonic = nothing)
-        platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
+        platform ∈ ("native", "latexmk","texify", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
         return new(platform, string(version), tectonic)
     end
 end
