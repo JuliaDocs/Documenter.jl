@@ -48,10 +48,10 @@ considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 
 See [Other Output Formats](@ref) for more information.
 """
-struct LaTeX <: Documenter.Writer
+mutable struct LaTeX <: Documenter.Writer
     platform::String
-    version::String
-    tectonic::Union{Cmd,String,Nothing}
+    const version::String
+    const tectonic::Union{Cmd,String,Nothing}
     function LaTeX(;
             platform = "native",
             version  = get(ENV, "TRAVIS_TAG", ""),
