@@ -768,6 +768,13 @@ function git(; nothrow = false, kwargs...)
     cmd = addenv(Git.git(), "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
     # DOCUMENTER_KEY etc are never needed for git operations
     cmd = addenv(cmd, NO_KEY_ENV)
+    if Sys.iswindows()
+        addenv(cmd,
+            "GIT_CONFIG_COUNT" => "1",
+            "GIT_CONFIG_KEY_0" => "core.symlinks",
+            "GIT_CONFIG_VALUE_0" => "true",
+        )
+    end
     return cmd
 end
 
