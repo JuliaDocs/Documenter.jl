@@ -26,7 +26,8 @@ DocTestFilters = [
     r"UndefVarError: `?s`? not defined",
     # On 1.11, Julia also outputs hints and suggestions with doctests.
     # Note: it's important to also strip the newline, to remove the whole line
-    r"^│ Hint: .*$\n"
+    r"^│ Hint: .*$\n",
+    r"^│ Suggestion: .*$\n",
 ]
 ```
 
