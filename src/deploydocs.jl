@@ -281,7 +281,7 @@ end
     git_push(
         root, tmp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
-        deploy_config, folder,
+        deploy_config, subfolder
     )
 
 Handles pushing changes to the remote documentation branch.
