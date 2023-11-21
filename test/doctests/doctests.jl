@@ -272,7 +272,8 @@ end
     end
 
     # Tests for special REPL softscope
-    run_makedocs(["softscope.md"]; warnonly=true) do result, success, backtrace, output
+    softscope_src = (VERSION >= v"1.11.0-") ? "softscope.v1_11.md" : "softscope.md"
+    run_makedocs([softscope_src]; warnonly=true) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(41))
     end
