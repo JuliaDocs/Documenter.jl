@@ -19,15 +19,11 @@ false
 ```@meta
 DocTestFilters = [
     # remove stacktraces
-    r"Stacktrace:(\n \[[0-9]+\].*(\s+@.*)?)*",
+    r"Stacktrace:(\n \[[0-9]+\].*)*",
     # remove file paths from at-block URLs
     r"└ @ .+:[0-9]+",
     # Account for the printing change of UndefVarError
     r"UndefVarError: `?s`? not defined",
-    # On 1.11, Julia also outputs hints and suggestions with doctests.
-    # Note: it's important to also strip the newline, to remove the whole line
-    r"Hint: .*\n",
-    r"Suggestion: .*\n",
 ]
 ```
 
@@ -46,9 +42,8 @@ julia> include_string(Main, code)
 ┌ Warning: Assignment to `s` in soft scope is ambiguous because a global variable by the same name exists: `s` will be treated as a new local. Disambiguate by using `local s` to suppress this warning or `global s` to assign to the existing global variable.
 └ @ string:4
 ERROR: LoadError: UndefVarError: s not defined
-Suggestion: check for an assignment to a local variable that shadows a global of the same name.
-Hint: a global variable of this name also exists in Main.
 Stacktrace:
+ [1] top-level scope at ./string:3
 [...]
 ```
 
@@ -66,9 +61,8 @@ s, # global
 ┌ Warning: Assignment to `s` in soft scope is ambiguous because a global variable by the same name exists: `s` will be treated as a new local. Disambiguate by using `local s` to suppress this warning or `global s` to assign to the existing global variable.
 └ @ doctests.jl:3
 ERROR: UndefVarError: s not defined
-Suggestion: check for an assignment to a local variable that shadows a global of the same name.
-Hint: a global variable of this name also exists in Main.
 Stacktrace:
+ [1] doctests.jl:3 [inlined]
 [...]
 ```
 
