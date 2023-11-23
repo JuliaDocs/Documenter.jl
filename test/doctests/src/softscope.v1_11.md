@@ -19,7 +19,7 @@ false
 ```@meta
 DocTestFilters = [
     # remove stacktraces
-    r"Stacktrace:(\r?\n \[[0-9]+\].*\r?\n\s+@.*:[0-9]+\r?\n)*",
+    r"Stacktrace:(\r?\n \[[0-9]+\].*\r?\n\s+@.*:[0-9]+\r?\n)*in expression starting at .*:[0-9]+\r?\n",
     # remove file paths from at-block URLs
     r"└ @ .+:[0-9]+",
 ]
