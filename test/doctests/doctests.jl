@@ -36,7 +36,7 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     c = IOCapture.capture(rethrow = InterruptException) do
         # In case JULIA_DEBUG is set to something, we'll override that, so that we wouldn't
         # get some unexpected debug output from makedocs.
-        withenv("JULIA_DEBUG" => "") do
+        withenv("JULIA_DEBUG" => "Documenter") do
             makedocs(
                 sitename = " ",
                 format = Documenter.HTML(edit_link = "master"),
