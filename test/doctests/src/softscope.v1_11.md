@@ -18,8 +18,9 @@ false
 
 ```@meta
 DocTestFilters = [
-    # remove stacktraces
-    r"Stacktrace:(\r?\n \[[0-9]+\].*\r?\n\s+@.*:[0-9]+\r?\n)*in expression starting at .*:[0-9]+\r?\n",
+    # replace filenames and line numbers in stacktraces
+    # (mostly to handle path separator differences)
+    r"   @ .+:([0-9]+)" => "   @ {FILEPATH}:{LINE}",
     # remove file paths from at-block URLs
     r"└ @ .+:[0-9]+",
 ]
@@ -45,6 +46,7 @@ Hint: a global variable of this name also exists in Main.
 Stacktrace:
  [1] top-level scope
    @ ./string:3
+[...]
 ```
 
 ```jldoctest
@@ -66,6 +68,7 @@ Hint: a global variable of this name also exists in Main.
 Stacktrace:
  [1] top-level scope
    @ ./none:2
+[...]
 ```
 
 ```@meta
