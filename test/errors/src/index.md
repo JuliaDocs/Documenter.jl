@@ -9,10 +9,12 @@ parse error
 
 ```@meta
 CurrentModule = NonExistentModule
+draft = true  # invalid keyword
 ```
 
 ```@autodocs
 Modules = [NonExistentModule]
+pages = []  # invalid keyword
 ```
 
 ```@eval
@@ -21,6 +23,14 @@ NonExistentModule
 
 ```@docs
 # comment in a @docs block
+```
+
+```@index
+foo = 1
+```
+
+```@contents
+foo = 1
 ```
 
 [`foo(x::Foo)`](@ref) creates an [`UndefVarError`](@ref) when `eval`d
