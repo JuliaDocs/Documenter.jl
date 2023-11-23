@@ -110,18 +110,22 @@ function is_same_as_file(output, filename)
     success = if isfile(filename)
         reference = read(filename, String)
         if onormalize(reference) != onormalize(output)
-            diff = Diff{Words}(onormalize(reference), onormalize(output))
             @error """Output does not agree with reference file
             ref: $(filename)
-            ------------------------------------ output ------------------------------------
-            $(output)
-            ---------------------------------- reference  ----------------------------------
-            $(reference)
-            ------------------------------ onormalize(output) ------------------------------
-            $(onormalize(output))
-            ---------------------------- onormalize(reference)  ----------------------------
-            $(onormalize(reference))
-            """ diff
+            """
+            ps(s::AbstractString) = printstyled(stdout, s, '\n'; color=:magenta, bold=true)
+            "------------------------------------ output ------------------------------------" |> ps
+            output |> println
+            "---------------------------------- reference -----------------------------------" |> ps
+            reference |> println
+            "------------------------------ onormalize(output) ------------------------------" |> ps
+            onormalize(output) |> println
+            "---------------------------- onormalize(reference) -----------------------------" |> ps
+            onormalize(reference) |> println
+            "------------------------------------- diff -------------------------------------" |> ps
+            diff = Diff{Words}(onormalize(reference), onormalize(output))
+            diff |> println
+            "------------------------------------- end --------------------------------------" |> ps
             false
         else
             true
@@ -138,7 +142,36 @@ function is_same_as_file(output, filename)
     return success
 end
 
-rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
+const MINVERSION = v"0.0.0-"
+
+function rfile(index::Integer)
+    reference_directory = joinpath(@__DIR__, "stdouts")
+    reference_file, versionmatch = "", MINVERSION
+    for filename in readdir(reference_directory)
+        m = match(r"^(?<index>[0-9]+)(?:\.v(?<major>[[0-9]+)_(?<minor>[0-9]+))?\.stdout$", filename)
+        # If the regex doesn't match, then we're not interested in this file
+        isnothing(m) && continue
+        # Similarly, we're only interested in collecting up the reference files that match `index`
+        m[:index] == string(index) || continue
+        # Parse the version, or stick to a fallback value if the filename does not contain a version number.
+        version = if isnothing(m[:major])
+            # This is the fallback version, matching everything
+            MINVERSION
+        else
+            major, minor = parse(Int, m[:major]), parse(Int, m[:minor])
+            # Format as 'v$(major).$(minor).0-'. This should match every version within a minor version,
+            # including all the -DEV etc. prereleases.
+            VersionNumber(major, minor, 0, ("",))
+        end
+        if (version <= VERSION) && (version >= versionmatch)
+            reference_file, versionmatch = joinpath(reference_directory, filename), version
+        end
+    end
+    # If `reference_file` is still an empty string, then the loop above failed because the appropriate
+    # reference file is missing.
+    isempty(reference_file) && error("Unable to find reference files for $(index).stdout, VERSION=$VERSION")
+    return reference_file
+end
 
 @testset "doctesting" begin
     # So, we have 4 doctests: 2 in a docstring, 2 in an .md file. One of either pair is
@@ -148,58 +181,58 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     # Some tests are broken due to https://github.com/JuliaDocs/Documenter.jl/issues/974
     run_makedocs(["working.md"]) do result, success, backtrace, output
         @test success
-        @test is_same_as_file(output, rfile("1.stdout"))
+        @test is_same_as_file(output, rfile(1))
     end
 
     run_makedocs(["broken.md"]) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("2.stdout"))
+        @test is_same_as_file(output, rfile(2))
     end
 
     run_makedocs(["working.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
         @test success
-        @test is_same_as_file(output, rfile("3.stdout"))
+        @test is_same_as_file(output, rfile(3))
     end
 
     run_makedocs(["working.md", "foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("4.stdout"))
+        @test is_same_as_file(output, rfile(4))
     end
 
     run_makedocs(["broken.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("5.stdout"))
+        @test is_same_as_file(output, rfile(5))
     end
 
     for warnonly in (false, :autodocs_block, Documenter.except(:doctest))
         run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], warnonly) do result, success, backtrace, output
             @test !success
-            @test is_same_as_file(output, rfile("6.stdout"))
+            @test is_same_as_file(output, rfile(6))
         end
     end
 
     run_makedocs(["fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
         @test success
-        @test is_same_as_file(output, rfile("7.stdout"))
+        @test is_same_as_file(output, rfile(7))
     end
 
     run_makedocs(["foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("8.stdout"))
+        @test is_same_as_file(output, rfile(8))
     end
 
     # Here we try the default (strict = false) -- output should say that doctest failed, but
     # success should still be true.
     run_makedocs(["working.md"]; warnonly=true) do result, success, backtrace, output
         @test success
-        @test is_same_as_file(output, rfile("11.stdout"))
+        @test is_same_as_file(output, rfile(11))
     end
 
     # Three options that do not strictly check doctests, including testing the default
     for warnonly_kw in ((; warnonly=true), (; warnonly=Documenter.except(:meta_block)))
         run_makedocs(["broken.md"]; warnonly_kw...) do result, success, backtrace, output
             @test success
-            @test is_same_as_file(output, rfile("12.stdout"))
+            @test is_same_as_file(output, rfile(12))
         end
     end
 
@@ -207,45 +240,46 @@ rfile(filename) = joinpath(@__DIR__, "stdouts", filename)
     # get built.
     run_makedocs(["working.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
         @test success
-        @test is_same_as_file(output, rfile("21.stdout"))
+        @test is_same_as_file(output, rfile(21))
     end
 
     run_makedocs(["working.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("22.stdout"))
+        @test is_same_as_file(output, rfile(22))
     end
 
     run_makedocs(["broken.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("23.stdout"))
+        @test is_same_as_file(output, rfile(23))
     end
 
     run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("24.stdout"))
+        @test is_same_as_file(output, rfile(24))
     end
     # warnonly gets ignored with doctest = :only
     run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, warnonly=true) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("25.stdout"))
+        @test is_same_as_file(output, rfile(25))
     end
 
     # DocTestSetup in modules
     run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
         @test !success
-        @test is_same_as_file(output, rfile("31.stdout"))
+        @test is_same_as_file(output, rfile(31))
     end
     # Now, let's use Documenter's APIs to add the necessary meta information
     DocMeta.setdocmeta!(NoMeta, :DocTestSetup, :(baz(x) = 2x))
     run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
         @test success
-        @test is_same_as_file(output, rfile("32.stdout"))
+        @test is_same_as_file(output, rfile(32))
     end
 
     # Tests for special REPL softscope
-    run_makedocs(["softscope.md"]; warnonly=true) do result, success, backtrace, output
+    softscope_src = (VERSION >= v"1.11.0-") ? "softscope.v1_11.md" : "softscope.md"
+    run_makedocs([softscope_src]; warnonly=true) do result, success, backtrace, output
         @test success
-        @test is_same_as_file(output, rfile("41.stdout"))
+        @test is_same_as_file(output, rfile(41))
     end
 end
 
