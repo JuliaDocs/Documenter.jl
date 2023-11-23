@@ -144,6 +144,11 @@ deployed. It defaults to the value of `repo`.
     On GitHub Actions, `GITHUB_TOKEN` must be present for previews to work, even if
     `DOCUMENTER_KEY` ise being used to deploy.
 
+!!! note
+    Previews generated are NOT automatically cleaned up. This can be done manually or
+    automated. A GitHub Actions workflow for automating the same can be found
+    [here](@ref "Cleaning up `gh-pages`").
+
 **`deps`** can be set to a function or a callable object and gets called during deployment,
 and is usually used to install additional dependencies. By default, nothing gets executed.
 
@@ -281,7 +286,7 @@ end
     git_push(
         root, tmp, repo;
         branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
-        deploy_config, folder,
+        deploy_config, subfolder
     )
 
 Handles pushing changes to the remote documentation branch.
