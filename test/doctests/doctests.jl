@@ -110,18 +110,22 @@ function is_same_as_file(output, filename)
     success = if isfile(filename)
         reference = read(filename, String)
         if onormalize(reference) != onormalize(output)
-            diff = Diff{Words}(onormalize(reference), onormalize(output))
             @error """Output does not agree with reference file
             ref: $(filename)
-            ------------------------------------ output ------------------------------------
-            $(output)
-            ---------------------------------- reference  ----------------------------------
-            $(reference)
-            ------------------------------ onormalize(output) ------------------------------
-            $(onormalize(output))
-            ---------------------------- onormalize(reference)  ----------------------------
-            $(onormalize(reference))
-            """ diff
+            """
+            ps(s::AbstractString) = printstyled(stdout, s, '\n'; color=:magenta, bold=true)
+            "------------------------------------ output ------------------------------------" |> ps
+            output |> println
+            "---------------------------------- reference -----------------------------------" |> ps
+            reference |> println
+            "------------------------------ onormalize(output) ------------------------------" |> ps
+            onormalize(output) |> println
+            "---------------------------- onormalize(reference) -----------------------------" |> ps
+            onormalize(reference) |> println
+            "------------------------------------- diff -------------------------------------" |> ps
+            diff = Diff{Words}(onormalize(reference), onormalize(output))
+            diff |> println
+            "------------------------------------- end --------------------------------------" |> ps
             false
         else
             true
