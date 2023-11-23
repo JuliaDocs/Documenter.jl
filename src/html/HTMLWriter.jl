@@ -330,7 +330,7 @@ Setting it to `false` can be useful when the logo already contains the name of t
 Defaults to `true`.
 
 **`highlights`** can be used to add highlighting for additional languages. By default,
-Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download/)
+Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download)
 languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by
 their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.js) for the
 highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
