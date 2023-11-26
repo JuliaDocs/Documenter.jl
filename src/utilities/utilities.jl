@@ -768,6 +768,9 @@ function git(; nothrow = false, kwargs...)
     cmd = addenv(Git.git(), "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
     # DOCUMENTER_KEY etc are never needed for git operations
     cmd = addenv(cmd, NO_KEY_ENV)
+    # For deploydocs() in particular, we need to use symlinks, but it looks like those need to be
+    # explicitly force-enabled on Windows. So we make sure that we configure core.symlinks=true via
+    # environment variables on that platform.
     if Sys.iswindows()
         cmd = addenv(cmd,
             "GIT_CONFIG_COUNT" => "1",
