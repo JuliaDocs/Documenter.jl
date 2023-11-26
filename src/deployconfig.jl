@@ -881,14 +881,17 @@ influences how `Documenter` works:
  - `CI_COMMIT_REF`: must match the `devbranch` keyword to [`deploydocs`](@ref), alternatively correspond to a git tag.
  - `CI_COMMIT_TAG`: must match to a tag.
  - `CI_COMMIT_PULL_REQUEST`: must return the PR number.
-
 ## Documenter Specific Environmental Variables
 
+ - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
+   repository. This variable should be somehow set in the CI environment, e.g.,
+   provisioned by an agent environment plugin.
+
 Lastly, another environment-variable used for authentication is
-the `PROJECT_ACCESS_TOKEN` which is an access token you defined by
-the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea
-instances. Check their documentation on how to create an access token.
-This access token should be then added as a secret as documented in
+the `PROJECT_ACCESS_TOKEN` which is an access token you defined by 
+the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea 
+instances. Check their documentation on how to create an access token. 
+This access token should be then added as a secret as documented in 
 <https://woodpecker-ci.org/docs/usage/secrets>.
 
 # Example Pipeline Syntax 
