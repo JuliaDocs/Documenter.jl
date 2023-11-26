@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Documenter prints a more informative warning now if there is unexpected Julia interpolation in the Markdown (e.g. from errant `$` signs). ([#2288], [#2327])
 * Documenter now warns when it encounters invalid keys in the various key-value at-blocks. ([#2306], [#2324])
 * File sizes are now expressed in more human-readable format. ([#2272], [#2344])
+* Documenter now uses [Git.jl](https://github.com/JuliaVersionControl/Git.jl) (as opposed to the system's `git` binary) for Git operations. ([#2348])
 
 ### Fixed
 
@@ -1750,6 +1751,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2329]: https://github.com/JuliaDocs/Documenter.jl/issues/2329
 [#2330]: https://github.com/JuliaDocs/Documenter.jl/issues/2330
 [#2344]: https://github.com/JuliaDocs/Documenter.jl/issues/2344
+[#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
 [JuliaLang/julia#29344]: https://github.com/JuliaLang/julia/issues/29344
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
