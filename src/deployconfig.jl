@@ -935,7 +935,8 @@ pipeline:
 
 More about pipeline syntax is documented here: 
 - 0.15.x <https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax>
-- 1.0.0 and onwards <https://woodpecker-ci.org/docs/usage/pipeline-syntax>
+- 1.0.0 and onwards <https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax>
+- 2.0.0 <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 """
 struct Woodpecker <: DeployConfig
     woodpecker_ci_version::VersionNumber
