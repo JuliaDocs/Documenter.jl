@@ -769,12 +769,11 @@ function git(; nothrow = false, kwargs...)
     # DOCUMENTER_KEY etc are never needed for git operations
     cmd = addenv(cmd, NO_KEY_ENV)
     if Sys.iswindows()
-        #=addenv(cmd,
+        cmd = addenv(cmd,
             "GIT_CONFIG_COUNT" => "1",
             "GIT_CONFIG_KEY_0" => "core.symlinks",
             "GIT_CONFIG_VALUE_0" => "true",
-        )=#
-        cmd = `$cmd -c core.symlinks=true`
+        )
     end
     return cmd
 end
