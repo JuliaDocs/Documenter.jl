@@ -458,6 +458,7 @@ function repo_commit(repository_root::AbstractString)
                 ))
             end
         catch e
+            isa(e, RepoCommitError) && rethrow(e)
             throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` failed", e, catch_backtrace()))
         end
         try

@@ -372,16 +372,16 @@ exist it will be created automatically by [`deploydocs`](@ref). If it does exist
 Documenter simply adds an additional commit with the built documentation. You should be
 aware that Documenter may overwrite existing content without warning.
 
-If you wish to create the `gh-pages` branch manually that can be done following
-[these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
+If you wish to create the `gh-pages` branch manually, that can be done [creating an "orphan" branch, with the `git checkout --orphan` option](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---orphanltnew-branchgt).
 
 You also need to make sure that you have `gh-pages branch` and `/ (root)` selected as
 [the source of the GitHub Pages site in your GitHub repository
 settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
 
-**Cleaning up `gh-pages`.**
-Note that the `gh-pages` branch can become very large, especially when `push_preview` is
+### Cleaning up `gh-pages`
+
+The `gh-pages` branch can become very large, especially when `push_preview` is
 enabled to build documentation for each pull request. To clean up the branch and remove
 stale documentation previews, a GitHub Actions workflow like the following can be used.
 
@@ -424,10 +424,9 @@ jobs:
 _This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
 The `permissions:` line above is described in the
-[GitHub Docs][https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#assigning-permissions-to-a-specific-job];
+[GitHub Docs](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#assigning-permissions-to-a-specific-job);
 an alternative is to give GitHub workflows write permissions under the repo settings, e.g.,
 `https://github.com/<USER>/<REPO>.jl/settings/actions`.
-
 
 ## Woodpecker CI
 
