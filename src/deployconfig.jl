@@ -897,7 +897,7 @@ pipeline:
    ...
 ```
 
-More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/pipeline-syntax>
+More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 
 Lastly, another environment-variable used for authentication is
 the `PROJECT_ACCESS_TOKEN` which is an access token you defined by

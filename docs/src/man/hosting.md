@@ -372,8 +372,7 @@ exist it will be created automatically by [`deploydocs`](@ref). If it does exist
 Documenter simply adds an additional commit with the built documentation. You should be
 aware that Documenter may overwrite existing content without warning.
 
-If you wish to create the `gh-pages` branch manually that can be done following
-[these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
+If you wish to create the `gh-pages` branch manually, that can be done [creating an "orphan" branch, with the `git checkout --orphan` option](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---orphanltnew-branchgt).
 
 You also need to make sure that you have `gh-pages branch` and `/ (root)` selected as
 [the source of the GitHub Pages site in your GitHub repository
