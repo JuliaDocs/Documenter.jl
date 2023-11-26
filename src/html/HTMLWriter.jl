@@ -330,7 +330,7 @@ Setting it to `false` can be useful when the logo already contains the name of t
 Defaults to `true`.
 
 **`highlights`** can be used to add highlighting for additional languages. By default,
-Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download/)
+Documenter already highlights all the ["Common" highlight.js](https://highlightjs.org/download)
 languages and Julia (`julia`, `julia-repl`). Additional languages must be specified by
 their filenames as they appear on [CDNJS](https://cdnjs.com/libraries/highlight.js) for the
 highlight.js version Documenter is using. E.g. to include highlighting for YAML and LLVM IR,
@@ -1768,11 +1768,16 @@ function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DO
     path = joinpath(ctx.doc.user.build, page_path)
     isdir(dirname(path)) || mkpath(dirname(path))
     file_size = open(io -> write(io, take!(buf)), path; write=true)
+
+    file_size_format_results = format_units(file_size)
+    size_threshold_format_results = format_units(ctx.settings.size_threshold)
+    size_threshold_warn_format_results = format_units(ctx.settings.size_threshold_warn)
+
     size_threshold_msg(var::Symbol) = """
     Generated HTML over $(var) limit: $(navnode.page)
-        Generated file size: $(file_size) (bytes)
-        size_threshold_warn: $(ctx.settings.size_threshold_warn) (bytes)
-        size_threshold:      $(ctx.settings.size_threshold) (bytes)
+        Generated file size: $file_size_format_results
+        size_threshold_warn: $size_threshold_warn_format_results
+        size_threshold:      $size_threshold_format_results
         HTML file:           $(page_path)"""
     if navnode.page in ctx.settings.size_threshold_ignore
         if file_size > ctx.settings.size_threshold_warn
@@ -1788,6 +1793,27 @@ function write_html(ctx::HTMLContext, navnode::Documenter.NavNode, page_html::DO
         @warn size_threshold_msg(:size_threshold_warn)
     end
     return true
+end
+
+"""
+Calculates and converts bytes to appropriate format.
+"""
+function format_units(size)
+    unit = "bytes"
+
+    if size == typemax(Int)
+        return "(no limit)"
+    end
+    if size >= 1024
+        size = size / 1024
+        unit = "KiB"
+        if size >= 1024
+            size = size / 1024
+            unit = "MiB"
+        end
+    end
+
+    return string(round(size, digits = 2), " (", unit, ")")
 end
 
 """

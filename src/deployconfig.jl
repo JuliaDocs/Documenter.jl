@@ -56,7 +56,7 @@ function documenter_key_previews(cfg::DeployConfig)
 end
 
 """
-    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl, 
+    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl,
                              tag_prefix, kwargs...)
 
 Return a `DeployDecision`.
@@ -288,7 +288,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -884,15 +884,11 @@ influences how `Documenter` works:
 
 ## Documenter Specific Environmental Variables
 
- - `DOCUMENTER_KEY`: must contain the Base64-encoded SSH private key for the
-   repository. This variable should be somehow set in the CI environment, e.g.,
-   provisioned by an agent environment plugin.
-
 Lastly, another environment-variable used for authentication is
-the `PROJECT_ACCESS_TOKEN` which is an access token you defined by 
-the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea 
-instances. Check their documentation on how to create an access token. 
-This access token should be then added as a secret as documented in 
+the `PROJECT_ACCESS_TOKEN` which is an access token you defined by
+the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea
+instances. Check their documentation on how to create an access token.
+This access token should be then added as a secret as documented in
 <https://woodpecker-ci.org/docs/usage/secrets>.
 
 # Example Pipeline Syntax 
@@ -1093,7 +1089,7 @@ function deploy_folder(
     @info String(take!(io))
     if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.woodpecker_ref == "refs/heads/main"
         @warn """
-        Possible deploydocs() misconfiguration: main vs master. Current branch (from \$CI_COMMIT_REF) is "main". 
+        Possible deploydocs() misconfiguration: main vs master. Current branch (from \$CI_COMMIT_REF) is "main".
         """
     end
 
@@ -1134,4 +1130,3 @@ function auto_detect_deploy_system()
         return nothing
     end
 end
-
