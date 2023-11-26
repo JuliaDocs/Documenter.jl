@@ -2,6 +2,15 @@ using Test
 import Documenter
 include("TestUtilities.jl"); using Main.TestUtilities
 
+using Git
+function print_git_config(cmd)
+    @info "git config -l" cmd
+    run(`$cmd config -l`)
+end
+print_git_config(`git`)
+print_git_config(Documenter.git())
+print_git_config(Git.git())
+
 function testset_include(filename; quietly=false)
     @testset "$filename" begin
         if quietly
