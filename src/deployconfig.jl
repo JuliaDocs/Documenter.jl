@@ -56,7 +56,7 @@ function documenter_key_previews(cfg::DeployConfig)
 end
 
 """
-    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl, 
+    Documenter.deploy_folder(cfg::DeployConfig; repo, devbranch, push_preview, devurl,
                              tag_prefix, kwargs...)
 
 Return a `DeployDecision`.
@@ -288,7 +288,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -897,13 +897,13 @@ pipeline:
    ...
 ```
 
-More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/pipeline-syntax>
+More about pipeline syntax is documented here: <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 
 Lastly, another environment-variable used for authentication is
-the `PROJECT_ACCESS_TOKEN` which is an access token you defined by 
-the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea 
-instances. Check their documentation on how to create an access token. 
-This access token should be then added as a secret as documented in 
+the `PROJECT_ACCESS_TOKEN` which is an access token you defined by
+the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea
+instances. Check their documentation on how to create an access token.
+This access token should be then added as a secret as documented in
 <https://woodpecker-ci.org/docs/usage/secrets>.
 """
 struct Woodpecker <: DeployConfig
@@ -1033,7 +1033,7 @@ function deploy_folder(
     @info String(take!(io))
     if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.woodpecker_ref == "refs/heads/main"
         @warn """
-        Possible deploydocs() misconfiguration: main vs master. Current branch (from \$CI_COMMIT_REF) is "main". 
+        Possible deploydocs() misconfiguration: main vs master. Current branch (from \$CI_COMMIT_REF) is "main".
         """
     end
 
@@ -1053,7 +1053,7 @@ authentication_method(::Woodpecker) = env_nonempty("DOCUMENTER_KEY") ? SSH : HTT
 function authenticated_repo_url(cfg::Woodpecker)
     # `cfg.woodpecker_forge_url` should be just the root of the URL e.g. github.com, gitlab.com, codeberg.org
     # otherwise, it will be equal to `cfg.woodpecker_repo_link`
-    # If so, we just split the `http(s)://` from the string we want 
+    # If so, we just split the `http(s)://` from the string we want
     # e.g. `https://github.com/JuliaDocs/Documenter.jl` to `github.com/JuliaDocs/Documenter.jl`.
     if haskey(ENV, "FORGE_URL")
         return "https://$(ENV["CI_REPO_OWNER"]):$(ENV["PROJECT_ACCESS_TOKEN"])@$(ENV["FORGE_URL"])/$(cfg.woodpecker_repo).git"
@@ -1080,7 +1080,7 @@ function auto_detect_deploy_system()
         return Buildkite()
     elseif get(ENV, "CI", nothing) in ["drone", "woodpecker"]
         if ENV["CI"] == "drone"
-            @warn """Woodpecker is backward compatible to Drone 
+            @warn """Woodpecker is backward compatible to Drone
             but *there will be breaking changes in the future*"""
         end
         return Woodpecker()
@@ -1088,4 +1088,3 @@ function auto_detect_deploy_system()
         return nothing
     end
 end
-
