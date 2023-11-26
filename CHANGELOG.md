@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Documenter prints a more informative warning now if there is unexpected Julia interpolation in the Markdown (e.g. from errant `$` signs). ([#2288], [#2327])
 * Documenter now warns when it encounters invalid keys in the various key-value at-blocks. ([#2306], [#2324])
 * File sizes are now expressed in more human-readable format. ([#2272], [#2344])
+* Woodpecker CI version 1.0.0 support added. ([#2339])
 
 ### Fixed
 
