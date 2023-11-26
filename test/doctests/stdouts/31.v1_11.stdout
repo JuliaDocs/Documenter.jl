@@ -14,7 +14,7 @@
 │ Evaluated output:
 │ 
 │ ERROR: UndefVarError: `baz` not defined in `Main`
-│ Suggestion: check for spelling errors or missing imports. No global of this name exists in this module.
+│ Suggestion: check for spelling errors or missing imports.
 │ Stacktrace:
 │  [1] top-level scope
 │    @ none:1
@@ -26,7 +26,7 @@
 │   diff =
 │    Warning: Diff output requires color.
 │    40ERROR: UndefVarError: `baz` not defined in `Main`
-│    Suggestion: check for spelling errors or missing imports. No global of this name exists in this module.
+│    Suggestion: check for spelling errors or missing imports.
 │    Stacktrace:
 │     [1] top-level scope
 │       @ none:1
