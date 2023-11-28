@@ -296,6 +296,16 @@ end
         @test html.size_threshold_warn == 1234
     end
 
+    @testset "HTML: format_units" begin
+        @test HTMLWriter.format_units(0) == "0.0 (bytes)"
+        @test HTMLWriter.format_units(1) == "1.0 (bytes)"
+        @test HTMLWriter.format_units(1023) == "1023.0 (bytes)"
+        @test HTMLWriter.format_units(1024) == "1.0 (KiB)"
+        @test HTMLWriter.format_units(4000) == "3.91 (KiB)"
+        @test HTMLWriter.format_units(2^20 + 123) == "1.0 (MiB)"
+        @test HTMLWriter.format_units(typemax(Int)) == "(no limit)"
+    end
+
     @testset "HTML: _strip_latex_math_delimiters" begin
         for content in [
             "a",

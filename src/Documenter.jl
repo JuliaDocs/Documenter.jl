@@ -22,6 +22,7 @@ import REPL
 import Unicode
 import Pkg
 import RegistryInstances
+import Git
 # Additional imported names
 using Test: @testset, @test
 using DocStringExtensions
