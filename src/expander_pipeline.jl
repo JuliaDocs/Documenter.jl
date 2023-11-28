@@ -289,7 +289,17 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @meta block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(x.code, doc, page)
+        # If not `isassign`, this might be a comment, or any code that the user
+        # wants to hide. We should probably warn, but it is common enough that
+        # we will silently skip for now.
         if Documenter.isassign(ex)
+            if !(ex.args[1] in (:Currentmodule, :DocTestSetup, :DocTestFilters, :EditURL, :Description, :Draft))
+                source = Documenter.locrepr(page.source, lines)
+                @warn(
+                    "In $source: `@meta` block has an unsupported " *
+                    "keyword argument: $(ex.args[1])",
+                )
+            end
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
@@ -460,8 +470,14 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
             try
                 if ex.args[1] == :Filter
                     fields[ex.args[1]] = Core.eval(Main, ex.args[2])
-                else
+                elseif ex.args[1] in (:Modules, :Order, :Pages, :Public, :Private)
                     fields[ex.args[1]] = Core.eval(curmod, ex.args[2])
+                else
+                    source = Documenter.locrepr(page.source, lines)
+                    @warn(
+                        "In $source: `@autodocs` block has an unsupported " *
+                        "keyword argument: $(ex.args[1])",
+                    )
                 end
             catch err
                 @docerror(doc, :autodocs_block,
@@ -965,16 +981,7 @@ function create_docsnode(docstrings, results, object, page, doc)
     for (markdown, result) in zip(docstrings, results)
         ast = convert(Node, markdown)
         doc.user.highlightsig && highlightsig!(ast)
-        # The following 'for' corresponds to the old dropheaders() function
-        for headingnode in ast.children
-            headingnode.element isa MarkdownAST.Heading || continue
-            boldnode = Node(MarkdownAST.Strong())
-            for textnode in collect(headingnode.children)
-                push!(boldnode.children, textnode)
-            end
-            headingnode.element = MarkdownAST.Paragraph()
-            push!(headingnode.children, boldnode)
-        end
+        recursive_heading_to_bold!(ast)
         push!(docsnode.mdasts, ast)
         push!(docsnode.results, result)
         push!(docsnode.metas, markdown.meta)
@@ -989,4 +996,25 @@ function highlightsig!(node::Node)
     if node.element isa MarkdownAST.CodeBlock && isempty(node.element.info)
         node.element.info = "julia"
     end
+end
+
+function recursive_heading_to_bold!(ast::MarkdownAST.Node)
+    for node in ast.children
+        if node.element isa MarkdownAST.List
+            for child in node.children
+                recursive_heading_to_bold!(child)
+            end
+        end
+        if !(node.element isa MarkdownAST.Heading)
+            continue
+        end
+        # node is a headingnode
+        boldnode = Node(MarkdownAST.Strong())
+        for textnode in collect(node.children)
+            push!(boldnode.children, textnode)
+        end
+        node.element = MarkdownAST.Paragraph()
+        push!(node.children, boldnode)
+    end
+    return
 end

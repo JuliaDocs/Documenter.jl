@@ -107,10 +107,10 @@ Slugify a string into a suitable URL.
 """
 function slugify(s::AbstractString)
     s = replace(s, r"\s+" => "-")
-    s = replace(s, r"^\d+" => "")
     s = replace(s, r"&" => "-and-")
     s = replace(s, r"[^\p{L}\p{P}\d\-]+" => "")
     s = strip(replace(s, r"\-\-+" => "-"), '-')
+    return s
 end
 slugify(object) = string(object) # Non-string slugifying doesn't do anything.
 
@@ -458,6 +458,7 @@ function repo_commit(repository_root::AbstractString)
                 ))
             end
         catch e
+            isa(e, RepoCommitError) && rethrow(e)
             throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` failed", e, catch_backtrace()))
         end
         try
@@ -757,16 +758,24 @@ dropheaders(v::Vector) = map(dropheaders, v)
 dropheaders(other) = other
 
 function git(; nothrow = false, kwargs...)
-    system_git_path = Sys.which("git")
-    if system_git_path === nothing
-        return nothrow ? nothing : error("Unable to find `git`")
-    end
-    # According to the Git man page, the default GIT_TEMPLATE_DIR is at /usr/share/git-core/templates
-    # We need to set this to something so that Git wouldn't pick up the user
-    # templates (e.g. from init.templateDir config).
-    cmd = addenv(`$(system_git_path)`, "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates")
     # DOCUMENTER_KEY etc are never needed for git operations
-    cmd = addenv(cmd, NO_KEY_ENV)
+    cmd = addenv(Git.git(), NO_KEY_ENV)
+    if Sys.iswindows()
+        cmd = addenv(cmd,
+            # For deploydocs() in particular, we need to use symlinks, but it looks like those
+            # need to be explicitly force-enabled on Windows. So we make sure that we configure
+            # core.symlinks=true via environment variables on that platform.
+            "GIT_CONFIG_COUNT" => "1",
+            "GIT_CONFIG_KEY_0" => "core.symlinks",
+            "GIT_CONFIG_VALUE_0" => "true",
+            # Previously we used to set GIT_TEMPLATE_DIR=/usr/share/git-core/templates on all platforms.
+            # This was so that we wouldn't pick up the user's Git configuration. Git.jl, however, points
+            # the GIT_TEMPLATE_DIR to the artifact directory, and so we're mostly fine without setting
+            # now.. _except_ on Windows, where it doesn't set it. So we still set the environment variable
+            # on Windows, just in case.
+            "GIT_TEMPLATE_DIR" => "/usr/share/git-core/templates",
+        )
+    end
     return cmd
 end
 

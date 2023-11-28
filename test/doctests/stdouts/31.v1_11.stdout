@@ -1,0 +1,33 @@
+[ Info: SetupBuildDirectory: setting up build directory.
+[ Info: Doctest: running doctests.
+┌ Error: doctest failure in ~/juliadocs/Documenter/test/doctests/src/NoMeta.jl:6-9
+│ 
+│ ```jldoctest
+│ julia> baz(20)
+│ 40
+│ ```
+│ 
+│ Subexpression:
+│ 
+│ baz(20)
+│ 
+│ Evaluated output:
+│ 
+│ ERROR: UndefVarError: `baz` not defined in `Main`
+│ Suggestion: check for spelling errors or missing imports.
+│ Stacktrace:
+│  [1] top-level scope
+│    @ none:1
+│ 
+│ Expected output:
+│ 
+│ 40
+│ 
+│   diff =
+│    Warning: Diff output requires color.
+│    40ERROR: UndefVarError: `baz` not defined in `Main`
+│    Suggestion: check for spelling errors or missing imports.
+│    Stacktrace:
+│     [1] top-level scope
+│       @ none:1
+└ @ Documenter ~/juliadocs/Documenter/test/doctests/src/NoMeta.jl:6

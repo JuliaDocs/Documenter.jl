@@ -5,6 +5,7 @@ using Markdown
 using Test
 
 @testset "Online linkcheck" begin
+
     @testset "Successes" begin
         src = convert(
             MarkdownAST.Node,
@@ -36,6 +37,11 @@ using Test
         @test_logs (:error,) @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}([:linkcheck])
     end
+
+    @testset "Linkcheck in Docstrings" begin
+        include("docstring_links/make.jl")
+    end
+
 end
 
 end # module

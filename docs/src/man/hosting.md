@@ -372,16 +372,16 @@ exist it will be created automatically by [`deploydocs`](@ref). If it does exist
 Documenter simply adds an additional commit with the built documentation. You should be
 aware that Documenter may overwrite existing content without warning.
 
-If you wish to create the `gh-pages` branch manually that can be done following
-[these instructions](https://coderwall.com/p/0n3soa/create-a-disconnected-git-branch).
+If you wish to create the `gh-pages` branch manually, that can be done [creating an "orphan" branch, with the `git checkout --orphan` option](https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt---orphanltnew-branchgt).
 
 You also need to make sure that you have `gh-pages branch` and `/ (root)` selected as
 [the source of the GitHub Pages site in your GitHub repository
 settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 so that GitHub would actually serve the contents as a website.
 
-**Cleaning up `gh-pages`.**
-Note that the `gh-pages` branch can become very large, especially when `push_preview` is
+### Cleaning up `gh-pages`
+
+The `gh-pages` branch can become very large, especially when `push_preview` is
 enabled to build documentation for each pull request. To clean up the branch and remove
 stale documentation previews, a GitHub Actions workflow like the following can be used.
 
@@ -391,6 +391,11 @@ name: Doc Preview Cleanup
 on:
   pull_request:
     types: [closed]
+
+# Ensure that only one "Doc Preview Cleanup" workflow is force pushing at a time
+concurrency:
+  group: doc-preview-cleanup
+  cancel-in-progress: false
 
 jobs:
   doc-preview-cleanup:
@@ -404,25 +409,24 @@ jobs:
           ref: gh-pages
       - name: Delete preview and history + push changes
         run: |
-            if [ -d "previews/PR$PRNUM" ]; then
+          if [ -d "${preview_dir}" ]; then
               git config user.name "Documenter.jl"
               git config user.email "documenter@juliadocs.github.io"
-              git rm -rf "previews/PR$PRNUM"
+              git rm -rf "${preview_dir}"
               git commit -m "delete preview"
               git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
               git push --force origin gh-pages-new:gh-pages
-            fi
+          fi
         env:
-            PRNUM: ${{ github.event.number }}
+          preview_dir: previews/PR${{ github.event.number }}
 ```
 
 _This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
 The `permissions:` line above is described in the
-[GitHub Docs][https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#assigning-permissions-to-a-specific-job];
+[GitHub Docs](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#assigning-permissions-to-a-specific-job);
 an alternative is to give GitHub workflows write permissions under the repo settings, e.g.,
 `https://github.com/<USER>/<REPO>.jl/settings/actions`.
-
 
 ## Woodpecker CI
 
@@ -433,18 +437,35 @@ This access token should be added to Woodpecker CI as a secret named as
 uppercase environment variables to your pipeline. Next, create a new pipeline
 configuration file called `.woodpecker.yml` with the following contents:
 
-```yaml
-pipeline:
-    docs:
-    when:
-        branch: main  # update to match your development branch
-    image: julia
-    commands:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
-    secrets: [ project_access_token ]  # access token is a secret
+- Woodpecker 0.15.x and pre-1.0.0
 
-```
+  ```yaml
+  pipeline:
+      docs:
+      when:
+          branch: main  # update to match your development branch
+      image: julia
+      commands:
+          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          - julia --project=docs/ docs/make.jl
+      secrets: [ project_access_token ]  # access token is a secret
+
+  ```
+
+- Woodpecker 1.0.x and onwards
+
+  ```yaml
+  steps:
+      docs:
+      when:
+          branch: main  # update to match your development branch
+      image: julia
+      commands:
+          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          - julia --project=docs/ docs/make.jl
+      secrets: [ project_access_token ]  # access token is a secret
+
+  ```
 
 This will pull an image of julia from docker and run the following commands from
 `commands:` which instantiates the project for development and then runs the `make.jl`
