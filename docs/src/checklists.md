@@ -25,7 +25,7 @@ In preparation for a release, use the following checklist. These steps should be
 
 ## The release
 
- - [ ] After merging this pull request, tag the release. There are two options for this:
+ - [ ] After merging the pull request, tag the release. There are two options for this:
 
       1. [Comment `[at]JuliaRegistrator register` on the GitHub commit.](https://github.com/JuliaRegistries/Registrator.jl#via-the-github-app)
       2. Use [JuliaHub's package registration feature](https://help.juliahub.com/juliahub/stable/contribute/#registrator) to trigger the registration.   
