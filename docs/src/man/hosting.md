@@ -437,18 +437,35 @@ This access token should be added to Woodpecker CI as a secret named as
 uppercase environment variables to your pipeline. Next, create a new pipeline
 configuration file called `.woodpecker.yml` with the following contents:
 
-```yaml
-pipeline:
-    docs:
-    when:
-        branch: main  # update to match your development branch
-    image: julia
-    commands:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
-    secrets: [ project_access_token ]  # access token is a secret
+- Woodpecker 0.15.x and pre-1.0.0
 
-```
+  ```yaml
+  pipeline:
+      docs:
+      when:
+          branch: main  # update to match your development branch
+      image: julia
+      commands:
+          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          - julia --project=docs/ docs/make.jl
+      secrets: [ project_access_token ]  # access token is a secret
+
+  ```
+
+- Woodpecker 1.0.x and onwards
+
+  ```yaml
+  steps:
+      docs:
+      when:
+          branch: main  # update to match your development branch
+      image: julia
+      commands:
+          - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          - julia --project=docs/ docs/make.jl
+      secrets: [ project_access_token ]  # access token is a secret
+
+  ```
 
 This will pull an image of julia from docker and run the following commands from
 `commands:` which instantiates the project for development and then runs the `make.jl`
