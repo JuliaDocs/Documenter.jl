@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.2.1] - 2023-12-02
+
+### Fixed
+
+* Fix an erroneous warning about the `CurrentModule` argument of `@meta` blocks. ([#2364], [#2365])
+
 ## Version [v1.2.0] - 2023-11-29
 
 ### Changed
@@ -1290,6 +1296,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.1.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.1
 [v1.1.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.2
 [v1.2.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.2.0
+[v1.2.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.2.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1756,6 +1763,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2339]: https://github.com/JuliaDocs/Documenter.jl/issues/2339
 [#2344]: https://github.com/JuliaDocs/Documenter.jl/issues/2344
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
+[#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
+[#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
