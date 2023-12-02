@@ -3,7 +3,7 @@ using Test
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl, and we need to set it to the relevant LaTeX builds.
 ENV["DOCUMENTER_TEST_EXAMPLES"] =
-    "latex latex_simple latex_cover_page latex_toc_style latex_simple_tectonic " *
+    "latex latex_simple latex_simple_nondocker latex_cover_page latex_toc_style latex_simple_tectonic " *
     "latex_showcase"
 
 # When the file is run separately we need to include make.jl which actually builds
