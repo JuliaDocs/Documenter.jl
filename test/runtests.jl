@@ -30,6 +30,7 @@ end
     @quietly include("plugins/make.jl")
 
     # Unit tests for module internals.
+    include("base_assumptions.jl")
     include("except.jl")
     include("utilities.jl")
 

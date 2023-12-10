@@ -788,9 +788,15 @@ function relpath_from_remote_root(doc::Document, path::AbstractString)
     end
     ispath(path) || error("relpath_from_repo_root called with nonexistent path: $path")
     isabspath(path) || error("relpath_from_repo_root called with non-absolute path: $path")
-    # We want to expand the path properly, including symlinks, so we call realpath()
-    # Note: it throws for non-existing files, but we just checked for it.
-    path = realpath(path)
+    # We'll normalize the path, removing `..`-s etc.
+    #
+    # However, we explicitly do not want to resolve symlinks (so we can't call `realpath`).
+    # This is, in particular, necessary to enable us to resolve standard library paths for
+    # the Julia manual -- the standard library source files under usr/share/julia are _sometimes_
+    # symlinked to stdlib/ and sometimes they are not. For the normal case of building documentation
+    # for a package, we do not expect to have to deal with symlinks either, unless it's a very
+    # strange setup.
+    path = normpath(path)
     # Try to see if `path` falls into any of the remotes in .remotes, or if it's a GitHub repository
     # we can automatically "configure".
     root_remote::Union{RemoteRepository,Nothing} = nothing
@@ -889,7 +895,17 @@ function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
         return repofile(julia_remote, ref, "base/$file", linerange)
     end
     # Generally, we assume that the Julia source file exists on the system.
-    isfile(file) || return nothing
+    # An exception to this is when the path points to a docstring in a standard library.
+    # To handle that case, we first "fix up" the path, hopefully making it point to the
+    # local usr/share/julia directory.
+    if !isfile(file)
+        # Note: Base.fixup_stdlib_path is a non-public internal function.
+        file = Base.fixup_stdlib_path(file)
+    end
+    if !isfile(file)
+        @warn "Trying to generate a source URL for a non-existent file" mod file linerange
+        return nothing
+    end
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
         throw(MissingRemoteError(; path = file, linerange, mod))

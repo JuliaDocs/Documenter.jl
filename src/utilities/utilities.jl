@@ -390,10 +390,6 @@ If `path` is a directory, it may itself already be a root.
 The predicate `f` gets called with absolute paths to directories and must return `true`
 if the directory is a "root". An example predicate is `is_git_repo_root` that checks if
 the directory is a Git repository root.
-
-The `dbdir` keyword argument specifies the name of the directory we are searching for to
-determine if this is a repository or not. If there is a file called `dbdir`, then it's
-contents is checked under the assumption that it is a Git worktree or a submodule.
 """
 function find_root_parent(f, path)
     ispath(path) || throw(ArgumentError("find_root_parent called with non-existent path\n path: $path"))
