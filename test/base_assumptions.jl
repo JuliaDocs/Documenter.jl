@@ -1,4 +1,5 @@
 module BaseAssumptionTests
+using Test
 
 @test "Julia Base assumptions" begin
     # To handle source URLs to standard library files, we need to fix up the paths to
