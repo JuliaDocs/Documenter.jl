@@ -1,4 +1,4 @@
-using Documenter, DocumenterTools
+using Documenter, DocumenterTools, Changelog
 include("DocumenterShowcase.jl")
 
 # The DOCSARGS environment variable can be used to pass additional arguments to make.jl.
@@ -11,10 +11,10 @@ if haskey(ENV, "DOCSARGS")
 end
 
 # Generate a Documenter-friendly changelog from CHANGELOG.md
-include("changelog.jl")
-rewrite_changelog(;
-    changelog_inputfile = joinpath(dirname(@__DIR__), "CHANGELOG.md"),
-    changelog_outputfile = joinpath(@__DIR__, "src", "release-notes.md"),
+Changelog.generate(
+    Changelog.Documenter(),
+    joinpath(@__DIR__, "..", "CHANGELOG.md"),
+    joinpath(@__DIR__, "src", "release-notes.md");
     repo = "JuliaDocs/Documenter.jl",
 )
 
@@ -71,6 +71,7 @@ makedocs(
         ],
         "Developers" => [
             "contributing.md",
+            "checklists.md",
             "Internals" => map(
                 s -> "lib/internals/$(s)",
                 sort(readdir(joinpath(@__DIR__, "src/lib/internals")))
