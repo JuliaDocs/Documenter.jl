@@ -393,7 +393,7 @@ the directory is a Git repository root.
 """
 function find_root_parent(f, path)
     ispath(path) || throw(ArgumentError("find_root_parent called with non-existent path\n path: $path"))
-    path = realpath(path)
+    path = normpath(path)
     parent_dir = isdir(path) ? path : dirname(path)
     parent_dir_last = ""
     while parent_dir != parent_dir_last

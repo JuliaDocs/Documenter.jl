@@ -281,7 +281,7 @@ struct RemoteRepository
 end
 function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
     try
-        RemoteRepository(realpath(root), remote, repo_commit(root))
+        RemoteRepository(normpath(root), remote, repo_commit(root))
     catch e
         e isa RepoCommitError || rethrow()
         @error "Unable to determine the commit for the remote repository:\n$(e.msg)" e.directory exception = e.err_bt
@@ -507,7 +507,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         if !isdir(path)
             throw(ArgumentError(("Invalid local path in remotes (not a directory): $(path)")))
         end
-        path = realpath(path)
+        path = normpath(path)
         # We'll also check that there are no duplicate entries.
         idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
