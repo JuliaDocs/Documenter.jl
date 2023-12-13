@@ -87,14 +87,14 @@ _hash(x) = string(hash(x))
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
 const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
 
-hastex() = (
+function hastex()
     try
         success(`latexmk -version`) && return "latexmk"
         success(`texify --version`) && return "texify"
     catch
         return ""
     end
-)
+end
 
 const DOCUMENT_STRUCTURE = (
     "part",
