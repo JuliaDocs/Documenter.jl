@@ -513,7 +513,7 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     # first part: everything up until the last index of the input string
     newcode = code[1:last(inputidx)]
     set_content!(prefix, newcode * "\n")
-    append_to_prefix!(prefix, str * "\n")
+    str == "" || append_to_prefix!(prefix, str * "\n")
     isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
     if result.output == ""
@@ -522,7 +522,11 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
         newcode *= str
         newcode *= code[nextind(code, last(inputidx)):end]
     else
-        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+        if str == ""
+            newcode *= replace(code[nextind(code, last(inputidx)):end], result.output * "\n" => str, count = 1)
+        else
+            newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+        end
     end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
