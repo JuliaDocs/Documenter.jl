@@ -17,10 +17,10 @@ keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link
 
 # Experimental keywords
 
-**`version`** specifies the version string of the current version which will be the
-selected option in the version selector. If this is left empty (default) the version
-selector will be hidden. The special value `git-commit` sets the value in the output to
-`git:{commit}`, where `{commit}` is the first few characters of the current commit hash.
+**`version`** specifies the version string of the current version. The special value
+`git-commit` sets the value in the output to `git:{commit}`, where `{commit}` is the first
+few characters of the current commit hash. This is not currently used, but may be shown as
+part of the of the rendered HTML in a future version.
 
 # `HTML` `Plugin` options
 
@@ -1130,11 +1130,6 @@ function render_sidebar(ctx, navnode)
         vs_label = span[".docs-label.button.is-static.is-size-7"]("Version")
         vs_label = div[".control"](vs_label)
         vs_select = select["#documenter-version-selector"]
-        if !isempty(ctx.doc.user.version)
-            vs_class = "$(vs_class).visible"
-            opt = option[:value => "#", :selected => "selected", ](ctx.doc.user.version)
-            vs_select = vs_select(opt)
-        end
         vs_select = div[".select.is-fullwidth.is-size-7"](vs_select)
         vs_select = div[".docs-selector.control.is-expanded"](vs_select)
         push!(navmenu.nodes, div[vs_class](vs_label, vs_select))
