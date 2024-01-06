@@ -150,6 +150,9 @@ makedocs(
 )
 ```
 
+The `host` may include a scheme. If the host does not define a scheme, it
+defaults to `https`.
+
 The single argument constructor assumes that the end user and
 repository parts are separated by a slash (e.g.,
 `JuliaDocs/Documenter.jl`).
@@ -164,7 +167,17 @@ function GitLab(remote::AbstractString)
     user, repo = split(remote, '/')
     GitLab(user, repo)
 end
-repourl(remote::GitLab) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
+function host_with_scheme(remote::GitLab)
+    # A scheme in a URI consists of a letter followed by zero or more letters,
+    # digits, pluses, dashes or periods followed by a colon. They should be
+    # matched case insensitively
+    #
+    # See https://datatracker.ietf.org/doc/html/rfc3986#section-3.1
+    scheme_matcher = r"^\p{L}[\p{L}\d+-.]*:"
+    scheme_from_host = match(scheme_matcher, remote.host)
+    return isnothing(scheme_from_host) ? "https://$(remote.host)" : remote.host
+end
+repourl(remote::GitLab) = "$(host_with_scheme(remote))/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitLab, ref::AbstractString, filename::AbstractString, linerange)
     url = "$(repourl(remote))/-/tree/$(ref)/$(filename)"
     isnothing(linerange) && return url
