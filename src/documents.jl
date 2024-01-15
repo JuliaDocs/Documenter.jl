@@ -793,9 +793,24 @@ function relpath_from_remote_root(doc::Document, path::AbstractString)
     # However, we explicitly do not want to resolve symlinks (so we can't call `realpath`).
     # This is, in particular, necessary to enable us to resolve standard library paths for
     # the Julia manual -- the standard library source files under usr/share/julia are _sometimes_
-    # symlinked to stdlib/ and sometimes they are not. For the normal case of building documentation
-    # for a package, we do not expect to have to deal with symlinks either, unless it's a very
-    # strange setup.
+    # symlinked to stdlib/ and sometimes they are not.
+    #
+    # Specifically, the (fixed; i.e. `Base.fixup_stdlib_path` has been called) paths of standard
+    # library docstrings always point into
+    #
+    #   $(JULIA_SOURCE)/usr/share/julia/stdlib/v1.11/$(PACKAGE)/src/...
+    #
+    # If this is a Julia worktree that has been created by unpacking a pre-built tarball (like we
+    # do in the Julia documentation builds on CI), then those are real files. However, if you are
+    # building the documentation in a full local Julia worktree, then the standard library package
+    # directories are actually symlinks into $(JULIA_SOURCE)/stdlib. This would throw `realpath`
+    # off.
+    #
+    # For the normal case of building documentation for Julia packages, we do not expect to have to
+    # deal with symlinks at all, unless it's a very strange setup. However, even in that case, it
+    # feels safer to _not_ expand symlinks, since the symlinks might be used to organize directories
+    # at a higher level (e.g. closer to the root; link symlinking /home directories or something
+    # strange like that).
     path = normpath(path)
     # Try to see if `path` falls into any of the remotes in .remotes, or if it's a GitHub repository
     # we can automatically "configure".
