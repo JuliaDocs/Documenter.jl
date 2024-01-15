@@ -9,8 +9,4 @@ function clickToggleButton() {
   }
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", clickToggleButton);
-} else {
-  clickToggleButton();
-}
+document.addEventListener("DOMContentLoaded", clickToggleButton);
