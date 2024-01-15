@@ -1,3 +1,7 @@
+```@meta
+DocStringsCollapsed = true
+```
+
 # Writers
 
 ```@autodocs
