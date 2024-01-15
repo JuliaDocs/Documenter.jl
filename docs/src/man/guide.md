@@ -147,19 +147,18 @@ build/
        this is to install the [LiveServer](https://github.com/tlienart/LiveServer.jl) Julia
        package. You can then start the server with
        `julia -e 'using LiveServer; serve(dir="docs/build")'`. Alternatively, if you have Python
-       installed, you can start one with `python3 -m http.server --bind localhost`
-       (or `python -m SimpleHTTPServer` with Python 2).
+       installed, you can start one with `python3 -m http.server --bind localhost`.
 
-    2. You can disable the pretty URLs feature by passing `prettyurls = false` with the
-       [`Documenter.HTML`](@ref) plugin:
+    2. You can disable the pretty URLs feature by passing `prettyurls = false` with
+       [`Documenter.HTML`](@ref):
 
        ```julia
        makedocs(..., format = Documenter.HTML(prettyurls = false))
        ```
 
-       Alternatively, if your goal is to eventually set up automatic documentation deployment
-       with e.g. Travis CI or GitHub Actions (see [Hosting Documentation](@ref)), you can also use their environment
-       variables to determine Documenter's behavior in `make.jl` on the fly:
+       For simple projects, it may be suitable to set `prettyurls` on the fly depending on
+       whether the documentation is being built locally or, e.g., in a Github Action (see
+       [Hosting Documentation](@ref)):
 
        ```julia
        makedocs(...,
@@ -168,6 +167,18 @@ build/
            )
        )
        ```
+
+       This relies on the environment variable `CI` that is set when running on GitHub Actions,
+       and offers the benefit of making the documentation easy to view locally while still
+       deploying with the recommended URL scheme. However, be aware there can be subtle
+       differences between `prettyurls=true` and `prettyurls=false`. For example, if a
+       [`@raw` block](@ref @raw-format-block) references a local image, the correct relative
+       path of that image would depend on the `prettyurls` setting. Consequently, the
+       documentation might build correctly locally and be broken on Github Actions, or vice
+       versa. Thus, the *recommended* approach is to maintain a consistent setting and to
+       always use LiveServer or `python3 -m http.server` to view the locally built
+       documentation.
+
 
 !!! warning
 

@@ -279,20 +279,17 @@ Sets the behavior of [`HTMLWriter`](@ref).
 
 **`prettyurls`** (default `true`) -- allows toggling the pretty URLs feature.
 
-By default (i.e. when `prettyurls` is set to `true`), Documenter creates a directory
-structure that hides the `.html` suffixes from the URLs (e.g. by default `src/foo.md`
-becomes `src/foo/index.html`, but can be accessed with via `src/foo/` in the browser). This
-structure is preferred when publishing the generate HTML files as a website (e.g. on GitHub
-Pages), which is Documenter's primary use case.
+By default (i.e., when `prettyurls` is set to `true`), Documenter creates a directory
+structure that hides the `.html` suffixes from the URLs (e.g., by default `src/foo.md`
+becomes `src/foo/index.html`, but can be accessed via `src/foo/` in the browser). This
+structure is preferred when publishing the generated HTML files as a website (e.g., on
+GitHub Pages), which is Documenter's primary use case. However, when building locally
+viewing the resulting pages requires a running webserver. It is recommended to use the
+[`LiveServer` package](https://github.com/tlienart/LiveServer.jl) for this.
 
 If `prettyurls = false`, then Documenter generates `src/foo.html` instead, suitable for
-local documentation builds, as browsers do not normally resolve `foo/` to `foo/index.html`
-for local files.
-
-To have pretty URLs disabled in local builds, but still have them enabled for the automatic
-CI deployment builds, you can set `prettyurls = get(ENV, "CI", nothing) == "true"` (the
-specific environment variable you will need to check may depend on the CI system you are
-using, but this will work on Travis CI).
+locally viewing the documentation without `LiveServer`, as browsers do not normally
+resolve `foo/` to `foo/index.html` for local files.
 
 **`disable_git`** can be used to disable calls to `git` when the document is not
 in a Git-controlled repository. Without setting this to `true`, Documenter will throw
