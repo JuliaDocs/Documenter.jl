@@ -308,7 +308,7 @@ looking at the `origin` remote, and falls back to `"master"` if that fails.
 
 **`repolink`** can be used to override the URL of the Git repository link in the top navbar
 (if passed a `String`). By default, Documenter attempts to determine the link from the Git
-remote of the repository (e.g. specified via the `remote` argument of
+remote of the repository (e.g. specified via the `remotes` argument of
 [`makedocs`](@ref Documenter.makedocs)). Passing a `nothing` disables the repository link.
 
 **`canonical`** specifies the canonical URL for your documentation. We recommend

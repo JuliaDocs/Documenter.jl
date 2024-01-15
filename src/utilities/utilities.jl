@@ -164,7 +164,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
     end
     if linenumbernode isa LineNumberNode
         exs = Meta.parseall(code; filename=linenumbernode.file).args
-        @assert length(exs) == 2 * length(results)
+        @assert length(exs) == 2 * length(results) "Issue at $linenumbernode:\n$code"
         for (i, ex) in enumerate(Iterators.partition(exs, 2))
             @assert ex[1] isa LineNumberNode
             expr = Expr(:toplevel, ex...) # LineNumberNode + expression
