@@ -281,7 +281,7 @@ struct RemoteRepository
 end
 function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
     try
-        RemoteRepository(realpath(root), remote, repo_commit(root))
+        RemoteRepository(normpath(root), remote, repo_commit(root))
     catch e
         e isa RepoCommitError || rethrow()
         @error "Unable to determine the commit for the remote repository:\n$(e.msg)" e.directory exception = e.err_bt
@@ -507,7 +507,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         if !isdir(path)
             throw(ArgumentError(("Invalid local path in remotes (not a directory): $(path)")))
         end
-        path = realpath(path)
+        path = normpath(path)
         # We'll also check that there are no duplicate entries.
         idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
@@ -788,9 +788,30 @@ function relpath_from_remote_root(doc::Document, path::AbstractString)
     end
     ispath(path) || error("relpath_from_repo_root called with nonexistent path: $path")
     isabspath(path) || error("relpath_from_repo_root called with non-absolute path: $path")
-    # We want to expand the path properly, including symlinks, so we call realpath()
-    # Note: it throws for non-existing files, but we just checked for it.
-    path = realpath(path)
+    # We'll normalize the path, removing `..`-s etc.
+    #
+    # However, we explicitly do not want to resolve symlinks (so we can't call `realpath`).
+    # This is, in particular, necessary to enable us to resolve standard library paths for
+    # the Julia manual -- the standard library source files under usr/share/julia are _sometimes_
+    # symlinked to stdlib/ and sometimes they are not.
+    #
+    # Specifically, the (fixed; i.e. `Base.fixup_stdlib_path` has been called) paths of standard
+    # library docstrings always point into
+    #
+    #   $(JULIA_SOURCE)/usr/share/julia/stdlib/v1.11/$(PACKAGE)/src/...
+    #
+    # If this is a Julia worktree that has been created by unpacking a pre-built tarball (like we
+    # do in the Julia documentation builds on CI), then those are real files. However, if you are
+    # building the documentation in a full local Julia worktree, then the standard library package
+    # directories are actually symlinks into $(JULIA_SOURCE)/stdlib. This would throw `realpath`
+    # off.
+    #
+    # For the normal case of building documentation for Julia packages, we do not expect to have to
+    # deal with symlinks at all, unless it's a very strange setup. However, even in that case, it
+    # feels safer to _not_ expand symlinks, since the symlinks might be used to organize directories
+    # at a higher level (e.g. closer to the root; link symlinking /home directories or something
+    # strange like that).
+    path = normpath(path)
     # Try to see if `path` falls into any of the remotes in .remotes, or if it's a GitHub repository
     # we can automatically "configure".
     root_remote::Union{RemoteRepository,Nothing} = nothing
@@ -889,7 +910,17 @@ function source_url(doc::Document, mod::Module, file::AbstractString, linerange)
         return repofile(julia_remote, ref, "base/$file", linerange)
     end
     # Generally, we assume that the Julia source file exists on the system.
-    isfile(file) || return nothing
+    # An exception to this is when the path points to a docstring in a standard library.
+    # To handle that case, we first "fix up" the path, hopefully making it point to the
+    # local usr/share/julia directory.
+    if !isfile(file)
+        # Note: Base.fixup_stdlib_path is a non-public internal function.
+        file = Base.fixup_stdlib_path(file)
+    end
+    if !isfile(file)
+        @warn "Trying to generate a source URL for a non-existent file" mod file linerange
+        return nothing
+    end
     remoteref = relpath_from_remote_root(doc, file)
     if isnothing(remoteref)
         throw(MissingRemoteError(; path = file, linerange, mod))
