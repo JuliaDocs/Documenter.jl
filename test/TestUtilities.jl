@@ -32,7 +32,7 @@ function __init__()
 end
 
 struct QuietlyException <: Exception
-    logid :: Union{String,Nothing}
+    logid::Union{String,Nothing}
     exception
     backtrace
 end
@@ -44,10 +44,13 @@ function Base.showerror(io::IO, e::QuietlyException)
 end
 
 function _quietly(f, expr, source)
-    c = IOCapture.capture(f; rethrow = InterruptException)
+    c = IOCapture.capture(f; rethrow=InterruptException)
     logid, logfile = quietly_next_log()
     isnothing(logid) || open(logfile; write=true, append=true) do io
-        println(io, "@quietly: c.error = $(c.error) / $(sizeof(c.output)) bytes of output captured")
+        println(
+            io,
+            "@quietly: c.error = $(c.error) / $(sizeof(c.output)) bytes of output captured"
+        )
         println(io, "@quietly: $(source.file):$(source.line)")
         println(io, "@quietly: typeof(result) = ", typeof(c.value))
         println(io, "@quietly: STDOUT")
@@ -69,7 +72,10 @@ function _quietly(f, expr, source)
         $(expr)
         """ exception = (c.error, c.backtrace)
         if !isempty(c.output)
-            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color=:magenta)
+            printstyled(
+                "$("="^21) $(prefix): output from the expression $("="^21)\n";
+                color=:magenta
+            )
             print(c.output)
             last(c.output) != "\n" && println()
             printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color=:magenta)
@@ -82,14 +88,20 @@ function _quietly(f, expr, source)
         $(expr)
         """ TestSet = c.value
         if !isempty(c.output)
-            printstyled("$("="^21) $(prefix): output from the expression $("="^21)\n"; color=:magenta)
+            printstyled(
+                "$("="^21) $(prefix): output from the expression $("="^21)\n";
+                color=:magenta
+            )
             print(c.output)
             last(c.output) != "\n" && println()
             printstyled("$("="^27) $(prefix): end of output $("="^28)\n"; color=:magenta)
         end
         return c.value
     else
-        printstyled("$(prefix): success, $(sizeof(c.output)) bytes of output hidden\n"; color=:magenta)
+        printstyled(
+            "$(prefix): success, $(sizeof(c.output)) bytes of output hidden\n";
+            color=:magenta
+        )
         return c.value
     end
 end
@@ -103,7 +115,8 @@ macro quietly(expr)
     end
 end
 
-is_success(testset::Test.DefaultTestSet) = !(testset.anynonpass || !is_success(testset.results))
+is_success(testset::Test.DefaultTestSet) =
+    !(testset.anynonpass || !is_success(testset.results))
 is_success(ts::AbstractArray) = all(is_success.(ts))
 is_success(::Test.Fail) = false
 is_success(::Test.Pass) = true
@@ -114,7 +127,7 @@ end
 
 function trun(cmd::Base.AbstractCmd)
     buffer = IOBuffer()
-    cmd_redirected = pipeline(cmd; stdin = devnull, stdout = buffer, stderr = buffer)
+    cmd_redirected = pipeline(cmd; stdin=devnull, stdout=buffer, stderr=buffer)
     try
         run(cmd_redirected)
         return true

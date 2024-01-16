@@ -6,57 +6,57 @@ These actions may involve creating directory structures, expanding templates, ru
 doctests, etc.
 """
 module Builder
-    import ..Documenter
-    import ..Documenter.Selectors
+import ..Documenter
+import ..Documenter.Selectors
 
-    """
-    The default document processing "pipeline", which consists of the following actions:
+"""
+The default document processing "pipeline", which consists of the following actions:
 
-    - [`SetupBuildDirectory`](@ref)
-    - [`Doctest`](@ref)
-    - [`ExpandTemplates`](@ref)
-    - [`CheckDocument`](@ref)
-    - [`Populate`](@ref)
-    - [`RenderDocument`](@ref)
+- [`SetupBuildDirectory`](@ref)
+- [`Doctest`](@ref)
+- [`ExpandTemplates`](@ref)
+- [`CheckDocument`](@ref)
+- [`Populate`](@ref)
+- [`RenderDocument`](@ref)
 
-    """
-    abstract type DocumentPipeline <: Selectors.AbstractSelector end
+"""
+abstract type DocumentPipeline <: Selectors.AbstractSelector end
 
-    """
-    Creates the correct directory layout within the `build` folder and parses markdown files.
-    """
-    abstract type SetupBuildDirectory <: DocumentPipeline end
+"""
+Creates the correct directory layout within the `build` folder and parses markdown files.
+"""
+abstract type SetupBuildDirectory <: DocumentPipeline end
 
-    """
-    Runs all the doctests in all docstrings and Markdown files.
-    """
-    abstract type Doctest <: DocumentPipeline end
+"""
+Runs all the doctests in all docstrings and Markdown files.
+"""
+abstract type Doctest <: DocumentPipeline end
 
-    """
-    Executes a sequence of actions on each node of the parsed markdown files in turn.
-    """
-    abstract type ExpandTemplates <: DocumentPipeline end
+"""
+Executes a sequence of actions on each node of the parsed markdown files in turn.
+"""
+abstract type ExpandTemplates <: DocumentPipeline end
 
-    """
-    Finds and sets URLs for each `@ref` link in the document to the correct destinations.
-    """
-    abstract type CrossReferences <: DocumentPipeline end
+"""
+Finds and sets URLs for each `@ref` link in the document to the correct destinations.
+"""
+abstract type CrossReferences <: DocumentPipeline end
 
-    """
-    Checks that all documented objects are included in the document and runs doctests on all
-    valid Julia code blocks.
-    """
-    abstract type CheckDocument <: DocumentPipeline end
+"""
+Checks that all documented objects are included in the document and runs doctests on all
+valid Julia code blocks.
+"""
+abstract type CheckDocument <: DocumentPipeline end
 
-    """
-    Populates the `ContentsNode`s and `IndexNode`s with links.
-    """
-    abstract type Populate <: DocumentPipeline end
+"""
+Populates the `ContentsNode`s and `IndexNode`s with links.
+"""
+abstract type Populate <: DocumentPipeline end
 
-    """
-    Writes the document tree to the `build` directory.
-    """
-    abstract type RenderDocument <: DocumentPipeline end
+"""
+Writes the document tree to the `build` directory.
+"""
+abstract type RenderDocument <: DocumentPipeline end
 end
 
 Selectors.order(::Type{Builder.SetupBuildDirectory}) = 1.0
@@ -67,15 +67,16 @@ Selectors.order(::Type{Builder.CheckDocument})       = 4.0
 Selectors.order(::Type{Builder.Populate})            = 5.0
 Selectors.order(::Type{Builder.RenderDocument})      = 6.0
 
-Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: Builder.DocumentPipeline} = true
+Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T<:Builder.DocumentPipeline} =
+    true
 
-Selectors.strict(::Type{T}) where {T <: Builder.DocumentPipeline} = false
+Selectors.strict(::Type{T}) where {T<:Builder.DocumentPipeline} = false
 
 function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.Document)
     @info "SetupBuildDirectory: setting up build directory."
 
     # Frequently used fields.
-    build  = doc.user.build
+    build = doc.user.build
     source = doc.user.source
     workdir = doc.user.workdir
 
@@ -84,7 +85,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
 
     # We create the .user.build directory.
     # If .user.clean is set, we first clean the existing directory.
-    doc.user.clean && isdir(build) && rm(build; recursive = true)
+    doc.user.clean && isdir(build) && rm(build; recursive=true)
     isdir(build) || mkpath(build)
 
     # We'll walk over all the files in the .user.source directory.
@@ -117,7 +118,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
                 push!(mdpages, Documenter.srcpath(source, root, file))
                 Documenter.addpage!(doc, src, dst, wd)
             else
-                cp(src, dst; force = true)
+                cp(src, dst; force=true)
             end
         end
     end
@@ -136,7 +137,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
 
     # Finally we populate the .next and .prev fields of the navnodes that point
     # to actual pages.
-    local prev::Union{Documenter.NavNode, Nothing} = nothing
+    local prev::Union{Documenter.NavNode,Nothing} = nothing
     for navnode in doc.internal.navlist
         navnode.prev = prev
         if prev !== nothing
@@ -163,8 +164,8 @@ string sorting, except for prioritizing `index.md` (i.e. `index.md` always comes
 """
 function lt_page(a, b)
     # note: length("index.md") == 8
-    a = endswith(a, "index.md") ? chop(a; tail = 8) : a
-    b = endswith(b, "index.md") ? chop(b; tail = 8) : b
+    a = endswith(a, "index.md") ? chop(a; tail=8) : a
+    b = endswith(b, "index.md") ? chop(b; tail=8) : b
     return a < b
 end
 
@@ -196,11 +197,14 @@ function walk_navpages(hps::Tuple, parent, doc)
     walk_navpages(hps..., parent, doc)
 end
 
-walk_navpages(title::String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
-walk_navpages(title::String, page, parent, doc) = walk_navpages(true, title, page, [], parent, doc)
+walk_navpages(title::String, children::Vector, parent, doc) =
+    walk_navpages(true, title, nothing, children, parent, doc)
+walk_navpages(title::String, page, parent, doc) =
+    walk_navpages(true, title, page, [], parent, doc)
 
 walk_navpages(p::Pair, parent, doc) = walk_navpages(p.first, p.second, parent, doc)
-walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documenter.NavNode for p in ps]
+walk_navpages(ps::Vector, parent, doc) =
+    [walk_navpages(p, parent, doc)::Documenter.NavNode for p in ps]
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
@@ -209,7 +213,9 @@ function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
         _doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
         if (doc.user.doctest === :only || is_strict(doc, :doctest)) && num_errors > 0
-            error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")
+            error(
+                "`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build"
+            )
         end
     else
         @info "Doctest: skipped."
@@ -250,9 +256,11 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
     fatal_errors = filter(is_strict(doc), doc.internal.errors)
     c = length(fatal_errors)
     if c > 0
-        error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ["
-        * join(Ref(":") .* string.(fatal_errors), ", ")
-        * "] -- terminating build before rendering.")
+        error(
+            "`makedocs` encountered $(c > 1 ? "errors" : "an error") [" *
+            join(Ref(":") .* string.(fatal_errors), ", ") *
+            "] -- terminating build before rendering."
+        )
     else
         @info "RenderDocument: rendering document."
         Documenter.render(doc)

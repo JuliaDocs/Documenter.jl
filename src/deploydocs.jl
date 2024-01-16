@@ -179,29 +179,24 @@ using the [`deploydocs`](@ref) function to automatically generate docs and push 
 GitHub.
 """
 function deploydocs(;
-        root   = currentdir(),
-        target = "build",
-        dirname = "",
-
-        repo   = error("no 'repo' keyword provided."),
-        branch = "gh-pages",
-
-        repo_previews   = repo,
-        branch_previews = branch,
-
-        deps   = nothing,
-        make   = nothing,
-
-        devbranch = nothing,
-        devurl = "dev",
-        versions = ["stable" => "v^", "v#.#", devurl => devurl],
-        forcepush::Bool = false,
-        deploy_config = auto_detect_deploy_system(),
-        push_preview::Bool = false,
-        tag_prefix = "",
-
-        archive = nothing, # experimental and undocumented
-    )
+    root=currentdir(),
+    target="build",
+    dirname="",
+    repo   = error("no 'repo' keyword provided."),
+    branch = "gh-pages",
+    repo_previews   = repo,
+    branch_previews = branch,
+    deps = nothing,
+    make = nothing,
+    devbranch=nothing,
+    devurl="dev",
+    versions=["stable" => "v^", "v#.#", devurl => devurl],
+    forcepush::Bool=false,
+    deploy_config=auto_detect_deploy_system(),
+    push_preview::Bool=false,
+    tag_prefix="",
+    archive=nothing, # experimental and undocumented
+)
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
@@ -215,15 +210,17 @@ function deploydocs(;
         ispath(archive) && error("Output archive exists: $archive")
     end
 
-    deploy_decision = deploy_folder(deploy_config;
-                                    branch=branch,
-                                    branch_previews=branch_previews,
-                                    devbranch=devbranch,
-                                    devurl=devurl,
-                                    push_preview=push_preview,
-                                    repo=repo,
-                                    repo_previews=repo_previews,
-                                    tag_prefix)
+    deploy_decision = deploy_folder(
+        deploy_config;
+        branch=branch,
+        branch_previews=branch_previews,
+        devbranch=devbranch,
+        devurl=devurl,
+        push_preview=push_preview,
+        repo=repo,
+        repo_previews=repo_previews,
+        tag_prefix
+    )
     if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
         deploy_repo = deploy_decision.repo
@@ -271,11 +268,20 @@ function deploydocs(;
             @debug "pushing new documentation to remote: '$deploy_repo:$deploy_branch'."
             mktempdir() do temp
                 git_push(
-                    root, temp, deploy_repo;
-                    branch=deploy_branch, dirname=dirname, target=target,
-                    sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
-                    devurl=devurl, versions=versions, forcepush=forcepush,
-                    is_preview=deploy_is_preview, archive=archive,
+                    root,
+                    temp,
+                    deploy_repo;
+                    branch=deploy_branch,
+                    dirname=dirname,
+                    target=target,
+                    sha=sha,
+                    deploy_config=deploy_config,
+                    subfolder=deploy_subfolder,
+                    devurl=devurl,
+                    versions=versions,
+                    forcepush=forcepush,
+                    is_preview=deploy_is_preview,
+                    archive=archive,
                 )
             end
         end
@@ -293,11 +299,21 @@ Handles pushing changes to the remote documentation branch.
 The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
-        root, temp, repo;
-        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
-        versions, forcepush=false, deploy_config, subfolder,
-        is_preview::Bool = false, archive,
-    )
+    root,
+    temp,
+    repo;
+    branch="gh-pages",
+    dirname="",
+    target="site",
+    sha="",
+    devurl="dev",
+    versions,
+    forcepush=false,
+    deploy_config,
+    subfolder,
+    is_preview::Bool=false,
+    archive,
+)
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
 
@@ -358,7 +374,11 @@ function git_push(
 
             # Create the versions.js file containing a list of `entries`.
             # This must always happen after the folder copying.
-            HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
+            HTMLWriter.generate_version_file(
+                joinpath(dirname, "versions.js"),
+                entries,
+                symlinks
+            )
 
             # Create the index.html file to redirect ./stable or ./dev.
             # This must always happen after the folder copying.
@@ -371,15 +391,23 @@ function git_push(
                     if i === nothing
                         rm_and_add_symlink(kv.second, kv.first)
                     else
-                        throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
-                            "`devurl = $(devurl)` with the same name.")))
+                        throw(
+                            ArgumentError(
+                                string(
+                                    "link `$(kv)` cannot overwrite ",
+                                    "`devurl = $(devurl)` with the same name."
+                                )
+                            )
+                        )
                     end
                 end
             end
         end
 
         # Add, commit, and push the docs to the remote.
-        run(`$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`)
+        run(
+            `$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`
+        )
         if !success(`$(git()) diff --cached --exit-code`)
             if !isnothing(archive)
                 run(`$(git()) commit -m "build based on $sha"`)
@@ -423,16 +451,18 @@ function git_push(
 
         try
             mktemp() do sshconfig, io
-                print(io,
-                """
-                Host $host
-                    StrictHostKeyChecking no
-                    User $user
-                    HostName $host
-                    IdentityFile "$keyfile"
-                    IdentitiesOnly yes
-                    BatchMode yes
-                """)
+                print(
+                    io,
+                    """
+                    Host $host
+                        StrictHostKeyChecking no
+                        User $user
+                        HostName $host
+                        IdentityFile "$keyfile"
+                        IdentitiesOnly yes
+                        BatchMode yes
+                    """
+                )
                 close(io)
                 chmod(sshconfig, 0o600)
                 # git config core.sshCommand requires git 2.10.0, but
@@ -443,7 +473,7 @@ function git_push(
             end
             post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
         catch e
-            @error "Failed to push:" exception=(e, catch_backtrace())
+            @error "Failed to push:" exception = (e, catch_backtrace())
             post_status(deploy_config; repo=repo, type="error")
             rethrow(e)
         finally
@@ -457,7 +487,7 @@ function git_push(
             cd(() -> withenv(git_commands, NO_KEY_ENV...), temp)
             post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
         catch e
-            @error "Failed to push:" exception=(e, catch_backtrace())
+            @error "Failed to push:" exception = (e, catch_backtrace())
             post_status(deploy_config; repo=repo, type="error")
             rethrow(e)
         end
@@ -467,7 +497,7 @@ end
 function rm_and_add_symlink(target, link)
     if ispath(link) || islink(link)
         @warn "removing `$(link)` and linking `$(link)` to `$(target)`."
-        rm(link; force = true, recursive = true)
+        rm(link; force=true, recursive=true)
     end
     symlink(target, link)
 end
@@ -480,7 +510,8 @@ Disassemble repo address into user, host, and path to repo. If no user is given,
 """
 function user_host_upstream(repo)
     # If the repo path contains the protocol, throw immediately an error.
-    occursin(r"^[a-z]+://", repo) && error("The repo path $(repo) should not contain the protocol")
+    occursin(r"^[a-z]+://", repo) &&
+        error("The repo path $(repo) should not contain the protocol")
     #= the regex has three parts:
     (?:([^@]*)@)?  matches any number of characters up to the first "@", if present,
         capturing only the characters before the "@" - this captures the username

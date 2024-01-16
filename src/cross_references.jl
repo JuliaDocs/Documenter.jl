@@ -41,7 +41,7 @@ function crossref(doc::Documenter.Document, page, mdast::MarkdownAST.Node)
 end
 
 function local_links!(node::MarkdownAST.Node, meta, page, doc)
-    @assert node.element isa Union{MarkdownAST.Link, MarkdownAST.Image}
+    @assert node.element isa Union{MarkdownAST.Link,MarkdownAST.Image}
     link_url = node.element.destination
     # If the link is an absolute URL, then there's nothing we need to do. We'll just
     # keep the Link object as is, and it should become an external hyperlink in the writer.
@@ -59,9 +59,10 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
     if isempty(path)
         if node.element isa MarkdownAST.Image
             @docerror(
-                doc, :cross_references,
+                doc,
+                :cross_references,
                 "invalid local image: path missing in $(Documenter.locrepr(page.source))",
-                link=node
+                link = node
             )
             return
         end
@@ -69,9 +70,10 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         return
     elseif Sys.iswindows() && ':' in path
         @docerror(
-            doc, :cross_references,
+            doc,
+            :cross_references,
             "invalid local link/image: colons not allowed in paths on Windows in $(Documenter.locrepr(page.source))",
-            link=node
+            link = node
         )
         return
     end
@@ -80,9 +82,10 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
     path = normpath(joinpath(dirname(Documenter.pagekey(doc, page)), path))
     if startswith(path, "..")
         @docerror(
-            doc, :cross_references,
+            doc,
+            :cross_references,
             "invalid local link/image: path pointing to a file outside of build directory in $(Documenter.locrepr(page.source))",
-            link=node
+            link = node
         )
         return
     elseif path in keys(doc.blueprint.pages)
@@ -95,9 +98,10 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         if node.element isa MarkdownAST.Image
             if !isempty(fragment)
                 @docerror(
-                    doc, :cross_references,
+                    doc,
+                    :cross_references,
                     "invalid local image: path contains a fragment in $(Documenter.locrepr(page.source))",
-                    link=node
+                    link = node
                 )
             end
             node.element = Documenter.LocalImage(path)
@@ -107,9 +111,10 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         return
     else
         @docerror(
-            doc, :cross_references,
+            doc,
+            :cross_references,
             "invalid local link/image: file does not exist in $(Documenter.locrepr(page.source))",
-            link=node
+            link = node
         )
         return
     end
@@ -160,7 +165,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
         # so that we wouldn't have to duplicate the @docerror call
         namedxref(node, slug, meta, page, doc)
     else
-        docsxref(node, slug, meta, page, doc; docref = docref)
+        docsxref(node, slug, meta, page, doc; docref=docref)
     end
 end
 
@@ -189,7 +194,8 @@ function basicxref(node::MarkdownAST.Node, meta, page, doc)
             end
         end
         md = convert(Markdown.MD, ast)
-        text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
+        text =
+            strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
         if occursin(r"#[0-9]+", text)
             issue_xref(node, lstrip(text, '#'), meta, page, doc)
         else
@@ -217,17 +223,32 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc)
             page = doc.blueprint.pages[pagekey]
             node.element = Documenter.PageLink(page, anchor_label(anchor))
         else
-            @docerror(doc, :cross_references, "'$slug' is not unique in $(Documenter.locrepr(page.source)).")
+            @docerror(
+                doc,
+                :cross_references,
+                "'$slug' is not unique in $(Documenter.locrepr(page.source))."
+            )
         end
     else
-        @docerror(doc, :cross_references, "reference for '$slug' could not be found in $(Documenter.locrepr(page.source)).")
+        @docerror(
+            doc,
+            :cross_references,
+            "reference for '$slug' could not be found in $(Documenter.locrepr(page.source))."
+        )
     end
 end
 
 # Cross referencing docstrings.
 # -----------------------------
 
-function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_docref(code, meta, page))
+function docsxref(
+    node::MarkdownAST.Node,
+    code,
+    meta,
+    page,
+    doc;
+    docref=find_docref(code, meta, page)
+)
     @assert node.element isa MarkdownAST.Link
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
@@ -249,7 +270,11 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_d
         page = doc.blueprint.pages[pagekey]
         node.element = Documenter.PageLink(page, slug)
     else
-        @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
+        @docerror(
+            doc,
+            :cross_references,
+            "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source))."
+        )
     end
 end
 
@@ -264,7 +289,10 @@ function find_docref(code, meta, page)
             ex = Meta.parse(code)
         catch err
             isa(err, Meta.ParseError) || rethrow(err)
-            return (error = "unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).", exception = nothing)
+            return (
+                error="unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).",
+                exception=nothing
+            )
         end
     end
     mod = get(meta, :CurrentModule, Main)
@@ -275,8 +303,8 @@ function find_docref(code, meta, page)
         binding = Documenter.DocSystem.binding(mod, ex)
     catch err
         return (
-            error = "unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
-            exception = (err, catch_backtrace()),
+            error="unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception=(err, catch_backtrace()),
         )
         return
     end
@@ -286,13 +314,13 @@ function find_docref(code, meta, page)
         typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         return (
-            error = "unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
-            exception = (err, catch_backtrace()),
+            error="unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            exception=(err, catch_backtrace()),
         )
         return
     end
 
-    return (binding = binding, typesig = typesig)
+    return (binding=binding, typesig=typesig)
 end
 
 """
@@ -335,7 +363,7 @@ function find_object(binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-function find_object(λ::Union{Function, DataType}, binding, typesig)
+function find_object(λ::Union{Function,DataType}, binding, typesig)
     if hasmethod(λ, typesig)
         signature = getsig(λ, typesig)
         return Documenter.Object(binding, signature)
@@ -343,10 +371,11 @@ function find_object(λ::Union{Function, DataType}, binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-find_object(::Union{Function, DataType}, binding, ::Union{Union,Type{Union{}}}) = Documenter.Object(binding, Union{})
+find_object(::Union{Function,DataType}, binding, ::Union{Union,Type{Union{}}}) =
+    Documenter.Object(binding, Union{})
 find_object(other, binding, typesig) = Documenter.Object(binding, typesig)
 
-getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
+getsig(λ::Union{Function,DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
 
 
 # Issues/PRs cross referencing.
@@ -355,9 +384,14 @@ getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, 
 function issue_xref(node::MarkdownAST.Node, num, meta, page, doc)
     @assert node.element isa MarkdownAST.Link
     # Update issue links starting with a hash, but only if our Remote supports it
-    issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
+    issue_url =
+        isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
     if isnothing(issue_url)
-        @docerror(doc, :cross_references, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
+        @docerror(
+            doc,
+            :cross_references,
+            "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source))."
+        )
     else
         node.element.destination = issue_url
     end

@@ -1,6 +1,7 @@
 using Test
 import Documenter
-include("TestUtilities.jl"); using Main.TestUtilities
+include("TestUtilities.jl");
+using Main.TestUtilities;
 
 function testset_include(filename; quietly=false)
     @testset "$filename" begin

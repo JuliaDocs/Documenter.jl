@@ -23,7 +23,8 @@ end
     # recursive setting
     @test DocMeta.getdocmeta(TestMod, :DocTestSetup) == :foo
     @test DocMeta.getdocmeta(TestMod.Submodule, :DocTestSetup) === nothing
-    @test DocMeta.setdocmeta!(TestMod, :DocTestSetup, :foo; recursive=true, warn=false) === nothing
+    @test DocMeta.setdocmeta!(TestMod, :DocTestSetup, :foo; recursive=true, warn=false) ===
+          nothing
     @test DocMeta.getdocmeta(TestMod, :DocTestSetup) == :foo
     @test DocMeta.getdocmeta(TestMod.Submodule, :DocTestSetup) == :foo
 end

@@ -79,23 +79,23 @@ julia> 3 + 4
 """
 foo() = 1
 
-    """
-    ```jldoctest
-    julia> begin
-               Main.DocTestFixArray_2468
-           end
-    4-element Array{Int64,1}:
-     1
-     2
-     3
-     4
-    ```
-    ```jldoctest
-    julia> println(); println("foo")
+"""
+```jldoctest
+julia> begin
+           Main.DocTestFixArray_2468
+       end
+4-element Array{Int64,1}:
+ 1
+ 2
+ 3
+ 4
+```
+```jldoctest
+julia> println(); println("foo")
 
-    bar
-    ```
-    """
-    foo(x) = 1
+bar
+```
+"""
+foo(x) = 1
 
 end # module

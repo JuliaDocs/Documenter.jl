@@ -1,5 +1,6 @@
 module OnlineGithubCheckTests
-using Documenter: Documenter, MarkdownAST, AbstractTrees, render, expand, walk_navpages, githubcheck
+using Documenter:
+    Documenter, MarkdownAST, AbstractTrees, render, expand, walk_navpages, githubcheck
 using Documenter.HTMLWriter: render_article, HTMLContext, HTML
 using Markdown
 using Test

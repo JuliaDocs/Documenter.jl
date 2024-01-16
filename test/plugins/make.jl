@@ -82,7 +82,9 @@ A = _TestPluginA(false)
 @test !(_TestPluginB().processed)
 @test makedocs(;
     plugins=[_RunPluginTests(true), A],
-    sitename="-", modules = [PluginsTestModule], warnonly=false
+    sitename="-",
+    modules=[PluginsTestModule],
+    warnonly=false
 ) === nothing
 @test A.processed
 
@@ -98,7 +100,9 @@ err_msg = "DataType in `plugins=` is not a subtype of `Documenter.Plugin`."
 @test_throws ArgumentError(err_msg) begin
     makedocs(;
         plugins=[_RunPluginTests(false), _TestPluginB],
-        sitename="-", modules = [PluginsTestModule], warnonly=false
+        sitename="-",
+        modules=[PluginsTestModule],
+        warnonly=false
     )
 end
 
@@ -107,7 +111,9 @@ end
 try  # Use try-catch get get around @test_throws limitations in Julia 1.6
     makedocs(;
         plugins=[_RunPluginTests(false), _TestPluginA(true), _TestPluginA(false)],
-        sitename="-", modules = [PluginsTestModule], warnonly=false
+        sitename="-",
+        modules=[PluginsTestModule],
+        warnonly=false
     )
     @test false  # makedocs should have thrown an ArgumentError
 catch exc
@@ -120,11 +126,7 @@ end
 
 A = _TestPluginA(false)
 @test !(A.processed)
-doctest(
-    joinpath(@__DIR__, "src"),
-    [PluginsTestModule];
-    plugins=[_RunPluginTests(true), A]
-)
+doctest(joinpath(@__DIR__, "src"), [PluginsTestModule]; plugins=[_RunPluginTests(true), A])
 @test A.processed
 
 end
