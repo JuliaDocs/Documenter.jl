@@ -139,46 +139,38 @@ build/
     into `src/foo/index.html`, instead of simply `src/foo.html`, which is the preferred way
     when creating a set of HTML to be hosted on a web server.
 
-    However, this can be a hindrance when browsing the documentation locally as browsers do
-    not resolve directory URLs like `foo/` to `foo/index.html` for local files. You have two
-    options:
+    However, this can be a hindrance when browsing the documentation locally as browsers
+    do not resolve directory URLs like `foo/` to `foo/index.html` for local files. To view
+    the documentation locally, it is recommended that you run a local web server out of
+    the `docs/build` directory. One way to accomplish this is to install the
+    [LiveServer](https://github.com/tlienart/LiveServer.jl) Julia package. You can then
+    start the server with `julia -e 'using LiveServer; serve(dir="docs/build")'`.
+    Alternatively, if you have Python installed, you can start one with
+    `python3 -m http.server --bind localhost`.
 
-    1. You can run a local web server out of the `docs/build` directory. One way to accomplish
-       this is to install the [LiveServer](https://github.com/tlienart/LiveServer.jl) Julia
-       package. You can then start the server with
-       `julia -e 'using LiveServer; serve(dir="docs/build")'`. Alternatively, if you have Python
-       installed, you can start one with `python3 -m http.server --bind localhost`.
 
-    2. You can disable the pretty URLs feature by passing `prettyurls = false` with
-       [`Documenter.HTML`](@ref):
+!!! warning
 
-       ```julia
-       makedocs(..., format = Documenter.HTML(prettyurls = false))
-       ```
+    You may see setups using
 
-       For simple projects, it may be suitable to set `prettyurls` on the fly depending on
-       whether the documentation is being built locally or, e.g., in a Github Action (see
-       [Hosting Documentation](@ref)):
+    ```julia
+    makedocs(...,
+        format = Documenter.HTML(
+            prettyurls = get(ENV, "CI", nothing) == "true"
+        )
+    )
+    ```
 
-       ```julia
-       makedocs(...,
-           format = Documenter.HTML(
-               prettyurls = get(ENV, "CI", nothing) == "true"
-           )
-       )
-       ```
+    The intent behind this is to use `prettyurls=false` when building the documentation
+    locally, for easy browsing, and `prettyurls=true` when deploying the documentation
+    online from GitHub Actions.
 
-       This relies on the environment variable `CI` that is set when running on GitHub Actions,
-       and offers the benefit of making the documentation easy to view locally while still
-       deploying with the recommended URL scheme. However, be aware there can be subtle
-       differences between `prettyurls=true` and `prettyurls=false`. For example, if a
-       [`@raw` block](@ref @raw-format-block) references a local image, the correct relative
-       path of that image would depend on the `prettyurls` setting. Consequently, the
-       documentation might build correctly locally and be broken on Github Actions, or vice
-       versa. Thus, the *recommended* approach is to maintain a consistent setting and to
-       always use LiveServer or `python3 -m http.server` to view the locally built
-       documentation.
-
+    However, this is not recommended. For example, if a
+    [`@raw` block](@ref @raw-format-block) references a local image, the correct relative
+    path of that image would depend on the `prettyurls` setting. Consequently, the
+    documentation might build correctly locally and be broken on Github Actions, or vice
+    versa. It is recommended to always use `prettyurls=true` and run a local web server
+    to view the documentation.
 
 !!! warning
 
