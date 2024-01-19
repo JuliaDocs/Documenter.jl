@@ -163,9 +163,9 @@ let filters = [...new Set(data.map((x) => x.category))];
 var modal_filters = make_modal_body_filters(filters);
 var filter_results = [];
 
-$(document).on("keyup", ".documenter-search-input", function (event) {
+$(document).on("keydown", ".documenter-search-input", function (event) {
   // Adding a debounce to prevent disruptions from super-speed typing!
-  debounce(() => update_search(filter_results), 300);
+  debounce(() => update_search(filter_results), 100);
 });
 
 $(document).on("click", ".search-filter", function () {
@@ -176,7 +176,7 @@ $(document).on("click", ".search-filter", function () {
   }
 
   // Adding a debounce to prevent disruptions from crazy clicking!
-  debounce(() => get_filters(), 300);
+  debounce(() => get_filters(), 100);
 });
 
 /**
