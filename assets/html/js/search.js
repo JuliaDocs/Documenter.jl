@@ -164,8 +164,7 @@ var modal_filters = make_modal_body_filters(filters);
 var filter_results = [];
 
 $(document).on("keyup", ".documenter-search-input", function (event) {
-  // Adding a debounce to prevent disruptions from super-speed typing!
-  debounce(() => update_search(filter_results), 300);
+  update_search(filter_results);
 });
 
 $(document).on("click", ".search-filter", function () {
@@ -175,20 +174,8 @@ $(document).on("click", ".search-filter", function () {
     $(this).addClass("search-filter-selected");
   }
 
-  // Adding a debounce to prevent disruptions from crazy clicking!
-  debounce(() => get_filters(), 300);
+  get_filters();
 });
-
-/**
- * A debounce function, takes a function and an optional timeout in milliseconds
- *
- * @function callback
- * @param {number} timeout
- */
-function debounce(callback, timeout = 300) {
-  clearTimeout(timer);
-  timer = setTimeout(callback, timeout);
-}
 
 /**
  * Make/Update the search component
