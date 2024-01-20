@@ -163,7 +163,7 @@ let filters = [...new Set(data.map((x) => x.category))];
 var modal_filters = make_modal_body_filters(filters);
 var filter_results = [];
 
-$(document).on("keydown", ".documenter-search-input", function (event) {
+$(document).on("input", ".documenter-search-input", function (event) {
   // Adding a debounce to prevent disruptions from super-speed typing!
   debounce(() => update_search(filter_results), 100);
 });
