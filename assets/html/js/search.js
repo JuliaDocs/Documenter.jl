@@ -12,7 +12,7 @@ in a web worker. Searching and result generation are done in the worker, and fil
 DOM updates are done in the main thread. The filters are in the main thread as they should
 be very quick to apply. This lets filters be changed without re-searching with minisearch
 (which is possible even if filtering is on the worker thread) and also lets filters be
-changed _while_ the worker is searching and without message passing (niether of which are
+changed _while_ the worker is searching and without message passing (neither of which are
 possible if filtering is on the worker thread)
 
 SEARCH WORKER:
@@ -43,7 +43,7 @@ launch_search
 
 on message from worker
   if last_search_text is not the same as the text in the search field,
-    the latest serach result is not reflective of the latest search query, so update again
+    the latest search result is not reflective of the latest search query, so update again
     launch_search()
   otherwise
     set worker_is_running to false
@@ -240,7 +240,7 @@ const worker = new Worker(URL.createObjectURL(worker_blob));
 /////// SEARCH MAIN ///////
 const modal_filters = make_modal_body_filters(filters);
 
-// Wheather the worker is currently handling a search. This is a boolean
+// Whether the worker is currently handling a search. This is a boolean
 // as the worker only ever handles 1 or 0 searches at a time.
 var worker_is_running = false;
 
