@@ -32,18 +32,18 @@ on filter click
   adjust global filters
   update_search
 
-udate_results
+update_results
   apply filters and update the DOM
   Note that the filters are in the main thread as they should ve very quick to apply.
-  This lets filters be changed without re-searching wihh minisearch (which is possilbe even
-    if fitlering is on the worker thread) and also lets filters be changed _while_ the
+  This lets filters be changed without re-searching wihh minisearch (which is possible even
+    if filtering is on the worker thread) and also lets filters be changed _while_ the
     worker is searching (which is not possible if filtering is on the worker thread)
 */
 
 // Worker
 /*
 setup search index
-onmessage, run serach and post results
+onmessage, run search and post results
 */
 
 /////// SEARCH WORKER ///////
