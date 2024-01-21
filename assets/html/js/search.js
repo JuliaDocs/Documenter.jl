@@ -74,7 +74,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 
   let index = new MiniSearch({
     fields: ["title", "text"], // fields to index for full-text search
-    storeFields: ["location", "title", "text", "category", "page"], // fields to return with search results
+    storeFields: ["location", "title", "text", "category", "page"], // fields to return with results
     processTerm: (term) => {
       let word = stopWords.has(term) ? null : term;
       if (word) {
@@ -86,7 +86,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 
       return word ?? null;
     },
-    // add . as a separator, because otherwise "title": "Documenter.Anchors.add!", would not find anything if searching for "add!", only for the entire qualification
+    // add . as a separator, because otherwise "title": "Documenter.Anchors.add!", would not
+    // find anything if searching for "add!", only for the entire qualification
     tokenize: (string) => string.split(/[\s\-\.]+/),
     // options which will be applied during the search
     searchOptions: {
@@ -98,8 +99,9 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   index.addAll(data);
 
   /**
-   * Make the result component given a minisearch result data object and the value of the search input as queryString.
-   * To view the result object structure, refer: https://lucaong.github.io/minisearch/modules/_minisearch_.html#searchresult
+   * Make the result component given a minisearch result data object and the value
+   * of the search input as queryString. To view the result object structure, refer:
+   * https://lucaong.github.io/minisearch/modules/_minisearch_.html#searchresult
    *
    * @param {object} result
    * @param {string} querystring
