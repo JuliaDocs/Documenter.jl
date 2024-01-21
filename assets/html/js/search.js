@@ -1,49 +1,66 @@
 // libraries: jquery
 // arguments: $
 
-// In general, most search related things will have "search" as a prefix.
-// To get an in-depth about the thought process you can refer: https://hetarth02.hashnode.dev/series/gsoc
-
-//////// SEARCH PSEUDO CODE ////////
-
-// Main
 /*
-launch worker
+To get an in-depth about the thought process you can refer: https://hetarth02.hashnode.dev/series/gsoc
 
-filters global
-worker_is_running global
-last_search_text global
+PSEUDOCODE:
 
-on text update
-  if not running, launch_search
+Searching happens automatically as the user types or adjusts the selected filters.
+To preserve responsiveness, as much as possible of the slow parts of the search are done
+in a web worker. Searching and result generation are done in the worker, and filtering and
+DOM updates are done in the main thread. The filters are in the main thread as they should
+be very quick to apply. This lets filters be changed without re-searching with minisearch
+(which is possible even if filtering is on the worker thread) and also lets filters be
+changed _while_ the worker is searching and without message passing (niether of which are
+possible if filtering is on the worker thread)
+
+SEARCH WORKER:
+
+Import minisearch
+
+Build index
+
+On message from main thread
+  run search
+  find the first 200 unique results from each category, and compute their divs for display
+    note that this is necessary and sufficient information for the main thread to find the
+    first 200 unique results from any given filter set
+  post results to main thread
+
+MAIN:
+
+Launch worker
+
+Declare nonconstant globals (worker_is_running,  last_search_text, unfiltered_results)
+
+On text update
+  if worker is not running, launch_search()
 
 launch_search
   set worker_is_running to true, set last_search_text to the search text
   post the search query to worker
 
-on message
+on message from worker
   if last_search_text is not the same as the text in the search field,
-    launch_search
+    the latest serach result is not reflective of the latest search query, so update again
+    launch_search()
   otherwise
     set worker_is_running to false
-  update_search
+
+  regardless, display the new search results to the user
+  save the unfiltered_results as a global
+  update_search()
 
 on filter click
-  adjust global filters
-  update_search
+  adjust the filter selection
+  update_search()
 
-update_results
-  apply filters and update the DOM
-  Note that the filters are in the main thread as they should ve very quick to apply.
-  This lets filters be changed without re-searching wihh minisearch (which is possible even
-    if filtering is on the worker thread) and also lets filters be changed _while_ the
-    worker is searching (which is not possible if filtering is on the worker thread)
-*/
+update_search
+  apply search filters by looping through the unfiltered_results and finding the first 200
+    unique results that match the filters
 
-// Worker
-/*
-setup search index
-onmessage, run search and post results
+  Update the DOM
 */
 
 /////// SEARCH WORKER ///////
@@ -205,11 +222,6 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   };
 }
 
-/* I hope this is okay
-JSON.parse(JSON.stringify(documenterSearchIndex)) == documenterSearchIndex
-false
-*/
-
 // `worker = Threads.@spawn worker_function(documenterSearchIndex)`, but in JavaScript!
 const filters = [...new Set(documenterSearchIndex["docs"].map((x) => x.category))];
 const worker_str = "(" +
@@ -228,10 +240,17 @@ const worker = new Worker(URL.createObjectURL(worker_blob));
 /////// SEARCH MAIN ///////
 const modal_filters = make_modal_body_filters(filters);
 
+// Wheather the worker is currently handling a search. This is a boolean
+// as the worker only ever handles 1 or 0 searches at a time.
 var worker_is_running = false;
+
+// The last search text that was sent to the worker. This is used to determine
+// if the worker should be launched again when it reports back results.
 var last_search_text = "";
+
+// The results of the last search. This, in combination with the state of the filters
+// in the DOM, is used compute the results to display on calls to update_search.
 var unfiltered_results = [];
-var filtered_results = [];
 
 $(document).on("input", ".documenter-search-input", function (event) {
   if (!worker_is_running) { launch_search(); }
