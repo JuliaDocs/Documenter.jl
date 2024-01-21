@@ -92,17 +92,6 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     searchOptions: {
       boost: { title: 100 },
       fuzzy: 2,
-      processTerm: (term) => {
-        let word = stopWords.has(term) ? null : term;
-        if (word) {
-          word = word
-            .replace(/^[^a-zA-Z0-9@!]+/, "")
-            .replace(/[^a-zA-Z0-9@!]+$/, "");
-        }
-
-        return word ?? null;
-      },
-      tokenize: (string) => string.split(/[\s\-\.]+/),
     },
   });
 
