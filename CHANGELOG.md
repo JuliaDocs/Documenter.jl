@@ -5,7 +5,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Unreleased
 
-* Fix Search filter toggle buttons UI not getting updated ([#2406])
+### Fixed
+
+* Fix search filter toggle button styling in the HTML output. ([#2406], [#2408])
 
 ## Version [v1.2.1] - 2023-12-02
 
@@ -1770,6 +1772,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
+[#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
