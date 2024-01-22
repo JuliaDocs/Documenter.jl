@@ -67,6 +67,6 @@ As is conventional for Julia packages, unit tests are located at `test/*.jl` wit
 
 ### End to end testing 
 
-Tests that building docs of example packages from source and inspect the results (end to end testing)
-are located in `/test/examples`. The main entry points are `test/examples/make.jl` for building and 
+Tests that build example package docs from source and inspect the results (end to end tests) are
+located in `/test/examples`. The main entry points are `test/examples/make.jl` for building and 
 `test/examples/test.jl` for doing some basic checks on the generated outputs.
