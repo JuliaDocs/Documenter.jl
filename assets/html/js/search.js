@@ -67,7 +67,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 
-  importScripts("https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.js");
+  importScripts("https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js");
 
   let data = documenterSearchIndex.map((x, key) => {
     x["id"] = key; // minisearch requires a unique for each object
