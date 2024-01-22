@@ -141,6 +141,7 @@ let index = new minisearch({
   tokenize: (string) => string.split(/[\s\-\.]+/),
   // options which will be applied during the search
   searchOptions: {
+    prefix: true,
     boost: { title: 100 },
     fuzzy: 2,
     processTerm: (term) => {
@@ -322,7 +323,7 @@ function make_search_result(result, querystring) {
     display_link += ` (${result.page})`;
   }
 
-  let textindex = new RegExp(`\\b${querystring}\\b`, "i").exec(result.text);
+  let textindex = new RegExp(`${querystring}`, "i").exec(result.text);
   let text =
     textindex !== null
       ? result.text.slice(
@@ -337,8 +338,8 @@ function make_search_result(result, querystring) {
   let display_result = text.length
     ? "..." +
       text.replace(
-        new RegExp(`\\b${querystring}\\b`, "i"), // For first occurrence
-        '<span class="search-result-highlight p-1">$&</span>'
+        new RegExp(`${querystring}`, "i"), // For first occurrence
+        '<span class="search-result-highlight py-1">$&</span>'
       ) +
       "..."
     : ""; // highlights the match

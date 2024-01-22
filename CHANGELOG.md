@@ -3,7 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Unreleased
+## Unreleased
+
+### Changed
+
+* The search in the HTML output now prioritizes prefix matches. ([#2203], [#2375])
 
 ### Fixed
 
@@ -1727,6 +1731,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2191]: https://github.com/JuliaDocs/Documenter.jl/issues/2191
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
 [#2202]: https://github.com/JuliaDocs/Documenter.jl/issues/2202
+[#2203]: https://github.com/JuliaDocs/Documenter.jl/issues/2203
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2211]: https://github.com/JuliaDocs/Documenter.jl/issues/2211
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
@@ -1771,8 +1776,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
+<<<<<<< HEAD
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
+=======
+[#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
+>>>>>>> origin/master
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
