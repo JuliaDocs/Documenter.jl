@@ -108,6 +108,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     tokenize: (string) => string.split(/[\s\-\.]+/),
     // options which will be applied during the search
     searchOptions: {
+      prefix: true,
       boost: { title: 100 },
       fuzzy: 2,
     },
@@ -134,7 +135,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       display_link += ` (${result.page})`;
     }
 
-    let textindex = new RegExp(`\\b${querystring}\\b`, "i").exec(result.text);
+    let textindex = new RegExp(`${querystring}`, "i").exec(result.text);
     let text =
       textindex !== null
         ? result.text.slice(
@@ -149,8 +150,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     let display_result = text.length
       ? "..." +
         text.replace(
-          new RegExp(`\\b${querystring}\\b`, "i"), // For first occurrence
-          '<span class="search-result-highlight p-1">$&</span>'
+          new RegExp(`${querystring}`, "i"), // For first occurrence
+          '<span class="search-result-highlight py-1">$&</span>'
         ) +
         "..."
       : ""; // highlights the match
