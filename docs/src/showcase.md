@@ -1,3 +1,7 @@
+```@meta
+DocStringsCollapsed = true
+```
+
 # Showcase
 
 This page showcases the various page elements that are supported by Documenter.
@@ -211,23 +215,23 @@ Lists can also be included in other blocks that can contain block level items
 
 ## Tables
 
-| object | implemented |      value |
-|--------|-------------|------------|
-| `A`    |      ✓      |      10.00 |
-| `BB`   |      ✓      | 1000000.00 |
+| object | implemented | value      |
+| ------ | ----------- | ---------- |
+| `A`    | ✓           | 10.00      |
+| `BB`   | ✓           | 1000000.00 |
 
 With explicit alignment.
 
 | object | implemented |      value |
-| :---   |    :---:    |       ---: |
+| :----- | :---------: | ---------: |
 | `A`    |      ✓      |      10.00 |
 | `BB`   |      ✓      | 1000000.00 |
 
 Tables that are too wide should become scrollable.
 
-| object | implemented |      value |
-| :---   |    :---:    |       ---: |
-| `A`    |      ✓      |      10.00 |
+| object                 |                 implemented                  |                                                      value |
+| :--------------------- | :------------------------------------------: | ---------------------------------------------------------: |
+| `A`                    |                      ✓                       |                                                      10.00 |
 | `BBBBBBBBBBBBBBBBBBBB` | ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ | 1000000000000000000000000000000000000000000000000000000.00 |
 
 
