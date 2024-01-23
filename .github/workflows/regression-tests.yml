@@ -13,12 +13,13 @@ jobs:
         include:
           - package: 'DocumenterCitations'
           - package: 'DocumenterMermaid'
+          - package: 'Asciicast'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         env:
           cache-name: cache-artifacts
         with:
@@ -51,7 +52,7 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         env:
           cache-name: cache-artifacts
         with:
@@ -60,7 +61,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
-            ${{ runner.os }}- 
+            ${{ runner.os }}-
       - name: install-and-build-documentation
         shell: julia --color=yes {0}
         run: |
