@@ -293,7 +293,7 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
         # wants to hide. We should probably warn, but it is common enough that
         # we will silently skip for now.
         if Documenter.isassign(ex)
-            if !(ex.args[1] in (:CurrentModule, :DocTestSetup, :DocTestFilters, :EditURL, :Description, :Draft))
+            if !(ex.args[1] in (:CurrentModule, :DocTestSetup, :DocTestFilters, :EditURL, :Description, :Draft, :DocStringsCollapsed))
                 source = Documenter.locrepr(page.source, lines)
                 @warn(
                     "In $source: `@meta` block has an unsupported " *
