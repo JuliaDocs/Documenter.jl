@@ -284,6 +284,7 @@ page. Currently recognised keys:
 - `Description`: a page-specific description that gets displayed in search engines and
   link previews. Overrides the site-wide description in [`makedocs`](@ref). 
 - `Draft`: boolean for overriding the global draft mode for the page.
+- `DocStringsCollapsed`: if `true`, collapse all docstrings after loading the page (experimental).
 
 Example:
 
