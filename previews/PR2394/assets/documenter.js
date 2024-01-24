@@ -84,10 +84,8 @@ require(['jquery'], function($) {
 let timer = 0;
 var isExpanded = true;
 
-$(document).on("click", ".docstring header", function (event) {
+$(document).on("click", ".docstring header", function () {
   let articleToggleTitle = "Expand docstring";
-
-  let animationSpeed = event.fastToggleAnimation ? 50 : 400;
 
   debounce(() => {
     if ($(this).siblings("section").is(":visible")) {
@@ -111,9 +109,10 @@ $(document).on("click", ".docstring header", function (event) {
   });
 });
 
-$(document).on("click", ".docs-article-toggle-button", function () {
+$(document).on("click", ".docs-article-toggle-button", function (event) {
   let articleToggleTitle = "Expand docstring";
   let navArticleToggleTitle = "Expand all docstrings";
+  let animationSpeed = event.fastToggleAnimation ? 100 : 400;
 
   debounce(() => {
     if (isExpanded) {
@@ -124,7 +123,7 @@ $(document).on("click", ".docs-article-toggle-button", function () {
 
       isExpanded = false;
 
-      $(".docstring section").slideUp();
+      $(".docstring section").slideUp(animationSpeed);
     } else {
       $(this).removeClass("fa-chevron-down").addClass("fa-chevron-up");
       $(".docstring-article-toggle-button")
@@ -135,7 +134,7 @@ $(document).on("click", ".docs-article-toggle-button", function () {
       articleToggleTitle = "Collapse docstring";
       navArticleToggleTitle = "Collapse all docstrings";
 
-      $(".docstring section").slideDown();
+      $(".docstring section").slideDown(animationSpeed);
     }
 
     $(this).prop("title", navArticleToggleTitle);
@@ -237,7 +236,10 @@ require(['jquery'], function($) {
 let meta = $("div[data-docstringscollapsed]").data();
 
 if (meta.docstringscollapsed) {
-  $("#documenter-article-toggle-button").trigger({type: 'click', fastToggleAnimation: true});
+  $("#documenter-article-toggle-button").trigger({
+    type: "click",
+    fastToggleAnimation: true,
+  });
 }
 
 })
