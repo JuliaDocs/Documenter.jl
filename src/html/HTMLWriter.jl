@@ -46,6 +46,7 @@ using MarkdownAST: MarkdownAST, Node
 import JSON
 import Base64
 import SHA
+using CodecZlib
 
 import ..Documenter
 using Documenter: NavNode
@@ -582,6 +583,7 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
 end
 
 include("RD.jl")
+include("write_inventory.jl")
 
 struct SearchRecord
     src :: String
@@ -781,6 +783,8 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, json_jsescape(ctx.search_index), "\n}")
     end
+
+    write_inventory(doc, ctx)
 
     generate_siteinfo_json(doc.user.build)
 end
