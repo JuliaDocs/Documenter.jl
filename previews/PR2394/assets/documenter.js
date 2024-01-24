@@ -105,14 +105,14 @@ $(document).on("click", ".docstring header", function () {
     $(this)
       .find(".docstring-article-toggle-button")
       .prop("title", articleToggleTitle);
-    $(this).siblings("section").slideToggle(animationSpeed);
+    $(this).siblings("section").slideToggle();
   });
 });
 
 $(document).on("click", ".docs-article-toggle-button", function (event) {
   let articleToggleTitle = "Expand docstring";
   let navArticleToggleTitle = "Expand all docstrings";
-  let animationSpeed = event.fastToggleAnimation ? 100 : 400;
+  let animationSpeed = event.noToggleAnimation ? 0 : 400;
 
   debounce(() => {
     if (isExpanded) {
@@ -238,7 +238,7 @@ let meta = $("div[data-docstringscollapsed]").data();
 if (meta.docstringscollapsed) {
   $("#documenter-article-toggle-button").trigger({
     type: "click",
-    fastToggleAnimation: true,
+    noToggleAnimation: true,
   });
 }
 
