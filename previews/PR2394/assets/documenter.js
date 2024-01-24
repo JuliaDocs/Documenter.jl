@@ -84,8 +84,10 @@ require(['jquery'], function($) {
 let timer = 0;
 var isExpanded = true;
 
-$(document).on("click", ".docstring header", function () {
+$(document).on("click", ".docstring header", function (event) {
   let articleToggleTitle = "Expand docstring";
+
+  let animationSpeed = event.fastToggleAnimation ? 50 : 400;
 
   debounce(() => {
     if ($(this).siblings("section").is(":visible")) {
@@ -105,7 +107,7 @@ $(document).on("click", ".docstring header", function () {
     $(this)
       .find(".docstring-article-toggle-button")
       .prop("title", articleToggleTitle);
-    $(this).siblings("section").slideToggle();
+    $(this).siblings("section").slideToggle(animationSpeed);
   });
 });
 
@@ -235,7 +237,7 @@ require(['jquery'], function($) {
 let meta = $("div[data-docstringscollapsed]").data();
 
 if (meta.docstringscollapsed) {
-  $("#documenter-article-toggle-button").click();
+  $("#documenter-article-toggle-button").trigger({type: 'click', fastToggleAnimation: true});
 }
 
 })
