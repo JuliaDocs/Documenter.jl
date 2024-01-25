@@ -132,44 +132,33 @@ html.theme--#{$themename} {
     border-radius: 0.7em;
     transition: all 300ms;
   }
-  
+
   .search-result-link:hover, .search-result-link:focus {
     background-color: rgba(0, 128, 128, 0.1);
   }
-  
+
   .search-result-link .property-search-result-badge {
     transition: all 300ms;
   }
-  
+
   .search-result-link:hover .property-search-result-badge, .search-result-link:focus .property-search-result-badge {
     color: #333 !important;
     background-color: #f1f5f9 !important;
   }
-  
-  .property-search-result-badge {
-    padding: 0.15em 0.5em;
-    font-size: 0.8em;
-    font-style: italic;
-    text-transform: none !important;
-    line-height: 1.5;
-    color: whitesmoke;
-    background-color: #33415580;
-    border-radius: 0.6rem;
-  }
-  
+
   .search-result-title {
     color: whitesmoke;
   }
-  
+
   .search-result-highlight {
     background-color: greenyellow;
     color: black;
   }
-  
+
   .search-divider {
     border-bottom: 1px solid #5e6d6f50
   }
-  
+
   .w-100 {
     width: 100%;
   }
@@ -177,7 +166,7 @@ html.theme--#{$themename} {
   .gap-2 {
     gap: 0.5rem;
   }
-  
+
   .gap-4 {
     gap: 1rem;
   }

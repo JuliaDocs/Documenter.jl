@@ -19,6 +19,8 @@ In preparation for a release, use the following checklist. These steps should be
  - [ ] Update `CHANGELOG.md`, following the existing style (in particular, make sure that the change log for this version has the correct version number and date).
  - [ ] Run `make changelog`, to make sure that all the issue references in `CHANGELOG.md` are up to date.
  - [ ] Check that the commit messages in this PR do not contain `[ci skip]`
+ - [ ] Run https://github.com/JuliaDocs/Documenter.jl/actions/workflows/regression-tests.yml
+       using a `workflow_dispatch` trigger to check for any changes that broke extensions.
 
 ## The release
 
