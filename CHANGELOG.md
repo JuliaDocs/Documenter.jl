@@ -5,7 +5,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* Made search case insensitive ([#2373], [#2374])
+* The search in the HTML output is now case-insensitive. ([#2373], [#2374])
 * The search in the HTML output now prioritizes prefix matches. ([#2203], [#2375])
 
 ### Fixed
