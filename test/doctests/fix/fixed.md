@@ -124,3 +124,9 @@ julia> a
  3
  4
 ```
+```jldoctest
+julia> a = ("a", "b", "c");
+
+julia> a
+("a", "b", "c")
+```

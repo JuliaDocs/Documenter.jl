@@ -64,6 +64,8 @@ end
 function append_to_prefix!(mp::MutablePrefix, s::AbstractString)
     if(!isnothing(mp.content))
         mp.content = mp.content * s
+    else
+        mp.content = s
     end
 end
 
@@ -342,8 +344,9 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
             end
         else
             # Prefix was not modified, unless output was different.
-            append_to_prefix!(prefix, "\n"*result.raw_input*"\n")
+            append_to_prefix!(prefix, result.raw_input*"\n")
             str == "" || append_to_prefix!(prefix, str * "\n")
+            append_to_prefix!(prefix, "\n")
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
@@ -366,8 +369,9 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
             end
         else
             # Prefix was not modified, unless output was different.
-            append_to_prefix!(prefix, "\n"*result.raw_input*"\n")
+            append_to_prefix!(prefix, result.raw_input*"\n")
             str == "" || append_to_prefix!(prefix, str * "\n")
+            append_to_prefix!(prefix, "\n")
         end
     end
     return nothing
@@ -500,7 +504,7 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     write(io, content[1:prevind(content, first(codeidx))])
     # next look for the particular input string in the given code block
     # make a regex of the input that matches leading whitespace (for multiline input)
-    composed = prefix.content == nothing ? "" : get_content(prefix) * "\n"
+    composed = prefix.content == nothing ? "" : get_content(prefix)
     composed = composed * result.raw_input
     rinput = replace(Documenter.regex_escape(composed), "\\n" => "\\n\\h*")
     r = Regex(rinput)
@@ -514,6 +518,7 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     newcode = code[1:last(inputidx)]
     set_content!(prefix, newcode * "\n")
     str == "" || append_to_prefix!(prefix, str * "\n")
+    append_to_prefix!(prefix, "\n")
     isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
     if result.output == ""
