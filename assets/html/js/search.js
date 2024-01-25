@@ -133,6 +133,8 @@ let index = new minisearch({
       word = word
         .replace(/^[^a-zA-Z0-9@!]+/, "")
         .replace(/[^a-zA-Z0-9@!]+$/, "");
+
+      word = word.toLowerCase();
     }
 
     return word ?? null;
@@ -150,6 +152,8 @@ let index = new minisearch({
         word = word
           .replace(/^[^a-zA-Z0-9@!]+/, "")
           .replace(/[^a-zA-Z0-9@!]+$/, "");
+
+        word = word.toLowerCase();
       }
 
       return word ?? null;

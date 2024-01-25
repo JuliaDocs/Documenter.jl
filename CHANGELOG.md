@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+* The search in the HTML output is now case-insensitive. ([#2373], [#2374])
 * The search in the HTML output now prioritizes prefix matches. ([#2203], [#2375])
 
 ### Fixed
@@ -1776,12 +1777,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
-<<<<<<< HEAD
+[#2373]: https://github.com/JuliaDocs/Documenter.jl/issues/2373
+[#2374]: https://github.com/JuliaDocs/Documenter.jl/issues/2374
+[#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
-=======
-[#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
->>>>>>> origin/master
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
