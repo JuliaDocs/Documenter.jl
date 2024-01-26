@@ -57,3 +57,16 @@ Follow the style of the surrounding text when making changes. When adding new fe
   * use emphasis (`*`) and bold (`**`) sparingly;
   * always use fenced code blocks instead of indented blocks;
   * follow the conventions outlined in the Julia documentation page on documentation.
+
+## Tests
+
+### Unit tests
+
+As is conventional for Julia packages, unit tests are located at `test/*.jl` with the entrypoint
+`test/runtests.jl`.
+
+### End to end testing 
+
+Tests that build example package docs from source and inspect the results (end to end tests) are
+located in `/test/examples`. The main entry points are `test/examples/make.jl` for building and 
+`test/examples/test.jl` for doing some basic checks on the generated outputs.
