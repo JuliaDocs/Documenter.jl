@@ -167,7 +167,7 @@ build/
 
     However, this is not recommended. For example, if a
     [`@raw` block](@ref @raw-format-block) references a local image, the correct relative
-    path of that image would depend on the `prettyurls` setting. Consequently, the
+    path of that image would depend on the `prettyurls` setting ([#921](@ref)). Consequently, the
     documentation might build correctly locally and be broken on Github Actions, or vice
     versa. It is recommended to always use `prettyurls=true` and run a local web server
     to view the documentation.
