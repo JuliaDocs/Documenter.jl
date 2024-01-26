@@ -14,6 +14,17 @@ From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 pkg> add Documenter
 ```
 
+It is generally recommended to install Documenter into a documentation-specific project stored
+in the `/docs` subdirectory of your package. To do this, navigate to your package's root folder
+and do
+
+```
+pkg> activate docs
+
+(docs) pkg> add Documenter
+```
+
+This will create `Project.toml` and `Manifest.toml` files in the `/docs` subdirectory. 
 
 ## Setting up the Folder Structure
 
