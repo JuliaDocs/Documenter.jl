@@ -33,6 +33,7 @@ Base64 = "1.6"
 CodecZlib = "0.7"
 Dates = "1.6"
 DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9"
+DocInventories = "0.3.2"
 Downloads = "1.4"
 Git = "1"
 IOCapture = "0.2"
@@ -56,6 +57,7 @@ julia = "1.6"
 [extras]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+DocInventories = "43dc2714-ed3b-44b5-b226-857eda1aa7de"
 
 [targets]
-test = ["Random", "UUIDs"]
+test = ["Random", "UUIDs", "DocInventories"]

@@ -1,5 +1,6 @@
 using Test
 import JSON
+using DocInventories: DocInventories, Inventory
 import Base64
 
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
@@ -193,6 +194,130 @@ end
                 @test haskey(siteinfo_json["documenter"], "documenter_version")
                 @test haskey(siteinfo_json["documenter"], "julia_version")
                 @test haskey(siteinfo_json["documenter"], "generation_timestamp")
+            end
+
+            # inventory
+            @testset "inventory" begin
+                inventory_toml_gz = joinpath(build_dir, "inventory.toml.gz")
+                objects_inv = joinpath(build_dir, "objects.inv")
+                @test isfile(inventory_toml_gz)
+                @test isfile(objects_inv)
+                if isfile(objects_inv) && isfile(inventory_toml_gz)
+                    inv = Inventory(inventory_toml_gz; root_url="")
+                    inv2 = Inventory(objects_inv; root_url="")
+                    @test inv.project == "Documenter example"
+                    @test inv.project == inv2.project
+                    @test collect(inv) == collect(inv2)
+                    if name == "html"
+                        @test length(inv("Anonymous function declaration")) == 1
+                        if length(inv("Anonymous function declaration")) == 1
+                            item = inv("Anonymous function declaration")[1]
+                            @test item.domain == "std"
+                            @test item.role == "label"
+                            @test item.dispname == "Anonymous function declaration"
+                            @test item.name == "Anonymous-function-declaration"
+                            @test item.uri == "#\$"
+                            @test item.priority == -1
+                            @test DocInventories.uri(item) == "#Anonymous-function-declaration"
+                        end
+                        item = inv[":std:label:`xreftarget`"]
+                        @test !isnothing(item)
+                        if !isnothing(item)
+                            @test item.name == "xreftarget"
+                            @test item.dispname == "X-ref target with id"
+                            @test DocInventories.uri(item) == "xrefs/#xreftarget"
+                        end
+                        @test length(inv(":doc:`man/style`")) == 1
+                        if length(inv(":doc:`man/style`")) == 1
+                            item = inv(":doc:`man/style`")[1]
+                            @test item.domain == "std"
+                            @test item.role == "doc"
+                            @test item.dispname == "Style demos"
+                            @test item.name == "man/style"
+                            @test item.uri == "man/style/"
+                            @test item.priority == -1
+                            @test DocInventories.uri(item) == "man/style/"
+                        end
+                        jl_roles = Set(item.role for item in inv if item.domain == "jl")
+                        @test jl_roles == Set([
+                            "constant",
+                            "keyword",
+                            "function",
+                            "method",
+                            "macro",
+                            "module",
+                            "type"
+                        ])
+                        @test length(inv(":jl:constant:`Main.AutoDocs.K`")) == 1
+                        if length(inv(":jl:constant:`Main.AutoDocs.K`")) == 1
+                            item = inv[":jl:constant:`Main.AutoDocs.K`"]
+                            @test item.domain == "jl"
+                            @test item.role == "constant"
+                            @test item.name == "Main.AutoDocs.K"
+                            @test item.uri == "lib/functions/#\$"
+                            @test item.priority == 1
+                            @test DocInventories.uri(item) == "lib/functions/#Main.AutoDocs.K"
+                        end
+                        @test length(inv(":jl:keyword:`for`")) == 1
+                        if length(inv(":jl:keyword:`for`")) == 1
+                            item = inv[":jl:keyword:`for`"]
+                            @test item.domain == "jl"
+                            @test item.role == "keyword"
+                            @test item.name == "for"
+                            @test item.uri == "lib/functions/#\$"
+                            @test item.priority == 1
+                            @test DocInventories.uri(item) == "lib/functions/#for"
+                        end
+                        @test length(inv("Documenter.hide")) == 1
+                        if length(inv("Documenter.hide")) == 1
+                            item = inv("Documenter.hide")[1]
+                            @test item.domain == "jl"
+                            @test item.role == "function"
+                            @test item.name == "Documenter.hide"
+                            @test item.uri ==  "hidden/#\$"
+                            @test item.priority == 1
+                            @test DocInventories.uri(item) == "hidden/#Documenter.hide"
+                        end
+                        @test length(inv("AutoDocs.Pages.f-Tuple{Any, Any, Any}")) == 1
+                        if length(inv("AutoDocs.Pages.f-Tuple{Any, Any, Any}")) == 1
+                            item = inv("AutoDocs.Pages.f-Tuple{Any, Any, Any}")[1]
+                            @test item.domain == "jl"
+                            @test item.role == "method"
+                            @test item.name == "Main.AutoDocs.Pages.f-Tuple{Any, Any, Any}"
+                            @test item.uri == "lib/functions/#Main.AutoDocs.Pages.f-Tuple%7BAny%2C%20Any%2C%20Any%7D"
+                            @test item.priority == 1
+                        end
+                        @test length(inv(".A.@m")) == 1
+                        if length(inv(".A.@m")) == 1
+                            item = inv(".A.@m")[1]
+                            @test item.domain == "jl"
+                            @test item.role == "macro"
+                            @test item.name == "Main.AutoDocs.A.@m-Tuple{}"
+                            @test item.uri == "lib/functions/#Main.AutoDocs.A.%40m-Tuple%7B%7D"
+                            @test item.priority == 1
+                        end
+                        @test length(inv(":module:`AutoDocs`")) == 1
+                        if length(inv(":module:`AutoDocs`")) == 1
+                            item = inv(":module:`AutoDocs`")[1]
+                            @test item.domain == "jl"
+                            @test item.role == "module"
+                            @test item.name == "AutoDocs"
+                            @test item.uri == "lib/functions/#\$"
+                            @test item.priority == 1
+                            @test DocInventories.uri(item) == "lib/functions/#AutoDocs"
+                        end
+                        @test length(inv("AutoDocs.T")) == 1
+                        if length(inv("AutoDocs.T")) == 1
+                            item = inv("AutoDocs.T")[1]
+                            @test item.domain == "jl"
+                            @test item.role == "type"
+                            @test item.name == "Main.AutoDocs.T"
+                            @test item.uri == "lib/functions/#\$"
+                            @test item.priority == 1
+                            @test DocInventories.uri(item) == "lib/functions/#Main.AutoDocs.T"
+                        end
+                    end
+                end
             end
 
             @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
