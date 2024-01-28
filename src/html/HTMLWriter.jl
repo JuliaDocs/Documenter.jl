@@ -11,7 +11,8 @@ keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link
 `prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
-*navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
+*navigation menu. It is also written into the inventory (see below).
+This argument is mandatory for [`HTMLWriter`](@ref).
 
 **`pages`** defines the hierarchy of the navigation menu.
 
@@ -37,6 +38,26 @@ then it is intended as the page title. This has two consequences:
    and in the `<title>` tag, unless specified in the `.pages` option.
 2. If the first heading is interpreted as being the page title, it is not displayed
    in the navigation sidebar.
+
+# Inventory
+
+The `HTMLWriter` automatically generates an `objects.inv` "inventory" file in
+the output `build` folder. This file contains a list of all pages, headers and
+docstrings in the documentation, and a relative URL that can be used to link to
+those items from an external source.
+
+Other projects that build their documentation with Documenter can use the
+[`DocumenterInterLinks` plugin](https://github.com/JuliaDocs/DocumenterInterLinks.jl#readme)
+to link to any other project with an inventory file, see
+[External Cross-References](@ref).
+
+The [format of the `objects.inv` file](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
+is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It consists
+of a plain text header that includes the project name, taken from the `sitename` argument
+to [`Documenter.makedocs`](@ref), and a project `version` (currently empty).
+The bulk of the file is a list of plain text records, compressed with gzip. See
+[Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
+for details on these records.
 """
 module HTMLWriter
 
