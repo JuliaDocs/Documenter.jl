@@ -12,7 +12,11 @@ specified using the `format` option in [`makedocs`](@ref).
 
 ```julia
 using Documenter
-makedocs(format = Documenter.LaTeX(), ...)
+makedocs(
+    format = Documenter.LaTeX(),
+    pages = ...,
+    ...
+)
 ```
 
 Documenter will then generate a PDF file of the documentation using LaTeX, which will be
@@ -23,6 +27,8 @@ and if the build is for a release tag (i.e. when the `"TRAVIS_TAG"` environment 
 the version number will be appended to the title.
 The `makedocs` argument `authors` should also be specified, it will be used for the
 `\authors` field in the tex document.
+
+The `makedocs` argument `pages` is required. If omitted, Documenter will generate tex documents without contents.
 
 ### Compiling using natively installed latex
 
