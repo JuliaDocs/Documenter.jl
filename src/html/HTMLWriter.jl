@@ -25,7 +25,7 @@ selector will be hidden. The special value `git-commit` sets the value in the ou
 
 # `HTML` `Plugin` options
 
-The [`HTML`](@ref) [`Documenter.Plugin`](@ref) provides additional customization options
+The [`HTML`](@ref) object provides additional customization options
 for the [`HTMLWriter`](@ref). For more information, see the [`HTML`](@ref) documentation.
 
 # Page outline
@@ -54,7 +54,11 @@ to link to any other project with an inventory file, see
 The [format of the `objects.inv` file](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
 is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It consists
 of a plain text header that includes the project name, taken from the `sitename` argument
-to [`Documenter.makedocs`](@ref), and a project `version` (currently empty).
+to [`Documenter.makedocs`](@ref), and a project `version`, taken from the `version`
+argument of the [`HTML`](@ref) options or the `version` defined in the closest
+`Project.toml` file from the current working directory. The automatic determination of the
+project version is considered experimental.
+
 The bulk of the file is a list of plain text records, compressed with gzip. See
 [Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
 for details on these records.
@@ -64,6 +68,7 @@ module HTMLWriter
 using Dates: Dates, @dateformat_str, now
 import Markdown
 using MarkdownAST: MarkdownAST, Node
+import TOML
 import JSON
 import Base64
 import SHA
@@ -407,6 +412,19 @@ over setting a high general limit, or disabling the size checking altogether.
 
 ## Experimental options
 
+**`version`** A version string for the project being documented to be written
+to the `objects.inv` [inventory file](@ref HTMLWriter).
+
+A possible way to obtain a value for `version` is to include
+
+```julia
+using Pkg
+PROJECT_TOML = Pkg.TOML.parsefile(joinpath(@__DIR__, "..", "Project.toml"))
+VERSION = PROJECT_TOML["version"]
+```
+
+in your `make.jl` file. The `version` should not include a `v` prefix.
+
 **`prerender`** a boolean (`true` or `false` (default)) for enabling prerendering/build
 time application of syntax highlighting of code blocks. Requires a `node` (NodeJS)
 executable to be available in `PATH` or to be passed as the `node` keyword.
@@ -453,6 +471,7 @@ their absolute URLs, can be included with the [`asset`](@ref) function.
 [^1]: Adding an ICO asset is primarily useful for setting a custom `favicon`.
 """
 struct HTML <: Documenter.Writer
+    version       :: String
     prettyurls    :: Bool
     disable_git   :: Bool
     edit_link     :: Union{String, Symbol, Nothing}
@@ -478,6 +497,7 @@ struct HTML <: Documenter.Writer
     example_size_threshold :: Int
 
     function HTML(;
+            version       :: Union{AbstractString,VersionNumber} = "",
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
             repolink      :: Union{String, Nothing, Default} = Default(nothing),
@@ -555,7 +575,7 @@ struct HTML <: Documenter.Writer
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
-        new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
+        new(string(version), prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,

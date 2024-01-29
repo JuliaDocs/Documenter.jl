@@ -24,6 +24,7 @@ makedocs(
         Documenter.LaTeX(platform = "docker")
     else
         Documenter.HTML(
+            version=Documenter.DOCUMENTER_VERSION,
             # Use clean URLs, unless built as a "local" build
             prettyurls = !("local" in ARGS),
             canonical = "https://documenter.juliadocs.org/stable/",
