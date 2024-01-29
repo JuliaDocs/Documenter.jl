@@ -42,8 +42,10 @@ binding(f::Function)     = binding(parentmodule(f), nameof(f))
 #
 # Note that `IntrinsicFunction` is exported from `Base` in `0.4`, but not in `0.5`.
 #
-let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all=true)))
-    global binding(i::Core.IntrinsicFunction) = binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
+let INTRINSICS =
+        Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all=true)))
+    global binding(i::Core.IntrinsicFunction) =
+        binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
 end
 
 #
@@ -59,11 +61,15 @@ end
 #
 # Pseudo-eval of `Expr`s to find their equivalent `Binding`.
 #
-binding(m::Module, x::Expr) =
-    Meta.isexpr(x, :.) ? binding(getmod(m, x.args[1]), x.args[2].value) :
-    Meta.isexpr(x, [:call, :macrocall, :curly]) ? binding(m, x.args[1]) :
-    Meta.isexpr(x, :where) ? binding(m, x.args[1].args[1]) :
-        error("`binding` cannot understand expression `$x`.")
+binding(m::Module, x::Expr) = if Meta.isexpr(x, :.)
+    binding(getmod(m, x.args[1]), x.args[2].value)
+elseif Meta.isexpr(x, [:call, :macrocall, :curly])
+    binding(m, x.args[1])
+elseif Meta.isexpr(x, :where)
+    binding(m, x.args[1].args[1])
+else
+    error("`binding` cannot understand expression `$x`.")
+end
 
 # Helper methods for the above `binding` method.
 getmod(m::Module, x::Expr) = getfield(getmod(m, x.args[1]), x.args[2].value)
@@ -114,7 +120,7 @@ The optional keyword arguments are used to add new data to the `DocStr`'s
 `.data` dictionary.
 """
 function docstr(md::Markdown.MD; kws...)
-    data = Dict{Symbol, Any}(
+    data = Dict{Symbol,Any}(
         :path => md.meta[:path],
         :module => md.meta[:module],
         :linenumber => 0,
@@ -146,7 +152,7 @@ function convertmeta(meta::IdDict{Any,Any})
     if !haskey(CACHED, meta)
         docs = IdDict{Any,Any}()
         for (k, v) in meta
-            if !isa(k, Union{Number, AbstractString, IdDict{Any,Any}})
+            if !isa(k, Union{Number,AbstractString,IdDict{Any,Any}})
                 docs[binding(k)] = multidoc(v)
             end
         end
@@ -171,11 +177,11 @@ Find all `DocStr` objects that match the provided arguments exactly.
 Return a `Vector{DocStr}` ordered by definition order.
 """
 function getspecificdocs(
-        binding::Docs.Binding,
-        typesig::Type = Union{},
-        compare = (==),
-        modules = Docs.modules,
-    )
+    binding::Docs.Binding,
+    typesig::Type=Union{},
+    compare=(==),
+    modules=Docs.modules,
+)
     # Fall back to searching all modules if user provides no modules.
     modules = isempty(modules) ? Docs.modules : modules
     # Keywords are special-cased within the docsystem. Handle those first.
@@ -208,12 +214,12 @@ That is, if [`getspecificdocs`](@ref) fails, get docs for aliases of
 try getting docs for `<:`.
 """
 function getdocs(
-        binding::Docs.Binding,
-        typesig::Type = Union{};
-        compare = (==),
-        modules = Docs.modules,
-        aliases = true,
-    )
+    binding::Docs.Binding,
+    typesig::Type=Union{};
+    compare=(==),
+    modules=Docs.modules,
+    aliases=true,
+)
     # First, we try to find the docs that _exactly_ match the binding. If you
     # have aliases, you can have a separate docstring attached to the alias.
     results = getspecificdocs(binding, typesig, compare, modules)
@@ -244,7 +250,7 @@ searching for the `Binding` in the docsystem.
 
 Note that when conversion fails this method returns an empty `Vector{DocStr}`.
 """
-function getdocs(object::Any, typesig::Type = Union{}; kws...)
+function getdocs(object::Any, typesig::Type=Union{}; kws...)
     binding = aliasof(object, object)
     binding === object ? DocStr[] : getdocs(binding, typesig; kws...)
 end
@@ -287,7 +293,7 @@ in case `Base.Docs.parsedoc` fails with an exception.
 """
 function parsedoc(docstr::DocStr)
     md = try
-        Base.Docs.parsedoc(docstr) :: Markdown.MD
+        Base.Docs.parsedoc(docstr)::Markdown.MD
     catch exception
         @error """
         parsedoc failed to parse a docstring into Markdown. This indicates a problem with the docstring.

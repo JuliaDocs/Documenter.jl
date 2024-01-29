@@ -15,19 +15,19 @@ import IOCapture
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
     (result, success, backtrace, output) =
-    c = IOCapture.capture(rethrow = InterruptException) do
-        # Running inside a Task to make sure that the parent testsets do not interfere.
-        t = Task(() -> doctest(args...; kwargs...))
-        schedule(t)
-        # if an exception happens, it gets propagated
-        try
-            fetch(t)
-        catch e
-            # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
-            # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
-            rethrow(t.exception)
+        c = IOCapture.capture(rethrow=InterruptException) do
+            # Running inside a Task to make sure that the parent testsets do not interfere.
+            t = Task(() -> doctest(args...; kwargs...))
+            schedule(t)
+            # if an exception happens, it gets propagated
+            try
+                fetch(t)
+            catch e
+                # Note: in Julia 1.3 fetch no longer throws the exception direction, but instead
+                # wraps it in a TaskFailedException (https://github.com/JuliaLang/julia/pull/32814).
+                rethrow(t.exception)
+            end
         end
-    end
 
     @debug """run_doctest($args;, $kwargs) -> $(c.error ? "fail" : "success")
     ------------------------------------ output ------------------------------------
@@ -63,47 +63,47 @@ julia> x
 module DocTest3 end
 
 module DocTest4
-    """
-    ```jldoctest
-    julia> x
-    42
-    ```
-    """
-    function foo end
-    module Submodule
-        """
-        ```jldoctest
-        julia> x + 1
-        43
-        ```
-        """
-        function foo end
-    end
+"""
+```jldoctest
+julia> x
+42
+```
+"""
+function foo end
+module Submodule
+"""
+```jldoctest
+julia> x + 1
+43
+```
+"""
+function foo end
+end
 end
 
 module DocTest5
-    """
-    ```jldoctest
-    julia> x
-    42
-    ```
-    """
-    function foo end
-    """
-    ```jldoctest
-    julia> x
-    4200
-    ```
-    """
-    module Submodule
-        """
-        ```jldoctest
-        julia> x + 1
-        4201
-        ```
-        """
-        function foo end
-    end
+"""
+```jldoctest
+julia> x
+42
+```
+"""
+function foo end
+"""
+```jldoctest
+julia> x
+4200
+```
+"""
+module Submodule
+"""
+```jldoctest
+julia> x + 1
+4201
+```
+"""
+function foo end
+end
 end
 
 """
@@ -184,7 +184,8 @@ Stacktrace:
 """
 module ParseErrorSuccess_1x10 end
 # The JuliaSyntax swap in 1.10 changed the printing of parse errors quite considerably
-ParseErrorSuccess() = (VERSION >= v"1.10.0-DEV.1520") ? ParseErrorSuccess_1x10 : ParseErrorSuccess_1x00
+ParseErrorSuccess() =
+    (VERSION >= v"1.10.0-DEV.1520") ? ParseErrorSuccess_1x10 : ParseErrorSuccess_1x00
 
 """
 ```jldoctest
@@ -204,12 +205,12 @@ ERROR: syntax: invalid numeric constant "1.2."
 module ScriptParseErrorFail end
 
 module PR1075
-    "x \$(42) y"
-    function qux end
-    "..."
-    function foo end
-    @doc @doc(foo) function bar end
-    @doc @doc(bar) function baz end
+"x \$(42) y"
+function qux end
+"..."
+function foo end
+@doc @doc(foo) function bar end
+@doc @doc(bar) function baz end
 end
 
 """
@@ -270,7 +271,7 @@ module BadDocTestKwargs3 end
         @test !success
         @test result isa TestSetException
     end
-    DocMeta.setdocmeta!(DocTest4, :DocTestSetup, :(x = 42); recursive = true, warn = false)
+    DocMeta.setdocmeta!(DocTest4, :DocTestSetup, :(x = 42); recursive=true, warn=false)
     run_doctest(nothing, [DocTest4]) do result, success, backtrace, output
         @test success
         @test result isa Test.DefaultTestSet
@@ -290,7 +291,11 @@ module BadDocTestKwargs3 end
 
     # DoctestFilters
     df = [r"global (filter|FILTER)"]
-    run_doctest(nothing, [DoctestFilters], doctestfilters=df) do result, success, backtrace, output
+    run_doctest(
+        nothing,
+        [DoctestFilters],
+        doctestfilters=df
+    ) do result, success, backtrace, output
         @test success
     end
 

@@ -53,10 +53,12 @@ struct LaTeX <: Documenter.Writer
     version::String
     tectonic::Union{Cmd,String,Nothing}
     function LaTeX(;
-            platform = "native",
-            version  = get(ENV, "TRAVIS_TAG", ""),
-            tectonic = nothing)
-        platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
+        platform="native",
+        version=get(ENV, "TRAVIS_TAG", ""),
+        tectonic=nothing
+    )
+        platform ∈ ("native", "tectonic", "docker", "none") ||
+            throw(ArgumentError("unknown platform: $platform"))
         return new(platform, string(version), tectonic)
     end
 end
@@ -65,10 +67,10 @@ import ..Documenter
 import Markdown
 import ANSIColoredPrinters
 
-mutable struct Context{I <: IO} <: IO
+mutable struct Context{I<:IO} <: IO
     io::I
     in_header::Bool
-    footnotes::Dict{String, Int}
+    footnotes::Dict{String,Int}
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
@@ -85,9 +87,16 @@ _hash(x) = string(hash(x))
 
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
-const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
+const DEFAULT_PREAMBLE_PATH =
+    joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
 
-hastex() = (try; success(`latexmk -version`); catch; false; end)
+hastex() = (
+    try
+        success(`latexmk -version`)
+    catch
+        false
+    end
+)
 
 const DOCUMENT_STRUCTURE = (
     "part",
@@ -138,8 +147,11 @@ function render(doc::Documenter.Document, settings::LaTeX=LaTeX())
             # Debug: if DOCUMENTER_LATEX_DEBUG environment variable is set, copy the LaTeX
             # source files over to a directory under doc.user.root.
             if haskey(ENV, "DOCUMENTER_LATEX_DEBUG")
-                dst = isempty(ENV["DOCUMENTER_LATEX_DEBUG"]) ? mktempdir(doc.user.root; cleanup=false) :
+                dst = if isempty(ENV["DOCUMENTER_LATEX_DEBUG"])
+                    mktempdir(doc.user.root; cleanup=false)
+                else
                     joinpath(doc.user.root, ENV["DOCUMENTER_LATEX_DEBUG"])
+                end
                 sources = cp(pwd(), dst, force=true)
                 @info "LaTeX sources copied for debugging to $(sources)"
             end
@@ -147,9 +159,9 @@ function render(doc::Documenter.Document, settings::LaTeX=LaTeX())
             # If the build was successful, copy the PDF or the LaTeX source to the .build directory
             if status && (settings.platform != "none")
                 pdffile = "$(fileprefix).pdf"
-                cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force = true)
+                cp(pdffile, joinpath(doc.user.root, doc.user.build, pdffile); force=true)
             elseif status && (settings.platform == "none")
-                cp(pwd(), joinpath(doc.user.root, doc.user.build); force = true)
+                cp(pwd(), joinpath(doc.user.root, doc.user.build); force=true)
             else
                 error("Compiling the .tex file failed. See logs for more information.")
             end
@@ -170,32 +182,43 @@ const DOCKER_IMAGE_TAG = "0.1"
 
 function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::String)
     if settings.platform == "native"
-        Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
+        Sys.which("latexmk") === nothing &&
+            (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
-            piperun(`latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`, clearlogs = true)
+            piperun(
+                `latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex`,
+                clearlogs=true
+            )
             return true
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with latexmk. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception =
+                err
             return false
         end
     elseif settings.platform == "tectonic"
         @info "LaTeXWriter: using tectonic to compile tex."
         tectonic = isnothing(settings.tectonic) ? Sys.which("tectonic") : settings.tectonic
-        isnothing(tectonic) && (@error "LaTeXWriter: tectonic command not found."; return false)
+        isnothing(tectonic) &&
+            (@error "LaTeXWriter: tectonic command not found."; return false)
         try
-            piperun(`$(tectonic) -X compile --keep-logs -Z shell-escape $(fileprefix).tex`, clearlogs = true)
+            piperun(
+                `$(tectonic) -X compile --keep-logs -Z shell-escape $(fileprefix).tex`,
+                clearlogs=true
+            )
             return true
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with tectonic. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception =
+                err
             return false
         end
     elseif settings.platform == "docker"
-        Sys.which("docker") === nothing && (@error "LaTeXWriter: docker command not found."; return false)
+        Sys.which("docker") === nothing &&
+            (@error "LaTeXWriter: docker command not found."; return false)
         @info "LaTeXWriter: using docker to compile tex."
         script = """
             mkdir /home/zeptodoctor/build
@@ -204,17 +227,24 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
             latexmk -f -interaction=batchmode -halt-on-error -view=none -lualatex -shell-escape $(fileprefix).tex
             """
         try
-            piperun(`docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`, clearlogs = true)
+            piperun(
+                `docker run -itd -u zeptodoctor --name latex-container -v $(pwd()):/mnt/ --rm juliadocs/documenter-latex:$(DOCKER_IMAGE_TAG)`,
+                clearlogs=true
+            )
             piperun(`docker exec -u zeptodoctor latex-container bash -c $(script)`)
             piperun(`docker cp latex-container:/home/zeptodoctor/build/$(fileprefix).pdf .`)
             return true
         catch err
             logs = cp(pwd(), mktempdir(; cleanup=false); force=true)
             @error "LaTeXWriter: failed to compile tex with docker. " *
-                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception = err
+                   "Logs and partial output can be found in $(Documenter.locrepr(logs))" exception =
+                err
             return false
         finally
-            try; piperun(`docker stop latex-container`); catch; end
+            try
+                piperun(`docker stop latex-container`)
+            catch
+            end
         end
     elseif settings.platform == "none"
         @info "Skipping compiling tex file."
@@ -222,38 +252,44 @@ function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::Stri
     end
 end
 
-function piperun(cmd; clearlogs = false)
+function piperun(cmd; clearlogs=false)
     verbose = "--verbose" in ARGS || get(ENV, "DOCUMENTER_VERBOSE", "false") == "true"
-    run(verbose ? cmd : pipeline(
-        cmd,
-        stdout = "LaTeXWriter.stdout",
-        stderr = "LaTeXWriter.stderr",
-        append = !clearlogs,
-    ))
+    run(
+        if verbose
+            cmd
+        else
+            pipeline(
+            cmd,
+            stdout = "LaTeXWriter.stdout",
+            stderr = "LaTeXWriter.stderr",
+            append = !clearlogs,
+        )
+        end
+    )
 end
 
 function writeheader(io::IO, doc::Documenter.Document, settings::LaTeX)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
-    isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
+    isfile(custom) ? cp(custom, "custom.sty"; force=true) : touch("custom.sty")
 
-    custom_preamble_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
+    custom_preamble_file =
+        joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
     if isfile(custom_preamble_file)
         # copy custom preamble.
-        cp(custom_preamble_file, "preamble.tex"; force = true)
+        cp(custom_preamble_file, "preamble.tex"; force=true)
     else # no custom preamble.tex, use default.
-        cp(DEFAULT_PREAMBLE_PATH, "preamble.tex"; force = true)
+        cp(DEFAULT_PREAMBLE_PATH, "preamble.tex"; force=true)
     end
-    preamble =
-        """
-        % Useful variables
-        \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
-        \\newcommand{\\DocVersion}{$(settings.version)}
-        \\newcommand{\\DocAuthors}{$(doc.user.authors)}
-        \\newcommand{\\JuliaVersion}{$(VERSION)}
+    preamble = """
+               % Useful variables
+               \\newcommand{\\DocMainTitle}{$(doc.user.sitename)}
+               \\newcommand{\\DocVersion}{$(settings.version)}
+               \\newcommand{\\DocAuthors}{$(doc.user.authors)}
+               \\newcommand{\\JuliaVersion}{$(VERSION)}
 
-        % ---- Insert preamble
-        \\input{preamble.tex}
-        """
+               % ---- Insert preamble
+               \\input{preamble.tex}
+               """
     # output preamble
     _println(io, preamble)
 end
@@ -269,7 +305,7 @@ istoplevel(n::Node) = !isnothing(n.parent) && isa(n.parent.element, MarkdownAST.
 latex(io::Context, node::Node) = latex(io, node, node.element)
 latex(io::Context, node::Node, e) = error("$(typeof(e)) not implemented: $e")
 
-function latex(io::Context, children; toplevel = false)
+function latex(io::Context, children; toplevel=false)
     @assert eltype(children) <: MarkdownAST.Node
     for node in children
         otherelement = !isa(node.element, NoExtraTopLevelNewlines)
@@ -292,14 +328,14 @@ function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     anchor = ah.anchor
     # latex(io::IO, anchor::Anchor, page, doc)
     id = _hash(Documenter.anchor_label(anchor))
-    latex(io, node.children; toplevel = istoplevel(node))
+    latex(io, node.children; toplevel=istoplevel(node))
     _println(io, "\n\\label{", id, "}{}\n")
 end
 
 ## Documentation Nodes.
 
 function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock)
-    latex(io, node.children; toplevel = istoplevel(node))
+    latex(io, node.children; toplevel=istoplevel(node))
 end
 
 function latex(io::Context, node::Node, docs::Documenter.DocsNode)
@@ -371,7 +407,7 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
         # If we're changing depth, we need to make sure we always print the
         # correct number of \begin{itemize} and \end{itemize} statements.
         if level > depth
-            for k in 1:(level - depth)
+            for k = 1:(level-depth)
                 # if we jump by more than one level deeper we need to put empty
                 # \items in -- otherwise LaTeX will complain
                 (k >= 2) && _println(io, "\\item ~")
@@ -379,7 +415,7 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
                 depth += 1
             end
         elseif level < depth
-            for _ in 1:(depth - level)
+            for _ = 1:(depth-level)
                 _println(io, "\\end{itemize}")
                 depth -= 1
             end
@@ -391,13 +427,15 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
         _println(io, "}")
     end
     # print any remaining missing \end{itemize} statements
-    for _ = 1:depth; _println(io, "\\end{itemize}"); end
+    for _ = 1:depth
+        _println(io, "\\end{itemize}")
+    end
     _println(io)
 end
 
 function latex(io::Context, node::Node, evalnode::Documenter.EvalNode)
     if evalnode.result !== nothing
-        latex(io, evalnode.result.children, toplevel = true)
+        latex(io, evalnode.result.children, toplevel=true)
     end
 end
 
@@ -411,20 +449,26 @@ function latex(io::Context, ::Node, d::Dict{MIME,Any})
     filename = String(rand('a':'z', 7))
     if haskey(d, MIME"image/png"())
         write("$(filename).png", base64decode(d[MIME"image/png"()]))
-        _println(io, """
-        \\begin{figure}[H]
-        \\centering
-        \\includegraphics[max width=\\linewidth]{$(filename)}
-        \\end{figure}
-        """)
+        _println(
+            io,
+            """
+\\begin{figure}[H]
+\\centering
+\\includegraphics[max width=\\linewidth]{$(filename)}
+\\end{figure}
+"""
+        )
     elseif haskey(d, MIME"image/jpeg"())
         write("$(filename).jpeg", base64decode(d[MIME"image/jpeg"()]))
-        _println(io, """
-        \\begin{figure}[H]
-        \\centering
-        \\includegraphics[max width=\\linewidth]{$(filename)}
-        \\end{figure}
-        """)
+        _println(
+            io,
+            """
+\\begin{figure}[H]
+\\centering
+\\includegraphics[max width=\\linewidth]{$(filename)}
+\\end{figure}
+"""
+        )
     elseif haskey(d, MIME"text/latex"())
         # If it has a latex MIME, just write it out directly.
         content = d[MIME("text/latex")]
@@ -481,11 +525,7 @@ function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
 end
 
 # Whitelisted lexers.
-const LEXER = Set([
-    "julia",
-    "jlcon",
-    "text",
-])
+const LEXER = Set(["julia", "jlcon", "text",])
 
 function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     language = Documenter.codelang(code.info)
@@ -505,7 +545,10 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     if language == "text/plain"
         _print(io, escape ? "," : "[")
         # Special-case the formatting of code outputs from Julia.
-        _println(io, "xleftmargin=-\\fboxsep,xrightmargin=-\\fboxsep,bgcolor=white,frame=single]{text}")
+        _println(
+            io,
+            "xleftmargin=-\\fboxsep,xrightmargin=-\\fboxsep,bgcolor=white,frame=single]{text}"
+        )
     else
         _println(io, escape ? "]{" : "{", language, "}")
     end
@@ -518,7 +561,8 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     return
 end
 
-latex(io::Context, node::Node, mcb::Documenter.MultiCodeBlock) = latex(io, node, join_multiblock(node))
+latex(io::Context, node::Node, mcb::Documenter.MultiCodeBlock) =
+    latex(io, node, join_multiblock(node))
 function join_multiblock(node::Node)
     @assert node.element isa Documenter.MultiCodeBlock
     io = IOBuffer()
@@ -537,10 +581,15 @@ end
 
 function _print_code_escapes_minted(io, s::AbstractString)
     for ch in s
-        ch === '#' ? _print(io, "##%") :
-        ch === '%' ? _print(io, "#%%") : # Note: "#\\%%" results in pygmentize error...
-        ch === '⊻' ? _print(io, "#\\unicodeveebar%") :
-                     _print(io, ch)
+        if ch === '#'
+            _print(io, "##%")
+        elseif ch === '%'
+            _print(io, "#%%") # Note: "#\\%%" results in pygmentize error...
+        elseif ch === '⊻'
+            _print(io, "#\\unicodeveebar%")
+        else
+            _print(io, ch)
+        end
     end
 end
 
@@ -552,8 +601,7 @@ end
 
 function _print_code_escapes_inline(io, s::AbstractString)
     for ch in s
-        ch === '⊻' ? _print(io, "\\unicodeveebar{}") :
-                     latexesc(io, ch)
+        ch === '⊻' ? _print(io, "\\unicodeveebar{}") : latexesc(io, ch)
     end
 end
 
@@ -697,7 +745,8 @@ function latex(io::Context, node::Node, image::MarkdownAST.Image)
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
         _println(io, "\\centering")
-        @warn "images with absolute URLs not supported in LaTeX output in $(Documenter.locrepr(io.filename))" url = image.destination
+        @warn "images with absolute URLs not supported in LaTeX output in $(Documenter.locrepr(io.filename))" url =
+            image.destination
         # We nevertheless output an \includegraphics with the URL. The LaTeX build will
         # then give an error, indicating to the user that something wrong.
         url = replace(image.destination, "\\" => "/") # use / on Windows too.
@@ -809,7 +858,7 @@ latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "\\\\")
 
 # Documenter.
 
-const _latexescape_chars = Dict{Char, AbstractString}(
+const _latexescape_chars = Dict{Char,AbstractString}(
     '~' => "{\\textasciitilde}",
     '\u00A0' => "~",  # nonbreaking space
     '^' => "{\\textasciicircum}",
@@ -873,6 +922,6 @@ function files!(out, p::Pair{<:AbstractString,<:Any}, depth)
     return out
 end
 
-files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)
+files(v::Vector) = files!(Tuple{String,String,Int}[], v, 0)
 
 end

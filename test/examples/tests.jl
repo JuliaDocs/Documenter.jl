@@ -5,7 +5,8 @@ import Base64
 # DOCUMENTER_TEST_EXAMPLES can be used to control which builds are performed in
 # make.jl. But for the tests we need to make sure that all the relevant builds
 # ran.
-haskey(ENV, "DOCUMENTER_TEST_EXAMPLES") && error("DOCUMENTER_TEST_EXAMPLES env. variable is set")
+haskey(ENV, "DOCUMENTER_TEST_EXAMPLES") &&
+    error("DOCUMENTER_TEST_EXAMPLES env. variable is set")
 
 # When the file is run separately we need to include make.jl which actually builds
 # the docs and defines a few modules that are referred to in the docs. The make.jl
@@ -33,7 +34,10 @@ function onormalize_tex(s)
     # We strip hyperlink hashes, since those may change over time
     s = replace(s, r"\\(hyperlink|hypertarget|label|hyperlinkref){[0-9]+}" => s"\\\1{}")
     # We also write the current Julia version into the TeX file
-    s = replace(s, r"\\newcommand{\\JuliaVersion}{[A-Za-z0-9+.-]+}" => "\\newcommand{\\JuliaVersion}{}")
+    s = replace(
+        s,
+        r"\\newcommand{\\JuliaVersion}{[A-Za-z0-9+.-]+}" => "\\newcommand{\\JuliaVersion}{}"
+    )
     # Remove CR parts of newlines, to make Windows happy
     s = replace(s, '\r' => "")
     return s
@@ -47,7 +51,8 @@ function printdiff(s1, s2)
     else
         mktempdir() do path
             a, b = joinpath(path, "a"), joinpath(path, "b")
-            write(a, s1); write(b, s2)
+            write(a, s1)
+            write(b, s2)
             run(ignorestatus(`$(diff_cmd) $a $b`))
         end
     end
@@ -94,8 +99,11 @@ end
             @testset "md: $mdfile" for mdfile in all_md_files_in_src
                 dir, filename = splitdir(mdfile)
                 filename, _ = splitext(filename)
-                htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
+                htmlpath = if (filename == "index")
+                    joinpath(build_dir, dir, "index.html")
+                else
                     joinpath(build_dir, dir, filename, "index.html")
+                end
                 @test isfile(htmlpath)
             end
 
@@ -114,25 +122,59 @@ end
                 index_html,
             )
 
-            example_output_html = read(joinpath(build_dir, "example-output", "index.html"), String)
+            example_output_html =
+                read(joinpath(build_dir, "example-output", "index.html"), String)
             @test occursin("documenter-example-output", example_output_html)
 
             # Test for existence of meta tags
             @test occursin("<meta property=\"og:title\"", index_html)
             @test occursin("<meta property=\"twitter:title\"", index_html)
-            @test occursin("<meta property=\"og:url\" content=\"https://example.com/stable/\"/>", index_html)
-            @test occursin("<meta property=\"twitter:url\" content=\"https://example.com/stable/\"/>", index_html)
+            @test occursin(
+                "<meta property=\"og:url\" content=\"https://example.com/stable/\"/>",
+                index_html
+            )
+            @test occursin(
+                "<meta property=\"twitter:url\" content=\"https://example.com/stable/\"/>",
+                index_html
+            )
             if name == "html-meta-custom"
-                @test occursin("<meta name=\"description\" content=\"Example site-wide description.\"/>", index_html)
-                @test occursin("<meta property=\"og:description\" content=\"Example site-wide description.\"/>", index_html)
-                @test occursin("<meta property=\"twitter:description\" content=\"Example site-wide description.\"/>", index_html)
-                @test occursin("<meta property=\"og:image\" content=\"https://example.com/stable/assets/preview.png\"/>", index_html)
-                @test occursin("<meta property=\"twitter:image\" content=\"https://example.com/stable/assets/preview.png\"/>", index_html)
-                @test occursin("<meta property=\"twitter:card\" content=\"summary_large_image\"/>", index_html)
+                @test occursin(
+                    "<meta name=\"description\" content=\"Example site-wide description.\"/>",
+                    index_html
+                )
+                @test occursin(
+                    "<meta property=\"og:description\" content=\"Example site-wide description.\"/>",
+                    index_html
+                )
+                @test occursin(
+                    "<meta property=\"twitter:description\" content=\"Example site-wide description.\"/>",
+                    index_html
+                )
+                @test occursin(
+                    "<meta property=\"og:image\" content=\"https://example.com/stable/assets/preview.png\"/>",
+                    index_html
+                )
+                @test occursin(
+                    "<meta property=\"twitter:image\" content=\"https://example.com/stable/assets/preview.png\"/>",
+                    index_html
+                )
+                @test occursin(
+                    "<meta property=\"twitter:card\" content=\"summary_large_image\"/>",
+                    index_html
+                )
             else
-                @test occursin("<meta name=\"description\" content=\"Documentation for Documenter example.\"/>", index_html)
-                @test occursin("<meta property=\"og:description\" content=\"Documentation for Documenter example.\"/>", index_html)
-                @test occursin("<meta property=\"twitter:description\" content=\"Documentation for Documenter example.\"/>", index_html)
+                @test occursin(
+                    "<meta name=\"description\" content=\"Documentation for Documenter example.\"/>",
+                    index_html
+                )
+                @test occursin(
+                    "<meta property=\"og:description\" content=\"Documentation for Documenter example.\"/>",
+                    index_html
+                )
+                @test occursin(
+                    "<meta property=\"twitter:description\" content=\"Documentation for Documenter example.\"/>",
+                    index_html
+                )
                 @test !occursin("<meta property=\"og:image\"", index_html)
                 @test !occursin("<meta property=\"twitter:image\"", index_html)
                 @test !occursin("<meta property=\"twitter:card\"", index_html)
@@ -142,13 +184,25 @@ end
             @test joinpath(build_dir, "assets", "documenter.js") |> isfile
             documenter_js = read(joinpath(build_dir, "assets", "documenter.js"), String)
             if name == "html-mathjax3"
-                @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3", documenter_js)
+                @test occursin(
+                    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3",
+                    documenter_js
+                )
             elseif name == "html-mathjax2-custom"
-                @test occursin("https://cdn.jsdelivr.net/npm/mathjax@2/MathJax", documenter_js)
+                @test occursin(
+                    "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax",
+                    documenter_js
+                )
             elseif name == "html-mathjax3-custom"
-                @test occursin("script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';", documenter_js)
+                @test occursin(
+                    "script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';",
+                    documenter_js
+                )
             else # name == "html", uses MathJax2
-                @test occursin("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2", documenter_js)
+                @test occursin(
+                    "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2",
+                    documenter_js
+                )
             end
 
             # This build includes erlang and erlang-repl highlighting
@@ -184,36 +238,81 @@ end
                 @test haskey(siteinfo_json["documenter"], "generation_timestamp")
             end
 
-            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
+            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in
+                                                          AT_EXAMPLE_FILES
                 if size === :tiny
                     encoded_data = Base64.base64encode(data.bytes)
-                    @test occursin(encoded_data, read(joinpath(build_dir, "index.html"), String))
-                    @test occursin(encoded_data, read(joinpath(build_dir, "example-output", "index.html"), String))
-                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "index.html"), String))
-                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "outputs", "index.html"), String))
+                    @test occursin(
+                        encoded_data,
+                        read(joinpath(build_dir, "index.html"), String)
+                    )
+                    @test occursin(
+                        encoded_data,
+                        read(joinpath(build_dir, "example-output", "index.html"), String)
+                    )
+                    @test occursin(
+                        encoded_data,
+                        read(joinpath(build_dir, "outputs", "index.html"), String)
+                    )
+                    @test occursin(
+                        encoded_data,
+                        read(
+                            joinpath(build_dir, "outputs", "outputs", "index.html"),
+                            String
+                        )
+                    )
                 else # size === :big
                     # From src/index.md
                     @test isfile(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) ==
+                          data.bytes
                     # From src/example-output.md
-                    @test isfile(joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test isfile(
+                        joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)")
+                    )
+                    @test read(
+                        joinpath(build_dir, "example-output", "$(data.hash_slug).$(fmt)")
+                    ) == data.bytes
                     # From src/outputs/index.md
-                    @test isfile(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test isfile(
+                        joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")
+                    )
+                    @test read(
+                        joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")
+                    ) == data.bytes
                     # From src/outputs/outputs.md
-                    @test isfile(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "outputs", "outputs", "$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test isfile(
+                        joinpath(
+                            build_dir,
+                            "outputs",
+                            "outputs",
+                            "$(data.hash_slug).$(fmt)"
+                        )
+                    )
+                    @test read(
+                        joinpath(
+                            build_dir,
+                            "outputs",
+                            "outputs",
+                            "$(data.hash_slug).$(fmt)"
+                        )
+                    ) == data.bytes
                 end
             end
             # SVG on src/example-output.md
             @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg"))
-            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) ==
+                  SVG_BIG.bytes
             # SVG on src/example-output.md, from Main.SVG_MULTI
-            @test isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-001.svg"))
-            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            @test isfile(
+                joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-001.svg")
+            )
+            @test read(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug).svg")) ==
+                  SVG_BIG.bytes
             # .. but, crucially, Main.SVG_HTML did _not_ get written out.
-            @test !isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-002.svg"))
+            @test !isfile(
+                joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-002.svg")
+            )
         end
     end
 
@@ -242,36 +341,66 @@ end
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
 
-            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in AT_EXAMPLE_FILES
+            @testset "at-example outputs: $fmt/$size" for ((fmt, size), data) in
+                                                          AT_EXAMPLE_FILES
                 if size === :tiny
                     encoded_data = Base64.base64encode(data.bytes)
-                    @test occursin(encoded_data, read(joinpath(build_dir, "index.html"), String))
-                    @test occursin(encoded_data, read(joinpath(build_dir, "example-output.html"), String))
-                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "index.html"), String))
-                    @test occursin(encoded_data, read(joinpath(build_dir, "outputs", "outputs.html"), String))
+                    @test occursin(
+                        encoded_data,
+                        read(joinpath(build_dir, "index.html"), String)
+                    )
+                    @test occursin(
+                        encoded_data,
+                        read(joinpath(build_dir, "example-output.html"), String)
+                    )
+                    @test occursin(
+                        encoded_data,
+                        read(joinpath(build_dir, "outputs", "index.html"), String)
+                    )
+                    @test occursin(
+                        encoded_data,
+                        read(joinpath(build_dir, "outputs", "outputs.html"), String)
+                    )
                 else # size === :big
                     # From src/index.md
                     @test isfile(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test read(joinpath(build_dir, "index-$(data.hash_slug).$(fmt)")) ==
+                          data.bytes
                     # From src/example-output.md
-                    @test isfile(joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test isfile(
+                        joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)")
+                    )
+                    @test read(
+                        joinpath(build_dir, "example-output-$(data.hash_slug).$(fmt)")
+                    ) == data.bytes
                     # From src/outputs/index.md
-                    @test isfile(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test isfile(
+                        joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")
+                    )
+                    @test read(
+                        joinpath(build_dir, "outputs", "index-$(data.hash_slug).$(fmt)")
+                    ) == data.bytes
                     # From src/outputs/outputs.md
-                    @test isfile(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)"))
-                    @test read(joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)")) == data.bytes
+                    @test isfile(
+                        joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)")
+                    )
+                    @test read(
+                        joinpath(build_dir, "outputs", "outputs-$(data.hash_slug).$(fmt)")
+                    ) == data.bytes
                 end
             end
             # SVG on src/example-output.md
             @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg"))
-            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) ==
+                  SVG_BIG.bytes
             # SVG on src/example-output.md, from Main.SVG_MULTI
             @test isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-001.svg"))
-            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) == SVG_BIG.bytes
+            @test read(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug).svg")) ==
+                  SVG_BIG.bytes
             # .. but, crucially, Main.SVG_HTML did _not_ get written out.
-            @test !isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-002.svg"))
+            @test !isfile(
+                joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-002.svg")
+            )
         end
     end
 
@@ -285,9 +414,13 @@ end
             @testset "md: $mdfile" for mdfile in all_md_files_in_src
                 dir, filename = splitdir(mdfile)
                 filename, _ = splitext(filename)
-                htmlpath = (filename == "index") ? joinpath(build_dir, dir, "index.html") :
+                htmlpath = if (filename == "index")
+                    joinpath(build_dir, dir, "index.html")
+                else
                     joinpath(build_dir, dir, filename, "index.html")
-                if mdfile ∈ ("index.md", joinpath("man", "tutorial.md"), joinpath("man", "style.md"))
+                end
+                if mdfile ∈
+                   ("index.md", joinpath("man", "tutorial.md"), joinpath("man", "style.md"))
                     @test isfile(htmlpath)
                 else
                     @test !ispath(htmlpath)
@@ -303,18 +436,22 @@ end
     end
 
     @testset "HTML: repo-*" begin
-        @test examples_html_repo_git_doc.user.remote === Remotes.GitHub("JuliaDocs", "Documenter.jl")
+        @test examples_html_repo_git_doc.user.remote ===
+              Remotes.GitHub("JuliaDocs", "Documenter.jl")
         @test examples_html_repo_nothing_doc.user.remote === nothing
         @test examples_html_repo_error_doc.user.remote === nothing
     end
 
     @testset "HTML: sizethreshold" begin
-        @test examples_html_sizethreshold_defaults_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+        @test examples_html_sizethreshold_defaults_fail_doc isa
+              Documenter.HTMLWriter.HTMLSizeThresholdError
         @test examples_html_sizethreshold_success_doc isa Documenter.Document
         @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
-        @test examples_html_sizethreshold_override_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+        @test examples_html_sizethreshold_override_fail_doc isa
+              Documenter.HTMLWriter.HTMLSizeThresholdError
         @test examples_html_sizethreshold_ignore_success_doc isa Documenter.Document
-        @test examples_html_sizethreshold_ignore_fail_doc isa Documenter.HTMLWriter.HTMLSizeThresholdError
+        @test examples_html_sizethreshold_ignore_fail_doc isa
+              Documenter.HTMLWriter.HTMLSizeThresholdError
     end
 
     @testset "PDF/LaTeX: TeX only" begin
@@ -333,7 +470,10 @@ end
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))
             @test isfile(texfile)
-            @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_simple.tex"))
+            @test compare_files(
+                texfile,
+                joinpath(@__DIR__, "references", "latex_simple.tex")
+            )
         end
     end
 
@@ -344,7 +484,10 @@ end
             @test joinpath(build_dir, "documenter.sty") |> isfile
             texfile = joinpath(build_dir, latex_filename(doc))
             @test isfile(texfile)
-            @test compare_files(texfile, joinpath(@__DIR__, "references", "latex_showcase.tex"))
+            @test compare_files(
+                texfile,
+                joinpath(@__DIR__, "references", "latex_showcase.tex")
+            )
         end
     end
 

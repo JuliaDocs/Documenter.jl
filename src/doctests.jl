@@ -5,15 +5,16 @@
 # -------------------------
 
 mutable struct MutableMD2CodeBlock
-    language :: String
-    code :: String
+    language::String
+    code::String
 end
-MutableMD2CodeBlock(block :: MarkdownAST.CodeBlock) = MutableMD2CodeBlock(block.info, block.code)
+MutableMD2CodeBlock(block::MarkdownAST.CodeBlock) =
+    MutableMD2CodeBlock(block.info, block.code)
 
 struct DocTestContext
-    file :: String
-    doc :: Documenter.Document
-    meta :: Dict{Symbol, Any}
+    file::String
+    doc::Documenter.Document
+    meta::Dict{Symbol,Any}
     DocTestContext(file::String, doc::Documenter.Document) = new(file, doc, Dict())
 end
 
@@ -77,13 +78,18 @@ end
 
 function parse_metablock(ctx::DocTestContext, block::MarkdownAST.CodeBlock)
     @assert startswith(block.info, "@meta")
-    meta = Dict{Symbol, Any}()
+    meta = Dict{Symbol,Any}()
     for (ex, str) in Documenter.parseblock(block.code, ctx.doc, ctx.file)
         if Documenter.isassign(ex)
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
-                @docerror(ctx.doc, :meta_block, "Failed to evaluate `$(strip(str))` in `@meta` block.", exception = err)
+                @docerror(
+                    ctx.doc,
+                    :meta_block,
+                    "Failed to evaluate `$(strip(str))` in `@meta` block.",
+                    exception = err
+                )
             end
         end
     end
@@ -105,7 +111,7 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
     lang = block_immutable.info
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
-        name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
+        name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit=2)[1])[1]
         sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
 
         # Normalise line endings.
@@ -122,7 +128,9 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
                 e isa Meta.ParseError || rethrow(e)
                 file = ctx.meta[:CurrentFile]
                 lines = Documenter.find_block_in_file(block.code, file)
-                @docerror(ctx.doc, :doctest,
+                @docerror(
+                    ctx.doc,
+                    :doctest,
                     """
                     Unable to parse doctest keyword arguments in $(Documenter.locrepr(file, lines))
                     Use ```jldoctest name; key1 = value1, key2 = value2
@@ -130,14 +138,18 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
                     ```$(lang)
                     $(block.code)
                     ```
-                    """, parse_error = e)
+                    """,
+                    parse_error = e
+                )
                 return false
             end
             for kwarg in kwargs.args
                 if !(isa(kwarg, Expr) && kwarg.head === :(=) && isa(kwarg.args[1], Symbol))
                     file = ctx.meta[:CurrentFile]
                     lines = Documenter.find_block_in_file(block.code, file)
-                    @docerror(ctx.doc, :doctest,
+                    @docerror(
+                        ctx.doc,
+                        :doctest,
                         """
                         invalid syntax for doctest keyword arguments in $(Documenter.locrepr(file, lines))
                         Use ```jldoctest name; key1 = value1, key2 = value2
@@ -145,7 +157,8 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
                         ```$(lang)
                         $(block.code)
                         ```
-                        """)
+                        """
+                    )
                     return false
                 end
                 d[kwarg.args[1]] = Core.eval(sandbox, kwarg.args[2])
@@ -153,14 +166,20 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
         end
         ctx.meta[:LocalDocTestArguments] = d
 
-        for expr in [get(ctx.meta, :DocTestSetup, []); get(ctx.meta[:LocalDocTestArguments], :setup, [])]
+        for expr in [
+            get(ctx.meta, :DocTestSetup, [])
+            get(ctx.meta[:LocalDocTestArguments], :setup, [])
+        ]
             Meta.isexpr(expr, :block) && (expr.head = :toplevel)
             try
                 Core.eval(sandbox, expr)
             catch e
                 push!(ctx.doc.internal.errors, :doctest)
-                @error("could not evaluate expression from doctest setup.",
-                    expression = expr, exception = e)
+                @error(
+                    "could not evaluate expression from doctest setup.",
+                    expression = expr,
+                    exception = e
+                )
                 return false
             end
         end
@@ -171,7 +190,9 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
         elseif occursin(r"^# output\s+$"m, block.code)
             file = ctx.meta[:CurrentFile]
             lines = Documenter.find_block_in_file(block.code, file)
-            @docerror(ctx.doc, :doctest,
+            @docerror(
+                ctx.doc,
+                :doctest,
                 """
                 invalid doctest block in $(Documenter.locrepr(file, lines))
                 Requires `# output` without trailing whitespace
@@ -179,11 +200,14 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
                 ```$(lang)
                 $(block.code)
                 ```
-                """)
+                """
+            )
         else
             file = ctx.meta[:CurrentFile]
             lines = Documenter.find_block_in_file(block.code, file)
-            @docerror(ctx.doc, :doctest,
+            @docerror(
+                ctx.doc,
+                :doctest,
                 """
                 invalid doctest block in $(Documenter.locrepr(file, lines))
                 Requires `julia> ` or `# output`
@@ -191,7 +215,8 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
                 ```$(lang)
                 $(block.code)
                 ```
-                """)
+                """
+            )
         end
         delete!(ctx.meta, :LocalDocTestArguments)
     end
@@ -220,14 +245,16 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     src_lines = Documenter.find_block_in_file(block.code, meta[:CurrentFile])
     for (input, output) in repl_splitter(block.code)
         result = Result(block, input, output, meta[:CurrentFile])
-        for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise=false)
+        for (ex, str) in
+            Documenter.parseblock(input, doc, page; keywords=false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
-            @debug "Evaluating REPL line from doctest at $(Documenter.locrepr(result.file, src_lines))" unparsed_string = str parsed_expression = ex
+            @debug "Evaluating REPL line from doctest at $(Documenter.locrepr(result.file, src_lines))" unparsed_string =
+                str parsed_expression = ex
             result.hide = REPL.ends_with_semicolon(str)
             # Use the REPL softscope for REPL jldoctests,
             # see https://github.com/JuliaLang/julia/pull/33864
             ex = REPL.softscope(ex)
-            c = IOCapture.capture(rethrow = InterruptException) do
+            c = IOCapture.capture(rethrow=InterruptException) do
                 Core.eval(sandbox, ex)
             end
             Core.eval(sandbox, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
@@ -249,12 +276,12 @@ function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     #
     #
     #       to mark `input`/`output` separation.
-    input, output = split(block.code, r"^# output$"m, limit = 2)
-    input  = rstrip(input, '\n')
+    input, output = split(block.code, r"^# output$"m, limit=2)
+    input = rstrip(input, '\n')
     output = lstrip(output, '\n')
     result = Result(block, input, output, meta[:CurrentFile])
-    for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise=false)
-        c = IOCapture.capture(rethrow = InterruptException) do
+    for (ex, str) in Documenter.parseblock(input, doc, page; keywords=false, raise=false)
+        c = IOCapture.capture(rethrow=InterruptException) do
             Core.eval(sandbox, ex)
         end
         result.value = c.value
@@ -273,7 +300,7 @@ function filter_doctests(filters, strings)
         # removed before comparing the inputs and outputs of a doctest. However, it can
         # also be a regex => substitution pair in which case the match gets replaced by
         # the substitution string.
-        r, s = if isa(rs, Pair{Regex,T} where T <: AbstractString)
+        r, s = if isa(rs, Pair{Regex,T} where {T<:AbstractString})
             rs
         elseif isa(rs, Regex) || isa(rs, AbstractString)
             rs, ""
@@ -298,15 +325,18 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         # To avoid dealing with path/line number issues in backtraces we use `[...]` to
         # mark ignored output from an error message. Only the text prior to it is used to
         # test for doctest success/failure.
-        head = replace(split(result.output, "\n[...]"; limit = 2)[1], mod_regex  => "")
+        head = replace(split(result.output, "\n[...]"; limit=2)[1], mod_regex => "")
         head = replace(head, mod_regex_nodot => "Main")
-        str  = error_to_string(outio, result.value, result.bt)
-        str  = replace(str, mod_regex => "")
-        str  = replace(str, mod_regex_nodot => "Main")
+        str = error_to_string(outio, result.value, result.bt)
+        str = replace(str, mod_regex => "")
+        str = replace(str, mod_regex_nodot => "Main")
         filteredstr, filteredhead = filter_doctests(filters, (str, head))
         @debug debug_report(
-            result=result, filters = filters, expected_filtered = filteredhead,
-            evaluated = rstrip(str), evaluated_filtered = filteredstr
+            result=result,
+            filters=filters,
+            expected_filtered=filteredhead,
+            evaluated=rstrip(str),
+            evaluated_filtered=filteredstr
         )
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
@@ -327,8 +357,11 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         str = rstrip(replace(str, mod_regex_nodot => "Main"))
         filteredstr, filteredoutput = filter_doctests(filters, (str, output))
         @debug debug_report(
-            result=result, filters = filters, expected_filtered = filteredoutput,
-            evaluated = rstrip(str), evaluated_filtered = filteredstr
+            result=result,
+            filters=filters,
+            expected_filtered=filteredoutput,
+            evaluated=rstrip(str),
+            evaluated_filtered=filteredstr
         )
         if filteredstr != filteredoutput
             if doc.user.doctest === :fix
@@ -366,8 +399,11 @@ function debug_report(; result, expected_filtered, evaluated, evaluated_filtered
     """
     if !isempty(filters)
         r *= "\n"
-        r *= (length(filters) == 1) ? "1 doctest filter was applied:\n\n" :
+        r *= if (length(filters) == 1)
+            "1 doctest filter was applied:\n\n"
+        else
             "$(length(filters)) doctest filters were applied:\n\n"
+        end
         for rs in filters
             r *= "  $rs\n"
         end
@@ -395,7 +431,8 @@ end
 # Display doctesting results.
 
 function result_to_string(buf, value)
-    value === nothing || Base.invokelatest(show, IOContext(buf, :limit => true), MIME"text/plain"(), value)
+    value === nothing ||
+        Base.invokelatest(show, IOContext(buf, :limit => true), MIME"text/plain"(), value)
     return sanitise(buf)
 end
 
@@ -404,7 +441,7 @@ function error_to_string(buf, er, bt)
     bt = Documenter.remove_common_backtrace(bt, backtrace())
     # Remove everything below the last eval call (which should be the one in IOCapture.capture)
     index = findlast(ptr -> Base.ip_matches_func(ptr, :eval), bt)
-    bt = (index === nothing) ? bt : bt[1:(index - 1)]
+    bt = (index === nothing) ? bt : bt[1:(index-1)]
     # Print a REPL-like error message.
     print(buf, "ERROR: ")
     Base.invokelatest(showerror, buf, er, bt)
@@ -426,26 +463,31 @@ function report(result::Result, str, doc::Documenter.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Documenter.find_block_in_file(result.block.code, result.file)
     line = lines === nothing ? nothing : first(lines)
-    @error("""
-        doctest failure in $(Documenter.locrepr(result.file, lines))
+    @error(
+        """
+     doctest failure in $(Documenter.locrepr(result.file, lines))
 
-        ```$(result.block.language)
-        $(result.block.code)
-        ```
+     ```$(result.block.language)
+     $(result.block.code)
+     ```
 
-        Subexpression:
+     Subexpression:
 
-        $(result.input)
+     $(result.input)
 
-        Evaluated output:
+     Evaluated output:
 
-        $(rstrip(str))
+     $(rstrip(str))
 
-        Expected output:
+     Expected output:
 
-        $(result.output)
+     $(result.output)
 
-        """, diff, _file=result.file, _line=line)
+     """,
+        diff,
+        _file = result.file,
+        _line = line
+    )
 end
 
 function fix_doctest(result::Result, str, doc::Documenter.Document)
@@ -454,7 +496,7 @@ function fix_doctest(result::Result, str, doc::Documenter.Document)
     # read the file containing the code block
     content = read(filename, String)
     # output stream
-    io = IOBuffer(sizehint = sizeof(content))
+    io = IOBuffer(sizehint=sizeof(content))
     # first look for the entire code block
     # make a regex of the code that matches leading whitespace
     rcode = "(\\h*)" * replace(Documenter.regex_escape(code), "\\n" => "\\n\\h*")
@@ -488,7 +530,8 @@ function fix_doctest(result::Result, str, doc::Documenter.Document)
         newcode *= str
         newcode *= code[nextind(code, last(inputidx)):end]
     else
-        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+        newcode *=
+            replace(code[nextind(code, last(inputidx)):end], result.output => str, count=1)
     end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
@@ -509,8 +552,8 @@ const PROMPT_REGEX = r"^julia> (.*)$"
 const SOURCE_REGEX = r"^       (.*)$"
 
 function repl_splitter(code)
-    lines  = split(string(code, "\n"), '\n')
-    input  = String[]
+    lines = split(string(code, "\n"), '\n')
+    input = String[]
     output = String[]
     buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
     found_first_prompt = false

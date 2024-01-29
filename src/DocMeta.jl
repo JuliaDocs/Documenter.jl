@@ -68,8 +68,16 @@ If `recursive` is set to `true`, it sets the same metadata value for all the sub
 If `warn` is `true`, it prints a warning when `key` already exists and it gets rewritten.
 """
 function setdocmeta!(m::Module, key::Symbol, value; warn=true, recursive=false)
-    key in keys(VALIDMETA) || throw(ArgumentError("Invalid metadata key\nValid keys are: $(join(keys(VALIDMETA), ", "))"))
-    isa(value, VALIDMETA[key]) || throw(ArgumentError("Bad value type ($(typeof(value))) for metadata key $(key). Must be <: $(VALIDMETA[key])"))
+    key in keys(VALIDMETA) || throw(
+        ArgumentError(
+            "Invalid metadata key\nValid keys are: $(join(keys(VALIDMETA), ", "))"
+        )
+    )
+    isa(value, VALIDMETA[key]) || throw(
+        ArgumentError(
+            "Bad value type ($(typeof(value))) for metadata key $(key). Must be <: $(VALIDMETA[key])"
+        )
+    )
     if recursive
         for mod in Documenter.submodules(m)
             setdocmeta!(mod, key, value; warn=warn, recursive=false)

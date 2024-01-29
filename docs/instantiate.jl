@@ -11,12 +11,14 @@ cd(project_directory) do
         @info "DocumenterTools already cloned to dev/DocumenterTools"
         run(`git -C dev/DocumenterTools fetch origin`)
     else
-        run(`git clone -n https://github.com/JuliaDocs/DocumenterTools.jl.git dev/DocumenterTools`)
+        run(
+            `git clone -n https://github.com/JuliaDocs/DocumenterTools.jl.git dev/DocumenterTools`
+        )
     end
     run(`git -C dev/DocumenterTools checkout documenter-v0.1.17+1.0.0`)
     Pkg.develop([
-        PackageSpec(path = documenter_directory),
-        PackageSpec(path = "dev/DocumenterTools"),
+        PackageSpec(path=documenter_directory),
+        PackageSpec(path="dev/DocumenterTools"),
     ])
     Pkg.instantiate()
 end

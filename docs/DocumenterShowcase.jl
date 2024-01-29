@@ -89,17 +89,20 @@ function hello(who)
 end
 
 struct SVGCircle
-    stroke :: String
-    fill :: String
+    stroke::String
+    fill::String
 end
 function Base.show(io, ::MIME"image/svg+xml", c::SVGCircle)
-    write(io, """
-    <svg width="50" height="50">
-      <g style="stroke-width: 3">
-        <circle cx="25" cy="25" r="24" stroke-width="2" style="stroke: #$(c.stroke); fill: #$(c.fill)" />
-      </g>
-    </svg>
-    """)
+    write(
+        io,
+        """
+<svg width="50" height="50">
+  <g style="stroke-width: 3">
+    <circle cx="25" cy="25" r="24" stroke-width="2" style="stroke: #$(c.stroke); fill: #$(c.fill)" />
+  </g>
+</svg>
+"""
+    )
 end
 
 "The type definition."
@@ -109,6 +112,6 @@ struct Foo{T,S} end
 Foo() = Foo{Nothing,Nothing}()
 
 "Constructor `Foo{T}()` with one parametric argument."
-Foo{T}() where T = Foo{T,Nothing}()
+Foo{T}() where {T} = Foo{T,Nothing}()
 
 end # module

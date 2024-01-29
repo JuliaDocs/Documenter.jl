@@ -24,7 +24,8 @@ mkpath(builds_directory)
 
 function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     dir = mktempdir(builds_directory)
-    srcdir = joinpath(dir, "src"); mkpath(srcdir)
+    srcdir = joinpath(dir, "src")
+    mkpath(srcdir)
 
     for mdfile in mdfiles
         cp(joinpath(@__DIR__, "src", mdfile), joinpath(srcdir, mdfile))
@@ -33,15 +34,15 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
     # page" warning.
     touch(joinpath(srcdir, "index.md"))
 
-    c = IOCapture.capture(rethrow = InterruptException) do
+    c = IOCapture.capture(rethrow=InterruptException) do
         # In case JULIA_DEBUG is set to something, we'll override that, so that we wouldn't
         # get some unexpected debug output from makedocs.
         withenv("JULIA_DEBUG" => "") do
             makedocs(
-                sitename = " ",
-                format = Documenter.HTML(edit_link = "master"),
-                root = dir,
-                modules = modules;
+                sitename=" ",
+                format=Documenter.HTML(edit_link="master"),
+                root=dir,
+                modules=modules;
                 kwargs...
             )
         end
@@ -65,11 +66,14 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
 end
 
 function printoutput(result, success, backtrace, output)
-    printstyled("="^80, color=:cyan); println()
+    printstyled("="^80, color=:cyan)
+    println()
     println(output)
-    printstyled("-"^80, color=:cyan); println()
+    printstyled("-"^80, color=:cyan)
+    println()
     println(repr(result))
-    printstyled("-"^80, color=:cyan); println()
+    printstyled("-"^80, color=:cyan)
+    println()
 end
 
 function onormalize(s)
@@ -92,10 +96,18 @@ function onormalize(s)
     s = replace(s, r"Base \.[\\/]([A-Za-z0-9\.]+):[0-9]+\s*$"m => s"Base ./\1:LL")
 
     # Remove stacktraces
-    s = replace(s, r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" => s"\1\\n\3{STACKTRACE}")
+    s = replace(
+        s,
+        r"(│\s+Stacktrace:)(\n(│\s+)\[[0-9]+\].*)(\n(│\s+)@.*)?+" =>
+            s"\1\\n\3{STACKTRACE}"
+    )
 
     # In Julia 1.9, the printing of UndefVarError has slightly changed (added backticks around binding name)
-    s = replace(s, r"UndefVarError: `([A-Za-z0-9.]+)` not defined"m => s"UndefVarError: \1 not defined")
+    s = replace(
+        s,
+        r"UndefVarError: `([A-Za-z0-9.]+)` not defined"m =>
+            s"UndefVarError: \1 not defined"
+    )
 
     # Remove floating point numbers
     s = replace(s, r"([0-9]*\.[0-9]{8})[0-9]+" => s"\1***")
@@ -113,19 +125,26 @@ function is_same_as_file(output, filename)
             @error """Output does not agree with reference file
             ref: $(filename)
             """
-            ps(s::AbstractString) = printstyled(stdout, s, '\n'; color=:magenta, bold=true)
-            "------------------------------------ output ------------------------------------" |> ps
+            ps(s::AbstractString) =
+                printstyled(stdout, s, '\n'; color=:magenta, bold=true)
+            "------------------------------------ output ------------------------------------" |>
+            ps
             output |> println
-            "---------------------------------- reference -----------------------------------" |> ps
+            "---------------------------------- reference -----------------------------------" |>
+            ps
             reference |> println
-            "------------------------------ onormalize(output) ------------------------------" |> ps
+            "------------------------------ onormalize(output) ------------------------------" |>
+            ps
             onormalize(output) |> println
-            "---------------------------- onormalize(reference) -----------------------------" |> ps
+            "---------------------------- onormalize(reference) -----------------------------" |>
+            ps
             onormalize(reference) |> println
-            "------------------------------------- diff -------------------------------------" |> ps
+            "------------------------------------- diff -------------------------------------" |>
+            ps
             diff = Diff{Words}(onormalize(reference), onormalize(output))
             diff |> println
-            "------------------------------------- end --------------------------------------" |> ps
+            "------------------------------------- end --------------------------------------" |>
+            ps
             false
         else
             true
@@ -148,7 +167,10 @@ function rfile(index::Integer)
     reference_directory = joinpath(@__DIR__, "stdouts")
     reference_file, versionmatch = "", MINVERSION
     for filename in readdir(reference_directory)
-        m = match(r"^(?<index>[0-9]+)(?:\.v(?<major>[[0-9]+)_(?<minor>[0-9]+))?\.stdout$", filename)
+        m = match(
+            r"^(?<index>[0-9]+)(?:\.v(?<major>[[0-9]+)_(?<minor>[0-9]+))?\.stdout$",
+            filename
+        )
         # If the regex doesn't match, then we're not interested in this file
         isnothing(m) && continue
         # Similarly, we're only interested in collecting up the reference files that match `index`
@@ -169,7 +191,8 @@ function rfile(index::Integer)
     end
     # If `reference_file` is still an empty string, then the loop above failed because the appropriate
     # reference file is missing.
-    isempty(reference_file) && error("Unable to find reference files for $(index).stdout, VERSION=$VERSION")
+    isempty(reference_file) &&
+        error("Unable to find reference files for $(index).stdout, VERSION=$VERSION")
     return reference_file
 end
 
@@ -189,34 +212,53 @@ end
         @test is_same_as_file(output, rfile(2))
     end
 
-    run_makedocs(["working.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
+    run_makedocs(
+        ["working.md", "fooworking.md"];
+        modules=[FooWorking]
+    ) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(3))
     end
 
-    run_makedocs(["working.md", "foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
+    run_makedocs(
+        ["working.md", "foobroken.md"];
+        modules=[FooBroken]
+    ) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(4))
     end
 
-    run_makedocs(["broken.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
+    run_makedocs(
+        ["broken.md", "fooworking.md"];
+        modules=[FooWorking]
+    ) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(5))
     end
 
     for warnonly in (false, :autodocs_block, Documenter.except(:doctest))
-        run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], warnonly) do result, success, backtrace, output
+        run_makedocs(
+            ["broken.md", "foobroken.md"];
+            modules=[FooBroken],
+            warnonly
+        ) do result, success, backtrace, output
             @test !success
             @test is_same_as_file(output, rfile(6))
         end
     end
 
-    run_makedocs(["fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
+    run_makedocs(
+        ["fooworking.md"];
+        modules=[FooWorking]
+    ) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(7))
     end
 
-    run_makedocs(["foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
+    run_makedocs(
+        ["foobroken.md"];
+        modules=[FooBroken]
+    ) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(8))
     end
@@ -238,39 +280,60 @@ end
 
     # Tests for doctest = :only. The output should reflect that the docs themselves do not
     # get built.
-    run_makedocs(["working.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
+    run_makedocs(
+        ["working.md"];
+        modules=[FooWorking],
+        doctest=:only
+    ) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(21))
     end
 
-    run_makedocs(["working.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
+    run_makedocs(
+        ["working.md"];
+        modules=[FooBroken],
+        doctest=:only
+    ) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(22))
     end
 
-    run_makedocs(["broken.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
+    run_makedocs(
+        ["broken.md"];
+        modules=[FooWorking],
+        doctest=:only
+    ) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(23))
     end
 
-    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
+    run_makedocs(
+        ["broken.md"];
+        modules=[FooBroken],
+        doctest=:only
+    ) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(24))
     end
     # warnonly gets ignored with doctest = :only
-    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, warnonly=true) do result, success, backtrace, output
+    run_makedocs(
+        ["broken.md"];
+        modules=[FooBroken],
+        doctest=:only,
+        warnonly=true
+    ) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(25))
     end
 
     # DocTestSetup in modules
-    run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
+    run_makedocs([]; modules=[NoMeta], doctest=:only) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(31))
     end
     # Now, let's use Documenter's APIs to add the necessary meta information
     DocMeta.setdocmeta!(NoMeta, :DocTestSetup, :(baz(x) = 2x))
-    run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
+    run_makedocs([]; modules=[NoMeta], doctest=:only) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(32))
     end

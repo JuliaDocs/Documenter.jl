@@ -27,10 +27,13 @@ function missingdocs(doc::Document)
             end
         end
         println(b)
-        print(b, """
-        These are docstrings in the checked modules (configured with the modules keyword)
-        that are not included in canonical @docs or @autodocs blocks.
-        """)
+        print(
+            b,
+            """
+   These are docstrings in the checked modules (configured with the modules keyword)
+   that are not included in canonical @docs or @autodocs blocks.
+   """
+        )
         @docerror(doc, :missing_docs, String(take!(b)))
     end
     return n
@@ -48,13 +51,17 @@ function missingbindings(doc::Document)
         # module bindings that come from Docs.meta() always appear to be of the form
         # Docs.Binding(Mod.SubMod, :SubMod) (since Julia 0.7). We therefore "normalize"
         # module bindings before we search in the list returned by allbindings().
-        binding = if DocSystem.defined(object.binding) && !DocSystem.iskeyword(object.binding)
-            m = DocSystem.resolve(object.binding)
-            isa(m, Module) && nameof(object.binding.mod) != object.binding.var ?
-                Docs.Binding(m, nameof(m)) : object.binding
-        else
-            object.binding
-        end
+        binding =
+            if DocSystem.defined(object.binding) && !DocSystem.iskeyword(object.binding)
+                m = DocSystem.resolve(object.binding)
+                if isa(m, Module) && nameof(object.binding.mod) != object.binding.var
+                    Docs.Binding(m, nameof(m))
+                else
+                    object.binding
+                end
+            else
+                object.binding
+            end
         if haskey(bindings, binding)
             signatures = bindings[binding]
             if object.signature ≡ Union{} || length(signatures) ≡ 1
@@ -68,14 +75,14 @@ function missingbindings(doc::Document)
 end
 
 function allbindings(checkdocs::Symbol, mods)
-    out = Dict{Binding, Set{Type}}()
+    out = Dict{Binding,Set{Type}}()
     for m in mods
         allbindings(checkdocs, m, out)
     end
     out
 end
 
-function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Type}}())
+function allbindings(checkdocs::Symbol, mod::Module, out=Dict{Binding,Set{Type}}())
     for (binding, doc) in meta(mod)
         # The keys of the docs meta dictionary should always be Docs.Binding objects in
         # practice. However, the key type is Any, so it is theoretically possible that
@@ -117,9 +124,9 @@ function footnotes(doc::Document)
     #
     # For all ids the final result should be `(N, 1)` where `N > 1`, i.e. one or more
     # footnote references and a single footnote body.
-    footnotes = Dict{Page, Dict{String, Tuple{Int, Int}}}()
+    footnotes = Dict{Page,Dict{String,Tuple{Int,Int}}}()
     for (src, page) in doc.blueprint.pages
-        orphans = Dict{String, Tuple{Int, Int}}()
+        orphans = Dict{String,Tuple{Int,Int}}()
         for node in AbstractTrees.PreOrderDFS(page.mdast)
             footnote(node.element, orphans)
         end
@@ -129,15 +136,27 @@ function footnotes(doc::Document)
         for (id, (ids, bodies)) in orphans
             # Multiple footnote bodies.
             if bodies > 1
-                @docerror(doc, :footnote, "footnote '$id' has $bodies bodies in $(locrepr(page.source)).")
+                @docerror(
+                    doc,
+                    :footnote,
+                    "footnote '$id' has $bodies bodies in $(locrepr(page.source))."
+                )
             end
             # No footnote references for an id.
             if ids === 0
-                @docerror(doc, :footnote, "unused footnote named '$id' in $(locrepr(page.source)).")
+                @docerror(
+                    doc,
+                    :footnote,
+                    "unused footnote named '$id' in $(locrepr(page.source))."
+                )
             end
             # No footnote bodies for an id.
             if bodies === 0
-                @docerror(doc, :footnote, "no footnotes found for '$id' in $(locrepr(page.source)).")
+                @docerror(
+                    doc,
+                    :footnote,
+                    "no footnotes found for '$id' in $(locrepr(page.source))."
+                )
             end
         end
     end
@@ -158,7 +177,13 @@ footnote(other, orphans::Dict) = true
 # Link Checks.
 # ------------
 
-hascurl() = (try; success(`curl --version`); catch err; false; end)
+hascurl() = (
+    try
+        success(`curl --version`)
+    catch err
+        false
+    end
+)
 
 """
 $(SIGNATURES)
@@ -184,14 +209,23 @@ function linkcheck(mdast::MarkdownAST.Node, doc::Document)
     end
 end
 
-function linkcheck(node::MarkdownAST.Node, element::MarkdownAST.AbstractElement, doc::Document)
+function linkcheck(
+    node::MarkdownAST.Node,
+    element::MarkdownAST.AbstractElement,
+    doc::Document
+)
     # The linkcheck is only active for specific `element` types
     # (`MarkdownAST.Link`, most importantly), which are defined below as more
     # specific methods
     return nothing
 end
 
-function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document; method::Symbol=:HEAD)
+function linkcheck(
+    node::MarkdownAST.Node,
+    link::MarkdownAST.Link,
+    doc::Document;
+    method::Symbol=:HEAD
+)
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
@@ -212,12 +246,16 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
         # Mozilla developer docs, but only is it's a HTTP(S) request.
         #
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
-        fakebrowser  = startswith(uppercase(link.destination), "HTTP") ? [
+        fakebrowser = if startswith(uppercase(link.destination), "HTTP")
+            [
             "--user-agent",
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
             "-H",
             "accept-encoding: gzip, deflate, br",
-        ] : ""
+        ]
+        else
+            ""
+        end
         cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(link.destination) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result
@@ -234,11 +272,16 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
             status, scheme, location = matched.captures
             status = parse(Int, status)
             scheme = uppercase(scheme)
-            protocol = startswith(scheme, "HTTP") ? :HTTP :
-                startswith(scheme, "FTP") ? :FTP : :UNKNOWN
+            protocol = if startswith(scheme, "HTTP")
+                :HTTP
+            elseif startswith(scheme, "FTP")
+                :FTP
+            else
+                :UNKNOWN
+            end
 
             if (protocol === :HTTP && (status < 300 || status == 302)) ||
-                (protocol === :FTP && (200 <= status < 300 || status == 350))
+               (protocol === :FTP && (200 <= status < 300 || status == 350))
                 if location !== nothing
                     @debug "linkcheck '$(link.destination)' status: $(status), redirects to '$(location)'"
                 else
@@ -255,7 +298,11 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
                 @debug "linkcheck '$(link.destination)' status: $(status), retrying without `-I`"
                 return linkcheck(node, link, doc; method=:GET)
             else
-                @docerror(doc, :linkcheck, "linkcheck '$(link.destination)' status: $(status).")
+                @docerror(
+                    doc,
+                    :linkcheck,
+                    "linkcheck '$(link.destination)' status: $(status)."
+                )
             end
         else
             @docerror(doc, :linkcheck, "invalid result returned by $cmd:", result)
@@ -305,7 +352,9 @@ function tag(repo, tag_ref)
         if status == 404
             return nothing
         elseif status != 200
-            error("Unexpected error code $(status) '$(repo)' while getting tag '$(tag_ref)'.")
+            error(
+                "Unexpected error code $(status) '$(repo)' while getting tag '$(tag_ref)'."
+            )
         end
     end
     return result
@@ -314,7 +363,9 @@ end
 function gitcommit(repo, commit_tag)
     status, result = gh_get_json("/repos/$(repo)/git/commits/$(commit_tag)")
     if status != 200
-        error("Unexpected error code $(status) '$(repo)' while getting commit '$(commit_tag)'.")
+        error(
+            "Unexpected error code $(status) '$(repo)' while getting commit '$(commit_tag)'."
+        )
     end
     return result
 end
@@ -362,11 +413,19 @@ function githubcheck(doc::Document)
         tag_guess = remote_repo.commit
         tag_ref = tag(repo, tag_guess)
         if tag_ref === nothing
-            @docerror(doc, :linkcheck_remotes, "linkcheck (remote) '$(repo)' error while getting tag '$(tag_guess)'. $(GITHUB_ERROR_ADVICE)")
+            @docerror(
+                doc,
+                :linkcheck_remotes,
+                "linkcheck (remote) '$(repo)' error while getting tag '$(tag_guess)'. $(GITHUB_ERROR_ADVICE)"
+            )
             return
         end
         if tag_ref["object"]["type"] != "commit"
-            @docerror(doc, :linkcheck_remotes, "linkcheck (remote) '$(repo)' tag '$(tag_guess)' does not point to a commit. $(GITHUB_ERROR_ADVICE)")
+            @docerror(
+                doc,
+                :linkcheck_remotes,
+                "linkcheck (remote) '$(repo)' tag '$(tag_guess)' does not point to a commit. $(GITHUB_ERROR_ADVICE)"
+            )
             return
         end
         commit_sha = tag_ref["object"]["sha"]

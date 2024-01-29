@@ -5,32 +5,28 @@ using Test
 import Documenter: Documenter, Builder, NavNode
 
 mutable struct FakeDocumentBlueprint
-    pages   :: Dict{String, Nothing}
+    pages::Dict{String,Nothing}
     FakeDocumentBlueprint() = new(Dict())
 end
 mutable struct FakeDocumentInternal
-    navlist :: Vector{NavNode}
+    navlist::Vector{NavNode}
     FakeDocumentInternal() = new([])
 end
 mutable struct FakeDocument
-    internal  :: FakeDocumentInternal
-    blueprint :: FakeDocumentBlueprint
+    internal::FakeDocumentInternal
+    blueprint::FakeDocumentBlueprint
     FakeDocument() = new(FakeDocumentInternal(), FakeDocumentBlueprint())
 end
 
 @testset "NavNode" begin
-    @test fieldtype(FakeDocumentInternal, :navlist) == fieldtype(Documenter.Internal, :navlist)
+    @test fieldtype(FakeDocumentInternal, :navlist) ==
+          fieldtype(Documenter.Internal, :navlist)
 
     pages = [
         "page1.md",
         "Page2" => "page2.md",
-        "Section" => [
-            "page3.md",
-            "Page4" => "page4.md",
-            "Subsection" => [
-                "page5.md",
-            ],
-        ],
+        "Section" =>
+            ["page3.md", "Page4" => "page4.md", "Subsection" => ["page5.md",],],
         "page6.md",
     ]
     doc = FakeDocument()
@@ -39,7 +35,7 @@ end
     navlist = doc.internal.navlist
 
     @test length(navlist) == 6
-    for (i,navnode) in enumerate(navlist)
+    for (i, navnode) in enumerate(navlist)
         @test navnode.page == "page$i.md"
     end
 

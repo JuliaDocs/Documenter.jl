@@ -99,7 +99,12 @@ function repofile(remote::Remote, ref, filename, linerange=nothing)
     filename = lstrip(filename, '/') # remove leading spaces
     # Only pass UnitRanges to user code (even though we require the users to support any
     # collection supporting first/last).
-    fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
+    fileurl(
+        remote,
+        ref,
+        filename,
+        isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange))
+    )
 end
 
 """
@@ -119,8 +124,8 @@ The single-argument constructor assumes that the user and repository parts are s
 a slash (e.g. `JuliaDocs/Documenter.jl`).
 """
 struct GitHub <: Remote
-    user :: String
-    repo :: String
+    user::String
+    repo::String
 end
 function GitHub(remote::AbstractString)
     user, repo = split(remote, '/')
@@ -155,9 +160,9 @@ repository parts are separated by a slash (e.g.,
 `JuliaDocs/Documenter.jl`).
 """
 struct GitLab <: Remote
-    host :: String
-    user :: String
-    repo :: String
+    host::String
+    user::String
+    repo::String
 end
 GitLab(user::AbstractString, repo::AbstractString) = GitLab("gitlab.com", user, repo)
 function GitLab(remote::AbstractString)
@@ -208,14 +213,15 @@ However, an explicit [`Remote`](@ref) object is preferred over using a template 
 configuring Documenter.
 """
 struct URL <: Remote
-    urltemplate :: String
-    repourl :: Union{String, Nothing}
+    urltemplate::String
+    repourl::Union{String,Nothing}
     URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
 function fileurl(remote::URL, ref, filename, linerange)
     hosttype = repo_host_from_url(remote.urltemplate)
-    lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
+    lines =
+        (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
     ref = format_commit(ref, hosttype)
     # lines = if linerange !== nothing
     # end

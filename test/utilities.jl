@@ -2,37 +2,38 @@ module UtilitiesTests
 using Test
 using Logging: Info
 import Base64: stringmime
-include("TestUtilities.jl"); using Main.TestUtilities
+include("TestUtilities.jl")
+using Main.TestUtilities
 
 import Documenter
 using Documenter: git
 import Markdown, MarkdownAST
 
 module UnitTests
-    module SubModule end
+module SubModule end
 
-    # Does `submodules` collect *all* the submodules?
-    module A
-        module B
-            module C
-                module D end
-            end
-        end
-    end
+# Does `submodules` collect *all* the submodules?
+module A
+module B
+module C
+module D end
+end
+end
+end
 
-    mutable struct T end
-    mutable struct S{T} end
+mutable struct T end
+mutable struct S{T} end
 
-    "Documenter unit tests."
-    Base.length(::T) = 1
+"Documenter unit tests."
+Base.length(::T) = 1
 
-    f(x) = x
+f(x) = x
 
-    const pi = 3.0
+const pi = 3.0
 
-    const TA = Vector{UInt128}
-    const TB = Array{T, 8} where T
-    const TC = Union{Int64, Float64, String}
+const TA = Vector{UInt128}
+const TB = Array{T,8} where {T}
+const TC = Union{Int64,Float64,String}
 end
 
 module OuterModule
@@ -47,9 +48,9 @@ module ModuleWithAliases
 using ..ExternalModule
 Y = ExternalModule
 module A
-    module B
-    const X = Main
-    end
+module B
+const X = Main
+end
 end
 end
 
@@ -84,7 +85,8 @@ end
     @test OuterModule in Documenter.submodules(OuterModule)
     @test OuterModule.InnerModule in Documenter.submodules(OuterModule)
     @test length(Documenter.submodules(OuterModule)) == 2
-    @test Documenter.submodules(ModuleWithAliases) == Set([ModuleWithAliases, ModuleWithAliases.A, ModuleWithAliases.A.B])
+    @test Documenter.submodules(ModuleWithAliases) ==
+          Set([ModuleWithAliases, ModuleWithAliases.A, ModuleWithAliases.A.B])
 
     @test Documenter.isabsurl("file.md") === false
     @test Documenter.isabsurl("../file.md") === false
@@ -104,14 +106,22 @@ end
     @test Documenter.doccat(UnitTests.TC) == "Type"
 
     # repo type
-    @test Documenter.repo_host_from_url("https://bitbucket.org/somerepo") == Documenter.RepoBitbucket
-    @test Documenter.repo_host_from_url("https://www.bitbucket.org/somerepo") == Documenter.RepoBitbucket
-    @test Documenter.repo_host_from_url("http://bitbucket.org/somethingelse") == Documenter.RepoBitbucket
-    @test Documenter.repo_host_from_url("http://github.com/Whatever") == Documenter.RepoGithub
-    @test Documenter.repo_host_from_url("https://github.com/Whatever") == Documenter.RepoGithub
-    @test Documenter.repo_host_from_url("https://www.github.com/Whatever") == Documenter.RepoGithub
-    @test Documenter.repo_host_from_url("https://gitlab.com/Whatever") == Documenter.RepoGitlab
-    @test Documenter.repo_host_from_url("https://dev.azure.com/Whatever") == Documenter.RepoAzureDevOps
+    @test Documenter.repo_host_from_url("https://bitbucket.org/somerepo") ==
+          Documenter.RepoBitbucket
+    @test Documenter.repo_host_from_url("https://www.bitbucket.org/somerepo") ==
+          Documenter.RepoBitbucket
+    @test Documenter.repo_host_from_url("http://bitbucket.org/somethingelse") ==
+          Documenter.RepoBitbucket
+    @test Documenter.repo_host_from_url("http://github.com/Whatever") ==
+          Documenter.RepoGithub
+    @test Documenter.repo_host_from_url("https://github.com/Whatever") ==
+          Documenter.RepoGithub
+    @test Documenter.repo_host_from_url("https://www.github.com/Whatever") ==
+          Documenter.RepoGithub
+    @test Documenter.repo_host_from_url("https://gitlab.com/Whatever") ==
+          Documenter.RepoGitlab
+    @test Documenter.repo_host_from_url("https://dev.azure.com/Whatever") ==
+          Documenter.RepoAzureDevOps
 
     # line range
     let formatting = Documenter.LineRangeFormatting(Documenter.RepoGithub)
@@ -145,13 +155,25 @@ end
     @test Documenter.linerange(Core.svec(), 0) === 0:0
 
     # commit format
-    @test Documenter.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.RepoGithub) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.format_commit(
+        "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a",
+        Documenter.RepoGithub
+    ) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
     @test Documenter.format_commit("test", Documenter.RepoGithub) == "test"
-    @test Documenter.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.RepoGitlab) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.format_commit(
+        "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a",
+        Documenter.RepoGitlab
+    ) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
     @test Documenter.format_commit("test", Documenter.RepoGitlab) == "test"
-    @test Documenter.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.RepoBitbucket) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.format_commit(
+        "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a",
+        Documenter.RepoBitbucket
+    ) == "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
     @test Documenter.format_commit("test", Documenter.RepoBitbucket) == "test"
-    @test Documenter.format_commit("7467441e33e2bd586fb0ec80ed4c4cdef5068f6a", Documenter.RepoAzureDevOps) == "GC7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
+    @test Documenter.format_commit(
+        "7467441e33e2bd586fb0ec80ed4c4cdef5068f6a",
+        Documenter.RepoAzureDevOps
+    ) == "GC7467441e33e2bd586fb0ec80ed4c4cdef5068f6a"
     @test Documenter.format_commit("test", Documenter.RepoAzureDevOps) == "GBtest"
 
     # URL building
@@ -163,7 +185,8 @@ end
     end
 
     repo_root(filepath) = Documenter.find_root_parent(Documenter.is_git_repo_root, filepath)
-    repo_root(filepath, dbdir) = Documenter.find_root_parent(d -> Documenter.is_git_repo_root(d; dbdir), filepath)
+    repo_root(filepath, dbdir) =
+        Documenter.find_root_parent(d -> Documenter.is_git_repo_root(d; dbdir), filepath)
 
     @quietly @testset "repo_commit" begin
         mktempdir() do path
@@ -178,7 +201,9 @@ end
                 @test trun(`$(git()) commit -m 1234`)
                 @test Documenter.repo_commit(path) isa AbstractString
                 mkdir("bar")
-                @test_throws Documenter.RepoCommitError Documenter.repo_commit(joinpath(path, "bar"))
+                @test_throws Documenter.RepoCommitError Documenter.repo_commit(
+                    joinpath(path, "bar")
+                )
             end
         end
     end
@@ -192,7 +217,9 @@ end
             @test trun(`$(git()) init`)
             @test trun(`$(git()) config user.email "tester@example.com"`)
             @test trun(`$(git()) config user.name "Test Committer"`)
-            @test trun(`$(git()) remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
+            @test trun(
+                `$(git()) remote add origin git@github.com:JuliaDocs/Documenter.jl.git`
+            )
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             write(filepath, "X")
@@ -203,10 +230,12 @@ end
             commit = Documenter.repo_commit(path_repo)
             doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.edit_url(doc, filepath; rev=nothing) ==
+                  "//blob/$(commit)/src/SourceFile.jl#"
             # The '//blob/..' remote conflicts with the github.com origin.url of the repository and source_url()
             # picks the wrong remote currently ()
-            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) ==
+                  "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test repo_root(filepath) == realpath(joinpath(dirname(filepath), ".."))
@@ -231,8 +260,10 @@ end
             commit = Documenter.repo_commit(path_worktree)
             doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
 
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.edit_url(doc, filepath; rev=nothing) ==
+                  "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) ==
+                  "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test repo_root(filepath) == realpath(joinpath(dirname(filepath), ".."))
@@ -260,7 +291,9 @@ end
             # protocol.file.allow=always is necessary to work around a changed default
             # setting that was changed due to a security flaw.
             # See: https://bugs.launchpad.net/ubuntu/+source/git/+bug/1993586
-            @test trun(`$(git()) -c protocol.file.allow=always submodule add $(path_repo) repository`)
+            @test trun(
+                `$(git()) -c protocol.file.allow=always submodule add $(path_repo) repository`
+            )
             @test trun(`$(git()) add -A`)
             @test trun(`$(git()) commit -m"Initial commit."`)
         end
@@ -274,8 +307,10 @@ end
 
             @test isfile(filepath)
 
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.edit_url(doc, filepath; rev=nothing) ==
+                  "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) ==
+                  "//blob/$(commit)/src/SourceFile.jl#L10-L20"
 
             # repo_root & relpath_from_repo_root
             @test repo_root(filepath) == realpath(joinpath(dirname(filepath), ".."))
@@ -298,7 +333,9 @@ end
             @test trun(`$(git()) init`)
             @test trun(`$(git()) config user.email "tester@example.com"`)
             @test trun(`$(git()) config user.name "Test Committer"`)
-            @test trun(`$(git()) remote add origin git@this-is-not-github.com:JuliaDocs/Documenter.jl.git`)
+            @test trun(
+                `$(git()) remote add origin git@this-is-not-github.com:JuliaDocs/Documenter.jl.git`
+            )
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
             write(filepath, "X")
@@ -308,13 +345,24 @@ end
             # Run tests
             commit = Documenter.repo_commit(path_repo_github)
             doc = Documenter.Document(root=pwd(), remotes=Dict(pwd() => remote))
-            @test Documenter.edit_url(doc, filepath; rev=nothing) == "//blob/$(commit)/src/SourceFile.jl#"
-            @test Documenter.source_url(doc, Documenter, filepath, 10:20) == "//blob/$(commit)/src/SourceFile.jl#L10-L20"
+            @test Documenter.edit_url(doc, filepath; rev=nothing) ==
+                  "//blob/$(commit)/src/SourceFile.jl#"
+            @test Documenter.source_url(doc, Documenter, filepath, 10:20) ==
+                  "//blob/$(commit)/src/SourceFile.jl#L10-L20"
         end
     end
 
     import Documenter: Document, Page, Globals
-    let page = Page("source", "build", :build, [], Globals(), MarkdownAST.@ast MarkdownAST.Document()), doc = Document()
+    let page = Page(
+            "source",
+            "build",
+            :build,
+            [],
+            Globals(),
+            MarkdownAST.@ast MarkdownAST.Document()
+        ),
+        doc = Document()
+
         code = """
         x += 3
         γγγ_γγγ
@@ -368,9 +416,12 @@ end
     end
 
     @testset "PR #1634, issue #1655" begin
-        let parse(x) = Documenter.parseblock(x, nothing, nothing;
-                           linenumbernode=LineNumberNode(123, "testfile.jl")
-                       )
+        let parse(x) = Documenter.parseblock(
+                x,
+                nothing,
+                nothing;
+                linenumbernode=LineNumberNode(123, "testfile.jl")
+            )
             code = """
             1 + 1
             2 + 2
@@ -424,33 +475,29 @@ end
 
         @test_throws ArgumentError mdparse("", mode=:foo)
 
-        @test mdparse("") == [
-            MarkdownAST.@ast MarkdownAST.Paragraph() do
-                ""
-            end
-        ]
-        @test mdparse("foo bar") == [
-            MarkdownAST.@ast MarkdownAST.Paragraph() do
-                "foo bar"
-            end
-        ]
-        @test mdparse("", mode=:span) == [
-            MarkdownAST.@ast(MarkdownAST.Text(""))
-        ]
+        @test mdparse("") == [MarkdownAST.@ast MarkdownAST.Paragraph() do
+            ""
+        end]
+        @test mdparse("foo bar") == [MarkdownAST.@ast MarkdownAST.Paragraph() do
+            "foo bar"
+        end]
+        @test mdparse("", mode=:span) == [MarkdownAST.@ast(MarkdownAST.Text(""))]
         @test mdparse("", mode=:blocks) == []
 
         # Note: Markdown.parse() does not put any child nodes into adminition.contents
         # unless there is something non-empty there, which in turn means that the
         # MarkdownAST Admonition node has no children.
-        @test mdparse("!!! adm"; mode=:single) == [
-            MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
-        ]
-        @test mdparse("!!! adm"; mode=:blocks) == [
-            MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")
-        ]
+        @test mdparse("!!! adm"; mode=:single) ==
+              [MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")]
+        @test mdparse("!!! adm"; mode=:blocks) ==
+              [MarkdownAST.@ast MarkdownAST.Admonition("adm", "Adm")]
         @test mdparse("x\n\ny", mode=:blocks) == [
-            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "x"; end),
-            MarkdownAST.@ast(MarkdownAST.Paragraph() do; "y"; end),
+            MarkdownAST.@ast(MarkdownAST.Paragraph() do
+                "x"
+            end),
+            MarkdownAST.@ast(MarkdownAST.Paragraph() do
+                "y"
+            end),
         ]
 
         @quietly begin
@@ -465,7 +512,7 @@ end
             RemoteLibrary, Snippet, RequireJS, verify, writejs, parse_snippet
         libraries = [
             RemoteLibrary("foo", "example.com/foo"),
-            RemoteLibrary("bar", "example.com/bar"; deps = ["foo"]),
+            RemoteLibrary("bar", "example.com/bar"; deps=["foo"]),
         ]
         snippet = Snippet(["foo", "bar"], ["Foo"], "f(x)")
         let r = RequireJS(libraries)
@@ -510,7 +557,7 @@ end
         # Error conditions: missing dependency
         let r = RequireJS([
                 RemoteLibrary("foo", "example.com/foo"),
-                RemoteLibrary("bar", "example.com/bar"; deps = ["foo", "baz"]),
+                RemoteLibrary("bar", "example.com/bar"; deps=["foo", "baz"]),
             ])
             @test !verify(r)
             push!(r, RemoteLibrary("baz", "example.com/baz"))
@@ -560,9 +607,7 @@ end
         end
 
         # Proper escaping of generated JS
-        let r = RequireJS([
-                RemoteLibrary("fo\'o", "example.com\n/foo"),
-            ])
+        let r = RequireJS([RemoteLibrary("fo\'o", "example.com\n/foo"),])
             @test verify(r)
             push!(r, Snippet(["fo\'o"], ["Foo"], "f(x)"))
             output = let io = IOBuffer()
@@ -594,7 +639,8 @@ end
     @testset "check_strict_kw" begin
         @test Documenter.reduce_warnonly(:setup_block) == [:setup_block]
         @test Documenter.reduce_warnonly(:doctest) == [:doctest]
-        @test Documenter.reduce_warnonly([:doctest, :setup_block]) == [:doctest, :setup_block]
+        @test Documenter.reduce_warnonly([:doctest, :setup_block]) ==
+              [:doctest, :setup_block]
         @test Documenter.reduce_warnonly([]) == Symbol[]
         @test Documenter.reduce_warnonly(false) == Symbol[]
         @test Documenter.reduce_warnonly(true) == Documenter.ERROR_NAMES
@@ -603,24 +649,24 @@ end
     end
 
     @testset "warnonly" begin
-        @test_throws ArgumentError Documenter.Document(; warnonly = :a)
-        @test_throws ArgumentError Documenter.Document(; warnonly = [:a, :b])
-        let doc = Documenter.Document(; warnonly = false)
+        @test_throws ArgumentError Documenter.Document(; warnonly=:a)
+        @test_throws ArgumentError Documenter.Document(; warnonly=[:a, :b])
+        let doc = Documenter.Document(; warnonly=false)
             @test Documenter.is_strict(doc, :doctest)
             @test Documenter.is_strict(doc, :setup_block)
             @test_throws ArgumentError Documenter.is_strict(doc, :a)
         end
-        let doc = Documenter.Document(; warnonly = true)
+        let doc = Documenter.Document(; warnonly=true)
             @test !Documenter.is_strict(doc, :doctest)
             @test !Documenter.is_strict(doc, :setup_block)
             @test_throws ArgumentError Documenter.is_strict(doc, :a)
         end
-        let doc = Documenter.Document(; warnonly = :doctest)
+        let doc = Documenter.Document(; warnonly=:doctest)
             @test !Documenter.is_strict(doc, :doctest)
             @test Documenter.is_strict(doc, :setup_block)
             @test_throws ArgumentError Documenter.is_strict(doc, :a)
         end
-        let doc = Documenter.Document(; warnonly = [:doctest])
+        let doc = Documenter.Document(; warnonly=[:doctest])
             @test !Documenter.is_strict(doc, :doctest)
             @test Documenter.is_strict(doc, :setup_block)
             @test_throws ArgumentError Documenter.is_strict(doc, :a)
@@ -628,11 +674,19 @@ end
     end
 
     @testset "@docerror" begin
-        doc = Documenter.Document(; warnonly = [:meta_block, :setup_block])
+        doc = Documenter.Document(; warnonly=[:meta_block, :setup_block])
         foo = 123
-        @test_logs (:warn, "meta_block issue 123") (Documenter.@docerror(doc, :meta_block, "meta_block issue $foo"))
+        @test_logs (:warn, "meta_block issue 123") (Documenter.@docerror(
+            doc,
+            :meta_block,
+            "meta_block issue $foo"
+        ))
         @test :meta_block ∈ doc.internal.errors
-        @test_logs (:error, "doctest issue 123") (Documenter.@docerror(doc, :doctest, "doctest issue $foo"))
+        @test_logs (:error, "doctest issue 123") (Documenter.@docerror(
+            doc,
+            :doctest,
+            "doctest issue $foo"
+        ))
         @test :doctest ∈ doc.internal.errors
         try
             @macroexpand Documenter.@docerror(doc, :foo, "invalid tag")
@@ -646,24 +700,31 @@ end
 
     @testset "git_remote_head_branch" begin
 
-        function git_create_bare_repo(path; head = nothing)
+        function git_create_bare_repo(path; head=nothing)
             mkdir(path)
             @test trun(`$(git()) -C $(path) init --bare`)
             @test isfile(joinpath(path, "HEAD"))
             if head !== nothing
-                write(joinpath(path, "HEAD"), """
-                ref: refs/heads/$(head)
-                """)
+                write(
+                    joinpath(path, "HEAD"),
+                    """
+ref: refs/heads/$(head)
+"""
+                )
             end
             mktempdir() do subdir_path
                 # We need to commit something to the non-standard branch to actually
                 # "activate" the non-standard HEAD:
                 head = (head === nothing) ? "master" : head
                 @test trun(`$(git()) clone $(path) $(subdir_path)`)
-                @test trun(`$(git()) -C $(subdir_path) config user.email "tester@example.com"`)
+                @test trun(
+                    `$(git()) -C $(subdir_path) config user.email "tester@example.com"`
+                )
                 @test trun(`$(git()) -C $(subdir_path) config user.name "Test Committer"`)
                 @test trun(`$(git()) -C $(subdir_path) checkout -b $(head)`)
-                @test trun(`$(git()) -C $(subdir_path) commit --allow-empty -m"initial empty commit"`)
+                @test trun(
+                    `$(git()) -C $(subdir_path) commit --allow-empty -m"initial empty commit"`
+                )
                 @test trun(`$(git()) -C $(subdir_path) push --set-upstream origin $(head)`)
             end
         end
@@ -673,11 +734,18 @@ end
                 # Note: running @test_logs with match_mode=:any here so that the tests would
                 # also pass when e.g. JULIA_DEBUG=Documenter when the tests are being run.
                 # If there is no parent remote repository, we should get a warning and the fallback value:
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd())) == "master"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(
+                    ".",
+                    pwd();
+                    fallback="fallback"
+                )) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(
+                    ".",
+                    pwd()
+                )) == "master"
                 # We'll set up two "remote" bare repositories with non-standard HEADs:
-                git_create_bare_repo("barerepo", head = "maindevbranch")
-                git_create_bare_repo("barerepo_other", head = "main")
+                git_create_bare_repo("barerepo", head="maindevbranch")
+                git_create_bare_repo("barerepo_other", head="main")
                 # Clone barerepo and test git_remote_head_branch:
                 @test trun(`$(git()) clone barerepo/ local/`)
                 @test Documenter.git_remote_head_branch(".", "local") == "maindevbranch"
@@ -685,10 +753,20 @@ end
                 @test trun(`$(git()) -C local/ remote add other ../barerepo_other/`)
                 @test trun(`$(git()) -C local/ fetch other`)
                 @test Documenter.git_remote_head_branch(".", "local") == "maindevbranch"
-                @test Documenter.git_remote_head_branch(".", "local"; remotename = "other") == "main"
+                @test Documenter.git_remote_head_branch(".", "local"; remotename="other") ==
+                      "main"
                 # Asking for a nonsense remote should also warn and drop back to fallback:
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense", fallback = "fallback")) == "fallback"
-                @test (@test_logs (:warn,) match_mode=:any Documenter.git_remote_head_branch(".", pwd(); remotename = "nonsense")) == "master"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(
+                    ".",
+                    pwd();
+                    remotename="nonsense",
+                    fallback="fallback"
+                )) == "fallback"
+                @test (@test_logs (:warn,) match_mode = :any Documenter.git_remote_head_branch(
+                    ".",
+                    pwd();
+                    remotename="nonsense"
+                )) == "master"
             end
         end
     end
@@ -697,14 +775,14 @@ end
     @testset "remove_common_backtrace" begin
         @test remove_common_backtrace([], []) == []
         @test remove_common_backtrace([1], []) == [1]
-        @test remove_common_backtrace([1,2], []) == [1,2]
-        @test remove_common_backtrace([1,2,3], [1]) == [1,2,3]
-        @test remove_common_backtrace([1,2,3], [2]) == [1,2,3]
-        @test remove_common_backtrace([1,2,3], [3]) == [1,2]
-        @test remove_common_backtrace([1,2,3], [2,3]) == [1]
-        @test remove_common_backtrace([1,2,3], [1,3]) == [1,2]
-        @test remove_common_backtrace([1,2,3], [1,2,3]) == []
-        @test remove_common_backtrace([1,2,3], [0,1,2,3]) == []
+        @test remove_common_backtrace([1, 2], []) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [1]) == [1, 2, 3]
+        @test remove_common_backtrace([1, 2, 3], [2]) == [1, 2, 3]
+        @test remove_common_backtrace([1, 2, 3], [3]) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [2, 3]) == [1]
+        @test remove_common_backtrace([1, 2, 3], [1, 3]) == [1, 2]
+        @test remove_common_backtrace([1, 2, 3], [1, 2, 3]) == []
+        @test remove_common_backtrace([1, 2, 3], [0, 1, 2, 3]) == []
     end
 
     @testset "slugify" begin
