@@ -18,7 +18,7 @@ For package documentation, the standard approach is to install Documenter into a
 To do this, navigate to your package's root folder and do
 
 ```
-pkg> activate docs
+pkg> activate docs/
 
 (docs) pkg> add Documenter
 ```
