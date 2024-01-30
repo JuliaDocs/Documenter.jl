@@ -14,9 +14,8 @@ From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 pkg> add Documenter
 ```
 
-It is generally recommended to install Documenter into a documentation-specific project stored
-in the `/docs` subdirectory of your package. To do this, navigate to your package's root folder
-and do
+For package documentation, the standard approach is to install Documenter into a documentation-specific project stored in the `docs/` subdirectory of your package.
+To do this, navigate to your package's root folder and do
 
 ```
 pkg> activate docs
