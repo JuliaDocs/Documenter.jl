@@ -23,7 +23,11 @@ pkg> activate docs/
 (docs) pkg> add Documenter
 ```
 
-This will create `Project.toml` and `Manifest.toml` files in the `/docs` subdirectory. 
+This will create `Project.toml` and `Manifest.toml` files in the `docs/` subdirectory. 
+
+Note that for packages, you also likely need to have your package that you are documenting as a  ["dev dependency"](https://pkgdocs.julialang.org/v1/managing-packages/#developing) of the `docs/` environment.
+
+See also [the Pkg.jl documentation on working with project environments](https://pkgdocs.julialang.org/v1/environments/).
 
 ## Setting up the Folder Structure
 
