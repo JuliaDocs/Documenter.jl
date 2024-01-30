@@ -66,8 +66,9 @@ update_search
 /////// SEARCH WORKER ///////
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
-
-  importScripts("https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js");
+  importScripts(
+    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
+  );
 
   let data = documenterSearchIndex.map((x, key) => {
     x["id"] = key; // minisearch requires a unique for each object
@@ -78,15 +79,111 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   // (all, any, get, in, is, only, which) and (do, else, for, let, where, while, with)
   // ideally we'd just filter the original list but it's not available as a variable
   const stopWords = new Set([
-    "a","able","about","across","after","almost","also","am","among","an","and",
-    "are","as","at","be","because","been","but","by","can","cannot","could","dear",
-    "did","does","either","ever","every","from","got","had","has","have","he","her",
-    "hers","him","his","how","however","i","if","into","it","its","just","least",
-    "like","likely","may","me","might","most","must","my","neither","no","nor",
-    "not","of","off","often","on","or","other","our","own","rather","said","say",
-    "says","she","should","since","so","some","than","that","the","their","them",
-    "then","there","these","they","this","tis","to","too","twas","us","wants","was",
-    "we","were","what","when","who","whom","why","will","would","yet","you","your",
+    "a",
+    "able",
+    "about",
+    "across",
+    "after",
+    "almost",
+    "also",
+    "am",
+    "among",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "because",
+    "been",
+    "but",
+    "by",
+    "can",
+    "cannot",
+    "could",
+    "dear",
+    "did",
+    "does",
+    "either",
+    "ever",
+    "every",
+    "from",
+    "got",
+    "had",
+    "has",
+    "have",
+    "he",
+    "her",
+    "hers",
+    "him",
+    "his",
+    "how",
+    "however",
+    "i",
+    "if",
+    "into",
+    "it",
+    "its",
+    "just",
+    "least",
+    "like",
+    "likely",
+    "may",
+    "me",
+    "might",
+    "most",
+    "must",
+    "my",
+    "neither",
+    "no",
+    "nor",
+    "not",
+    "of",
+    "off",
+    "often",
+    "on",
+    "or",
+    "other",
+    "our",
+    "own",
+    "rather",
+    "said",
+    "say",
+    "says",
+    "she",
+    "should",
+    "since",
+    "so",
+    "some",
+    "than",
+    "that",
+    "the",
+    "their",
+    "them",
+    "then",
+    "there",
+    "these",
+    "they",
+    "this",
+    "tis",
+    "to",
+    "too",
+    "twas",
+    "us",
+    "wants",
+    "was",
+    "we",
+    "were",
+    "what",
+    "when",
+    "who",
+    "whom",
+    "why",
+    "will",
+    "would",
+    "yet",
+    "you",
+    "your",
   ]);
 
   let index = new MiniSearch({
@@ -204,7 +301,9 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     // possible without knowing what the filters are.
     let filtered_results = [];
     let counts = {};
-    for (let filter of filters) {counts[filter] = 0;}
+    for (let filter of filters) {
+      counts[filter] = 0;
+    }
     let present = {};
 
     for (let result of results) {
@@ -212,22 +311,28 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       cnt = counts[cat];
       if (cnt < 200) {
         id = cat + "---" + result.location;
-        if (present[id]) {continue;}
+        if (present[id]) {
+          continue;
+        }
         present[id] = true;
         filtered_results.push({
-          location:result.location,
-          category:cat,
-          div:make_search_result(result, query)});
+          location: result.location,
+          category: cat,
+          div: make_search_result(result, query),
+        });
       }
-    };
+    }
 
     postMessage(filtered_results);
   };
 }
 
 // `worker = Threads.@spawn worker_function(documenterSearchIndex)`, but in JavaScript!
-const filters = [...new Set(documenterSearchIndex["docs"].map((x) => x.category))];
-const worker_str = "(" +
+const filters = [
+  ...new Set(documenterSearchIndex["docs"].map((x) => x.category)),
+];
+const worker_str =
+  "(" +
   worker_function.toString() +
   ")(" +
   JSON.stringify(documenterSearchIndex["docs"]) +
@@ -238,7 +343,6 @@ const worker_str = "(" +
   ")";
 const worker_blob = new Blob([worker_str], { type: "text/javascript" });
 const worker = new Worker(URL.createObjectURL(worker_blob));
-
 
 /////// SEARCH MAIN ///////
 const modal_filters = make_modal_body_filters(filters);
@@ -256,7 +360,9 @@ var last_search_text = "";
 var unfiltered_results = [];
 
 $(document).on("input", ".documenter-search-input", function (event) {
-  if (!worker_is_running) { launch_search(); }
+  if (!worker_is_running) {
+    launch_search();
+  }
 });
 
 function launch_search() {
@@ -274,7 +380,7 @@ worker.onmessage = function (e) {
 
   unfiltered_results = e.data;
   update_search();
-}
+};
 
 $(document).on("click", ".search-filter", function () {
   // Toggle classes (for UI & semantics)
@@ -291,7 +397,6 @@ $(document).on("click", ".search-filter", function () {
  * Make/Update the search component
  */
 function update_search() {
-
   let ele = $(".search-filters .search-filter-selected").get();
   let selected_filters = ele.map((x) => $(x).text().toLowerCase());
 
@@ -300,8 +405,7 @@ function update_search() {
   if (querystring.trim()) {
     if (selected_filters.length === 0) {
       results = unfiltered_results;
-    }
-    else {
+    } else {
       results = unfiltered_results.filter((result) => {
         return selected_filters.includes(result.category.toLowerCase());
       });
@@ -315,8 +419,8 @@ function update_search() {
       let count = 0;
       let search_results = "";
 
-      for (var i=0, n=results.length; i < n && count < 200; ++i ) {
-        let result = results[i]
+      for (var i = 0, n = results.length; i < n && count < 200; ++i) {
+        let result = results[i];
         if (result.location && !links.includes(result.location)) {
           search_results += result.div;
           count++;
@@ -325,11 +429,11 @@ function update_search() {
       }
 
       if (count == 1) {
-        count_str = "1 result"
+        count_str = "1 result";
       } else if (count == 200) {
-        count_str = "200+ results"
+        count_str = "200+ results";
       } else {
-        count_str = count + " results"
+        count_str = count + " results";
       }
       let result_count = `<div class="is-size-6">${count_str}</div>`;
 
@@ -377,9 +481,11 @@ function update_search() {
  * @returns string
  */
 function make_modal_body_filters(filters) {
-  let str = filters.map((val) => {
-    return `<a href="javascript:;" class="search-filter"><span>${val}</span></a>`;
-  }).join('');
+  let str = filters
+    .map((val) => {
+      return `<a href="javascript:;" class="search-filter"><span>${val}</span></a>`;
+    })
+    .join("");
 
   return `
         <div class="is-flex gap-2 is-flex-wrap-wrap is-justify-content-flex-start is-align-items-center search-filters">
