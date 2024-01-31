@@ -218,6 +218,7 @@ htmlbuild_pages = Any[
     "Manual" => [
         "man/tutorial.md",
         "man/style.md",
+        "man/page with space.md",
     ],
     hide("hidden.md"),
     "Library" => [
