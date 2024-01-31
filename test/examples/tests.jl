@@ -187,16 +187,11 @@ end
 
             # inventory
             @testset "inventory" begin
-                inventory_toml_gz = joinpath(build_dir, "inventory.toml.gz")
                 objects_inv = joinpath(build_dir, "objects.inv")
-                @test isfile(inventory_toml_gz)
                 @test isfile(objects_inv)
-                if isfile(objects_inv) && isfile(inventory_toml_gz)
-                    inv = Inventory(inventory_toml_gz; root_url="")
-                    inv2 = Inventory(objects_inv; root_url="")
+                if isfile(objects_inv)
+                    inv = Inventory(objects_inv; root_url="")
                     @test inv.project == "Documenter example"
-                    @test inv.project == inv2.project
-                    @test collect(inv) == collect(inv2)
                     if name == "html"
                         @test length(inv("Anonymous function declaration")) == 1
                         if length(inv("Anonymous function declaration")) == 1
