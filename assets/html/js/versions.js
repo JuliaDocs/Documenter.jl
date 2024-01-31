@@ -60,6 +60,6 @@ $(document).ready(function () {
 
   // only show the version selector if the selector has been populated
   if (version_selector_select.children("option").length > 0) {
-    version_selector.toggleClass("visible");
+    version_selector.addClass("visible");
   }
 });
