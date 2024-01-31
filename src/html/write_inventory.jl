@@ -72,6 +72,7 @@ function write_inventory(doc, ctx)
 end
 
 
+# URI for :std:label
 function _get_inventory_uri(doc, ctx, name::AbstractString, anchor::Documenter.Anchor)
     filename = relpath(anchor.file, doc.user.build)
     page_url = pretty_url(ctx, get_url(ctx, filename))
@@ -79,6 +80,7 @@ function _get_inventory_uri(doc, ctx, name::AbstractString, anchor::Documenter.A
         # https://github.com/JuliaDocs/Documenter.jl/issues/2387
         page_url = replace(page_url, "\\" => "/")
     end
+    page_url = join(map(_escapeuri, split(page_url, "/")), "/")
     label = _escapeuri(Documenter.anchor_label(anchor))
     if label == name
         uri = page_url * raw"#$"
@@ -89,16 +91,19 @@ function _get_inventory_uri(doc, ctx, name::AbstractString, anchor::Documenter.A
 end
 
 
+# URI for :std:doc
 function _get_inventory_uri(doc, ctx, navnode::Documenter.NavNode)
     uri = pretty_url(ctx, get_url(ctx, navnode.page))
     if Sys.iswindows()
         # https://github.com/JuliaDocs/Documenter.jl/issues/2387
         uri = replace(uri, "\\" => "/")
     end
+    uri = join(map(_escapeuri, split(uri, "/")), "/")
     return uri
 end
 
 
+# dispname for :std:label
 function _get_inventory_dispname(doc, ctx, name::AbstractString, anchor::Documenter.Anchor)
     dispname = mdflatten(anchor.node)
     if dispname == name
@@ -108,6 +113,7 @@ function _get_inventory_dispname(doc, ctx, name::AbstractString, anchor::Documen
 end
 
 
+# dispname for :std:doc
 function _get_inventory_dispname(doc, ctx, navnode::Documenter.NavNode)
     dispname = navnode.title_override
     if isnothing(dispname)

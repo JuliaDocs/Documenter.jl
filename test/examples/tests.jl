@@ -78,7 +78,7 @@ all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
     end
     mdfiles
 end
-@test length(all_md_files_in_src) == 27
+@test length(all_md_files_in_src) == 28
 
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
@@ -222,6 +222,14 @@ end
                             @test item.dispname == "X-ref target with id"
                             @test DocInventories.uri(item) == "xrefs/#xreftarget"
                         end
+                        item = inv[":std:label:`Markdown-files-with-spaces`"]
+                        @test !isnothing(item)
+                        if !isnothing(item)
+                            @test item.name == "Markdown-files-with-spaces"
+                            @test item.dispname == "Markdown files with spaces"
+                            @test item.uri == "man/page%20with%20space/#\$"
+                            @test DocInventories.uri(item) == "man/page%20with%20space/#Markdown-files-with-spaces"
+                        end
                         @test length(inv(":doc:`man/style`")) == 1
                         if length(inv(":doc:`man/style`")) == 1
                             item = inv(":doc:`man/style`")[1]
@@ -232,6 +240,14 @@ end
                             @test item.uri == "man/style/"
                             @test item.priority == -1
                             @test DocInventories.uri(item) == "man/style/"
+                        end
+                        item = inv[":std:doc:`man/page with space`"]
+                        @test !isnothing(item)
+                        if !isnothing(item)
+                            @test item.name == "man/page with space"
+                            @test item.dispname == "Markdown files with spaces"
+                            @test item.uri == "man/page%20with%20space/"
+                            @test DocInventories.uri(item) == "man/page%20with%20space/"
                         end
                         jl_roles = Set(item.role for item in inv if item.domain == "jl")
                         @test jl_roles == Set([
