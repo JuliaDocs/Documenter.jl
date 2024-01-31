@@ -1,30 +1,22 @@
 """
-Generate inventory files for the given [`Documenter.Document`](@ref) and [`HTMLContext`](@ref).
+Generate the `objects.inv` inventory file.
 
-Write the files `objects.inv` and `inventory.toml.gz` to the root of the HTML build
-folder. These contain an inventory of all linkable targets in the documentation (pages,
-headings, and docstrings).
+Write the file `objects.inv` to the root of the HTML build folder, containing an
+inventory of all linkable targets in the documentation (pages, headings, and docstrings).
 
-See [DocInventories](https://juliadocs.org/DocInventories.jl/stable/formats/)
-for a description of the file format. The inventory files can be used by
-[Intersphinx](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html)
+The `objects.inv` file is compatible with [Sphinx](https://www.sphinx-doc.org/en/master/index.html)
+See [DocInventories](https://juliadocs.org/DocInventories.jl/stable/formats/) for a
+description. The file can be used by [Intersphinx](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html)
 and the [DocumenterInterLinks](https://github.com/JuliaDocs/DocumenterInterLinks.jl/)
 plugin to link into the documentation from other projects.
 """
 function write_inventory(doc, ctx)
 
-    @info "Writing inventory files."
+    @info "Writing inventory file."
     project = doc.user.sitename
     version = ""  # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2385
 
     io_inv_header = open(joinpath(doc.user.build, "objects.inv"), "w")
-    _io_toml = open(joinpath(doc.user.build, "inventory.toml.gz"), "w")
-    io_toml = GzipCompressorStream(_io_toml)
-
-    write(io_toml, "# Documenter inventory version 1\"\n")
-    _write_toml_val(io_toml, "project", project)
-    # _write_toml_val(io_toml, "version", version)  # TODO (see above)
-    write(io_toml, "\n")
 
     write(io_inv_header, "# Sphinx inventory version 2\n")
     write(io_inv_header, "# Project: $project\n")
@@ -41,12 +33,7 @@ function write_inventory(doc, ctx)
         dispname = _get_inventory_dispname(doc, ctx, navnode)
         line = "$name $domain:$role $priority $uri $dispname\n"
         write(io_inv, line)
-        write(io_toml, "[[$domain.$role]]\n")
-        _write_toml_val(io_toml, "name", name)
-        _write_toml_val(io_toml, "uri", uri)
-        (dispname != "-") && _write_toml_val(io_toml, "dispname", dispname)
     end
-    write(io_toml, "\n")
 
     domain = "std"
     role = "label"
@@ -62,12 +49,7 @@ function write_inventory(doc, ctx)
         dispname = _get_inventory_dispname(doc, ctx, name, anchor)
         line = "$name $domain:$role $priority $uri $dispname\n"
         write(io_inv, line)
-        write(io_toml, "[[$domain.$role]]\n")
-        _write_toml_val(io_toml, "name", name)
-        _write_toml_val(io_toml, "uri", uri)
-        (dispname != "-") && _write_toml_val(io_toml, "dispname", dispname)
     end
-    write(io_toml, "\n")
 
     domain = "jl"
     priority = 1
@@ -82,56 +64,11 @@ function write_inventory(doc, ctx)
         dispname = "-"
         line = "$name $domain:$role $priority $uri $dispname\n"
         write(io_inv, line)
-        write(io_toml, "[[$domain.$role]]\n")
-        _write_toml_val(io_toml, "name", name)
-        _write_toml_val(io_toml, "uri", uri)
     end
 
     close(io_inv)
     close(io_inv_header)
-    close(io_toml)
-    close(_io_toml)
 
-end
-
-
-function _write_toml_val(io::IO, name::AbstractString, value::AbstractString)
-    # Cf. TOML.Internals.Printer.print_toml_escaped, but that's way too
-    # internal to just use.
-    write(io, name)
-    write(io, " = \"")
-    for c::AbstractChar in value
-        if !isvalid(c)
-            msg = "Invalid character $(repr(c)) encountered while writing TOML"
-            throw(ArgumentError(msg))
-        end
-        if c == '\b'
-            print(io, '\\', 'b')
-        elseif c == '\t'
-            print(io, '\\', 't')
-        elseif c == '\n'
-            print(io, '\\', 'n')
-        elseif c == '\f'
-            print(io, '\\', 'f')
-        elseif c == '\r'
-            print(io, '\\', 'r')
-        elseif c == '"'
-            print(io, '\\', '"')
-        elseif c == '\\'
-            print(io, "\\", '\\')
-        elseif iscntrl(c)
-            print(io, "\\u")
-            print(io, string(UInt32(c), base=16, pad=4))
-        else
-            print(io, c)
-        end
-    end
-    write(io, "\"\n")
-end
-
-
-function _write_toml_val(io::IO, name::AbstractString, value::Int64)
-    write(io, name, " = ", value, "\n")
 end
 
 
