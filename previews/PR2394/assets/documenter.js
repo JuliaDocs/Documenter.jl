@@ -233,14 +233,16 @@ $(document).ready(function () {
 ////////////////////////////////////////////////////////////////////////////////
 require(['jquery'], function($) {
 
-let meta = $("div[data-docstringscollapsed]").data();
+$(document).ready(function () {
+    let meta = $("div[data-docstringscollapsed]").data();
 
-if (meta.docstringscollapsed) {
-  $("#documenter-article-toggle-button").trigger({
-    type: "click",
-    noToggleAnimation: true,
-  });
-}
+    if (meta.docstringscollapsed) {
+        $("#documenter-article-toggle-button").trigger({
+            type: "click",
+            noToggleAnimation: true,
+        });
+    }
+});
 
 })
 ////////////////////////////////////////////////////////////////////////////////
@@ -378,6 +380,8 @@ let index = new minisearch({
       word = word
         .replace(/^[^a-zA-Z0-9@!]+/, "")
         .replace(/[^a-zA-Z0-9@!]+$/, "");
+
+      word = word.toLowerCase();
     }
 
     return word ?? null;
@@ -395,6 +399,8 @@ let index = new minisearch({
         word = word
           .replace(/^[^a-zA-Z0-9@!]+/, "")
           .replace(/[^a-zA-Z0-9@!]+$/, "");
+
+        word = word.toLowerCase();
       }
 
       return word ?? null;
