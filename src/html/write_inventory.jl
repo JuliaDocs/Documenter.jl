@@ -14,7 +14,8 @@ function write_inventory(doc, ctx)
 
     @info "Writing inventory file."
     project = doc.user.sitename
-    version = ""  # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2385
+    version = ctx.settings.inventory_version
+    # if `version` is empty, it will be patched during `deploydocs`
 
     io_inv_header = open(joinpath(doc.user.build, "objects.inv"), "w")
 
