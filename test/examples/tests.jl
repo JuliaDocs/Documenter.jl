@@ -192,6 +192,7 @@ end
                 if isfile(objects_inv)
                     inv = Inventory(objects_inv; root_url="")
                     @test inv.project == "Documenter example"
+                    @test inv.version == string(Documenter.DOCUMENTER_VERSION)
                     if name == "html"
                         @test length(inv("Anonymous function declaration")) == 1
                         if length(inv("Anonymous function declaration")) == 1

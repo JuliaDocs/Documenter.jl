@@ -54,7 +54,9 @@ to link to any other project with an inventory file, see
 The [format of the `objects.inv` file](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
 is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It consists
 of a plain text header that includes the project name, taken from the `sitename` argument
-to [`Documenter.makedocs`](@ref), and a project `version` (currently empty).
+to [`Documenter.makedocs`](@ref), and a project `version` obtained from the `Project.toml`
+file (in the current working directory or any parent directory).
+
 The bulk of the file is a list of plain text records, compressed with gzip. See
 [Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
 for details on these records.
@@ -64,6 +66,7 @@ module HTMLWriter
 using Dates: Dates, @dateformat_str, now
 import Markdown
 using MarkdownAST: MarkdownAST, Node
+using TOML
 import JSON
 import Base64
 import SHA
