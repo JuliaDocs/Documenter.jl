@@ -683,7 +683,7 @@ function latex(io::Context, node::Node, image::Documenter.LocalImage)
     wrapblock(io, "figure") do
         _println(io, "\\centering")
         wrapinline(io, "includegraphics[max width=\\linewidth]") do
-            _print(io, image.path)
+            _print(io, replace(image.path, "\\" => "/"))
         end
         _println(io)
         wrapinline(io, "caption") do
