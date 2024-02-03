@@ -14,7 +14,7 @@ function write_inventory(doc, ctx)
 
     @info "Writing inventory file."
     project = doc.user.sitename
-    version = ""  # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2385
+    version = _find_project_version()
 
     io_inv_header = open(joinpath(doc.user.build, "objects.inv"), "w")
 
@@ -69,6 +69,27 @@ function write_inventory(doc, ctx)
     close(io_inv)
     close(io_inv_header)
 
+end
+
+
+function _find_project_version()
+    current_dir = pwd()
+    parent_dir = dirname(current_dir)
+    while parent_dir != current_dir
+        project_toml = joinpath(current_dir, "Project.toml")
+        if isfile(project_toml)
+            project_data = TOML.parsefile(project_toml)
+            if haskey(project_data, "version")
+                version = project_data["version"]
+                @debug "Obtained `version=$(repr(version))` for inventory from $(project_toml)"
+                return version
+            end
+        end
+        current_dir = parent_dir
+        parent_dir = dirname(current_dir)
+    end
+    @warn "Cannot extract version for inventory from Project.toml"
+    return ""
 end
 
 
