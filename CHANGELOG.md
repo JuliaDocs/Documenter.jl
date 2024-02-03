@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* The search in the HTML output is now case-insensitive. ([#2373], [#2374])
-* The search in the HTML output now prioritizes prefix matches. ([#2203], [#2375])
+#### The search in the HTML output
+
+* Is now case-insensitive. ([#2373], [#2374])
+* Prioritizes prefix matches. ([#2203], [#2375])
+* Utilizes webworkers and is more responsive. ([#2415])
+* Clearing the search query no longer deselects filters. ([#2415])
+* When selecting one filter all others are automatically deselected. ([#2415])
 
 ### Fixed
 
