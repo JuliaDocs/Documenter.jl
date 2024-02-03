@@ -1,7 +1,7 @@
 
 ```@meta
 CurrentModule = Main.Mod
-DocStringsCollapsed = true
+CollapsedDocStrings = true
 ```
 
 # Function Index

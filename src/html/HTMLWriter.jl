@@ -837,7 +837,7 @@ function render_page(ctx, navnode)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
     meta_divs = DOM.Node[]
-    if get(getpage(ctx, navnode).globals.meta, :DocStringsCollapsed, false)
+    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
         # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
         # collapse button after that page has loaded.
         @tags script

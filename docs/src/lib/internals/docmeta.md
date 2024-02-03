@@ -1,5 +1,5 @@
 ```@meta
-DocStringsCollapsed = true
+CollapsedDocStrings = true
 ```
 
 # DocMeta

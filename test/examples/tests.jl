@@ -172,9 +172,9 @@ end
             @test occursin("expanded_setup", issue_491)
             @test occursin("<p>expanded_raw</p>", issue_491)
 
-            # DocStringsCollapsed
+            # CollapsedDocStrings
             if name == "html"
-                # The `index.md` page does not have `DocStringsCollapsed` in
+                # The `index.md` page does not have `CollapsedDocStrings` in
                 # its `@meta` block, ...
                 @test !occursin("<div data-docstringscollapsed=\"true\">", index_html)
                 # but the `lib/functions.md` page does, ...
