@@ -345,7 +345,6 @@ const worker_blob = new Blob([worker_str], { type: "text/javascript" });
 const worker = new Worker(URL.createObjectURL(worker_blob));
 
 /////// SEARCH MAIN ///////
-const modal_filters = make_modal_body_filters(filters);
 
 // Whether the worker is currently handling a search. This is a boolean
 // as the worker only ever handles 1 or 0 searches at a time.
@@ -358,6 +357,9 @@ var last_search_text = "";
 // The results of the last search. This, in combination with the state of the filters
 // in the DOM, is used compute the results to display on calls to update_search.
 var unfiltered_results = [];
+
+// Which filter is currently selected
+var selected_filter = "";
 
 $(document).on("input", ".documenter-search-input", function (event) {
   if (!worker_is_running) {
@@ -383,13 +385,13 @@ worker.onmessage = function (e) {
 };
 
 $(document).on("click", ".search-filter", function () {
-  // Toggle classes (for UI & semantics)
   if ($(this).hasClass("search-filter-selected")) {
-    $(this).removeClass("search-filter-selected");
+    selected_filter = "";
   } else {
-    $(this).addClass("search-filter-selected");
+    selected_filter = $(this).text().toLowerCase();
   }
 
+  // This updates search results and toggles classes for UI:
   update_search();
 });
 
@@ -412,6 +414,7 @@ function update_search() {
     }
 
     let search_result_container = ``;
+    let modal_filters = make_modal_body_filters();
     let search_divider = `<div class="search-divider w-100"></div>`;
 
     if (results.length) {
@@ -477,13 +480,16 @@ function update_search() {
 /**
  * Make the modal filter html
  *
- * @param {string[]} filters
  * @returns string
  */
-function make_modal_body_filters(filters) {
+function make_modal_body_filters() {
   let str = filters
     .map((val) => {
-      return `<a href="javascript:;" class="search-filter"><span>${val}</span></a>`;
+      if (selected_filter == val.toLowerCase()) {
+        return `<a href="javascript:;" class="search-filter search-filter-selected"><span>${val}</span></a>`;
+      } else {
+        return `<a href="javascript:;" class="search-filter"><span>${val}</span></a>`;
+      }
     })
     .join("");
 
