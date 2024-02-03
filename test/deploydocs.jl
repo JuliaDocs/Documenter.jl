@@ -1,4 +1,5 @@
 using Documenter: Documenter, deploydocs, git
+using DocInventories: DocInventories, Inventory
 using Test
 include("TestUtilities.jl"); using Main.TestUtilities
 
@@ -20,7 +21,13 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             full_repo_path = joinpath(pwd(), "repo")
             # Pseudo makedocs products in build/
             mkdir("build")
-            write("build/page.html", "...")
+            write(joinpath("build", "page.html"), "...")
+            inventory = Inventory(
+                project="Documenter deploydocs test",
+                version="",
+            )
+            objects_inv = joinpath("build", "objects.inv")
+            DocInventories.save(objects_inv, inventory)
             # Create gh-pages and deploy dev/
             @quietly deploydocs(
                 root = pwd(),
@@ -28,6 +35,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 repo = full_repo_path,
                 devbranch = "master",
             )
+            DocInventories.save(objects_inv, inventory)  # reset `version`
             # Deploy 1.0.0 tag
             @quietly deploydocs(
                 root = pwd(),
@@ -35,6 +43,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 repo = full_repo_path,
                 devbranch = "master",
             )
+            DocInventories.save(objects_inv, inventory)  # reset `version`
             # Deploy 1.1.0 tag
             @quietly deploydocs(
                 root = pwd(),
@@ -42,6 +51,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 repo = full_repo_path,
                 devbranch = "master",
             )
+            DocInventories.save(objects_inv, inventory)  # reset `version`
             # Deploy 2.0.0 tag, but into an archive (so nothing pushed to gh-pages)
             @quietly deploydocs(
                 root = pwd(),
@@ -50,6 +60,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 devbranch = "master",
                 archive = joinpath(pwd(), "ghpages.tar.gz"),
             )
+            DocInventories.save(objects_inv, inventory)  # reset `version`
             # Deploy 3.0.0 tag with a tag_prefix---which does not change deployment behavior
             @quietly deploydocs(;
                 root = pwd(),
@@ -58,6 +69,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 devbranch = "master",
                 tag_prefix = "MySubPackage-",
             )
+            DocInventories.save(objects_inv, inventory)  # reset `version`
             # Check what we have in gh-pages now:
             run(`$(git()) clone -q -b gh-pages $(full_repo_path) worktree`)
             @test isfile(joinpath("worktree", "index.html"))
@@ -65,6 +77,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             for d in ["dev", "v1.0.0", "v1.1.0", "v3.0.0"]
                 @test isfile(joinpath("worktree", d, "page.html"))
                 @test isfile(joinpath("worktree", d, "siteinfo.js"))
+                @test isfile(joinpath("worktree", d, "objects.inv"))
             end
             @test islink(joinpath("worktree", "v1"))
             @test islink(joinpath("worktree", "v1.0"))
@@ -78,10 +91,18 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             @test islink(joinpath("worktree", "v3"))
             @test islink(joinpath("worktree", "v3.0"))
             @test islink(joinpath("worktree", "v3.0.0"))
-           
+            inv_v11 = Inventory(joinpath("worktree", "v1.1", "objects.inv"))
+            @test inv_v11.version == "1.1.0"
+            inv_v30 = Inventory(joinpath("worktree", "v3.0", "objects.inv"))
+            @test inv_v30.version == "3.0.0"
+            inv_stable = Inventory(joinpath("worktree", "stable", "objects.inv"))
+            @test inv_stable.version == "3.0.0"
+            inv_dev = Inventory(joinpath("worktree", "dev", "objects.inv"))
+            @test inv_dev.version == ""
+
             # key_prefix does not affect/is not present in worktree directories
-            @test issetequal([".git", "1.0.0", "1.1.0", "3.0", "dev", "index.html", 
-                              "stable", "v1", "v1.0", "v1.0.0", "v1.1", "v1.1.0", 
+            @test issetequal([".git", "1.0.0", "1.1.0", "3.0", "dev", "index.html",
+                              "stable", "v1", "v1.0", "v1.0.0", "v1.1", "v1.1.0",
                               "v3", "v3.0", "v3.0.0", "versions.js"], readdir("worktree"))
         end
     end
