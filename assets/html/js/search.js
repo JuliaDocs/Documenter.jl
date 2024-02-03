@@ -399,17 +399,14 @@ $(document).on("click", ".search-filter", function () {
  * Make/Update the search component
  */
 function update_search() {
-  let ele = $(".search-filters .search-filter-selected").get();
-  let selected_filters = ele.map((x) => $(x).text().toLowerCase());
-
   let querystring = $(".documenter-search-input").val();
 
   if (querystring.trim()) {
-    if (selected_filters.length === 0) {
+    if (selected_filter == "") {
       results = unfiltered_results;
     } else {
       results = unfiltered_results.filter((result) => {
-        return selected_filters.includes(result.category.toLowerCase());
+        return selected_filter == result.category.toLowerCase();
       });
     }
 
