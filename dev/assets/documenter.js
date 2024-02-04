@@ -109,9 +109,10 @@ $(document).on("click", ".docstring header", function () {
   });
 });
 
-$(document).on("click", ".docs-article-toggle-button", function () {
+$(document).on("click", ".docs-article-toggle-button", function (event) {
   let articleToggleTitle = "Expand docstring";
   let navArticleToggleTitle = "Expand all docstrings";
+  let animationSpeed = event.noToggleAnimation ? 0 : 400;
 
   debounce(() => {
     if (isExpanded) {
@@ -122,7 +123,7 @@ $(document).on("click", ".docs-article-toggle-button", function () {
 
       isExpanded = false;
 
-      $(".docstring section").slideUp();
+      $(".docstring section").slideUp(animationSpeed);
     } else {
       $(this).removeClass("fa-chevron-down").addClass("fa-chevron-up");
       $(".docstring-article-toggle-button")
@@ -133,7 +134,7 @@ $(document).on("click", ".docs-article-toggle-button", function () {
       articleToggleTitle = "Collapse docstring";
       navArticleToggleTitle = "Collapse all docstrings";
 
-      $(".docstring section").slideDown();
+      $(".docstring section").slideDown(animationSpeed);
     }
 
     $(this).prop("title", navArticleToggleTitle);
@@ -226,6 +227,21 @@ $(document).ready(function () {
   $("#documenter .docs-navbar").headroom({
     tolerance: { up: 10, down: 10 },
   });
+});
+
+})
+////////////////////////////////////////////////////////////////////////////////
+require(['jquery'], function($) {
+
+$(document).ready(function () {
+  let meta = $("div[data-docstringscollapsed]").data();
+
+  if (meta.docstringscollapsed) {
+    $("#documenter-article-toggle-button").trigger({
+      type: "click",
+      noToggleAnimation: true,
+    });
+  }
 });
 
 })
