@@ -883,8 +883,8 @@ function render_settings(ctx)
         label[".label"]("Theme"),
         div[".select"](
             select["#documenter-themepicker"](
+                option[:value=>"auto"]("Automatic (OS)"),
                 (option[:value=>theme](theme) for theme in THEMES)...,
-                option[:value=>"auto"]("Automatic (OS)")
             )
         )
     )
