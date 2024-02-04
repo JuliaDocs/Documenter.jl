@@ -1,3 +1,7 @@
+```@meta
+CollapsedDocStrings = true
+```
+
 # DocumenterTools
 
 ```@docs
