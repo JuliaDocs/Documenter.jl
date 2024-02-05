@@ -11,8 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* The search in the HTML output is now case-insensitive. ([#2373], [#2374])
-* The search in the HTML output now prioritizes prefix matches. ([#2203], [#2375])
+* The search in the HTML output:
+  - Is now case-insensitive. ([#2373], [#2374])
+  - Prioritizes prefix matches. ([#2203], [#2375])
+  - Utilizes webworkers and is more responsive. ([#2415])
+  - Clearing the search query no longer deselects filters. ([#2415])
+  - When selecting one filter all others are automatically deselected. ([#2415])
 
 ### Fixed
 
@@ -1790,6 +1794,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
+[#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
 [#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054

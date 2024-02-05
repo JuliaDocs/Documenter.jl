@@ -720,7 +720,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery, RD.minisearch,
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
         RD.mathengine!(r, settings.mathengine)
         if !settings.prerender
