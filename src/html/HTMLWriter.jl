@@ -836,7 +836,17 @@ function render_page(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
-    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
+    meta_divs = DOM.Node[]
+    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
+        # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
+        # collapse button after that page has loaded.
+        @tags script
+        push!(
+            meta_divs,
+            div[Symbol("data-docstringscollapsed") => "true"]()
+        )
+    end
+    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer, meta_divs)
     write_html(ctx, navnode, htmldoc)
 end
 
@@ -873,8 +883,8 @@ function render_settings(ctx)
         label[".label"]("Theme"),
         div[".select"](
             select["#documenter-themepicker"](
+                option[:value=>"auto"]("Automatic (OS)"),
                 (option[:value=>theme](theme) for theme in THEMES)...,
-                option[:value=>"auto"]("Automatic (OS)")
             )
         )
     )

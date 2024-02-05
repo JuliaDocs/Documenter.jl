@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394])
+
 ### Changed
 
 #### The search in the HTML output
@@ -18,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fix search filter toggle button styling in the HTML output. ([#2406], [#2408])
+* The theme selector for the HTML output now correctly picks `Automatic (OS)` if the user hasn't explicitly set the theme. ([#2414], [#2438])
 
 ## Version [v1.2.1] - 2023-12-02
 
@@ -1761,6 +1766,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2279]: https://github.com/JuliaDocs/Documenter.jl/issues/2279
 [#2280]: https://github.com/JuliaDocs/Documenter.jl/issues/2280
 [#2281]: https://github.com/JuliaDocs/Documenter.jl/issues/2281
+[#2282]: https://github.com/JuliaDocs/Documenter.jl/issues/2282
 [#2285]: https://github.com/JuliaDocs/Documenter.jl/issues/2285
 [#2288]: https://github.com/JuliaDocs/Documenter.jl/issues/2288
 [#2293]: https://github.com/JuliaDocs/Documenter.jl/issues/2293
@@ -1785,8 +1791,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2373]: https://github.com/JuliaDocs/Documenter.jl/issues/2373
 [#2374]: https://github.com/JuliaDocs/Documenter.jl/issues/2374
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
+[#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
+[#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
+[#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
