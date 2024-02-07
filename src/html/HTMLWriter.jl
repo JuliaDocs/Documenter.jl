@@ -750,7 +750,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     if !isempty(ctx.atexample_warnings)
         msg = """
         For $(length(ctx.atexample_warnings)) @example blocks, the 'text/html' representation of the resulting
-        object is above the the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
+        object is above the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
         """
         fallbacks = unique(w.fallback for w in ctx.atexample_warnings)
         # We'll impose some regular order, but importantly we want 'nothing'-s on the top
