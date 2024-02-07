@@ -76,14 +76,22 @@ function _find_project_version()
     current_dir = pwd()
     parent_dir = dirname(current_dir)
     while parent_dir != current_dir
-        project_toml = joinpath(current_dir, "Project.toml")
-        if isfile(project_toml)
-            project_data = TOML.parsefile(project_toml)
-            if haskey(project_data, "version")
-                version = project_data["version"]
-                @debug "Obtained `version=$(repr(version))` for inventory from $(project_toml)"
-                return version
+        for filename in ["Project.toml", "JuliaProject.toml"]
+            project_toml = joinpath(current_dir, filename)
+            if isfile(project_toml)
+                project_data = TOML.parsefile(project_toml)
+                if haskey(project_data, "version")
+                    version = project_data["version"]
+                    @debug "Obtained `version=$(repr(version))` for inventory from $(project_toml)"
+                    return version
+                end
             end
+        end
+        version_file = joinpath(current_dir, "VERSION")
+        if isfile(version_file)
+            version = strip(read(version_file, String))
+            @debug "Obtained `version=$(repr(version))` for inventory from $(version_file)"
+            return version
         end
         current_dir = parent_dir
         parent_dir = dirname(current_dir)

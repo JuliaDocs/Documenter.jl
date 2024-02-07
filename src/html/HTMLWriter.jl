@@ -54,8 +54,8 @@ to link to any other project with an inventory file, see
 The [format of the `objects.inv` file](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
 is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It consists
 of a plain text header that includes the project name, taken from the `sitename` argument
-to [`Documenter.makedocs`](@ref), and a project `version` obtained from the `Project.toml`
-file (in the current working directory or any parent directory).
+to [`Documenter.makedocs`](@ref), and a project `version` obtained from the closest
+`Project.toml` or `VERSION` file.
 
 The bulk of the file is a list of plain text records, compressed with gzip. See
 [Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
