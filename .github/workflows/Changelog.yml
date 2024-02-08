@@ -1,5 +1,5 @@
 # Enforces the update of a changelog file on every pull request
-# Can be skipped with the `Skip-Changelog` label
+# Can be skipped with the `CI: Skip Changelog` label
 name: Changelog Update Check
 on:
   pull_request:
@@ -11,4 +11,4 @@ jobs:
     steps:
     - uses: dangoslen/changelog-enforcer@v3
       with:
-        skipLabels: skip-changelog
+        skipLabels: 'CI: Skip Changelog'
