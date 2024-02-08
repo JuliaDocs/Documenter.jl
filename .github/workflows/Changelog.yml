@@ -11,4 +11,4 @@ jobs:
     steps:
     - uses: dangoslen/changelog-enforcer@v3
       with:
-        skipLabels: 'CI: Skip Changelog'
+        skipLabels: '"CI: Skip Changelog"'
