@@ -250,13 +250,23 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
     fatal_errors = filter(is_strict(doc), doc.internal.errors)
     c = length(fatal_errors)
     if c > 0
-        error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ["
-        * join(Ref(":") .* string.(fatal_errors), ", ")
-        * "] -- terminating build before rendering.")
+        msg = string(
+            "`makedocs` encountered $(c > 1 ? "errors" : "an error") [",
+            join(Ref(":") .* string.(fatal_errors), ", "),
+            "] -- terminating build before rendering."
+        )
+        throw(DocCheckError(msg))
     else
         @info "RenderDocument: rendering document."
         Documenter.render(doc)
     end
+end
+
+struct DocCheckError <: DocumenterBuildException
+    msg::String
+end
+function Base.showerror(io::IO, e::DocCheckError)
+    println(io, "DocCheckError: $(e.msg)")
 end
 
 Selectors.runner(::Type{Builder.DocumentPipeline}, doc::Documenter.Document) = nothing
