@@ -19,6 +19,7 @@ import IOCapture
 import Markdown
 using MarkdownAST: MarkdownAST, Node
 import REPL
+import TOML
 import Unicode
 import Pkg
 import RegistryInstances

@@ -174,3 +174,30 @@ end
         end
     end
 end
+
+
+@testset "deploydocs: _find_project_version (for inventory)" begin
+    mktempdir() do tmpdir
+        write(joinpath(tmpdir, "Project.toml"), raw"""
+        name = "Documenter Test"
+        version = "0.1.0-dev"
+        """)
+        write(joinpath(tmpdir, "JuliaProject.toml"), raw"""
+        name = "Documenter Test"
+        version = "0.2.0-dev"
+        """)
+        write(joinpath(tmpdir, "VERSION"), "\n0.3.0-dev\n")
+        docdir = joinpath(tmpdir, "doc")
+        mkdir(docdir)
+        cd(docdir) do
+            write("VERSION", "0.4.0")
+            @test Documenter._find_project_version() == "0.4.0"
+            rm("VERSION")
+            @test Documenter._find_project_version() == "0.1.0-dev"
+            rm(joinpath("..", "Project.toml"))
+            @test Documenter._find_project_version() == "0.2.0-dev"
+            rm(joinpath("..", "JuliaProject.toml"))
+            @test Documenter._find_project_version() == "0.3.0-dev"
+        end
+    end
+end

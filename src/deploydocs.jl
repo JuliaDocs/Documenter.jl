@@ -334,8 +334,40 @@ function _get_deploy_version(foldername)
     try
         return string(VersionNumber(foldername))  # strips the leading "v" from foldername
     catch
-        return ""
+        # For a `foldername` that is not a valid version (most likely `"dev"`),
+        # we fall back to extracting a project version from the closest
+        # Project.toml/JuliaProject.toml/VERSION file.
+        return _find_project_version()
     end
+end
+
+
+function _find_project_version(folder=pwd())
+    current_dir = folder
+    parent_dir = dirname(current_dir)
+    while parent_dir != current_dir
+        for filename in ["Project.toml", "JuliaProject.toml"]
+            project_toml = joinpath(current_dir, filename)
+            if isfile(project_toml)
+                project_data = TOML.parsefile(project_toml)
+                if haskey(project_data, "version")
+                    version = project_data["version"]
+                    @debug "Obtained project `version=$(repr(version))` from $(project_toml)"
+                    return version
+                end
+            end
+        end
+        version_file = joinpath(current_dir, "VERSION")
+        if isfile(version_file)
+            version = strip(read(version_file, String))
+            @debug "Obtained project `version=$(repr(version))` from $(version_file)"
+            return version
+        end
+        current_dir = parent_dir
+        parent_dir = dirname(current_dir)
+    end
+    @warn "Cannot determine project version."
+    return ""
 end
 
 
