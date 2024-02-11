@@ -268,6 +268,14 @@ function deploydocs(;
                 @debug "running extra build steps."
                 make()
             end
+            objects_inv = joinpath(realpath(target), "objects.inv")
+            if isfile(objects_inv)
+                inventory_version = _get_inventory_version(objects_inv)
+                deploy_version = _get_deploy_version(deploy_subfolder)
+                if !isempty(deploy_version) && (inventory_version != deploy_version)
+                    error("Inventory declares version `$inventory_version`, but `deploydocs` is for version `$deploy_version`")
+                end
+            end
             @debug "pushing new documentation to remote: '$deploy_repo:$deploy_branch'."
             mktempdir() do temp
                 git_push(
@@ -281,6 +289,28 @@ function deploydocs(;
         end
     end
 end
+
+
+function _get_inventory_version(objects_inv)
+    open(objects_inv) do input
+        for line in eachline(input)
+            if startswith(line, "# Version:")
+                return strip(line[11:end])
+            end
+        end
+        error("Invalid $objects_inv: missing or invalid version line")
+    end
+end
+
+
+function _get_deploy_version(foldername)
+    try
+        return string(VersionNumber(foldername))  # strips the leading "v" from foldername
+    catch
+        return ""
+    end
+end
+
 
 """
     git_push(

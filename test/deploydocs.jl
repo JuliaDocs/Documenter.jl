@@ -1,4 +1,5 @@
 using Documenter: Documenter, deploydocs, git
+using DocInventories: DocInventories, Inventory
 using Test
 include("TestUtilities.jl"); using Main.TestUtilities
 
@@ -21,6 +22,9 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             # Pseudo makedocs products in build/
             mkdir("build")
             write("build/page.html", "...")
+            inventory = Inventory(project="test", version="")
+            objects_inv = joinpath("build", "objects.inv")
+            DocInventories.save(objects_inv, inventory)
             # Create gh-pages and deploy dev/
             @quietly deploydocs(
                 root = pwd(),
@@ -29,6 +33,15 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 devbranch = "master",
             )
             # Deploy 1.0.0 tag
+            @test_throws ErrorException("Inventory declares version ``, but `deploydocs` is for version `1.0.0`") begin
+                deploydocs(
+                    root = pwd(),
+                    deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
+                    repo = full_repo_path,
+                    devbranch = "master",
+                )
+            end
+            DocInventories.save(objects_inv, Inventory(project="test", version="1.0.0"))
             @quietly deploydocs(
                 root = pwd(),
                 deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
@@ -36,6 +49,15 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 devbranch = "master",
             )
             # Deploy 1.1.0 tag
+            @test_throws ErrorException("Inventory declares version `1.0.0`, but `deploydocs` is for version `1.1.0`") begin
+                deploydocs(
+                    root = pwd(),
+                    deploy_config = TestDeployConfig(full_repo_path, "1.1.0"),
+                    repo = full_repo_path,
+                    devbranch = "master",
+                )
+            end
+            DocInventories.save(objects_inv, Inventory(project="test", version="1.1.0"))
             @quietly deploydocs(
                 root = pwd(),
                 deploy_config = TestDeployConfig(full_repo_path, "1.1.0"),
@@ -43,6 +65,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 devbranch = "master",
             )
             # Deploy 2.0.0 tag, but into an archive (so nothing pushed to gh-pages)
+            DocInventories.save(objects_inv, Inventory(project="test", version="2.0.0"))
             @quietly deploydocs(
                 root = pwd(),
                 deploy_config = TestDeployConfig(full_repo_path, "2.0.0"),
@@ -51,6 +74,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 archive = joinpath(pwd(), "ghpages.tar.gz"),
             )
             # Deploy 3.0.0 tag with a tag_prefix---which does not change deployment behavior
+            DocInventories.save(objects_inv, Inventory(project="test", version="3.0.0"))
             @quietly deploydocs(;
                 root = pwd(),
                 deploy_config = TestDeployConfig(full_repo_path, "3.0"),
@@ -78,10 +102,18 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             @test islink(joinpath("worktree", "v3"))
             @test islink(joinpath("worktree", "v3.0"))
             @test islink(joinpath("worktree", "v3.0.0"))
-           
+            inv_v11 = Inventory(joinpath("worktree", "v1.1", "objects.inv"))
+            @test inv_v11.version == "1.1.0"
+            inv_v30 = Inventory(joinpath("worktree", "v3.0", "objects.inv"))
+            @test inv_v30.version == "3.0.0"
+            inv_stable = Inventory(joinpath("worktree", "stable", "objects.inv"))
+            @test inv_stable.version == "3.0.0"
+            inv_dev = Inventory(joinpath("worktree", "dev", "objects.inv"))
+            @test inv_dev.version == ""
+
             # key_prefix does not affect/is not present in worktree directories
-            @test issetequal([".git", "1.0.0", "1.1.0", "3.0", "dev", "index.html", 
-                              "stable", "v1", "v1.0", "v1.0.0", "v1.1", "v1.1.0", 
+            @test issetequal([".git", "1.0.0", "1.1.0", "3.0", "dev", "index.html",
+                              "stable", "v1", "v1.0", "v1.0.0", "v1.1", "v1.1.0",
                               "v3", "v3.0", "v3.0.0", "versions.js"], readdir("worktree"))
         end
     end
