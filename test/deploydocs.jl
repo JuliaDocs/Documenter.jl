@@ -33,15 +33,6 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 devbranch = "master",
             )
             # Deploy 1.0.0 tag
-            @test_throws ErrorException("Inventory declares version ``, but `deploydocs` is for version `1.0.0`") begin
-                deploydocs(
-                    root = pwd(),
-                    deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
-                    repo = full_repo_path,
-                    devbranch = "master",
-                )
-            end
-            DocInventories.save(objects_inv, Inventory(project="test", version="1.0.0"))
             @quietly deploydocs(
                 root = pwd(),
                 deploy_config = TestDeployConfig(full_repo_path, "1.0.0"),
@@ -49,15 +40,9 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
                 devbranch = "master",
             )
             # Deploy 1.1.0 tag
-            @test_throws ErrorException("Inventory declares version `1.0.0`, but `deploydocs` is for version `1.1.0`") begin
-                deploydocs(
-                    root = pwd(),
-                    deploy_config = TestDeployConfig(full_repo_path, "1.1.0"),
-                    repo = full_repo_path,
-                    devbranch = "master",
-                )
-            end
-            DocInventories.save(objects_inv, Inventory(project="test", version="1.1.0"))
+            # (note that the inventory still declares 1.0.0 as the version, so
+            # this implicitly tests that `deploydocs` overwrites it with the
+            # correct version)
             @quietly deploydocs(
                 root = pwd(),
                 deploy_config = TestDeployConfig(full_repo_path, "1.1.0"),

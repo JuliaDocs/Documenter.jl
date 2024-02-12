@@ -273,7 +273,10 @@ function deploydocs(;
                 inventory_version = _get_inventory_version(objects_inv)
                 deploy_version = _get_deploy_version(deploy_subfolder)
                 if !isempty(deploy_version) && (inventory_version != deploy_version)
-                    error("Inventory declares version `$inventory_version`, but `deploydocs` is for version `$deploy_version`")
+                    if !isempty(inventory_version)
+                        @warn "Inventory declares version `$inventory_version`, but `deploydocs` is for version `$deploy_version`. Overwriting inventory version."
+                    end
+                    _patch_inventory_version(objects_inv, deploy_version)
                 end
             end
             @debug "pushing new documentation to remote: '$deploy_repo:$deploy_branch'."
@@ -300,6 +303,23 @@ function _get_inventory_version(objects_inv)
         end
         error("Invalid $objects_inv: missing or invalid version line")
     end
+end
+
+
+function _patch_inventory_version(objects_inv, version)
+    objects_inv_patched = tempname()
+    open(objects_inv) do input
+        open(objects_inv_patched, "w") do output
+            for line in eachline(input; keep=true)
+                if startswith(line, "# Version:")
+                    @debug "Patched $objects_inv with version=$version"
+                    line = "# Version: $version\n"
+                end
+                write(output, line)
+            end
+        end
+    end
+    mv(objects_inv_patched, objects_inv; force=true)
 end
 
 

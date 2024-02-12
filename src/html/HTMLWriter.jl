@@ -55,7 +55,8 @@ The [format of the `objects.inv` file](https://juliadocs.org/DocInventories.jl/s
 is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It consists
 of a plain text header that includes the project name, taken from the `sitename` argument
 to [`Documenter.makedocs`](@ref), and a project `version` obtained from the closest
-`Project.toml` or `VERSION` file.
+`Project.toml`, `JuliaProject.toml`, or `VERSION` file that defines a `version`,
+respectively from the deployment tag in [`Documenter.deploydocs`](@ref).
 
 The bulk of the file is a list of plain text records, compressed with gzip. See
 [Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
