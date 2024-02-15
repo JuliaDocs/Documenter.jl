@@ -46,7 +46,12 @@ function test_doctest_fix(dir)
     @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir)
 
     # also test that we obtain the expected output
-    @test normalize_line_endings(index_md) == normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
+    if VERSION>=v"1.7"
+        @test normalize_line_endings(index_md) == normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
+    else
+        # Error output is different in 1.6, so we adapt by having a separate correct file.
+        @test normalize_line_endings(index_md) == normalize_line_endings(joinpath(@__DIR__, "fixed-1.6.md"))
+    end
     @test normalize_line_endings(src_jl) == normalize_line_endings(joinpath(@__DIR__, "fixed.jl"))
 end
 
