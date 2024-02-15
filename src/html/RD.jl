@@ -17,7 +17,6 @@ module RD
     const jquery = RemoteLibrary("jquery", "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js")
     const jqueryui = RemoteLibrary("jqueryui", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js")
     const lodash = RemoteLibrary("lodash", "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js")
-    const minisearch = RemoteLibrary("minisearch", "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js")
 
     # headroom
     const headroom_version = "0.12.0"

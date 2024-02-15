@@ -282,8 +282,9 @@ page. Currently recognised keys:
   but if the source is something else (for example if the `.md` page is generated as part of
   the doc build) this can be set, either as a local link, or an absolute url.
 - `Description`: a page-specific description that gets displayed in search engines and
-  link previews. Overrides the site-wide description in [`makedocs`](@ref). 
+  link previews. Overrides the site-wide description in [`makedocs`](@ref).
 - `Draft`: boolean for overriding the global draft mode for the page.
+- `CollapsedDocStrings`: for output formats that support this (i.e. only [`HTML`](@ref Documenter.HTML) currently), if set to `true`, render all docstrings as collapsed by default.
 
 Example:
 
@@ -364,7 +365,7 @@ As with `@index` if `Pages` is not provided then all pages are included. The def
             "Subsection" => SUBSECTION_PAGES,
         ...
     ```
-    
+
     That variable will exist in the `Main` module and can be reused in the `@contents` and other blocks, e.g.
 
     ````markdown
@@ -372,7 +373,7 @@ As with `@index` if `Pages` is not provided then all pages are included. The def
     Pages = Main.SUBSECTION_PAGES
     ```
     ````
-    
+
     Documenter will then list the contents of the "Subsection" pages, and they will always appear in the same order as they are in the sidebar.
 
 ## `@example` block
