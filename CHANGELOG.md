@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fix search filter toggle button styling in the HTML output. ([#2406], [#2408])
+* Fix escaping special html entites in search output. ([#2441])
 * The theme selector for the HTML output now correctly picks `Automatic (OS)` if the user hasn't explicitly set the theme. ([#2414], [#2438])
 
 ## Version [v1.2.1] - 2023-12-02
@@ -1796,6 +1797,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
 [#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
+[#2441]: https://github.com/JuliaDocs/Documenter.jl/issues/2441
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

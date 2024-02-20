@@ -67,7 +67,10 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
+    ...[
+      "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js",
+    ]
   );
 
   let data = documenterSearchIndex.map((x, key) => {
@@ -246,10 +249,12 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
           )
         : ""; // cut-off text before and after from the match
 
+    text = text.length ? _.escape(text) : "";
+
     let display_result = text.length
       ? "..." +
         text.replace(
-          new RegExp(`${querystring}`, "i"), // For first occurrence
+          new RegExp(`${_.escape(querystring)}`, "i"), // For first occurrence
           '<span class="search-result-highlight py-1">$&</span>'
         ) +
         "..."
