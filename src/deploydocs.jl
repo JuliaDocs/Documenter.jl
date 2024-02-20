@@ -355,7 +355,6 @@ function git_push(
         gitrm_copy(target_dir, deploy_dir)
 
         # Generate the CNAME file if `siteurl` is set.
-        @show deploy_dir dirname
         if !isnothing(siteurl)
             write(joinpath(dirname, "CNAME"), siteurl)
         end
