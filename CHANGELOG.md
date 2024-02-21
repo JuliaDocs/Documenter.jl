@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394])
+* Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394], [#2459], [#2460])
 
 ### Changed
 
@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fix search filter toggle button styling in the HTML output. ([#2406], [#2408])
 * The theme selector for the HTML output now correctly picks `Automatic (OS)` if the user hasn't explicitly set the theme. ([#2414], [#2438])
-* Fix console error when no metadata is present. ([#2459], [#2460])
 
 ## Version [v1.2.1] - 2023-12-02
 
