@@ -45,10 +45,8 @@ function test_doctest_fix(dir)
     @debug "Running doctest/fix doctests with doctest=true"
     @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir)
 
-    # Load desired results and adapt to various Julia versions and architechtures:
+    # Load desired results and adapt to various Julia versions:
     md_result = normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
-    # Some test systems use 32 bit
-    md_result = replace(md_result, r"\bInt64\b"=>string(Int))
     if VERSION < v"1.7"
         # Error output is different in 1.6, so we adapt by having a separate correct file.
         md_result = replace(md_result, r"UndefVarError: `([^`]*)` not defined" => s"UndefVarError: \1 not defined")

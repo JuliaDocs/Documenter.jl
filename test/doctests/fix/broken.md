@@ -88,7 +88,7 @@ julia> a
 julia> a
 ERROR: UndefVarError: `a` not defined
 
-julia> a = [1,2]
+julia> a = Int64[1,2]
 2-element Vector{Int64}:
  1
  2
@@ -104,7 +104,7 @@ julia> a;
 
 julia> b;
 
-julia> a = [3,4];
+julia> a = Int64[3,4];
 
 julia> a
  3

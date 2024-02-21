@@ -172,6 +172,17 @@ end
             @test occursin("expanded_setup", issue_491)
             @test occursin("<p>expanded_raw</p>", issue_491)
 
+            # CollapsedDocStrings
+            if name == "html"
+                # The `index.md` page does not have `CollapsedDocStrings` in
+                # its `@meta` block, ...
+                @test !occursin("<div data-docstringscollapsed=\"true\">", index_html)
+                # but the `lib/functions.md` page does, ...
+                functions_html = read(joinpath(build_dir, "lib", "functions", "index.html"), String)
+                # so it should have the JS that clicks the toggle button.
+                @test occursin("<div data-docstringscollapsed=\"true\">", functions_html)
+            end
+
             # .documenter-siteinfo.json
             @testset ".documenter-siteinfo.json" begin
                 siteinfo_json_file = joinpath(build_dir, ".documenter-siteinfo.json")

@@ -720,7 +720,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery, RD.minisearch,
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
         RD.mathengine!(r, settings.mathengine)
         if !settings.prerender
@@ -750,7 +750,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     if !isempty(ctx.atexample_warnings)
         msg = """
         For $(length(ctx.atexample_warnings)) @example blocks, the 'text/html' representation of the resulting
-        object is above the the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
+        object is above the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
         """
         fallbacks = unique(w.fallback for w in ctx.atexample_warnings)
         # We'll impose some regular order, but importantly we want 'nothing'-s on the top
@@ -836,7 +836,17 @@ function render_page(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
-    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
+    meta_divs = DOM.Node[]
+    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
+        # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
+        # collapse button after that page has loaded.
+        @tags script
+        push!(
+            meta_divs,
+            div[Symbol("data-docstringscollapsed") => "true"]()
+        )
+    end
+    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer, meta_divs)
     write_html(ctx, navnode, htmldoc)
 end
 
@@ -873,8 +883,8 @@ function render_settings(ctx)
         label[".label"]("Theme"),
         div[".select"](
             select["#documenter-themepicker"](
+                option[:value=>"auto"]("Automatic (OS)"),
                 (option[:value=>theme](theme) for theme in THEMES)...,
-                option[:value=>"auto"]("Automatic (OS)")
             )
         )
     )
