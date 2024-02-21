@@ -20,9 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Fix search window does not appear. ([#2430], [#2458])
-* Fix search filter toggle button styling in the HTML output. ([#2406], [#2408])
+* Fix the search filter toggle button styling in the HTML output. ([#2406], [#2408])
 * The theme selector for the HTML output now correctly picks `Automatic (OS)` if the user hasn't explicitly set the theme. ([#2414], [#2438])
+* Fix the search window sometimes not appearing in the HTML output. ([#2430], [#2458])
 
 ## Version [v1.2.1] - 2023-12-02
 
