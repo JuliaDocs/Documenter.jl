@@ -43,8 +43,9 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 There are several packages that extend Documenter in different ways. The JuliaDocs organization maintains:
 
 * [DocumenterCitations.jl](https://github.com/JuliaDocs/DocumenterCitations.jl)
-* [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
+* [DocumenterInterLinks.jl](https://github.com/JuliaDocs/DocumenterInterLinks.jl)
 * [DocumenterMarkdown.jl](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
+* [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
 
 Other third-party packages that can be combined with Documenter include:
 
