@@ -221,6 +221,9 @@ function deploydocs(;
         ispath(archive) && error("Output archive exists: $archive")
     end
 
+    # version sanity check
+    @assert !any(isempty ∘ first, versions) "Empty version number detected: $versions, which may cause unexpected behavior such as overwriting GitHub custom domain settings."
+
     deploy_decision = deploy_folder(deploy_config;
                                     branch=branch,
                                     branch_previews=branch_previews,
