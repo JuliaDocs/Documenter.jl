@@ -25,7 +25,7 @@ selector will be hidden. The special value `git-commit` sets the value in the ou
 
 # `HTML` `Plugin` options
 
-The [`HTML`](@ref) [`Documenter.Plugin`](@ref) provides additional customization options
+The [`HTML`](@ref) object provides additional customization options
 for the [`HTMLWriter`](@ref). For more information, see the [`HTML`](@ref) documentation.
 
 # Page outline
@@ -54,10 +54,9 @@ to link to any other project with an inventory file, see
 The [format of the `objects.inv` file](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
 is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It consists
 of a plain text header that includes the project name, taken from the `sitename` argument
-to [`Documenter.makedocs`](@ref), and a project `version` obtained from the closest
-`Project.toml`, `JuliaProject.toml`, or `VERSION` file that defines a `version`,
-respectively from the deployment tag in [`Documenter.deploydocs`](@ref).
-
+to [`Documenter.makedocs`](@ref), and a project `version` taken from the
+`inventory_version` argument of the [`HTML`](@ref) options, or automatically
+determined by [`deploydocs`](@ref Documenter.deploydocs) for tagged releases.
 The bulk of the file is a list of plain text records, compressed with gzip. See
 [Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
 for details on these records.
@@ -419,6 +418,13 @@ executable to be available in `PATH` or to be passed as the `node` keyword.
 
 **`highlightjs`** file path to custom highglight.js library to be used with prerendering.
 
+**`inventory_version`** a version string to write to the header of the
+`objects.inv` inventory file. This should be a valid version number without a `v` prefix.
+Defaults to the `version` defined in the `Project.toml` file in the parent folder of the
+documentation root. Setting this to an empty string leaves the `version` in the inventory
+unspecified until [`deploydocs`](@ref Documenter.deploydocs) runs and automatically sets the
+`version` for any tagged release.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -480,6 +486,7 @@ struct HTML <: Documenter.Writer
     size_threshold_warn :: Int
     size_threshold_ignore :: Vector{String}
     example_size_threshold :: Int
+    inventory_version ::  Union{String,Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -508,6 +515,7 @@ struct HTML <: Documenter.Writer
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
+            inventory_version = nothing,
 
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -563,6 +571,7 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
+            (isnothing(inventory_version) ? nothing : string(inventory_version))
         )
     end
 end

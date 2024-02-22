@@ -12,9 +12,12 @@ plugin to link into the documentation from other projects.
 """
 function write_inventory(doc, ctx)
 
-    @info "Writing inventory file."
     project = doc.user.sitename
-    version = _find_project_version()
+    version = ctx.settings.inventory_version
+    if isnothing(version)
+        project_toml = joinpath(dirname(doc.user.root), "Project.toml")
+        version = _get_inventory_version(project_toml)
+    end
 
     io_inv_header = open(joinpath(doc.user.build, "objects.inv"), "w")
 
@@ -72,32 +75,29 @@ function write_inventory(doc, ctx)
 end
 
 
-function _find_project_version()
-    current_dir = pwd()
-    parent_dir = dirname(current_dir)
-    while parent_dir != current_dir
-        for filename in ["Project.toml", "JuliaProject.toml"]
-            project_toml = joinpath(current_dir, filename)
-            if isfile(project_toml)
-                project_data = TOML.parsefile(project_toml)
-                if haskey(project_data, "version")
-                    version = project_data["version"]
-                    @debug "Obtained `version=$(repr(version))` for inventory from $(project_toml)"
-                    return version
-                end
-            end
+function _get_inventory_version(project_toml)
+    version = ""
+    if isfile(project_toml)
+        project_data = TOML.parsefile(project_toml)
+        if haskey(project_data, "version")
+            version = project_data["version"]
+            @info "Automatic `version=$(repr(version))` for inventory from $(relpath(project_toml))"
+        else
+            @warn "Cannot extract version for inventory from $(project_toml): no version information"
         end
-        version_file = joinpath(current_dir, "VERSION")
-        if isfile(version_file)
-            version = strip(read(version_file, String))
-            @debug "Obtained `version=$(repr(version))` for inventory from $(version_file)"
-            return version
-        end
-        current_dir = parent_dir
-        parent_dir = dirname(current_dir)
+    else
+        @warn "Cannot extract version for inventory from $(project_toml): no such file"
     end
-    @warn "Cannot extract version for inventory from Project.toml"
-    return ""
+    if isempty(version)
+        # The automatic `inventory_version` determined in this function is intended only for
+        # projects with a standard layout with Project.toml file in the expected
+        # location (the parent folder of doc.user.root). Any non-standard project should
+        # explicitly set an `inventory_version` as an option to `HTML()` in `makedocs`, or
+        # specifically set `inventory_version=""` so that `_get_inventory_version` is never
+        # called, and thus this warning is suppressed.
+        @warn "Please set `inventory_version` in the `HTML()` options passed to `makedocs`."
+    end
+    return version
 end
 
 
