@@ -24,7 +24,7 @@ Documenter.authenticated_repo_url(c::TestDeployConfig) = c.repo_path
             # Create gh-pages and deploy dev/
             @quietly deploydocs(
                 root = pwd(),
-                siteurl="www.example.com",
+                cname="www.example.com",
                 deploy_config = TestDeployConfig(full_repo_path, "dev"),
                 repo = full_repo_path,
                 devbranch = "master",
