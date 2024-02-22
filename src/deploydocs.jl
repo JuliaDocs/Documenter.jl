@@ -95,7 +95,7 @@ not exist, a new orphaned branch is created automatically. It defaults to `"gh-p
 **`dirname`** is a subdirectory of `branch` that the docs should be added to. By default,
 it is `""`, which will add the docs to the root directory.
 
-** `cname`** is the URL where the documentation will be hosted, which is equivalent to
+** `cname`** is the CNAME where the documentation will be hosted, which is equivalent to
 the GitHub Pages "Custom domain" setting in the repository settings. If set, it will be
 used to generate the `CNAME` file, which has a higher priority than the GitHub Pages settings.
 
@@ -222,7 +222,7 @@ function deploydocs(;
     end
 
     # version sanity check
-    @assert !any(isempty ∘ first, versions) "Empty version number detected: $versions, which may cause unexpected behavior such as overwriting GitHub custom domain settings."
+    @assert !any(isempty ∘ first, versions) "Empty version number detected: $versions, which may cause unexpected behaviors such as overwriting GitHub custom domain settings."
 
     deploy_decision = deploy_folder(deploy_config;
                                     branch=branch,
