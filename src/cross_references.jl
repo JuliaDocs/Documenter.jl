@@ -1,8 +1,15 @@
 """
 $(SIGNATURES)
 
-Traverses a [`Documenter.Document`](@ref) and replaces links containing `@ref` URLs with
-their real URLs.
+Traverses a [`Documenter.Document`](@ref) and process internal links and
+references.
+
+- Links containing `@ref` URLs are replaced with their real URLs. This
+  delegates to [`xref`](@ref), which in turn delegates to the
+  [`XRefResolvers.XRefResolverPipeline`](@ref).
+- Links to local (`.md`) documents are rewritten to link to the corresponding
+  path in the output build.
+- For links to local files or images, check that the linked files exist.
 """
 function crossref(doc::Documenter.Document)
     for (src, page) in doc.blueprint.pages
@@ -12,30 +19,45 @@ function crossref(doc::Documenter.Document)
 end
 
 function crossref(doc::Documenter.Document, page, mdast::MarkdownAST.Node)
+    meta = page.globals.meta
     for node in AbstractTrees.PreOrderDFS(mdast)
         if node.element isa Documenter.MetaNode
-            merge!(page.globals.meta, node.element.dict)
+            merge!(meta, node.element.dict)
         elseif node.element isa Documenter.DocsNode
             # the docstring AST trees are not part of the tree of the page, so we need to explicitly
             # call crossref() on them to update the links there. We also need up update
             # the CurrentModule meta key as needed, to make sure we find the correct
             # relative refs within docstrings
             tmp = get(page.globals.meta, :CurrentModule, nothing)
-            for (docstr, meta) in zip(node.element.mdasts, node.element.metas)
-                mod = get(meta, :module, nothing)
-                isnothing(mod) || (page.globals.meta[:CurrentModule] = mod)
+            for (docstr, docmeta) in zip(node.element.mdasts, node.element.metas)
+                mod = get(docmeta, :module, nothing)
+                isnothing(mod) || (meta[:CurrentModule] = mod)
                 crossref(doc, page, docstr)
             end
             if isnothing(tmp)
-                delete!(page.globals.meta, :CurrentModule)
+                delete!(meta, :CurrentModule)
             else
-                page.globals.meta[:CurrentModule] = tmp
+                meta[:CurrentModule] = tmp
             end
         elseif node.element isa MarkdownAST.Link
-            xref(node, page.globals.meta, page, doc)
+            link_url = node.element.destination
+            if Documenter.isabsurl(link_url) || startswith(link_url, "mailto:")
+                # Absolute / external links simply get left alone
+            else
+                if occursin(XREF_REGEX, link_url)
+                    xref(node, meta, page, doc)
+                else
+                    local_links!(node, meta, page, doc)
+                end
+            end
         elseif node.element isa MarkdownAST.Image
-            # Images must be either local or absolute links (no at-ref syntax for those at the moment)
-            local_links!(node, page.globals.meta, page, doc)
+            # Images must be either be …
+            if Documenter.isabsurl(node.element.destination)
+                # … absolute / external links (no further processing) …
+            else
+                # … or local links (no at-ref syntax for those at the moment)
+                local_links!(node, meta, page, doc)
+            end
         end
     end
 end
@@ -43,14 +65,10 @@ end
 function local_links!(node::MarkdownAST.Node, meta, page, doc)
     @assert node.element isa Union{MarkdownAST.Link, MarkdownAST.Image}
     link_url = node.element.destination
-    # If the link is an absolute URL, then there's nothing we need to do. We'll just
-    # keep the Link object as is, and it should become an external hyperlink in the writer.
-    Documenter.isabsurl(link_url) && return
-    # Similarly, mailto: links get passed on
-    startswith(link_url, "mailto:") && return
+    @assert !Documenter.isabsurl(link_url)
+    @assert !startswith(link_url, "mailto:")
 
-    # Anything else, however, is assumed to be a local URL, and we check that it is
-    # actually pointing to a file.
+    # For any local link, we check that it is actually pointing to a file.
     path, fragment = splitfragment(link_url)
     # Links starting with a # are references within the same file -- so there's not much
     # for us to do here, except to just construct the PageLink object. Note that we do
@@ -120,136 +138,257 @@ function splitfragment(s)
     xs[1], get(xs, 2, "")
 end
 
-# Dispatch to `namedxref` / `docsxref`.
-# -------------------------------------
+# Dispatch pipeline for @ref links
+# --------------------------------
 
+module XRefResolvers
+    import ..Documenter  # import for docstrings only
+    import ..Documenter.Remotes #  import for docstrings only
+    import ..Documenter.Selectors
+
+    """The default pipeline for resolving `@ref` links.
+
+    The steps for trying to resolve links are:
+
+    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
+    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
+    - [`XRefResolvers.Docs`](@ref) for links like ```[`Documenter.makedocs`](@ref)```
+
+    Each step may or may not be able to resolve the link. Processing continues until the
+    link is resolved or the end of the pipeline is reached. If the link is still unresolved
+    after the last step, [`Documenter.xref`](@ref) issues an error that includes any
+    accumulated error messages from the steps. Failure to resolve an `@ref` link will fail
+    [`Documenter.makedocs`](@ref) if it is not called with `warnonly=true`.
+
+    The default pipeline could be extended by plugins using the general [`Selectors`](@ref)
+    machinery.
+
+    Each pipeline step receives the following arguments:
+
+    * `node`: the `MarkdownAST.Node` representing the link. To resolve the `@ref` URL, any
+      pipeline step can modify the node.
+    * `slug`: the "slug" for the link, see [`Documenter.xref`](@ref)
+    * `meta`: a dictionary of metadata, see [`@meta` block](@ref)
+    * `page`: the [`Documenter.Page`](@ref) object containing the `node`
+    * `doc`: the [`Documenter.Document`](@ref) instance representing the full site
+    * `errors`: a list of strings of error messages accumulated in the
+      `XRefResolverPipeline`. If a pipeline step indicates that it might be able to resolve
+      a `@ref` link ([`Selectors.matcher`](@ref) is `true`), but then encounters an error in
+      [`Selectors.runner`](@ref) that prevents resolution, it should push an error message
+      to the list of `errors` to explain the failure. These accumulated errors will be shown
+      if (and only if) the entire pipeline fails to resolve the link.
+
+    The [`Selectors.matcher`](@ref) of any custom pipeline step should use
+    [`Documenter.xref_unresolved`](@ref) to check whether the link was already resolved in an
+    earlier pipeline step.
+    """
+    abstract type XRefResolverPipeline <: Selectors.AbstractSelector end
+
+    Selectors.strict(::Type{T}) where T <: XRefResolverPipeline = false
+
+    """Resolve `@ref` links for headers.
+
+    This runs if the `slug` corresponds to a known local section title, and resolves the
+    `node` to link to that section.
+    """
+    abstract type Header <: XRefResolverPipeline end
+
+    """Resolve `@ref` links for issues.
+
+    This runs if the `slug` is `"#"` followed by one or more digits and tries to link to an
+    issue number using [`Remotes.issueurl`](@ref).
+    """
+    abstract type Issue <: XRefResolverPipeline end
+
+    """Resolve `@ref` links for docstrings.
+
+    This runs unconditionally (if no previous step was able to resolve the link), and
+    tries to find a code binding for the given `slug`, linking to its docstring.
+    """
+    abstract type Docs <: XRefResolverPipeline end
+
+end
+
+Selectors.order(::Type{XRefResolvers.Header}) = 1.0
+Selectors.order(::Type{XRefResolvers.Issue})  = 2.0
+Selectors.order(::Type{XRefResolvers.Docs})   = 3.0
+
+
+"""
+$(SIGNATURES)
+
+checks whether `node` is a link with an `@ref` URL. Any step in the
+[`XRefResolvers.XRefResolverPipeline`](@ref) should use this to determine whether the `node`
+still needs to be resolved.
+"""
+function xref_unresolved(node)
+    return (node.element isa MarkdownAST.Link) &&
+        occursin(XREF_REGEX, node.element.destination)
+end
+
+
+function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
+    return (xref_unresolved(node) && anchor_exists(doc.internal.headers, slug))
+end
+
+function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
+    namedxref(node, slug, meta, page, doc, errors)
+end
+
+
+function Selectors.matcher(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
+    return (xref_unresolved(node) && occursin(r"#[0-9]+", slug))
+end
+
+function Selectors.runner(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
+    issue_xref(node, lstrip(slug, '#'), meta, page, doc, errors)
+end
+
+
+function Selectors.matcher(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
+    return xref_unresolved(node)
+end
+
+function Selectors.runner(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
+    docsxref(node, slug, meta, page, doc, errors)
+end
+
+
+# Finalizer (not used) …
+Selectors.runner(::Type{XRefResolvers.XRefResolverPipeline}, args...) = nothing
+# – in principle, this finalizer could do the final `@docerror`, but it's just a little more
+# robust to do it in `xref` after the `dispatch`. That way, it doesn't break if some plugin
+# does something unexpected with `Selectors.strict`.
+
+
+"""
+$(SIGNATURES)
+
+Resolve a `MarkdownAST.Link` node with an `@ref` URL.
+
+This delegates to [`XRefResolvers.XRefResolverPipeline`](@ref). In addition to forwarding
+the `node`, `meta`, `page`, and `doc` arguments, it also passes a `slug` to the pipeline
+that any pipeline step can use to easily resolve the link target. This `slug` is obtained as
+follows:
+
+- For, e.g, ```[`Documenter.makedocs`](@ref)``` or `[text](@ref Documenter.makedocs)`, the
+  `slug` is `"Documenter.makedocs"`
+- For, e.g, ```[Hosting Documentation](@ref)``` or `[text](@ref "Hosting Documentation")`,
+  the `slug` is sluggified version of the given section title, `"Hosting-Documentation"` in
+  this case.
+"""
 function xref(node::MarkdownAST.Node, meta, page, doc)
     @assert node.element isa MarkdownAST.Link
     link = node.element
-
     slug = xrefname(link.destination)
-    # If the Link does not match an '@ref' link, then this should either be a local link
-    # pointing to an existing file in src/ or an absolute URL.
-    if isnothing(slug)
-        local_links!(node::MarkdownAST.Node, meta, page, doc)
-        return
-    end
-    # If the slug is empty, then this is a "basic" x-ref, without a custom name
+    @assert !isnothing(slug)
     if isempty(slug)
-        basicxref(node, meta, page, doc)
-        return
-    end
-    # If `slug` is a string referencing a known header, we'll go for that
-    if anchor_exists(doc.internal.headers, slug)
-        namedxref(node, slug, meta, page, doc)
-        return
-    end
-    # Next we'll check if name is a "string", in which case it should refer to human readable
-    # heading. We'll slugify the string content, just like in basicxref:
-    stringmatch = match(r"\"(.+)\"", slug)
-    if !isnothing(stringmatch)
-        namedxref(node, Documenter.slugify(stringmatch[1]), meta, page, doc)
-        return
-    end
-    # Finally, we'll assume that the reference is a Julia expression referring to a docstring.
-    docref = find_docref(slug, meta, page)
-    if haskey(docref, :error)
-        # If this is not a valid docref either, we'll call namedxref().
-        # This should always throw an error because we already determined that
-        # anchor_exists(doc.internal.headers, slug) is false. But we call it here
-        # so that we wouldn't have to duplicate the @docerror call
-        namedxref(node, slug, meta, page, doc)
+        # obtain a slug from the link text
+        if length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Code)
+            slug = first(node.children).element.code
+        else
+            # TODO: remove this hack (replace with mdflatten?)
+            ast = MarkdownAST.@ast MarkdownAST.Document() do
+                MarkdownAST.Paragraph() do
+                    MarkdownAST.copy_tree(node)
+                end
+            end
+            md = convert(Markdown.MD, ast)
+            text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
+            slug = Documenter.slugify(text)
+        end
     else
-        docsxref(node, slug, meta, page, doc; docref = docref)
+        # explicit slugs that are enclosed in quotes must be further sluggified
+        stringmatch = match(r"\"(.+)\"", slug)
+        if !isnothing(stringmatch)
+            slug = Documenter.slugify(stringmatch[1])
+        end
     end
+    errors = String[]
+    Selectors.dispatch(
+        XRefResolvers.XRefResolverPipeline, node, slug, meta, page, doc, errors
+    )
+    # finalizer
+    if xref_unresolved(node)
+        msg = "Cannot resolve @ref for '$slug' in $(Documenter.locrepr(page.source))."
+        if (length(errors) > 0)
+            msg *= ("\n" * join([string("- ", err) for err in errors], "\n"))
+        end
+        @docerror(doc, :cross_references, msg, node = node)
+    end
+    return nothing
 end
 
+
 """
-Parse the `link.url` field of an at-ref link. Returns `nothing` if it's not an at-ref,
+Parse the `link.url` field of an `@ref` link. Returns `nothing` if it's not an `@ref`,
 an empty string the reference link has no label, or a whitespace-stripped version the
 label.
 """
-function xrefname(link_url)
+function xrefname(link_url::AbstractString)
     m = match(XREF_REGEX, link_url)
     isnothing(m) && return nothing
     return isnothing(m[1]) ? "" : strip(m[1])
 end
+
+"""Regular expression for an `@ref` link url.
+
+This is used by the [`XRefResolvers.XRefResolverPipeline`](@ref), respectively
+[`xref_unresolved`](@ref): as long as the url of the link node still matches `XREF_REGEX`,
+the reference remains unresolved and needs further processing in subsequent steps of the
+pipeline.
+"""
 const XREF_REGEX = r"^\s*@ref(\s.*)?$"
 
-function basicxref(node::MarkdownAST.Node, meta, page, doc)
-    @assert node.element isa MarkdownAST.Link
-    if length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Code)
-        docsxref(node, first(node.children).element.code, meta, page, doc)
-    else
-        # No `name` was provided, since given a `@ref`, so slugify the `.text` instead.
-        # TODO: remove this hack (replace with mdflatten?)
-        ast = MarkdownAST.@ast MarkdownAST.Document() do
-            MarkdownAST.Paragraph() do
-                MarkdownAST.copy_tree(node)
-            end
-        end
-        md = convert(Markdown.MD, ast)
-        text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
-        if occursin(r"#[0-9]+", text)
-            issue_xref(node, lstrip(text, '#'), meta, page, doc)
-        else
-            name = Documenter.slugify(text)
-            namedxref(node, name, meta, page, doc)
-        end
-    end
-end
 
 # Cross referencing headers.
 # --------------------------
 
-function namedxref(node::MarkdownAST.Node, slug, meta, page, doc)
+function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     headers = doc.internal.headers
+    @assert anchor_exists(headers, slug)
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
     # Error checking: `slug` should exist and be unique.
     # TODO: handle non-unique slugs.
-    if anchor_exists(headers, slug)
-        if anchor_isunique(headers, slug)
-            # Replace the `@ref` url with a path to the referenced header.
-            anchor = Documenter.anchor(headers, slug)
-            pagekey = relpath(anchor.file, doc.user.build)
-            page = doc.blueprint.pages[pagekey]
-            node.element = Documenter.PageLink(page, anchor_label(anchor))
-        else
-            @docerror(doc, :cross_references, "'$slug' is not unique in $(Documenter.locrepr(page.source)).")
-        end
+    if anchor_isunique(headers, slug)
+        # Replace the `@ref` url with a path to the referenced header.
+        anchor = Documenter.anchor(headers, slug)
+        pagekey = relpath(anchor.file, doc.user.build)
+        page = doc.blueprint.pages[pagekey]
+        node.element = Documenter.PageLink(page, anchor_label(anchor))
     else
-        @docerror(doc, :cross_references, "reference for '$slug' could not be found in $(Documenter.locrepr(page.source)).")
+        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
     end
 end
 
 # Cross referencing docstrings.
 # -----------------------------
 
-function docsxref(node::MarkdownAST.Node, code, meta, page, doc; docref = find_docref(code, meta, page))
+function docsxref(node::MarkdownAST.Node, code, meta, page, doc, errors; docref = find_docref(code, meta, page))
     @assert node.element isa MarkdownAST.Link
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
-
-    # We'll bail if the parsing of the docref wasn't successful
     if haskey(docref, :error)
-        @docerror(doc, :cross_references, docref.error, exception = docref.exception)
-        return
-    end
-    binding, typesig = docref
-
-    # Try to find a valid object that we can cross-reference.
-    object = find_object(doc, binding, typesig)
-    if object !== nothing
-        # Replace the `@ref` url with a path to the referenced docs.
-        docsnode = doc.internal.objects[object]
-        slug = Documenter.slugify(object)
-        pagekey = relpath(docsnode.page.build, doc.user.build)
-        page = doc.blueprint.pages[pagekey]
-        node.element = Documenter.PageLink(page, slug)
+        # We'll bail if the parsing of the docref wasn't successful
+        msg = "Exception trying to find docref for `$code`: $(docref.error)"
+        @debug msg exception = docref.exception  # shows the full backtrace
+        push!(errors, msg)
     else
-        @docerror(doc, :cross_references, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
+        binding, typesig = docref
+        # Try to find a valid object that we can cross-reference.
+        object = find_object(doc, binding, typesig)
+        if object !== nothing
+            # Replace the `@ref` url with a path to the referenced docs.
+            docsnode = doc.internal.objects[object]
+            slug = Documenter.slugify(object)
+            pagekey = relpath(docsnode.page.build, doc.user.build)
+            page = doc.blueprint.pages[pagekey]
+            node.element = Documenter.PageLink(page, slug)
+        else
+            push!(errors, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
+        end
     end
 end
 
@@ -352,12 +491,12 @@ getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, 
 # Issues/PRs cross referencing.
 # -----------------------------
 
-function issue_xref(node::MarkdownAST.Node, num, meta, page, doc)
+function issue_xref(node::MarkdownAST.Node, num, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     # Update issue links starting with a hash, but only if our Remote supports it
     issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
     if isnothing(issue_url)
-        @docerror(doc, :cross_references, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
+        push!(errors,  "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
     else
         node.element.destination = issue_url
     end
