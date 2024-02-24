@@ -67,10 +67,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    ...[
-      "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js",
-    ]
+    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
   );
 
   let data = documenterSearchIndex.map((x, key) => {
@@ -219,6 +216,35 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   index.addAll(data);
 
   /**
+   *  Used to map characters to HTML entities.
+   * Refer: https://github.com/lodash/lodash/blob/main/src/escape.ts
+   */
+  const htmlEscapes = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+
+  /**
+   * Used to match HTML entities and HTML characters.
+   * Refer: https://github.com/lodash/lodash/blob/main/src/escape.ts
+   */
+  const reUnescapedHtml = /[&<>"']/g;
+  const reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
+
+  /**
+   * Escape function from lodash
+   * Refer: https://github.com/lodash/lodash/blob/main/src/escape.ts
+   */
+  function escape(string) {
+    return string && reHasUnescapedHtml.test(string)
+      ? string.replace(reUnescapedHtml, (chr) => htmlEscapes[chr])
+      : string || "";
+  }
+
+  /**
    * Make the result component given a minisearch result data object and the value
    * of the search input as queryString. To view the result object structure, refer:
    * https://lucaong.github.io/minisearch/modules/_minisearch_.html#searchresult
@@ -249,12 +275,12 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
           )
         : ""; // cut-off text before and after from the match
 
-    text = text.length ? _.escape(text) : "";
+    text = text.length ? escape(text) : "";
 
     let display_result = text.length
       ? "..." +
         text.replace(
-          new RegExp(`${_.escape(querystring)}`, "i"), // For first occurrence
+          new RegExp(`${escape(querystring)}`, "i"), // For first occurrence
           '<span class="search-result-highlight py-1">$&</span>'
         ) +
         "..."
