@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394])
+* Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394], [#2459], [#2460])
 
 ### Changed
 
@@ -1799,6 +1799,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2430]: https://github.com/JuliaDocs/Documenter.jl/issues/2430
 [#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
 [#2458]: https://github.com/JuliaDocs/Documenter.jl/issues/2458
+[#2459]: https://github.com/JuliaDocs/Documenter.jl/issues/2459
+[#2460]: https://github.com/JuliaDocs/Documenter.jl/issues/2460
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
