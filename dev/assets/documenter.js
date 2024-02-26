@@ -235,7 +235,7 @@ require(['jquery'], function($) {
 $(document).ready(function () {
   let meta = $("div[data-docstringscollapsed]").data();
 
-  if (meta.docstringscollapsed) {
+  if (meta?.docstringscollapsed) {
     $("#documenter-article-toggle-button").trigger({
       type: "click",
       noToggleAnimation: true,
