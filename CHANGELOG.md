@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Fix search filter toggle button styling in the HTML output. ([#2406], [#2408])
 * Fix escaping special html entities in search output. ([#2441], [#2461])
 * Fix the search filter toggle button styling in the HTML output. ([#2406], [#2408])
 * The theme selector for the HTML output now correctly picks `Automatic (OS)` if the user hasn't explicitly set the theme. ([#2414], [#2438])
