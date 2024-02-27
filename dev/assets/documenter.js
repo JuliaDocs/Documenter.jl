@@ -462,6 +462,35 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   index.addAll(data);
 
   /**
+   *  Used to map characters to HTML entities.
+   * Refer: https://github.com/lodash/lodash/blob/main/src/escape.ts
+   */
+  const htmlEscapes = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+
+  /**
+   * Used to match HTML entities and HTML characters.
+   * Refer: https://github.com/lodash/lodash/blob/main/src/escape.ts
+   */
+  const reUnescapedHtml = /[&<>"']/g;
+  const reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
+
+  /**
+   * Escape function from lodash
+   * Refer: https://github.com/lodash/lodash/blob/main/src/escape.ts
+   */
+  function escape(string) {
+    return string && reHasUnescapedHtml.test(string)
+      ? string.replace(reUnescapedHtml, (chr) => htmlEscapes[chr])
+      : string || "";
+  }
+
+  /**
    * Make the result component given a minisearch result data object and the value
    * of the search input as queryString. To view the result object structure, refer:
    * https://lucaong.github.io/minisearch/modules/_minisearch_.html#searchresult
@@ -492,10 +521,12 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
           )
         : ""; // cut-off text before and after from the match
 
+    text = text.length ? escape(text) : "";
+
     let display_result = text.length
       ? "..." +
         text.replace(
-          new RegExp(`${querystring}`, "i"), // For first occurrence
+          new RegExp(`${escape(querystring)}`, "i"), // For first occurrence
           '<span class="search-result-highlight py-1">$&</span>'
         ) +
         "..."
@@ -514,7 +545,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
           <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
             <div class="search-result-title has-text-weight-bold ${
               in_code ? "search-result-code-title" : ""
-            }">${result.title}</div>
+            }">${escape(result.title)}</div>
             <div class="property-search-result-badge">${result.category}</div>
           </div>
           <p>
