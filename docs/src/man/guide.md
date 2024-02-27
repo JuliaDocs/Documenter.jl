@@ -321,6 +321,36 @@ This also works across different pages in the same way. Note that these sections
 docstrings must be unique within a document.
 
 
+## External Cross-References
+
+Any project building its documentation with the most recent release of Documenter will
+generate an [`objects.inv` inventory](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
+that can be found in the root of the [deployed documentation](@ref Hosting-Documentation).
+The [`DocumenterInterLinks` plugin](https://github.com/JuliaDocs/DocumenterInterLinks.jl#readme)
+allows to define a mapping in your `make.jl` file between an external project name
+and its inventory file, e.g.,
+
+```julia
+using DocumenterInterLinks
+
+links = InterLinks(
+    "Documenter" => "https://documenter.juliadocs.org/stable/objects.inv"
+)
+```
+
+That `InterLinks` object should then be passed to [`makedocs`](@ref) as an element of
+`plugins`. This enables the ability to cross-reference into the external documentation,
+e.g.,  of the `Documenter` package, using an [`@extref` link](@ref) with a syntax similar
+to the above [`@ref`](@ref Cross-Referencing), e.g.,
+
+```markdown
+See the [`Documenter.makedocs`](@extref) function.
+```
+
+See the [documentation of the `DocumenterInterLinks` package](http://juliadocs.org/DocumenterInterLinks.jl/stable/)
+for more details.
+
+
 ## Navigation
 
 Documenter can auto-generate tables of contents and docstring indexes for your document with
