@@ -299,7 +299,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
           <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
             <div class="search-result-title has-text-weight-bold ${
               in_code ? "search-result-code-title" : ""
-            }">${result.title}</div>
+            }">${escape(result.title)}</div>
             <div class="property-search-result-badge">${result.category}</div>
           </div>
           <p>
