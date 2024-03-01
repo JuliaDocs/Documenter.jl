@@ -505,8 +505,7 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/dev
 ```
 
 !!! tip
-    A custom domain can be set up with the keyword argument `cname` to
-    [`deploydocs`](@ref), which will then be used as the base URL for the documentation.
+    If you need Documenter to maintain [a `CNAME` file](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for you can use the `cname` argument of [`deploydocs`](@ref) to specify the domain.
 
 By default Documenter will create a link called `stable` that points to the latest release
 
