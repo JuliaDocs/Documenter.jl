@@ -25,7 +25,7 @@ The `makedocs` argument `authors` should also be specified, it will be used for 
 `\authors` field in the tex document.
 
 !!! warning "Known issue"
-    If the `makedocs` argument `pages` is not assigned, Documenter will generate tex documents without contents.
+    If the `makedocs` argument `pages` is not assigned, Documenter will generate tex documents without contents. ([#2132](@ref))
 
 ### Compiling using natively installed latex
 
