@@ -32,6 +32,7 @@ makedocs(
             highlights = ["yaml"],
             ansicolor = true,
             size_threshold_ignore = ["release-notes.md"],
+            inventory_version = Documenter.DOCUMENTER_VERSION,
         )
     end,
     build = ("pdf" in ARGS) ? "build-pdf" : "build",

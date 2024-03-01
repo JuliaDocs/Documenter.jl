@@ -11,7 +11,8 @@ keyword arguments: `analytics`, `assets`, `canonical`, `disable_git`, `edit_link
 `prettyurls`, `collapselevel`, `sidebar_sitename`, `highlights`, `mathengine` and `footer`.
 
 **`sitename`** is the site's title displayed in the title bar and at the top of the
-*navigation menu. This argument is mandatory for [`HTMLWriter`](@ref).
+*navigation menu. It is also written into the inventory (see below).
+This argument is mandatory for [`HTMLWriter`](@ref).
 
 **`pages`** defines the hierarchy of the navigation menu.
 
@@ -24,7 +25,7 @@ selector will be hidden. The special value `git-commit` sets the value in the ou
 
 # `HTML` `Plugin` options
 
-The [`HTML`](@ref) [`Documenter.Plugin`](@ref) provides additional customization options
+The [`HTML`](@ref) object provides additional customization options
 for the [`HTMLWriter`](@ref). For more information, see the [`HTML`](@ref) documentation.
 
 # Page outline
@@ -37,15 +38,39 @@ then it is intended as the page title. This has two consequences:
    and in the `<title>` tag, unless specified in the `.pages` option.
 2. If the first heading is interpreted as being the page title, it is not displayed
    in the navigation sidebar.
+
+# Inventory
+
+The `HTMLWriter` automatically generates an `objects.inv` "inventory" file in
+the output `build` folder. This file contains a list of all pages, headers and
+docstrings in the documentation, and a relative URL that can be used to link to
+those items from an external source.
+
+Other projects that build their documentation with Documenter can use the
+[`DocumenterInterLinks` plugin](https://github.com/JuliaDocs/DocumenterInterLinks.jl#readme)
+to link to any other project with an inventory file, see
+[External Cross-References](@ref).
+
+The [format of the `objects.inv` file](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
+is borrowed from the [Sphinx project](https://www.sphinx-doc.org/en/master/). It consists
+of a plain text header that includes the project name, taken from the `sitename` argument
+to [`Documenter.makedocs`](@ref), and a project `version` taken from the
+`inventory_version` argument of the [`HTML`](@ref) options, or automatically
+determined by [`deploydocs`](@ref Documenter.deploydocs) for tagged releases.
+The bulk of the file is a list of plain text records, compressed with gzip. See
+[Inventory Generation](http://juliadocs.org/DocumenterInterLinks.jl/stable/write_inventory/)
+for details on these records.
 """
 module HTMLWriter
 
 using Dates: Dates, @dateformat_str, now
 import Markdown
 using MarkdownAST: MarkdownAST, Node
+using TOML
 import JSON
 import Base64
 import SHA
+using CodecZlib
 
 import ..Documenter
 using Documenter: NavNode
@@ -393,6 +418,13 @@ executable to be available in `PATH` or to be passed as the `node` keyword.
 
 **`highlightjs`** file path to custom highglight.js library to be used with prerendering.
 
+**`inventory_version`** a version string to write to the header of the
+`objects.inv` inventory file. This should be a valid version number without a `v` prefix.
+Defaults to the `version` defined in the `Project.toml` file in the parent folder of the
+documentation root. Setting this to an empty string leaves the `version` in the inventory
+unspecified until [`deploydocs`](@ref Documenter.deploydocs) runs and automatically sets the
+`version` for any tagged release.
+
 # Default and custom assets
 
 Documenter copies all files under the source directory (e.g. `/docs/src/`) over
@@ -454,6 +486,7 @@ struct HTML <: Documenter.Writer
     size_threshold_warn :: Int
     size_threshold_ignore :: Vector{String}
     example_size_threshold :: Int
+    inventory_version ::  Union{String,Nothing}
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -482,6 +515,7 @@ struct HTML <: Documenter.Writer
             # seems reasonable, and that would lead to ~80 KiB, which is still fine
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
+            inventory_version = nothing,
 
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -537,6 +571,7 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
+            (isnothing(inventory_version) ? nothing : string(inventory_version))
         )
     end
 end
@@ -582,6 +617,7 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
 end
 
 include("RD.jl")
+include("write_inventory.jl")
 
 struct SearchRecord
     src :: String
@@ -720,7 +756,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery, RD.minisearch,
+            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
         ])
         RD.mathengine!(r, settings.mathengine)
         if !settings.prerender
@@ -750,7 +786,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     if !isempty(ctx.atexample_warnings)
         msg = """
         For $(length(ctx.atexample_warnings)) @example blocks, the 'text/html' representation of the resulting
-        object is above the the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
+        object is above the threshold (example_size_threshold: $(ctx.settings.example_size_threshold) bytes).
         """
         fallbacks = unique(w.fallback for w in ctx.atexample_warnings)
         # We'll impose some regular order, but importantly we want 'nothing'-s on the top
@@ -781,6 +817,8 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
         println(io, json_jsescape(ctx.search_index), "\n}")
     end
+
+    write_inventory(doc, ctx)
 
     generate_siteinfo_json(doc.user.build)
 end
@@ -836,7 +874,17 @@ function render_page(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
-    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer)
+    meta_divs = DOM.Node[]
+    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
+        # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
+        # collapse button after that page has loaded.
+        @tags script
+        push!(
+            meta_divs,
+            div[Symbol("data-docstringscollapsed") => "true"]()
+        )
+    end
+    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer, meta_divs)
     write_html(ctx, navnode, htmldoc)
 end
 
@@ -873,8 +921,8 @@ function render_settings(ctx)
         label[".label"]("Theme"),
         div[".select"](
             select["#documenter-themepicker"](
+                option[:value=>"auto"]("Automatic (OS)"),
                 (option[:value=>theme](theme) for theme in THEMES)...,
-                option[:value=>"auto"]("Automatic (OS)")
             )
         )
     )

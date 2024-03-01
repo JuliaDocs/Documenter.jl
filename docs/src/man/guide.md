@@ -14,6 +14,20 @@ From the Julia REPL, type `]` to enter the Pkg REPL mode and run
 pkg> add Documenter
 ```
 
+For package documentation, the standard approach is to install Documenter into a documentation-specific project stored in the `docs/` subdirectory of your package.
+To do this, navigate to your package's root folder and do
+
+```
+pkg> activate docs/
+
+(docs) pkg> add Documenter
+```
+
+This will create `Project.toml` and `Manifest.toml` files in the `docs/` subdirectory. 
+
+Note that for packages, you also likely need to have your package that you are documenting as a  ["dev dependency"](https://pkgdocs.julialang.org/v1/managing-packages/#developing) of the `docs/` environment.
+
+See also [the Pkg.jl documentation on working with project environments](https://pkgdocs.julialang.org/v1/environments/).
 
 ## Setting up the Folder Structure
 
@@ -305,6 +319,36 @@ the header and for docstrings enclose the object in backticks.
 
 This also works across different pages in the same way. Note that these sections and
 docstrings must be unique within a document.
+
+
+## External Cross-References
+
+Any project building its documentation with the most recent release of Documenter will
+generate an [`objects.inv` inventory](https://juliadocs.org/DocInventories.jl/stable/formats/#Sphinx-Inventory-Format)
+that can be found in the root of the [deployed documentation](@ref Hosting-Documentation).
+The [`DocumenterInterLinks` plugin](https://github.com/JuliaDocs/DocumenterInterLinks.jl#readme)
+allows to define a mapping in your `make.jl` file between an external project name
+and its inventory file, e.g.,
+
+```julia
+using DocumenterInterLinks
+
+links = InterLinks(
+    "Documenter" => "https://documenter.juliadocs.org/stable/objects.inv"
+)
+```
+
+That `InterLinks` object should then be passed to [`makedocs`](@ref) as an element of
+`plugins`. This enables the ability to cross-reference into the external documentation,
+e.g.,  of the `Documenter` package, using an [`@extref` link](@ref) with a syntax similar
+to the above [`@ref`](@ref Cross-Referencing), e.g.,
+
+```markdown
+See the [`Documenter.makedocs`](@extref) function.
+```
+
+See the [documentation of the `DocumenterInterLinks` package](http://juliadocs.org/DocumenterInterLinks.jl/stable/)
+for more details.
 
 
 ## Navigation
