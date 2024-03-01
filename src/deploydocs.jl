@@ -9,6 +9,7 @@
         branch = "gh-pages",
         deps = nothing | <Function>,
         make = nothing | <Function>,
+        cname = nothing | <String>,
         devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
@@ -93,6 +94,10 @@ not exist, a new orphaned branch is created automatically. It defaults to `"gh-p
 
 **`dirname`** is a subdirectory of `branch` that the docs should be added to. By default,
 it is `""`, which will add the docs to the root directory.
+
+** `cname`** is the CNAME where the documentation will be hosted, which is equivalent to
+the GitHub Pages "Custom domain" setting in the repository settings. If set, it will be
+used to generate the `CNAME` file, which has a higher priority than the GitHub Pages settings.
 
 **`devbranch`** is the branch that "tracks" the in-development version of the generated
 documentation. By default Documenter tries to figure this out using `git`. Can be set
@@ -192,6 +197,7 @@ function deploydocs(;
         deps   = nothing,
         make   = nothing,
 
+        cname = nothing,
         devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
@@ -285,7 +291,8 @@ function deploydocs(;
                     root, temp, deploy_repo;
                     branch=deploy_branch, dirname=dirname, target=target,
                     sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
-                    devurl=devurl, versions=versions, forcepush=forcepush,
+                    cname=cname, devurl=devurl,
+                    versions=versions, forcepush=forcepush,
                     is_preview=deploy_is_preview, archive=archive,
                 )
             end
@@ -335,7 +342,8 @@ end
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        branch="gh-pages", dirname="", target="site", sha="",
+        cname=nothing, devurl="dev",
         deploy_config, subfolder
     )
 
@@ -344,7 +352,8 @@ The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
         root, temp, repo;
-        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        branch="gh-pages", dirname="", target="site", sha="",
+        cname=nothing, devurl="dev",
         versions, forcepush=false, deploy_config, subfolder,
         is_preview::Bool = false, archive,
     )
@@ -394,6 +403,11 @@ function git_push(
         # Copy docs to `subfolder` directory.
         deploy_dir = subfolder === nothing ? dirname : joinpath(dirname, subfolder)
         gitrm_copy(target_dir, deploy_dir)
+
+        # Generate the CNAME file if `cname` is set.
+        if !isnothing(cname)
+            write(joinpath(dirname, "CNAME"), cname)
+        end
 
         if versions === nothing
             # If the documentation is unversioned and deployed to root, we generate a
