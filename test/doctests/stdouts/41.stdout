@@ -6,3 +6,7 @@
 [ Info: Populate: populating indices.
 [ Info: RenderDocument: rendering document.
 [ Info: HTMLWriter: rendering HTML pages.
+┌ Warning: Cannot extract version for inventory from {PATH}: no such file
+└ @ Documenter.HTMLWriter {PATH}
+┌ Warning: Please set `inventory_version` in the `HTML()` options passed to `makedocs`.
+└ @ Documenter.HTMLWriter {PATH}
