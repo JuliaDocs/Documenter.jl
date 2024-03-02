@@ -504,6 +504,9 @@ https://USER_NAME.github.io/PACKAGE_NAME.jl/vX.Y.Z
 https://USER_NAME.github.io/PACKAGE_NAME.jl/dev
 ```
 
+!!! tip
+    If you need Documenter to maintain [a `CNAME` file](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for you can use the `cname` argument of [`deploydocs`](@ref) to specify the domain.
+
 By default Documenter will create a link called `stable` that points to the latest release
 
 ```
