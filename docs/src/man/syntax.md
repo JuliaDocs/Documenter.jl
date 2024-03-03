@@ -743,11 +743,11 @@ Another example is to generate markdown tables from machine readable data format
 using CSV
 using Latexify
 df = CSV.read("table.csv")
-mdtable(df,latex=false)
+mdtable(df, latex=false)
 ```
 ````
 
-Which will generate a markdown version of the CSV file table.csv and render it in the output format.
+which will generate a markdown version of the CSV file table.csv and render it in the output format.
 
 The final expression in an `@eval` block must be either `nothing` or a valid `Markdown.MD`
 object. Other objects will generate a warning and will be rendered in text form as a code block,
