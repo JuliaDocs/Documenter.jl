@@ -135,6 +135,9 @@ elements in `<head>`, respectively.
 relative to the documentation source directory (conventionally `src/`). This can be useful
 when it is necessary to override the asset class of a local asset.
 
+**`load_early`** can be used to load the JS before requirejs when the script 
+is not Asynchronous Module Definition (AMD) compatable.
+
 # Usage
 
 ```julia
