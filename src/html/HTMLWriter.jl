@@ -99,9 +99,10 @@ struct HTMLAsset
     class :: Symbol
     uri :: String
     islocal :: Bool
+    load_early :: Bool
     attributes::Dict{Symbol, String}
 
-    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, attributes::Dict{Symbol, String}=Dict{Symbol,String}())
+    function HTMLAsset(class::Symbol, uri::String, islocal::Bool, load_early::Bool=false, attributes::Dict{Symbol, String}=Dict{Symbol,String}())
         if !islocal && match(r"^https?://", uri) === nothing
             error("Remote asset URL must start with http:// or https://")
         end
@@ -109,9 +110,10 @@ struct HTMLAsset
             @error("Local asset should not have an absolute URI: $uri")
         end
         class in [:ico, :css, :js] || error("Unrecognised asset class $class for `$(uri)`")
-        new(class, uri, islocal, attributes)
+        new(class, uri, islocal, load_early, attributes)
     end
 end
+
 
 """
     asset(uri)
@@ -148,7 +150,7 @@ Documenter.HTML(assets = [
 ])
 ```
 """
-function asset(uri; class = nothing, islocal=false, attributes=Dict{Symbol,String}())
+function asset(uri; class = nothing, islocal=false, load_early=false, attributes=Dict{Symbol,String}())
     if class === nothing
         class = assetclass(uri)
         (class === nothing) && error("""
@@ -156,7 +158,7 @@ function asset(uri; class = nothing, islocal=false, attributes=Dict{Symbol,Strin
         It can be set explicitly with the `class` keyword argument.
         """)
     end
-    HTMLAsset(class, uri, islocal, attributes)
+    HTMLAsset(class, uri, islocal, load_early, attributes)
 end
 
 function assetclass(uri)
@@ -1006,8 +1008,8 @@ function render_head(ctx, navnode)
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
 
-        # Custom user-provided assets.
-        asset_links(src, ctx.settings.assets),
+        # Custom user-provided assets which are loaded early for non-AMD compatable modules.
+        asset_links(src, filter(x -> x.load_early, ctx.settings.assets)),
 
         script[
             :src => RD.requirejs_cdn,
@@ -1029,7 +1031,10 @@ function render_head(ctx, navnode)
             (i == 2) && push!(e.attributes, Symbol("data-theme-primary-dark") => "")
             return e
         end,
-        script[:src => relhref(src, ctx.themeswap_js)]
+        script[:src => relhref(src, ctx.themeswap_js)],
+
+        # Custom user-provided assets.
+        asset_links(src, filter(x -> !x.load_early, ctx.settings.assets))
     )
 end
 
