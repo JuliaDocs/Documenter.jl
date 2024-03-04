@@ -1005,6 +1005,10 @@ function render_head(ctx, navnode)
         end,
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
+
+        # Custom user-provided assets.
+        asset_links(src, ctx.settings.assets),
+
         script[
             :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js)
@@ -1025,9 +1029,7 @@ function render_head(ctx, navnode)
             (i == 2) && push!(e.attributes, Symbol("data-theme-primary-dark") => "")
             return e
         end,
-        script[:src => relhref(src, ctx.themeswap_js)],
-        # Custom user-provided assets.
-        asset_links(src, ctx.settings.assets),
+        script[:src => relhref(src, ctx.themeswap_js)]
     )
 end
 
