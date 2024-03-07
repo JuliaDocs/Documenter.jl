@@ -1439,7 +1439,6 @@ end
 
 function render_article(ctx, navnode)
     dctx = DCtx(ctx, navnode)
-    # function render_article(ctx, navnode)
     @tags article section ul li hr span a div p
 
     # Build the page itself (and collect any footnotes)
@@ -1658,7 +1657,6 @@ domify(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify(dctx, node.child
 function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     @assert length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Heading)
     anchor = ah.anchor
-    # function domify(ctx, navnode, anchor::Anchor)
     @tags a
     frag = Documenter.anchor_fragment(anchor)
     legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
@@ -1695,7 +1693,6 @@ end
 
 function domify(dctx::DCtx, node::Node, contents::Documenter.ContentsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, contents::Documenter.ContentsNode)
     @tags a
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
@@ -1717,7 +1714,6 @@ end
 
 function domify(dctx::DCtx, node::Node, index::Documenter.IndexNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, index::Documenter.IndexNode)
     @tags a code li ul
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
@@ -1735,7 +1731,6 @@ domify(dctx::DCtx, node::Node, ::Documenter.DocsNodesBlock) = domify(dctx, node.
 
 function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, node::Documenter.DocsNode)
     @tags a code article header span
 
     # push to search index
@@ -1760,7 +1755,6 @@ end
 function domify_doc(dctx::DCtx, node::Node)
     @assert node.element isa Documenter.DocsNode
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify_doc(ctx, navnode, md::Markdown.MD)
     @tags a section footer div
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
@@ -2018,7 +2012,6 @@ was unable to find any `<h1>` headers).
 """
 function pagetitle(page::Node)
     @assert page.element isa MarkdownAST.Document
-    # function pagetitle(page::Documenter.Page)
     title = nothing
     for node in page.children
         # AnchoredHeaders should have just one child node, which is the Heading node
@@ -2035,7 +2028,6 @@ end
 
 function pagetitle(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function pagetitle(ctx, navnode::Documenter.NavNode)
     if navnode.title_override !== nothing
         # parse title_override as markdown
         md = Markdown.parse(navnode.title_override)
@@ -2065,7 +2057,6 @@ in the navigation menu twice.
 """
 function collect_subsections(page::MarkdownAST.Node)
     @assert page.element isa MarkdownAST.Document
-    # function collect_subsections(page::Documenter.Page)
     sections = []
     title_found = false
     for node in page.children
@@ -2113,7 +2104,6 @@ end
 function domify(dctx::DCtx, node::Node, e::MarkdownAST.Text)
     ctx, navnode = dctx.ctx, dctx.navnode
     text = e.text
-    # function mdconvert(text::AbstractString, parent; kwargs...)
 
     # Javascript LaTeX engines have a hard time dealing with `$` floating around
     # because they use them as in-line escapes. You can try a few different
@@ -2134,7 +2124,6 @@ function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
     ctx = dctx.ctx
     settings = ctx.settings
     language = c.info
-    # function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
     language = Documenter.codelang(language)
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
@@ -2150,7 +2139,6 @@ end
 
 function domify(dctx::DCtx, node::Node, mcb::Documenter.MultiCodeBlock)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function mdconvert(mcb::Documenter.MultiCodeBlock, parent::MDBlockContext; kwargs...)
     @tags pre br
     p = pre()
     for (i, thing) in enumerate(node.children)
@@ -2204,7 +2192,6 @@ function domify(dctx::DCtx, node::Node, i::ImageElements)
     ctx, navnode = dctx.ctx, dctx.navnode
     alt = mdflatten(node.children)
     url = filehref(dctx, node, i)
-    # function mdconvert(i::Markdown.Image, parent; kwargs...)
     # TODO: Implement .title
     @tags video img a
 
@@ -2230,7 +2217,6 @@ const LinkElements = Union{MarkdownAST.Link, Documenter.PageLink, Documenter.Loc
 function domify(dctx::DCtx, node::Node, link::LinkElements)
     droplinks = dctx.droplinks
     url = filehref(dctx, node, link)
-    # function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
     link_text = domify(dctx, node.children)
     droplinks ? link_text : Tag(:a)[:href => url](link_text)
 end
@@ -2254,7 +2240,6 @@ is_in_tight_list(node::Node) = !isnothing(node.parent) && isa(node.parent.elemen
 
 function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
     th_row, tbody_rows = Iterators.peel(MarkdownAST.tablerows(node))
-    # function mdconvert(t::Markdown.Table, parent; kwargs...)
     @tags table tr th td
     alignment_style = map(t.spec) do align
         if align == :right
