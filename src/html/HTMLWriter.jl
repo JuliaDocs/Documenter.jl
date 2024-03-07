@@ -664,17 +664,15 @@ struct DCtx
     navnode :: Documenter.NavNode
     # The following fields were keyword arguments to mdconvert()
     droplinks :: Bool
-    settings :: Union{HTML, Nothing}
     footnotes :: Union{Vector{Node{Nothing}},Nothing}
 
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, [])
+    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, [])
     DCtx(
         dctx::DCtx;
         navnode = dctx.navnode,
         droplinks = dctx.droplinks,
-        settings = dctx.settings,
         footnotes = dctx.footnotes,
-    ) = new(dctx.ctx, navnode, droplinks, settings, footnotes)
+    ) = new(dctx.ctx, navnode, droplinks, footnotes)
 end
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
@@ -2135,7 +2133,8 @@ domify(dctx::DCtx, node::Node, ::MarkdownAST.BlockQuote) = Tag(:blockquote)(domi
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Strong) = Tag(:strong)(domify(dctx, node.children))
 
 function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
-    ctx, navnode, settings = dctx.ctx, dctx.navnode, dctx.settings
+    ctx = dctx.ctx
+    settings = ctx.settings
     language = c.info
     # function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
