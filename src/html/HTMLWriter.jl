@@ -900,7 +900,7 @@ function render_html(ctx, head, sidebar, navbar, article, footer, scripts::Vecto
                 div["#documenter"](
                     sidebar,
                     div[".docs-main"](navbar, article, footer),
-                    render_settings(ctx),
+                    render_settings(),
                 ),
             ),
             scripts...
@@ -911,7 +911,7 @@ end
 """
 Renders the modal settings dialog.
 """
-function render_settings(ctx)
+function render_settings()
     @tags div header section footer p button hr span select option label a
 
     theme_selector = p(
