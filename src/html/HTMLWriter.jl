@@ -881,7 +881,7 @@ function render_page(ctx, navnode)
             div[Symbol("data-docstringscollapsed") => "true"]()
         )
     end
-    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer, meta_divs)
+    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, meta_divs)
     write_html(ctx, navnode, htmldoc)
 end
 
@@ -891,7 +891,7 @@ end
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
+function render_html(ctx, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
     @tags html body div
     DOM.HTMLDocument(
         html[:lang=>ctx.settings.lang](
