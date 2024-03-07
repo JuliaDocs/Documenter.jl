@@ -721,7 +721,6 @@ Returns a page (as a [`Documenter.Page`](@ref) object) using the [`HTMLContext`]
 """
 getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx::HTMLContext, navnode::Documenter.NavNode) = getpage(ctx, navnode.page)
-getpage(dctx::DCtx) = getpage(dctx.ctx, dctx.navnode)
 
 function render(doc::Documenter.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
@@ -1658,7 +1657,6 @@ domify(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify(dctx, node.child
 
 function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     @assert length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Heading)
-    ctx, navnode = dctx.ctx, dctx.navnode
     anchor = ah.anchor
     # function domify(ctx, navnode, anchor::Anchor)
     @tags a
@@ -2050,7 +2048,7 @@ function pagetitle(dctx::DCtx)
     end
 
     if navnode.page !== nothing
-        title = pagetitle(getpage(dctx).mdast)
+        title = pagetitle(getpage(ctx, navnode).mdast)
         title === nothing || return title
     end
 
