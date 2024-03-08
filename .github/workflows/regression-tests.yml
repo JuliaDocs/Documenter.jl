@@ -12,6 +12,7 @@ jobs:
       matrix:
         include:
           - package: 'DocumenterCitations'
+          - package: 'DocumenterInterLinks'
           - package: 'DocumenterMermaid'
           - package: 'Asciicast'
     steps:
