@@ -862,7 +862,7 @@ end
 Constructs and writes the page referred to by the `navnode` to `.build`.
 """
 function render_page(ctx, navnode)
-    @tags html div body
+    @tags div 
     head = render_head(ctx, navnode)
     sidebar = render_sidebar(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
@@ -872,7 +872,6 @@ function render_page(ctx, navnode)
     if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
         # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
         # collapse button after that page has loaded.
-        @tags script
         push!(
             meta_divs,
             div[Symbol("data-docstringscollapsed") => "true"]()
@@ -1124,7 +1123,7 @@ end
 NavMenuContext(ctx::HTMLContext, current::Documenter.NavNode) = NavMenuContext(ctx, current, [])
 
 function render_sidebar(ctx, navnode)
-    @tags a form img input nav div button select option span
+    @tags a img nav div button select option span
     src = get_url(ctx, navnode)
     navmenu = nav[".docs-sidebar"]
 
@@ -1437,7 +1436,7 @@ end
 
 function render_article(ctx, navnode)
     dctx = DCtx(ctx, navnode)
-    @tags article section ul li hr span a div p
+    @tags article section ul li a p
 
     # Build the page itself (and collect any footnotes)
     empty!(dctx.footnotes)
@@ -1752,7 +1751,7 @@ end
 function domify_doc(dctx::DCtx, node::Node)
     @assert node.element isa Documenter.DocsNode
     ctx = dctx.ctx
-    @tags a section footer div
+    @tags a section div
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
