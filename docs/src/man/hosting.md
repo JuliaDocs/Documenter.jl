@@ -192,7 +192,7 @@ jobs:
   build:
     permissions:
       contents: write
-      statuses: write
+      pull_requests: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -266,6 +266,16 @@ to the configuration file, as showed in the [previous section](@ref GitHub-Actio
     You can only use `GITHUB_TOKEN` for authentication if the target repository
     of the deployment is the same as the current repository. In order to push
     elsewhere you should instead use a SSH deploy key.
+
+#### Permissions
+
+The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs) are required to successfully use [`deploydocs`](#the-deploydocs-function):
+
+```yaml
+permissions:
+  contents: write
+  pull_requests: read  # Required when `push_preview=true`
+```
 
 ### Authentication: SSH Deploy Keys
 
