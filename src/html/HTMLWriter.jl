@@ -63,23 +63,20 @@ for details on these records.
 """
 module HTMLWriter
 
-using Dates: Dates, @dateformat_str, now
-import Markdown
+using Dates: Dates
+using Markdown: Markdown
 using MarkdownAST: MarkdownAST, Node
-using TOML
-import JSON
-import Base64
-import SHA
-using CodecZlib
+using TOML: TOML
+using JSON: JSON
+using Base64: Base64
+using SHA: SHA
+using CodecZlib: ZlibCompressorStream
+using ANSIColoredPrinters: ANSIColoredPrinters
 
-import ..Documenter
-using Documenter: NavNode
-using ..Documenter: Default, Remotes
-using ...JSDependencies: JSDependencies, json_jsescape
-import ...DOM: DOM, Tag, @tags
-using ...MDFlatten
-
-import ANSIColoredPrinters
+using ..Documenter: Documenter, Remotes
+using ...JSDependencies: JSDependencies
+using ...DOM: DOM, @tags
+using ...MDFlatten: mdflatten
 
 export HTML
 
@@ -491,8 +488,8 @@ struct HTML <: Documenter.Writer
     function HTML(;
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
-            repolink      :: Union{String, Nothing, Default} = Default(nothing),
-            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
+            repolink      :: Union{String, Nothing, Default} = Documenter.Default(nothing),
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Documenter.Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",
@@ -518,7 +515,7 @@ struct HTML <: Documenter.Writer
             inventory_version = nothing,
 
             # deprecated keywords
-            edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
+            edit_branch   :: Union{String, Nothing, Default} = Documenter.Default(nothing),
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         if prerender
@@ -812,7 +809,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
-        println(io, json_jsescape(ctx.search_index), "\n}")
+        println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
     end
 
     write_inventory(doc, ctx)
@@ -924,7 +921,8 @@ function render_settings()
         )
     )
 
-    now_full, now_short = Dates.format(now(), dateformat"E d U Y HH:MM"), Dates.format(now(), dateformat"E d U Y")
+    now_full = Dates.format(Dates.now(), Dates.dateformat"E d U Y HH:MM")
+    now_short = Dates.format(Dates.now(), Dates.dateformat"E d U Y")
     buildinfo = p(
         "This document was generated with ",
         a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"),
@@ -1110,7 +1108,7 @@ end
 
 function warning_script(src, ctx)
     if ctx.settings.warn_outdated
-        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
+        return DOM.Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
     end
     return DOM.VOID
 end
@@ -1623,7 +1621,7 @@ function generate_siteinfo_json(root::AbstractString)
     siteinfo = Dict(
         "documenter_version" => string(Documenter.DOCUMENTER_VERSION),
         "julia_version" => string(VERSION),
-        "generation_timestamp" => Dates.format(now(), dateformat"yyyy-mm-dd\THH:MM:SS"),
+        "generation_timestamp" => Dates.format(Dates.now(), Dates.dateformat"yyyy-mm-dd\THH:MM:SS"),
     )
     open(joinpath(root, ".documenter-siteinfo.json"), "w") do io
         JSON.print(io, Dict("documenter" => siteinfo))
@@ -1661,7 +1659,7 @@ function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     frag = Documenter.anchor_fragment(anchor)
     legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
     h = first(node.children)
-    Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
+    DOM.Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
         a[".docs-heading-anchor", :href => frag](domify(dctx, h.children)),
         legacy...,
         a[".docs-heading-anchor-permalink", :href => frag, :title => "Permalink"]
@@ -1673,8 +1671,7 @@ struct ListBuilder
 end
 ListBuilder() = ListBuilder([])
 
-import Base: push!
-function push!(lb::ListBuilder, level, node)
+function Base.push!(lb::ListBuilder, level, node)
     @assert level >= 1
     if level == 1
         push!(lb.es, node)
@@ -1781,7 +1778,7 @@ domify(::DCtx, ::Node, ::Documenter.MetaNode) = DOM.Node[]
 domify(::DCtx, ::Node, ::Documenter.SetupNode) = DOM.Node[]
 
 function domify(::DCtx, ::Node, rawnode::Documenter.RawNode)
-    rawnode.name === :html ? Tag(Symbol("#RAW#"))(rawnode.text) : DOM.Node[]
+    rawnode.name === :html ? DOM.Tag(Symbol("#RAW#"))(rawnode.text) : DOM.Node[]
 end
 
 
@@ -2083,11 +2080,11 @@ function domify_ansicoloredtext(text::AbstractString, class = "")
     function cb(io::IO, printer, tag::String, attrs::Dict{Symbol, String})
         text = String(take!(io))
         children = stack[end].nodes
-        isempty(text) || push!(children, Tag(Symbol("#RAW#"))(text))
+        isempty(text) || push!(children, DOM.Tag(Symbol("#RAW#"))(text))
         if startswith(tag, "/")
             pop!(stack)
         else
-            parent = Tag(Symbol(tag))[attrs]
+            parent = DOM.Tag(Symbol(tag))[attrs]
             push!(children, parent)
             push!(stack, parent)
         end
@@ -2109,14 +2106,14 @@ function domify(::DCtx, ::Node, e::MarkdownAST.Text)
     # hacky) solution is to wrap dollar signs in a <span>. For now, only do this
     # when the text coming in is a singleton escaped $ sign.
     if text == "\$"
-        return Tag(:span)("\$")
+        return DOM.Tag(:span)("\$")
     end
     return DOM.Node(text)
 end
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.BlockQuote) = Tag(:blockquote)(domify(dctx, node.children))
+domify(dctx::DCtx, node::Node, ::MarkdownAST.BlockQuote) = DOM.Tag(:blockquote)(domify(dctx, node.children))
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.Strong) = Tag(:strong)(domify(dctx, node.children))
+domify(dctx::DCtx, node::Node, ::MarkdownAST.Strong) = DOM.Tag(:strong)(domify(dctx, node.children))
 
 function domify(dctx::DCtx, ::Node, c::MarkdownAST.CodeBlock)
     ctx = dctx.ctx
@@ -2153,7 +2150,7 @@ function domify(dctx::DCtx, node::Node, mcb::Documenter.MultiCodeBlock)
     return p
 end
 
-domify(::DCtx, ::Node, c::MarkdownAST.Code) = Tag(:code)(c.code)
+domify(::DCtx, ::Node, c::MarkdownAST.Code) = DOM.Tag(:code)(c.code)
 
 function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     @assert settings.prerender "unreachable"
@@ -2169,8 +2166,8 @@ function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
         run(pipeline(`$(settings.node) -e "$(js)"`; stdout=out, stderr=err))
         str = String(take!(out))
         # prepend nohighlight to stop runtime highlighting
-        # return pre(code[".nohighlight $(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
-        return pre(code[".language-$(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
+        # return pre(code[".nohighlight $(lang) .hljs"](DOM.Tag(Symbol("#RAW#"))(str)))
+        return pre(code[".language-$(lang) .hljs"](DOM.Tag(Symbol("#RAW#"))(str)))
     catch e
         @error "HTMLWriter: prerendering failed" exception=e stderr=String(take!(err))
     end
@@ -2182,7 +2179,7 @@ function domify(dctx::DCtx, node::Node, h::MarkdownAST.Heading)
     DOM.Tag(Symbol("h$N"))(domify(dctx, node.children))
 end
 
-domify(::DCtx, ::Node, ::MarkdownAST.ThematicBreak) = Tag(:hr)()
+domify(::DCtx, ::Node, ::MarkdownAST.ThematicBreak) = DOM.Tag(:hr)()
 
 const ImageElements = Union{MarkdownAST.Image, Documenter.LocalImage}
 function domify(dctx::DCtx, node::Node, i::ImageElements)
@@ -2200,13 +2197,13 @@ function domify(dctx::DCtx, node::Node, i::ImageElements)
     end
 end
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = Tag(:em)(domify(dctx, node.children))
+domify(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = DOM.Tag(:em)(domify(dctx, node.children))
 
-domify(::DCtx, ::Node, m::MarkdownAST.DisplayMath) = Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
+domify(::DCtx, ::Node, m::MarkdownAST.DisplayMath) = DOM.Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
 
-domify(::DCtx, ::Node, m::MarkdownAST.InlineMath) = Tag(:span)(string('$', m.math, '$'))
+domify(::DCtx, ::Node, m::MarkdownAST.InlineMath) = DOM.Tag(:span)(string('$', m.math, '$'))
 
-domify(::DCtx, ::Node, m::MarkdownAST.LineBreak) = Tag(:br)()
+domify(::DCtx, ::Node, m::MarkdownAST.LineBreak) = DOM.Tag(:br)()
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
 
 const LinkElements = Union{MarkdownAST.Link, Documenter.PageLink, Documenter.LocalLink}
@@ -2214,12 +2211,12 @@ function domify(dctx::DCtx, node::Node, link::LinkElements)
     droplinks = dctx.droplinks
     url = filehref(dctx, node, link)
     link_text = domify(dctx, node.children)
-    droplinks ? link_text : Tag(:a)[:href => url](link_text)
+    droplinks ? link_text : DOM.Tag(:a)[:href => url](link_text)
 end
 
 function domify(dctx::DCtx, node::Node, list::MarkdownAST.List)
     isordered = (list.type === :ordered)
-    (isordered ? Tag(:ol) : Tag(:ul))(map(Tag(:li), domify(dctx, node.children)))
+    (isordered ? DOM.Tag(:ol) : DOM.Tag(:ul))(map(DOM.Tag(:li), domify(dctx, node.children)))
 end
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Item) = domify(dctx, node.children)
 
@@ -2228,7 +2225,7 @@ function domify(dctx::DCtx, node::Node, ::MarkdownAST.Paragraph)
     # This 'if' here is to render tight/loose lists properly, as they all have Markdown.Paragraph as a child
     # node, but we should not render it for tight lists.
     # See also: https://github.com/JuliaLang/julia/pull/26598
-    is_in_tight_list(node) ? content : Tag(:p)(content)
+    is_in_tight_list(node) ? content : DOM.Tag(:p)(content)
 end
 is_in_tight_list(node::Node) = !isnothing(node.parent) && isa(node.parent.element, MarkdownAST.Item) &&
     !isnothing(node.parent.parent) && isa(node.parent.parent.element, MarkdownAST.List) &&
@@ -2343,7 +2340,7 @@ domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.chi
 domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
-    rawhtml(code) = Tag(Symbol("#RAW#"))(code)
+    rawhtml(code) = DOM.Tag(Symbol("#RAW#"))(code)
     # Our first preference for the MIME type is 'text/html', which we can natively include
     # in the HTML. But it might happen that it's too large (above example_size_threshold),
     # in which case we move on to trying to write it as an image.
