@@ -862,22 +862,13 @@ end
 Constructs and writes the page referred to by the `navnode` to `.build`.
 """
 function render_page(ctx, navnode)
-    @tags div 
     head = render_head(ctx, navnode)
     sidebar = render_sidebar(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
-    meta_divs = DOM.Node[]
-    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
-        # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
-        # collapse button after that page has loaded.
-        push!(
-            meta_divs,
-            div[Symbol("data-docstringscollapsed") => "true"]()
-        )
-    end
-    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, meta_divs)
+    extras = render_extras(ctx, navnode)
+    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras)
     write_html(ctx, navnode, htmldoc)
 end
 
@@ -887,7 +878,7 @@ end
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
+function render_html(ctx, head, sidebar, navbar, article, footer, extras)
     @tags html body div
     DOM.HTMLDocument(
         html[:lang=>ctx.settings.lang](
@@ -899,7 +890,7 @@ function render_html(ctx, head, sidebar, navbar, article, footer, scripts::Vecto
                     render_settings(),
                 ),
             ),
-            scripts...
+            extras...
         )
     )
 end
@@ -1429,6 +1420,17 @@ function render_footer(ctx, navnode)
     end
 
     return nav[".docs-footer"](nav_children...)
+end
+
+function render_extras(ctx, navnode)
+    @tags div
+    meta_divs = DOM.Node[]
+    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
+        # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
+        # collapse button after that page has loaded.
+        push!(meta_divs, div[Symbol("data-docstringscollapsed") => "true"]())
+    end
+    meta_divs
 end
 
 # Article (page contents)
