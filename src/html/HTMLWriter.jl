@@ -73,7 +73,7 @@ using SHA: SHA
 using CodecZlib: ZlibCompressorStream
 using ANSIColoredPrinters: ANSIColoredPrinters
 
-using ..Documenter: Documenter, Remotes
+using ..Documenter: Documenter, Default, Remotes
 using ...JSDependencies: JSDependencies
 using ...DOM: DOM, @tags
 using ...MDFlatten: mdflatten
@@ -488,8 +488,8 @@ struct HTML <: Documenter.Writer
     function HTML(;
             prettyurls    :: Bool = true,
             disable_git   :: Bool = false,
-            repolink      :: Union{String, Nothing, Default} = Documenter.Default(nothing),
-            edit_link     :: Union{String, Symbol, Nothing, Default} = Documenter.Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
+            repolink      :: Union{String, Nothing, Default} = Default(nothing),
+            edit_link     :: Union{String, Symbol, Nothing, Default} = Default(Documenter.git_remote_head_branch("HTML(edit_link = ...)", Documenter.currentdir())),
             canonical     :: Union{String, Nothing} = nothing,
             assets        :: Vector = String[],
             analytics     :: String = "",
@@ -515,7 +515,7 @@ struct HTML <: Documenter.Writer
             inventory_version = nothing,
 
             # deprecated keywords
-            edit_branch   :: Union{String, Nothing, Default} = Documenter.Default(nothing),
+            edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
         )
         collapselevel >= 1 || throw(ArgumentError("collapselevel must be >= 1"))
         if prerender
