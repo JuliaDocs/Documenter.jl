@@ -274,7 +274,7 @@ The following [GitHub Actions job or workflow permissions](https://docs.github.c
 ```yaml
 permissions:
   contents: write
-  pull_requests: read  # Required when `push_preview=true`
+  pull_requests: read  # Required when using `push_preview=true`
 ```
 
 ### Authentication: SSH Deploy Keys
