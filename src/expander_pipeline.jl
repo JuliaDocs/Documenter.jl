@@ -309,7 +309,10 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = err)
+                    """, exception = err,
+                    _file = joinpath(pwd(), page.source),
+                    _line = lines.first,
+                )
             end
         end
     end
@@ -384,7 +387,10 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
                 $(x.code)
                 ```
                 """,
-                exception = err)
+                exception = err,
+                _file = joinpath(pwd(), page.source),
+                _line = lines.first,
+            )
             push!(docsnodes, admonition)
             continue
         end
@@ -396,7 +402,10 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
                 ```$(x.info)
                 $(x.code)
                 ```
-                """)
+                """,
+                _file = joinpath(pwd(), page.source),
+                _line = lines.first,
+            )
             push!(docsnodes, admonition)
             continue
         end
@@ -410,7 +419,10 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
                 ```$(x.info)
                 $(x.code)
                 ```
-                """)
+                """,
+                _file = joinpath(pwd(), page.source),
+                _line = lines.first,
+            )
             push!(docsnodes, admonition)
             continue
         end
@@ -431,7 +443,10 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
                 ```$(x.info)
                 $(x.code)
                 ```
-                """)
+                """,
+                _file = joinpath(pwd(), page.source),
+                _line = lines.first,
+            )
             push!(docsnodes, admonition)
             continue
         end
@@ -486,7 +501,11 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = err)
+                    """,
+                    exception = err,
+                    _file = joinpath(pwd(), page.source),
+                    _line = lines.first,
+                )
             end
         end
     end
@@ -527,7 +546,11 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                       warnonly = [:autodocs_block]
 
                     However, the relevant docstrings will then not be included by the @autodocs block.
-                    """, exception = err)
+                    """,
+                        exception = err,
+                        _file = joinpath(pwd(), page.source),
+                        _line = lines.first,
+                    )
                     continue # skip this docstring
                 end
                 if category in order && included
@@ -578,7 +601,11 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """)
+                    """,
+                    _file = joinpath(pwd(),
+                    page.source),
+                    _line = lines.first,
+                )
                 continue
             end
             markdown::Markdown.MD = Documenter.DocSystem.parsedoc(docstr)
@@ -601,7 +628,10 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
             ```$(x.info)
             $(x.code)
             ```
-            """)
+            """,
+            _file = joinpath(pwd(), page.source),
+            _line = lines.first,
+        )
     end
 end
 
@@ -637,7 +667,11 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = (err, bt))
+                    """,
+                    exception = (err, bt),
+                    _file = joinpath(pwd(), page.source),
+                    _line = lines.first,
+                )
             end
         end
         result = if isnothing(result)
@@ -659,7 +693,10 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
 
             If you are seeing this warning/error after upgrading Documenter and this used to work,
             please open an issue on the Documenter issue tracker.
-            """)
+            """,
+                _file = joinpath(pwd(), page.source),
+                _line = lines.first,
+            )
             MarkdownAST.@ast MarkdownAST.Document() do
                 MarkdownAST.CodeBlock("", sprint(show, MIME"text/plain"(), result))
             end
@@ -765,7 +802,11 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = (c.value, bt))
+                    """,
+                    exception = (c.value, bt),
+                    _file = joinpath(pwd(), page.source),
+                    _line = lines.first,
+                )
                 return
             end
         end
@@ -914,7 +955,10 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
             ```$(x.info)
             $(x.code)
             ```
-            """, exception=(err, bt))
+            """,
+            exception = (err, bt),
+            _file = joinpath(pwd(), page.source),
+            _line = lines.first,)
     end
     node.element = Documenter.SetupNode(x.info, x.code)
 end
