@@ -136,7 +136,7 @@ relative to the documentation source directory (conventionally `src/`). This can
 when it is necessary to override the asset class of a local asset.
 
 **`load_early`** can be used to load the JS before requirejs when the script 
-is not Asynchronous Module Definition (AMD) compatable.
+is not Asynchronous Module Definition (AMD) compatible.
 
 # Usage
 
@@ -1011,7 +1011,7 @@ function render_head(ctx, navnode)
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
 
-        # Custom user-provided assets which are loaded early for non-AMD compatable modules.
+        # Custom user-provided assets which are loaded early for non-AMD compatible modules.
         asset_links(src, filter(x -> x.load_early, ctx.settings.assets)),
 
         script[
