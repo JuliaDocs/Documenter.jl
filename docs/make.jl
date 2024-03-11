@@ -20,6 +20,7 @@ Changelog.generate(
 
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
+    version = string(Documenter.DOCUMENTER_VERSION),
     format = if "pdf" in ARGS
         Documenter.LaTeX(platform = "docker")
     else
