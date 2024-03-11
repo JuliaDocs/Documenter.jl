@@ -193,6 +193,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: read
+      statuses: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -275,6 +276,7 @@ The following [GitHub Actions job or workflow permissions](https://docs.github.c
 permissions:
   contents: write
   pull-requests: read  # Required when using `push_preview=true`
+  statuses: write  # Optional, used to report documentation build statuses
 ```
 
 ### Authentication: SSH Deploy Keys
