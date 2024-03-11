@@ -192,7 +192,7 @@ jobs:
   build:
     permissions:
       contents: write
-      pull_requests: read
+      pull-requests: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -274,7 +274,7 @@ The following [GitHub Actions job or workflow permissions](https://docs.github.c
 ```yaml
 permissions:
   contents: write
-  pull_requests: read  # Required when using `push_preview=true`
+  pull-requests: read  # Required when using `push_preview=true`
 ```
 
 ### Authentication: SSH Deploy Keys
