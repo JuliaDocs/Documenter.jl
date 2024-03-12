@@ -529,11 +529,23 @@ function git_push(
 end
 
 function rm_and_add_symlink(target, link)
-    if ispath(link) || islink(link)
+    if ispath(link) || islink(link) || isdir(link)
         @warn "removing `$(link)` and linking `$(link)` to `$(target)`."
         rm(link; force = true, recursive = true)
     end
-    symlink(target, link)
+    final_target = relpath(target, link)
+    mkpath(dirname(link))
+    write(link, """
+        <!DOCTYPE html>
+        <script>
+            const u = new URL(window.location.href);
+            window.location.replace(u.origin + u.pathname.slice(0,-1) + u.search + u.hash);
+        </script>
+        <a href="$(final_target)">Redirecting to $(final_target)</a>
+        <meta http-equiv="refresh" content="0; URL=$(final_target)">
+        <link rel="canonical" href="$(final_target)">
+        """
+    )
 end
 
 """
