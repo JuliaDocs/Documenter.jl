@@ -202,10 +202,15 @@ Plain text in the "text" part of a link will either cross-reference a header, or
 a number preceded by a `#`, a GitHub issue/pull request. Text wrapped in backticks will
 cross-reference a docstring from a `@docs` or `@autodocs` block.
 
-The code enclosed in the backticks for such a reference will be evaluated first in the `CurrentModule`  given in the `@meta` block of the current page, and second in `Main`, i.e., the context of the `docs/make.jl` file. For `@ref` links inside a docstring, the `CurrentModule` is automatically set to the module containing the docstring.
+The code enclosed in the backticks for such a reference will be evaluated in the
+`CurrentModule`  given in the `@meta` block of the current page (`Main` by default). For
+`@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
+containing the docstring. A reference that is a fully qualified name will also be resolved
+in `Main`. That is, loading a package in `docs/make.jl` ensures that fully qualified `@ref`
+links work from anywhere.
 
-`@ref`s may refer to docstrings or headers on different pages as well as the current page
-using the same syntax.
+The `@ref` links may refer to docstrings or headers on different pages as well as the
+current page using the same syntax.
 
 
 ### Named `@ref`s
