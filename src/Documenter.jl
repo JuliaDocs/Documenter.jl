@@ -25,7 +25,7 @@ import RegistryInstances
 import Git
 # Additional imported names
 using Test: @testset, @test
-using DocStringExtensions
+using DocStringExtensions: SIGNATURES, EXPORTS
 using Base64: base64decode
 
 # Version number of Documenter itself

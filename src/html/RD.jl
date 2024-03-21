@@ -1,6 +1,6 @@
 "Provides a namespace for remote dependencies."
 module RD
-    using JSON
+    using JSON: JSON
     using ....Documenter.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
     using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 

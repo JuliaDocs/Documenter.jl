@@ -1,6 +1,6 @@
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
-using DocStringExtensions
+using DocStringExtensions: SIGNATURES, TYPEDSIGNATURES
 import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
 
