@@ -388,7 +388,7 @@ function Document(;
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
         warnonly :: Union{Bool,Symbol,Vector{Symbol}} = Symbol[],
-        modules  :: ModVec = Module[],
+        modules  :: Union{Module, Vector{Module}} = Module[],
         pages    :: Vector           = Any[],
         pagesonly:: Bool             = false,
         expandfirst :: Vector        = String[],

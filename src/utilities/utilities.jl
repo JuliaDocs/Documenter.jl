@@ -1,6 +1,6 @@
 using Base.Meta
 import Base: isdeprecated, Docs.Binding
-using DocStringExtensions
+using DocStringExtensions: SIGNATURES, TYPEDSIGNATURES
 import Markdown, MarkdownAST, LibGit2
 import Base64: stringmime
 
@@ -89,8 +89,6 @@ end
 Returns the path to the Documenter `assets` directory.
 """
 assetsdir() = normpath(joinpath(dirname(@__FILE__), "..", "..", "assets"))
-
-cleandir(d::AbstractString) = (isdir(d) && rm(d, recursive = true); mkdir(d))
 
 """
 Find the path of a file relative to the `source` directory. `root` is the path
@@ -199,8 +197,6 @@ end
 
 
 # Finding submodules.
-
-const ModVec = Union{Module, Vector{Module}}
 
 """
 Returns the set of submodules of a given root module/s.
@@ -327,58 +323,6 @@ doccat(::Type)     = "Type"
 doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
 doccat(::Module)   = "Module"
 doccat(::Any)      = "Constant"
-
-"""
-    filterdocs(doc, modules)
-
-Remove docstrings from the markdown object, `doc`, that are not from one of `modules`.
-"""
-function filterdocs(doc::Markdown.MD, modules::Set{Module})
-    if isempty(modules)
-        # When no modules are specified in `makedocs` then don't filter anything.
-        doc
-    else
-        if haskey(doc.meta, :module)
-            doc.meta[:module] ∈ modules ? doc : nothing
-        else
-            if haskey(doc.meta, :results)
-                out = []
-                results = []
-                for (each, result) in zip(doc.content, doc.meta[:results])
-                    r = filterdocs(each, modules)
-                    if r !== nothing
-                        push!(out, r)
-                        push!(results, result)
-                    end
-                end
-                if isempty(out)
-                    nothing
-                else
-                    md = Markdown.MD(out)
-                    md.meta[:results] = results
-                    md
-                end
-            else
-                out = []
-                for each in doc.content
-                    r = filterdocs(each, modules)
-                    r === nothing || push!(out, r)
-                end
-                isempty(out) ? nothing : Markdown.MD(out)
-            end
-        end
-    end
-end
-# Non-markdown docs won't have a `.meta` field so always just accept those.
-filterdocs(other, modules::Set{Module}) = other
-
-"""
-Does the given docstring represent actual documentation or a no docs error message?
-"""
-nodocs(x) = occursin("No documentation found.", stringmime("text/plain", x))
-nodocs(::Nothing) = false
-
-header_level(::Markdown.Header{N}) where {N} = N
 
 """
     $(SIGNATURES)
@@ -540,22 +484,6 @@ end
 newlines(s::AbstractString) = count(c -> c === '\n', s)
 newlines(other) = 0
 
-
-"""
-    issubmodule(sub, mod)
-
-Checks whether `sub` is a submodule of `mod`. A module is also considered to be
-its own submodule.
-
-E.g. `A.B.C` is a submodule of `A`, `A.B` and `A.B.C`, but it is not a submodule
-of `D`, `A.D` nor `A.B.C.D`.
-"""
-function issubmodule(sub, mod)
-    if (sub === Main) && (mod !== Main)
-        return false
-    end
-    (sub === mod) || issubmodule(parentmodule(sub), mod)
-end
 
 """
     isabsurl(url)
@@ -741,21 +669,6 @@ function is_draft(doc, page)::Bool
     # Check both Draft and draft from @meta block
     return get(page.globals.meta, :Draft, get(page.globals.meta, :draft, is_draft(doc)))
 end
-
-## Markdown Utilities.
-
-# Remove all header nodes from a markdown object and replace them with bold font.
-# Only for use in `text/plain` output, since we'll use some css to make these less obtrusive
-# in the HTML rendering instead of using this hack.
-function dropheaders(md::Markdown.MD)
-    out = Markdown.MD()
-    out.meta = md.meta
-    out.content = map(dropheaders, md.content)
-    out
-end
-dropheaders(h::Markdown.Header) = Markdown.Paragraph([Markdown.Bold(h.text)])
-dropheaders(v::Vector) = map(dropheaders, v)
-dropheaders(other) = other
 
 function git(; nothrow = false, kwargs...)
     # DOCUMENTER_KEY etc are never needed for git operations
