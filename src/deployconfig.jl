@@ -934,7 +934,7 @@ pipeline:
 ```
 
 More about pipeline syntax is documented here: 
-- 0.15.x <https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax>
+- 0.15.x <https://web.archive.org/web/20240318223506/https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax> (the documentation is no longer available on the Woodpecker website)
 - 1.0.0 and onwards <https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax>
 - 2.0.0 <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 """
