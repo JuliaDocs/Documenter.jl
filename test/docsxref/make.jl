@@ -54,7 +54,7 @@ end
     end
     @test isnothing(captured.value)
     @test contains(
-        captured.output,
+        replace(captured.output, "src\\index" => "src/index"),
         """
         ┌ Warning: Cannot resolve @ref for md"[`AbstractSelector`](@ref)" in src/index.md.
         │ - No docstring found in doc for binding `Main.DocsReferencingMain.AbstractSelector`.
@@ -62,7 +62,7 @@ end
         """
     )
     @test contains(
-        captured.output,
+        replace(captured.output, "src\\page" => "src/page"),
         """
         ┌ Warning: Cannot resolve @ref for md"[`DocsReferencingMain.f`](@ref)" in src/page.md.
         │ - Exception trying to find docref for `DocsReferencingMain.f`: unable to get the binding for `DocsReferencingMain.f` in module Documenter.Selectors
