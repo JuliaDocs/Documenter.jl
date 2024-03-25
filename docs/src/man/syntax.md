@@ -179,8 +179,7 @@ noncanonical-block).
 ## `@ref` link
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
-automatically. The text part of the link can be a code object, header name, or GitHub PR/Issue
-number.
+automatically. The text part of the link can be a code object (between backticks), header name, or GitHub PR/Issue number (`#` followed by a number).
 
 ````markdown
 # Syntax
