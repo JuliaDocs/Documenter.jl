@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* A fully qualified `@ref` link now resolves in `Main` as well well as in the `CurrentModule`. For any package whose docstrings are included in the documentation, as long as that package is loaded in `make.jl`, `@ref` links to docstrings in the package will work from anywhere. This simplifies, e.g., linking between docstrings for packages that use sub-modules. ([#2470])
+* A fully qualified `@ref` link now resolves in `Main` as well, in addition to `CurrentModule`. For any package whose docstrings are included in the documentation, as long as that package is loaded in `make.jl`, fully qualified `@ref` links to docstrings in the package will work from anywhere. This simplifies, e.g., linking between docstrings for packages that use sub-modules. ([#2470])
 
 
 ## Version [v1.3.0] - 2024-03-01
