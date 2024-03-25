@@ -204,9 +204,10 @@ cross-reference a docstring from a `@docs` or `@autodocs` block.
 The code enclosed in the backticks for such a reference will be evaluated in the
 `CurrentModule`  given in the `@meta` block of the current page (`Main` by default). For
 `@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
-containing the docstring. A reference that is a fully qualified name will also be resolved
-in `Main`. That is, loading a package in `docs/make.jl` ensures that fully qualified `@ref`
-links work from anywhere.
+containing the docstring.
+
+A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)``` or `[domath](@ref Example.domath)`) will also be resolved in `Main`.
+That is, loading a package in `docs/make.jl` ensures that fully qualified `@ref` links work from anywhere.
 
 The `@ref` links may refer to docstrings or headers on different pages as well as the
 current page using the same syntax.
