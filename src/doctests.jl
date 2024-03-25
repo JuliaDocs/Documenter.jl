@@ -62,7 +62,7 @@ function set_content!(mp::MutablePrefix, s::AbstractString)
     return nothing
 end
 function append_to_prefix!(mp::MutablePrefix, s::AbstractString)
-    if(!isnothing(mp.content))
+    if !isnothing(mp.content)
         mp.content = mp.content * s
     else
         mp.content = s
