@@ -192,6 +192,7 @@ jobs:
   build:
     permissions:
       contents: write
+      pull-requests: read
       statuses: write
     runs-on: ubuntu-latest
     steps:
@@ -283,6 +284,17 @@ to the configuration file, as showed in the [previous section](@ref GitHub-Actio
 See GitHub's manual for
 [Encrypted secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 for more information.
+
+### Permissions
+
+The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs) are required to successfully use [`deploydocs`](#the-deploydocs-function):
+
+```yaml
+permissions:
+  contents: write  # Required when authenticating with `GITHUB_TOKEN`, not needed when authenticating with SSH deploy keys
+  pull-requests: read  # Required when using `push_preview=true`
+  statuses: write  # Optional, used to report documentation build statuses
+```
 
 ### Add code coverage from documentation builds
 
