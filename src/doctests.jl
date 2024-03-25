@@ -564,7 +564,7 @@ function repl_splitter(code)
         line = popfirst!(lines)
         prompt = match(PROMPT_REGEX, line)
         # We allow comments before the first julia> prompt
-        if(!found_first_prompt && startswith(line, '#'))
+        if !found_first_prompt && startswith(line, '#')
             append_to_prefix!(prefix, line * "\n")
             continue
         end
