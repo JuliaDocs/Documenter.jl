@@ -179,8 +179,7 @@ noncanonical-block).
 ## `@ref` link
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
-automatically. The text part of the link can be a docstring, header name, or GitHub PR/Issue
-number.
+automatically. The text part of the link can be a code object (between backticks), header name, or GitHub PR/Issue number (`#` followed by a number).
 
 ````markdown
 # Syntax
@@ -200,13 +199,19 @@ makedocs
 
 Plain text in the "text" part of a link will either cross-reference a header, or, when it is
 a number preceded by a `#`, a GitHub issue/pull request. Text wrapped in backticks will
-cross-reference a docstring from a `@docs` block.
+cross-reference a docstring from a `@docs` or `@autodocs` block.
 
-`@ref`s may refer to docstrings or headers on different pages as well as the current page
-using the same syntax.
+The code enclosed in the backticks for such a reference will be evaluated in the
+`CurrentModule`  given in the `@meta` block of the current page (`Main` by default). For
+`@ref` links inside a docstring, the `CurrentModule` is automatically set to the module
+containing the docstring.
 
-Note that depending on what the `CurrentModule` is set to, a docstring `@ref` may need to
-be prefixed by the module which defines it.
+A reference that is a fully qualified name (e.g. ```[`Example.domath`](@ref)``` or `[domath](@ref Example.domath)`) will also be resolved in `Main`.
+That is, loading a package in `docs/make.jl` ensures that fully qualified `@ref` links work from anywhere.
+
+The `@ref` links may refer to docstrings or headers on different pages as well as the
+current page using the same syntax.
+
 
 ### Named `@ref`s
 
