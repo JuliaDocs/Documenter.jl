@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * A fully qualified `@ref` link now resolves in `Main` as well, in addition to `CurrentModule`. For any package whose docstrings are included in the documentation, as long as that package is loaded in `make.jl`, fully qualified `@ref` links to docstrings in the package will work from anywhere. This simplifies, e.g., linking between docstrings for packages that use sub-modules. ([#2470])
 
+### Fixed
+
+* Doctest fixing functionality handles another edge case. ([#2303], [#2378])
+
 
 ## Version [v1.3.0] - 2024-03-01
 
@@ -1782,6 +1786,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2288]: https://github.com/JuliaDocs/Documenter.jl/issues/2288
 [#2293]: https://github.com/JuliaDocs/Documenter.jl/issues/2293
 [#2300]: https://github.com/JuliaDocs/Documenter.jl/issues/2300
+[#2303]: https://github.com/JuliaDocs/Documenter.jl/issues/2303
 [#2306]: https://github.com/JuliaDocs/Documenter.jl/issues/2306
 [#2307]: https://github.com/JuliaDocs/Documenter.jl/issues/2307
 [#2308]: https://github.com/JuliaDocs/Documenter.jl/issues/2308
@@ -1803,6 +1808,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2373]: https://github.com/JuliaDocs/Documenter.jl/issues/2373
 [#2374]: https://github.com/JuliaDocs/Documenter.jl/issues/2374
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
+[#2378]: https://github.com/JuliaDocs/Documenter.jl/issues/2378
 [#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
@@ -1817,6 +1823,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2459]: https://github.com/JuliaDocs/Documenter.jl/issues/2459
 [#2460]: https://github.com/JuliaDocs/Documenter.jl/issues/2460
 [#2461]: https://github.com/JuliaDocs/Documenter.jl/issues/2461
+[#2470]: https://github.com/JuliaDocs/Documenter.jl/issues/2470
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
