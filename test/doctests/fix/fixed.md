@@ -98,6 +98,7 @@ julia> a
 # Leading comment
 julia> a
 ERROR: UndefVarError: `a` not defined
+Suggestion: check for spelling errors or missing imports.
 
 julia> a = Int64[1,2]
 2-element Vector{Int64}:
@@ -106,6 +107,7 @@ julia> a = Int64[1,2]
 
 julia> b
 ERROR: UndefVarError: `b` not defined
+Suggestion: check for spelling errors or missing imports.
 
 julia> a
 2-element Vector{Int64}:
@@ -116,6 +118,7 @@ julia> a;
 
 julia> b;
 ERROR: UndefVarError: `b` not defined
+Suggestion: check for spelling errors or missing imports.
 
 julia> a = Int64[3,4];
 
