@@ -63,23 +63,20 @@ for details on these records.
 """
 module HTMLWriter
 
-using Dates: Dates, @dateformat_str, now
-import Markdown
+using Dates: Dates
+using Markdown: Markdown
 using MarkdownAST: MarkdownAST, Node
-using TOML
-import JSON
-import Base64
-import SHA
-using CodecZlib
+using TOML: TOML
+using JSON: JSON
+using Base64: Base64
+using SHA: SHA
+using CodecZlib: ZlibCompressorStream
+using ANSIColoredPrinters: ANSIColoredPrinters
 
-import ..Documenter
-using Documenter: NavNode
-using ..Documenter: Default, Remotes
-using ...JSDependencies: JSDependencies, json_jsescape
-import ...DOM: DOM, Tag, @tags
-using ...MDFlatten
-
-import ANSIColoredPrinters
+using ..Documenter: Documenter, Default, Remotes
+using ...JSDependencies: JSDependencies
+using ...DOM: DOM, @tags
+using ...MDFlatten: mdflatten
 
 export HTML
 
@@ -664,17 +661,15 @@ struct DCtx
     navnode :: Documenter.NavNode
     # The following fields were keyword arguments to mdconvert()
     droplinks :: Bool
-    settings :: Union{HTML, Nothing}
     footnotes :: Union{Vector{Node{Nothing}},Nothing}
 
-    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, ctx.settings, [])
+    DCtx(ctx, navnode, droplinks=false) = new(ctx, navnode, droplinks, [])
     DCtx(
         dctx::DCtx;
         navnode = dctx.navnode,
         droplinks = dctx.droplinks,
-        settings = dctx.settings,
         footnotes = dctx.footnotes,
-    ) = new(dctx.ctx, navnode, droplinks, settings, footnotes)
+    ) = new(dctx.ctx, navnode, droplinks, footnotes)
 end
 
 function SearchRecord(ctx::HTMLContext, navnode; fragment="", title=nothing, category="page", text="")
@@ -723,7 +718,6 @@ Returns a page (as a [`Documenter.Page`](@ref) object) using the [`HTMLContext`]
 """
 getpage(ctx::HTMLContext, path) = ctx.doc.blueprint.pages[path]
 getpage(ctx::HTMLContext, navnode::Documenter.NavNode) = getpage(ctx, navnode.page)
-getpage(dctx::DCtx) = getpage(dctx.ctx, dctx.navnode)
 
 function render(doc::Documenter.Document, settings::HTML=HTML())
     @info "HTMLWriter: rendering HTML pages."
@@ -815,7 +809,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
         println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
-        println(io, json_jsescape(ctx.search_index), "\n}")
+        println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
     end
 
     write_inventory(doc, ctx)
@@ -868,23 +862,13 @@ end
 Constructs and writes the page referred to by the `navnode` to `.build`.
 """
 function render_page(ctx, navnode)
-    @tags html div body
     head = render_head(ctx, navnode)
     sidebar = render_sidebar(ctx, navnode)
     navbar = render_navbar(ctx, navnode, true)
     article = render_article(ctx, navnode)
     footer = render_footer(ctx, navnode)
-    meta_divs = DOM.Node[]
-    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
-        # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
-        # collapse button after that page has loaded.
-        @tags script
-        push!(
-            meta_divs,
-            div[Symbol("data-docstringscollapsed") => "true"]()
-        )
-    end
-    htmldoc = render_html(ctx, navnode, head, sidebar, navbar, article, footer, meta_divs)
+    extras = render_extras(ctx, navnode)
+    htmldoc = render_html(ctx, head, sidebar, navbar, article, footer, extras)
     write_html(ctx, navnode, htmldoc)
 end
 
@@ -894,7 +878,7 @@ end
 """
 Renders the main `<html>` tag.
 """
-function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scripts::Vector{DOM.Node}=DOM.Node[])
+function render_html(ctx, head, sidebar, navbar, article, footer, extras)
     @tags html body div
     DOM.HTMLDocument(
         html[:lang=>ctx.settings.lang](
@@ -903,10 +887,10 @@ function render_html(ctx, navnode, head, sidebar, navbar, article, footer, scrip
                 div["#documenter"](
                     sidebar,
                     div[".docs-main"](navbar, article, footer),
-                    render_settings(ctx),
+                    render_settings(),
                 ),
             ),
-            scripts...
+            extras...
         )
     )
 end
@@ -914,7 +898,7 @@ end
 """
 Renders the modal settings dialog.
 """
-function render_settings(ctx)
+function render_settings()
     @tags div header section footer p button hr span select option label a
 
     theme_selector = p(
@@ -927,7 +911,8 @@ function render_settings(ctx)
         )
     )
 
-    now_full, now_short = Dates.format(now(), dateformat"E d U Y HH:MM"), Dates.format(now(), dateformat"E d U Y")
+    now_full = Dates.format(Dates.now(), Dates.dateformat"E d U Y HH:MM")
+    now_short = Dates.format(Dates.now(), Dates.dateformat"E d U Y")
     buildinfo = p(
         "This document was generated with ",
         a[:href => "https://github.com/JuliaDocs/Documenter.jl"]("Documenter.jl"),
@@ -1113,7 +1098,7 @@ end
 
 function warning_script(src, ctx)
     if ctx.settings.warn_outdated
-        return Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
+        return DOM.Tag(:script)[Symbol(OUTDATED_VERSION_ATTR), :src => relhref(src, ctx.warner_js)]()
     end
     return DOM.VOID
 end
@@ -1129,7 +1114,7 @@ end
 NavMenuContext(ctx::HTMLContext, current::Documenter.NavNode) = NavMenuContext(ctx, current, [])
 
 function render_sidebar(ctx, navnode)
-    @tags a form img input nav div button select option span
+    @tags a img nav div button select option span
     src = get_url(ctx, navnode)
     navmenu = nav[".docs-sidebar"]
 
@@ -1437,13 +1422,23 @@ function render_footer(ctx, navnode)
     return nav[".docs-footer"](nav_children...)
 end
 
+function render_extras(ctx, navnode)
+    @tags div
+    meta_divs = DOM.Node[]
+    if get(getpage(ctx, navnode).globals.meta, :CollapsedDocStrings, false)
+        # if DocStringsCollapse = true in `@meta`, we let JavaScript click the
+        # collapse button after that page has loaded.
+        push!(meta_divs, div[Symbol("data-docstringscollapsed") => "true"]())
+    end
+    meta_divs
+end
+
 # Article (page contents)
 # ------------------------------------------------------------------------------
 
 function render_article(ctx, navnode)
     dctx = DCtx(ctx, navnode)
-    # function render_article(ctx, navnode)
-    @tags article section ul li hr span a div p
+    @tags article section ul li a p
 
     # Build the page itself (and collect any footnotes)
     empty!(dctx.footnotes)
@@ -1627,7 +1622,7 @@ function generate_siteinfo_json(root::AbstractString)
     siteinfo = Dict(
         "documenter_version" => string(Documenter.DOCUMENTER_VERSION),
         "julia_version" => string(VERSION),
-        "generation_timestamp" => Dates.format(now(), dateformat"yyyy-mm-dd\THH:MM:SS"),
+        "generation_timestamp" => Dates.format(Dates.now(), Dates.dateformat"yyyy-mm-dd\THH:MM:SS"),
     )
     open(joinpath(root, ".documenter-siteinfo.json"), "w") do io
         JSON.print(io, Dict("documenter" => siteinfo))
@@ -1638,7 +1633,7 @@ end
 ## domify(...)
 # ------------
 
-function domify(dctx::DCtx, node::Node, element::MarkdownAST.AbstractElement)
+function domify(::DCtx, ::Node, element::MarkdownAST.AbstractElement)
     error("Unimplemented element: $(typeof(element))")
 end
 
@@ -1660,14 +1655,12 @@ domify(dctx::DCtx, node::Node, ::MarkdownAST.Document) = domify(dctx, node.child
 
 function domify(dctx::DCtx, node::Node, ah::Documenter.AnchoredHeader)
     @assert length(node.children) == 1 && isa(first(node.children).element, MarkdownAST.Heading)
-    ctx, navnode = dctx.ctx, dctx.navnode
     anchor = ah.anchor
-    # function domify(ctx, navnode, anchor::Anchor)
     @tags a
     frag = Documenter.anchor_fragment(anchor)
     legacy = anchor.nth == 1 ? (a[:id => lstrip(frag, '#')*"-1"],) : ()
     h = first(node.children)
-    Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
+    DOM.Tag(Symbol("h$(h.element.level)"))[:id => lstrip(frag, '#')](
         a[".docs-heading-anchor", :href => frag](domify(dctx, h.children)),
         legacy...,
         a[".docs-heading-anchor-permalink", :href => frag, :title => "Permalink"]
@@ -1679,8 +1672,7 @@ struct ListBuilder
 end
 ListBuilder() = ListBuilder([])
 
-import Base: push!
-function push!(lb::ListBuilder, level, node)
+function Base.push!(lb::ListBuilder, level, node)
     @assert level >= 1
     if level == 1
         push!(lb.es, node)
@@ -1697,18 +1689,17 @@ function domify(lb::ListBuilder)
     ul(map(e -> isa(e, ListBuilder) ? li[".no-marker"](domify(e)) : li(e), lb.es))
 end
 
-function domify(dctx::DCtx, node::Node, contents::Documenter.ContentsNode)
+function domify(dctx::DCtx, ::Node, contentsnode::Documenter.ContentsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, contents::Documenter.ContentsNode)
     @tags a
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
     lb = ListBuilder()
-    for (count, path, anchor) in contents.elements
+    for (count, path, anchor) in contentsnode.elements
         header = first(anchor.node.children)
         level = header.element.level
         # Skip header levels smaller than the requested mindepth
-        level = level - contents.mindepth + 1
+        level = level - contentsnode.mindepth + 1
         level < 1 && continue
         path = joinpath(navnode_dir, path) # links in ContentsNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
@@ -1719,13 +1710,12 @@ function domify(dctx::DCtx, node::Node, contents::Documenter.ContentsNode)
     domify(lb)
 end
 
-function domify(dctx::DCtx, node::Node, index::Documenter.IndexNode)
+function domify(dctx::DCtx, ::Node, indexnode::Documenter.IndexNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, index::Documenter.IndexNode)
     @tags a code li ul
     navnode_dir = dirname(navnode.page)
     navnode_url = get_url(ctx, navnode)
-    lis = map(index.elements) do el
+    lis = map(indexnode.elements) do el
         object, doc, path, mod, cat = el
         path = joinpath(navnode_dir, path) # links in IndexNodes are relative to current page
         path = pretty_url(ctx, relhref(navnode_url, get_url(ctx, path)))
@@ -1737,25 +1727,24 @@ end
 
 domify(dctx::DCtx, node::Node, ::Documenter.DocsNodesBlock) = domify(dctx, node.children)
 
-function domify(dctx::DCtx, mdast_node::Node, node::Documenter.DocsNode)
+function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify(ctx, navnode, node::Documenter.DocsNode)
     @tags a code article header span
 
     # push to search index
     rec = SearchRecord(ctx, navnode;
-        fragment=Documenter.anchor_fragment(node.anchor),
-        title=string(node.object.binding),
-        category=Documenter.doccat(node.object),
+        fragment=Documenter.anchor_fragment(docsnode.anchor),
+        title=string(docsnode.object.binding),
+        category=Documenter.doccat(docsnode.object),
         text = mdflatten(mdast_node))
     push!(ctx.search_index, rec)
 
     article[".docstring"](
         header(
             a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href=>"javascript:;", :title=>"Collapse docstring"],
-            a[".docstring-binding", :id=>node.anchor.id, :href=>"#$(node.anchor.id)"](code("$(node.object.binding)")),
+            a[".docstring-binding", :id=>docsnode.anchor.id, :href=>"#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Documenter.doccat(node.object))")
+            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))")
         ),
         domify_doc(dctx, mdast_node)
     )
@@ -1763,9 +1752,8 @@ end
 
 function domify_doc(dctx::DCtx, node::Node)
     @assert node.element isa Documenter.DocsNode
-    ctx, navnode = dctx.ctx, dctx.navnode
-    # function domify_doc(ctx, navnode, md::Markdown.MD)
-    @tags a section footer div
+    ctx = dctx.ctx
+    @tags a section div
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
@@ -1790,8 +1778,8 @@ end
 domify(::DCtx, ::Node, ::Documenter.MetaNode) = DOM.Node[]
 domify(::DCtx, ::Node, ::Documenter.SetupNode) = DOM.Node[]
 
-function domify(::DCtx, ::Node, raw::Documenter.RawNode)
-    raw.name === :html ? Tag(Symbol("#RAW#"))(raw.text) : DOM.Node[]
+function domify(::DCtx, ::Node, rawnode::Documenter.RawNode)
+    rawnode.name === :html ? DOM.Tag(Symbol("#RAW#"))(rawnode.text) : DOM.Node[]
 end
 
 
@@ -1901,10 +1889,9 @@ corresponding HTML file). If the data is under the threshold, no file is created
 function returns `nothing`.
 """
 function write_data_file(dctx::DCtx, data::Union{Vector{UInt8},AbstractString}; suffix::AbstractString)
-    ctx, navnode = dctx.ctx, dctx.navnode
     # If we're under the threshold, we return `nothing`, indicating to the caller that
     # they should inline the file instead.
-    if length(data) < ctx.settings.example_size_threshold
+    if length(data) < dctx.ctx.settings.example_size_threshold
         return nothing
     end
     slug = dataslug(data)
@@ -2022,7 +2009,6 @@ was unable to find any `<h1>` headers).
 """
 function pagetitle(page::Node)
     @assert page.element isa MarkdownAST.Document
-    # function pagetitle(page::Documenter.Page)
     title = nothing
     for node in page.children
         # AnchoredHeaders should have just one child node, which is the Heading node
@@ -2039,7 +2025,6 @@ end
 
 function pagetitle(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
-    # function pagetitle(ctx, navnode::Documenter.NavNode)
     if navnode.title_override !== nothing
         # parse title_override as markdown
         md = Markdown.parse(navnode.title_override)
@@ -2052,7 +2037,7 @@ function pagetitle(dctx::DCtx)
     end
 
     if navnode.page !== nothing
-        title = pagetitle(getpage(dctx).mdast)
+        title = pagetitle(getpage(ctx, navnode).mdast)
         title === nothing || return title
     end
 
@@ -2069,7 +2054,6 @@ in the navigation menu twice.
 """
 function collect_subsections(page::MarkdownAST.Node)
     @assert page.element isa MarkdownAST.Document
-    # function collect_subsections(page::Documenter.Page)
     sections = []
     title_found = false
     for node in page.children
@@ -2097,11 +2081,11 @@ function domify_ansicoloredtext(text::AbstractString, class = "")
     function cb(io::IO, printer, tag::String, attrs::Dict{Symbol, String})
         text = String(take!(io))
         children = stack[end].nodes
-        isempty(text) || push!(children, Tag(Symbol("#RAW#"))(text))
+        isempty(text) || push!(children, DOM.Tag(Symbol("#RAW#"))(text))
         if startswith(tag, "/")
             pop!(stack)
         else
-            parent = Tag(Symbol(tag))[attrs]
+            parent = DOM.Tag(Symbol(tag))[attrs]
             push!(children, parent)
             push!(stack, parent)
         end
@@ -2114,10 +2098,8 @@ function domify_ansicoloredtext(text::AbstractString, class = "")
     return stack[1].nodes
 end
 
-function domify(dctx::DCtx, node::Node, e::MarkdownAST.Text)
-    ctx, navnode = dctx.ctx, dctx.navnode
+function domify(::DCtx, ::Node, e::MarkdownAST.Text)
     text = e.text
-    # function mdconvert(text::AbstractString, parent; kwargs...)
 
     # Javascript LaTeX engines have a hard time dealing with `$` floating around
     # because they use them as in-line escapes. You can try a few different
@@ -2125,19 +2107,19 @@ function domify(dctx::DCtx, node::Node, e::MarkdownAST.Text)
     # hacky) solution is to wrap dollar signs in a <span>. For now, only do this
     # when the text coming in is a singleton escaped $ sign.
     if text == "\$"
-        return Tag(:span)("\$")
+        return DOM.Tag(:span)("\$")
     end
     return DOM.Node(text)
 end
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.BlockQuote) = Tag(:blockquote)(domify(dctx, node.children))
+domify(dctx::DCtx, node::Node, ::MarkdownAST.BlockQuote) = DOM.Tag(:blockquote)(domify(dctx, node.children))
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.Strong) = Tag(:strong)(domify(dctx, node.children))
+domify(dctx::DCtx, node::Node, ::MarkdownAST.Strong) = DOM.Tag(:strong)(domify(dctx, node.children))
 
-function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
-    ctx, navnode, settings = dctx.ctx, dctx.navnode, dctx.settings
+function domify(dctx::DCtx, ::Node, c::MarkdownAST.CodeBlock)
+    ctx = dctx.ctx
+    settings = ctx.settings
     language = c.info
-    # function mdconvert(c::Markdown.Code, parent::MDBlockContext; settings::Union{HTML,Nothing}=nothing, kwargs...)
     @tags pre code
     language = Documenter.codelang(language)
     if language == "documenter-ansi" # From @repl blocks (through MultiCodeBlock)
@@ -2152,8 +2134,6 @@ function domify(dctx::DCtx, node::Node, c::MarkdownAST.CodeBlock)
 end
 
 function domify(dctx::DCtx, node::Node, mcb::Documenter.MultiCodeBlock)
-    ctx, navnode = dctx.ctx, dctx.navnode
-    # function mdconvert(mcb::Documenter.MultiCodeBlock, parent::MDBlockContext; kwargs...)
     @tags pre br
     p = pre()
     for (i, thing) in enumerate(node.children)
@@ -2171,7 +2151,7 @@ function domify(dctx::DCtx, node::Node, mcb::Documenter.MultiCodeBlock)
     return p
 end
 
-domify(dctx::DCtx, node::Node, c::MarkdownAST.Code) = Tag(:code)(c.code)
+domify(::DCtx, ::Node, c::MarkdownAST.Code) = DOM.Tag(:code)(c.code)
 
 function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
     @assert settings.prerender "unreachable"
@@ -2187,8 +2167,8 @@ function hljs_prerender(c::MarkdownAST.CodeBlock, settings::HTML)
         run(pipeline(`$(settings.node) -e "$(js)"`; stdout=out, stderr=err))
         str = String(take!(out))
         # prepend nohighlight to stop runtime highlighting
-        # return pre(code[".nohighlight $(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
-        return pre(code[".language-$(lang) .hljs"](Tag(Symbol("#RAW#"))(str)))
+        # return pre(code[".nohighlight $(lang) .hljs"](DOM.Tag(Symbol("#RAW#"))(str)))
+        return pre(code[".language-$(lang) .hljs"](DOM.Tag(Symbol("#RAW#"))(str)))
     catch e
         @error "HTMLWriter: prerendering failed" exception=e stderr=String(take!(err))
     end
@@ -2200,14 +2180,12 @@ function domify(dctx::DCtx, node::Node, h::MarkdownAST.Heading)
     DOM.Tag(Symbol("h$N"))(domify(dctx, node.children))
 end
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.ThematicBreak) = Tag(:hr)()
+domify(::DCtx, ::Node, ::MarkdownAST.ThematicBreak) = DOM.Tag(:hr)()
 
 const ImageElements = Union{MarkdownAST.Image, Documenter.LocalImage}
 function domify(dctx::DCtx, node::Node, i::ImageElements)
-    ctx, navnode = dctx.ctx, dctx.navnode
     alt = mdflatten(node.children)
     url = filehref(dctx, node, i)
-    # function mdconvert(i::Markdown.Image, parent; kwargs...)
     # TODO: Implement .title
     @tags video img a
 
@@ -2220,27 +2198,26 @@ function domify(dctx::DCtx, node::Node, i::ImageElements)
     end
 end
 
-domify(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = Tag(:em)(domify(dctx, node.children))
+domify(dctx::DCtx, node::Node, ::MarkdownAST.Emph) = DOM.Tag(:em)(domify(dctx, node.children))
 
-domify(dctx::DCtx, node::Node, m::MarkdownAST.DisplayMath) = Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
+domify(::DCtx, ::Node, m::MarkdownAST.DisplayMath) = DOM.Tag(:p)[".math-container"](string("\\[", m.math, "\\]"))
 
-domify(dctx::DCtx, node::Node, m::MarkdownAST.InlineMath) = Tag(:span)(string('$', m.math, '$'))
+domify(::DCtx, ::Node, m::MarkdownAST.InlineMath) = DOM.Tag(:span)(string('$', m.math, '$'))
 
-domify(dctx::DCtx, node::Node, m::MarkdownAST.LineBreak) = Tag(:br)()
+domify(::DCtx, ::Node, m::MarkdownAST.LineBreak) = DOM.Tag(:br)()
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
 
 const LinkElements = Union{MarkdownAST.Link, Documenter.PageLink, Documenter.LocalLink}
 function domify(dctx::DCtx, node::Node, link::LinkElements)
     droplinks = dctx.droplinks
     url = filehref(dctx, node, link)
-    # function mdconvert(link::Markdown.Link, parent; droplinks=false, kwargs...)
     link_text = domify(dctx, node.children)
-    droplinks ? link_text : Tag(:a)[:href => url](link_text)
+    droplinks ? link_text : DOM.Tag(:a)[:href => url](link_text)
 end
 
 function domify(dctx::DCtx, node::Node, list::MarkdownAST.List)
     isordered = (list.type === :ordered)
-    (isordered ? Tag(:ol) : Tag(:ul))(map(Tag(:li), domify(dctx, node.children)))
+    (isordered ? DOM.Tag(:ol) : DOM.Tag(:ul))(map(DOM.Tag(:li), domify(dctx, node.children)))
 end
 domify(dctx::DCtx, node::Node, ::MarkdownAST.Item) = domify(dctx, node.children)
 
@@ -2249,7 +2226,7 @@ function domify(dctx::DCtx, node::Node, ::MarkdownAST.Paragraph)
     # This 'if' here is to render tight/loose lists properly, as they all have Markdown.Paragraph as a child
     # node, but we should not render it for tight lists.
     # See also: https://github.com/JuliaLang/julia/pull/26598
-    is_in_tight_list(node) ? content : Tag(:p)(content)
+    is_in_tight_list(node) ? content : DOM.Tag(:p)(content)
 end
 is_in_tight_list(node::Node) = !isnothing(node.parent) && isa(node.parent.element, MarkdownAST.Item) &&
     !isnothing(node.parent.parent) && isa(node.parent.parent.element, MarkdownAST.List) &&
@@ -2257,7 +2234,6 @@ is_in_tight_list(node::Node) = !isnothing(node.parent) && isa(node.parent.elemen
 
 function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
     th_row, tbody_rows = Iterators.peel(MarkdownAST.tablerows(node))
-    # function mdconvert(t::Markdown.Table, parent; kwargs...)
     @tags table tr th td
     alignment_style = map(t.spec) do align
         if align == :right
@@ -2280,7 +2256,7 @@ function domify(dctx::DCtx, node::Node, t::MarkdownAST.Table)
     )
 end
 
-function domify(dctx::DCtx, node::Node, e::MarkdownAST.JuliaValue)
+function domify(::DCtx, ::Node, e::MarkdownAST.JuliaValue)
     @warn("""
     Unexpected Julia interpolation in the Markdown. This probably means that you
     have an unbalanced or un-escaped \$ in the text.
@@ -2294,7 +2270,7 @@ function domify(dctx::DCtx, node::Node, e::MarkdownAST.JuliaValue)
     return string(e.ref)
 end
 
-function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteLink)
+function domify(::DCtx, ::Node, f::MarkdownAST.FootnoteLink)
     @tags sup a
     sup[".footnote-reference"](a["#citeref-$(f.id)", :href => "#footnote-$(f.id)"]("[$(f.id)]"))
 end
@@ -2365,7 +2341,7 @@ domify(dctx::DCtx, node::Node, ::Documenter.MultiOutput) = domify(dctx, node.chi
 domify(dctx::DCtx, node::Node, moe::Documenter.MultiOutputElement) = Base.invokelatest(domify, dctx, node, moe.element)
 
 function domify(dctx::DCtx, node::Node, d::Dict{MIME,Any})
-    rawhtml(code) = Tag(Symbol("#RAW#"))(code)
+    rawhtml(code) = DOM.Tag(Symbol("#RAW#"))(code)
     # Our first preference for the MIME type is 'text/html', which we can natively include
     # in the HTML. But it might happen that it's too large (above example_size_threshold),
     # in which case we move on to trying to write it as an image.
@@ -2529,28 +2505,28 @@ end
 # If the nodes passed through CrossReferences as native MarkdownAST elements, then that
 # means they're reasonable absolute URLs. Or, possibly, the URL is problematic, but we
 # just ignore that here. That should have been caught earlier.
-filehref(dctx::DCtx, node::Node, e::Union{MarkdownAST.Image, MarkdownAST.Link}) = e.destination
+filehref(::DCtx, ::Node, e::Union{MarkdownAST.Image, MarkdownAST.Link}) = e.destination
 
-function filehref(dctx::DCtx, node::Node, e::Documenter.PageLink)
+function filehref(dctx::DCtx, ::Node, pagelink::Documenter.PageLink)
     ctx, navnode = dctx.ctx, dctx.navnode
-    path = Documenter.pagekey(ctx.doc, e.page)
+    path = Documenter.pagekey(ctx.doc, pagelink.page)
     path = pretty_url(ctx, relhref(get_url(ctx, navnode), get_url(ctx, path)))
     # Add a fragment, if present
-    return isempty(e.fragment) ? path : "$path#$(e.fragment)"
+    return isempty(pagelink.fragment) ? path : "$path#$(pagelink.fragment)"
 end
 
-function filehref(dctx::DCtx, node::Node, e::Documenter.LocalLink)
+function filehref(dctx::DCtx, ::Node, locallink::Documenter.LocalLink)
     ctx, navnode = dctx.ctx, dctx.navnode
-    path = relhref(get_url(ctx, navnode), e.path)
+    path = relhref(get_url(ctx, navnode), locallink.path)
     # Replace any backslashes in links, if building the docs on Windows
     path = replace(path, '\\' => '/')
     # Add a fragment, if present
-    return isempty(e.fragment) ? path : "$path#$(e.fragment)"
+    return isempty(locallink.fragment) ? path : "$path#$(locallink.fragment)"
 end
 
-function filehref(dctx::DCtx, node::Node, e::Documenter.LocalImage)
+function filehref(dctx::DCtx, ::Node, localimage::Documenter.LocalImage)
     ctx, navnode = dctx.ctx, dctx.navnode
-    path = relhref(get_url(ctx, navnode), e.path)
+    path = relhref(get_url(ctx, navnode), localimage.path)
     # Replace any backslashes in links, if building the docs on Windows
     return replace(path, '\\' => '/')
 end

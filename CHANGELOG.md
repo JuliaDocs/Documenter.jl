@@ -5,6 +5,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+* A fully qualified `@ref` link now resolves in `Main` as well, in addition to `CurrentModule`. For any package whose docstrings are included in the documentation, as long as that package is loaded in `make.jl`, fully qualified `@ref` links to docstrings in the package will work from anywhere. This simplifies, e.g., linking between docstrings for packages that use sub-modules. ([#2470])
+
+
+## Version [v1.3.0] - 2024-03-01
+
 ### Added
 
 * Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394], [#2459], [#2460])
@@ -1321,6 +1328,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.1.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.2
 [v1.2.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.2.0
 [v1.2.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.2.1
+[v1.3.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.3.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1791,6 +1799,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
+[#2366]: https://github.com/JuliaDocs/Documenter.jl/issues/2366
 [#2373]: https://github.com/JuliaDocs/Documenter.jl/issues/2373
 [#2374]: https://github.com/JuliaDocs/Documenter.jl/issues/2374
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
@@ -1799,9 +1808,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
+[#2424]: https://github.com/JuliaDocs/Documenter.jl/issues/2424
 [#2430]: https://github.com/JuliaDocs/Documenter.jl/issues/2430
 [#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
 [#2441]: https://github.com/JuliaDocs/Documenter.jl/issues/2441
+[#2449]: https://github.com/JuliaDocs/Documenter.jl/issues/2449
 [#2458]: https://github.com/JuliaDocs/Documenter.jl/issues/2458
 [#2459]: https://github.com/JuliaDocs/Documenter.jl/issues/2459
 [#2460]: https://github.com/JuliaDocs/Documenter.jl/issues/2460

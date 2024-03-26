@@ -288,12 +288,7 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
             slug = first(node.children).element.code
         else
             # TODO: remove this hack (replace with mdflatten?)
-            ast = MarkdownAST.@ast MarkdownAST.Document() do
-                MarkdownAST.Paragraph() do
-                    MarkdownAST.copy_tree(node)
-                end
-            end
-            md = convert(Markdown.MD, ast)
+            md = _link_node_as_md(node)
             text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
             slug = Documenter.slugify(text)
         end
@@ -310,13 +305,26 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     )
     # finalizer
     if xref_unresolved(node)
-        msg = "Cannot resolve @ref for '$slug' in $(Documenter.locrepr(page.source))."
+        md_str = strip(Markdown.plain(_link_node_as_md(node)))
+        msg = "Cannot resolve @ref for md$(repr(md_str)) in $(Documenter.locrepr(page.source))."
         if (length(errors) > 0)
             msg *= ("\n" * join([string("- ", err) for err in errors], "\n"))
         end
-        @docerror(doc, :cross_references, msg, node = node)
+        @docerror(doc, :cross_references, msg)
     end
     return nothing
+end
+
+
+# Helper to convert MarkdownAST link node to a Markdown.MD object
+function _link_node_as_md(node::MarkdownAST.Node)
+    @assert node.element isa  MarkdownAST.Link
+    document = MarkdownAST.@ast MarkdownAST.Document() do
+        MarkdownAST.Paragraph() do
+            MarkdownAST.copy_tree(node)
+        end
+    end
+    return convert(Markdown.MD, document)
 end
 
 
@@ -366,33 +374,55 @@ end
 # Cross referencing docstrings.
 # -----------------------------
 
-function docsxref(node::MarkdownAST.Node, code, meta, page, doc, errors; docref = find_docref(code, meta, page))
+function docsxref(node::MarkdownAST.Node, code, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     # Add the link to list of local uncheck links.
     doc.internal.locallinks[node.element] = node.element.destination
-    if haskey(docref, :error)
-        # We'll bail if the parsing of the docref wasn't successful
-        msg = "Exception trying to find docref for `$code`: $(docref.error)"
-        @debug msg exception = docref.exception  # shows the full backtrace
-        push!(errors, msg)
+    if haskey(meta, :CurrentModule)
+        # CurrentModule can be set manually for `.md` pages. For a @ref that's
+        # inside a docstring, CurrentModule is automatically set to the module
+        # containing that docstring.
+        modules = [meta[:CurrentModule], Main]
     else
-        binding, typesig = docref
-        # Try to find a valid object that we can cross-reference.
-        object = find_object(doc, binding, typesig)
-        if object !== nothing
-            # Replace the `@ref` url with a path to the referenced docs.
-            docsnode = doc.internal.objects[object]
-            slug = Documenter.slugify(object)
-            pagekey = relpath(docsnode.page.build, doc.user.build)
-            page = doc.blueprint.pages[pagekey]
-            node.element = Documenter.PageLink(page, slug)
+        modules = [Main]
+    end
+    for (attempt, mod) in enumerate(modules)
+        docref = find_docref(code, mod, page)
+        if haskey(docref, :error)
+            # We'll bail if the parsing of the docref wasn't successful
+            msg = "Exception trying to find docref for `$code`: $(docref.error)"
+            @debug msg exception = docref.exception  # shows the full backtrace
+            push!(errors, msg)
         else
-            push!(errors, "no doc found for reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).")
+            binding, typesig = docref
+            # Try to find a valid object that we can cross-reference.
+            object = find_object(doc, binding, typesig)
+            if object !== nothing
+                if (attempt == 1) || startswith(code, string(binding.mod))
+                    # Replace the `@ref` url with a path to the referenced docs.
+                    docsnode = doc.internal.objects[object]
+                    slug = Documenter.slugify(object)
+                    pagekey = relpath(docsnode.page.build, doc.user.build)
+                    page = doc.blueprint.pages[pagekey]
+                    node.element = Documenter.PageLink(page, slug)
+                    break  # stop after first mod with binding we can link to
+                else
+                    # In the "fallback" attempt 2 in Main we abort if `code` is
+                    # not a fully qualified name (it must start with
+                    # `binding.mod`)
+                    @assert mod == Main
+                    msg = "Fallback resolution in $mod for `$code` -> `$(binding.mod).$(binding.var)` is only allowed for fully qualified names"
+                    push!(errors, msg)
+                end
+            else
+                msg = "No docstring found in doc for binding `$(binding.mod).$(binding.var)`."
+                push!(errors, msg)
+            end
         end
     end
 end
 
-function find_docref(code, meta, page)
+function find_docref(code, mod, page)
     # Parse the link text and find current module.
     keyword = Symbol(strip(code))
     local ex
@@ -403,10 +433,9 @@ function find_docref(code, meta, page)
             ex = Meta.parse(code)
         catch err
             isa(err, Meta.ParseError) || rethrow(err)
-            return (error = "unable to parse the reference '[`$code`](@ref)' in $(Documenter.locrepr(page.source)).", exception = nothing)
+            return (error = "unable to parse the reference `$code` in $(Documenter.locrepr(page.source)).", exception = nothing)
         end
     end
-    mod = get(meta, :CurrentModule, Main)
 
     # Find binding and type signature associated with the link.
     local binding
@@ -414,7 +443,7 @@ function find_docref(code, meta, page)
         binding = Documenter.DocSystem.binding(mod, ex)
     catch err
         return (
-            error = "unable to get the binding for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            error = "unable to get the binding for `$code` in module $(mod)",
             exception = (err, catch_backtrace()),
         )
         return
@@ -425,10 +454,9 @@ function find_docref(code, meta, page)
         typesig = Core.eval(mod, Documenter.DocSystem.signature(ex, rstrip(code)))
     catch err
         return (
-            error = "unable to evaluate the type signature for '[`$code`](@ref)' in $(Documenter.locrepr(page.source)) from expression '$(repr(ex))' in module $(mod)",
+            error = "unable to evaluate the type signature for `$code` in $(Documenter.locrepr(page.source)) in module $(mod)",
             exception = (err, catch_backtrace()),
         )
-        return
     end
 
     return (binding = binding, typesig = typesig)

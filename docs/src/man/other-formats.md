@@ -24,6 +24,9 @@ the version number will be appended to the title.
 The `makedocs` argument `authors` should also be specified, it will be used for the
 `\authors` field in the tex document.
 
+!!! warning "Known issue"
+    If the `makedocs` argument `pages` is not assigned, Documenter will generate tex documents without contents. ([#2132](@ref))
+
 ### Compiling using natively installed latex
 
 The following is required to build the documentation:

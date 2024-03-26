@@ -192,6 +192,7 @@ jobs:
   build:
     permissions:
       contents: write
+      pull-requests: read
       statuses: write
     runs-on: ubuntu-latest
     steps:
@@ -283,6 +284,17 @@ to the configuration file, as showed in the [previous section](@ref GitHub-Actio
 See GitHub's manual for
 [Encrypted secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 for more information.
+
+### Permissions
+
+The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs) are required to successfully use [`deploydocs`](#the-deploydocs-function):
+
+```yaml
+permissions:
+  contents: write  # Required when authenticating with `GITHUB_TOKEN`, not needed when authenticating with SSH deploy keys
+  pull-requests: read  # Required when using `push_preview=true`
+  statuses: write  # Optional, used to report documentation build statuses
+```
 
 ### Add code coverage from documentation builds
 
@@ -503,6 +515,9 @@ Unless a custom domain is being used, the pages are found at:
 https://USER_NAME.github.io/PACKAGE_NAME.jl/vX.Y.Z
 https://USER_NAME.github.io/PACKAGE_NAME.jl/dev
 ```
+
+!!! tip
+    If you need Documenter to maintain [a `CNAME` file](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) for you can use the `cname` argument of [`deploydocs`](@ref) to specify the domain.
 
 By default Documenter will create a link called `stable` that points to the latest release
 

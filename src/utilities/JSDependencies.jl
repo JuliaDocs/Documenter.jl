@@ -2,7 +2,7 @@
 Provides an API to programmatically construct a [RequireJS](https://requirejs.org/) script.
 """
 module JSDependencies
-using JSON
+using JSON: JSON
 
 """
     struct RemoteLibrary

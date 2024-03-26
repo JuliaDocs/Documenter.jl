@@ -21,6 +21,10 @@ end
     @info "Building missingdocs/make.jl"
     include("missingdocs/make.jl")
 
+    # Test @ref fallback to Main for fully qualified names
+    @info "Building docsxref/make.jl"
+    include("docsxref/make.jl")
+
     # Error reporting.
     @info "Building errors/make.jl"
     @quietly include("errors/make.jl")

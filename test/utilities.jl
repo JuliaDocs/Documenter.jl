@@ -1,7 +1,6 @@
 module UtilitiesTests
 using Test
 using Logging: Info
-import Base64: stringmime
 include("TestUtilities.jl"); using Main.TestUtilities
 
 import Documenter
@@ -54,28 +53,6 @@ end
 end
 
 @testset "utilities" begin
-    let doc = @doc(length)
-        a = Documenter.filterdocs(doc, Set{Module}())
-        b = Documenter.filterdocs(doc, Set{Module}([UnitTests]))
-        c = Documenter.filterdocs(doc, Set{Module}([Base]))
-        d = Documenter.filterdocs(doc, Set{Module}([UtilitiesTests]))
-
-        @test a !== nothing
-        @test a === doc
-        @test b !== nothing
-        @test occursin("Documenter unit tests.", stringmime("text/plain", b))
-        @test c !== nothing
-        @test !occursin("Documenter unit tests.", stringmime("text/plain", c))
-        @test d === nothing
-    end
-
-    # Documenter.issubmodule
-    @test Documenter.issubmodule(Main, Main) === true
-    @test Documenter.issubmodule(UnitTests, UnitTests) === true
-    @test Documenter.issubmodule(UnitTests.SubModule, Main) === true
-    @test Documenter.issubmodule(UnitTests.SubModule, UnitTests) === true
-    @test Documenter.issubmodule(UnitTests.SubModule, Base) === false
-    @test Documenter.issubmodule(UnitTests, UnitTests.SubModule) === false
 
     @test UnitTests.A in Documenter.submodules(UnitTests.A)
     @test UnitTests.A.B in Documenter.submodules(UnitTests.A)

@@ -15,7 +15,6 @@ module — a special variable is created in each module that has documentation m
 """
 module DocMeta
 import ..Documenter
-using DocStringExtensions
 
 "The unique `Symbol` that is used to store the metadata dictionary in each module."
 const META = gensym(:docmeta)
