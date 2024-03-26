@@ -53,20 +53,8 @@ function _doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Docum
 end
 
 mutable struct MutablePrefix
-    content :: Union{String, Nothing}
-end
-
-get_content(mp::MutablePrefix) = isnothing(mp.content) ? "" : mp.content
-function set_content!(mp::MutablePrefix, s::AbstractString)
-    mp.content = s
-    return nothing
-end
-function append_to_prefix!(mp::MutablePrefix, s::AbstractString)
-    if !isnothing(mp.content)
-        mp.content = mp.content * s
-    else
-        mp.content = s
-    end
+    content :: String
+    MutablePrefix() = new("")
 end
 
 function _doctest(page::Documenter.Page, doc::Documenter.Document)
@@ -222,7 +210,7 @@ mutable struct Result
     block      :: MutableMD2CodeBlock # The entire code block that is being tested.
     raw_input  :: String # Part of `block.code` representing the current input.
     input      :: String # Part of `block.code` representing the current input
-                     # without leading repl prompts and spaces.
+                         # without leading repl prompts and spaces.
     output     :: String # Part of `block.code` representing the current expected output.
     file       :: String # File in which the doctest is written. Either `.md` or `.jl`.
     value      :: Any        # The value returned when evaluating `input`.
@@ -312,7 +300,7 @@ function filter_doctests(filters, strings)
 end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
-function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documenter.Document; prefix::MutablePrefix=MutablePrefix(nothing))
+function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documenter.Document; prefix::MutablePrefix=MutablePrefix())
     sandbox_name = nameof(sandbox)
     mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
@@ -344,9 +332,11 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
             end
         else
             # Prefix was not modified, unless output was different.
-            append_to_prefix!(prefix, result.raw_input*"\n")
-            str == "" || append_to_prefix!(prefix, str * "\n")
-            append_to_prefix!(prefix, "\n")
+            prefix.content *= result.raw_input*"\n"
+            if str != ""
+                prefix.content *= str * "\n"
+            end
+            prefix.content *= "\n"
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
@@ -369,9 +359,11 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
             end
         else
             # Prefix was not modified, unless output was different.
-            append_to_prefix!(prefix, result.raw_input*"\n")
-            str == "" || append_to_prefix!(prefix, str * "\n")
-            append_to_prefix!(prefix, "\n")
+            prefix.content *= result.raw_input*"\n"
+            if str != ""
+                prefix.content *= str * "\n"
+            end
+            prefix.content *= "\n"
         end
     end
     return nothing
@@ -482,7 +474,7 @@ function report(result::Result, str, doc::Documenter.Document)
         """, diff, _file=result.file, _line=line)
 end
 
-function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::MutablePrefix=MutablePrefix(nothing))
+function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::MutablePrefix=MutablePrefix())
     code = result.block.code
     filename = Base.find_source_file(result.file)
     # read the file containing the code block
@@ -504,8 +496,7 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     write(io, content[1:prevind(content, first(codeidx))])
     # next look for the particular input string in the given code block
     # make a regex of the input that matches leading whitespace (for multiline input)
-    composed = prefix.content == nothing ? "" : get_content(prefix)
-    composed = composed * result.raw_input
+    composed = prefix.content * result.raw_input
     rinput = replace(Documenter.regex_escape(composed), "\\n" => "\\n\\h*")
     r = Regex(rinput)
     inputidx = findfirst(r, code)
@@ -516,9 +507,11 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     # construct the new code-snippet (without indent)
     # first part: everything up until the last index of the input string
     newcode = code[1:last(inputidx)]
-    set_content!(prefix, newcode * "\n")
-    str == "" || append_to_prefix!(prefix, str * "\n")
-    append_to_prefix!(prefix, "\n")
+    prefix.content = newcode * "\n"
+    if str != ""
+        prefix.content *= str * "\n"
+    end
+    prefix.content *= "\n"
     isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
     if result.output == ""
@@ -556,7 +549,7 @@ function repl_splitter(code)
     input  = String[]
     raw_inputs = String[]
     output = String[]
-    prefix = MutablePrefix(nothing)
+    prefix = MutablePrefix()
     buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
     raw_input_buffer = IOBuffer()
     found_first_prompt = false
@@ -565,7 +558,7 @@ function repl_splitter(code)
         prompt = match(PROMPT_REGEX, line)
         # We allow comments before the first julia> prompt
         if !found_first_prompt && startswith(line, '#')
-            append_to_prefix!(prefix, line * "\n")
+            prefix.content *= line * "\n"
             continue
         end
         if prompt === nothing
