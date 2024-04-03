@@ -696,15 +696,17 @@ end
 # @example
 # --------
 
-# Find if there is any format with color output
+# Find if there is any format with color output.
 function _any_color_fmt(doc)
     idx = findfirst(_is_color_fmt, doc.user.format)
     idx === nothing && return false
     return doc.user.format[idx].ansicolor
 end
 
+# General fallback.
+_is_color_fmt(::Documenter.Writer) = false
+# HTML accepts ANSI, so this is `true`.
 _is_color_fmt(::Documenter.HTML) = true
-_is_color_fmt(::Documenter.LaTeX) = false
 
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
