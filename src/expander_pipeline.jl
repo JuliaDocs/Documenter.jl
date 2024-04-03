@@ -706,7 +706,7 @@ end
 # General fallback.
 _is_color_fmt(::Documenter.Writer) = false
 # HTML accepts ANSI, so this is `true`.
-_is_color_fmt(::Documenter.HTML) = true
+_is_color_fmt(::Documenter.HTMLWriter.HTML) = true
 
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
