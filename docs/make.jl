@@ -45,6 +45,10 @@ makedocs(
         # login screen and cause a warning:
         r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
         "https://nvd.nist.gov/vuln/detail/CVE-2018-16487",
+        # We'll ignore the links to Documenter tags in CHANGELOG.md, since when you tag
+        # a release, the release link does not exist yet, and this will cause the linkcheck
+        # CI job to fail on the PR that tags a new release.
+        r"https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.\d+.\d+",
     ] ∪ (get(ENV, "GITHUB_ACTIONS", nothing)  == "true" ? [
         # Extra ones we ignore only on CI.
         #
