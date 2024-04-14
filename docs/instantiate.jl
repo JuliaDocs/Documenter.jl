@@ -7,6 +7,7 @@ cd(project_directory) do
     # Install a DocumenterTools version that declares compatibility with Documenter 0.28,
     # but from an unreleased tag.
     # https://github.com/JuliaDocs/DocumenterTools.jl/releases/tag/documenter-v0.1.14%2B0.28.0-DEV
+    #= This is currently not needed -- installing latest DocumenterTools is fine.
     if isdir("dev/DocumenterTools")
         @info "DocumenterTools already cloned to dev/DocumenterTools"
         run(`git -C dev/DocumenterTools fetch origin`)
@@ -14,9 +15,10 @@ cd(project_directory) do
         run(`git clone -n https://github.com/JuliaDocs/DocumenterTools.jl.git dev/DocumenterTools`)
     end
     run(`git -C dev/DocumenterTools checkout documenter-v0.1.17+1.0.0`)
+    =#
     Pkg.develop([
         PackageSpec(path = documenter_directory),
-        PackageSpec(path = "dev/DocumenterTools"),
+        #=PackageSpec(path = "dev/DocumenterTools"),=#
     ])
     Pkg.instantiate()
 end
