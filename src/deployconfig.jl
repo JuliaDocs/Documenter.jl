@@ -73,7 +73,7 @@ function deploy_folder(cfg::DeployConfig; kwargs...)
     return DeployDecision(; all_ok = false)
 end
 function deploy_folder(::Nothing; kwargs...)
-    @warn "Documenter could not auto-detect the building environment Skipping deployment."
+    @warn "Documenter could not auto-detect the building environment. Skipping deployment."
     return DeployDecision(; all_ok = false)
 end
 
