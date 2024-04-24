@@ -12,11 +12,12 @@ jobs:
       matrix:
         include:
           - package: 'DocumenterCitations'
+          - package: 'DocumenterInterLinks'
           - package: 'DocumenterMermaid'
           - package: 'Asciicast'
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: actions/cache@v4
@@ -49,7 +50,7 @@ jobs:
           - package: 'MathOptInterface'
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: actions/cache@v4

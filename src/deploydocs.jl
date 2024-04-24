@@ -9,6 +9,7 @@
         branch = "gh-pages",
         deps = nothing | <Function>,
         make = nothing | <Function>,
+        cname = nothing | <String>,
         devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
@@ -93,6 +94,10 @@ not exist, a new orphaned branch is created automatically. It defaults to `"gh-p
 
 **`dirname`** is a subdirectory of `branch` that the docs should be added to. By default,
 it is `""`, which will add the docs to the root directory.
+
+** `cname`** is the CNAME where the documentation will be hosted, which is equivalent to
+the GitHub Pages "Custom domain" setting in the repository settings. If set, it will be
+used to generate the `CNAME` file, which has a higher priority than the GitHub Pages settings.
 
 **`devbranch`** is the branch that "tracks" the in-development version of the generated
 documentation. By default Documenter tries to figure this out using `git`. Can be set
@@ -192,6 +197,7 @@ function deploydocs(;
         deps   = nothing,
         make   = nothing,
 
+        cname = nothing,
         devbranch = nothing,
         devurl = "dev",
         versions = ["stable" => "v^", "v#.#", devurl => devurl],
@@ -268,13 +274,25 @@ function deploydocs(;
                 @debug "running extra build steps."
                 make()
             end
+            objects_inv = joinpath(realpath(target), "objects.inv")
+            if isfile(objects_inv)
+                inventory_version = _get_inventory_version(objects_inv)
+                deploy_version = _get_deploy_version(deploy_subfolder)
+                if !isempty(deploy_version) && (inventory_version != deploy_version)
+                    if !isempty(inventory_version)
+                        @warn "Inventory declares version `$inventory_version`, but `deploydocs` is for version `$deploy_version`. Overwriting inventory version."
+                    end
+                    _patch_inventory_version(objects_inv, deploy_version)
+                end
+            end
             @debug "pushing new documentation to remote: '$deploy_repo:$deploy_branch'."
             mktempdir() do temp
                 git_push(
                     root, temp, deploy_repo;
                     branch=deploy_branch, dirname=dirname, target=target,
                     sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
-                    devurl=devurl, versions=versions, forcepush=forcepush,
+                    cname=cname, devurl=devurl,
+                    versions=versions, forcepush=forcepush,
                     is_preview=deploy_is_preview, archive=archive,
                 )
             end
@@ -282,10 +300,50 @@ function deploydocs(;
     end
 end
 
+
+function _get_inventory_version(objects_inv)
+    open(objects_inv) do input
+        for line in eachline(input)
+            if startswith(line, "# Version:")
+                return strip(line[11:end])
+            end
+        end
+        error("Invalid $objects_inv: missing or invalid version line")
+    end
+end
+
+
+function _patch_inventory_version(objects_inv, version)
+    objects_inv_patched = tempname()
+    open(objects_inv) do input
+        open(objects_inv_patched, "w") do output
+            for line in eachline(input; keep=true)
+                if startswith(line, "# Version:")
+                    @debug "Patched $objects_inv with version=$version"
+                    line = "# Version: $version\n"
+                end
+                write(output, line)
+            end
+        end
+    end
+    mv(objects_inv_patched, objects_inv; force=true)
+end
+
+
+function _get_deploy_version(foldername)
+    try
+        return string(VersionNumber(foldername))  # strips the leading "v" from foldername
+    catch
+        return ""
+    end
+end
+
+
 """
     git_push(
         root, tmp, repo;
-        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        branch="gh-pages", dirname="", target="site", sha="",
+        cname=nothing, devurl="dev",
         deploy_config, subfolder
     )
 
@@ -294,7 +352,8 @@ The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
         root, temp, repo;
-        branch="gh-pages", dirname="", target="site", sha="", devurl="dev",
+        branch="gh-pages", dirname="", target="site", sha="",
+        cname=nothing, devurl="dev",
         versions, forcepush=false, deploy_config, subfolder,
         is_preview::Bool = false, archive,
     )
@@ -344,6 +403,11 @@ function git_push(
         # Copy docs to `subfolder` directory.
         deploy_dir = subfolder === nothing ? dirname : joinpath(dirname, subfolder)
         gitrm_copy(target_dir, deploy_dir)
+
+        # Generate the CNAME file if `cname` is set.
+        if !isnothing(cname)
+            write(joinpath(dirname, "CNAME"), cname)
+        end
 
         if versions === nothing
             # If the documentation is unversioned and deployed to root, we generate a

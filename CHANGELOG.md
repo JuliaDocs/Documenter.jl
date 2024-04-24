@@ -3,11 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.4.0] - 2024-04-14
+
+### Changed
+
+* A fully qualified `@ref` link now resolves in `Main` as well, in addition to `CurrentModule`. For any package whose docstrings are included in the documentation, as long as that package is loaded in `make.jl`, fully qualified `@ref` links to docstrings in the package will work from anywhere. This simplifies, e.g., linking between docstrings for packages that use sub-modules. ([#2470])
+* `HTMLWriter` saw several refactoring, which should not lead to any user-visible changes, but may affect plugins that are relying on Documenter's internals. ([#2475], [#2480], [#2482])
+
+## Version [v1.3.0] - 2024-03-01
 
 ### Added
 
-* Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394])
+* Added support for a `CollapsedDocStrings` key in every page's `@meta` block. Setting `CollapsedDocStrings = true` for a particular page essentially clicks the "Collapse all docstrings" in the navigation bar after the page loads, collapsing all docstrings on that page. This can make API documentation pages much more readable. ([#2282], [#2394], [#2459], [#2460])
+* Automatically write an `objects.inv` inventory file to be be included in every online deployment of the documentation. With the help of the [`DocumenterInterLinks` plugin](http://juliadocs.org/DocumenterInterLinks.jl/stable/), any other project using Documenter or [Sphinx](https://www.sphinx-doc.org/en/master/) can then externally link to any page, heading, or docstring in the documentation. ([#2366], [#2424])
+* Added a parameter `inventory_version` to the `HTML()` options that may be passed to `makedocs`. This option sets the `version` metadata field in the new `objects.inv` inventory file. In most cases, the project version for the inventory will be automatically detected from the main `Project.toml` file, respectively, during deployment in `deploydocs`, from the git tag of the release. Any project may still want to explicitly set `inventory_version` via, e.g., [`pkgversion(MyProject)`](https://docs.julialang.org/en/v1/base/base/#Base.pkgversion-Tuple{Module}) instead of relying on an auto-detected version. Projects with a non-standard setup (documentation-only-repos, monorepos) *should* modify their existing configuration to explicitly set `inventory_version`. ([#2449])
 
 ### Changed
 
@@ -20,8 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Fix search filter toggle button styling in the HTML output. ([#2406], [#2408])
+* Fix escaping special html entities in search output. ([#2441], [#2461])
+* Fix the search filter toggle button styling in the HTML output. ([#2406], [#2408])
 * The theme selector for the HTML output now correctly picks `Automatic (OS)` if the user hasn't explicitly set the theme. ([#2414], [#2438])
+* Fix the search window sometimes not appearing in the HTML output. ([#2430], [#2458])
 
 ## Version [v1.2.1] - 2023-12-02
 
@@ -1317,6 +1328,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.1.2]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.1.2
 [v1.2.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.2.0
 [v1.2.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.2.1
+[v1.3.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.3.0
+[v1.4.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.4.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1787,6 +1800,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
+[#2366]: https://github.com/JuliaDocs/Documenter.jl/issues/2366
 [#2373]: https://github.com/JuliaDocs/Documenter.jl/issues/2373
 [#2374]: https://github.com/JuliaDocs/Documenter.jl/issues/2374
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
@@ -1795,7 +1809,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
+[#2424]: https://github.com/JuliaDocs/Documenter.jl/issues/2424
+[#2430]: https://github.com/JuliaDocs/Documenter.jl/issues/2430
 [#2438]: https://github.com/JuliaDocs/Documenter.jl/issues/2438
+[#2441]: https://github.com/JuliaDocs/Documenter.jl/issues/2441
+[#2449]: https://github.com/JuliaDocs/Documenter.jl/issues/2449
+[#2458]: https://github.com/JuliaDocs/Documenter.jl/issues/2458
+[#2459]: https://github.com/JuliaDocs/Documenter.jl/issues/2459
+[#2460]: https://github.com/JuliaDocs/Documenter.jl/issues/2460
+[#2461]: https://github.com/JuliaDocs/Documenter.jl/issues/2461
+[#2470]: https://github.com/JuliaDocs/Documenter.jl/issues/2470
+[#2475]: https://github.com/JuliaDocs/Documenter.jl/issues/2475
+[#2480]: https://github.com/JuliaDocs/Documenter.jl/issues/2480
+[#2482]: https://github.com/JuliaDocs/Documenter.jl/issues/2482
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

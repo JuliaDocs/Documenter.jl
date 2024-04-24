@@ -1,6 +1,6 @@
 module TextDiff
 
-using DocStringExtensions
+using DocStringExtensions: SIGNATURES
 
 # Utilities.
 

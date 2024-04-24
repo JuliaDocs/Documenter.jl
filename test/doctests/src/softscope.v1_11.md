@@ -42,7 +42,6 @@ julia> include_string(Main, code)
 └ @ string:4
 ERROR: LoadError: UndefVarError: `s` not defined in local scope
 Suggestion: check for an assignment to a local variable that shadows a global of the same name.
-Hint: a global variable of this name also exists in Main.
 Stacktrace:
  [1] top-level scope
    @ ./string:3
@@ -64,7 +63,6 @@ s, # global
 └ @ doctests.jl:3
 ERROR: UndefVarError: `s` not defined in local scope
 Suggestion: check for an assignment to a local variable that shadows a global of the same name.
-Hint: a global variable of this name also exists in Main.
 Stacktrace:
  [1] top-level scope
    @ ./none:2

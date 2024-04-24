@@ -1,11 +1,12 @@
 name = "Documenter"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-version = "1.2.1"
+version = "1.4.0"
 
 [deps]
 ANSIColoredPrinters = "a4c015fc-c6ff-483c-b24f-f7ea428134e9"
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
@@ -22,6 +23,7 @@ PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 RegistryInstances = "2792f1a3-b283-48e8-9a74-f99dce5104f3"
 SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
@@ -29,7 +31,9 @@ Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 ANSIColoredPrinters = "0.0.1"
 AbstractTrees = "0.4"
 Base64 = "1.6"
+CodecZlib = "0.7"
 Dates = "1.6"
+DocInventories = "0.3.2,0.4"
 DocStringExtensions = "0.4, 0.5, 0.6, 0.7, 0.8, 0.9"
 Downloads = "1.4"
 Git = "1"
@@ -46,14 +50,16 @@ REPL = "1.6"
 Random = "1.6"
 RegistryInstances = "0.1"
 SHA = "0.7, 1.6"
+TOML = "1"
 Test = "1.6"
 UUIDs = "1.6"
 Unicode = "1.6"
 julia = "1.6"
 
 [extras]
+DocInventories = "43dc2714-ed3b-44b5-b226-857eda1aa7de"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [targets]
-test = ["Random", "UUIDs"]
+test = ["Random", "UUIDs", "DocInventories"]

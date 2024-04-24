@@ -4,9 +4,9 @@ docsystem in both `0.4` and `0.5`.
 """
 module DocSystem
 
-using DocStringExtensions
+using DocStringExtensions: SIGNATURES
 import Markdown
-import Base.Docs: MultiDoc, formatdoc, DocStr
+import Base.Docs: MultiDoc, DocStr
 
 ## Bindings ##
 
@@ -255,7 +255,7 @@ end
 
 getmeta(m::Module) = Docs.meta(m)
 
-import Base.Docs: aliasof, resolve, defined
+import Base.Docs: aliasof, resolve, defined 
 
 
 aliasof(s::Symbol, b) = binding(s)
