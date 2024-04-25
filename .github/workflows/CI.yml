@@ -30,7 +30,7 @@ jobs:
             arch: x86
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
@@ -39,9 +39,10 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -54,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: julia-actions/cache@v1
@@ -68,9 +69,10 @@ jobs:
       - name: Run test/examples/tests_latex.jl
         run: julia --color=yes --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -87,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: julia-actions/cache@v1
@@ -101,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: julia-actions/cache@v1
@@ -112,9 +114,10 @@ jobs:
             Pkg.develop(PackageSpec(path=pwd()))'
       - run: julia --color=yes --project=test/prerender --code-coverage test/prerender/prerender.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -133,7 +136,7 @@ jobs:
           - pdf
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
       - uses: julia-actions/cache@v1
@@ -164,9 +167,10 @@ jobs:
       - name: Run online linkcheck tests
         run: julia --color=yes --project --code-coverage test/online_linkcheck.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
