@@ -97,7 +97,7 @@ julia> a
 ```jldoctest
 # Leading comment
 julia> a
-ERROR: UndefVarError: `a` not defined
+ERROR: UndefVarError: `a` not defined in `Main`
 Suggestion: check for spelling errors or missing imports.
 
 julia> a = Int64[1,2]
@@ -106,7 +106,7 @@ julia> a = Int64[1,2]
  2
 
 julia> b
-ERROR: UndefVarError: `b` not defined
+ERROR: UndefVarError: `b` not defined in `Main`
 Suggestion: check for spelling errors or missing imports.
 
 julia> a
@@ -117,7 +117,7 @@ julia> a
 julia> a;
 
 julia> b;
-ERROR: UndefVarError: `b` not defined
+ERROR: UndefVarError: `b` not defined in `Main`
 Suggestion: check for spelling errors or missing imports.
 
 julia> a = Int64[3,4];
