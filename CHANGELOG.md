@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* In HTML output, links in inline code are now correctly colored on hover. ([#2497])
+
 ## Version [v1.4.0] - 2024-04-14
 
 ### Changed
@@ -1822,6 +1828,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2475]: https://github.com/JuliaDocs/Documenter.jl/issues/2475
 [#2480]: https://github.com/JuliaDocs/Documenter.jl/issues/2480
 [#2482]: https://github.com/JuliaDocs/Documenter.jl/issues/2482
+[#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
