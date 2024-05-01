@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * In HTML output, links in inline code are now correctly colored on hover. ([#2497])
+* Doctest fixing functionality handles another edge case. ([#2303], [#2378])
 
 ## Version [v1.4.0] - 2024-04-14
 
@@ -1789,6 +1790,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2288]: https://github.com/JuliaDocs/Documenter.jl/issues/2288
 [#2293]: https://github.com/JuliaDocs/Documenter.jl/issues/2293
 [#2300]: https://github.com/JuliaDocs/Documenter.jl/issues/2300
+[#2303]: https://github.com/JuliaDocs/Documenter.jl/issues/2303
 [#2306]: https://github.com/JuliaDocs/Documenter.jl/issues/2306
 [#2307]: https://github.com/JuliaDocs/Documenter.jl/issues/2307
 [#2308]: https://github.com/JuliaDocs/Documenter.jl/issues/2308
@@ -1810,6 +1812,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2373]: https://github.com/JuliaDocs/Documenter.jl/issues/2373
 [#2374]: https://github.com/JuliaDocs/Documenter.jl/issues/2374
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
+[#2378]: https://github.com/JuliaDocs/Documenter.jl/issues/2378
 [#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408

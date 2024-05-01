@@ -52,6 +52,11 @@ function _doctest(blueprint::Documenter.DocumentBlueprint, doc::Documenter.Docum
     end
 end
 
+mutable struct MutablePrefix
+    content :: String
+    MutablePrefix() = new("")
+end
+
 function _doctest(page::Documenter.Page, doc::Documenter.Document)
     ctx = DocTestContext(page.source, doc) # FIXME
     ctx.meta[:CurrentFile] = page.source
@@ -202,24 +207,31 @@ _doctest(ctx::DocTestContext, block) = true
 # Doctest evaluation.
 
 mutable struct Result
-    block  :: MutableMD2CodeBlock # The entire code block that is being tested.
-    input  :: String # Part of `block.code` representing the current input.
-    output :: String # Part of `block.code` representing the current expected output.
-    file   :: String # File in which the doctest is written. Either `.md` or `.jl`.
-    value  :: Any        # The value returned when evaluating `input`.
-    hide   :: Bool       # Semi-colon suppressing the output?
-    stdout :: IOBuffer   # Redirected stdout/stderr gets sent here.
-    bt     :: Vector     # Backtrace when an error is thrown.
+    block      :: MutableMD2CodeBlock # The entire code block that is being tested.
+    raw_input  :: String # Part of `block.code` representing the current input.
+    input      :: String # Part of `block.code` representing the current input
+                         # without leading repl prompts and spaces.
+    output     :: String # Part of `block.code` representing the current expected output.
+    file       :: String # File in which the doctest is written. Either `.md` or `.jl`.
+    value      :: Any        # The value returned when evaluating `input`.
+    hide       :: Bool       # Semi-colon suppressing the output?
+    stdout     :: IOBuffer   # Redirected stdout/stderr gets sent here.
+    bt         :: Vector     # Backtrace when an error is thrown.
 
     function Result(block, input, output, file)
-        new(block, input, rstrip(output, '\n'), file, nothing, false, IOBuffer())
+        new(block, input, input, rstrip(output, '\n'), file, nothing, false, IOBuffer())
+    end
+    function Result(block, raw_input, input, output, file)
+        new(block, raw_input, input, rstrip(output, '\n'), file, nothing, false, IOBuffer())
     end
 end
 
+
 function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
     src_lines = Documenter.find_block_in_file(block.code, meta[:CurrentFile])
-    for (input, output) in repl_splitter(block.code)
-        result = Result(block, input, output, meta[:CurrentFile])
+    (prefix, split) = repl_splitter(block.code)
+    for (raw_input, input, output) in split
+        result = Result(block, raw_input, input, output, meta[:CurrentFile])
         for (ex, str) in Documenter.parseblock(input, doc, page; keywords = false, raise=false)
             # Input containing a semi-colon gets suppressed in the final output.
             @debug "Evaluating REPL line from doctest at $(Documenter.locrepr(result.file, src_lines))" unparsed_string = str parsed_expression = ex
@@ -239,7 +251,7 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
             # don't evaluate further if there is a parse error
             isa(ex, Expr) && ex.head === :error && break
         end
-        checkresult(sandbox, result, meta, doc)
+        checkresult(sandbox, result, meta, doc; prefix)
     end
 end
 
@@ -288,7 +300,7 @@ function filter_doctests(filters, strings)
 end
 
 # Regex used here to replace gensym'd module names could probably use improvements.
-function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documenter.Document)
+function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documenter.Document; prefix::MutablePrefix=MutablePrefix())
     sandbox_name = nameof(sandbox)
     mod_regex = Regex("(Main\\.)?(Symbol\\(\"$(sandbox_name)\"\\)|$(sandbox_name))[,.]")
     mod_regex_nodot = Regex(("(Main\\.)?$(sandbox_name)"))
@@ -310,14 +322,24 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         )
         # Since checking for the prefix of an error won't catch the empty case we need
         # to check that manually with `isempty`.
-        if isempty(head) || !startswith(filteredstr, filteredhead)
+        # In the doc.user.doctest === :fix we need actual equality of
+        # filteredstr and filteredhead, otherwise this needs to get repaired.
+        if isempty(head) || !startswith(filteredstr, filteredhead) || 
+                (doc.user.doctest === :fix && filteredstr != filteredhead)
             if doc.user.doctest === :fix
-                fix_doctest(result, str, doc)
+                fix_doctest(result, str, doc; prefix)
             else
                 report(result, str, doc)
                 @debug "Doctest metadata" meta
                 push!(doc.internal.errors, :doctest)
             end
+        else
+            # Prefix was not modified, unless output was different.
+            prefix.content *= result.raw_input*"\n"
+            if str != ""
+                prefix.content *= str * "\n"
+            end
+            prefix.content *= "\n"
         end
     else
         value = result.hide ? nothing : result.value # `;` hides output.
@@ -332,12 +354,19 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         )
         if filteredstr != filteredoutput
             if doc.user.doctest === :fix
-                fix_doctest(result, str, doc)
+                fix_doctest(result, str, doc; prefix)
             else
                 report(result, str, doc)
                 @debug "Doctest metadata" meta
                 push!(doc.internal.errors, :doctest)
             end
+        else
+            # Prefix was not modified, unless output was different.
+            prefix.content *= result.raw_input*"\n"
+            if str != ""
+                prefix.content *= str * "\n"
+            end
+            prefix.content *= "\n"
         end
     end
     return nothing
@@ -448,7 +477,7 @@ function report(result::Result, str, doc::Documenter.Document)
         """, diff, _file=result.file, _line=line)
 end
 
-function fix_doctest(result::Result, str, doc::Documenter.Document)
+function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::MutablePrefix=MutablePrefix())
     code = result.block.code
     filename = Base.find_source_file(result.file)
     # read the file containing the code block
@@ -470,7 +499,8 @@ function fix_doctest(result::Result, str, doc::Documenter.Document)
     write(io, content[1:prevind(content, first(codeidx))])
     # next look for the particular input string in the given code block
     # make a regex of the input that matches leading whitespace (for multiline input)
-    rinput = "\\h*" * replace(Documenter.regex_escape(result.input), "\\n" => "\\n\\h*")
+    composed = prefix.content * result.raw_input
+    rinput = replace(Documenter.regex_escape(composed), "\\n" => "\\n\\h*")
     r = Regex(rinput)
     inputidx = findfirst(r, code)
     if inputidx === nothing
@@ -480,6 +510,11 @@ function fix_doctest(result::Result, str, doc::Documenter.Document)
     # construct the new code-snippet (without indent)
     # first part: everything up until the last index of the input string
     newcode = code[1:last(inputidx)]
+    prefix.content = newcode * "\n"
+    if str != ""
+        prefix.content *= str * "\n"
+    end
+    prefix.content *= "\n"
     isempty(result.output) && (newcode *= '\n') # issue #772
     # second part: the rest, with the old output replaced with the new one
     if result.output == ""
@@ -488,7 +523,11 @@ function fix_doctest(result::Result, str, doc::Documenter.Document)
         newcode *= str
         newcode *= code[nextind(code, last(inputidx)):end]
     else
-        newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+        if str == ""
+            newcode *= replace(code[nextind(code, last(inputidx)):end], result.output * "\n" => str, count = 1)
+        else
+            newcode *= replace(code[nextind(code, last(inputidx)):end], result.output => str, count = 1)
+        end
     end
     # replace internal code block with the non-indented new code, needed if we come back
     # looking to replace output in the same code block later
@@ -511,31 +550,40 @@ const SOURCE_REGEX = r"^       (.*)$"
 function repl_splitter(code)
     lines  = split(string(code, "\n"), '\n')
     input  = String[]
+    raw_inputs = String[]
     output = String[]
+    prefix = MutablePrefix()
     buffer = IOBuffer() # temporary buffer for doctest inputs and outputs
+    raw_input_buffer = IOBuffer()
     found_first_prompt = false
     while !isempty(lines)
         line = popfirst!(lines)
         prompt = match(PROMPT_REGEX, line)
         # We allow comments before the first julia> prompt
-        !found_first_prompt && startswith(line, '#') && continue
+        if !found_first_prompt && startswith(line, '#')
+            prefix.content *= line * "\n"
+            continue
+        end
         if prompt === nothing
             source = match(SOURCE_REGEX, line)
             if source === nothing
                 savebuffer!(input, buffer)
+                savebuffer!(raw_inputs, raw_input_buffer)
                 println(buffer, line)
                 takeuntil!(PROMPT_REGEX, buffer, lines)
             else
                 println(buffer, source[1])
+                println(raw_input_buffer, line)
             end
         else
             found_first_prompt = true
             savebuffer!(output, buffer)
             println(buffer, prompt[1])
+            println(raw_input_buffer, line)
         end
     end
     savebuffer!(output, buffer)
-    zip(input, output)
+    return prefix, zip(raw_inputs, input, output)
 end
 
 function savebuffer!(out, buf)

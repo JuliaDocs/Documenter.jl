@@ -45,8 +45,24 @@ function test_doctest_fix(dir)
     @debug "Running doctest/fix doctests with doctest=true"
     @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir)
 
-    # also test that we obtain the expected output
-    @test normalize_line_endings(index_md) == normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
+    # Load the expected results and adapt to various Julia versions:
+    md_result = normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
+    if VERSION < v"1.12-DEV"
+        # 1.12 Starts printing "in `Main`", so we remove that from the expected output.
+        md_result = replace(md_result, r"UndefVarError: `([^`]*)` not defined in `Main`" => s"UndefVarError: `\1` not defined")
+    end
+    if VERSION < v"1.11"
+        # 1.11 started printing the 'Suggestion: check for spelling errors or missing imports.' messages
+        # for UndefVarError, so we remove them from the expected output.
+        md_result = replace(md_result, r"UndefVarError: `([^`]*)` not defined\nSuggestion: .+" => s"UndefVarError: `\1` not defined")
+    end
+    if VERSION < v"1.7"
+        # The UndefVarError prints the backticks around the variable name in 1.7+, so we need to remove them.
+        md_result = replace(md_result, r"UndefVarError: `([^`]*)` not defined" => s"UndefVarError: \1 not defined")
+    end
+
+    # test that we obtain the expected output
+    @test normalize_line_endings(index_md) == md_result
     @test normalize_line_endings(src_jl) == normalize_line_endings(joinpath(@__DIR__, "fixed.jl"))
 end
 
