@@ -3,17 +3,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* Doctest fixing functionality handles another edge case. ([#2303], [#2378])
+
 ## Version [v1.4.0] - 2024-04-14
 
 ### Changed
 
 * A fully qualified `@ref` link now resolves in `Main` as well, in addition to `CurrentModule`. For any package whose docstrings are included in the documentation, as long as that package is loaded in `make.jl`, fully qualified `@ref` links to docstrings in the package will work from anywhere. This simplifies, e.g., linking between docstrings for packages that use sub-modules. ([#2470])
 * `HTMLWriter` saw several refactoring, which should not lead to any user-visible changes, but may affect plugins that are relying on Documenter's internals. ([#2475], [#2480], [#2482])
-
-### Fixed
-
-* Doctest fixing functionality handles another edge case. ([#2303], [#2378])
-
 
 ## Version [v1.3.0] - 2024-03-01
 
