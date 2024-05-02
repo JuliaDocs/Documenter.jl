@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>LaTeX Syntax · Documenter.jl</title><meta name="title" content="LaTeX Syntax · Documenter.jl"/><meta property="og:title" content="LaTeX Syntax · Documenter.jl"/><meta property="twitter:title" content="LaTeX Syntax · Documenter.jl"/><meta name="description" content="Documentation for Documenter.jl."/><meta property="og:description" content="Documentation for Documenter.jl."/><meta property="twitter:description" content="Documentation for Documenter.jl."/><meta property="og:url" content="https://documenter.juliadocs.org/stable/man/latex/"/><meta property="twitter:url" content="https://documenter.juliadocs.org/stable/man/latex/"/><link rel="canonical" href="https://documenter.juliadocs.org/stable/man/latex/"/><meta property="og:image" content="https://documenter.juliadocs.org/stable/assets/preview.png"/><meta property="twitter:image" content="https://documenter.juliadocs.org/stable/assets/preview.png"/><meta property="twitter:card" content="summary_large_image"/><script async src="https://www.googletagmanager.com/gtag/js?id=UA-136089579-2"></script><script>  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-136089579-2', {'page_path': location.pathname + location.search + location.hash});
+</script><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.svg" alt="Documenter.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.svg" alt="Documenter.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Documenter.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../guide/">Guide</a></li><li><a class="tocitem" href="../examples/">Examples</a></li><li><a class="tocitem" href="../syntax/">Syntax</a></li><li><a class="tocitem" href="../doctests/">Doctests</a></li><li class="is-active"><a class="tocitem" href><span>$\LaTeX$</span> Syntax</a><ul class="internal"><li><a class="tocitem" href="#Escaping-Characters-in-Docstrings"><span>Escaping Characters in Docstrings</span></a></li><li><a class="tocitem" href="#Inline-Equations"><span>Inline Equations</span></a></li><li><a class="tocitem" href="#Display-Equations"><span>Display Equations</span></a></li><li><a class="tocitem" href="#Printing-LaTeX-from-Julia"><span>Printing LaTeX from Julia</span></a></li><li><a class="tocitem" href="#Set-math-engine-and-define-macros-for-LaTeX"><span>Set math engine and define macros for LaTeX</span></a></li></ul></li><li><a class="tocitem" href="../hosting/">Hosting Documentation</a></li><li><a class="tocitem" href="../other-formats/">Other Output Formats</a></li></ul></li><li><a class="tocitem" href="../../showcase/">Showcase</a></li><li><span class="tocitem">Reference</span><ul><li><a class="tocitem" href="../../lib/public/">Public API</a></li><li><a class="tocitem" href="../../lib/remote-links/">Remote repository links</a></li><li><a class="tocitem" href="../../lib/semver/">Semantic versioning</a></li></ul></li><li><span class="tocitem">Developers</span><ul><li><a class="tocitem" href="../../contributing/">Contributing</a></li><li><a class="tocitem" href="../../checklists/">Checklists</a></li><li><input class="collapse-toggle" id="menuitem-5-3" type="checkbox"/><label class="tocitem" for="menuitem-5-3"><span class="docs-label">Internals</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../lib/internals/anchors/">Anchors</a></li><li><a class="tocitem" href="../../lib/internals/builder/">Builder</a></li><li><a class="tocitem" href="../../lib/internals/crossref/">Crossrefs</a></li><li><a class="tocitem" href="../../lib/internals/deploydocs/">Deploydocs</a></li><li><a class="tocitem" href="../../lib/internals/docchecks/">DocChecks</a></li><li><a class="tocitem" href="../../lib/internals/docmeta/">DocMeta</a></li><li><a class="tocitem" href="../../lib/internals/docsystem/">DocSystem</a></li><li><a class="tocitem" href="../../lib/internals/doctests/">DocTests</a></li><li><a class="tocitem" href="../../lib/internals/documentertools/">DocumenterTools</a></li><li><a class="tocitem" href="../../lib/internals/documents/">Documents</a></li><li><a class="tocitem" href="../../lib/internals/dom/">DOM</a></li><li><a class="tocitem" href="../../lib/internals/expanders/">Expanders</a></li><li><a class="tocitem" href="../../lib/internals/jsdependencies/">JSDependencies</a></li><li><a class="tocitem" href="../../lib/internals/mdflatten/">MDFlatten</a></li><li><a class="tocitem" href="../../lib/internals/selectors/">Selectors</a></li><li><a class="tocitem" href="../../lib/internals/textdiff/">TextDiff</a></li><li><a class="tocitem" href="../../lib/internals/utilities/">Utilities</a></li><li><a class="tocitem" href="../../lib/internals/writers/">Writers</a></li></ul></li></ul></li><li><a class="tocitem" href="../../release-notes/">Release notes</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href><span>$\LaTeX$</span> Syntax</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><span>$\LaTeX$</span> Syntax</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaDocs/Documenter.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaDocs/Documenter.jl/blob/master/docs/src/man/latex.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="latex_syntax"><a class="docs-heading-anchor" href="#latex_syntax"><span>$\LaTeX$</span> Syntax</a><a id="latex_syntax-1"></a><a class="docs-heading-anchor-permalink" href="#latex_syntax" title="Permalink"></a></h1><p>The following section describes how to add equations written using <span>$\LaTeX$</span> to your documentation.</p><h2 id="Escaping-Characters-in-Docstrings"><a class="docs-heading-anchor" href="#Escaping-Characters-in-Docstrings">Escaping Characters in Docstrings</a><a id="Escaping-Characters-in-Docstrings-1"></a><a class="docs-heading-anchor-permalink" href="#Escaping-Characters-in-Docstrings" title="Permalink"></a></h2><p>Since some characters used in <span>$\LaTeX$</span> syntax, such as <code>$</code> and <code>\</code>, are treated differently in docstrings. They need to be escaped using a <code>\</code> character as in the following example:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+Here&#39;s some inline maths: ``\\sqrt[n]{1 + x + x^2 + \\ldots}``.
+
+Here&#39;s an equation:
+
+``\\frac{n!}{k!(n - k)!} = \\binom{n}{k}``
+
+This is the binomial coefficient.
+&quot;&quot;&quot;
+func(x) = # ...</code></pre><p>Note that for equations on the manual pages (in <code>.md</code> files) the escaping is not necessary. So, when moving equations between the manual and docstrings, the escaping <code>\</code> characters have to the appropriately added or removed.</p><p>To avoid needing to escape the special characters in docstrings the <code>raw&quot;&quot;</code> string macro can be used, combined with <code>@doc</code>:</p><pre><code class="language-julia hljs">@doc raw&quot;&quot;&quot;
+Here&#39;s some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.
+
+Here&#39;s an equation:
+
+``\frac{n!}{k!(n - k)!} = \binom{n}{k}``
+
+This is the binomial coefficient.
+&quot;&quot;&quot;
+func(x) = # ...</code></pre><p>A related issue is how to add dollar signs to a docstring. They need to be double-escaped as follows:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+The cost was \\\$1.
+&quot;&quot;&quot;</code></pre><h2 id="Inline-Equations"><a class="docs-heading-anchor" href="#Inline-Equations">Inline Equations</a><a id="Inline-Equations-1"></a><a class="docs-heading-anchor-permalink" href="#Inline-Equations" title="Permalink"></a></h2><pre><code class="language-markdown hljs">Here&#39;s some inline maths: ``\sqrt[n]{1 + x + x^2 + \ldots}``.</code></pre><p>which will be displayed as</p><hr/><p>Here&#39;s some inline maths: <span>$\sqrt[n]{1 + x + x^2 + \ldots}$</span>.</p><hr/><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>Similar to LaTeX, using <code>$</code> and <code>$$</code> to escape inline and display equations also works. However, doing so is deprecated and this functionality may be removed in a future release.</p></div></div><h2 id="Display-Equations"><a class="docs-heading-anchor" href="#Display-Equations">Display Equations</a><a id="Display-Equations-1"></a><a class="docs-heading-anchor-permalink" href="#Display-Equations" title="Permalink"></a></h2><pre><code class="language-markdown hljs">Here&#39;s an equation:
+
+```math
+\frac{n!}{k!(n - k)!} = \binom{n}{k}
+```
+
+This is the binomial coefficient.
+
+---
+
+To write a system of equations, use the `aligned` environment:
+
+```math
+\begin{aligned}
+\nabla\cdot\mathbf{E}  &amp;= 4 \pi \rho \\
+\nabla\cdot\mathbf{B}  &amp;= 0 \\
+\nabla\times\mathbf{E} &amp;= - \frac{1}{c} \frac{\partial\mathbf{B}}{\partial t} \\
+\nabla\times\mathbf{B} &amp;= - \frac{1}{c} \left(4 \pi \mathbf{J} + \frac{\partial\mathbf{E}}{\partial t} \right)
+\end{aligned}
+```
+
+These are Maxwell&#39;s equations.
+</code></pre><p>which will be displayed as</p><hr/><p>Here&#39;s an equation:</p><p class="math-container">\[\frac{n!}{k!(n - k)!} = \binom{n}{k}\]</p><p>This is the binomial coefficient.</p><hr/><p>To write a system of equations, use the <code>aligned</code> environment:</p><p class="math-container">\[\begin{aligned}
+\nabla\cdot\mathbf{E}  &amp;= 4 \pi \rho \\
+\nabla\cdot\mathbf{B}  &amp;= 0 \\
+\nabla\times\mathbf{E} &amp;= - \frac{1}{c} \frac{\partial\mathbf{B}}{\partial t} \\
+\nabla\times\mathbf{B} &amp;= - \frac{1}{c} \left(4 \pi \mathbf{J} + \frac{\partial\mathbf{E}}{\partial t} \right)
+\end{aligned}\]</p><p>These are Maxwell&#39;s equations.</p><h2 id="Printing-LaTeX-from-Julia"><a class="docs-heading-anchor" href="#Printing-LaTeX-from-Julia">Printing LaTeX from Julia</a><a id="Printing-LaTeX-from-Julia-1"></a><a class="docs-heading-anchor-permalink" href="#Printing-LaTeX-from-Julia" title="Permalink"></a></h2><p>To pretty-print LaTeX from Julia, overload <code>Base.show</code> for the <code>MIME&quot;text/latex&quot;</code> type. For example:</p><pre><code class="language-julia hljs">struct LaTeXEquation
+    content::String
+end
+
+function Base.show(io::IO, ::MIME&quot;text/latex&quot;, x::LaTeXEquation)
+    # Wrap in $$ for display math printing
+    return print(io, &quot;\$\$ &quot; * x.content * &quot; \$\$&quot;)
+end
+
+LaTeXEquation(raw&quot;&quot;&quot;
+    \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+&quot;&quot;&quot;)</code></pre><p class="math-container">\[     \left[\begin{array}{c}
+        x \\
+        y
+    \end{array}\right]
+ \]</p><h2 id="Set-math-engine-and-define-macros-for-LaTeX"><a class="docs-heading-anchor" href="#Set-math-engine-and-define-macros-for-LaTeX">Set math engine and define macros for LaTeX</a><a id="Set-math-engine-and-define-macros-for-LaTeX-1"></a><a class="docs-heading-anchor-permalink" href="#Set-math-engine-and-define-macros-for-LaTeX" title="Permalink"></a></h2><p>The <code>mathengine</code> argument to <a href="../../lib/internals/writers/#Documenter.HTMLWriter.HTML"><code>Documenter.HTMLWriter.HTML</code></a> allows the math rendering engine to be specified, supporting both MathJax and KaTeX (with the latter being the default).</p><p>Furthermore, you can also pass custom configuration to the rendering engine. E.g. to add global LaTeX command definitions, you can set <code>mathengine</code> to:</p><pre><code class="language-julia hljs">mathengine = Documenter.MathJax(Dict(:TeX =&gt; Dict(
+    :equationNumbers =&gt; Dict(:autoNumber =&gt; &quot;AMS&quot;),
+    :Macros =&gt; Dict(
+        :ket =&gt; [&quot;|#1\\rangle&quot;, 1],
+        :bra =&gt; [&quot;\\langle#1|&quot;, 1],
+    ),
+)))</code></pre><p>Or with MathJax v3, the <a href="http://mirrors.ibiblio.org/CTAN/macros/latex/contrib/physics/physics.pdf">physics package</a> can be loaded:</p><pre><code class="language-julia hljs">mathengine = MathJax3(Dict(
+    :loader =&gt; Dict(&quot;load&quot; =&gt; [&quot;[tex]/physics&quot;]),
+    :tex =&gt; Dict(
+        &quot;inlineMath&quot; =&gt; [[&quot;\$&quot;,&quot;\$&quot;], [&quot;\\(&quot;,&quot;\\)&quot;]],
+        &quot;tags&quot; =&gt; &quot;ams&quot;,
+        &quot;packages&quot; =&gt; [&quot;base&quot;, &quot;ams&quot;, &quot;autoload&quot;, &quot;physics&quot;],
+    ),
+))</code></pre><p>The syntax is slightly different if using KaTeX, the following example is what you might include in your <code>makedocs</code> function:</p><pre><code class="language-julia hljs">makedocs(
+    format = Documenter.HTML(; mathengine=
+        Documenter.KaTeX(
+            Dict(:delimiters =&gt; [
+                Dict(:left =&gt; raw&quot;$&quot;,   :right =&gt; raw&quot;$&quot;,   display =&gt; false),
+                Dict(:left =&gt; raw&quot;$$&quot;,  :right =&gt; raw&quot;$$&quot;,  display =&gt; true),
+                Dict(:left =&gt; raw&quot;\[&quot;,  :right =&gt; raw&quot;\]&quot;,  display =&gt; true),
+                ],
+                :macros =&gt; Dict(&quot;\\RR&quot; =&gt; &quot;\\mathbb{R}&quot;,
+                    raw&quot;\Xi&quot; =&gt; raw&quot;X_{i}&quot;,
+                    raw&quot;\Ru&quot; =&gt; raw&quot;R_{\mathrm{univ.}}&quot;,
+                    raw&quot;\Pstd&quot; =&gt; raw&quot;P_{\mathrm{std}}&quot;,
+                    raw&quot;\Tstd&quot; =&gt; raw&quot;T_{\mathrm{std}}&quot;,
+                ),
+            )
+        )
+    )
+)</code></pre><p><a href="../../lib/internals/writers/#Documenter.HTMLWriter.MathJax2"><code>MathJax2</code></a>, <a href="../../lib/internals/writers/#Documenter.HTMLWriter.MathJax3"><code>MathJax3</code></a> and <a href="../../lib/internals/writers/#Documenter.HTMLWriter.KaTeX"><code>KaTeX</code></a> are available types for <code>mathengine</code>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../doctests/">« Doctests</a><a class="docs-footer-nextpage" href="../hosting/">Hosting Documentation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Thursday 2 May 2024 21:36">Thursday 2 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
