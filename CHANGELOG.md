@@ -3,6 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+* Coloring of admonitions have been toned down in order to make them slightly less
+  eye-catching. ([#2499])
+* Thickness and rounding of docstrings and code blocks have been adjusted to match
+  admonitions. ([#2499])
+
 ## Version [v1.4.1] - 2024-05-02
 
 ### Fixed
@@ -1833,6 +1842,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2480]: https://github.com/JuliaDocs/Documenter.jl/issues/2480
 [#2482]: https://github.com/JuliaDocs/Documenter.jl/issues/2482
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
+[#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

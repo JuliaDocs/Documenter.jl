@@ -1,7 +1,8 @@
 // We need to override some .content behavior
 .content {
   pre {
-    border: 1px solid $border;
+    border: $documenter-codeblock-border-width solid $border;
+    border-radius: $documenter-codeblock-border-radius;
   }
   // Bold code spans
   code {
