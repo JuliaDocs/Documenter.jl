@@ -66,9 +66,9 @@ the builder to call. You also need to tell Documenter to use the docker image, i
 installed tex which is the default. This is done with the `LaTeX` specifier:
 
 ```
-using DocumenterLaTeX
+using Documenter
 makedocs(
-    format = LaTeX(platform = "docker"),
+    format = Documenter.LaTeX(platform = "docker"),
     ...
 )
 ```
@@ -88,8 +88,9 @@ There's a possibility to save only the `.tex` file and skip the PDF compilation.
 For this purpose use the `platform="none"` keyword:
 
 ```
+using Documenter
 makedocs(
-    format = LaTeX(platform = "none"),
+    format = Documenter.LaTeX(platform = "none"),
     ...
 )
 ```
