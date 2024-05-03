@@ -88,7 +88,6 @@ There's a possibility to save only the `.tex` file and skip the PDF compilation.
 For this purpose use the `platform="none"` keyword:
 
 ```
-using DocumenterLaTeX
 makedocs(
     format = LaTeX(platform = "none"),
     ...
