@@ -40,6 +40,7 @@ Packages that have tagged versions available in the general Registry:
 - [HypothesisTests.jl](https://juliastats.org/HypothesisTests.jl/stable/)
 - [InvertibleNetworks.jl](https://slimgroup.github.io/InvertibleNetworks.jl/stable/)
 - [JUDI.jl](https://slimgroup.github.io/JUDI.jl/stable/)
+- [JuliaGrid.jl](https://mcosovic.github.io/JuliaGrid.jl/stable/)
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
 - [MergedMethods.jl](https://michaelhatherly.github.io/MergedMethods.jl/stable/)
 - [Mimi.jl](https://www.mimiframework.org/Mimi.jl/stable/)
