@@ -362,8 +362,8 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
 **`description`** is the site-wide description that displays in page previews and search
-engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as
-an argument to [`makedocs`](@ref).
+engines. Defaults to `"Documentation for \$sitename"`, where `sitename` is defined as
+an argument to [`makedocs`](@ref Documenter.makedocs).
 
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
 the page navigation. Defaults to `"Powered by [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl)
