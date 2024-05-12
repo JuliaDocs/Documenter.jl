@@ -362,7 +362,7 @@ passing an instance of [`KaTeX`](@ref), [`MathJax2`](@ref), or
 passing options to the [`KaTeX`](@ref) or [`MathJax2`](@ref)/[`MathJax3`](@ref) constructors.
 
 **`description`** is the site-wide description that displays in page previews and search
-engines. Defaults to `"Documentation for \$sitename"``, where `sitename` is defined as
+engines. Defaults to `"Documentation for \$sitename"`, where `sitename` is defined as
 an argument to [`makedocs`](@ref).
 
 **`footer`** can be a valid single-line markdown `String` or `nothing` and is displayed below
