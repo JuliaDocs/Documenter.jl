@@ -2,7 +2,8 @@
 .docstring {
   margin-bottom: 1em;
   background-color: $documenter-docstring-background;
-  border: 1px solid $border;
+  border: $documenter-docstring-border-width solid $border;
+  border-radius: $documenter-docstring-border-radius;
   box-shadow: $documenter-docstring-shadow;
   max-width: 100%;
 

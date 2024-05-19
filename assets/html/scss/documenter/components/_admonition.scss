@@ -1,7 +1,7 @@
 // This is a heavily customized version of Bulma's message component
 // Original copyright (c) 2019 Jeremy Thomas, The MIT License (MIT)
 $admonition-colors: (
-  'default': $grey-darker, 'info': $info, 'success': $success, 'warning': $warning,
+  'default': $admonition-default, 'info': $info, 'success': $success, 'warning': $warning,
   'danger': $danger, 'compat': $compat,
 ) !default;
 
@@ -9,19 +9,23 @@ $admonition-background: () !default;
 $admonition-body-color: () !default;
 $admonition-header-background: () !default;
 $admonition-header-color: () !default;
+$admonition-border-color: () !default;
 @each $name, $color in $admonition-colors {
-  $bg: lighten-color($color, 5);
+  // $bg: lighten-color($color, 5);
   @if not map-has-key($admonition-header-background, $name) {
-    $admonition-header-background: map-merge($admonition-header-background, ($name: $color)) !global;
+    $admonition-header-background: map-merge($admonition-header-background, ($name: transparent)) !global;
   }
   @if not map-has-key($admonition-header-color, $name) {
-    $admonition-header-color: map-merge($admonition-header-color, ($name: findColorInvert($color))) !global;
+    $admonition-header-color: map-merge($admonition-header-color, ($name: $color)) !global;
+  }
+  @if not map-has-key($admonition-border-color, $name) {
+    $admonition-border-color: map-merge($admonition-border-color, ($name: $color)) !global;
   }
   @if not map-has-key($admonition-background, $name) {
-    $admonition-background: map-merge($admonition-background, ($name: $bg)) !global;
+    $admonition-background: map-merge($admonition-background, ($name: $background)) !global;
   }
   @if not map-has-key($admonition-body-color, $name) {
-    $admonition-body-color: map-merge($admonition-body-color, ($name: findColorInvert($bg))) !global;
+    $admonition-body-color: map-merge($admonition-body-color, ($name: findColorInvert($background))) !global;
   }
 }
 
@@ -30,9 +34,9 @@ $admonition-header-color: () !default;
 
   background-color: map-get($admonition-background, 'default');
   border-style: solid;
-  border-width: 1px;
-  border-color: map-get($admonition-header-background, 'default');
-  border-radius: $message-radius;
+  border-width: $documenter-admonition-border-width;
+  border-color: map-get($admonition-border-color, 'default');
+  border-radius: $documenter-admonition-border-radius;
   font-size: $size-normal;
 
   strong {
@@ -60,7 +64,7 @@ $admonition-header-color: () !default;
 
     &.is-#{$name} {
       background-color: map-get($admonition-background, $name);
-      border-color: map-get($admonition-header-background, $name);
+      border-color: map-get($admonition-border-color, $name);
 
       > .admonition-header {
         background-color: map-get($admonition-header-background, $name);
