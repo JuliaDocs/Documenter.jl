@@ -21,6 +21,9 @@ $admonition-border-color: () !default;
   @if not map-has-key($admonition-border-color, $name) {
     $admonition-border-color: map-merge($admonition-border-color, ($name: $color)) !global;
   }
+  @if not map-has-key($admonition-border-color, $name) {
+    $admonition-border-color: map-merge($admonition-border-color, ($name: $color)) !global;
+  }
   @if not map-has-key($admonition-background, $name) {
     $admonition-background: map-merge($admonition-background, ($name: $background)) !global;
   }

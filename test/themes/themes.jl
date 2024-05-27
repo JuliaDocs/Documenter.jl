@@ -14,12 +14,15 @@ using DocumenterTools: Themes
     @test isdir(HTMLWriter.ASSETS_THEMES)
 
     for theme in HTMLWriter.THEMES
-        @test isfile(joinpath(HTMLWriter.ASSETS_SASS, "$(theme).scss"))
+        # catppuccin-* themes are templated based on a common catppuccin.scss source file
+        scss = replace(theme, r"(?<=^catppuccin)-[a-z]+$" => "")
+        @test isfile(joinpath(HTMLWriter.ASSETS_SASS, "$(scss).scss"))
         @test isfile(joinpath(HTMLWriter.ASSETS_THEMES, "$(theme).css"))
     end
 
     mktempdir() do tmpdir
         for theme in HTMLWriter.THEMES
+            startswith(theme, "catppuccin-") && continue # TODO: Require `make` invocation
             dst = joinpath(tmpdir, "$(theme).css")
             Themes.compile_native_theme(theme; dst=dst)
             css_compiled = read(dst)

@@ -5,6 +5,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* Four new *experimental* themes (`catppuccin-latte`, `catppuccin-frappe`,
+  `catppuccin-macchiato`, and `catppuccin-mocha`) have been added. These are based on the
+  [Catppuccin](https://catppuccin.com/) color palette. The existing themes
+  (`documenter-light` and `documenter-dark`) are still the default light and dark theme,
+  respectively. ([#2496])
+
 ### Changed
 
 * Coloring of admonitions have been toned down in order to make them slightly less
@@ -1841,6 +1849,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2475]: https://github.com/JuliaDocs/Documenter.jl/issues/2475
 [#2480]: https://github.com/JuliaDocs/Documenter.jl/issues/2480
 [#2482]: https://github.com/JuliaDocs/Documenter.jl/issues/2482
+[#2496]: https://github.com/JuliaDocs/Documenter.jl/issues/2496
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953

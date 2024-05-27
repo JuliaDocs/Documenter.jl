@@ -1,0 +1,113 @@
+$grey-lighter: $catppuccin-overlay1;// #dbdee0;
+$grey-light: $catppuccin-overlay0;
+$grey: $catppuccin-surface2;
+$grey-dark: $catppuccin-surface1;
+$grey-darker: $catppuccin-surface0;
+
+$orange: $catppuccin-peach;
+$yellow: $catppuccin-yellow;
+$green: $catppuccin-green;
+$turquoise: $catppuccin-teal;
+$blue: $catppuccin-blue;
+$purple: $catppuccin-lavender;
+$red: $catppuccin-red;
+// $white-ter: #ecf0f1;
+// $primary: #375a7f !default;
+$primary: $catppuccin-blue;
+$yellow-invert: red;
+
+$family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI",
+  "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+$family-monospace: "Inconsolata", "Consolas", "Monaco", monospace;
+
+$radius-small: 3px;
+$radius: 0.4em;
+$radius-large: 8px;
+$size-6: 15px;
+$size-7: 0.85em;
+$title-weight: 500;
+$subtitle-weight: 400;
+$subtitle-color: $grey-dark;
+
+$border-width: 2px;
+$border: $grey;
+
+$body-background-color: $catppuccin-base;
+$body-size: 15px;
+
+$background: $catppuccin-mantle; // $grey-darker;
+$footer-background-color: $background;
+$button-background-color: $background;
+$button-border-color: lighten($button-background-color, 15);
+
+$title-color: #fff;
+$subtitle-color: $grey-light;
+$subtitle-strong-color: $grey-light;
+
+$text: $catppuccin-text;
+$text-light: lighten($text, 10);
+$text-strong: darken($text, 5);
+
+$box-color: $text;
+$box-background-color: $grey-dark;
+$box-shadow: none;
+
+$link: $catppuccin-blue;
+$link-hover: $catppuccin-sky;
+$link-focus: darken($link, 5);
+$link-active: darken($link, 5);
+$link-focus-border: $grey-light;
+
+$button-color: $primary;
+$button-hover-color: darken($text, 5); // text-dark
+$button-focus: darken($text, 5); // text-dark
+$button-active-color: darken($text, 5); // text-dark
+$button-disabled-background-color: $grey-light;
+
+$input-color: $grey-darker;
+$input-icon-color: $grey;
+$input-icon-active-color: $input-color;
+$input-hover-color: $catppuccin-sky;
+$input-disabled-background-color: $grey-light;
+$input-disabled-border: $grey-lighter;
+
+$table-color: $text;
+$table-head: $grey-lighter;
+$table-background-color: $grey-dark;
+$table-cell-border: 1px solid $grey;
+
+$table-row-hover-background-color: $grey-darker;
+$table-striped-row-even-background-color: $grey-darker;
+$table-striped-row-even-hover-background-color: lighten($grey-darker, 2);
+
+$pagination-color: $link;
+$pagination-border-color: $border;
+
+$navbar-height: 4rem;
+
+$navbar-background-color: $primary;
+$navbar-item-color: $text;
+$navbar-item-hover-color: $link;
+$navbar-item-hover-background-color: transparent;
+$navbar-item-active-color: $link;
+$navbar-dropdown-arrow: #fff;
+$navbar-divider-background-color: rgba(0, 0, 0, 0.2);
+$navbar-dropdown-border-top: 1px solid $navbar-divider-background-color;
+$navbar-dropdown-background-color: $primary;
+$navbar-dropdown-item-hover-color: $grey-lighter;
+$navbar-dropdown-item-hover-background-color: transparent;
+$navbar-dropdown-item-active-background-color: transparent;
+$navbar-dropdown-item-active-color: $link;
+
+$dropdown-content-background-color: $background;
+$dropdown-item-color: $text;
+
+$progress-value-background-color: $grey-lighter;
+
+$bulmaswatch-import-font: true !default;
+
+$file-cta-background-color: $grey-darker;
+
+$progress-bar-background-color: $grey-dark;
+
+$panel-heading-background-color: $grey-dark;

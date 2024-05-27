@@ -1,0 +1,166 @@
+// Taken from https://github.com/catppuccin/highlightjs
+//
+// MIT License
+//
+// Copyright (c) 2021 Catppuccin
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+code .hljs{
+    color: $catppuccin-text;
+    background: $catppuccin-base
+}
+code .hljs-keyword{
+    color: $catppuccin-mauve
+}
+code .hljs-built_in{
+    color: $catppuccin-red
+}
+code .hljs-type{
+    color: $catppuccin-yellow
+}
+code .hljs-literal{
+    color: $catppuccin-peach
+}
+code .hljs-number{
+    color: $catppuccin-peach
+}
+code .hljs-operator{
+    color: $catppuccin-teal
+}
+code .hljs-punctuation{
+    color: $catppuccin-subtext1
+}
+code .hljs-property{
+    color: $catppuccin-teal
+}
+code .hljs-regexp{
+    color: $catppuccin-pink
+}
+code .hljs-string{
+    color: $catppuccin-green
+}
+code .hljs-char.escape_{
+    color: $catppuccin-green
+}
+code .hljs-subst{
+    color: $catppuccin-subtext0
+}
+code .hljs-symbol{
+    color: $catppuccin-flamingo
+}
+code .hljs-variable{
+    color: $catppuccin-mauve
+}
+code .hljs-variable.language_{
+    color: $catppuccin-mauve
+}
+code .hljs-variable.constant_{
+    color: $catppuccin-peach
+}
+code .hljs-title{
+    color: $catppuccin-blue
+}
+code .hljs-title.class_{
+    color: $catppuccin-yellow
+}
+code .hljs-title.function_{
+    color: $catppuccin-blue
+}
+code .hljs-params{
+    color: $catppuccin-text
+}
+code .hljs-comment{
+    color: $catppuccin-surface2
+}
+code .hljs-doctag{
+    color: $catppuccin-red
+}
+code .hljs-meta{
+    color: $catppuccin-peach
+}
+code .hljs-section{
+    color: $catppuccin-blue
+}
+code .hljs-tag{
+    color: $catppuccin-subtext0
+}
+code .hljs-name{
+    color: $catppuccin-mauve
+}
+code .hljs-attr{
+    color: $catppuccin-blue
+}
+code .hljs-attribute{
+    color: $catppuccin-green
+}
+code .hljs-bullet{
+    color: $catppuccin-teal
+}
+code .hljs-code{
+    color: $catppuccin-green
+}
+code .hljs-emphasis{
+    color: $catppuccin-red;
+    font-style:italic
+}
+code .hljs-strong{
+    color: $catppuccin-red;
+    font-weight:bold
+}
+code .hljs-formula{
+    color: $catppuccin-teal
+}
+code .hljs-link{
+    color: $catppuccin-sapphire;
+    font-style:italic
+}
+code .hljs-quote{
+    color: $catppuccin-green;
+    font-style:italic
+}
+code .hljs-selector-tag{
+    color: $catppuccin-yellow
+}
+code .hljs-selector-id{
+    color: $catppuccin-blue
+}
+code .hljs-selector-class{
+    color: $catppuccin-teal
+}
+code .hljs-selector-attr{
+    color: $catppuccin-mauve
+}
+code .hljs-selector-pseudo{
+    color: $catppuccin-teal
+}
+code .hljs-template-tag{
+    color: $catppuccin-flamingo
+}
+code .hljs-template-variable{
+    color: $catppuccin-flamingo
+}
+code .hljs-addition{
+    color: $catppuccin-green;
+    background:rgba(166,227,161,.15)
+}
+code .hljs-deletion{
+    color: $catppuccin-red;
+    background:rgba(243,139,168,.15)
+}

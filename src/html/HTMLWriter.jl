@@ -84,7 +84,7 @@ export HTML
 const OUTDATED_VERSION_ATTR = "data-outdated-warner"
 
 "List of Documenter native themes."
-const THEMES = ["documenter-light", "documenter-dark"]
+const THEMES = ["documenter-light", "documenter-dark", "catppuccin-latte", "catppuccin-frappe", "catppuccin-macchiato", "catppuccin-mocha"]
 "The root directory of the HTML assets."
 const ASSETS = normpath(joinpath(@__DIR__, "..", "..", "assets", "html"))
 "The directory where all the Sass/SCSS files needed for theme building are."
