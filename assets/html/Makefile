@@ -1,5 +1,7 @@
 MAKEFILE_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
+JULIA:=julia --project=../../docs
+
 # All theme-independent source files
 SRC_FILES =
 SRC_FILES += $(shell find scss/documenter/ -type f -name '*.scss')
@@ -15,12 +17,12 @@ all: $(addprefix themes/, $(addsuffix .css, $(THEMES)))
 # documenter-light
 themes/documenter-light.css: scss/documenter-light.scss scss/highlightjs/default.css \
 		$(SRC_FILES)
-	julia -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'
+	$(JULIA) -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'
 
 # documenter-dark
 themes/documenter-dark.css: scss/documenter-dark.scss scss/darkly/_variables.scss \
 		scss/darkly/_overrides.scss scss/highlightjs/a11y-dark.css $(SRC_FILES)
-	julia -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'
+	$(JULIA) -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'
 
 # catppuccin-*: template the flavor
 scss/catppuccin-%.scss: scss/catppuccin.scss
@@ -31,4 +33,4 @@ scss/catppuccin-%.scss: scss/catppuccin.scss
 themes/catppuccin-%.css: scss/catppuccin-%.scss scss/catppuccin/_%.scss \
 		scss/catppuccin/_overrides.scss scss/catppuccin/_variables.scss \
 		scss/highlightjs/catppuccin.scss $(SRC_FILES)
-	julia -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'
+	$(JULIA) --project=../../docs -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'

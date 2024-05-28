@@ -12,7 +12,7 @@ changelog:
 	${JULIA} --project=docs docs/changelog.jl
 
 themes: docs-instantiate
-	${JULIA} --project=docs -e 'using DocumenterTools; DocumenterTools.Themes.compile_native_themes()'
+	$(MAKE) -C assets/html all
 
 test:
 	${JULIA} --project -e 'using Pkg; Pkg.test()'
