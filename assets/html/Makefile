@@ -37,4 +37,4 @@ scss/catppuccin-%.scss: scss/catppuccin.scss
 themes/catppuccin-%.css: scss/catppuccin-%.scss scss/catppuccin/_%.scss \
 		scss/catppuccin/_overrides.scss scss/catppuccin/_variables.scss \
 		scss/highlightjs/catppuccin.scss $(SRC_FILES)
-	$(JULIA) --project=../../docs -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'
+	$(JULIA) -e 'using DocumenterTools; DocumenterTools.Themes.compile("${MAKEFILE_DIR}/$<", "${MAKEFILE_DIR}/$@")'
