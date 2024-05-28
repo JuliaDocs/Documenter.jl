@@ -11,7 +11,7 @@ docs: docs-instantiate
 changelog:
 	${JULIA} --project=docs docs/changelog.jl
 
-themes: docs-instantiate
+themes:
 	$(MAKE) -C assets/html all
 
 test:

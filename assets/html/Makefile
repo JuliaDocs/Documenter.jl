@@ -1,11 +1,12 @@
 MAKEFILE_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-JULIA:=julia --project=../../docs
+JULIA:=julia --project
 
 # All theme-independent source files
 SRC_FILES =
 SRC_FILES += $(shell find scss/documenter/ -type f -name '*.scss')
 SRC_FILES += $(shell find scss/bulma/ -type f -name '*.sass')
+SRC_FILES += Manifest.toml
 
 THEMES = documenter-light documenter-dark \
 		catppuccin-latte catppuccin-frappe catppuccin-macchiato catppuccin-mocha
@@ -13,6 +14,9 @@ THEMES = documenter-light documenter-dark \
 # Default target: compile all themes
 all: $(addprefix themes/, $(addsuffix .css, $(THEMES)))
 .PHONY: all
+
+Manifest.toml: Project.toml
+	$(JULIA) ../../docs/instantiate.jl .
 
 # documenter-light
 themes/documenter-light.css: scss/documenter-light.scss scss/highlightjs/default.css \
