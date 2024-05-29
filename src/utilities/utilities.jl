@@ -427,8 +427,9 @@ const GIT_REMOTEURL_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
 """
 $(TYPEDSIGNATURES)
 
-Determines the GitHub remote of a directory by checking `remote.pushDefault` of the repository.
-Defaults to `origin`.
+Determines the GitHub remote of a directory, returninf 'origin' if that remote  exists,
+and otherwise returning the result of `git config --get remote.pushDefault`.
+If neither exist, throw an error.
 
 The results for a given directory are memoized in [`GIT_REMOTENAME_CACHE`](@ref), since calling
 `git` is expensive and it is often called on the same directory over and over again.
@@ -437,12 +438,25 @@ function getremotename(dir::AbstractString)
     isdir(dir) || return nothing
     return get!(GIT_REMOTENAME_CACHE, dir) do
         try
-            remotename = readchomp(setenv(`$(git()) config --get remote.pushDefault`; dir=dir))
-            @assert !isempty(remotename)
-            remotename
+            originurl = readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
+            @assert !isempty(originurl)
+            return "origin"
+        catch; end
+
+        try
+            pushdefault = readchomp(setenv(`$(git()) config --get remote.pushDefault`; dir=dir))
+            @assert !isempty(pushdefault)
+            @warn "Remote 'origin' not found. Using `git config --get remote.pushDefault` instead, which is set to '$(pushdefault)'."
+            return pushdefault
+        catch ; end
+        
+
+        # If neither was found, throw an error.
+        try
+            @assert false
         catch e
-            @warn "git config --get remote.pushDefault failed. Assuming remote `origin`." exception=(e, catch_backtrace())
-            "origin"
+            @warn "Neither remote 'origin' nor 'remotes.pushDefault' found" exception=(e, catch_backtrace())
+            ""
         end
     end
 end
