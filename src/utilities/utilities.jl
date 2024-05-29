@@ -421,7 +421,7 @@ const julia_remote = Remotes.GitHub("JuliaLang", "julia")
 """
 Stores the memoized results of [`getremote`](@ref).
 """
-const GIT_REMOTENAME_CACHE = Dict{String,Union{String,Nothing}}()
+const GIT_REMOTENAME_CACHE = Dict{String, String}()
 const GIT_REMOTEURL_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
 
 """
