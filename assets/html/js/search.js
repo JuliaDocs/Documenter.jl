@@ -262,7 +262,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     if (result.page !== "") {
       display_link += ` (${result.page})`;
     }
-
+    querystring = querystring.replace("(", "\\(")
+    querystring = querystring.replace(")", "\\)")
     let textindex = new RegExp(`${querystring}`, "i").exec(result.text);
     let text =
       textindex !== null
