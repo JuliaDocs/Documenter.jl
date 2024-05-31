@@ -65,12 +65,12 @@ update_search
 
 /////// SEARCH WORKER ///////
 
-function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
+function worker_function(Index, documenterBaseURL, filters) {
   importScripts(
     "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
   );
 
-  let data = documenterSearchIndex.map((x, key) => {
+  let data = Index.map((x, key) => {
     x["id"] = key; // minisearch requires a unique for each object
     return x;
   });
@@ -360,13 +360,13 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 
 // `worker = Threads.@spawn worker_function(documenterSearchIndex)`, but in JavaScript!
 const filters = [
-  ...new Set(documenterSearchIndex["docs"].map((x) => x.category)),
+  ...new Set(documenterSearchIndex.map((x) => x.category)),
 ];
 const worker_str =
   "(" +
   worker_function.toString() +
   ")(" +
-  JSON.stringify(documenterSearchIndex["docs"]) +
+  JSON.stringify(documenterSearchIndex) +
   "," +
   JSON.stringify(documenterBaseURL) +
   "," +

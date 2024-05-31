@@ -740,7 +740,7 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     end
 
     ctx = HTMLContext(doc, settings)
-    ctx.search_index_js = "search_index.js"
+    ctx.search_index_js = "search_index.json"
     ctx.themeswap_js = copy_asset("themeswap.js", doc)
     ctx.warner_js = copy_asset("warner.js", doc)
 
@@ -807,9 +807,8 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     all(size_limit_successes) || throw(HTMLSizeThresholdError())
 
     open(joinpath(doc.user.build, ctx.search_index_js), "w") do io
-        println(io, "var documenterSearchIndex = {\"docs\":")
         # convert Vector{SearchRecord} to a JSON string + do additional JS escaping
-        println(io, JSDependencies.json_jsescape(ctx.search_index), "\n}")
+        println(io, JSDependencies.json_jsescape(ctx.search_index))
     end
 
     write_inventory(doc, ctx)
@@ -994,7 +993,7 @@ function render_head(ctx, navnode)
             :src => RD.requirejs_cdn,
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
-        script[:src => relhref(src, ctx.search_index_js)],
+        #script[:src => relhref(src, ctx.search_index_js)],
 
         script[:src => relhref(src, "siteinfo.js")],
         script[:src => relhref(src, "../versions.js")],
