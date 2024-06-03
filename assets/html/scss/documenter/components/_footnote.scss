@@ -1,0 +1,23 @@
+.footnote-reference {
+    position: relative;
+}
+
+.footnote-preview {
+    display: none;
+    position: absolute;
+    z-index: 999;
+    width: 300px;
+    background-color: $body-background-color;
+    border: 1px solid $link-hover;
+    padding: 10px;
+    overflow-y: auto;
+    border-radius: 5px;
+    top: 100%;
+    left: 0;
+    margin-top: 15px;
+}
+
+.footnote-ref:hover+.footnote-preview,
+.footnote-ref:focus+.footnote-preview {
+    display: block;
+}
