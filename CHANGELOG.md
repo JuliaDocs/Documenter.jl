@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+* Footnotes can now be previewed by hovering over the link. ([#2080])
+
 ### Changed
 
 * Page category is removed from the search index and now everything is in section category. ([#2762], [#2413])
@@ -1993,6 +1997,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2071]: https://github.com/JuliaDocs/Documenter.jl/issues/2071
 [#2076]: https://github.com/JuliaDocs/Documenter.jl/issues/2076
 [#2078]: https://github.com/JuliaDocs/Documenter.jl/issues/2078
+[#2080]: https://github.com/JuliaDocs/Documenter.jl/issues/2080
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
