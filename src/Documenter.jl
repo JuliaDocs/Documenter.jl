@@ -23,10 +23,13 @@ import Unicode
 import Pkg
 import RegistryInstances
 import Git
+import TimerOutputs
 # Additional imported names
 using Test: @testset, @test
 using DocStringExtensions: SIGNATURES, EXPORTS
 using Base64: base64decode
+
+const TIMER = Ref(TimerOutputs.TimerOutput())
 
 # Version number of Documenter itself
 const DOCUMENTER_VERSION = let

@@ -244,9 +244,11 @@ function makedocs(; debug = false, format = HTML(), kwargs...)
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
     empty!(Selectors.selector_subtypes)
+    Documenter.TIMER[] = TimerOutputs.TimerOutput()
     cd(document.user.root) do; withenv(NO_KEY_ENV...) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end end
+    show(TIMER[], allocations = false, compact = true)
     debug ? document : nothing
 end
 

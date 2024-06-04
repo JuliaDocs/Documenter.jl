@@ -72,85 +72,87 @@ Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: Builder.Docum
 Selectors.strict(::Type{T}) where {T <: Builder.DocumentPipeline} = false
 
 function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.Document)
-    @info "SetupBuildDirectory: setting up build directory."
+    TimerOutputs.@timeit Documenter.TIMER[] "SetupBuildDirectory" begin
+        @info "SetupBuildDirectory: setting up build directory."
 
-    # Frequently used fields.
-    build  = doc.user.build
-    source = doc.user.source
-    workdir = doc.user.workdir
+        # Frequently used fields.
+        build  = doc.user.build
+        source = doc.user.source
+        workdir = doc.user.workdir
 
-    # The .user.source directory must exist.
-    isdir(source) || error("source directory '$(abspath(source))' is missing.")
+        # The .user.source directory must exist.
+        isdir(source) || error("source directory '$(abspath(source))' is missing.")
 
-    # We create the .user.build directory.
-    # If .user.clean is set, we first clean the existing directory.
-    doc.user.clean && isdir(build) && rm(build; recursive = true)
-    isdir(build) || mkpath(build)
+        # We create the .user.build directory.
+        # If .user.clean is set, we first clean the existing directory.
+        doc.user.clean && isdir(build) && rm(build; recursive = true)
+        isdir(build) || mkpath(build)
 
-    # We'll walk over all the files in the .user.source directory.
-    # The directory structure is copied over to .user.build. All files, with
-    # the exception of markdown files (identified by the extension) are copied
-    # over as well, since they're assumed to be images, data files etc.
-    # Markdown files, however, get added to the document and also stored into
-    # `mdpages`, to be used later.
-    mdpages = String[]
-    for (root, dirs, files) in walkdir(source)
-        for dir in dirs
-            d = normpath(joinpath(build, relpath(root, source), dir))
-            isdir(d) || mkdir(d)
-        end
-        for file in files
-            src = normpath(joinpath(root, file))
-            dst = normpath(joinpath(build, relpath(root, source), file))
-
-            if workdir == :build
-                # set working directory to be the same as `build`
-                wd = normpath(joinpath(build, relpath(root, source)))
-            elseif workdir isa Symbol
-                # Maybe allow `:src` and `:root` as well?
-                throw(ArgumentError("Unrecognized working directory option '$workdir'"))
-            else
-                wd = normpath(joinpath(doc.user.root, workdir))
+        # We'll walk over all the files in the .user.source directory.
+        # The directory structure is copied over to .user.build. All files, with
+        # the exception of markdown files (identified by the extension) are copied
+        # over as well, since they're assumed to be images, data files etc.
+        # Markdown files, however, get added to the document and also stored into
+        # `mdpages`, to be used later.
+        mdpages = String[]
+        for (root, dirs, files) in walkdir(source)
+            for dir in dirs
+                d = normpath(joinpath(build, relpath(root, source), dir))
+                isdir(d) || mkdir(d)
             end
+            for file in files
+                src = normpath(joinpath(root, file))
+                dst = normpath(joinpath(build, relpath(root, source), file))
 
-            if endswith(file, ".md")
-                push!(mdpages, Documenter.srcpath(source, root, file))
-                Documenter.addpage!(doc, src, dst, wd)
-            else
-                cp(src, dst; force = true)
+                if workdir == :build
+                    # set working directory to be the same as `build`
+                    wd = normpath(joinpath(build, relpath(root, source)))
+                elseif workdir isa Symbol
+                    # Maybe allow `:src` and `:root` as well?
+                    throw(ArgumentError("Unrecognized working directory option '$workdir'"))
+                else
+                    wd = normpath(joinpath(doc.user.root, workdir))
+                end
+
+                if endswith(file, ".md")
+                    push!(mdpages, Documenter.srcpath(source, root, file))
+                    Documenter.addpage!(doc, src, dst, wd)
+                else
+                    cp(src, dst; force = true)
+                end
             end
         end
-    end
 
-    # If the user hasn't specified the page list, then we'll just default to a
-    # flat list of all the markdown files we found, sorted by the filesystem
-    # path (it will group them by subdirectory, among others).
-    userpages = isempty(doc.user.pages) ? sort(mdpages, lt=lt_page) : doc.user.pages
+        # If the user hasn't specified the page list, then we'll just default to a
+        # flat list of all the markdown files we found, sorted by the filesystem
+        # path (it will group them by subdirectory, among others).
+        userpages = isempty(doc.user.pages) ? sort(mdpages, lt=lt_page) : doc.user.pages
 
-    # Populating the .navtree and .navlist.
-    # We need the for loop because we can't assign to the fields of the immutable
-    # doc.internal.
-    for navnode in walk_navpages(userpages, nothing, doc)
-        push!(doc.internal.navtree, navnode)
-    end
-
-    # Finally we populate the .next and .prev fields of the navnodes that point
-    # to actual pages.
-    local prev::Union{Documenter.NavNode, Nothing} = nothing
-    for navnode in doc.internal.navlist
-        navnode.prev = prev
-        if prev !== nothing
-            prev.next = navnode
+        # Populating the .navtree and .navlist.
+        # We need the for loop because we can't assign to the fields of the immutable
+        # doc.internal.
+        for navnode in walk_navpages(userpages, nothing, doc)
+            push!(doc.internal.navtree, navnode)
         end
-        prev = navnode
-    end
 
-    # If the user specified pagesonly, we will remove all the pages not in the navigation
-    # menu (.pages).
-    if doc.user.pagesonly
-        navlist_pages = getfield.(doc.internal.navlist, :page)
-        for page in keys(doc.blueprint.pages)
-            page ∈ navlist_pages || delete!(doc.blueprint.pages, page)
+        # Finally we populate the .next and .prev fields of the navnodes that point
+        # to actual pages.
+        local prev::Union{Documenter.NavNode, Nothing} = nothing
+        for navnode in doc.internal.navlist
+            navnode.prev = prev
+            if prev !== nothing
+                prev.next = navnode
+            end
+            prev = navnode
+        end
+
+        # If the user specified pagesonly, we will remove all the pages not in the navigation
+        # menu (.pages).
+        if doc.user.pagesonly
+            navlist_pages = getfield.(doc.internal.navlist, :page)
+            for page in keys(doc.blueprint.pages)
+                page ∈ navlist_pages || delete!(doc.blueprint.pages, page)
+            end
         end
     end
 end
@@ -206,7 +208,9 @@ walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
-        _doctest(doc.blueprint, doc)
+        TimerOutputs.@timeit Documenter.TIMER[] "Doctest: running doctests." begin
+            _doctest(doc.blueprint, doc)
+        end
         num_errors = length(doc.internal.errors)
         if (doc.user.doctest === :only || is_strict(doc, :doctest)) && num_errors > 0
             error("`makedocs` encountered $(num_errors > 1 ? "$(num_errors) doctest errors" : "a doctest error"). Terminating build")
@@ -219,22 +223,24 @@ end
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    expand(doc)
+    TimerOutputs.@timeit Documenter.TIMER[] "ExpandTemplates: expanding markdown templates." expand(doc)
 end
 
 function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    crossref(doc)
+    TimerOutputs.@timeit Documenter.TIMER[] "CrossReferences: building cross-references." crossref(doc)
 end
 
 function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "CheckDocument") && return
     @info "CheckDocument: running document checks."
-    missingdocs(doc)
-    footnotes(doc)
-    linkcheck(doc)
-    githubcheck(doc)
+    TimerOutputs.@timeit Documenter.TIMER[] "CheckDocument: running document checks." begin 
+        missingdocs(doc)
+        footnotes(doc)
+        linkcheck(doc)
+        githubcheck(doc)
+    end
 end
 
 function Selectors.runner(::Type{Builder.Populate}, doc::Documenter.Document)
@@ -255,7 +261,7 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
         * "] -- terminating build before rendering.")
     else
         @info "RenderDocument: rendering document."
-        Documenter.render(doc)
+        TimerOutputs.@timeit Documenter.TIMER[] "RenderDocument: rendering document." Documenter.render(doc)
     end
 end
 
