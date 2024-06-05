@@ -1,5 +1,6 @@
 // libraries: jquery
 // arguments: $
+
 $(document).ready(function() {
     $('.footnote-ref').hover(function() {
         var id = $(this).attr('href');
