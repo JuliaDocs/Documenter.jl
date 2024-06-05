@@ -5,16 +5,28 @@
 .footnote-preview {
     display: none;
     position: absolute;
-    z-index: 999;
-    width: 300px;
+    z-index: 1;
+    max-width: 300px;
+    width: max-content;
     background-color: $body-background-color;
     border: 1px solid $link-hover;
     padding: 10px;
-    overflow-y: auto;
+    margin-top: 10px;
     border-radius: 5px;
-    top: 100%;
-    left: 0;
-    margin-top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(100% + 10px);
+}
+
+.footnote-preview::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid $link-hover;
 }
 
 .footnote-ref:hover+.footnote-preview,
