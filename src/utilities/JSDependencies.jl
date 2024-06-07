@@ -174,15 +174,6 @@ function writejs(io::IO, r::RequireJS)
     isempty(shim) ? write(io, '\n') : write(io, ",\n  shim: ", json_jsescape(shim, 2))
     write(io, "});\n")
 
-    fetchstring = """fetch("./search_index.json") // assuming docs is served from root
-    .then(result => result.json())
-    .then(json =>
-      {
-        documenterSearchIndex = json;
-      }
-    );\n"""
-    write(io, fetchstring)
-
     for s in r.snippets
         args = join(s.args, ", ") # Note: not string literals => no escaping
         deps = join(("\'$(jsescape(d))\'" for d in s.deps), ", ")
