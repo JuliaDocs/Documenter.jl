@@ -120,7 +120,6 @@ module RD
 
     process_remote(dep, offline_version::Bool, build_path, origin_path=build_path) = offline_version ? _process(dep, build_path, origin_path) : dep
     _process(dep::RemoteLibrary, build_path, origin_path) = RemoteLibrary(dep.name, _process(dep.url, build_path, origin_path); deps = dep.deps, exports = dep.exports)
-    # hascurl() = (try; success(`curl --version`); catch err; false; end)
 
     function _download_file_content(url::AbstractString)
         cmd = `curl $url -s --output -`
