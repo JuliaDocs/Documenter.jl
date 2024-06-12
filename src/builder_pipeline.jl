@@ -72,9 +72,9 @@ Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: Builder.Docum
 Selectors.strict(::Type{T}) where {T <: Builder.DocumentPipeline} = false
 
 function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.Document)
-    TimerOutputs.@timeit Documenter.TIMER[] "SetupBuildDirectory" begin
-        @info "SetupBuildDirectory: setting up build directory."
+    @info "SetupBuildDirectory: setting up build directory."
 
+    @time_basic doc "SetupBuildDirectory" begin
         # Frequently used fields.
         build  = doc.user.build
         source = doc.user.source
@@ -208,7 +208,7 @@ walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
-        TimerOutputs.@timeit Documenter.TIMER[] "Doctest: running doctests." begin
+        @time_basic doc "Doctest: running doctests." begin
             _doctest(doc.blueprint, doc)
         end
         num_errors = length(doc.internal.errors)
@@ -223,19 +223,19 @@ end
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    TimerOutputs.@timeit Documenter.TIMER[] "ExpandTemplates: expanding markdown templates." expand(doc)
+    @time_basic doc "ExpandTemplates: expanding markdown templates." expand(doc)
 end
 
 function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    TimerOutputs.@timeit Documenter.TIMER[] "CrossReferences: building cross-references." crossref(doc)
+    @time_basic doc "CrossReferences: building cross-references." crossref(doc)
 end
 
 function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Document)
     is_doctest_only(doc, "CheckDocument") && return
     @info "CheckDocument: running document checks."
-    TimerOutputs.@timeit Documenter.TIMER[] "CheckDocument: running document checks." begin 
+    @time_basic doc "CheckDocument: running document checks." begin 
         missingdocs(doc)
         footnotes(doc)
         linkcheck(doc)
@@ -261,7 +261,7 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
         * "] -- terminating build before rendering.")
     else
         @info "RenderDocument: rendering document."
-        TimerOutputs.@timeit Documenter.TIMER[] "RenderDocument: rendering document." Documenter.render(doc)
+        @time_basic doc "RenderDocument: rendering document." Documenter.render(doc)
     end
 end
 

@@ -14,7 +14,7 @@ function expand(doc::Documenter.Document)
     @debug "pages" keys(doc.blueprint.pages) priority_pages normal_pages
     for src in Iterators.flatten([priority_pages, normal_pages])
         page = doc.blueprint.pages[src]
-        TimerOutputs.@timeit Documenter.TIMER[] "$src" begin
+        @time_basic doc "$src" begin
             @debug "Running ExpanderPipeline on $src"
             empty!(page.globals.meta)
             # We need to collect the child nodes here because we will end up changing the structure
@@ -724,7 +724,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     x = node.element
     lines = Documenter.find_block_in_file(x.code, page.source)
 
-    TimerOutputs.@timeit Documenter.TIMER[] timername(x, lines) begin
+    @time_full doc timername(x, lines) begin
 
         matched = match(r"^@example(?:\s+([^\s;]+))?\s*(;.*)?$", x.info)
         matched === nothing && error("invalid '@example' syntax: $(x.info)")
@@ -906,7 +906,7 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     x = node.element
     lines = Documenter.find_block_in_file(x.code, page.source)
 
-    TimerOutputs.@timeit Documenter.TIMER[] "L$(lines[1])-$(lines[2]) $(excerpt(x))" begin
+    @time_full doc "L$(lines[1])-$(lines[2]) $(excerpt(x))" begin
         matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", x.info)
         matched === nothing && error("invalid '@setup <name>' syntax: $(x.info)")
         name = matched[1]
