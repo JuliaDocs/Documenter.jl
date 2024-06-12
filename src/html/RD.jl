@@ -1,6 +1,8 @@
 "Provides a namespace for remote dependencies."
 module RD
     using JSON: JSON
+    using Base64
+    using ....Documenter: hascurl
     using ....Documenter.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
     using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
@@ -29,23 +31,23 @@ module RD
 
     # highlight.js
     "Add the highlight.js dependencies and snippet to a [`RequireJS`](@ref) declaration."
-    function highlightjs!(r::RequireJS, languages = String[])
+    function highlightjs!(r::RequireJS, offline_version::Bool, build_path::AbstractString, origin_path=build_path, languages = String[])
         # NOTE: the CSS themes for hightlightjs are compiled into the Documenter CSS
         # When updating this dependency, it is also necessary to update the the CSS
         # files the CSS files in assets/html/scss/highlightjs
         hljs_version = "11.8.0"
-        push!(r, RemoteLibrary(
+        push!(r, process_remote(RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
-        ))
+        ), offline_version, build_path, origin_path))
         languages = ["julia", "julia-repl", languages...]
         for language in languages
             language = jsescape(language)
-            push!(r, RemoteLibrary(
+            push!(r, process_remote(RemoteLibrary(
                 "highlight-$(language)",
                 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/languages/$(language).min.js",
                 deps = ["highlight"]
-            ))
+            ), offline_version, build_path, origin_path))
         end
         push!(r, Snippet(
             vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
@@ -61,16 +63,16 @@ module RD
     # MathJax & KaTeX
     const katex_version = "0.16.8"
     const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
-    function mathengine!(r::RequireJS, engine::KaTeX)
-        push!(r, RemoteLibrary(
+    function mathengine!(r::RequireJS, engine::KaTeX, offline_version::Bool, build_path, origin_path=build_path)
+        push!(r, process_remote(RemoteLibrary(
             "katex",
             "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
-        ))
-        push!(r, RemoteLibrary(
+        ), offline_version, build_path, origin_path))
+        push!(r, process_remote(RemoteLibrary(
             "katex-auto-render",
             "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
             deps = ["katex"],
-        ))
+        ), offline_version, build_path, origin_path))
         push!(r, Snippet(
             ["jquery", "katex", "katex-auto-render"],
             ["\$", "katex", "renderMathInElement"],
@@ -84,8 +86,9 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax2)
+    function mathengine!(r::RequireJS, engine::MathJax2, offline_version::Bool, build_path, origin_path=build_path)
         url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_HTML" : engine.url
+        url = process_remote(url, offline_version, build_path, origin_path)
         push!(r, RemoteLibrary(
             "mathjax",
             url,
@@ -97,8 +100,9 @@ module RD
             """
         ))
     end
-    function mathengine!(r::RequireJS, engine::MathJax3)
+    function mathengine!(r::RequireJS, engine::MathJax3, offline_version::Bool, build_path, origin_path=build_path)
         url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" : engine.url
+        url = process_remote(url, offline_version, build_path, origin_path)
         push!(r, Snippet([], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
@@ -113,4 +117,50 @@ module RD
         ))
     end
     mathengine(::RequireJS, ::Nothing) = nothing
+
+    process_remote(dep, offline_version::Bool, build_path, origin_path=build_path) = offline_version ? _process(dep, build_path, origin_path) : dep
+    _process(dep::RemoteLibrary, build_path, origin_path) = RemoteLibrary(dep.name, _process(dep.url, build_path, origin_path); deps = dep.deps, exports = dep.exports)
+    # hascurl() = (try; success(`curl --version`); catch err; false; end)
+
+    function _download_file_content(url::AbstractString)
+        cmd = `curl $url -s --output -`
+        try
+            return read(cmd, String)
+        catch err
+            @error "$cmd failed: ", err
+            error()
+            return
+        end
+    end
+
+    function _process(url::AbstractString, output_path, origin_path)
+        if !hascurl()
+            @error "offline_version requires curl."
+            error()
+        end
+        result = _download_file_content(url)
+        filename = split(url, "/")[end]
+        filepath = joinpath(output_path, filename)
+        if !isfile(filepath)
+            mkpath(dirname(filepath))
+            open(filepath, "w") do f
+                if splitext(filepath)[end] == ".css"
+                    result = _process_downloaded_css(result, url, filepath)
+                end
+                write(f, result)
+            end
+        end
+        
+        return relpath(filepath, origin_path*"/")
+    end
+
+    function _process_downloaded_css(file_content, origin_url, origin_path)
+        url_regex = r"url\(([^)]+)\)"
+        replace(file_content, url_regex => s -> begin
+            rel_url = match(url_regex, s).captures[1]
+            url = normpath(dirname(origin_url), rel_url)
+            encoded_file = Base64.base64encode(_download_file_content(url))
+            return "url(data:font/truetype;charset=utf-8;base64,$(encoded_file))"
+        end)
+    end
 end

@@ -18,7 +18,7 @@ EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
     ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
-    "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
+    "html-local", "html-offline", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
     "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
     "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly"]
 end
@@ -472,6 +472,36 @@ examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
     )
 else
     @info "Skipping build: HTML/pagesonly"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+# HTML: offline_version
+examples_html_local_doc = if "html-offline" in EXAMPLE_BUILDS
+    @info("Building mock package docs: HTMLWriter / offline build")
+    @quietly makedocs(
+        debug = true,
+        root  = examples_root,
+        build = "builds/html-offline",
+        doctestfilters = [r"Ptr{0x[0-9]+}"],
+        sitename = "Documenter example",
+        pages = htmlbuild_pages,
+        expandfirst = expandfirst,
+        repo = "https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
+        linkcheck = true,
+        linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+        format = Documenter.HTML(
+            assets = [
+                "assets/custom.css"
+            ],
+            offline_version = true,
+            footer = nothing,
+        ),
+        # TODO: example_block failure only happens on windows, so that's not actually expected
+        warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block, :eval_block],
+    )
+else
+    @info "Skipping build: HTML/local"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
