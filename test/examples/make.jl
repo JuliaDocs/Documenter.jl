@@ -477,7 +477,7 @@ else
 end
 
 # HTML: offline_version
-examples_html_local_doc = if "html-offline" in EXAMPLE_BUILDS
+examples_html_offline_doc = if "html-offline" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / offline build")
     @quietly makedocs(
         debug = true,
@@ -501,7 +501,7 @@ examples_html_local_doc = if "html-offline" in EXAMPLE_BUILDS
         warnonly = [:doctest, :footnote, :cross_references, :linkcheck, :example_block, :eval_block],
     )
 else
-    @info "Skipping build: HTML/local"
+    @info "Skipping build: HTML/offline"
     @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
     nothing
 end
