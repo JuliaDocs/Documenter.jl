@@ -30,7 +30,7 @@ $green: $catppuccin-green;
 $turquoise: $catppuccin-teal;
 $cyan: $catppuccin-sapphire;
 $blue: $catppuccin-blue;
-$purple: $catppuccin-lavender;
+$purple: $catppuccin-mauve;
 
 // Admonitions
 $admonition-default: $catppuccin-subtext1;
@@ -39,6 +39,7 @@ $success: $catppuccin-green;
 $warning: $catppuccin-yellow;
 $danger: $catppuccin-red;
 $compat: $catppuccin-sky;
+$todo: $catppuccin-mauve;
 // Override `default: $grey-darker` in components/_admonition.scss
 $admonition-colors: (
   'default': $admonition-default,
@@ -47,6 +48,7 @@ $admonition-colors: (
   'warning': $warning,
   'danger': $danger,
   'compat': $compat,
+  'todo': $todo,
 );
 $admonition-body-color: (
   'default': $catppuccin-text,
@@ -55,6 +57,7 @@ $admonition-body-color: (
   'warning': $catppuccin-text,
   'danger': $catppuccin-text,
   'compat': $catppuccin-text,
+  'todo': $catppuccin-text,
 );
 
 // These would normally get initialized in _admonition.scss. However, since we are not

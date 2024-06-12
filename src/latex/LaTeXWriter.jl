@@ -570,7 +570,7 @@ end
 
 function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
     color = "admonition-default"
-    if md.category in ("danger", "warning", "note", "info", "tip", "compat")
+    if md.category in ("danger", "warning", "note", "info", "tip", "compat", "todo")
         color = "admonition-$(md.category)"
     end
     _print(io, "\\begin{tcolorbox}[toptitle=-1mm,bottomtitle=1mm,")
