@@ -2301,6 +2301,7 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
         (a.category == "note")    ? ".is-info"    :
         (a.category == "info")    ? ".is-info"    :
         (a.category == "tip")     ? ".is-success" :
+        (a.category == "todo")    ? ".is-todo"    :
         (a.category == "compat")  ? ".is-compat"  : begin
             # If the admonition category is not one of the standard ones, we tag the
             # admonition div element with a `is-category-$(category)` class. However, we

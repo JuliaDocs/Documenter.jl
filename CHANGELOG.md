@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Catppuccin](https://catppuccin.com/) color palette. The existing themes
   (`documenter-light` and `documenter-dark`) are still the default light and dark theme,
   respectively. ([#2496])
+* Admonitions with category `todo` are now colored purple. Previously they were
+  default-colored like all other unknown admonitions categories. ([#2526])
 
 ### Changed
 
@@ -1860,6 +1862,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
+[#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
