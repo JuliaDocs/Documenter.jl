@@ -270,7 +270,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     if (result.page !== "") {
       display_link += ` (${result.page})`;
     }
-    searchstring = escapeRegExp(querystring)
+    searchstring = escapeRegExp(querystring);
     let textindex = new RegExp(`${searchstring}`, "i").exec(result.text);
     let text =
       textindex !== null
