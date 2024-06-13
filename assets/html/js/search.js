@@ -334,7 +334,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
         // Only return relevant results
         return result.score >= 1;
       },
-      combineWith: 'AND'
+      combineWith: "AND",
     });
 
     // Pre-filter to deduplicate and limit to 200 per category to the extent
