@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   eye-catching. ([#2499])
 * Thickness and rounding of docstrings and code blocks have been adjusted to match
   admonitions. ([#2499])
+* _All_ search terms in the HTML search must now match the result, as opposed to _any_. In other words, they are now `AND`-ed together, and not `OR`-ed. ([#2514])
 
 ### Fixed
 
@@ -1857,6 +1858,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
+[#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
