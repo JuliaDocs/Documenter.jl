@@ -61,8 +61,8 @@ end
 #
 binding(m::Module, x::Expr) =
     Meta.isexpr(x, :.) ? binding(getmod(m, x.args[1]), x.args[2].value) :
-    Meta.isexpr(x, [:call, :macrocall, :curly]) ? binding(m, x.args[1]) :
-    Meta.isexpr(x, :where) ? binding(m, x.args[1].args[1]) :
+    Meta.isexpr(x, [:where, :call, :macrocall, :curly]) ? binding(m, x.args[1]) :
+    Meta.isexpr(x, :(::)) ? binding(m, x.args[end]) :
         error("`binding` cannot understand expression `$x`.")
 
 # Helper methods for the above `binding` method.
