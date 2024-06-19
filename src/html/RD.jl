@@ -144,7 +144,7 @@ module RD
             mkpath(dirname(filepath))
             open(filepath, "w") do f
                 if splitext(filepath)[end] == ".css"
-                    result = _process_downloaded_css(result, url, filepath)
+                    result = _process_downloaded_css(result, url)
                 end
                 write(f, result)
             end
@@ -153,13 +153,23 @@ module RD
         return relpath(filepath, origin_path*"/")
     end
 
-    function _process_downloaded_css(file_content, origin_url, origin_path)
+    const font_ext_to_type = Dict(
+        ".ttf" => "truetype",
+        ".eot" => "embedded-opentype",
+        ".eot?#iefix" => "embedded-opentype",
+        ".svg#webfont" => "svg",
+        ".woff" => "woff",
+        ".woff2" => "woff2",
+    )
+
+    function _process_downloaded_css(file_content, origin_url)
         url_regex = r"url\(([^)]+)\)"
         replace(file_content, url_regex => s -> begin
             rel_url = match(url_regex, s).captures[1]
             url = normpath(dirname(origin_url), rel_url)
+            font_type = font_ext_to_type[splitext(rel_url)[end]]
             encoded_file = Base64.base64encode(_download_file_content(url))
-            return "url(data:font/truetype;charset=utf-8;base64,$(encoded_file))"
+            return "url(data:font/$(font_type);charset=utf-8;base64,$(encoded_file))"
         end)
     end
 end
