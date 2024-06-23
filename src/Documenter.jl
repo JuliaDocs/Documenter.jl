@@ -23,6 +23,7 @@ import Unicode
 import Pkg
 import RegistryInstances
 import Git
+using CodeEvaluation
 # Additional imported names
 using Test: @testset, @test
 using DocStringExtensions: SIGNATURES, EXPORTS
