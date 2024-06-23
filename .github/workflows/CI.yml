@@ -4,7 +4,9 @@ on:
     branches:
       - master
       - release-*
-      - runci/*
+      # You can suffix the branch name with '-runci' to run the CI on that branch
+      # without having to open a pull request. This is useful for long-lived branches.
+      - '*/*-runci'
     tags: '*'
   pull_request:
 jobs:
