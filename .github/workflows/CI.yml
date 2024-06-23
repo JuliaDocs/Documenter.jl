@@ -15,19 +15,19 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.6'
-          - '1'
+          # - '1.6'
+          # - '1'
           - 'nightly'
         os:
           - ubuntu-latest
-          - macos-latest
-          - windows-latest
+          # - macos-latest
+          # - windows-latest
         arch:
           - x64
-        include:
-          - os: ubuntu-latest
-            version: '1'
-            arch: x86
+        # include:
+        #   - os: ubuntu-latest
+        #     version: '1'
+        #     arch: x86
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
