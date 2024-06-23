@@ -881,14 +881,15 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
+    sandbox::CodeEvaluation.Sandbox = Documenter.get_sandbox_module_new!(
+        page.globals.meta, "atexample", name
+    )
 
     @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
     try
-        cd(page.workdir) do
-            include_string(mod, x.code)
-        end
+        write(sandbox, x.code)
+        CodeEvaluation.evaluate!(sandbox)
     catch err
         bt = Documenter.remove_common_backtrace(catch_backtrace())
         @docerror(doc, :setup_block,
