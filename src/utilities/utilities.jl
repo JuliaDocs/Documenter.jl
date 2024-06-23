@@ -608,6 +608,19 @@ function get_sandbox_module!(meta, prefix, name = nothing)
     end
 end
 
+function get_sandbox_module_new!(meta, prefix, name = nothing)
+    sym = if name === nothing || isempty(name)
+        Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
+    else
+        Symbol("__", prefix, "__named__", name)
+    end
+    # Either fetch and return an existing sandbox from the meta dictionary (based on the generated name),
+    # or initialize a new clean one, which gets stored in meta for future re-use.
+    get!(meta, sym) do
+        return CodeEvaluation.Sandbox(sym)
+    end
+end
+
 """
 Calls `git remote show \$(remotename)` to try to determine the main (development) branch
 of the remote repository. Returns `master` and prints a warning if it was unable to figure

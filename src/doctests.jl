@@ -111,7 +111,7 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
     if startswith(lang, "jldoctest")
         # Define new module or reuse an old one from this page if we have a named doctest.
         name = match(r"jldoctest[ ]?(.*)$", split(lang, ';', limit = 2)[1])[1]
-        sandbox = Documenter.get_sandbox_module!(ctx.meta, "doctest", name)
+        sandbox::CodeEvaluation.Sandbox = Documenter.get_sandbox_module_new!(ctx.meta, "doctest", name)
 
         # Normalise line endings.
         block = MutableMD2CodeBlock(block_immutable)
@@ -227,7 +227,7 @@ mutable struct Result
 end
 
 
-function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
+function eval_repl(block, sandbox::CodeEvaluation.Sandbox, meta::Dict, doc::Documenter.Document, page)
     src_lines = Documenter.find_block_in_file(block.code, meta[:CurrentFile])
     (prefix, split) = repl_splitter(block.code)
     for (raw_input, input, output) in split
@@ -251,11 +251,11 @@ function eval_repl(block, sandbox, meta::Dict, doc::Documenter.Document, page)
             # don't evaluate further if there is a parse error
             isa(ex, Expr) && ex.head === :error && break
         end
-        checkresult(sandbox, result, meta, doc; prefix)
+        checkresult(sandbox.m, result, meta, doc; prefix)
     end
 end
 
-function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
+function eval_script(block, sandbox::CodeEvaluation.Sandbox, meta::Dict, doc::Documenter.Document, page)
     # TODO: decide whether to keep `# output` syntax for this. It's a bit ugly.
     #       Maybe use double blank lines, i.e.
     #
@@ -276,7 +276,7 @@ function eval_script(block, sandbox, meta::Dict, doc::Documenter.Document, page)
             break
         end
     end
-    checkresult(sandbox, result, meta, doc)
+    checkresult(sandbox.m, result, meta, doc)
 end
 
 function filter_doctests(filters, strings)
@@ -324,7 +324,7 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         # to check that manually with `isempty`.
         # In the doc.user.doctest === :fix we need actual equality of
         # filteredstr and filteredhead, otherwise this needs to get repaired.
-        if isempty(head) || !startswith(filteredstr, filteredhead) || 
+        if isempty(head) || !startswith(filteredstr, filteredhead) ||
                 (doc.user.doctest === :fix && filteredstr != filteredhead)
             if doc.user.doctest === :fix
                 fix_doctest(result, str, doc; prefix)

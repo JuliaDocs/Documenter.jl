@@ -719,8 +719,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
-    sym = nameof(mod)
+    sandbox::CodeEvaluation.Sandbox = Documenter.get_sandbox_module_new!(page.globals.meta, "atexample", name)
+    sym = nameof(sandbox)
     lines = Documenter.find_block_in_file(x.code, page.source)
 
     # "parse" keyword arguments to example
@@ -745,30 +745,13 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
         else
             code = x.code
         end
-        linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
-                                        basename(page.source))
-        for (ex, str) in Documenter.parseblock(code, doc, page; keywords = false,
-                                              linenumbernode = linenumbernode)
-            c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
-                cd(page.workdir) do
-                    Core.eval(mod, ex)
-                end
-            end
-            Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
-            result = c.value
-            print(buffer, c.output)
-            if c.error
-                bt = Documenter.remove_common_backtrace(c.backtrace)
-                @docerror(doc, :example_block,
-                    """
-                    failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
-                    ```$(x.info)
-                    $(x.code)
-                    ```
-                    """, exception = (c.value, bt))
-                return
-            end
-        end
+        linenumbernode = LineNumberNode(
+            lines === nothing ? 0 : lines.first,
+            basename(page.source)
+        )
+        write(sandbox, code)
+        (result, output) = CodeEvaluation.evaluate!(sandbox; ansicolor)
+        print(buffer, output)
     else # store the continued code
         CC = get!(page.globals.meta, :ContinuedCode, Dict())
         CC[sym] = get(CC, sym, "") * '\n' * x.code
@@ -782,14 +765,14 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
-        output[m] = remove_sandbox_from_output(output[m], mod)
+        output[m] = remove_sandbox_from_output(output[m], sandbox.m)
     end
 
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
     if result === nothing
         stdouterr = Documenter.sanitise(buffer)
-        stdouterr = remove_sandbox_from_output(stdouterr, mod)
+        stdouterr = remove_sandbox_from_output(stdouterr, sandbox.m)
         isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
         push!(content, Node(Documenter.MultiOutputElement(output)))
