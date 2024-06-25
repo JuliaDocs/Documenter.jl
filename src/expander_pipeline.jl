@@ -736,7 +736,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
 
     @debug "Evaluating @example block:\n$(x.code)"
     # Evaluate the code block. We redirect stdout/stderr to `buffer`.
-    result, buffer = nothing, IOBuffer()
+    local code, result
+    # Run the code, but only if it's not a "continued" at-example block
     if !continued # run the code
         # check if there is any code waiting
         if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
@@ -745,13 +746,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
         else
             code = x.code
         end
-        linenumbernode = LineNumberNode(
-            lines === nothing ? 0 : lines.first,
-            basename(page.source)
-        )
-        write(sandbox, code)
-        (result, output) = CodeEvaluation.evaluate!(sandbox; ansicolor)
-        print(buffer, output)
+        result = CodeEvaluation.evaluate!(sandbox, code; color = ansicolor)
     else # store the continued code
         CC = get!(page.globals.meta, :ContinuedCode, Dict())
         CC[sym] = get(CC, sym, "") * '\n' * x.code
@@ -761,7 +756,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     input   = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
+    output = Base.invokelatest(Documenter.display_dict, result.value[], context = :color => ansicolor)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
@@ -770,8 +765,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
 
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
-    if result === nothing
-        stdouterr = Documenter.sanitise(buffer)
+    if result.value[] === nothing
+        stdouterr = Documenter.sanitise(IOBuffer(result.output)) # TODO
         stdouterr = remove_sandbox_from_output(stdouterr, sandbox.m)
         isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
@@ -887,10 +882,8 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
 
     @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
-    try
-        write(sandbox, x.code)
-        CodeEvaluation.evaluate!(sandbox)
-    catch err
+    r = CodeEvaluation.evaluate!(sandbox, x.code)
+    if r.value[] isa CodeEvaluation.ExceptionValue
         bt = Documenter.remove_common_backtrace(catch_backtrace())
         @docerror(doc, :setup_block,
             """
