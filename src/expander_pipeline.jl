@@ -736,15 +736,16 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
 
     @debug "Evaluating @example block:\n$(x.code)"
     # Evaluate the code block. We redirect stdout/stderr to `buffer`.
-    local code, result
+    result = nothing
     # Run the code, but only if it's not a "continued" at-example block
     if !continued # run the code
         # check if there is any code waiting
-        if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
+        code = if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
             code = page.globals.meta[:ContinuedCode][sym] * '\n' * x.code
             delete!(page.globals.meta[:ContinuedCode], sym)
+            code
         else
-            code = x.code
+            x.code
         end
         result = CodeEvaluation.evaluate!(sandbox, code; color = ansicolor)
     else # store the continued code
@@ -756,7 +757,11 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     input   = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Documenter.display_dict, result.value[], context = :color => ansicolor)
+    output = Base.invokelatest(
+        Documenter.display_dict,
+        isnothing(result) ? nothing : result.value[];
+        context = :color => ansicolor
+    )
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
@@ -765,8 +770,9 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
 
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
-    if result.value[] === nothing
-        stdouterr = Documenter.sanitise(IOBuffer(result.output)) # TODO
+    if isnothing(result) || isnothing(result.value[])
+        buffer = IOBuffer(isnothing(result) ? "" : result.output)
+        stdouterr = Documenter.sanitise(buffer) # TODO
         stdouterr = remove_sandbox_from_output(stdouterr, sandbox.m)
         isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
     elseif !isempty(output)
@@ -801,7 +807,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
+    sandbox::CodeEvaluation.Sandbox = Documenter.get_sandbox_module_new!(page.globals.meta, "atexample", name)
 
     # "parse" keyword arguments to repl
     ansicolor = _any_color_fmt(doc)
@@ -815,31 +821,25 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     multicodeblock = MarkdownAST.CodeBlock[]
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
-    for (ex, str) in Documenter.parseblock(x.code, doc, page; keywords = false,
-                                          linenumbernode = linenumbernode)
+    # We need to evaluate this expression by expression, which is why we can't just pass this to
+    # `CodeEvaluation.evaluate!`.
+    for (ex, str) in Documenter.parseblock(
+            x.code, doc, page; keywords = false, linenumbernode = linenumbernode
+        )
         input  = droplines(str)
-        # Use the REPL softscope for REPLBlocks,
-        # see https://github.com/JuliaLang/julia/pull/33864
-        ex = REPL.softscope(ex)
-        c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
-            cd(page.workdir) do
-                Core.eval(mod, ex)
-            end
-        end
-        Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
-        result = c.value
+        result = CodeEvaluation.evaluate!(sandbox, str; color=ansicolor, repl=true)
         buf = IOContext(IOBuffer(), :color=>ansicolor)
-        output = if !c.error
+        output = if !result.error
             hide = REPL.ends_with_semicolon(input)
-            result_to_string(buf, hide ? nothing : c.value)
+            result_to_string(buf, hide ? nothing : result.value[])
         else
-            error_to_string(buf, c.value, [])
+            error_to_string(buf, result.value[], [])
         end
         if !isempty(input)
             push!(multicodeblock, MarkdownAST.CodeBlock("julia-repl", prepend_prompt(input)))
         end
         out = IOBuffer()
-        print(out, c.output) # c.output is std(out|err)
+        print(out, result.output) # c.output is std(out|err)
         if isempty(input) || isempty(output)
             println(out)
         else
@@ -848,7 +848,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
 
         outstr = String(take!(out))
         # Replace references to gensym'd module with Main
-        outstr = remove_sandbox_from_output(outstr, mod)
+        outstr = remove_sandbox_from_output(outstr, sandbox.m)
         push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", rstrip(outstr)))
     end
     node.element = Documenter.MultiCodeBlock(x, "julia-repl", [])

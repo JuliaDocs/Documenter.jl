@@ -499,6 +499,72 @@ median(xs)
 sum(xs)
 ```
 
+### Named blocks
+
+Documenter al
+
+````markdown
+```@setup block-name
+x = 42
+```
+````
+```@setup block-name
+x = 42
+```
+
+The `@setup` block essentially acts as a hidden `@example` block.
+Any state it sets up, you can access in subsequent blocks with the same name.
+For example, fhe following `@example` block
+
+````markdown
+```@example block-name
+x
+```
+will show up like this:
+````
+```@example block-name
+x
+```
+
+
+
+You also have continued blocks which do not evaluate immediately:
+
+````markdown
+```@example block-name; continued = true
+y = 99
+```
+````
+```@example block-name; continued = true
+y = 99
+```
+
+So putting the following
+````markdown
+```@repl block-name
+x
+y
+```
+````
+will lead to an error, because the `y = 99` line of code has not run yet:
+```@repl block-name
+x
+y
+```
+
+Another `@example` block with the same name will, however, finish evaluating it.
+A block
+
+````markdown
+```@example block-name
+(x, y)
+```
+````
+will lead to
+```@example block-name
+(x, y)
+```
+
 ## Doctest showcase
 
 Currently exists just so that there would be doctests to run in manual pages of Documenter's
