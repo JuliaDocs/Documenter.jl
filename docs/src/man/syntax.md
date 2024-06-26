@@ -393,7 +393,7 @@ As with `@index` if `Pages` is not provided then all pages are included. The def
 
     Documenter will then list the contents of the "Subsection" pages, and they will always appear in the same order as they are in the sidebar.
 
-## `@example` block
+## [`@example` block](@id reference-at-example)
 
 Evaluates the code block and inserts the result of the last expression into the final document along with the
 original source code. If the last expression returns `nothing`, the `stdout`
@@ -689,7 +689,7 @@ Named `@repl <name>` blocks behave in the same way as named `@example <name>` bl
     `for` loops etc. When using Documenter with Julia 1.5 or above, Documenter uses the soft
     scope in `@repl`-blocks and REPL-type doctests.
 
-## `@setup <name>` block
+## [`@setup <name>` block](@id reference-at-setup)
 
 These are similar to `@example` blocks, but both the input and output are hidden from the
 final document. This can be convenient if there are several lines of setup code that need to be
