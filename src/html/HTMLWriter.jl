@@ -484,6 +484,7 @@ struct HTML <: Documenter.Writer
     size_threshold_ignore :: Vector{String}
     example_size_threshold :: Int
     inventory_version ::  Union{String,Nothing}
+    offline_version :: Bool
 
     function HTML(;
             prettyurls    :: Bool = true,
@@ -513,6 +514,7 @@ struct HTML <: Documenter.Writer
             # and leaves a buffer before hitting `size_threshold_warn`.
             example_size_threshold :: Union{Integer, Nothing} = 8 * 2^10, # 8 KiB
             inventory_version = nothing,
+            offline_version = false,
 
             # deprecated keywords
             edit_branch   :: Union{String, Nothing, Default} = Default(nothing),
@@ -568,7 +570,7 @@ struct HTML <: Documenter.Writer
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
             size_threshold, size_threshold_warn, size_threshold_ignore, example_size_threshold,
-            (isnothing(inventory_version) ? nothing : string(inventory_version))
+            (isnothing(inventory_version) ? nothing : string(inventory_version)), offline_version
         )
     end
 end
@@ -596,7 +598,7 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
         end
         @debug "HTMLWriter: downloading highlightjs"
         r = Documenter.JSDependencies.RequireJS([])
-        RD.highlightjs!(r, highlights)
+        RD.highlightjs!(r, false, "", "", highlights)
         libs = sort!(collect(r.libraries); by = first) # puts highlight first
         key = join((x.first for x in libs), ',')
         highlightjs = get!(HLJSFILES, key) do
@@ -749,12 +751,15 @@ function render(doc::Documenter.Document, settings::HTML=HTML())
     if isfile(joinpath(doc.user.source, "assets", "documenter.js"))
         @warn "not creating 'documenter.js', provided by the user."
     else
-        r = JSDependencies.RequireJS([
-            RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
-        ])
-        RD.mathengine!(r, settings.mathengine)
+        r = JSDependencies.RequireJS([RD.process_remote(url, settings.offline_version, joinpath(doc.user.build, "assets", "cdn"), joinpath(doc.user.build, "assets")) for url in [
+            RD.jquery, 
+            RD.jqueryui, 
+            RD.headroom, 
+            RD.headroom_jquery,
+        ]])
+        RD.mathengine!(r, settings.mathengine, settings.offline_version, joinpath(doc.user.build, "assets", "cdn"), joinpath(doc.user.build, "assets"))
         if !settings.prerender
-            RD.highlightjs!(r, settings.highlights)
+            RD.highlightjs!(r, settings.offline_version, joinpath(doc.user.build, "assets", "cdn"), joinpath(doc.user.build, "assets"), settings.highlights)
         end
         for filename in readdir(joinpath(ASSETS, "js"))
             path = joinpath(ASSETS, "js", filename)
@@ -952,12 +957,12 @@ function render_head(ctx, navnode)
         default_site_description(ctx)
     end
 
-    css_links = [
+    css_links = [RD.process_remote(url, ctx.settings.offline_version, joinpath(ctx.doc.user.build, "assets", "cdn"), ctx.doc.user.build) for url in [
         RD.lato,
         RD.juliamono,
         RD.fontawesome_css...,
         RD.katex_css,
-    ]
+    ]]
 
     head(
         meta[:charset=>"UTF-8"],
@@ -991,7 +996,7 @@ function render_head(ctx, navnode)
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
         script[
-            :src => RD.requirejs_cdn,
+            :src => RD.process_remote(RD.requirejs_cdn, ctx.settings.offline_version, joinpath(ctx.doc.user.build, "assets", "cdn"), ctx.doc.user.build),
             Symbol("data-main") => relhref(src, ctx.documenter_js)
         ],
         script[:src => relhref(src, ctx.search_index_js)],

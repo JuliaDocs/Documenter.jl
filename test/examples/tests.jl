@@ -423,6 +423,25 @@ end
         end
     end
 
+    
+    @testset "HTML: offline" begin
+        doc = Main.examples_html_offline_doc
+
+        @test isa(doc, Documenter.Documenter.Document)
+
+        let build_dir = joinpath(examples_root, "builds", "html-offline")
+
+            index_html = read(joinpath(build_dir, "index.html"), String)
+            @test occursin("<link href=\"assets/cdn/lato-font.min.css\" rel=\"stylesheet\" type=\"text/css\"/>", index_html)
+
+            # Assets
+            @test joinpath(build_dir, "assets", "documenter.js") |> isfile
+            @test joinpath(build_dir, "assets", "cdn", "lato-font.min.css") |> isfile
+            documenterjs = String(read(joinpath(build_dir, "assets", "documenter.js")))
+            @test occursin("'jquery': 'cdn/jquery.min'", documenterjs)
+        end
+    end
+
     @testset "HTML: pagesonly" begin
         doc = Main.examples_html_pagesonly_doc
 
