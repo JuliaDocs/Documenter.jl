@@ -298,6 +298,37 @@ Returns the first 5 characters of the current Git commit hash of the remote.
 """
 shortcommit(remoteref::RemoteRepository) = (length(remoteref.commit) > 5) ? remoteref.commit[1:5] : remoteref.commit
 
+@enum TimerStyle NoTimings BasicTimings FullTimings
+
+struct TimingContext
+    style::TimerStyle
+    timer::TimerOutputs.TimerOutput
+end
+
+TimingContext(style) = TimingContext(style, TimerOutputs.TimerOutput())
+
+macro time_level(level, doc, name, expr)
+    quote
+        if $(esc(doc)).user.timingcontext.style < $(esc(level))
+            TimerOutputs.disable_timer!($(esc(doc)).user.timingcontext.timer)
+        end
+        TimerOutputs.@timeit $(esc(doc)).user.timingcontext.timer $(esc(name)) $(esc(expr))
+        TimerOutputs.enable_timer!($(esc(doc)).user.timingcontext.timer)
+    end
+end
+
+macro time_basic(doc, name, expr)
+    quote
+        @time_level BasicTimings $(esc(doc)) $(esc(name)) $(esc(expr))
+    end
+end
+
+macro time_full(doc, name, expr)
+    quote
+        @time_level FullTimings $(esc(doc)) $(esc(name)) $(esc(expr))
+    end
+end
+
 """
 User-specified values used to control the generation process.
 """
@@ -340,6 +371,7 @@ struct User
     version :: String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
     draft :: Bool
+    timingcontext :: TimingContext
 end
 
 """
@@ -400,6 +432,7 @@ function Document(;
         version :: AbstractString    = "",
         highlightsig::Bool           = true,
         draft::Bool                  = false,
+        timings                      = NoTimings,
         others...
     )
 
@@ -463,6 +496,7 @@ function Document(;
         version,
         highlightsig,
         draft,
+        TimingContext(timings),
     )
     internal = Internal(
         assetsdir(),
