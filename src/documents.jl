@@ -313,6 +313,7 @@ struct User
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
+    checkdocs_ignore::Vector{Module}  # ..and then ignore (some of) them.
     doctestfilters::Vector{Regex} # Filtering for doctests
     warnonly::Vector{Symbol}  # List of docerror groups that should only warn, rather than cause a build failure
     pages   :: Vector{Any}    # Ordering of document pages specified by the user.
@@ -386,6 +387,7 @@ function Document(;
         linkcheck_ignore :: Vector   = [],
         linkcheck_timeout :: Real    = 10,
         checkdocs::Symbol            = :all,
+        checkdocs_ignore::Vector{Module} = Module[],
         doctestfilters::Vector{Regex}= Regex[],
         warnonly :: Union{Bool,Symbol,Vector{Symbol}} = Symbol[],
         modules  :: Union{Module, Vector{Module}} = Module[],
@@ -451,6 +453,7 @@ function Document(;
         linkcheck_ignore,
         linkcheck_timeout,
         checkdocs,
+        checkdocs_ignore,
         doctestfilters,
         warnonly,
         pages,
@@ -491,7 +494,7 @@ function Document(;
 
     blueprint = DocumentBlueprint(
         Dict{String, Page}(),
-        submodules(modules),
+        submodules(modules; ignore=Set(checkdocs_ignore)),
     )
     Document(user, internal, plugin_dict, blueprint)
 end
