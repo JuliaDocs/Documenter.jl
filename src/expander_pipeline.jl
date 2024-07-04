@@ -759,7 +759,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     # Generate different  in different formats and let each writer select
     output = Base.invokelatest(
         Documenter.display_dict,
-        isnothing(result) ? nothing : result.value[];
+        isnothing(result) ? nothing : result.value;
         context = :color => ansicolor
     )
     # Remove references to gensym'd module from text/plain
@@ -770,7 +770,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
 
     # Only add content when there's actually something to add.
     isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
-    if isnothing(result) || isnothing(result.value[])
+    if isnothing(result) || isnothing(result.value)
         buffer = IOBuffer(isnothing(result) ? "" : result.output)
         stdouterr = Documenter.sanitise(buffer) # TODO
         stdouterr = remove_sandbox_from_output(stdouterr, sandbox.m)
@@ -827,13 +827,16 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
             x.code, doc, page; keywords = false, linenumbernode = linenumbernode
         )
         input  = droplines(str)
-        result = CodeEvaluation.evaluate!(sandbox, str; color=ansicolor, repl=true)
+        result = CodeEvaluation.evaluate!(
+            sandbox, ex;
+            color=ansicolor, softscope=true, setans=true
+        )
         buf = IOContext(IOBuffer(), :color=>ansicolor)
         output = if !result.error
             hide = REPL.ends_with_semicolon(input)
-            result_to_string(buf, hide ? nothing : result.value[])
+            result_to_string(buf, hide ? nothing : result.value)
         else
-            error_to_string(buf, result.value[], [])
+            error_to_string(buf, result.value, [])
         end
         if !isempty(input)
             push!(multicodeblock, MarkdownAST.CodeBlock("julia-repl", prepend_prompt(input)))
@@ -883,7 +886,7 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise
     r = CodeEvaluation.evaluate!(sandbox, x.code)
-    if r.value[] isa CodeEvaluation.ExceptionValue
+    if r.error
         bt = Documenter.remove_common_backtrace(catch_backtrace())
         @docerror(doc, :setup_block,
             """
@@ -891,7 +894,7 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
             ```$(x.info)
             $(x.code)
             ```
-            """, exception=(err, bt))
+            """, exception=(r.value, bt))
     end
     node.element = Documenter.SetupNode(x.info, x.code)
 end
