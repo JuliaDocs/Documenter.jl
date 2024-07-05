@@ -818,46 +818,21 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
         end
     end
 
-    multicodeblock = MarkdownAST.CodeBlock[]
-    linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
-    # We need to evaluate this expression by expression, which is why we can't just pass this to
-    # `CodeEvaluation.evaluate!`.
-    for (ex, str) in Documenter.parseblock(
-            x.code, doc, page; keywords = false, linenumbernode = linenumbernode
-        )
-        input  = droplines(str)
-        result = CodeEvaluation.evaluate!(
-            sandbox, ex;
-            color=ansicolor, softscope=true, setans=true
-        )
-        buf = IOContext(IOBuffer(), :color=>ansicolor)
-        output = if !result.error
-            hide = REPL.ends_with_semicolon(input)
-            result_to_string(buf, hide ? nothing : result.value)
-        else
-            error_to_string(buf, result.value, [])
-        end
-        if !isempty(input)
-            push!(multicodeblock, MarkdownAST.CodeBlock("julia-repl", prepend_prompt(input)))
-        end
-        out = IOBuffer()
-        print(out, result.output) # c.output is std(out|err)
-        if isempty(input) || isempty(output)
-            println(out)
-        else
-            println(out, output, "\n")
-        end
+    result = CodeEvaluation.replblock!(sandbox, x.code; color = ansicolor)
 
-        outstr = String(take!(out))
-        # Replace references to gensym'd module with Main
-        outstr = remove_sandbox_from_output(outstr, sandbox.m)
-        push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", rstrip(outstr)))
-    end
+    # Constructing the output MultiCodeBlock
     node.element = Documenter.MultiCodeBlock(x, "julia-repl", [])
-    for element in multicodeblock
+    is_first = true
+    for block in result.blocks
+        block_info = block.input ? "julia" : "documenter-ansi"
+        extra_newline = (block.input && !is_first) ? '\n' : ""
+        is_first = false
+        element = MarkdownAST.CodeBlock(block_info, extra_newline * block.code)
         push!(node.children, Node(element))
     end
+
+    return nothing
 end
 
 # @setup
