@@ -747,7 +747,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
         else
             x.code
         end
-        result = CodeEvaluation.evaluate!(sandbox, code; color = ansicolor)
+        result = CodeEvaluation.codeblock!(sandbox, code; color = ansicolor)
     else # store the continued code
         CC = get!(page.globals.meta, :ContinuedCode, Dict())
         CC[sym] = get(CC, sym, "") * '\n' * x.code
