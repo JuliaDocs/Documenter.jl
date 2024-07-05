@@ -819,7 +819,11 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     end
 
     @debug "Evaluating @repl block:\n$(x.code)"
-    result = CodeEvaluation.replblock!(sandbox, x.code; color = ansicolor)
+    result = CodeEvaluation.replblock!(
+        sandbox, x.code;
+        color = ansicolor,
+        post_process_inputs=droplines
+    )
 
     # Constructing the output MultiCodeBlock
     node.element = Documenter.MultiCodeBlock(x, "julia-repl", [])
