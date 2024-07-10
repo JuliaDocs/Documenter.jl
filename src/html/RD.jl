@@ -2,7 +2,6 @@
 module RD
     using JSON: JSON
     using Base64
-    using ....Documenter: hascurl
     using ....Documenter.JSDependencies: RemoteLibrary, Snippet, RequireJS, jsescape, json_jsescape
     using ..HTMLWriter: KaTeX, MathJax, MathJax2, MathJax3
 
@@ -121,22 +120,9 @@ module RD
     process_remote(dep, offline_version::Bool, build_path, origin_path=build_path) = offline_version ? _process(dep, build_path, origin_path) : dep
     _process(dep::RemoteLibrary, build_path, origin_path) = RemoteLibrary(dep.name, _process(dep.url, build_path, origin_path); deps = dep.deps, exports = dep.exports)
 
-    function _download_file_content(url::AbstractString)
-        cmd = `curl $url -s --output -`
-        try
-            return read(cmd, String)
-        catch err
-            @error "$cmd failed: ", err
-            error()
-            return
-        end
-    end
+    _download_file_content(url::AbstractString) = String(take!(Downloads.download(url, output = IOBuffer())))
 
     function _process(url::AbstractString, output_path, origin_path)
-        if !hascurl()
-            @error "offline_version requires curl."
-            error()
-        end
         result = _download_file_content(url)
         filename = split(url, "/")[end]
         filepath = joinpath(output_path, filename)
@@ -162,14 +148,19 @@ module RD
         ".woff2" => "woff2",
     )
 
+    """
+        _process_downloaded_css(file_content, origin_url)
+
+    Process the downloaded file content of a CSS file. This detects the font URLs inside the file with a REGEX, downloads those fonts and replace the reference to the URL in the file with the content of the font file base64 encoded.
+    """
     function _process_downloaded_css(file_content, origin_url)
         url_regex = r"url\(([^)]+)\)"
         replace(file_content, url_regex => s -> begin
-            rel_url = match(url_regex, s).captures[1]
-            url = normpath(dirname(origin_url), rel_url)
-            font_type = font_ext_to_type[splitext(rel_url)[end]]
-            encoded_file = Base64.base64encode(_download_file_content(url))
-            return "url(data:font/$(font_type);charset=utf-8;base64,$(encoded_file))"
+            rel_url = match(url_regex, s).captures[1] # Get the URL written in the content file
+            url = normpath(dirname(origin_url), rel_url) # Transform that relative URL into an absolute one for download
+            font_type = font_ext_to_type[splitext(rel_url)[end]] # Find the font type to put in the CSS file next to the encoded file, based on the file extension
+            encoded_file = Base64.base64encode(_download_file_content(url)) # Encode the file in base64
+            return "url(data:font/$(font_type);charset=utf-8;base64,$(encoded_file))" # Replace the whole url entry with the base64 encoding
         end)
     end
 end
