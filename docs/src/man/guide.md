@@ -144,7 +144,7 @@ build/
 ├── index.html
 ├── search
 │   └── index.html
-└── search_index.js
+└── search_index.json
 ```
 
 !!! note
