@@ -1743,8 +1743,8 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
         header(
             a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href=>"javascript:;", :title=>"Collapse docstring"],
             a[".docstring-binding", :id=>docsnode.anchor.id, :href=>"#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
-            " — ", # &mdash;
-            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))")
+            span[".docstring-category"](" — $(Documenter.doccat(docsnode.object))"), # &mdash
+            span[".is-flex-grow-1.docstring-article-toggle-button", :title=>"Collapse docstring"]("")
         ),
         domify_doc(dctx, mdast_node)
     )
