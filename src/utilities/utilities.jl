@@ -551,6 +551,7 @@ function display_dict(x; context = nothing)
     out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context = context)
     for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
               MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
+              MIME"video/mp4"(), MIME"video/mpeg"(), MIME"video/webm"(),
               MIME"text/latex"(), MIME"text/markdown"()]
         showable(m, x) && (out[m] = stringmime(m, x, context = context))
     end
