@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Catppuccin](https://catppuccin.com/) color palette. The existing themes
   (`documenter-light` and `documenter-dark`) are still the default light and dark theme,
   respectively. ([#2496])
+* On-hover Footnote Preview feature added. ([#2080])
 
 ### Changed
 
@@ -1765,6 +1766,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2071]: https://github.com/JuliaDocs/Documenter.jl/issues/2071
 [#2076]: https://github.com/JuliaDocs/Documenter.jl/issues/2076
 [#2078]: https://github.com/JuliaDocs/Documenter.jl/issues/2078
+[#2080]: https://github.com/JuliaDocs/Documenter.jl/issues/2080
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100
