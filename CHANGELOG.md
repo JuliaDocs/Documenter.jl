@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * The search prompt in the HTML output again correctly handles parenthesis and other special character that would previously cause the search to crash. ([#2513])
-* Collapse will work when clicked on icon and empty area only. ([#2204], [#2551])
+* Collapsing of docstrings in the HTML output can now only be triggered when clicking on the icon or the empty area only. ([#2204], [#2551])
 
 ## Version [v1.4.1] - 2024-05-02
 
