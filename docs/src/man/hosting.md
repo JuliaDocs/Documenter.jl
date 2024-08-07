@@ -443,7 +443,7 @@ an alternative is to give GitHub workflows write permissions under the repo sett
 
 ## JuliaHub
 
-[JuliaHub](https://juliahub.com/ui/Home) provides an [overview on registered Julia packages](https://https://juliahub.com/ui/Packages).
+[JuliaHub](https://juliahub.com/ui/Home) provides an [overview of registered Julia packages](https://https://juliahub.com/ui/Packages).
 It tries to build package documentation on its own, and if this fails, a stripped down version of the documentation
 is generated which just consists of the README and the docstrings of the package.
 In order to point JuliaHub to the documentation already hosted e.g. on the `gh-pages` branch
