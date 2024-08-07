@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * The search prompt in the HTML output again correctly handles parenthesis and other special character that would previously cause the search to crash. ([#2513])
+* Collapsing of docstrings in the HTML output can now only be triggered when clicking on the icon or the empty area only. ([#2204], [#2551])
 
 ## Version [v1.4.1] - 2024-05-02
 
@@ -1786,6 +1787,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2194]: https://github.com/JuliaDocs/Documenter.jl/issues/2194
 [#2202]: https://github.com/JuliaDocs/Documenter.jl/issues/2202
 [#2203]: https://github.com/JuliaDocs/Documenter.jl/issues/2203
+[#2204]: https://github.com/JuliaDocs/Documenter.jl/issues/2204
 [#2205]: https://github.com/JuliaDocs/Documenter.jl/issues/2205
 [#2211]: https://github.com/JuliaDocs/Documenter.jl/issues/2211
 [#2213]: https://github.com/JuliaDocs/Documenter.jl/issues/2213
@@ -1860,6 +1862,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
+[#2551]: https://github.com/JuliaDocs/Documenter.jl/issues/2551
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
