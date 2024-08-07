@@ -4,4 +4,4 @@ DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 libsass_jll = "47bcb7c8-5119-555a-9eeb-0afcc36cd728"
 
 [compat]
-libsass_jll = "~3.6"
+libsass_jll = "=3.6.4"
