@@ -191,6 +191,7 @@ on:
 jobs:
   build:
     permissions:
+      actions: write
       contents: write
       pull-requests: read
       statuses: write
