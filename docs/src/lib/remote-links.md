@@ -69,7 +69,7 @@ This means that usually it is not necessary to specify either explicitly in the 
 The rules are as follows:
 
 * If `repo` _is not_ specified, it is essentially [determined like any other remote link](@ref remotes-for-files), by trying to figure out the repository that contains the `root` path argument of [`makedocs`](@ref) (defaulting to the directory of the `make.jl` script; usually the `docs/` directory).
-  The [`Remote`](@ref Remotes.Remote) object will one of the `remotes`, which in turn may have been determined automatically via the `origin` URL of the containing Git repository.
+  The [`Remote`](@ref Remotes.Remote) object will be one of the `remotes`, which in turn may have been determined automatically via the `origin` URL of the containing Git repository, or the 'remotes.pushDefault' remote's URL if `origin` does not exist.
 
 * If `repo` _is_ specified, but the `remotes` for the repository root is not, `repo` will function as a `remotes` entry for the repository root.
   This is so that it would not be necessary to specify the same argument twice (i.e. once for general repository links, once for file links).
