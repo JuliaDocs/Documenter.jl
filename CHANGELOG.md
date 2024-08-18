@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Version [v1.X.Y] - YYYY-MM-DD
+
+### Added
+
+### Changed
+
+* The MathJax3 setup now uses `tex-svg-full.js` and additionally draws in `mhchem` by default, allowing for chemistry symbols to be rendered (consistent with Pluto.jl). ([#2549])
+
+### Fixed
+
 ## Version [v1.5.0] - 2024-06-26
 
 ### Added
@@ -1862,6 +1872,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
+[#2549]: https://github.com/JuliaDocs/Documenter.jl/issues/2549
 [#2551]: https://github.com/JuliaDocs/Documenter.jl/issues/2551
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054

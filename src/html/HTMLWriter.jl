@@ -281,7 +281,7 @@ struct MathJax3 <: MathEngine
             :tex => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
                 "tags" => "ams",
-                "packages" => ["base", "ams", "autoload"],
+                "packages" => ["base", "ams", "autoload", "mhchem"],
             ),
             :options => Dict(
                 "ignoreHtmlClass" => "tex2jax_ignore",
