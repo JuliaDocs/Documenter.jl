@@ -3,15 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Version [v1.X.Y] - YYYY-MM-DD
-
-### Added
+## Version [v1.6.0] - 2024-08-20
 
 ### Changed
 
 * The MathJax3 setup now uses `tex-svg-full.js` and additionally draws in `mhchem` by default, allowing for chemistry symbols to be rendered (consistent with Pluto.jl). ([#2549])
 
 ### Fixed
+
+* Collapsing of docstrings in the HTML output can now only be triggered when clicking on the icon or the empty area only. ([#2204], [#2551])
 
 ## Version [v1.5.0] - 2024-06-26
 
@@ -34,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * The search prompt in the HTML output again correctly handles parenthesis and other special character that would previously cause the search to crash. ([#2513])
-* Collapsing of docstrings in the HTML output can now only be triggered when clicking on the icon or the empty area only. ([#2204], [#2551])
 
 ## Version [v1.4.1] - 2024-05-02
 
@@ -1372,6 +1371,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.4.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.4.0
 [v1.4.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.4.1
 [v1.5.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.5.0
+[v1.6.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.6.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
