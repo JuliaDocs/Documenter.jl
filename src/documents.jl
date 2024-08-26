@@ -312,6 +312,7 @@ struct User
     linkcheck::Bool           # Check external links..
     linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
     linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
+    linkcheck_useragent::String  # User agent to use for linkchecks.
     checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
     doctestfilters::Vector{Regex} # Filtering for doctests
     warnonly::Vector{Symbol}  # List of docerror groups that should only warn, rather than cause a build failure
@@ -385,6 +386,7 @@ function Document(;
         linkcheck:: Bool             = false,
         linkcheck_ignore :: Vector   = [],
         linkcheck_timeout :: Real    = 10,
+        linkcheck_useragent :: String= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
         warnonly :: Union{Bool,Symbol,Vector{Symbol}} = Symbol[],
@@ -450,6 +452,7 @@ function Document(;
         linkcheck,
         linkcheck_ignore,
         linkcheck_timeout,
+        linkcheck_useragent,
         checkdocs,
         doctestfilters,
         warnonly,
