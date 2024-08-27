@@ -178,7 +178,15 @@ are `:all` (check all names; the default), `:exports` (check only exported names
 `:none` (no checks are performed).
 
 By default, if the document check detect any errors, it will fail the documentation build.
-This behavior can be relaxed with the `warnonly` keyword.
+This behavior can be relaxed with the `warnonly` or `checkdocs_ignored_modules` keywords.
+
+**`checkdocs_ignored_modules`** prevents `checkdocs` from checking modules supplied as a list
+of module objects. It will also cause all submodules of these module to be ignored. It can be
+useful for completely private modules including modules which have been vendored from
+elsewhere.
+
+Note that `checkdocs_ignored_modules` does not conversely verify that these docstrings are *not*
+included in the documentation.
 
 **`linkcheck`** -- if set to `true` [`makedocs`](@ref) uses `curl` to check the status codes
 of external-pointing links, to make sure that they are up-to-date. The links and their

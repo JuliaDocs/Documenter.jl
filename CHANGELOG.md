@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `User-Agent` header set in the linkcheck HTTP(S) requests can now be customized with the `linkcheck_useragent` option to `makedocs`. ([#2557], [#2562])
 * Admonitions with category `todo` are now colored purple. Previously they were default-colored like all other unknown admonitions categories. ([#2526])
+* A `checkdocs_ignored_modules` keyword argument to `makedocs(...)`, which prevents `checkdocs` from warning about missing documentation in certain modules. ([#2233])
 
 ### Changed
 
@@ -1821,6 +1822,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2216]: https://github.com/JuliaDocs/Documenter.jl/issues/2216
 [#2217]: https://github.com/JuliaDocs/Documenter.jl/issues/2217
 [#2232]: https://github.com/JuliaDocs/Documenter.jl/issues/2232
+[#2233]: https://github.com/JuliaDocs/Documenter.jl/issues/2233
 [#2236]: https://github.com/JuliaDocs/Documenter.jl/issues/2236
 [#2237]: https://github.com/JuliaDocs/Documenter.jl/issues/2237
 [#2245]: https://github.com/JuliaDocs/Documenter.jl/issues/2245
