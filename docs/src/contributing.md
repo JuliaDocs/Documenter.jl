@@ -58,6 +58,12 @@ Follow the style of the surrounding text when making changes. When adding new fe
   * always use fenced code blocks instead of indented blocks;
   * follow the conventions outlined in the Julia documentation page on documentation.
 
+### Changelog
+
+All pull requests that make user visible changes should have a changelog entry
+formatted according to the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+style
+
 ## Tests
 
 ### Unit tests
