@@ -3,7 +3,7 @@ using Test
 # for convenience, when debugging, the build step can be disabled when running the tests with
 #   julia test/workdir/tests.jl skipbuild
 if !("skipbuild" in ARGS)
-    rm(joinpath(@__DIR__, "builds"), recursive=true, force=true) # cleanup of previous test run
+    rm(joinpath(@__DIR__, "builds"), recursive = true, force = true) # cleanup of previous test run
     include(joinpath(@__DIR__, "make.jl"))
 end
 

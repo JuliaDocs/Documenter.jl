@@ -49,12 +49,14 @@ makedocs(
         # a release, the release link does not exist yet, and this will cause the linkcheck
         # CI job to fail on the PR that tags a new release.
         r"https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.\d+.\d+",
-    ] ∪ (get(ENV, "GITHUB_ACTIONS", nothing)  == "true" ? [
-        # Extra ones we ignore only on CI.
-        #
-        # It seems that CTAN blocks GitHub Actions?
-        "https://ctan.org/pkg/minted",
-    ] : []),
+    ] ∪ (
+        get(ENV, "GITHUB_ACTIONS", nothing) == "true" ? [
+                # Extra ones we ignore only on CI.
+                #
+                # It seems that CTAN blocks GitHub Actions?
+                "https://ctan.org/pkg/minted",
+            ] : []
+    ),
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
@@ -63,9 +65,11 @@ makedocs(
             "man/syntax.md",
             "man/doctests.md",
             "man/latex.md",
-            hide("man/hosting.md", [
-                "man/hosting/walkthrough.md"
-            ]),
+            hide(
+                "man/hosting.md", [
+                    "man/hosting/walkthrough.md",
+                ]
+            ),
             "man/other-formats.md",
         ],
         "showcase.md",
@@ -94,8 +98,10 @@ if "pdf" in ARGS
     let files = readdir(joinpath(@__DIR__, "build-pdf"))
         for f in files
             if startswith(f, "Documenter.jl") && endswith(f, ".pdf")
-                mv(joinpath(@__DIR__, "build-pdf", f),
-                joinpath(@__DIR__, "build-pdf", "commit", f))
+                mv(
+                    joinpath(@__DIR__, "build-pdf", f),
+                    joinpath(@__DIR__, "build-pdf", "commit", f)
+                )
             end
         end
     end

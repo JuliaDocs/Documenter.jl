@@ -1,4 +1,3 @@
-
 """
 `T` from page `d.jl`.
 

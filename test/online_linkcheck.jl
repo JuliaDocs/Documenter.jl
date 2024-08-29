@@ -18,7 +18,7 @@ using Test
             [HEAD fail GET success](https://codecov.io/gh/invenia/LibPQ.jl)
             """
         )
-        doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
+        doc = Documenter.Document(; linkcheck = true, linkcheck_timeout = 20)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
         @test_logs (:warn,) (:warn,) @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}()
@@ -26,13 +26,13 @@ using Test
 
     @testset "Failures" begin
         src = convert(MarkdownAST.Node, Markdown.parse("[FILE failure](file://$(@__FILE__))"))
-        doc = Documenter.Document(; linkcheck=true)
+        doc = Documenter.Document(; linkcheck = true)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
         @test_logs (:error,) @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}([:linkcheck])
 
         src = Markdown.parse("[Timeout](http://httpbin.org/delay/3)")
-        doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=0.1)
+        doc = Documenter.Document(; linkcheck = true, linkcheck_timeout = 0.1)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
         @test_logs (:error,) @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}([:linkcheck])

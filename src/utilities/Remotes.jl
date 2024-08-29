@@ -93,13 +93,13 @@ issueurl(::Remote, ::Any) = nothing
 Documenter's internal version of `fileurl`, which sanitizes the inputs before they are passed
 to the potentially user-defined `fileurl` implementations.
 """
-function repofile(remote::Remote, ref, filename, linerange=nothing)
+function repofile(remote::Remote, ref, filename, linerange = nothing)
     # sanitize the file name
     filename = replace(filename, '\\' => '/') # remove backslashes on Windows
     filename = lstrip(filename, '/') # remove leading spaces
     # Only pass UnitRanges to user code (even though we require the users to support any
     # collection supporting first/last).
-    fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
+    return fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
 end
 
 """
@@ -119,12 +119,12 @@ The single-argument constructor assumes that the user and repository parts are s
 a slash (e.g. `JuliaDocs/Documenter.jl`).
 """
 struct GitHub <: Remote
-    user :: String
-    repo :: String
+    user::String
+    repo::String
 end
 function GitHub(remote::AbstractString)
     user, repo = split(remote, '/')
-    GitHub(user, repo)
+    return GitHub(user, repo)
 end
 repourl(remote::GitHub) = "https://github.com/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitHub, ref::AbstractString, filename::AbstractString, linerange)
@@ -155,14 +155,14 @@ repository parts are separated by a slash (e.g.,
 `JuliaDocs/Documenter.jl`).
 """
 struct GitLab <: Remote
-    host :: String
-    user :: String
-    repo :: String
+    host::String
+    user::String
+    repo::String
 end
 GitLab(user::AbstractString, repo::AbstractString) = GitLab("gitlab.com", user, repo)
 function GitLab(remote::AbstractString)
     user, repo = split(remote, '/')
-    GitLab(user, repo)
+    return GitLab(user, repo)
 end
 repourl(remote::GitLab) = "https://$(remote.host)/$(remote.user)/$(remote.repo)"
 function fileurl(remote::GitLab, ref::AbstractString, filename::AbstractString, linerange)
@@ -208,9 +208,9 @@ However, an explicit [`Remote`](@ref) object is preferred over using a template 
 configuring Documenter.
 """
 struct URL <: Remote
-    urltemplate :: String
-    repourl :: Union{String, Nothing}
-    URL(urltemplate, repourl=nothing) = new(urltemplate, repourl)
+    urltemplate::String
+    repourl::Union{String, Nothing}
+    URL(urltemplate, repourl = nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
 function fileurl(remote::URL, ref, filename, linerange)
@@ -222,7 +222,7 @@ function fileurl(remote::URL, ref, filename, linerange)
     s = replace(remote.urltemplate, "{commit}" => ref)
     # template strings assume that {path} has a leading / whereas filename does not
     s = replace(s, "{path}" => "/$(filename)")
-    replace(s, "{line}" => lines)
+    return replace(s, "{line}" => lines)
 end
 
 # Repository hosts
@@ -268,7 +268,7 @@ struct LineRangeFormatting
     separator::String
 
     function LineRangeFormatting(host::RepoHost)
-        if host === RepoAzureDevOps
+        return if host === RepoAzureDevOps
             new("&line=", "&lineEnd=")
         elseif host == RepoBitbucket
             new("", ":")
@@ -282,7 +282,7 @@ struct LineRangeFormatting
 end
 
 function format_line(range::AbstractRange, format::LineRangeFormatting)
-    if length(range) <= 1
+    return if length(range) <= 1
         string(format.prefix, first(range))
     else
         string(format.prefix, first(range), format.separator, last(range))

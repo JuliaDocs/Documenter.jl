@@ -31,10 +31,10 @@ binding(any::Any) = throw(ArgumentError("cannot convert `$(repr(any))` to a `Bin
 # The simple definitions.
 #
 binding(b::Docs.Binding) = binding(b.mod, b.var)
-binding(d::DataType)     = binding(parentmodule(d), nameof(d))
-binding(m::Module)       = binding(m, nameof(m))
-binding(s::Symbol)       = binding(Main, s)
-binding(f::Function)     = binding(parentmodule(f), nameof(f))
+binding(d::DataType) = binding(parentmodule(d), nameof(d))
+binding(m::Module) = binding(m, nameof(m))
+binding(s::Symbol) = binding(Main, s)
+binding(f::Function) = binding(parentmodule(f), nameof(f))
 
 #
 # We need a lookup table for `IntrinsicFunction`s since they do not track their
@@ -42,7 +42,7 @@ binding(f::Function)     = binding(parentmodule(f), nameof(f))
 #
 # Note that `IntrinsicFunction` is exported from `Base` in `0.4`, but not in `0.5`.
 #
-let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all=true)))
+let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all = true)))
     global binding(i::Core.IntrinsicFunction) = binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
 end
 
@@ -53,7 +53,7 @@ end
 #
 function binding(m::Module, v::Symbol)
     m = nameof(m) === v ? parentmodule(m) : m
-    Docs.Binding(m, v)
+    return Docs.Binding(m, v)
 end
 
 #
@@ -63,7 +63,7 @@ binding(m::Module, x::Expr) =
     Meta.isexpr(x, :.) ? binding(getmod(m, x.args[1]), x.args[2].value) :
     Meta.isexpr(x, [:call, :macrocall, :curly]) ? binding(m, x.args[1]) :
     Meta.isexpr(x, :where) ? binding(m, x.args[1].args[1]) :
-        error("`binding` cannot understand expression `$x`.")
+    error("`binding` cannot understand expression `$x`.")
 
 # Helper methods for the above `binding` method.
 getmod(m::Module, x::Expr) = getfield(getmod(m, x.args[1]), x.args[2].value)
@@ -77,7 +77,7 @@ binding(m::Module, λ::Any) = binding(λ)
 
 function signature(x, str::AbstractString)
     ts = Base.Docs.signature(x)
-    (Meta.isexpr(x, :macrocall, 2) && !endswith(strip(str), "()")) ? :(Union{}) : ts
+    return (Meta.isexpr(x, :macrocall, 2) && !endswith(strip(str), "()")) ? :(Union{}) : ts
 end
 
 ## Docstring containers. ##
@@ -100,9 +100,8 @@ function multidoc(markdown::Markdown.MD)
     sig = Union{}
     push!(md.order, sig)
     md.docs[sig] = docstr(markdown)
-    md
+    return md
 end
-
 
 
 """
@@ -123,14 +122,12 @@ function docstr(md::Markdown.MD; kws...)
     for (key, value) in kws
         doc.data[key] = value
     end
-    doc
+    return doc
 end
 docstr(other) = other
 
 
 ## Formatting `DocStr`s. ##
-
-
 
 
 ## Converting docstring caches. ##
@@ -142,19 +139,19 @@ Converts a `0.4`-style docstring cache into a `0.5` one.
 
 The original docstring cache is not modified.
 """
-function convertmeta(meta::IdDict{Any,Any})
+function convertmeta(meta::IdDict{Any, Any})
     if !haskey(CACHED, meta)
-        docs = IdDict{Any,Any}()
+        docs = IdDict{Any, Any}()
         for (k, v) in meta
-            if !isa(k, Union{Number, AbstractString, IdDict{Any,Any}})
+            if !isa(k, Union{Number, AbstractString, IdDict{Any, Any}})
                 docs[binding(k)] = multidoc(v)
             end
         end
         CACHED[meta] = docs
     end
-    CACHED[meta]::IdDict{Any,Any}
+    return CACHED[meta]::IdDict{Any, Any}
 end
-const CACHED = IdDict{Any,Any}()
+const CACHED = IdDict{Any, Any}()
 
 
 ## Get docs from modules.
@@ -196,7 +193,7 @@ function getspecificdocs(
             end
         end
     end
-    results
+    return results
 end
 
 """
@@ -233,7 +230,7 @@ function getdocs(
             results = getspecificdocs(b, typesig, (<:), modules)
         end
     end
-    results
+    return results
 end
 
 """
@@ -246,7 +243,7 @@ Note that when conversion fails this method returns an empty `Vector{DocStr}`.
 """
 function getdocs(object::Any, typesig::Type = Union{}; kws...)
     binding = aliasof(object, object)
-    binding === object ? DocStr[] : getdocs(binding, typesig; kws...)
+    return binding === object ? DocStr[] : getdocs(binding, typesig; kws...)
 end
 
 #
@@ -255,7 +252,7 @@ end
 
 getmeta(m::Module) = Docs.meta(m)
 
-import Base.Docs: aliasof, resolve, defined 
+import Base.Docs: aliasof, resolve, defined
 
 
 aliasof(s::Symbol, b) = binding(s)
@@ -265,7 +262,7 @@ ismacro(b::Docs.Binding) = startswith(string(b.var), '@')
 
 
 function category(b::Docs.Binding)
-    if iskeyword(b)
+    return if iskeyword(b)
         :keyword
     elseif ismacro(b)
         :macro
@@ -287,7 +284,7 @@ in case `Base.Docs.parsedoc` fails with an exception.
 """
 function parsedoc(docstr::DocStr)
     md = try
-        Base.Docs.parsedoc(docstr) :: Markdown.MD
+        Base.Docs.parsedoc(docstr)::Markdown.MD
     catch exception
         @error """
         parsedoc failed to parse a docstring into Markdown. This indicates a problem with the docstring.

@@ -48,7 +48,7 @@ end
 
 function _md_to_latex(mdstr)
     lctx = _dummy_lctx()
-    ast = Documenter.mdparse(mdstr; mode=:single)[1]
+    ast = Documenter.mdparse(mdstr; mode = :single)[1]
     LaTeXWriter.latex(lctx, ast.children)  # should use latexesc internally
     return String(take!(lctx.io))
 end

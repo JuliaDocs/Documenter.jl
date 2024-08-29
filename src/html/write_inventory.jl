@@ -70,7 +70,7 @@ function write_inventory(doc, ctx)
     end
 
     close(io_inv)
-    close(io_inv_header)
+    return close(io_inv_header)
 
 end
 
@@ -163,6 +163,6 @@ end
 
 _utf8_chars(str::AbstractString) = (Char(c) for c in codeunits(str))
 
-_escapeuri(c::Char) = string('%', uppercase(string(Int(c), base=16, pad=2)))
+_escapeuri(c::Char) = string('%', uppercase(string(Int(c), base = 16, pad = 2)))
 _escapeuri(str::AbstractString) =
     join(_issafe(c) ? c : _escapeuri(c) for c in _utf8_chars(str))

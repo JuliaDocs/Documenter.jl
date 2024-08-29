@@ -44,9 +44,11 @@ const NO_KEY_ENV = Dict(
 )
 
 # Names of possible internal errors
-const ERROR_NAMES = [:autodocs_block, :cross_references, :docs_block, :doctest,
-                     :eval_block, :example_block, :footnote, :linkcheck_remotes, :linkcheck,
-                     :meta_block, :missing_docs, :parse_error, :setup_block]
+const ERROR_NAMES = [
+    :autodocs_block, :cross_references, :docs_block, :doctest,
+    :eval_block, :example_block, :footnote, :linkcheck_remotes, :linkcheck,
+    :meta_block, :missing_docs, :parse_error, :setup_block,
+]
 
 """
     abstract type Plugin end
@@ -88,7 +90,7 @@ include("latex/LaTeXWriter.jl")
 
 # This is to keep DocumenterTools working:
 module Writers
-import ..HTMLWriter
+    import ..HTMLWriter
 end
 
 import .HTMLWriter: HTML, asset
