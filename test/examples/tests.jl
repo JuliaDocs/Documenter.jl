@@ -363,6 +363,9 @@ end
             # .. but, crucially, Main.SVG_HTML did _not_ get written out.
             @test !isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-002.svg"))
         end
+
+        # Testing linkcheck_useragent default
+        @test doc.user.linkcheck_useragent == Documenter._LINKCHECK_DEFAULT_USERAGENT
     end
 
     @testset "HTML: local" begin
@@ -452,9 +455,6 @@ end
             @test occursin("languages/julia.min", documenterjs)
             @test occursin("languages/julia-repl.min", documenterjs)
         end
-
-        # Testing linkcheck_useragent default
-        @test doc.user.linkcheck_useragent == Documenter._LINKCHECK_DEFAULT_USERAGENT
     end
 
     @testset "HTML: repo-*" begin

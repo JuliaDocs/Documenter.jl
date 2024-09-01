@@ -435,7 +435,7 @@ else
 end
 
 # HTML: draft mode
-examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
+examples_html_draft_doc = if "html-draft" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / draft build")
     @quietly makedocs(
         debug = true,
