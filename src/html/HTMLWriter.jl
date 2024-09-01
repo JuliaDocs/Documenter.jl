@@ -281,7 +281,7 @@ struct MathJax3 <: MathEngine
             :tex => Dict(
                 "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
                 "tags" => "ams",
-                "packages" => ["base", "ams", "autoload"],
+                "packages" => ["base", "ams", "autoload", "mhchem"],
             ),
             :options => Dict(
                 "ignoreHtmlClass" => "tex2jax_ignore",
@@ -564,6 +564,9 @@ struct HTML <: Documenter.Writer
             throw(ArgumentError("example_size_threshold must be non-negative, got $(example_size_threshold)"))
         end
         isa(edit_link, Default) && (edit_link = edit_link[])
+        # We use normpath() when we construct the .page value for NavNodes, so we also need to normpath()
+        # these values. This also ensures cross-platform compatibility of the values.
+        size_threshold_ignore = normpath.(size_threshold_ignore)
         new(prettyurls, disable_git, edit_link, repolink, canonical, assets, analytics,
             collapselevel, sidebar_sitename, highlights, mathengine, description, footer,
             ansicolor, lang, warn_outdated, prerender, node, highlightjs,
@@ -1744,7 +1747,8 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
             a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href=>"javascript:;", :title=>"Collapse docstring"],
             a[".docstring-binding", :id=>docsnode.anchor.id, :href=>"#$(docsnode.anchor.id)"](code("$(docsnode.object.binding)")),
             " — ", # &mdash;
-            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))")
+            span[".docstring-category"]("$(Documenter.doccat(docsnode.object))"),
+            span[".is-flex-grow-1.docstring-article-toggle-button", :title=>"Collapse docstring"]("")
         ),
         domify_doc(dctx, mdast_node)
     )

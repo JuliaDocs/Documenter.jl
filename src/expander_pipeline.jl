@@ -254,7 +254,7 @@ function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
     # Get the header slug.
     text =
         if namedheader(node)
-            # If the Header is wrappend in an [](@id) link, we remove the Link element from
+            # If the Header is wrapped in an [](@id) link, we remove the Link element from
             # the tree.
             link_node = first(node.children)
             MarkdownAST.unlink!(link_node)

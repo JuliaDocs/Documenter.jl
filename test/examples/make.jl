@@ -416,6 +416,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         repo = "https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+        linkcheck_useragent = "Documenter/1",
         format = Documenter.HTML(
             assets = [
                 "assets/custom.css",
@@ -434,7 +435,7 @@ else
 end
 
 # HTML: draft mode
-examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
+examples_html_draft_doc = if "html-draft" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / draft build")
     @quietly makedocs(
         debug = true,
@@ -580,7 +581,7 @@ end
             root  = examples_root,
             build = "builds/sizethreshold-defaults-fail",
             source = "src.megapage",
-            format = Documenter.HTML(size_threshold_ignore = ["index.md"]),
+            format = Documenter.HTML(size_threshold_ignore = ["index.md", "subdir/subpage.md"]),
             debug = true,
         )
     catch e
