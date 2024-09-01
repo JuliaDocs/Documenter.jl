@@ -416,6 +416,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         repo = "https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+        linkcheck_useragent = "Documenter/1",
         format = Documenter.HTML(
             assets = [
                 "assets/custom.css",
