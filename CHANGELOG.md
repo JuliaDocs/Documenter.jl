@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## UNRELEASD
+
+### Added
+
+* The `User-Agent` header set in the linkcheck HTTP(S) requests can now be customized with the `linkcheck_useragent` option to `makedocs`. ([#2557], [#2562])
+
 ## Version [v1.6.0] - 2024-08-20
 
 ### Changed
@@ -1874,6 +1880,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [#2549]: https://github.com/JuliaDocs/Documenter.jl/issues/2549
 [#2551]: https://github.com/JuliaDocs/Documenter.jl/issues/2551
+[#2557]: https://github.com/JuliaDocs/Documenter.jl/issues/2557
+[#2562]: https://github.com/JuliaDocs/Documenter.jl/issues/2562
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
