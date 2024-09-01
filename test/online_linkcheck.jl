@@ -16,6 +16,7 @@ using Test
             [FTP (no proto) success](ftp.iana.org/tz/data/etcetera)
             [Redirect success](google.com)
             [HEAD fail GET success](https://codecov.io/gh/invenia/LibPQ.jl)
+            [Linkcheck old Chrome UA fail](https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html)
             """
         )
         doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
