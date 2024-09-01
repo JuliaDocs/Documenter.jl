@@ -386,7 +386,7 @@ function Document(;
         linkcheck:: Bool             = false,
         linkcheck_ignore :: Vector   = [],
         linkcheck_timeout :: Real    = 10,
-        linkcheck_useragent :: String= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+        linkcheck_useragent :: String= _LINKCHECK_DEFAULT_USERAGENT,
         checkdocs::Symbol            = :all,
         doctestfilters::Vector{Regex}= Regex[],
         warnonly :: Union{Bool,Symbol,Vector{Symbol}} = Symbol[],
