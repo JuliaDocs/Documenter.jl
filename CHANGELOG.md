@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * The `User-Agent` header set in the linkcheck HTTP(S) requests can now be customized with the `linkcheck_useragent` option to `makedocs`. ([#2557], [#2562])
+* Admonitions with category `todo` are now colored purple. Previously they were default-colored like all other unknown admonitions categories. ([#2526])
 
 ### Changed
 
@@ -36,8 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Catppuccin](https://catppuccin.com/) color palette. The existing themes
   (`documenter-light` and `documenter-dark`) are still the default light and dark theme,
   respectively. ([#2496])
-* Admonitions with category `todo` are now colored purple. Previously they were
-  default-colored like all other unknown admonitions categories. ([#2526])
 
 ### Changed
 
