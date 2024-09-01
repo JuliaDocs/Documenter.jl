@@ -52,7 +52,7 @@ file. Note that the snippet below will not work by itself and must be accompanie
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.6
+      julia: 1
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
@@ -63,7 +63,7 @@ jobs:
 
 where the `julia:` and `os:` entries decide the worker from which the docs are built and
 deployed. In the example above we will thus build and deploy the documentation from a linux
-worker running Julia 1.6. For more information on how to setup a build stage, see the Travis
+worker running Julia 1 (the latest stable version). For more information on how to setup a build stage, see the Travis
 manual for [Build Stages](https://docs.travis-ci.com/user/build-stages).
 
 The three lines in the `script:` section do the following:
@@ -200,8 +200,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
-          version: '1.6'
-      - uses: julia-actions/cache@v1
+          version: '1'
+      - uses: julia-actions/cache@v2
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
@@ -214,7 +214,7 @@ jobs:
 This will install Julia, checkout the correct commit of your repository, and run the
 build of the documentation. The `julia-version:`, `julia-arch:` and `os:` entries decide
 the environment from which the docs are built and deployed. The example above builds and deploys
-the documentation from an Ubuntu worker running Julia 1.6.
+the documentation from an Ubuntu worker running Julia 1.
 
 !!! tip
     The example above is a basic workflow that should suit most projects. For more information on
@@ -310,7 +310,7 @@ are uploaded to Codecov:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
 ```
 
 ## `docs/Project.toml`
