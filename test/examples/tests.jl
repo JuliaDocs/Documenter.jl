@@ -363,6 +363,9 @@ end
             # .. but, crucially, Main.SVG_HTML did _not_ get written out.
             @test !isfile(joinpath(build_dir, "example-output", "$(SVG_BIG.hash_slug)-002.svg"))
         end
+
+        # Testing linkcheck_useragent default
+        @test doc.user.linkcheck_useragent == Documenter._LINKCHECK_DEFAULT_USERAGENT
     end
 
     @testset "HTML: local" begin
@@ -421,6 +424,10 @@ end
             # .. but, crucially, Main.SVG_HTML did _not_ get written out.
             @test !isfile(joinpath(build_dir, "example-output-$(SVG_BIG.hash_slug)-002.svg"))
         end
+
+        # It doesn't actually test that the user agent was used correctly, but at least it tests that
+        # the option go set.
+        @test doc.user.linkcheck_useragent == "Documenter/1"
     end
 
     @testset "HTML: pagesonly" begin

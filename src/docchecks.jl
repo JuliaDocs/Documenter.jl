@@ -191,6 +191,8 @@ function linkcheck(node::MarkdownAST.Node, element::MarkdownAST.AbstractElement,
     return nothing
 end
 
+const _LINKCHECK_DEFAULT_USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+
 function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document; method::Symbol=:HEAD)
 
     # first, make sure we're not supposed to ignore this link
@@ -203,6 +205,7 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
 
     if !haskey(doc.internal.locallinks, link)
         timeout = doc.user.linkcheck_timeout
+        useragent = doc.user.linkcheck_useragent
         null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
         # In some cases, web servers (e.g. docs.github.com as of 2022) will reject requests
         # that declare a non-browser user agent (curl specifically passes 'curl/X.Y'). In
@@ -212,12 +215,17 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
         # Mozilla developer docs, but only is it's a HTTP(S) request.
         #
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
-        fakebrowser  = startswith(uppercase(link.destination), "HTTP") ? [
-            "--user-agent",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
-            "-H",
-            "accept-encoding: gzip, deflate, br",
-        ] : ""
+        fakebrowser  = if startswith(uppercase(link.destination), "HTTP")
+            headers = [
+                "-H",
+                "accept-encoding: gzip, deflate, br",
+            ]
+            if !isempty(useragent)
+                push!(headers, "--user-agent", useragent)
+            end
+        else
+            ""
+        end
         cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(link.destination) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
 
         local result

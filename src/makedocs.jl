@@ -192,6 +192,18 @@ ignored.
 **`linkcheck_timeout`** configures how long `curl` waits (in seconds) for a link request to
 return a response before giving up. The default is 10 seconds.
 
+**`linkcheck_useragent`** can be used to override the user agent string used by the HTTP and
+HTTPS requests made when checking for broken links. Currently, the default user agent is
+
+```
+$(_LINKCHECK_DEFAULT_USERAGENT)
+```
+
+which is set to mimic a realistic web browser. However, the exact user agent string is subject
+to change. As such, it is possible that breakages can occur when Documenter's version changes,
+but the goal is to set the user agent such that it would be accepted by as many web servers as
+possible.
+
 **`warnonly`** can be used to control whether the `makedocs` build fails with an error, or
 simply prints a warning if it detects any issues with the document. Additionally, a `Symbol`
 or a `Vector` of `Symbol`s can be passed to make Documenter warn for only those specified
