@@ -191,7 +191,7 @@ function linkcheck(node::MarkdownAST.Node, element::MarkdownAST.AbstractElement,
     return nothing
 end
 
-const _LINKCHECK_DEFAULT_USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+const _LINKCHECK_DEFAULT_USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
 
 function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document; method::Symbol=:HEAD)
 
