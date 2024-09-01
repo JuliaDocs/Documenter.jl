@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The `User-Agent` header set in the linkcheck HTTP(S) requests can now be customized with the `linkcheck_useragent` option to `makedocs`. ([#2557], [#2562])
 
+### Changed
+
+* The default `User-Agent` header set in the linkcheck HTTP(S) requests now reports `Chrome/127.0.0.0` instead of `Chrome/51.0.2704.103`. This _may_ change how servers interpret the linkcheck requests, and cause previously passing checks to failing, but it is more likely to fix previous spurious failures. ([#2557], [#2569])
+
 ### Fixed
 
 * The paths for `size_threshold_ignore` option of `Documenter.HTML` are now correctly normalized and no longer sensitive to platform-dependent differences in path separators. ([#2560], [#2561])
