@@ -118,6 +118,10 @@ Documenter supports a range of admonition types for different circumstances.
 !!! compat "'compat' admonition"
     This is a `!!! compat`-type admonition.
 
+###### TODO admonition
+!!! todo "'todo' admonition"
+    This is a `!!! todo`-type admonition.
+
 ###### Details admonition
 Admonitions with type `details` is rendered as a collapsed `<details>` block in
 the HTML output, with the admonition title as the `<summary>`.

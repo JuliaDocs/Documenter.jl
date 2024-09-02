@@ -17,6 +17,7 @@ $success: $green;
 $warning: adjust-color($yellow, $hue: 2, $saturation: 10, $lightness: -24);
 $danger: $red;
 $compat: $cyan;
+$todo: $purple;
 $admonition-default: hsl(0, 0%, 29%);
 
 // slightly increase contrast over default l: 48%

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * The `User-Agent` header set in the linkcheck HTTP(S) requests can now be customized with the `linkcheck_useragent` option to `makedocs`. ([#2557], [#2562])
+* Admonitions with category `todo` are now colored purple. Previously they were default-colored like all other unknown admonitions categories. ([#2526])
 
 ### Changed
 
@@ -1886,6 +1887,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
+[#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
 [#2549]: https://github.com/JuliaDocs/Documenter.jl/issues/2549
 [#2551]: https://github.com/JuliaDocs/Documenter.jl/issues/2551
 [#2557]: https://github.com/JuliaDocs/Documenter.jl/issues/2557
