@@ -16,12 +16,32 @@ using Test
             [FTP (no proto) success](ftp.iana.org/tz/data/etcetera)
             [Redirect success](google.com)
             [HEAD fail GET success](https://codecov.io/gh/invenia/LibPQ.jl)
-            [Linkcheck old Chrome UA fail](https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html)
             """
         )
         doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
         @test_logs (:warn,) (:warn,) @test linkcheck(doc) === nothing
+        @test doc.internal.errors == Set{Symbol}()
+    end
+
+    @testset "Empty User-Agent" begin
+        src = convert(
+            MarkdownAST.Node,
+            md"""
+            [Linkcheck Empty UA](https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html)
+            """
+        )
+
+        # The default user-agent fails (intel servers block it)
+        doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20)
+        doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
+        @test_logs (:error,) @test linkcheck(doc) === nothing
+        @test doc.internal.errors == Set{Symbol}([:linkcheck])
+
+        # You can work around by setting linkcheck_useragent=nothing and defaulting to the Curl's user agent
+        doc = Documenter.Document(; linkcheck=true, linkcheck_timeout=20, linkcheck_useragent=nothing)
+        doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
+        @test linkcheck(doc) === nothing
         @test doc.internal.errors == Set{Symbol}()
     end
 
