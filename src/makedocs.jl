@@ -201,13 +201,17 @@ ignored.
 return a response before giving up. The default is 10 seconds.
 
 **`linkcheck_useragent`** can be used to override the user agent string used by the HTTP and
-HTTPS requests made when checking for broken links. Currently, the default user agent is
+HTTPS requests made when checking for broken links. If set to `nothing`, it uses the default
+user agent string of the library/tool used to actually perform the requests (currently, the
+system's `curl` binary).
+
+If unset, Documenter uses the following user agent string:
 
 ```
 $(_LINKCHECK_DEFAULT_USERAGENT)
 ```
 
-which is set to mimic a realistic web browser. However, the exact user agent string is subject
+This is set to mimic a realistic web browser. However, the exact user agent string is subject
 to change. As such, it is possible that breakages can occur when Documenter's version changes,
 but the goal is to set the user agent such that it would be accepted by as many web servers as
 possible.
