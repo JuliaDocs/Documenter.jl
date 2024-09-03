@@ -387,7 +387,7 @@ function Document(;
         linkcheck:: Bool             = false,
         linkcheck_ignore :: Vector   = [],
         linkcheck_timeout :: Real    = 10,
-        linkcheck_useragent :: Union{String, Nothing} = _LINKCHECK_DEFAULT_USERAGENT,
+        linkcheck_useragent :: Union{AbstractString, Nothing} = _LINKCHECK_DEFAULT_USERAGENT,
         checkdocs::Symbol            = :all,
         checkdocs_ignored_modules::Vector{Module} = Module[],
         doctestfilters::Vector{Regex}= Regex[],
