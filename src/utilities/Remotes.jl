@@ -173,6 +173,36 @@ function fileurl(remote::GitLab, ref::AbstractString, filename::AbstractString, 
 end
 issueurl(remote::GitLab, issuenumber) = "$(repourl(remote))/-/issues/$issuenumber"
 
+
+"""
+    AzureDevOps(organisation :: AbstractString, project :: AbstractString, repo :: AbstractString)
+
+Represents a remote Git repository hosted on Azure DevOps. The repository is identified by the
+name of the organization, the project and the repository. E.g.:
+
+```julia
+makedocs(
+    repo = AzureDevOps("my-org", "my-project", "my-repository")
+)
+```
+"""
+struct AzureDevOps <: Remote
+    organisation::String
+    project::String
+    repo::String
+end
+repourl(remote::AzureDevOps) = "https://dev.azure.com/$(remote.organisation)/$(remote.project)/_git/$(remote.repo)"
+function fileurl(remote::AzureDevOps, ref::AbstractString, filename::AbstractString, linerange)
+    ref = format_commit(ref, RepoAzureDevOps)
+    url = repourl(remote) * "?path=/$filename&version=$ref"
+    if isnothing(linerange)
+        return url
+    end
+    # To highlight one line, go to the start of the next (lineEndColumn is set to 1 in url above)
+    # It doesn't matter if lineEnd exceeds the number of lines in the file
+    return url * "&line=$(first(linerange))&lineEnd=$(last(linerange)+1)&lineStartColumn=1&lineEndColumn=1"
+end
+
 ############################################################################
 # Handling of URL string templates (deprecated, for backwards compatibility)
 #
