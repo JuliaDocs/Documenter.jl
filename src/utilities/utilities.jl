@@ -421,7 +421,45 @@ const julia_remote = Remotes.GitHub("JuliaLang", "julia")
 """
 Stores the memoized results of [`getremote`](@ref).
 """
-const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
+const GIT_REMOTENAME_CACHE = Dict{String, String}()
+const GIT_REMOTEURL_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
+
+"""
+$(TYPEDSIGNATURES)
+
+Determines the GitHub remote of a directory, returninf 'origin' if that remote  exists,
+and otherwise returning the result of `git config --get remote.pushDefault`.
+If neither exist, throw an error.
+
+The results for a given directory are memoized in [`GIT_REMOTENAME_CACHE`](@ref), since calling
+`git` is expensive and it is often called on the same directory over and over again.
+"""
+function getremotename(dir::AbstractString)
+    isdir(dir) || return nothing
+    return get!(GIT_REMOTENAME_CACHE, dir) do
+        try
+            originurl = readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
+            @assert !isempty(originurl)
+            return "origin"
+        catch; end
+
+        try
+            pushdefault = readchomp(setenv(`$(git()) config --get remote.pushDefault`; dir=dir))
+            @assert !isempty(pushdefault)
+            @warn "Remote 'origin' not found. Using `git config --get remote.pushDefault` instead, which is set to '$(pushdefault)'."
+            return pushdefault
+        catch ; end
+        
+
+        # If neither was found, throw an error.
+        try
+            @assert false
+        catch e
+            @warn "Neither remote 'origin' nor 'remotes.pushDefault' found" exception=(e, catch_backtrace())
+            ""
+        end
+    end
+end
 
 function parse_remote_url(remote::AbstractString)
     # TODO: we only match for GitHub repositories automatically. Could we engineer a
@@ -435,24 +473,25 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Determines the GitHub remote of a directory by checking `remote.origin.url` of the
-repository. Returns a [`Remotes.GitHub`](@ref), or `nothing` is something has gone wrong
-(e.g. it's run on a directory not in a Git repo, or `origin.url` points to a non-GitHub
-remote).
+Determines the GitHub remote of a directory by checking `remote.\$(remotename).url` of the
+repository. `remotename` is determined by [`getremotename`](@ref). Returns a [`Remotes.GitHub`](@ref),
+or `nothing` is something has gone wrong (e.g. it's run on a directory not in a Git repo, or the url
+points to a non-GitHub remote).
 
-The results for a given directory are memoized in [`GIT_REMOTE_CACHE`](@ref), since calling
+The results for a given directory are memoized in [`GIT_REMOTEURL_CACHE`](@ref), since calling
 `git` is expensive and it is often called on the same directory over and over again.
 """
 function getremote(dir::AbstractString)
     isdir(dir) || return nothing
-    return get!(GIT_REMOTE_CACHE, dir) do
-        remote = try
-            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
+    return get!(GIT_REMOTEURL_CACHE, dir) do
+        remotename = getremotename(dir)
+        remoteurl = try
+            readchomp(setenv(`$(git()) config --get remote.$(remotename).url`; dir=dir))
         catch e
-            @debug "git config --get remote.origin.url failed" exception=(e, catch_backtrace())
+            @debug "git config --get remote.$(remotename).url failed" exception=(e, catch_backtrace())
             ""
         end
-        return parse_remote_url(remote)
+        return parse_remote_url(remoteurl)
     end
 end
 
@@ -616,7 +655,7 @@ it out automatically.
 `root` is the the directory where `git` gets run. `varname` is just informational and used
 to construct the warning messages.
 """
-function git_remote_head_branch(varname, root; remotename = "origin", fallback = "master")
+function git_remote_head_branch(varname, root; fallback = "master")
     gitcmd = git(nothrow = true)
     if gitcmd === nothing
         @warn """
@@ -628,8 +667,9 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
     end
     # We need to do addenv() here to merge the new variables with the environment set by
     # Git_jll and the git() function.
+    remotename = getremotename(root)
     cmd = addenv(
-        setenv(`$gitcmd remote show $(remotename)`, dir=root),
+        setenv(`$gitcmd remote show $remotename`, dir=root),
         "GIT_TERMINAL_PROMPT" => "0",
         "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
     )
