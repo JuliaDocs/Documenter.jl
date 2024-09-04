@@ -275,7 +275,7 @@ function html_doc(
                     "assets/favicon.ico",
                     "assets/custom.css",
                     asset("https://example.com/resource.js"),
-                    asset("http://example.com/fonts?param=foo", class=:css),
+                    asset("http://example.com/fonts?param=foo", class=:css, load_early=true),
                     asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class=:css),
                 ],
                 prettyurls = true,
