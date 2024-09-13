@@ -52,12 +52,15 @@ struct LaTeX <: Documenter.Writer
     platform::String
     version::String
     tectonic::Union{Cmd,String,Nothing}
+    code_listings::String
     function LaTeX(;
-            platform = "native",
-            version  = get(ENV, "TRAVIS_TAG", ""),
-            tectonic = nothing)
+        platform="native",
+        version=get(ENV, "TRAVIS_TAG", ""),
+        tectonic=nothing,
+        code_listings="minted")
+        code_listings ∈ ("minted", "listings") || throw(ArgumentError("unknown code formatting package: $platform"))
         platform ∈ ("native", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
-        return new(platform, string(version), tectonic)
+        return new(platform, string(version), tectonic, code_listings)
     end
 end
 
@@ -65,10 +68,10 @@ import ..Documenter
 import Markdown
 import ANSIColoredPrinters
 
-mutable struct Context{I <: IO} <: IO
+mutable struct Context{I<:IO} <: IO
     io::I
     in_header::Bool
-    footnotes::Dict{String, Int}
+    footnotes::Dict{String,Int}
     depth::Int
     filename::String # currently active source file
     doc::Documenter.Document
@@ -86,8 +89,17 @@ _hash(x) = string(hash(x))
 
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
 const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
+const JLCODE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "jlcode.sty")
+const LISTINGS_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "listings.sty")
+const MINTED_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "minted.sty")
 
-hastex() = (try; success(`latexmk -version`); catch; false; end)
+hastex() = (
+    try
+        success(`pdflatex --version`)
+    catch
+        false
+    end
+)
 
 const DOCUMENT_STRUCTURE = (
     "part",
@@ -123,7 +135,7 @@ function render(doc::Documenter.Document, settings::LaTeX=LaTeX())
                             if get(page.globals.meta, :IgnorePage, :none) !== :latex
                                 context.depth = depth + (isempty(title) ? 0 : 1)
                                 context.depth > depth && _println(context, header_text)
-                                latex(context, page.mdast.children; toplevel=true)
+                                latex(context, page.mdast.children; toplevel=true, settings=settings)
                             end
                         end
                     end
@@ -131,6 +143,7 @@ function render(doc::Documenter.Document, settings::LaTeX=LaTeX())
                 writefooter(context, doc)
             end
             cp(STYLE, "documenter.sty")
+            settings.code_listings == "listings" && cp(JLCODE_PATH, "jlcode.sty")
 
             # compile .tex
             status = compile_tex(doc, settings, fileprefix)
@@ -236,6 +249,9 @@ function writeheader(io::IO, doc::Documenter.Document, settings::LaTeX)
     custom = joinpath(doc.user.root, doc.user.source, "assets", "custom.sty")
     isfile(custom) ? cp(custom, "custom.sty"; force = true) : touch("custom.sty")
 
+    cp(settings.code_listings == "minted" ? MINTED_PATH : LISTINGS_PATH, "code_listings.sty")
+
+
     custom_preamble_file = joinpath(doc.user.root, doc.user.source, "assets", "preamble.tex")
     if isfile(custom_preamble_file)
         # copy custom preamble.
@@ -266,15 +282,15 @@ end
 # as the top-level blocks of a page, or somewhere deeper in the AST.
 istoplevel(n::Node) = !isnothing(n.parent) && isa(n.parent.element, MarkdownAST.Document)
 
-latex(io::Context, node::Node) = latex(io, node, node.element)
-latex(io::Context, node::Node, e) = error("$(typeof(e)) not implemented: $e")
+latex(io::Context, node::Node; settings::LaTeX=LaTeX()) = latex(io, node, node.element; settings=settings)
+latex(io::Context, node::Node, e; settings::LaTeX=LaTeX()) = error("$(typeof(e)) not implemented: $e")
 
-function latex(io::Context, children; toplevel = false)
+function latex(io::Context, children; toplevel=false, settings::LaTeX=LaTeX())
     @assert eltype(children) <: MarkdownAST.Node
     for node in children
         otherelement = !isa(node.element, NoExtraTopLevelNewlines)
         toplevel && otherelement && _println(io)
-        latex(io, node)
+        latex(io, node; settings=settings)
         toplevel && otherelement && _println(io)
     end
 end
@@ -288,21 +304,21 @@ const NoExtraTopLevelNewlines = Union{
     Documenter.MetaNode,
 }
 
-function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
+function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader; settings::LaTeX=LaTeX())
     anchor = ah.anchor
     # latex(io::IO, anchor::Anchor, page, doc)
     id = _hash(Documenter.anchor_label(anchor))
-    latex(io, node.children; toplevel = istoplevel(node))
+    latex(io, node.children; toplevel=istoplevel(node), settings=settings)
     _println(io, "\n\\label{", id, "}{}\n")
 end
 
 ## Documentation Nodes.
 
-function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock)
-    latex(io, node.children; toplevel = istoplevel(node))
+function latex(io::Context, node::Node, ::Documenter.DocsNodesBlock; settings::LaTeX=LaTeX())
+    latex(io, node.children; toplevel=istoplevel(node), settings=settings)
 end
 
-function latex(io::Context, node::Node, docs::Documenter.DocsNode)
+function latex(io::Context, node::Node, docs::Documenter.DocsNode; settings::LaTeX=LaTeX())
     node, ast = docs, node
     # latex(io::IO, node::Documenter.DocsNode, page, doc)
     id = _hash(Documenter.anchor_label(node.anchor))
@@ -313,18 +329,18 @@ function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     _println(io, " -- {", Documenter.doccat(node.object), ".}\n")
     # # Body. May contain several concatenated docstrings.
     _println(io, "\\begin{adjustwidth}{2em}{0pt}")
-    latexdoc(io, ast)
+    latexdoc(io, ast; settings=settings)
     _println(io, "\n\\end{adjustwidth}")
 end
 
-function latexdoc(io::IO, node::Node)
+function latexdoc(io::IO, node::Node; settings::LaTeX=LaTeX())
     @assert node.element isa Documenter.DocsNode
     # The `:results` field contains a vector of `Docs.DocStr` objects associated with
     # each markdown object. The `DocStr` contains data such as file and line info that
     # we need for generating correct source links.
     for (docstringast, result) in zip(node.element.mdasts, node.element.results)
         _println(io)
-        latex(io, docstringast.children)
+        latex(io, docstringast.children; settings=settings)
         _println(io)
         # When a source link is available then print the link.
         url = Documenter.source_url(io.doc, result)
@@ -337,7 +353,7 @@ end
 
 ## Index, Contents, and Eval Nodes.
 
-function latex(io::Context, node::Node, index::Documenter.IndexNode)
+function latex(io::Context, node::Node, index::Documenter.IndexNode; settings::LaTeX=LaTeX())
     # Having an empty itemize block in LaTeX throws an error, so we bail early
     # in that situation:
     isempty(index.elements) && (_println(io); return)
@@ -354,7 +370,7 @@ function latex(io::Context, node::Node, index::Documenter.IndexNode)
     _println(io, "\\end{itemize}\n")
 end
 
-function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
+function latex(io::Context, node::Node, contents::Documenter.ContentsNode; settings::LaTeX=LaTeX())
     # Having an empty itemize block in LaTeX throws an error, so we bail early
     # in that situation:
     isempty(contents.elements) && (_println(io); return)
@@ -387,7 +403,7 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
         # Print the corresponding \item statement
         id = _hash(Documenter.anchor_label(anchor))
         _print(io, "\\item \\hyperlinkref{", id, "}{")
-        latex(io, header.children)
+        latex(io, header.children; settings=settings)
         _println(io, "}")
     end
     # print any remaining missing \end{itemize} statements
@@ -395,19 +411,19 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
     _println(io)
 end
 
-function latex(io::Context, node::Node, evalnode::Documenter.EvalNode)
+function latex(io::Context, node::Node, evalnode::Documenter.EvalNode; settings::LaTeX=LaTeX())
     if evalnode.result !== nothing
-        latex(io, evalnode.result.children, toplevel = true)
+        latex(io, evalnode.result.children; toplevel=true, settings=settings)
     end
 end
 
 # Select the "best" representation for LaTeX output.
 using Base64: base64decode
-latex(io::Context, node::Node, ::Documenter.MultiOutput) = latex(io, node.children)
-function latex(io::Context, node::Node, moe::Documenter.MultiOutputElement)
-    Base.invokelatest(latex, io, node, moe.element)
+latex(io::Context, node::Node, ::Documenter.MultiOutput; settings::LaTeX=LaTeX()) = latex(io, node.children; settings=settings)
+function latex(io::Context, node::Node, moe::Documenter.MultiOutputElement; settings::LaTeX=LaTeX())
+    Base.invokelatest(latex, io, node, moe.element; settings=settings)
 end
-function latex(io::Context, ::Node, d::Dict{MIME,Any})
+function latex(io::Context, ::Node, d::Dict{MIME,Any}; settings::LaTeX=LaTeX())
     filename = String(rand('a':'z', 7))
     if haskey(d, MIME"image/png"())
         write("$(filename).png", base64decode(d[MIME"image/png"()]))
@@ -446,14 +462,14 @@ function latex(io::Context, ::Node, d::Dict{MIME,Any})
     elseif haskey(d, MIME"text/markdown"())
         md = Markdown.parse(d[MIME"text/markdown"()])
         ast = MarkdownAST.convert(MarkdownAST.Node, md)
-        latex(io, ast.children)
+        latex(io, ast.children; settings=settings)
     elseif haskey(d, MIME"text/plain"())
         text = d[MIME"text/plain"()]
         out = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(IOBuffer(text)))
         # We set a "fake" language as text/plain so that the writer knows how to
         # deal with it.
         codeblock = MarkdownAST.CodeBlock("text/plain", out)
-        latex(io, MarkdownAST.Node(codeblock))
+        latex(io, MarkdownAST.Node(codeblock); settings=settings)
     else
         error("this should never happen.")
     end
@@ -463,13 +479,13 @@ end
 
 ## Basic Nodes. AKA: any other content that hasn't been handled yet.
 
-function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
+function latex(io::Context, node::Node, heading::MarkdownAST.Heading; settings::LaTeX=LaTeX())
     N = heading.level
     # latex(io::IO, h::Markdown.Header{N}) where N
     tag = DOCUMENT_STRUCTURE[min(io.depth + N - 1, length(DOCUMENT_STRUCTURE))]
     _print(io, "\\", tag, "{")
     io.in_header = true
-    latex(io, node.children)
+    latex(io, node.children; settings=settings)
     io.in_header = false
     # {sub}pagragraphs need an explicit `\indent` after them
     # to ensure the following text is on a new line. Others
@@ -487,7 +503,7 @@ const LEXER = Set([
     "text",
 ])
 
-function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
+function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock; settings::LaTeX=LaTeX())
     language = Documenter.codelang(code.info)
     if language == "julia-repl"
         language = "jlcon"  # the julia-repl is called "jlcon" in Pygments
@@ -498,6 +514,7 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
     text = IOBuffer(code.code)
     code_code = repr(MIME"text/plain"(), ANSIColoredPrinters.PlainTextPrinter(text))
     escape = '⊻' ∈ code_code
+    if settings.code_listings == "minted"
     _print(io, "\n\\begin{minted}")
     if escape
         _print(io, "[escapeinside=\\#\\%")
@@ -515,10 +532,29 @@ function latex(io::Context, node::Node, code::MarkdownAST.CodeBlock)
         _print(io, code_code)
     end
     _println(io, "\n\\end{minted}\n")
+    elseif settings.code_listings == "listings"
+        _print(io, "\n\\begin{lstlisting}")
+        _print(io, escape ? "[escapeinside=\\#\\%," : "[")
+        if language == "text/plain"
+            # _print(io, escape ? "," : "[")
+            # Special-case the formatting of code outputs from Julia.
+            _println(io, "]")
+        elseif language == "jlcon"
+            _println(io,"language=julia, style=jlcodestyle]")
+        else
+            _println(io, "]")
+        end
+        if escape
+            _print_code_escapes_minted(io, code_code)
+        else
+            _print(io, code_code)
+        end
+        _println(io, "\n\\end{lstlisting}\n")
+    end
     return
 end
 
-latex(io::Context, node::Node, mcb::Documenter.MultiCodeBlock) = latex(io, node, join_multiblock(node))
+latex(io::Context, node::Node, mcb::Documenter.MultiCodeBlock; settings::LaTeX=LaTeX()) = latex(io, node, join_multiblock(node); settings=settings)
 function join_multiblock(node::Node)
     @assert node.element isa Documenter.MultiCodeBlock
     io = IOBuffer()
@@ -544,7 +580,7 @@ function _print_code_escapes_minted(io, s::AbstractString)
     end
 end
 
-function latex(io::Context, node::Node, code::MarkdownAST.Code)
+function latex(io::Context, node::Node, code::MarkdownAST.Code; settings::LaTeX=LaTeX())
     _print(io, "\\texttt{")
     _print_code_escapes_inline(io, code.code)
     _print(io, "}")
@@ -557,18 +593,18 @@ function _print_code_escapes_inline(io, s::AbstractString)
     end
 end
 
-function latex(io::Context, node::Node, ::MarkdownAST.Paragraph)
-    latex(io, node.children)
+function latex(io::Context, node::Node, ::MarkdownAST.Paragraph; settings::LaTeX=LaTeX())
+    latex(io, node.children; settings=settings)
     _println(io, "\n")
 end
 
-function latex(io::Context, node::Node, ::MarkdownAST.BlockQuote)
+function latex(io::Context, node::Node, ::MarkdownAST.BlockQuote; settings::LaTeX=LaTeX())
     wrapblock(io, "quote") do
-        latex(io, node.children)
+        latex(io, node.children; settings=settings)
     end
 end
 
-function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
+function latex(io::Context, node::Node, md::MarkdownAST.Admonition; settings::LaTeX=LaTeX())
     color = "admonition-default"
     if md.category in ("danger", "warning", "note", "info", "tip", "compat", "todo")
         color = "admonition-$(md.category)"
@@ -578,19 +614,19 @@ function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
     _print(io, "title=\\textbf{")
     latexesc(io, md.title)
     _println(io, "}]")
-    latex(io, node.children)
+    latex(io, node.children; settings=settings)
     _println(io, "\\end{tcolorbox}")
     return
 end
 
-function latex(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition)
+function latex(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition; settings::LaTeX=LaTeX())
     id = get(io.footnotes, f.id, 1)
     _print(io, "\\footnotetext[", id, "]{")
-    latex(io, node.children)
+    latex(io, node.children; settings=settings)
     _println(io, "}")
 end
 
-function latex(io::Context, node::Node, list::MarkdownAST.List)
+function latex(io::Context, node::Node, list::MarkdownAST.List; settings::LaTeX=LaTeX())
     # TODO: MarkdownAST doesn't support lists starting at arbitrary numbers
     isordered = (list.type === :ordered)
     ordered = (list.type === :bullet) ? -1 : 1
@@ -611,20 +647,20 @@ function latex(io::Context, node::Node, list::MarkdownAST.List)
     wrapblock(io, "itemize") do
         for (n, item) in enumerate(node.children)
             _print(io, "\\item$(fmt(n)) ")
-            latex(io, item.children)
+            latex(io, item.children; settings=settings)
             n < length(node.children) && _println(io)
         end
     end
 end
 
-function latex(io::Context, node::Node, e::MarkdownAST.ThematicBreak)
+function latex(io::Context, node::Node, e::MarkdownAST.ThematicBreak; settings::LaTeX=LaTeX())
     _println(io, "{\\rule{\\textwidth}{1pt}}")
 end
 
 # This (equation*, split) math env seems to be the only way to correctly render all the
 # equations in the Julia manual. However, if the equation is already wrapped in
 # align/align*, then there is no need to further wrap it (in fact, it will break).
-function latex(io::Context, node::Node, math::MarkdownAST.DisplayMath)
+function latex(io::Context, node::Node, math::MarkdownAST.DisplayMath; settings::LaTeX=LaTeX())
     if occursin(r"^\\begin\{align\*?\}", math.math)
         _print(io, math.math)
     else
@@ -634,7 +670,7 @@ function latex(io::Context, node::Node, math::MarkdownAST.DisplayMath)
     end
 end
 
-function latex(io::Context, node::Node, table::MarkdownAST.Table)
+function latex(io::Context, node::Node, table::MarkdownAST.Table; settings::LaTeX=LaTeX())
     rows = MarkdownAST.tablerows(node)
     _println(io, "\n\\begin{table}[h]\n\\centering")
     _print(io, "\\begin{tabulary}{\\linewidth}")
@@ -643,7 +679,7 @@ function latex(io::Context, node::Node, table::MarkdownAST.Table)
     for (i, row) in enumerate(rows)
         for (j, cell) in enumerate(row.children)
             j === 1 || _print(io, " & ")
-            latex(io, cell.children)
+            latex(io, cell.children; settings=settings)
         end
         _println(io, " \\\\")
         if i === 1
@@ -656,29 +692,29 @@ function latex(io::Context, node::Node, table::MarkdownAST.Table)
 end
 spec_to_align(spec::Symbol) = Symbol(first(String(spec)))
 
-function latex(io::Context, node::Node, raw::Documenter.RawNode)
+function latex(io::Context, node::Node, raw::Documenter.RawNode; settings::LaTeX=LaTeX())
     raw.name === :latex ? _println(io, "\n", raw.text, "\n") : nothing
 end
 
 # Inline Elements.
 
-function latex(io::Context, node::Node, e::MarkdownAST.Text)
+function latex(io::Context, node::Node, e::MarkdownAST.Text; settings::LaTeX=LaTeX())
     latexesc(io, e.text)
 end
 
-function latex(io::Context, node::Node, e::MarkdownAST.Strong)
+function latex(io::Context, node::Node, e::MarkdownAST.Strong; settings::LaTeX=LaTeX())
     wrapinline(io, "textbf") do
-        latex(io, node.children)
+        latex(io, node.children; settings=settings)
     end
 end
 
-function latex(io::Context, node::Node, e::MarkdownAST.Emph)
+function latex(io::Context, node::Node, e::MarkdownAST.Emph; settings::LaTeX=LaTeX())
     wrapinline(io, "emph") do
-        latex(io, node.children)
+        latex(io, node.children; settings=settings)
     end
 end
 
-function latex(io::Context, node::Node, image::Documenter.LocalImage)
+function latex(io::Context, node::Node, image::Documenter.LocalImage; settings::LaTeX=LaTeX())
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
         _println(io, "\\centering")
@@ -687,13 +723,13 @@ function latex(io::Context, node::Node, image::Documenter.LocalImage)
         end
         _println(io)
         wrapinline(io, "caption") do
-            latex(io, node.children)
+            latex(io, node.children; settings=settings)
         end
         _println(io)
     end
 end
 
-function latex(io::Context, node::Node, image::MarkdownAST.Image)
+function latex(io::Context, node::Node, image::MarkdownAST.Image; settings::LaTeX=LaTeX())
     # TODO: also print the .title field somehow
     wrapblock(io, "figure") do
         _println(io, "\\centering")
@@ -706,22 +742,22 @@ function latex(io::Context, node::Node, image::MarkdownAST.Image)
         end
         _println(io)
         wrapinline(io, "caption") do
-            latex(io, node.children)
+            latex(io, node.children; settings=settings)
         end
         _println(io)
     end
 end
 
-function latex(io::Context, node::Node, f::MarkdownAST.FootnoteLink)
+function latex(io::Context, node::Node, f::MarkdownAST.FootnoteLink; settings::LaTeX=LaTeX())
     id = get!(io.footnotes, f.id, length(io.footnotes) + 1)
     _print(io, "\\footnotemark[", id, "]")
 end
 
-function latex(io::Context, node::Node, link::Documenter.PageLink)
+function latex(io::Context, node::Node, link::Documenter.PageLink; settings::LaTeX=LaTeX())
     # If we're in a header, we don't want to print any \hyperlinkref commands,
     # so we handle this here.
     if io.in_header
-        latex(io, node.children)
+        latex(io, node.children; settings=settings)
         return
     end
     # This branch is the normal case, when we're not in a header.
@@ -738,15 +774,15 @@ function latex(io::Context, node::Node, link::Documenter.PageLink)
         end
     end
     _print(io, "{")
-    latex(io, node.children)
+    latex(io, node.children; settings=settings)
     _print(io, "}")
 end
 
-function latex(io::Context, node::Node, link::Documenter.LocalLink)
+function latex(io::Context, node::Node, link::Documenter.LocalLink; settings::LaTeX=LaTeX())
     # If we're in a header, we don't want to print any \hyperlinkref commands,
     # so we handle this here.
     if io.in_header
-        latex(io, node.children)
+        latex(io, node.children; settings=settings)
         return
     end
     # This branch is the normal case, when we're not in a header.
@@ -756,15 +792,15 @@ function latex(io::Context, node::Node, link::Documenter.LocalLink)
         latexesc(io, href)
     end
     _print(io, "{")
-    latex(io, node.children)
+    latex(io, node.children; settings=settings)
     _print(io, "}")
 end
 
-function latex(io::Context, node::Node, link::MarkdownAST.Link)
+function latex(io::Context, node::Node, link::MarkdownAST.Link; settings::LaTeX=LaTeX())
     # If we're in a header, we don't want to print any \hyperlinkref commands,
     # so we handle this here.
     if io.in_header
-        latex(io, node.children)
+        latex(io, node.children; settings=settings)
         return
     end
     # This branch is the normal case, when we're not in a header.
@@ -773,11 +809,11 @@ function latex(io::Context, node::Node, link::MarkdownAST.Link)
         latexesc(io, link.destination)
     end
     _print(io, "{")
-    latex(io, node.children)
+    latex(io, node.children; settings=settings)
     _print(io, "}")
 end
 
-function latex(io::Context, node::Node, math::MarkdownAST.InlineMath)
+function latex(io::Context, node::Node, math::MarkdownAST.InlineMath; settings::LaTeX=LaTeX())
     # Handle MathJax and TeX inconsistency since the first wants `\LaTeX` wrapped
     # in math delims, whereas actual TeX fails when that is done.
     math.math == "\\LaTeX" ? _print(io, math.math) : _print(io, "\\(", math.math, "\\)")
@@ -785,12 +821,12 @@ end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
 # rest of the build and so we just leave them in place and print a blank line in their place.
-latex(io::Context, node::Node, ::Documenter.MetaNode) = _println(io, "\n")
+latex(io::Context, node::Node, ::Documenter.MetaNode; settings::LaTeX=LaTeX()) = _println(io, "\n")
 
 # In the original AST, SetupNodes were just mapped to empty Markdown.MD() objects.
-latex(io::Context, node::Node, ::Documenter.SetupNode) = nothing
+latex(io::Context, node::Node, ::Documenter.SetupNode; settings::LaTeX=LaTeX()) = nothing
 
-function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
+function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue; settings::LaTeX=LaTeX())
     @warn("""
     Unexpected Julia interpolation in the Markdown. This probably means that you
     have an unbalanced or un-escaped \$ in the text.
@@ -805,7 +841,7 @@ function latex(io::Context, node::Node, value::MarkdownAST.JuliaValue)
 end
 
 # TODO: Implement SoftBreak, Backslash (but they don't appear in standard library Markdown conversions)
-latex(io::Context, node::Node, ::MarkdownAST.LineBreak) = _println(io, "\\\\")
+latex(io::Context, node::Node, ::MarkdownAST.LineBreak; settings::LaTeX=LaTeX()) = _println(io, "\\\\")
 
 # Documenter.
 
@@ -873,6 +909,6 @@ function files!(out, p::Pair{<:AbstractString,<:Any}, depth)
     return out
 end
 
-files(v::Vector) = files!(Tuple{String, String, Int}[], v, 0)
+files(v::Vector) = files!(Tuple{String,String,Int}[], v, 0)
 
 end
