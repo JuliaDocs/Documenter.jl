@@ -20,7 +20,7 @@ else
     ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
     "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
     "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
-    "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly"]
+        "latex_texonly", "latex_simple_texonly", "latex_simple_native", "latex_simple_latexmk", "latex_simple_texify", "latex_showcase_texonly", "html-pagesonly"]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -706,6 +706,59 @@ else
     nothing
 end
 
+examples_latex_simple_native_doc = if "latex_simple_native" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_native")
+    @quietly makedocs(
+        format=Documenter.LaTeX(platform="native", version=v"1.2.3"),
+        sitename="Documenter LaTeX Simple Native",
+        root=examples_root,
+        build="builds/latex_simple_native",
+        source="src.latex_simple",
+        pages=["Main section" => ["index.md"]],
+        doctest=false,
+        debug=true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_native"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_simple_texify_doc = if "latex_simple_latexmk" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_latexmk")
+    @quietly makedocs(
+        format=Documenter.LaTeX(platform="latexmk", version=v"1.2.3"),
+        sitename="Documenter LaTeX Simple LaTeXMk",
+        root=examples_root,
+        build="builds/latex_simple_latexmk",
+        source="src.latex_simple",
+        pages=["Main section" => ["index.md"]],
+        doctest=false,
+        debug=true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_latekmk"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
+
+examples_latex_simple_texify_doc = if "latex_simple_texify" in EXAMPLE_BUILDS
+    @info("Building mock package docs: LaTeXWriter/latex_simple_texify")
+    @quietly makedocs(
+        format = Documenter.LaTeX(platform="texify", version = v"1.2.3"),
+        sitename = "Documenter LaTeX Simple Texify",
+        root  = examples_root,
+        build = "builds/latex_simple_texify",
+        source = "src.latex_simple",
+        pages = ["Main section" => ["index.md"]],
+        doctest = false,
+        debug = true,
+    )
+else
+    @info "Skipping build: LaTeXWriter/latex_simple_texify"
+    @debug "Controlling variables:" EXAMPLE_BUILDS get(ENV, "DOCUMENTER_TEST_EXAMPLES", nothing)
+    nothing
+end
 
 examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     @info("Building mock package docs: LaTeXWriter/latex_texonly")
