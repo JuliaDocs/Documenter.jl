@@ -16,6 +16,7 @@ test/prerender/build/
 test/themes/dev/
 test/workdir/builds/
 test/quietly-logs/
+test/docsxref/
 docs/dev/
 docs/build/
 docs/build-pdf/
