@@ -37,7 +37,7 @@ $admonition-default: $grey-lighter;
 
 $admonition-background: (
   'default': $background, 'info': $background, 'success': $background, 'warning': $background,
-  'danger': $background, 'compat': $background
+  'danger': $background, 'compat': $background, 'todo', $background
 );
 // These would normally get initialized in _admonition.scss. However, since we are not
 // loading it on the top level, we need to set them here too to avoid deprecation warnings.
