@@ -36,17 +36,14 @@ mdflatten(io, node::Node, e::MarkdownAST.AbstractElement) = error("Unimplemented
 
 # Most block and inline (container) elements just reduce down to printing out their
 # child nodes.
-mdflatten(
-    io, node::Node, ::Union{
-        MarkdownAST.Document,
-        MarkdownAST.Heading,
-        MarkdownAST.Paragraph,
-        MarkdownAST.BlockQuote,
-        MarkdownAST.Link,
-        MarkdownAST.Strong,
-        MarkdownAST.Emph,
+function mdflatten(io, node::Node, ::T) where {
+        T <: Union{
+            MarkdownAST.Document, MarkdownAST.Heading, MarkdownAST.Paragraph,
+            MarkdownAST.BlockQuote, MarkdownAST.Link, MarkdownAST.Strong, MarkdownAST.Emph,
+        },
     }
-) = mdflatten(io, node.children)
+    return mdflatten(io, node.children)
+end
 
 function mdflatten(io, node::Node, list::MarkdownAST.List)
     for (idx, li) in enumerate(node.children)
@@ -75,7 +72,8 @@ mdflatten(io, node::Node, e::MarkdownAST.Text) = print(io, e.text)
 function mdflatten(io, node::Node, e::MarkdownAST.Image)
     print(io, "(Image: ")
     mdflatten(io, node.children)
-    return print(io, ")")
+    print(io, ")")
+    return
 end
 mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath, MarkdownAST.DisplayMath}) = print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
 mdflatten(io, node::Node, e::MarkdownAST.LineBreak) = print(io, '\n')

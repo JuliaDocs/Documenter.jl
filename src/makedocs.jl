@@ -268,7 +268,7 @@ function makedocs(; debug = false, format = HTML(), kwargs...)
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
     empty!(Selectors.selector_subtypes)
-    cd(document.user.root) do;
+    cd(document.user.root) do
         withenv(NO_KEY_ENV...) do
             Selectors.dispatch(Builder.DocumentPipeline, document)
         end
@@ -298,12 +298,14 @@ $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
 """
 function except(errors::Symbol...)
     invalid_errors = setdiff(errors, ERROR_NAMES)
-    isempty(invalid_errors) || throw(
-        DomainError(
-            tuple(invalid_errors...),
-            "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
+    if !isempty(invalid_errors)
+        throw(
+            DomainError(
+                tuple(invalid_errors...),
+                "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
+            )
         )
-    )
+    end
     return setdiff(ERROR_NAMES, errors)
 end
 

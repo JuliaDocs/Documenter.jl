@@ -24,15 +24,14 @@ function doctest(package::Module; manual = true, testset = nothing, kwargs...)
     source = nothing
     if manual === true
         source = normpath(joinpath(dirname(pathof(package)), "..", "docs", "src"))
-        isdir(source) || throw(
-            ArgumentError(
-                """
-                Package $(package) does not have a documentation source directory at standard location.
-                Searched at: $(source)
-                If ...
-                """
-            )
-        )
+        if !isdir(source)
+            msg = """
+            Package $(package) does not have a documentation source directory at standard location.
+            Searched at: $(source)
+            If ...
+            """
+            throw(ArgumentError(msg))
+        end
     end
     testset = (testset === nothing) ? "Doctests: $(package)" : testset
     return doctest(source, [package]; testset = testset, kwargs...)
@@ -77,7 +76,7 @@ function doctest(
     )
     function all_doctests()
         dir = mktempdir()
-        return try
+        try
             @debug "Doctesting in temporary directory: $(dir)" modules
             if source === nothing
                 source = joinpath(dir, "src")
@@ -95,10 +94,10 @@ function doctest(
                 remotes = nothing,
                 plugins = plugins,
             )
-            true
+            return true
         catch err
             @error "Doctesting failed" exception = (err, catch_backtrace())
-            false
+            return false
         finally
             try
                 rm(dir; recursive = true)

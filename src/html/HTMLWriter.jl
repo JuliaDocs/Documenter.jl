@@ -148,12 +148,14 @@ Documenter.HTML(assets = [
 function asset(uri; class = nothing, islocal = false, attributes = Dict{Symbol, String}())
     if class === nothing
         class = assetclass(uri)
-        (class === nothing) && error(
-            """
-            Unable to determine asset class for: $(uri)
-            It can be set explicitly with the `class` keyword argument.
-            """
-        )
+        if class === nothing
+            error(
+                """
+                Unable to determine asset class for: $(uri)
+                It can be set explicitly with the `class` keyword argument.
+                """
+            )
+        end
     end
     return HTMLAsset(class, uri, islocal, attributes)
 end
@@ -758,9 +760,7 @@ function render(doc::Documenter.Document, settings::HTML = HTML())
         @warn "not creating 'documenter.js', provided by the user."
     else
         r = JSDependencies.RequireJS(
-            [
-                RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery,
-            ]
+            [RD.jquery, RD.jqueryui, RD.headroom, RD.headroom_jquery]
         )
         RD.mathengine!(r, settings.mathengine)
         if !settings.prerender
@@ -1098,7 +1098,10 @@ end
 
 function analytics_script(tracking_id::AbstractString)
     @tags script
-    return isempty(tracking_id) ? DOM.VOID : [
+    if isempty(tracking_id)
+        return DOM.VOID
+    else
+        return [
             script[:async, :src => "https://www.googletagmanager.com/gtag/js?id=$(tracking_id)"](),
             script(
                 """
@@ -1109,6 +1112,7 @@ function analytics_script(tracking_id::AbstractString)
                 """
             ),
         ]
+    end
 end
 
 function warning_script(src, ctx)
@@ -1324,7 +1328,8 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Settings cog
     push!(
-        navbar_right.nodes, a[
+        navbar_right.nodes,
+        a[
             "#documenter-settings-button.docs-settings-button.docs-navbar-link.fa-solid.fa-gear",
             :href => "#", :title => "Settings",
         ]
@@ -1332,7 +1337,8 @@ function render_navbar(ctx, navnode, edit_page_link::Bool)
 
     # Collapse/Expand All articles toggle
     push!(
-        navbar_right.nodes, a[
+        navbar_right.nodes,
+        a[
             "#documenter-article-toggle-button.docs-article-toggle-button.fa-solid.fa-chevron-up",
             :href => "javascript:;", :title => "Collapse all docstrings",
         ]
@@ -1582,7 +1588,7 @@ end
 
 # write version file
 function generate_version_file(versionfile::AbstractString, entries, symlinks = [])
-    return open(versionfile, "w") do buf
+    open(versionfile, "w") do buf
         println(buf, "var DOC_VERSIONS = [")
         for folder in entries
             println(buf, "  \"", folder, "\",")
@@ -1606,6 +1612,7 @@ function generate_version_file(versionfile::AbstractString, entries, symlinks = 
         println(buf, "var DOCUMENTER_NEWEST = \"$(newest)\";")
         println(buf, "var DOCUMENTER_STABLE = \"$(first(entries))\";")
     end
+    return
 end
 
 # write redirect file
@@ -1617,20 +1624,22 @@ function generate_redirect_file(redirectfile::AbstractString, entries)
     isfile(redirectfile) && !startswith(read(redirectfile, String), comment) && return
     isempty(entries) && return
 
-    return open(redirectfile, "w") do buf
+    open(redirectfile, "w") do buf
         println(buf, comment)
         println(buf, "<meta http-equiv=\"refresh\" content=\"0; url=./$(first(entries))/\"/>")
     end
+    return
 end
 
 function generate_siteinfo_file(dir::AbstractString, version::Union{AbstractString, Nothing})
-    return open(joinpath(dir, "siteinfo.js"), "w") do buf
+    open(joinpath(dir, "siteinfo.js"), "w") do buf
         if version !== nothing
             println(buf, "var DOCUMENTER_CURRENT_VERSION = \"$(version)\";")
         else
             println(buf, "var DOCUMENTER_VERSION_SELECTOR_DISABLED = true;")
         end
     end
+    return
 end
 
 # The .documenter-siteinfo.json can contain various metadata (such as the Documenter version
@@ -1702,7 +1711,7 @@ ListBuilder() = ListBuilder([])
 
 function Base.push!(lb::ListBuilder, level, node)
     @assert level >= 1
-    return if level == 1
+    if level == 1
         push!(lb.es, node)
     else
         if isempty(lb.es) || typeof(last(lb.es)) !== ListBuilder
@@ -1710,6 +1719,7 @@ function Base.push!(lb::ListBuilder, level, node)
         end
         push!(last(lb.es), level - 1, node)
     end
+    return
 end
 
 function domify(lb::ListBuilder)
@@ -1900,16 +1910,16 @@ Returns the full path corresponding to a path of a `.md` page file. The the inpu
 paths are assumed to be relative to `src/`.
 """
 function get_url(ctx, path::AbstractString)
-    return if ctx.settings.prettyurls
+    if ctx.settings.prettyurls
         d = if basename(path) == "index.md"
             dirname(path)
         else
             first(splitext(path))
         end
-        isempty(d) ? "index.html" : "$d/index.html"
+        return isempty(d) ? "index.html" : "$d/index.html"
     else
         # change extension to .html
-        string(splitext(path)[1], ".html")
+        return string(splitext(path)[1], ".html")
     end
 end
 
@@ -2224,12 +2234,12 @@ function domify(dctx::DCtx, node::Node, i::ImageElements)
     # TODO: Implement .title
     @tags video img a
 
-    return if occursin(r"\.(webm|mp4|ogg|ogm|ogv|avi)$", url)
-        video[:src => url, :controls => "true", :title => alt](
+    if occursin(r"\.(webm|mp4|ogg|ogm|ogv|avi)$", url)
+        return video[:src => url, :controls => "true", :title => alt](
             a[:href => url](alt)
         )
     else
-        img[:src => url, :alt => alt]
+        return img[:src => url, :alt => alt]
     end
 end
 
@@ -2366,13 +2376,13 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
         end
 
     inner_div = div[".admonition-body"](domify(dctx, node.children))
-    return if a.category == "details"
+    if a.category == "details"
         # details admonitions are rendered as <details><summary> blocks
-        details[".admonition.is-details"](
+        return details[".admonition.is-details"](
             summary[".admonition-header"](a.title), inner_div
         )
     else
-        div[".admonition$(colorclass)"](
+        return div[".admonition$(colorclass)"](
             header[".admonition-header"](a.title), inner_div
         )
     end
@@ -2464,7 +2474,8 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME, Any})
         # The 'text/html' representation of an @example block is above the threshold, but no
         # supported image representation is present as an alternative.
         push!(
-            dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
+            dctx.ctx.atexample_warnings,
+            AtExampleFallbackWarning(
                 page = dctx.navnode.page,
                 size_bytes = length(d[MIME"text/html"()]),
                 fallback = nothing,
@@ -2475,7 +2486,8 @@ function domify(dctx::DCtx, node::Node, d::Dict{MIME, Any})
         # The 'text/html' representation of an @example block is above the threshold,
         # falling back to '$(image.mime)' representation.
         push!(
-            dctx.ctx.atexample_warnings, AtExampleFallbackWarning(
+            dctx.ctx.atexample_warnings,
+            AtExampleFallbackWarning(
                 page = dctx.navnode.page,
                 size_bytes = length(d[MIME"text/html"()]),
                 fallback = image.mime,

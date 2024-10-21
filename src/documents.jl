@@ -112,11 +112,11 @@ end
 
 struct ContentsNode <: AbstractDocumenterBlock
     pages::Vector{String} # Which pages should be included in contents? Set by user.
-    mindepth::Int            # Minimum header level that should be displayed. Set by user.
+    mindepth::Int         # Minimum header level that should be displayed. Set by user.
     depth::Int            # Down to which level should headers be displayed? Set by user.
     build::String         # Same as for `IndexNode`s.
-    source::String         # Same as for `IndexNode`s.
-    elements::Vector         # (order, page, anchor)-tuple for constructing links.
+    source::String        # Same as for `IndexNode`s.
+    elements::Vector      # (order, page, anchor)-tuple for constructing links.
     codeblock::MarkdownAST.CodeBlock # original code block
 
     function ContentsNode(
@@ -255,7 +255,8 @@ NavNode(page, title_override, parent) = NavNode(page, title_override, parent, []
 # a NavNode in some debug output somewhere.
 function Base.show(io::IO, n::NavNode)
     parent = isnothing(n.parent) ? "nothing" : "NavNode($(repr(n.parent.page)), ...)"
-    return print(io, "NavNode($(repr(n.page)), $(repr(n.title_override)), $(parent))")
+    print(io, "NavNode($(repr(n.page)), $(repr(n.title_override)), $(parent))")
+    return
 end
 
 """
@@ -282,18 +283,15 @@ struct RemoteRepository
     commit::String
 end
 function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
-    return try
-        RemoteRepository(realpath(root), remote, repo_commit(root))
+    try
+        return RemoteRepository(realpath(root), remote, repo_commit(root))
     catch e
         e isa RepoCommitError || rethrow()
         @error "Unable to determine the commit for the remote repository:\n$(e.msg)" e.directory exception = e.err_bt
-        throw(
-            ArgumentError(
-                """
-                Unable to determine the commit for the remote repository
-                  at $(root) => $(remote)"""
-            )
-        )
+        msg = """
+        Unable to determine the commit for the remote repository
+          at $(root) => $(remote)"""
+        throw(ArgumentError(msg))
     end
 end
 
@@ -308,23 +306,23 @@ shortcommit(remoteref::RemoteRepository) = (length(remoteref.commit) > 5) ? remo
 User-specified values used to control the generation process.
 """
 struct User
-    root::String  # An absolute path to the root directory of the document.
-    source::String  # Parent directory is `.root`. Where files are read from.
-    build::String  # Parent directory is also `.root`. Where files are written to.
+    root::String # An absolute path to the root directory of the document.
+    source::String # Parent directory is `.root`. Where files are read from.
+    build::String # Parent directory is also `.root`. Where files are written to.
     workdir::Union{Symbol, String} # Parent directory is also `.root`. Where code is executed from.
     format::Vector{Writer} # What format to render the final document with?
-    clean::Bool           # Empty the `build` directory before starting a new build?
+    clean::Bool # Empty the `build` directory before starting a new build?
     doctest::Union{Bool, Symbol} # Run doctests?
-    linkcheck::Bool           # Check external links..
-    linkcheck_ignore::Vector{Union{String, Regex}}  # ..and then ignore (some of) them.
-    linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
+    linkcheck::Bool # Check external links..
+    linkcheck_ignore::Vector{Union{String, Regex}} # ..and then ignore (some of) them.
+    linkcheck_timeout::Real # ..but only wait this many seconds for each one.
     linkcheck_useragent::Union{String, Nothing} # User agent to use for linkchecks.
-    checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
-    checkdocs_ignored_modules::Vector{Module}  # ..and then ignore (some of) them.
+    checkdocs::Symbol # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
+    checkdocs_ignored_modules::Vector{Module} # ..and then ignore (some of) them.
     doctestfilters::Vector{Regex} # Filtering for doctests
-    warnonly::Vector{Symbol}  # List of docerror groups that should only warn, rather than cause a build failure
-    pages::Vector{Any}    # Ordering of document pages specified by the user.
-    pagesonly::Bool         # Discard any .md pages from processing that are not in .pages
+    warnonly::Vector{Symbol} # List of docerror groups that should only warn, rather than cause a build failure
+    pages::Vector{Any} # Ordering of document pages specified by the user.
+    pagesonly::Bool # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
     # Remote Git repository information
     #
@@ -354,13 +352,13 @@ end
 Private state used to control the generation process.
 """
 struct Internal
-    assets::String             # Path where asset files will be copied to.
-    navtree::Vector{NavNode}           # A vector of top-level navigation items.
-    navlist::Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
-    headers::AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
-    docs::AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
-    bindings::IdDict{Any, Any}           # Tracks insertion order of object per-binding.
-    objects::IdDict{Any, Any}           # Tracks which `Objects` are included in the `Document`.
+    assets::String # Path where asset files will be copied to.
+    navtree::Vector{NavNode} # A vector of top-level navigation items.
+    navlist::Vector{NavNode} # An ordered list of `NavNode`s that point to actual pages
+    headers::AnchorMap # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    docs::AnchorMap # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    bindings::IdDict{Any, Any} # Tracks insertion order of object per-binding.
+    objects::IdDict{Any, Any} # Tracks which `Objects` are included in the `Document`.
     contentsnodes::Vector{ContentsNode}
     indexnodes::Vector{IndexNode}
     locallinks::IdDict{MarkdownAST.Link, String}
@@ -376,7 +374,7 @@ end
 Represents an entire document.
 """
 struct Document
-    user::User     # Set by the user via `makedocs`.
+    user::User # Set by the user via `makedocs`.
     internal::Internal # Computed values.
     plugins::Dict{DataType, Plugin}
     blueprint::DocumentBlueprint
@@ -523,14 +521,11 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         # We'll also check that there are no duplicate entries.
         idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
-            throw(
-                ArgumentError(
-                    """
-                    Duplicate remote path in remotes: $(path) => $(remoteref)
-                    vs $(remotes_checked[idx])
-                    """
-                )
-            )
+            msg = """
+            Duplicate remote path in remotes: $(path) => $(remoteref)
+            vs $(remotes_checked[idx])
+            """
+            throw(ArgumentError(msg))
         end
         # Now we actually check the remotes themselves
         remote = if remoteref isa Tuple{Remotes.Remote, AbstractString}
@@ -538,14 +533,11 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         elseif remoteref isa Remotes.Remote
             RemoteRepository(path, remoteref)
         else
-            throw(
-                ArgumentError(
-                    """
-                    Invalid remote in remotes: $(remoteref) (::$(typeof(remoteref)))
-                    for path $path
-                    must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""
-                )
-            )
+            msg = """
+            Invalid remote in remotes: $(remoteref) (::$(typeof(remoteref)))
+            for path $path
+            must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""
+            throw(ArgumentError(msg))
         end
         addremote!(remotes_checked, remote)
     end
@@ -690,14 +682,11 @@ function reduce_warnonly(warnonly)
     warnonly = Symbol[s for s in warnonly]
     extra_names = setdiff(warnonly, ERROR_NAMES)
     if !isempty(extra_names)
-        throw(
-            ArgumentError(
-                """
-                Keyword argument `warnonly` given invalid values: $(extra_names)
-                Valid options are: $(ERROR_NAMES)
-                """
-            )
-        )
+        msg = """
+        Keyword argument `warnonly` given invalid values: $(extra_names)
+        Valid options are: $(ERROR_NAMES)
+        """
+        throw(ArgumentError(msg))
     end
     return warnonly
 end
@@ -951,7 +940,8 @@ function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::A
     # This check is here to make sure that the new function matches the old
     # (correct) implementation.
     @assert name == normpath(relpath(src, doc.user.source))
-    return doc.blueprint.pages[name] = page
+    doc.blueprint.pages[name] = page
+    return
 end
 
 # The page.source field is relative to doc.user.root, but the keys in
@@ -1137,5 +1127,6 @@ MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalLink) = MDFlatten.mdflatt
 function MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalImage)
     print(io, "(Image: ")
     MDFlatten.mdflatten(io, node.children)
-    return print(io, ")")
+    print(io, ")")
+    return
 end

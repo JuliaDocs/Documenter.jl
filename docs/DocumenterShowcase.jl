@@ -85,7 +85,8 @@ See also [`bar`](@ref).
 baz(x::Integer, f, k::Integer) = nothing
 
 function hello(who)
-    return println("Hello, $(who)!")
+    println("Hello, $(who)!")
+    return
 end
 
 struct SVGCircle
@@ -93,7 +94,7 @@ struct SVGCircle
     fill::String
 end
 function Base.show(io, ::MIME"image/svg+xml", c::SVGCircle)
-    return write(
+    write(
         io, """
         <svg width="50" height="50">
           <g style="stroke-width: 3">
@@ -102,6 +103,7 @@ function Base.show(io, ::MIME"image/svg+xml", c::SVGCircle)
         </svg>
         """
     )
+    return
 end
 
 "The type definition."

@@ -262,12 +262,12 @@ ismacro(b::Docs.Binding) = startswith(string(b.var), '@')
 
 
 function category(b::Docs.Binding)
-    return if iskeyword(b)
-        :keyword
+    if iskeyword(b)
+        return :keyword
     elseif ismacro(b)
-        :macro
+        return :macro
     else
-        category(resolve(b))
+        return category(resolve(b))
     end
 end
 category(::Function) = :function

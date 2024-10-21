@@ -28,7 +28,8 @@ end
 function __init__()
     # We only clean up the old log files if DOCUMENTER_TEST_QUIETLY is set
     quietly_logs_enabled() || return
-    return isdir(QUIETLY_LOG_DIR) && rm(QUIETLY_LOG_DIR, recursive = true)
+    isdir(QUIETLY_LOG_DIR) && rm(QUIETLY_LOG_DIR, recursive = true)
+    return
 end
 
 struct QuietlyException <: Exception

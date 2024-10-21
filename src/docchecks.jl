@@ -161,13 +161,13 @@ footnote(other, orphans::Dict) = true
 # Link Checks.
 # ------------
 
-hascurl() = (
+function hascurl()
     try
-        success(`curl --version`)
+        return success(`curl --version`)
     catch err
-        false
+        return false
     end
-)
+end
 
 """
 $(SIGNATURES)

@@ -268,24 +268,24 @@ struct LineRangeFormatting
     separator::String
 
     function LineRangeFormatting(host::RepoHost)
-        return if host === RepoAzureDevOps
-            new("&line=", "&lineEnd=")
+        if host === RepoAzureDevOps
+            return new("&line=", "&lineEnd=")
         elseif host == RepoBitbucket
-            new("", ":")
+            return new("", ":")
         elseif host == RepoGitlab
-            new("L", "-")
+            return new("L", "-")
         else
             # default is github-style
-            new("L", "-L")
+            return new("L", "-L")
         end
     end
 end
 
 function format_line(range::AbstractRange, format::LineRangeFormatting)
-    return if length(range) <= 1
-        string(format.prefix, first(range))
+    if length(range) <= 1
+        return string(format.prefix, first(range))
     else
-        string(format.prefix, first(range), format.separator, last(range))
+        return string(format.prefix, first(range), format.separator, last(range))
     end
 end
 

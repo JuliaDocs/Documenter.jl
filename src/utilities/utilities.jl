@@ -265,9 +265,9 @@ function object(ex::Union{Symbol, Expr}, str::AbstractString)
 end
 
 function object(qn::QuoteNode, str::AbstractString)
-    return if haskey(Base.Docs.keywords, qn.value)
+    if haskey(Base.Docs.keywords, qn.value)
         binding = Expr(:call, Binding, Main, qn)
-        Expr(:call, Object, binding, Union{})
+        return Expr(:call, Object, binding, Union{})
     else
         error("'$(qn.value)' is not a documented keyword.")
     end
@@ -276,7 +276,8 @@ end
 function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
-    return print_extra(io, obj.noncanonical_extra)
+    print_extra(io, obj.noncanonical_extra)
+    return
 end
 print_extra(io::IO, noncanonical_extra::Nothing) = nothing
 print_extra(io::IO, noncanonical_extra::String) = print(io, "-", noncanonical_extra)
@@ -307,12 +308,12 @@ doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
     "Macro" : doccat(obj.binding, obj.signature)
 
 function doccat(b::Binding, ::Union{Union, Type{Union{}}})
-    return if b.mod === Main && haskey(Base.Docs.keywords, b.var)
-        "Keyword"
+    if b.mod === Main && haskey(Base.Docs.keywords, b.var)
+        return "Keyword"
     elseif startswith(string(b.var), '@')
-        "Macro"
+        return "Macro"
     else
-        doccat(getfield(b.mod, b.var))
+        return doccat(getfield(b.mod, b.var))
     end
 end
 
@@ -459,11 +460,11 @@ function getremote(dir::AbstractString)
 end
 
 function inbase(m::Module)
-    return if m ≡ Base
-        true
+    if m ≡ Base
+        return true
     else
         parent = parentmodule(m)
-        parent ≡ m ? false : inbase(parent)
+        return parent ≡ m ? false : inbase(parent)
     end
 end
 
@@ -514,14 +515,14 @@ The `mode` keyword argument can be one of the following:
 function mdparse(s::AbstractString; mode = :single)::Vector{MarkdownAST.Node{Nothing}}
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
     mdast = convert(MarkdownAST.Node, Markdown.parse(s))
-    return if mode == :blocks
-        MarkdownAST.unlink!.(mdast.children)
+    if mode == :blocks
+        return MarkdownAST.unlink!.(mdast.children)
     elseif length(mdast.children) == 0
         # case where s == "". We'll just return an empty string / paragraph.
         if mode == :single
-            [
+            return [
                 MarkdownAST.@ast(
-                    MarkdownAST.Paragraph() do;
+                    MarkdownAST.Paragraph() do
                         ""
                     end
                 ),
@@ -656,7 +657,7 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
         return fallback
     end
     m = match(r"^\s*HEAD branch:\s*(.*)$"m, git_remote_output)
-    return if m === nothing
+    if m === nothing
         @warn """
         Unable to determine $(varname) from remote HEAD branch, defaulting to "$(fallback)".
         Failed to parse the `git remote` output. Set JULIA_DEBUG=Documenter to see the output.
@@ -666,9 +667,9 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
         stdout from $cmd:
         $(git_remote_output)
         """
-        fallback
+        return fallback
     else
-        String(m[1])
+        return String(m[1])
     end
 end
 
