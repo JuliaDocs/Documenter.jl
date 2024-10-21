@@ -32,7 +32,7 @@ Similar to `expand()`, but recursively calls itself on all descendants of `node`
 and applies `NestedExpanderPipeline` instead of `ExpanderPipeline`.
 """
 function expand_recursively(node, page, doc)
-    return if typeof(node.element) in (
+    if typeof(node.element) in (
             MarkdownAST.Admonition,
             MarkdownAST.BlockQuote,
             MarkdownAST.Item,
@@ -43,14 +43,16 @@ function expand_recursively(node, page, doc)
             expand_recursively(child, page, doc)
         end
     end
+    return
 end
 
 # run some checks after expanding the page
 function pagecheck(page)
     # make sure there is no "continued code" lingering around
-    return if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
+    if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
         @warn "code from a continued @example block unused in $(Documenter.locrepr(page.source))."
     end
+    return
 end
 
 # Draft output code block
@@ -60,13 +62,13 @@ function create_draft_result!(node::Node; blocktype = "code")
     codeblock.info = "julia"
     node.element = Documenter.MultiOutput(codeblock)
     push!(node.children, Node(codeblock))
-    return push!(
-        node.children, Node(
-            Documenter.MultiOutputElement(
-                Dict{MIME, Any}(MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>")
-            )
+    outputnode = Node(
+        Documenter.MultiOutputElement(
+            Dict{MIME, Any}(MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>")
         )
     )
+    push!(node.children, outputnode)
+    return
 end
 
 
@@ -257,21 +259,20 @@ Selectors.runner(::Type{Expanders.NestedExpanderPipeline}, node, page, doc) = no
 function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
     header = node.element
     # Get the header slug.
-    text =
     if namedheader(node)
         # If the Header is wrapped in an [](@id) link, we remove the Link element from
         # the tree.
         link_node = first(node.children)
         MarkdownAST.unlink!(link_node)
         append!(node.children, link_node.children)
-        match(NAMEDHEADER_REGEX, link_node.element.destination)[1]
+        text = match(NAMEDHEADER_REGEX, link_node.element.destination)[1]
     else
         # TODO: remove this hack (replace with mdflatten?)
         ast = MarkdownAST.@ast MarkdownAST.Document() do
             MarkdownAST.copy_tree(node)
         end
         md = convert(Markdown.MD, ast)
-        sprint(Markdown.plain, Markdown.Paragraph(md.content[1].text))
+        text = sprint(Markdown.plain, Markdown.Paragraph(md.content[1].text))
     end
     slug = Documenter.slugify(text)
     # Add the header to the document's header map.
@@ -280,7 +281,8 @@ function Selectors.runner(::Type{Expanders.TrackHeaders}, node, page, doc)
     ah = MarkdownAST.Node(Documenter.AnchoredHeader(anchor))
     anchor.node = ah
     MarkdownAST.insert_after!(node, ah)
-    return push!(ah.children, node)
+    push!(ah.children, node)
+    return
 end
 
 # @meta
@@ -320,7 +322,8 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
             end
         end
     end
-    return node.element = MetaNode(x, copy(meta))
+    node.element = MetaNode(x, copy(meta))
+    return
 end
 
 # @docs / @autodocs utils
@@ -376,15 +379,12 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @docs block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(x.code, doc, page)
-        admonition = first(
-            Documenter.mdparse(
-                """
-                !!! warning "Missing docstring."
+        str = """
+        !!! warning "Missing docstring."
 
-                    Missing docstring for `$(strip(str))`. Check Documenter's build log for details.
-                """, mode = :blocks
-            )
-        )
+            Missing docstring for `$(strip(str))`. Check Documenter's build log for details.
+        """
+        admonition = first(Documenter.mdparse(str, mode = :blocks))
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
@@ -512,7 +512,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
             end
         end
     end
-    return if haskey(fields, :Modules)
+    if haskey(fields, :Modules)
         # Gather and filter docstrings.
         modules = fields[:Modules]
         order = get(fields, :Order, AUTODOCS_DEFAULT_ORDER)
@@ -585,10 +585,19 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         ordermap = Documenter.precedence(order)
         comparison = function (a, b)
             local t
-            (t = Documenter._compare(modulemap, 1, a, b)) == 0 || return t < 0 # module
-            (t = Documenter._compare(pagesmap, 2, a, b)) == 0 || return t < 0 # page
-            (t = Documenter._compare(ordermap, 3, a, b)) == 0 || return t < 0 # category
-            return string(a[4]) < string(b[4])                                       # name
+            if (t = Documenter._compare(modulemap, 1, a, b)) != 0
+                # module
+                return t < 0
+            elseif (t = Documenter._compare(pagesmap, 2, a, b)) != 0
+                # page
+                return t < 0
+            elseif (t = Documenter._compare(ordermap, 3, a, b)) != 0
+                # category
+                return t < 0
+            else
+                # name
+                return string(a[4]) < string(b[4])
+            end
         end
         sort!(results; lt = comparison)
 
@@ -631,6 +640,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
             """
         )
     end
+    return
 end
 
 # @eval
@@ -649,15 +659,13 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     sandbox = Module(:EvalBlockSandbox)
     lines = Documenter.find_block_in_file(x.code, page.source)
     linenumbernode = LineNumberNode(
-        lines === nothing ? 0 : lines.first,
-        basename(page.source)
+        lines === nothing ? 0 : lines.first, basename(page.source)
     )
     @debug "Evaluating @eval block:\n$(x.code)"
-    return cd(page.workdir) do
+    cd(page.workdir) do
         result = nothing
         for (ex, str) in Documenter.parseblock(
-                x.code, doc, page; keywords = false,
-                linenumbernode = linenumbernode
+                x.code, doc, page; keywords = false, linenumbernode = linenumbernode
             )
             try
                 result = Core.eval(sandbox, ex)
@@ -703,6 +711,7 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
         # TODO: make result a child node
         node.element = EvalNode(x, result)
     end
+    return
 end
 
 # @index
@@ -714,7 +723,8 @@ function Selectors.runner(::Type{Expanders.IndexBlocks}, node, page, doc)
 
     indexnode = Documenter.buildnode(Documenter.IndexNode, x, doc, page)
     push!(doc.internal.indexnodes, indexnode)
-    return node.element = indexnode
+    node.element = indexnode
+    return
 end
 
 # @contents
@@ -726,7 +736,8 @@ function Selectors.runner(::Type{Expanders.ContentsBlocks}, node, page, doc)
 
     contentsnode = Documenter.buildnode(Documenter.ContentsNode, x, doc, page)
     push!(doc.internal.contentsnodes, contentsnode)
-    return node.element = contentsnode
+    node.element = contentsnode
+    return
 end
 
 # @example
@@ -782,12 +793,10 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
             code = x.code
         end
         linenumbernode = LineNumberNode(
-            lines === nothing ? 0 : lines.first,
-            basename(page.source)
+            lines === nothing ? 0 : lines.first, basename(page.source)
         )
         for (ex, str) in Documenter.parseblock(
-                code, doc, page; keywords = false,
-                linenumbernode = linenumbernode
+                code, doc, page; keywords = false, linenumbernode = linenumbernode
             )
             c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
@@ -838,7 +847,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     end
     # ... and finally map the original code block to the newly generated ones.
     node.element = Documenter.MultiOutput(x)
-    return append!(node.children, content)
+    append!(node.children, content)
+    return
 end
 
 # Replace references to gensym'd module with Main
@@ -880,8 +890,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(
-            x.code, doc, page; keywords = false,
-            linenumbernode = linenumbernode
+            x.code, doc, page; keywords = false, linenumbernode = linenumbernode
         )
         input = droplines(str)
         # Use the REPL softscope for REPLBlocks,
@@ -963,7 +972,8 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
             """, exception = (err, bt)
         )
     end
-    return node.element = Documenter.SetupNode(x.info, x.code)
+    node.element = Documenter.SetupNode(x.info, x.code)
+    return
 end
 
 # @raw
@@ -975,7 +985,8 @@ function Selectors.runner(::Type{Expanders.RawBlocks}, node, page, doc)
 
     m = match(r"@raw[ ](.+)$", x.info)
     m === nothing && error("invalid '@raw <name>' syntax: $(x.info)")
-    return node.element = Documenter.RawNode(Symbol(m[1]), x.code)
+    node.element = Documenter.RawNode(Symbol(m[1]), x.code)
+    return
 end
 
 # Documenter.
@@ -990,11 +1001,11 @@ const NAMEDHEADER_REGEX = r"^@id (.+)$"
 
 function namedheader(node::Node)
     @assert node.element isa MarkdownAST.Heading
-    return if length(node.children) == 1 && first(node.children).element isa MarkdownAST.Link
+    if length(node.children) == 1 && first(node.children).element isa MarkdownAST.Link
         url = first(node.children).element.destination
-        occursin(NAMEDHEADER_REGEX, url)
+        return occursin(NAMEDHEADER_REGEX, url)
     else
-        false
+        return false
     end
 end
 
@@ -1040,9 +1051,10 @@ function highlightsig!(node::Node)
     @assert node.element isa MarkdownAST.Document
     MarkdownAST.haschildren(node) || return
     node = first(node.children)
-    return if node.element isa MarkdownAST.CodeBlock && isempty(node.element.info)
+    if node.element isa MarkdownAST.CodeBlock && isempty(node.element.info)
         node.element.info = "julia"
     end
+    return
 end
 
 function recursive_heading_to_bold!(ast::MarkdownAST.Node)

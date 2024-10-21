@@ -221,14 +221,15 @@ _doctest(ctx::DocTestContext, block) = true
 mutable struct Result
     block::MutableMD2CodeBlock # The entire code block that is being tested.
     raw_input::String # Part of `block.code` representing the current input.
-    input::String # Part of `block.code` representing the current input
+    # Part of `block.code` representing the current input
     # without leading repl prompts and spaces.
+    input::String
     output::String # Part of `block.code` representing the current expected output.
     file::String # File in which the doctest is written. Either `.md` or `.jl`.
-    value::Any        # The value returned when evaluating `input`.
-    hide::Bool       # Semi-colon suppressing the output?
-    stdout::IOBuffer   # Redirected stdout/stderr gets sent here.
-    bt::Vector     # Backtrace when an error is thrown.
+    value::Any # The value returned when evaluating `input`.
+    hide::Bool # Semi-colon suppressing the output?
+    stdout::IOBuffer # Redirected stdout/stderr gets sent here.
+    bt::Vector # Backtrace when an error is thrown.
 
     function Result(block, input, output, file)
         return new(block, input, input, rstrip(output, '\n'), file, nothing, false, IOBuffer())
@@ -468,7 +469,7 @@ function report(result::Result, str, doc::Documenter.Document)
     diff = TextDiff.Diff{TextDiff.Words}(result.output, rstrip(str))
     lines = Documenter.find_block_in_file(result.block.code, result.file)
     line = lines === nothing ? nothing : first(lines)
-    return @error(
+    @error(
         """
         doctest failure in $(Documenter.locrepr(result.file, lines))
 
@@ -490,6 +491,7 @@ function report(result::Result, str, doc::Documenter.Document)
 
         """, diff, _file = result.file, _line = line
     )
+    return
 end
 
 function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::MutablePrefix = MutablePrefix())

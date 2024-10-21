@@ -147,12 +147,13 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
 
     # If the user specified pagesonly, we will remove all the pages not in the navigation
     # menu (.pages).
-    return if doc.user.pagesonly
+    if doc.user.pagesonly
         navlist_pages = getfield.(doc.internal.navlist, :page)
         for page in keys(doc.blueprint.pages)
             page ∈ navlist_pages || delete!(doc.blueprint.pages, page)
         end
     end
+    return
 end
 
 """
@@ -204,7 +205,7 @@ walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documen
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
-    return if doc.user.doctest in [:fix, :only, true]
+    if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
         _doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
@@ -214,18 +215,21 @@ function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
     else
         @info "Doctest: skipped."
     end
+    return
 end
 
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    return expand(doc)
+    expand(doc)
+    return
 end
 
 function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    return crossref(doc)
+    crossref(doc)
+    return
 end
 
 function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Document)
@@ -234,14 +238,16 @@ function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Documen
     missingdocs(doc)
     footnotes(doc)
     linkcheck(doc)
-    return githubcheck(doc)
+    githubcheck(doc)
+    return
 end
 
 function Selectors.runner(::Type{Builder.Populate}, doc::Documenter.Document)
     is_doctest_only(doc, "Populate") && return
     @info "Populate: populating indices."
     doctest_replace!(doc)
-    return populate!(doc)
+    populate!(doc)
+    return
 end
 
 function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Document)
@@ -249,7 +255,7 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
     # How many fatal errors
     fatal_errors = filter(is_strict(doc), doc.internal.errors)
     c = length(fatal_errors)
-    return if c > 0
+    if c > 0
         error(
             "`makedocs` encountered $(c > 1 ? "errors" : "an error") ["
                 * join(Ref(":") .* string.(fatal_errors), ", ")
@@ -259,6 +265,7 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
         @info "RenderDocument: rendering document."
         Documenter.render(doc)
     end
+    return
 end
 
 Selectors.runner(::Type{Builder.DocumentPipeline}, doc::Documenter.Document) = nothing

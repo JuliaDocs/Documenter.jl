@@ -88,13 +88,13 @@ _hash(x) = string(hash(x))
 const STYLE = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "documenter.sty")
 const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets", "latex", "preamble.tex")
 
-hastex() = (
+function hastex()
     try
-        success(`latexmk -version`)
+        return success(`latexmk -version`)
     catch
-        false
+        return false
     end
-)
+end
 
 const DOCUMENT_STRUCTURE = (
     "part",
@@ -108,7 +108,7 @@ const DOCUMENT_STRUCTURE = (
 
 function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
     @info "LaTeXWriter: creating the LaTeX file."
-    return mktempdir() do path
+    mktempdir() do path
         cp(joinpath(doc.user.root, doc.user.build), joinpath(path, "build"))
         cd(joinpath(path, "build")) do
             fileprefix = latex_fileprefix(doc, settings)
@@ -162,6 +162,7 @@ function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
             end
         end
     end
+    return
 end
 
 function latex_fileprefix(doc::Documenter.Document, settings::LaTeX)
@@ -234,14 +235,14 @@ end
 
 function piperun(cmd; clearlogs = false)
     verbose = "--verbose" in ARGS || get(ENV, "DOCUMENTER_VERBOSE", "false") == "true"
-    return run(
-        verbose ? cmd : pipeline(
-                cmd,
-                stdout = "LaTeXWriter.stdout",
-                stderr = "LaTeXWriter.stderr",
-                append = !clearlogs,
-            )
-    )
+    if verbose
+        cmd = pipeline(
+            cmd,
+            stdout = "LaTeXWriter.stdout", stderr = "LaTeXWriter.stderr",
+            append = !clearlogs,
+        )
+    end
+    return run(cmd)
 end
 
 function writeheader(io::IO, doc::Documenter.Document, settings::LaTeX)
@@ -267,11 +268,13 @@ function writeheader(io::IO, doc::Documenter.Document, settings::LaTeX)
     \\input{preamble.tex}
     """
     # output preamble
-    return _println(io, preamble)
+    _println(io, preamble)
+    return
 end
 
 function writefooter(io::IO, doc::Documenter.Document)
-    return _println(io, "\n\\end{document}")
+    _println(io, "\n\\end{document}")
+    return
 end
 
 # A few of the nodes are printed differently depending on whether they appear
@@ -306,7 +309,8 @@ function latex(io::Context, node::Node, ah::Documenter.AnchoredHeader)
     # latex(io::IO, anchor::Anchor, page, doc)
     id = _hash(Documenter.anchor_label(anchor))
     latex(io, node.children; toplevel = istoplevel(node))
-    return _println(io, "\n\\label{", id, "}{}\n")
+    _println(io, "\n\\label{", id, "}{}\n")
+    return
 end
 
 ## Documentation Nodes.
@@ -327,7 +331,8 @@ function latex(io::Context, node::Node, docs::Documenter.DocsNode)
     # # Body. May contain several concatenated docstrings.
     _println(io, "\\begin{adjustwidth}{2em}{0pt}")
     latexdoc(io, ast)
-    return _println(io, "\n\\end{adjustwidth}")
+    _println(io, "\n\\end{adjustwidth}")
+    return
 end
 
 function latexdoc(io::IO, node::Node)
@@ -365,7 +370,8 @@ function latex(io::Context, node::Node, index::Documenter.IndexNode)
         latexesc(io, text)
         _println(io, "}}")
     end
-    return _println(io, "\\end{itemize}\n")
+    _println(io, "\\end{itemize}\n")
+    return
 end
 
 function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
@@ -408,13 +414,15 @@ function latex(io::Context, node::Node, contents::Documenter.ContentsNode)
     for _ in 1:depth
         _println(io, "\\end{itemize}")
     end
-    return _println(io)
+    _println(io)
+    return
 end
 
 function latex(io::Context, node::Node, evalnode::Documenter.EvalNode)
-    return if evalnode.result !== nothing
+    if evalnode.result !== nothing
         latex(io, evalnode.result.children, toplevel = true)
     end
+    return
 end
 
 # Select the "best" representation for LaTeX output.
@@ -493,11 +501,12 @@ function latex(io::Context, node::Node, heading::MarkdownAST.Heading)
     io.in_header = false
     # {sub}pagragraphs need an explicit `\indent` after them
     # to ensure the following text is on a new line. Others
-    return if endswith(tag, "paragraph")
+    if endswith(tag, "paragraph")
         _println(io, "}\\indent\n")
     else
         _println(io, "}\n")
     end
+    return
 end
 
 # Whitelisted lexers.
@@ -570,26 +579,28 @@ end
 function latex(io::Context, node::Node, code::MarkdownAST.Code)
     _print(io, "\\texttt{")
     _print_code_escapes_inline(io, code.code)
-    return _print(io, "}")
+    _print(io, "}")
+    return
 end
 
 function _print_code_escapes_inline(io, s::AbstractString)
     for ch in s
-        ch === '⊻' ? _print(io, "\\unicodeveebar{}") :
-            latexesc(io, ch)
+        ch === '⊻' ? _print(io, "\\unicodeveebar{}") : latexesc(io, ch)
     end
     return
 end
 
 function latex(io::Context, node::Node, ::MarkdownAST.Paragraph)
     latex(io, node.children)
-    return _println(io, "\n")
+    _println(io, "\n")
+    return
 end
 
 function latex(io::Context, node::Node, ::MarkdownAST.BlockQuote)
-    return wrapblock(io, "quote") do
+    wrapblock(io, "quote") do
         latex(io, node.children)
     end
+    return
 end
 
 function latex(io::Context, node::Node, md::MarkdownAST.Admonition)
@@ -611,7 +622,8 @@ function latex(io::Context, node::Node, f::MarkdownAST.FootnoteDefinition)
     id = get(io.footnotes, f.id, 1)
     _print(io, "\\footnotetext[", id, "]{")
     latex(io, node.children)
-    return _println(io, "}")
+    _println(io, "}")
+    return
 end
 
 function latex(io::Context, node::Node, list::MarkdownAST.List)
@@ -632,30 +644,33 @@ function latex(io::Context, node::Node, list::MarkdownAST.List)
     #
     pad = ndigits(ordered + length(node.children)) + 2
     fmt = n -> (isordered ? "[$(rpad("$(n + ordered - 1).", pad))]" : "")
-    return wrapblock(io, "itemize") do
+    wrapblock(io, "itemize") do
         for (n, item) in enumerate(node.children)
             _print(io, "\\item$(fmt(n)) ")
             latex(io, item.children)
             n < length(node.children) && _println(io)
         end
     end
+    return
 end
 
 function latex(io::Context, node::Node, e::MarkdownAST.ThematicBreak)
-    return _println(io, "{\\rule{\\textwidth}{1pt}}")
+    _println(io, "{\\rule{\\textwidth}{1pt}}")
+    return
 end
 
 # This (equation*, split) math env seems to be the only way to correctly render all the
 # equations in the Julia manual. However, if the equation is already wrapped in
 # align/align*, then there is no need to further wrap it (in fact, it will break).
 function latex(io::Context, node::Node, math::MarkdownAST.DisplayMath)
-    return if occursin(r"^\\begin\{align\*?\}", math.math)
+    if occursin(r"^\\begin\{align\*?\}", math.math)
         _print(io, math.math)
     else
         _print(io, "\\begin{equation*}\n\\begin{split}")
         _print(io, math.math)
         _println(io, "\\end{split}\\end{equation*}")
     end
+    return
 end
 
 function latex(io::Context, node::Node, table::MarkdownAST.Table)
@@ -676,12 +691,14 @@ function latex(io::Context, node::Node, table::MarkdownAST.Table)
     end
     _println(io, "\\bottomrule")
     _println(io, "\\end{tabulary}\n")
-    return _println(io, "\\end{table}\n")
+    _println(io, "\\end{table}\n")
+    return
 end
 spec_to_align(spec::Symbol) = Symbol(first(String(spec)))
 
 function latex(io::Context, node::Node, raw::Documenter.RawNode)
-    return raw.name === :latex ? _println(io, "\n", raw.text, "\n") : nothing
+    raw.name === :latex && _println(io, "\n", raw.text, "\n")
+    return
 end
 
 # Inline Elements.
@@ -691,20 +708,22 @@ function latex(io::Context, node::Node, e::MarkdownAST.Text)
 end
 
 function latex(io::Context, node::Node, e::MarkdownAST.Strong)
-    return wrapinline(io, "textbf") do
+    wrapinline(io, "textbf") do
         latex(io, node.children)
     end
+    return
 end
 
 function latex(io::Context, node::Node, e::MarkdownAST.Emph)
-    return wrapinline(io, "emph") do
+    wrapinline(io, "emph") do
         latex(io, node.children)
     end
+    return
 end
 
 function latex(io::Context, node::Node, image::Documenter.LocalImage)
     # TODO: also print the .title field somehow
-    return wrapblock(io, "figure") do
+    wrapblock(io, "figure") do
         _println(io, "\\centering")
         wrapinline(io, "includegraphics[max width=\\linewidth]") do
             _print(io, image.path)
@@ -715,11 +734,12 @@ function latex(io::Context, node::Node, image::Documenter.LocalImage)
         end
         _println(io)
     end
+    return
 end
 
 function latex(io::Context, node::Node, image::MarkdownAST.Image)
     # TODO: also print the .title field somehow
-    return wrapblock(io, "figure") do
+    wrapblock(io, "figure") do
         _println(io, "\\centering")
         @warn "images with absolute URLs not supported in LaTeX output in $(Documenter.locrepr(io.filename))" url = image.destination
         # We nevertheless output an \includegraphics with the URL. The LaTeX build will
@@ -734,11 +754,13 @@ function latex(io::Context, node::Node, image::MarkdownAST.Image)
         end
         _println(io)
     end
+    return
 end
 
 function latex(io::Context, node::Node, f::MarkdownAST.FootnoteLink)
     id = get!(io.footnotes, f.id, length(io.footnotes) + 1)
-    return _print(io, "\\footnotemark[", id, "]")
+    _print(io, "\\footnotemark[", id, "]")
+    return
 end
 
 function latex(io::Context, node::Node, link::Documenter.PageLink)
@@ -763,7 +785,8 @@ function latex(io::Context, node::Node, link::Documenter.PageLink)
     end
     _print(io, "{")
     latex(io, node.children)
-    return _print(io, "}")
+    _print(io, "}")
+    return
 end
 
 function latex(io::Context, node::Node, link::Documenter.LocalLink)
@@ -781,7 +804,8 @@ function latex(io::Context, node::Node, link::Documenter.LocalLink)
     end
     _print(io, "{")
     latex(io, node.children)
-    return _print(io, "}")
+    _print(io, "}")
+    return
 end
 
 function latex(io::Context, node::Node, link::MarkdownAST.Link)
@@ -798,13 +822,15 @@ function latex(io::Context, node::Node, link::MarkdownAST.Link)
     end
     _print(io, "{")
     latex(io, node.children)
-    return _print(io, "}")
+    _print(io, "}")
+    return
 end
 
 function latex(io::Context, node::Node, math::MarkdownAST.InlineMath)
     # Handle MathJax and TeX inconsistency since the first wants `\LaTeX` wrapped
     # in math delims, whereas actual TeX fails when that is done.
-    return math.math == "\\LaTeX" ? _print(io, math.math) : _print(io, "\\(", math.math, "\\)")
+    math.math == "\\LaTeX" ? _print(io, math.math) : _print(io, "\\(", math.math, "\\)")
+    return
 end
 
 # Metadata Nodes get dropped from the final output for every format but are needed throughout
@@ -861,13 +887,15 @@ latexesc(s) = sprint(latexesc, s)
 function wrapblock(f, io, env)
     _println(io, "\\begin{", env, "}")
     f()
-    return _println(io, "\\end{", env, "}")
+    _println(io, "\\end{", env, "}")
+    return
 end
 
 function wrapinline(f, io, cmd)
     _print(io, "\\", cmd, "{")
     f()
-    return _print(io, "}")
+    _print(io, "}")
+    return
 end
 
 
@@ -883,7 +911,8 @@ end
 # (visible, page.first, pages.second, children)
 function files!(out::Vector, v::Tuple, depth)
     files!(out, v[2] == nothing ? v[3] : v[2] => v[3], depth)
-    return files!(out, v[4], depth)
+    files!(out, v[4], depth)
+    return
 end
 
 files!(out, s::AbstractString, depth) = push!(out, ("", s, depth))

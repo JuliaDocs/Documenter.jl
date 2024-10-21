@@ -362,7 +362,7 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     doc.internal.locallinks[node.element] = node.element.destination
     # Error checking: `slug` should exist and be unique.
     # TODO: handle non-unique slugs.
-    return if anchor_isunique(headers, slug)
+    if anchor_isunique(headers, slug)
         # Replace the `@ref` url with a path to the referenced header.
         anchor = Documenter.anchor(headers, slug)
         pagekey = relpath(anchor.file, doc.user.build)
@@ -371,6 +371,7 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     else
         push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
     end
+    return
 end
 
 # Cross referencing docstrings.
@@ -526,9 +527,10 @@ function issue_xref(node::MarkdownAST.Node, num, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     # Update issue links starting with a hash, but only if our Remote supports it
     issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
-    return if isnothing(issue_url)
+    if isnothing(issue_url)
         push!(errors, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
     else
         node.element.destination = issue_url
     end
+    return
 end

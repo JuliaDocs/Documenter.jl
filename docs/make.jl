@@ -18,6 +18,22 @@ Changelog.generate(
     repo = "JuliaDocs/Documenter.jl",
 )
 
+linkcheck_ignore = [
+    # We'll ignore links that point to GitHub's edit pages, as they redirect to the
+    # login screen and cause a warning:
+    r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
+    "https://nvd.nist.gov/vuln/detail/CVE-2018-16487",
+    # We'll ignore the links to Documenter tags in CHANGELOG.md, since when you tag
+    # a release, the release link does not exist yet, and this will cause the linkcheck
+    # CI job to fail on the PR that tags a new release.
+    r"https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.\d+.\d+",
+]
+# Extra ones we ignore only on CI.
+if get(ENV, "GITHUB_ACTIONS", nothing) == "true"
+    # It seems that CTAN blocks GitHub Actions?
+    push!(linkcheck_ignore, "https://ctan.org/pkg/minted")
+end
+
 makedocs(
     modules = [Documenter, DocumenterTools, DocumenterShowcase],
     format = if "pdf" in ARGS
@@ -40,23 +56,7 @@ makedocs(
     sitename = "Documenter.jl",
     authors = "Michael Hatherly, Morten Piibeleht, and contributors.",
     linkcheck = "linkcheck" in ARGS,
-    linkcheck_ignore = [
-        # We'll ignore links that point to GitHub's edit pages, as they redirect to the
-        # login screen and cause a warning:
-        r"https://github.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/edit(.*)",
-        "https://nvd.nist.gov/vuln/detail/CVE-2018-16487",
-        # We'll ignore the links to Documenter tags in CHANGELOG.md, since when you tag
-        # a release, the release link does not exist yet, and this will cause the linkcheck
-        # CI job to fail on the PR that tags a new release.
-        r"https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.\d+.\d+",
-    ] ∪ (
-        get(ENV, "GITHUB_ACTIONS", nothing) == "true" ? [
-                # Extra ones we ignore only on CI.
-                #
-                # It seems that CTAN blocks GitHub Actions?
-                "https://ctan.org/pkg/minted",
-            ] : []
-    ),
+    linkcheck_ignore = linkcheck_ignore,
     pages = [
         "Home" => "index.md",
         "Manual" => Any[
@@ -65,11 +65,7 @@ makedocs(
             "man/syntax.md",
             "man/doctests.md",
             "man/latex.md",
-            hide(
-                "man/hosting.md", [
-                    "man/hosting/walkthrough.md",
-                ]
-            ),
+            hide("man/hosting.md", ["man/hosting/walkthrough.md"]),
             "man/other-formats.md",
         ],
         "showcase.md",

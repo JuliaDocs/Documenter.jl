@@ -109,7 +109,8 @@ function Base.push!(r::RequireJS, lib::RemoteLibrary)
     if lib.name in keys(r.libraries)
         error("Library already added.")
     end
-    return r.libraries[lib.name] = lib
+    r.libraries[lib.name] = lib
+    return r
 end
 
 Base.push!(r::RequireJS, s::Snippet) = push!(r.snippets, s)
@@ -151,9 +152,10 @@ tag, either into a stream or a file. It will contain all the configuration and s
 function writejs end
 
 function writejs(filename::AbstractString, r::RequireJS)
-    return open(filename, "w") do io
+    open(filename, "w") do io
         writejs(io, r)
     end
+    return
 end
 
 function writejs(io::IO, r::RequireJS)

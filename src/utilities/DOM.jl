@@ -222,11 +222,12 @@ Flatten the contents the third argument into the second after applying the
 function `f!` to the element.
 """
 flatten!(f!, out, x::Atom) = f!(out, x)
-flatten!(f!, out, xs) = (
+function flatten!(f!, out, xs)
     for x in xs
         flatten!(f!, out, x)
-    end; out
-)
+    end
+    return out
+end
 
 #
 # Helper methods for handling flattening children elements in `Node` construction.
@@ -250,7 +251,7 @@ attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
 attributes!(out, p::Pair) = push!(out, tostr(p))
 
 function Base.show(io::IO, n::Node)
-    return if n.name === Symbol("#RAW#")
+    if n.name === Symbol("#RAW#")
         print(io, n.nodes[1].text)
     elseif n.name === TEXT
         print(io, escapehtml(n.text))
@@ -274,6 +275,7 @@ function Base.show(io::IO, n::Node)
             print(io, "</", n.name, '>')
         end
     end
+    return
 end
 
 Base.show(io::IO, ::MIME"text/html", n::Node) = print(io, n)
@@ -292,7 +294,7 @@ string is constructed with the characters escaped. The returned object should
 always be treated as an immutable copy and compared using `==` rather than `===`.
 """
 function escapehtml(text::AbstractString)
-    return if occursin(r"[<>&'\"]", text)
+    if occursin(r"[<>&'\"]", text)
         buffer = IOBuffer()
         for char in text
             char === '<' ? write(buffer, "&lt;") :
@@ -301,9 +303,9 @@ function escapehtml(text::AbstractString)
                 char === '\'' ? write(buffer, "&#39;") :
                 char === '"' ? write(buffer, "&quot;") : write(buffer, char)
         end
-        String(take!(buffer))
+        return String(take!(buffer))
     else
-        text
+        return text
     end
 end
 
@@ -319,7 +321,8 @@ HTMLDocument(root) = HTMLDocument("html", root)
 
 function Base.show(io::IO, doc::HTMLDocument)
     println(io, "<!DOCTYPE $(doc.doctype)>")
-    return println(io, doc.root)
+    println(io, doc.root)
+    return
 end
 
 #

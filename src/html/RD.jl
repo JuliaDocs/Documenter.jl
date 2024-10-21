@@ -35,7 +35,8 @@ function highlightjs!(r::RequireJS, languages = String[])
     # files the CSS files in assets/html/scss/highlightjs
     hljs_version = "11.8.0"
     push!(
-        r, RemoteLibrary(
+        r,
+        RemoteLibrary(
             "highlight",
             "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/highlight.min.js"
         )
@@ -44,15 +45,17 @@ function highlightjs!(r::RequireJS, languages = String[])
     for language in languages
         language = jsescape(language)
         push!(
-            r, RemoteLibrary(
+            r,
+            RemoteLibrary(
                 "highlight-$(language)",
                 "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/$(hljs_version)/languages/$(language).min.js",
                 deps = ["highlight"]
             )
         )
     end
-    return push!(
-        r, Snippet(
+    push!(
+        r,
+        Snippet(
             vcat(["jquery", "highlight"], ["highlight-$(jsescape(language))" for language in languages]),
             ["\$"],
             raw"""
@@ -62,6 +65,7 @@ function highlightjs!(r::RequireJS, languages = String[])
             """
         )
     )
+    return
 end
 
 # MathJax & KaTeX
@@ -69,20 +73,23 @@ const katex_version = "0.16.8"
 const katex_css = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.css"
 function mathengine!(r::RequireJS, engine::KaTeX)
     push!(
-        r, RemoteLibrary(
+        r,
+        RemoteLibrary(
             "katex",
             "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/katex.min.js"
         )
     )
     push!(
-        r, RemoteLibrary(
+        r,
+        RemoteLibrary(
             "katex-auto-render",
             "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/$(katex_version)/contrib/auto-render.min.js",
             deps = ["katex"],
         )
     )
-    return push!(
-        r, Snippet(
+    push!(
+        r,
+        Snippet(
             ["jquery", "katex", "katex-auto-render"],
             ["\$", "katex", "renderMathInElement"],
             """
@@ -95,29 +102,30 @@ function mathengine!(r::RequireJS, engine::KaTeX)
             """
         )
     )
+    return
 end
 function mathengine!(r::RequireJS, engine::MathJax2)
     url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS_HTML" : engine.url
     push!(
-        r, RemoteLibrary(
-            "mathjax",
-            url,
-            exports = "MathJax"
-        )
+        r,
+        RemoteLibrary("mathjax", url, exports = "MathJax")
     )
-    return push!(
-        r, Snippet(
+    push!(
+        r,
+        Snippet(
             ["mathjax"], ["MathJax"],
             """
             MathJax.Hub.Config($(json_jsescape(engine.config, 2)));
             """
         )
     )
+    return
 end
 function mathengine!(r::RequireJS, engine::MathJax3)
     url = isempty(engine.url) ? "https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg-full.js" : engine.url
-    return push!(
-        r, Snippet(
+    push!(
+        r,
+        Snippet(
             [], [],
             """
             window.MathJax = $(json_jsescape(engine.config, 2));
@@ -131,6 +139,7 @@ function mathengine!(r::RequireJS, engine::MathJax3)
             """
         )
     )
+    return
 end
 mathengine(::RequireJS, ::Nothing) = nothing
 end

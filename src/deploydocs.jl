@@ -232,7 +232,7 @@ function deploydocs(;
         repo_previews = repo_previews,
         tag_prefix
     )
-    return if deploy_decision.all_ok
+    if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
         deploy_repo = deploy_decision.repo
         deploy_subfolder = deploy_decision.subfolder
@@ -266,13 +266,15 @@ function deploydocs(;
 
             @debug "setting up target directory."
             isdir(target) || mkpath(target)
-            startswith(realpath(target), realpath(root)) || error(
-                """
-                target must be a subdirectory of root, got:
-                  target: $(realpath(target))
-                  root: $(realpath(root))
-                """
-            )
+            if !startswith(realpath(target), realpath(root))
+                error(
+                    """
+                    target must be a subdirectory of root, got:
+                      target: $(realpath(target))
+                      root: $(realpath(root))
+                    """
+                )
+            end
             # Run extra build steps defined in `make` if required.
             if make !== nothing
                 @debug "running extra build steps."
@@ -302,6 +304,7 @@ function deploydocs(;
             end
         end
     end
+    return
 end
 
 
@@ -330,7 +333,8 @@ function _patch_inventory_version(objects_inv, version)
             end
         end
     end
-    return mv(objects_inv_patched, objects_inv; force = true)
+    mv(objects_inv_patched, objects_inv; force = true)
+    return
 end
 
 
@@ -455,7 +459,7 @@ function git_push(
 
         # Add, commit, and push the docs to the remote.
         run(`$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`)
-        return if !success(`$(git()) diff --cached --exit-code`)
+        if !success(`$(git()) diff --cached --exit-code`)
             if !isnothing(archive)
                 run(`$(git()) commit -m "build based on $sha"`)
                 @info "Skipping push and writing repository to an archive" archive
@@ -470,9 +474,10 @@ function git_push(
         else
             @debug "new docs identical to the old -- not committing nor pushing."
         end
+        return
     end
 
-    return if authentication_method(deploy_config) === SSH
+    if authentication_method(deploy_config) === SSH
         # Get the parts of the repo path and create upstream repo path
         user, host, upstream = user_host_upstream(repo)
 
@@ -539,6 +544,7 @@ function git_push(
             rethrow(e)
         end
     end
+    return
 end
 
 function rm_and_add_symlink(target, link)
@@ -546,7 +552,8 @@ function rm_and_add_symlink(target, link)
         @warn "removing `$(link)` and linking `$(link)` to `$(target)`."
         rm(link; force = true, recursive = true)
     end
-    return symlink(target, link)
+    symlink(target, link)
+    return
 end
 
 """

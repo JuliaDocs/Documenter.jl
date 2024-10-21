@@ -70,8 +70,8 @@ function write_inventory(doc, ctx)
     end
 
     close(io_inv)
-    return close(io_inv_header)
-
+    close(io_inv_header)
+    return
 end
 
 
