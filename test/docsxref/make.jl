@@ -44,8 +44,8 @@ end
         sitename = "DocsXRef",
         warnonly = true,
         format = Documenter.HTML(
-            prettyurls=false,
-            inventory_version="",
+            prettyurls = false,
+            inventory_version = "",
         ),
     )
 

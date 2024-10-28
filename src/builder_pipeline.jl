@@ -60,12 +60,12 @@ module Builder
 end
 
 Selectors.order(::Type{Builder.SetupBuildDirectory}) = 1.0
-Selectors.order(::Type{Builder.Doctest})             = 1.1
-Selectors.order(::Type{Builder.ExpandTemplates})     = 2.0
-Selectors.order(::Type{Builder.CrossReferences})     = 3.0
-Selectors.order(::Type{Builder.CheckDocument})       = 4.0
-Selectors.order(::Type{Builder.Populate})            = 5.0
-Selectors.order(::Type{Builder.RenderDocument})      = 6.0
+Selectors.order(::Type{Builder.Doctest}) = 1.1
+Selectors.order(::Type{Builder.ExpandTemplates}) = 2.0
+Selectors.order(::Type{Builder.CrossReferences}) = 3.0
+Selectors.order(::Type{Builder.CheckDocument}) = 4.0
+Selectors.order(::Type{Builder.Populate}) = 5.0
+Selectors.order(::Type{Builder.RenderDocument}) = 6.0
 
 Selectors.matcher(::Type{T}, doc::Documenter.Document) where {T <: Builder.DocumentPipeline} = true
 
@@ -75,7 +75,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
     @info "SetupBuildDirectory: setting up build directory."
 
     # Frequently used fields.
-    build  = doc.user.build
+    build = doc.user.build
     source = doc.user.source
     workdir = doc.user.workdir
 
@@ -125,7 +125,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
     # If the user hasn't specified the page list, then we'll just default to a
     # flat list of all the markdown files we found, sorted by the filesystem
     # path (it will group them by subdirectory, among others).
-    userpages = isempty(doc.user.pages) ? sort(mdpages, lt=lt_page) : doc.user.pages
+    userpages = isempty(doc.user.pages) ? sort(mdpages, lt = lt_page) : doc.user.pages
 
     # Populating the .navtree and .navlist.
     # We need the for loop because we can't assign to the fields of the immutable
@@ -147,7 +147,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
 
     # If the user specified pagesonly, we will remove all the pages not in the navigation
     # menu (.pages).
-    if doc.user.pagesonly
+    return if doc.user.pagesonly
         navlist_pages = getfield.(doc.internal.navlist, :page)
         for page in keys(doc.blueprint.pages)
             page ∈ navlist_pages || delete!(doc.blueprint.pages, page)
@@ -188,12 +188,12 @@ function walk_navpages(visible, title, src, children, parent, doc)
     (src === nothing) || push!(doc.internal.navlist, nn)
     nn.visible = parent_visible && visible
     nn.children = walk_navpages(children, nn, doc)
-    nn
+    return nn
 end
 
 function walk_navpages(hps::Tuple, parent, doc)
     @assert length(hps) == 4
-    walk_navpages(hps..., parent, doc)
+    return walk_navpages(hps..., parent, doc)
 end
 
 walk_navpages(title::String, children::Vector, parent, doc) = walk_navpages(true, title, nothing, children, parent, doc)
@@ -204,7 +204,7 @@ walk_navpages(ps::Vector, parent, doc) = [walk_navpages(p, parent, doc)::Documen
 walk_navpages(src::String, parent, doc) = walk_navpages(true, nothing, src, [], parent, doc)
 
 function Selectors.runner(::Type{Builder.Doctest}, doc::Documenter.Document)
-    if doc.user.doctest in [:fix, :only, true]
+    return if doc.user.doctest in [:fix, :only, true]
         @info "Doctest: running doctests."
         _doctest(doc.blueprint, doc)
         num_errors = length(doc.internal.errors)
@@ -219,13 +219,13 @@ end
 function Selectors.runner(::Type{Builder.ExpandTemplates}, doc::Documenter.Document)
     is_doctest_only(doc, "ExpandTemplates") && return
     @info "ExpandTemplates: expanding markdown templates."
-    expand(doc)
+    return expand(doc)
 end
 
 function Selectors.runner(::Type{Builder.CrossReferences}, doc::Documenter.Document)
     is_doctest_only(doc, "CrossReferences") && return
     @info "CrossReferences: building cross-references."
-    crossref(doc)
+    return crossref(doc)
 end
 
 function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Document)
@@ -234,14 +234,14 @@ function Selectors.runner(::Type{Builder.CheckDocument}, doc::Documenter.Documen
     missingdocs(doc)
     footnotes(doc)
     linkcheck(doc)
-    githubcheck(doc)
+    return githubcheck(doc)
 end
 
 function Selectors.runner(::Type{Builder.Populate}, doc::Documenter.Document)
     is_doctest_only(doc, "Populate") && return
     @info "Populate: populating indices."
     doctest_replace!(doc)
-    populate!(doc)
+    return populate!(doc)
 end
 
 function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Document)
@@ -249,10 +249,12 @@ function Selectors.runner(::Type{Builder.RenderDocument}, doc::Documenter.Docume
     # How many fatal errors
     fatal_errors = filter(is_strict(doc), doc.internal.errors)
     c = length(fatal_errors)
-    if c > 0
-        error("`makedocs` encountered $(c > 1 ? "errors" : "an error") ["
-        * join(Ref(":") .* string.(fatal_errors), ", ")
-        * "] -- terminating build before rendering.")
+    return if c > 0
+        error(
+            "`makedocs` encountered $(c > 1 ? "errors" : "an error") ["
+                * join(Ref(":") .* string.(fatal_errors), ", ")
+                * "] -- terminating build before rendering."
+        )
     else
         @info "RenderDocument: rendering document."
         Documenter.render(doc)
