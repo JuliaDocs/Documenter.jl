@@ -52,6 +52,12 @@ module A
 end
 end
 
+function git_config(path = pwd())
+    return trun(`$(git()) -C $path config user.email "tester@example.com"`) &&
+        trun(`$(git()) -C $path config user.name "Test Committer"`) &&
+        trun(`$(git()) -C $path config commit.gpgsign false`)
+end
+
 @testset "utilities" begin
 
     @test UnitTests.A in Documenter.submodules(UnitTests.A)
@@ -147,8 +153,7 @@ end
             cd(path) do
                 @test_throws Documenter.RepoCommitError Documenter.repo_commit(path)
                 @test trun(`$(git()) init`)
-                @test trun(`$(git()) config user.email "tester@example.com"`)
-                @test trun(`$(git()) config user.name "Test Committer"`)
+                @test git_config()
                 @test_throws Documenter.RepoCommitError Documenter.repo_commit(path)
                 touch("foo")
                 @test trun(`$(git()) add -A`)
@@ -167,8 +172,7 @@ end
         cd(path_repo) do
             # Create a simple mock repo in a temporary directory with a single file.
             @test trun(`$(git()) init`)
-            @test trun(`$(git()) config user.email "tester@example.com"`)
-            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test git_config()
             @test trun(`$(git()) remote add origin git@github.com:JuliaDocs/Documenter.jl.git`)
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
@@ -228,8 +232,7 @@ end
         mkpath(path_submodule)
         cd(path_submodule) do
             @test trun(`$(git()) init`)
-            @test trun(`$(git()) config user.email "tester@example.com"`)
-            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test git_config()
             # NOTE: the target path in the `git submodule add` command is necessary for
             # Windows builds, since otherwise Git claims that the path is in a .gitignore
             # file.
@@ -273,8 +276,7 @@ end
         cd(path_repo_github) do
             # Create a simple mock repo in a temporary directory with a single file.
             @test trun(`$(git()) init`)
-            @test trun(`$(git()) config user.email "tester@example.com"`)
-            @test trun(`$(git()) config user.name "Test Committer"`)
+            @test git_config()
             @test trun(`$(git()) remote add origin git@this-is-not-github.com:JuliaDocs/Documenter.jl.git`)
             mkpath("src")
             filepath = abspath(joinpath("src", "SourceFile.jl"))
@@ -637,8 +639,7 @@ end
                 # "activate" the non-standard HEAD:
                 head = (head === nothing) ? "master" : head
                 @test trun(`$(git()) clone $(path) $(subdir_path)`)
-                @test trun(`$(git()) -C $(subdir_path) config user.email "tester@example.com"`)
-                @test trun(`$(git()) -C $(subdir_path) config user.name "Test Committer"`)
+                @test git_config(subdir_path)
                 @test trun(`$(git()) -C $(subdir_path) checkout -b $(head)`)
                 @test trun(`$(git()) -C $(subdir_path) commit --allow-empty -m"initial empty commit"`)
                 @test trun(`$(git()) -C $(subdir_path) push --set-upstream origin $(head)`)

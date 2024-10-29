@@ -22,6 +22,7 @@ function init_git_repo(f, path;
         @test trun(`$(git()) init`)
         @test trun(`$(git()) config user.email "tester@example.com"`)
         @test trun(`$(git()) config user.name "Test Committer"`)
+        @test trun(`$(git()) config commit.gpgsign false`)
         if !isnothing(remote)
             name, url = remote
             @test trun(`$(git()) remote add $(name) $(url)`)
