@@ -540,11 +540,15 @@ function runSearchMainCode() {
 }
 
 function waitUntilSearchIndexAvailable() {
+  // It is possible that the documenter.js script runs before the page
+  // has finished loading and documenterSearchIndex gets defined.
+  // So we need to wait until the search index actually loads before setting
+  // up all the search-related stuff.
   if(typeof documenterSearchIndex !== 'undefined') {
     runSearchMainCode()
   } else {
     console.warn("Search Index not available, waiting")
-    setTimeout(waitUntilSearchIndexAvailable, 10)
+    setTimeout(waitUntilSearchIndexAvailable, 1000)
   }
 }
 
