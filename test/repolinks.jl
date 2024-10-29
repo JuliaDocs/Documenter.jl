@@ -5,7 +5,7 @@
 module RepoLinkTests
 using Test
 using Random: randstring
-using Documenter: Documenter, Remotes, git, edit_url, source_url, MarkdownAST, walk_navpages, expand
+using Documenter: Documenter, Remotes, git, edit_url, source_url, MarkdownAST, walk_navpages, expand, getremote, getremotename, GIT_REMOTENAME_CACHE
 using Documenter.HTMLWriter: render_article, HTMLContext, HTML
 using Markdown
 include("TestUtilities.jl"); using Main.TestUtilities
@@ -68,6 +68,13 @@ extrepo_commit = init_git_repo(
 # A repository outside of the main repository (without remote)
 extrepo_noremote = joinpath(tmproot, "extrepo_noremote")
 extrepo_noremote_commit = init_git_repo(create_defaultfiles, extrepo_noremote; remote=nothing)
+# A repository with a repo that's not called 'origin'
+nonoriginrepo = joinpath(tmproot, "nonoriginrepo")
+nonoriginrepo_commit = init_git_repo(
+    create_defaultfiles, nonoriginrepo;
+    remote=("nonorigin", "git@github.com:TestOrg/NonoriginRepo.jl.git")
+)
+
 # Just a directory outside of the main repository
 extdirectory = joinpath(tmproot, "extdirectory")
 mkpath(extdirectory)
@@ -218,6 +225,18 @@ end
     @test source_url(doc, RepoLinkTests, joinpath(mainrepo, "foo"), 5:8) == "https://github.com/AlternateOrg/AlternateRepo.jl/blob/12345/foo#L5-L8"
     @test doc.user.remote == Remotes.GitHub("AlternateOrg", "AlternateRepo.jl")
 end
+
+@testset "Get remotename and remoteurl" begin
+    @test getremotename(mainrepo) == "origin"
+    @test getremote(mainrepo) == Remotes.GitHub("TestOrg", "TestRepo.jl")
+    @test_warn "Neither remote" getremotename(nonoriginrepo)
+    @test getremotename(nonoriginrepo) == ""
+    run(setenv(`$(git()) config --add remote.pushDefault nonorigin`; dir=nonoriginrepo))
+    pop!(GIT_REMOTENAME_CACHE, nonoriginrepo)
+    @test Documenter.getremotename(nonoriginrepo) == "nonorigin"
+    @test Documenter.getremote(nonoriginrepo) == Documenter.Remotes.GitHub("TestOrg","NonoriginRepo.jl")
+end
+
 
 # Setting both the `repo` and also overriding the same path in `remotes` should error
 @test_throws Exception Documenter.Document(
