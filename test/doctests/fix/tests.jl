@@ -47,8 +47,8 @@ function test_doctest_fix(dir)
 
     # Load the expected results and adapt to various Julia versions:
     md_result = normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
-    if VERSION < v"1.12-DEV"
-        # 1.12 Starts printing "in `Main`", so we remove that from the expected output.
+    if VERSION < v"1.11"
+        # 1.11 Starts printing "in `Main`", so we remove that from the expected output.
         md_result = replace(md_result, r"UndefVarError: `([^`]*)` not defined in `Main`" => s"UndefVarError: `\1` not defined")
     end
     if VERSION < v"1.11"
