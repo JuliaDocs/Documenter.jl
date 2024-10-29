@@ -540,8 +540,7 @@ function runSearchMainCode() {
 }
 
 function waitUntilSearchIndexAvailable() {
-  console.log('documenterSearchIndex: ', documenterSearchIndex)
-  if(documenterSearchIndex) {
+  if(typeof documenterSearchIndex !== 'undefined') {
     runSearchMainCode()
   } else {
     console.warn("Search Index not available, waiting")
@@ -550,5 +549,4 @@ function waitUntilSearchIndexAvailable() {
 }
 
 // The actual entry point to the search code
-console.warn("running search")
 waitUntilSearchIndexAvailable()
