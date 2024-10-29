@@ -271,6 +271,9 @@ function makedocs(; debug = false, format = HTML(), kwargs...)
     cd(document.user.root) do; withenv(NO_KEY_ENV...) do
         Selectors.dispatch(Builder.DocumentPipeline, document)
     end end
+    if document.user.timingcontext.style !== Documenter.NoTimings
+        show(document.user.timingcontext.timer, allocations = false, compact = true)
+    end
     debug ? document : nothing
 end
 

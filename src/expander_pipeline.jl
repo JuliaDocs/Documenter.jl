@@ -14,16 +14,22 @@ function expand(doc::Documenter.Document)
     @debug "pages" keys(doc.blueprint.pages) priority_pages normal_pages
     for src in Iterators.flatten([priority_pages, normal_pages])
         page = doc.blueprint.pages[src]
-        @debug "Running ExpanderPipeline on $src"
-        empty!(page.globals.meta)
-        # We need to collect the child nodes here because we will end up changing the structure
-        # of the tree in some cases.
-        for node in collect(page.mdast.children)
-            Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
-            expand_recursively(node, page, doc)
+        @time_basic doc "$src" begin
+            @debug "Running ExpanderPipeline on $src"
+            empty!(page.globals.meta)
+            # We need to collect the child nodes here because we will end up changing the structure
+            # of the tree in some cases.
+            for node in collect(page.mdast.children)
+                Selectors.dispatch(Expanders.ExpanderPipeline, node, page, doc)
+                expand_recursively(node, page, doc)
+            end
+            pagecheck(page)
         end
-        pagecheck(page)
     end
+end
+
+function excerpt(c::MarkdownAST.CodeBlock)
+    "$(c.info) $(replace(replace(c.code, r".*\s#\s+hide$\n"m => ""), r"\s\s*" => " "))"
 end
 
 """
@@ -703,100 +709,113 @@ function _any_color_fmt(doc)
     return doc.user.format[idx].ansicolor
 end
 
+function timername(codeblock, lines)
+    if lines === nothing
+        excerpt(codeblock)
+    else
+        "L$(lines[1])-$(lines[2]) $(excerpt(codeblock))"
+    end
+end
+
+
+
 function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
-
-    matched = match(r"^@example(?:\s+([^\s;]+))?\s*(;.*)?$", x.info)
-    matched === nothing && error("invalid '@example' syntax: $(x.info)")
-    name, kwargs = matched.captures
-
-    # Bail early if in draft mode
-    if Documenter.is_draft(doc, page)
-        @debug "Skipping evaluation of @example block in draft mode:\n$(x.code)"
-        create_draft_result!(node; blocktype="@example")
-        return
-    end
-
-    # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
-    sym = nameof(mod)
     lines = Documenter.find_block_in_file(x.code, page.source)
 
-    # "parse" keyword arguments to example
-    continued = false
-    ansicolor = _any_color_fmt(doc)
-    if kwargs !== nothing
-        continued = occursin(r"\bcontinued\s*=\s*true\b", kwargs)
-        matched = match(r"\bansicolor\s*=\s*(true|false)\b", kwargs)
-        if matched !== nothing
-            ansicolor = matched[1] == "true"
-        end
-    end
+    @time_full doc timername(x, lines) begin
 
-    @debug "Evaluating @example block:\n$(x.code)"
-    # Evaluate the code block. We redirect stdout/stderr to `buffer`.
-    result, buffer = nothing, IOBuffer()
-    if !continued # run the code
-        # check if there is any code waiting
-        if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
-            code = page.globals.meta[:ContinuedCode][sym] * '\n' * x.code
-            delete!(page.globals.meta[:ContinuedCode], sym)
-        else
-            code = x.code
+        matched = match(r"^@example(?:\s+([^\s;]+))?\s*(;.*)?$", x.info)
+        matched === nothing && error("invalid '@example' syntax: $(x.info)")
+        name, kwargs = matched.captures
+
+        # Bail early if in draft mode
+        if Documenter.is_draft(doc, page)
+            @debug "Skipping evaluation of @example block in draft mode:\n$(x.code)"
+            create_draft_result!(node; blocktype="@example")
+            return
         end
-        linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
-                                        basename(page.source))
-        for (ex, str) in Documenter.parseblock(code, doc, page; keywords = false,
-                                              linenumbernode = linenumbernode)
-            c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
-                cd(page.workdir) do
-                    Core.eval(mod, ex)
+
+        # The sandboxed module -- either a new one or a cached one from this page.
+        mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
+        sym = nameof(mod)
+
+        # "parse" keyword arguments to example
+        continued = false
+        ansicolor = _any_color_fmt(doc)
+        if kwargs !== nothing
+            continued = occursin(r"\bcontinued\s*=\s*true\b", kwargs)
+            matched = match(r"\bansicolor\s*=\s*(true|false)\b", kwargs)
+            if matched !== nothing
+                ansicolor = matched[1] == "true"
+            end
+        end
+
+        @debug "Evaluating @example block:\n$(x.code)"
+        # Evaluate the code block. We redirect stdout/stderr to `buffer`.
+        result, buffer = nothing, IOBuffer()
+        if !continued # run the code
+            # check if there is any code waiting
+            if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
+                code = page.globals.meta[:ContinuedCode][sym] * '\n' * x.code
+                delete!(page.globals.meta[:ContinuedCode], sym)
+            else
+                code = x.code
+            end
+            linenumbernode = LineNumberNode(lines === nothing ? 0 : lines.first,
+                                            basename(page.source))
+            for (ex, str) in Documenter.parseblock(code, doc, page; keywords = false,
+                                                linenumbernode = linenumbernode)
+                c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
+                    cd(page.workdir) do
+                        Core.eval(mod, ex)
+                    end
+                end
+                Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
+                result = c.value
+                print(buffer, c.output)
+                if c.error
+                    bt = Documenter.remove_common_backtrace(c.backtrace)
+                    @docerror(doc, :example_block,
+                        """
+                        failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
+                        ```$(x.info)
+                        $(x.code)
+                        ```
+                        """, exception = (c.value, bt))
+                    return
                 end
             end
-            Core.eval(mod, Expr(:global, Expr(:(=), :ans, QuoteNode(c.value))))
-            result = c.value
-            print(buffer, c.output)
-            if c.error
-                bt = Documenter.remove_common_backtrace(c.backtrace)
-                @docerror(doc, :example_block,
-                    """
-                    failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
-                    ```$(x.info)
-                    $(x.code)
-                    ```
-                    """, exception = (c.value, bt))
-                return
-            end
+        else # store the continued code
+            CC = get!(page.globals.meta, :ContinuedCode, Dict())
+            CC[sym] = get(CC, sym, "") * '\n' * x.code
         end
-    else # store the continued code
-        CC = get!(page.globals.meta, :ContinuedCode, Dict())
-        CC[sym] = get(CC, sym, "") * '\n' * x.code
-    end
-    # Splice the input and output into the document.
-    content = Node[]
-    input   = droplines(x.code)
+        # Splice the input and output into the document.
+        content = Node[]
+        input   = droplines(x.code)
 
-    # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
-    # Remove references to gensym'd module from text/plain
-    m = MIME"text/plain"()
-    if haskey(output, m)
-        output[m] = remove_sandbox_from_output(output[m], mod)
-    end
+        # Generate different  in different formats and let each writer select
+        output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
+        # Remove references to gensym'd module from text/plain
+        m = MIME"text/plain"()
+        if haskey(output, m)
+            output[m] = remove_sandbox_from_output(output[m], mod)
+        end
 
-    # Only add content when there's actually something to add.
-    isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
-    if result === nothing
-        stdouterr = Documenter.sanitise(buffer)
-        stdouterr = remove_sandbox_from_output(stdouterr, mod)
-        isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
-    elseif !isempty(output)
-        push!(content, Node(Documenter.MultiOutputElement(output)))
+        # Only add content when there's actually something to add.
+        isempty(input) || push!(content, Node(MarkdownAST.CodeBlock("julia", input)))
+        if result === nothing
+            stdouterr = Documenter.sanitise(buffer)
+            stdouterr = remove_sandbox_from_output(stdouterr, mod)
+            isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME,Any}(MIME"text/plain"() => stdouterr))))
+        elseif !isempty(output)
+            push!(content, Node(Documenter.MultiOutputElement(output)))
+        end
+        # ... and finally map the original code block to the newly generated ones.
+        node.element = Documenter.MultiOutput(x)
+        append!(node.children, content)
     end
-    # ... and finally map the original code block to the newly generated ones.
-    node.element = Documenter.MultiOutput(x)
-    append!(node.children, content)
 end
 
 # Replace references to gensym'd module with Main
@@ -885,38 +904,41 @@ end
 function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     @assert node.element isa MarkdownAST.CodeBlock
     x = node.element
+    lines = Documenter.find_block_in_file(x.code, page.source)
 
-    matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", x.info)
-    matched === nothing && error("invalid '@setup <name>' syntax: $(x.info)")
-    name = matched[1]
+    @time_full doc "L$(lines[1])-$(lines[2]) $(excerpt(x))" begin
+        matched = match(r"^@setup(?:\s+([^\s;]+))?\s*$", x.info)
+        matched === nothing && error("invalid '@setup <name>' syntax: $(x.info)")
+        name = matched[1]
 
-    # Bail early if in draft mode
-    if Documenter.is_draft(doc, page)
-        @debug "Skipping evaluation of @setup block in draft mode:\n$(x.code)"
-        create_draft_result!(node; blocktype="@setup")
-        return
-    end
-
-    # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
-
-    @debug "Evaluating @setup block:\n$(x.code)"
-    # Evaluate whole @setup block at once instead of piecewise
-    try
-        cd(page.workdir) do
-            include_string(mod, x.code)
+        # Bail early if in draft mode
+        if Documenter.is_draft(doc, page)
+            @debug "Skipping evaluation of @setup block in draft mode:\n$(x.code)"
+            create_draft_result!(node; blocktype="@setup")
+            return
         end
-    catch err
-        bt = Documenter.remove_common_backtrace(catch_backtrace())
-        @docerror(doc, :setup_block,
-            """
-            failed to run `@setup` block in $(Documenter.locrepr(page.source))
-            ```$(x.info)
-            $(x.code)
-            ```
-            """, exception=(err, bt))
+
+        # The sandboxed module -- either a new one or a cached one from this page.
+        mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
+
+        @debug "Evaluating @setup block:\n$(x.code)"
+        # Evaluate whole @setup block at once instead of piecewise
+        try
+            cd(page.workdir) do
+                include_string(mod, x.code)
+            end
+        catch err
+            bt = Documenter.remove_common_backtrace(catch_backtrace())
+            @docerror(doc, :setup_block,
+                """
+                failed to run `@setup` block in $(Documenter.locrepr(page.source))
+                ```$(x.info)
+                $(x.code)
+                ```
+                """, exception=(err, bt))
+        end
+        node.element = Documenter.SetupNode(x.info, x.code)
     end
-    node.element = Documenter.SetupNode(x.info, x.code)
 end
 
 # @raw
