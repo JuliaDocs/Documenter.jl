@@ -650,11 +650,13 @@ mutable struct HTMLContext
     search_index_js :: String
     search_navnode :: Documenter.NavNode
     atexample_warnings::Vector{AtExampleFallbackWarning}
+    external_link_attribs :: Vector{Pair{Symbol,String}}
 
     HTMLContext(doc, settings=nothing) = new(
         doc, settings, [], "", "", "", [], "",
         Documenter.NavNode("search", "Search", nothing),
         AtExampleFallbackWarning[],
+        [:referrerpolicy => "no-referrer"]
     )
 end
 
@@ -989,13 +991,19 @@ function render_head(ctx, navnode)
 
         # Stylesheets.
         map(css_links) do each
-            link[:href => each, :rel => "stylesheet", :type => "text/css"]
+            link[
+                :href => each,
+                :rel => "stylesheet",
+                :type => "text/css",
+                ctx.external_link_attribs...
+            ]
         end,
 
         script("documenterBaseURL=\"$(relhref(src, "."))\""),
         script[
             :src => RD.requirejs_cdn,
-            Symbol("data-main") => relhref(src, ctx.documenter_js)
+            Symbol("data-main") => relhref(src, ctx.documenter_js),
+            ctx.external_link_attribs...
         ],
         script[:src => relhref(src, ctx.search_index_js)],
 
