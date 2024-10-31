@@ -8,7 +8,7 @@ function lcs(old_tokens::Vector, new_tokens::Vector)
     m = length(old_tokens)
     n = length(new_tokens)
     weights = zeros(Int, m + 1, n + 1)
-    for i = 2:(m + 1), j = 2:(n + 1)
+    for i in 2:(m + 1), j in 2:(n + 1)
         weights[i, j] = old_tokens[i - 1] == new_tokens[j - 1] ?
             weights[i - 1, j - 1] + 1 : max(weights[i, j - 1], weights[i - 1, j])
     end
@@ -72,7 +72,7 @@ struct Diff{T}
     weights::Matrix{Int}
     diff::Vector{Pair{Symbol, SubString{String}}}
 
-    function Diff{T}(old_text::AbstractString, new_text::AbstractString) where T
+    function Diff{T}(old_text::AbstractString, new_text::AbstractString) where {T}
         reg = splitter(T)
         old_tokens = splitby(reg, old_text)
         new_tokens = splitby(reg, new_text)
@@ -84,14 +84,15 @@ end
 
 # Display.
 
-prefix(::Diff{Lines}, s::Symbol) = s === :green ? "+ " : s === :red  ? "- " : "  "
+prefix(::Diff{Lines}, s::Symbol) = s === :green ? "+ " : s === :red ? "- " : "  "
 prefix(::Diff{Words}, ::Symbol) = ""
 
 function Base.show(io::IO, diff::Diff)
     get(io, :color, false) || println(io, "Warning: Diff output requires color.")
     for (color, text) in diff.diff
-        printstyled(io, prefix(diff, color), text, color=color)
+        printstyled(io, prefix(diff, color), text, color = color)
     end
+    return
 end
 
 end

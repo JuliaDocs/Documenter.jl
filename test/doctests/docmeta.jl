@@ -3,7 +3,7 @@ using Test
 using Documenter
 
 module TestMod
-module Submodule end
+    module Submodule end
 end
 
 @testset "DocMeta" begin
@@ -19,11 +19,11 @@ end
     # bad argument type
     @test_throws ArgumentError DocMeta.setdocmeta!(TestMod, :DocTestSetup, 42)
     # setting again works
-    @test DocMeta.setdocmeta!(TestMod, :DocTestSetup, :foo; warn=false) === nothing
+    @test DocMeta.setdocmeta!(TestMod, :DocTestSetup, :foo; warn = false) === nothing
     # recursive setting
     @test DocMeta.getdocmeta(TestMod, :DocTestSetup) == :foo
     @test DocMeta.getdocmeta(TestMod.Submodule, :DocTestSetup) === nothing
-    @test DocMeta.setdocmeta!(TestMod, :DocTestSetup, :foo; recursive=true, warn=false) === nothing
+    @test DocMeta.setdocmeta!(TestMod, :DocTestSetup, :foo; recursive = true, warn = false) === nothing
     @test DocMeta.getdocmeta(TestMod, :DocTestSetup) == :foo
     @test DocMeta.getdocmeta(TestMod.Submodule, :DocTestSetup) == :foo
 end

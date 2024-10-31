@@ -19,10 +19,10 @@ include("src/FooBroken.jl")
 include("src/NoMeta.jl")
 
 const builds_directory = joinpath(@__DIR__, "builds")
-ispath(builds_directory) && rm(builds_directory, recursive=true)
+ispath(builds_directory) && rm(builds_directory, recursive = true)
 mkpath(builds_directory)
 
-function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
+function run_makedocs(f, mdfiles, modules = Module[]; kwargs...)
     dir = mktempdir(builds_directory)
     srcdir = joinpath(dir, "src"); mkpath(srcdir)
 
@@ -61,15 +61,16 @@ function run_makedocs(f, mdfiles, modules=Module[]; kwargs...)
         show(io, "text/plain", stacktrace(c.backtrace))
     end
 
-    f(c.value, !c.error, c.backtrace, c.output)
+    return f(c.value, !c.error, c.backtrace, c.output)
 end
 
 function printoutput(result, success, backtrace, output)
-    printstyled("="^80, color=:cyan); println()
+    printstyled("="^80, color = :cyan); println()
     println(output)
-    printstyled("-"^80, color=:cyan); println()
+    printstyled("-"^80, color = :cyan); println()
     println(repr(result))
-    printstyled("-"^80, color=:cyan); println()
+    printstyled("-"^80, color = :cyan)
+    return println()
 end
 
 function onormalize(s)
@@ -115,7 +116,7 @@ function is_same_as_file(output, filename)
             @error """Output does not agree with reference file
             ref: $(filename)
             """
-            ps(s::AbstractString) = printstyled(stdout, s, '\n'; color=:magenta, bold=true)
+            ps(s::AbstractString) = printstyled(stdout, s, '\n'; color = :magenta, bold = true)
             "------------------------------------ output ------------------------------------" |> ps
             output |> println
             "---------------------------------- reference -----------------------------------" |> ps
@@ -191,47 +192,47 @@ end
         @test is_same_as_file(output, rfile(2))
     end
 
-    run_makedocs(["working.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
+    run_makedocs(["working.md", "fooworking.md"]; modules = [FooWorking]) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(3))
     end
 
-    run_makedocs(["working.md", "foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
+    run_makedocs(["working.md", "foobroken.md"]; modules = [FooBroken]) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(4))
     end
 
-    run_makedocs(["broken.md", "fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
+    run_makedocs(["broken.md", "fooworking.md"]; modules = [FooWorking]) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(5))
     end
 
     for warnonly in (false, :autodocs_block, Documenter.except(:doctest))
-        run_makedocs(["broken.md", "foobroken.md"]; modules=[FooBroken], warnonly) do result, success, backtrace, output
+        run_makedocs(["broken.md", "foobroken.md"]; modules = [FooBroken], warnonly) do result, success, backtrace, output
             @test !success
             @test is_same_as_file(output, rfile(6))
         end
     end
 
-    run_makedocs(["fooworking.md"]; modules=[FooWorking]) do result, success, backtrace, output
+    run_makedocs(["fooworking.md"]; modules = [FooWorking]) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(7))
     end
 
-    run_makedocs(["foobroken.md"]; modules=[FooBroken]) do result, success, backtrace, output
+    run_makedocs(["foobroken.md"]; modules = [FooBroken]) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(8))
     end
 
     # Here we try the default (strict = false) -- output should say that doctest failed, but
     # success should still be true.
-    run_makedocs(["working.md"]; warnonly=true) do result, success, backtrace, output
+    run_makedocs(["working.md"]; warnonly = true) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(11))
     end
 
     # Three options that do not strictly check doctests, including testing the default
-    for warnonly_kw in ((; warnonly=true), (; warnonly=Documenter.except(:meta_block)))
+    for warnonly_kw in ((; warnonly = true), (; warnonly = Documenter.except(:meta_block)))
         run_makedocs(["broken.md"]; warnonly_kw...) do result, success, backtrace, output
             @test success
             @test is_same_as_file(output, rfile(12))
@@ -240,46 +241,46 @@ end
 
     # Tests for doctest = :only. The output should reflect that the docs themselves do not
     # get built.
-    run_makedocs(["working.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
+    run_makedocs(["working.md"]; modules = [FooWorking], doctest = :only) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(21))
     end
 
-    run_makedocs(["working.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
+    run_makedocs(["working.md"]; modules = [FooBroken], doctest = :only) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(22))
     end
 
-    run_makedocs(["broken.md"]; modules=[FooWorking], doctest = :only) do result, success, backtrace, output
+    run_makedocs(["broken.md"]; modules = [FooWorking], doctest = :only) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(23))
     end
 
-    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only) do result, success, backtrace, output
+    run_makedocs(["broken.md"]; modules = [FooBroken], doctest = :only) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(24))
     end
     # warnonly gets ignored with doctest = :only
-    run_makedocs(["broken.md"]; modules=[FooBroken], doctest = :only, warnonly=true) do result, success, backtrace, output
+    run_makedocs(["broken.md"]; modules = [FooBroken], doctest = :only, warnonly = true) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(25))
     end
 
     # DocTestSetup in modules
-    run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
+    run_makedocs([]; modules = [NoMeta], doctest = :only) do result, success, backtrace, output
         @test !success
         @test is_same_as_file(output, rfile(31))
     end
     # Now, let's use Documenter's APIs to add the necessary meta information
     DocMeta.setdocmeta!(NoMeta, :DocTestSetup, :(baz(x) = 2x))
-    run_makedocs([]; modules=[NoMeta], doctest = :only) do result, success, backtrace, output
+    run_makedocs([]; modules = [NoMeta], doctest = :only) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(32))
     end
 
     # Tests for special REPL softscope
     softscope_src = (VERSION >= v"1.11.0-") ? "softscope.v1_11.md" : "softscope.md"
-    run_makedocs([softscope_src]; warnonly=true) do result, success, backtrace, output
+    run_makedocs([softscope_src]; warnonly = true) do result, success, backtrace, output
         @test success
         @test is_same_as_file(output, rfile(41))
     end
