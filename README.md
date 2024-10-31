@@ -46,12 +46,12 @@ There are several packages that extend Documenter in different ways. The JuliaDo
 * [DocumenterInterLinks.jl](https://github.com/JuliaDocs/DocumenterInterLinks.jl)
 * [DocumenterMarkdown.jl](https://github.com/JuliaDocs/DocumenterMarkdown.jl)
 * [DocumenterTools.jl](https://github.com/JuliaDocs/DocumenterTools.jl)
+* [LiveServer.jl](https://github.com/JuliaDocs/LiveServer.jl)
 
 Other third-party packages that can be combined with Documenter include:
 
 * [DemoCards.jl](https://github.com/JuliaDocs/DemoCards.jl)
 * [Literate.jl](https://github.com/fredrikekre/Literate.jl)
-* [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
 * [QuizQuestions.jl](https://github.com/jverzani/QuizQuestions.jl)
 * [DocumenterMermaid.jl](https://github.com/JuliaDocs/DocumenterMermaid.jl)
 * [DocumenterDiagrams.jl](https://github.com/pedromxavier/DocumenterDiagrams.jl)
