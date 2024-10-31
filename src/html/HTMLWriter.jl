@@ -309,7 +309,7 @@ becomes `src/foo/index.html`, but can be accessed via `src/foo/` in the browser)
 structure is preferred when publishing the generated HTML files as a website (e.g., on
 GitHub Pages), which is Documenter's primary use case. However, when building locally,
 viewing the resulting pages requires a running webserver. It is recommended to use the
-[`LiveServer` package](https://github.com/tlienart/LiveServer.jl) for this.
+[`LiveServer` package](https://github.com/JuliaDocs/LiveServer.jl) for this.
 
 If `prettyurls = false`, then Documenter generates `src/foo.html` instead.
 
