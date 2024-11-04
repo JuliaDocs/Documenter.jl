@@ -16,6 +16,7 @@ function crossref(doc::Documenter.Document)
         empty!(page.globals.meta)
         crossref(doc, page, page.mdast)
     end
+    return
 end
 
 function crossref(doc::Documenter.Document, page, mdast::MarkdownAST.Node)
@@ -60,6 +61,7 @@ function crossref(doc::Documenter.Document, page, mdast::MarkdownAST.Node)
             end
         end
     end
+    return
 end
 
 function local_links!(node::MarkdownAST.Node, meta, page, doc)
@@ -79,7 +81,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
             @docerror(
                 doc, :cross_references,
                 "invalid local image: path missing in $(Documenter.locrepr(page.source))",
-                link=node
+                link = node
             )
             return
         end
@@ -89,7 +91,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         @docerror(
             doc, :cross_references,
             "invalid local link/image: colons not allowed in paths on Windows in $(Documenter.locrepr(page.source))",
-            link=node
+            link = node
         )
         return
     end
@@ -100,7 +102,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         @docerror(
             doc, :cross_references,
             "invalid local link/image: path pointing to a file outside of build directory in $(Documenter.locrepr(page.source))",
-            link=node
+            link = node
         )
         return
     elseif path in keys(doc.blueprint.pages)
@@ -115,7 +117,7 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
                 @docerror(
                     doc, :cross_references,
                     "invalid local image: path contains a fragment in $(Documenter.locrepr(page.source))",
-                    link=node
+                    link = node
                 )
             end
             node.element = Documenter.LocalImage(path)
@@ -127,15 +129,15 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         @docerror(
             doc, :cross_references,
             "invalid local link/image: file does not exist in $(Documenter.locrepr(page.source))",
-            link=node
+            link = node
         )
         return
     end
 end
 
 function splitfragment(s)
-    xs = split(s, '#', limit=2)
-    xs[1], get(xs, 2, "")
+    xs = split(s, '#', limit = 2)
+    return xs[1], get(xs, 2, "")
 end
 
 # Dispatch pipeline for @ref links
@@ -184,7 +186,7 @@ module XRefResolvers
     """
     abstract type XRefResolverPipeline <: Selectors.AbstractSelector end
 
-    Selectors.strict(::Type{T}) where T <: XRefResolverPipeline = false
+    Selectors.strict(::Type{T}) where {T <: XRefResolverPipeline} = false
 
     """Resolve `@ref` links for headers.
 
@@ -210,8 +212,8 @@ module XRefResolvers
 end
 
 Selectors.order(::Type{XRefResolvers.Header}) = 1.0
-Selectors.order(::Type{XRefResolvers.Issue})  = 2.0
-Selectors.order(::Type{XRefResolvers.Docs})   = 3.0
+Selectors.order(::Type{XRefResolvers.Issue}) = 2.0
+Selectors.order(::Type{XRefResolvers.Docs}) = 3.0
 
 
 """
@@ -232,7 +234,7 @@ function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page,
 end
 
 function Selectors.runner(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
-    namedxref(node, slug, meta, page, doc, errors)
+    return namedxref(node, slug, meta, page, doc, errors)
 end
 
 
@@ -241,7 +243,7 @@ function Selectors.matcher(::Type{XRefResolvers.Issue}, node, slug, meta, page, 
 end
 
 function Selectors.runner(::Type{XRefResolvers.Issue}, node, slug, meta, page, doc, errors)
-    issue_xref(node, lstrip(slug, '#'), meta, page, doc, errors)
+    return issue_xref(node, lstrip(slug, '#'), meta, page, doc, errors)
 end
 
 
@@ -250,7 +252,7 @@ function Selectors.matcher(::Type{XRefResolvers.Docs}, node, slug, meta, page, d
 end
 
 function Selectors.runner(::Type{XRefResolvers.Docs}, node, slug, meta, page, doc, errors)
-    docsxref(node, slug, meta, page, doc, errors)
+    return docsxref(node, slug, meta, page, doc, errors)
 end
 
 
@@ -318,7 +320,7 @@ end
 
 # Helper to convert MarkdownAST link node to a Markdown.MD object
 function _link_node_as_md(node::MarkdownAST.Node)
-    @assert node.element isa  MarkdownAST.Link
+    @assert node.element isa MarkdownAST.Link
     document = MarkdownAST.@ast MarkdownAST.Document() do
         MarkdownAST.Paragraph() do
             MarkdownAST.copy_tree(node)
@@ -369,6 +371,7 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
     else
         push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
     end
+    return
 end
 
 # Cross referencing docstrings.
@@ -420,6 +423,7 @@ function docsxref(node::MarkdownAST.Node, code, meta, page, doc, errors)
             end
         end
     end
+    return
 end
 
 function find_docref(code, mod, page)
@@ -510,7 +514,7 @@ function find_object(λ::Union{Function, DataType}, binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-find_object(::Union{Function, DataType}, binding, ::Union{Union,Type{Union{}}}) = Documenter.Object(binding, Union{})
+find_object(::Union{Function, DataType}, binding, ::Union{Union, Type{Union{}}}) = Documenter.Object(binding, Union{})
 find_object(other, binding, typesig) = Documenter.Object(binding, typesig)
 
 getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
@@ -524,8 +528,9 @@ function issue_xref(node::MarkdownAST.Node, num, meta, page, doc, errors)
     # Update issue links starting with a hash, but only if our Remote supports it
     issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
     if isnothing(issue_url)
-        push!(errors,  "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
+        push!(errors, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
     else
         node.element.destination = issue_url
     end
+    return
 end

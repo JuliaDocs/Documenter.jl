@@ -15,7 +15,7 @@ import IOCapture
 # ------------------------------------
 function run_doctest(f, args...; kwargs...)
     (result, success, backtrace, output) =
-    c = IOCapture.capture(rethrow = InterruptException) do
+        c = IOCapture.capture(rethrow = InterruptException) do
         # Running inside a Task to make sure that the parent testsets do not interfere.
         t = Task(() -> doctest(args...; kwargs...))
         schedule(t)
@@ -35,7 +35,7 @@ function run_doctest(f, args...; kwargs...)
     --------------------------------------------------------------------------------
     """ c.value stacktrace(c.backtrace)
 
-    f(c.value, !c.error, c.backtrace, c.output)
+    return f(c.value, !c.error, c.backtrace, c.output)
 end
 
 """
@@ -290,7 +290,7 @@ module BadDocTestKwargs3 end
 
     # DoctestFilters
     df = [r"global (filter|FILTER)"]
-    run_doctest(nothing, [DoctestFilters], doctestfilters=df) do result, success, backtrace, output
+    run_doctest(nothing, [DoctestFilters], doctestfilters = df) do result, success, backtrace, output
         @test success
     end
 

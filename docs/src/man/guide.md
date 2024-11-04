@@ -157,7 +157,7 @@ build/
     do not resolve directory URLs like `foo/` to `foo/index.html` for local files. To view
     the documentation locally, it is recommended that you run a local web server out of
     the `docs/build` directory. One way to accomplish this is to install the
-    [LiveServer](https://github.com/tlienart/LiveServer.jl) Julia package. You can then
+    [LiveServer](https://github.com/JuliaDocs/LiveServer.jl) Julia package. You can then
     start the server with `julia -e 'using LiveServer; serve(dir="docs/build")'`.
     Alternatively, if you have Python installed, you can start one with
     `python3 -m http.server --bind localhost`.

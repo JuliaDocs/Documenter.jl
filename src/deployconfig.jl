@@ -99,7 +99,7 @@ This method must be supported by configs that push with HTTPS, see
 """
 function authenticated_repo_url end
 
-post_status(cfg::Union{DeployConfig,Nothing}; kwargs...) = nothing
+post_status(cfg::Union{DeployConfig, Nothing}; kwargs...) = nothing
 
 marker(x) = x ? "✔" : "✘"
 
@@ -151,26 +151,30 @@ struct Travis <: DeployConfig
     travis_event_type::String
 end
 function Travis()
-    travis_branch       = get(ENV, "TRAVIS_BRANCH",        "")
-    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST",  "")
-    travis_repo_slug    = get(ENV, "TRAVIS_REPO_SLUG",     "")
-    travis_tag          = get(ENV, "TRAVIS_TAG",           "")
-    travis_event_type   = get(ENV, "TRAVIS_EVENT_TYPE",    "")
-    return Travis(travis_branch, travis_pull_request,
-        travis_repo_slug, travis_tag, travis_event_type)
+    travis_branch = get(ENV, "TRAVIS_BRANCH", "")
+    travis_pull_request = get(ENV, "TRAVIS_PULL_REQUEST", "")
+    travis_repo_slug = get(ENV, "TRAVIS_REPO_SLUG", "")
+    travis_tag = get(ENV, "TRAVIS_TAG", "")
+    travis_event_type = get(ENV, "TRAVIS_EVENT_TYPE", "")
+    return Travis(
+        travis_branch, travis_pull_request,
+        travis_repo_slug, travis_tag, travis_event_type
+    )
 end
 
 # Check criteria for deployment
-function deploy_folder(cfg::Travis;
-                       repo,
-                       repo_previews = repo,
-                       branch = "gh-pages",
-                       branch_previews = branch,
-                       devbranch,
-                       push_preview,
-                       devurl,
-                       tag_prefix = "",
-                       kwargs...)
+function deploy_folder(
+        cfg::Travis;
+        repo,
+        repo_previews = repo,
+        branch = "gh-pages",
+        branch_previews = branch,
+        devbranch,
+        push_preview,
+        devurl,
+        tag_prefix = "",
+        kwargs...
+    )
     io = IOBuffer()
     all_ok = true
     ## Determine build type; release, devbranch or preview
@@ -253,11 +257,13 @@ function deploy_folder(cfg::Travis;
         """
     end
     if all_ok
-        return DeployDecision(; all_ok = true,
-                                branch = deploy_branch,
-                                is_preview = is_preview,
-                                repo = deploy_repo,
-                                subfolder = subfolder)
+        return DeployDecision(;
+            all_ok = true,
+            branch = deploy_branch,
+            is_preview = is_preview,
+            repo = deploy_repo,
+            subfolder = subfolder
+        )
     else
         return DeployDecision(; all_ok = false)
     end
@@ -298,21 +304,23 @@ end
 function GitHubActions()
     github_repository = get(ENV, "GITHUB_REPOSITORY", "") # "JuliaDocs/Documenter.jl"
     github_event_name = get(ENV, "GITHUB_EVENT_NAME", "") # "push", "pull_request" or "cron" (?)
-    github_ref        = get(ENV, "GITHUB_REF",        "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
+    github_ref = get(ENV, "GITHUB_REF", "") # "refs/heads/$(branchname)" for branch, "refs/tags/$(tagname)" for tags
     return GitHubActions(github_repository, github_event_name, github_ref)
 end
 
 # Check criteria for deployment
-function deploy_folder(cfg::GitHubActions;
-                       repo,
-                       repo_previews = repo,
-                       branch = "gh-pages",
-                       branch_previews = branch,
-                       devbranch,
-                       push_preview,
-                       devurl,
-                       tag_prefix = "",
-                       kwargs...)
+function deploy_folder(
+        cfg::GitHubActions;
+        repo,
+        repo_previews = repo,
+        branch = "gh-pages",
+        branch_previews = branch,
+        devbranch,
+        push_preview,
+        devurl,
+        tag_prefix = "",
+        kwargs...
+    )
     io = IOBuffer()
     all_ok = true
     ## Determine build type
@@ -411,11 +419,13 @@ function deploy_folder(cfg::GitHubActions;
         """
     end
     if all_ok
-        return DeployDecision(; all_ok = true,
-                                branch = deploy_branch,
-                                is_preview = is_preview,
-                                repo = deploy_repo,
-                                subfolder = subfolder)
+        return DeployDecision(;
+            all_ok = true,
+            branch = deploy_branch,
+            is_preview = is_preview,
+            repo = deploy_repo,
+            subfolder = subfolder
+        )
     else
         return DeployDecision(; all_ok = false)
     end
@@ -426,9 +436,9 @@ function authenticated_repo_url(cfg::GitHubActions)
     return "https://$(ENV["GITHUB_ACTOR"]):$(ENV["GITHUB_TOKEN"])@github.com/$(cfg.github_repository).git"
 end
 
-function version_tag_strip_build(tag; tag_prefix="")
+function version_tag_strip_build(tag; tag_prefix = "")
     startswith(tag, tag_prefix) || return nothing
-    tag = replace(tag, tag_prefix => ""; count=1)
+    tag = replace(tag, tag_prefix => ""; count = 1)
     m = match(Base.VERSION_REGEX, tag)
     m === nothing && return nothing
     s0 = startswith(tag, 'v') ? "v" : ""
@@ -440,7 +450,7 @@ function version_tag_strip_build(tag; tag_prefix="")
     return "$s0$s1$s2$s3$s4"
 end
 
-function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwargs...)
+function post_status(::GitHubActions; type, repo::String, subfolder = nothing, kwargs...)
     try # make this non-fatal and silent
         # If we got this far it usually means everything is in
         # order so no need to check everything again.
@@ -452,9 +462,9 @@ function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwa
             event_path === nothing && return
             event = JSON.parsefile(event_path)
             if haskey(event, "pull_request") &&
-               haskey(event["pull_request"], "head") &&
-               haskey(event["pull_request"]["head"], "sha")
-               sha = event["pull_request"]["head"]["sha"]
+                    haskey(event["pull_request"], "head") &&
+                    haskey(event["pull_request"]["head"], "sha")
+                sha = event["pull_request"]["head"]["sha"]
             end
         elseif get(ENV, "GITHUB_EVENT_NAME", nothing) == "push"
             sha = get(ENV, "GITHUB_SHA", nothing)
@@ -466,7 +476,7 @@ function post_status(::GitHubActions; type, repo::String, subfolder=nothing, kwa
     end
 end
 
-function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothing) where S <: String
+function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
     try
         Sys.which("curl") === nothing && return
         ## Extract owner and repository name
@@ -483,7 +493,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
         push!(cmd.exec, "-H", "Authorization: token $(auth)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
-        json = Dict{String,Any}("context" => "documenter/deploy", "state"=>type)
+        json = Dict{String, Any}("context" => "documenter/deploy", "state" => type)
         if type == "pending"
             json["description"] = "Documentation build in progress"
         elseif type == "success"
@@ -504,8 +514,8 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder=nothi
         push!(cmd.exec, "https://api.github.com/repos/$(owner)/$(repo)/statuses/$(sha)")
         # Run the command (silently)
         io = IOBuffer()
-        res = run(pipeline(cmd; stdout=io, stderr=devnull))
-        @debug "Response of curl POST request" response=String(take!(io))
+        res = run(pipeline(cmd; stdout = io, stderr = devnull))
+        @debug "Response of curl POST request" response = String(take!(io))
     catch
         @debug "Failed to post status"
     end
@@ -591,21 +601,21 @@ function GitLab()
     repo_slug = get(ENV, "CI_PROJECT_PATH_SLUG", "")
     commit_tag = get(ENV, "CI_COMMIT_TAG", "")
     pipeline_source = get(ENV, "CI_PIPELINE_SOURCE", "")
-    GitLab(commit_branch, pull_request_iid, repo_slug, commit_tag, pipeline_source)
+    return GitLab(commit_branch, pull_request_iid, repo_slug, commit_tag, pipeline_source)
 end
 
 function deploy_folder(
-    cfg::GitLab;
-    repo,
-    repo_previews = repo,
-    devbranch,
-    push_preview,
-    devurl,
-    branch = "gh-pages",
-    branch_previews = branch,
-    tag_prefix = "",
-    kwargs...,
-)
+        cfg::GitLab;
+        repo,
+        repo_previews = repo,
+        devbranch,
+        push_preview,
+        devurl,
+        branch = "gh-pages",
+        branch_previews = branch,
+        tag_prefix = "",
+        kwargs...,
+    )
     io = IOBuffer()
     all_ok = true
 
@@ -734,21 +744,21 @@ function Buildkite()
     commit_branch = get(ENV, "BUILDKITE_BRANCH", "")
     pull_request = get(ENV, "BUILDKITE_PULL_REQUEST", "false")
     commit_tag = get(ENV, "BUILDKITE_TAG", "")
-    Buildkite(commit_branch, pull_request, commit_tag)
+    return Buildkite(commit_branch, pull_request, commit_tag)
 end
 
 function deploy_folder(
-    cfg::Buildkite;
-    repo,
-    repo_previews = repo,
-    devbranch,
-    push_preview,
-    devurl,
-    branch = "gh-pages",
-    branch_previews = branch,
-    tag_prefix = "",
-    kwargs...,
-)
+        cfg::Buildkite;
+        repo,
+        repo_previews = repo,
+        devbranch,
+        push_preview,
+        devurl,
+        branch = "gh-pages",
+        branch_previews = branch,
+        tag_prefix = "",
+        kwargs...,
+    )
     io = IOBuffer()
     all_ok = true
 
@@ -991,16 +1001,17 @@ function Woodpecker()
 end
 
 function deploy_folder(
-    cfg::Woodpecker;
-    repo,
-    repo_previews=repo,
-    branch="pages",
-    branch_previews=branch,
-    devbranch,
-    push_preview,
-    devurl,
-    tag_prefix="",
-    kwargs...)
+        cfg::Woodpecker;
+        repo,
+        repo_previews = repo,
+        branch = "pages",
+        branch_previews = branch,
+        devbranch,
+        push_preview,
+        devurl,
+        tag_prefix = "",
+        kwargs...
+    )
     io = IOBuffer()
     all_ok = true
     if cfg.woodpecker_event_name == "pull_request"
@@ -1098,14 +1109,15 @@ function deploy_folder(
     end
 
     if all_ok
-        return DeployDecision(; all_ok=true,
-            branch=deploy_branch,
-            is_preview=is_preview,
-            repo=deploy_repo,
-            subfolder=subfolder
+        return DeployDecision(;
+            all_ok = true,
+            branch = deploy_branch,
+            is_preview = is_preview,
+            repo = deploy_repo,
+            subfolder = subfolder
         )
     else
-        return DeployDecision(; all_ok=false)
+        return DeployDecision(; all_ok = false)
     end
 end
 

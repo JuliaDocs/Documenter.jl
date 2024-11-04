@@ -9,7 +9,7 @@ include("../../TestUtilities.jl"); using Main.TestUtilities: @quietly
 # Type to reliably show() objects across Julia versions:
 @eval Main begin
     struct ShowWrap
-        s :: String
+        s::String
     end
     Base.show(io::IO, x::ShowWrap) = write(io, x.s)
     const DocTestFixArray_1234 = Main.ShowWrap("4×1×1 Array{Int64,3}:\n[:, :, 1] =\n 1\n 2\n 3\n 4")
@@ -38,17 +38,17 @@ function test_doctest_fix(dir)
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
-    @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
+    @quietly makedocs(sitename = "-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
 
     # check that the doctests are passing now
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=true"
-    @quietly makedocs(sitename="-", modules = [Foo], source = srcdir, build = builddir)
+    @quietly makedocs(sitename = "-", modules = [Foo], source = srcdir, build = builddir)
 
     # Load the expected results and adapt to various Julia versions:
     md_result = normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
-    if VERSION < v"1.12-DEV"
-        # 1.12 Starts printing "in `Main`", so we remove that from the expected output.
+    if VERSION < v"1.11"
+        # 1.11 Starts printing "in `Main`", so we remove that from the expected output.
         md_result = replace(md_result, r"UndefVarError: `([^`]*)` not defined in `Main`" => s"UndefVarError: `\1` not defined")
     end
     if VERSION < v"1.11"
@@ -63,7 +63,7 @@ function test_doctest_fix(dir)
 
     # test that we obtain the expected output
     @test normalize_line_endings(index_md) == md_result
-    @test normalize_line_endings(src_jl) == normalize_line_endings(joinpath(@__DIR__, "fixed.jl"))
+    return @test normalize_line_endings(src_jl) == normalize_line_endings(joinpath(@__DIR__, "fixed.jl"))
 end
 
 @testset "doctest fixing" begin

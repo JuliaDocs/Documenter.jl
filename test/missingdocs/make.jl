@@ -48,7 +48,7 @@ end
         sitename = "MissingDocs Checks",
     )
 
-    for (ignore, n_expected) in zip([false, true] , [1, 0])
+    for (ignore, n_expected) in zip([false, true], [1, 0])
         kwargs = (
             root = dirname(@__FILE__),
             source = joinpath("src", "none"),

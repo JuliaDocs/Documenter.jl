@@ -17,21 +17,24 @@ will skip doctesting of manual pages altogether.
 
 Additional keywords are passed on to the main [`doctest`](@ref) method.
 """
-function doctest(package::Module; manual=true, testset=nothing, kwargs...)
+function doctest(package::Module; manual = true, testset = nothing, kwargs...)
     if pathof(package) === nothing
         throw(ArgumentError("$(package) is not a top-level package module."))
     end
     source = nothing
     if manual === true
-         source = normpath(joinpath(dirname(pathof(package)), "..", "docs", "src"))
-         isdir(source) || throw(ArgumentError("""
-         Package $(package) does not have a documentation source directory at standard location.
-         Searched at: $(source)
-         If ...
-         """))
+        source = normpath(joinpath(dirname(pathof(package)), "..", "docs", "src"))
+        if !isdir(source)
+            msg = """
+            Package $(package) does not have a documentation source directory at standard location.
+            Searched at: $(source)
+            If ...
+            """
+            throw(ArgumentError(msg))
+        end
     end
     testset = (testset === nothing) ? "Doctests: $(package)" : testset
-    doctest(source, [package]; testset=testset, kwargs...)
+    return doctest(source, [package]; testset = testset, kwargs...)
 end
 
 """
@@ -64,7 +67,7 @@ manual pages can be disabled if `source` is set to `nothing`.
     fixing fails.
 """
 function doctest(
-        source::Union{AbstractString,Nothing},
+        source::Union{AbstractString, Nothing},
         modules::AbstractVector{Module};
         fix = false,
         testset = "Doctests",
@@ -91,19 +94,19 @@ function doctest(
                 remotes = nothing,
                 plugins = plugins,
             )
-            true
+            return true
         catch err
-            @error "Doctesting failed" exception=(err, catch_backtrace())
-            false
+            @error "Doctesting failed" exception = (err, catch_backtrace())
+            return false
         finally
             try
-                rm(dir; recursive=true)
+                rm(dir; recursive = true)
             catch e
                 @warn "Documenter was unable to clean up the temporary directory $(dir)" exception = e
             end
         end
     end
-    @testset "$testset" begin
+    return @testset "$testset" begin
         @test all_doctests()
     end
 end

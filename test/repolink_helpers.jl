@@ -6,10 +6,10 @@ end
 
 function render_expand_doc(src, kwargs...)
     doc = Documenter.Document(;
-        sitename="sitename",
-        modules=[TestHelperModule, TestHelperModule.MarkdownAST, TestHelperModule.RegistryInstances],
-        pages=["testpage" => "testpage.md"],
-        linkcheck=true
+        sitename = "sitename",
+        modules = [TestHelperModule, TestHelperModule.MarkdownAST, TestHelperModule.RegistryInstances],
+        pages = ["testpage" => "testpage.md"],
+        linkcheck = true
     )
     doc.blueprint.pages["testpage.md"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
     for navnode in walk_navpages(doc.user.pages, nothing, doc)

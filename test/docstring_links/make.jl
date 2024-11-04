@@ -14,7 +14,7 @@ end
 
 
 @testset "invalid links in docstring" begin
-    c = IOCapture.capture(; rethrow=Union{}) do
+    c = IOCapture.capture(; rethrow = Union{}) do
         makedocs(;
             root = dirname(@__FILE__),
             modules = InvalidLinks,
