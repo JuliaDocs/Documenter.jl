@@ -45,9 +45,11 @@ server = HTTP.serve!(lincheck_server_handler, PORT)
         # but now we use a mock HTTP server, to guarantee that the server's behavior doesn't change.
         src = convert(
             MarkdownAST.Node,
-            Markdown.parse("""
-            [Linkcheck Empty UA](http://localhost:$(PORT)/content/www/us/en/developer/tools/oneapi/mpi-library.html)
-            """)
+            Markdown.parse(
+                """
+                [Linkcheck Empty UA](http://localhost:$(PORT)/content/www/us/en/developer/tools/oneapi/mpi-library.html)
+                """
+            )
         )
 
         # The default user-agent fails (server blocks it, returns a 500)
