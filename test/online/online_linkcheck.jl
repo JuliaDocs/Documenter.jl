@@ -2,7 +2,20 @@ module OnlineLinkcheckTests
 using Documenter: Documenter, MarkdownAST, AbstractTrees
 using Documenter: linkcheck
 using Markdown
+using HTTP
 using Test
+
+PORT = rand(10_000:40_000)
+function lincheck_server_handler(req::HTTP.Request)
+    useragent = HTTP.header(req, "user-agent")
+    if startswith(useragent, "Mozilla/5.0")
+        return HTTP.Response(404)
+    elseif startswith(useragent, "curl")
+        return HTTP.Response(200)
+    end
+    return HTTP.Response(500)
+end
+server = HTTP.serve!(lincheck_server_handler, PORT)
 
 @testset "Online linkcheck" begin
 
@@ -25,14 +38,19 @@ using Test
     end
 
     @testset "Empty User-Agent" begin
+        # This used to point to
+        #
+        #   https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html)
+        #
+        # but now we use a mock HTTP server, to guarantee that the server's behavior doesn't change.
         src = convert(
             MarkdownAST.Node,
-            md"""
-            [Linkcheck Empty UA](https://www.intel.com/content/www/us/en/developer/tools/oneapi/mpi-library.html)
-            """
+            Markdown.parse("""
+            [Linkcheck Empty UA](http://localhost:$(PORT)/content/www/us/en/developer/tools/oneapi/mpi-library.html)
+            """)
         )
 
-        # The default user-agent fails (intel servers block it)
+        # The default user-agent fails (server blocks it, returns a 500)
         doc = Documenter.Document(; linkcheck = true, linkcheck_timeout = 20)
         doc.blueprint.pages["testpage"] = Documenter.Page("", "", "", [], Documenter.Globals(), src)
         @test_logs (:error,) @test linkcheck(doc) === nothing
@@ -64,5 +82,8 @@ using Test
     end
 
 end
+
+# Close the mock HTTP server
+close(server)
 
 end # module
