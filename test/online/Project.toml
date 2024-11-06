@@ -1,0 +1,11 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+MarkdownAST = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+RegistryInstances = "2792f1a3-b283-48e8-9a74-f99dce5104f3"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+Documenter = {path = "../.."}
