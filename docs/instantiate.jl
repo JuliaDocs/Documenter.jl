@@ -16,9 +16,11 @@ cd(project_directory) do
     end
     run(`git -C dev/DocumenterTools checkout documenter-v0.1.17+1.0.0`)
     =#
-    Pkg.develop([
-        PackageSpec(path = documenter_directory),
-        #=PackageSpec(path = "dev/DocumenterTools"),=#
-    ])
+    Pkg.develop(
+        [
+            PackageSpec(path = documenter_directory),
+            #=PackageSpec(path = "dev/DocumenterTools"),=#
+        ]
+    )
     Pkg.instantiate()
 end

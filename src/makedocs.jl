@@ -263,15 +263,17 @@ A guide detailing how to document a package using Documenter's [`makedocs`](@ref
 in the [setup guide in the manual](@ref Package-Guide).
 """
 function makedocs(; debug = false, format = HTML(), kwargs...)
-    document = Documenter.Document(; format=format, kwargs...)
+    document = Documenter.Document(; format = format, kwargs...)
     # Before starting the build pipeline, we empty out the subtype cache used by
     # Selectors.dispatch. This is to make sure that we pick up any new selector stages that
     # may have been added to the selector pipelines between makedocs calls.
     empty!(Selectors.selector_subtypes)
-    cd(document.user.root) do; withenv(NO_KEY_ENV...) do
-        Selectors.dispatch(Builder.DocumentPipeline, document)
-    end end
-    debug ? document : nothing
+    cd(document.user.root) do
+        withenv(NO_KEY_ENV...) do
+            Selectors.dispatch(Builder.DocumentPipeline, document)
+        end
+    end
+    return debug ? document : nothing
 end
 
 """
@@ -296,11 +298,15 @@ $(join(Ref("`:") .* string.(ERROR_NAMES) .* Ref("`"), ", ", ", and ")).
 """
 function except(errors::Symbol...)
     invalid_errors = setdiff(errors, ERROR_NAMES)
-    isempty(invalid_errors) || throw(DomainError(
-        tuple(invalid_errors...),
-        "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
-    ))
-    setdiff(ERROR_NAMES, errors)
+    if !isempty(invalid_errors)
+        throw(
+            DomainError(
+                tuple(invalid_errors...),
+                "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
+            )
+        )
+    end
+    return setdiff(ERROR_NAMES, errors)
 end
 
 """
@@ -367,11 +373,11 @@ struct MissingRemoteError <: Exception
     mod::Union{Module, Nothing}
 
     function MissingRemoteError(;
-        path::AbstractString,
-        linerange=nothing,
-        mod::Union{Module, Nothing}=nothing
-    )
-        new(path, linerange, mod)
+            path::AbstractString,
+            linerange = nothing,
+            mod::Union{Module, Nothing} = nothing
+        )
+        return new(path, linerange, mod)
     end
 end
 
@@ -380,10 +386,12 @@ function Base.showerror(io::IO, e::MissingRemoteError)
     isnothing(e.linerange) || print(io, ':', e.linerange)
     println(io)
     isnothing(e.mod) || println(io, "  module: ", e.mod)
-    print(io, """
-    Documenter was unable to automatically determine the remote repository for this file.
-    This can happen if you are including docstrings or pages from secondary packages. Those packages
-    must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
-    must be configured appropriately. See the 'Remote repository links' section in the manual for
-    more information.""")
+    return print(
+        io, """
+        Documenter was unable to automatically determine the remote repository for this file.
+        This can happen if you are including docstrings or pages from secondary packages. Those packages
+        must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
+        must be configured appropriately. See the 'Remote repository links' section in the manual for
+        more information."""
+    )
 end

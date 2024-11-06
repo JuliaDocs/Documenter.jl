@@ -68,7 +68,7 @@ end
     @test isdefined(DocSystem, :DocStr)
     @test (fieldnames(DocSystem.DocStr)...,) == (:text, :object, :data)
     ## `getdocs`.
-    let b   = DocSystem.binding(DocSystem, :getdocs),
+    let b = DocSystem.binding(DocSystem, :getdocs),
         d_0 = DocSystem.getdocs(b, Tuple{}),
         d_1 = DocSystem.getdocs(b),
         d_2 = DocSystem.getdocs(b, Union{Tuple{Any}, Tuple{Any, Type}}; compare = (==)),
@@ -91,16 +91,16 @@ end
         @test d_1[2].data[:binding] == b
         @test d_1[1].data[:typesig] == Union{Tuple{Docs.Binding}, Tuple{Docs.Binding, Type}}
         @test d_1[2].data[:typesig] == Union{Tuple{Any}, Tuple{Any, Type}}
-        @test d_1[1].data[:module]  == DocSystem
-        @test d_1[2].data[:module]  == DocSystem
+        @test d_1[1].data[:module] == DocSystem
+        @test d_1[2].data[:module] == DocSystem
 
         @test d_2[1].data[:binding] == b
         @test d_2[1].data[:typesig] == Union{Tuple{Any}, Tuple{Any, Type}}
-        @test d_2[1].data[:module]  == DocSystem
+        @test d_2[1].data[:module] == DocSystem
 
         @test d_6[1].data[:binding] == b
         @test d_6[1].data[:typesig] == Union{Tuple{Docs.Binding}, Tuple{Docs.Binding, Type}}
-        @test d_6[1].data[:module]  == DocSystem
+        @test d_6[1].data[:module] == DocSystem
 
         @test d_1 == d_4
         @test d_1 != d_5
