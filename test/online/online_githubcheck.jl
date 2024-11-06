@@ -4,7 +4,7 @@ using Documenter.HTMLWriter: render_article, HTMLContext, HTML
 using Markdown
 using Test
 
-include("repolink_helpers.jl")
+include("../repolink_helpers.jl")
 
 @testset "Online githubcheck" begin
     @testset "Success" begin
@@ -12,7 +12,7 @@ include("repolink_helpers.jl")
             MarkdownAST.Node,
             md"""
             ```@meta
-            CurrentModule = Main.DocCheckTests.OnlineGithubCheckTests.TestHelperModule
+            CurrentModule = Main.OnlineGithubCheckTests.TestHelperModule
             ```
             ```@docs
             MarkdownAST.Node
@@ -35,7 +35,7 @@ include("repolink_helpers.jl")
             MarkdownAST.Node,
             md"""
             ```@meta
-            CurrentModule = Main.DocCheckTests.OnlineGithubCheckTests.TestHelperModule
+            CurrentModule = Main.OnlineGithubCheckTests.TestHelperModule
             ```
             This doc will not pass the checks because this version isn't tagged
             ```@docs
