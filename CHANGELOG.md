@@ -3,7 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.8.0] - 2024-11-07
+
+### Changed
+
+* `deploydocs` now ignores any global GPG signing Git settings (i.e. `commit.gpgSign = false`). ([#2592])
 
 ### Fixed
 
@@ -1399,6 +1403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.5.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.5.0
 [v1.6.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.6.0
 [v1.7.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.7.0
+[v1.8.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.8.0
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1909,6 +1914,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2562]: https://github.com/JuliaDocs/Documenter.jl/issues/2562
 [#2569]: https://github.com/JuliaDocs/Documenter.jl/issues/2569
 [#2571]: https://github.com/JuliaDocs/Documenter.jl/issues/2571
+[#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
 [#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
