@@ -490,13 +490,14 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     r = Regex(rcode)
     codeidx = findfirst(r, content)
     if codeidx === nothing
-        @warn "could not find code block in source file"
+        @warn "could not find code block in source file $filename"
         return
     end
     # use the capture group to identify indentation
     indent = match(r, content).captures[1]
     # write everything up until the code block
-    write(io, content[1:prevind(content, first(codeidx))])
+    data = content[1:prevind(content, first(codeidx))]
+    write(io, data)
     # next look for the particular input string in the given code block
     # make a regex of the input that matches leading whitespace (for multiline input)
     composed = prefix.content * result.raw_input
@@ -504,7 +505,8 @@ function fix_doctest(result::Result, str, doc::Documenter.Document; prefix::Muta
     r = Regex(rinput)
     inputidx = findfirst(r, code)
     if inputidx === nothing
-        @warn "could not find input line in code block"
+        startline = count("\n", data)
+        @warn "could not find input line in code block in $filename:$startline"
         return
     end
     # construct the new code-snippet (without indent)
