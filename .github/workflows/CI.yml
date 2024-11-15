@@ -214,7 +214,7 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: fredrikekre/runic-action@v1
         with:
-          version: '35d6dd44ca8704f329319c83a2209875db2ede06'
+          version: '1.0.0'
 
   typos:
     name: Spell Check with Typos
