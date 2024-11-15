@@ -504,6 +504,9 @@ function runSearchMainCode() {
       }
 
       $(".search-modal-card-body").html(search_result_container);
+      // Refocus the search input field when there's no search query
+      $(".documenter-search-input").focus();
+
     } else {
       if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
         $(".search-modal-card-body").addClass("is-justify-content-center");
@@ -512,6 +515,8 @@ function runSearchMainCode() {
       $(".search-modal-card-body").html(`
         <div class="has-text-centered my-5 py-5">Type something to get started!</div>
       `);
+      // Refocus the search input field when there's no search query
+      $(".documenter-search-input").focus();
     }
   }
 
