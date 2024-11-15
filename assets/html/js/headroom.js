@@ -5,7 +5,7 @@
 // mobile).
 window.Headroom = Headroom; // work around buggy module loading?
 $(document).ready(function () {
-  $("#documenter .docs-navbar").headroom({
+  $('#documenter .docs-navbar').headroom({
     tolerance: { up: 10, down: 10 },
   });
 });

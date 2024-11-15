@@ -44,27 +44,27 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `,
+    `
   );
 
-  document.querySelector(".docs-search-query").addEventListener("click", () => {
+  document.querySelector('.docs-search-query').addEventListener('click', () => {
     openModal();
   });
 
   document
-    .querySelector(".close-search-modal")
-    .addEventListener("click", () => {
+    .querySelector('.close-search-modal')
+    .addEventListener('click', () => {
       closeModal();
     });
 
-  $(document).on("click", ".search-result-link", function () {
+  $(document).on('click', '.search-result-link', function () {
     closeModal();
   });
 
-  document.addEventListener("keydown", (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key === "/") {
+  document.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === '/') {
       openModal();
-    } else if (event.key === "Escape") {
+    } else if (event.key === 'Escape') {
       closeModal();
     }
 
@@ -73,32 +73,32 @@ $(document).ready(function () {
 
   // Functions to open and close a modal
   function openModal() {
-    let searchModal = document.querySelector("#search-modal");
+    let searchModal = document.querySelector('#search-modal');
 
-    searchModal.classList.add("is-active");
-    document.querySelector(".documenter-search-input").focus();
+    searchModal.classList.add('is-active');
+    document.querySelector('.documenter-search-input').focus();
   }
 
   function closeModal() {
-    let searchModal = document.querySelector("#search-modal");
+    let searchModal = document.querySelector('#search-modal');
     let initial_search_body = `
       <div class="has-text-centered my-5 py-5">Type something to get started!</div>
     `;
 
-    searchModal.classList.remove("is-active");
-    document.querySelector(".documenter-search-input").blur();
+    searchModal.classList.remove('is-active');
+    document.querySelector('.documenter-search-input').blur();
 
-    if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
-      $(".search-modal-card-body").addClass("is-justify-content-center");
+    if (!$('.search-modal-card-body').hasClass('is-justify-content-center')) {
+      $('.search-modal-card-body').addClass('is-justify-content-center');
     }
 
-    $(".documenter-search-input").val("");
-    $(".search-modal-card-body").html(initial_search_body);
+    $('.documenter-search-input').val('');
+    $('.search-modal-card-body').html(initial_search_body);
   }
 
   document
-    .querySelector("#search-modal .modal-background")
-    .addEventListener("click", () => {
+    .querySelector('#search-modal .modal-background')
+    .addEventListener('click', () => {
       closeModal();
     });
 });
