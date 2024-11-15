@@ -9,6 +9,7 @@ on:
       - '*/*-runci'
     tags: '*'
   pull_request:
+  workflow_dispatch:
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
@@ -201,3 +202,25 @@ jobs:
       - uses: actionsx/prettier@v2
         with:
           args: --check .
+
+  runic:
+    name: "Runic (Julia code formatting)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.11'
+      - uses: julia-actions/cache@v2
+      - uses: fredrikekre/runic-action@v1
+        with:
+          version: '1.0.0'
+
+  typos:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v4
+      - name: Check spelling
+        uses: crate-ci/typos@master
