@@ -44,7 +44,7 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `
+    `,
   );
 
   document.querySelector(".docs-search-query").addEventListener("click", () => {

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * `deploydocs` now ignores any global GPG signing Git settings (i.e. `commit.gpgSign = false`). ([#2592])
+## [Unreleased]
 
 ### Fixed
 - Fixed an issue where the cursor would be removed from the search box after applying filters.
