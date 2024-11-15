@@ -22,21 +22,21 @@ function maybeAddWarning() {
 
   // Add a noindex meta tag (unless one exists) so that search engines don't index this version of the docs.
   if (document.body.querySelector('meta[name="robots"]') === null) {
-    const meta = document.createElement("meta");
-    meta.name = "robots";
-    meta.content = "noindex";
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex';
 
-    document.getElementsByTagName("head")[0].appendChild(meta);
+    document.getElementsByTagName('head')[0].appendChild(meta);
   }
 
-  const div = document.createElement("div");
-  div.classList.add("outdated-warning-overlay");
-  const closer = document.createElement("button");
-  closer.classList.add("outdated-warning-closer", "delete");
-  closer.addEventListener("click", function () {
+  const div = document.createElement('div');
+  div.classList.add('outdated-warning-overlay');
+  const closer = document.createElement('button');
+  closer.classList.add('outdated-warning-closer', 'delete');
+  closer.addEventListener('click', function () {
     document.body.removeChild(div);
   });
-  const href = window.documenterBaseURL + "/../" + window.DOCUMENTER_STABLE;
+  const href = window.documenterBaseURL + '/../' + window.DOCUMENTER_STABLE;
   div.innerHTML =
     'This documentation is not for the latest stable release, but for either the development version or an older release.<br><a href="' +
     href +
@@ -45,8 +45,8 @@ function maybeAddWarning() {
   document.body.appendChild(div);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", maybeAddWarning);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', maybeAddWarning);
 } else {
   maybeAddWarning();
 }
