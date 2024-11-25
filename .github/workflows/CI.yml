@@ -46,6 +46,8 @@ jobs:
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -76,6 +78,8 @@ jobs:
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -121,6 +125,8 @@ jobs:
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -174,6 +180,8 @@ jobs:
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
