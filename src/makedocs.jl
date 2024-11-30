@@ -122,7 +122,7 @@ is enabled by default.
 
 **`sitename`** is displayed in the title bar and/or the navigation menu when applicable.
 
-**`pages`** can be use to specify a hierarchical page structure, and the order in which
+**`pages`** can be used to specify a hierarchical page structure, and the order in which
 the pages appear in the navigation of the rendered output. If omitted, Documenter will
 automatically generate a flat list of pages based on the files present in the source
 directory.
