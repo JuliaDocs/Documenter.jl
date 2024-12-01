@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## UNRELEASED
 
+### Added
+
+* Suppport `texify` as a native latex backend. This is of peculiar interest for people using MiKTeX on Windows machines, where `latekmk` may not work properly. The selection of the `native` backend is automatic if `texify` or `latexmk` is installed. Otherwise specifying `texify` or `latexmk` is also possible.
+
 ### Changed
 
 * `id` anchors may now start with a numeric digit. ([#744], [#2325])
