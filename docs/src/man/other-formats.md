@@ -28,7 +28,7 @@ The `makedocs` argument `authors` should also be specified, it will be used for 
 
 The following is required to build the documentation:
 
-* You need `pdflatex` and `latexmk` commands to be installed and available to Documenter.
+* You need `pdflatex` and `latexmk` or `texify` commands to be installed and available to Documenter.
 * You need the [minted](https://ctan.org/pkg/minted) LaTeX package and its backend source
   highlighter [Pygments](https://pygments.org/) installed.
 * You need the [_DejaVu Sans_ and _DejaVu Sans Mono_](https://dejavu-fonts.github.io/) fonts installed.
