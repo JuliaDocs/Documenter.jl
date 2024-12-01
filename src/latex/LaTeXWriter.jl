@@ -48,15 +48,18 @@ considered to be deprecated), or to an empty string if `TRAVIS_TAG` is unset.
 
 See [Other Output Formats](@ref) for more information.
 """
-mutable struct LaTeX <: Documenter.Writer
+struct LaTeX <: Documenter.Writer
     platform::String
-    const version::String
-    const tectonic::Union{Cmd,String,Nothing}
+    version::String
+    tectonic::Union{Cmd,String,Nothing}
     function LaTeX(;
             platform = "native",
             version  = get(ENV, "TRAVIS_TAG", ""),
             tectonic = nothing)
-        platform ∈ ("native", "latexmk","texify", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
+        if platform == "native"
+            platform = hastex()
+        end
+        platform ∈ ("latexmk","texify", "tectonic", "docker", "none") || throw(ArgumentError("unknown platform: $platform"))
         return new(platform, string(version), tectonic)
     end
 end
@@ -89,8 +92,9 @@ const DEFAULT_PREAMBLE_PATH = joinpath(dirname(@__FILE__), "..", "..", "assets",
 
 function hastex()
     try
-        success(`latexmk -version`) && return "latexmk"
         success(`texify --version`) && return "texify"
+        success(`latexmk --version`) && return "latexmk"
+        return ""
     catch
         return ""
     end
@@ -176,18 +180,7 @@ end
 const DOCKER_IMAGE_TAG = "0.1"
 
 function compile_tex(doc::Documenter.Document, settings::LaTeX, fileprefix::String)
-    if settings.platform == "native"
-        @info "LaTeXWriter: attempting to find native platform."
-        native_platform = hastex()
-        if !isempty(native_platform)
-            @info "LaTeXWriter: found native platform $native_platform."
-            settings.platform = native_platform
-            return compile_tex(doc,settings,fileprefix)
-        else
-            @error "LaTeXWriter: no native platform found."
-            return false
-        end
-    elseif settings.platform == "latexmk"
+    if settings.platform == "latexmk"
         Sys.which("latexmk") === nothing && (@error "LaTeXWriter: latexmk command not found."; return false)
         @info "LaTeXWriter: using latexmk to compile tex."
         try
