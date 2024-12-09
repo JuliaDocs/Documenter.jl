@@ -69,14 +69,14 @@ end
     @test (fieldnames(DocSystem.DocStr)...,) == (:text, :object, :data)
     ## `getdocs`.
     let b = DocSystem.binding(DocSystem, :getdocs),
-        d_0 = DocSystem.getdocs(b, Tuple{}),
-        d_1 = DocSystem.getdocs(b),
-        d_2 = DocSystem.getdocs(b, Union{Tuple{Any}, Tuple{Any, Type}}; compare = (==)),
-        d_3 = DocSystem.getdocs(b; modules = Module[Main]),
-        d_4 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs)),
-        d_5 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs); aliases = false),
-        d_6 = DocSystem.getdocs(b, Union{Tuple{Docs.Binding}, Tuple{Docs.Binding, Type}}; compare = (==)),
-        d_7 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs), Union{Tuple{Docs.Binding}, Tuple{Docs.Binding, Type}})
+            d_0 = DocSystem.getdocs(b, Tuple{}),
+            d_1 = DocSystem.getdocs(b),
+            d_2 = DocSystem.getdocs(b, Union{Tuple{Any}, Tuple{Any, Type}}; compare = (==)),
+            d_3 = DocSystem.getdocs(b; modules = Module[Main]),
+            d_4 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs)),
+            d_5 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs); aliases = false),
+            d_6 = DocSystem.getdocs(b, Union{Tuple{Docs.Binding}, Tuple{Docs.Binding, Type}}; compare = (==)),
+            d_7 = DocSystem.getdocs(DocSystem.binding(@__MODULE__, :alias_of_getdocs), Union{Tuple{Docs.Binding}, Tuple{Docs.Binding, Type}})
 
         @test length(d_0) == 0
         @test length(d_1) == 2

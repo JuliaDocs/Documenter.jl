@@ -222,7 +222,7 @@ jobs:
       - uses: julia-actions/cache@v2
       - uses: fredrikekre/runic-action@v1
         with:
-          version: '1.0.0'
+          version: '1.2'
 
   typos:
     name: Spell Check with Typos
