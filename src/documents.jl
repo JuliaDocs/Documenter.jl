@@ -988,7 +988,7 @@ function populate!(index::IndexNode, document::Document)
     pagesmap = precedence(index.pages)
     modulesmap = precedence(index.modules)
     ordermap = precedence(index.order)
-    comparison = function(a, b)
+    comparison = function (a, b)
         (x = _compare(pagesmap, 3, a, b)) == 0 || return x < 0 # page
         (x = _compare(modulesmap, 4, a, b)) == 0 || return x < 0 # module
         (x = _compare(ordermap, 5, a, b)) == 0 || return x < 0 # category
@@ -1014,7 +1014,7 @@ function populate!(contents::ContentsNode, document::Document)
     end
     # Sorting contents links.
     pagesmap = precedence(contents.pages)
-    comparison = function(a, b)
+    comparison = function (a, b)
         (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
         return a[1] < b[1]                                            # anchor order
     end
