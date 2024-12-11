@@ -4,6 +4,8 @@
 *.jl.*.cov
 *.jl.mem
 Manifest.toml
+node_modules/
+
 
 test/doctests/builds/
 test/examples/builds/
