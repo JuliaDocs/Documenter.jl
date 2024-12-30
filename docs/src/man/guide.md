@@ -85,7 +85,9 @@ makedocs(sitename="My Documentation")
 ```
 
 This assumes you've installed Documenter as discussed in [Installation](@ref) and that your
-`Example.jl` package can be found by Julia.
+`Example.jl` package can be found by Julia. If your package has been added as a dev
+dependency using its local path rather than a remote git repository, you need to add the
+keyword argument `remotes = nothing` to the function `makedocs`.
 
 !!! note
 
