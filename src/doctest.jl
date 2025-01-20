@@ -51,7 +51,7 @@ manual pages can be disabled if `source` is set to `nothing`.
 
 **`testset`** specifies the name of test testset (default `"Doctests"`).
 
-**`doctestfilters`** vector of regex to filter tests (see the manual on [Filtering Doctests](@ref))
+**`doctestfilters`** vector of regex or regex/substitution pairs to filter tests (see the manual on [Filtering Doctests](@ref))
 
 **`fix`**, if set to `true`, updates all the doctests that fail with the correct output
 (default `false`).
