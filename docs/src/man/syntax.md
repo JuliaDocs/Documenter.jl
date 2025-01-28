@@ -176,7 +176,7 @@ As with `@docs`, you can use `@autodocs; canonical=false` to indicate that the
 `@autodocs` block in non-canonical. See [`@docs; canonical=false` block](@ref
 noncanonical-block).
 
-## `@ref` link
+## `@ref` and `@id` links
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
 automatically. The text part of the link can be a code object (between backticks), header name, or GitHub PR/Issue number (`#` followed by a number).
