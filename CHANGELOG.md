@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+* `Docmeta.initdocmeta!` no longer accesses outdated bindings in julia 1.12-dev. ([#2622])
+
 ## Version [v1.8.0] - 2024-11-07
 
 ### Changed
@@ -1916,6 +1922,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2571]: https://github.com/JuliaDocs/Documenter.jl/issues/2571
 [#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
 [#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
+[#2622]: https://github.com/JuliaDocs/Documenter.jl/issues/2622
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
