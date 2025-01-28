@@ -35,10 +35,11 @@ function initdocmeta!(m::Module)
         @debug "Creating documentation metadata dictionary (META=$META) in $m"
         Core.eval(m, :(const $META = $(METATYPE())))
         push!(METAMODULES, m)
+        invokelatest(getfield, m, META)
     else
         @warn "Existing documentation metadata dictionary (META=$META) in $m. Ignoring."
+        return getfield(m, META)
     end
-    return getfield(m, META)
 end
 
 """
