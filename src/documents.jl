@@ -244,13 +244,28 @@ mutable struct NavNode
     links etc. instead of the automatically determined text.
     """
     title_override::Union{String, Nothing}
+    "The parent node of this node in the navigation tree."
     parent::Union{NavNode, Nothing}
+    "The children nodes of this node in the navigation tree."
     children::Vector{NavNode}
+    "Whether this node is visible in the navigation tree."
     visible::Bool
+    """Whether this node is collapsed in the navigation tree.  
+    `nothing` means that it should obey the parent's setting, 
+    or the default global setting based on depth.
+    """
+    collapsed::Union{Bool, Nothing}
+    """
+    Whether this node is an external link.  External links are rendered differently, 
+    and cannot be valid keys in `doc.blueprint.pages`.
+    """
+    external::Bool
+    "The previous node in the navigation tree.  May or may not exist."
     prev::Union{NavNode, Nothing}
+    "The next node in the navigation tree.  May or may not exist."
     next::Union{NavNode, Nothing}
 end
-NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
+NavNode(page, title_override, parent; collapsed = nothing, external = false) = NavNode(page, title_override, parent, [], true, collapsed, external, nothing, nothing)
 # This method ensures that we do not print the whole navtree in case we ever happen to print
 # a NavNode in some debug output somewhere.
 function Base.show(io::IO, n::NavNode)
