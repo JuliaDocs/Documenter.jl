@@ -3,7 +3,7 @@ module E
 # https://discourse.julialang.org/t/is-compat-jl-worth-it-for-the-public-keyword/119041/
 macro public_or_export(ex)
     args = ex isa Symbol ? (ex,) : Base.isexpr(ex, :tuple) ? ex.args : error()
-    if VERSION >= v"1.11.0-DEV.469"
+    if Base.isdefined(:ispublic)
         esc(Expr(:public, args...))
     else
         esc(Expr(:export, args...))
