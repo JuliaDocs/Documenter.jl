@@ -524,7 +524,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
                 # Which bindings should be included?
-                ispublic = if isdefined(Base, :ispublic) # Julia v1.11 and later
+                ispublic = @static if isdefined(Base, :ispublic) # Julia v1.11 and later
                     Base.ispublic(mod, binding.var)
                 else
                     Base.isexported(mod, binding.var)
