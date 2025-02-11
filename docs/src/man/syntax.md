@@ -176,7 +176,7 @@ As with `@docs`, you can use `@autodocs; canonical=false` to indicate that the
 `@autodocs` block in non-canonical. See [`@docs; canonical=false` block](@ref
 noncanonical-block).
 
-## `@ref` link
+## [`@ref` and `@id` links](@id at-ref-at-id-links)
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
 automatically. The text part of the link can be a code object (between backticks), header name, or GitHub PR/Issue number (`#` followed by a number).
@@ -290,7 +290,7 @@ for more details.
 This block type is used to define metadata key/value pairs that can be used elsewhere in the
 page. Currently recognised keys:
 - `CurrentModule`: module where Documenter evaluates, for example, [`@docs`-block](@ref)
-  and [`@ref`-link](@ref)s.
+  and [`@ref`-link](@ref at-ref-at-id-links)s.
 - `DocTestSetup`: code to be evaluated before a doctest, see the [Setup Code](@ref)
   section under [Doctests](@ref).
 - `DocTestFilters`: filters to deal with, for example, unpredictable output from doctests,
