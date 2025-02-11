@@ -61,12 +61,14 @@ end
 # Between the JuliaSyntax merge and https://github.com/JuliaLang/julia/pull/57280
 # there were some differences in the AST.
 function bad_juliasyntax_version()
-    return any((
-        # JuliaSyntax merge and the #57280 backport
-        v"1.10.0-DEV.1520" <= VERSION <= v"1.12.0-DEV.1985",
-        # 1.13-DEV until #57280
-        v"1.13-" <= VERSION <= v"1.13.0-DEV.13",
-    ))
+    return any(
+        (
+            # JuliaSyntax merge and the #57280 backport
+            v"1.10.0-DEV.1520" <= VERSION <= v"1.12.0-DEV.1985",
+            # 1.13-DEV until #57280
+            v"1.13-" <= VERSION <= v"1.13.0-DEV.13",
+        )
+    )
 end
 
 @testset "utilities" begin
