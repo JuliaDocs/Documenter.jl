@@ -3,7 +3,8 @@
 # DOCUMENTER_TEST_DEBUG= JULIA_DEBUG=all julia test/doctests/fix/tests.jl
 #
 module DocTestFixTest
-using Documenter, Test
+using Documenter: Documenter
+using Test
 include("../../TestUtilities.jl"); using Main.TestUtilities: @quietly
 
 # Type to reliably show() objects across Julia versions:
@@ -23,6 +24,11 @@ function normalize_line_endings(filename)
     return replace(s, "\r\n" => "\n")
 end
 
+# 1.12 introduced stricted world age requirements, so we need to do some Base.invokelatest
+# shenaningans to make sure that we are passing the updated Foo module to makedocs.
+_Foo() = Base.invokelatest(getfield, @__MODULE__, :Foo)
+makedocs(args...; kwargs...) = Base.invokelatest(Documenter.makedocs, args...; kwargs...)
+
 function test_doctest_fix(dir)
     srcdir = mktempdir_nocleanup(dir)
     builddir = mktempdir_nocleanup(dir)
@@ -38,12 +44,13 @@ function test_doctest_fix(dir)
     # fix up
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=:fix"
-    @quietly makedocs(sitename = "-", modules = [Foo], source = srcdir, build = builddir, doctest = :fix)
+    @show _Foo()
+    @quietly makedocs(sitename = "-", modules = [_Foo()], source = srcdir, build = builddir, doctest = :fix)
 
     # check that the doctests are passing now
     include(joinpath(srcdir, "src.jl")); @eval import .Foo
     @debug "Running doctest/fix doctests with doctest=true"
-    @quietly makedocs(sitename = "-", modules = [Foo], source = srcdir, build = builddir)
+    @quietly makedocs(sitename = "-", modules = [_Foo()], source = srcdir, build = builddir)
 
     # Load the expected results and adapt to various Julia versions:
     md_result = normalize_line_endings(joinpath(@__DIR__, "fixed.md"))
