@@ -58,6 +58,17 @@ function git_config(path = pwd())
         trun(`$(git()) -C $path config commit.gpgsign false`)
 end
 
+# Between the JuliaSyntax merge and https://github.com/JuliaLang/julia/pull/57280
+# there were some differences in the AST.
+function bad_juliasyntax_version()
+    return any((
+        # JuliaSyntax merge and the #57280 backport
+        v"1.10.0-DEV.1520" <= VERSION <= v"1.12.0-DEV.1985",
+        # 1.13-DEV until #57280
+        v"1.13-" <= VERSION <= v"1.13.0-DEV.13",
+    ))
+end
+
 @testset "utilities" begin
 
     @test UnitTests.A in Documenter.submodules(UnitTests.A)
@@ -311,7 +322,7 @@ end
         @test exprs[2][2] == "γγγ_γγγ\n"
 
         @test exprs[3][1] === :γγγ
-        if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+        if bad_juliasyntax_version()
             @test exprs[3][2] == "γγγ\n\n"
         else
             @test exprs[3][2] == "γγγ\n"
@@ -335,7 +346,7 @@ end
                 l1, l2 = parse("x = Int[]$(LE)$(LE)push!(x, 1)$(LE)")
                 @test l1[1] == :(x = Int[])
                 @test l2[1] == :(push!(x, 1))
-                if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+                if bad_juliasyntax_version()
                     @test l1[2] == "x = Int[]$(LE)$(LE)"
                     @test l2[2] == "push!(x, 1)$(LE)\n"
                 else
@@ -361,7 +372,7 @@ end
             @test exs[1][1].head == :toplevel
             @test exs[1][1].args[1] == LineNumberNode(124, "testfile.jl")
             @test exs[1][1].args[2] == Expr(:call, :+, 1, 1)
-            if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+            if bad_juliasyntax_version()
                 @test exs[2][2] == "2 + 2\n\n"
             else
                 @test exs[2][2] == "2 + 2\n"
@@ -383,7 +394,7 @@ end
             for code in (code1, code2)
                 exs = parse(code)
                 @test length(exs) == 1
-                if VERSION >= v"1.10.0-DEV.1520" # JuliaSyntax merge
+                if bad_juliasyntax_version()
                     if code == code1
                         @test exs[1][2] == "1 + 1\n\n\n"
                     else
