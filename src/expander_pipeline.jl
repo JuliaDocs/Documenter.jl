@@ -524,8 +524,12 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
                 # Which bindings should be included?
-                isexported = Base.isexported(mod, binding.var)
-                included = (isexported && public) || (!isexported && private)
+                ispublic = if isdefined(Base, :ispublic) # Julia v1.11 and later
+                    Base.ispublic(mod, binding.var)
+                else
+                    Base.isexported(mod, binding.var)
+                end
+                included = (ispublic && public) || (!ispublic && private)
                 # What category does the binding belong to?
                 category = try
                     Documenter.DocSystem.category(binding)
@@ -564,11 +568,11 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                             path = normpath(docstr.data[:path])
                             object = make_object(binding, typesig, is_canonical, doc, page)
                             if isempty(pages)
-                                push!(results, (mod, path, category, object, isexported, docstr))
+                                push!(results, (mod, path, category, object, ispublic, docstr))
                             else
                                 for p in pages
                                     if endswith(path, p)
-                                        push!(results, (mod, p, category, object, isexported, docstr))
+                                        push!(results, (mod, p, category, object, ispublic, docstr))
                                         break
                                     end
                                 end
@@ -603,7 +607,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
 
         # Finalise docstrings.
         docsnodes = Node[]
-        for (mod, path, category, object, isexported, docstr) in results
+        for (mod, path, category, object, ispublic, docstr) in results
             if haskey(doc.internal.objects, object)
                 @docerror(
                     doc, :autodocs_block,
