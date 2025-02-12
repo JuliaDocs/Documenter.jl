@@ -145,9 +145,13 @@ Filter =  myCustomFilterFunction
 ```
 ````
 
-To include only the exported names from the modules listed in `Modules` use `Private = false`.
-In a similar way `Public = false` can be used to only show the unexported names. By
+To include only the public names from the modules listed in `Modules` use `Private = false`.
+In a similar way `Public = false` can be used to only show the private names. By
 default both of these are set to `true` so that all names will be shown.
+
+!!! info
+    In Julia versions up to and including v1.10, "public" = "exported".
+    Starting with Julia v1.11, "public" = "exported _or_ marked with the `public` keyword".
 
 ````markdown
 Functions exported from `Foo`:
