@@ -96,7 +96,7 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
         end
         if checkdocs === :all ||
                 (isexported && checkdocs === :exports) ||
-                (ispublic && checkdocs == :public)
+                (ispublic && checkdocs === :public)
             out[binding] = Set(sigs(doc))
         end
     end
