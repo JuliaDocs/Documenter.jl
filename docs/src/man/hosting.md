@@ -190,8 +190,9 @@ on:
 
 jobs:
   build:
+    # These permissions are needed to:
+    # - Deploy the documentation: https://documenter.juliadocs.org/stable/man/hosting/#Permissions
     permissions:
-      actions: write
       contents: write
       pull-requests: read
       statuses: write
@@ -203,12 +204,16 @@ jobs:
           version: '1'
       - uses: julia-actions/cache@v2
       - name: Install dependencies
-        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+        shell: julia --color=yes --project=docs {0}
+        run: |
+          using Pkg
+          Pkg.develop(PackageSpec(path=pwd()))
+          Pkg.instantiate()
       - name: Build and deploy
+        run: julia --color=yes --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
-        run: julia --project=docs/ docs/make.jl
 ```
 
 This will install Julia, checkout the correct commit of your repository, and run the
@@ -305,12 +310,12 @@ you can edit the end of the docs part of your workflow configuration file so tha
 are uploaded to Codecov:
 
 ```yaml
-      - run: julia --project=docs/ --code-coverage=user docs/make.jl
+      - run: julia --project=docs --code-coverage=user docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
 ```
 
 ## `docs/Project.toml`
@@ -428,7 +433,7 @@ jobs:
               git config user.email "documenter@juliadocs.github.io"
               git rm -rf "${preview_dir}"
               git commit -m "delete preview"
-              git branch gh-pages-new $(echo "delete history" | git commit-tree HEAD^{tree})
+              git branch gh-pages-new "$(echo "delete history" | git commit-tree "HEAD^{tree}")"
               git push --force origin gh-pages-new:gh-pages
           fi
         env:
