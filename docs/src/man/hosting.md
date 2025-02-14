@@ -192,7 +192,9 @@ jobs:
   build:
     # These permissions are needed to:
     # - Deploy the documentation: https://documenter.juliadocs.org/stable/man/hosting/#Permissions
+    # - Delete old caches: https://github.com/julia-actions/cache#usage
     permissions:
+      actions: write
       contents: write
       pull-requests: read
       statuses: write
