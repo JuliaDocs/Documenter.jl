@@ -17,6 +17,10 @@ end
     @info "Building example/make.jl"
     include("examples/make.jl")
 
+    # Build the symlinked example docs
+    @info "Building symlinks/make.jl"
+    include("symlinks/tests.jl")
+
     # Test missing docs
     @info "Building missingdocs/make.jl"
     include("missingdocs/make.jl")
