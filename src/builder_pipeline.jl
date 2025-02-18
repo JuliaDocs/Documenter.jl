@@ -94,7 +94,7 @@ function Selectors.runner(::Type{Builder.SetupBuildDirectory}, doc::Documenter.D
     # Markdown files, however, get added to the document and also stored into
     # `mdpages`, to be used later.
     mdpages = String[]
-    for (root, dirs, files) in walkdir(source; follow_symlinks=true)
+    for (root, dirs, files) in walkdir(source; follow_symlinks = true)
         for dir in dirs
             d = normpath(joinpath(build, relpath(root, source), dir))
             isdir(d) || mkdir(d)
