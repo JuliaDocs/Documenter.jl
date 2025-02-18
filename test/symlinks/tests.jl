@@ -5,10 +5,8 @@ const pages = [
     "File" => "other.md",
 ]
 
-@info "Building symlinks based docu"
-makedocs(sitename = "Test", pages = pages)
+@quietly makedocs(sitename = "Test", pages = pages)
 
-@info "Testing symlinks"
 @testset "Symlinks" begin
     # check that the symlinked page is built at all
     @test isdir("symlinks/build/other")
