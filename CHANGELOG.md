@@ -6,7 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Changed
+
 * Symlinks are now followed when walking the docs directory. ([#2610])
+
+## Version [v1.8.1] - 2025-02-11
+
+### Fixed
+
+* `DocMeta` has been updated to respect world-age semantics for bindings, introduced in Julia 1.12. ([#2621], [#2622], [#2624])
 
 ## Version [v1.8.0] - 2024-11-07
 
@@ -1409,6 +1416,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.6.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.6.0
 [v1.7.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.7.0
 [v1.8.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.8.0
+[v1.8.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.8.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1921,6 +1929,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2571]: https://github.com/JuliaDocs/Documenter.jl/issues/2571
 [#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
 [#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
+[#2621]: https://github.com/JuliaDocs/Documenter.jl/issues/2621
+[#2622]: https://github.com/JuliaDocs/Documenter.jl/issues/2622
+[#2624]: https://github.com/JuliaDocs/Documenter.jl/issues/2624
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
