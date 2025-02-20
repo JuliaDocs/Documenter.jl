@@ -898,13 +898,13 @@ influences how `Documenter` works:
    provisioned by an agent environment plugin.
 
 Lastly, another environment-variable used for authentication is
-the `PROJECT_ACCESS_TOKEN` which is an access token you defined by 
-the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea 
-instances. Check their documentation on how to create an access token. 
-This access token should be then added as a secret as documented in 
+the `PROJECT_ACCESS_TOKEN` which is an access token you defined by
+the forge you use e.g. GitHub, GitLab, Codeberg, and other gitea
+instances. Check their documentation on how to create an access token.
+This access token should be then added as a secret as documented in
 <https://woodpecker-ci.org/docs/usage/secrets>.
 
-# Example Pipeline Syntax 
+# Example Pipeline Syntax
 
 ## 1.0.0 and onwards
 
@@ -943,10 +943,10 @@ pipeline:
     secrets: [ documenter_key, project_access_token ]
 ```
 
-More about pipeline syntax is documented here: 
+More about pipeline syntax is documented here:
 - 0.15.x: [https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318223506/https://woodpecker-ci.org/docs/0.15/usage/pipeline-syntax)
-- 1.0.0 and onwards: <https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax>
-- 2.0.0: <https://woodpecker-ci.org/docs/usage/workflow-syntax>
+- 1.0.0 and onwards: [https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax (hosted at archive.org; the documentation is no longer available on the Woodpecker website)](https://web.archive.org/web/20240318224839/https://woodpecker-ci.org/docs/1.0/usage/pipeline-syntax)
+- 2.0.0 and onwards: <https://woodpecker-ci.org/docs/usage/workflow-syntax>
 """
 struct Woodpecker <: DeployConfig
     woodpecker_ci_version::VersionNumber
