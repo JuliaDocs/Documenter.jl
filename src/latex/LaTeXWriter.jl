@@ -107,7 +107,7 @@ const DOCUMENT_STRUCTURE = (
 )
 
 function render(doc::Documenter.Document, settings::LaTeX = LaTeX())
-    if isempty(doc.users.sitename) # otherwise, the latex compiler will terminate with a cryptic "There's no line here to end" error
+    if isempty(doc.user.sitename) # otherwise, the latex compiler will terminate with a cryptic "There's no line here to end" error
         error("""
             LaTeXWriter needs a non-empty `sitename` passed to `makedocs`, otherwise the LaTeX build will error!  
             Please pass e.g. `sitename = "Some Site Name"` as a keyword argument to `makedocs`.
