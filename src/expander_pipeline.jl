@@ -524,8 +524,13 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         for mod in modules
             for (binding, multidoc) in Documenter.DocSystem.getmeta(mod)
                 # Which bindings should be included?
+                ispublic = @static if isdefined(Base, :ispublic) # Julia v1.11 and later
+                    Base.ispublic(mod, binding.var)
+                else
+                    Base.isexported(mod, binding.var)
+                end
                 isexported = Base.isexported(mod, binding.var)
-                included = (isexported && public) || (!isexported && private)
+                included = (ispublic && public) || (!ispublic && private)
                 # What category does the binding belong to?
                 category = try
                     Documenter.DocSystem.category(binding)
@@ -564,11 +569,11 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                             path = normpath(docstr.data[:path])
                             object = make_object(binding, typesig, is_canonical, doc, page)
                             if isempty(pages)
-                                push!(results, (mod, path, category, object, isexported, docstr))
+                                push!(results, (mod, path, category, object, ispublic, isexported, docstr))
                             else
                                 for p in pages
                                     if endswith(path, p)
-                                        push!(results, (mod, p, category, object, isexported, docstr))
+                                        push!(results, (mod, p, category, object, ispublic, isexported, docstr))
                                         break
                                     end
                                 end
@@ -603,12 +608,17 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
 
         # Finalise docstrings.
         docsnodes = Node[]
-        for (mod, path, category, object, isexported, docstr) in results
+        for (mod, path, category, object, ispublic, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
+                public_unexported_msg = if ispublic && !isexported
+                    "(public non-exported name is included in `@autodocs` for Julia ≥ 1.11)"
+                else
+                    ""
+                end
                 @docerror(
                     doc, :autodocs_block,
                     """
-                    duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(page.source, lines))
+                    duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(page.source, lines)) $public_unexported_msg
                     ```$(x.info)
                     $(x.code)
                     ```

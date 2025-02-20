@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Symlinks are now followed when walking the docs directory. ([#2610])
+* `@autodocs` also lists public unexported symbols by default (may break some workflows owing to duplicated docstrings) ([#2629])
+* `checkdocs` has a new option `:public` to include public unexported symbols ([#2629])
 
 ## Version [v1.8.1] - 2025-02-11
 
