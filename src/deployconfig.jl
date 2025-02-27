@@ -585,7 +585,7 @@ The following environment variables influence the build when using the
 
 The `CI_*` variables are set automatically on GitLab. More information on how GitLab
 sets the `CI_*` variables can be found in the
-[GitLab documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables/).
+[GitLab documentation](https://docs.gitlab.com/ci/variables/predefined_variables/).
 """
 struct GitLab <: DeployConfig
     commit_branch::String
