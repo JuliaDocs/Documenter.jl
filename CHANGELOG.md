@@ -8,8 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Symlinks are now followed when walking the docs directory. ([#2610])
-* `@autodocs` also lists public unexported symbols by default (may break some workflows owing to duplicated docstrings) ([#2629])
-* `checkdocs` has a new option `:public` to include public unexported symbols ([#2629])
+* `@autodocs` now lists public unexported symbols by default (i.e. when `Public = true`). ([#2629])
+
+  This is **potentially breaking** as it can cause previously working builds to fail if they are being run in strict mode.
+  This can happen if there are unexported docstring marked with `public` that are being included manually with e.g. `@docs` blocks, and there is also an `@autodocs` block including all public docstrings.
+  The solution is to remove the duplicate inclusion.
+
+* `checkdocs` has a new option `:public` to check for unincluded public symbols that are marked with `public`, but are unexported. ([#2629])
 
 ## Version [v1.8.1] - 2025-02-11
 
