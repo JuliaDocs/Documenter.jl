@@ -289,7 +289,7 @@ module BadDocTestKwargs3 end
     end
 
     # DoctestFilters
-    df = [r"global (filter|FILTER)"]
+    df = [r"global (filt|FILT)(er|ER)" => s"global \1", r"global (filt|FILT)"]
     run_doctest(nothing, [DoctestFilters], doctestfilters = df) do result, success, backtrace, output
         @test success
     end
