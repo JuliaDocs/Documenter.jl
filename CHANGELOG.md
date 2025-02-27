@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Symlinks are now followed when walking the docs directory. ([#2610])
 * PDF/LaTeX builds now throw a more informative error when `sitename` is not provided. ([#2636])
+* `@autodocs` now lists public unexported symbols by default (i.e. when `Public = true`). ([#2629])
+
+  This is **potentially breaking** as it can cause previously working builds to fail if they are being run in strict mode.
+  This can happen if there are unexported docstring marked with `public` that are being included manually with e.g. `@docs` blocks, and there is also an `@autodocs` block including all public docstrings.
+  The solution is to remove the duplicate inclusion.
+
+* `checkdocs` has a new option `:public` to check for unincluded public symbols that are marked with `public`, but are unexported. ([#2629])
 
 ## Version [v1.8.1] - 2025-02-11
 
@@ -1940,6 +1947,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2621]: https://github.com/JuliaDocs/Documenter.jl/issues/2621
 [#2622]: https://github.com/JuliaDocs/Documenter.jl/issues/2622
 [#2624]: https://github.com/JuliaDocs/Documenter.jl/issues/2624
+[#2629]: https://github.com/JuliaDocs/Documenter.jl/issues/2629
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054

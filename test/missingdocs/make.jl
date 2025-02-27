@@ -23,7 +23,7 @@ module MissingDocsSubmodule
 end
 
 @testset "missing docs" begin
-    for (sym, n_expected) in zip([:none, :exports, :all], [0, 1, 2])
+    for (sym, n_expected) in zip([:none, :exports, :public, :all], [0, 1, 1, 2])
         kwargs = (
             root = dirname(@__FILE__),
             source = joinpath("src", string(sym)),
