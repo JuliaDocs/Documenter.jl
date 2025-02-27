@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2619])
+* `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2360], [#2619])
 
 ### Changed
 
@@ -1893,6 +1893,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2339]: https://github.com/JuliaDocs/Documenter.jl/issues/2339
 [#2344]: https://github.com/JuliaDocs/Documenter.jl/issues/2344
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
+[#2360]: https://github.com/JuliaDocs/Documenter.jl/issues/2360
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
 [#2366]: https://github.com/JuliaDocs/Documenter.jl/issues/2366
@@ -1935,6 +1936,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
 [#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
 [#2610]: https://github.com/JuliaDocs/Documenter.jl/issues/2610
+[#2619]: https://github.com/JuliaDocs/Documenter.jl/issues/2619
 [#2621]: https://github.com/JuliaDocs/Documenter.jl/issues/2621
 [#2622]: https://github.com/JuliaDocs/Documenter.jl/issues/2622
 [#2624]: https://github.com/JuliaDocs/Documenter.jl/issues/2624
