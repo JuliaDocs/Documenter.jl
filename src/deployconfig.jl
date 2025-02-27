@@ -294,7 +294,7 @@ when using the `GitHubActions` configuration:
    see the manual section for [GitHub Actions](@ref) for more information.
 
 The `GITHUB_*` variables are set automatically on GitHub Actions, see the
-[documentation](https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables).
+[documentation](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables).
 """
 struct GitHubActions <: DeployConfig
     github_repository::String
@@ -585,7 +585,7 @@ The following environment variables influence the build when using the
 
 The `CI_*` variables are set automatically on GitLab. More information on how GitLab
 sets the `CI_*` variables can be found in the
-[GitLab documentation](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html).
+[GitLab documentation](https://docs.gitlab.com/ci/variables/predefined_variables/).
 """
 struct GitLab <: DeployConfig
     commit_branch::String
@@ -732,7 +732,7 @@ The following environment variables influence the build when using the
 
 The `BUILDKITE_*` variables are set automatically on GitLab. More information on how
 Buildkite sets the `BUILDKITE_*` variables can be found in the
-[Buildkite documentation](https://buildkite.com/docs/pipelines/environment-variables).
+[Buildkite documentation](https://buildkite.com/docs/pipelines/configure/environment-variables).
 """
 struct Buildkite <: DeployConfig
     commit_branch::String
