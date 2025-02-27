@@ -340,7 +340,7 @@ This error message is reused in duplicate docstring warnings when we detect
 the case when a duplicate docstring in a non-explored public name.
 """
 function public_unexported_msg(apistatus::APIStatus)
-    if apistatus.ispublic && !apistatus.isexported
+    return if apistatus.ispublic && !apistatus.isexported
         """\n
         Note: this binding is marked `public`, but not exported. Starting from Documenter 1.9.0,
         these are now included in `@autodocs` blocks that include public APIs with `Public = true`,
