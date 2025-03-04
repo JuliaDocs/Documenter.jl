@@ -405,9 +405,9 @@ function runSearchMainCode() {
 
   //update the url with search query
   function updateSearchURL(query) {
-    if(query && query.trim !== "") {
+    if(query && query.trim() !== "") {
       const url = new URL(window.location);
-      url.searchParams.get('q', query);
+      url.searchParams.set('q', query);
 
       window.history.replaceState({}, '', url);
     } else {
