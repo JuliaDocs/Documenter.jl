@@ -930,7 +930,7 @@ $(document).ready(function () {
     }
   }
 
-  //this function will be called whenver the page will load
+  //this function will be called whenever the page will load
   checkURLForSearch();
 
   document.querySelector(".docs-search-query").addEventListener("click", () => {
