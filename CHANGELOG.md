@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The solution is to remove the duplicate inclusion.
 
 * `checkdocs` has a new option `:public` to check that unexported symbols marked with `public` are included in the docs. ([#2629])
+* Fixing doctests that use `[...]` to hide part of an error message (such as a stacktrace) no longer replaces the `[...]` if the output otherwise matches ([#2642])
 
 ## Version [v1.8.1] - 2025-02-11
 
