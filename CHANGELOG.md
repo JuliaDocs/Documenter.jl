@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added 
+
+* Whatever you search will be added to the URL as a query param and you can use that link to share search results [#2543]
+
 ### Added
 
 * `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2360], [#2619])

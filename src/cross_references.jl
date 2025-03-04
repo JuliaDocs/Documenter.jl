@@ -65,7 +65,7 @@ function crossref(doc::Documenter.Document, page, mdast::MarkdownAST.Node)
 end
 
 function local_links!(node::MarkdownAST.Node, meta, page, doc)
-    @assert node.element isa Union{MarkdownAST.Link, MarkdownAST.Image}
+    @assert node.element isa Union{MarkdownAST.Link,MarkdownAST.Image}
     link_url = node.element.destination
     @assert !Documenter.isabsurl(link_url)
     @assert !startswith(link_url, "mailto:")
@@ -79,7 +79,8 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
     if isempty(path)
         if node.element isa MarkdownAST.Image
             @docerror(
-                doc, :cross_references,
+                doc,
+                :cross_references,
                 "invalid local image: path missing in $(Documenter.locrepr(page.source))",
                 link = node
             )
@@ -89,7 +90,8 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         return
     elseif Sys.iswindows() && ':' in path
         @docerror(
-            doc, :cross_references,
+            doc,
+            :cross_references,
             "invalid local link/image: colons not allowed in paths on Windows in $(Documenter.locrepr(page.source))",
             link = node
         )
@@ -100,7 +102,8 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
     path = normpath(joinpath(dirname(Documenter.pagekey(doc, page)), path))
     if startswith(path, "..")
         @docerror(
-            doc, :cross_references,
+            doc,
+            :cross_references,
             "invalid local link/image: path pointing to a file outside of build directory in $(Documenter.locrepr(page.source))",
             link = node
         )
@@ -115,7 +118,8 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         if node.element isa MarkdownAST.Image
             if !isempty(fragment)
                 @docerror(
-                    doc, :cross_references,
+                    doc,
+                    :cross_references,
                     "invalid local image: path contains a fragment in $(Documenter.locrepr(page.source))",
                     link = node
                 )
@@ -127,7 +131,8 @@ function local_links!(node::MarkdownAST.Node, meta, page, doc)
         return
     else
         @docerror(
-            doc, :cross_references,
+            doc,
+            :cross_references,
             "invalid local link/image: file does not exist in $(Documenter.locrepr(page.source))",
             link = node
         )
@@ -144,70 +149,70 @@ end
 # --------------------------------
 
 module XRefResolvers
-    import ..Documenter  # import for docstrings only
-    import ..Documenter.Remotes #  import for docstrings only
-    import ..Documenter.Selectors
+import ..Documenter  # import for docstrings only
+import ..Documenter.Remotes #  import for docstrings only
+import ..Documenter.Selectors
 
-    """The default pipeline for resolving `@ref` links.
+"""The default pipeline for resolving `@ref` links.
 
-    The steps for trying to resolve links are:
+The steps for trying to resolve links are:
 
-    - [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
-    - [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
-    - [`XRefResolvers.Docs`](@ref) for links like ```[`Documenter.makedocs`](@ref)```
+- [`XRefResolvers.Header`](@ref) for links like `[Section Header](@ref)`
+- [`XRefResolvers.Issue`](@ref) for links like `[#11](@ref)`
+- [`XRefResolvers.Docs`](@ref) for links like ```[`Documenter.makedocs`](@ref)```
 
-    Each step may or may not be able to resolve the link. Processing continues until the
-    link is resolved or the end of the pipeline is reached. If the link is still unresolved
-    after the last step, [`Documenter.xref`](@ref) issues an error that includes any
-    accumulated error messages from the steps. Failure to resolve an `@ref` link will fail
-    [`Documenter.makedocs`](@ref) if it is not called with `warnonly=true`.
+Each step may or may not be able to resolve the link. Processing continues until the
+link is resolved or the end of the pipeline is reached. If the link is still unresolved
+after the last step, [`Documenter.xref`](@ref) issues an error that includes any
+accumulated error messages from the steps. Failure to resolve an `@ref` link will fail
+[`Documenter.makedocs`](@ref) if it is not called with `warnonly=true`.
 
-    The default pipeline could be extended by plugins using the general [`Selectors`](@ref)
-    machinery.
+The default pipeline could be extended by plugins using the general [`Selectors`](@ref)
+machinery.
 
-    Each pipeline step receives the following arguments:
+Each pipeline step receives the following arguments:
 
-    * `node`: the `MarkdownAST.Node` representing the link. To resolve the `@ref` URL, any
-      pipeline step can modify the node.
-    * `slug`: the "slug" for the link, see [`Documenter.xref`](@ref)
-    * `meta`: a dictionary of metadata, see [`@meta` block](@ref)
-    * `page`: the [`Documenter.Page`](@ref) object containing the `node`
-    * `doc`: the [`Documenter.Document`](@ref) instance representing the full site
-    * `errors`: a list of strings of error messages accumulated in the
-      `XRefResolverPipeline`. If a pipeline step indicates that it might be able to resolve
-      a `@ref` link ([`Selectors.matcher`](@ref) is `true`), but then encounters an error in
-      [`Selectors.runner`](@ref) that prevents resolution, it should push an error message
-      to the list of `errors` to explain the failure. These accumulated errors will be shown
-      if (and only if) the entire pipeline fails to resolve the link.
+* `node`: the `MarkdownAST.Node` representing the link. To resolve the `@ref` URL, any
+  pipeline step can modify the node.
+* `slug`: the "slug" for the link, see [`Documenter.xref`](@ref)
+* `meta`: a dictionary of metadata, see [`@meta` block](@ref)
+* `page`: the [`Documenter.Page`](@ref) object containing the `node`
+* `doc`: the [`Documenter.Document`](@ref) instance representing the full site
+* `errors`: a list of strings of error messages accumulated in the
+  `XRefResolverPipeline`. If a pipeline step indicates that it might be able to resolve
+  a `@ref` link ([`Selectors.matcher`](@ref) is `true`), but then encounters an error in
+  [`Selectors.runner`](@ref) that prevents resolution, it should push an error message
+  to the list of `errors` to explain the failure. These accumulated errors will be shown
+  if (and only if) the entire pipeline fails to resolve the link.
 
-    The [`Selectors.matcher`](@ref) of any custom pipeline step should use
-    [`Documenter.xref_unresolved`](@ref) to check whether the link was already resolved in an
-    earlier pipeline step.
-    """
-    abstract type XRefResolverPipeline <: Selectors.AbstractSelector end
+The [`Selectors.matcher`](@ref) of any custom pipeline step should use
+[`Documenter.xref_unresolved`](@ref) to check whether the link was already resolved in an
+earlier pipeline step.
+"""
+abstract type XRefResolverPipeline <: Selectors.AbstractSelector end
 
-    Selectors.strict(::Type{T}) where {T <: XRefResolverPipeline} = false
+Selectors.strict(::Type{T}) where {T<:XRefResolverPipeline} = false
 
-    """Resolve `@ref` links for headers.
+"""Resolve `@ref` links for headers.
 
-    This runs if the `slug` corresponds to a known local section title, and resolves the
-    `node` to link to that section.
-    """
-    abstract type Header <: XRefResolverPipeline end
+This runs if the `slug` corresponds to a known local section title, and resolves the
+`node` to link to that section.
+"""
+abstract type Header <: XRefResolverPipeline end
 
-    """Resolve `@ref` links for issues.
+"""Resolve `@ref` links for issues.
 
-    This runs if the `slug` is `"#"` followed by one or more digits and tries to link to an
-    issue number using [`Remotes.issueurl`](@ref).
-    """
-    abstract type Issue <: XRefResolverPipeline end
+This runs if the `slug` is `"#"` followed by one or more digits and tries to link to an
+issue number using [`Remotes.issueurl`](@ref).
+"""
+abstract type Issue <: XRefResolverPipeline end
 
-    """Resolve `@ref` links for docstrings.
+"""Resolve `@ref` links for docstrings.
 
-    This runs unconditionally (if no previous step was able to resolve the link), and
-    tries to find a code binding for the given `slug`, linking to its docstring.
-    """
-    abstract type Docs <: XRefResolverPipeline end
+This runs unconditionally (if no previous step was able to resolve the link), and
+tries to find a code binding for the given `slug`, linking to its docstring.
+"""
+abstract type Docs <: XRefResolverPipeline end
 
 end
 
@@ -225,11 +230,19 @@ still needs to be resolved.
 """
 function xref_unresolved(node)
     return (node.element isa MarkdownAST.Link) &&
-        occursin(XREF_REGEX, node.element.destination)
+           occursin(XREF_REGEX, node.element.destination)
 end
 
 
-function Selectors.matcher(::Type{XRefResolvers.Header}, node, slug, meta, page, doc, errors)
+function Selectors.matcher(
+    ::Type{XRefResolvers.Header},
+    node,
+    slug,
+    meta,
+    page,
+    doc,
+    errors,
+)
     return (xref_unresolved(node) && anchor_exists(doc.internal.headers, slug))
 end
 
@@ -291,7 +304,9 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
         else
             # TODO: remove this hack (replace with mdflatten?)
             md = _link_node_as_md(node)
-            text = strip(sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)))
+            text = strip(
+                sprint(Markdown.plain, Markdown.Paragraph(md.content[1].content[1].text)),
+            )
             slug = Documenter.slugify(text)
         end
     else
@@ -303,7 +318,13 @@ function xref(node::MarkdownAST.Node, meta, page, doc)
     end
     errors = String[]
     Selectors.dispatch(
-        XRefResolvers.XRefResolverPipeline, node, slug, meta, page, doc, errors
+        XRefResolvers.XRefResolverPipeline,
+        node,
+        slug,
+        meta,
+        page,
+        doc,
+        errors,
     )
     # finalizer
     if xref_unresolved(node)
@@ -369,7 +390,10 @@ function namedxref(node::MarkdownAST.Node, slug, meta, page, doc, errors)
         page = doc.blueprint.pages[pagekey]
         node.element = Documenter.PageLink(page, anchor_label(anchor))
     else
-        push!(errors, "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).")
+        push!(
+            errors,
+            "Header with slug '$slug' is not unique in $(Documenter.locrepr(page.source)).",
+        )
     end
     return
 end
@@ -437,7 +461,10 @@ function find_docref(code, mod, page)
             ex = Meta.parse(code)
         catch err
             isa(err, Meta.ParseError) || rethrow(err)
-            return (error = "unable to parse the reference `$code` in $(Documenter.locrepr(page.source)).", exception = nothing)
+            return (
+                error = "unable to parse the reference `$code` in $(Documenter.locrepr(page.source)).",
+                exception = nothing,
+            )
         end
     end
 
@@ -506,7 +533,7 @@ function find_object(binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-function find_object(λ::Union{Function, DataType}, binding, typesig)
+function find_object(λ::Union{Function,DataType}, binding, typesig)
     if hasmethod(λ, typesig)
         signature = getsig(λ, typesig)
         return Documenter.Object(binding, signature)
@@ -514,10 +541,11 @@ function find_object(λ::Union{Function, DataType}, binding, typesig)
         return Documenter.Object(binding, typesig)
     end
 end
-find_object(::Union{Function, DataType}, binding, ::Union{Union, Type{Union{}}}) = Documenter.Object(binding, Union{})
+find_object(::Union{Function,DataType}, binding, ::Union{Union,Type{Union{}}}) =
+    Documenter.Object(binding, Union{})
 find_object(other, binding, typesig) = Documenter.Object(binding, typesig)
 
-getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
+getsig(λ::Union{Function,DataType}, typesig) = Base.tuple_type_tail(which(λ, typesig).sig)
 
 
 # Issues/PRs cross referencing.
@@ -526,9 +554,13 @@ getsig(λ::Union{Function, DataType}, typesig) = Base.tuple_type_tail(which(λ, 
 function issue_xref(node::MarkdownAST.Node, num, meta, page, doc, errors)
     @assert node.element isa MarkdownAST.Link
     # Update issue links starting with a hash, but only if our Remote supports it
-    issue_url = isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
+    issue_url =
+        isnothing(doc.user.remote) ? nothing : Remotes.issueurl(doc.user.remote, num)
     if isnothing(issue_url)
-        push!(errors, "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).")
+        push!(
+            errors,
+            "unable to generate issue reference for '[`#$num`](@ref)' in $(Documenter.locrepr(page.source)).",
+        )
     else
         node.element.destination = issue_url
     end

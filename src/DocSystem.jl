@@ -42,8 +42,11 @@ binding(f::Function) = binding(parentmodule(f), nameof(f))
 #
 # Note that `IntrinsicFunction` is exported from `Base` in `0.4`, but not in `0.5`.
 #
-let INTRINSICS = Dict(map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all = true)))
-    global binding(i::Core.IntrinsicFunction) = binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
+let INTRINSICS = Dict(
+        map(s -> getfield(Core.Intrinsics, s) => s, names(Core.Intrinsics, all = true)),
+    )
+    global binding(i::Core.IntrinsicFunction) =
+        binding(Core.Intrinsics, INTRINSICS[i]::Symbol)
 end
 
 #
@@ -113,7 +116,7 @@ The optional keyword arguments are used to add new data to the `DocStr`'s
 `.data` dictionary.
 """
 function docstr(md::Markdown.MD; kws...)
-    data = Dict{Symbol, Any}(
+    data = Dict{Symbol,Any}(
         :path => md.meta[:path],
         :module => md.meta[:module],
         :linenumber => 0,
@@ -139,19 +142,19 @@ Converts a `0.4`-style docstring cache into a `0.5` one.
 
 The original docstring cache is not modified.
 """
-function convertmeta(meta::IdDict{Any, Any})
+function convertmeta(meta::IdDict{Any,Any})
     if !haskey(CACHED, meta)
-        docs = IdDict{Any, Any}()
+        docs = IdDict{Any,Any}()
         for (k, v) in meta
-            if !isa(k, Union{Number, AbstractString, IdDict{Any, Any}})
+            if !isa(k, Union{Number,AbstractString,IdDict{Any,Any}})
                 docs[binding(k)] = multidoc(v)
             end
         end
         CACHED[meta] = docs
     end
-    return CACHED[meta]::IdDict{Any, Any}
+    return CACHED[meta]::IdDict{Any,Any}
 end
-const CACHED = IdDict{Any, Any}()
+const CACHED = IdDict{Any,Any}()
 
 
 ## Get docs from modules.
@@ -168,11 +171,11 @@ Find all `DocStr` objects that match the provided arguments exactly.
 Return a `Vector{DocStr}` ordered by definition order.
 """
 function getspecificdocs(
-        binding::Docs.Binding,
-        typesig::Type = Union{},
-        compare = (==),
-        modules = Docs.modules,
-    )
+    binding::Docs.Binding,
+    typesig::Type = Union{},
+    compare = (==),
+    modules = Docs.modules,
+)
     # Fall back to searching all modules if user provides no modules.
     modules = isempty(modules) ? Docs.modules : modules
     # Keywords are special-cased within the docsystem. Handle those first.
@@ -205,12 +208,12 @@ That is, if [`getspecificdocs`](@ref) fails, get docs for aliases of
 try getting docs for `<:`.
 """
 function getdocs(
-        binding::Docs.Binding,
-        typesig::Type = Union{};
-        compare = (==),
-        modules = Docs.modules,
-        aliases = true,
-    )
+    binding::Docs.Binding,
+    typesig::Type = Union{};
+    compare = (==),
+    modules = Docs.modules,
+    aliases = true,
+)
     # First, we try to find the docs that _exactly_ match the binding. If you
     # have aliases, you can have a separate docstring attached to the alias.
     results = getspecificdocs(binding, typesig, compare, modules)

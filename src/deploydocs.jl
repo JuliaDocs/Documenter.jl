@@ -184,30 +184,25 @@ using the [`deploydocs`](@ref) function to automatically generate docs and push 
 GitHub.
 """
 function deploydocs(;
-        root = currentdir(),
-        target = "build",
-        dirname = "",
-
-        repo = error("no 'repo' keyword provided."),
-        branch = "gh-pages",
-
-        repo_previews = repo,
-        branch_previews = branch,
-
-        deps = nothing,
-        make = nothing,
-
-        cname = nothing,
-        devbranch = nothing,
-        devurl = "dev",
-        versions = ["stable" => "v^", "v#.#", devurl => devurl],
-        forcepush::Bool = false,
-        deploy_config = auto_detect_deploy_system(),
-        push_preview::Bool = false,
-        tag_prefix = "",
-
-        archive = nothing, # experimental and undocumented
-    )
+    root = currentdir(),
+    target = "build",
+    dirname = "",
+    repo = error("no 'repo' keyword provided."),
+    branch = "gh-pages",
+    repo_previews = repo,
+    branch_previews = branch,
+    deps = nothing,
+    make = nothing,
+    cname = nothing,
+    devbranch = nothing,
+    devurl = "dev",
+    versions = ["stable" => "v^", "v#.#", devurl => devurl],
+    forcepush::Bool = false,
+    deploy_config = auto_detect_deploy_system(),
+    push_preview::Bool = false,
+    tag_prefix = "",
+    archive = nothing, # experimental and undocumented
+)
 
     # Try to figure out default branch (see #1443 and #1727)
     if devbranch === nothing
@@ -230,7 +225,7 @@ function deploydocs(;
         push_preview = push_preview,
         repo = repo,
         repo_previews = repo_previews,
-        tag_prefix
+        tag_prefix,
     )
     if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
@@ -267,13 +262,11 @@ function deploydocs(;
             @debug "setting up target directory."
             isdir(target) || mkpath(target)
             if !startswith(realpath(target), realpath(root))
-                error(
-                    """
-                    target must be a subdirectory of root, got:
-                      target: $(realpath(target))
-                      root: $(realpath(root))
-                    """
-                )
+                error("""
+                      target must be a subdirectory of root, got:
+                        target: $(realpath(target))
+                        root: $(realpath(root))
+                      """)
             end
             # Run extra build steps defined in `make` if required.
             if make !== nothing
@@ -294,12 +287,21 @@ function deploydocs(;
             @debug "pushing new documentation to remote: '$deploy_repo:$deploy_branch'."
             mktempdir() do temp
                 git_push(
-                    root, temp, deploy_repo;
-                    branch = deploy_branch, dirname = dirname, target = target,
-                    sha = sha, deploy_config = deploy_config, subfolder = deploy_subfolder,
-                    cname = cname, devurl = devurl,
-                    versions = versions, forcepush = forcepush,
-                    is_preview = deploy_is_preview, archive = archive,
+                    root,
+                    temp,
+                    deploy_repo;
+                    branch = deploy_branch,
+                    dirname = dirname,
+                    target = target,
+                    sha = sha,
+                    deploy_config = deploy_config,
+                    subfolder = deploy_subfolder,
+                    cname = cname,
+                    devurl = devurl,
+                    versions = versions,
+                    forcepush = forcepush,
+                    is_preview = deploy_is_preview,
+                    archive = archive,
                 )
             end
         end
@@ -359,12 +361,22 @@ Handles pushing changes to the remote documentation branch.
 The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
-        root, temp, repo;
-        branch = "gh-pages", dirname = "", target = "site", sha = "",
-        cname = nothing, devurl = "dev",
-        versions, forcepush = false, deploy_config, subfolder,
-        is_preview::Bool = false, archive,
-    )
+    root,
+    temp,
+    repo;
+    branch = "gh-pages",
+    dirname = "",
+    target = "site",
+    sha = "",
+    cname = nothing,
+    devurl = "dev",
+    versions,
+    forcepush = false,
+    deploy_config,
+    subfolder,
+    is_preview::Bool = false,
+    archive,
+)
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
     isdir(dirname) || mkpath(dirname)
 
@@ -431,7 +443,11 @@ function git_push(
 
             # Create the versions.js file containing a list of `entries`.
             # This must always happen after the folder copying.
-            HTMLWriter.generate_version_file(joinpath(dirname, "versions.js"), entries, symlinks)
+            HTMLWriter.generate_version_file(
+                joinpath(dirname, "versions.js"),
+                entries,
+                symlinks,
+            )
 
             # Create the index.html file to redirect ./stable or ./dev.
             # This must always happen after the folder copying.
@@ -448,9 +464,9 @@ function git_push(
                             ArgumentError(
                                 string(
                                     "link `$(kv)` cannot overwrite ",
-                                    "`devurl = $(devurl)` with the same name."
-                                )
-                            )
+                                    "`devurl = $(devurl)` with the same name.",
+                                ),
+                            ),
                         )
                     end
                 end
@@ -458,7 +474,9 @@ function git_push(
         end
 
         # Add, commit, and push the docs to the remote.
-        run(`$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`)
+        run(
+            `$(git()) add -A -- ':!.documenter-identity-file.tmp' ':!**/.documenter-identity-file.tmp'`,
+        )
         if !success(`$(git()) diff --cached --exit-code`)
             if !isnothing(archive)
                 run(`$(git()) commit -m "build based on $sha"`)
@@ -513,7 +531,7 @@ function git_push(
                         IdentityFile "$keyfile"
                         IdentitiesOnly yes
                         BatchMode yes
-                    """
+                    """,
                 )
                 close(io)
                 chmod(sshconfig, 0o600)
@@ -564,7 +582,8 @@ Disassemble repo address into user, host, and path to repo. If no user is given,
 """
 function user_host_upstream(repo)
     # If the repo path contains the protocol, throw immediately an error.
-    occursin(r"^[a-z]+://", repo) && error("The repo path $(repo) should not contain the protocol (e.g. 'https://')")
+    occursin(r"^[a-z]+://", repo) &&
+        error("The repo path $(repo) should not contain the protocol (e.g. 'https://')")
     #= the regex has three parts:
     (?:([^@]*)@)?  matches any number of characters up to the first "@", if present,
         capturing only the characters before the "@" - this captures the username

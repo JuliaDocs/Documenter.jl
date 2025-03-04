@@ -142,7 +142,7 @@ Selectors.matcher(::Type{Debug}, x) = true
 Selectors.runner(::Type{Debug}, x) = @show x
 ```
 """
-strict(::Type{T}) where {T <: AbstractSelector} = true
+strict(::Type{T}) where {T<:AbstractSelector} = true
 
 """
 Disable a particular case in a selector so that it is never used.
@@ -151,7 +151,7 @@ Disable a particular case in a selector so that it is never used.
 Selectors.disable(::Type{Debug}) = true
 ```
 """
-disable(::Type{T}) where {T <: AbstractSelector} = false
+disable(::Type{T}) where {T<:AbstractSelector} = false
 
 """
 Call `Selectors.runner(T, args...)` where `T` is a subtype of
@@ -161,7 +161,7 @@ Call `Selectors.runner(T, args...)` where `T` is a subtype of
 Selectors.dispatch(MySelector, args...)
 ```
 """
-function dispatch(::Type{T}, x...) where {T <: AbstractSelector}
+function dispatch(::Type{T}, x...) where {T<:AbstractSelector}
     types = get!(selector_subtypes, T) do
         sort(leaf_subtypes(T); by = order)
     end
@@ -199,6 +199,6 @@ end
 # Under certain circumstances, the function `subtypes` can be very slow
 # (https://github.com/JuliaLang/julia/issues/38079), so to ensure that
 # `dispatch` remains fast we cache the results of `subtypes` here.
-const selector_subtypes = Dict{Type, Vector}()
+const selector_subtypes = Dict{Type,Vector}()
 
 end

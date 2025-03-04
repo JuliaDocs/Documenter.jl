@@ -67,13 +67,13 @@ manual pages can be disabled if `source` is set to `nothing`.
     fixing fails.
 """
 function doctest(
-        source::Union{AbstractString, Nothing},
-        modules::AbstractVector{Module};
-        fix = false,
-        testset = "Doctests",
-        doctestfilters = Regex[],
-        plugins = Plugin[],
-    )
+    source::Union{AbstractString,Nothing},
+    modules::AbstractVector{Module};
+    fix = false,
+    testset = "Doctests",
+    doctestfilters = Regex[],
+    plugins = Plugin[],
+)
     function all_doctests()
         dir = mktempdir()
         try
@@ -102,7 +102,8 @@ function doctest(
             try
                 rm(dir; recursive = true)
             catch e
-                @warn "Documenter was unable to clean up the temporary directory $(dir)" exception = e
+                @warn "Documenter was unable to clean up the temporary directory $(dir)" exception =
+                    e
             end
         end
     end

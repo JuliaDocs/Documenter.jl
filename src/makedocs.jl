@@ -302,8 +302,8 @@ function except(errors::Symbol...)
         throw(
             DomainError(
                 tuple(invalid_errors...),
-                "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)"
-            )
+                "Invalid error classes passed to Documenter.except. Valid error classes are: $(ERROR_NAMES)",
+            ),
         )
     end
     return setdiff(ERROR_NAMES, errors)
@@ -370,13 +370,13 @@ See the [Remote repository links](@ref) section in the manualfor more informatio
 struct MissingRemoteError <: Exception
     path::String
     linerange::Any
-    mod::Union{Module, Nothing}
+    mod::Union{Module,Nothing}
 
     function MissingRemoteError(;
-            path::AbstractString,
-            linerange = nothing,
-            mod::Union{Module, Nothing} = nothing
-        )
+        path::AbstractString,
+        linerange = nothing,
+        mod::Union{Module,Nothing} = nothing,
+    )
         return new(path, linerange, mod)
     end
 end
@@ -387,11 +387,12 @@ function Base.showerror(io::IO, e::MissingRemoteError)
     println(io)
     isnothing(e.mod) || println(io, "  module: ", e.mod)
     return print(
-        io, """
-        Documenter was unable to automatically determine the remote repository for this file.
-        This can happen if you are including docstrings or pages from secondary packages. Those packages
-        must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
-        must be configured appropriately. See the 'Remote repository links' section in the manual for
-        more information."""
+        io,
+        """
+    Documenter was unable to automatically determine the remote repository for this file.
+    This can happen if you are including docstrings or pages from secondary packages. Those packages
+    must be cloned as Git repositories (i.e. Pkg.develop instead Pkg.add), or the `remotes` keyword
+    must be configured appropriately. See the 'Remote repository links' section in the manual for
+    more information.""",
     )
 end

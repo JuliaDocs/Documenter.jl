@@ -99,7 +99,12 @@ function repofile(remote::Remote, ref, filename, linerange = nothing)
     filename = lstrip(filename, '/') # remove leading spaces
     # Only pass UnitRanges to user code (even though we require the users to support any
     # collection supporting first/last).
-    return fileurl(remote, ref, filename, isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)))
+    return fileurl(
+        remote,
+        ref,
+        filename,
+        isnothing(linerange) ? nothing : Int(first(linerange)):Int(last(linerange)),
+    )
 end
 
 """
@@ -209,13 +214,14 @@ configuring Documenter.
 """
 struct URL <: Remote
     urltemplate::String
-    repourl::Union{String, Nothing}
+    repourl::Union{String,Nothing}
     URL(urltemplate, repourl = nothing) = new(urltemplate, repourl)
 end
 repourl(remote::URL) = remote.repourl
 function fileurl(remote::URL, ref, filename, linerange)
     hosttype = repo_host_from_url(remote.urltemplate)
-    lines = (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
+    lines =
+        (linerange === nothing) ? "" : format_line(linerange, LineRangeFormatting(hosttype))
     ref = format_commit(ref, hosttype)
     # lines = if linerange !== nothing
     # end

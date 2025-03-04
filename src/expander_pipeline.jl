@@ -32,12 +32,8 @@ Similar to `expand()`, but recursively calls itself on all descendants of `node`
 and applies `NestedExpanderPipeline` instead of `ExpanderPipeline`.
 """
 function expand_recursively(node, page, doc)
-    if typeof(node.element) in (
-            MarkdownAST.Admonition,
-            MarkdownAST.BlockQuote,
-            MarkdownAST.Item,
-            MarkdownAST.List,
-        )
+    if typeof(node.element) in
+       (MarkdownAST.Admonition, MarkdownAST.BlockQuote, MarkdownAST.Item, MarkdownAST.List)
         for child in node.children
             Selectors.dispatch(Expanders.NestedExpanderPipeline, child, page, doc)
             expand_recursively(child, page, doc)
@@ -49,7 +45,8 @@ end
 # run some checks after expanding the page
 function pagecheck(page)
     # make sure there is no "continued code" lingering around
-    if haskey(page.globals.meta, :ContinuedCode) && !isempty(page.globals.meta[:ContinuedCode])
+    if haskey(page.globals.meta, :ContinuedCode) &&
+       !isempty(page.globals.meta[:ContinuedCode])
         @warn "code from a continued @example block unused in $(Documenter.locrepr(page.source))."
     end
     return
@@ -64,8 +61,10 @@ function create_draft_result!(node::Node; blocktype = "code")
     push!(node.children, Node(codeblock))
     outputnode = Node(
         Documenter.MultiOutputElement(
-            Dict{MIME, Any}(MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>")
-        )
+            Dict{MIME,Any}(
+                MIME"text/plain"() => "<< $(blocktype)-block not executed in draft mode >>",
+            ),
+        ),
     )
     push!(node.children, outputnode)
     return
@@ -74,154 +73,154 @@ end
 
 # Expander Pipeline.
 module Expanders
-    import ..Documenter # for docstring references
-    import ..Documenter.Selectors
+import ..Documenter # for docstring references
+import ..Documenter.Selectors
 
-    """
-    The default node expander "pipeline", which consists of the following expanders:
+"""
+The default node expander "pipeline", which consists of the following expanders:
 
-    - [`TrackHeaders`](@ref)
-    - [`MetaBlocks`](@ref)
-    - [`DocsBlocks`](@ref)
-    - [`AutoDocsBlocks`](@ref)
-    - [`EvalBlocks`](@ref)
-    - [`IndexBlocks`](@ref)
-    - [`ContentsBlocks`](@ref)
-    - [`ExampleBlocks`](@ref)
-    - [`SetupBlocks`](@ref)
-    - [`REPLBlocks`](@ref)
+- [`TrackHeaders`](@ref)
+- [`MetaBlocks`](@ref)
+- [`DocsBlocks`](@ref)
+- [`AutoDocsBlocks`](@ref)
+- [`EvalBlocks`](@ref)
+- [`IndexBlocks`](@ref)
+- [`ContentsBlocks`](@ref)
+- [`ExampleBlocks`](@ref)
+- [`SetupBlocks`](@ref)
+- [`REPLBlocks`](@ref)
 
-    """
-    abstract type ExpanderPipeline <: Selectors.AbstractSelector end
+"""
+abstract type ExpanderPipeline <: Selectors.AbstractSelector end
 
-    """
-    The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts.
+"""
+The subset of [node expanders](@ref ExpanderPipeline) which also apply in nested contexts.
 
-    See also [`expand_recursively`](@ref Documenter.expand_recursively).
-    """
-    abstract type NestedExpanderPipeline <: ExpanderPipeline end
+See also [`expand_recursively`](@ref Documenter.expand_recursively).
+"""
+abstract type NestedExpanderPipeline <: ExpanderPipeline end
 
-    """
-    Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
-    [`Anchor`](@ref Documenter.Anchor) object for each one.
-    """
-    abstract type TrackHeaders <: ExpanderPipeline end
+"""
+Tracks all `Markdown.Header` nodes found in the parsed markdown files and stores an
+[`Anchor`](@ref Documenter.Anchor) object for each one.
+"""
+abstract type TrackHeaders <: ExpanderPipeline end
 
-    """
-    Parses each code block where the language is `@meta` and evaluates the key/value pairs found
-    within the block, i.e.
+"""
+Parses each code block where the language is `@meta` and evaluates the key/value pairs found
+within the block, i.e.
 
-    ````markdown
-    ```@meta
-    CurrentModule = Documenter
-    DocTestSetup  = quote
-        using Documenter
-    end
-    ```
-    ````
-    """
-    abstract type MetaBlocks <: ExpanderPipeline end
+````markdown
+```@meta
+CurrentModule = Documenter
+DocTestSetup  = quote
+    using Documenter
+end
+```
+````
+"""
+abstract type MetaBlocks <: ExpanderPipeline end
 
-    """
-    Parses each code block where the language is `@docs` and evaluates the expressions found
-    within the block. Replaces the block with the docstrings associated with each expression.
+"""
+Parses each code block where the language is `@docs` and evaluates the expressions found
+within the block. Replaces the block with the docstrings associated with each expression.
 
-    ````markdown
-    ```@docs
-    Documenter
-    makedocs
-    deploydocs
-    ```
-    ````
-    """
-    abstract type DocsBlocks <: ExpanderPipeline end
+````markdown
+```@docs
+Documenter
+makedocs
+deploydocs
+```
+````
+"""
+abstract type DocsBlocks <: ExpanderPipeline end
 
-    """
-    Parses each code block where the language is `@autodocs` and replaces it with all the
-    docstrings that match the provided key/value pairs `Modules = ...` and `Order = ...`.
+"""
+Parses each code block where the language is `@autodocs` and replaces it with all the
+docstrings that match the provided key/value pairs `Modules = ...` and `Order = ...`.
 
-    ````markdown
-    ```@autodocs
-    Modules = [Foo, Bar]
-    Order   = [:function, :type]
-    ```
-    ````
-    """
-    abstract type AutoDocsBlocks <: ExpanderPipeline end
+````markdown
+```@autodocs
+Modules = [Foo, Bar]
+Order   = [:function, :type]
+```
+````
+"""
+abstract type AutoDocsBlocks <: ExpanderPipeline end
 
-    """
-    Parses each code block where the language is `@eval` and evaluates it's content. Replaces
-    the block with the value resulting from the evaluation. This can be useful for inserting
-    generated content into a document such as plots.
+"""
+Parses each code block where the language is `@eval` and evaluates it's content. Replaces
+the block with the value resulting from the evaluation. This can be useful for inserting
+generated content into a document such as plots.
 
-    ````markdown
-    ```@eval
-    using PyPlot
-    x = linspace(-π, π)
-    y = sin(x)
-    plot(x, y, color = "red")
-    savefig("plot.svg")
-    Markdown.parse("![Plot](plot.svg)")
-    ```
-    ````
-    """
-    abstract type EvalBlocks <: NestedExpanderPipeline end
+````markdown
+```@eval
+using PyPlot
+x = linspace(-π, π)
+y = sin(x)
+plot(x, y, color = "red")
+savefig("plot.svg")
+Markdown.parse("![Plot](plot.svg)")
+```
+````
+"""
+abstract type EvalBlocks <: NestedExpanderPipeline end
 
-    abstract type RawBlocks <: NestedExpanderPipeline end
+abstract type RawBlocks <: NestedExpanderPipeline end
 
-    """
-    Parses each code block where the language is `@index` and replaces it with an index of all
-    docstrings spliced into the document. The pages that are included can be set using a
-    key/value pair `Pages = [...]` such as
+"""
+Parses each code block where the language is `@index` and replaces it with an index of all
+docstrings spliced into the document. The pages that are included can be set using a
+key/value pair `Pages = [...]` such as
 
-    ````markdown
-    ```@index
-    Pages = ["foo.md", "bar.md"]
-    ```
-    ````
-    """
-    abstract type IndexBlocks <: ExpanderPipeline end
+````markdown
+```@index
+Pages = ["foo.md", "bar.md"]
+```
+````
+"""
+abstract type IndexBlocks <: ExpanderPipeline end
 
-    """
-    Parses each code block where the language is `@contents` and replaces it with a nested list
-    of all `Header` nodes in the generated document. The pages and depth of the list can be set
-    using `Pages = [...]` and `Depth = N` where `N` is and integer.
+"""
+Parses each code block where the language is `@contents` and replaces it with a nested list
+of all `Header` nodes in the generated document. The pages and depth of the list can be set
+using `Pages = [...]` and `Depth = N` where `N` is and integer.
 
-    ````markdown
-    ```@contents
-    Pages = ["foo.md", "bar.md"]
-    Depth = 1
-    ```
-    ````
-    The default `Depth` value is `2`.
-    """
-    abstract type ContentsBlocks <: ExpanderPipeline end
+````markdown
+```@contents
+Pages = ["foo.md", "bar.md"]
+Depth = 1
+```
+````
+The default `Depth` value is `2`.
+"""
+abstract type ContentsBlocks <: ExpanderPipeline end
 
-    """
-    Parses each code block where the language is `@example` and evaluates the parsed Julia code
-    found within. The resulting value is then inserted into the final document after the source
-    code.
+"""
+Parses each code block where the language is `@example` and evaluates the parsed Julia code
+found within. The resulting value is then inserted into the final document after the source
+code.
 
-    ````markdown
-    ```@example
-    a = 1
-    b = 2
-    a + b
-    ```
-    ````
-    """
-    abstract type ExampleBlocks <: NestedExpanderPipeline end
+````markdown
+```@example
+a = 1
+b = 2
+a + b
+```
+````
+"""
+abstract type ExampleBlocks <: NestedExpanderPipeline end
 
-    """
-    Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
-    toplevel expression in the final document.
-    """
-    abstract type REPLBlocks <: NestedExpanderPipeline end
+"""
+Similar to the [`ExampleBlocks`](@ref) expander, but inserts a Julia REPL prompt before each
+toplevel expression in the final document.
+"""
+abstract type REPLBlocks <: NestedExpanderPipeline end
 
-    """
-    Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
-    """
-    abstract type SetupBlocks <: NestedExpanderPipeline end
+"""
+Similar to the [`ExampleBlocks`](@ref) expander, but hides all output in the final document.
+"""
+abstract type SetupBlocks <: NestedExpanderPipeline end
 end
 
 Selectors.order(::Type{Expanders.TrackHeaders}) = 1.0
@@ -236,14 +235,18 @@ Selectors.order(::Type{Expanders.REPLBlocks}) = 9.0
 Selectors.order(::Type{Expanders.SetupBlocks}) = 10.0
 Selectors.order(::Type{Expanders.RawBlocks}) = 11.0
 
-Selectors.matcher(::Type{Expanders.TrackHeaders}, node, page, doc) = isa(node.element, MarkdownAST.Heading)
+Selectors.matcher(::Type{Expanders.TrackHeaders}, node, page, doc) =
+    isa(node.element, MarkdownAST.Heading)
 Selectors.matcher(::Type{Expanders.MetaBlocks}, node, page, doc) = iscode(node, "@meta")
 Selectors.matcher(::Type{Expanders.DocsBlocks}, node, page, doc) = iscode(node, r"^@docs")
-Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) = iscode(node, r"^@autodocs")
+Selectors.matcher(::Type{Expanders.AutoDocsBlocks}, node, page, doc) =
+    iscode(node, r"^@autodocs")
 Selectors.matcher(::Type{Expanders.EvalBlocks}, node, page, doc) = iscode(node, "@eval")
 Selectors.matcher(::Type{Expanders.IndexBlocks}, node, page, doc) = iscode(node, "@index")
-Selectors.matcher(::Type{Expanders.ContentsBlocks}, node, page, doc) = iscode(node, "@contents")
-Selectors.matcher(::Type{Expanders.ExampleBlocks}, node, page, doc) = iscode(node, r"^@example")
+Selectors.matcher(::Type{Expanders.ContentsBlocks}, node, page, doc) =
+    iscode(node, "@contents")
+Selectors.matcher(::Type{Expanders.ExampleBlocks}, node, page, doc) =
+    iscode(node, r"^@example")
 Selectors.matcher(::Type{Expanders.REPLBlocks}, node, page, doc) = iscode(node, r"^@repl")
 Selectors.matcher(::Type{Expanders.SetupBlocks}, node, page, doc) = iscode(node, r"^@setup")
 Selectors.matcher(::Type{Expanders.RawBlocks}, node, page, doc) = iscode(node, r"^@raw")
@@ -300,24 +303,36 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
         # wants to hide. We should probably warn, but it is common enough that
         # we will silently skip for now.
         if Documenter.isassign(ex)
-            if !(ex.args[1] in (:CurrentModule, :DocTestSetup, :DocTestFilters, :EditURL, :Description, :Draft, :CollapsedDocStrings))
+            if !(
+                ex.args[1] in (
+                    :CurrentModule,
+                    :DocTestSetup,
+                    :DocTestFilters,
+                    :EditURL,
+                    :Description,
+                    :Draft,
+                    :CollapsedDocStrings,
+                )
+            )
                 source = Documenter.locrepr(page.source, lines)
                 @warn(
                     "In $source: `@meta` block has an unsupported " *
-                        "keyword argument: $(ex.args[1])",
+                    "keyword argument: $(ex.args[1])",
                 )
             end
             try
                 meta[ex.args[1]] = Core.eval(Main, ex.args[2])
             catch err
                 @docerror(
-                    doc, :meta_block,
+                    doc,
+                    :meta_block,
                     """
                     failed to evaluate `$(strip(str))` in `@meta` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = err
+                    """,
+                    exception = err
                 )
             end
         end
@@ -389,7 +404,8 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             Documenter.DocSystem.binding(curmod, ex)
         catch err
             @docerror(
-                doc, :docs_block,
+                doc,
+                :docs_block,
                 """
                 unable to get the binding for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines)) from expression '$(repr(ex))' in module $(curmod)
                 ```$(x.info)
@@ -402,9 +418,11 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
             continue
         end
         # Undefined `Bindings` get discarded.
-        if !Documenter.DocSystem.iskeyword(binding) && !Documenter.DocSystem.defined(binding)
+        if !Documenter.DocSystem.iskeyword(binding) &&
+           !Documenter.DocSystem.defined(binding)
             @docerror(
-                doc, :docs_block,
+                doc,
+                :docs_block,
                 """
                 undefined binding '$(binding)' in `@docs` block in $(Documenter.locrepr(page.source, lines))
                 ```$(x.info)
@@ -420,7 +438,8 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
         # We can't include the same object more than once in a document.
         if haskey(doc.internal.objects, object)
             @docerror(
-                doc, :docs_block,
+                doc,
+                :docs_block,
                 """
                 duplicate docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
                 ```$(x.info)
@@ -433,7 +452,8 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
         end
 
         # Find the docs matching `binding` and `typesig`. Only search within the provided modules.
-        docs = Documenter.DocSystem.getdocs(binding, typesig; modules = doc.blueprint.modules)
+        docs =
+            Documenter.DocSystem.getdocs(binding, typesig; modules = doc.blueprint.modules)
 
         # Include only docstrings from user-provided modules if provided.
         if !isempty(doc.blueprint.modules)
@@ -443,7 +463,8 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
         # Check that we aren't printing an empty docs list. Skip block when empty.
         if isempty(docs)
             @docerror(
-                doc, :docs_block,
+                doc,
+                :docs_block,
                 """
                 no docs found for '$(strip(str))' in `@docs` block in $(Documenter.locrepr(page.source, lines))
                 ```$(x.info)
@@ -482,7 +503,7 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
     x = node.element
     is_canonical = parse_docs_args("autodocs", x.info)
     curmod = get(page.globals.meta, :CurrentModule, Main)
-    fields = Dict{Symbol, Any}()
+    fields = Dict{Symbol,Any}()
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @autodocs block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(x.code, doc, page)
@@ -496,18 +517,20 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     source = Documenter.locrepr(page.source, lines)
                     @warn(
                         "In $source: `@autodocs` block has an unsupported " *
-                            "keyword argument: $(ex.args[1])",
+                        "keyword argument: $(ex.args[1])",
                     )
                 end
             catch err
                 @docerror(
-                    doc, :autodocs_block,
+                    doc,
+                    :autodocs_block,
                     """
                     failed to evaluate `$(strip(str))` in `@autodocs` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = err
+                    """,
+                    exception = err
                 )
             end
         end
@@ -532,7 +555,8 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                 catch err
                     isa(err, UndefVarError) || rethrow(err)
                     @docerror(
-                        doc, :autodocs_block,
+                        doc,
+                        :autodocs_block,
                         """
                         @autodocs ($(Documenter.locrepr(page.source, lines))) encountered a bad docstring binding '$(binding)'
                         ```$(x.info)
@@ -550,7 +574,8 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                           warnonly = [:autodocs_block]
 
                         However, the relevant docstrings will then not be included by the @autodocs block.
-                        """, exception = err
+                        """,
+                        exception = err
                     )
                     continue # skip this docstring
                 end
@@ -558,17 +583,24 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
                     # filter the elements after category/order has been evaluated
                     # to ensure that e.g. when `Order = [:type]` is given, the filter
                     # function really receives only types
-                    filtered = Base.invokelatest(filterfunc, Core.eval(binding.mod, binding.var))
+                    filtered =
+                        Base.invokelatest(filterfunc, Core.eval(binding.mod, binding.var))
                     if filtered
                         for (typesig, docstr) in multidoc.docs
                             path = normpath(docstr.data[:path])
                             object = make_object(binding, typesig, is_canonical, doc, page)
                             if isempty(pages)
-                                push!(results, (mod, path, category, object, isexported, docstr))
+                                push!(
+                                    results,
+                                    (mod, path, category, object, isexported, docstr),
+                                )
                             else
                                 for p in pages
                                     if endswith(path, p)
-                                        push!(results, (mod, p, category, object, isexported, docstr))
+                                        push!(
+                                            results,
+                                            (mod, p, category, object, isexported, docstr),
+                                        )
                                         break
                                     end
                                 end
@@ -606,7 +638,8 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         for (mod, path, category, object, isexported, docstr) in results
             if haskey(doc.internal.objects, object)
                 @docerror(
-                    doc, :autodocs_block,
+                    doc,
+                    :autodocs_block,
                     """
                     duplicate docs found for '$(object.binding)' in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
@@ -631,7 +664,8 @@ function Selectors.runner(::Type{Expanders.AutoDocsBlocks}, node, page, doc)
         end
     else
         @docerror(
-            doc, :autodocs_block,
+            doc,
+            :autodocs_block,
             """
             '@autodocs' missing 'Modules = ...' in $(Documenter.locrepr(page.source, lines))
             ```$(x.info)
@@ -658,27 +692,32 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
     end
     sandbox = Module(:EvalBlockSandbox)
     lines = Documenter.find_block_in_file(x.code, page.source)
-    linenumbernode = LineNumberNode(
-        lines === nothing ? 0 : lines.first, basename(page.source)
-    )
+    linenumbernode =
+        LineNumberNode(lines === nothing ? 0 : lines.first, basename(page.source))
     @debug "Evaluating @eval block:\n$(x.code)"
     cd(page.workdir) do
         result = nothing
         for (ex, str) in Documenter.parseblock(
-                x.code, doc, page; keywords = false, linenumbernode = linenumbernode
-            )
+            x.code,
+            doc,
+            page;
+            keywords = false,
+            linenumbernode = linenumbernode,
+        )
             try
                 result = Core.eval(sandbox, ex)
             catch err
                 bt = Documenter.remove_common_backtrace(catch_backtrace())
                 @docerror(
-                    doc, :eval_block,
+                    doc,
+                    :eval_block,
                     """
                     failed to evaluate `@eval` block in $(Documenter.locrepr(page.source))
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = (err, bt)
+                    """,
+                    exception = (err, bt)
                 )
             end
         end
@@ -690,19 +729,21 @@ function Selectors.runner(::Type{Expanders.EvalBlocks}, node, page, doc)
             # TODO: we could handle the cases where the user provides some of the Markdown library
             # objects, like Paragraph.
             @docerror(
-                doc, :eval_block, """
-                Invalid type of object in @eval in $(Documenter.locrepr(page.source))
-                ```$(x.info)
-                $(x.code)
-                ```
-                Evaluated to `$(typeof(result))`, but should be one of
-                 - Nothing
-                 - Markdown.MD
-                Falling back to textual code block representation.
-
-                If you are seeing this warning/error after upgrading Documenter and this used to work,
-                please open an issue on the Documenter issue tracker.
+                doc,
+                :eval_block,
                 """
+Invalid type of object in @eval in $(Documenter.locrepr(page.source))
+```$(x.info)
+$(x.code)
+```
+Evaluated to `$(typeof(result))`, but should be one of
+ - Nothing
+ - Markdown.MD
+Falling back to textual code block representation.
+
+If you are seeing this warning/error after upgrading Documenter and this used to work,
+please open an issue on the Documenter issue tracker.
+"""
             )
             MarkdownAST.@ast MarkdownAST.Document() do
                 MarkdownAST.CodeBlock("", sprint(show, MIME"text/plain"(), result))
@@ -786,18 +827,22 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     result, buffer = nothing, IOBuffer()
     if !continued # run the code
         # check if there is any code waiting
-        if haskey(page.globals.meta, :ContinuedCode) && haskey(page.globals.meta[:ContinuedCode], sym)
+        if haskey(page.globals.meta, :ContinuedCode) &&
+           haskey(page.globals.meta[:ContinuedCode], sym)
             code = page.globals.meta[:ContinuedCode][sym] * '\n' * x.code
             delete!(page.globals.meta[:ContinuedCode], sym)
         else
             code = x.code
         end
-        linenumbernode = LineNumberNode(
-            lines === nothing ? 0 : lines.first, basename(page.source)
-        )
+        linenumbernode =
+            LineNumberNode(lines === nothing ? 0 : lines.first, basename(page.source))
         for (ex, str) in Documenter.parseblock(
-                code, doc, page; keywords = false, linenumbernode = linenumbernode
-            )
+            code,
+            doc,
+            page;
+            keywords = false,
+            linenumbernode = linenumbernode,
+        )
             c = IOCapture.capture(rethrow = InterruptException, color = ansicolor) do
                 cd(page.workdir) do
                     Core.eval(mod, ex)
@@ -809,13 +854,15 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
             if c.error
                 bt = Documenter.remove_common_backtrace(c.backtrace)
                 @docerror(
-                    doc, :example_block,
+                    doc,
+                    :example_block,
                     """
                     failed to run `@example` block in $(Documenter.locrepr(page.source, lines))
                     ```$(x.info)
                     $(x.code)
                     ```
-                    """, exception = (c.value, bt)
+                    """,
+                    exception = (c.value, bt)
                 )
                 return
             end
@@ -829,7 +876,8 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     input = droplines(x.code)
 
     # Generate different  in different formats and let each writer select
-    output = Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
+    output =
+        Base.invokelatest(Documenter.display_dict, result, context = :color => ansicolor)
     # Remove references to gensym'd module from text/plain
     m = MIME"text/plain"()
     if haskey(output, m)
@@ -841,7 +889,14 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     if result === nothing
         stdouterr = Documenter.sanitise(buffer)
         stdouterr = remove_sandbox_from_output(stdouterr, mod)
-        isempty(stdouterr) || push!(content, Node(Documenter.MultiOutputElement(Dict{MIME, Any}(MIME"text/plain"() => stdouterr))))
+        isempty(stdouterr) || push!(
+            content,
+            Node(
+                Documenter.MultiOutputElement(
+                    Dict{MIME,Any}(MIME"text/plain"() => stdouterr),
+                ),
+            ),
+        )
     elseif !isempty(output)
         push!(content, Node(Documenter.MultiOutputElement(output)))
     end
@@ -890,8 +945,12 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     linenumbernode = LineNumberNode(0, "REPL") # line unused, set to 0
     @debug "Evaluating @repl block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(
-            x.code, doc, page; keywords = false, linenumbernode = linenumbernode
-        )
+        x.code,
+        doc,
+        page;
+        keywords = false,
+        linenumbernode = linenumbernode,
+    )
         input = droplines(str)
         # Use the REPL softscope for REPLBlocks,
         # see https://github.com/JuliaLang/julia/pull/33864
@@ -911,7 +970,10 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
             error_to_string(buf, c.value, [])
         end
         if !isempty(input)
-            push!(multicodeblock, MarkdownAST.CodeBlock("julia-repl", prepend_prompt(input)))
+            push!(
+                multicodeblock,
+                MarkdownAST.CodeBlock("julia-repl", prepend_prompt(input)),
+            )
         end
         out = IOBuffer()
         print(out, c.output) # c.output is std(out|err)
@@ -963,13 +1025,15 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     catch err
         bt = Documenter.remove_common_backtrace(catch_backtrace())
         @docerror(
-            doc, :setup_block,
+            doc,
+            :setup_block,
             """
             failed to run `@setup` block in $(Documenter.locrepr(page.source))
             ```$(x.info)
             $(x.code)
             ```
-            """, exception = (err, bt)
+            """,
+            exception = (err, bt)
         )
     end
     node.element = Documenter.SetupNode(x.info, x.code)
@@ -1012,7 +1076,7 @@ end
 # Remove any `# hide` lines, leading/trailing blank lines, and trailing whitespace.
 function droplines(code; skip = 0)
     buffer = IOBuffer()
-    for line in split(code, r"\r?\n")[(skip + 1):end]
+    for line in split(code, r"\r?\n")[(skip+1):end]
         occursin(r"^(.*)#\s*hide$", line) && continue
         println(buffer, rstrip(line))
     end
