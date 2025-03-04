@@ -44,20 +44,20 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `
+    `,
   );
 
   function checkURLForSearch() {
     const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('q');
+    const searchQuery = urlParams.get("q");
 
-    if(searchQuery) {
+    if (searchQuery) {
       //only if there is a search query, open the modal
       openModal();
     }
   }
 
-  //this function will be called whenver the page will load
+  //this function will be called whenvever the page will load
   checkURLForSearch();
 
   document.querySelector(".docs-search-query").addEventListener("click", () => {

@@ -31,7 +31,7 @@ $(document).on(
         .prop("title", articleToggleTitle);
       parent.siblings("section").slideToggle();
     });
-  }
+  },
 );
 
 $(document).on("click", ".docs-article-toggle-button", function (event) {
