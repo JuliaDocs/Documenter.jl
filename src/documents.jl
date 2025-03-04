@@ -148,11 +148,6 @@ struct MetaNode <: AbstractDocumenterBlock
     dict::Dict{Symbol, Any}
 end
 
-struct MethodNode
-    method::Method
-    visible::Bool
-end
-
 struct DocsNode <: AbstractDocumenterBlock
     anchor::Anchor
     object::Object
