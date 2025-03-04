@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Symlinks are now followed when walking the docs directory. ([#2610])
 * PDF/LaTeX builds now throw a more informative error when `sitename` is not provided. ([#2636])
-* Removed unused struct `MethodNode`.
 
 ## Version [v1.8.1] - 2025-02-11
 
