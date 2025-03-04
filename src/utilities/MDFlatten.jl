@@ -21,7 +21,7 @@ then be used as input for search engines.
 mdflatten(node) = sprint(mdflatten, node)
 
 mdflatten(io, node::Node) = mdflatten(io, node, node.element)
-mdflatten(io, nodes::Vector{T}) where {T <: Node} = foreach(n -> mdflatten(io, n), nodes)
+mdflatten(io, nodes::Vector{T}) where {T<:Node} = foreach(n -> mdflatten(io, n), nodes)
 function mdflatten(io, children::MarkdownAST.NodeChildren)
     # this special case separates top level blocks with newlines
     newlines = isa(children.parent.element, MarkdownAST.Document)
@@ -32,16 +32,26 @@ function mdflatten(io, children::MarkdownAST.NodeChildren)
     return
 end
 
-mdflatten(io, node::Node, e::MarkdownAST.AbstractElement) = error("Unimplemented element for mdflatten: $(typeof(e))")
+mdflatten(io, node::Node, e::MarkdownAST.AbstractElement) =
+    error("Unimplemented element for mdflatten: $(typeof(e))")
 
 # Most block and inline (container) elements just reduce down to printing out their
 # child nodes.
-function mdflatten(io, node::Node, ::T) where {
-        T <: Union{
-            MarkdownAST.Document, MarkdownAST.Heading, MarkdownAST.Paragraph,
-            MarkdownAST.BlockQuote, MarkdownAST.Link, MarkdownAST.Strong, MarkdownAST.Emph,
-        },
-    }
+function mdflatten(
+    io,
+    node::Node,
+    ::T,
+) where {
+    T<:Union{
+        MarkdownAST.Document,
+        MarkdownAST.Heading,
+        MarkdownAST.Paragraph,
+        MarkdownAST.BlockQuote,
+        MarkdownAST.Link,
+        MarkdownAST.Strong,
+        MarkdownAST.Emph,
+    },
+}
     return mdflatten(io, node.children)
 end
 
@@ -75,12 +85,14 @@ function mdflatten(io, node::Node, e::MarkdownAST.Image)
     print(io, ")")
     return
 end
-mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath, MarkdownAST.DisplayMath}) = print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
+mdflatten(io, node::Node, m::Union{MarkdownAST.InlineMath,MarkdownAST.DisplayMath}) =
+    print(io, replace(m.math, r"[^()+\-*^=\w\s]" => ""))
 mdflatten(io, node::Node, e::MarkdownAST.LineBreak) = print(io, '\n')
 mdflatten(io, node::Node, ::MarkdownAST.ThematicBreak) = nothing
 
 # Is both inline and block
-mdflatten(io, node::Node, c::Union{MarkdownAST.Code, MarkdownAST.CodeBlock}) = print(io, c.code)
+mdflatten(io, node::Node, c::Union{MarkdownAST.Code,MarkdownAST.CodeBlock}) =
+    print(io, c.code)
 
 # Special (inline) "node" -- due to JuliaMark's interpolations
 mdflatten(io, node::Node, value::MarkdownAST.JuliaValue) = print(io, value.ref)

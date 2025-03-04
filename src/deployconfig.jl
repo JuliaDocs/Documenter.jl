@@ -99,7 +99,7 @@ This method must be supported by configs that push with HTTPS, see
 """
 function authenticated_repo_url end
 
-post_status(cfg::Union{DeployConfig, Nothing}; kwargs...) = nothing
+post_status(cfg::Union{DeployConfig,Nothing}; kwargs...) = nothing
 
 marker(x) = x ? "✔" : "✘"
 
@@ -157,24 +157,27 @@ function Travis()
     travis_tag = get(ENV, "TRAVIS_TAG", "")
     travis_event_type = get(ENV, "TRAVIS_EVENT_TYPE", "")
     return Travis(
-        travis_branch, travis_pull_request,
-        travis_repo_slug, travis_tag, travis_event_type
+        travis_branch,
+        travis_pull_request,
+        travis_repo_slug,
+        travis_tag,
+        travis_event_type,
     )
 end
 
 # Check criteria for deployment
 function deploy_folder(
-        cfg::Travis;
-        repo,
-        repo_previews = repo,
-        branch = "gh-pages",
-        branch_previews = branch,
-        devbranch,
-        push_preview,
-        devurl,
-        tag_prefix = "",
-        kwargs...
-    )
+    cfg::Travis;
+    repo,
+    repo_previews = repo,
+    branch = "gh-pages",
+    branch_previews = branch,
+    devbranch,
+    push_preview,
+    devurl,
+    tag_prefix = "",
+    kwargs...,
+)
     io = IOBuffer()
     all_ok = true
     ## Determine build type; release, devbranch or preview
@@ -189,17 +192,26 @@ function deploy_folder(
     ## The deploydocs' repo should match TRAVIS_REPO_SLUG
     repo_ok = occursin(cfg.travis_repo_slug, repo)
     all_ok &= repo_ok
-    println(io, "- $(marker(repo_ok)) ENV[\"TRAVIS_REPO_SLUG\"]=\"$(cfg.travis_repo_slug)\" occurs in repo=\"$(repo)\"")
+    println(
+        io,
+        "- $(marker(repo_ok)) ENV[\"TRAVIS_REPO_SLUG\"]=\"$(cfg.travis_repo_slug)\" occurs in repo=\"$(repo)\"",
+    )
     if build_type === :release
         ## Do not deploy for PRs
         pr_ok = cfg.travis_pull_request == "false"
-        println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"")
+        println(
+            io,
+            "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"",
+        )
         all_ok &= pr_ok
         tag_nobuild = version_tag_strip_build(cfg.travis_tag; tag_prefix)
         ## If a tag exist it should be a valid VersionNumber
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
-        println(io, "- $(marker(tag_ok)) ENV[\"TRAVIS_TAG\"] contains a valid VersionNumber")
+        println(
+            io,
+            "- $(marker(tag_ok)) ENV[\"TRAVIS_TAG\"] contains a valid VersionNumber",
+        )
         deploy_branch = branch
         deploy_repo = repo
         is_preview = false
@@ -208,12 +220,18 @@ function deploy_folder(
     elseif build_type === :devbranch
         ## Do not deploy for PRs
         pr_ok = cfg.travis_pull_request == "false"
-        println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"")
+        println(
+            io,
+            "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is \"false\"",
+        )
         all_ok &= pr_ok
         ## deploydocs' devbranch should match TRAVIS_BRANCH
         branch_ok = !isempty(cfg.travis_tag) || cfg.travis_branch == devbranch
         all_ok &= branch_ok
-        println(io, "- $(marker(branch_ok)) ENV[\"TRAVIS_BRANCH\"] matches devbranch=\"$(devbranch)\"")
+        println(
+            io,
+            "- $(marker(branch_ok)) ENV[\"TRAVIS_BRANCH\"] matches devbranch=\"$(devbranch)\"",
+        )
         deploy_branch = branch
         deploy_repo = repo
         is_preview = false
@@ -223,10 +241,16 @@ function deploy_folder(
         pr_number = tryparse(Int, cfg.travis_pull_request)
         pr_ok = pr_number !== nothing
         all_ok &= pr_ok
-        println(io, "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is a number")
+        println(
+            io,
+            "- $(marker(pr_ok)) ENV[\"TRAVIS_PULL_REQUEST\"]=\"$(cfg.travis_pull_request)\" is a number",
+        )
         btype_ok = push_preview
         all_ok &= btype_ok
-        println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        println(
+            io,
+            "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`",
+        )
         deploy_branch = branch_previews
         deploy_repo = repo_previews
         is_preview = true
@@ -240,10 +264,16 @@ function deploy_folder(
     ## Cron jobs should not deploy
     type_ok = cfg.travis_event_type != "cron"
     all_ok &= type_ok
-    println(io, "- $(marker(type_ok)) ENV[\"TRAVIS_EVENT_TYPE\"]=\"$(cfg.travis_event_type)\" is not \"cron\"")
+    println(
+        io,
+        "- $(marker(type_ok)) ENV[\"TRAVIS_EVENT_TYPE\"]=\"$(cfg.travis_event_type)\" is not \"cron\"",
+    )
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
-    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.travis_branch == "main"
+    if build_type === :devbranch &&
+       !branch_ok &&
+       devbranch == "master" &&
+       cfg.travis_branch == "main"
         @warn """
         Possible deploydocs() misconfiguration: main vs master
         Documenter's configured primary development branch (`devbranch`) is "master", but the
@@ -262,7 +292,7 @@ function deploy_folder(
             branch = deploy_branch,
             is_preview = is_preview,
             repo = deploy_repo,
-            subfolder = subfolder
+            subfolder = subfolder,
         )
     else
         return DeployDecision(; all_ok = false)
@@ -310,17 +340,17 @@ end
 
 # Check criteria for deployment
 function deploy_folder(
-        cfg::GitHubActions;
-        repo,
-        repo_previews = repo,
-        branch = "gh-pages",
-        branch_previews = branch,
-        devbranch,
-        push_preview,
-        devurl,
-        tag_prefix = "",
-        kwargs...
-    )
+    cfg::GitHubActions;
+    repo,
+    repo_previews = repo,
+    branch = "gh-pages",
+    branch_previews = branch,
+    devbranch,
+    push_preview,
+    devurl,
+    tag_prefix = "",
+    kwargs...,
+)
     io = IOBuffer()
     all_ok = true
     ## Determine build type
@@ -331,22 +361,34 @@ function deploy_folder(
     else
         build_type = :devbranch
     end
-    println(io, "Deployment criteria for deploying $(build_type) build from GitHub Actions:")
+    println(
+        io,
+        "Deployment criteria for deploying $(build_type) build from GitHub Actions:",
+    )
     ## The deploydocs' repo should match GITHUB_REPOSITORY
     repo_ok = occursin(cfg.github_repository, repo)
     all_ok &= repo_ok
-    println(io, "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"")
+    println(
+        io,
+        "- $(marker(repo_ok)) ENV[\"GITHUB_REPOSITORY\"]=\"$(cfg.github_repository)\" occurs in repo=\"$(repo)\"",
+    )
     if build_type === :release
         ## Do not deploy for PRs
         event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
+        println(
+            io,
+            "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"",
+        )
         ## If a tag exist it should be a valid VersionNumber
         m = match(r"^refs\/tags\/(.*)$", cfg.github_ref)
         tag_nobuild = version_tag_strip_build(m.captures[1]; tag_prefix)
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
-        println(io, "- $(marker(tag_ok)) ENV[\"GITHUB_REF\"]=\"$(cfg.github_ref)\" contains a valid VersionNumber")
+        println(
+            io,
+            "- $(marker(tag_ok)) ENV[\"GITHUB_REF\"]=\"$(cfg.github_ref)\" contains a valid VersionNumber",
+        )
         deploy_branch = branch
         deploy_repo = repo
         is_preview = false
@@ -356,12 +398,18 @@ function deploy_folder(
         ## Do not deploy for PRs
         event_ok = in(cfg.github_event_name, ["push", "workflow_dispatch", "schedule"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"")
+        println(
+            io,
+            "- $(marker(event_ok)) ENV[\"GITHUB_EVENT_NAME\"]=\"$(cfg.github_event_name)\" is \"push\", \"workflow_dispatch\" or \"schedule\"",
+        )
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.github_ref)
         branch_ok = m === nothing ? false : String(m.captures[1]) == devbranch
         all_ok &= branch_ok
-        println(io, "- $(marker(branch_ok)) ENV[\"GITHUB_REF\"] matches devbranch=\"$(devbranch)\"")
+        println(
+            io,
+            "- $(marker(branch_ok)) ENV[\"GITHUB_REF\"] matches devbranch=\"$(devbranch)\"",
+        )
         deploy_branch = branch
         deploy_repo = repo
         is_preview = false
@@ -374,13 +422,20 @@ function deploy_folder(
         all_ok &= pr_ok
         println(io, "- $(marker(pr_ok)) ENV[\"GITHUB_REF\"] corresponds to a PR number")
         if pr_ok
-            pr_origin_matches_repo = verify_github_pull_repository(cfg.github_repository, pr_number)
+            pr_origin_matches_repo =
+                verify_github_pull_repository(cfg.github_repository, pr_number)
             all_ok &= pr_origin_matches_repo
-            println(io, "- $(marker(pr_origin_matches_repo)) PR originates from the same repository")
+            println(
+                io,
+                "- $(marker(pr_origin_matches_repo)) PR originates from the same repository",
+            )
         end
         btype_ok = push_preview
         all_ok &= btype_ok
-        println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        println(
+            io,
+            "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`",
+        )
         deploy_branch = branch_previews
         deploy_repo = repo_previews
         is_preview = true
@@ -401,11 +456,17 @@ function deploy_folder(
     elseif token_ok
         println(io, "- $(marker(token_ok)) ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
     else
-        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"] exists and is non-empty")
+        println(
+            io,
+            "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"GITHUB_TOKEN\"] exists and is non-empty",
+        )
     end
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
-    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.github_ref == "refs/heads/main"
+    if build_type === :devbranch &&
+       !branch_ok &&
+       devbranch == "master" &&
+       cfg.github_ref == "refs/heads/main"
         @warn """
         Possible deploydocs() misconfiguration: main vs master
         Documenter's configured primary development branch (`devbranch`) is "master", but the
@@ -424,7 +485,7 @@ function deploy_folder(
             branch = deploy_branch,
             is_preview = is_preview,
             repo = deploy_repo,
-            subfolder = subfolder
+            subfolder = subfolder,
         )
     else
         return DeployDecision(; all_ok = false)
@@ -462,8 +523,8 @@ function post_status(::GitHubActions; type, repo::String, subfolder = nothing, k
             event_path === nothing && return
             event = JSON.parsefile(event_path)
             if haskey(event, "pull_request") &&
-                    haskey(event["pull_request"], "head") &&
-                    haskey(event["pull_request"]["head"], "sha")
+               haskey(event["pull_request"], "head") &&
+               haskey(event["pull_request"]["head"], "sha")
                 sha = event["pull_request"]["head"]["sha"]
             end
         elseif get(ENV, "GITHUB_EVENT_NAME", nothing) == "push"
@@ -476,7 +537,12 @@ function post_status(::GitHubActions; type, repo::String, subfolder = nothing, k
     end
 end
 
-function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = nothing) where {S <: String}
+function post_github_status(
+    type::S,
+    deploydocs_repo::S,
+    sha::S,
+    subfolder = nothing,
+) where {S<:String}
     try
         Sys.which("curl") === nothing && return
         ## Extract owner and repository name
@@ -493,7 +559,7 @@ function post_github_status(type::S, deploydocs_repo::S, sha::S, subfolder = not
         push!(cmd.exec, "-H", "Authorization: token $(auth)")
         push!(cmd.exec, "-H", "User-Agent: Documenter.jl")
         push!(cmd.exec, "-H", "Content-Type: application/json")
-        json = Dict{String, Any}("context" => "documenter/deploy", "state" => type)
+        json = Dict{String,Any}("context" => "documenter/deploy", "state" => type)
         if type == "pending"
             json["description"] = "Documentation build in progress"
         elseif type == "success"
@@ -605,17 +671,17 @@ function GitLab()
 end
 
 function deploy_folder(
-        cfg::GitLab;
-        repo,
-        repo_previews = repo,
-        devbranch,
-        push_preview,
-        devurl,
-        branch = "gh-pages",
-        branch_previews = branch,
-        tag_prefix = "",
-        kwargs...,
-    )
+    cfg::GitLab;
+    repo,
+    repo_previews = repo,
+    devbranch,
+    push_preview,
+    devurl,
+    branch = "gh-pages",
+    branch_previews = branch,
+    tag_prefix = "",
+    kwargs...,
+)
     io = IOBuffer()
     all_ok = true
 
@@ -748,17 +814,17 @@ function Buildkite()
 end
 
 function deploy_folder(
-        cfg::Buildkite;
-        repo,
-        repo_previews = repo,
-        devbranch,
-        push_preview,
-        devurl,
-        branch = "gh-pages",
-        branch_previews = branch,
-        tag_prefix = "",
-        kwargs...,
-    )
+    cfg::Buildkite;
+    repo,
+    repo_previews = repo,
+    devbranch,
+    push_preview,
+    devurl,
+    branch = "gh-pages",
+    branch_previews = branch,
+    tag_prefix = "",
+    kwargs...,
+)
     io = IOBuffer()
     all_ok = true
 
@@ -830,7 +896,10 @@ function deploy_folder(
 
     print(io, "Deploying to folder $(repr(subfolder)): $(marker(all_ok))")
     @info String(take!(io))
-    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.commit_branch == "main"
+    if build_type === :devbranch &&
+       !branch_ok &&
+       devbranch == "master" &&
+       cfg.commit_branch == "main"
         @warn """
         Possible deploydocs() misconfiguration: main vs master
         Documenter's configured primary development branch (`devbranch`) is "master", but the
@@ -972,7 +1041,8 @@ function Woodpecker()
     else
         woodpecker_ci_version = VersionNumber(ENV["CI_SYSTEM_VERSION"])
         @warn "Current Woodpecker version is $(woodpecker_ci_version). Make sure this is correct."
-        if ENV["CI"] == "drone" && (v"1.0.0" > VersionNumber(ENV["CI_SYSTEM_VERSION"]) >= v"0.15.0")
+        if ENV["CI"] == "drone" &&
+           (v"1.0.0" > VersionNumber(ENV["CI_SYSTEM_VERSION"]) >= v"0.15.0")
             @warn """Woodpecker prior version 1.0.0 is backward compatible to Drone
             but *there will be breaking changes in the future*. Please update
             to a newer version """
@@ -989,29 +1059,43 @@ function Woodpecker()
         woodpecker_repo = get(ENV, "CI_REPO", "")
         woodpecker_event_name = get(ENV, "CI_BUILD_EVENT", "")
         woodpecker_ref = get(ENV, "CI_COMMIT_REF", "")
-        return Woodpecker(woodpecker_ci_version, woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
+        return Woodpecker(
+            woodpecker_ci_version,
+            woodpecker_forge_url,
+            woodpecker_repo,
+            woodpecker_tag,
+            woodpecker_event_name,
+            woodpecker_ref,
+        )
     else
         woodpecker_forge_url = get(ENV, "CI_FORGE_URL", "")
         woodpecker_tag = get(ENV, "CI_COMMIT_TAG", "")
         woodpecker_repo = get(ENV, "CI_REPO", "")  # repository full name <owner>/<name>
         woodpecker_event_name = get(ENV, "CI_PIPELINE_EVENT", "")  # build event (push, pull_request, tag, deployment)
         woodpecker_ref = get(ENV, "CI_COMMIT_REF", "")  # commit ref
-        return Woodpecker(woodpecker_ci_version, woodpecker_forge_url, woodpecker_repo, woodpecker_tag, woodpecker_event_name, woodpecker_ref)
+        return Woodpecker(
+            woodpecker_ci_version,
+            woodpecker_forge_url,
+            woodpecker_repo,
+            woodpecker_tag,
+            woodpecker_event_name,
+            woodpecker_ref,
+        )
     end
 end
 
 function deploy_folder(
-        cfg::Woodpecker;
-        repo,
-        repo_previews = repo,
-        branch = "pages",
-        branch_previews = branch,
-        devbranch,
-        push_preview,
-        devurl,
-        tag_prefix = "",
-        kwargs...
-    )
+    cfg::Woodpecker;
+    repo,
+    repo_previews = repo,
+    branch = "pages",
+    branch_previews = branch,
+    devbranch,
+    push_preview,
+    devurl,
+    tag_prefix = "",
+    kwargs...,
+)
     io = IOBuffer()
     all_ok = true
     if cfg.woodpecker_event_name == "pull_request"
@@ -1030,7 +1114,10 @@ function deploy_folder(
 
     repo_ok = occursin(cfg.woodpecker_repo, repo)
     all_ok &= repo_ok
-    println(io, "- $(marker(repo_ok)) ENV[\"CI_REPO\"]=\"$(cfg.woodpecker_repo)\" occursin in repo=\"$(repo)\"")
+    println(
+        io,
+        "- $(marker(repo_ok)) ENV[\"CI_REPO\"]=\"$(cfg.woodpecker_repo)\" occursin in repo=\"$(repo)\"",
+    )
 
     ci_event_env_name = if haskey(ENV, "CI_PIPELINE_EVENT")
         "ENV[\"CI_PIPELINE_EVENT\"]"
@@ -1039,13 +1126,20 @@ function deploy_folder(
     end
 
     if build_type === :release
-        event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
+        event_ok =
+            in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) $(ci_event_env_name)=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"")
+        println(
+            io,
+            "- $(marker(event_ok)) $(ci_event_env_name)=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\" or \"tag\"",
+        )
         tag_nobuild = version_tag_strip_build(cfg.woodpecker_tag; tag_prefix)
         tag_ok = tag_nobuild !== nothing
         all_ok &= tag_ok
-        println(io, "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"]=\"$(cfg.woodpecker_tag)\" contains a valid VersionNumber")
+        println(
+            io,
+            "- $(marker(tag_ok)) ENV[\"CI_COMMIT_TAG\"]=\"$(cfg.woodpecker_tag)\" contains a valid VersionNumber",
+        )
         deploy_branch = branch
         deploy_repo = repo
         is_preview = false
@@ -1053,14 +1147,21 @@ function deploy_folder(
         subfolder = tag_nobuild
     elseif build_type === :devbranch
         ## Do not deploy for PRs
-        event_ok = in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
+        event_ok =
+            in(cfg.woodpecker_event_name, ["push", "pull_request", "deployment", "tag"])
         all_ok &= event_ok
-        println(io, "- $(marker(event_ok)) $(ci_event_env_name)=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"")
+        println(
+            io,
+            "- $(marker(event_ok)) $(ci_event_env_name)=\"$(cfg.woodpecker_event_name)\" is \"push\", \"deployment\", or \"tag\"",
+        )
         ## deploydocs' devbranch should match the current branch
         m = match(r"^refs\/heads\/(.*)$", cfg.woodpecker_ref)
         branch_ok = (m === nothing) ? false : String(m.captures[1]) == devbranch
         all_ok &= branch_ok
-        println(io, "- $(marker(branch_ok)) ENV[\"CI_COMMIT_REF\"] matches devbranch=\"$(devbranch)\"")
+        println(
+            io,
+            "- $(marker(branch_ok)) ENV[\"CI_COMMIT_REF\"] matches devbranch=\"$(devbranch)\"",
+        )
         deploy_branch = branch
         deploy_repo = repo
         is_preview = false
@@ -1069,17 +1170,29 @@ function deploy_folder(
     else # build_type === :preview
         m = match(r"refs\/pull\/(\d+)\/merge", cfg.woodpecker_ref)
         pr_number1 = tryparse(Int, (m === nothing) ? "" : m.captures[1])
-        pr_number2 = tryparse(Int, get(ENV, "CI_COMMIT_PULL_REQUEST", nothing) === nothing ? "" : ENV["CI_COMMIT_PULL_REQUEST"])
+        pr_number2 = tryparse(
+            Int,
+            get(ENV, "CI_COMMIT_PULL_REQUEST", nothing) === nothing ? "" :
+            ENV["CI_COMMIT_PULL_REQUEST"],
+        )
         # Check if both are Ints. If both are Ints, then check if they are equal, otherwise, return false
-        pr_numbers_ok = all(x -> x isa Int, [pr_number1, pr_number2]) ? (pr_number1 == pr_number2) : false
+        pr_numbers_ok =
+            all(x -> x isa Int, [pr_number1, pr_number2]) ? (pr_number1 == pr_number2) :
+            false
         is_pull_request_ok = cfg.woodpecker_event_name == "pull_request"
         pr_ok = pr_numbers_ok == is_pull_request_ok
         all_ok &= pr_ok
         println(io, "- $(marker(pr_numbers_ok)) ENV[\"CI_COMMIT_REF\"] corresponds to a PR")
-        println(io, "- $(marker(is_pull_request_ok)) $(ci_event_env_name) matches built type: `pull_request`")
+        println(
+            io,
+            "- $(marker(is_pull_request_ok)) $(ci_event_env_name) matches built type: `pull_request`",
+        )
         btype_ok = push_preview
         all_ok &= btype_ok
-        println(io, "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`")
+        println(
+            io,
+            "- $(marker(btype_ok)) `push_preview` keyword argument to deploydocs is `true`",
+        )
         deploy_branch = branch_previews
         deploy_repo = repo_previews
         is_preview = true
@@ -1095,14 +1208,23 @@ function deploy_folder(
     if key_ok
         println(io, "- $(marker(key_ok)) ENV[\"DOCUMENTER_KEY\"] exists and is non-empty")
     elseif token_ok
-        println(io, "- $(marker(token_ok)) ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
+        println(
+            io,
+            "- $(marker(token_ok)) ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty",
+        )
     else
-        println(io, "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty")
+        println(
+            io,
+            "- $(marker(auth_ok)) ENV[\"DOCUMENTER_KEY\"] or ENV[\"PROJECT_ACCESS_TOKEN\"] exists and is non-empty",
+        )
     end
 
     print(io, "Deploying: $(marker(all_ok))")
     @info String(take!(io))
-    if build_type === :devbranch && !branch_ok && devbranch == "master" && cfg.woodpecker_ref == "refs/heads/main"
+    if build_type === :devbranch &&
+       !branch_ok &&
+       devbranch == "master" &&
+       cfg.woodpecker_ref == "refs/heads/main"
         @warn """
         Possible deploydocs() misconfiguration: main vs master. Current branch (from \$CI_COMMIT_REF) is "main".
         """
@@ -1114,7 +1236,7 @@ function deploy_folder(
             branch = deploy_branch,
             is_preview = is_preview,
             repo = deploy_repo,
-            subfolder = subfolder
+            subfolder = subfolder,
         )
     else
         return DeployDecision(; all_ok = false)

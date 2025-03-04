@@ -1,0 +1,3 @@
+var documenterSearchIndex = {"docs":
+[{"location":"other/#Other-Testing","page":"File","title":"Other Testing","text":"","category":"section"},{"location":"other/","page":"File","title":"File","text":"Here's another test","category":"page"},{"location":"other/","page":"File","title":"File","text":"pwd()\n\ntouch(\"root_index.txt\")","category":"page"},{"location":"#Testing","page":"Home","title":"Testing","text":"","category":"section"},{"location":"","page":"Home","title":"Home","text":"Here's a test","category":"page"},{"location":"","page":"Home","title":"Home","text":"pwd()\n\ntouch(\"root_index.txt\")","category":"page"}]
+}

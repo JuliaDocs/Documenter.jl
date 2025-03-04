@@ -105,27 +105,95 @@ export @tags
 # - https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements
 # - https://developer.mozilla.org/en-US/docs/Glossary/empty_element
 #
-const BLOCK_ELEMENTS = Set(
-    [
-        :address, :article, :aside, :blockquote, :canvas, :dd, :div, :dl,
-        :fieldset, :figcaption, :figure, :footer, :form, :h1, :h2, :h3, :h4, :h5,
-        :h6, :header, :hgroup, :hr, :li, :main, :nav, :noscript, :ol, :output, :p,
-        :pre, :section, :table, :tfoot, :ul, :video,
-    ]
-)
-const INLINE_ELEMENTS = Set(
-    [
-        :a, :abbr, :acronym, :b, :bdo, :big, :br, :button, :cite, :code, :dfn, :em,
-        :i, :img, :input, :kbd, :label, :map, :object, :q, :samp, :script, :select,
-        :small, :span, :strong, :sub, :sup, :textarea, :time, :tt, :var,
-    ]
-)
-const VOID_ELEMENTS = Set(
-    [
-        :area, :base, :br, :col, :command, :embed, :hr, :img, :input, :keygen,
-        :link, :meta, :param, :source, :track, :wbr,
-    ]
-)
+const BLOCK_ELEMENTS = Set([
+    :address,
+    :article,
+    :aside,
+    :blockquote,
+    :canvas,
+    :dd,
+    :div,
+    :dl,
+    :fieldset,
+    :figcaption,
+    :figure,
+    :footer,
+    :form,
+    :h1,
+    :h2,
+    :h3,
+    :h4,
+    :h5,
+    :h6,
+    :header,
+    :hgroup,
+    :hr,
+    :li,
+    :main,
+    :nav,
+    :noscript,
+    :ol,
+    :output,
+    :p,
+    :pre,
+    :section,
+    :table,
+    :tfoot,
+    :ul,
+    :video,
+])
+const INLINE_ELEMENTS = Set([
+    :a,
+    :abbr,
+    :acronym,
+    :b,
+    :bdo,
+    :big,
+    :br,
+    :button,
+    :cite,
+    :code,
+    :dfn,
+    :em,
+    :i,
+    :img,
+    :input,
+    :kbd,
+    :label,
+    :map,
+    :object,
+    :q,
+    :samp,
+    :script,
+    :select,
+    :small,
+    :span,
+    :strong,
+    :sub,
+    :sup,
+    :textarea,
+    :time,
+    :tt,
+    :var,
+])
+const VOID_ELEMENTS = Set([
+    :area,
+    :base,
+    :br,
+    :col,
+    :command,
+    :embed,
+    :hr,
+    :img,
+    :input,
+    :keygen,
+    :link,
+    :meta,
+    :param,
+    :source,
+    :track,
+    :wbr,
+])
 const ALL_ELEMENTS = union(BLOCK_ELEMENTS, INLINE_ELEMENTS, VOID_ELEMENTS)
 
 #
@@ -172,7 +240,7 @@ macro tags(args...)
 end
 tags(s) = :(($(s...),) = $(map(Tag, s)))
 
-const Attributes = Vector{Pair{Symbol, String}}
+const Attributes = Vector{Pair{Symbol,String}}
 
 """
 Represents an element within an HTML document including any textual content,
@@ -187,7 +255,8 @@ struct Node
     attributes::Attributes
     nodes::Vector{Node}
 
-    Node(name::Symbol, attr::Attributes, data::Vector{Node}) = new(name, EMPTY_STRING, attr, data)
+    Node(name::Symbol, attr::Attributes, data::Vector{Node}) =
+        new(name, EMPTY_STRING, attr, data)
     Node(text::AbstractString) = new(TEXT, text)
 end
 
@@ -208,7 +277,7 @@ attr(args) = flatten!(attributes!, Attributes(), args)
 #
 # Types that must not be flattened when constructing a `Node`'s child vector.
 #
-const Atom = Union{AbstractString, Node, Pair, Symbol}
+const Atom = Union{AbstractString,Node,Pair,Symbol}
 
 """
 # Signatures
@@ -298,10 +367,10 @@ function escapehtml(text::AbstractString)
         buffer = IOBuffer()
         for char in text
             char === '<' ? write(buffer, "&lt;") :
-                char === '>' ? write(buffer, "&gt;") :
-                char === '&' ? write(buffer, "&amp;") :
-                char === '\'' ? write(buffer, "&#39;") :
-                char === '"' ? write(buffer, "&quot;") : write(buffer, char)
+            char === '>' ? write(buffer, "&gt;") :
+            char === '&' ? write(buffer, "&amp;") :
+            char === '\'' ? write(buffer, "&#39;") :
+            char === '"' ? write(buffer, "&quot;") : write(buffer, char)
         end
         return String(take!(buffer))
     else

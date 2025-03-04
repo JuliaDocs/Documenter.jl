@@ -38,16 +38,23 @@ const DOCUMENTER_VERSION = let
 end
 
 # Potentially sensitive variables to be removed from environment when not needed
-const NO_KEY_ENV = Dict(
-    "DOCUMENTER_KEY" => nothing,
-    "DOCUMENTER_KEY_PREVIEWS" => nothing,
-)
+const NO_KEY_ENV = Dict("DOCUMENTER_KEY" => nothing, "DOCUMENTER_KEY_PREVIEWS" => nothing)
 
 # Names of possible internal errors
 const ERROR_NAMES = [
-    :autodocs_block, :cross_references, :docs_block, :doctest,
-    :eval_block, :example_block, :footnote, :linkcheck_remotes, :linkcheck,
-    :meta_block, :missing_docs, :parse_error, :setup_block,
+    :autodocs_block,
+    :cross_references,
+    :docs_block,
+    :doctest,
+    :eval_block,
+    :example_block,
+    :footnote,
+    :linkcheck_remotes,
+    :linkcheck,
+    :meta_block,
+    :missing_docs,
+    :parse_error,
+    :setup_block,
 ]
 
 """
@@ -90,7 +97,7 @@ include("latex/LaTeXWriter.jl")
 
 # This is to keep DocumenterTools working:
 module Writers
-    import ..HTMLWriter
+import ..HTMLWriter
 end
 
 import .HTMLWriter: HTML, asset
@@ -99,8 +106,8 @@ import .LaTeXWriter: LaTeX
 
 # User Interface.
 # ---------------
-export makedocs, deploydocs, hide, doctest, DocMeta, asset, Remotes,
-    KaTeX, MathJax, MathJax2, MathJax3
+export makedocs,
+    deploydocs, hide, doctest, DocMeta, asset, Remotes, KaTeX, MathJax, MathJax2, MathJax3
 
 include("makedocs.jl")
 include("deployconfig.jl")

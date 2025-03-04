@@ -24,10 +24,10 @@ const META = gensym(:docmeta)
 const METAMODULES = Module[]
 
 "Type of the metadata dictionary."
-const METATYPE = Dict{Symbol, Any}
+const METATYPE = Dict{Symbol,Any}
 
 "Dictionary of all valid metadata keys and their types."
-const VALIDMETA = Dict{Symbol, Type}(:DocTestSetup => Union{Expr, Symbol})
+const VALIDMETA = Dict{Symbol,Type}(:DocTestSetup => Union{Expr,Symbol})
 
 """
 """
@@ -49,7 +49,8 @@ Returns the documentation metadata dictionary for the module `m`. The dictionary
 considered immutable and assigning values to it is not well-defined. To set documentation
 metadata values, [`DocMeta.setdocmeta!`](@ref) should be used instead.
 """
-getdocmeta(m::Module) = invokelatest(isdefined, m, META) ? invokelatest(getfield, m, META) : METATYPE()
+getdocmeta(m::Module) =
+    invokelatest(isdefined, m, META) ? invokelatest(getfield, m, META) : METATYPE()
 
 """
     getdocmeta(m::Module, key::Symbol, default=nothing)
@@ -68,8 +69,16 @@ If `recursive` is set to `true`, it sets the same metadata value for all the sub
 If `warn` is `true`, it prints a warning when `key` already exists and it gets rewritten.
 """
 function setdocmeta!(m::Module, key::Symbol, value; warn = true, recursive = false)
-    key in keys(VALIDMETA) || throw(ArgumentError("Invalid metadata key\nValid keys are: $(join(keys(VALIDMETA), ", "))"))
-    isa(value, VALIDMETA[key]) || throw(ArgumentError("Bad value type ($(typeof(value))) for metadata key $(key). Must be <: $(VALIDMETA[key])"))
+    key in keys(VALIDMETA) || throw(
+        ArgumentError(
+            "Invalid metadata key\nValid keys are: $(join(keys(VALIDMETA), ", "))",
+        ),
+    )
+    isa(value, VALIDMETA[key]) || throw(
+        ArgumentError(
+            "Bad value type ($(typeof(value))) for metadata key $(key). Must be <: $(VALIDMETA[key])",
+        ),
+    )
     if recursive
         for mod in Documenter.submodules(m)
             setdocmeta!(mod, key, value; warn = warn, recursive = false)

@@ -38,7 +38,7 @@ Tree structure representing anchors in a document and their relationships with e
 Each `id` maps to a `file` which in turn maps to a vector of `Anchor` objects.
 """
 mutable struct AnchorMap
-    map::Dict{String, Dict{String, Vector{Anchor}}}
+    map::Dict{String,Dict{String,Vector{Anchor}}}
     count::Int
     AnchorMap() = new(Dict(), 0)
 end
@@ -55,7 +55,7 @@ Either an actual [`Anchor`](@ref) object may be provided or any other object whi
 automatically wrapped in an [`Anchor`](@ref) before being added to the [`AnchorMap`](@ref).
 """
 function anchor_add!(m::AnchorMap, anchor::Anchor, id, file)
-    filemap = get!(m.map, id, Dict{String, Vector{Anchor}}())
+    filemap = get!(m.map, id, Dict{String,Vector{Anchor}}())
     anchors = get!(filemap, file, Anchor[])
     push!(anchors, anchor)
     anchor.order = m.count += 1
@@ -75,7 +75,8 @@ $(SIGNATURES)
 Does the given `id` exist within the [`AnchorMap`](@ref)? A `file` and integer `n` may also
 be provided to narrow the search for existence.
 """
-anchor_exists(m::AnchorMap, id, file, n) = anchor_exists(m, id, file) && 1 ≤ n ≤ length(m.map[id][file])
+anchor_exists(m::AnchorMap, id, file, n) =
+    anchor_exists(m, id, file) && 1 ≤ n ≤ length(m.map[id][file])
 anchor_exists(m::AnchorMap, id, file) = anchor_exists(m, id) && haskey(m.map[id], file)
 anchor_exists(m::AnchorMap, id) = haskey(m.map, id)
 
@@ -89,12 +90,11 @@ Is the `id` unique within the given [`AnchorMap`](@ref)? May also specify the `f
 """
 function anchor_isunique(m::AnchorMap, id)
     return anchor_exists(m, id) &&
-        length(m.map[id]) === 1 &&
-        anchor_isunique(m, id, first(first(m.map[id])))
+           length(m.map[id]) === 1 &&
+           anchor_isunique(m, id, first(first(m.map[id])))
 end
 function anchor_isunique(m::AnchorMap, id, file)
-    return anchor_exists(m, id, file) &&
-        length(m.map[id][file]) === 1
+    return anchor_exists(m, id, file) && length(m.map[id][file]) === 1
 end
 
 # Get anchor.
@@ -107,19 +107,13 @@ Returns the [`Anchor`](@ref) object matching `id`. `file` and `n` may also be pr
 `Anchor` is returned, or `nothing` in case of no match.
 """
 function anchor(m::AnchorMap, id)
-    return anchor_isunique(m, id) ?
-        anchor(m, id, first(first(m.map[id])), 1) :
-        nothing
+    return anchor_isunique(m, id) ? anchor(m, id, first(first(m.map[id])), 1) : nothing
 end
 function anchor(m::AnchorMap, id, file)
-    return anchor_isunique(m, id, file) ?
-        anchor(m, id, file, 1) :
-        nothing
+    return anchor_isunique(m, id, file) ? anchor(m, id, file, 1) : nothing
 end
 function anchor(m::AnchorMap, id, file, n)
-    return anchor_exists(m, id, file, n) ?
-        m.map[id][file][n] :
-        nothing
+    return anchor_exists(m, id, file, n) ? m.map[id][file][n] : nothing
 end
 
 """
