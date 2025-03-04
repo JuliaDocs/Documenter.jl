@@ -341,7 +341,13 @@ function checkresult(sandbox::Module, result::Result, meta::Dict, doc::Documente
         if isempty(head) || !startswith(filteredstr, filteredhead) ||
                 (doc.user.doctest === :fix && filteredstr != filteredhead)
             if doc.user.doctest === :fix
-                fix_doctest(result, str, doc; prefix)
+                # special case: if everything matched prior to filtering, except for a
+                # trailing "[...]" in the reference string, then don't "fix" this but
+                # rather assume this is intentionally cutting off part of the output
+                # resp. stacktrace
+                if !(startswith(str, head) && endswith(result.output, "[...]"))
+                    fix_doctest(result, str, doc; prefix)
+                end
             else
                 report(result, str, doc)
                 @debug "Doctest metadata" meta
