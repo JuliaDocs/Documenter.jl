@@ -369,6 +369,9 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
 
 /////// SEARCH MAIN ///////
 
+let initialLoadComplete = false; //global variable to fix the problem of q not persisting
+
+
 function runSearchMainCode() {
   // `worker = Threads.@spawn worker_function(documenterSearchIndex)`, but in JavaScript!
   const filters = [
@@ -412,10 +415,12 @@ function runSearchMainCode() {
       window.history.replaceState({}, '', url);
     } else {
       // remove the 'q' param
-      const url = new URL(window.location);
-      if(url.searchParams.has('q')) {
-        url.searchParams.delete('q');
-        window.history.replaceState({}, '', url);
+      if(initialLoadComplete) {
+        const url = new URL(window.location);
+        if(url.searchParams.has('q')) {
+          url.searchParams.delete('q');
+          window.history.replaceState({}, '', url);
+        }
       }
     }
   }
@@ -547,13 +552,11 @@ function runSearchMainCode() {
     if(searchQuery) {
       //opening of modal handled in shortcut.js
 
-      $(".documenter-search-input").val(searchQuery);
+      $(".documenter-search-input").val(searchQuery).trigger("input");
 
-      //triggering the search
-      if(!worker_is_running) {
-        launch_search();
-      }
     }
+
+    initialLoadComplete = true;
   }
 
   /**
@@ -578,6 +581,9 @@ function runSearchMainCode() {
               ${str}
           </div>`;
   }
+
+  //delaying the call by a little to make sure that the modal is in DOM
+  setTimeout(checkURLForSearch,100);
 }
 
 function waitUntilSearchIndexAvailable() {

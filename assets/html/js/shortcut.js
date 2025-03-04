@@ -32,17 +32,8 @@ $(document).ready(function () {
     </footer>
   `;
 
-  function checkURLForSearch() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('q');
-
-    if(searchQuery) {
-      //only if there is a search query, open the modal
-      openModal();
-    }
-  }
-  //this function will be called whenver the page will load
-  checkURLForSearch();
+  
+  
 
   $(document.body).append(
     `
@@ -58,6 +49,19 @@ $(document).ready(function () {
       </div>
     `
   );
+
+  function checkURLForSearch() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('q');
+
+    if(searchQuery) {
+      //only if there is a search query, open the modal
+      openModal();
+    }
+  }
+
+  //this function will be called whenver the page will load
+  checkURLForSearch();
 
   document.querySelector(".docs-search-query").addEventListener("click", () => {
     openModal();
