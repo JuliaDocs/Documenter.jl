@@ -67,7 +67,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
+    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
   );
 
   let data = documenterSearchIndex.map((x, key) => {
@@ -278,8 +278,8 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
             Math.max(textindex.index - 100, 0),
             Math.min(
               textindex.index + querystring.length + 100,
-              result.text.length
-            )
+              result.text.length,
+            ),
           )
         : ""; // cut-off text before and after from the match
 
@@ -289,7 +289,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       ? "..." +
         text.replace(
           new RegExp(`${escape(searchstring)}`, "i"), // For first occurrence
-          '<span class="search-result-highlight py-1">$&</span>'
+          '<span class="search-result-highlight py-1">$&</span>',
         ) +
         "..."
       : ""; // highlights the match
@@ -302,7 +302,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     // We encode the full url to escape some special characters which can lead to broken links
     let result_div = `
         <a href="${encodeURI(
-          documenterBaseURL + "/" + result.location
+          documenterBaseURL + "/" + result.location,
         )}" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
           <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
             <div class="search-result-title has-text-weight-bold ${
@@ -404,20 +404,17 @@ function runSearchMainCode() {
 
   //update the url with search query
   function updateSearchURL(query) {
-    if(query && query.trim() !== "") {
+    if (query && query.trim() !== "") {
       const url = new URL(window.location);
-      url.searchParams.set('q', query);
-
-      window.history.replaceState({}, '', url);
+      url.searchParams.set("q", query);
+      window.history.replaceState({}, "", url);
     } else {
       // remove the 'q' param
-
       const url = new URL(window.location);
-      if(url.searchParams.has('q')) {
-        url.searchParams.delete('q');
-        window.history.replaceState({}, '', url);
+      if (url.searchParams.has("q")) {
+        url.searchParams.delete("q");
+        window.history.replaceState({}, "", url);
       }
-
     }
   }
 
@@ -542,18 +539,16 @@ function runSearchMainCode() {
   //url param checking
   function checkURLForSearch() {
     const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('q');
+    const searchQuery = urlParams.get("q");
 
-    if(searchQuery) {
+    if (searchQuery) {
       //opening of modal handled in shortcut.js
 
       $(".documenter-search-input").val(searchQuery).trigger("input");
-
     }
-
   }
 
-  setTimeout(checkURLForSearch,100);
+  setTimeout(checkURLForSearch, 100);
 
   /**
    * Make the modal filter html

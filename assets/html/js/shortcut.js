@@ -44,14 +44,14 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `
+    `,
   );
 
   function checkURLForSearch() {
     const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('q');
+    const searchQuery = urlParams.get("q");
 
-    if(searchQuery) {
+    if (searchQuery) {
       //only if there is a search query, open the modal
       openModal();
     }
