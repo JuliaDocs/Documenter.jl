@@ -67,7 +67,7 @@ update_search
 
 function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   importScripts(
-    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js",
+    "https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"
   );
 
   let data = documenterSearchIndex.map((x, key) => {
@@ -279,7 +279,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
             Math.min(
               textindex.index + querystring.length + 100,
               result.text.length,
-            ),
+            )
           )
         : ""; // cut-off text before and after from the match
 
@@ -289,7 +289,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
       ? "..." +
         text.replace(
           new RegExp(`${escape(searchstring)}`, "i"), // For first occurrence
-          '<span class="search-result-highlight py-1">$&</span>',
+          '<span class="search-result-highlight py-1">$&</span>'
         ) +
         "..."
       : ""; // highlights the match
@@ -302,7 +302,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
     // We encode the full url to escape some special characters which can lead to broken links
     let result_div = `
         <a href="${encodeURI(
-          documenterBaseURL + "/" + result.location,
+          documenterBaseURL + "/" + result.location
         )}" class="search-result-link w-100 is-flex is-flex-direction-column gap-2 px-4 py-2">
           <div class="w-100 is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-flex-start">
             <div class="search-result-title has-text-weight-bold ${
@@ -427,9 +427,7 @@ function runSearchMainCode() {
   function launch_search() {
     worker_is_running = true;
     last_search_text = $(".documenter-search-input").val();
-
     updateSearchURL(last_search_text);
-
     worker.postMessage(last_search_text);
   }
 
@@ -460,7 +458,6 @@ function runSearchMainCode() {
    */
   function update_search() {
     let querystring = $(".documenter-search-input").val();
-
     updateSearchURL(querystring);
 
     if (querystring.trim()) {
@@ -543,11 +540,9 @@ function runSearchMainCode() {
 
     if (searchQuery) {
       //opening of modal handled in shortcut.js
-
       $(".documenter-search-input").val(searchQuery).trigger("input");
     }
   }
-
   setTimeout(checkURLForSearch, 100);
 
   /**
