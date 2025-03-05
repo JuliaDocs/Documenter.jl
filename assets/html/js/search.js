@@ -278,7 +278,7 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
             Math.max(textindex.index - 100, 0),
             Math.min(
               textindex.index + querystring.length + 100,
-              result.text.length,
+              result.text.length
             )
           )
         : ""; // cut-off text before and after from the match
