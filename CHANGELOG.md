@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The solution is to remove the duplicate inclusion.
 
 * `checkdocs` has a new option `:public` to check that unexported symbols marked with `public` are included in the docs. ([#2629])
-* Improved documentation of `Pages` in `@autodocs`. ([#2639])
 
 ## Version [v1.8.1] - 2025-02-11
 
