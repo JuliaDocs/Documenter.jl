@@ -118,11 +118,11 @@ Pages   = ["a.jl", "b.jl"]
 ```
 ````
 
-In the above example docstrings from module `Foo` found in source files that end in `a.jl`
-and `b.jl` are included. The page order provided by `Pages` is also used to sort the
+In the above example docstrings from module `Foo` found in source files whose file path ends
+with `a.jl`and `b.jl` are included. The page order provided by `Pages` is also used to sort the
 docstrings. Note that page matching is done using the end of the provided strings and so
-`a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
-`src/foo/a.jl`.
+`a.jl` will be matched by *any* source file whose file path ends with `a.jl`, i.e. `src/a.jl`,
+`src/foo/a.jl` or `src/bar_a.jl`.
 
 To filter out certain docstrings by your own criteria, you can provide a function with the
 `Filter` keyword:
