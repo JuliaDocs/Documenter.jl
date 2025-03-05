@@ -47,6 +47,19 @@ $(document).ready(function () {
     `
   );
 
+  function checkURLForSearch() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('q');
+
+    if(searchQuery) {
+      //only if there is a search query, open the modal
+      openModal();
+    }
+  }
+
+  //this function will be called whenever the page will load
+  checkURLForSearch();
+
   document.querySelector(".docs-search-query").addEventListener("click", () => {
     openModal();
   });
@@ -92,7 +105,8 @@ $(document).ready(function () {
       $(".search-modal-card-body").addClass("is-justify-content-center");
     }
 
-    $(".documenter-search-input").val("");
+    // commenting this out so that the search value persist in the url
+    // $(".documenter-search-input").val("");
     $(".search-modal-card-body").html(initial_search_body);
   }
 

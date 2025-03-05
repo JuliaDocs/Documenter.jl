@@ -402,6 +402,25 @@ function runSearchMainCode() {
   // Which filter is currently selected
   var selected_filter = "";
 
+  //update the url with search query
+  function updateSearchURL(query) {
+    if(query && query.trim() !== "") {
+      const url = new URL(window.location);
+      url.searchParams.set('q', query);
+
+      window.history.replaceState({}, '', url);
+    } else {
+      // remove the 'q' param
+
+      const url = new URL(window.location);
+      if(url.searchParams.has('q')) {
+        url.searchParams.delete('q');
+        window.history.replaceState({}, '', url);
+      }
+
+    }
+  }
+
   $(document).on("input", ".documenter-search-input", function (event) {
     if (!worker_is_running) {
       launch_search();
@@ -411,6 +430,9 @@ function runSearchMainCode() {
   function launch_search() {
     worker_is_running = true;
     last_search_text = $(".documenter-search-input").val();
+
+    updateSearchURL(last_search_text);
+
     worker.postMessage(last_search_text);
   }
 
@@ -441,6 +463,8 @@ function runSearchMainCode() {
    */
   function update_search() {
     let querystring = $(".documenter-search-input").val();
+
+    updateSearchURL(querystring);
 
     if (querystring.trim()) {
       if (selected_filter == "") {
@@ -514,6 +538,22 @@ function runSearchMainCode() {
       `);
     }
   }
+
+  //url param checking
+  function checkURLForSearch() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('q');
+
+    if(searchQuery) {
+      //opening of modal handled in shortcut.js
+
+      $(".documenter-search-input").val(searchQuery).trigger("input");
+
+    }
+
+  }
+
+  setTimeout(checkURLForSearch,100);
 
   /**
    * Make the modal filter html
