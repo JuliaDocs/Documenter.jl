@@ -148,11 +148,6 @@ struct MetaNode <: AbstractDocumenterBlock
     dict::Dict{Symbol, Any}
 end
 
-struct MethodNode
-    method::Method
-    visible::Bool
-end
-
 struct DocsNode <: AbstractDocumenterBlock
     anchor::Anchor
     object::Object
@@ -319,7 +314,7 @@ struct User
     linkcheck_useragent::Union{String, Nothing} # User agent to use for linkchecks.
     checkdocs::Symbol # Check objects missing from `@docs` blocks. `:none`, `:exports`, `:public` or `:all`.
     checkdocs_ignored_modules::Vector{Module} # ..and then ignore (some of) them.
-    doctestfilters::Vector{Regex} # Filtering for doctests
+    doctestfilters::Vector{<:Any} # Filtering for doctests
     warnonly::Vector{Symbol} # List of docerror groups that should only warn, rather than cause a build failure
     pages::Vector{Any} # Ordering of document pages specified by the user.
     pagesonly::Bool # Discard any .md pages from processing that are not in .pages
@@ -394,7 +389,7 @@ function Document(;
         linkcheck_useragent::Union{AbstractString, Nothing} = _LINKCHECK_DEFAULT_USERAGENT,
         checkdocs::Symbol = :all,
         checkdocs_ignored_modules::Vector{Module} = Module[],
-        doctestfilters::Vector{Regex} = Regex[],
+        doctestfilters::Vector{<:Any} = Regex[],
         warnonly::Union{Bool, Symbol, Vector{Symbol}} = Symbol[],
         modules::Union{Module, Vector{Module}} = Module[],
         pages::Vector = Any[],

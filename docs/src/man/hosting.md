@@ -225,7 +225,7 @@ the documentation from an Ubuntu worker running Julia 1.
 
 !!! tip
     The example above is a basic workflow that should suit most projects. For more information on
-    how to further customize your action, read the manual: [Learn GitHub Actions](https://docs.github.com/en/actions/learn-github-actions).
+    how to further customize your action, check out the [GitHub Actions manual](https://docs.github.com/en/actions).
 
 The commands in the lines in the `run:` section do the same as for Travis,
 see the previous section.
@@ -263,7 +263,7 @@ see the previous section.
 
 When running from GitHub Actions it is possible to authenticate using
 [the GitHub Actions authentication token
-(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/security-guides/automatic-token-authentication). This is done by adding
+(`GITHUB_TOKEN`)](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication). This is done by adding
 
 ```yaml
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -290,12 +290,12 @@ DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
 
 to the configuration file, as showed in the [previous section](@ref GitHub-Actions).
 See GitHub's manual for
-[Encrypted secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
+[Encrypted secrets](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
 for more information.
 
 ### Permissions
 
-The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs) are required to successfully use [`deploydocs`](#the-deploydocs-function):
+The following [GitHub Actions job or workflow permissions](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token) are required to successfully use [`deploydocs`](#the-deploydocs-function):
 
 ```yaml
 permissions:
@@ -445,7 +445,7 @@ jobs:
 _This workflow was based on [CliMA/ClimaTimeSteppers.jl](https://github.com/CliMA/ClimaTimeSteppers.jl/blob/0660ace688b4f4b8a86d3c459ab62ccf01d7ef31/.github/workflows/DocCleanup.yml) (Apache License 2.0)._
 
 The `permissions:` line above is described in the
-[GitHub Docs](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs#assigning-permissions-to-a-specific-job);
+[GitHub Docs](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token#setting-the-github_token-permissions-for-a-specific-job);
 an alternative is to give GitHub workflows write permissions under the repo settings, e.g.,
 `https://github.com/<USER>/<REPO>.jl/settings/actions`.
 
