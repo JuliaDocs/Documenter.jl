@@ -175,7 +175,7 @@ by setting `Draft = true` in an `@meta` block.
 defined in the `modules` keyword that have a docstring attached have the docstring also
 listed in the manual (e.g. there's a `@docs` block with that docstring). Possible values
 are `:all` (check all names; the default), `:exports` (check only exported names),
-`:public` (check exported names and those marked with the `public` keyword in Julia ≥),
+`:public` (check exported names and those marked with the `public` keyword in Julia ≥ 1.11),
 and `:none` (no checks are performed).
 
 By default, if the document check detect any errors, it will fail the documentation build.

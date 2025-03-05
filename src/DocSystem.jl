@@ -343,9 +343,9 @@ function public_unexported_msg(apistatus::APIStatus)
     return if apistatus.ispublic && !apistatus.isexported
         """\n
         Note: this binding is marked `public`, but not exported. Starting from Documenter 1.9.0,
-        these are now included in `@autodocs` blocks that include public APIs with `Public = true`,
+        such bindings are now included in `@autodocs` blocks that list public APIs (blocks with `Public = true`),
         but in older Documenter versions they would not have been. This may cause a previously
-        succeeding documentation build to fail without any changes to your code. To fix this,
+        succeeding documentation build to fail because of duplicate docstrings, without any changes to your code. To fix this,
         ensure that the same docstring is not included anywhere else (e.g. by an explicit `@docs`
         block).
         """
