@@ -312,7 +312,7 @@ struct User
     linkcheck_ignore::Vector{Union{String, Regex}} # ..and then ignore (some of) them.
     linkcheck_timeout::Real # ..but only wait this many seconds for each one.
     linkcheck_useragent::Union{String, Nothing} # User agent to use for linkchecks.
-    checkdocs::Symbol # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
+    checkdocs::Symbol # Check objects missing from `@docs` blocks. `:none`, `:exports`, `:public` or `:all`.
     checkdocs_ignored_modules::Vector{Module} # ..and then ignore (some of) them.
     doctestfilters::Vector{<:Any} # Filtering for doctests
     warnonly::Vector{Symbol} # List of docerror groups that should only warn, rather than cause a build failure
