@@ -44,7 +44,7 @@ $(document).ready(function () {
           ${search_modal_footer}
         </div>
       </div>
-    `
+    `,
   );
 
   function checkURLForSearch() {
@@ -98,6 +98,13 @@ $(document).ready(function () {
       <div class="has-text-centered my-5 py-5">Type something to get started!</div>
     `;
 
+    //removing the query param when the modal is closed
+    if (window.history.replaceState) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("q");
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
     searchModal.classList.remove("is-active");
     document.querySelector(".documenter-search-input").blur();
 
@@ -105,8 +112,7 @@ $(document).ready(function () {
       $(".search-modal-card-body").addClass("is-justify-content-center");
     }
 
-    // commenting this out so that the search value persist in the url
-    // $(".documenter-search-input").val("");
+    $(".documenter-search-input").val("");
     $(".search-modal-card-body").html(initial_search_body);
   }
 
