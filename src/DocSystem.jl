@@ -315,4 +315,43 @@ function parsedoc(docstr::DocStr)
     return md
 end
 
+struct APIStatus
+    binding::Docs.Binding
+    isdefined::Bool
+    ispublic::Bool
+    isexported::Bool
+
+    function APIStatus(mod::Module, sym::Symbol)
+        isdefined = Base.isdefined(mod, sym)
+        ispublic = @static if isdefined(Base, :ispublic) # Julia v1.11 and later
+            Base.ispublic(mod, sym)
+        else
+            Base.isexported(mod, sym)
+        end
+        isexported = Base.isexported(mod, sym)
+        return new(Docs.Binding(mod, sym), isdefined, ispublic, isexported)
+    end
+end
+
+APIStatus(binding::Docs.Binding) = APIStatus(binding.mod, binding.var)
+
+"""
+This error message is reused in duplicate docstring warnings when we detect
+the case when a duplicate docstring in a non-explored public name.
+"""
+function public_unexported_msg(apistatus::APIStatus)
+    return if apistatus.ispublic && !apistatus.isexported
+        """\n
+        Note: this binding is marked `public`, but not exported. Starting from Documenter 1.9.0,
+        such bindings are now included in `@autodocs` blocks that list public APIs (blocks with `Public = true`),
+        but in older Documenter versions they would not have been. This may cause a previously
+        succeeding documentation build to fail because of duplicate docstrings, without any changes to your code. To fix this,
+        ensure that the same docstring is not included anywhere else (e.g. by an explicit `@docs`
+        block).
+        """
+    else
+        ""
+    end
+end
+
 end
