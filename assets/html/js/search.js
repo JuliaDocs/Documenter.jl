@@ -404,17 +404,32 @@ function runSearchMainCode() {
 
   //update the url with search query
   function updateSearchURL(query) {
+    const url = new URL(window.location);
+    
     if (query && query.trim() !== "") {
-      const url = new URL(window.location);
       url.searchParams.set("q", query);
-      window.history.replaceState({}, "", url);
     } else {
-      // remove the 'q' param
-      const url = new URL(window.location);
+      // remove the 'q' param if it exists
       if (url.searchParams.has("q")) {
         url.searchParams.delete("q");
-        window.history.replaceState({}, "", url);
       }
+    }
+
+    // Add or remove the filter parameter based on selected_filter
+    if (selected_filter && selected_filter.trim() !== "") {
+      url.searchParams.set("filter", selected_filter);
+    } else {
+      // remove the 'filter' param if it exists
+      if (url.searchParams.has("filter")) {
+        url.searchParams.delete("filter");
+      }
+    }
+
+    // Only update history if there are parameters, otherwise use the base URL
+    if (url.search) {
+      window.history.replaceState({}, "", url);
+    } else {
+      window.history.replaceState({}, "", url.pathname + url.hash);
     }
   }
 
@@ -537,10 +552,21 @@ function runSearchMainCode() {
   function checkURLForSearch() {
     const urlParams = new URLSearchParams(window.location.search);
     const searchQuery = urlParams.get("q");
+    const filterParam = urlParams.get("filter");
 
     if (searchQuery) {
       //opening of modal handled in shortcut.js
-      $(".documenter-search-input").val(searchQuery).trigger("input");
+      $(".documenter-search-input").val(searchQuery);
+    }
+
+    // Set the selected filter if present in URL
+    if (filterParam) {
+      selected_filter = filterParam.toLowerCase();
+    }
+
+    // Trigger input event if there's a search query to perform the search
+    if (searchQuery) {
+      $(".documenter-search-input").trigger("input");
     }
   }
   setTimeout(checkURLForSearch, 100);
