@@ -615,7 +615,7 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
                 println(io)
             end
             close(io)
-            return path
+            return replace(path, '\\' => '/')
         end
     end
     return prerender, node, highlightjs
