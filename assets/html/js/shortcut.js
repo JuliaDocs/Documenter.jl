@@ -99,11 +99,11 @@ $(document).ready(function () {
     `;
 
     //removing the query param when the modal is closed
-    if (window.history.replaceState) {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("q");
-      window.history.replaceState({}, document.title, url.toString());
+    const url = new URL(window.location.href);
+    if (url.searchParams.size > 0) {
+      url.search = "";
     }
+    window.history.replaceState(null, "", url.toString());
 
     searchModal.classList.remove("is-active");
     document.querySelector(".documenter-search-input").blur();
