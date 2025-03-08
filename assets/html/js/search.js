@@ -402,6 +402,11 @@ function runSearchMainCode() {
   // Which filter is currently selected
   var selected_filter = "";
 
+  document.addEventListener('reset-filter', function() {
+    selected_filter = "";
+    update_search();
+  });
+
   //update the url with search query
   function updateSearchURL(query) {
     const url = new URL(window.location);

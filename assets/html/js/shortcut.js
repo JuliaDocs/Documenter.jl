@@ -105,6 +105,8 @@ $(document).ready(function () {
     }
     window.history.replaceState(null, "", url.toString());
 
+    document.dispatchEvent(new CustomEvent('reset-filter'));
+
     searchModal.classList.remove("is-active");
     document.querySelector(".documenter-search-input").blur();
 
