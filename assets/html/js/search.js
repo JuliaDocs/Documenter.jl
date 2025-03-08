@@ -554,11 +554,6 @@ function runSearchMainCode() {
     const searchQuery = urlParams.get("q");
     const filterParam = urlParams.get("filter");
 
-    if (searchQuery) {
-      //opening of modal handled in shortcut.js
-      $(".documenter-search-input").val(searchQuery);
-    }
-
     // Set the selected filter if present in URL
     if (filterParam) {
       selected_filter = filterParam.toLowerCase();
@@ -566,7 +561,7 @@ function runSearchMainCode() {
 
     // Trigger input event if there's a search query to perform the search
     if (searchQuery) {
-      $(".documenter-search-input").trigger("input");
+      $(".documenter-search-input").val(searchQuery).trigger("input");
     }
   }
   setTimeout(checkURLForSearch, 100);
