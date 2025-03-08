@@ -402,7 +402,7 @@ function runSearchMainCode() {
   // Which filter is currently selected
   var selected_filter = "";
 
-  document.addEventListener('reset-filter', function() {
+  document.addEventListener("reset-filter", function () {
     selected_filter = "";
     update_search();
   });
