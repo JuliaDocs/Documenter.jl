@@ -47,6 +47,19 @@ $(document).ready(function () {
     `
   );
 
+  function checkURLForSearch() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get("q");
+
+    if (searchQuery) {
+      //only if there is a search query, open the modal
+      openModal();
+    }
+  }
+
+  //this function will be called whenever the page will load
+  checkURLForSearch();
+
   document.querySelector(".docs-search-query").addEventListener("click", () => {
     openModal();
   });
@@ -84,6 +97,15 @@ $(document).ready(function () {
     let initial_search_body = `
       <div class="has-text-centered my-5 py-5">Type something to get started!</div>
     `;
+
+    //removing the query param when the modal is closed
+    const url = new URL(window.location.href);
+    if (url.searchParams.size > 0) {
+      url.search = "";
+    }
+    window.history.replaceState(null, "", url.toString());
+
+    document.dispatchEvent(new CustomEvent("reset-filter"));
 
     searchModal.classList.remove("is-active");
     document.querySelector(".documenter-search-input").blur();
