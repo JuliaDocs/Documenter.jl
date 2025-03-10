@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The solution is to remove the duplicate inclusion.
 
 * `checkdocs` has a new option `:public` to check that unexported symbols marked with `public` are included in the docs. ([#2629])
+* Fixing doctests that use `[...]` to hide part of an error message (such as a stacktrace) no longer replaces the `[...]` if the output otherwise matches ([#2511], [#2642])
 
 ## Version [v1.8.1] - 2025-02-11
 
@@ -1931,6 +1932,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2496]: https://github.com/JuliaDocs/Documenter.jl/issues/2496
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
+[#2511]: https://github.com/JuliaDocs/Documenter.jl/issues/2511
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
@@ -1952,6 +1954,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2624]: https://github.com/JuliaDocs/Documenter.jl/issues/2624
 [#2629]: https://github.com/JuliaDocs/Documenter.jl/issues/2629
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
+[#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
 [#2646]: https://github.com/JuliaDocs/Documenter.jl/issues/2646
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054

@@ -115,3 +115,8 @@ julia> a = ("a", "b", "c");
 
 julia> a
 ```
+```jldoctest
+julia> :a / :b
+ERROR: MethodError: no method matching /(::Symbol, ::Symbol)
+[...]
+```
