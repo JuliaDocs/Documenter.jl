@@ -202,8 +202,7 @@ For doctests in the Markdown source files, an `@meta` block containing a `DocTes
 ...` respectively `DocTestTeardown = ...` value can be used.
 In the example below, the function `foo` is defined inside a `@meta`
 block. This setup block will be evaluated at the start and the teardown block at the end
-of the following doctest blocks,
-
+of the following doctest blocks:
 
 ````markdown
 ```@meta
