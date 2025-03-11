@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2360], [#2619])
+* Doctests now can have `teardown` code in addition to `setup` code. ([#2058], [#2566], [#2577])
 
 ### Changed
 
@@ -1837,6 +1838,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2019]: https://github.com/JuliaDocs/Documenter.jl/issues/2019
 [#2027]: https://github.com/JuliaDocs/Documenter.jl/issues/2027
 [#2051]: https://github.com/JuliaDocs/Documenter.jl/issues/2051
+[#2058]: https://github.com/JuliaDocs/Documenter.jl/issues/2058
 [#2066]: https://github.com/JuliaDocs/Documenter.jl/issues/2066
 [#2067]: https://github.com/JuliaDocs/Documenter.jl/issues/2067
 [#2070]: https://github.com/JuliaDocs/Documenter.jl/issues/2070
@@ -1951,8 +1953,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2560]: https://github.com/JuliaDocs/Documenter.jl/issues/2560
 [#2561]: https://github.com/JuliaDocs/Documenter.jl/issues/2561
 [#2562]: https://github.com/JuliaDocs/Documenter.jl/issues/2562
+[#2566]: https://github.com/JuliaDocs/Documenter.jl/issues/2566
 [#2569]: https://github.com/JuliaDocs/Documenter.jl/issues/2569
 [#2571]: https://github.com/JuliaDocs/Documenter.jl/issues/2571
+[#2577]: https://github.com/JuliaDocs/Documenter.jl/issues/2577
 [#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
 [#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
 [#2602]: https://github.com/JuliaDocs/Documenter.jl/issues/2602
