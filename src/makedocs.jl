@@ -366,7 +366,7 @@ hide(root::AbstractString, children) = (true, nothing, root, map(hide, children)
 This error is thrown by [`makedocs`](@ref) when it is unable to determine the remote repository link
 for a Markdown file or a docstring.
 
-See the [Remote repository links](@ref) section in the manualfor more information.
+See the [Remote repository links](@ref) section in the manual for more information.
 """
 struct MissingRemoteError <: Exception
     path::String
