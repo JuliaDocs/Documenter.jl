@@ -161,7 +161,7 @@ Call `Selectors.runner(T, args...)` where `T` is a subtype of
 Selectors.dispatch(MySelector, args...)
 ```
 """
-function dispatch(::Type{T}, x...) where T <: AbstractSelector
+function dispatch(::Type{T}, x...) where {T <: AbstractSelector}
     types = get!(selector_subtypes, T) do
         sort(leaf_subtypes(T); by = order)
     end
@@ -171,7 +171,7 @@ function dispatch(::Type{T}, x...) where T <: AbstractSelector
             strict(t) && return
         end
     end
-    runner(T, x...)
+    return runner(T, x...)
 end
 
 """
@@ -181,7 +181,7 @@ The returned list includes subtypes of subtypes, and it does not distinguish
 between concrete types (i.e. types which are guaranteed not to have subtypes)
 and abstract types (which may or may not have subtypes).
 """
-function leaf_subtypes(::Type{T}) where T
+function leaf_subtypes(::Type{T}) where {T}
     stack = Type[T]
     leaves = Type[]
     while !isempty(stack)
@@ -199,6 +199,6 @@ end
 # Under certain circumstances, the function `subtypes` can be very slow
 # (https://github.com/JuliaLang/julia/issues/38079), so to ensure that
 # `dispatch` remains fast we cache the results of `subtypes` here.
-const selector_subtypes = Dict{Type,Vector}()
+const selector_subtypes = Dict{Type, Vector}()
 
 end

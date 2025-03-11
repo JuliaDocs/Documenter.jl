@@ -3,6 +3,49 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+* `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2360], [#2619])
+
+### Changed
+
+* Symlinks are now followed when walking the docs directory. ([#2610])
+* PDF/LaTeX builds now throw a more informative error when `sitename` is not provided. ([#2636])
+* `@autodocs` now lists public unexported symbols by default (i.e. when `Public = true`). ([#2629])
+
+  This is **potentially breaking** as it can cause previously working builds to fail if they are being run in strict mode.
+  Errors can happen if there are unexported symbols marked with `public` whose docstrings are being included manually with e.g. `@docs` blocks, and there is also an `@autodocs` block including docstrings for all public symbols.
+  The solution is to remove the duplicate inclusion.
+
+* `checkdocs` has a new option `:public` to check that unexported symbols marked with `public` are included in the docs. ([#2629])
+* Fixing doctests that use `[...]` to hide part of an error message (such as a stacktrace) no longer replaces the `[...]` if the output otherwise matches ([#2511], [#2642])
+
+### Fixed 
+
+* The breadcrumb in the HTML output will not show a spurious scrollbar anymore. ([#2648], [#2652])
+
+## Version [v1.8.1] - 2025-02-11
+
+### Fixed
+
+* `DocMeta` has been updated to respect world-age semantics for bindings, introduced in Julia 1.12. ([#2621], [#2622], [#2624])
+
+## Version [v1.8.0] - 2024-11-07
+
+### Changed
+
+* `deploydocs` now ignores any global GPG signing Git settings (i.e. `commit.gpgSign = false`). ([#2592])
+
+### Fixed
+
+* The search modal no longer runs into a race condition with loading the search index and consistently opens correctly. ([#2593])
+
+### Other
+
+* Documenter now uses [Runic.jl](https://github.com/fredrikekre/Runic.jl) for code formatting.
+
 ## Version [v1.7.0] - 2024-09-04
 
 ### Added
@@ -373,7 +416,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * For the `edit_link` keyword to `HTML()`, Documenter automatically tries to figure out if the remote default branch is `main`, `master`, or something else. It will print a warning if it is unable to reliably determine either `edit_link` or `devbranch` (for `deploydocs`). ([#1827], [#1829])
 
-* Profiling showed that a significant amount of the HTML page build time was due to external `git` commands (used to find remote URLs for docstrings). These results are now cached on a per-source-file basis resulting in faster build times. This is particularly useful when using [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)s functionality for live-updating the docs while writing. ([#1838])
+* Profiling showed that a significant amount of the HTML page build time was due to external `git` commands (used to find remote URLs for docstrings). These results are now cached on a per-source-file basis resulting in faster build times. This is particularly useful when using [LiveServer.jl](https://github.com/JuliaDocs/LiveServer.jl)s functionality for live-updating the docs while writing. ([#1838])
 
 ## Version [v0.27.18] - 2022-05-25
 
@@ -1389,6 +1432,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v1.5.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.5.0
 [v1.6.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.6.0
 [v1.7.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.7.0
+[v1.8.0]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.8.0
+[v1.8.1]: https://github.com/JuliaDocs/Documenter.jl/releases/tag/v1.8.1
 [#198]: https://github.com/JuliaDocs/Documenter.jl/issues/198
 [#245]: https://github.com/JuliaDocs/Documenter.jl/issues/245
 [#487]: https://github.com/JuliaDocs/Documenter.jl/issues/487
@@ -1860,6 +1905,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2339]: https://github.com/JuliaDocs/Documenter.jl/issues/2339
 [#2344]: https://github.com/JuliaDocs/Documenter.jl/issues/2344
 [#2348]: https://github.com/JuliaDocs/Documenter.jl/issues/2348
+[#2360]: https://github.com/JuliaDocs/Documenter.jl/issues/2360
 [#2364]: https://github.com/JuliaDocs/Documenter.jl/issues/2364
 [#2365]: https://github.com/JuliaDocs/Documenter.jl/issues/2365
 [#2366]: https://github.com/JuliaDocs/Documenter.jl/issues/2366
@@ -1888,6 +1934,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2496]: https://github.com/JuliaDocs/Documenter.jl/issues/2496
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
+[#2511]: https://github.com/JuliaDocs/Documenter.jl/issues/2511
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
@@ -1899,6 +1946,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2562]: https://github.com/JuliaDocs/Documenter.jl/issues/2562
 [#2569]: https://github.com/JuliaDocs/Documenter.jl/issues/2569
 [#2571]: https://github.com/JuliaDocs/Documenter.jl/issues/2571
+[#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
+[#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
+[#2610]: https://github.com/JuliaDocs/Documenter.jl/issues/2610
+[#2619]: https://github.com/JuliaDocs/Documenter.jl/issues/2619
+[#2621]: https://github.com/JuliaDocs/Documenter.jl/issues/2621
+[#2622]: https://github.com/JuliaDocs/Documenter.jl/issues/2622
+[#2624]: https://github.com/JuliaDocs/Documenter.jl/issues/2624
+[#2629]: https://github.com/JuliaDocs/Documenter.jl/issues/2629
+[#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
+[#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
+[#2648]: https://github.com/JuliaDocs/Documenter.jl/issues/2648
+[#2652]: https://github.com/JuliaDocs/Documenter.jl/issues/2652
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841

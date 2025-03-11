@@ -184,18 +184,18 @@ using the [`deploydocs`](@ref) function to automatically generate docs and push 
 GitHub.
 """
 function deploydocs(;
-        root   = currentdir(),
+        root = currentdir(),
         target = "build",
         dirname = "",
 
-        repo   = error("no 'repo' keyword provided."),
+        repo = error("no 'repo' keyword provided."),
         branch = "gh-pages",
 
-        repo_previews   = repo,
+        repo_previews = repo,
         branch_previews = branch,
 
-        deps   = nothing,
-        make   = nothing,
+        deps = nothing,
+        make = nothing,
 
         cname = nothing,
         devbranch = nothing,
@@ -221,15 +221,17 @@ function deploydocs(;
         ispath(archive) && error("Output archive exists: $archive")
     end
 
-    deploy_decision = deploy_folder(deploy_config;
-                                    branch=branch,
-                                    branch_previews=branch_previews,
-                                    devbranch=devbranch,
-                                    devurl=devurl,
-                                    push_preview=push_preview,
-                                    repo=repo,
-                                    repo_previews=repo_previews,
-                                    tag_prefix)
+    deploy_decision = deploy_folder(
+        deploy_config;
+        branch = branch,
+        branch_previews = branch_previews,
+        devbranch = devbranch,
+        devurl = devurl,
+        push_preview = push_preview,
+        repo = repo,
+        repo_previews = repo_previews,
+        tag_prefix
+    )
     if deploy_decision.all_ok
         deploy_branch = deploy_decision.branch
         deploy_repo = deploy_decision.repo
@@ -264,11 +266,15 @@ function deploydocs(;
 
             @debug "setting up target directory."
             isdir(target) || mkpath(target)
-            startswith(realpath(target), realpath(root)) || error("""
-            target must be a subdirectory of root, got:
-              target: $(realpath(target))
-              root: $(realpath(root))
-            """)
+            if !startswith(realpath(target), realpath(root))
+                error(
+                    """
+                    target must be a subdirectory of root, got:
+                      target: $(realpath(target))
+                      root: $(realpath(root))
+                    """
+                )
+            end
             # Run extra build steps defined in `make` if required.
             if make !== nothing
                 @debug "running extra build steps."
@@ -289,20 +295,21 @@ function deploydocs(;
             mktempdir() do temp
                 git_push(
                     root, temp, deploy_repo;
-                    branch=deploy_branch, dirname=dirname, target=target,
-                    sha=sha, deploy_config=deploy_config, subfolder=deploy_subfolder,
-                    cname=cname, devurl=devurl,
-                    versions=versions, forcepush=forcepush,
-                    is_preview=deploy_is_preview, archive=archive,
+                    branch = deploy_branch, dirname = dirname, target = target,
+                    sha = sha, deploy_config = deploy_config, subfolder = deploy_subfolder,
+                    cname = cname, devurl = devurl,
+                    versions = versions, forcepush = forcepush,
+                    is_preview = deploy_is_preview, archive = archive,
                 )
             end
         end
     end
+    return
 end
 
 
 function _get_inventory_version(objects_inv)
-    open(objects_inv) do input
+    return open(objects_inv) do input
         for line in eachline(input)
             if startswith(line, "# Version:")
                 return strip(line[11:end])
@@ -317,7 +324,7 @@ function _patch_inventory_version(objects_inv, version)
     objects_inv_patched = tempname()
     open(objects_inv) do input
         open(objects_inv_patched, "w") do output
-            for line in eachline(input; keep=true)
+            for line in eachline(input; keep = true)
                 if startswith(line, "# Version:")
                     @debug "Patched $objects_inv with version=$version"
                     line = "# Version: $version\n"
@@ -326,7 +333,8 @@ function _patch_inventory_version(objects_inv, version)
             end
         end
     end
-    mv(objects_inv_patched, objects_inv; force=true)
+    mv(objects_inv_patched, objects_inv; force = true)
+    return
 end
 
 
@@ -352,9 +360,9 @@ The documentation are placed in the folder specified by `subfolder`.
 """
 function git_push(
         root, temp, repo;
-        branch="gh-pages", dirname="", target="site", sha="",
-        cname=nothing, devurl="dev",
-        versions, forcepush=false, deploy_config, subfolder,
+        branch = "gh-pages", dirname = "", target = "site", sha = "",
+        cname = nothing, devurl = "dev",
+        versions, forcepush = false, deploy_config, subfolder,
         is_preview::Bool = false, archive,
     )
     dirname = isempty(dirname) ? temp : joinpath(temp, dirname)
@@ -363,11 +371,12 @@ function git_push(
     target_dir = abspath(target)
 
     # Generate a closure with common commands for ssh and https
-    function git_commands(sshconfig=nothing)
+    function git_commands(sshconfig = nothing)
         # Setup git.
         run(`$(git()) init`)
         run(`$(git()) config user.name "Documenter.jl"`)
         run(`$(git()) config user.email "documenter@juliadocs.github.io"`)
+        run(`$(git()) config commit.gpgsign false`)
         if sshconfig !== nothing
             run(`$(git()) config core.sshCommand "ssh -F $(sshconfig)"`)
         end
@@ -435,8 +444,14 @@ function git_push(
                     if i === nothing
                         rm_and_add_symlink(kv.second, kv.first)
                     else
-                        throw(ArgumentError(string("link `$(kv)` cannot overwrite ",
-                            "`devurl = $(devurl)` with the same name.")))
+                        throw(
+                            ArgumentError(
+                                string(
+                                    "link `$(kv)` cannot overwrite ",
+                                    "`devurl = $(devurl)` with the same name."
+                                )
+                            )
+                        )
                     end
                 end
             end
@@ -459,6 +474,7 @@ function git_push(
         else
             @debug "new docs identical to the old -- not committing nor pushing."
         end
+        return
     end
 
     if authentication_method(deploy_config) === SSH
@@ -481,22 +497,24 @@ function git_push(
             Make sure that the environment variable is properly set up as a Base64-encoded string
             of the SSH private key. You may need to re-generate the keys with DocumenterTools.
             """
-            rm(keyfile; force=true)
+            rm(keyfile; force = true)
             rethrow(e)
         end
 
         try
             mktemp() do sshconfig, io
-                print(io,
-                """
-                Host $host
-                    StrictHostKeyChecking no
-                    User $user
-                    HostName $host
-                    IdentityFile "$keyfile"
-                    IdentitiesOnly yes
-                    BatchMode yes
-                """)
+                print(
+                    io,
+                    """
+                    Host $host
+                        StrictHostKeyChecking no
+                        User $user
+                        HostName $host
+                        IdentityFile "$keyfile"
+                        IdentitiesOnly yes
+                        BatchMode yes
+                    """
+                )
                 close(io)
                 chmod(sshconfig, 0o600)
                 # git config core.sshCommand requires git 2.10.0, but
@@ -505,10 +523,10 @@ function git_push(
                     cd(() -> git_commands(sshconfig), temp)
                 end
             end
-            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
+            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
         catch e
-            @error "Failed to push:" exception=(e, catch_backtrace())
-            post_status(deploy_config; repo=repo, type="error")
+            @error "Failed to push:" exception = (e, catch_backtrace())
+            post_status(deploy_config; repo = repo, type = "error")
             rethrow(e)
         finally
             # Remove the unencrypted private key.
@@ -519,13 +537,14 @@ function git_push(
         upstream = authenticated_repo_url(deploy_config)
         try
             cd(() -> withenv(git_commands, NO_KEY_ENV...), temp)
-            post_status(deploy_config; repo=repo, type="success", subfolder=subfolder)
+            post_status(deploy_config; repo = repo, type = "success", subfolder = subfolder)
         catch e
-            @error "Failed to push:" exception=(e, catch_backtrace())
-            post_status(deploy_config; repo=repo, type="error")
+            @error "Failed to push:" exception = (e, catch_backtrace())
+            post_status(deploy_config; repo = repo, type = "error")
             rethrow(e)
         end
     end
+    return
 end
 
 function rm_and_add_symlink(target, link)
@@ -534,6 +553,7 @@ function rm_and_add_symlink(target, link)
         rm(link; force = true, recursive = true)
     end
     symlink(target, link)
+    return
 end
 
 """
@@ -586,6 +606,7 @@ function gitrm_copy(src, dst)
     # Copy individual entries rather then the full folder since with
     # versions=nothing it would replace the root including e.g. the .git folder
     for x in readdir(src)
-        cp(joinpath(src, x), joinpath(dst, x); force=true)
+        cp(joinpath(src, x), joinpath(dst, x); force = true)
     end
+    return
 end

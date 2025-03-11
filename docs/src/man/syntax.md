@@ -118,11 +118,11 @@ Pages   = ["a.jl", "b.jl"]
 ```
 ````
 
-In the above example docstrings from module `Foo` found in source files that end in `a.jl`
-and `b.jl` are included. The page order provided by `Pages` is also used to sort the
+In the above example docstrings from module `Foo` found in source files whose file path ends
+with `a.jl`and `b.jl` are included. The page order provided by `Pages` is also used to sort the
 docstrings. Note that page matching is done using the end of the provided strings and so
-`a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
-`src/foo/a.jl`.
+`a.jl` will be matched by *any* source file whose file path ends with `a.jl`, i.e. `src/a.jl`,
+`src/foo/a.jl` or `src/bar_a.jl`.
 
 To filter out certain docstrings by your own criteria, you can provide a function with the
 `Filter` keyword:
@@ -145,9 +145,13 @@ Filter =  myCustomFilterFunction
 ```
 ````
 
-To include only the exported names from the modules listed in `Modules` use `Private = false`.
-In a similar way `Public = false` can be used to only show the unexported names. By
+To include only the public names from the modules listed in `Modules` use `Private = false`.
+In a similar way `Public = false` can be used to only show the private names. By
 default both of these are set to `true` so that all names will be shown.
+
+!!! info
+    In Julia versions up to and including v1.10, "public" = "exported".
+    Starting with Julia v1.11, "public" = "exported _or_ marked with the `public` keyword".
 
 ````markdown
 Functions exported from `Foo`:
@@ -176,7 +180,7 @@ As with `@docs`, you can use `@autodocs; canonical=false` to indicate that the
 `@autodocs` block in non-canonical. See [`@docs; canonical=false` block](@ref
 noncanonical-block).
 
-## `@ref` link
+## [`@ref` and `@id` links](@id at-ref-at-id-links)
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
 automatically. The text part of the link can be a code object (between backticks), header name, or GitHub PR/Issue number (`#` followed by a number).
@@ -290,7 +294,7 @@ for more details.
 This block type is used to define metadata key/value pairs that can be used elsewhere in the
 page. Currently recognised keys:
 - `CurrentModule`: module where Documenter evaluates, for example, [`@docs`-block](@ref)
-  and [`@ref`-link](@ref)s.
+  and [`@ref`-link](@ref at-ref-at-id-links)s.
 - `DocTestSetup`: code to be evaluated before a doctest, see the [Setup Code](@ref)
   section under [Doctests](@ref).
 - `DocTestFilters`: filters to deal with, for example, unpredictable output from doctests,

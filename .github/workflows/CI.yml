@@ -9,6 +9,15 @@ on:
       - '*/*-runci'
     tags: '*'
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # group by workflow and ref; the last slightly strange component ensures that for pull
+  # requests, we limit to 1 concurrent job, but for the master branch we don't
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.ref != 'refs/heads/master' || github.run_number }}
+  # Cancel intermediate builds, but only if it is a pull request build.
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
@@ -41,10 +50,12 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -71,10 +82,12 @@ jobs:
       - name: Run test/examples/tests_latex.jl
         run: julia --color=yes --project=test/examples --code-coverage test/examples/tests_latex.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -116,10 +129,12 @@ jobs:
             Pkg.develop(PackageSpec(path=pwd()))'
       - run: julia --color=yes --project=test/prerender --code-coverage test/prerender/prerender.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -165,14 +180,16 @@ jobs:
         with:
           version: '1'
       - name: Install dependencies
-        run: julia --color=yes --project -e'using Pkg; Pkg.instantiate()'
+        run: julia --color=yes --project=test/online -e'using Pkg; Pkg.instantiate()'
       - name: Run online linkcheck tests
-        run: julia --color=yes --project --code-coverage test/online_linkcheck.jl
+        run: julia --color=yes --project=test/online --code-coverage test/online/runtests.jl
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           file: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
+          plugins: noop
+          disable_search: true
       - name: Submit coverage to Coveralls
         continue-on-error: true # TODO: https://github.com/JuliaDocs/Documenter.jl/issues/2343
         uses: coverallsapp/github-action@v2
@@ -201,3 +218,25 @@ jobs:
       - uses: actionsx/prettier@v2
         with:
           args: --check .
+
+  runic:
+    name: "Runic (Julia code formatting)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.11'
+      - uses: julia-actions/cache@v2
+      - uses: fredrikekre/runic-action@v1
+        with:
+          version: '1.2'
+
+  typos:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v4
+      - name: Check spelling
+        uses: crate-ci/typos@master

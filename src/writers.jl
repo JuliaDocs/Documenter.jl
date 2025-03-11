@@ -10,17 +10,17 @@
 
 abstract type FormatSelector <: Selectors.AbstractSelector end
 
-abstract type LaTeXFormat    <: FormatSelector end
-abstract type HTMLFormat     <: FormatSelector end
+abstract type LaTeXFormat <: FormatSelector end
+abstract type HTMLFormat <: FormatSelector end
 
-Selectors.order(::Type{LaTeXFormat})    = 2.0
-Selectors.order(::Type{HTMLFormat})     = 3.0
+Selectors.order(::Type{LaTeXFormat}) = 2.0
+Selectors.order(::Type{HTMLFormat}) = 3.0
 
-Selectors.matcher(::Type{LaTeXFormat},    fmt, _) = isa(fmt, LaTeXWriter.LaTeX)
-Selectors.matcher(::Type{HTMLFormat},     fmt, _) = isa(fmt, HTMLWriter.HTML)
+Selectors.matcher(::Type{LaTeXFormat}, fmt, _) = isa(fmt, LaTeXWriter.LaTeX)
+Selectors.matcher(::Type{HTMLFormat}, fmt, _) = isa(fmt, HTMLWriter.HTML)
 
-Selectors.runner(::Type{LaTeXFormat},    fmt, doc) = LaTeXWriter.render(doc, fmt)
-Selectors.runner(::Type{HTMLFormat},     fmt, doc) = HTMLWriter.render(doc, fmt)
+Selectors.runner(::Type{LaTeXFormat}, fmt, doc) = LaTeXWriter.render(doc, fmt)
+Selectors.runner(::Type{HTMLFormat}, fmt, doc) = HTMLWriter.render(doc, fmt)
 
 """
 Writes a [`Documenter.Document`](@ref) object to `.user.build` directory in
@@ -44,4 +44,5 @@ function render(doc::Documenter.Document)
     for each in doc.user.format
         Selectors.dispatch(FormatSelector, each, doc)
     end
+    return
 end

@@ -37,7 +37,7 @@ macro docerror(doc, tag, msg, exs...)
             esc(ex)
         end
     end
-    quote
+    return quote
         let doc = $(doc)
             push!(doc.internal.errors, $(tag))
             if is_strict(doc, $(tag))
@@ -69,7 +69,7 @@ function find_block_in_file(code, file)
 end
 
 # Pretty-printing locations
-function locrepr(file, line=nothing)
+function locrepr(file, line = nothing)
     str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
     line !== nothing && (str = str * ":$(line.first)-$(line.second)")
     return str
@@ -82,7 +82,7 @@ Returns the current directory.
 """
 function currentdir()
     d = Base.source_dir()
-    d === nothing ? pwd() : d
+    return d === nothing ? pwd() : d
 end
 
 """
@@ -130,8 +130,10 @@ returns this expression normally and it must be handled appropriately by the cal
 The `linenumbernode` can be passed as a `LineNumberNode` to give information about filename
 and starting line number of the block (requires Julia 1.6 or higher).
 """
-function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, raise=true,
-                    linenumbernode=nothing)
+function parseblock(
+        code::AbstractString, doc, file; skip = 0, keywords = true, raise = true,
+        linenumbernode = nothing
+    )
     # Drop `skip` leading lines from the code block. Needed for deprecated `{docs}` syntax.
     code = string(code, '\n')
     code = last(split(code, '\n', limit = skip + 1))
@@ -143,17 +145,17 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
         line = match(r"^(.*)\r?\n"m, SubString(code, cursor)).match
         keyword = Symbol(strip(line))
         (ex, ncursor) =
-            # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
-            if keywords && (haskey(Docs.keywords, keyword) || keyword == Symbol(""))
-                (QuoteNode(keyword), cursor + lastindex(line))
-            else
-                try
-                    Meta.parse(code, cursor; raise=raise)
-                catch err
-                    @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
-                    break
-                end
+        # TODO: On 0.7 Symbol("") is in Docs.keywords, remove that check when dropping 0.6
+        if keywords && (haskey(Docs.keywords, keyword) || keyword == Symbol(""))
+            (QuoteNode(keyword), cursor + lastindex(line))
+        else
+            try
+                Meta.parse(code, cursor; raise = raise)
+            catch err
+                @docerror(doc, :parse_error, "failed to parse exception in $(locrepr(file))", exception = err)
+                break
             end
+        end
         str = SubString(code, cursor, prevind(code, ncursor))
         if !isempty(strip(str)) && ex !== nothing
             push!(results, (ex, str))
@@ -161,7 +163,7 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
         cursor = ncursor
     end
     if linenumbernode isa LineNumberNode
-        exs = Meta.parseall(code; filename=linenumbernode.file).args
+        exs = Meta.parseall(code; filename = linenumbernode.file).args
         @assert length(exs) == 2 * length(results) "Issue at $linenumbernode:\n$code"
         for (i, ex) in enumerate(Iterators.partition(exs, 2))
             @assert ex[1] isa LineNumberNode
@@ -177,10 +179,10 @@ function parseblock(code::AbstractString, doc, file; skip = 0, keywords = true, 
             else
                 update_linenumbernodes!(expr, linenumbernode.file, linenumbernode.line)
             end
-            results[i] = (expr , results[i][2])
+            results[i] = (expr, results[i][2])
         end
     end
-    results
+    return results
 end
 isassign(x) = isexpr(x, :(=), 2) && isa(x.args[1], Symbol)
 
@@ -204,13 +206,13 @@ Returns the set of submodules of a given root module/s.
 function submodules(modules::Vector{Module}; ignore = Set{Module}())
     out = Set{Module}()
     for each in modules
-        submodules(each, out; ignore=ignore)
+        submodules(each, out; ignore = ignore)
     end
-    out
+    return out
 end
 function submodules(root::Module, seen = Set{Module}(); ignore = Set{Module}())
     push!(seen, root)
-    for name in names(root, all=true)
+    for name in names(root, all = true)
         if Base.isidentifier(name) && isdefined(root, name) && !isdeprecated(root, name)
             object = getfield(root, name)
             if isa(object, Module) && !(object in seen) && !(object in ignore) && parentmodule(object::Module) == root
@@ -222,35 +224,33 @@ function submodules(root::Module, seen = Set{Module}(); ignore = Set{Module}())
 end
 
 
-
 ## objects
 ## =======
-
 
 
 """
 Represents an object stored in the docsystem by its binding and signature.
 """
 struct Object
-    binding   :: Binding
-    signature :: Type
-    noncanonical_extra :: Union{String, Nothing}
+    binding::Binding
+    signature::Type
+    noncanonical_extra::Union{String, Nothing}
 
-    function Object(b::Binding, signature::Type, noncanonical_extra=nothing)
+    function Object(b::Binding, signature::Type, noncanonical_extra = nothing)
         m = nameof(b.mod) === b.var ? parentmodule(b.mod) : b.mod
-        new(Binding(m, b.var), signature, noncanonical_extra)
+        return new(Binding(m, b.var), signature, noncanonical_extra)
     end
 end
 
 is_canonical(o::Object) = o.noncanonical_extra === nothing
 
 function splitexpr(x::Expr)
-    isexpr(x, :macrocall) ? splitexpr(x.args[1]) :
-    isexpr(x, :.)         ? (x.args[1], x.args[2]) :
-    error("Invalid @var syntax `$x`.")
+    return isexpr(x, :macrocall) ? splitexpr(x.args[1]) :
+        isexpr(x, :.) ? (x.args[1], x.args[2]) :
+        error("Invalid @var syntax `$x`.")
 end
 splitexpr(s::Symbol) = :(Main), quot(s)
-splitexpr(other)     = error("Invalid @var syntax `$other`.")
+splitexpr(other) = error("Invalid @var syntax `$other`.")
 
 """
     object(ex, str)
@@ -258,16 +258,16 @@ splitexpr(other)     = error("Invalid @var syntax `$other`.")
 Returns a expression that, when evaluated, returns an [`Object`](@ref) representing `ex`.
 """
 function object(ex::Union{Symbol, Expr}, str::AbstractString)
-    binding   = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
+    binding = Expr(:call, Binding, splitexpr(Docs.namify(ex))...)
     signature = Base.Docs.signature(ex)
     isexpr(ex, :macrocall, 2) && !endswith(str, "()") && (signature = :(Union{}))
-    Expr(:call, Object, binding, signature)
+    return Expr(:call, Object, binding, signature)
 end
 
 function object(qn::QuoteNode, str::AbstractString)
     if haskey(Base.Docs.keywords, qn.value)
         binding = Expr(:call, Binding, Main, qn)
-        Expr(:call, Object, binding, Union{})
+        return Expr(:call, Object, binding, Union{})
     else
         error("'$(qn.value)' is not a documented keyword.")
     end
@@ -277,11 +277,12 @@ function Base.print(io::IO, obj::Object)
     print(io, obj.binding)
     print_signature(io, obj.signature)
     print_extra(io, obj.noncanonical_extra)
+    return
 end
-print_extra(io::IO, noncanonical_extra::Nothing ) = nothing
-print_extra(io::IO, noncanonical_extra::String ) = print(io, "-", noncanonical_extra)
+print_extra(io::IO, noncanonical_extra::Nothing) = nothing
+print_extra(io::IO, noncanonical_extra::String) = print(io, "-", noncanonical_extra)
 print_signature(io::IO, signature::Union{Union, Type{Union{}}}) = nothing
-print_signature(io::IO, signature)        = print(io, '-', signature)
+print_signature(io::IO, signature) = print(io, '-', signature)
 
 ## docs
 ## ====
@@ -296,7 +297,7 @@ function docs end
 # Macro representation changed between 0.4 and 0.5.
 function docs(ex::Union{Symbol, Expr}, str::AbstractString)
     isexpr(ex, :macrocall, 2) && !endswith(rstrip(str), "()") && (ex = quot(ex))
-    :(Base.Docs.@doc $ex)
+    return :(Base.Docs.@doc $ex)
 end
 docs(qn::QuoteNode, str::AbstractString) = :(Base.Docs.@doc $(qn.value))
 
@@ -308,21 +309,21 @@ doccat(obj::Object) = startswith(string(obj.binding.var), '@') ?
 
 function doccat(b::Binding, ::Union{Union, Type{Union{}}})
     if b.mod === Main && haskey(Base.Docs.keywords, b.var)
-        "Keyword"
+        return "Keyword"
     elseif startswith(string(b.var), '@')
-        "Macro"
+        return "Macro"
     else
-        doccat(getfield(b.mod, b.var))
+        return doccat(getfield(b.mod, b.var))
     end
 end
 
-doccat(b::Binding, ::Type)  = "Method"
+doccat(b::Binding, ::Type) = "Method"
 
 doccat(::Function) = "Function"
-doccat(::Type)     = "Type"
+doccat(::Type) = "Type"
 doccat(x::UnionAll) = doccat(Base.unwrap_unionall(x))
-doccat(::Module)   = "Module"
-doccat(::Any)      = "Constant"
+doccat(::Module) = "Module"
+doccat(::Any) = "Constant"
 
 """
     $(SIGNATURES)
@@ -360,7 +361,7 @@ The `dbdir` keyword argument specifies the name of the directory we are searchin
 determine if this is a repository or not. If there is a file called `dbdir`, then it's
 contents is checked under the assumption that it is a Git worktree or a submodule.
 """
-function is_git_repo_root(directory::AbstractString; dbdir=".git")
+function is_git_repo_root(directory::AbstractString; dbdir = ".git")
     isdir(directory) || error("is_git_repo_root called with non-directory path: $directory")
     dbdir_path = joinpath(directory, dbdir)
     isdir(dbdir_path) && return true
@@ -377,29 +378,31 @@ end
 
 struct RepoCommitError <: Exception
     directory::String
-    msg :: String
-    err_bt :: Union{Tuple{Any,Any},Nothing}
+    msg::String
+    err_bt::Union{Tuple{Any, Any}, Nothing}
     RepoCommitError(directory::AbstractString, msg::AbstractString) = new(directory, msg, nothing)
     RepoCommitError(directory::AbstractString, msg::AbstractString, e, bt) = new(directory, msg, (e, bt))
 end
 
 function repo_commit(repository_root::AbstractString)
     isdir(repository_root) || throw(RepoCommitError(repository_root, "repository_root not a directory"))
-    cd(repository_root) do
+    return cd(repository_root) do
         try
             toplevel = readchomp(`$(git()) rev-parse --show-toplevel`)
             if !ispath(toplevel)
                 throw(RepoCommitError(repository_root, "`git rev-parse --show-toplevel` returned invalid path: $toplevel"))
             end
             if realpath(toplevel) != realpath(repository_root)
-                throw(RepoCommitError(
-                    repository_root,
-                    """
-                    repository_root is not the top-level of the repository
-                      `git rev-parse --show-toplevel`: $toplevel
-                      repository_root: $repository_root
-                    """
-                ))
+                throw(
+                    RepoCommitError(
+                        repository_root,
+                        """
+                        repository_root is not the top-level of the repository
+                          `git rev-parse --show-toplevel`: $toplevel
+                          repository_root: $repository_root
+                        """
+                    )
+                )
             end
         catch e
             isa(e, RepoCommitError) && rethrow(e)
@@ -421,7 +424,7 @@ const julia_remote = Remotes.GitHub("JuliaLang", "julia")
 """
 Stores the memoized results of [`getremote`](@ref).
 """
-const GIT_REMOTE_CACHE = Dict{String,Union{Remotes.Remote,Nothing}}()
+const GIT_REMOTE_CACHE = Dict{String, Union{Remotes.Remote, Nothing}}()
 
 function parse_remote_url(remote::AbstractString)
     # TODO: we only match for GitHub repositories automatically. Could we engineer a
@@ -447,9 +450,9 @@ function getremote(dir::AbstractString)
     isdir(dir) || return nothing
     return get!(GIT_REMOTE_CACHE, dir) do
         remote = try
-            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir=dir))
+            readchomp(setenv(`$(git()) config --get remote.origin.url`; dir = dir))
         catch e
-            @debug "git config --get remote.origin.url failed" exception=(e, catch_backtrace())
+            @debug "git config --get remote.origin.url failed" exception = (e, catch_backtrace())
             ""
         end
         return parse_remote_url(remote)
@@ -458,10 +461,10 @@ end
 
 function inbase(m::Module)
     if m ≡ Base
-        true
+        return true
     else
         parent = parentmodule(m)
-        parent ≡ m ? false : inbase(parent)
+        return parent ≡ m ? false : inbase(parent)
     end
 end
 
@@ -509,15 +512,21 @@ The `mode` keyword argument can be one of the following:
   This requires the string to parse into a single `Markdown.Paragraph`, the contents of
   which gets returned.
 """
-function mdparse(s::AbstractString; mode=:single) :: Vector{MarkdownAST.Node{Nothing}}
+function mdparse(s::AbstractString; mode = :single)::Vector{MarkdownAST.Node{Nothing}}
     mode in [:single, :blocks, :span] || throw(ArgumentError("Invalid mode keyword $(mode)"))
     mdast = convert(MarkdownAST.Node, Markdown.parse(s))
     if mode == :blocks
-        MarkdownAST.unlink!.(mdast.children)
+        return MarkdownAST.unlink!.(mdast.children)
     elseif length(mdast.children) == 0
         # case where s == "". We'll just return an empty string / paragraph.
         if mode == :single
-            [MarkdownAST.@ast(MarkdownAST.Paragraph() do; ""; end)]
+            return [
+                MarkdownAST.@ast(
+                    MarkdownAST.Paragraph() do
+                        ""
+                    end
+                ),
+            ]
         else
             # If we're in span mode we return a single Text node
             [MarkdownAST.@ast("")]
@@ -545,13 +554,15 @@ function limitstringmime(m::MIME"text/plain", x; context = nothing)
     return String(take!(io))
 end
 function display_dict(x; context = nothing)
-    out = Dict{MIME,Any}()
+    out = Dict{MIME, Any}()
     x === nothing && return out
     # Always generate text/plain
     out[MIME"text/plain"()] = limitstringmime(MIME"text/plain"(), x, context = context)
-    for m in [MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
-              MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
-              MIME"text/latex"(), MIME"text/markdown"()]
+    for m in [
+            MIME"text/html"(), MIME"image/svg+xml"(), MIME"image/png"(),
+            MIME"image/webp"(), MIME"image/gif"(), MIME"image/jpeg"(),
+            MIME"text/latex"(), MIME"text/markdown"(),
+        ]
         showable(m, x) && (out[m] = stringmime(m, x, context = context))
     end
     return out
@@ -575,7 +586,7 @@ end
 ```
 """
 struct Default{T}
-    value :: T
+    value::T
 end
 Base.getindex(default::Default) = default.value
 
@@ -597,7 +608,7 @@ function get_sandbox_module!(meta, prefix, name = nothing)
     end
     # Either fetch and return an existing sandbox from the meta dictionary (based on the generated name),
     # or initialize a new clean one, which gets stored in meta for future re-use.
-    get!(meta, sym) do
+    return get!(meta, sym) do
         # If the module does not exists already, we need to construct a new one.
         m = Module(sym)
         # eval(expr) is available in the REPL (i.e. Main) so we emulate that for the sandbox
@@ -629,7 +640,7 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
     # We need to do addenv() here to merge the new variables with the environment set by
     # Git_jll and the git() function.
     cmd = addenv(
-        setenv(`$gitcmd remote show $(remotename)`, dir=root),
+        setenv(`$gitcmd remote show $(remotename)`, dir = root),
         "GIT_TERMINAL_PROMPT" => "0",
         "GIT_SSH_COMMAND" => get(ENV, "GIT_SSH_COMMAND", "ssh -o \"BatchMode yes\""),
     )
@@ -656,9 +667,9 @@ function git_remote_head_branch(varname, root; remotename = "origin", fallback =
         stdout from $cmd:
         $(git_remote_output)
         """
-        fallback
+        return fallback
     else
-        String(m[1])
+        return String(m[1])
     end
 end
 
@@ -674,7 +685,8 @@ function git(; nothrow = false, kwargs...)
     # DOCUMENTER_KEY etc are never needed for git operations
     cmd = addenv(Git.git(), NO_KEY_ENV)
     if Sys.iswindows()
-        cmd = addenv(cmd,
+        cmd = addenv(
+            cmd,
             # For deploydocs() in particular, we need to use symlinks, but it looks like those
             # need to be explicitly force-enabled on Windows. So we make sure that we configure
             # core.symlinks=true via environment variables on that platform.
@@ -705,5 +717,5 @@ function remove_common_backtrace(bt, reference_bt = backtrace())
     end
     # It's possible that the loop does not find anything, i.e. that all BT elements are in
     # the reference_BT too. In that case we'll just return an empty BT.
-    bt[1:(cutoff === nothing ? 0 : cutoff)]
+    return bt[1:(cutoff === nothing ? 0 : cutoff)]
 end

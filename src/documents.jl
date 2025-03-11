@@ -12,8 +12,8 @@ abstract type AbstractDocumenterBlock <: MarkdownAST.AbstractBlock end
 [`Page`](@ref)-local values such as current module that are shared between nodes in a page.
 """
 mutable struct Globals
-    mod  :: Module
-    meta :: Dict{Symbol, Any}
+    mod::Module
+    meta::Dict{Symbol, Any}
 end
 Globals() = Globals(Main, Dict())
 
@@ -21,21 +21,21 @@ Globals() = Globals(Main, Dict())
 Represents a single markdown file.
 """
 struct Page
-    source      :: String
-    build       :: String
-    workdir :: Union{Symbol,String}
+    source::String
+    build::String
+    workdir::Union{Symbol, String}
     """
     Ordered list of raw toplevel markdown nodes from the parsed page contents. This vector
     should be considered immutable.
     """
-    elements :: Vector
+    elements::Vector
     """
     Each element in `.elements` maps to an "expanded" element. This may be itself if the
     element does not need expanding or some other object, such as a `DocsNode` in the case
     of `@docs` code blocks.
     """
-    globals  :: Globals
-    mdast   :: MarkdownAST.Node{Nothing}
+    globals::Globals
+    mdast::MarkdownAST.Node{Nothing}
 end
 function Page(source::AbstractString, build::AbstractString, workdir::AbstractString)
     # The Markdown standard library parser is sensitive to line endings:
@@ -50,12 +50,12 @@ function Page(source::AbstractString, build::AbstractString, workdir::AbstractSt
         convert(MarkdownAST.Node, mdpage)
     catch err
         @error """
-            MarkdownAST conversion error on $(source).
-            This is a bug — please report this on the Documenter issue tracker
-            """
+        MarkdownAST conversion error on $(source).
+        This is a bug — please report this on the Documenter issue tracker
+        """
         rethrow(err)
     end
-    Page(source, build, workdir, mdpage.content, Globals(), mdast)
+    return Page(source, build, workdir, mdpage.content, Globals(), mdast)
 end
 
 # FIXME -- special overload for parseblock
@@ -67,8 +67,8 @@ parseblock(code::AbstractString, doc, page::Documenter.Page; kwargs...) = parseb
 # Should contain all the information that is necessary to build a document.
 # Currently has enough information to just run doctests.
 struct DocumentBlueprint
-    pages :: Dict{String, Page} # Markdown files only.
-    modules :: Set{Module} # Which modules to check for missing docs?
+    pages::Dict{String, Page} # Markdown files only.
+    modules::Set{Module} # Which modules to check for missing docs?
 end
 
 
@@ -78,50 +78,52 @@ end
 ## IndexNode.
 
 struct IndexNode <: AbstractDocumenterBlock
-    pages       :: Vector{String} # Which pages to include in the index? Set by user.
-    modules     :: Vector{Module} # Which modules to include? Set by user.
-    order       :: Vector{Symbol} # What order should docs be listed in? Set by user.
-    build       :: String         # Path to the file where this index will appear.
-    source      :: String         # Path to the file where this index was written.
-    elements    :: Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
-    codeblock   :: MarkdownAST.CodeBlock # original code block
+    pages::Vector{String} # Which pages to include in the index? Set by user.
+    modules::Vector{Module} # Which modules to include? Set by user.
+    order::Vector{Symbol} # What order should docs be listed in? Set by user.
+    build::String         # Path to the file where this index will appear.
+    source::String         # Path to the file where this index was written.
+    elements::Vector         # (object, doc, page, mod, cat)-tuple for constructing links.
+    codeblock::MarkdownAST.CodeBlock # original code block
 
-    function IndexNode(codeblock;
+    function IndexNode(
+            codeblock;
             # TODO: Fix difference between uppercase and lowercase naming of keys.
             #       Perhaps deprecate the uppercase versions? Same with `ContentsNode`.
-            Pages   = [],
+            Pages = [],
             Modules = [],
-            Order   = [:module, :constant, :type, :function, :macro],
-            build   = error("missing value for `build` in `IndexNode`."),
-            source  = error("missing value for `source` in `IndexNode`."),
+            Order = [:module, :constant, :type, :function, :macro],
+            build = error("missing value for `build` in `IndexNode`."),
+            source = error("missing value for `source` in `IndexNode`."),
             others...
         )
         if !isempty(others)
             @warn(
                 "In file $source: the following unsupported keyword " *
-                "arguments have been set in the `@index` node:\n" *
-                join([string(k, " = ", v) for (k, v) in others], "\n"),
+                    "arguments have been set in the `@index` node:\n" *
+                    join([string(k, " = ", v) for (k, v) in others], "\n"),
             )
         end
-        new(Pages, Modules, Order, build, source, [], codeblock)
+        return new(Pages, Modules, Order, build, source, [], codeblock)
     end
 end
 
 ## ContentsNode.
 
 struct ContentsNode <: AbstractDocumenterBlock
-    pages       :: Vector{String} # Which pages should be included in contents? Set by user.
-    mindepth    :: Int            # Minimum header level that should be displayed. Set by user.
-    depth       :: Int            # Down to which level should headers be displayed? Set by user.
-    build       :: String         # Same as for `IndexNode`s.
-    source      :: String         # Same as for `IndexNode`s.
-    elements    :: Vector         # (order, page, anchor)-tuple for constructing links.
-    codeblock   :: MarkdownAST.CodeBlock # original code block
+    pages::Vector{String} # Which pages should be included in contents? Set by user.
+    mindepth::Int         # Minimum header level that should be displayed. Set by user.
+    depth::Int            # Down to which level should headers be displayed? Set by user.
+    build::String         # Same as for `IndexNode`s.
+    source::String        # Same as for `IndexNode`s.
+    elements::Vector      # (order, page, anchor)-tuple for constructing links.
+    codeblock::MarkdownAST.CodeBlock # original code block
 
-    function ContentsNode(codeblock;
-            Pages  = [],
-            Depth  = 1:2,
-            build  = error("missing value for `build` in `ContentsNode`."),
+    function ContentsNode(
+            codeblock;
+            Pages = [],
+            Depth = 1:2,
+            build = error("missing value for `build` in `ContentsNode`."),
             source = error("missing value for `source` in `ContentsNode`."),
             others...
         )
@@ -131,47 +133,42 @@ struct ContentsNode <: AbstractDocumenterBlock
         if !isempty(others)
             @warn(
                 "In file $source: the following unsupported keyword " *
-                "arguments have been set in the `@contents` node:\n" *
-                join([string(k, " = ", v) for (k, v) in others], "\n"),
+                    "arguments have been set in the `@contents` node:\n" *
+                    join([string(k, " = ", v) for (k, v) in others], "\n"),
             )
         end
-        new(Pages, first(Depth), last(Depth), build, source, [], codeblock)
+        return new(Pages, first(Depth), last(Depth), build, source, [], codeblock)
     end
 end
 
 ## Other nodes
 
 struct MetaNode <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
-    dict :: Dict{Symbol, Any}
-end
-
-struct MethodNode
-    method  :: Method
-    visible :: Bool
+    codeblock::MarkdownAST.CodeBlock
+    dict::Dict{Symbol, Any}
 end
 
 struct DocsNode <: AbstractDocumenterBlock
-    anchor  :: Anchor
-    object  :: Object
-    page    :: Documenter.Page
+    anchor::Anchor
+    object::Object
+    page::Documenter.Page
     # MarkdownAST support.
     # TODO: should be the docstring components (i.e. .mdasts) be stored as child nodes?
-    mdasts  :: Vector{MarkdownAST.Node{Nothing}}
-    results :: Vector{Base.Docs.DocStr}
-    metas   :: Vector{Dict{Symbol, Any}}
+    mdasts::Vector{MarkdownAST.Node{Nothing}}
+    results::Vector{Base.Docs.DocStr}
+    metas::Vector{Dict{Symbol, Any}}
     function DocsNode(anchor, object, page)
-        new(anchor, object, page, [], [], [])
+        return new(anchor, object, page, [], [], [])
     end
 end
 
 struct DocsNodes
-    nodes :: Vector{Union{DocsNode,Markdown.Admonition}}
+    nodes::Vector{Union{DocsNode, Markdown.Admonition}}
 end
 
 struct EvalNode <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
-    result :: Union{MarkdownAST.Node, Nothing}
+    codeblock::MarkdownAST.CodeBlock
+    result::Union{MarkdownAST.Node, Nothing}
 end
 
 struct RawNode <: AbstractDocumenterBlock
@@ -184,14 +181,14 @@ end
 # In the MarkdownAST representation, the dictionaries get converted into
 # MultiOutputElement elements.
 struct MultiOutput <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
+    codeblock::MarkdownAST.CodeBlock
 end
 
 # For @repl blocks we store the inputs and outputs as separate Markdown.Code
 # objects, and then combine them in the writer. When converting to MarkdownAST,
 # those separate code blocks become child nodes.
 struct MultiCodeBlock <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
+    codeblock::MarkdownAST.CodeBlock
     language::String
     content::Vector{Markdown.Code}
 end
@@ -236,17 +233,17 @@ mutable struct NavNode
     `nothing` if the `NavNode` is a non-page node of the navigation tree, otherwise
     the string should be a valid key in `doc.blueprint.pages`
     """
-    page           :: Union{String, Nothing}
+    page::Union{String, Nothing}
     """
     If not `nothing`, specifies the text that should be displayed in navigation
     links etc. instead of the automatically determined text.
     """
-    title_override :: Union{String, Nothing}
-    parent         :: Union{NavNode, Nothing}
-    children       :: Vector{NavNode}
-    visible        :: Bool
-    prev           :: Union{NavNode, Nothing}
-    next           :: Union{NavNode, Nothing}
+    title_override::Union{String, Nothing}
+    parent::Union{NavNode, Nothing}
+    children::Vector{NavNode}
+    visible::Bool
+    prev::Union{NavNode, Nothing}
+    next::Union{NavNode, Nothing}
 end
 NavNode(page, title_override, parent) = NavNode(page, title_override, parent, [], true, nothing, nothing)
 # This method ensures that we do not print the whole navtree in case we ever happen to print
@@ -254,6 +251,7 @@ NavNode(page, title_override, parent) = NavNode(page, title_override, parent, []
 function Base.show(io::IO, n::NavNode)
     parent = isnothing(n.parent) ? "nothing" : "NavNode($(repr(n.parent.page)), ...)"
     print(io, "NavNode($(repr(n.page)), $(repr(n.title_override)), $(parent))")
+    return
 end
 
 """
@@ -281,13 +279,14 @@ struct RemoteRepository
 end
 function RemoteRepository(root::AbstractString, remote::Remotes.Remote)
     try
-        RemoteRepository(realpath(root), remote, repo_commit(root))
+        return RemoteRepository(realpath(root), remote, repo_commit(root))
     catch e
         e isa RepoCommitError || rethrow()
         @error "Unable to determine the commit for the remote repository:\n$(e.msg)" e.directory exception = e.err_bt
-        throw(ArgumentError("""
+        msg = """
         Unable to determine the commit for the remote repository
-          at $(root) => $(remote)"""))
+          at $(root) => $(remote)"""
+        throw(ArgumentError(msg))
     end
 end
 
@@ -302,23 +301,23 @@ shortcommit(remoteref::RemoteRepository) = (length(remoteref.commit) > 5) ? remo
 User-specified values used to control the generation process.
 """
 struct User
-    root    :: String  # An absolute path to the root directory of the document.
-    source  :: String  # Parent directory is `.root`. Where files are read from.
-    build   :: String  # Parent directory is also `.root`. Where files are written to.
-    workdir :: Union{Symbol,String} # Parent directory is also `.root`. Where code is executed from.
-    format  :: Vector{Writer} # What format to render the final document with?
-    clean   :: Bool           # Empty the `build` directory before starting a new build?
-    doctest :: Union{Bool,Symbol} # Run doctests?
-    linkcheck::Bool           # Check external links..
-    linkcheck_ignore::Vector{Union{String,Regex}}  # ..and then ignore (some of) them.
-    linkcheck_timeout::Real   # ..but only wait this many seconds for each one.
+    root::String # An absolute path to the root directory of the document.
+    source::String # Parent directory is `.root`. Where files are read from.
+    build::String # Parent directory is also `.root`. Where files are written to.
+    workdir::Union{Symbol, String} # Parent directory is also `.root`. Where code is executed from.
+    format::Vector{Writer} # What format to render the final document with?
+    clean::Bool # Empty the `build` directory before starting a new build?
+    doctest::Union{Bool, Symbol} # Run doctests?
+    linkcheck::Bool # Check external links..
+    linkcheck_ignore::Vector{Union{String, Regex}} # ..and then ignore (some of) them.
+    linkcheck_timeout::Real # ..but only wait this many seconds for each one.
     linkcheck_useragent::Union{String, Nothing} # User agent to use for linkchecks.
-    checkdocs::Symbol         # Check objects missing from `@docs` blocks. `:none`, `:exports`, or `:all`.
-    checkdocs_ignored_modules::Vector{Module}  # ..and then ignore (some of) them.
-    doctestfilters::Vector{Regex} # Filtering for doctests
-    warnonly::Vector{Symbol}  # List of docerror groups that should only warn, rather than cause a build failure
-    pages   :: Vector{Any}    # Ordering of document pages specified by the user.
-    pagesonly :: Bool         # Discard any .md pages from processing that are not in .pages
+    checkdocs::Symbol # Check objects missing from `@docs` blocks. `:none`, `:exports`, `:public` or `:all`.
+    checkdocs_ignored_modules::Vector{Module} # ..and then ignore (some of) them.
+    doctestfilters::Vector{<:Any} # Filtering for doctests
+    warnonly::Vector{Symbol} # List of docerror groups that should only warn, rather than cause a build failure
+    pages::Vector{Any} # Ordering of document pages specified by the user.
+    pagesonly::Bool # Discard any .md pages from processing that are not in .pages
     expandfirst::Vector{String} # List of pages that get "expanded" before others
     # Remote Git repository information
     #
@@ -335,29 +334,29 @@ struct User
     # While the initial list in .remotes is populated when we construct the Document
     # object, we also dynamically add links to the .remotes array as we check different
     # files, by looking at .git directories.
-    remote  :: Union{Remotes.Remote,Nothing}
-    remotes :: Union{Vector{RemoteRepository},Nothing}
-    sitename:: String
-    authors :: String
-    version :: String # version string used in the version selector by default
+    remote::Union{Remotes.Remote, Nothing}
+    remotes::Union{Vector{RemoteRepository}, Nothing}
+    sitename::String
+    authors::String
+    version::String # version string used in the version selector by default
     highlightsig::Bool  # assume leading unlabeled code blocks in docstrings to be Julia.
-    draft :: Bool
+    draft::Bool
 end
 
 """
 Private state used to control the generation process.
 """
 struct Internal
-    assets  :: String             # Path where asset files will be copied to.
-    navtree :: Vector{NavNode}           # A vector of top-level navigation items.
-    navlist :: Vector{NavNode}           # An ordered list of `NavNode`s that point to actual pages
-    headers :: AnchorMap         # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
-    docs    :: AnchorMap         # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
-    bindings:: IdDict{Any,Any}           # Tracks insertion order of object per-binding.
-    objects :: IdDict{Any,Any}           # Tracks which `Objects` are included in the `Document`.
-    contentsnodes :: Vector{ContentsNode}
-    indexnodes    :: Vector{IndexNode}
-    locallinks :: IdDict{MarkdownAST.Link, String}
+    assets::String # Path where asset files will be copied to.
+    navtree::Vector{NavNode} # A vector of top-level navigation items.
+    navlist::Vector{NavNode} # An ordered list of `NavNode`s that point to actual pages
+    headers::AnchorMap # See `modules/Anchors.jl`. Tracks `Markdown.Header` objects.
+    docs::AnchorMap # See `modules/Anchors.jl`. Tracks `@docs` docstrings.
+    bindings::IdDict{Any, Any} # Tracks insertion order of object per-binding.
+    objects::IdDict{Any, Any} # Tracks which `Objects` are included in the `Document`.
+    contentsnodes::Vector{ContentsNode}
+    indexnodes::Vector{IndexNode}
+    locallinks::IdDict{MarkdownAST.Link, String}
     errors::Set{Symbol}
     src_to_uuid::Dict{String, Base.UUID} # These two are used to cache information from Pkg
     uuid_to_version_info::Dict{Base.UUID, Tuple{VersionNumber, String}}
@@ -370,40 +369,40 @@ end
 Represents an entire document.
 """
 struct Document
-    user     :: User     # Set by the user via `makedocs`.
-    internal :: Internal # Computed values.
-    plugins  :: Dict{DataType, Plugin}
-    blueprint :: DocumentBlueprint
+    user::User # Set by the user via `makedocs`.
+    internal::Internal # Computed values.
+    plugins::Dict{DataType, Plugin}
+    blueprint::DocumentBlueprint
 end
 
 function Document(;
-        root     :: AbstractString   = currentdir(),
-        source   :: AbstractString   = "src",
-        build    :: AbstractString   = "build",
-        workdir  :: Union{Symbol, AbstractString}  = :build,
-        format   :: Any              = HTML(),
-        clean    :: Bool             = true,
-        doctest  :: Union{Bool,Symbol} = true,
-        linkcheck:: Bool             = false,
-        linkcheck_ignore :: Vector   = [],
-        linkcheck_timeout :: Real    = 10,
-        linkcheck_useragent :: Union{AbstractString, Nothing} = _LINKCHECK_DEFAULT_USERAGENT,
-        checkdocs::Symbol            = :all,
+        root::AbstractString = currentdir(),
+        source::AbstractString = "src",
+        build::AbstractString = "build",
+        workdir::Union{Symbol, AbstractString} = :build,
+        format::Any = HTML(),
+        clean::Bool = true,
+        doctest::Union{Bool, Symbol} = true,
+        linkcheck::Bool = false,
+        linkcheck_ignore::Vector = [],
+        linkcheck_timeout::Real = 10,
+        linkcheck_useragent::Union{AbstractString, Nothing} = _LINKCHECK_DEFAULT_USERAGENT,
+        checkdocs::Symbol = :all,
         checkdocs_ignored_modules::Vector{Module} = Module[],
-        doctestfilters::Vector{Regex}= Regex[],
-        warnonly :: Union{Bool,Symbol,Vector{Symbol}} = Symbol[],
-        modules  :: Union{Module, Vector{Module}} = Module[],
-        pages    :: Vector           = Any[],
-        pagesonly:: Bool             = false,
-        expandfirst :: Vector        = String[],
-        plugins  :: Vector           = Plugin[],
-        repo     :: Union{Remotes.Remote, AbstractString} = "",
-        remotes  :: Union{Dict, Nothing} = Dict(),
-        sitename :: AbstractString   = "",
-        authors  :: AbstractString   = "",
-        version :: AbstractString    = "",
-        highlightsig::Bool           = true,
-        draft::Bool                  = false,
+        doctestfilters::Vector{<:Any} = Regex[],
+        warnonly::Union{Bool, Symbol, Vector{Symbol}} = Symbol[],
+        modules::Union{Module, Vector{Module}} = Module[],
+        pages::Vector = Any[],
+        pagesonly::Bool = false,
+        expandfirst::Vector = String[],
+        plugins::Vector = Plugin[],
+        repo::Union{Remotes.Remote, AbstractString} = "",
+        remotes::Union{Dict, Nothing} = Dict(),
+        sitename::AbstractString = "",
+        authors::AbstractString = "",
+        version::AbstractString = "",
+        highlightsig::Bool = true,
+        draft::Bool = false,
         others...
     )
 
@@ -476,8 +475,8 @@ function Document(;
         [],
         AnchorMap(),
         AnchorMap(),
-        IdDict{Any,Any}(),
-        IdDict{Any,Any}(),
+        IdDict{Any, Any}(),
+        IdDict{Any, Any}(),
         [],
         [],
         Dict{Markdown.Link, String}(),
@@ -497,9 +496,9 @@ function Document(;
 
     blueprint = DocumentBlueprint(
         Dict{String, Page}(),
-        submodules(modules; ignore=Set(checkdocs_ignored_modules)),
+        submodules(modules; ignore = Set(checkdocs_ignored_modules)),
     )
-    Document(user, internal, plugin_dict, blueprint)
+    return Document(user, internal, plugin_dict, blueprint)
 end
 
 function interpret_repo_and_remotes(; root, repo, remotes)
@@ -517,10 +516,11 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         # We'll also check that there are no duplicate entries.
         idx = findfirst(isequal(path), [remote.root for remote in remotes_checked])
         if !isnothing(idx)
-            throw(ArgumentError("""
+            msg = """
             Duplicate remote path in remotes: $(path) => $(remoteref)
             vs $(remotes_checked[idx])
-            """))
+            """
+            throw(ArgumentError(msg))
         end
         # Now we actually check the remotes themselves
         remote = if remoteref isa Tuple{Remotes.Remote, AbstractString}
@@ -528,10 +528,11 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         elseif remoteref isa Remotes.Remote
             RemoteRepository(path, remoteref)
         else
-            throw(ArgumentError("""
+            msg = """
             Invalid remote in remotes: $(remoteref) (::$(typeof(remoteref)))
             for path $path
-            must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""))
+            must be ::Remotes.Remote or ::Tuple{Remotes.Remote, AbstractString}"""
+            throw(ArgumentError(msg))
         end
         addremote!(remotes_checked, remote)
     end
@@ -593,7 +594,7 @@ function interpret_repo_and_remotes(; root, repo, remotes)
             # with remotes. In that case, the remote in `remotes` takes precedence as well.
             @debug "Remotes: `remotes` takes precedence over automatically determined remote" makedocs_root_remoteref makedocs_root_repo makedocs_root_remote repo_normalized
             makedocs_root_remote = makedocs_root_remoteref.remote
-        elseif  startswith(makedocs_root_remoteref.root, makedocs_root_repo)
+        elseif startswith(makedocs_root_remoteref.root, makedocs_root_repo)
             # In this case we determined that root of the repository is more specific than
             # whatever we found in remotes. So the main remote will be determined from the Git
             # repository. This will be a no-op, except that `repo` argument may override the
@@ -609,11 +610,13 @@ function interpret_repo_and_remotes(; root, repo, remotes)
         else
             # The final case is where the two repo paths have different roots, which should never
             # happen.
-            error("""
-            Unexpected repository roots -- must have common  prefix.
-            makedocs_root_remoteref.root: $(makedocs_root_remoteref.root)
-            makedocs_root_repo: $(makedocs_root_repo)
-            """)
+            error(
+                """
+                Unexpected repository roots -- must have common  prefix.
+                makedocs_root_remoteref.root: $(makedocs_root_remoteref.root)
+                makedocs_root_repo: $(makedocs_root_repo)
+                """
+            )
         end
     elseif !isnothing(makedocs_root_remoteref) && isnothing(makedocs_root_repo)
         # If we found something in remotes, but were not able to determine the root of the Git repository,
@@ -674,10 +677,11 @@ function reduce_warnonly(warnonly)
     warnonly = Symbol[s for s in warnonly]
     extra_names = setdiff(warnonly, ERROR_NAMES)
     if !isempty(extra_names)
-        throw(ArgumentError("""
+        msg = """
         Keyword argument `warnonly` given invalid values: $(extra_names)
         Valid options are: $(ERROR_NAMES)
-        """))
+        """
+        throw(ArgumentError(msg))
     end
     return warnonly
 end
@@ -732,6 +736,7 @@ function build_dep_info_dicts(doc::Document)
         end
         doc.internal.uuid_to_version_info[uuid] = (dep.version, dep.tree_hash)
     end
+    return
 end
 
 function get_src_to_uuid(doc::Document)
@@ -756,6 +761,7 @@ function get_pkginfo(uuid)
             end
         end
     end
+    return
 end
 
 function uuid_to_repo(doc, uuid)
@@ -799,7 +805,7 @@ function relpath_from_remote_root(doc::Document, path::AbstractString)
     path = realpath(path)
     # Try to see if `path` falls into any of the remotes in .remotes, or if it's a GitHub repository
     # we can automatically "configure".
-    root_remote::Union{RemoteRepository,Nothing} = nothing
+    root_remote::Union{RemoteRepository, Nothing} = nothing
     root_directory = find_root_parent(path) do directory
         # First, we'll check the list of existing remotes, to see if the directory is already
         # listed there. If yes, we just return that.
@@ -859,7 +865,7 @@ end
 # Determines the Edit URL for a local path.
 #  - rev: indicates a Git revision; if omitted, the current repo commit is used.
 # May return nothing if it is unable to determine the local path.
-function edit_url(doc::Document, path; rev::Union{AbstractString,Nothing})
+function edit_url(doc::Document, path; rev::Union{AbstractString, Nothing})
     # If the user has disable remote links, we abort immediately
     isnothing(doc.user.remotes) && return nothing
     # We'll prepend doc.user.root, unless already an absolute path.
@@ -912,12 +918,12 @@ object of type `T` was an element of the `plugins` list passed to [`makedocs`](@
 that object will be returned. Otherwise, a new `T` object will be created using the default
 constructor `T()`. Subsequent calls to `getplugin(doc, T)` return the same object.
 """
-function getplugin(doc::Document, plugin_type::Type{T}) where T <: Plugin
+function getplugin(doc::Document, plugin_type::Type{T}) where {T <: Plugin}
     if !haskey(doc.plugins, plugin_type)
         doc.plugins[plugin_type] = plugin_type()
     end
 
-    doc.plugins[plugin_type]
+    return doc.plugins[plugin_type]
 end
 
 ## Methods
@@ -930,6 +936,7 @@ function addpage!(doc::Document, src::AbstractString, dst::AbstractString, wd::A
     # (correct) implementation.
     @assert name == normpath(relpath(src, doc.user.source))
     doc.blueprint.pages[name] = page
+    return
 end
 
 # The page.source field is relative to doc.user.root, but the keys in
@@ -958,28 +965,29 @@ function populate!(document::Document)
     for node in document.internal.indexnodes
         populate!(node, document)
     end
+    return
 end
 
 function populate!(index::IndexNode, document::Document)
     # Filtering valid index links.
     for (object, doc) in document.internal.objects
         page = relpath(doc.page.build, dirname(index.build))
-        mod  = object.binding.mod
+        mod = object.binding.mod
         # Include *all* signatures, whether they are `Union{}` or not.
-        cat  = Symbol(lowercase(doccat(object.binding, Union{})))
+        cat = Symbol(lowercase(doccat(object.binding, Union{})))
         if is_canonical(object) && _isvalid(page, index.pages) && _isvalid(mod, index.modules) && _isvalid(cat, index.order)
             push!(index.elements, (object, doc, page, mod, cat))
         end
     end
     # Sorting index links.
-    pagesmap   = precedence(index.pages)
+    pagesmap = precedence(index.pages)
     modulesmap = precedence(index.modules)
-    ordermap   = precedence(index.order)
-    comparison = function(a, b)
-        (x = _compare(pagesmap,   3, a, b)) == 0 || return x < 0 # page
+    ordermap = precedence(index.order)
+    comparison = function (a, b)
+        (x = _compare(pagesmap, 3, a, b)) == 0 || return x < 0 # page
         (x = _compare(modulesmap, 4, a, b)) == 0 || return x < 0 # module
-        (x = _compare(ordermap,   5, a, b)) == 0 || return x < 0 # category
-        string(a[1].binding) < string(b[1].binding)              # object name
+        (x = _compare(ordermap, 5, a, b)) == 0 || return x < 0 # category
+        return string(a[1].binding) < string(b[1].binding)              # object name
     end
     sort!(index.elements, lt = comparison)
     return index
@@ -1000,10 +1008,10 @@ function populate!(contents::ContentsNode, document::Document)
         end
     end
     # Sorting contents links.
-    pagesmap   = precedence(contents.pages)
-    comparison = function(a, b)
+    pagesmap = precedence(contents.pages)
+    comparison = function (a, b)
         (x = _compare(pagesmap, 2, a, b)) == 0 || return x < 0 # page
-        a[1] < b[1]                                            # anchor order
+        return a[1] < b[1]                                            # anchor order
     end
     sort!(contents.elements, lt = comparison)
     return contents
@@ -1014,11 +1022,13 @@ function doctest_replace!(doc::Documenter.Document)
     for (src, page) in doc.blueprint.pages
         doctest_replace!(page.mdast)
     end
+    return
 end
 function doctest_replace!(ast::MarkdownAST.Node)
     for node in AbstractTrees.PreOrderDFS(ast)
         doctest_replace!(node.element)
     end
+    return
 end
 doctest_replace!(docsnode::DocsNode) = foreach(doctest_replace!, docsnode.mdasts)
 function doctest_replace!(block::MarkdownAST.CodeBlock)
@@ -1029,12 +1039,12 @@ function doctest_replace!(block::MarkdownAST.CodeBlock)
         block.code = rstrip(input)
     end
     # correct the language field
-    block.info = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
+    return block.info = occursin(r"^julia> "m, block.code) ? "julia-repl" : "julia"
 end
 doctest_replace!(@nospecialize _) = nothing
 
 function buildnode(T::Type, block, doc, page)
-    mod  = get(page.globals.meta, :CurrentModule, Main)
+    mod = get(page.globals.meta, :CurrentModule, Main)
     dict = Dict{Symbol, Any}(:source => page.source, :build => page.build)
     for (ex, str) in parseblock(block.code, doc, page)
         if isassign(ex)
@@ -1043,14 +1053,14 @@ function buildnode(T::Type, block, doc, page)
             end
         end
     end
-    T(block; dict...)
+    return T(block; dict...)
 end
 
 function _compare(col, ind, a, b)
     x, y = a[ind], b[ind]
-    haskey(col, x) && haskey(col, y) ? _compare(col[x], col[y]) : 0
+    return haskey(col, x) && haskey(col, y) ? _compare(col[x], col[y]) : 0
 end
-_compare(a, b)  = a < b ? -1 : a == b ? 0 : 1
+_compare(a, b) = a < b ? -1 : a == b ? 0 : 1
 _isvalid(x, xs) = isempty(xs) || x in xs
 precedence(vec) = Dict(zip(vec, 1:length(vec)))
 
@@ -1058,7 +1068,7 @@ precedence(vec) = Dict(zip(vec, 1:length(vec)))
 # Conversion to MarkdownAST, for writers
 
 struct AnchoredHeader <: AbstractDocumenterBlock
-    anchor :: Anchor
+    anchor::Anchor
 end
 MarkdownAST.iscontainer(::AnchoredHeader) = true
 
@@ -1067,7 +1077,7 @@ MarkdownAST.iscontainer(::AnchoredHeader) = true
 # In addition, the child node can also be an Admonition in case there was an error
 # in splicing in a docstring.
 struct DocsNodesBlock <: AbstractDocumenterBlock
-    codeblock :: MarkdownAST.CodeBlock
+    codeblock::MarkdownAST.CodeBlock
 end
 MarkdownAST.iscontainer(::DocsNodesBlock) = true
 MarkdownAST.can_contain(::DocsNodesBlock, ::MarkdownAST.AbstractElement) = false
@@ -1077,15 +1087,15 @@ MarkdownAST.iscontainer(::MultiCodeBlock) = true
 MarkdownAST.can_contain(::MultiCodeBlock, ::MarkdownAST.Code) = true
 
 struct MultiOutputElement <: AbstractDocumenterBlock
-    element :: Any
+    element::Any
 end
 MarkdownAST.iscontainer(::MultiOutput) = true
-MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement,MarkdownAST.CodeBlock}) = true
+MarkdownAST.can_contain(::MultiOutput, ::Union{MultiOutputElement, MarkdownAST.CodeBlock}) = true
 
 # In the SetupBlocks expander, we map @setup nodes to Markdown.MD() objects
 struct SetupNode <: AbstractDocumenterBlock
-    name :: String
-    code :: String
+    name::String
+    code::String
 end
 
 # Override the show for DocumenterBlockTypes so that we would not print too much
@@ -1105,6 +1115,7 @@ function MDFlatten.mdflatten(io, ::MarkdownAST.Node, e::DocsNode)
         # in the old Markdown-based mdflatten()
         print(io, "\n\n\n\n")
     end
+    return
 end
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::PageLink) = MDFlatten.mdflatten(io, node.children)
 MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalLink) = MDFlatten.mdflatten(io, node.children)
@@ -1112,4 +1123,5 @@ function MDFlatten.mdflatten(io, node::MarkdownAST.Node, ::LocalImage)
     print(io, "(Image: ")
     MDFlatten.mdflatten(io, node.children)
     print(io, ")")
+    return
 end

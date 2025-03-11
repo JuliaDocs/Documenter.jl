@@ -88,24 +88,24 @@ julia> 3 + 4
 """
 foo() = 1
 
-    """
-    ```jldoctest
-    julia> begin
-               Main.DocTestFixArray_2468
-           end
-    4×1×1 Array{Int64,3}:
-    [:, :, 1] =
-     2
-     4
-     6
-     8
-    ```
-    ```jldoctest
-    julia> println(); println("foo")
+"""
+```jldoctest
+julia> begin
+           Main.DocTestFixArray_2468
+       end
+4×1×1 Array{Int64,3}:
+[:, :, 1] =
+ 2
+ 4
+ 6
+ 8
+```
+```jldoctest
+julia> println(); println("foo")
 
-    foo
-    ```
-    """
-    foo(x) = 1
+foo
+```
+"""
+foo(x) = 1
 
 end # module
