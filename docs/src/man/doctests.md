@@ -189,11 +189,11 @@ julia> println(foo)
 Doctests may require some setup code that must be evaluated prior to that of the actual
 example, but that should not be displayed in the final documentation. Similarly, some
 teardown code may need to be evaluated after the example (e.g. to release a resource
-restore a setting modified during setup).
+or restore a setting modified during setup).
 There are three ways to specify setup and teardown code, each appropriate in a different situation.
 
 !!! compat "Documenter 1.9"
-    This function requires at least Documenter 1.9.
+    Teardown code requires at least Documenter 1.9.
 
 
 ### `DocTestSetup` and `DocTestTeardown` in `@meta` blocks
