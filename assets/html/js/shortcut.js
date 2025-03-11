@@ -7,8 +7,9 @@ $(document).ready(function () {
       <div class="field mb-0 w-100">
         <p class="control has-icons-right">
           <input class="input documenter-search-input" type="text" placeholder="Search" />
-          <span class="icon is-small is-right has-text-primary-dark">
-            <i class="fas fa-magnifying-glass"></i>
+          <span class="icon is-small is-right has-text-primary-dark gap-2">
+            <i class="fas fa-link link-icon is-clickable"></i>
+            <i class="fas fa-magnifying-glass mr-4"></i>
           </span>
         </p>
       </div>
@@ -82,6 +83,25 @@ $(document).ready(function () {
     }
 
     return false;
+  });
+
+  //event listener for the link icon to copy the URL
+  $(document).on("click", ".link-icon", function () {
+    const currentUrl = window.location.href;
+
+    navigator.clipboard
+      .writeText(currentUrl)
+      .then(() => {
+        const $linkIcon = $(this);
+        $linkIcon.removeClass("fa-link").addClass("fa-check");
+
+        setTimeout(() => {
+          $linkIcon.removeClass("fa-check").addClass("fa-link");
+        }, 1000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
   });
 
   // Functions to open and close a modal
