@@ -429,11 +429,12 @@ gets executed *after* the actual doctest, perhaps to restore a setting or releas
 a resource acquired during setup.
 For example, the following doctest expects that `setprecision` was used to
 change the default precision for `BigFloat`. After the test completes, this should
-be returned to the correct setting.
+be restored to the previous setting.
 
 !!! note
-    In real code it usually is better to use `setprecision` with a `do`-block
-    to temporarily change the precion.
+    In real code it is usually better to use `setprecision` with a `do`-block
+    to temporarily change the precision. But for the sake of this example it
+    is useful to demonstrate the effect of changing and restoring a global setting.
 
 ```jldoctest; setup=:(oldprec=precision(BigFloat);setprecision(BigFloat,20)), teardown=:(setprecision(BigFloat,oldprec))
 julia> sqrt(big(2.0))
@@ -448,8 +449,8 @@ This is achieved by the `teardown` keyword to `jldoctest` in addition to `setup`
 
 Note that if we now run the same doctest content again but without `setup` and `teardown`
 it will produce output with a different (higher) precision. If we had used `setup` without
-`teardown` then this doctest would use the smaller precision, i.e., it would be affected
-by the preceding doctest, which is not what we want.
+`teardown` then this doctest would still use the smaller precision, i.e., it would be
+affected by the preceding doctest, which is not what we want.
 ```jldoctest
 julia> sqrt(big(2.0))
 1.414213562373095048801688724209698078569671875376948073176679737990732478462102
