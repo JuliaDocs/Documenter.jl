@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Version [v1.10.0] - 2025-03-XX
 
 ### Added
 
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `checkdocs` has a new option `:public` to check that unexported symbols marked with `public` are included in the docs. ([#2629])
 * Fixing doctests that use `[...]` to hide part of an error message (such as a stacktrace) no longer replaces the `[...]` if the output otherwise matches ([#2511], [#2642])
 
-### Fixed 
+### Fixed
 
 * The breadcrumb in the HTML output will not show a spurious scrollbar anymore. ([#2648], [#2652])
 
