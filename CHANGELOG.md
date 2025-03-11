@@ -1957,6 +1957,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
 [#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
 [#2648]: https://github.com/JuliaDocs/Documenter.jl/issues/2648
+[#2652]: https://github.com/JuliaDocs/Documenter.jl/issues/2652
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
