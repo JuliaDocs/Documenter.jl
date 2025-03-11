@@ -425,7 +425,7 @@ DocTestSetup = nothing
 ### Teardown code
 
 Dually to setup code described in the preceding section it can be useful to have code that
-gets executed *after* the actual doctest, for example to restore a setting or release
+gets executed *after* the actual doctest, perhaps to restore a setting or release
 a resource acquired during setup.
 For example, the following doctest expects that `setprecision` was used to
 change the default precision for `BigFloat`. After the test completes, this should
