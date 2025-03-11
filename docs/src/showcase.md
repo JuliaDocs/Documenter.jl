@@ -422,6 +422,80 @@ DocTestSetup = nothing
 DocTestSetup = nothing
 ```
 
+### Teardown code
+
+Dually to setup code described in the preceding section it can be useful to have code that
+gets executed *after* the actual doctest, for example to restore a setting or release
+a resource acquired during setup.
+For example, the following doctest expects that `setprecision` was used to
+change the default precision for `BigFloat`. After the test completes, this should
+be returned to the correct setting.
+
+!!! note
+    In real code it usually is better to use `setprecision` with a `do`-block
+    to temporarily change the precion.
+
+```jldoctest; setup=:(oldprec=precision(BigFloat);setprecision(BigFloat,20)), teardown=:(setprecision(BigFloat,oldprec))
+julia> sqrt(big(2.0))
+1.4142132
+```
+
+This is achieved by the `teardown` keyword to `jldoctest` in addition to `setup`.
+
+````
+```jldoctest; setup=:(oldprec=precision(BigFloat);setprecision(BigFloat,20)), teardown=:(setprecision(BigFloat,oldprec))
+````
+
+Note that if we now run the same doctest content again but without `setup` and `teardown`
+it will produce output with a different (higher) precision. If we had used `setup` without
+`teardown` then this doctest would use the smaller precision, i.e., it would be affected
+by the preceding doctest, which is not what we want.
+```jldoctest
+julia> sqrt(big(2.0))
+1.414213562373095048801688724209698078569671875376948073176679737990732478462102
+```
+
+The alternative approach is to use the `DocTestSetup` and `DocTestTeardown` keys in `@meta`-blocks, which will apply across multiple doctests.
+
+````markdown
+```@meta
+DocTestSetup = quote
+  oldprec = precision(BigFloat)
+  setprecision(BigFloat, 20)
+end
+DocTestTeardown = quote
+  setprecision(BigFloat, oldprec)
+end
+```
+````
+```@meta
+DocTestSetup = quote
+  oldprec = precision(BigFloat)
+  setprecision(BigFloat, 20)
+end
+DocTestTeardown = quote
+  setprecision(BigFloat, oldprec)
+end
+```
+
+```jldoctest
+julia> sqrt(big(2.0))
+1.4142132
+```
+
+The doctests and `@meta` blocks are evaluated sequentially on each page, so you can always unset the test code by setting it back to `nothing`.
+
+````markdown
+```@meta
+DocTestSetup = nothing
+DocTestTeardown = nothing
+```
+````
+```@meta
+DocTestSetup = nothing
+DocTestTeardown = nothing
+```
+
 
 ## Running interactive code
 
