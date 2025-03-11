@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed 
 
-* fixed ([#2648]) by changing overflow-x : hidden to overflow : hidden
+* The breadcrumb in the HTML output will not show a spurious scrollbar anymore. ([#2648], [#2652])
 
 ## Version [v1.8.1] - 2025-02-11
 
