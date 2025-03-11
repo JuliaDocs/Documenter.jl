@@ -98,12 +98,8 @@ $(document).ready(function () {
       <div class="has-text-centered my-5 py-5">Type something to get started!</div>
     `;
 
-    //removing the query param when the modal is closed
-    const url = new URL(window.location.href);
-    if (url.searchParams.size > 0) {
-      url.search = "";
-    }
-    window.history.replaceState(null, "", url.toString());
+    $(".documenter-search-input").val("");
+    $(".search-modal-card-body").html(initial_search_body);
 
     document.dispatchEvent(new CustomEvent("reset-filter"));
 
@@ -113,9 +109,6 @@ $(document).ready(function () {
     if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
       $(".search-modal-card-body").addClass("is-justify-content-center");
     }
-
-    $(".documenter-search-input").val("");
-    $(".search-modal-card-body").html(initial_search_body);
   }
 
   document
