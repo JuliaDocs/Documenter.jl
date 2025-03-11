@@ -16,7 +16,7 @@ all: $(addprefix themes/, $(addsuffix .css, $(THEMES)))
 .PHONY: all
 
 Manifest.toml: Project.toml
-	$(JULIA) ../../docs/instantiate.jl .
+	$(JULIA) --project -e 'using Pkg; Pkg.instantiate()'
 
 # documenter-light
 themes/documenter-light.css: scss/documenter-light.scss scss/highlightjs/default.css \
