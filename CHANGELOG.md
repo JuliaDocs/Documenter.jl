@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Links to collapsed pages now at the center of the screen ([#2485])
+* Deep links to collapsed docstrings now correctly leave the targeted docstring at the center of the screen when navigating to that URL. ([#2485], [#2651])
 
 ## Version [v1.8.1] - 2025-02-11
 
