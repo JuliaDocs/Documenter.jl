@@ -184,17 +184,26 @@ julia> println(foo)
     included in the same module. They can be interspaced with unlabeled blocks or blocks
     with another label.
 
-## Setup Code
+## Setup and Teardown Code
 
 Doctests may require some setup code that must be evaluated prior to that of the actual
-example, but that should not be displayed in the final documentation. There are three ways
-to specify the setup code, each appropriate in a different situation.
+example, but that should not be displayed in the final documentation. Similarly, some
+teardown code may need to be evaluated after the example (e.g. to release a resource
+restore a setting modified during setup).
+There are three ways to specify setup and teardown code, each appropriate in a different situation.
 
-### `DocTestSetup` in `@meta` blocks
+!!! compat "Documenter 1.9"
+    This function requires at least Documenter 1.9.
+
+
+### `DocTestSetup` and `DocTestTeardown` in `@meta` blocks
 
 For doctests in the Markdown source files, an `@meta` block containing a `DocTestSetup =
-...` value can be used. In the example below, the function `foo` is defined inside a `@meta`
-block. This block will be evaluated at the start of the following doctest blocks:
+...` respectively `DocTestTeardown = ...` value can be used.
+In the example below, the function `foo` is defined inside a `@meta`
+block. This setup block will be evaluated at the start and the teardown block at the end
+of the following doctest blocks,
+
 
 ````markdown
 ```@meta
@@ -202,6 +211,10 @@ DocTestSetup = quote
     function foo(x)
         return x^2
     end
+end
+
+DocTestTeardown = quote
+    # restor setting, release resources, ...
 end
 ```
 
@@ -212,10 +225,12 @@ julia> foo(2)
 
 ```@meta
 DocTestSetup = nothing
+DocTestTeardown = nothing
 ```
 ````
 
-The `DocTestSetup = nothing` is not strictly necessary, but good practice nonetheless to
+The `DocTestSetup = nothing` respectively `DocTestTeardown = nothing`
+is not strictly necessary, but good practice nonetheless to
 help avoid unintentional definitions in following doctest blocks.
 
 While technically the `@meta` blocks also work within docstrings, their use there is
@@ -231,8 +246,8 @@ discouraged since the `@meta` blocks will show up when querying docstrings in th
 
 For doctests that are in docstrings, the exported [`DocMeta`](@ref) module provides an API
 to attach metadata that applies to all the docstrings in a particular module. Setting up the
-`DocTestSetup` metadata should be done before the [`makedocs`](@ref) or [`doctest`](@ref)
-call:
+`DocTestSetup` and `DocTestTeardown` metadata should be done before the [`makedocs`](@ref)
+or [`doctest`](@ref) call:
 
 ```julia
 using MyPackage, Documenter
@@ -244,10 +259,10 @@ makedocs(modules=[MyPackage], ...)
     Make sure to include all (top-level) modules that contain docstrings with doctests in the
     `modules` argument to [`makedocs`](@ref). Otherwise these doctests will not be run.
 
-### Block-level setup code
+### Block-level setup and teardown code
 
-Yet another option is to use the `setup` keyword argument to the `jldoctest` block, which is
-convenient for short definitions, and for setups needed in inline docstrings.
+Yet another option is to use the `setup` or `teardown` keyword arguments to the `jldoctest`
+block, which is convenient for short definitions, and for setups needed in inline docstrings.
 
 ````markdown
 ```jldoctest; setup = :(foo(x) = x^2)
@@ -258,8 +273,8 @@ julia> foo(2)
 
 !!! note
 
-    The `DocTestSetup` and the `setup` values are **re-evaluated** at the start of *each* doctest block
-    and no state is shared between any code blocks.
+    The `DocTestSetup`, `DocTestTeardown`, `setup` and `teardown` values are **re-evaluated**
+    at the start respectively end of *each* doctest block and no state is shared between any code blocks.
     To preserve definitions see [Preserving Definitions Between Blocks](@ref).
 
 ## Filtering Doctests
