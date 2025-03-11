@@ -114,8 +114,14 @@ jobs:
         run: julia --color=yes --project=assets/html assets/html/verify.jl
 
   prerender:
-    name: "NodeJS for prerender"
-    runs-on: ubuntu-latest
+    name: "NodeJS for prerender - ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
