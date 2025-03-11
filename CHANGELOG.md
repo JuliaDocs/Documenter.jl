@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * The breadcrumb in the HTML output will not show a spurious scrollbar anymore. ([#2648], [#2652])
+* The syntax highlight pre-rendering now correctly works on Windows. ([#2649])
 
 ### Fixed
 
@@ -1964,6 +1965,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
 [#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
 [#2648]: https://github.com/JuliaDocs/Documenter.jl/issues/2648
+[#2649]: https://github.com/JuliaDocs/Documenter.jl/issues/2649
 [#2651]: https://github.com/JuliaDocs/Documenter.jl/issues/2651
 [#2652]: https://github.com/JuliaDocs/Documenter.jl/issues/2652
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
