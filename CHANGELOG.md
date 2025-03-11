@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `checkdocs` has a new option `:public` to check that unexported symbols marked with `public` are included in the docs. ([#2629])
 * Fixing doctests that use `[...]` to hide part of an error message (such as a stacktrace) no longer replaces the `[...]` if the output otherwise matches ([#2511], [#2642])
 
+### Fixed 
+
+* The breadcrumb in the HTML output will not show a spurious scrollbar anymore. ([#2648], [#2652])
+
 ## Version [v1.8.1] - 2025-02-11
 
 ### Fixed
@@ -1952,6 +1956,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2629]: https://github.com/JuliaDocs/Documenter.jl/issues/2629
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
 [#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
+[#2648]: https://github.com/JuliaDocs/Documenter.jl/issues/2648
+[#2652]: https://github.com/JuliaDocs/Documenter.jl/issues/2652
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
