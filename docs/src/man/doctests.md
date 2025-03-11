@@ -214,7 +214,7 @@ DocTestSetup = quote
 end
 
 DocTestTeardown = quote
-    # restor setting, release resources, ...
+    # restore settings, release resources, ...
 end
 ```
 
@@ -239,8 +239,8 @@ discouraged since the `@meta` blocks will show up when querying docstrings in th
 !!! note "Historic note"
     It used to be that `DocTestSetup`s in `@meta` blocks in Markdown files that included
     docstrings also affected the doctests in the docstrings. Since Documenter 0.23 that is
-    no longer the case. You should use [Module-level metadata](@ref) or [Block-level setup
-    code](@ref) instead.
+    no longer the case. You should use [Module-level metadata](@ref) or
+    [Block-level setup and teardown code](@ref) instead.
 
 ### Module-level metadata
 

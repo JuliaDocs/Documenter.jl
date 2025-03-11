@@ -295,7 +295,9 @@ This block type is used to define metadata key/value pairs that can be used else
 page. Currently recognised keys:
 - `CurrentModule`: module where Documenter evaluates, for example, [`@docs`-block](@ref)
   and [`@ref`-link](@ref at-ref-at-id-links)s.
-- `DocTestSetup`: code to be evaluated before a doctest, see the [Setup Code](@ref)
+- `DocTestSetup`: code to be evaluated before a doctest, see the [Setup and Teardown Code](@ref)
+  section under [Doctests](@ref).
+- `DocTestTeardown`: code to be evaluated after a doctest, see the [Setup and Teardown Code](@ref)
   section under [Doctests](@ref).
 - `DocTestFilters`: filters to deal with, for example, unpredictable output from doctests,
   see the [Filtering Doctests](@ref) section under [Doctests](@ref).
