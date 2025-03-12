@@ -308,6 +308,7 @@ page. Currently recognised keys:
   link previews. Overrides the site-wide description in [`makedocs`](@ref).
 - `Draft`: boolean for overriding the global draft mode for the page.
 - `CollapsedDocStrings`: for output formats that support this (i.e. only [`HTML`](@ref Documenter.HTML) currently), if set to `true`, render all docstrings as collapsed by default.
+- `ContinuedMode`: If set to `true`, all unnamed `@example`, `@repl` and `@setup` blocks share the same evaluation sandbox module, which is useful for writing tutorial-like documents.
 
 Example:
 
