@@ -481,6 +481,8 @@ println(a)
 
 The name can be any text, not just integers as in the example above, i.e. `@example foo`.
 
+To share a module between all unnamed blocks by default, say in a tutorial with many examples that are all connected, you can set `AutoContinue = true` in a page's `@meta` block.
+
 Named `@example` blocks can be useful when generating documentation that requires
 intermediate explanation or multimedia such as plots as illustrated in the following example
 
