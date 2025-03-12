@@ -600,9 +600,13 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
-function get_sandbox_module!(meta, prefix, name = nothing)
+function get_sandbox_module!(meta, prefix, name = nothing; continued_mode = false)
     sym = if name === nothing || isempty(name)
-        Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
+        if continued_mode
+            Symbol("__", prefix, "__continued_mode__")
+        else
+            Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
+        end
     else
         Symbol("__", prefix, "__named__", name)
     end
