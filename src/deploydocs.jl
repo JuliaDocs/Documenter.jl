@@ -147,7 +147,7 @@ deployed. It defaults to the value of `repo`.
     Therefore, previews are available only for pull requests that were
     submitted directly from the main repository.
     On GitHub Actions, `GITHUB_TOKEN` must be present for previews to work, even if
-    `DOCUMENTER_KEY` ise being used to deploy.
+    `DOCUMENTER_KEY` is being used to deploy.
 
 !!! note
     Previews generated are NOT automatically cleaned up. This can be done manually or

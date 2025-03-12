@@ -609,6 +609,9 @@ function prepare_prerendering(prerender, node, highlightjs, highlights)
         key = join((x.first for x in libs), ',')
         highlightjs = get!(HLJSFILES, key) do
             path, io = mktemp()
+            # The path will be used as module path to be loaded by Node.js,
+            # so we always need `/`. But on Windows, `mktemp` will give `\`.
+            path = replace(path, '\\' => '/')
             for lib in libs
                 println(io, "// $(lib.first)")
                 run(pipeline(`$(curl) -fsSL $(lib.second.url)`; stdout = io))

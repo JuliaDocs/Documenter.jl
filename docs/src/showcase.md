@@ -26,7 +26,7 @@ This is an non-highlighted code block.
 ... Rendered in monospace.
 ```
 
-When the language is specified for the block, e.g. by starting the block with ````` ```julia`````, the contents gets highlighted appropriately (for the language that are supported by the highlighter).
+When the language is specified for the block, e.g. by starting the block with ````` ```julia`````, the content gets highlighted appropriately (for the languages that are supported by the highlighter).
 
 ```julia
 function foo(x::Integer)
@@ -36,7 +36,7 @@ end
 
 ## Mathematics
 
-For mathematics, both inline and display equations are available.
+For mathematics, both inline and display equations are supported.
 Inline equations should be written as LaTeX between two backticks,
 e.g. ``` ``A x^2 + B x + C = 0`` ```.
 It will render as ``A x^2 + B x + C = 0``.
@@ -282,7 +282,7 @@ DocumenterShowcase
 ```
 ````
 
-This will include a single docstring and it will look like this
+This will include a single docstring and it will look like this:
 
 ```@docs
 DocumenterShowcase
@@ -309,18 +309,19 @@ And now, by having `DocumenterShowcase.foo(::AbstractString)` in the `@docs` blo
 DocumenterShowcase.foo(::AbstractString)
 ```
 
-However, if you want, you can also combine multiple docstrings into a single docstring block.
-The [`DocumenterShowcase.bar`](@ref) function has the same signatures as
-
+However, if you want, you can also combine multiple docstrings into a single docstring
+block. To illustrate this, the [`DocumenterShowcase.bar`](@ref) function has the same
+signatures as [`DocumenterShowcase.foo`](@ref).
 If we just put `DocumenterShowcase.bar` in an `@docs` block, it will combine the docstrings as follows:
 
 ```@docs
 DocumenterShowcase.bar
 ```
 
-If you have very many docstrings, you may also want to consider using the [`@autodocs` block](@ref) which can include a whole set of docstrings automatically based on certain filtering options
+If you have very many docstrings, you may also want to consider using the [`@autodocs` block](@ref) which can include a whole set of docstrings automatically based on certain filtering options.
 
-Both `@docs` and `@autodocs` support the [`canonical=false` keyword argument](@ref noncanonical-block). This can be used to include a docstring more than once
+Both `@docs` and `@autodocs` support the [`canonical=false` keyword argument](@ref noncanonical-block). This can be used to include a docstring more than once.
+For example, if we do this ...
 
 ````markdown
 ```@docs; canonical=false
@@ -328,7 +329,7 @@ DocumenterShowcase.bar
 ```
 ````
 
-We then see the same docstring as above
+... we then see the same docstring as above:
 
 ```@docs; canonical=false
 DocumenterShowcase.bar
@@ -336,7 +337,7 @@ DocumenterShowcase.bar
 
 ### An index of docstrings
 
-The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
+The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows:
 
 ```@index
 Pages = ["showcase.md"]
@@ -346,6 +347,15 @@ Pages = ["showcase.md"]
 
 Sometimes a symbol has multiple docstrings, for example a type definition, inner and outer constructors. The example
 below shows how to use specific ones in the documentation.
+````markdown
+```@docs
+DocumenterShowcase.Foo
+DocumenterShowcase.Foo()
+DocumenterShowcase.Foo{T}()
+```
+````
+
+This is then rendered to this:
 
 ```@docs
 DocumenterShowcase.Foo
@@ -422,6 +432,81 @@ DocTestSetup = nothing
 DocTestSetup = nothing
 ```
 
+### Teardown code
+
+Dually to setup code described in the preceding section it can be useful to have code that
+gets executed *after* the actual doctest, perhaps to restore a setting or release
+a resource acquired during setup.
+For example, the following doctest expects that `setprecision` was used to
+change the default precision for `BigFloat`. After the test completes, this should
+be restored to the previous setting.
+
+!!! note
+    In real code it is usually better to use `setprecision` with a `do`-block
+    to temporarily change the precision. But for the sake of this example it
+    is useful to demonstrate the effect of changing and restoring a global setting.
+
+```jldoctest; setup=:(oldprec=precision(BigFloat);setprecision(BigFloat,20)), teardown=:(setprecision(BigFloat,oldprec))
+julia> sqrt(big(2.0))
+1.4142132
+```
+
+This is achieved by the `teardown` keyword to `jldoctest` in addition to `setup`.
+
+````
+```jldoctest; setup=:(oldprec=precision(BigFloat);setprecision(BigFloat,20)), teardown=:(setprecision(BigFloat,oldprec))
+````
+
+Note that if we now run the same doctest content again but without `setup` and `teardown`
+it will produce output with a different (higher) precision. If we had used `setup` without
+`teardown` then this doctest would still use the smaller precision, i.e., it would be
+affected by the preceding doctest, which is not what we want.
+```jldoctest
+julia> sqrt(big(2.0))
+1.414213562373095048801688724209698078569671875376948073176679737990732478462102
+```
+
+The alternative approach is to use the `DocTestSetup` and `DocTestTeardown` keys in `@meta`-blocks, which will apply across multiple doctests.
+
+````markdown
+```@meta
+DocTestSetup = quote
+  oldprec = precision(BigFloat)
+  setprecision(BigFloat, 20)
+end
+DocTestTeardown = quote
+  setprecision(BigFloat, oldprec)
+end
+```
+````
+```@meta
+DocTestSetup = quote
+  oldprec = precision(BigFloat)
+  setprecision(BigFloat, 20)
+end
+DocTestTeardown = quote
+  setprecision(BigFloat, oldprec)
+end
+```
+
+```jldoctest
+julia> sqrt(big(2.0))
+1.4142132
+```
+
+The doctests and `@meta` blocks are evaluated sequentially on each page, so you can always unset the test code by setting it back to `nothing`.
+
+````markdown
+```@meta
+DocTestSetup = nothing
+DocTestTeardown = nothing
+```
+````
+```@meta
+DocTestSetup = nothing
+DocTestTeardown = nothing
+```
+
 
 ## Running interactive code
 
@@ -440,7 +525,7 @@ becomes the following code-output block pair
 2 + 3
 ```
 
-If the last element can be rendered as an image or `text/html` etc. (the corresponding `Base.show` method for the particular MIME type has to be defined), it will be rendered appropriately. e.g.:
+If the last element can be rendered as an image or `text/html` etc. (the corresponding `Base.show` method for the particular MIME type has to be defined), it will be rendered appropriately. E.g.:
 
 ```@example
 using Main: DocumenterShowcase
@@ -553,7 +638,7 @@ sum(xs)
 
 ### Named blocks
 
-Generally, each blocks gets evaluate in a separate, clean context (i.e. no variables from previous blocks will be polluting the namespace etc).
+Generally, each blocks gets evaluated in a separate, clean context (i.e. no variables from previous blocks will be polluting the namespace etc).
 However, you can also re-use a namespace by giving the blocks a name.
 
 ````markdown
@@ -614,7 +699,7 @@ y = 99
 y = 99
 ```
 
-The continued evaluation only applies to [`@example` blocks](@ref reference-at-example) and so if you put, for example, an `@repl` block in between, it will lead to an error, because the `y = 99` line of code has not run yet.
+The continued evaluation only applies to [`@example` blocks](@ref reference-at-example) and so if you put, for example, a `@repl` block in between, it will lead to an error, because the `y = 99` line of code has not run yet.
 
 ````markdown
 ```@repl block-name

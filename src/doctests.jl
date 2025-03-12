@@ -210,6 +210,19 @@ function _doctest(ctx::DocTestContext, block_immutable::MarkdownAST.CodeBlock)
                 """
             )
         end
+        for expr in [get(ctx.meta, :DocTestTeardown, []); get(ctx.meta[:LocalDocTestArguments], :teardown, [])]
+            Meta.isexpr(expr, :block) && (expr.head = :toplevel)
+            try
+                Core.eval(sandbox, expr)
+            catch e
+                push!(ctx.doc.internal.errors, :doctest)
+                @error(
+                    "could not evaluate expression from doctest teardown.",
+                    expression = expr, exception = e
+                )
+                return false
+            end
+        end
         delete!(ctx.meta, :LocalDocTestArguments)
     end
     return false
