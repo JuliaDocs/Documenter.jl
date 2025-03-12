@@ -761,8 +761,6 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     matched === nothing && error("invalid '@example' syntax: $(x.info)")
     name, kwargs = matched.captures
 
-    @show name
-
     # Bail early if in draft mode
     if Documenter.is_draft(doc, page)
         @debug "Skipping evaluation of @example block in draft mode:\n$(x.code)"
