@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2360], [#2619])
+* Doctests now can have `teardown` code in addition to `setup` code. ([#2058], [#2566], [#2577])
 
 ### Changed
 
@@ -21,10 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `checkdocs` has a new option `:public` to check that unexported symbols marked with `public` are included in the docs. ([#2629])
 * Fixing doctests that use `[...]` to hide part of an error message (such as a stacktrace) no longer replaces the `[...]` if the output otherwise matches ([#2511], [#2642])
+* The warning printed by doctest fixing are now a bit more verbose, better identifying the problematic code. ([#2602])
 
 ### Fixed
 
 * The breadcrumb in the HTML output will not show a spurious scrollbar anymore. ([#2648], [#2652])
+* The syntax highlight pre-rendering now correctly works on Windows. ([#2649])
+
+### Fixed
+
+* Deep links to collapsed docstrings now correctly leave the targeted docstring at the center of the screen when navigating to that URL. ([#2485], [#2651])
 
 ## Version [v1.8.1] - 2025-02-11
 
@@ -1832,6 +1839,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2019]: https://github.com/JuliaDocs/Documenter.jl/issues/2019
 [#2027]: https://github.com/JuliaDocs/Documenter.jl/issues/2027
 [#2051]: https://github.com/JuliaDocs/Documenter.jl/issues/2051
+[#2058]: https://github.com/JuliaDocs/Documenter.jl/issues/2058
 [#2066]: https://github.com/JuliaDocs/Documenter.jl/issues/2066
 [#2067]: https://github.com/JuliaDocs/Documenter.jl/issues/2067
 [#2070]: https://github.com/JuliaDocs/Documenter.jl/issues/2070
@@ -1932,6 +1940,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2475]: https://github.com/JuliaDocs/Documenter.jl/issues/2475
 [#2480]: https://github.com/JuliaDocs/Documenter.jl/issues/2480
 [#2482]: https://github.com/JuliaDocs/Documenter.jl/issues/2482
+[#2485]: https://github.com/JuliaDocs/Documenter.jl/issues/2485
 [#2496]: https://github.com/JuliaDocs/Documenter.jl/issues/2496
 [#2497]: https://github.com/JuliaDocs/Documenter.jl/issues/2497
 [#2499]: https://github.com/JuliaDocs/Documenter.jl/issues/2499
@@ -1945,10 +1954,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2560]: https://github.com/JuliaDocs/Documenter.jl/issues/2560
 [#2561]: https://github.com/JuliaDocs/Documenter.jl/issues/2561
 [#2562]: https://github.com/JuliaDocs/Documenter.jl/issues/2562
+[#2566]: https://github.com/JuliaDocs/Documenter.jl/issues/2566
 [#2569]: https://github.com/JuliaDocs/Documenter.jl/issues/2569
 [#2571]: https://github.com/JuliaDocs/Documenter.jl/issues/2571
+[#2577]: https://github.com/JuliaDocs/Documenter.jl/issues/2577
 [#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
 [#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
+[#2602]: https://github.com/JuliaDocs/Documenter.jl/issues/2602
 [#2610]: https://github.com/JuliaDocs/Documenter.jl/issues/2610
 [#2619]: https://github.com/JuliaDocs/Documenter.jl/issues/2619
 [#2621]: https://github.com/JuliaDocs/Documenter.jl/issues/2621
@@ -1958,6 +1970,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
 [#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
 [#2648]: https://github.com/JuliaDocs/Documenter.jl/issues/2648
+[#2649]: https://github.com/JuliaDocs/Documenter.jl/issues/2649
+[#2651]: https://github.com/JuliaDocs/Documenter.jl/issues/2651
 [#2652]: https://github.com/JuliaDocs/Documenter.jl/issues/2652
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
