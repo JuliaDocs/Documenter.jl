@@ -7,10 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Whatever you search will be added to the URL as a query parameter and you can use that link to share search results. ([#2543], [#2646])
-
 * `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2360], [#2619])
 * Doctests now can have `teardown` code in addition to `setup` code. ([#2058], [#2566], [#2577])
+* The search UI will again put the query in the site URL, allowing deep links to searches to be shared. ([#2543], [#2646])
 
 ### Changed
 
