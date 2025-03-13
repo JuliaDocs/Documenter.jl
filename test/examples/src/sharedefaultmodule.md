@@ -1,5 +1,5 @@
 ```@meta
-AutoContinue = true
+ShareDefaultModule = true
 ```
 
 ```@setup

@@ -308,7 +308,7 @@ page. Currently recognised keys:
   link previews. Overrides the site-wide description in [`makedocs`](@ref).
 - `Draft`: boolean for overriding the global draft mode for the page.
 - `CollapsedDocStrings`: for output formats that support this (i.e. only [`HTML`](@ref Documenter.HTML) currently), if set to `true`, render all docstrings as collapsed by default.
-- `AutoContinue`: If set to `true`, all unnamed `@example`, `@repl` and `@setup` blocks share the same evaluation sandbox module, which is useful for writing tutorial-like documents.
+- `ShareDefaultModule`: If set to `true`, all unnamed `@example`, `@repl` and `@setup` blocks share the same evaluation sandbox module, which is useful for writing tutorial-like documents.
   When `false` (default), unnamed blocks will each have a separate sandbox module where the code gets evaluated.
   In either case, named blocks always have their own sandbox module, shared by the blocks with the same name.
 
@@ -483,7 +483,7 @@ println(a)
 
 The name can be any text, not just integers as in the example above, i.e. `@example foo`.
 
-To share a module between all unnamed blocks by default, say in a tutorial with many examples that are all connected, you can set `AutoContinue = true` in a page's `@meta` block.
+To share a module between all unnamed blocks by default, say in a tutorial with many examples that are all connected, you can set `ShareDefaultModule = true` in a page's `@meta` block.
 
 Named `@example` blocks can be useful when generating documentation that requires
 intermediate explanation or multimedia such as plots as illustrated in the following example

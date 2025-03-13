@@ -600,10 +600,10 @@ function codelang(infostring::AbstractString)
     return m[1]
 end
 
-function get_sandbox_module!(meta, prefix, name = nothing; auto_continue = false)
+function get_sandbox_module!(meta, prefix, name = nothing; share_default_module = false)
     sym = if name === nothing || isempty(name)
-        if auto_continue
-            Symbol("__", prefix, "__auto_continue__")
+        if share_default_module
+            Symbol("__", prefix, "__share_default_module__")
         else
             Symbol("__", prefix, "__", lstrip(string(gensym()), '#'))
         end
