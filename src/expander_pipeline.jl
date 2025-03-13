@@ -55,6 +55,8 @@ function pagecheck(page)
     return
 end
 
+share_default_module(page)::Bool = get(page.globals.meta, :ShareDefaultModule, false)
+
 # Draft output code block
 function create_draft_result!(node::Node; blocktype = "code")
     @assert node.element isa MarkdownAST.CodeBlock
@@ -300,7 +302,7 @@ function Selectors.runner(::Type{Expanders.MetaBlocks}, node, page, doc)
         # wants to hide. We should probably warn, but it is common enough that
         # we will silently skip for now.
         if Documenter.isassign(ex)
-            if !(ex.args[1] in (:CurrentModule, :DocTestSetup, :DocTestTeardown, :DocTestFilters, :EditURL, :Description, :Draft, :CollapsedDocStrings))
+            if !(ex.args[1] in (:CurrentModule, :DocTestSetup, :DocTestTeardown, :DocTestFilters, :EditURL, :Description, :Draft, :CollapsedDocStrings, :ShareDefaultModule))
                 source = Documenter.locrepr(page.source, lines)
                 @warn(
                     "In $source: `@meta` block has an unsupported " *
@@ -767,7 +769,7 @@ function Selectors.runner(::Type{Expanders.ExampleBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
+    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
     sym = nameof(mod)
     lines = Documenter.find_block_in_file(x.code, page.source)
 
@@ -876,7 +878,7 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
+    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
 
     # "parse" keyword arguments to repl
     ansicolor = _any_color_fmt(doc)
@@ -953,7 +955,7 @@ function Selectors.runner(::Type{Expanders.SetupBlocks}, node, page, doc)
     end
 
     # The sandboxed module -- either a new one or a cached one from this page.
-    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name)
+    mod = Documenter.get_sandbox_module!(page.globals.meta, "atexample", name; share_default_module = share_default_module(page))
 
     @debug "Evaluating @setup block:\n$(x.code)"
     # Evaluate whole @setup block at once instead of piecewise

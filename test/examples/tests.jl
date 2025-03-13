@@ -78,7 +78,7 @@ all_md_files_in_src = let srcdir = joinpath(@__DIR__, "src"), mdfiles = String[]
     end
     mdfiles
 end
-@test length(all_md_files_in_src) == 28
+@test length(all_md_files_in_src) == 29
 
 @testset "Examples" begin
     @testset "HTML: deploy/$name" for (doc, name) in [
