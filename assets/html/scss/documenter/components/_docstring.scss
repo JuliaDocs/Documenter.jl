@@ -59,6 +59,11 @@
       &:focus {
         opacity: 1!important;
       }
+
+      &:hover {
+        background-color: darken($primary, 5%);
+        text-decoration: none;
+      }
     }
   }
 
