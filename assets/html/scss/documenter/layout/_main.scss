@@ -80,6 +80,14 @@
             margin-right: 0.4rem;
           }
         }
+        a {
+          svg {
+            height: 1em;
+            position: relative;
+            top: 0.15em;
+            fill: currentColor;
+          }
+        }
       }
 
       // ensure vertical middle alignment of everything in the navbar
