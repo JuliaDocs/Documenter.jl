@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Version [v1.9.0] - 2025-03-XX
+## Version [v1.9.0] - 2025-03-16
 
 ### Added
 
@@ -30,9 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The breadcrumb in the HTML output will not show a spurious scrollbar anymore. ([#2648], [#2652])
 * The syntax highlight pre-rendering now correctly works on Windows. ([#2649])
-
-### Fixed
-
 * Deep links to collapsed docstrings now correctly leave the targeted docstring at the center of the screen when navigating to that URL. ([#2485], [#2651])
 
 ## Version [v1.8.1] - 2025-02-11
@@ -1977,6 +1974,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2649]: https://github.com/JuliaDocs/Documenter.jl/issues/2649
 [#2651]: https://github.com/JuliaDocs/Documenter.jl/issues/2651
 [#2652]: https://github.com/JuliaDocs/Documenter.jl/issues/2652
+[#2656]: https://github.com/JuliaDocs/Documenter.jl/issues/2656
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
