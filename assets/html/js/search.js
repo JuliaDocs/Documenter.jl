@@ -402,6 +402,42 @@ function runSearchMainCode() {
   // Which filter is currently selected
   var selected_filter = "";
 
+  document.addEventListener("reset-filter", function () {
+    selected_filter = "";
+    update_search();
+  });
+
+  //update the url with search query
+  function updateSearchURL(query) {
+    const url = new URL(window.location);
+
+    if (query && query.trim() !== "") {
+      url.searchParams.set("q", query);
+    } else {
+      // remove the 'q' param if it exists
+      if (url.searchParams.has("q")) {
+        url.searchParams.delete("q");
+      }
+    }
+
+    // Add or remove the filter parameter based on selected_filter
+    if (selected_filter && selected_filter.trim() !== "") {
+      url.searchParams.set("filter", selected_filter);
+    } else {
+      // remove the 'filter' param if it exists
+      if (url.searchParams.has("filter")) {
+        url.searchParams.delete("filter");
+      }
+    }
+
+    // Only update history if there are parameters, otherwise use the base URL
+    if (url.search) {
+      window.history.replaceState({}, "", url);
+    } else {
+      window.history.replaceState({}, "", url.pathname + url.hash);
+    }
+  }
+
   $(document).on("input", ".documenter-search-input", function (event) {
     if (!worker_is_running) {
       launch_search();
@@ -411,6 +447,7 @@ function runSearchMainCode() {
   function launch_search() {
     worker_is_running = true;
     last_search_text = $(".documenter-search-input").val();
+    updateSearchURL(last_search_text);
     worker.postMessage(last_search_text);
   }
 
@@ -441,6 +478,7 @@ function runSearchMainCode() {
    */
   function update_search() {
     let querystring = $(".documenter-search-input").val();
+    updateSearchURL(querystring);
 
     if (querystring.trim()) {
       if (selected_filter == "") {
@@ -514,6 +552,24 @@ function runSearchMainCode() {
       `);
     }
   }
+
+  //url param checking
+  function checkURLForSearch() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get("q");
+    const filterParam = urlParams.get("filter");
+
+    // Set the selected filter if present in URL
+    if (filterParam) {
+      selected_filter = filterParam.toLowerCase();
+    }
+
+    // Trigger input event if there's a search query to perform the search
+    if (searchQuery) {
+      $(".documenter-search-input").val(searchQuery).trigger("input");
+    }
+  }
+  setTimeout(checkURLForSearch, 100);
 
   /**
    * Make the modal filter html

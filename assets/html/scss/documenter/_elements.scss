@@ -90,3 +90,9 @@ pre {
     opacity: 1;
   }
 }
+
+.link-icon {
+  &:hover {
+    color: $link;
+  }
+}
