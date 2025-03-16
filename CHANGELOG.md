@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Setting `ShareDefaultModule = true` in a `@meta` block makes all unnamed `@example`, `@repl` and `@setup` blocks share the same sandbox module, which makes writing tutorial-style documents more practical. ([#2656])
 * `makedocs` and `doctest` now accept regex/substitution pairs in `doctestfilters`. ([#2360], [#2619])
 * Doctests now can have `teardown` code in addition to `setup` code. ([#2058], [#2566], [#2577])
+* The search UI will again put the query in the site URL, allowing deep links to searches to be shared. ([#2543], [#2646])
 
 ### Changed
 
@@ -1948,6 +1950,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2513]: https://github.com/JuliaDocs/Documenter.jl/issues/2513
 [#2514]: https://github.com/JuliaDocs/Documenter.jl/issues/2514
 [#2526]: https://github.com/JuliaDocs/Documenter.jl/issues/2526
+[#2543]: https://github.com/JuliaDocs/Documenter.jl/issues/2543
 [#2549]: https://github.com/JuliaDocs/Documenter.jl/issues/2549
 [#2551]: https://github.com/JuliaDocs/Documenter.jl/issues/2551
 [#2557]: https://github.com/JuliaDocs/Documenter.jl/issues/2557
@@ -1969,6 +1972,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2629]: https://github.com/JuliaDocs/Documenter.jl/issues/2629
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
 [#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
+[#2646]: https://github.com/JuliaDocs/Documenter.jl/issues/2646
 [#2648]: https://github.com/JuliaDocs/Documenter.jl/issues/2648
 [#2649]: https://github.com/JuliaDocs/Documenter.jl/issues/2649
 [#2651]: https://github.com/JuliaDocs/Documenter.jl/issues/2651

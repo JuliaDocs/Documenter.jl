@@ -7,8 +7,9 @@ $(document).ready(function () {
       <div class="field mb-0 w-100">
         <p class="control has-icons-right">
           <input class="input documenter-search-input" type="text" placeholder="Search" />
-          <span class="icon is-small is-right has-text-primary-dark">
-            <i class="fas fa-magnifying-glass"></i>
+          <span class="icon is-small is-right has-text-primary-dark gap-2">
+            <i class="fas fa-link link-icon is-clickable"></i>
+            <i class="fas fa-magnifying-glass mr-4"></i>
           </span>
         </p>
       </div>
@@ -47,6 +48,19 @@ $(document).ready(function () {
     `
   );
 
+  function checkURLForSearch() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get("q");
+
+    if (searchQuery) {
+      //only if there is a search query, open the modal
+      openModal();
+    }
+  }
+
+  //this function will be called whenever the page will load
+  checkURLForSearch();
+
   document.querySelector(".docs-search-query").addEventListener("click", () => {
     openModal();
   });
@@ -71,6 +85,25 @@ $(document).ready(function () {
     return false;
   });
 
+  //event listener for the link icon to copy the URL
+  $(document).on("click", ".link-icon", function () {
+    const currentUrl = window.location.href;
+
+    navigator.clipboard
+      .writeText(currentUrl)
+      .then(() => {
+        const $linkIcon = $(this);
+        $linkIcon.removeClass("fa-link").addClass("fa-check");
+
+        setTimeout(() => {
+          $linkIcon.removeClass("fa-check").addClass("fa-link");
+        }, 1000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
+  });
+
   // Functions to open and close a modal
   function openModal() {
     let searchModal = document.querySelector("#search-modal");
@@ -85,15 +118,17 @@ $(document).ready(function () {
       <div class="has-text-centered my-5 py-5">Type something to get started!</div>
     `;
 
+    $(".documenter-search-input").val("");
+    $(".search-modal-card-body").html(initial_search_body);
+
+    document.dispatchEvent(new CustomEvent("reset-filter"));
+
     searchModal.classList.remove("is-active");
     document.querySelector(".documenter-search-input").blur();
 
     if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
       $(".search-modal-card-body").addClass("is-justify-content-center");
     }
-
-    $(".documenter-search-input").val("");
-    $(".search-modal-card-body").html(initial_search_body);
   }
 
   document
