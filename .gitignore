@@ -5,21 +5,13 @@
 *.jl.mem
 Manifest.toml
 
-test/docsxref/build/
-test/doctests/builds/
-test/examples/builds/
-test/formats/builds/
-test/missingdocs/build/
-test/nongit/build/
-test/errors/build/
-test/plugins/build/
-test/prerender/build/
-test/symlinks/build/
-test/themes/dev/
-test/workdir/builds/
-test/quietly-logs/
-docs/dev/
-docs/build/
-docs/build-pdf/
-docs/site/
-docs/src/release-notes.md
+# Ignore all build/ and builds/ directories
+build/
+builds/
+
+/test/themes/dev/
+/test/quietly-logs/
+/docs/dev/
+/docs/build-pdf/
+/docs/site/
+/docs/src/release-notes.md
