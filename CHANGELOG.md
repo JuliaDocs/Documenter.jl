@@ -146,6 +146,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version [v1.2.0] - 2023-11-29
 
+### Added
+
+* Documenter now includes `Remotes.AzureDevOps`, to support repositories hosted on Azure DevOps. ([#2356])
+
 ### Changed
 
 * `id` anchors may now start with a numeric digit. ([#744], [#2325])
