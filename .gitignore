@@ -5,6 +5,7 @@
 *.jl.mem
 Manifest.toml
 
+test/docsxref/build/
 test/doctests/builds/
 test/examples/builds/
 test/formats/builds/
@@ -13,6 +14,7 @@ test/nongit/build/
 test/errors/build/
 test/plugins/build/
 test/prerender/build/
+test/symlinks/build/
 test/themes/dev/
 test/workdir/builds/
 test/quietly-logs/
