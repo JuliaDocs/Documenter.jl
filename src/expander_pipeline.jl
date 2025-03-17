@@ -381,12 +381,12 @@ function Selectors.runner(::Type{Expanders.DocsBlocks}, node, page, doc)
     lines = Documenter.find_block_in_file(x.code, page.source)
     @debug "Evaluating @docs block:\n$(x.code)"
     for (ex, str) in Documenter.parseblock(x.code, doc, page)
-        str = """
+        adstr = """
         !!! warning "Missing docstring."
 
             Missing docstring for `$(strip(str))`. Check Documenter's build log for details.
         """
-        admonition = first(Documenter.mdparse(str, mode = :blocks))
+        admonition = first(Documenter.mdparse(adstr, mode = :blocks))
         binding = try
             Documenter.DocSystem.binding(curmod, ex)
         catch err
