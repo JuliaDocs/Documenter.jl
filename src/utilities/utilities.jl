@@ -11,6 +11,9 @@ using .Remotes: Remote, repourl, repofile
 using .Remotes: RepoHost, RepoGithub, RepoBitbucket, RepoGitlab, RepoAzureDevOps,
     RepoUnknown, format_commit, format_line, repo_host_from_url, LineRangeFormatting
 
+const original_pwd = Ref{String}()  # for printing relative paths in error messages
+
+
 """
     @docerror(doc, tag, msg, exs...)
 
@@ -70,7 +73,9 @@ end
 
 # Pretty-printing locations
 function locrepr(file, line = nothing)
-    str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
+    basedir = isassigned(original_pwd) ? original_pwd[] : currentdir()
+    file = abspath(file)
+    str = Base.contractuser(relpath(file, basedir))
     line !== nothing && (str = str * ":$(line.first)-$(line.second)")
     return str
 end
