@@ -70,7 +70,7 @@ end
 
 # Pretty-printing locations
 function locrepr(file, line = nothing)
-    str = Base.contractuser(file) # TODO: Maybe print this relative the doc-root??
+    str = Base.contractuser(abspath(file)) # TODO: Maybe print this relative the doc-root??
     line !== nothing && (str = str * ":$(line.first)-$(line.second)")
     return str
 end
