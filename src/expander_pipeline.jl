@@ -1,5 +1,26 @@
 # Defines node "expanders" that transform nodes from the parsed markdown files.
 
+# helper for "cleaning up" content of modules to enable garbage collection.
+# See also <https://github.com/JuliaDocs/Documenter.jl/issues/2640>.
+function clear_module!(M::Module)
+    # we need `invokelatest` here for Julia >= 1.12 (or 1.13?)
+    for name in Base.invokelatest(names, M, all = true)
+        if !isconst(M, name)
+            @eval M $name = $nothing
+        end
+    end
+    return
+end
+
+function clear_modules!(d::Dict{Symbol, Any})
+    for (k, v) in d
+        startswith(String(k), "__atexample__") || continue
+        v isa Module && clear_module!(v)
+    end
+    GC.gc()
+    return
+end
+
 function expand(doc::Documenter.Document)
     priority_pages = filter(doc.user.expandfirst) do src
         if src in keys(doc.blueprint.pages)
@@ -23,6 +44,7 @@ function expand(doc::Documenter.Document)
             expand_recursively(node, page, doc)
         end
         pagecheck(page)
+        clear_modules!(page.globals.meta)
     end
     return
 end

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Don't require custom themes to set a color for the 'todo' admonition. ([#2576])
 * Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#1521], [#2054], [#2399])
+* Reduce memory usage when there are many pages with doctests and examples, by clearing out the "sandbox" modules used for running the code, allowing the garbage collector to reclaim memory. ([#2640])
 
 ## Version [v1.9.0] - 2025-03-17
 
@@ -1984,6 +1985,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2624]: https://github.com/JuliaDocs/Documenter.jl/issues/2624
 [#2629]: https://github.com/JuliaDocs/Documenter.jl/issues/2629
 [#2636]: https://github.com/JuliaDocs/Documenter.jl/issues/2636
+[#2640]: https://github.com/JuliaDocs/Documenter.jl/issues/2640
 [#2642]: https://github.com/JuliaDocs/Documenter.jl/issues/2642
 [#2646]: https://github.com/JuliaDocs/Documenter.jl/issues/2646
 [#2648]: https://github.com/JuliaDocs/Documenter.jl/issues/2648
