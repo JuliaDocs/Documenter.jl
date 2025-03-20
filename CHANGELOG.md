@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# Unreleased
+
+## Changed
+
+* Now the cursor remain focused on search box even after selecting the filter. ([#2410])
+
 ## Version [v1.9.0] - 2025-03-17
 
 ### Added
@@ -1924,6 +1930,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
+[#2410]: https://github.com/JuliaDocs/Documenter.jl/issues/2410
 [#2414]: https://github.com/JuliaDocs/Documenter.jl/issues/2414
 [#2415]: https://github.com/JuliaDocs/Documenter.jl/issues/2415
 [#2424]: https://github.com/JuliaDocs/Documenter.jl/issues/2424

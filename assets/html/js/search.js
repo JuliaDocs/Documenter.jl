@@ -463,6 +463,9 @@ function runSearchMainCode() {
   };
 
   $(document).on("click", ".search-filter", function () {
+    let search_input = $(".documenter-search-input");
+    let cursor_position = search_input[0].selectionStart;
+
     if ($(this).hasClass("search-filter-selected")) {
       selected_filter = "";
     } else {
@@ -471,6 +474,9 @@ function runSearchMainCode() {
 
     // This updates search results and toggles classes for UI:
     update_search();
+
+    search_input.focus();
+    search_input.setSelectionRange(cursor_position, cursor_position);
   });
 
   /**
