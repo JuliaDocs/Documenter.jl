@@ -118,11 +118,11 @@ Pages   = ["a.jl", "b.jl"]
 ```
 ````
 
-In the above example docstrings from module `Foo` found in source files that end in `a.jl`
-and `b.jl` are included. The page order provided by `Pages` is also used to sort the
+In the above example docstrings from module `Foo` found in source files whose file path ends
+with `a.jl`and `b.jl` are included. The page order provided by `Pages` is also used to sort the
 docstrings. Note that page matching is done using the end of the provided strings and so
-`a.jl` will be matched by *any* source file that ends in `a.jl`, i.e. `src/a.jl` or
-`src/foo/a.jl`.
+`a.jl` will be matched by *any* source file whose file path ends with `a.jl`, i.e. `src/a.jl`,
+`src/foo/a.jl` or `src/bar_a.jl`.
 
 To filter out certain docstrings by your own criteria, you can provide a function with the
 `Filter` keyword:
@@ -145,9 +145,13 @@ Filter =  myCustomFilterFunction
 ```
 ````
 
-To include only the exported names from the modules listed in `Modules` use `Private = false`.
-In a similar way `Public = false` can be used to only show the unexported names. By
+To include only the public names from the modules listed in `Modules` use `Private = false`.
+In a similar way `Public = false` can be used to only show the private names. By
 default both of these are set to `true` so that all names will be shown.
+
+!!! info
+    In Julia versions up to and including v1.10, "public" = "exported".
+    Starting with Julia v1.11, "public" = "exported _or_ marked with the `public` keyword".
 
 ````markdown
 Functions exported from `Foo`:
@@ -176,7 +180,7 @@ As with `@docs`, you can use `@autodocs; canonical=false` to indicate that the
 `@autodocs` block in non-canonical. See [`@docs; canonical=false` block](@ref
 noncanonical-block).
 
-## `@ref` link
+## [`@ref` and `@id` links](@id at-ref-at-id-links)
 
 Used in markdown links as the URL to tell Documenter to generate a cross-reference
 automatically. The text part of the link can be a code object (between backticks), header name, or GitHub PR/Issue number (`#` followed by a number).
@@ -290,8 +294,10 @@ for more details.
 This block type is used to define metadata key/value pairs that can be used elsewhere in the
 page. Currently recognised keys:
 - `CurrentModule`: module where Documenter evaluates, for example, [`@docs`-block](@ref)
-  and [`@ref`-link](@ref)s.
-- `DocTestSetup`: code to be evaluated before a doctest, see the [Setup Code](@ref)
+  and [`@ref`-link](@ref at-ref-at-id-links)s.
+- `DocTestSetup`: code to be evaluated before a doctest, see the [Setup and Teardown Code](@ref)
+  section under [Doctests](@ref).
+- `DocTestTeardown`: code to be evaluated after a doctest, see the [Setup and Teardown Code](@ref)
   section under [Doctests](@ref).
 - `DocTestFilters`: filters to deal with, for example, unpredictable output from doctests,
   see the [Filtering Doctests](@ref) section under [Doctests](@ref).
@@ -302,6 +308,9 @@ page. Currently recognised keys:
   link previews. Overrides the site-wide description in [`makedocs`](@ref).
 - `Draft`: boolean for overriding the global draft mode for the page.
 - `CollapsedDocStrings`: for output formats that support this (i.e. only [`HTML`](@ref Documenter.HTML) currently), if set to `true`, render all docstrings as collapsed by default.
+- `ShareDefaultModule`: If set to `true`, all unnamed `@example`, `@repl` and `@setup` blocks share the same evaluation sandbox module, which is useful for writing tutorial-like documents.
+  When `false` (default), unnamed blocks will each have a separate sandbox module where the code gets evaluated.
+  In either case, named blocks always have their own sandbox module, shared by the blocks with the same name.
 
 Example:
 
@@ -393,7 +402,7 @@ As with `@index` if `Pages` is not provided then all pages are included. The def
 
     Documenter will then list the contents of the "Subsection" pages, and they will always appear in the same order as they are in the sidebar.
 
-## `@example` block
+## [`@example` block](@id reference-at-example)
 
 Evaluates the code block and inserts the result of the last expression into the final document along with the
 original source code. If the last expression returns `nothing`, the `stdout`
@@ -473,6 +482,8 @@ println(a)
 ````
 
 The name can be any text, not just integers as in the example above, i.e. `@example foo`.
+
+To share a module between all unnamed blocks by default, say in a tutorial with many examples that are all connected, you can set `ShareDefaultModule = true` in a page's `@meta` block.
 
 Named `@example` blocks can be useful when generating documentation that requires
 intermediate explanation or multimedia such as plots as illustrated in the following example
@@ -689,7 +700,7 @@ Named `@repl <name>` blocks behave in the same way as named `@example <name>` bl
     `for` loops etc. When using Documenter with Julia 1.5 or above, Documenter uses the soft
     scope in `@repl`-blocks and REPL-type doctests.
 
-## `@setup <name>` block
+## [`@setup <name>` block](@id reference-at-setup)
 
 These are similar to `@example` blocks, but both the input and output are hidden from the
 final document. This can be convenient if there are several lines of setup code that need to be

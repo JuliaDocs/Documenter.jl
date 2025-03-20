@@ -17,7 +17,7 @@ Returns the number of missing bindings to allow for automated testing of documen
 function missingdocs(doc::Document)
     doc.user.checkdocs === :none && return 0
     bindings = missingbindings(doc)
-    n = reduce(+, map(length, values(bindings)), init=0)
+    n = reduce(+, map(length, values(bindings)), init = 0)
     if n > 0
         b = IOBuffer()
         println(b, "$n docstring$(n ≡ 1 ? "" : "s") not included in the manual:\n")
@@ -27,10 +27,12 @@ function missingdocs(doc::Document)
             end
         end
         println(b)
-        print(b, """
-        These are docstrings in the checked modules (configured with the modules keyword)
-        that are not included in canonical @docs or @autodocs blocks.
-        """)
+        print(
+            b, """
+            These are docstrings in the checked modules (configured with the modules keyword)
+            that are not included in canonical @docs or @autodocs blocks.
+            """
+        )
         @docerror(doc, :missing_docs, String(take!(b)))
     end
     return n
@@ -72,7 +74,7 @@ function allbindings(checkdocs::Symbol, mods)
     for m in mods
         allbindings(checkdocs, m, out)
     end
-    out
+    return out
 end
 
 function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Type}}())
@@ -87,11 +89,18 @@ function allbindings(checkdocs::Symbol, mod::Module, out = Dict{Binding, Set{Typ
         # import/using.
         name = nameof(binding)
         isexported = (binding == Binding(mod, name)) && Base.isexported(mod, name)
-        if checkdocs === :all || (isexported && checkdocs === :exports)
+        ispublic = (binding == Binding(mod, name)) && @static if isdefined(Base, :ispublic)
+            Base.ispublic(mod, name)
+        else
+            Base.isexported(mod, name)
+        end
+        if checkdocs === :all ||
+                (isexported && checkdocs === :exports) ||
+                (ispublic && checkdocs === :public)
             out[binding] = Set(sigs(doc))
         end
     end
-    out
+    return out
 end
 
 meta(m) = Docs.meta(m)
@@ -141,24 +150,31 @@ function footnotes(doc::Document)
             end
         end
     end
+    return
 end
 
 function footnote(fn::MarkdownAST.FootnoteLink, orphans::Dict)
     ids, bodies = get(orphans, fn.id, (0, 0))
     # Footnote references: syntax `[^1]`.
-    orphans[fn.id] = (ids + 1, bodies)
+    return orphans[fn.id] = (ids + 1, bodies)
 end
 function footnote(fn::MarkdownAST.FootnoteDefinition, orphans::Dict)
     ids, bodies = get(orphans, fn.id, (0, 0))
     # Footnote body: syntax `[^1]:`.
-    orphans[fn.id] = (ids, bodies + 1)
+    return orphans[fn.id] = (ids, bodies + 1)
 end
 footnote(other, orphans::Dict) = true
 
 # Link Checks.
 # ------------
 
-hascurl() = (try; success(`curl --version`); catch err; false; end)
+function hascurl()
+    try
+        return success(`curl --version`)
+    catch err
+        return false
+    end
+end
 
 """
 $(SIGNATURES)
@@ -182,6 +198,7 @@ function linkcheck(mdast::MarkdownAST.Node, doc::Document)
     for node in AbstractTrees.PreOrderDFS(mdast)
         linkcheck(node, node.element, doc)
     end
+    return
 end
 
 function linkcheck(node::MarkdownAST.Node, element::MarkdownAST.AbstractElement, doc::Document)
@@ -191,7 +208,7 @@ function linkcheck(node::MarkdownAST.Node, element::MarkdownAST.AbstractElement,
     return nothing
 end
 
-function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document; method::Symbol=:HEAD)
+function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document; method::Symbol = :HEAD)
 
     # first, make sure we're not supposed to ignore this link
     for r in doc.user.linkcheck_ignore
@@ -202,23 +219,7 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
     end
 
     if !haskey(doc.internal.locallinks, link)
-        timeout = doc.user.linkcheck_timeout
-        null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
-        # In some cases, web servers (e.g. docs.github.com as of 2022) will reject requests
-        # that declare a non-browser user agent (curl specifically passes 'curl/X.Y'). In
-        # case of docs.github.com, the server returns a 403 with a page saying "The request
-        # is blocked". However, spoofing a realistic browser User-Agent string is enough to
-        # get around this, and so here we simply pass the example Chrome UA string from the
-        # Mozilla developer docs, but only is it's a HTTP(S) request.
-        #
-        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
-        fakebrowser  = startswith(uppercase(link.destination), "HTTP") ? [
-            "--user-agent",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
-            "-H",
-            "accept-encoding: gzip, deflate, br",
-        ] : ""
-        cmd = `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(link.destination) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+        cmd = _linkcheck_curl(method, link.destination; timeout = doc.user.linkcheck_timeout, useragent = doc.user.linkcheck_useragent)
 
         local result
         try
@@ -238,7 +239,7 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
                 startswith(scheme, "FTP") ? :FTP : :UNKNOWN
 
             if (protocol === :HTTP && (status < 300 || status == 302)) ||
-                (protocol === :FTP && (200 <= status < 300 || status == 350))
+                    (protocol === :FTP && (200 <= status < 300 || status == 350))
                 if location !== nothing
                     @debug "linkcheck '$(link.destination)' status: $(status), redirects to '$(location)'"
                 else
@@ -253,7 +254,7 @@ function linkcheck(node::MarkdownAST.Node, link::MarkdownAST.Link, doc::Document
             elseif protocol === :HTTP && status == 405 && method === :HEAD
                 # when a server doesn't support HEAD requests, fallback to GET
                 @debug "linkcheck '$(link.destination)' status: $(status), retrying without `-I`"
-                return linkcheck(node, link, doc; method=:GET)
+                return linkcheck(node, link, doc; method = :GET)
             else
                 @docerror(doc, :linkcheck, "linkcheck '$(link.destination)' status: $(status).")
             end
@@ -269,11 +270,38 @@ function linkcheck(node::MarkdownAST.Node, docs_node::Documenter.DocsNode, doc::
     for mdast in docs_node.mdasts
         linkcheck(mdast, doc)
     end
+    return
 end
-
 
 linkcheck_ismatch(r::String, url) = (url == r)
 linkcheck_ismatch(r::Regex, url) = occursin(r, url)
+
+const _LINKCHECK_DEFAULT_USERAGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+
+function _linkcheck_curl(method::Symbol, url::AbstractString; timeout::Real, useragent::Union{AbstractString, Nothing})
+    null_file = @static Sys.iswindows() ? "nul" : "/dev/null"
+    # In some cases, web servers (e.g. docs.github.com as of 2022) will reject requests
+    # that declare a non-browser user agent (curl specifically passes 'curl/X.Y'). In
+    # case of docs.github.com, the server returns a 403 with a page saying "The request
+    # is blocked". However, spoofing a realistic browser User-Agent string is enough to
+    # get around this, and so here we simply pass the example Chrome UA string from the
+    # Mozilla developer docs, but only is it's a HTTP(S) request.
+    #
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#chrome_ua_string
+    fakebrowser = if startswith(uppercase(url), "HTTP")
+        headers = [
+            "-H",
+            "accept-encoding: gzip, deflate, br",
+        ]
+        if !isnothing(useragent)
+            push!(headers, "--user-agent", useragent)
+        end
+        headers
+    else
+        String[]
+    end
+    return `curl $(method === :HEAD ? "-sI" : "-s") --proto =http,https,ftp,ftps $(fakebrowser) $(url) --max-time $timeout -o $null_file --write-out "%{http_code} %{url_effective} %{redirect_url}"`
+end
 
 # Automatic Pkg.add() GitHub remote check
 # ---------------------------------------
@@ -284,8 +312,8 @@ function gh_get_json(path)
     @debug "request: GET $url"
     resp = Downloads.request(
         url,
-        output=io,
-        headers=Dict(
+        output = io,
+        headers = Dict(
             "Accept" => "application/vnd.github.v3+json",
             "X-GitHub-Api-Version" => "2022-11-28"
         )
@@ -321,8 +349,8 @@ end
 
 GITHUB_ERROR_ADVICE = (
     "This means automatically finding the source URL link for this package failed. " *
-    "Please add the source URL link manually to the `remotes` field " *
-    "in `makedocs` or install the package using `Pkg.develop()``."
+        "Please add the source URL link manually to the `remotes` field " *
+        "in `makedocs` or install the package using `Pkg.develop()``."
 )
 
 function githubcheck(doc::Document)
@@ -380,4 +408,5 @@ function githubcheck(doc::Document)
             )
         end
     end
+    return
 end

@@ -2,8 +2,8 @@ using Test
 import Documenter
 include("TestUtilities.jl"); using Main.TestUtilities
 
-function testset_include(filename; quietly=false)
-    @testset "$filename" begin
+function testset_include(filename; quietly = false)
+    return @testset "$filename" begin
         if quietly
             @quietly include(filename)
         else
@@ -16,6 +16,10 @@ end
     # Build the example docs
     @info "Building example/make.jl"
     include("examples/make.jl")
+
+    # Build the symlinked example docs
+    @info "Building symlinks/make.jl"
+    include("symlinks/tests.jl")
 
     # Test missing docs
     @info "Building missingdocs/make.jl"
@@ -91,7 +95,7 @@ end
     @quietly include("workdir/tests.jl")
 
     # Passing a writer positionally (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
-    @test_throws MethodError makedocs(sitename="", HTML())
+    @test_throws MethodError makedocs(sitename = "", HTML())
 
     # Running doctest() on our own manual
     @info "doctest() Documenter's manual"

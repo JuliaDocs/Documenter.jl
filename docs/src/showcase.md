@@ -26,7 +26,7 @@ This is an non-highlighted code block.
 ... Rendered in monospace.
 ```
 
-When the language is specified for the block, e.g. by starting the block with ````` ```julia`````, the contents gets highlighted appropriately (for the language that are supported by the highlighter).
+When the language is specified for the block, e.g. by starting the block with ````` ```julia`````, the content gets highlighted appropriately (for the languages that are supported by the highlighter).
 
 ```julia
 function foo(x::Integer)
@@ -36,7 +36,7 @@ end
 
 ## Mathematics
 
-For mathematics, both inline and display equations are available.
+For mathematics, both inline and display equations are supported.
 Inline equations should be written as LaTeX between two backticks,
 e.g. ``` ``A x^2 + B x + C = 0`` ```.
 It will render as ``A x^2 + B x + C = 0``.
@@ -122,6 +122,10 @@ Documenter supports a range of admonition types for different circumstances.
 ###### Compat admonition
 !!! compat "'compat' admonition"
     This is a `!!! compat`-type admonition.
+
+###### TODO admonition
+!!! todo "'todo' admonition"
+    This is a `!!! todo`-type admonition.
 
 ###### Details admonition
 Admonitions with type `details` is rendered as a collapsed `<details>` block in
@@ -283,7 +287,7 @@ DocumenterShowcase
 ```
 ````
 
-This will include a single docstring and it will look like this
+This will include a single docstring and it will look like this:
 
 ```@docs
 DocumenterShowcase
@@ -310,18 +314,19 @@ And now, by having `DocumenterShowcase.foo(::AbstractString)` in the `@docs` blo
 DocumenterShowcase.foo(::AbstractString)
 ```
 
-However, if you want, you can also combine multiple docstrings into a single docstring block.
-The [`DocumenterShowcase.bar`](@ref) function has the same signatures as
-
+However, if you want, you can also combine multiple docstrings into a single docstring
+block. To illustrate this, the [`DocumenterShowcase.bar`](@ref) function has the same
+signatures as [`DocumenterShowcase.foo`](@ref).
 If we just put `DocumenterShowcase.bar` in an `@docs` block, it will combine the docstrings as follows:
 
 ```@docs
 DocumenterShowcase.bar
 ```
 
-If you have very many docstrings, you may also want to consider using the [`@autodocs` block](@ref) which can include a whole set of docstrings automatically based on certain filtering options
+If you have very many docstrings, you may also want to consider using the [`@autodocs` block](@ref) which can include a whole set of docstrings automatically based on certain filtering options.
 
-Both `@docs` and `@autodocs` support the [`canonical=false` keyword argument](@ref noncanonical-block). This can be used to include a docstring more than once
+Both `@docs` and `@autodocs` support the [`canonical=false` keyword argument](@ref noncanonical-block). This can be used to include a docstring more than once.
+For example, if we do this ...
 
 ````markdown
 ```@docs; canonical=false
@@ -329,7 +334,7 @@ DocumenterShowcase.bar
 ```
 ````
 
-We then see the same docstring as above
+... we then see the same docstring as above:
 
 ```@docs; canonical=false
 DocumenterShowcase.bar
@@ -337,7 +342,7 @@ DocumenterShowcase.bar
 
 ### An index of docstrings
 
-The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows
+The [`@index` block](@ref) can be used to generate a list of all the docstrings on a page (or even across pages) and will look as follows:
 
 ```@index
 Pages = ["showcase.md"]
@@ -347,6 +352,15 @@ Pages = ["showcase.md"]
 
 Sometimes a symbol has multiple docstrings, for example a type definition, inner and outer constructors. The example
 below shows how to use specific ones in the documentation.
+````markdown
+```@docs
+DocumenterShowcase.Foo
+DocumenterShowcase.Foo()
+DocumenterShowcase.Foo{T}()
+```
+````
+
+This is then rendered to this:
 
 ```@docs
 DocumenterShowcase.Foo
@@ -376,9 +390,132 @@ Script-style doctests are supported too:
 4
 ```
 
+### Setup code
+
+You can have setup code for doctests that gets executed before the actual doctest.
+For example, the following doctest needs to have the `Documenter` module to be present.
+
+```jldoctest; setup=:(using Documenter)
+julia> Documenter.splitexpr(:(Foo.Bar.baz))
+(:(Foo.Bar), :(:baz))
+```
+
+This is achieved by the `setup` keyword to `jldoctest`.
+
+````
+```jldoctest; setup=:(using Documenter)
+````
+
+The alternative approach is to use the `DocTestSetup` keys in `@meta`-blocks, which will apply across multiple doctests.
+
+````markdown
+```@meta
+DocTestSetup = quote
+  f(x) = x^2
+end
+```
+````
+```@meta
+DocTestSetup = quote
+  f(x) = x^2
+end
+```
+
+```jldoctest
+julia> f(2)
+4
+```
+
+The doctests and `@meta` blocks are evaluated sequentially on each page, so you can always unset the test code by setting it back to `nothing`.
+
+````markdown
+```@meta
+DocTestSetup = nothing
+```
+````
+```@meta
+DocTestSetup = nothing
+```
+
+### Teardown code
+
+Dually to setup code described in the preceding section it can be useful to have code that
+gets executed *after* the actual doctest, perhaps to restore a setting or release
+a resource acquired during setup.
+For example, the following doctest expects that `setprecision` was used to
+change the default precision for `BigFloat`. After the test completes, this should
+be restored to the previous setting.
+
+!!! note
+    In real code it is usually better to use `setprecision` with a `do`-block
+    to temporarily change the precision. But for the sake of this example it
+    is useful to demonstrate the effect of changing and restoring a global setting.
+
+```jldoctest; setup=:(oldprec=precision(BigFloat);setprecision(BigFloat,20)), teardown=:(setprecision(BigFloat,oldprec))
+julia> sqrt(big(2.0))
+1.4142132
+```
+
+This is achieved by the `teardown` keyword to `jldoctest` in addition to `setup`.
+
+````
+```jldoctest; setup=:(oldprec=precision(BigFloat);setprecision(BigFloat,20)), teardown=:(setprecision(BigFloat,oldprec))
+````
+
+Note that if we now run the same doctest content again but without `setup` and `teardown`
+it will produce output with a different (higher) precision. If we had used `setup` without
+`teardown` then this doctest would still use the smaller precision, i.e., it would be
+affected by the preceding doctest, which is not what we want.
+```jldoctest
+julia> sqrt(big(2.0))
+1.414213562373095048801688724209698078569671875376948073176679737990732478462102
+```
+
+The alternative approach is to use the `DocTestSetup` and `DocTestTeardown` keys in `@meta`-blocks, which will apply across multiple doctests.
+
+````markdown
+```@meta
+DocTestSetup = quote
+  oldprec = precision(BigFloat)
+  setprecision(BigFloat, 20)
+end
+DocTestTeardown = quote
+  setprecision(BigFloat, oldprec)
+end
+```
+````
+```@meta
+DocTestSetup = quote
+  oldprec = precision(BigFloat)
+  setprecision(BigFloat, 20)
+end
+DocTestTeardown = quote
+  setprecision(BigFloat, oldprec)
+end
+```
+
+```jldoctest
+julia> sqrt(big(2.0))
+1.4142132
+```
+
+The doctests and `@meta` blocks are evaluated sequentially on each page, so you can always unset the test code by setting it back to `nothing`.
+
+````markdown
+```@meta
+DocTestSetup = nothing
+DocTestTeardown = nothing
+```
+````
+```@meta
+DocTestSetup = nothing
+DocTestTeardown = nothing
+```
+
+
 ## Running interactive code
 
-[`@example` block](@ref) run a code snippet and insert the output into the document.
+[`@example` block](@ref reference-at-example) run a code snippet and insert the output into the document.
 E.g. the following Markdown
 
 ````markdown
@@ -393,7 +530,7 @@ becomes the following code-output block pair
 2 + 3
 ```
 
-If the last element can be rendered as an image or `text/html` etc. (the corresponding `Base.show` method for the particular MIME type has to be defined), it will be rendered appropriately. e.g.:
+If the last element can be rendered as an image or `text/html` etc. (the corresponding `Base.show` method for the particular MIME type has to be defined), it will be rendered appropriately. E.g.:
 
 ```@example
 using Main: DocumenterShowcase
@@ -424,7 +561,7 @@ println("Hello World")
 
 ### Color output
 
-Output from [`@repl` block](@ref)s and [`@example` block](@ref)s support colored output,
+Output from [`@repl` block](@ref)s and [`@example` block](@ref reference-at-example)s support colored output,
 transforming ANSI color codes to HTML.
 
 !!! compat "Julia 1.6"
@@ -504,36 +641,94 @@ median(xs)
 sum(xs)
 ```
 
-## Doctest showcase
+### Named blocks
 
-Currently exists just so that there would be doctests to run in manual pages of Documenter's
-manual. This page does not show up in navigation.
+Generally, each blocks gets evaluated in a separate, clean context (i.e. no variables from previous blocks will be polluting the namespace etc).
+However, you can also re-use a namespace by giving the blocks a name.
 
-```jldoctest
-julia> 2 + 2
-4
+````markdown
+```@example block-name
+x = 40
+```
+will show up like this:
+````
+```@example block-name
+x = 40
 ```
 
-The following doctests needs doctestsetup:
-
-```jldoctest; setup=:(using Documenter)
-julia> Documenter.splitexpr(:(Foo.Bar.baz))
-(:(Foo.Bar), :(:baz))
+````markdown
+```@example block-name
+x + 1
+```
+will show up like this:
+````
+```@example block-name
+x + 1
 ```
 
-Let's also try `@meta` blocks:
+When you need setup code that you do not wish to show in the generated documentation, you can use [an `@setup` block](@ref reference-at-setup):
 
-```@meta
-DocTestSetup = quote
-  f(x) = x^2
-end
+````markdown
+```@setup block-name
+x = 42
+```
+````
+```@setup block-name
+x = 42
 ```
 
-```jldoctest
-julia> f(2)
-4
+The [`@setup` block](@ref reference-at-setup) essentially acts as a hidden [`@example` block](@ref reference-at-example).
+Any state it sets up, you can access in subsequent blocks with the same name.
+For example, the following `@example` block
+
+````markdown
+```@example block-name
+x
+```
+````
+
+will show up like this:
+
+```@example block-name
+x
 ```
 
-```@meta
-DocTestSetup = nothing
+You also have continued blocks which do not evaluate immediately.
+
+````markdown
+```@example block-name; continued = true
+y = 99
+```
+````
+```@example block-name; continued = true
+y = 99
+```
+
+The continued evaluation only applies to [`@example` blocks](@ref reference-at-example) and so if you put, for example, a `@repl` block in between, it will lead to an error, because the `y = 99` line of code has not run yet.
+
+````markdown
+```@repl block-name
+x
+y
+```
+````
+
+```@repl block-name
+x
+y
+```
+
+Another [`@example` block](@ref reference-at-example) with the same name will, however, finish evaluating it.
+So a block like
+
+````markdown
+```@example block-name
+(x, y)
+```
+````
+
+will lead to
+
+```@example block-name
+(x, y)
 ```

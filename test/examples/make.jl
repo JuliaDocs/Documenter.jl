@@ -17,10 +17,12 @@ include("../TestUtilities.jl"); using Main.TestUtilities
 EXAMPLE_BUILDS = if haskey(ENV, "DOCUMENTER_TEST_EXAMPLES")
     split(ENV["DOCUMENTER_TEST_EXAMPLES"])
 else
-    ["html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
-    "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
-    "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
-    "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly"]
+    [
+        "html", "html-meta-custom", "html-mathjax2-custom", "html-mathjax3", "html-mathjax3-custom",
+        "html-local", "html-draft", "html-repo-git", "html-repo-nothing", "html-repo-error",
+        "html-sizethreshold-defaults-fail", "html-sizethreshold-success", "html-sizethreshold-ignore-success", "html-sizethreshold-override-fail", "html-sizethreshold-ignore-success", "html-sizethreshold-ignore-fail",
+        "latex_texonly", "latex_simple_texonly", "latex_showcase_texonly", "html-pagesonly",
+    ]
 end
 
 # Modules `Mod` and `AutoDocs`
@@ -58,9 +60,9 @@ module Mod
         \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}
         ```
 
-    Long equations in footnotes.[^longeq-footnote]
+    Long equations in footnotes.[^longeq_footnote]
 
-    [^longeq-footnote]:
+    [^longeq_footnote]:
 
         Inline: ``\frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2} + \frac{1+2+3+4+5+6}{\sigma^2}``
 
@@ -75,81 +77,81 @@ end
 
 "`AutoDocs` module."
 module AutoDocs
-    module Pages
-        include("pages/a.jl")
-        include("pages/b.jl")
-        include("pages/c.jl")
-        include("pages/d.jl")
-        include("pages/e.jl")
-    end
+module Pages
+    include("pages/a.jl")
+    include("pages/b.jl")
+    include("pages/c.jl")
+    include("pages/d.jl")
+    include("pages/e.jl")
+end
 
-    "Function `f`."
+"Function `f`."
+f(x) = x
+
+"Constant `K`."
+const K = 1
+
+"Type `T`."
+mutable struct T end
+
+"Macro `@m`."
+macro m() end
+
+"Module `A`."
+module A
+    "Function `A.f`."
     f(x) = x
 
-    "Constant `K`."
+    "Constant `A.K`."
     const K = 1
 
-    "Type `T`."
+    "Type `B.T`."
     mutable struct T end
 
-    "Macro `@m`."
+    "Macro `B.@m`."
     macro m() end
+end
 
-    "Module `A`."
-    module A
-        "Function `A.f`."
-        f(x) = x
+"Module `B`."
+module B
+    "Function `B.f`."
+    f(x) = x
 
-        "Constant `A.K`."
-        const K = 1
+    "Constant `B.K`."
+    const K = 1
 
-        "Type `B.T`."
-        mutable struct T end
+    "Type `B.T`."
+    mutable struct T end
 
-        "Macro `B.@m`."
-        macro m() end
-    end
+    "Macro `B.@m`."
+    macro m() end
+end
 
-    "Module `B`."
-    module B
-        "Function `B.f`."
-        f(x) = x
+module Filter
+    "abstract super type"
+    abstract type Major end
 
-        "Constant `B.K`."
-        const K = 1
+    "abstract sub type 1"
+    abstract type Minor1 <: Major end
 
-        "Type `B.T`."
-        mutable struct T end
+    "abstract sub type 2"
+    abstract type Minor2 <: Major end
 
-        "Macro `B.@m`."
-        macro m() end
-    end
+    "random constant"
+    qq = 3.14
 
-    module Filter
-        "abstract super type"
-        abstract type Major end
-
-        "abstract sub type 1"
-        abstract type Minor1 <: Major end
-
-        "abstract sub type 2"
-        abstract type Minor2 <: Major end
-
-        "random constant"
-        qq = 3.14
-
-        using Markdown: @doc_str
-        @doc doc"random function"
-        function qqq end
-    end
+    using Markdown: @doc_str
+    @doc doc"random function"
+    function qqq end
+end
 end
 
 struct MIMEBytes{M <: MIME}
-    bytes :: Vector{UInt8}
-    hash_slug :: String
+    bytes::Vector{UInt8}
+    hash_slug::String
     function MIMEBytes(mime::AbstractString, bytes::AbstractVector{UInt8})
         hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
-        new{MIME{Symbol(mime)}}(bytes, hash_slug)
+        return new{MIME{Symbol(mime)}}(bytes, hash_slug)
     end
 end
 Base.show(io::IO, ::M, obj::MIMEBytes{M}) where {M <: MIME} = write(io, obj.bytes)
@@ -166,11 +168,11 @@ SVG_BIG = MIMEBytes("image/svg+xml", read(joinpath(@__DIR__, "images", "big.svg"
 SVG_HTML = MIMEBytes("text/html", read(joinpath(@__DIR__, "images", "big.svg")))
 
 struct MultiMIMESVG
-    bytes :: Vector{UInt8}
-    hash_slug :: String
+    bytes::Vector{UInt8}
+    hash_slug::String
     function MultiMIMESVG(bytes::AbstractVector{UInt8})
         hash_slug = bytes2hex(SHA.sha1(bytes))[1:8]
-        new(bytes, hash_slug)
+        return new(bytes, hash_slug)
     end
 end
 Base.show(io::IO, ::MIME"image/svg+xml", obj::MultiMIMESVG) = write(io, obj.bytes)
@@ -186,9 +188,9 @@ function withassets(f, assets...)
     end
     for asset in assets
         isfile(dst(asset)) && @warn "Asset '$asset' present, dirty build directory. Overwriting." src(asset) dst(asset)
-        cp(src(asset), dst(asset), force=true)
+        cp(src(asset), dst(asset), force = true)
     end
-    try
+    return try
         f()
     finally
         @debug "Cleaning up assets" assets
@@ -210,7 +212,7 @@ Remotes.issueurl(::TestRemote, issue) = "https://example.org/Repository.jl/blob/
 
 examples_root = @__DIR__
 builds_directory = joinpath(examples_root, "builds")
-ispath(builds_directory) && rm(builds_directory, recursive=true)
+ispath(builds_directory) && rm(builds_directory, recursive = true)
 
 expandfirst = ["expandorder/AA.md"]
 htmlbuild_pages = Any[
@@ -225,11 +227,13 @@ htmlbuild_pages = Any[
         "lib/functions.md",
         "lib/autodocs.md",
     ],
-    hide("Hidden Pages" => "hidden/index.md", Any[
-        "Page X" => "hidden/x.md",
-        "hidden/y.md",
-        "hidden/z.md",
-    ]),
+    hide(
+        "Hidden Pages" => "hidden/index.md", Any[
+            "Page X" => "hidden/x.md",
+            "hidden/y.md",
+            "hidden/z.md",
+        ]
+    ),
     "Expandorder" => [
         "expandorder/00.md",
         "expandorder/01.md",
@@ -254,16 +258,16 @@ htmlbuild_pages = Any[
 ]
 
 function html_doc(
-    build_directory, mathengine;
-    htmlkwargs=(;),
-    image_assets=("images/logo.png", "images/logo.jpg", "images/logo.gif"),
-    warnonly = true,
-    kwargs...
-)
-    @quietly withassets(image_assets...) do
+        build_directory, mathengine;
+        htmlkwargs = (;),
+        image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif"),
+        warnonly = true,
+        kwargs...
+    )
+    return @quietly withassets(image_assets...) do
         makedocs(;
             debug = true,
-            root  = examples_root,
+            root = examples_root,
             build = "builds/$(build_directory)",
             doctestfilters = [r"Ptr{0x[0-9]+}"],
             sitename = "Documenter example",
@@ -275,8 +279,8 @@ function html_doc(
                     "assets/favicon.ico",
                     "assets/custom.css",
                     asset("https://example.com/resource.js"),
-                    asset("http://example.com/fonts?param=foo", class=:css),
-                    asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class=:css),
+                    asset("http://example.com/fonts?param=foo", class = :css),
+                    asset("https://fonts.googleapis.com/css?family=Nanum+Brush+Script&display=swap", class = :css),
                 ],
                 prettyurls = true,
                 canonical = "https://example.com/stable",
@@ -295,17 +299,20 @@ end
 # Build with pretty URLs and canonical links and a PNG logo
 examples_html_doc = if "html" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / deployment build")
-    html_doc("html",
-        MathJax2(Dict(
-            :TeX => Dict(
-                :equationNumbers => Dict(:autoNumber => "AMS"),
-                :Macros => Dict(
-                    :ket => ["|#1\\rangle", 1],
-                    :bra => ["\\langle#1|", 1],
-                    :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+    html_doc(
+        "html",
+        MathJax2(
+            Dict(
+                :TeX => Dict(
+                    :equationNumbers => Dict(:autoNumber => "AMS"),
+                    :Macros => Dict(
+                        :ket => ["|#1\\rangle", 1],
+                        :bra => ["\\langle#1|", 1],
+                        :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                    ),
                 ),
-            ),
-        )),
+            )
+        ),
         htmlkwargs = (; edit_link = :commit),
     )
 else
@@ -317,20 +324,23 @@ end
 # Same as HTML but with custom site description and preview image
 examples_html_meta_custom_doc = if "html-meta-custom" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / deployment build (custom meta tags)")
-    html_doc("html-meta-custom",
-        MathJax2(Dict(
-            :TeX => Dict(
-                :equationNumbers => Dict(:autoNumber => "AMS"),
-                :Macros => Dict(
-                    :ket => ["|#1\\rangle", 1],
-                    :bra => ["\\langle#1|", 1],
-                    :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+    html_doc(
+        "html-meta-custom",
+        MathJax2(
+            Dict(
+                :TeX => Dict(
+                    :equationNumbers => Dict(:autoNumber => "AMS"),
+                    :Macros => Dict(
+                        :ket => ["|#1\\rangle", 1],
+                        :bra => ["\\langle#1|", 1],
+                        :pdv => ["\\frac{\\partial^{#1} #2}{\\partial #3^{#1}}", 3, ""],
+                    ),
                 ),
-            ),
-        )),
+            )
+        ),
         htmlkwargs = (;
             edit_link = :commit,
-            description = "Example site-wide description."
+            description = "Example site-wide description.",
         ),
         image_assets = ("images/logo.png", "images/logo.jpg", "images/logo.gif", "images/preview.png"),
     )
@@ -343,7 +353,8 @@ end
 # Same as HTML, but with variations on the MathJax configuration
 examples_html_mathjax2_custom_doc = if "html-mathjax2-custom" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / deployment build using MathJax v2 (custom URL)")
-    html_doc("html-mathjax2-custom",
+    html_doc(
+        "html-mathjax2-custom",
         MathJax2(
             Dict(
                 :TeX => Dict(
@@ -366,15 +377,18 @@ else
 end
 examples_html_mathjax3_doc = if "html-mathjax3" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / deployment build using MathJax v3")
-    html_doc("html-mathjax3",
-        MathJax3(Dict(
-            :loader => Dict("load" => ["[tex]/physics"]),
-            :tex => Dict(
-                "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
-                "tags" => "ams",
-                "packages" => ["base", "ams", "autoload", "physics"],
-            ),
-        )),
+    html_doc(
+        "html-mathjax3",
+        MathJax3(
+            Dict(
+                :loader => Dict("load" => ["[tex]/physics"]),
+                :tex => Dict(
+                    "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
+                    "tags" => "ams",
+                    "packages" => ["base", "ams", "autoload", "physics"],
+                ),
+            )
+        ),
     )
 else
     @info "Skipping build: HTML/deploy MathJax v3"
@@ -383,12 +397,13 @@ else
 end
 examples_html_mathjax3_custom_doc = if "html-mathjax3-custom" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / deployment build using MathJax v3 (custom URL)")
-    html_doc("html-mathjax3-custom",
+    html_doc(
+        "html-mathjax3-custom",
         MathJax3(
             Dict(
                 :loader => Dict("load" => ["[tex]/physics"]),
                 :tex => Dict(
-                    "inlineMath" => [["\$","\$"], ["\\(","\\)"]],
+                    "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
                     "tags" => "ams",
                     "packages" => ["base", "ams", "autoload", "physics"],
                 ),
@@ -407,7 +422,7 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / local build")
     @quietly makedocs(
         debug = true,
-        root  = examples_root,
+        root = examples_root,
         build = "builds/html-local",
         doctestfilters = [r"Ptr{0x[0-9]+}"],
         sitename = "Documenter example",
@@ -416,10 +431,11 @@ examples_html_local_doc = if "html-local" in EXAMPLE_BUILDS
         repo = "https://dev.azure.com/org/project/_git/repo?path={path}&version={commit}{line}&lineStartColumn=1&lineEndColumn=1",
         linkcheck = true,
         linkcheck_ignore = [r"(x|y).md", "z.md", r":func:.*"],
+        linkcheck_useragent = "Documenter/1",
         format = Documenter.HTML(
             assets = [
                 "assets/custom.css",
-                asset("https://plausible.io/js/plausible.js", class=:js, attributes=Dict(Symbol("data-domain") => "example.com", :defer => ""))
+                asset("https://plausible.io/js/plausible.js", class = :js, attributes = Dict(Symbol("data-domain") => "example.com", :defer => "")),
             ],
             prettyurls = false,
             footer = nothing,
@@ -434,12 +450,12 @@ else
 end
 
 # HTML: draft mode
-examples_html_local_doc = if "html-draft" in EXAMPLE_BUILDS
+examples_html_draft_doc = if "html-draft" in EXAMPLE_BUILDS
     @info("Building mock package docs: HTMLWriter / draft build")
     @quietly makedocs(
         debug = true,
         draft = true,
-        root  = examples_root,
+        root = examples_root,
         build = "builds/html-draft",
         sitename = "Documenter example (draft)",
         pages = htmlbuild_pages,
@@ -457,7 +473,7 @@ examples_html_pagesonly_doc = if "html-pagesonly" in EXAMPLE_BUILDS
     @quietly makedocs(
         debug = true,
         draft = true,
-        root  = examples_root,
+        root = examples_root,
         build = "builds/html-pagesonly",
         sitename = "Documenter example (pagesonly)",
         pages = [
@@ -480,7 +496,7 @@ end
 macro examplebuild(name, block)
     docvar = Symbol("examples_html_", replace(name, "-" => "_"), "_doc")
     fullname = "html-$(name)"
-    quote
+    return quote
         $(esc(docvar)) = if $(fullname) in EXAMPLE_BUILDS
             $(block)
         else
@@ -491,7 +507,7 @@ macro examplebuild(name, block)
     end
 end
 function html_repo(name; kwargs...)
-    @quietly makedocs(;
+    return @quietly makedocs(;
         sitename = "Documenter Repo ($name)",
         build = joinpath(examples_root, "builds/html-repo-$(name)"),
         pages = ["Main section" => ["index.md"]],
@@ -507,13 +523,13 @@ end
 @examplebuild "repo-nothing" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("nothing", root=dir, remotes=nothing)
+        html_repo("nothing", root = dir, remotes = nothing)
     end
 end
 @examplebuild "repo-error" begin
     mktempdir() do dir
         cp(joinpath(examples_root, "src.latex_simple"), joinpath(dir, "src"))
-        html_repo("error", root=dir, remotes=nothing)
+        html_repo("error", root = dir, remotes = nothing)
     end
 end
 
@@ -522,7 +538,7 @@ end
     @quietly try
         makedocs(;
             sitename = "Megabyte",
-            root  = examples_root,
+            root = examples_root,
             build = "builds/sizethreshold-defaults-fail",
             source = "src.megapage",
             debug = true,
@@ -535,7 +551,7 @@ end
     @quietly try
         makedocs(;
             sitename = "Megabyte",
-            root  = examples_root,
+            root = examples_root,
             build = "builds/sizethreshold-success",
             source = "src.megapage",
             format = Documenter.HTML(size_threshold = 5 * 2^20),
@@ -549,7 +565,7 @@ end
     @quietly try
         makedocs(;
             sitename = "Megabyte",
-            root  = examples_root,
+            root = examples_root,
             build = "builds/sizethreshold-ignore-success",
             source = "src.megapage",
             format = Documenter.HTML(size_threshold = nothing),
@@ -563,7 +579,7 @@ end
     @quietly try
         makedocs(;
             sitename = "Megabyte",
-            root  = examples_root,
+            root = examples_root,
             build = "builds/sizethreshold-override-fail",
             source = "src.megapage",
             format = Documenter.HTML(size_threshold = 100, size_threshold_warn = nothing),
@@ -577,10 +593,10 @@ end
     @quietly try
         makedocs(;
             sitename = "Megabyte",
-            root  = examples_root,
+            root = examples_root,
             build = "builds/sizethreshold-defaults-fail",
             source = "src.megapage",
-            format = Documenter.HTML(size_threshold_ignore = ["index.md"]),
+            format = Documenter.HTML(size_threshold_ignore = ["index.md", "subdir/subpage.md"]),
             debug = true,
         )
     catch e
@@ -591,7 +607,7 @@ end
     @quietly try
         makedocs(;
             sitename = "Megabyte",
-            root  = examples_root,
+            root = examples_root,
             build = "builds/sizethreshold-defaults-fail",
             source = "src.megapage",
             # Note: it's fine to pass non-existent pages to size_threshold_ignore
@@ -609,7 +625,7 @@ examples_latex_simple_doc = if "latex_simple" in EXAMPLE_BUILDS
     @quietly makedocs(
         format = Documenter.LaTeXWriter.LaTeX(platform = "docker", version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_simple",
         source = "src.latex_simple",
         pages = ["Main section" => ["index.md"]],
@@ -627,7 +643,7 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
     @quietly makedocs(
         format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex",
         pages = htmlbuild_pages = Any[
             "General" => [
@@ -643,11 +659,13 @@ examples_latex_doc = if "latex" in EXAMPLE_BUILDS
             #     "man/tutorial.md",
             #     "man/style.md",
             # ],
-            hide("Hidden Pages" => "hidden/index.md", Any[
-                "Page X" => "hidden/x.md",
-                "hidden/y.md",
-                "hidden/z.md",
-            ]),
+            hide(
+                "Hidden Pages" => "hidden/index.md", Any[
+                    "Page X" => "hidden/x.md",
+                    "hidden/y.md",
+                    "hidden/z.md",
+                ]
+            ),
             "Library" => [
                 "lib/functions.md",
                 "lib/autodocs.md",
@@ -673,7 +691,7 @@ examples_latex_simple_nondocker_doc = if "latex_simple_nondocker" in EXAMPLE_BUI
     @quietly makedocs(
         format = Documenter.LaTeX(version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple Non-Docker",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_simple_nondocker",
         source = "src.latex_simple",
         pages = ["Main section" => ["index.md"]],
@@ -690,9 +708,9 @@ examples_latex_simple_tectonic_doc = if "latex_simple_tectonic" in EXAMPLE_BUILD
     @info("Building mock package docs: LaTeXWriter/latex_simple_tectonic")
     using tectonic_jll: tectonic
     @quietly makedocs(
-        format = Documenter.LaTeX(platform="tectonic", version = v"1.2.3", tectonic=tectonic()),
+        format = Documenter.LaTeX(platform = "tectonic", version = v"1.2.3", tectonic = tectonic()),
         sitename = "Documenter LaTeX Simple Tectonic",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_simple_tectonic",
         source = "src.latex_simple",
         pages = ["Main section" => ["index.md"]],
@@ -711,7 +729,7 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
     @quietly makedocs(
         format = Documenter.LaTeX(platform = "none"),
         sitename = "Documenter LaTeX",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_texonly",
         pages = Any[
             "General" => [
@@ -727,11 +745,13 @@ examples_latex_texonly_doc = if "latex_texonly" in EXAMPLE_BUILDS
             #     "man/tutorial.md",
             #     "man/style.md",
             # ],
-            hide("Hidden Pages" => "hidden/index.md", Any[
-                "Page X" => "hidden/x.md",
-                "hidden/y.md",
-                "hidden/z.md",
-            ]),
+            hide(
+                "Hidden Pages" => "hidden/index.md", Any[
+                    "Page X" => "hidden/x.md",
+                    "hidden/y.md",
+                    "hidden/z.md",
+                ]
+            ),
             "Library" => [
                 "lib/functions.md",
                 "lib/autodocs.md",
@@ -757,7 +777,7 @@ examples_latex_simple_texonly_doc = if "latex_simple_texonly" in EXAMPLE_BUILDS
     @quietly makedocs(
         format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
         sitename = "Documenter LaTeX Simple Non-Docker",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_simple_texonly",
         source = "src.latex_simple",
         pages = ["Main section" => ["index.md"]],
@@ -775,7 +795,7 @@ examples_latex_cover_page = if "latex_cover_page" in EXAMPLE_BUILDS
     @quietly makedocs(
         format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_cover_page",
         source = "src.cover_page",
         pages = ["Home" => "index.md"],
@@ -794,7 +814,7 @@ examples_latex_toc_style = if "latex_toc_style" in EXAMPLE_BUILDS
     @quietly makedocs(
         format = Documenter.LaTeXWriter.LaTeX(platform = "docker"),
         sitename = "Documenter LaTeX",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_toc_style",
         source = "src.toc_style",
         pages = ["Part-I" => "index.md"],
@@ -813,7 +833,7 @@ examples_latex_showcase_doc = if "latex_showcase" in EXAMPLE_BUILDS
     @quietly makedocs(
         format = Documenter.LaTeX(platform = "docker", version = v"1.2.3"),
         sitename = "Documenter LaTeX Showcase",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_showcase",
         source = "src.latex_showcase",
         pages = ["Showcase" => ["showcase.md", "docstrings.md"]],
@@ -833,7 +853,7 @@ examples_latex_showcase_texonly_doc = if "latex_showcase_texonly" in EXAMPLE_BUI
     @quietly makedocs(
         format = Documenter.LaTeX(platform = "none", version = v"1.2.3"),
         sitename = "Documenter LaTeX Showcase",
-        root  = examples_root,
+        root = examples_root,
         build = "builds/latex_showcase_texonly",
         source = "src.latex_showcase",
         pages = ["Showcase" => ["showcase.md", "docstrings.md"]],

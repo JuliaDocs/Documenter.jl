@@ -105,21 +105,27 @@ export @tags
 # - https://developer.mozilla.org/en-US/docs/Web/HTML/Inline_elements
 # - https://developer.mozilla.org/en-US/docs/Glossary/empty_element
 #
-const BLOCK_ELEMENTS = Set([
-    :address, :article, :aside, :blockquote, :canvas, :dd, :div, :dl,
-    :fieldset, :figcaption, :figure, :footer, :form, :h1, :h2, :h3, :h4, :h5,
-    :h6, :header, :hgroup, :hr, :li, :main, :nav, :noscript, :ol, :output, :p,
-    :pre, :section, :table, :tfoot, :ul, :video,
-])
-const INLINE_ELEMENTS = Set([
-    :a, :abbr, :acronym, :b, :bdo, :big, :br, :button, :cite, :code, :dfn, :em,
-    :i, :img, :input, :kbd, :label, :map, :object, :q, :samp, :script, :select,
-    :small, :span, :strong, :sub, :sup, :textarea, :time, :tt, :var,
-])
-const VOID_ELEMENTS = Set([
-    :area, :base, :br, :col, :command, :embed, :hr, :img, :input, :keygen,
-    :link, :meta, :param, :source, :track, :wbr,
-])
+const BLOCK_ELEMENTS = Set(
+    [
+        :address, :article, :aside, :blockquote, :canvas, :dd, :div, :dl,
+        :fieldset, :figcaption, :figure, :footer, :form, :h1, :h2, :h3, :h4, :h5,
+        :h6, :header, :hgroup, :hr, :li, :main, :nav, :noscript, :ol, :output, :p,
+        :pre, :section, :table, :tfoot, :ul, :video,
+    ]
+)
+const INLINE_ELEMENTS = Set(
+    [
+        :a, :abbr, :acronym, :b, :bdo, :big, :br, :button, :cite, :code, :dfn, :em,
+        :i, :img, :input, :kbd, :label, :map, :object, :q, :samp, :script, :select,
+        :small, :span, :strong, :sub, :sup, :textarea, :time, :tt, :var,
+    ]
+)
+const VOID_ELEMENTS = Set(
+    [
+        :area, :base, :br, :col, :command, :embed, :hr, :img, :input, :keygen,
+        :link, :meta, :param, :source, :track, :wbr,
+    ]
+)
 const ALL_ELEMENTS = union(BLOCK_ELEMENTS, INLINE_ELEMENTS, VOID_ELEMENTS)
 
 #
@@ -135,7 +141,7 @@ Use [`@tags`](@ref) to define instances of this type rather than manually
 creating them via `Tag(:tagname)`.
 """
 struct Tag
-    name :: Symbol
+    name::Symbol
 end
 
 Base.show(io::IO, t::Tag) = print(io, "<", t.name, ">")
@@ -161,7 +167,9 @@ function template(args...)
 end
 ```
 """
-macro tags(args...) esc(tags(args)) end
+macro tags(args...)
+    return esc(tags(args))
+end
 tags(s) = :(($(s...),) = $(map(Tag, s)))
 
 const Attributes = Vector{Pair{Symbol, String}}
@@ -174,10 +182,10 @@ This type should not be constructed directly, but instead via `(...)` and
 `[...]` applied to a [`Tag`](@ref) or another [`Node`](@ref) object.
 """
 struct Node
-    name :: Symbol
-    text :: String
-    attributes :: Attributes
-    nodes :: Vector{Node}
+    name::Symbol
+    text::String
+    attributes::Attributes
+    nodes::Vector{Node}
 
     Node(name::Symbol, attr::Attributes, data::Vector{Node}) = new(name, EMPTY_STRING, attr, data)
     Node(text::AbstractString) = new(TEXT, text)
@@ -214,13 +222,18 @@ Flatten the contents the third argument into the second after applying the
 function `f!` to the element.
 """
 flatten!(f!, out, x::Atom) = f!(out, x)
-flatten!(f!, out, xs)      = (for x in xs; flatten!(f!, out, x); end; out)
+function flatten!(f!, out, xs)
+    for x in xs
+        flatten!(f!, out, x)
+    end
+    return out
+end
 
 #
 # Helper methods for handling flattening children elements in `Node` construction.
 #
 nodes!(out, s::AbstractString) = push!(out, Node(s))
-nodes!(out, n::Node)           = push!(out, n)
+nodes!(out, n::Node) = push!(out, n)
 
 #
 # Helper methods for handling flattening in construction of attribute vectors.
@@ -231,11 +244,11 @@ function attributes!(out, s::AbstractString)
         print(startswith(x.match, '.') ? class : id, x.captures[1], ' ')
     end
     position(class) === 0 || push!(out, tostr(:class => rstrip(String(take!(class)))))
-    position(id)    === 0 || push!(out, tostr(:id    => rstrip(String(take!(id)))))
+    position(id) === 0 || push!(out, tostr(:id => rstrip(String(take!(id)))))
     return out
 end
 attributes!(out, s::Symbol) = push!(out, tostr(s => ""))
-attributes!(out, p::Pair)   = push!(out, tostr(p))
+attributes!(out, p::Pair) = push!(out, tostr(p))
 
 function Base.show(io::IO, n::Node)
     if n.name === Symbol("#RAW#")
@@ -262,6 +275,7 @@ function Base.show(io::IO, n::Node)
             print(io, "</", n.name, '>')
         end
     end
+    return
 end
 
 Base.show(io::IO, ::MIME"text/html", n::Node) = print(io, n)
@@ -283,15 +297,15 @@ function escapehtml(text::AbstractString)
     if occursin(r"[<>&'\"]", text)
         buffer = IOBuffer()
         for char in text
-            char === '<'  ? write(buffer, "&lt;")   :
-            char === '>'  ? write(buffer, "&gt;")   :
-            char === '&'  ? write(buffer, "&amp;")  :
-            char === '\'' ? write(buffer, "&#39;")  :
-            char === '"'  ? write(buffer, "&quot;") : write(buffer, char)
+            char === '<' ? write(buffer, "&lt;") :
+                char === '>' ? write(buffer, "&gt;") :
+                char === '&' ? write(buffer, "&amp;") :
+                char === '\'' ? write(buffer, "&#39;") :
+                char === '"' ? write(buffer, "&quot;") : write(buffer, char)
         end
-        String(take!(buffer))
+        return String(take!(buffer))
     else
-        text
+        return text
     end
 end
 
@@ -300,14 +314,15 @@ A HTML node that wraps around the root node of the document and adds a DOCTYPE
 to it.
 """
 mutable struct HTMLDocument
-    doctype :: String
-    root    :: Node
+    doctype::String
+    root::Node
 end
 HTMLDocument(root) = HTMLDocument("html", root)
 
 function Base.show(io::IO, doc::HTMLDocument)
     println(io, "<!DOCTYPE $(doc.doctype)>")
     println(io, doc.root)
+    return
 end
 
 #

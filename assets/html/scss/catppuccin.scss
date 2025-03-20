@@ -30,7 +30,7 @@ $green: $catppuccin-green;
 $turquoise: $catppuccin-teal;
 $cyan: $catppuccin-sapphire;
 $blue: $catppuccin-blue;
-$purple: $catppuccin-lavender;
+$purple: $catppuccin-mauve;
 
 // Admonitions
 $admonition-default: $catppuccin-subtext1;
@@ -39,6 +39,7 @@ $success: $catppuccin-green;
 $warning: $catppuccin-yellow;
 $danger: $catppuccin-red;
 $compat: $catppuccin-sky;
+$todo: $catppuccin-mauve;
 // Override `default: $grey-darker` in components/_admonition.scss
 $admonition-colors: (
   'default': $admonition-default,
@@ -47,32 +48,8 @@ $admonition-colors: (
   'warning': $warning,
   'danger': $danger,
   'compat': $compat,
+  'todo': $todo,
 );
-$admonition-background: (
-  'default': $background,
-  'info': $background,
-  'success': $background,
-  'warning': $background,
-  'danger': $background,
-  'compat': $background
-);
-$admonition-header-background: (
-  'default': transparent,
-  'info': transparent,
-  'success': transparent,
-  'warning': transparent,
-  'danger': transparent,
-  'compat': transparent,
-);
-$admonition-header-color: (
-    'default': $admonition-default,
-    'info': $info,
-    'success': $success,
-    'warning': $warning,
-    'danger': $danger,
-    'compat': $compat,
-);
-$admonition-border-color: (); // Defaults to admonitions-color
 $admonition-body-color: (
   'default': $catppuccin-text,
   'info': $catppuccin-text,
@@ -80,7 +57,16 @@ $admonition-body-color: (
   'warning': $catppuccin-text,
   'danger': $catppuccin-text,
   'compat': $catppuccin-text,
+  'todo': $catppuccin-text,
 );
+
+// These would normally get initialized in _admonition.scss. However, since we are not
+// loading it on the top level, we need to set them here too to avoid deprecation warnings.
+// https://github.com/JuliaDocs/Documenter.jl/issues/1766
+$admonition-header-color: ();
+$admonition-border-color: ();
+$admonition-header-background: ();
+$admonition-background: ();
 
 $body-size: 16px;
 $documenter-sidebar-background: $catppuccin-mantle;
