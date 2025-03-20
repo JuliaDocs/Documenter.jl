@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Now the cursor remain focused on search box even after selecting the filter. ([#2410])
 
+* Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#2054], [#1521], [#2399])
+
 ## Version [v1.9.0] - 2025-03-17
 
 ### Added
@@ -348,8 +350,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The default decision for whether to deploy preview builds for pull requests have been changed from `true` to `false` when not possible to verify the origin of the pull request. ([#1969])
 
 * `deploydocs` now correctly handles version symlinks where the destination directory has been deleted. ([#2012])
-
-* Entries in `@repl` blocks that were hidden with `# hide` no longer produce erronous empy lines (#2054)
 
 ### Other
 
