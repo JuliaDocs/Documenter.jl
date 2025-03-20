@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Now the cursor remain focused on search box even after selecting the filter. ([#2410])
 
+## Fixed
+
+* Don't require custom themes to set a color for the 'todo' admonition. ([#2576])
+
+
 ## Version [v1.9.0] - 2025-03-17
 
 ### Added
@@ -1964,6 +1969,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2566]: https://github.com/JuliaDocs/Documenter.jl/issues/2566
 [#2569]: https://github.com/JuliaDocs/Documenter.jl/issues/2569
 [#2571]: https://github.com/JuliaDocs/Documenter.jl/issues/2571
+[#2576]: https://github.com/JuliaDocs/Documenter.jl/issues/2576
 [#2577]: https://github.com/JuliaDocs/Documenter.jl/issues/2577
 [#2592]: https://github.com/JuliaDocs/Documenter.jl/issues/2592
 [#2593]: https://github.com/JuliaDocs/Documenter.jl/issues/2593
