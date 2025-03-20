@@ -79,24 +79,29 @@ Documenter supports a range of admonition types for different circumstances.
 
 ###### Note admonition
 !!! note "'note' admonition"
+
     Admonitions look like this. This is a `!!! note`-type admonition.
 
-    Note that admonitions themselves can contain other block-level elements too,
-    such as code blocks. E.g.
+    Note that admonitions themselves can contain other block-level elements,
+    such as code blocks, e.g.
 
     ```julia
     f(x) = x^2
     ```
 
-    However, you **can not** have at-blocks, docstrings, doctests etc. in an admonition.
+    and headings, e.g.
 
-    Headings are OK though:
     # Heading 1
     ## Heading 2
     ### Heading 3
     #### Heading 4
     ##### Heading 5
     ###### Heading 6
+
+    However, you **can not** have at-blocks, docstrings, doctests, etc. in an admonition.
+
+    An admonition is closed when the indentation stops,
+    so blank lines may be used within or before the content to improve raw text readability.
 
 ###### Info admonition
 !!! info "'info' admonition"
