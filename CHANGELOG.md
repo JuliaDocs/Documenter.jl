@@ -5,7 +5,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 # Unreleased
 
-* Now the cursor remain focused on search box even after selecting the filter ([#2410])
+## Changed
+
+* Now the cursor remain focused on search box even after selecting the filter. ([#2410])
 
 ## Version [v1.9.0] - 2025-03-17
 
