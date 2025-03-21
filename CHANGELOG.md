@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Now the cursor remain focused on search box even after selecting the filter. ([#2410])
 
+* Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#2054], [#1521], [#2399])
+
 ## Version [v1.9.0] - 2025-03-17
 
 ### Added

@@ -926,8 +926,8 @@ function Selectors.runner(::Type{Expanders.REPLBlocks}, node, page, doc)
 
         outstr = String(take!(out))
         # Replace references to gensym'd module with Main
-        outstr = remove_sandbox_from_output(outstr, mod)
-        push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", rstrip(outstr)))
+        outstr = rstrip(remove_sandbox_from_output(outstr, mod))
+        !isempty(outstr) && push!(multicodeblock, MarkdownAST.CodeBlock("documenter-ansi", outstr))
     end
     node.element = Documenter.MultiCodeBlock(x, "julia-repl", [])
     for element in multicodeblock
