@@ -1,4 +1,6 @@
+using Test
 using Documenter
+include("../TestUtilities.jl"); using Main.TestUtilities
 
 const pages = [
     "Home" => "index.md",
@@ -9,10 +11,12 @@ const pages = [
 
 @testset "Symlinks" begin
     # check that the symlinked page is built at all
-    @test isdir("symlinks/build/other")
-    @test isfile("symlinks/build/other/index.html")
+    other = joinpath(@__DIR__, "build", "other")
+    @test isdir(other)
+    other_index = joinpath(other, "index.html")
+    @test isfile(other_index)
 
     # check that it contains what we want
-    filecontents = read("symlinks/build/other/index.html", String)
+    filecontents = read(other_index, String)
     @test occursin("another test", filecontents)
 end
