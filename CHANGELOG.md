@@ -8,12 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 
 * Now the cursor remain focused on search box even after selecting the filter. ([#2410])
+* The "sandbox" modules used for running the code (doctests, examples) are now cleared after a page has been processed, allowing the garbage collector to reclaim memory and therefore reducing memory usage. ([#2640], [#2662])
 
 ## Fixed
 
 * Don't require custom themes to set a color for the 'todo' admonition. ([#2576])
 * Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#1521], [#2054], [#2399])
-* Reduce memory usage when there are many pages with doctests and examples, by clearing out the "sandbox" modules used for running the code, allowing the garbage collector to reclaim memory. ([#2640])
+* Fix the printed log message for missing docstring errors. ([#2658])
 
 ## Version [v1.9.0] - 2025-03-17
 
@@ -1993,6 +1994,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2651]: https://github.com/JuliaDocs/Documenter.jl/issues/2651
 [#2652]: https://github.com/JuliaDocs/Documenter.jl/issues/2652
 [#2656]: https://github.com/JuliaDocs/Documenter.jl/issues/2656
+[#2658]: https://github.com/JuliaDocs/Documenter.jl/issues/2658
+[#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
