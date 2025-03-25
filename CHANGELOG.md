@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 * Don't require custom themes to set a color for the 'todo' admonition. ([#2576])
-* Fix the missing docstring error message in the logs. ([#2658])
+* Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#1521], [#2054], [#2399])
+* Fix the printed log message for missing docstring errors. ([#2658])
 
 ## Version [v1.9.0] - 2025-03-17
 
@@ -1678,6 +1679,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#1518]: https://github.com/JuliaDocs/Documenter.jl/issues/1518
 [#1519]: https://github.com/JuliaDocs/Documenter.jl/issues/1519
 [#1520]: https://github.com/JuliaDocs/Documenter.jl/issues/1520
+[#1521]: https://github.com/JuliaDocs/Documenter.jl/issues/1521
 [#1526]: https://github.com/JuliaDocs/Documenter.jl/issues/1526
 [#1527]: https://github.com/JuliaDocs/Documenter.jl/issues/1527
 [#1529]: https://github.com/JuliaDocs/Documenter.jl/issues/1529
@@ -1849,6 +1851,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2019]: https://github.com/JuliaDocs/Documenter.jl/issues/2019
 [#2027]: https://github.com/JuliaDocs/Documenter.jl/issues/2027
 [#2051]: https://github.com/JuliaDocs/Documenter.jl/issues/2051
+[#2054]: https://github.com/JuliaDocs/Documenter.jl/issues/2054
 [#2058]: https://github.com/JuliaDocs/Documenter.jl/issues/2058
 [#2066]: https://github.com/JuliaDocs/Documenter.jl/issues/2066
 [#2067]: https://github.com/JuliaDocs/Documenter.jl/issues/2067
@@ -1933,6 +1936,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2375]: https://github.com/JuliaDocs/Documenter.jl/issues/2375
 [#2378]: https://github.com/JuliaDocs/Documenter.jl/issues/2378
 [#2394]: https://github.com/JuliaDocs/Documenter.jl/issues/2394
+[#2399]: https://github.com/JuliaDocs/Documenter.jl/issues/2399
 [#2406]: https://github.com/JuliaDocs/Documenter.jl/issues/2406
 [#2408]: https://github.com/JuliaDocs/Documenter.jl/issues/2408
 [#2410]: https://github.com/JuliaDocs/Documenter.jl/issues/2410
