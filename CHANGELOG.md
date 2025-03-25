@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 * Don't require custom themes to set a color for the 'todo' admonition. ([#2576])
-* Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#2054], [#1521], [#2399])
+* Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#1521], [#2054], [#2399])
 
 ## Version [v1.9.0] - 2025-03-17
 

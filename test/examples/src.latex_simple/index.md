@@ -134,7 +134,7 @@ You Shall Not Break! You Shall Not Break! You Shall Not Break!
 
 ## PR 2056
 
-Issues: `#2054`, `#1521`, `#2399`
+Issues: `#1521`, `#2054`, `#2399`
 
 ```@repl
 x = 1 # hide
