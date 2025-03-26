@@ -94,6 +94,10 @@ end
     @info "Building workdir/tests.jl"
     @quietly include("workdir/tests.jl")
 
+    # A simple build verifying that sandbox modules are cleared at the end of each page
+    @info "Building clear_module/tests.jl"
+    @quietly include("clear_module/tests.jl")
+
     # Passing a writer positionally (https://github.com/JuliaDocs/Documenter.jl/issues/1046)
     @test_throws MethodError makedocs(sitename = "", HTML())
 
