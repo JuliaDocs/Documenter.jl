@@ -87,6 +87,15 @@ using .Remotes: repofile, repourl, issueurl, URL, GitHub, GitLab
         @test issueurl(r, "123") == "https://my-gitlab.com/JuliaDocs/Documenter.jl/-/issues/123"
     end
 
+    let r = GitLab("http://my-gitlab.com", "JuliaDocs", "Documenter.jl")
+        @test repourl(r) == "http://my-gitlab.com/JuliaDocs/Documenter.jl"
+        @test repofile(r, "mybranch", "src/foo.jl") == "http://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl"
+        @test repofile(r, "mybranch", "src/foo.jl", 5) == "http://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:5) == "http://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5"
+        @test repofile(r, "mybranch", "src/foo.jl", 5:8) == "http://my-gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl#L5-L8"
+        @test issueurl(r, "123") == "http://my-gitlab.com/JuliaDocs/Documenter.jl/-/issues/123"
+    end
+
     let r = GitLab("JuliaDocs/Documenter.jl")
         @test repourl(r) == "https://gitlab.com/JuliaDocs/Documenter.jl"
         @test repofile(r, "mybranch", "src/foo.jl") == "https://gitlab.com/JuliaDocs/Documenter.jl/-/tree/mybranch/src/foo.jl"
