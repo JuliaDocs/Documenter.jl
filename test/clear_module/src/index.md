@@ -39,7 +39,9 @@ a = nothing()
 ```
 
 ```@example example-4
+@static if VERSION >= v"1.8"
 typed::String = "string" # it is possible to use `::` to specify the type of a variable
+end
 ```
 
 ```@example example-5
