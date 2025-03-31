@@ -3,21 +3,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# Version [v1.10.1] - 2025-03-31
+## Version [v1.10.1] - 2025-03-31
 
-## Fixed
+### Fixed
 
 * Fixed a bug in the cleaning of `@example` blocks with `a::SomeType = somevalue` typed declarations. ([#2674])
 
-# Version [v1.10.0] - 2025-03-31
+## Version [v1.10.0] - 2025-03-31
 
-## Changed
+### Changed
 
 * Now the cursor remain focused on search box even after selecting the filter. ([#2410])
 * The "sandbox" modules used for running the code (doctests, examples) are now cleared after a page has been processed, allowing the garbage collector to reclaim memory and therefore reducing memory usage. ([#2640], [#2662])
 * Show file paths in error messages relative to the current working directory instead of relative to the document root. ([#2659])
 
-## Fixed
+### Fixed
 
 * Don't require custom themes to set a color for the 'todo' admonition. ([#2576])
 * Entries in `@repl` blocks that were hidden with `# hide` no longer produce erroneous empty lines ([#1521], [#2054], [#2399])
