@@ -11,7 +11,8 @@ function clear_module!(M::Module)
             # still attempt to set it, but ignore any errors
             try
                 @eval M $name = $nothing
-            catch _
+            catch err
+                @debug "Could not clear variable `$name` by assigning `nothing`" err
             end
         end
     end
