@@ -713,6 +713,61 @@ function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     return SearchRecord(ctx, navnode; text = mdflatten(node))
 end
 
+
+# for @example blocks
+function SearchRecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::MarkdownAST.Node{Nothing}, element::Documenter.MultiOutput)
+    @info "MultiOutput SearchRecord method called!"
+    children_array = collect(node.children)
+
+    if isempty(children_array) || length(children_array) < 2
+        return SearchRecord(ctx, navnode; text = "")
+    end
+
+    output_text = ""
+    for child in children_array[2:end]
+        if isa(child.element, Documenter.MultiOutputElement) && isa(child.element.element, Dict)
+            for mime in [MIME"text/plain"(), MIME"text/markdown"(), MIME"text/html"()]
+                if haskey(child.element.element, mime)
+                    output_text *= string(child.element.element[mime]) * " "
+                    break
+                end
+            end
+        else 
+            output_text *= mdflatten(child) * " "
+        end
+    end
+    return SearchRecord(ctx, navnode; text = output_text)
+end
+
+# for @repl blocks
+
+function SearchRecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::MarkdownAST.Node{Nothing}, element::Documenter.MultiCodeBlock)
+    @info "MultiCodeBlock SearchRecord method called!"
+    children_array = collect(node.children)
+
+    if isempty(children_array) || length(children_array) < 2
+        return SearchRecord(ctx, navnode; text = "")
+    end
+
+    output_text = ""
+    for i in 2:2:length(children_array)
+        if i <= length(children_array)
+            output_text *= mdflatten(children_array[i]) * " " 
+        end
+    end
+    return SearchRecord(ctx, navnode; text = output_text)
+end
+
+# for @eval blocks
+function SearchRecord(ctx, navnode, node::Node, element::Documenter.EvalNode)
+    @info "EvalNode SearchRecord method called!"
+    if isnothing(element.result)
+        return SearchRecord(ctx, navnode; text = "")
+    else
+        return SearchRecord(ctx, navnode; text = mdflatten(element.result))
+    end
+end
+
 function JSON.lower(rec::SearchRecord)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(rec.src, '\\' => '/')
