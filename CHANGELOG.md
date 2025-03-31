@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 
-* Fixed a bug in the cleaning of `@example` blocks with `a::SomeType = somevalue` typed declarations. ([#2673, #2674])
+* Fixed a bug in the cleaning of `@example` blocks with `a::SomeType = somevalue` typed declarations. ([#2674])
 
 # Version [v1.10.0] - 2025-03-31
 
@@ -2005,6 +2005,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2658]: https://github.com/JuliaDocs/Documenter.jl/issues/2658
 [#2659]: https://github.com/JuliaDocs/Documenter.jl/issues/2659
 [#2662]: https://github.com/JuliaDocs/Documenter.jl/issues/2662
+[#2674]: https://github.com/JuliaDocs/Documenter.jl/issues/2674
 [JuliaLang/julia#36953]: https://github.com/JuliaLang/julia/issues/36953
 [JuliaLang/julia#38054]: https://github.com/JuliaLang/julia/issues/38054
 [JuliaLang/julia#39841]: https://github.com/JuliaLang/julia/issues/39841
