@@ -1,6 +1,10 @@
-name: regression-tests
+name: 'Regression Tests'
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/regression-tests.yml'
+      - 'Project.toml'
 jobs:
   test-dependent-packages:
     name: run-tests-${{ matrix.package }}
