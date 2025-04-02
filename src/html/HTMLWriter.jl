@@ -714,17 +714,17 @@ function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
 end
 
 
-# for @example blocks
+# For @example blocks
 function SearchRecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::MarkdownAST.Node{Nothing}, element::Documenter.MultiOutput)
-    @info "MultiOutput SearchRecord method called!"
-    children_array = collect(node.children)
-
-    if isempty(children_array) || length(children_array) < 2
-        return SearchRecord(ctx, navnode; text = "")
-    end
-
     output_text = ""
-    for child in children_array[2:end]
+    
+    first_child = true
+    for child in node.children
+        if first_child
+            first_child = false
+            continue
+        end
+        
         if isa(child.element, Documenter.MultiOutputElement) && isa(child.element.element, Dict)
             for mime in [MIME"text/plain"(), MIME"text/markdown"(), MIME"text/html"()]
                 if haskey(child.element.element, mime)
@@ -739,33 +739,63 @@ function SearchRecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Markd
     return SearchRecord(ctx, navnode; text = output_text)
 end
 
-# for @repl blocks
-
+# For @repl blocks 
 function SearchRecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::MarkdownAST.Node{Nothing}, element::Documenter.MultiCodeBlock)
-    @info "MultiCodeBlock SearchRecord method called!"
-    children_array = collect(node.children)
-
-    if isempty(children_array) || length(children_array) < 2
-        return SearchRecord(ctx, navnode; text = "")
-    end
-
+    # Extract only output lines (even-numbered children)
     output_text = ""
-    for i in 2:2:length(children_array)
-        if i <= length(children_array)
-            output_text *= mdflatten(children_array[i]) * " " 
+    
+    # Process each child, taking only even-numbered ones (outputs)
+    child_index = 0
+    for child in node.children
+        child_index += 1
+        if child_index % 2 == 0  # Even indices are outputs
+            output_text *= mdflatten(child) * " "
         end
     end
     return SearchRecord(ctx, navnode; text = output_text)
 end
 
-# for @eval blocks
+# For @eval blocks
 function SearchRecord(ctx, navnode, node::Node, element::Documenter.EvalNode)
-    @info "EvalNode SearchRecord method called!"
+    # For @eval blocks, we only want to index the result, not the source code
     if isnothing(element.result)
         return SearchRecord(ctx, navnode; text = "")
     else
         return SearchRecord(ctx, navnode; text = mdflatten(element.result))
     end
+end
+
+function SearchRecord(ctx, navnode, node::Node, element::Documenter.MultiOutputElement)
+    if element.element isa Dict && haskey(element.element, :source)
+        return SearchRecord(ctx, navnode; text = "")
+    end
+    
+    return SearchRecord(ctx, navnode, node, element.element)
+end
+
+"""
+Filter function to prevent duplicate search entries.
+"""
+function should_index_for_search(navnode, node, element)
+    if element isa Documenter.MultiOutputElement && 
+       element.element isa Dict && 
+       haskey(element.element, :source)
+        return false
+    end
+    
+    if element isa Documenter.MultiCodeBlock && 
+       node.parent !== nothing &&
+       iseven(findfirst(child -> child === node, collect(node.parent.children)))
+        return false
+    end
+    
+    if element isa Documenter.EvalNode && 
+       node.parent !== nothing &&
+       node === first(node.parent.children)
+        return false
+    end
+    
+    return true
 end
 
 function JSON.lower(rec::SearchRecord)
@@ -1735,8 +1765,10 @@ end
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     return map(getpage(ctx, navnode).mdast.children) do node
-        rec = SearchRecord(ctx, navnode, node, node.element)
-        push!(ctx.search_index, rec)
+        if should_index_for_search(navnode, node, node.element)
+            rec = SearchRecord(ctx, navnode, node, node.element)
+            push!(ctx.search_index, rec)
+        end
         domify(dctx, node, node.element)
     end
 end
@@ -1828,15 +1860,16 @@ function domify(dctx::DCtx, mdast_node::Node, docsnode::Documenter.DocsNode)
     @tags a code article header span
 
     # push to search index
-    rec = SearchRecord(
-        ctx, navnode;
-        fragment = Documenter.anchor_fragment(docsnode.anchor),
-        title = string(docsnode.object.binding),
-        category = Documenter.doccat(docsnode.object),
-        text = mdflatten(mdast_node)
-    )
-    push!(ctx.search_index, rec)
-
+    if should_index_for_search(navnode, docsnode, docsnode.object) 
+        rec = SearchRecord(
+            ctx, navnode,
+            fragment = Documenter.anchor_fragment(docsnode.anchor),
+            title = string(docsnode.object.binding),
+            category = Documenter.doccat(docsnode.object),
+            text = mdflatten(mdast_node)
+        )
+        push!(ctx.search_index, rec)
+    end
     return article[".docstring"](
         header(
             a[".docstring-article-toggle-button.fa-solid.fa-chevron-down", :href => "javascript:;", :title => "Collapse docstring"],
