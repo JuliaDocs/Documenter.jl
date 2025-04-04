@@ -713,6 +713,16 @@ function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
     return SearchRecord(ctx, navnode; text = mdflatten(node))
 end
 
+# Returns nothing for nodes that shouldn't be indexed in search
+function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
+    # Skip indexing special at-blocks
+    if node.element isa Union{Documenter.MetaNode, Documenter.DocsNodesBlock, 
+                             Documenter.SetupNode}
+        return nothing
+    end
+    return SearchRecord(ctx, navnode, node, node.element)
+end
+
 function JSON.lower(rec::SearchRecord)
     # Replace any backslashes in links, if building the docs on Windows
     src = replace(rec.src, '\\' => '/')
@@ -1680,8 +1690,10 @@ end
 function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     return map(getpage(ctx, navnode).mdast.children) do node
-        rec = SearchRecord(ctx, navnode, node, node.element)
-        push!(ctx.search_index, rec)
+        rec = searchrecord(ctx, navnode, node)
+        if rec !== nothing
+            push!(ctx.search_index, rec)
+        end
         domify(dctx, node, node.element)
     end
 end
