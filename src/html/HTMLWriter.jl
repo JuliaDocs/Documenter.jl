@@ -658,11 +658,13 @@ mutable struct HTMLContext
     search_index_js::String
     search_navnode::Documenter.NavNode
     atexample_warnings::Vector{AtExampleFallbackWarning}
+    admonition_counters::Dict{String, Int}
 
     HTMLContext(doc, settings = nothing) = new(
         doc, settings, [], "", "", "", [], "",
         Documenter.NavNode("search", "Search", nothing),
         AtExampleFallbackWarning[],
+        Dict{String, Int}(),
     )
 end
 
@@ -2378,15 +2380,36 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
 
+    admonition_id = if !isempty(a.title)
+        base_id = Documenter.slugify(a.title)
+        
+        counter_key = "title:$(base_id)"
+        count = get!(dctx.ctx.admonition_counters, counter_key, 0) + 1
+        dctx.ctx.admonition_counters[counter_key] = count
+        
+        if count > 1
+            "$(base_id)-$(count)"
+        else
+            base_id
+        end
+    else
+        counter_key = "category:$(a.category)"
+        count = get!(dctx.ctx.admonition_counters, counter_key, 0) + 1
+        dctx.ctx.admonition_counters[counter_key] = count
+        "$(a.category)-$(count)"
+    end
+
+    anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
+
     inner_div = div[".admonition-body"](domify(dctx, node.children))
     if a.category == "details"
         # details admonitions are rendered as <details><summary> blocks
-        return details[".admonition.is-details"](
-            summary[".admonition-header"](a.title), inner_div
+        return details[".admonition.is-details", :id => admonition_id](
+            summary[".admonition-header"](a.title, anchor_link), inner_div
         )
     else
-        return div[".admonition$(colorclass)"](
-            header[".admonition-header"](a.title), inner_div
+        return div[".admonition$(colorclass)", :id => admonition_id](
+            header[".admonition-header"](a.title, anchor_link), inner_div
         )
     end
 end

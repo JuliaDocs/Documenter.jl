@@ -94,6 +94,29 @@ $admonition-border-color: () !default;
     // fa-circle-exclamation
     content: "\f06a";
   }
+
+  .admonition-anchor {
+    opacity: 0;
+    margin-left: 0.5em;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease-in-out;
+    
+    &:before {
+      @include font-awesome;
+      // fa-link
+      content: "\f0c1";
+    }
+    
+    &:hover {
+      opacity: 1 !important;
+      text-decoration: none;
+    }
+  }
+  
+  &:hover .admonition-anchor {
+    opacity: 0.8;
+  }
 }
 
 details.admonition.is-details > .admonition-header {
