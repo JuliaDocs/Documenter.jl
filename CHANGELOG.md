@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+* Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676])
+
 ## Version [v1.10.1] - 2025-03-31
 
 ### Fixed
