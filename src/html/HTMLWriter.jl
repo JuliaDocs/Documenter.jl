@@ -2382,11 +2382,9 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
 
     admonition_id = if !isempty(a.title)
         base_id = Documenter.slugify(a.title)
-        
         counter_key = "title:$(base_id)"
         count = get!(dctx.ctx.admonition_counters, counter_key, 0) + 1
         dctx.ctx.admonition_counters[counter_key] = count
-        
         if count > 1
             "$(base_id)-$(count)"
         else
@@ -2398,9 +2396,7 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
         dctx.ctx.admonition_counters[counter_key] = count
         "$(a.category)-$(count)"
     end
-
     anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
-
     inner_div = div[".admonition-body"](domify(dctx, node.children))
     if a.category == "details"
         # details admonitions are rendered as <details><summary> blocks
