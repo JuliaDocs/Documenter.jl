@@ -98,6 +98,7 @@ $admonition-border-color: () !default;
   .admonition-anchor {
     opacity: 0;
     margin-left: 0.5em;
+    font-size: 0.75em;
     color: inherit;
     text-decoration: none;
     transition: opacity 0.2s ease-in-out;
