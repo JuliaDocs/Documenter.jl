@@ -6,7 +6,14 @@ function clear_module!(M::Module)
     # we need `invokelatest` here for Julia >= 1.12 (or 1.13?)
     for name in Base.invokelatest(names, M, all = true)
         if !isconst(M, name)
-            @eval M $name = $nothing
+            # see, e.g https://github.com/JuliaDocs/Documenter.jl/issues/2673
+            # it is not possible to set `nothing` to variables, which are strongly typed
+            # still attempt to set it, but ignore any errors
+            try
+                @eval M $name = $nothing
+            catch err
+                @debug "Could not clear variable `$name` by assigning `nothing`" err
+            end
         end
     end
     return
