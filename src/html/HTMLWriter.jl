@@ -1695,7 +1695,7 @@ function domify(dctx::DCtx)
     ctx, navnode = dctx.ctx, dctx.navnode
     return map(getpage(ctx, navnode).mdast.children) do node
         rec = searchrecord(ctx, navnode, node)
-        if rec !== nothing
+        if !isnothing(rec)
             push!(ctx.search_index, rec)
         end
         domify(dctx, node, node.element)
