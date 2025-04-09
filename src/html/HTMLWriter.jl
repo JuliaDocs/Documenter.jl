@@ -714,10 +714,14 @@ function SearchRecord(ctx, navnode, node::Node, ::MarkdownAST.AbstractElement)
 end
 
 # Returns nothing for nodes that shouldn't be indexed in search
+const _SEARCHRECORD_IGNORED_BLOCK_TYPES = Union{
+    Documenter.MetaNode,
+    Documenter.DocsNodesBlock,
+    Documenter.SetupNode,
+}
 function searchrecord(ctx::HTMLContext, navnode::Documenter.NavNode, node::Node)
     # Skip indexing special at-blocks
-    if node.element isa Union{Documenter.MetaNode, Documenter.DocsNodesBlock, 
-                             Documenter.SetupNode}
+    if node.element isa _SEARCHRECORD_IGNORED_BLOCK_TYPES
         return nothing
     end
     return SearchRecord(ctx, navnode, node, node.element)
