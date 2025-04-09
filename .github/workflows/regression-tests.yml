@@ -20,7 +20,7 @@ jobs:
           - package: 'DocumenterMermaid'
           - package: 'Asciicast'
           - package: 'DocumenterPages'
-          # - package: 'DocumenterDescriptions' # when the package gets registered in 3 days
+          - package: 'DocumenterDescriptions'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
