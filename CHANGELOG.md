@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 * `@meta`, `@setup`, and `@docs` blocks no longer generate spurious entries in the search index. ([#1929], [#2675])
+* On-hover Footnote Preview feature added. ([#2080])
 
 ## Version [v1.10.1] - 2025-03-31
 
@@ -113,7 +114,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Catppuccin](https://catppuccin.com/) color palette. The existing themes
   (`documenter-light` and `documenter-dark`) are still the default light and dark theme,
   respectively. ([#2496])
-* On-hover Footnote Preview feature added. ([#2080])
 
 ### Changed
 
