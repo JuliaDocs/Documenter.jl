@@ -2344,8 +2344,8 @@ function domify(::DCtx, ::Node, f::MarkdownAST.FootnoteLink)
     @tags sup a span
     # Create the footnote reference with preview
     sup[".footnote-reference"](
-        a["#citeref-$(f.id)", :href => "#footnote-$(f.id)", :class => "footnote-ref"]("[$(f.id)]"),
-        span[".footnote-preview", :id => "fn-$(f.id)"]()
+        a["#citeref-$(f.id)", :href=>"#footnote-$(f.id)", :class=>"footnote-ref"]("[$(f.id)]"),
+        span[".footnote-preview", :id=>"fn-$(f.id)"]()
     )
 end
 function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
