@@ -19,6 +19,8 @@ jobs:
           - package: 'DocumenterInterLinks'
           - package: 'DocumenterMermaid'
           - package: 'Asciicast'
+          - package: 'DocumenterPages'
+          - package: 'DocumenterDescriptions'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
