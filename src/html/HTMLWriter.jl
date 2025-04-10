@@ -2348,6 +2348,7 @@ function domify(::DCtx, ::Node, f::MarkdownAST.FootnoteLink)
         span[".footnote-preview", :id=>"fn-$(f.id)"]()
     )
 end
+
 function domify(dctx::DCtx, node::Node, f::MarkdownAST.FootnoteDefinition)
     # As we run through the document to generate the document, we won't render the footnote
     # definitions right away, and instead store them on dctx.footnotes. They get printed
