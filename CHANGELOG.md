@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 * `@meta`, `@setup`, and `@docs` blocks no longer generate spurious entries in the search index. ([#1929], [#2675])
+* On-hover Footnote Preview feature added. ([#2080])
 
 ## Version [v1.10.1] - 2025-03-31
 
@@ -1874,6 +1875,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#2071]: https://github.com/JuliaDocs/Documenter.jl/issues/2071
 [#2076]: https://github.com/JuliaDocs/Documenter.jl/issues/2076
 [#2078]: https://github.com/JuliaDocs/Documenter.jl/issues/2078
+[#2080]: https://github.com/JuliaDocs/Documenter.jl/issues/2080
 [#2081]: https://github.com/JuliaDocs/Documenter.jl/issues/2081
 [#2085]: https://github.com/JuliaDocs/Documenter.jl/issues/2085
 [#2100]: https://github.com/JuliaDocs/Documenter.jl/issues/2100

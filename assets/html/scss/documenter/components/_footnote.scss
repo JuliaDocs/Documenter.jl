@@ -1,0 +1,33 @@
+.footnote-reference {
+    position: relative;
+    display: inline-block;
+}
+
+.footnote-preview {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    max-width: 300px;
+    width: max-content;
+    background-color: $body-background-color;
+    border: 1px solid $link-hover;
+    padding: 10px;
+    border-radius: 5px;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    /* Default arrow position */
+    --arrow-left: 50%;
+}
+
+.footnote-preview::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: var(--arrow-left);
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid $link-hover;
+}
