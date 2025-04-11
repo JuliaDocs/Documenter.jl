@@ -5,6 +5,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+* Added anchor links to admonition blocks, making it possible to create direct links to specific admonitions. ([#2505], [#2676])
 ## Fixed
 
 * `@meta`, `@setup`, and `@docs` blocks no longer generate spurious entries in the search index. ([#1929], [#2675])
