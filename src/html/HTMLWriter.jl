@@ -2393,15 +2393,12 @@ function domify(dctx::DCtx, node::Node, a::MarkdownAST.Admonition)
             # apply a class
             isempty(cat_sanitized) ? "" : ".is-category-$(cat_sanitized)"
         end
-
+    node_repr = sprint(io -> show(io, node))
+    content_hash = bytes2hex(SHA.sha1(node_repr))[1:8]
     admonition_id = if !isempty(a.title)
         base_id = Documenter.slugify(a.title)
-        node_repr = sprint(io -> show(io, node))
-        content_hash = bytes2hex(SHA.sha1(node_repr))[1:8]
         "$(base_id)-$(content_hash)"
     else
-        node_repr = sprint(io -> show(io, node))
-        content_hash = bytes2hex(SHA.sha1(node_repr))[1:8]
         "$(a.category)-$(content_hash)"
     end
     anchor_link = DOM.Tag(:a)[".admonition-anchor", :href => "#$(admonition_id)", :title => "Permalink"]()
